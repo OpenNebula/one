@@ -556,6 +556,11 @@ module.exports = {
   DetachSecurityGroupFromNic: 'Detach Security Group %1$s from NIC %2$s',
   PortForwarding: 'Port forwarding',
   HostnamePortsForwardedToVmPorts: '%1$s ports %2$s forwarded to VM ports %3$s',
+  VirtualNicHardwareMode: 'Virtual NIC hardware mode',
+  Emulated: 'Emulated',
+  PCIPassthroughAutomatic: 'PCI Passthrough - Automatic',
+  PCIPassthroughManual: 'PCI Passthrough - Manual',
+  ShortAddress: 'Short address',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
   VmSnapshotHint: `
@@ -971,6 +976,7 @@ module.exports = {
     States for delete: Any but READY.`,
   ReservationParent: 'Reservation parent',
   ReservedFromVNetId: 'Reserved from VNET %s',
+  GuacamoleConnections: 'Guacamole Connections',
   /* Virtual Network schema - driver configuration */
   NetworkMode: 'Network mode',
   Bridge: 'Bridge',
@@ -1018,6 +1024,7 @@ module.exports = {
   QoS: 'QoS',
   InboundTraffic: 'Inbound traffic',
   OutboundTraffic: 'Outbound traffic',
+  SelectQOS: 'Select QoS',
   /* Virtual Network schema - reserve */
   ReservationFromVirtualNetwork: 'Reservation from Virtual Network',
   CanSelectAddressFromAR:

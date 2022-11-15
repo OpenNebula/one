@@ -16,12 +16,15 @@
 import NetworksTable, {
   STEP_ID as NETWORK_ID,
 } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
+import QOSOptions, {
+  STEP_ID as QOS_ID,
+} from 'client/components/Forms/Vm/AttachNicForm/Steps/QOSOptions'
 import AdvancedOptions, {
   STEP_ID as ADVANCED_ID,
 } from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps([NetworksTable, AdvancedOptions], {
+const Steps = createSteps([NetworksTable, AdvancedOptions, QOSOptions], {
   transformInitialValue: (nic, schema) => {
     const {
       NETWORK,
@@ -29,8 +32,28 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
       NETWORK_UID,
       NETWORK_UNAME,
       SECURITY_GROUPS,
+      INBOUND_AVG_BW,
+      INBOUND_PEAK_BW,
+      INBOUND_PEAK_KB,
+      OUTBOUND_AVG_BW,
+      OUTBOUND_PEAK_BW,
+      OUTBOUND_PEAK_KB,
       ...rest
     } = nic ?? {}
+
+    const castedValueQOS = schema.cast(
+      {
+        [QOS_ID]: {
+          INBOUND_AVG_BW,
+          INBOUND_PEAK_BW,
+          INBOUND_PEAK_KB,
+          OUTBOUND_AVG_BW,
+          OUTBOUND_PEAK_BW,
+          OUTBOUND_PEAK_KB,
+        },
+      },
+      { stripUnknown: true }
+    )
 
     const castedValue = schema.cast(
       { [ADVANCED_ID]: rest },
@@ -49,10 +72,15 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
         },
       ],
       [ADVANCED_ID]: castedValue[ADVANCED_ID],
+      [QOS_ID]: castedValueQOS[QOS_ID],
     }
   },
   transformBeforeSubmit: (formData) => {
-    const { [NETWORK_ID]: [network] = [], [ADVANCED_ID]: advanced } = formData
+    const {
+      [NETWORK_ID]: [network] = [],
+      [QOS_ID]: qos,
+      [ADVANCED_ID]: advanced,
+    } = formData
     const { ID, NAME, UID, UNAME, SECURITY_GROUPS } = network ?? {}
 
     return {
@@ -61,6 +89,7 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
       NETWORK_UID: UID,
       NETWORK_UNAME: UNAME,
       SECURITY_GROUPS,
+      ...qos,
       ...advanced,
     }
   },

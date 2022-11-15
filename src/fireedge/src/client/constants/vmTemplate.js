@@ -83,6 +83,8 @@ export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
   '/usr/share/OVMF/OVMF_CODE.secboot.fd',
 ])
 
+export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
+
 export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])
 
 export const DEFAULT_TEMPLATE_LOGO = 'images/logos/default.png'
@@ -118,4 +120,18 @@ export const FS_FREEZE_OPTIONS = {
 export const BACKUP_MODE_OPTIONS = {
   [T.Full]: 'FULL',
   [T.Increment]: 'INCREMENT',
+}
+
+/** @enum {string} NIC Hardware options */
+export const NIC_HARDWARE = {
+  EMULATED: 'emulated',
+  PCI_PASSTHROUGH_AUTOMATIC: 'pci_automatic',
+  PCI_PASSTHROUGH_MANUAL: 'pci_manual',
+}
+
+/** @enum {string} NIC Hardware options names */
+export const NIC_HARDWARE_STR = {
+  [NIC_HARDWARE.EMULATED]: T.Emulated,
+  [NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC]: T.PCIPassthroughAutomatic,
+  [NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL]: T.PCIPassthroughManual,
 }

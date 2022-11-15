@@ -72,10 +72,11 @@ const NicCard = memo(
       ADDRESS,
       ALIAS,
       SECURITY_GROUPS,
+      TYPE,
     } = nic
 
     const isAlias = !!PARENT?.length
-    const isPciDevice = PCI_ID !== undefined
+    const isPciDevice = PCI_ID !== undefined || TYPE === 'NIC'
     const isAdditionalIp = NIC_ID === undefined || NETWORK === 'Additional IP'
 
     const dataCy = isAlias ? 'alias' : 'nic'
@@ -120,6 +121,7 @@ const NicCard = memo(
             </Typography>
             <span className={classes.labels}>
               {isAlias && <StatusChip stateColor="info" text={'ALIAS'} />}
+              {isPciDevice && <StatusChip stateColor="info" text={'PCI'} />}
               {noClipboardTags.map((tag) => (
                 <StatusChip
                   key={`${dataCy}-${NIC_ID}-${tag.dataCy}`}
@@ -148,9 +150,7 @@ const NicCard = memo(
             </span>
           </div>
         </Box>
-        {!isPciDevice && !isAdditionalIp && (
-          <div className={classes.actions}>{actions}</div>
-        )}
+        {!isAdditionalIp && <div className={classes.actions}>{actions}</div>}
         {!!ALIAS?.length && (
           <Stack gap="1em" flexBasis="100%" my="0.5em">
             {ALIAS?.map((alias, aliasIdx) => (

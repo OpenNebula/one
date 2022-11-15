@@ -40,7 +40,8 @@ const AttachAction = memo(
       }
 
       const isAlias = !!formData?.PARENT?.length
-      const data = { [isAlias ? 'NIC_ALIAS' : 'NIC']: formData }
+      const key = isAlias ? 'NIC_ALIAS' : 'NIC'
+      const data = { [key]: formData }
 
       const template = jsonToXml(data)
       await attachNic({ id: vmId, template })
@@ -69,7 +70,7 @@ const AttachAction = memo(
             dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
             form: () =>
               AttachNicForm({
-                stepProps: { hypervisor, nics: currentNics },
+                stepProps: { hypervisor, nics: currentNics, defaultData: nic },
                 initialValues: nic,
               }),
             onSubmit: handleAttachNic,

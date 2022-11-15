@@ -21,16 +21,46 @@ import {
   filterFieldsByHypervisor,
   filterFieldsByDriver,
   getObjectSchemaFromFields,
+  arrayToOptions,
 } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from 'client/constants'
+import {
+  T,
+  INPUT_TYPES,
+  HYPERVISORS,
+  VN_DRIVERS,
+  Nic,
+  NIC_HARDWARE,
+  NIC_HARDWARE_STR,
+  PCI_TYPES,
+} from 'client/constants'
+import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { getPciDevices } from 'client/models/Host'
+import {
+  getPciAttributes,
+  transformPciToString,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/pciDevicesSchema'
 
 import { useDisableInputByUserAndConfig } from 'client/features/Auth'
 
-const { firecracker } = HYPERVISORS
-const { ovswitch, vcenter } = VN_DRIVERS
+const { vcenter, firecracker, lxc } = HYPERVISORS
+const PCI_TYPE_NAME = 'PCI_TYPE'
+const DEVICE_LIST = 'DEVICE_LIST'
+const VENDOR = 'VENDOR'
+const DEVICE = 'DEVICE'
+const CLASS = 'CLASS'
 
 const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
   filterFieldsByDriver(filterFieldsByHypervisor(fields, hypervisor), driver)
+
+const fillPCIAtributes =
+  (nameAttr) =>
+  ([_, pciDevice = ''] = []) => {
+    if (pciDevice) {
+      const { [nameAttr]: attribute } = getPciAttributes(pciDevice)
+
+      return attribute
+    }
+  }
 
 /**
  * @param {object} [data] - VM or VM Template data
@@ -39,159 +69,6 @@ const filterByHypAndDriver = (fields, { hypervisor, driver }) =>
  */
 const GENERAL_FIELDS = ({ nics = [] } = {}) =>
   [
-    {
-      name: 'RDP',
-      label: T.RdpConnection,
-      type: INPUT_TYPES.SWITCH,
-      validation: boolean().yesOrNo(),
-      grid: { md: 12 },
-    },
-    {
-      name: 'RDP_SERVER_LAYOUT',
-      label: T.RdpLayout,
-      type: INPUT_TYPES.AUTOCOMPLETE,
-      dependOf: 'RDP',
-      values: [
-        { text: T.PortugueseBr, value: 'pt-br-qwerty' },
-        { text: T.EnglishGB, value: 'en-gb-qwerty' },
-        { text: T.EnglishUS, value: 'en-us-qwerty' },
-        { text: T.French, value: 'fr-fr-azerty' },
-        { text: T.FrenchBe, value: 'fr-be-azerty' },
-        { text: T.FrenchSw, value: 'fr-ch-qwertz' },
-        { text: T.German, value: 'de-de-qwertz' },
-        { text: T.GermanSw, value: 'de-ch-qwertz' },
-        { text: T.Hungarian, value: 'hu-hu-qwertz' },
-        { text: T.Italian, value: 'it-it-qwerty' },
-        { text: T.Japanese, value: 'ja-jp-qwerty' },
-        { text: T.SpanishEs, value: 'es-es-qwerty' },
-        { text: T.SpanishLatam, value: 'es-latam-qwerty' },
-        { text: T.Swedish, value: 'sv-se-qwerty' },
-        { text: T.Turkish, value: 'tr-tr-qwerty' },
-        { text: T.Other, value: 'failsafe' },
-      ],
-      validation: string().trim().notRequired().default(undefined),
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_RESIZE_METHOD',
-      label: T.RdpRizeMethod,
-      type: INPUT_TYPES.SELECT,
-      dependOf: 'RDP',
-      values: [
-        { text: T.DisplayUpdate, value: 'display-update' },
-        { text: T.Reconnect, value: 'reconnect' },
-      ],
-      validation: string().trim().notRequired().default('display-update'),
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_DISABLE_AUDIO',
-      label: T.DisableAudio,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_AUDIO_INPUT',
-      label: T.EnableAudioInput,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_WALLPAPER',
-      label: T.EnableWallpaper,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_THEMING',
-      label: T.EnableTheming,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_FONT_SMOOTHING',
-      label: T.EnableFontSmoothing,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_FULL_WINDOW_DRAG',
-      label: T.EnableFullWindowDrag,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_DESKTOP_COMPOSITION',
-      label: T.EnableDesktopComposition,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_ENABLE_MENU_ANIMATIONS',
-      label: T.EnableMenuAnimations,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_DISABLE_BITMAP_CACHING',
-      label: T.DisableBitmapCaching,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_DISABLE_OFFSCREEN_CACHING',
-      label: T.DisableOffscreenCaching,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'RDP_DISABLE_GLYPH_CACHING',
-      label: T.DisableGlyphCaching,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'RDP',
-      htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'SSH',
-      label: T.SshConnection,
-      type: INPUT_TYPES.SWITCH,
-      validation: boolean().yesOrNo(),
-      grid: { md: 12 },
-    },
     !!nics?.length && {
       name: 'PARENT',
       label: T.AsAnAlias,
@@ -232,6 +109,162 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
       grid: { sm: 6 },
     },
   ].filter(Boolean)
+
+const GUACAMOLE_CONNECTIONS = [
+  {
+    name: 'RDP',
+    label: T.RdpConnection,
+    type: INPUT_TYPES.SWITCH,
+    validation: boolean().yesOrNo(),
+    grid: { md: 12 },
+  },
+  {
+    name: 'RDP_SERVER_LAYOUT',
+    label: T.RdpLayout,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    dependOf: 'RDP',
+    values: [
+      { text: T.PortugueseBr, value: 'pt-br-qwerty' },
+      { text: T.EnglishGB, value: 'en-gb-qwerty' },
+      { text: T.EnglishUS, value: 'en-us-qwerty' },
+      { text: T.French, value: 'fr-fr-azerty' },
+      { text: T.FrenchBe, value: 'fr-be-azerty' },
+      { text: T.FrenchSw, value: 'fr-ch-qwertz' },
+      { text: T.German, value: 'de-de-qwertz' },
+      { text: T.GermanSw, value: 'de-ch-qwertz' },
+      { text: T.Hungarian, value: 'hu-hu-qwertz' },
+      { text: T.Italian, value: 'it-it-qwerty' },
+      { text: T.Japanese, value: 'ja-jp-qwerty' },
+      { text: T.SpanishEs, value: 'es-es-qwerty' },
+      { text: T.SpanishLatam, value: 'es-latam-qwerty' },
+      { text: T.Swedish, value: 'sv-se-qwerty' },
+      { text: T.Turkish, value: 'tr-tr-qwerty' },
+      { text: T.Other, value: 'failsafe' },
+    ],
+    validation: string().trim().notRequired().default(undefined),
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_RESIZE_METHOD',
+    label: T.RdpRizeMethod,
+    type: INPUT_TYPES.SELECT,
+    dependOf: 'RDP',
+    values: [
+      { text: T.DisplayUpdate, value: 'display-update' },
+      { text: T.Reconnect, value: 'reconnect' },
+    ],
+    validation: string().trim().notRequired().default('display-update'),
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_DISABLE_AUDIO',
+    label: T.DisableAudio,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_AUDIO_INPUT',
+    label: T.EnableAudioInput,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_WALLPAPER',
+    label: T.EnableWallpaper,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_THEMING',
+    label: T.EnableTheming,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_FONT_SMOOTHING',
+    label: T.EnableFontSmoothing,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_FULL_WINDOW_DRAG',
+    label: T.EnableFullWindowDrag,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_DESKTOP_COMPOSITION',
+    label: T.EnableDesktopComposition,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_ENABLE_MENU_ANIMATIONS',
+    label: T.EnableMenuAnimations,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_DISABLE_BITMAP_CACHING',
+    label: T.DisableBitmapCaching,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_DISABLE_OFFSCREEN_CACHING',
+    label: T.DisableOffscreenCaching,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'RDP_DISABLE_GLYPH_CACHING',
+    label: T.DisableGlyphCaching,
+    type: INPUT_TYPES.SWITCH,
+    dependOf: 'RDP',
+    htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
+    validation: boolean().yesOrNo(),
+    grid: { sm: 6 },
+  },
+  {
+    name: 'SSH',
+    label: T.SshConnection,
+    type: INPUT_TYPES.SWITCH,
+    validation: boolean().yesOrNo(),
+    grid: { md: 12 },
+  },
+]
 
 /** @type {Field[]} List of IPv4 fields */
 const OVERRIDE_IPV4_FIELDS = [
@@ -347,95 +380,37 @@ const OVERRIDE_IPV6_FIELDS = [
   },
 ]
 
-/** @type {Field[]} List of Inbound traffic QoS fields */
-const OVERRIDE_IN_QOS_FIELDS = [
-  {
-    name: 'INBOUND_AVG_BW',
-    label: T.AverageBandwidth,
-    tooltip: T.InboundAverageBandwidthConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_AVG_BW'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-  {
-    name: 'INBOUND_PEAK_BW',
-    label: T.PeakBandwidth,
-    tooltip: T.InboundPeakBandwidthConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_PEAK_BW'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-  {
-    name: 'INBOUND_PEAK_KB',
-    label: T.PeakBurst,
-    tooltip: T.PeakBurstConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    notOnDrivers: [vcenter],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/INBOUND_PEAK_KB'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-]
-
-/** @type {Field[]} List of Outbound traffic QoS fields */
-const OVERRIDE_OUT_QOS_FIELDS = [
-  {
-    name: 'OUTBOUND_AVG_BW',
-    label: T.AverageBandwidth,
-    tooltip: T.OutboundAverageBandwidthConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    notOnDrivers: [ovswitch],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_AVG_BW'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-  {
-    name: 'OUTBOUND_PEAK_BW',
-    label: T.PeakBandwidth,
-    tooltip: T.OutboundPeakBandwidthConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    notOnDrivers: [ovswitch],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_PEAK_BW'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-  {
-    name: 'OUTBOUND_PEAK_KB',
-    label: T.PeakBurst,
-    tooltip: T.PeakBurstConcept,
-    type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
-    notOnDrivers: [ovswitch, vcenter],
-    htmlType: 'number',
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/OUTBOUND_PEAK_KB'),
-    validation: number()
-      .notRequired()
-      .default(() => undefined),
-  },
-]
-
 /** @type {Field[]} List of hardware fields */
-const HARDWARE_FIELDS = [
+const HARDWARE_FIELDS = (defaultData = {}) => [
+  {
+    name: PCI_TYPE_NAME,
+    label: T.VirtualNicHardwareMode,
+    type: INPUT_TYPES.SELECT,
+    values: arrayToOptions(Object.values(NIC_HARDWARE), {
+      addEmpty: false,
+      getText: (key) => NIC_HARDWARE_STR[key],
+      getValue: (type) => type,
+    }),
+    validation: string()
+      .trim()
+      .default(() => {
+        if (defaultData?.SHORT_ADDRESS) {
+          return NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL
+        }
+        if (defaultData?.CLASS && defaultData?.VENDOR && defaultData?.DEVICE) {
+          return NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
+        }
+
+        return NIC_HARDWARE.EMULATED
+      }),
+    grid: { md: 12 },
+  },
+  // Emulated mode fields
   {
     name: 'MODEL',
     label: T.HardwareModelToEmulate,
+    dependOf: PCI_TYPE_NAME,
+    htmlType: (value) => value !== NIC_HARDWARE.EMULATED && INPUT_TYPES.HIDDEN,
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
     validation: string()
@@ -449,10 +424,138 @@ const HARDWARE_FIELDS = [
     tooltip: T.OnlySupportedForVirtioDriver,
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
-    htmlType: 'number',
+    dependOf: PCI_TYPE_NAME,
+    htmlType: (value) =>
+      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : 'number',
     validation: number()
       .notRequired()
       .default(() => undefined),
+  },
+  // PCI Passthrough Automatic mode fields
+  {
+    name: DEVICE_LIST,
+    label: T.DeviceName,
+    type: INPUT_TYPES.SELECT,
+    values: () => {
+      const { data: hosts = [] } = useGetHostsQuery()
+      const pciDevices = hosts.map(getPciDevices).flat()
+
+      return arrayToOptions(pciDevices, {
+        getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
+        getValue: transformPciToString,
+      })
+    },
+    validation: string()
+      .trim()
+      .default(() => {
+        const {
+          DEVICE: dataDevice = undefined,
+          VENDOR: dataVendor = undefined,
+          CLASS: dataClass = undefined,
+          PROFILES: dataProfile = undefined,
+        } = defaultData
+
+        return (
+          dataDevice &&
+          dataVendor &&
+          dataClass &&
+          [dataDevice, dataVendor, dataClass, dataProfile].join(';')
+        )
+      })
+      .afterSubmit(() => undefined),
+    dependOf: PCI_TYPE_NAME,
+    htmlType: (pciTypeValue) =>
+      pciTypeValue !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
+      INPUT_TYPES.HIDDEN,
+    grid: { md: 3 },
+  },
+  {
+    name: VENDOR,
+    label: T.Vendor,
+    type: INPUT_TYPES.TEXT,
+    notOnHypervisors: [vcenter, lxc, firecracker],
+    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
+    watcher: fillPCIAtributes(VENDOR),
+    htmlType: (_, context) => {
+      const values = context?.getValues() || {}
+
+      return (
+        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
+        INPUT_TYPES.HIDDEN
+      )
+    },
+    validation: string()
+      .notRequired()
+      .default(() => undefined)
+      .afterSubmit((value, { context }) =>
+        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
+      ),
+    grid: { md: 3 },
+    readOnly: true,
+  },
+  {
+    name: DEVICE,
+    label: T.Device,
+    type: INPUT_TYPES.TEXT,
+    notOnHypervisors: [vcenter, lxc, firecracker],
+    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
+    watcher: fillPCIAtributes(DEVICE),
+    htmlType: (_, context) => {
+      const values = context?.getValues() || {}
+
+      return (
+        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
+        INPUT_TYPES.HIDDEN
+      )
+    },
+    validation: string()
+      .notRequired()
+      .default(() => undefined)
+      .afterSubmit((value, { context }) =>
+        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
+      ),
+    grid: { md: 3 },
+    readOnly: true,
+  },
+  {
+    name: CLASS,
+    label: T.Class,
+    type: INPUT_TYPES.TEXT,
+    notOnHypervisors: [vcenter, lxc, firecracker],
+    dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
+    watcher: fillPCIAtributes(CLASS),
+    htmlType: (_, context) => {
+      const values = context?.getValues() || {}
+
+      return (
+        values?.advanced?.PCI_TYPE !== NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC &&
+        INPUT_TYPES.HIDDEN
+      )
+    },
+    validation: string()
+      .notRequired()
+      .default(() => undefined)
+      .afterSubmit((value, { context }) =>
+        context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
+      ),
+    grid: { md: 3 },
+    readOnly: true,
+  },
+  // PCI Passthrough Manual mode fields
+  {
+    name: 'SHORT_ADDRESS',
+    label: T.ShortAddress,
+    type: INPUT_TYPES.TEXT,
+    notOnHypervisors: [vcenter, lxc, firecracker],
+    dependOf: PCI_TYPE_NAME,
+    htmlType: (value) =>
+      value !== NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL && INPUT_TYPES.HIDDEN,
+    validation: string()
+      .notRequired()
+      .default(() => defaultData?.SHORT_ADDRESS)
+      .afterSubmit((value, { context }) =>
+        context?.advanced?.PCI_TYPE === PCI_TYPES.MANUAL ? value : undefined
+      ),
   },
 ]
 
@@ -476,16 +579,34 @@ const GUEST_FIELDS = [
  * @param {Nic[]} [data.nics] - Current nics on resource
  * @param {VN_DRIVERS} [data.driver] - Virtual network driver
  * @param {HYPERVISORS} [data.hypervisor] - VM Hypervisor
+ * @param {object} data.defaultData - VM or VM Template data
  * @returns {Section[]} Sections
  */
-const SECTIONS = ({ nics, driver, hypervisor = HYPERVISORS.kvm } = {}) => {
+const SECTIONS = ({
+  nics,
+  driver,
+  hypervisor = HYPERVISORS.kvm,
+  defaultData,
+} = {}) => {
   const filters = { driver, hypervisor }
 
-  return [
+  let general = []
+
+  if (nics?.length) {
+    general = [
+      {
+        id: 'general',
+        legend: T.General,
+        fields: filterByHypAndDriver(GENERAL_FIELDS({ nics }), filters),
+      },
+    ]
+  }
+
+  return general.concat([
     {
-      id: 'general',
-      legend: T.General,
-      fields: filterByHypAndDriver(GENERAL_FIELDS({ nics }), filters),
+      id: 'guacamole-connections',
+      legend: T.GuacamoleConnections,
+      fields: filterByHypAndDriver(GUACAMOLE_CONNECTIONS, filters),
     },
     {
       id: 'override-ipv4',
@@ -498,26 +619,16 @@ const SECTIONS = ({ nics, driver, hypervisor = HYPERVISORS.kvm } = {}) => {
       fields: filterByHypAndDriver(OVERRIDE_IPV6_FIELDS, filters),
     },
     {
-      id: 'override-in-qos',
-      legend: T.OverrideNetworkInboundTrafficQos,
-      fields: filterByHypAndDriver(OVERRIDE_IN_QOS_FIELDS, filters),
-    },
-    {
-      id: 'override-out-qos',
-      legend: T.OverrideNetworkOutboundTrafficQos,
-      fields: filterByHypAndDriver(OVERRIDE_OUT_QOS_FIELDS, filters),
-    },
-    {
       id: 'hardware',
       legend: T.Hardware,
-      fields: filterByHypAndDriver(HARDWARE_FIELDS, filters),
+      fields: filterByHypAndDriver(HARDWARE_FIELDS(defaultData), filters),
     },
     {
       id: 'guest',
       legend: T.GuestOptions,
       fields: filterByHypAndDriver(GUEST_FIELDS, filters),
     },
-  ]
+  ])
 }
 
 /**

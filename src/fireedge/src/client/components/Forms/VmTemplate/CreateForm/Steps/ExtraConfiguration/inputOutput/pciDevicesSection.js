@@ -103,7 +103,9 @@ const PciDevicesSection = ({ stepId, hypervisor }) => {
       <Divider />
       <List>
         {pciDevices?.map(
-          ({ id, DEVICE, VENDOR, CLASS, PROFILE = '-' }, index) => {
+          ({ id, DEVICE, VENDOR, CLASS, PROFILE = '-', ...rest }, index) => {
+            if (rest?.TYPE === 'NIC') return null
+
             const { DEVICE_NAME, VENDOR_NAME } =
               pciDevicesAvailable.find(
                 (pciDevice) => pciDevice?.DEVICE === DEVICE

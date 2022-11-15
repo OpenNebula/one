@@ -27,13 +27,25 @@ import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
 
-const transformPciToString = (pciDevice = {}) => {
+/**
+ * Transform a PCI device to String.
+ *
+ * @param {ObjectSchema} pciDevice - PCI device information
+ * @returns {string} - DEVICE, VENDOR, CLASS and PROFILES separated by semicolon
+ */
+export const transformPciToString = (pciDevice = {}) => {
   const { DEVICE = '', VENDOR = '', CLASS = '', PROFILES = '' } = pciDevice
 
   return [DEVICE, VENDOR, CLASS, PROFILES].join(';')
 }
 
-const getPciAttributes = (pciDevice = '') => {
+/**
+ * Obtain values from a PCI device String.
+ *
+ * @param {string} pciDevice - DEVICE, VENDOR, CLASS and PROFILES separated by semicolon
+ * @returns {ObjectSchema} - PCI device information
+ */
+export const getPciAttributes = (pciDevice = '') => {
   const [DEVICE, VENDOR, CLASS, PROFILES] = pciDevice.split(';')
 
   return { DEVICE, VENDOR, CLASS, PROFILES }
@@ -99,6 +111,18 @@ const commonFieldProps = (name) => ({
     }
   },
   validation: string().trim().required(),
+  grid: { xs: 12, sm: 3, md: 2 },
+})
+
+/** @type {Field} Common hidden field properties */
+const commonHiddenFieldProps = (name) => ({
+  name,
+  notOnHypervisors: [vcenter, lxc, firecracker],
+  type: INPUT_TYPES.TEXT,
+  htmlType: INPUT_TYPES.HIDDEN,
+  validation: string()
+    .trim()
+    .afterSubmit((content) => content),
   fieldProps: { disabled: true },
   grid: { xs: 12, sm: 3, md: 2 },
 })
@@ -111,6 +135,21 @@ const VENDOR_FIELD = { label: T.Vendor, ...commonFieldProps('VENDOR') }
 
 /** @type {Field} PCI device field */
 const CLASS_FIELD = { label: T.Class, ...commonFieldProps('CLASS') }
+
+/** @type {Field} PCI device field */
+const SHORT_ADDRESS_FIELD = { ...commonHiddenFieldProps('SHORT_ADDRESS') }
+
+/** @type {Field} PCI device field */
+const NETWORK_FIELD = { ...commonHiddenFieldProps('NETWORK') }
+
+/** @type {Field} PCI device field */
+const NETWORK_UNAME_FIELD = { ...commonHiddenFieldProps('NETWORK_UNAME') }
+
+/** @type {Field} PCI device field */
+const SECURITY_GROUPS_FIELD = { ...commonHiddenFieldProps('SECURITY_GROUPS') }
+
+/** @type {Field} PCI device field */
+const TYPE_FIELD = { ...commonHiddenFieldProps('TYPE') }
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
@@ -128,6 +167,11 @@ export const PCI_SCHEMA = getObjectSchemaFromFields([
   DEVICE_FIELD,
   VENDOR_FIELD,
   CLASS_FIELD,
+  SHORT_ADDRESS_FIELD,
+  NETWORK_FIELD,
+  NETWORK_UNAME_FIELD,
+  SECURITY_GROUPS_FIELD,
+  TYPE_FIELD,
 ])
 
 /** @type {ObjectSchema} PCI devices schema */

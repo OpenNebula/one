@@ -20,12 +20,12 @@ import { Box } from '@mui/material'
 import {
   SCHEMA,
   SECTIONS,
-} from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions/schema'
+} from 'client/components/Forms/Vm/AttachNicForm/Steps/QOSOptions/schema'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Step } from 'client/utils'
-import { T, Nic, HYPERVISORS } from 'client/constants'
+import { T, HYPERVISORS } from 'client/constants'
 
-export const STEP_ID = 'advanced'
+export const STEP_ID = 'qos'
 
 const Content = (props) => {
   const sections = useMemo(() => SECTIONS(props), [])
@@ -39,11 +39,7 @@ const Content = (props) => {
       {sections.map(({ id, legend, fields }) => (
         <FormWithSchema
           key={id}
-          rootProps={{
-            sx: (id === 'general' || id === 'guacamole-connections') && {
-              gridColumn: '1 / -1',
-            },
-          }}
+          rootProps={{ sx: id === 'general' && { gridColumn: '1 / -1' } }}
           cy={id}
           fields={fields}
           legend={legend}
@@ -58,13 +54,12 @@ const Content = (props) => {
  * Renders advanced options to nic.
  *
  * @param {object} props - Props
- * @param {Nic[]} props.nics - Current nics
  * @param {HYPERVISORS} props.hypervisor - Hypervisor
  * @returns {Step} Advance options step
  */
-const AdvancedOptions = (props) => ({
+const QOSOptions = (props) => ({
   id: STEP_ID,
-  label: T.AdvancedOptions,
+  label: T.SelectQOS,
   resolver: () => SCHEMA(props),
   optionsValidate: { abortEarly: false },
   content: () => Content(props),
@@ -73,8 +68,7 @@ const AdvancedOptions = (props) => ({
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
-  nics: PropTypes.array,
   hypervisor: PropTypes.string,
 }
 
-export default AdvancedOptions
+export default QOSOptions

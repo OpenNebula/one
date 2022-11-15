@@ -35,12 +35,13 @@ import {
   reorderBootAfterRemove,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
-import { T } from 'client/constants'
+import { T, PCI_TYPES } from 'client/constants'
 
-export const TAB_ID = ['NIC', 'NIC_ALIAS']
+export const TAB_ID = ['NIC', 'NIC_ALIAS', 'PCI']
 
-const mapNicNameFunction = mapNameByIndex('NIC')
-const mapAliasNameFunction = mapNameByIndex('NIC_ALIAS')
+const mapNicNameFunction = mapNameByIndex(TAB_ID[0])
+const mapAliasNameFunction = mapNameByIndex(TAB_ID[1])
+const mapPCINameFunction = mapNameByIndex(TAB_ID[2])
 
 const Networking = ({ hypervisor }) => {
   const { setValue, getValues } = useFormContext()
@@ -63,14 +64,37 @@ const Networking = ({ hypervisor }) => {
     name: `${EXTRA_ID}.${TAB_ID[1]}`,
   })
 
+  const {
+    fields: pcis = [],
+    replace: replacePCI,
+    update: updatePCI,
+    append: appendPCI,
+  } = useFieldArray({
+    name: `${EXTRA_ID}.${TAB_ID[2]}`,
+  })
+
   const removeAndReorder = (nic) => {
     const nicName = nic?.NAME
     const isAlias = !!nic?.PARENT?.length
-    const list = isAlias ? alias : nics
+    const isPCI = nic?.TYPE === 'NIC'
+
+    let list
+    let mapFunction
+
+    if (isAlias) {
+      list = alias
+      mapFunction = mapAliasNameFunction
+    } else if (isPCI) {
+      list = pcis
+      mapFunction = mapPCINameFunction
+    } else {
+      list = nics
+      mapFunction = mapNicNameFunction
+    }
 
     const updatedList = list
       .filter(({ NAME }) => NAME !== nicName)
-      .map(isAlias ? mapAliasNameFunction : mapNicNameFunction)
+      .map(mapFunction)
 
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
     const updatedBootOrder = reorderBootAfterRemove(
@@ -79,27 +103,66 @@ const Networking = ({ hypervisor }) => {
       currentBootOrder
     )
 
-    isAlias ? replaceAlias(updatedList) : replaceNic(updatedList)
+    if (isAlias) {
+      replaceAlias(updatedList)
+    } else if (isPCI) {
+      replacePCI(updatedList)
+    } else {
+      replaceNic(updatedList)
+    }
+
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
   }
 
-  const handleUpdate = ({ NAME: _, ...updatedNic }, id) => {
+  const handleUpdate = ({ NAME: _, ...updatedNic }, id, nicForDelete) => {
     const isAlias = !!updatedNic?.PARENT?.length
-    const index = isAlias
-      ? alias.findIndex((nic) => nic.id === id)
-      : nics.findIndex((nic) => nic.id === id)
+    const isPCI = Object.values(PCI_TYPES).includes(updatedNic?.PCI_TYPE)
 
-    isAlias
-      ? updateAlias(index, mapAliasNameFunction(updatedNic, index))
-      : updateNic(index, mapNicNameFunction(updatedNic, index))
+    if (isAlias) {
+      const index = alias.findIndex((nic) => nic.id === id)
+      if (index === -1) {
+        removeAndReorder(nicForDelete)
+        handleAppend(updatedNic)
+
+        return
+      }
+      updateAlias(index, mapAliasNameFunction(updatedNic, index))
+    } else if (isPCI) {
+      const index = pcis.findIndex((nic) => nic.id === id)
+      if (index === -1) {
+        removeAndReorder(nicForDelete)
+        handleAppend(updatedNic)
+
+        return
+      }
+      updatedNic.TYPE = 'NIC'
+      delete updatedNic.PCI_TYPE
+      updatePCI(index, mapPCINameFunction(updatedNic, index))
+    } else {
+      const index = nics.findIndex((nic) => nic.id === id)
+      if (index === -1) {
+        removeAndReorder(nicForDelete)
+        handleAppend(updatedNic)
+
+        return
+      }
+      updateNic(index, mapNicNameFunction(updatedNic, index))
+    }
   }
 
   const handleAppend = (newNic) => {
     const isAlias = !!newNic?.PARENT?.length
+    const isPCI = Object.values(PCI_TYPES).includes(newNic?.PCI_TYPE)
 
-    isAlias
-      ? appendAlias(mapAliasNameFunction(newNic, alias.length))
-      : appendNic(mapNicNameFunction(newNic, nics.length))
+    if (isAlias) {
+      appendAlias(mapAliasNameFunction(newNic, alias.length))
+    } else if (isPCI) {
+      newNic.TYPE = 'NIC'
+      delete newNic.PCI_TYPE
+      appendPCI(mapPCINameFunction(newNic, pcis.length))
+    } else {
+      appendNic(mapNicNameFunction(newNic, nics.length))
+    }
   }
 
   return (
@@ -121,45 +184,39 @@ const Networking = ({ hypervisor }) => {
           },
         }}
       >
-        {[...nics, ...alias]?.map(({ id, ...item }, index) => {
-          const hasAlias = alias?.some((nic) => nic.PARENT === item.NAME)
-          item.NIC_ID = index
+        {[...nics, ...alias, ...pcis.filter((pci) => pci?.TYPE === 'NIC')]?.map(
+          ({ id, ...item }, index) => {
+            const hasAlias = alias?.some((nic) => nic.PARENT === item.NAME)
+            item.NIC_ID = index
 
-          return (
-            <NicCard
-              key={id ?? item?.NAME}
-              nic={item}
-              showParents
-              clipboardOnTags={false}
-              actions={
-                <>
-                  {!hasAlias && (
-                    <DetachAction
+            return (
+              <NicCard
+                key={id ?? item?.NAME}
+                nic={item}
+                showParents
+                clipboardOnTags={false}
+                actions={
+                  <>
+                    {!hasAlias && (
+                      <DetachAction
+                        nic={item}
+                        onSubmit={() => removeAndReorder(item)}
+                      />
+                    )}
+                    <AttachAction
                       nic={item}
-                      onSubmit={() => removeAndReorder(item)}
-                    />
-                  )}
-                  <AttachAction
-                    nic={item}
-                    hypervisor={hypervisor}
-                    currentNics={nics}
-                    onSubmit={(updatedNic) => {
-                      const wasAlias = !!item?.PARENT?.length
-                      const isAlias = !!updatedNic?.PARENT?.length
-
-                      if (wasAlias === isAlias) {
-                        return handleUpdate(updatedNic, id)
+                      hypervisor={hypervisor}
+                      currentNics={nics}
+                      onSubmit={(updatedNic) =>
+                        handleUpdate(updatedNic, id, item)
                       }
-
-                      removeAndReorder(item)
-                      handleAppend(updatedNic)
-                    }}
-                  />
-                </>
-              }
-            />
-          )
-        })}
+                    />
+                  </>
+                }
+              />
+            )
+          }
+        )}
       </Stack>
       <FormWithSchema
         cy={`${EXTRA_ID}-network-options`}
