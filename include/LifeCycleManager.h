@@ -32,6 +32,7 @@ class DatastorePool;
 class SecurityGroupPool;
 class VirtualMachinePool;
 class VirtualMachine;
+class VirtualNetworkPool;
 struct RequestAttributes;
 
 /* -------------------------------------------------------------------------- */
@@ -184,10 +185,12 @@ public:
     void trigger_poweroff(int vid, const RequestAttributes& ra);
     void trigger_poweroff_hard(int vid, const RequestAttributes& ra);
     void trigger_poweroff(int vid, bool hard, const RequestAttributes& ra);
-    void trigger_updatesg(int vid);
+    void trigger_updatesg(int sgid);
     void trigger_restart(int vid, const RequestAttributes& ra);
     void trigger_delete(int vid, const RequestAttributes& ra);
     void trigger_delete_recreate(int vid, const RequestAttributes& ra);
+
+    void trigger_updatevnet(int vnid);
 
 private:
     /**
@@ -219,6 +222,11 @@ private:
      *  Pointer to the Cluster Pool
      */
     ClusterPool *           clpool = nullptr;
+
+    /**
+     *  Pointer to the Cluster Pool
+     */
+    VirtualNetworkPool *    vnpool = nullptr;
 
     /**
      * Pointer to TransferManager

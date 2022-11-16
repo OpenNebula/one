@@ -23,6 +23,7 @@
 #include "ImagePool.h"
 #include "SecurityGroupPool.h"
 #include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
 #include "Request.h"
 
 using namespace std;
@@ -1944,3 +1945,173 @@ void LifeCycleManager::trigger_updatesg(int sgid)
     });
 }
 
+/*  -------------------------------------------------------------------------- */
+/*  -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_updatevnet(int vnid)
+{
+    trigger([this, vnid] {
+        int  vmid, rc;
+
+        auto vnet = vnpool->get(vnid);
+
+        if ( vnet == nullptr )
+        {
+            return;
+        }
+
+        // -------------------------------------------------------------------------
+        // Iterate over VNET VMs, networks at hypervisor are updated one by one
+        // -------------------------------------------------------------------------
+        do
+        {
+            bool is_error  = false;
+            bool is_tmpl   = false;
+            bool is_update = false;
+
+            rc = vnet->get_outdated(vmid);
+
+            if ( rc != 0 )
+            {
+                vnet->remove_template_attribute("VNET_UPDATE");
+
+                vnpool->update(vnet.get());
+                return;
+            }
+
+            vnpool->update(vnet.get());
+
+            vnet.reset();
+
+            if ( auto vm = vmpool->get(vmid) )
+            {
+                VirtualMachine::LcmState lstate = vm->get_lcm_state();
+                VirtualMachine::VmState  state  = vm->get_state();
+
+                if ( state != VirtualMachine::ACTIVE ) // Update just VM info
+                {
+                    is_tmpl = true;
+                }
+                else
+                {
+                    switch (lstate)
+                    {
+                        // Can't live update the NIC, wrong VM state
+                        case VirtualMachine::BOOT:
+                        case VirtualMachine::BOOT_MIGRATE:
+                        case VirtualMachine::BOOT_SUSPENDED:
+                        case VirtualMachine::BOOT_STOPPED:
+                        case VirtualMachine::BOOT_UNDEPLOY:
+                        case VirtualMachine::BOOT_POWEROFF:
+                        case VirtualMachine::BOOT_UNKNOWN:
+                        case VirtualMachine::BOOT_FAILURE:
+                        case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                        case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+                        case VirtualMachine::BOOT_STOPPED_FAILURE:
+                        case VirtualMachine::MIGRATE:
+                        case VirtualMachine::HOTPLUG_NIC:
+                        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
+                        case VirtualMachine::HOTPLUG:
+                        case VirtualMachine::HOTPLUG_SNAPSHOT:
+                        case VirtualMachine::HOTPLUG_SAVEAS:
+                        case VirtualMachine::HOTPLUG_RESIZE:
+                        case VirtualMachine::DISK_SNAPSHOT:
+                        case VirtualMachine::DISK_SNAPSHOT_DELETE:
+                        case VirtualMachine::DISK_RESIZE:
+                        case VirtualMachine::UNKNOWN:
+                            is_error = true;
+                            break;
+
+                        // Update VM information + virtual network at host
+                        case VirtualMachine::RUNNING:
+                            is_update = true;
+                            break;
+
+                        // Update just VM information
+                        default:
+                            is_tmpl = true;
+                            break;
+                    }
+                }
+
+                // -------------------------------------------------------------
+                // Update VM template with the new NIC attributes & trigger update
+                // -------------------------------------------------------------
+                if ( is_tmpl || is_update )
+                {
+                    auto rc = vm->nic_update(vnid);
+
+                    if (rc < 0)
+                    {
+                        NebulaLog::error("LCM", "VM " + to_string(vm->get_oid())
+                            + ": Unable to update Virtual Network " + to_string(vnid));
+
+                        is_error = true;
+                        is_tmpl = is_update = false;
+                    }
+
+                    if (is_update && vm->get_template_attribute("VNET_UPDATE") == nullptr)
+                    {
+                        // Do not trigger driver update in case no attribute was updated
+                        is_update = false;
+                        is_tmpl = true;
+                    }
+
+                    if (is_update)
+                    {
+                        vm->set_state(VirtualMachine::HOTPLUG_NIC);
+
+                        RequestAttributes ra(AuthRequest::NONE);
+                        ra.uid = vm->get_uid();
+                        ra.gid = vm->get_gid();
+                        ra.req_id = 0;
+
+                        DispatchManager::close_cp_history(vmpool, vm.get(),
+                            VMActions::NIC_UPDATE_ACTION, ra);
+                    }
+
+                    vmpool->update(vm.get());
+                }
+
+                if ( is_update )
+                {
+                    vmm->updatenic(vm.get(), vnid);
+                }
+            }
+            else
+            {
+                continue;
+            }
+
+            vnet = vnpool->get(vnid);
+
+            if ( vnet == nullptr )
+            {
+                return;
+            }
+
+            // ---------------------------------------------------------------------
+            // Update VM status in the security group and exit
+            // ---------------------------------------------------------------------
+            if ( is_error )
+            {
+                vnet->add_error(vmid);
+            }
+            else if ( is_tmpl )
+            {
+                vnet->add_updated(vmid);
+            }
+            else if ( is_update )
+            {
+                vnet->add_updating(vmid);
+            }
+
+            vnpool->update(vnet.get());
+
+            if (is_update)
+            {
+                return;
+            }
+        } while (true);
+    });
+}

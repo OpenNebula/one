@@ -303,7 +303,7 @@ define(function(require) {
         button = buttons[buttonName];
 
         //if we meet the condition we proceed. Otherwise we skip it.
-        if (Config.isTabActionEnabled(tabName, buttonName, panelName) == false) {
+        if (!Config.isTabActionEnabled(tabName, buttonName, panelName)) {
           continue;
         }
 

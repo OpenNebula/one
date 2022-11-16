@@ -18,6 +18,7 @@ import COLOR from 'client/constants/color'
 // eslint-disable-next-line no-unused-vars
 import { Permissions, LockInfo } from 'client/constants/common'
 import * as ACTIONS from 'client/constants/actions'
+import T from 'client/constants/translates'
 
 /**
  * @typedef ARLease
@@ -135,6 +136,12 @@ export const VN_STATES = [
     color: COLOR.error.dark,
     meaning: 'Driver action failed.',
   },
+  {
+    // 6
+    name: STATES.UPDATE_FAILURE,
+    color: COLOR.error.light,
+    meaning: 'Network action failed',
+  },
 ]
 
 /** @enum {string} Virtual network actions */
@@ -148,6 +155,7 @@ export const VN_ACTIONS = {
   LOCK: 'lock',
   UNLOCK: 'unlock',
   DELETE: 'delete',
+  RECOVER: 'recover',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,
@@ -176,8 +184,8 @@ export const VN_ACTIONS_BY_STATE = {
     STATES.INIT,
     STATES.LOCK_CREATE,
     STATES.LOCK_DELETE,
-    STATES.LOCKED,
     STATES.ERROR,
+    STATES.UPDATE_FAILURE,
   ],
   [VN_ACTIONS.UPDATE]: [STATES.READY],
 
@@ -241,4 +249,45 @@ export const VN_DRIVERS_STR = {
  */
 export const VNET_THRESHOLD = {
   LEASES: { high: 66, low: 33 },
+}
+
+export const LEASES_STATES_STR = {
+  OUTDATED: 'outdated',
+  ERROR: 'error',
+  UPDATING: 'updating',
+  UPDATED: 'updated',
+  HOLD: 'hold',
+  RESERVED: 'reserved',
+  VROUTER: 'vrouter',
+}
+
+export const LEASE_STATE = {
+  [LEASES_STATES_STR.OUTDATED]: {
+    name: T.Outdated,
+    color: COLOR.warning.main,
+  },
+  [LEASES_STATES_STR.ERROR]: {
+    name: T.Error,
+    color: COLOR.error.main,
+  },
+  [LEASES_STATES_STR.UPDATING]: {
+    name: T.Updating,
+    color: COLOR.info.main,
+  },
+  [LEASES_STATES_STR.UPDATED]: {
+    name: T.Updated,
+    color: COLOR.success.main,
+  },
+  [LEASES_STATES_STR.HOLD]: {
+    name: T.Hold,
+    color: COLOR.debug.main,
+  },
+  [LEASES_STATES_STR.RESERVED]: {
+    name: T.Reserved,
+    color: COLOR.debug.main,
+  },
+  [LEASES_STATES_STR.VROUTER]: {
+    name: T.Vrouter,
+    color: COLOR.debug.main,
+  },
 }

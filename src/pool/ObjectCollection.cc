@@ -16,6 +16,7 @@
 
 #include "ObjectCollection.h"
 #include "ObjectXML.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -158,6 +159,44 @@ ObjectCollection& ObjectCollection::operator<<(const ObjectCollection& r)
     {
         collection_set.insert(id);
     }
+
+    return *this;
+}
+
+ObjectCollection& ObjectCollection::operator<<(const std::set<int>& r)
+{
+    for (const auto& id : r)
+    {
+        collection_set.insert(id);
+    }
+
+    return *this;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ObjectCollection& ObjectCollection::operator-=(const ObjectCollection& r)
+{
+    std::set<int> diff;
+
+    std::set_difference(collection_set.cbegin(), collection_set.cend(),
+            r.collection_set.cbegin(), r.collection_set.cend(),
+            std::inserter(diff, diff.end()));
+
+    collection_set.swap(diff);
+
+    return *this;
+}
+
+ObjectCollection& ObjectCollection::operator-=(const std::set<int>& r)
+{
+    std::set<int> diff;
+
+    std::set_difference(collection_set.cbegin(), collection_set.cend(),
+            r.cbegin(), r.cend(), std::inserter(diff, diff.end()));
+
+    collection_set.swap(diff);
 
     return *this;
 }

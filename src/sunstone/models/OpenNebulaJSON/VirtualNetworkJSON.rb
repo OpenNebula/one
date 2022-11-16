@@ -61,6 +61,7 @@ module OpenNebulaJSON
                  when "reserve"   then self.reserve(action_hash['params'])
                  when "lock"         then lock(action_hash['params']['level'].to_i)
                  when "unlock"       then unlock()
+                 when "recover"       then recover(action_hash['params']['result'].to_i)
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"

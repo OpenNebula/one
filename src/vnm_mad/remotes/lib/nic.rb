@@ -94,6 +94,25 @@ module VNMMAD
                 self
             end
 
+            def set_qos(deploy_id)
+                opts = "domiftune --live #{deploy_id} #{self[:target]} "
+
+                %w[INBOUND OUTBOUND].each do |type|
+                    opts << "--#{type.downcase} "
+                    vals = []
+
+                    %w[AVG_BW PEAK_BW PEAK_KB].each do |att|
+                        vals << (self["#{type}_#{att}".downcase.to_sym] rescue 0)
+                    end
+
+                    opts << "#{vals.join(',')} "
+                end
+
+                _, e, rc = VNMNetwork::Command.run(:virsh, opts)
+
+                raise "Error updating QoS values: #{e}" unless rc.success?
+            end
+
         end
 
         # A NIC using LXD. This class implements functions to get the physical
@@ -151,6 +170,10 @@ module VNMMAD
                 self
             end
 
+            def set_qos(_deploy_id)
+                nil
+            end
+
             private
 
             def find_path(hash, text)
@@ -190,6 +213,11 @@ module VNMMAD
 
                 self
             end
+
+            def set_qos(_deploy_id)
+                nil
+            end
+
         end
 
         # A NIC using LXC. This class implements functions to get (by its name)
@@ -212,6 +240,10 @@ module VNMMAD
                 self[:tap] = "#{vm.deploy_id}-#{self[:nic_id]}"
 
                 self
+            end
+
+            def set_qos(_deploy_id)
+                nil
             end
 
         end

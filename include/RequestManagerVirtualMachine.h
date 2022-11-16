@@ -319,6 +319,25 @@ protected:
             RequestAttributes& ra) override;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineUpdateNic : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineUpdateNic():
+        RequestManagerVirtualMachine("one.vm.updatenic",
+                           "Update NIC attributes, propagate the changes to host",
+                           "A:siis")
+    {
+        vm_action = VMActions::NIC_UPDATE_ACTION;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

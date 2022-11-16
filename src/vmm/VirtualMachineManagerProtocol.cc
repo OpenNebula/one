@@ -16,6 +16,7 @@
 
 #include "VirtualMachineManager.h"
 #include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
 #include "SecurityGroupPool.h"
 #include "LifeCycleManager.h"
 #include "Nebula.h"
@@ -34,7 +35,7 @@ static void log_message(vm_msg_t* msg)
     oss << "Message received: ";
     msg->write_to(oss);
 
-    NebulaLog::log("IPM", Log::DEBUG, oss);
+    NebulaLog::log("VMM", Log::DEBUG, oss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -769,7 +770,7 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
 
     istringstream is(msg->payload());
 
-    is >> sgid >> ws;
+    is >> sgid;
 
     if (is.fail())
     {
@@ -914,3 +915,86 @@ void VirtualMachineManager::_backup(unique_ptr<vm_msg_t> msg)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::_updatenic(unique_ptr<vm_msg_t> msg)
+{
+    log_message(msg.get());
+
+    int id = msg->oid();
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (!check_vm_state(id, msg.get()))
+    {
+        return;
+    }
+
+    int vnid;
+
+    istringstream is(msg->payload());
+
+    is >> vnid;
+
+    if (is.fail())
+    {
+        NebulaLog::log("VMM", Log::ERROR, "Missing or wrong Virtual Network"
+                " id in driver message");
+        return;
+    }
+
+    auto vnpool = Nebula::instance().get_vnpool();
+
+    if (auto vn = vnpool->get(vnid))
+    {
+        if (vn->is_updating(id))
+        {
+            vn->del_updating(id);
+
+            if (msg->status() == "SUCCESS")
+            {
+                vn->add_updated(id);
+            }
+            else
+            {
+                vn->add_error(id);
+
+                vn->set_state(VirtualNetwork::UPDATE_FAILURE);
+            }
+
+            vnpool->update(vn.get());
+        }
+    }
+
+    if (auto vm = vmpool->get(id))
+    {
+        if (msg->status() == "SUCCESS")
+        {
+            vm->remove_template_attribute("VNET_UPDATE");
+            vm->log("VMM", Log::INFO, "VM nic updated.");
+        }
+        else
+        {
+            log_error(vm.get(), msg->payload(),
+                vm_msg_t::type_str(VMManagerMessages::UPDATENIC));
+        }
+
+        if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+        {
+            vm->set_state(VirtualMachine::RUNNING);
+        }
+        else
+        {
+            NebulaLog::warn("VMM", "Received 'update nic' result, but VM "
+                + to_string(id) + " is in wrong state " + vm->state_str());
+        }
+
+        vmpool->update(vm.get());
+    }
+
+    if (vnid != -1)
+    {
+        lcm->trigger_updatevnet(vnid);
+    }
+
+    return;
+}

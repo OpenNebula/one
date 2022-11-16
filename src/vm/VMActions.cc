@@ -366,6 +366,12 @@ string VMActions::action_to_str(Action action)
         case NONE_ACTION:
             st = "none";
         break;
+        case NIC_UPDATE_ACTION:
+            st = "nic-update";
+        break;
+        case NIC_RECOVER_ACTION:
+            st = "nic-recover";
+        break;
     }
 
     return st;
@@ -552,6 +558,14 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "backup")
     {
         action = BACKUP_ACTION;
+    }
+    else if ( st == "nic-update")
+    {
+        action = NIC_UPDATE_ACTION;
+    }
+    else if ( st == "nic-recover")
+    {
+        action = NIC_RECOVER_ACTION;
     }
     else
     {

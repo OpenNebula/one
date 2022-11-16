@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
@@ -16,17 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-if [ -z "${ONE_LOCATION}" ]; then
-    MAD_LOCATION=/usr/lib/one/mads
-else
-    MAD_LOCATION=$ONE_LOCATION/lib/mads
-fi
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
-LOCAL_ACTIONS="deploy,shutdown,reboot,cancel,save,restore,migrate,poll"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},pre,post,clean,update_sg"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic,update_nic,reset"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},prereconfigure,reconfigure"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_disk,detach_disk,resize_disk,resize"
+require 'OpenvSwitchVXLAN'
 
-exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
+template64   = STDIN.read
+deploy_id    = ARGV[0]
+vn_id        = Integer(ARGV[1])
+
+xpath_filter = OpenvSwitchVXLAN::XPATH_FILTER
+
+begin
+    ovs = OpenvSwitchVXLAN.from_base64(template64, xpath_filter, deploy_id)
+    ovs.update(vn_id)
+rescue StandardError => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

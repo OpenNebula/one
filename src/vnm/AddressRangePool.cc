@@ -21,6 +21,7 @@
 
 #include "IPAMRequest.h"
 #include "IPAMManager.h"
+#include "VirtualMachineNic.h"
 
 #include "Nebula.h"
 #include "NebulaUtil.h"
@@ -112,6 +113,7 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 
 int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
+        std::set<int>& update_ids, std::unique_ptr<VectorAttribute>& update_attr,
         string& error_msg)
 {
     unsigned int arid;
@@ -136,7 +138,8 @@ int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restric
             return -1;
         }
 
-        return ar_it->second->update_attributes(attr, keep_restricted, error_msg);
+        return ar_it->second->update_attributes(attr, keep_restricted,
+                    update_ids, update_attr, error_msg);
     }
 
     error_msg = "Wrong AR definition. AR vector attribute is missing.";
@@ -302,7 +305,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended,
 /* -------------------------------------------------------------------------- */
 
 int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-    VectorAttribute * nic, const vector<string> &inherit)
+    VectorAttribute * nic, const set<string> &inherit)
 {
     for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
@@ -321,7 +324,7 @@ int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 
 int AddressRangePool::allocate_by_mac(const string &mac,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
-    const vector<string> &inherit)
+    const set<string> &inherit)
 {
     for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
@@ -340,7 +343,7 @@ int AddressRangePool::allocate_by_mac(const string &mac,
 
 int AddressRangePool::allocate_by_ip(const string &ip,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
-    const vector<string> &inherit)
+    const set<string> &inherit)
 {
     for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
@@ -359,7 +362,7 @@ int AddressRangePool::allocate_by_ip(const string &ip,
 
 int AddressRangePool::allocate_by_ip6(const string &ip,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
-    const vector<string> &inherit)
+    const set<string> &inherit)
 {
     for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
@@ -507,7 +510,7 @@ int AddressRangePool::free_addr_by_range(unsigned int arid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::get_attribute(const string& name, string& value,
+int AddressRangePool::get_attribute(const string& name, string& value,
     int ar_id) const
 {
     auto it = ar_pool.find(ar_id);
@@ -516,8 +519,10 @@ void AddressRangePool::get_attribute(const string& name, string& value,
 
     if (it!=ar_pool.end())
     {
-        value = it->second->get_attribute(name);
+        return it->second->get_attribute(name, value);
     }
+
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

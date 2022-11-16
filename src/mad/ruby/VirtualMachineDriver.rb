@@ -54,7 +54,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :update_sg   => "UPDATESG",
         :update_conf => "UPDATECONF",
         :resize      => "RESIZE",
-        :backup      => "BACKUP"
+        :backup      => "BACKUP",
+        :update_nic   => "UPDATENIC"
     }
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -102,6 +103,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:update_conf].to_sym, method("update_conf"))
         register_action(ACTION[:resize].to_sym, method("resize"))
         register_action(ACTION[:backup].to_sym, method("backup"))
+        register_action(ACTION[:update_nic].to_sym, method("update_nic"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -239,6 +241,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def backup(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:backup],RESULT[:failure],id,error)
+    end
+
+    def update_nic(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:update_nic],RESULT[:failure],id,error)
     end
 
 private

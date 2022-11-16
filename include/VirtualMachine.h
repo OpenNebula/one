@@ -1115,6 +1115,20 @@ public:
     }
 
     /**
+     * Update nic with values from Virtual Network
+     *   @param vnid ID of the network with updated attributes
+     *   @return 0 on success, -1 on error,
+     */
+    int nic_update(int vnid);
+
+    /**
+     * Update nic with values user template
+     *   @param vnid ID of the network with updated attributes
+     *   @return 0 on success, -1 on error
+     */
+    int nic_update(int nic_id, VirtualMachineNic *new_nic, bool live);
+
+    /**
      *  Remove the rules associated to the given security group rules
      *    @param sgid the security group ID
      */

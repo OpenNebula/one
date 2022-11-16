@@ -27,11 +27,17 @@ import { Translate } from 'client/components/HOC'
 import LeaseItem from 'client/components/Tabs/VNetwork/Leases/LeaseItem'
 
 import { getAddressType } from 'client/models/VirtualNetwork'
-import { T, AddressRange, VN_ACTIONS } from 'client/constants'
+import {
+  T,
+  AddressRange,
+  VN_ACTIONS,
+  LEASES_STATES_STR,
+} from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
 const LEASES_COLUMNS = [
-  'NAME',
+  'RESOURCE',
+  'STATE',
   'IP',
   'IP6',
   'MAC',
@@ -39,6 +45,14 @@ const LEASES_COLUMNS = [
   'IP6 LINK',
   'IP6 ULA',
 ]
+
+const flatStates = (vnet, nameState = '') => {
+  const vnets = vnet?.[nameState]?.ID
+
+  return [vnets ? (Array.isArray(vnets) ? vnets : [vnets]) : []].flat()
+}
+
+const fillState = (state, id, stateName) => (state[id] = stateName)
 
 /**
  * Renders the list of total leases from a Virtual Network.
@@ -52,9 +66,28 @@ const LEASES_COLUMNS = [
 const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
   const { data: vnet } = useGetVNetworkQuery({ id })
   const { enqueueError } = useGeneralApi()
+  const states = {
+    '-1': LEASES_STATES_STR.HOLD,
+  }
 
   const [holdLease, { isLoading, isSuccess, reset, originalArgs }] =
     useHoldLeaseMutation()
+
+  const errorVms = flatStates(vnet, 'ERROR_VMS')
+  const outdatedVms = flatStates(vnet, 'OUTDATED_VMS')
+  const updatingVms = flatStates(vnet, 'UPDATING_VMS')
+  const updatedVms = flatStates(vnet, 'UPDATED_VMS')
+
+  errorVms.forEach((idVm) => fillState(states, idVm, LEASES_STATES_STR.ERROR))
+  outdatedVms.forEach((idVm) =>
+    fillState(states, idVm, LEASES_STATES_STR.OUTDATED)
+  )
+  updatingVms.forEach((idVm) =>
+    fillState(states, idVm, LEASES_STATES_STR.UPDATING)
+  )
+  updatedVms.forEach((idVm) =>
+    fillState(states, idVm, LEASES_STATES_STR.UPDATED)
+  )
 
   /** @type {AddressRange[]} */
   const addressRanges = [vnet.AR_POOL.AR ?? []].flat()
@@ -115,7 +148,7 @@ const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
         gridTemplateColumns={{
           xs: 'repeat(3, 1fr)',
           sm: 'repeat(4, 1fr)',
-          md: 'repeat(7, 1fr)',
+          md: 'repeat(8, 1fr)',
         }}
         alignItems="center"
         gap="0.25em"
@@ -142,7 +175,7 @@ const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
               md: 'block',
             }}
           >
-            {index !== 0 && <Translate word={col} />}
+            <Translate word={col} />
           </Typography>
         ))}
         {leases.map((lease) => (
@@ -151,6 +184,7 @@ const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
             lease={lease}
             actions={actions}
             id={id}
+            state={states[lease?.VM || lease?.VNET || lease?.VROUTE]}
             resetHoldState={reset}
           />
         ))}

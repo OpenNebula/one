@@ -36,6 +36,17 @@ define(function(require) {
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
 
+  var LEASES_STATES = {
+    HOLD: Locale.tr("HOLD"),
+    UPDATED: Locale.tr("UPDATED"),
+    OUTDATED: Locale.tr("OUTDATED"),
+    UPDATING: Locale.tr("UPDATING"),
+    ERROR: Locale.tr("ERROR"),
+    UNKNOWN: Locale.tr("UNKNOWN"),
+    RESERVED: Locale.tr("RESERVED"),
+    EMPTY: "--",
+  }
+
   /*
     CONSTRUCTOR
    */
@@ -59,89 +70,102 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
+  function flatStateIDs(vnet, stateName = ''){
+    var stateVMs = vnet[stateName].ID
+
+    return stateVMs ? (Array.isArray(stateVMs) ? stateVMs : [stateVMs]) : []
+  }
+
   function _html() {
     var that = this;
     var arList = Utils.getARList(this.element);
     var processedLeases = [];
 
-    OpenNebulaVM.list({
-      timeout: true,
-      success: function(request, vm_list){
+    var leasesStates = {
+      "-1" : LEASES_STATES.HOLD, // State for leases on hold
+    }
 
-        var vms = {};
+    var updatedVMs = flatStateIDs(that.element, "UPDATED_VMS")
+    var outdatedVMs = flatStateIDs(that.element, "OUTDATED_VMS") 
+    var updatingVMs = flatStateIDs(that.element, "UPDATING_VMS")
+    var errorVMs = flatStateIDs(that.element, "ERROR_VMS")
 
-        // Convert vm_list in JSON
-        var mapJSON = function (element){
-          var id = element.VM.ID;
-          var value = element.VM;
-          vms[id] = value;
-        }
+    function addToLeasesStates(vmsIds, stateName = ''){
+      vmsIds.forEach(function(id){
+        leasesStates[id] = stateName
+      })
+    }
 
-        // TODO vm_list vacio, 1 valor, + de 1
-        Array.isArray(vm_list) ? vm_list.forEach(mapJSON) : mapJSON(vm_list);
+    addToLeasesStates(updatedVMs, LEASES_STATES.UPDATED)
+    addToLeasesStates(outdatedVMs, LEASES_STATES.OUTDATED)
+    addToLeasesStates(updatingVMs, LEASES_STATES.UPDATING)
+    addToLeasesStates(errorVMs, LEASES_STATES.ERROR)
 
-        // Get Leases
-        for (var i=0; i<arList.length; i++){
-          var ar = arList[i];
-          var id = ar.AR_ID;
+    // Get Leases
+    for (var i=0; i<arList.length; i++){
+      var ar = arList[i];
+      var id = ar.AR_ID;
 
-          var leases = ar.LEASES.LEASE;
+      var leases = ar.LEASES.LEASE;
 
-          if (!leases) { //empty
-            continue;
-          } else if (leases.constructor != Array) { //>1 lease
-            leases = [leases];
-          }
-
-          for (var j=0; j<leases.length; j++){
-            var lease = leases[j];
-
-            var col0HTML = "";
-            var col1HTML = "";
-
-            if (lease.VM == "-1") { //hold
-              col0HTML = '<i class="alert-color fas fa-square"/>';
-
-              if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
-                var ip = lease.IP ? lease.IP : "";
-                var mac = lease.MAC ? lease.MAC : "";
-                col1HTML = '<a class="release_lease button small" href="#" data-ip="'+ ip + '" data-mac="'+ mac + '" ><i class="fas fa-play"/></a>';
-              }
-            } else if (lease.VM != undefined) { //used by a VM
-              col0HTML = '<i class="primary-color fas fa-square"/>';
-              vm_name = vms[lease.VM] && vms[lease.VM]["NAME"] ? " - " + vms[lease.VM]["NAME"] : ""
-              col1HTML = Navigation.link(Locale.tr("VM:") + lease.VM + vm_name , "vms-tab", lease.VM) ;
-            } else if (lease.VNET != undefined) { //used by a VNET
-              col0HTML = '<i class="warning-color fas fa-square"/>';
-              col1HTML = Navigation.link(Locale.tr("NET:") + lease.VNET, "vnets-tab", lease.VNET);
-            } else if (lease.VROUTER != undefined) { //used by a VR
-              col0HTML = '<i class="success-color fas fa-square"/>';
-              col1HTML = Navigation.link(Locale.tr("VR:") + lease.VROUTER, "vrouters-tab", lease.VROUTER);
-            } else {
-              col0HTML = '<i class="primary-color fas fa-square"/>';
-              col1HTML = '--';
-            }
-
-            processedLeases.push([
-              col0HTML,
-              col1HTML,
-              lease.IP ? lease.IP : "--",
-              lease.IP6 ? lease.IP6 : "--",
-              lease.MAC ? lease.MAC : "--",
-              lease.IP6_LINK ? lease.IP6_LINK : "--",
-              lease.IP6_ULA ? lease.IP6_ULA : "--",
-              lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--",
-              id ? id : "--"
-            ]);
-          }
-
-          // Update Table View
-          if (that.leases_dataTable){
-            that.leases_dataTable.updateView(request, processedLeases, true);
-          }
-        }
+      if (!leases) { //empty
+        continue;
+      } else if (leases.constructor != Array) { //>1 lease
+        leases = [leases];
       }
-    });
+
+      for (var j=0; j<leases.length; j++){
+        var lease = leases[j];
+        var leaseState = LEASES_STATES.UNKNOWN
+
+        var col0HTML = "";
+        var col1HTML = "";
+
+        if (lease.VM === "-1") { //hold
+          col0HTML = '<i class="alert-color fas fa-square"/>';
+          leaseState = leasesStates[lease.VM]
+
+          if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
+            var ip = lease.IP ? lease.IP : "";
+            var mac = lease.MAC ? lease.MAC : "";
+            col1HTML = '<a class="release_lease button small" href="#" data-ip="'+ ip + '" data-mac="'+ mac + '" ><i class="fas fa-play"/></a>';
+          }
+        } else if (lease.VM != undefined) { //used by a VM
+          leaseState = leasesStates[lease.VM]
+          col0HTML = '<i class="primary-color fas fa-square"/>';
+          col1HTML = Navigation.link(Locale.tr("VM:") + lease.VM, "vms-tab", lease.VM) ;
+        } else if (lease.VNET != undefined) { //used by a VNET
+          leaseState = LEASES_STATES.RESERVED
+          col0HTML = '<i class="warning-color fas fa-square"/>';
+          col1HTML = Navigation.link(Locale.tr("NET:") + lease.VNET, "vnets-tab", lease.VNET);
+        } else if (lease.VROUTER != undefined) { //used by a VR
+          leaseState = LEASES_STATES.EMPTY
+          col0HTML = '<i class="success-color fas fa-square"/>';
+          col1HTML = Navigation.link(Locale.tr("VR:") + lease.VROUTER, "vrouters-tab", lease.VROUTER);
+        } else {
+          col0HTML = '<i class="primary-color fas fa-square"/>';
+          col1HTML = '--';
+        }
+
+        processedLeases.push([
+          col0HTML,
+          col1HTML,
+          leaseState,
+          lease.IP ? lease.IP : "--",
+          lease.IP6 ? lease.IP6 : "--",
+          lease.MAC ? lease.MAC : "--",
+          lease.IP6_LINK ? lease.IP6_LINK : "--",
+          lease.IP6_ULA ? lease.IP6_ULA : "--",
+          lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--",
+          id ? id : "--"
+        ]);
+      }
+
+      // Update Table View
+      if (that.leases_dataTable){
+        that.leases_dataTable.updateView(request, processedLeases, true);
+      }
+    }
 
     return TemplateLeases({
       'element': that.element,
@@ -160,7 +184,6 @@ define(function(require) {
         dataTableOptions: {
           "bSortClasses" : false,
           "bDeferRender": true,
-          // "sScrollX": "100%",
           "aoColumnDefs": [
             { "bSortable": false, "aTargets": [0,1] },
           ]

@@ -20,6 +20,7 @@
 #include "VirtualNetworkTemplate.h"
 #include "AddressRange.h"
 #include "PoolObjectAuth.h"
+#include "LifeCycleManager.h"
 
 #include "NebulaLog.h"
 
@@ -52,7 +53,11 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             vlan_id_automatic(false),
             outer_vlan_id_automatic(false),
             parent_vid(_pvid),
-            vrouters("VROUTERS")
+            vrouters("VROUTERS"),
+            updated("UPDATED_VMS"),
+            outdated("OUTDATED_VMS"),
+            updating("UPDATING_VMS"),
+            error("ERROR_VMS")
 {
     if (_vn_template)
     {
@@ -430,7 +435,90 @@ int VirtualNetwork::post_update_template(string& error)
 
     one_util::split_unique(sg_str, ',', security_groups);
 
+    if (obj_template->get("VNET_UPDATE"))
+    {
+        commit(false);
+
+        if (state == VirtualNetwork::UPDATE_FAILURE)
+        {
+            set_state(VirtualNetwork::READY);
+        }
+
+        Nebula::instance().get_lcm()->trigger_updatevnet(get_oid());
+    }
+
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
+{
+    static const set<string> UPDATE_ATTRIBUTES = {
+        "PHYDEV",
+        "MTU",
+        "VLAN_ID",
+        "QINQ_TYPE",
+        "CVLANS",
+        "VLAN_TAGGED_ID",
+        "OUTER_VLAN_ID",
+        "INBOUND_AVG_BW",
+        "INBOUND_PEAK_BW",
+        "INBOUND_PEAK_KB",
+        "OUTBOUND_AVG_BW",
+        "OUTBOUND_PEAK_BW",
+        "OUTBOUND_PEAK_KB"
+    };
+
+    // Adds list of updated values to "VNET_UPDATE" attribute in the
+    // form attribute_name=attribute_old_value
+    VectorAttribute* update_attr = new VectorAttribute("VNET_UPDATE");
+
+    // Detect new and modified attributes
+    new_tmpl->each_attribute([&](const Attribute* att){
+        if ( att->type() == Attribute::SIMPLE )
+        {
+            const SingleAttribute* sa = static_cast<const SingleAttribute*>(att);
+
+            string old_value;
+
+            if ( UPDATE_ATTRIBUTES.count(sa->name()) == 1
+                 && (!obj_template->get(sa->name(), old_value)
+                 || sa->value() != old_value))
+            {
+                update_attr->replace(sa->name(), old_value);
+            }
+        }
+    });
+
+    if (removed)
+    {
+        // Detect removed attributes
+        obj_template->each_attribute([&](const Attribute* att){
+            if ( att->type() == Attribute::SIMPLE )
+            {
+                const SingleAttribute* sa = static_cast<const SingleAttribute*>(att);
+
+                string new_value;
+
+                if ( UPDATE_ATTRIBUTES.count(sa->name()) == 1
+                    && !new_tmpl->get(sa->name(), new_value) )
+                {
+                    update_attr->replace(sa->name(), sa->value());
+                }
+            }
+        });
+    }
+
+    if (!update_attr->empty())
+    {
+        new_tmpl->set(update_attr);
+    }
+    else
+    {
+        delete update_attr;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -567,6 +655,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
     string leases_xml;
     string perm_str;
     string lock_str;
+    string tmp_xml;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
     int int_outer_vlan_id_automatic = outer_vlan_id_automatic ? 1 : 0;
@@ -658,6 +747,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
 
         os << "</VROUTERS>";
     }
+
+    os << updated.to_xml(tmp_xml);
+    os << outdated.to_xml(tmp_xml);
+    os << updating.to_xml(tmp_xml);
+    os << error.to_xml(tmp_xml);
 
     os << obj_template->to_xml(template_xml);
 
@@ -761,6 +855,12 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     ObjectXML::free_nodes(content);
 
+    // todo Create a migrator, which add all VMs to updated
+    updated.from_xml(this, "/VNET/");
+    outdated.from_xml(this, "/VNET/");
+    updating.from_xml(this, "/VNET/");
+    error.from_xml(this, "/VNET/");
+
     if (rc != 0)
     {
         return -1;
@@ -772,10 +872,66 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualNetwork::nic_update(VirtualMachineNic *nic,
+        unique_ptr<VectorAttribute>& update_attr) const
+{
+    //--------------------------------------------------------------------------
+    //  Set updated values from the Virtual Network to NIC
+    //--------------------------------------------------------------------------
+    // Attribute 'VNET_UPDATE' holds modified attributes with old values
+    //
+    // If the NIC->attribute->value == VNET_UPDATE->attribute->value
+    // the value in NIC was set from VNET, we need to updated it.
+    //
+    // Otherwise it was value was specified by NIC, we don't want to update
+    //--------------------------------------------------------------------------
+    int num_updated = 0;
+    int ar_id       = -1;
+
+    auto vnet_update = obj_template->get("VNET_UPDATE");
+
+    if (!vnet_update)
+    {
+        return 0;
+    }
+
+    update_attr = unique_ptr<VectorAttribute>(vnet_update->clone());
+
+    nic->vector_attribute()->vector_value("AR_ID", ar_id);
+
+    for (auto update : update_attr->value())
+    {
+        string nic_value;
+
+        if (nic->vector_value(update.first, nic_value) < 0
+            || nic_value == update.second)
+        {
+            string new_value;
+
+            if (ar_pool.get_attribute(update.first, new_value, ar_id) == 0 ||
+                obj_template->get(update.first, new_value))
+            {
+                nic->replace(update.first, new_value);
+            }
+            else
+            {
+                nic->remove(update.first);
+            }
+
+            ++num_updated;
+        }
+    }
+
+    return num_updated;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::nic_attribute(
         VirtualMachineNic *     nic,
         int                     vid,
-        const vector<string>&   inherit_attrs)
+        const set<string>&      inherit_attrs)
 {
     string inherit_val;
     string target;
@@ -923,6 +1079,8 @@ int VirtualNetwork::nic_attribute(
     nic->replace("SECURITY_GROUPS",
         one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
 
+    updated.add(vid);
+
     return rc;
 }
 
@@ -932,7 +1090,7 @@ int VirtualNetwork::nic_attribute(
 int VirtualNetwork::vrouter_nic_attribute(
         VirtualMachineNic *     nic,
         int                     vrid,
-        const vector<string>&   inherit_attrs)
+        const set<string>&      inherit_attrs)
 {
     int     rc = 0;
     bool    floating;
@@ -1074,7 +1232,10 @@ int VirtualNetwork::update_ar(
 {
     vector<VectorAttribute *> tmp_ars;
 
-    if(ars_tmpl->get("AR", tmp_ars) == 0)
+    std::unique_ptr<VectorAttribute> update_attr = std::make_unique<VectorAttribute>("VNET_UPDATE");
+    std::set<int> update_ids;
+
+    if (ars_tmpl->get("AR", tmp_ars) == 0)
     {
         error_msg = "Wrong AR definition. AR vector attribute is missing.";
         return -1;
@@ -1082,7 +1243,24 @@ int VirtualNetwork::update_ar(
 
     keep_restricted = keep_restricted && is_reservation();
 
-    return ar_pool.update_ar(tmp_ars, keep_restricted, error_msg);
+    auto rc = ar_pool.update_ar(tmp_ars, keep_restricted, update_ids,
+                    update_attr, error_msg);
+
+    if (rc == 0 && !update_attr->empty())
+    {
+        obj_template->set(update_attr.release());
+
+        commit(update_ids);
+
+        if (state == VirtualNetwork::UPDATE_FAILURE)
+        {
+            set_state(VirtualNetwork::READY);
+        }
+
+        Nebula::instance().get_lcm()->trigger_updatevnet(get_oid());
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1246,6 +1424,107 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
             ar_pool.free_addr_by_ip6(ar_id, PoolObjectSQL::VM, -1, ip6);
         }
     }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::replace_template(const std::string& tmpl_str,
+                                     bool keep_restricted,
+                                     std::string& error)
+{
+    string ra;
+
+    unique_ptr<Template> new_tmpl = get_new_template();
+
+    if ( !obj_template )
+    {
+        // This code should be unreachable
+        error = "Trying to update uninitialized Virtual Network id="
+            + to_string(get_oid());
+        return -1;
+    }
+
+    if ( !new_tmpl )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        return -1;
+    }
+
+    if ( keep_restricted &&
+            new_tmpl->check_restricted(ra, obj_template.get()) )
+    {
+        error = "Tried to change restricted attribute: " + ra;
+
+        return -1;
+    }
+
+    set_updated_attributes(new_tmpl.get(), true);
+
+    obj_template = move(new_tmpl);
+
+    if (post_update_template(error) == -1)
+    {
+        return -1;
+    }
+
+    encrypt();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::append_template(
+        const string& tmpl_str, bool keep_restricted, string& error)
+{
+    unique_ptr<Template> new_tmpl = get_new_template();
+    string rname;
+
+    if ( !obj_template )
+    {
+        // This code should be unreachable
+        error = "Trying to update uninitialized Virtual Network id="
+            + to_string(get_oid());
+        return -1;
+    }
+
+    if ( !new_tmpl )
+    {
+        error = "Cannot allocate a new template";
+        return -1;
+    }
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        return -1;
+    }
+
+    set_updated_attributes(new_tmpl.get(), false);
+
+    if (keep_restricted &&
+        new_tmpl->check_restricted(rname, obj_template.get()))
+    {
+        error ="User Template includes a restricted attribute " + rname;
+        return -1;
+    }
+
+    obj_template->merge(new_tmpl.get());
+
+    if (post_update_template(error) == -1)
+    {
+        return -1;
+    }
+
+    encrypt();
 
     return 0;
 }
@@ -1470,4 +1749,56 @@ void VirtualNetwork::decrypt()
     ar_pool.decrypt(one_key);
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void VirtualNetwork::commit(bool recover)
+{
+    if (!recover)
+    {
+        outdated << updated;
+        updated.clear();
+    }
+
+    outdated << updating << error;
+
+    updating.clear();
+    error.clear();
+}
+
+
+void VirtualNetwork::commit(const std::set<int>& vm_ids)
+{
+    outdated << vm_ids;
+
+    updated  -= vm_ids;
+    updating -= vm_ids;
+    error    -= vm_ids;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::clear_update_vm(int vm_id)
+{
+    if ( updated.del(vm_id) == 0 )
+    {
+        return;
+    }
+
+    if ( updating.del(vm_id) == 0 )
+    {
+        return;
+    }
+
+    if ( error.del(vm_id) == 0 )
+    {
+        if (error.size() == 0 && state == UPDATE_FAILURE)
+        {
+            set_state(READY);
+        }
+        return;
+    }
+
+    outdated.del(vm_id);
+}

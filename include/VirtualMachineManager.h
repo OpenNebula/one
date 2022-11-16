@@ -82,6 +82,15 @@ public:
     int updatesg(VirtualMachine * vm, int sgid);
 
     /**
+     * Updates nic attributes of a VM
+     *   @param vm pointer to VM, needs to be locked
+     *   @param vnid the id of the virtual network
+     *
+     *   @return 0 on success
+     */
+    int updatenic(VirtualMachine * vm, int vnid);
+
+    /**
      * Get keep_snapshots capability from driver
      */
     bool is_keep_snapshots(const std::string& name)
@@ -310,6 +319,11 @@ private:
     /**
      *
      */
+    void _updatenic(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
     void log_error(VirtualMachine* vm_id,
                    const std::string& payload,
                    const std::string& msg);
@@ -379,7 +393,8 @@ private:
         const std::string& disk_target_path,
         const std::string& tmpl,
         int ds_id,
-        int sgid);
+        int sgid = -1,
+        int nicid = -1);
 
 public:
     /**

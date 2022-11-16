@@ -24,6 +24,7 @@
 
 class AuthRequest;
 class VirtualMachineNic;
+class VirtualMachine;
 
 /**
  *  The Virtual Network Pool class. ...
@@ -203,6 +204,11 @@ public:
         return PoolSQL::search(oids, one_db::vn_table, where);
     };
 
+    const std::set<std::string>& get_inherited_attrs() const
+    {
+        return inherit_attrs;
+    }
+
     //--------------------------------------------------------------------------
     // NIC Attribute build functions
     //--------------------------------------------------------------------------
@@ -302,7 +308,7 @@ private:
     /**
      * VNet attributes to be injected into the VM nic
      */
-    std::vector<std::string> inherit_attrs;
+    std::set<std::string> inherit_attrs;
 
     /**
      *  Configuration attributes for the vlan_id pool

@@ -36,6 +36,16 @@ module VNMMAD
                             :security_group_name => "default"}
                         ]}
 
+        # Attributes that can be updated on update_nic action
+        SUPPORTED_UPDATE = [
+            :inbound_avg_bw,
+            :inbound_peak_bw,
+            :inbound_peak_kb,
+            :outbound_avg_bw,
+            :outbound_peak_bw,
+            :outbound_peak_kb
+        ]
+
         # Creates a new SG driver and scans SG Rules
         # @param [String] VM XML base64 encoded
         # @param [String] hypervisor ID for the VM
@@ -160,5 +170,35 @@ module VNMMAD
 
             0
         end
+
+        def update(vnet_id)
+            lock
+
+            begin
+                if @vm.deploy_id
+                    deploy_id = @vm.deploy_id
+                else
+                    deploy_id = @vm['DEPLOY_ID']
+                end
+
+                changes = @vm.changes.select {|k, _| SUPPORTED_UPDATE.include?(k) }
+
+                return 0 if changes.empty?
+
+                process do |nic|
+                    next unless Integer(nic[:network_id]) == vnet_id
+
+                    nic.set_qos(deploy_id)
+                end
+            rescue StandardError => e
+                raise e
+            ensure
+                unlock
+            end
+
+            0
+        end
+
     end
+
 end

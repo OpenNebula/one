@@ -866,6 +866,7 @@ tabs:
       Network.menu_labels: true
       Network.add_secgroup: true
       Network.remove_secgroup: true
+      Network.recover: true
   vnets-templates-tab:
     panel_tabs:
       vnet_template_info_tab: true

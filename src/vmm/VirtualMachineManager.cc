@@ -128,6 +128,9 @@ int VirtualMachineManager::start()
     register_action(VMManagerMessages::LOG,
             bind(&VirtualMachineManager::_log, this, _1));
 
+    register_action(VMManagerMessages::UPDATENIC,
+            bind(&VirtualMachineManager::_updatenic, this, _1));
+
     string error;
     if ( DriverManager::start(error) != 0 )
     {
@@ -214,7 +217,8 @@ string VirtualMachineManager::format_message(
     const string& disk_target_path,
     const string& tmpl,
     int ds_id,
-    int sgid)
+    int sgid,
+    int nicid)
 {
     ostringstream oss;
 
@@ -299,6 +303,11 @@ string VirtualMachineManager::format_message(
     if ( sgid != -1 )
     {
         oss << "<SECURITY_GROUP_ID>" << sgid << "</SECURITY_GROUP_ID>";
+    }
+
+    if ( nicid != -1 )
+    {
+        oss << "<VIRTUAL_NETWORK_ID>" << nicid << "</VIRTUAL_NETWORK_ID>";
     }
 
     oss << tmpl
@@ -2355,6 +2364,50 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
         sgid);
 
     vmd->updatesg(vm->get_oid(), drv_msg);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineManager::updatenic(VirtualMachine * vm, int vnid)
+{
+    string   vm_tmpl;
+    string   drv_msg;
+
+    ostringstream os;
+
+    if (!vm->hasHistory())
+    {
+        return -1;
+    }
+
+    // Get the driver for this VM
+    const VirtualMachineManagerDriver * vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == nullptr )
+    {
+        return -1;
+    }
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id(),
+        -1,
+        vnid);
+
+    vmd->updatenic(vm->get_oid(), drv_msg);
 
     return 0;
 }

@@ -19,6 +19,11 @@ module VNMMAD
     # NoVLANDriver class
     class NoVLANDriver< VNMMAD::VLANDriver
 
+        # Attributes that can be updated on update_nic action
+        SUPPORTED_UPDATE = [
+            :phydev
+        ]
+
         def initialize(vm, xpath_filter, deploy_id = nil)
             @locking = true
 
@@ -97,6 +102,41 @@ module VNMMAD
             end
 
             unlock
+
+            0
+        end
+
+        def update(vnet_id)
+            lock
+
+            begin
+                changes = @vm.changes.select {|k, _| SUPPORTED_UPDATE.include?(k) }
+
+                return 0 if changes[:phydev].nil?
+
+                @bridges = list_bridges
+
+                process do |nic|
+                    @nic = nic
+
+                    next unless Integer(@nic[:network_id]) == vnet_id
+                    next unless @bridges[@nic[:bridge]].include? @nic[:phydev]
+
+                    # Del old phydev device from the bridge.
+                    OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                    "nomaster #{changes[:phydev]}")
+
+                    # Add new phydev device to the bridge.
+                    OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                    "#{@nic[:phydev]} master #{@nic[:bridge]}")
+
+                    return 0
+                end
+            rescue Exception => e
+                raise e
+            ensure
+                unlock
+            end
 
             0
         end

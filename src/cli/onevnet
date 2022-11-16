@@ -114,6 +114,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'No recover action possible, delete the Virtual Network'
     }
 
+    RETRY = {
+        :name => 'retry',
+        :large => '--retry',
+        :description => 'Recover a Virtual Network by retrying the last ' \
+                        'failed action'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -363,6 +370,8 @@ CommandParser::CmdParser.new(ARGV) do
     update_desc = <<-EOT.unindent
         Update the template contents. If a path is not provided the editor will
         be launched to modify the current content.
+
+        Note: Triggers Virtual Machine updates for used leases.
     EOT
 
     command :update, update_desc, :vnetid, [:file, nil],
@@ -456,19 +465,22 @@ CommandParser::CmdParser.new(ARGV) do
         YOU NEED TO MANUALLY CHECK THE VN STATUS, to decide if the
         operation was successful or not, or if it can be retried.
 
-        States for success/failure recovers: LOCK_CREATE, LOCK_DELETE state.
-        States for a retry recover: LOCK_CREATE, LOCK_DELETE state
+        States for success recovers: LOCK_CREATE, LOCK_DELETE, UPDATE_FAILURE state.
+        States for failure recovers: LOCK_CREATE, LOCK_DELETE state.
+        States for a retry recover: UPDATE_FAILURE
         States for delete: Any but READY
     EOT
 
     command :recover, recover_desc, [:range, :vmid_list],
-            :options => [SUCCESS, FAILURE, DELETE] do
+            :options => [SUCCESS, FAILURE, DELETE, RETRY] do
         if !options[:success].nil?
             result = 1
         elsif !options[:failure].nil?
             result = 0
         elsif !options[:delete].nil?
             result = 2
+        elsif !options[:retry].nil?
+            result = 3
         else
             error_message = <<-EOT.unindent
             Need to specify the result of the pending action.

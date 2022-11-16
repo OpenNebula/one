@@ -117,6 +117,10 @@ define(function(require) {
     "unlock" : function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
     },
+    "recover" : function(params) {
+      var action_obj = {"result": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "recover", action_obj);
+    },
     "stateStr": function(stateId) {
       return STATES_STR[stateId];
     },

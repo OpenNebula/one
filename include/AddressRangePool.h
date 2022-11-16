@@ -28,7 +28,6 @@
 class VectorAttribute;
 class AddressRange;
 
-
 class AddressRangePool
 {
 public:
@@ -85,9 +84,12 @@ public:
      *    current template will override the new template
      *    @param error_msg If the action fails, this message contains
      *    the reason.
+     *    @param update_attr Updated attributes with old values. Caller must
+     *    release the pointer.
      *    @return 0 on success
      */
     int update_ar(std::vector<VectorAttribute *> ars, bool keep_restricted,
+            std::set<int>& update_ids, std::unique_ptr<VectorAttribute>& update_attr,
             std::string& error_msg);
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
@@ -119,7 +121,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const std::vector<std::string> &inherit);
+        VectorAttribute * nic, const std::set<std::string> &inherit);
 
     /**
      *  Allocates an address in a suitable address range from the pool by mac/ip
@@ -132,15 +134,15 @@ public:
      */
     int allocate_by_mac(const std::string &mac, PoolObjectSQL::ObjectType ot,
                         int obid, VectorAttribute * nic,
-                        const std::vector<std::string> &inherit);
+                        const std::set<std::string> &inherit);
 
     int allocate_by_ip(const std::string &ip, PoolObjectSQL::ObjectType ot,
                        int obid, VectorAttribute * nic,
-                       const std::vector<std::string> &inherit);
+                       const std::set<std::string> &inherit);
 
     int allocate_by_ip6(const std::string &ip, PoolObjectSQL::ObjectType ot,
                         int obid, VectorAttribute * nic,
-                        const std::vector<std::string> &inherit);
+                        const std::set<std::string> &inherit);
 
     /**
      *  Holds an address from the specified address range.
@@ -301,8 +303,9 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      *    @param ar_id to get the attribute from
+     *    @return 0 on success
      */
-    void get_attribute(const std::string& name, std::string& value, int ar_id) const;
+    int get_attribute(const std::string& name, std::string& value, int ar_id) const;
 
     /**
      *  Gets an attribute from the Address Range, int version

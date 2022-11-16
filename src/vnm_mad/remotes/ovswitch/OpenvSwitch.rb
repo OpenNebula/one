@@ -18,8 +18,24 @@ require 'vnmmad'
 
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
-    DRIVER = "ovswitch"
+    DRIVER       = 'ovswitch'
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
+
+    SUPPORTED_UPDATE = [
+        :vlan_id,
+        :mtu,
+        :vlan_tagged_id,
+        :cvlans,
+        :qinq_type,
+        :inbound_avg_bw,
+        :inbound_peak_bw,
+        :inbound_peak_kb,
+        :outbound_avg_bw,
+        :outbound_peak_bw,
+        :outbound_peak_kb,
+        :outer_vlan_id,
+        :phydev
+    ]
 
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
         @locking = false
@@ -69,9 +85,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             end
 
             if !@nic[:mtu].nil?
-              cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
-                    "mtu_request=#{@nic[:mtu]}"
-              run cmd
+                cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
+                      "mtu_request=#{@nic[:mtu]}"
+                run cmd
             end
 
             # Apply VLAN
@@ -110,8 +126,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             # in_port=<PORT>,table=10,priority=100,actions=resubmit(,20)
             # in_port=<PORT>,table=20,priority=100,actions=NORMAL
             add_flow("table=0,in_port=#{port}", "note:#{port_note},resubmit(,10)", 100)
-            add_flow("table=10,in_port=#{port}", "resubmit(,20)", 100)
-            add_flow("table=20,in_port=#{port}", "normal", 100)
+            add_flow("table=10,in_port=#{port}", 'resubmit(,20)', 100)
+            add_flow("table=20,in_port=#{port}", 'normal', 100)
 
             # MAC-spoofing
             mac_spoofing if nic[:filter_mac_spoofing] =~ /yes/i
@@ -154,15 +170,14 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
             # Return if the bridge doesn't exist because it was already deleted
             # (handles last vm with multiple nics on the same vlan)
-            next if !@bridges.include? @nic[:bridge]
+            next unless @bridges.include?(@nic[:bridge])
 
             # Return if we want to keep the empty bridge
             next if @nic[:conf][:keep_empty_bridge]
 
             # Return if the vlan device is not the only left device in the bridge.
-            next if @bridges[@nic[:bridge]].length > 1 or
-                (@nic[:vlan_dev] and
-                 !@bridges[@nic[:bridge]].include? @nic[:vlan_dev])
+            next if @bridges[@nic[:bridge]].length > 1 ||
+                (@nic[:vlan_dev] && !@bridges[@nic[:bridge]].include?(@nic[:vlan_dev]))
 
             if @nic[:vlan_dev]
                 delete_vlan_dev
@@ -177,6 +192,96 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         0
     end
 
+    def update(vnet_id)
+        lock
+
+        begin
+            changes = @vm.changes.select {|k, _| SUPPORTED_UPDATE.include?(k) }
+
+            return 0 if changes.empty?
+
+            process do |nic|
+                next unless Integer(nic[:network_id]) == vnet_id
+
+                @nic = nic
+
+                # Get the name of the link vlan device.
+                gen_vlan_dev_name
+
+                if changes[:vlan_id] && !@nic[:vlan_id].nil? && !@nic[:vlan_id].empty?
+                    tag_vlan
+                end
+
+                if changes[:mtu]
+                    cmd = "#{command(:ovs_vsctl)} set int #{@nic[:tap]} "\
+                          "mtu_request=#{@nic[:mtu]}"
+                    run cmd
+                end
+
+                if changes[:vlan_tagged_id]
+                    tag_trunk_vlans
+                end
+
+                if !changes[:cvlans].nil? || !changes[:qinq_type].nil?
+                    tag_qinq
+                end
+
+                qos = changes.each do |c, _|
+                    break true if c.to_s.match?(/inbound/) || c.match?(/outbound/)
+                end
+
+                if qos
+                    if @vm.deploy_id
+                        deploy_id = @vm.deploy_id
+                    else
+                        deploy_id = @vm['DEPLOY_ID']
+                    end
+
+                    @nic.set_qos(deploy_id)
+                end
+
+                @bridges = list_bridges
+                phydev   = @nic[:vlan_dev] || @nic[:phydev]
+
+                next if @bridges[@nic[:bridge]].include? phydev
+
+                if (!changes[:outer_vlan_id].nil? || !changes[:phydev].nil?) &&
+                      !@nic[:vlan_dev].nil?
+                    ####################################################
+                    # Remove old VXLAN device
+                    ####################################################
+                    @nic = nic.merge(changes)
+                    gen_vlan_dev_name
+
+                    if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+                        del_bridge_port(@nic[:vlan_dev])
+                        delete_vlan_dev
+                    end
+
+                    ####################################################
+                    # Add new link to the BRIDGE
+                    ####################################################
+                    @nic = nic
+                    gen_vlan_dev_name
+
+                    create_vlan_dev
+                    add_bridge_port(@nic[:vlan_dev], nil)
+                elsif !changes[:phydev].nil?
+                    if @bridges[@nic[:bridge]].include? @nic[:phydev]
+                        del_bridge_port(changes[:phydev], nil)
+                        add_bridge_port(@nic[:phydev], nil)
+                    end
+                end
+            end
+        rescue StandardError => e
+            raise e
+        ensure
+            unlock
+        end
+
+        0
+    end
+
     def tag_vlan
         cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
         cmd << "tag=#{@nic[:vlan_id]}"
@@ -187,19 +292,19 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def tag_trunk_vlans
         range = @nic[:vlan_tagged_id]
 
-        if range? range
-            ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
+        return unless range?(range)
 
-            # Open vSwitch 2.7.0+ allows range intervals (x-y), but
-            # we need to support even older versions. We expand the
-            # intervals into the list of values [x,x+1,...,y-1,y],
-            # which should work for all.
-            cmd = "#{ovs_vsctl_cmd} trunks='#{expand_range(range)}'"
-            run cmd
+        ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
-            cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
-            run cmd
-        end
+        # Open vSwitch 2.7.0+ allows range intervals (x-y), but
+        # we need to support even older versions. We expand the
+        # intervals into the list of values [x,x+1,...,y-1,y],
+        # which should work for all.
+        cmd = "#{ovs_vsctl_cmd} trunks='#{expand_range(range)}'"
+        run cmd
+
+        cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
+        run cmd
     end
 
     def tag_qinq
@@ -214,7 +319,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         run cmd
 
         qinq_type = @nic[:qinq_type]
-        qinq_type ||= "802.1q"
+        qinq_type ||= '802.1q'
 
         cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
         cmd << "other_config:qinq-ethtype=#{qinq_type}"
@@ -236,10 +341,10 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     # The particular table also contains the base rule created before:
     # in_port=<PORT>,table=20,priority=100,actions=NORMAL
     def ip_spoofing
-        base="table=20,in_port=#{port}"
-        pass="normal"
+        base = "table=20,in_port=#{port}"
+        pass = 'normal'
 
-        ipv4s = Array.new
+        ipv4s = []
 
         [:ip, :vrouter_ip].each do |key|
             ipv4s << @nic[key] if !@nic[key].nil? && !@nic[key].empty?
@@ -260,9 +365,10 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
 
         # BOOTP
-        add_flow("#{base},udp,nw_src=0.0.0.0/32,tp_src=68,nw_dst=255.255.255.255/32,tp_dst=67", pass, 44000)
+        add_flow("#{base},udp,nw_src=0.0.0.0/32,tp_src=68,nw_dst=255.255.255.255/32,tp_dst=67",
+                 pass, 44000)
 
-        ipv6s = Array.new
+        ipv6s = []
 
         [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
             ipv6s << @nic[key] if !@nic[key].nil? && !@nic[key].empty?
@@ -290,8 +396,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     # The particular table also contains the base rule created before:
     # in_port=<PORT>,table=10,priority=100,actions=resubmit(,20)
     def mac_spoofing
-        base="table=10,in_port=#{port}"
-        pass="resubmit(,20)"
+        base = "table=10,in_port=#{port}"
+        pass = 'resubmit(,20)'
 
         if @nic[:conf][:arp_cache_poisoning]
             add_flow("#{base},arp,dl_src=#{@nic[:mac]}", pass, 50000)
@@ -303,8 +409,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def del_flows
         the_ports = ports
-
-        in_port = ""
+        in_port   = ''
 
         cmd_flows = "#{command(:ovs_ofctl)} dump-flows #{@nic[:bridge]}"
         out_flows = `#{cmd_flows}`
@@ -328,18 +433,18 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             break unless in_port.empty?
         end
 
-        del_flow "in_port=#{in_port}" if !in_port.empty?
+        del_flow "in_port=#{in_port}" unless in_port.empty?
     end
 
-    def add_flow(filter,action,priority=nil)
-        priority = (priority.to_s.empty? ? "" : "priority=#{priority},")
+    def add_flow(filter, action, priority = nil)
+        priority = (priority.to_s.empty? ? '' : "priority=#{priority},")
 
         run "#{command(:ovs_ofctl)} add-flow " <<
             "#{@nic[:bridge]} '#{filter},#{priority}actions=#{action}'"
     end
 
     def del_flow(filter)
-        filter.gsub!(/priority=(\d+)/,"")
+        filter.gsub!(/priority=(\d+)/, '')
         run "#{command(:ovs_ofctl)} del-flows " <<
             "#{@nic[:bridge]} #{filter}"
     end
@@ -394,8 +499,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         items.uniq.join(',')
     end
 
+    private
 
-private
     # Generate the name of the vlan device which will be added to the bridge.
     def gen_vlan_dev_name
         nil
@@ -437,7 +542,7 @@ private
 
         set_bridge_options
 
-        @bridges[@nic[:bridge]] = Array.new
+        @bridges[@nic[:bridge]] = []
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
     end
@@ -486,7 +591,7 @@ private
     # Get hypervisor bridges
     #   @return [Hash<String>] with the bridge names
     def list_bridges
-        bridges = Hash.new
+        bridges = {}
 
         list_br =`#{command(:ovs_vsctl)} list-br`
         list_br.split.each do |bridge|
@@ -502,16 +607,16 @@ private
     end
 
     def validate_vlan_id
-        OpenNebula.log_error("VLAN ID validation not supported for OpenvSwitch, skipped.")
+        OpenNebula.log_error('VLAN ID validation not supported for OpenvSwitch, skipped.')
     end
 
     def set_vlan_limit(limit)
-        vl  =`#{command(:ovs_vsctl)} get Open_vSwitch . other_config:vlan-limit`
+        vl = `#{command(:ovs_vsctl)} get Open_vSwitch . other_config:vlan-limit`
 
         vl_limit = 0
 
         begin
-            vl_limit = Integer(vl.tr("\"\n",''))
+            vl_limit = Integer(vl.tr("\"\n", ''))
         rescue ArgumentError
         end
 
@@ -524,4 +629,5 @@ private
         cmd = "#{command(:ovs_appctl)} revalidator/purge"
         run cmd
     end
+
 end

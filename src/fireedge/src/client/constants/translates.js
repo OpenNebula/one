@@ -262,6 +262,12 @@ module.exports = {
   TakeMeToTheAppGui: 'Take me to the %s GUI',
 
   /* errors */
+  Error: 'Error',
+  Outdated: 'Outdated',
+  Updated: 'Updated',
+  Updating: 'Updating',
+  Reserved: 'Reserved',
+  Vrouter: 'Vrouter',
   SessionExpired: 'Sorry, your session has expired',
   OnlyForOneadminGroup:
     'Only members of the oneadmin group can access OneProvision functionality',
@@ -585,8 +591,24 @@ module.exports = {
   OperationConceptRecreate:
     'No recover action possible, delete and recreate the VM',
   OperationConceptDeleteDb: `
-    No recover action possible, delete the VM from the DB.
-    It does not trigger any action on the hypervisor`,
+  No recover action possible, delete the VM from the DB.
+  It does not trigger any action on the hypervisor`,
+  RecoverDescriptionVNet: `
+    Recovers a stuck Virtual Network after an update operation that didn't 
+    finish successfully, since updating a Virtual Network implies updating 
+    the corresponding Virtual Machine NICs. The recovery may be done by failing, 
+    succeeding or retrying the current operation; or deleting the Virtual Network. 
+    You need to manually check the affected VMs and the network resources on the
+    infrastructure to decide if the operation was successful or not, or if
+    it can be retried.`,
+  OperationConceptFailureVNet:
+    'Recover a Virtual Network by failing the pending action',
+  OperationConceptSuccessVNet:
+    'Recover a Virtual Network by succeeding the pending action',
+  OperationConceptRetryVNet:
+    'Recover a Virtual Network by retrying the last failed action',
+  OperationConceptDeleteVNet:
+    'No recover action possible, delete the Virtual Network',
   /* VM schema - history */
   RequestId: 'Request ID',
   TimeWhenTheStateChanged: 'Time when the state changed',

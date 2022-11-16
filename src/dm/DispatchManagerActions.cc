@@ -27,6 +27,7 @@
 #include "ClusterPool.h"
 #include "HostPool.h"
 #include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
 #include "VirtualRouterPool.h"
 #include "SecurityGroupPool.h"
 
@@ -1317,8 +1318,10 @@ int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
-        VMActions::Action action, const RequestAttributes& ra)
+void DispatchManager::close_cp_history(VirtualMachinePool *vmpool,
+        VirtualMachine *vm,
+        VMActions::Action action,
+        const RequestAttributes& ra)
 {
     time_t the_time = time(0);
     bool set_retime = false;
@@ -1892,6 +1895,215 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
         vmpool->update_search(vm.get());
 
         vmpool->delete_attach_nic(std::move(vm));
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::update_nic(int vid, int nic_id, VirtualMachineTemplate* tmpl,
+        bool append, const RequestAttributes& ra, std::string& error_str)
+{
+    ostringstream oss;
+    oss << "Error updating NIC (" << nic_id << ") for VM " << vid << ": ";
+
+    auto vm = vmpool->get(vid);
+
+    if ( !vm )
+    {
+        oss << "VM does not exist";
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+
+    VirtualMachineNic *nic = vm->get_nic(nic_id);
+
+    if ( !nic )
+    {
+        oss << "NIC does not exist";
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+
+    VirtualMachine::VmState  state     = vm->get_state();
+    VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+    bool is_update = false;
+
+    if (state == VirtualMachine::ACTIVE &&
+        (lcm_state == VirtualMachine::BOOT ||
+         lcm_state == VirtualMachine::BOOT_MIGRATE ||
+         lcm_state == VirtualMachine::BOOT_SUSPENDED ||
+         lcm_state == VirtualMachine::BOOT_STOPPED ||
+         lcm_state == VirtualMachine::BOOT_UNDEPLOY ||
+         lcm_state == VirtualMachine::BOOT_POWEROFF ||
+         lcm_state == VirtualMachine::BOOT_UNKNOWN ||
+         lcm_state == VirtualMachine::BOOT_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_STOPPED_FAILURE ||
+         lcm_state == VirtualMachine::MIGRATE ||
+         lcm_state == VirtualMachine::HOTPLUG_NIC ||
+         lcm_state == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
+         lcm_state == VirtualMachine::HOTPLUG ||
+         lcm_state == VirtualMachine::HOTPLUG_SNAPSHOT ||
+         lcm_state == VirtualMachine::HOTPLUG_SAVEAS ||
+         lcm_state == VirtualMachine::HOTPLUG_RESIZE ||
+         lcm_state == VirtualMachine::DISK_SNAPSHOT ||
+         lcm_state == VirtualMachine::DISK_SNAPSHOT_DELETE ||
+         lcm_state == VirtualMachine::DISK_RESIZE ||
+         lcm_state == VirtualMachine::UNKNOWN ))
+    {
+        oss << "Wrong state " << vm->state_str();
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+    else if (state == VirtualMachine::ACTIVE && lcm_state == VirtualMachine::RUNNING)
+    {
+        is_update = true;
+    }
+
+    // Get new nic from the template
+    auto nic_va = tmpl->get("NIC");
+
+    if (!nic_va)
+    {
+        oss << "Wrong NIC definition, attribute is missing";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    VectorAttribute* va;
+
+    if (append)
+    {
+        va = nic->vector_attribute()->clone();
+
+        va->merge(nic_va, true);
+    }
+    else
+    {
+        va = nic_va;
+    }
+
+    VirtualMachineNic new_nic(va, nic_id);
+
+    auto rc = vm->nic_update(nic_id, &new_nic, is_update);
+
+    if (is_update && rc > 0)
+    {
+        int net_id = -1;
+
+        vm->set_state(VirtualMachine::HOTPLUG_NIC);
+
+        close_cp_history(vmpool, vm.get(), VMActions::NIC_UPDATE_ACTION, ra);
+
+        nic->vector_value("NETWORK_ID", net_id);
+
+        vmm->updatenic(vm.get(), net_id);
+    }
+
+    if (append)
+    {
+        delete va;
+    }
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::recover_nic(int vid, int nic_id, int network_id,
+        string& error_str)
+{
+    ostringstream oss;
+    oss << "Error recovering NIC (" << nic_id << ") for VM " << vid << ": ";
+
+    if (auto vn = vnpool->get(network_id))
+    {
+        vn->clear_update_vm(vid);
+        vn->add_updating(vid);
+
+        vnpool->update(vn.get());
+    }
+
+    auto vm = vmpool->get_ro(vid);
+
+    if (!vm)
+    {
+        oss << "VM does not exist";
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+
+    VirtualMachineNic *nic = vm->get_nic(nic_id);
+
+    if ( !nic )
+    {
+        oss << "NIC does not exist";
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+
+    VirtualMachine::VmState  state     = vm->get_state();
+    VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+    if (state == VirtualMachine::ACTIVE &&
+        (lcm_state == VirtualMachine::BOOT ||
+         lcm_state == VirtualMachine::BOOT_MIGRATE ||
+         lcm_state == VirtualMachine::BOOT_SUSPENDED ||
+         lcm_state == VirtualMachine::BOOT_STOPPED ||
+         lcm_state == VirtualMachine::BOOT_UNDEPLOY ||
+         lcm_state == VirtualMachine::BOOT_POWEROFF ||
+         lcm_state == VirtualMachine::BOOT_UNKNOWN ||
+         lcm_state == VirtualMachine::BOOT_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
+         lcm_state == VirtualMachine::BOOT_STOPPED_FAILURE ||
+         lcm_state == VirtualMachine::MIGRATE ||
+         lcm_state == VirtualMachine::HOTPLUG_NIC ||
+         lcm_state == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
+         lcm_state == VirtualMachine::UNKNOWN ))
+    {
+        oss << "VM in wrong state " << vm->state_str();
+        error_str = oss.str();
+
+        NebulaLog::error("DiM", error_str);
+
+        return -1;
+    }
+    else if (state == VirtualMachine::ACTIVE &&
+        (lcm_state == VirtualMachine::RUNNING ||
+         lcm_state == VirtualMachine::HOTPLUG ||
+         lcm_state == VirtualMachine::HOTPLUG_SNAPSHOT ||
+         lcm_state == VirtualMachine::HOTPLUG_SAVEAS ||
+         lcm_state == VirtualMachine::HOTPLUG_RESIZE ||
+         lcm_state == VirtualMachine::DISK_SNAPSHOT ||
+         lcm_state == VirtualMachine::DISK_SNAPSHOT_DELETE ||
+         lcm_state == VirtualMachine::DISK_RESIZE))
+    {
+        vmm->updatenic(vm.get(), network_id);
     }
 
     return 0;

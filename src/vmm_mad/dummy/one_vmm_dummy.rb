@@ -225,6 +225,15 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:backup], result, id, 'dummy-backup-id 1024')
     end
 
+    def update_nic(id, drv_message)
+        result = retrieve_result("update_nic")
+
+        xml_data = decode(drv_message)
+        nic_id   = xml_data.elements['VIRTUAL_NETWORK_ID'].text
+
+        send_message(ACTION[:update_nic], result, id, nic_id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 

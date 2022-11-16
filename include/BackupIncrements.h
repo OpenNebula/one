@@ -52,7 +52,7 @@ public:
         return get_id();
     }
 
-    Type type() const
+    Type backup_type() const
     {
         std::string stype = vector_value("TYPE");
 

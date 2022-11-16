@@ -335,6 +335,7 @@ int VirtualNetworkDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Re
         case VirtualNetwork::INIT:
         case VirtualNetwork::READY:
         case VirtualNetwork::ERROR:
+        case VirtualNetwork::UPDATE_FAILURE:
             break;
     }
 

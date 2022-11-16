@@ -1773,6 +1773,7 @@ NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
                     src/vnm_mad/remotes/802.1Q/update_sg \
+                    src/vnm_mad/remotes/802.1Q/update_nic \
                     src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb \
                     src/vnm_mad/remotes/802.1Q/vnet_create \
                     src/vnm_mad/remotes/802.1Q/vnet_delete"
@@ -1781,6 +1782,7 @@ NETWORK_VXLAN_FILES="src/vnm_mad/remotes/vxlan/clean \
                     src/vnm_mad/remotes/vxlan/post \
                     src/vnm_mad/remotes/vxlan/pre \
                     src/vnm_mad/remotes/vxlan/update_sg \
+                    src/vnm_mad/remotes/vxlan/update_nic \
                     src/vnm_mad/remotes/vxlan/vxlan.rb \
                     src/vnm_mad/remotes/vxlan/vxlan_driver.rb \
                     src/vnm_mad/remotes/vxlan/vnet_create \
@@ -1811,6 +1813,7 @@ NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
                   src/vnm_mad/remotes/fw/pre \
                   src/vnm_mad/remotes/fw/update_sg \
+                  src/vnm_mad/remotes/fw/update_nic \
                   src/vnm_mad/remotes/fw/clean \
                   src/vnm_mad/remotes/fw/vnet_create \
                   src/vnm_mad/remotes/fw/vnet_delete"
@@ -1819,6 +1822,7 @@ NETWORK_OVSWITCH_FILES="src/vnm_mad/remotes/ovswitch/clean \
                     src/vnm_mad/remotes/ovswitch/post \
                     src/vnm_mad/remotes/ovswitch/pre \
                     src/vnm_mad/remotes/ovswitch/update_sg \
+                    src/vnm_mad/remotes/ovswitch/update_nic \
                     src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb \
                     src/vnm_mad/remotes/ovswitch/vnet_create \
                     src/vnm_mad/remotes/ovswitch/vnet_delete"
@@ -1827,6 +1831,7 @@ NETWORK_OVSWITCH_VXLAN_FILES="src/vnm_mad/remotes/ovswitch_vxlan/clean \
                     src/vnm_mad/remotes/ovswitch_vxlan/post \
                     src/vnm_mad/remotes/ovswitch_vxlan/pre \
                     src/vnm_mad/remotes/ovswitch_vxlan/update_sg \
+                    src/vnm_mad/remotes/ovswitch_vxlan/update_nic \
                     src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb \
                     src/vnm_mad/remotes/ovswitch_vxlan/vnet_create \
                     src/vnm_mad/remotes/ovswitch_vxlan/vnet_delete"

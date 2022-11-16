@@ -191,7 +191,7 @@ define(function(require) {
                   </select>'              ,
       tip: Locale.tr("Recovers a stuck VM that is waiting for a driver operation. \
                     The recovery may be done by failing, succeeding or retrying the current operation. \
-                    YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
+                    <b>You need to manually check the VM status on the host</b>, to decide if the operation \
                     was successful or not, or if it can be retried.\
                     <br/>\
                     <br/>Delete: This will delete the selected VMs\

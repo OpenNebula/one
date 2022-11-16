@@ -23,6 +23,13 @@ module VNMMAD
     ###########################################################################
     class VLANDriver < VNMMAD::VNMDriver
 
+        # Attributes that can be updated on update_nic action
+        SUPPORTED_UPDATE = [
+            :vlan_id,
+            :mtu,
+            :phydev
+        ]
+
         def initialize(vm_tpl, xpath_filter, deploy_id = nil)
             @locking = true
 
@@ -129,6 +136,74 @@ module VNMMAD
             end
 
             unlock
+
+            0
+        end
+
+        def update(vnet_id)
+            lock
+
+            begin
+                changes = @vm.changes.select do |k, _|
+                    SUPPORTED_UPDATE.include?(k)
+                end
+
+                return 0 if changes.empty?
+
+                @bridges = list_bridges
+
+                if @bridges
+                    process do |nic|
+                        next unless Integer(nic[:network_id]) == vnet_id
+
+                        next if nic[:phydev].nil?
+
+                        # the bridge should already exist as we're updating
+                        next if @bridges[nic[:bridge]].nil?
+
+                        if !changes[:vlan_id].nil? || !changes[:phydev].nil?
+                            ####################################################
+                            # Remove old VLAN
+                            ####################################################
+                            @nic = nic.merge(changes)
+                            gen_vlan_dev_name
+
+                            if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+                                delete_vlan_dev
+                            end
+
+                            ####################################################
+                            # Create new link
+                            ####################################################
+                            @nic = nic
+                            gen_vlan_dev_name
+
+                            # Create vlan device (it ALSO sets the MTU)
+                            create_vlan_dev
+
+                            ####################################################
+                            # Add new link to the BRIDGE
+                            ####################################################
+                            OpenNebula.exec_and_log("#{command(:ip)} link " \
+                            "set #{@nic[:vlan_dev]} master #{@nic[:bridge]}")
+                        elsif changes[:mtu]
+                            @nic = nic
+                            gen_vlan_dev_name
+
+                            # Update only MTU
+                            OpenNebula.exec_and_log("#{command(:ip)} link " \
+                            "set #{@nic[:vlan_dev]} mtu #{@nic[:mtu]}")
+                        end
+
+                        # Changes will affect every VM nic
+                        return
+                    end
+                end
+            rescue StandardError => e
+                raise e
+            ensure
+                unlock
+            end
 
             0
         end

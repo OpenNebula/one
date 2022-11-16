@@ -36,6 +36,8 @@ namespace ssl_util
         if (size <= 0)
         {
             out.clear();
+            delete[] output;
+
             return;
         }
 
@@ -48,6 +50,8 @@ namespace ssl_util
             if (++i > 2)
             {
                 out.clear();
+                delete[] output;
+
                 return;
             }
         }

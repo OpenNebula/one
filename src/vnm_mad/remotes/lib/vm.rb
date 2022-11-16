@@ -148,6 +148,16 @@ module VNMMAD
                 "#{ds_location}/#{ds_id}/#{vm_id}"
             end
 
+            def changes
+                changes = {}
+
+                @vm_root.elements['TEMPLATE/VNET_UPDATE'].each do |elem|
+                    changes[elem.name.downcase.to_sym] = elem.text
+                end
+
+                changes
+            end
+
             private
 
             # Method to build the associated Hash from a NIC

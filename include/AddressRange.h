@@ -188,7 +188,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const std::vector<std::string> &inherit);
+        VectorAttribute * nic, const std::set<std::string> &inherit);
 
     /**
      *  Returns the specific address by mac/ip if is not allocated. The NIC attr
@@ -201,13 +201,13 @@ public:
      *    @return 0 if success
      */
     int allocate_by_mac(const std::string& mac, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+        int obid, VectorAttribute * nic, const std::set<std::string> &inherit);
 
     int allocate_by_ip(const std::string& ip, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+        int obid, VectorAttribute * nic, const std::set<std::string> &inherit);
 
     int allocate_by_ip6(const std::string& ip6, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+        int obid, VectorAttribute * nic, const std::set<std::string> &inherit);
 
     /**
      *  Sets the given ip/mac on hold, the address is associated to a VM of
@@ -318,6 +318,17 @@ public:
         return size - allocated.size();
     }
 
+    void get_ids(std::set<int>& ids, PoolObjectSQL::ObjectType ob) const
+    {
+        for (const auto& lease: allocated)
+        {
+            if (lease.second & ob)
+            {
+                ids.emplace(lease.second & 0x00000000FFFFFFFFLL);
+            }
+        }
+    }
+
     /**
      *  Return the total number of addresses
      */
@@ -337,12 +348,13 @@ public:
     }
 
     /**
-     *  Returns the int value of an Address Range Attribute
+     *  Returns the value of an Address Range Attribute
      *    @param name of the attribute
      *    @param value of the attribute
      *    @return 0 on success
      */
-    int get_attribute(const std::string& name, int& value) const
+    template<typename T>
+    int get_attribute(const std::string& name, T& value) const
     {
         return attr->vector_value(name, value);
     }
@@ -352,14 +364,18 @@ public:
      *  CANNOT be updated: TYPE, SIZE, IP, MAC (plus the internal AR_ID and
      *  ALLOCATED)
      *    @param vup the new vector attributes for the address range
+     *    @param update_attr Updated attributes with old values. Caller must
+     *      release the pointer.
      *    @param error_msg If the action fails, this message contains
      *    the reason.
      *    @return 0 on success
      */
     int update_attributes(
-            VectorAttribute *   vup,
-            bool                keep_restricted,
-            std::string&        error_msg);
+            VectorAttribute *  vup,
+            bool               keep_restricted,
+            std::set<int>&     ids,
+            std::unique_ptr<VectorAttribute>& update_attr,
+            std::string&       error_msg);
 
     /**
      *  Helper function to initialize restricte attributes of an AddressRange
@@ -640,7 +656,7 @@ private:
      *    @param nic attribute of a VMTemplate
      */
     void set_vnet(VectorAttribute *nic,
-                  const std::vector<std::string> &inherit) const;
+                  const std::set<std::string> &inherit) const;
 
     /* ---------------------------------------------------------------------- */
     /* Address index map helper functions                                     */
@@ -680,7 +696,7 @@ private:
         PoolObjectSQL::ObjectType       ot,
         int                             obid,
         VectorAttribute*                nic,
-        const std::vector<std::string>& inherit);
+        const std::set<std::string>&    inherit);
 
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute

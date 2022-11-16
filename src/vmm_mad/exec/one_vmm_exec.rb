@@ -272,8 +272,10 @@ class VmmAction
 
                 params = get_parameters(step[:parameters])
 
-                result, info = vnm.do_action(@id, step[:action],
-                                             :parameters => params)
+                result, info = vnm.do_action(@id,
+                                             step[:action],
+                                             :parameters => params,
+                                             :stdin => step[:stdin])
             when :tm
                 result, info = @tm.do_transfer_action(
                     @id, step[:parameters], step[:stdin]
@@ -1370,6 +1372,28 @@ class ExecDriver < VirtualMachineDriver
         ]
 
         action.run(steps)
+    end
+
+    #
+    # UPDATENIC action, update network parameters
+    #
+    def update_nic(id, drv_message)
+        xml_data = decode(drv_message)
+        vn_id    = xml_data.elements['VIRTUAL_NETWORK_ID'].text
+
+        action = VmmAction.new(self, id, :update_nic, drv_message)
+
+        steps = [
+            # Execute update networking action
+            {
+                :driver       => :vnm,
+                :action       => :update_nic,
+                :parameters   => [:deploy_id, vn_id],
+                :stdin        => Base64.encode64(xml_data.elements['VM'].to_s)
+            }
+        ]
+
+        action.run(steps, vn_id)
     end
 
     private

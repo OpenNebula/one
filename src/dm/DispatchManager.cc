@@ -48,6 +48,7 @@ void DispatchManager::init_managers()
     hpool       = nd.get_hpool();
     vmpool      = nd.get_vmpool();
     clpool      = nd.get_clpool();
+    vnpool      = nd.get_vnpool();
     vrouterpool = nd.get_vrouterpool();
     upool       = nd.get_upool();
     sgpool      = nd.get_secgrouppool();

@@ -34,10 +34,12 @@ import {
   useUnlockVNetMutation,
   useChangeVNetOwnershipMutation,
   useRemoveVNetMutation,
+  useRecoverVNetMutation,
 } from 'client/features/OneApi/network'
+import { isAvailableAction } from 'client/models/VirtualNetwork'
 
 import { ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
-import { ReserveForm } from 'client/components/Forms/VNetwork'
+import { ReserveForm, RecoverForm } from 'client/components/Forms/VNetwork'
 import { ChangeClusterForm } from 'client/components/Forms/Cluster'
 import {
   createActions,
@@ -48,6 +50,12 @@ import { Translate } from 'client/components/HOC'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, VN_ACTIONS, RESOURCE_NAMES } from 'client/constants'
+
+const isDisabled = (action) => (rows) =>
+  !isAvailableAction(
+    action,
+    rows.map(({ original }) => original)
+  )
 
 const useTableStyles = makeStyles({
   body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
@@ -98,6 +106,7 @@ const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [reserve] = useReserveAddressMutation()
+  const [recover] = useRecoverVNetMutation()
   const [changeCluster] = useAddNetworkToClusterMutation()
   const [lock] = useLockVNetMutation()
   const [unlock] = useUnlockVNetMutation()
@@ -176,6 +185,52 @@ const Actions = () => {
           {
             accessor: VN_ACTIONS.RESERVE_DIALOG,
             dataCy: `vnet-${VN_ACTIONS.RESERVE_DIALOG}`,
+            label: T.Reserve,
+            selected: { max: 1 },
+            color: 'secondary',
+            options: [
+              {
+                dialogProps: {
+                  title: T.ReservationFromVirtualNetwork,
+                  dataCy: 'modal-reserve',
+                },
+                form: (rows) => {
+                  const vnet = rows?.[0]?.original || {}
+
+                  return ReserveForm({ stepProps: { vnet } })
+                },
+                onSubmit: (rows) => async (template) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => reserve({ id, template })))
+                },
+              },
+            ],
+          },
+          {
+            accessor: VN_ACTIONS.RECOVER,
+            disabled: isDisabled(VN_ACTIONS.RECOVER),
+            dataCy: `vnet-${VN_ACTIONS.RECOVER}`,
+            label: T.Recover,
+            selected: { max: 1 },
+            color: 'secondary',
+            options: [
+              {
+                dialogProps: {
+                  title: T.Recover,
+                  dataCy: `modal-${VN_ACTIONS.RECOVER}`,
+                },
+                form: RecoverForm,
+                onSubmit: (rows) => async (formData) => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  console.log(`RECOVER ${ids}`, formData)
+                  await Promise.all(
+                    ids.map((id) => recover({ id, ...formData }))
+                  )
+                },
+              },
+            ],
+          },
+          {
             label: T.Reserve,
             selected: { max: 1 },
             color: 'secondary',

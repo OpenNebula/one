@@ -2115,6 +2115,130 @@ bool VirtualMachine::is_imported_action_supported(VMActions::Action action) cons
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::nic_update(int vnid)
+{
+    auto vnpool = Nebula::instance().get_vnpool();
+    auto vn     = vnpool->get_ro(vnid);
+
+    unique_ptr<VectorAttribute> updating;
+
+    if (!vn)
+    {
+        return -1;
+    }
+
+    for (auto nic : nics)
+    {
+        int nic_vnid;
+
+        if (nic->vector_value("NETWORK_ID", nic_vnid) == 0 && vnid == nic_vnid)
+        {
+            int rc = vn->nic_update(nic, updating);
+
+            if (rc < 0)
+            {
+                return -1;
+            }
+        }
+    }
+
+    auto vnet_update = obj_template->get("VNET_UPDATE");
+
+    if (vnet_update)
+    {
+        // Merge with previous VNET_UPDATE
+        if (updating)
+        {
+            vnet_update->merge(updating.get(), true);
+        }
+    }
+    else if (updating)
+    {
+        obj_template->set(updating.release());
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::nic_update(int nic_id, VirtualMachineNic *new_nic, bool live)
+{
+    static const set<string> UPDATE_ATTRIBUTES = { "INBOUND_AVG_BW",
+        "INBOUND_PEAK_BW", "INBOUND_PEAK_KB", "OUTBOUND_AVG_BW",
+        "OUTBOUND_PEAK_BW", "OUTBOUND_PEAK_KB" };
+
+    VirtualMachineNic *nic = get_nic(nic_id);
+
+    if (!nic)
+    {
+        return -1;
+    }
+
+    int num_updated = 0;
+
+    VectorAttribute* update_attr = obj_template->get("VNET_UPDATE");
+
+    if (live && !update_attr)
+    {
+        update_attr = new VectorAttribute("VNET_UPDATE");
+
+        obj_template->set(update_attr);
+    }
+
+    // Detect new and modified attributes
+    for (const auto& attr : new_nic->vector_attribute()->value())
+    {
+        string old_value;
+
+        if ( UPDATE_ATTRIBUTES.count(attr.first) == 1 &&
+             (nic->vector_value(attr.first, old_value) != 0
+              || attr.second != old_value) )
+        {
+            num_updated++;
+
+            nic->replace(attr.first, attr.second);
+
+            if (live)
+            {
+                update_attr->replace(attr.first, old_value);
+            }
+        }
+    }
+
+    // Detect removed attributes
+    vector<string> to_remove;
+
+    for (const auto& attr : nic->vector_attribute()->value())
+    {
+        string new_value;
+
+        if ( UPDATE_ATTRIBUTES.count(attr.first) == 1  &&
+             new_nic->vector_value(attr.first, new_value) != 0)
+        {
+            num_updated++;
+
+            to_remove.push_back(attr.first);
+
+            if (live)
+            {
+                update_attr->replace(attr.first, attr.second);
+            }
+        }
+    }
+
+    for (const auto& attr : to_remove)
+    {
+        nic->remove(attr);
+    }
+
+    return num_updated;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::remove_security_group(int sgid)
 {
     int num_sgs;

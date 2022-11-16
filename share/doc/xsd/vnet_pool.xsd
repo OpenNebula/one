@@ -55,6 +55,34 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
+              <xs:element name="UPDATED_VMS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="OUTDATED_VMS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="UPDATING_VMS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="ERROR_VMS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="TEMPLATE" type="xs:anyType"/>
               <xs:element name="AR_POOL">
                 <xs:complexType>

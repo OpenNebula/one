@@ -175,6 +175,7 @@ enum class VMManagerMessages : unsigned short int
     LOG,
     RESIZE,
     BACKUP,
+    UPDATENIC,
     ENUM_MAX
 };
 

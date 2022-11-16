@@ -43,6 +43,7 @@ public class VirtualMachine extends PoolElement{
     private static final String RESIZE  = METHOD_PREFIX + "resize";
     private static final String ATTACHNIC = METHOD_PREFIX + "attachnic";
     private static final String DETACHNIC = METHOD_PREFIX + "detachnic";
+    private static final String UPDATENIC = METHOD_PREFIX + "updatenic";
     private static final String SNAPSHOTCREATE = METHOD_PREFIX + "snapshotcreate";
     private static final String SNAPSHOTREVERT = METHOD_PREFIX + "snapshotrevert";
     private static final String SNAPSHOTDELETE = METHOD_PREFIX + "snapshotdelete";
@@ -506,6 +507,23 @@ public class VirtualMachine extends PoolElement{
             int nicId)
     {
         return client.call(DETACHNIC, id, nicId);
+    }
+
+    /**
+     * Updates a NIC for a VM. In case the VM is running, trigger NIC
+     * update on the host.
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param nicId The NIC_ID of the NIC to detach
+     * @param nicTemplate Template containing the updated NIC definition
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse nicUpdate(Client client, int id,
+            int nicId, String nicTemplate, boolean append)
+    {
+        return client.call(UPDATENIC, id, nicId, nicTemplate, append ? 1 : 0);
     }
 
     /**
@@ -1073,6 +1091,20 @@ public class VirtualMachine extends PoolElement{
     public OneResponse nicDetach(int nicId)
     {
         return nicDetach(client, id, nicId);
+    }
+
+    /**
+     * Updates a NIC for a VM. In case the VM is running, trigger NIC
+     * update on the host.
+     *
+     * @param nicId The NIC_ID of the NIC to detach
+     * @param nicTemplate Template containing the updated NIC definition
+     * @param append True to append new attributes instead of replace the whole template
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse nicUpdate(int nicId, String nicTemplate, boolean append)
+    {
+        return nicUpdate(client, id, nicId, nicTemplate, append);
     }
 
     /**

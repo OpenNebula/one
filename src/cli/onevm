@@ -944,6 +944,40 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    nic_update_desc = <<-EOT.unindent
+        Updates a NIC for a VM. In case the VM is running, trigger NIC update on the host.
+
+        States: Almost all, except BOOT*, MIGRATE and HOTPLUG-NIC
+    EOT
+
+    command :"nic-update", nic_update_desc, :vmid, :nicid,
+            [:file, nil], :options => OpenNebulaHelper::APPEND do
+        vm_id = args[0].to_i
+        nic_id = args[1].to_i
+        file = args[2]
+        helper.perform_action(vm_id, options, 'Updating VM NIC') do |obj|
+            if options[:append]
+                str = OpenNebulaHelper
+                      .append_template(vm_id, obj, file,
+                                       "TEMPLATE/NIC[NIC_ID=#{nic_id}]")
+            else
+                str = OpenNebulaHelper
+                      .update_template(vm_id, obj, file,
+                                       "TEMPLATE/NIC[NIC_ID=#{nic_id}]")
+            end
+
+            # Ensure the updated attributes are in NIC section
+            unless str.gsub(' ', '').match(/NIC=\[/)
+                str = "NIC=[\n#{str.split("\n").join(",\n")}]"
+            end
+
+            helper.set_client(options)
+            obj = helper.retrieve_resource(obj.id)
+
+            obj.nic_update(nic_id, str, options[:append])
+        end
+    end
+
     sg_attach_desc = <<-EOT.unindent
         Attaches a Security Group to a VM.
 

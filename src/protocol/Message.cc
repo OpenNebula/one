@@ -144,6 +144,7 @@ const EString<VMManagerMessages> vm_msg_t::_type_str({
     {"LOG", VMManagerMessages::LOG},
     {"RESIZE", VMManagerMessages::RESIZE},
     {"BACKUP", VMManagerMessages::BACKUP},
+    {"UPDATENIC", VMManagerMessages::UPDATENIC},
 });
 
 template<>

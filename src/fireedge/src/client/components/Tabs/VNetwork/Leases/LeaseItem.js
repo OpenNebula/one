@@ -22,13 +22,33 @@ import { Stack, Link, Typography } from '@mui/material'
 import { useReleaseLeaseMutation } from 'client/features/OneApi/network'
 
 import { SubmitButton } from 'client/components/FormControl'
-import { StatusCircle } from 'client/components/Status'
+import { StatusCircle, StatusChip } from 'client/components/Status'
 
-import { getAddressType } from 'client/models/VirtualNetwork'
-import { T, VN_ACTIONS, ARLease } from 'client/constants'
+import { getAddressType, getLeaseState } from 'client/models/VirtualNetwork'
+import { T, VN_ACTIONS, ARLease, LEASES_STATES_STR } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 const LEASE_TYPES = { VM: 'vm', NET: 'net', VR: 'vr' }
+
+const LeaseStatus = ({ state, type }) => {
+  const { name: stateName, color: stateColor } = getLeaseState(
+    state ||
+      (type === LEASE_TYPES.NET
+        ? LEASES_STATES_STR.RESERVED
+        : LEASES_STATES_STR.VROUTER)
+  )
+
+  return (
+    <Stack direction="row" alignItems="center" gap={1} width="max-content">
+      <StatusCircle color={stateColor} />
+      <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+    </Stack>
+  )
+}
+LeaseStatus.propTypes = {
+  state: PropTypes.string,
+  type: PropTypes.oneOf(Object.values(LEASE_TYPES)),
+}
 
 /**
  * Renders the name of lease.
@@ -39,12 +59,6 @@ const LEASE_TYPES = { VM: 'vm', NET: 'net', VR: 'vr' }
  * @returns {ReactElement} Lease column name
  */
 const LeaseName = ({ id, type }) => {
-  const colorState = {
-    [LEASE_TYPES.VM]: 'secondary.main',
-    [LEASE_TYPES.NET]: 'warning.main',
-    [LEASE_TYPES.VR]: 'success.main',
-  }[type]
-
   const path = {
     [LEASE_TYPES.VM]: PATH.INSTANCE.VMS.DETAIL,
     [LEASE_TYPES.NET]: PATH.NETWORK.VNETS.DETAIL,
@@ -66,8 +80,7 @@ const LeaseName = ({ id, type }) => {
         '& > svg': { mr: '1em' },
       }}
     >
-      <StatusCircle color={colorState} />
-      {`#${id}`}
+      {`${type.toUpperCase()}: ${id}`}
     </Link>
   )
 }
@@ -83,10 +96,11 @@ const LeaseItem = memo(
    * @param {string} props.id - Virtual Network id
    * @param {object} props.actions - Actions tab
    * @param {ARLease} props.lease - Lease to render
+   * @param {string} props.state - States
    * @param {Function} props.resetHoldState - Reset hold state mutation
    * @returns {ReactElement} Lease component
    */
-  ({ id, actions, lease, resetHoldState }) => {
+  ({ id, actions, lease, state, resetHoldState }) => {
     const [releaseLease, { isLoading: isReleasing }] = useReleaseLeaseMutation()
 
     /** @type {ARLease} */
@@ -126,33 +140,25 @@ const LeaseItem = memo(
       <Fragment key={addr}>
         {+vmId === -1 ? (
           actions[VN_ACTIONS.RELEASE_LEASE] && (
-            <Stack
-              direction="row"
-              alignItems="center"
-              gap={1}
-              width="max-content"
-            >
-              <StatusCircle color="debug.main" />
-              <SubmitButton
-                isSubmitting={isReleasing}
-                onClick={release}
-                color="success"
-                variant="text"
-                startIcon={<ReleaseIcon />}
-                label={T.ReleaseIp}
-              />
-            </Stack>
+            <SubmitButton
+              isSubmitting={isReleasing}
+              onClick={release}
+              variant="text"
+              startIcon={<ReleaseIcon />}
+              label={T.ReleaseIp}
+            />
           )
         ) : (
           <LeaseName id={resId} type={resType} />
         )}
+        <LeaseStatus state={state} type={resType} />
         {[
           { text: IP, dataCy: 'ip' },
           { text: IP6, dataCy: 'ip6' },
           { text: MAC, dataCy: 'mac' },
+          { text: IP6_GLOBAL, dataCy: 'ip6-global' },
           { text: IP6_LINK, dataCy: 'ip6-link' },
           { text: IP6_ULA, dataCy: 'ip6-ula' },
-          { text: IP6_GLOBAL, dataCy: 'ip6-global' },
         ].map(({ text = '--', dataCy }) => (
           <Typography
             noWrap
@@ -178,6 +184,7 @@ LeaseItem.propTypes = {
   lease: PropTypes.object,
   actions: PropTypes.object,
   id: PropTypes.string,
+  state: PropTypes.string,
   resetHoldState: PropTypes.func,
 }
 

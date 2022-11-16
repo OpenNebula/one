@@ -298,9 +298,11 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::update_attributes(
-        VectorAttribute *   vup,
-        bool                keep_restricted,
-        string&             error_msg)
+        VectorAttribute *  vup,
+        bool               keep_restricted,
+        std::set<int>&     update_ids,
+        std::unique_ptr<VectorAttribute>& update_attr,
+        string&            error_msg)
 {
     /* --------------- Do not allow to modify a reservation ------- */
 
@@ -495,6 +497,35 @@ int AddressRange::update_attributes(
         vup->remove("PORT_SIZE");
         port_size = 0;
     }
+
+    /* ---------- Adds updated values to the VNET_UPDATE attribute ---------- */
+    const auto& inherited_attrs = Nebula::instance().get_vnpool()->get_inherited_attrs();
+
+    // Detect new and modified attributes
+    for (auto& it : vup->value())
+    {
+        string oldValue;
+        if ( inherited_attrs.count(it.first) > 0
+             && (attr->vector_value(it.first, oldValue) < 0
+             || it.second != oldValue))
+        {
+            update_attr->replace(it.first, oldValue);
+        }
+    }
+
+    // Detect removed attributes
+    for (auto& it : attr->value())
+    {
+        string newValue;
+        if ( (inherited_attrs.count(it.first) > 0)
+              && (vup->vector_value(it.first, newValue) < 0) )
+        {
+            update_attr->replace(it.first, it.second);
+        }
+    }
+
+
+    get_ids(update_ids, PoolObjectSQL::VM);
 
     /* Replace with the new attributes */
 
@@ -1328,7 +1359,7 @@ void AddressRange::set_ip6_static(unsigned int addr_index,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit) const
+void AddressRange::set_vnet(VectorAttribute *nic, const set<string> &inherit) const
 {
     nic->replace("AR_ID", id);
 
@@ -1463,7 +1494,7 @@ void AddressRange::allocate_by_index(unsigned int index,
     PoolObjectSQL::ObjectType ot,
     int                       obid,
     VectorAttribute*          nic,
-    const vector<string>&     inherit)
+    const set<string>&     inherit)
 {
     set_mac(index, nic);
 
@@ -1496,7 +1527,7 @@ int AddressRange::allocate_addr(
     PoolObjectSQL::ObjectType ot,
     int                       obid,
     VectorAttribute*          nic,
-    const vector<string>&     inherit)
+    const set<string>&     inherit)
 {
     unsigned int index;
     string       error_msg;
@@ -1525,7 +1556,7 @@ int AddressRange::allocate_by_mac(
     PoolObjectSQL::ObjectType ot,
     int                       obid,
     VectorAttribute*          nic,
-    const vector<string>&     inherit)
+    const set<string>&     inherit)
 {
     string error_msg;
     unsigned int index;
@@ -1554,7 +1585,7 @@ int AddressRange::allocate_by_ip(
     PoolObjectSQL::ObjectType ot,
     int                       obid,
     VectorAttribute*          nic,
-    const vector<string>&     inherit)
+    const set<string>&        inherit)
 {
     string error_msg;
     unsigned int index;
@@ -1583,7 +1614,7 @@ int AddressRange::allocate_by_ip6(
     PoolObjectSQL::ObjectType ot,
     int                       obid,
     VectorAttribute*          nic,
-    const vector<string>&     inherit)
+    const set<string>&        inherit)
 {
     string error_msg;
     unsigned int index;

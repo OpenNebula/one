@@ -18,6 +18,7 @@
 #include "VirtualNetworkTemplate.h"
 #include "ClusterPool.h"
 #include "IPAMManager.h"
+#include "LifeCycleManager.h"
 
 using namespace std;
 
@@ -57,7 +58,8 @@ void RequestManagerVirtualNetwork::
         return;
     }
 
-    if (vn->get_state() != VirtualNetwork::READY)
+    if (vn->get_state() != VirtualNetwork::READY &&
+        vn->get_state() != VirtualNetwork::UPDATE_FAILURE)
     {
         att.resp_msg = "Could not execute " + method_name +
                         "Virtual Network is in wrong state: "
@@ -120,7 +122,8 @@ void VirtualNetworkRmAddressRange::
     // -------------------------------------------------------------------------
     if ( auto vn = pool->get<VirtualNetwork>(id) )
     {
-        if (vn->get_state() != VirtualNetwork::READY)
+        if (vn->get_state() != VirtualNetwork::READY &&
+            vn->get_state() != VirtualNetwork::UPDATE_FAILURE)
         {
             att.resp_msg = "Could not remove Adress Range, "
                            "Virtual Network is in wrong state: "
@@ -517,10 +520,11 @@ void VirtualNetworkRecover::request_execute(
 
     ostringstream oss;
 
-    if (op < 0 || op > 2)
+    if (op < 0 || op > 3)
     {
         att.resp_msg = "Wrong recovery operation code";
         failure_response(ACTION, att);
+        return;
     }
 
     if ( basic_authorization(id, att) == false )
@@ -539,13 +543,6 @@ void VirtualNetworkRecover::request_execute(
 
     auto state = vn->get_state();
 
-    if (state == VirtualNetwork::READY)
-    {
-        att.resp_msg = "Unable to recover from " + vn->state_to_str(state);
-        failure_response(INTERNAL, att);
-        return;
-    }
-
     switch (op)
     {
         case 0: //recover-failure
@@ -562,6 +559,7 @@ void VirtualNetworkRecover::request_execute(
                 case VirtualNetwork::DONE:
                 case VirtualNetwork::READY:
                 case VirtualNetwork::ERROR:
+                case VirtualNetwork::UPDATE_FAILURE:
                     oss << "Could not perform 'recover failure' on VN " << id
                         << ", wrong state " << vn->state_to_str(state) << ".";
 
@@ -586,6 +584,18 @@ void VirtualNetworkRecover::request_execute(
                 case VirtualNetwork::LOCK_DELETE:
                     vn->set_state(VirtualNetwork::DONE);
                     vnpool->delete_success(move(vn));
+                    break;
+
+                case VirtualNetwork::UPDATE_FAILURE:
+                    vn->set_state(VirtualNetwork::READY);
+
+                    int vm_id;
+                    while(vn->get_outdated(vm_id) == 0)
+                    {
+                        vn->add_updated(vm_id);
+                    }
+
+                    pool->update(vn.get());
                     break;
 
                 case VirtualNetwork::DONE:
@@ -618,7 +628,40 @@ void VirtualNetworkRecover::request_execute(
 
                 case VirtualNetwork::DONE:
                 case VirtualNetwork::READY:
+                case VirtualNetwork::UPDATE_FAILURE:
                     oss << "Could not perform 'recover delete' on VN " << id
+                        << ", wrong state " << vn->state_to_str(state) << ".";
+
+                    att.resp_msg = oss.str();
+                    failure_response(INTERNAL, att);
+                    return;
+            }
+            break;
+
+        case 3: //retry
+            switch(state)
+            {
+                case VirtualNetwork::UPDATE_FAILURE:
+                    {
+                        vn->commit(true);
+
+                        vn->set_state(VirtualNetwork::READY);
+
+                        pool->update(vn.get());
+
+                        auto lcm = Nebula::instance().get_lcm();
+
+                        lcm->trigger_updatevnet(id);
+                    }
+                    break;
+
+                case VirtualNetwork::INIT:
+                case VirtualNetwork::READY:
+                case VirtualNetwork::LOCK_CREATE:
+                case VirtualNetwork::LOCK_DELETE:
+                case VirtualNetwork::ERROR:
+                case VirtualNetwork::DONE:
+                    oss << "Could not perform 'recover retry' on VN " << id
                         << ", wrong state " << vn->state_to_str(state) << ".";
 
                     att.resp_msg = oss.str();

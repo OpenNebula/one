@@ -537,7 +537,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * @param {object} params - Request parameters
        * @param {string} params.id - Virtual network id
        * @param {0|1|2|3} params.operation - Recover operation:
-       * failure (0), success (1), retry (2), delete (3)
+       * failure (0), success (1), delete (2), retry (3)
        * @returns {number} Virtual network id
        * @throws Fails when response isn't code 200
        */
@@ -575,6 +575,7 @@ export const {
   useRenameVNetMutation,
   useLockVNetMutation,
   useUnlockVNetMutation,
+  useRecoverVNetMutation,
 } = vNetworkApi
 
 export default vNetworkApi

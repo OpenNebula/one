@@ -78,7 +78,9 @@ public:
         ALIAS_DETACH_ACTION      = 47,      // "one.vm.detachnic"
         POFF_MIGRATE_ACTION      = 48,      // "one.vm.migrate"
         POFF_HARD_MIGRATE_ACTION = 49,      // "one.vm.migrate"
-        BACKUP_ACTION            = 50       // "one.vm.backup"
+        BACKUP_ACTION            = 50,      // "one.vm.backup"
+        NIC_UPDATE_ACTION        = 51,      // "one.vm.updatenic"
+        NIC_RECOVER_ACTION       = 52       // "one.vm.recovernic"
     };
 
     static std::string action_to_str(Action action);

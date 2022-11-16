@@ -119,6 +119,16 @@ public:
      */
     ObjectCollection& operator<<(const ObjectCollection& r);
 
+    ObjectCollection& operator<<(const std::set<int>& r);
+
+    /**
+     *  Compute the set difference (substract elements in the right hand side
+     *  from this collection)
+     */
+    ObjectCollection& operator-=(const ObjectCollection& r);
+
+    ObjectCollection& operator-=(const std::set<int>& r);
+
 private:
 
     /**

@@ -1,4 +1,4 @@
-/* -------------------------------------------------------------------------- */
+
 /* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -26,6 +26,8 @@
 
 #include <vector>
 #include <string>
+
+#include "NebulaLog.h"
 
 class VirtualMachineNic;
 
@@ -68,12 +70,13 @@ public:
     };
 
     enum VirtualNetworkState {
-        INIT        = 0, //!< Initialization state
-        READY       = 1, //!< Virtual Network ready to use
-        LOCK_CREATE = 2, //!< Driver create in progress
-        LOCK_DELETE = 3, //!< Driver delete in progress
-        DONE        = 4, //!< The Virtual Network is being deleted
-        ERROR       = 5  //!< Driver operation failed
+        INIT            = 0, //!< Initialization state
+        READY           = 1, //!< Virtual Network ready to use
+        LOCK_CREATE     = 2, //!< Driver create in progress
+        LOCK_DELETE     = 3, //!< Driver delete in progress
+        DONE            = 4, //!< The Virtual Network is being deleted
+        ERROR           = 5, //!< Driver operation failed
+        UPDATE_FAILURE  = 6  //!< Network Update failed for some VM leases
     };
 
     static std::string driver_to_str(VirtualNetworkDriver ob)
@@ -416,6 +419,10 @@ public:
         {
             vrouters.del(oid);
         }
+        else if (ot == PoolObjectSQL::VM)
+        {
+            clear_update_vm(oid);
+        }
     }
 
     /**
@@ -432,6 +439,10 @@ public:
         {
             vrouters.del(oid);
         }
+        else if (ot == PoolObjectSQL::VM)
+        {
+            clear_update_vm(oid);
+        }
     }
 
     /**
@@ -442,6 +453,11 @@ public:
      */
     int free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
     {
+        if (ot == PoolObjectSQL::VM)
+        {
+            clear_update_vm(obid);
+        }
+
         return ar_pool.free_addr_by_owner(ot, obid);
     }
 
@@ -454,8 +470,20 @@ public:
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
             int obid, const std::string& mac, unsigned int rsize)
     {
+        if (ot == PoolObjectSQL::VM)
+        {
+            clear_update_vm(obid);
+        }
+
         return ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
     }
+
+    /**
+     *  Update NIC attributes from updated Virtual Network attributes
+     *   @param nic todo
+     *   @return the number of updated attributes
+     */
+    int nic_update(VirtualMachineNic *nic, std::unique_ptr<VectorAttribute>& uattr) const;
 
     /**
      * Modifies the given nic attribute adding the following attributes:
@@ -471,7 +499,7 @@ public:
     int nic_attribute(
             VirtualMachineNic *             nic,
             int                             vid,
-            const std::vector<std::string>& inherit_attrs);
+            const std::set<std::string>&    inherit_attrs);
 
     /**
      * Modifies the given nic attribute adding the following attributes:
@@ -486,7 +514,7 @@ public:
     int vrouter_nic_attribute(
             VirtualMachineNic *             nic,
             int                             vrid,
-            const std::vector<std::string>& inherit_attrs);
+            const std::set<std::string>&    inherit_attrs);
 
     /**
      * From a Security Group rule that uses this vnet, creates a new rule
@@ -615,6 +643,32 @@ public:
         const std::vector<int>& vnets, const std::vector<int>& vrs) const;
 
     /**
+     *  Replace template for this object. Object should be updated
+     *  after calling this method
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const std::string& tmpl_str,
+                         bool keep_restricted,
+                         std::string& error) override;
+
+    /**
+     *  Append new attributes to this object's template. Object should be updated
+     *  after calling this method
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int append_template(const std::string& tmpl_str,
+                        bool keep_restricted,
+                        std::string& error) override;
+
+    /**
      *  Gets a string based attribute (single) from an address range. If the
      *  attribute is not found in the address range, the VNET template will be
      *  used
@@ -679,6 +733,65 @@ public:
      *  Decrypt all secret attributes
      */
     void decrypt() override;
+
+     /**
+      * Commit Virtual Network changes to associated VMs
+      *   @param recover, if true It will propagate the changes to VMs in error
+      *   and those being updated. Otherwise all VMs associated with the VN will
+      *   be updated
+      */
+    void commit(bool recover);
+
+    void commit(const std::set<int>& vm_ids);
+
+    /**
+     *  Functions to manipulate the vm collection IDs
+     */
+    int get_outdated(int& vmid)
+    {
+        return outdated.pop(vmid);
+    }
+
+    bool is_outdated(int vmid) const
+    {
+        return outdated.contains(vmid);
+    }
+
+    int add_outdated(int vmid)
+    {
+        return outdated.add(vmid);
+    }
+
+    int add_updating(int vmid)
+    {
+        return updating.add(vmid);
+    }
+
+    bool is_updating(int vmid) const
+    {
+        return updating.contains(vmid);
+    }
+
+    int del_updating(int vmid)
+    {
+        return updating.del(vmid);
+    }
+
+    int add_error(int vmid)
+    {
+        return error.add(vmid);
+    }
+
+    int add_updated(int vmid)
+    {
+        return updated.add(vmid);
+    }
+
+    /**
+     *  Deletes a VM ID from the network update list (any of the sets)
+     *    @param vm_id The id
+     */
+    void clear_update_vm(int vm_id);
 
 private:
 
@@ -761,6 +874,22 @@ private:
      */
     std::string bridge_type;
 
+    /**
+     *  These collections stores the collection of VMs in the Virtual
+     *  Networks and manages the update process
+     *    - updated VMs using the last version of the vnet
+     *    - outdated VMs with a previous version of the vnet
+     *    - updating VMs being updated, action sent to the drivers
+     *    - error VMs that fail to update because of a wrong state or driver error
+     */
+    ObjectCollection updated;
+
+    ObjectCollection outdated;
+
+    ObjectCollection updating;
+
+    ObjectCollection error;
+
     // *************************************************************************
     // VLAN ID functions
     // *************************************************************************
@@ -790,7 +919,7 @@ private:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
-            VectorAttribute * nic, const std::vector<std::string>& inherit)
+            VectorAttribute * nic, const std::set<std::string>& inherit)
     {
         return ar_pool.allocate_addr(ot, oid, nic, inherit);
     }
@@ -808,7 +937,7 @@ private:
                         int oid,
                         const std::string& mac,
                         VectorAttribute * nic,
-                        const std::vector<std::string>& inherit)
+                        const std::set<std::string>& inherit)
     {
         return ar_pool.allocate_by_mac(mac, ot, oid, nic, inherit);
     }
@@ -817,7 +946,7 @@ private:
                        int oid,
                        const std::string& ip,
                        VectorAttribute * nic,
-                       const std::vector<std::string>& inherit)
+                       const std::set <std::string>& inherit)
     {
         return ar_pool.allocate_by_ip(ip, ot, oid, nic, inherit);
     }
@@ -826,7 +955,7 @@ private:
                         int oid,
                         const std::string& ip,
                         VectorAttribute * nic,
-                        const std::vector<std::string>& inherit)
+                        const std::set<std::string>& inherit)
     {
         return ar_pool.allocate_by_ip6(ip, ot, oid, nic, inherit);
     }
@@ -886,6 +1015,14 @@ private:
      *    @return 0 on success
      */
     int post_update_template(std::string& error) override;
+
+    /**
+     * Detect changed attributes in new_tmpl, store them as
+     * new attribute VNET_UPDATE
+     *  @param new_tmpl New template to compare with obj_template
+     *  @param removed Detect also removed attributes
+     */
+    void set_updated_attributes(Template* new_tmpl, bool removed);
 
     //**************************************************************************
     // Constructor

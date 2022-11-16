@@ -62,6 +62,7 @@ define(function(require) {
     "Network.lockU": _commonActions.multipleAction("lock", false),
     "Network.lockA": _commonActions.multipleAction("lock", false),
     "Network.unlock": _commonActions.multipleAction("unlock", false),
+    "Network.recover": _commonActions.multipleAction("recover"),
 
     "Network.import_dialog" : {
       type: "custom",

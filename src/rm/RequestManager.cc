@@ -328,6 +328,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_detach(new VirtualMachineDetach());
     xmlrpc_c::methodPtr vm_attachnic(new VirtualMachineAttachNic());
     xmlrpc_c::methodPtr vm_detachnic(new VirtualMachineDetachNic());
+    xmlrpc_c::methodPtr vm_updatenic(new VirtualMachineUpdateNic());
     xmlrpc_c::methodPtr vm_resize(new VirtualMachineResize());
     xmlrpc_c::methodPtr vm_snap_create(new VirtualMachineSnapshotCreate());
     xmlrpc_c::methodPtr vm_snap_revert(new VirtualMachineSnapshotRevert());
@@ -563,6 +564,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.detach", vm_detach);
     RequestManagerRegistry.addMethod("one.vm.attachnic", vm_attachnic);
     RequestManagerRegistry.addMethod("one.vm.detachnic", vm_detachnic);
+    RequestManagerRegistry.addMethod("one.vm.updatenic", vm_updatenic);
     RequestManagerRegistry.addMethod("one.vm.rename", vm_rename);
     RequestManagerRegistry.addMethod("one.vm.resize", vm_resize);
     RequestManagerRegistry.addMethod("one.vm.update", vm_update);

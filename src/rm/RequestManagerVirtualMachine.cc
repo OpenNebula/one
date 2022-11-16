@@ -2767,6 +2767,115 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineUpdateNic::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    VirtualMachineTemplate tmpl;
+    PoolObjectAuth vm_perms;
+
+    int     rc;
+
+    int     id       = paramList.getInt(1);
+    int     nic_id   = paramList.getInt(2);
+    string  str_tmpl = paramList.getString(3);
+
+    int append = 0;
+
+    if ( paramList.size() > 4 )
+    {
+        append = xmlrpc_c::value_int(paramList.getInt(4));
+    }
+
+    // -------------------------------------------------------------------------
+    // Check if the VM is a Virtual Router
+    // -------------------------------------------------------------------------
+    if (auto vm = get_vm(id, att))
+    {
+        if (vm->is_vrouter())
+        {
+            att.resp_msg = "Action is not supported for virtual router VMs";
+            failure_response(Request::ACTION, att);
+
+            return;
+        }
+
+        // Check if the action is supported for imported VMs
+        if (vm->is_imported() &&
+            !vm->is_imported_action_supported(VMActions::NIC_UPDATE_ACTION))
+        {
+            att.resp_msg = "Action \"nic-update\" is not supported for "
+                "imported VMs";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Parse NIC template
+    // -------------------------------------------------------------------------
+    rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation, restricted attributes & check quotas
+    // -------------------------------------------------------------------------
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if (!att.is_admin())
+    {
+        string aname;
+
+        if (tmpl.check_restricted(aname))
+        {
+            att.resp_msg = "NIC includes a restricted attribute " + aname;
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Perform the update
+    // -------------------------------------------------------------------------
+    DispatchManager *dm = Nebula::instance().get_dm();
+
+    rc = dm->update_nic(id, nic_id, &tmpl, append, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineRecover::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {

@@ -104,7 +104,23 @@ define(function(require) {
       type: "action",
       text: Locale.tr("Unlock"),
       layout: "lock_buttons"
-    }
+    },
+    "Network.recover" : {
+      type: "confirm_with_select",
+      text: Locale.tr("Recover"),
+      layout: "main",
+      custom_select: '<select class="resource_list_select">\
+                    <option value="3">' + Locale.tr("retry") + '</option>\
+                    <option value="1">' + Locale.tr("success") + '</option>\
+                    <option value="0">' + Locale.tr("failure") + '</option>\
+                    <option value="2">' + Locale.tr("delete") + '</option>\
+                  </select>'              ,
+      tip: Locale.tr("Recovers a stuck Virtual Network after an update operation that didn't finish successfully,\
+                  since updating a Virtual Network implies updating the corresponding Virtual Machine NICs. \
+                  The recovery may be done by failing, succeeding or retrying the current operation; or deleting \
+                  the Virtual Network. <b>You need to manually check the affected VMs and the network resources on \
+                  the infrastructure </b>to decide if the operation was successful or not, or if it can be retried."),
+    },
   };
 
   return VNetButtons;

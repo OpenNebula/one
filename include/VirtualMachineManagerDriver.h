@@ -29,6 +29,8 @@
 #include "Cluster.h"
 #include "VirtualMachine.h"
 
+#include "NebulaLog.h"
+
 /**
  *  VirtualMachineManagerDriver provides a base class to implement VM Manager
  *  Drivers. This class implements the protocol and recover functions
@@ -581,6 +583,19 @@ private:
         const std::string& drv_msg) const
     {
         write_drv(VMManagerMessages::BACKUP, oid, drv_msg);
+    }
+
+    /**
+     *  Sends a request to update the VM nic:
+     *  "UPDATENIC ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void updatenic(
+        const int          oid,
+        const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::UPDATENIC, oid, drv_msg);
     }
 
     /**

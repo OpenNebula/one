@@ -44,7 +44,7 @@ module OpenNebula
             :recover    => "vn.recover"
         }
 
-        VN_STATES=%w{INIT READY LOCK_CREATE LOCK_DELETE DONE ERROR}
+        VN_STATES=%w{INIT READY LOCK_CREATE LOCK_DELETE DONE ERROR UPDATE_FAILURE}
 
         SHORT_VN_STATES={
             "INIT"          => "init",
@@ -52,7 +52,8 @@ module OpenNebula
             "LOCK_CREATE"   => "lock",
             "LOCK_DELETE"   => "lock",
             "DONE"          => "done",
-            "ERROR"         => "err"
+            "ERROR"         => "err",
+            "UPDATE_FAILURE"=> "fail"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -326,7 +327,7 @@ module OpenNebula
         # Recovers an stuck Virtual Network
         #
         # @param result [Integer] Recover with failure (0), success (1),
-        # delete (2)
+        # delete (2), retry (3)
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def recover(result)

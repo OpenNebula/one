@@ -22,6 +22,7 @@
 #include "AuthManager.h"
 #include "AddressRange.h"
 #include "IPAMManager.h"
+#include "VirtualMachine.h"
 #include "VirtualMachineNic.h"
 #include "ClusterPool.h"
 #include "HookManager.h"
@@ -106,7 +107,7 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     for (auto attr : _inherit_attrs)
     {
-        inherit_attrs.push_back(attr->value());
+        inherit_attrs.emplace(attr->value());
     }
 }
 

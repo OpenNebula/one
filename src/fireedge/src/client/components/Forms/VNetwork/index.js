@@ -38,4 +38,11 @@ const CreateForm = (configProps) =>
 const ReserveForm = (configProps) =>
   AsyncLoadForm({ formPath: 'VNetwork/ReserveForm' }, configProps)
 
-export { AddRangeForm, CreateForm, ReserveForm }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const RecoverForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'VNetwork/RecoverForm' }, configProps)
+
+export { AddRangeForm, CreateForm, ReserveForm, RecoverForm }

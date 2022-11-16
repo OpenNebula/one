@@ -115,15 +115,15 @@ protected:
         va->unmarshall(sattr, _sep);
     }
 
-    AttributeType type()
+    AttributeType type() const override
     {
         return va->type();
-    };
+    }
 
-    Attribute* clone() const
+    Attribute* clone() const override
     {
         return va->clone();
-    };
+    }
 
     /* ---------------------------------------------------------------------- */
     /* ExtendedAttribute Interface                                            */

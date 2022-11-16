@@ -19,7 +19,17 @@ import {
   AddressRange,
   VN_STATES,
   STATES,
+  LEASE_STATE,
+  VN_ACTIONS_BY_STATE,
 } from 'client/constants'
+
+/**
+ * Returns the lease state.
+ *
+ * @param {string} state - Leases
+ * @returns {STATES.StateInfo} State information from leases
+ */
+export const getLeaseState = (state) => LEASE_STATE[state]
 
 /**
  * Returns the state of the virtual network.
@@ -91,4 +101,21 @@ export const getAddressType = (addr) => {
   if (isIPv4(addr)) return 'IP'
   if (isIPv6(addr)) return 'IP6'
   if (isMAC(addr)) return 'MAC'
+}
+
+/**
+ * Check if action is available for **all Virtual Networks**.
+ *
+ * @param {object} action - Virtual Network action
+ * @param {VirtualNetwork|VirtualNetwork[]} vnets - Virtual networks
+ * @returns {boolean} If `true`, the action is available for all Virtual Networks
+ */
+export const isAvailableAction = (action, vnets = []) => {
+  if (VN_ACTIONS_BY_STATE[action]?.length === 0) return true
+
+  return [vnets].flat().every((vnet) => {
+    const state = VN_STATES[vnet.STATE]?.name
+
+    return VN_ACTIONS_BY_STATE[action]?.includes(state)
+  })
 }

@@ -18,6 +18,7 @@
 #define DISPATCH_MANAGER_H_
 
 #include "Listener.h"
+#include "VMActions.h"
 
 //Forward definitions
 class TransferManager;
@@ -27,6 +28,7 @@ class ImageManager;
 class ClusterPool;
 class HostPool;
 class VirtualMachinePool;
+class VirtualNetworkPool;
 class VirtualRouterPool;
 class UserPool;
 class SecurityGroupPool;
@@ -319,6 +321,37 @@ public:
             std::string& error_str);
 
     /**
+     *  Starts the update NIC action.
+     *    @param vid VirtualMachine identification
+     *    @param nic_id NIC identification
+     *    @param tmpl Template containing the new NIC attribute.
+     *    @param ra information about the API call request
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int update_nic(int vid,
+                   int nic_id,
+                   VirtualMachineTemplate * tmpl,
+                   bool append,
+                   const RequestAttributes& ra,
+                   std::string& error_str);
+
+    /**
+     *  Starts the recover NIC action.
+     *    @param vid VirtualMachine identification
+     *    @param nic_id NIC identification
+     *    @param network_id Network identification
+     *    @param error_str Error reason, if any
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int recover_nic(int vid,
+                    int nic_id,
+                    int network_id,
+                    std::string& error_str);
+
+    /**
      * Starts the snapshot create action
      *
      * @param vid VirtualMachine identification
@@ -484,6 +517,9 @@ public:
 
     void trigger_resubmit(int vid);
 
+    static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
+        VMActions::Action action, const RequestAttributes& ra);
+
 private:
     /**
      *  Pointer to the Host Pool, to access hosts
@@ -509,6 +545,11 @@ private:
      * Pointer to Security Group Pool
      */
     SecurityGroupPool *     sgpool = nullptr;
+
+    /**
+     * Pointer to VirtualNetworkPool
+     */
+    VirtualNetworkPool *    vnpool = nullptr;
 
     /**
      *  Pointer to the Virtual Router Pool

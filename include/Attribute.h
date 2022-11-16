@@ -94,7 +94,7 @@ public:
     /**
      *  Returns the attribute type
      */
-    virtual AttributeType type() = 0;
+    virtual AttributeType type() const = 0;
 
     /**
      *  Clones the current attribute
@@ -211,7 +211,7 @@ public:
     /**
      *  Returns the attribute type
      */
-    AttributeType type() override
+    AttributeType type() const override
     {
         return SIMPLE;
     };
@@ -469,7 +469,7 @@ public:
     /**
      *  Returns the attribute type
      */
-    AttributeType type() override
+    AttributeType type() const override
     {
         return VECTOR;
     };

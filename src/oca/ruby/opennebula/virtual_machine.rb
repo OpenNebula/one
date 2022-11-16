@@ -57,7 +57,9 @@ module OpenNebula
             :schedupdate    => "vm.schedupdate",
             :attachsg       => "vm.attachsg",
             :detachsg       => "vm.detachsg",
-            :backup         => "vm.backup"
+            :backup         => "vm.backup",
+            :updatenic      => "vm.updatenic",
+            :recovernic     => "vm.recovernic"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -233,7 +235,7 @@ module OpenNebula
             snapshot-resize snapshot-delete snapshot-revert disk-saveas
             disk-snapshot-revert recover retry monitor disk-snapshot-rename
             alias-attach alias-detach poweroff-migrate poweroff-hard-migrate
-            backup
+            backup nic-update
             }
 
         EXTERNAL_IP_ATTRS = [
@@ -466,6 +468,18 @@ module OpenNebula
         #   otherwise
         def nic_detach(nic_id)
             return call(VM_METHODS[:detachnic], @pe_id, nic_id)
+        end
+
+        # Updates a NIC for a running VM
+        #
+        # @param nic_id [Integer] Id of the NIC to be updated
+        # @param nic_template [String] Template with updated attributes
+        # @param append [true|false] True to append new attributes instead of
+        #   replace the whole template
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def nic_update(nic_id, nic_template, append = false)
+            return call(VM_METHODS[:updatenic], @pe_id, nic_id, nic_template, append ? 1 : 0)
         end
 
         # Attaches a Security Groupt to a running VM

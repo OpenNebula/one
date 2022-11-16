@@ -47,10 +47,10 @@ public class VirtualNetwork extends PoolElement{
     private static final String RECOVER         = METHOD_PREFIX + "recover";
 
     private static final String[] VN_STATES =
-        {"INIT", "READY", "LOCK_CREATE", "LOCK_DELETE", "DONE", "ERROR"};
+        {"INIT", "READY", "LOCK_CREATE", "LOCK_DELETE", "DONE", "ERROR", "UPDATE_FAILURE"};
 
     private static final String[] SHORT_VN_STATES =
-        {"init", "rdy", "lock", "lock", "done", "err"};
+        {"init", "rdy", "lock", "lock", "done", "err", "fail"};
 
     /**
      * Creates a new virtual network representation.
@@ -416,7 +416,7 @@ public class VirtualNetwork extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The Virtual Network ID of the target instance.
      * @param operation to recover the VM: (0) failure, (1) success,
-     * (2) delete
+     * (2) delete, (3) retry
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse recover(Client client, int id, int operation)
@@ -766,7 +766,7 @@ public class VirtualNetwork extends PoolElement{
      * Recovers a stuck Virtual Network.
      *
      * @param operation to recover the VM: (0) failure, (1) success,
-     * (2) delete
+     * (2) delete, (3) retry
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse recover(int operation)
