@@ -441,6 +441,8 @@ module OneDBFsck
             vmdoc = nokogiri_doc(vm_row[:body])
 
             vmdoc.root.xpath('TEMPLATE/NIC/NETWORK_ID').each do |e|
+                next if e.text.empty?
+
                 vnet_usage[e.text] = 0 if vnet_usage[e.text].nil?
                 vnet_usage[e.text] += 1
             end
@@ -523,7 +525,7 @@ module OneDBFsck
             log_error("#{resource} #{oid} quotas: VNet " \
                       "#{vnet_id}\tLEASES_USED has 0 \tis\t#{leases_used}")
 
-            new_elem = net_quota.add_child(doc.create_element('NETWORK'))
+            new_elem = new_net_quota.add_child(doc.create_element('NETWORK'))
 
             leases_el = doc.create_element('LEASES_USED')
             new_elem.add_child(doc.create_element('ID')).content = vnet_id
