@@ -637,6 +637,7 @@ public:
                            "A:siib")
     {
         vm_action = VMActions::BACKUP_ACTION;
+        auth_op   = AuthRequest::ADMIN;
     }
 
 protected:

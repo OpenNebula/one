@@ -222,7 +222,7 @@ class DummyDriver < VirtualMachineDriver
     def backup(id, drv_message)
         result = retrieve_result("backup")
 
-        send_message(ACTION[:backup], result, id, 'dummy-backup-id')
+        send_message(ACTION[:backup], result, id, 'dummy-backup-id 1024')
     end
 
     def poll(id, drv_message)

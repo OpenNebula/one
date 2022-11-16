@@ -2153,6 +2153,7 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/snap_revert \
                          src/datastore_mad/remotes/dummy/snap_flatten \
                          src/datastore_mad/remotes/dummy/rm \
+                         src/datastore_mad/remotes/dummy/restore \
                          src/datastore_mad/remotes/dummy/export"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
