@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
-
-STDOUT.puts "0 dummy_image"
+STDOUT.puts '0 dummy_image'
 
 exit(0)
