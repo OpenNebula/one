@@ -172,7 +172,8 @@ export const getNics = (vm, options = {}) => {
   const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
   const { NIC = [], NIC_ALIAS = [], PCI = [] } = TEMPLATE
 
-  const pciNics = PCI.filter(({ NIC_ID } = {}) => NIC_ID !== undefined)
+  const PCI_ARRAY = Array.isArray(PCI) ? PCI : [PCI]
+  const pciNics = PCI_ARRAY.filter(({ NIC_ID } = {}) => NIC_ID !== undefined)
 
   let nics = [NIC, NIC_ALIAS, pciNics].flat().filter(Boolean)
 
