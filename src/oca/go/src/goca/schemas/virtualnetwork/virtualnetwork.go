@@ -77,6 +77,7 @@ type AR struct {
 	IP6GlobalEnd      string  `xml:"IP6_GLOBAL_END,omitempty"`
 	IP6               string  `xml:"IP6,omitempty"`
 	IP6End            string  `xml:"IP6_END,omitempty"`
+	IpamMad           string  `xml:"IPAM_MAD,omitempty"`
 	UsedLeases        string  `xml:"USED_LEASES,omitempty"`
 	Leases            []Lease `xml:"LEASES>LEASE,omitempty"`
 
