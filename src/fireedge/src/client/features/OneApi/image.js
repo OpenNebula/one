@@ -55,17 +55,13 @@ const imageApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => {
-        const imagesPool = data?.IMAGE_POOL?.IMAGE
-          ? Array.isArray(data.IMAGE_POOL.IMAGE)
-            ? data.IMAGE_POOL.IMAGE
-            : [data.IMAGE_POOL.IMAGE]
-          : []
-
-        const images = imagesPool?.filter?.((image) =>
-          IMAGE_TYPES_FOR_IMAGES.some(() => getType(image))
+        const images = data?.IMAGE_POOL?.IMAGE?.filter?.((image) =>
+          IMAGE_TYPES_FOR_IMAGES.some(
+            (imageType) => imageType === getType(image)
+          )
         )
 
-        return images.flat()
+        return [images ?? []].flat()
       },
       providesTags: (images) =>
         images

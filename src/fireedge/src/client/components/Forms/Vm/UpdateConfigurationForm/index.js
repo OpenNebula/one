@@ -25,6 +25,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
   transformInitialValue: (vmTemplate, schema) => {
     const template = vmTemplate?.TEMPLATE ?? {}
     const context = template?.CONTEXT ?? {}
+    const backupConfig = vmTemplate?.BACKUPS?.BACKUP_CONFIG ?? {}
 
     const knownTemplate = schema.cast(
       { ...vmTemplate, ...template },
@@ -37,10 +38,25 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       context: { ...template },
     })
 
+    // Get the custom vars from the context
+    const knownBackupConfig = reach(schema, 'BACKUP_CONFIG').cast(
+      backupConfig,
+      {
+        stripUnknown: true,
+        context: { ...template },
+      }
+    )
+
     // Merge known and unknown context custom vars
     knownTemplate.CONTEXT = {
       ...knownContext,
       ...getUnknownAttributes(context, knownContext),
+    }
+
+    // Merge known and unknown context custom vars
+    knownTemplate.BACKUP_CONFIG = {
+      ...knownBackupConfig,
+      ...getUnknownAttributes(backupConfig, knownBackupConfig),
     }
 
     return knownTemplate

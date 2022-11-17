@@ -126,7 +126,7 @@ const ImageInfoTab = ({ tabProps = {}, id }) => {
       {attributesPanel?.enabled && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
-          attributes={TEMPLATE}
+          attributes={TEMPLATE === '' ? {} : TEMPLATE}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
         />

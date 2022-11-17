@@ -43,7 +43,7 @@ const { UPDATE_CONF } = VM_ACTIONS
 const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
   const [updateConf] = useUpdateConfigurationMutation()
   const { data: vm = {}, isFetching } = useGetVmQuery({ id })
-  const { TEMPLATE } = vm
+  const { TEMPLATE, BACKUPS } = vm
 
   const hypervisor = useMemo(() => getHypervisor(vm), [vm])
 
@@ -59,7 +59,7 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
   const sections = useMemo(() => {
     const filterSection = (section) => {
       const supported = ATTR_CONF_CAN_BE_UPDATED[section] || '*'
-      const attributes = TEMPLATE[section] || {}
+      const attributes = TEMPLATE[section] || BACKUPS[section] || {}
       const sectionAttributes = []
 
       const getAttrFromEntry = (key, value, idx) => {
@@ -106,6 +106,7 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
     graphicsAttributes,
     rawAttributes,
     contextAttributes,
+    backupAttributes,
   ] = sections
 
   return (
@@ -144,6 +145,9 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
       >
         {osAttributes?.length > 0 && (
           <List title={T.OSAndCpu} list={osAttributes} />
+        )}
+        {backupAttributes?.length > 0 && (
+          <List title={T.Backup} list={backupAttributes} />
         )}
         {featuresAttributes?.length > 0 && (
           <List title={T.Features} list={featuresAttributes} />

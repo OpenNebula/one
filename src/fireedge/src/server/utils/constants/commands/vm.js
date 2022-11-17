@@ -690,7 +690,7 @@ module.exports = {
         },
         reset: {
           from: postBody,
-          default: 0,
+          default: false,
         },
       },
     },

@@ -1738,4 +1738,5 @@ export const ATTR_CONF_CAN_BE_UPDATED = {
   GRAPHICS: ['TYPE', 'LISTEN', 'PASSWD', 'KEYMAP'],
   RAW: ['DATA', 'DATA_VMX', 'TYPE'],
   CONTEXT: '*',
+  BACKUP_CONFIG: '*',
 }

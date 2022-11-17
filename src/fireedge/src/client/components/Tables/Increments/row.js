@@ -17,60 +17,40 @@
 import PropTypes from 'prop-types'
 
 import {
-  Lock,
-  User,
-  Group,
-  Db as DatastoreIcon,
-  ModernTv,
-  Pin as PersistentIcon,
-  Archive as DiskTypeIcon,
+  HardDrive as SizeIcon,
+  RefreshCircular as FullIcon,
+  Refresh as IncrementIcon,
 } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
 import Timer from 'client/components/Timer'
-import { StatusCircle, StatusChip } from 'client/components/Status'
+import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import { T } from 'client/constants'
+import { prettyBytes } from 'client/utils'
 
-import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
 
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
-  const {
-    ID,
-    NAME,
-    UNAME,
-    GNAME,
-    REGTIME,
-    DISK_TYPE,
-    PERSISTENT,
-    locked,
-    DATASTORE,
-    TOTAL_VMS,
-    RUNNING_VMS,
-  } = value
+  const { ID, TYPE, DATE, SIZE, SOURCE } = value
 
-  const {
-    BACKUP_INCREMENTS: { INCREMENT = undefined },
-  } = original
+  const labels = [...new Set([TYPE])].filter(Boolean)
 
-  const BACKUP_TYPE = INCREMENT ? T.Incremental : T.Full
-  const labels = [...new Set([BACKUP_TYPE])].filter(Boolean)
-
-  const { color: stateColor, name: stateName } = ImageModel.getState(original)
-
-  const time = Helper.timeFromMilliseconds(+REGTIME)
+  const time = Helper.timeFromMilliseconds(+DATE)
 
   return (
-    <div {...props} data-cy={`image-${ID}`}>
+    <div
+      {...props}
+      data-cy={`increment-${ID}`}
+      style={{ marginLeft: TYPE === 'FULL' ? '' : '1.5em' }}
+    >
       <div className={classes.main}>
         <div className={classes.title}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
+          <span>{TYPE === 'FULL' ? <FullIcon /> : <IncrementIcon />}</span>
           <Typography noWrap component="span" data-cy="name">
-            {NAME}
+            {SOURCE}
           </Typography>
-          {locked && <Lock />}
           <span className={classes.labels}>
             {labels.map((label) => (
               <StatusChip key={label} text={label} />
@@ -82,41 +62,9 @@ const Row = ({ original, value, ...props }) => {
           <span title={time.toFormat('ff')}>
             <Timer translateWord={T.RegisteredAt} initial={time} />
           </span>
-          <span title={`${T.Owner}: ${UNAME}`}>
-            <User />
-            <span>{` ${UNAME}`}</span>
-          </span>
-          <span title={`${T.Group}: ${GNAME}`}>
-            <Group />
-            <span>{` ${GNAME}`}</span>
-          </span>
-          <span title={`${T.Datastore}: ${DATASTORE}`}>
-            <DatastoreIcon />
-            <span>{` ${DATASTORE}`}</span>
-          </span>
-          <span
-            title={
-              PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()
-            }
-          >
-            <PersistentIcon />
-            <span>
-              {PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()}
-            </span>
-          </span>
-          <span title={`${T.DiskType}: ${DISK_TYPE.toLowerCase()}`}>
-            <DiskTypeIcon />
-            <span>{` ${DISK_TYPE.toLowerCase()}`}</span>
-          </span>
-          <span
-            title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
-          >
-            <ModernTv />
-            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
+          <span title={`${T.BackupSize}: ${prettyBytes(SIZE, 'MB')}`}>
+            <SizeIcon />
+            <span>{` ${prettyBytes(SIZE, 'MB')}`}</span>
           </span>
         </div>
       </div>

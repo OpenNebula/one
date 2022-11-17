@@ -14,44 +14,23 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { BackupsTable } from 'client/components/Tables'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { useParams, Redirect } from 'react-router-dom'
+
+import BackupTab from 'client/components/Tabs/Backup'
 
 /**
- * Renders the list of backups from a VM.
+ * Displays the detail information about a Virtual Machine.
  *
- * @param {object} props - Props
- * @param {string} props.id - Virtual Machine id
- * @returns {ReactElement} Backups tab
+ * @returns {ReactElement} Virtual Machine detail component.
  */
-const VmBackupTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
-  const path = PATH.STORAGE.BACKUPS.DETAIL
-  const history = useHistory()
+function BackupDetail() {
+  const { id } = useParams()
 
-  const handleRowClick = (rowId) => {
-    console.log('going to: ', generatePath(path, { id: String(rowId) }))
-    history.push(generatePath(path, { id: String(rowId) }))
+  if (Number.isNaN(+id)) {
+    return <Redirect to="/" />
   }
 
-  return (
-    <BackupsTable
-      disableRowSelect
-      disableGlobalSort
-      vm={vm}
-      onRowClick={(row) => handleRowClick(row.ID)}
-    />
-  )
+  return <BackupTab id={id} />
 }
 
-VmBackupTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmBackupTab.displayName = 'VmBackupTab'
-
-export default VmBackupTab
+export default BackupDetail

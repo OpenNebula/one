@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, number } from 'yup'
+import { string, boolean, number, ObjectSchema } from 'yup'
 
-import { Field, Section, arrayToOptions } from 'client/utils'
+import {
+  Field,
+  Section,
+  arrayToOptions,
+  getObjectSchemaFromFields,
+} from 'client/utils'
 import {
   T,
   INPUT_TYPES,
@@ -28,6 +33,7 @@ const BACKUP_VOLATILE_FIELD = {
   label: T.BackupVolatileDisksQuestion,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo().notRequired(),
+  grid: { xs: 12, md: 6 },
 }
 
 const FS_FREEZE_FIELD = {
@@ -42,6 +48,7 @@ const FS_FREEZE_FIELD = {
   validation: string()
     .trim()
     .default(() => undefined),
+  grid: { xs: 12, md: 6 },
 }
 
 const KEEP_LAST_FIELD = {
@@ -53,13 +60,13 @@ const KEEP_LAST_FIELD = {
     .notRequired()
     .nullable(true)
     .default(() => undefined)
-    .transform((_, val) => (val !== '' ? val : null)),
+    .transform((_, val) => (val !== '' ? parseInt(val) : null)),
+  grid: { xs: 12, md: 6 },
 }
 
 const MODE_FIELD = {
   name: 'BACKUP_CONFIG.MODE',
-  label: T.FSFreeze,
-  tooltip: T.FSFreezeConcept,
+  label: T.Mode,
   type: INPUT_TYPES.SELECT,
   values: arrayToOptions(Object.keys(BACKUP_MODE_OPTIONS), {
     addEmpty: true,
@@ -69,10 +76,11 @@ const MODE_FIELD = {
   validation: string()
     .trim()
     .default(() => undefined),
+  grid: { xs: 12, md: 6 },
 }
 
 /** @type {Section[]} Sections */
-const SECTIONS = [
+export const SECTIONS = [
   {
     id: 'backup-configuration',
     fields: [
@@ -85,11 +93,12 @@ const SECTIONS = [
 ]
 
 /** @type {Field[]} List of Placement fields */
-const FIELDS = [
+export const FIELDS = [
   BACKUP_VOLATILE_FIELD,
   FS_FREEZE_FIELD,
   KEEP_LAST_FIELD,
   MODE_FIELD,
 ]
 
-export { SECTIONS, FIELDS }
+/** @type {ObjectSchema} Graphics schema */
+export const BACKUP_SCHEMA = getObjectSchemaFromFields(FIELDS)

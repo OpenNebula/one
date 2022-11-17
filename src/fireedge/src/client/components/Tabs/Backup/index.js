@@ -25,11 +25,13 @@ import { RESOURCE_NAMES } from 'client/constants'
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Backup/Info'
 import Vms from 'client/components/Tabs/Backup/Vms'
+import Increments from 'client/components/Tabs/Backup/Increments'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
     vms: Vms,
+    increments: Increments,
   }[tabName])
 
 const BackupTabs = memo(({ id }) => {
@@ -37,7 +39,7 @@ const BackupTabs = memo(({ id }) => {
   const { isLoading, isError, error } = useGetImageQuery({ id })
 
   const tabsAvailable = useMemo(() => {
-    const resource = RESOURCE_NAMES.IMAGE
+    const resource = RESOURCE_NAMES.BACKUP
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)

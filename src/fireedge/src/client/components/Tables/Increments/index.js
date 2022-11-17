@@ -13,45 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { BackupsTable } from 'client/components/Tables'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { useMemo, ReactElement } from 'react'
+
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import IncrementColumns from 'client/components/Tables/Increments/columns'
+import IncrementRow from 'client/components/Tables/Increments/row'
+
+const DEFAULT_DATA_CY = 'increments'
 
 /**
- * Renders the list of backups from a VM.
- *
  * @param {object} props - Props
- * @param {string} props.id - Virtual Machine id
- * @returns {ReactElement} Backups tab
+ * @returns {ReactElement} Backups table
  */
-const VmBackupTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
-  const path = PATH.STORAGE.BACKUPS.DETAIL
-  const history = useHistory()
+const IncrementsTable = (props) => {
+  const { rootProps = {}, increments, ...rest } = props ?? {}
+  rootProps['data-cy'] ??= DEFAULT_DATA_CY
 
-  const handleRowClick = (rowId) => {
-    console.log('going to: ', generatePath(path, { id: String(rowId) }))
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
+  const columns = createColumns({
+    columns: IncrementColumns,
+  })
 
   return (
-    <BackupsTable
-      disableRowSelect
-      disableGlobalSort
-      vm={vm}
-      onRowClick={(row) => handleRowClick(row.ID)}
+    <EnhancedTable
+      columns={columns}
+      data={useMemo(() => increments, [increments])}
+      rootProps={rootProps}
+      getRowId={(row) => String(row.ID)}
+      RowComponent={IncrementRow}
+      {...rest}
     />
   )
 }
 
-VmBackupTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
+IncrementsTable.displayName = 'IncrementsTable'
 
-VmBackupTab.displayName = 'VmBackupTab'
-
-export default VmBackupTab
+export default IncrementsTable

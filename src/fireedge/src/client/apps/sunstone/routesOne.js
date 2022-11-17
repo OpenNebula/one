@@ -121,6 +121,12 @@ const CreateSecurityGroups = loadable(
 const Backups = loadable(() => import('client/containers/Backups'), {
   ssr: false,
 })
+const BackupDetail = loadable(
+  () => import('client/containers/Backups/Detail'),
+  {
+    ssr: false,
+  }
+)
 const CreateImages = loadable(() => import('client/containers/Images/Create'), {
   ssr: false,
 })
@@ -440,6 +446,12 @@ const ENDPOINTS = [
         sidebar: true,
         icon: BackupIcon,
         Component: Backups,
+      },
+      {
+        title: T.Backup,
+        description: (params) => `#${params?.id}`,
+        path: PATH.STORAGE.BACKUPS.DETAIL,
+        Component: BackupDetail,
       },
       {
         title: T.Marketplaces,

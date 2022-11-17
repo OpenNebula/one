@@ -399,6 +399,11 @@ module.exports = {
   Running: 'Running',
   DoNotRestoreNICAttributes: 'Do not restore NIC attributes',
   DoNotRestoreIPAttributes: 'Do not restore IP attributes',
+  Full: 'Full',
+  Increment: 'Increment',
+  Incremental: 'Incremental',
+  Mode: 'Mode',
+  ResetBackup: 'Reset',
 
   /* sections - templates & instances */
   Instances: 'Instances',

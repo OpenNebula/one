@@ -20,11 +20,13 @@ import {
   SystemShut as OsIcon,
   DataTransferBoth as IOIcon,
   Folder as ContextIcon,
+  RefreshDouble as BackupIcon,
 } from 'iconoir-react'
 
 import InputOutput from 'client/components/Forms/Vm/UpdateConfigurationForm/inputOutput'
 import Booting from 'client/components/Forms/Vm/UpdateConfigurationForm/booting'
 import Context from 'client/components/Forms/Vm/UpdateConfigurationForm/context'
+import Backup from 'client/components/Forms/Vm/UpdateConfigurationForm/backup'
 
 import Tabs from 'client/components/Tabs'
 import { Translate } from 'client/components/HOC'
@@ -62,6 +64,15 @@ const Content = ({ hypervisor }) => {
         label: <Translate word={T.Context} />,
         renderContent: () => <Context hypervisor={hypervisor} />,
         error: !!errors?.CONTEXT,
+      },
+      {
+        id: 'backup_config',
+        icon: BackupIcon,
+        label: <Translate word={T.Backup} />,
+        renderContent: () => <Backup />,
+        error: ['BACKUP_VOLATILE', 'FS_FREEZE', 'KEEP_LAST', 'MODE'].some(
+          (id) => errors?.[`BACKUP_CONFIG.${id}`]
+        ),
       },
     ],
     [errors, hypervisor]

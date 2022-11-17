@@ -21,6 +21,7 @@ import EnhancedTable from 'client/components/Tables/Enhanced'
 import GroupsTable from 'client/components/Tables/Groups'
 import HostsTable from 'client/components/Tables/Hosts'
 import ImagesTable from 'client/components/Tables/Images'
+import IncrementsTable from 'client/components/Tables/Increments'
 import FilesTable from 'client/components/Tables/Files'
 import MarketplaceAppsTable from 'client/components/Tables/MarketplaceApps'
 import MarketplacesTable from 'client/components/Tables/Marketplaces'
@@ -51,6 +52,7 @@ export {
   GroupsTable,
   HostsTable,
   ImagesTable,
+  IncrementsTable,
   MarketplaceAppsTable,
   MarketplacesTable,
   SecurityGroupsTable,

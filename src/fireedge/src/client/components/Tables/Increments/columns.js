@@ -13,45 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { BackupsTable } from 'client/components/Tables'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
 
-/**
- * Renders the list of backups from a VM.
- *
- * @param {object} props - Props
- * @param {string} props.id - Virtual Machine id
- * @returns {ReactElement} Backups tab
- */
-const VmBackupTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
-  const path = PATH.STORAGE.BACKUPS.DETAIL
-  const history = useHistory()
-
-  const handleRowClick = (rowId) => {
-    console.log('going to: ', generatePath(path, { id: String(rowId) }))
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <BackupsTable
-      disableRowSelect
-      disableGlobalSort
-      vm={vm}
-      onRowClick={(row) => handleRowClick(row.ID)}
-    />
-  )
-}
-
-VmBackupTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmBackupTab.displayName = 'VmBackupTab'
-
-export default VmBackupTab
+export default [
+  { Header: 'ID', accessor: 'ID', sortType: 'number' },
+  { Header: 'Type', accessor: 'TYPE' },
+  { Header: 'Date', accessor: 'DATE' },
+  { Header: 'Size', accessor: 'SIZE' },
+  { Header: 'Source', accessor: 'SOURCE' },
+]

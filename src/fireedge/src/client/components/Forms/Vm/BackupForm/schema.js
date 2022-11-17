@@ -28,26 +28,27 @@ const DS_ID = {
     return arrayToOptions(
       datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
       {
-        addEmpty: false,
+        addEmpty: true,
         getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
-        getValue: ({ ID } = {}) => ID,
+        getValue: ({ ID } = {}) => parseInt(ID),
       }
     )
   },
   validation: number()
     .positive()
     .required()
-    .default(() => undefined),
+    .default(() => undefined)
+    .transform((_, val) => parseInt(val)),
 }
 
 const RESET = {
   name: 'reset',
-  label: T.Reset,
+  label: T.ResetBackup,
   type: INPUT_TYPES.SWITCH,
   validation: boolean(),
-  grid: { xs: 12, md: 6 },
+  grid: { xs: 12 },
 }
 
-export const FIELDS = [DS_ID, RESET]
+export const FIELDS = [RESET, DS_ID]
 
 export const SCHEMA = object(getValidationFromFields(FIELDS))

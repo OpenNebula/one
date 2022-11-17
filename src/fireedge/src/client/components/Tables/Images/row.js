@@ -74,7 +74,7 @@ const Row = ({ original, value, ...props }) => {
           </span>
         </div>
         <div className={classes.caption}>
-          <span>{`${ID}`}</span>
+          <span>{`#${ID}`}</span>
           <span title={time.toFormat('ff')}>
             <Timer translateWord={T.RegisteredAt} initial={time} />
           </span>

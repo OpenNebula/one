@@ -15,43 +15,38 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { BackupsTable } from 'client/components/Tables'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { useGetImageQuery } from 'client/features/OneApi/image'
+import { IncrementsTable } from 'client/components/Tables'
 
 /**
- * Renders the list of backups from a VM.
+ * Renders mainly Increments tab.
  *
  * @param {object} props - Props
- * @param {string} props.id - Virtual Machine id
- * @returns {ReactElement} Backups tab
+ * @param {string} props.id - Image id
+ * @returns {ReactElement} Increments tab
  */
-const VmBackupTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
-  const path = PATH.STORAGE.BACKUPS.DETAIL
-  const history = useHistory()
-
-  const handleRowClick = (rowId) => {
-    console.log('going to: ', generatePath(path, { id: String(rowId) }))
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
+const IncrementsTab = ({ id }) => {
+  const { data: image = {} } = useGetImageQuery({ id })
+  const increments = image?.BACKUP_INCREMENTS?.INCREMENT
+    ? Array.isArray(image.BACKUP_INCREMENTS.INCREMENT)
+      ? image.BACKUP_INCREMENTS.INCREMENT
+      : [image.BACKUP_INCREMENTS.INCREMENT]
+    : []
 
   return (
-    <BackupsTable
-      disableRowSelect
+    <IncrementsTable
       disableGlobalSort
-      vm={vm}
-      onRowClick={(row) => handleRowClick(row.ID)}
+      disableRowSelect
+      increments={increments || []}
     />
   )
 }
 
-VmBackupTab.propTypes = {
+IncrementsTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
 }
 
-VmBackupTab.displayName = 'VmBackupTab'
+IncrementsTab.displayName = 'IncrementsTab'
 
-export default VmBackupTab
+export default IncrementsTab

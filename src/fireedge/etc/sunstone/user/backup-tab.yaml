@@ -62,3 +62,5 @@ info-tabs:
         delete: true
   vms:
     enabled: true
+  increments:
+    enabled: true
