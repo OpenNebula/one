@@ -382,7 +382,8 @@ define(function(require) {
 
             switch(that.searchOps[name]){
               case "match":
-                match = (values[name].match( that.searchVals[name] ) != null);
+                // Tries with regex and with substrings
+                match = (values[name].match( that.searchVals[name] ) != null) || (values[name].includes( that.searchVals[name] ));
                 break;
               case "<=":
                 match = (that.searchVals[name] == "") ||
