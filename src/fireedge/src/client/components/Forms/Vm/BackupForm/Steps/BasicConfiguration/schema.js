@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, {
-  STEP_ID as BASIC_ID,
-} from 'client/components/Forms/Vm/BackupForm/Steps/BasicConfiguration'
-import DatastoresTable, {
-  STEP_ID as DATASTORE_ID,
-} from 'client/components/Forms/Vm/BackupForm/Steps/DatastoresTable'
-import { createSteps } from 'client/utils'
+import { boolean, object, ObjectSchema } from 'yup'
+import { Field, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-const Steps = createSteps(
-  (app) => [BasicConfiguration, DatastoresTable].filter(Boolean),
-  {
-    transformInitialValue: (app, schema) =>
-      schema.cast({}, { context: { app } }),
-    transformBeforeSubmit: (formData) => {
-      const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
-        formData
+const RESET = {
+  name: 'reset',
+  label: T.ResetBackup,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean(),
+  grid: { xs: 12, md: 6 },
+}
 
-      return {
-        dsId: datastore?.ID,
-        ...configuration,
-      }
-    },
-  }
-)
+/**
+ * @returns {Field[]} Fields
+ */
+export const FIELDS = () => [RESET]
 
-export default Steps
+/**
+ * @param {object} [stepProps] - Step props
+ * @returns {ObjectSchema} Schema
+ */
+export const SCHEMA = (stepProps) =>
+  object(getValidationFromFields(FIELDS(stepProps)))

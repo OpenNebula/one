@@ -13,29 +13,47 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, {
-  STEP_ID as BASIC_ID,
-} from 'client/components/Forms/Vm/BackupForm/Steps/BasicConfiguration'
-import DatastoresTable, {
-  STEP_ID as DATASTORE_ID,
-} from 'client/components/Forms/Vm/BackupForm/Steps/DatastoresTable'
-import { createSteps } from 'client/utils'
+/* eslint-disable jsdoc/require-jsdoc */
+import PropTypes from 'prop-types'
 
-const Steps = createSteps(
-  (app) => [BasicConfiguration, DatastoresTable].filter(Boolean),
-  {
-    transformInitialValue: (app, schema) =>
-      schema.cast({}, { context: { app } }),
-    transformBeforeSubmit: (formData) => {
-      const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
-        formData
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-      return {
-        dsId: datastore?.ID,
-        ...configuration,
-      }
-    },
-  }
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Vm/BackupForm/Steps/BasicConfiguration/schema'
+import { Step } from 'client/utils'
+import { T } from 'client/constants'
+
+export const STEP_ID = 'configuration'
+
+const Content = (props) => (
+  <FormWithSchema
+    cy="restore-configuration"
+    id={STEP_ID}
+    fields={() => FIELDS(props)}
+  />
 )
 
-export default Steps
+/**
+ * Step to configure the marketplace app.
+ *
+ * @param {object} isMultiple - is multiple rows
+ * @returns {Step} Configuration step
+ */
+const ConfigurationStep = (isMultiple) => ({
+  id: STEP_ID,
+  label: T.Configuration,
+  resolver: () => SCHEMA(isMultiple),
+  optionsValidate: { abortEarly: false },
+  content: () => Content(isMultiple),
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+  nics: PropTypes.array,
+  isMultiple: PropTypes.bool,
+}
+
+export default ConfigurationStep

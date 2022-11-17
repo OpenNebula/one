@@ -13,42 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, object, boolean } from 'yup'
-import { getValidationFromFields, arrayToOptions } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { array, object, ArraySchema } from 'yup'
 
-const DS_ID = {
-  name: 'dsId',
-  label: T.BackupDatastore,
-  type: INPUT_TYPES.SELECT,
-  values: () => {
-    const { data: datastores = [] } = useGetDatastoresQuery()
-
-    return arrayToOptions(
-      datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
-      {
-        addEmpty: true,
-        getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
-        getValue: ({ ID } = {}) => parseInt(ID),
-      }
-    )
-  },
-  validation: number()
-    .positive()
-    .required()
-    .default(() => undefined)
-    .transform((_, val) => parseInt(val)),
-}
-
-const RESET = {
-  name: 'reset',
-  label: T.ResetBackup,
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean(),
-  grid: { xs: 12 },
-}
-
-export const FIELDS = [RESET, DS_ID]
-
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+/** @type {ArraySchema} Datastore table schema */
+export const SCHEMA = array(object())
+  .min(1)
+  .max(1)
+  .required()
+  .ensure()
+  .default(() => [])
