@@ -91,9 +91,9 @@ const ListVmNames = ({ rows = [] }) => {
         <Translate
           word={T.WhereIsRunning}
           values={[
-            `#${ID} ${NAME}`,
-            `#${HID} ${HOSTNAME}`,
-            `#${DS_ID} ${DS_NAME}`,
+            `${ID} ${NAME}`,
+            `${HID} ${HOSTNAME}`,
+            `${DS_ID} ${DS_NAME}`,
           ]}
         />
       </Typography>
