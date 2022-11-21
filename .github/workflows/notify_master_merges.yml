@@ -1,3 +1,5 @@
+name: Slack Push Notifier
+
 on:
   push:
     branches:
