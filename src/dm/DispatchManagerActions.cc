@@ -1938,40 +1938,21 @@ int DispatchManager::update_nic(int vid, int nic_id, VirtualMachineTemplate* tmp
 
     bool is_update = false;
 
-    if (state == VirtualMachine::ACTIVE &&
-        (lcm_state == VirtualMachine::BOOT ||
-         lcm_state == VirtualMachine::BOOT_MIGRATE ||
-         lcm_state == VirtualMachine::BOOT_SUSPENDED ||
-         lcm_state == VirtualMachine::BOOT_STOPPED ||
-         lcm_state == VirtualMachine::BOOT_UNDEPLOY ||
-         lcm_state == VirtualMachine::BOOT_POWEROFF ||
-         lcm_state == VirtualMachine::BOOT_UNKNOWN ||
-         lcm_state == VirtualMachine::BOOT_FAILURE ||
-         lcm_state == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-         lcm_state == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
-         lcm_state == VirtualMachine::BOOT_STOPPED_FAILURE ||
-         lcm_state == VirtualMachine::MIGRATE ||
-         lcm_state == VirtualMachine::HOTPLUG_NIC ||
-         lcm_state == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
-         lcm_state == VirtualMachine::HOTPLUG ||
-         lcm_state == VirtualMachine::HOTPLUG_SNAPSHOT ||
-         lcm_state == VirtualMachine::HOTPLUG_SAVEAS ||
-         lcm_state == VirtualMachine::HOTPLUG_RESIZE ||
-         lcm_state == VirtualMachine::DISK_SNAPSHOT ||
-         lcm_state == VirtualMachine::DISK_SNAPSHOT_DELETE ||
-         lcm_state == VirtualMachine::DISK_RESIZE ||
-         lcm_state == VirtualMachine::UNKNOWN ))
+    if (state == VirtualMachine::ACTIVE)
     {
-        oss << "Wrong state " << vm->state_str();
-        error_str = oss.str();
+        if (lcm_state == VirtualMachine::RUNNING)
+        {
+            is_update = true;
+        }
+        else
+        {
+            oss << "Wrong state " << vm->state_str();
+            error_str = oss.str();
 
-        NebulaLog::error("DiM", error_str);
+            NebulaLog::error("DiM", error_str);
 
-        return -1;
-    }
-    else if (state == VirtualMachine::ACTIVE && lcm_state == VirtualMachine::RUNNING)
-    {
-        is_update = true;
+            return -1;
+        }
     }
 
     // Get new nic from the template
