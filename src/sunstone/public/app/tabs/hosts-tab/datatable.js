@@ -58,7 +58,7 @@ define(function(require) {
     IM_MAD: 8,
     VM_MAD: 9,
     LABELS: 10,
-    SEARCH: 10,
+    SEARCH: 11,
   }
 
   /*
