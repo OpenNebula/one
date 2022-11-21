@@ -5,7 +5,8 @@ on:
     branches:
       - main
       - 'one-*'
-      
+    workflow_dispatch:
+         
 jobs:
   notify_slack_push:
     name: Notify Slack on pushes
