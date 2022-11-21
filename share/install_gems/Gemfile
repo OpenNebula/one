@@ -39,6 +39,7 @@ if ruby_version >= Gem::Version.new('3.0.0')
 end
 
 gem 'async-io', '= 1.32.1'
+gem 'console', '= 1.15.3'
 gem 'etc'
 gem 'rb-inotify'
 
