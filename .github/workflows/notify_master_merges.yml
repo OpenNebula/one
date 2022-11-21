@@ -3,7 +3,7 @@ name: Slack Push Notifier
 on:
   push:
     branches:
-      - main
+      - master
       - 'one-*'
   workflow_dispatch:
          
