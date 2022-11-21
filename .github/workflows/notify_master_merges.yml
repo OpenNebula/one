@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - 'one-*'
-    workflow_dispatch:
+  workflow_dispatch:
          
 jobs:
   notify_slack_push:
