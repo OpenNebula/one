@@ -26,7 +26,7 @@ class OneDBLive
         escaped = string.gsub("'", "''")
 
         # Provision documents are already scaped
-        return escaped if string.include?("\"ar_template\":\"AR=[")
+        return escaped if string.include?('"ar_template":"AR=[')
 
         escaped.gsub('\\') { '\\\\' }
     end
@@ -399,7 +399,12 @@ class OneDBLive
             raise 'A value or --delete should specified'
         end
 
-        rc = object.info_search(state: VirtualMachinePool::INFO_ALL_VM)
+        if object.instance_of?(VirtualMachinePool)
+            rc = object.info_search(:state => VirtualMachinePool::INFO_ALL_VM)
+        else
+            rc = object.info_all
+        end
+
         raise rc.message if OpenNebula.is_error?(rc)
 
         object.each do |o|
@@ -417,7 +422,7 @@ class OneDBLive
             rescue StandardError => e
                 STDERR.puts "Error getting object id #{o.id}"
                 STDERR.puts e.message
-                return
+                return nil
             end
 
             row = db_data.first
@@ -604,11 +609,9 @@ class OneDBLive
         row  = db_data.first
         body = Base64.decode64(row['body64'])
 
-        doc = Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
+        Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
             c.default_xml.noblanks
         end
-
-        doc
     end
 
 end
