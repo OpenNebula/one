@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 'one-*'
         
 jobs:
   notify_slack_push:
