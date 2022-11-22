@@ -187,6 +187,13 @@ class OneGateProxy
             exit 0
         end
         inotify
+    rescue Errno::ENOENT => e
+        @logger.error(self) do
+            e.message
+        end
+        # We assume here that the service will be restarted by
+        # the service manager.
+        exit e.class::Errno
     end
 
     def setup_service_addr
