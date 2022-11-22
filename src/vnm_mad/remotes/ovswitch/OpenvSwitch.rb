@@ -268,8 +268,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     add_bridge_port(@nic[:vlan_dev], nil)
                 elsif !changes[:phydev].nil?
                     if @bridges[@nic[:bridge]].include? @nic[:phydev]
-                        del_bridge_port(changes[:phydev], nil)
-                        add_bridge_port(@nic[:phydev], nil)
+                        del_bridge_port(changes[:phydev])
+                        add_bridge_port(@nic[:phydev])
                     end
                 end
             end
