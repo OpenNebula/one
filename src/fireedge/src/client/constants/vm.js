@@ -300,6 +300,7 @@ export const VM_LCM_STATES = [
     name: STATES.LCM_INIT,
     color: COLOR.info.main,
     meaning: '',
+    displayName: STATES.PROLOG,
   },
   {
     // 1

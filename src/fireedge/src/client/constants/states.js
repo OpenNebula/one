@@ -18,6 +18,7 @@
  * @typedef {object} StateInfo
  * @property {string} color - Color.
  * @property {string} name - Name.
+ * @property {string} [displayName] - Display name.
  * @property {string} [meaning] - Meaning.
  * @property {string} [shortName] - Short name.
  */
