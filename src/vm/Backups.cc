@@ -117,7 +117,8 @@ int Backups::from_xml(const ObjectXML* xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
+int Backups::parse(Template *tmpl, bool can_increment,
+                   bool append, std::string& error_str)
 {
     vector<VectorAttribute *> cfg_a;
 
@@ -160,7 +161,7 @@ int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
 
         config.replace("KEEP_LAST", iattr);
     }
-    else
+    else if (!append)
     {
         config.erase("KEEP_LAST");
     }
@@ -169,7 +170,7 @@ int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
     {
         config.replace("BACKUP_VOLATILE", battr);
     }
-    else
+    else if (!append)
     {
         config.replace("BACKUP_VOLATILE", "NO");
     }
@@ -185,7 +186,7 @@ int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
 
         config.replace("FS_FREEZE", sattr);
     }
-    else
+    else if (!append)
     {
         config.replace("FS_FREEZE", "NONE");
     }
@@ -201,16 +202,19 @@ int Backups::parse(Template *tmpl, bool can_increment, std::string& error_str)
     {
         sattr = cfg->vector_value("MODE");
 
-        Mode new_mode = str_to_mode(sattr);
-
-        // Reset incremental backup pointers if mode changed to/from FULL
-        if (new_mode != INCREMENT || mode() != INCREMENT)
+        if (!sattr.empty() || !append)
         {
-            config.replace("INCREMENTAL_BACKUP_ID", -1);
-            config.replace("LAST_INCREMENT_ID", -1);
-        }
+            Mode new_mode = str_to_mode(sattr);
 
-        config.replace("MODE", mode_to_str(new_mode));
+            // Reset incremental backup pointers if mode changed to/from FULL
+            if (new_mode != INCREMENT || mode() != INCREMENT)
+            {
+                config.replace("INCREMENTAL_BACKUP_ID", -1);
+                config.replace("LAST_INCREMENT_ID", -1);
+            }
+
+            config.replace("MODE", mode_to_str(new_mode));
+        }
     }
 
     for (auto &i : cfg_a)

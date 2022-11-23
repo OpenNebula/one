@@ -1401,7 +1401,7 @@ CommandParser::CmdParser.new(ARGV) do
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
-        BACKUP_CONFIG = ["FS_FREEZE", "DATASTORE_ID", "BACKUP_VOLATILE", "FREQUENCY_SECONDS"]
+        BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 

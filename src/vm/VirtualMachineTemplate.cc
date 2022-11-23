@@ -242,11 +242,9 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
         { "MODEL" }
     },
     {"BACKUP_CONFIG",
-        { "DATASTORE_ID",
-          "FS_FREEZE",
+        { "FS_FREEZE",
           "KEEP_LAST",
           "BACKUP_VOLATILE",
-          "FREQUENCY_SECONDS",
           "MODE"}
     }
 };
