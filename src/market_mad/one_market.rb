@@ -333,11 +333,11 @@ begin
                 mp_type = arg.split(',').map {|a| a.strip }
             when '--timeout'
                 timeout = arg.to_i
-	    when '--proxy'
-		ENV['http_proxy'] = arg 
+	        when '--proxy'
+		        ENV['http_proxy'] = arg
         end
     end
-rescue Exception => e
+rescue
     exit(-1)
 end
 
@@ -345,4 +345,3 @@ mp_driver = MarketPlaceDriver.new(mp_type,
                                   :concurrency  => threads,
                                   :timeout      => timeout)
 mp_driver.start_driver
-
