@@ -59,7 +59,11 @@ const InformationPanel = ({ vm = {}, actions }) => {
   const hostAccess = useMemo(() => hasAccessToResource(HOST), [view])
 
   const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = vm
-  const { name: stateName, color: stateColor } = getState(vm)
+  const {
+    name: stateName,
+    color: stateColor,
+    displayName: stateDisplayName,
+  } = getState(vm)
 
   const ips = getIps(vm)
   const { EXTERNAL_PORT_RANGE, INTERNAL_PORT_RANGE } =
@@ -96,7 +100,11 @@ const InformationPanel = ({ vm = {}, actions }) => {
       value: (
         <Stack direction="row" alignItems="center" gap={1}>
           <StatusCircle color={stateColor} />
-          <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
+          <StatusChip
+            dataCy="state"
+            text={stateDisplayName ?? stateName}
+            stateColor={stateColor}
+          />
         </Stack>
       ),
     },

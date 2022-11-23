@@ -81,7 +81,11 @@ const VirtualMachineCard = memo(
       return [fromMill, fromMill.toFormat('ff')]
     }, [ETIME, STIME])
 
-    const { color: stateColor, name: stateName } = getState(vm)
+    const {
+      color: stateColor,
+      name: stateName,
+      displayName: stateDisplayName,
+    } = getState(vm)
     const error = useMemo(() => getErrorMessage(vm), [vm])
     const ips = useMemo(() => getIps(vm), [vm])
     const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB'), [MEMORY])
@@ -101,7 +105,10 @@ const VirtualMachineCard = memo(
       <div {...rootProps} data-cy={`vm-${ID}`}>
         <div className={classes.main}>
           <div className={classes.title}>
-            <StatusCircle color={stateColor} tooltip={stateName} />
+            <StatusCircle
+              color={stateColor}
+              tooltip={stateDisplayName ?? stateName}
+            />
             <Typography noWrap component="span">
               {NAME}
             </Typography>

@@ -44,7 +44,11 @@ const HeaderVmInfo = ({ id, type }) => {
   const [getService, { data: serviceFlow }] = useLazyGetServiceQuery()
 
   const ips = getIps(vm)
-  const { color: stateColor, name: stateName } = getState(vm) ?? {}
+  const {
+    color: stateColor,
+    name: stateName,
+    displayName: stateDisplayName,
+  } = getState(vm) ?? {}
   const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
   const isVMRC = useMemo(() => type === VM_ACTIONS.VMRC, [type])
   const serviceId = useMemo(() => vm?.USER_TEMPLATE?.SERVICE_ID, [vm])
@@ -80,7 +84,10 @@ const HeaderVmInfo = ({ id, type }) => {
           </>
         ) : (
           <>
-            <StatusBadge title={stateName} stateColor={stateColor}>
+            <StatusBadge
+              title={stateDisplayName ?? stateName}
+              stateColor={stateColor}
+            >
               {srcLogo ? (
                 <Avatar src={`${STATIC_FILES_URL}/${srcLogo}`} />
               ) : (
