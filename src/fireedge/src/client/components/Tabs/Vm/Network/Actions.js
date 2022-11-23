@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Edit, Trash, ShieldAdd, ShieldCross } from 'iconoir-react'
 
 import {
   useAttachNicMutation,
   useDetachNicMutation,
+  useUpdateNicMutation,
   useAttachSecurityGroupMutation,
   useDetachSecurityGroupMutation,
 } from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
-import { AttachNicForm, AttachSecGroupForm } from 'client/components/Forms/Vm'
+import {
+  AttachNicForm,
+  AttachSecGroupForm,
+  UpdateNicForm,
+} from 'client/components/Forms/Vm'
 
+import { useGeneralApi } from 'client/features/General'
 import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -118,6 +124,48 @@ const DetachAction = memo(({ vmId, nic, onSubmit, sx }) => {
   )
 })
 
+const UpdateAction = memo(({ vmId, nic, sx }) => {
+  const { enqueueSuccess } = useGeneralApi()
+  const [updateNic, { isSuccess }] = useUpdateNicMutation()
+  const { NIC_ID } = nic
+
+  const handleUpdate = async (formData) => {
+    const data = { NIC: formData }
+    const template = jsonToXml(data)
+
+    await updateNic({
+      id: vmId,
+      nic: NIC_ID,
+      template,
+    })
+  }
+  const updatedNicMessage = `${Tr(T.UpdatedNic)} - ${Tr(T.ID)} : ${NIC_ID}`
+
+  useEffect(() => isSuccess && enqueueSuccess(updatedNicMessage), [isSuccess])
+
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        'data-cy': `update-nic-${NIC_ID}`,
+        icon: <Edit />,
+        tooltip: Tr(T.Update),
+        sx,
+      }}
+      options={[
+        {
+          dialogProps: { title: T.Update, dataCy: 'modal-update-nic' },
+          form: () =>
+            UpdateNicForm({
+              stepProps: { defaultData: nic },
+              initialValues: nic,
+            }),
+          onSubmit: handleUpdate,
+        },
+      ]}
+    />
+  )
+})
+
 const AttachSecGroupAction = memo(({ vmId, nic, onSubmit, sx }) => {
   const [attachSecGroup] = useAttachSecurityGroupMutation()
   const { NIC_ID } = nic
@@ -204,6 +252,8 @@ AttachAction.propTypes = ActionPropTypes
 AttachAction.displayName = 'AttachActionButton'
 DetachAction.propTypes = ActionPropTypes
 DetachAction.displayName = 'DetachActionButton'
+UpdateAction.propTypes = ActionPropTypes
+UpdateAction.displayName = 'UpdateActionButton'
 AttachSecGroupAction.propTypes = ActionPropTypes
 AttachSecGroupAction.displayName = 'AttachSecGroupButton'
 DetachSecGroupAction.propTypes = ActionPropTypes
@@ -212,6 +262,7 @@ DetachSecGroupAction.displayName = 'DetachSecGroupButton'
 export {
   AttachAction,
   DetachAction,
+  UpdateAction,
   AttachSecGroupAction,
   DetachSecGroupAction,
 }

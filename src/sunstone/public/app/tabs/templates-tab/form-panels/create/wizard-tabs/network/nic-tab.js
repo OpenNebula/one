@@ -34,6 +34,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./nic-tab/html');
+  var QoSHTML = require('hbs!./nic-tab/QoS/html');
 
   /*
     CONSTANTS
@@ -94,7 +95,8 @@ define(function(require) {
       'nicTabId': this.nicTabId,
       'vnetsTableSelectHTML': this.vnetsTable.dataTableHTML,
       'vnetsTableAutoSelectHTML': this.vnetsTableAuto.dataTableHTML,
-      'secgroupsTableSelectHTML': this.secgroupsTable.dataTableHTML
+      'secgroupsTableSelectHTML': this.secgroupsTable.dataTableHTML,
+      'QoSFields': QoSHTML()
     });
   }
 

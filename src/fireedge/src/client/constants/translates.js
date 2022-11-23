@@ -283,6 +283,7 @@ module.exports = {
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',
   ErrorsOcurred: '%s error(s) occurred',
+  UpdatedNic: 'Updated nic',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',

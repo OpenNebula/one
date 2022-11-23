@@ -414,6 +414,7 @@ tabs:
       VM.disk_resize: false
       VM.attachnic: false
       VM.detachnic: false
+      VM.updatenic: false
       VM.snapshot_create: false
       VM.snapshot_revert: false
       VM.snapshot_delete: false

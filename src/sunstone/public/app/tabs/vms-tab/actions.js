@@ -107,6 +107,7 @@ define(function(require) {
     "VM.detachdisk": _commonActions.singleAction("detachdisk"),
     "VM.attachnic": _commonActions.singleAction("attachnic"),
     "VM.detachnic": _commonActions.singleAction("detachnic"),
+    "VM.updatenic": _commonActions.singleAction("updatenic"),
     "VM.resize": _commonActions.singleAction("resize"),
     "VM.disk_resize": _commonActions.singleAction("disk_resize"),
     "VM.snapshot_create": _commonActions.singleAction("snapshot_create"),

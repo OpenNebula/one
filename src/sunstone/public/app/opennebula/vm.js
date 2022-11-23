@@ -722,6 +722,10 @@ define(function(require) {
       var action_obj = {"nic_id": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "detachnic", action_obj);
     },
+    "updatenic" : function(params) {
+      var action_obj = params.data.extra_param
+      OpenNebulaAction.simple_action(params, RESOURCE, "updatenic", action_obj);
+    },
     "rename" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);

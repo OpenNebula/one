@@ -102,6 +102,8 @@ module OpenNebulaJSON
                 nic_attach(action_hash['params'])
             when 'detachnic'
                 nic_detach(action_hash['params'])
+            when 'updatenic'
+                nic_update(action_hash['params'])
             when 'update'
                 update(action_hash['params'])
             when 'updateconf'
@@ -244,6 +246,12 @@ module OpenNebulaJSON
 
         def nic_detach(params = {})
             super(params['nic_id'].to_i)
+        end
+
+        def nic_update(params = {})
+            template_json = params['nic_template']
+            template = template_to_str(template_json)
+            super(params['nic_id'].to_i, template)
         end
 
         def update(params = {})

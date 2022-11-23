@@ -46,6 +46,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var PANEL_ID = require("./network/panelId");
   var ATTACH_NIC_DIALOG_ID = require("../dialogs/attach-nic/dialogId");
+  var UPDATE_NIC_DIALOG_ID = require("../dialogs/update-nic/dialogId");
   var ATTACH_SG_DIALOG_ID = require("../dialogs/attach-sg/dialogId");
   var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
   var XML_ROOT = "VM";
@@ -259,6 +260,60 @@ define(function(require) {
     return ips.length === 0 ? defaultValue : ips.join('<br/>');
   }
 
+  function getNicActions(context, is_alias = false, is_pci = false){
+    var actions = "";
+    if ( 
+      context.element.STATE == OpenNebulaVM.STATES.ACTIVE && (
+        context.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ||
+        context.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF
+      )
+    ) {
+      actions = Locale.tr("attach/detach in progress");
+    } else {
+
+      if(Config.isTabActionEnabled("vms-tab", "VM.detachnic")){
+        var icon = $("<i/>",{class:"fas fa-times"});
+        var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
+        var anchor = $("<a/>",anchorAttributes).append(icon);
+        actions +=  (validateAction(context,"VM.detachnic"))
+          ? (isFirecracker(context)
+            ? (isPowerOff(context) ? anchor.get(0).outerHTML : "")
+            : anchor.get(0).outerHTML
+            )
+          : "";
+      }
+
+      if (!is_pci && !is_alias){
+        if (Config.isTabActionEnabled("vms-tab", "VM.updatenic")){
+          var icon = $("<i/>",{class:"fas fa-edit"});
+          var anchorAttributes = {class: "updatenic", style: "padding-left: 1em"};
+          var anchor = $("<a/>",anchorAttributes).append(icon); 
+          actions +=  (validateAction(context,"VM.updatenic"))
+            ? (isFirecracker(context)
+              ? (isPowerOff(context) ? anchor.get(0).outerHTML : "")
+              : anchor.get(0).outerHTML
+              )
+            : "";
+        }
+      
+        if(Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
+          var icon = $("<i/>",{class:"fas fa-shield-alt"});
+          var anchorAttributes = {class: "attachsg", style: "padding-left: 1em"};
+          var tip = "<span class=\"tip\">" + Locale.tr("Attach security group") + "</span>"
+          var anchor = $("<a/>",anchorAttributes).append(icon);
+          actions +=  (validateAction(context,"VM.attachsg"))
+            ? (isFirecracker(context)
+              ? (isPowerOff(context) ? anchor.get(0).outerHTML : "")
+              : anchor.get(0).outerHTML
+              )
+            : "";
+        }
+      }
+    }
+    return actions
+  }
+
+
   function _setup(context) {
     var that = this;
 
@@ -312,46 +367,6 @@ define(function(require) {
 
         var is_pci = (nic.PCI_ID != undefined);
 
-        var actions = "";
-
-        // Attach / Detach
-        if ( 
-          that.element.STATE == OpenNebulaVM.STATES.ACTIVE && (
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ||
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF
-          )
-        ) {
-          actions = Locale.tr("attach/detach in progress");
-        } else {
-
-          if(Config.isTabActionEnabled("vms-tab", "VM.detachnic")){
-            var icon = $("<i/>",{class:"fas fa-times"});
-            var anchorAttributes = {class: "detachnic", href: "VM.detachnic"};
-            var anchor = $("<a/>",anchorAttributes).append(icon); //"<a href=\"VM.detachnic\" class=\"detachnic\" ><i class=\"fas fa-times\"/></a>";
-            actions +=  (validateAction(that,"VM.detachnic"))
-              ? (isFirecracker(that)
-                ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
-                : anchor.get(0).outerHTML
-                )
-              : "";
-          }
-
-          if (!is_pci){
-            if(Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
-              var icon = $("<i/>",{class:"fas fa-shield-alt"});
-              var anchorAttributes = {class: "attachsg", style: "padding-left: 1em"};
-              var tip = "<span class=\"tip\">" + Locale.tr("Attach security group") + "</span>"
-              var anchor = $("<a/>",anchorAttributes).append(icon);
-              actions +=  (validateAction(that,"VM.attachsg"))
-                ? (isFirecracker(that)
-                  ? (isPowerOff(that) ? anchor.get(0).outerHTML : "")
-                  : anchor.get(0).outerHTML
-                  )
-                : "";
-            }
-          }
-        }
-
         var secgroups = [];
 
         var nic_secgroups = {};
@@ -391,7 +406,7 @@ define(function(require) {
 
         for(var j = 0; j < alias.length; j++) {
             if (alias_ids.length > 0 && alias_ids.includes(alias[j].NIC_ID)) {
-                alias[j].ACTIONS = actions;
+                alias[j].ACTIONS = getNicActions(that, true, is_pci);
 
                 nic_alias.push(alias[j]);
             }
@@ -405,7 +420,7 @@ define(function(require) {
           PCI_ADDRESS: pci_address,
           IP6_ULA : _ipTr(nic, "IP6_ULA"),
           IP6_GLOBAL : _ipTr(nic, "IP6_GLOBAL"),
-          ACTIONS : actions,
+          ACTIONS : getNicActions(that, false, is_pci),
           SECURITY_GROUP_RULES : secgroups
         });
       }
@@ -593,6 +608,19 @@ define(function(require) {
       });
     }
 
+    if (Config.isTabActionEnabled("vms-tab", "VM.updatenic")) {
+      context.off("click", ".updatenic");
+      context.on("click", ".updatenic", function() {
+        var nic_id = $(this).parents("tr").attr("nic_id");
+        var dialog = Sunstone.getDialog(UPDATE_NIC_DIALOG_ID);
+        dialog.reset();
+        dialog.setElement(that.element);
+        dialog.setNicId(nic_id);
+        dialog.show();
+        return false;
+      });
+    }
+
     if (Config.isTabActionEnabled("vms-tab", "VM.attachsg")){
       context.off("click", ".attachsg");
       context.on("click", ".attachsg", function() {
@@ -663,8 +691,8 @@ define(function(require) {
 
     Sunstone.runAction("VM.attachsg", element_id, nic_id);
 
-    Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
-    Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+    Sunstone.getDialog(ATTACH_SG_DIALOG_ID).reset();
+    Sunstone.getDialog(ATTACH_SG_DIALOG_ID).show();
 
     return false;
   }

@@ -42,6 +42,13 @@ const AttachNicForm = (configProps) =>
  * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
  */
+const UpdateNicForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/UpdateNicForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
 const AttachSecGroupForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Vm/AttachSecGroupForm' }, configProps)
 
@@ -183,5 +190,6 @@ export {
   SaveAsDiskForm,
   SaveAsTemplateForm,
   UpdateConfigurationForm,
+  UpdateNicForm,
   VolatileSteps,
 }

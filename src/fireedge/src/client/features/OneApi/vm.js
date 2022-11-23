@@ -560,6 +560,26 @@ const vmApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
     }),
+    updateNic: builder.mutation({
+      /**
+       * Updates a network interface from a virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.nic - NIC id
+       * @param {number} params.append - Append
+       * @param {string} params.template - NIC id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_NIC_UPDATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
     attachSecurityGroup: builder.mutation({
       /**
        * Attaches a security group to a network interface of a VM,
@@ -1071,6 +1091,7 @@ export const {
   useResizeDiskMutation,
   useAttachNicMutation,
   useDetachNicMutation,
+  useUpdateNicMutation,
   useAttachSecurityGroupMutation,
   useDetachSecurityGroupMutation,
   useChangeVmPermissionsMutation,

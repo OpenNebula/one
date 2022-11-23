@@ -416,6 +416,7 @@ tabs:
       VM.disk_resize: true
       VM.attachnic: true
       VM.detachnic: true
+      VM.updatenic: true
       VM.snapshot_create: true
       VM.snapshot_revert: true
       VM.snapshot_delete: true
