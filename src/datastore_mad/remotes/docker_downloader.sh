@@ -114,7 +114,7 @@ img_raw="$dockerdir/img.raw"
 img_qcow="$dockerdir/img.qcow"
 
 # Trap for cleaning temporary directories
-trap clean EXIT
+trap clean EXIT && trap clean ERR
 
 mkdir -p "$dockerdir"
 mkdir -p "$dockerdir/mnt"
@@ -158,12 +158,12 @@ if [ -z "$distro" ]; then
         -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
         "$docker_hub" /etc/os-release)
 
-    distro=$(echo "$os_info" | grep "^ID=.*\n" | cut -d= -f 2 | xargs)
+    distro=$(echo "$os_info" | grep "^ID=" | cut -d= -f 2 | xargs)
     version=$(echo "$os_info" | grep "VERSION_ID=" | cut -d= -f 2 | xargs)
 fi
 
 if [ -z "$distro" ]; then
-    echo "Cannot identified $docker_hub distribution" 1>&2
+    echo "Cannot identify $docker_hub distribution" 1>&2
     exit 1
 fi
 
