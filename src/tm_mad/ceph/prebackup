@@ -108,7 +108,7 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
     cmd = rbd_append(cmd, d, 'CEPH_CONF', '--conf')
 
     draw = "#{bck_dir}/disk.#{did}.raw"
-    ddst = "#{bck_dir}/disk.#{did}"
+    ddst = "#{bck_dir}/disk.#{did}.0"
 
     expo_cmd << "#{cmd} export #{rbd_src} #{draw}\n"
 
