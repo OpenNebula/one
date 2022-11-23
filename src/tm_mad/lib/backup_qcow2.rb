@@ -593,7 +593,7 @@ class KVMDomain
 
             next unless disks.include? did
 
-            sdisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
+            sdisk = QemuImg.new("#{@vm_dir}/disk.#{did}")
             ddisk = "#{@bck_dir}/disk.#{did}.0"
 
             sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
