@@ -120,7 +120,7 @@ module VNMMAD
                     @nic = nic
 
                     next unless Integer(@nic[:network_id]) == vnet_id
-                    next unless @bridges[@nic[:bridge]].include? @nic[:phydev]
+                    next if @bridges[@nic[:bridge]].include? @nic[:phydev]
 
                     # Del old phydev device from the bridge.
                     OpenNebula.exec_and_log("#{command(:ip)} link set " \
@@ -132,7 +132,7 @@ module VNMMAD
 
                     return 0
                 end
-            rescue Exception => e
+            rescue StandardException => e
                 raise e
             ensure
                 unlock
