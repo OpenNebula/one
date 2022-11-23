@@ -57,6 +57,7 @@ const TYPE_FIELD = {
     .required()
     .default(() => 'IP4'),
   notNull: true,
+  grid: { xs: 12, md: 12 },
 }
 
 /** @type {Field} IP field */
@@ -127,6 +128,7 @@ const MAC_FIELD = {
   validation: string()
     .trim()
     .notRequired()
+    .transform((_, value) => (value === '' ? undefined : value))
     .matches(REG_MAC, { message: T.InvalidMAC })
     .default(() => undefined),
 }
