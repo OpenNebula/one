@@ -117,6 +117,24 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="BACKUP_INCREMENTS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="INCREMENT" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="DATE" type="xs:string"/>
+                    <xs:element name="ID" type="xs:string"/>
+                    <xs:element name="PARENT_ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="SIZE" type="xs:string"/>
+                    <xs:element name="SOURCE" type="xs:string"/>
+                    <xs:element name="TYPE" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
