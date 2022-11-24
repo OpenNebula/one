@@ -19,7 +19,7 @@ import { generatePath } from 'react-router-dom'
 import { Stack } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
-import { useGetClusterQuery } from 'client/features/OneApi/cluster'
+import { useGetClusterAdminQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
 
 import { StatusCircle, StatusChip } from 'client/components/Status'
@@ -75,7 +75,7 @@ const InformationPanel = ({ vm = {}, actions }) => {
     CID: clusterId,
   } = getLastHistory(vm)
 
-  const { data: cluster } = useGetClusterQuery({ id: clusterId })
+  const { data: cluster } = useGetClusterAdminQuery({ id: clusterId })
   const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
 
   const handleRename = async (_, newName) => {

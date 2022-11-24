@@ -35,6 +35,7 @@ const upload = multer(optsMulter)
 const routes = [
   '2fa',
   'auth',
+  'cluster',
   'files',
   'image',
   'marketapp',
