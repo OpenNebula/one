@@ -299,6 +299,7 @@ tabs:
       ServiceTemplate.refresh: true
       ServiceTemplate.create_dialog: true
       ServiceTemplate.update_dialog: true
+      ServiceTemplate.instantiate_dialog: true
       ServiceTemplate.instantiate: true
       ServiceTemplate.chown: false
       ServiceTemplate.chgrp: false

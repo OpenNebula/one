@@ -306,6 +306,7 @@ tabs:
       ServiceTemplate.refresh: true
       ServiceTemplate.create_dialog: false
       ServiceTemplate.update_dialog: false
+      ServiceTemplate.instantiate_dialog: true
       ServiceTemplate.instantiate: true
       ServiceTemplate.chown: false
       ServiceTemplate.chgrp: false
