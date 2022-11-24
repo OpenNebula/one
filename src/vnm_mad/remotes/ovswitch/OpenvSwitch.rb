@@ -538,6 +538,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def create_bridge
         return if @bridges.keys.include? @nic[:bridge]
 
+        if @nic[:bridge_type] == 'openvswitch_dpdk'
+            @nic[:ovs_bridge_conf] = {} unless @nic[:ovs_bridge_conf]
+            @nic[:ovs_bridge_conf]['datapath_type'] = 'netdev'
+        end
+
         OpenNebula.exec_and_log("#{command(:ovs_vsctl)} --may-exist add-br #{@nic[:bridge]}")
 
         set_bridge_options

@@ -377,7 +377,7 @@ error_common:
 
 int VirtualNetwork::post_update_template(string& error)
 {
-    string new_bridge;
+    string new_bridge, new_br_type;
     string sg_str;
 
     /* ---------------------------------------------------------------------- */
@@ -386,6 +386,7 @@ int VirtualNetwork::post_update_template(string& error)
     /*  - PHYDEV                                                              */
     /*  - VLAN_ID                                                             */
     /*  - BRIDGE                                                              */
+    /*  - BRIDGE_TYPE                                                         */
     /*  - SECURITY_GROUPS                                                     */
     /* ---------------------------------------------------------------------- */
     erase_template_attribute("VN_MAD", vn_mad);
@@ -428,6 +429,15 @@ int VirtualNetwork::post_update_template(string& error)
     }
 
     add_template_attribute("BRIDGE", bridge);
+
+    erase_template_attribute("BRIDGE_TYPE", new_br_type);
+
+    if (str_to_bridge_type(new_br_type) != UNDEFINED)
+    {
+        bridge_type = new_br_type;
+    }
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
 
     security_groups.clear();
 

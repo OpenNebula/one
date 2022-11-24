@@ -79,16 +79,22 @@ module VNMMAD
             # devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
             def get_tap(vm)
                 dumpxml = vm.vm_info[:dumpxml]
+                bxpath  = "devices/interface[@type='bridge' or @type='vhostuser']/" \
+                          "mac[@address='#{self[:mac]}']/../"
 
-                if dumpxml
-                    dumpxml_root = REXML::Document.new(dumpxml).root
+                return self unless dumpxml
 
-                    xpath = "devices/interface[@type='bridge' or @type='vhostuser']/" \
-                            "mac[@address='#{self[:mac]}']/../target"
+                dumpxml_root = REXML::Document.new(dumpxml).root
 
-                    tap = dumpxml_root.elements[xpath]
+                tap = dumpxml_root.elements["#{bxpath}target"]
 
-                    self[:tap] = tap.attributes['dev'] if tap
+                self[:tap] = tap.attributes['dev'] if tap
+
+                # DPDK interfaces (post phase) only have source not target
+                if !self[:tap] || self[:tap].empty?
+                    source = dumpxml_root.elements["#{bxpath}source"]
+
+                    self[:tap] = File.basename(source.attributes['path']) if source
                 end
 
                 self
