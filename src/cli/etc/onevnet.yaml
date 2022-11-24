@@ -41,6 +41,18 @@
   :desc: Number of this Virtual Networks given leases
   :size: 6
 
+:UPDATED:
+  :desc: Number of VMs with updated VN attributes
+  :size: 4
+
+:OUTDATED:
+  :desc: Number of VMs with outdated VN attributes
+  :size: 4
+
+:ERROR:
+  :desc: Number of VMs that failed to update VN attributes
+  :size: 4
+
 :default:
 - :ID
 - :USER
@@ -50,3 +62,5 @@
 - :BRIDGE
 - :STATE
 - :LEASES
+- :OUTDATED
+- :ERROR

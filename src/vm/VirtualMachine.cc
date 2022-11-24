@@ -2129,6 +2129,11 @@ int VirtualMachine::nic_update(int vnid)
 
     for (auto nic : nics)
     {
+        if (nic->is_alias() || nic->is_pci())
+        {
+            continue;
+        }
+
         int nic_vnid;
 
         if (nic->vector_value("NETWORK_ID", nic_vnid) == 0 && vnid == nic_vnid)

@@ -2812,6 +2812,24 @@ void VirtualMachineUpdateNic::request_execute(
         }
 
         vm->get_permissions(vm_perms);
+
+        auto nic = vm->get_nic(nic_id);
+
+        if (nic->is_alias())
+        {
+            att.resp_msg = "Action not supported for NIC_ALIAS";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
+        if (nic->is_pci())
+        {
+            att.resp_msg = "Action not supported for PCI NIC";
+            failure_response(ACTION, att);
+
+            return;
+        }
     }
     else
     {

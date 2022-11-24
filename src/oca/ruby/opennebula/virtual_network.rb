@@ -378,6 +378,34 @@ module OpenNebula
             SHORT_VN_STATES[state_str]
         end
 
+        # Returns three arrays with the numeric VM IDs for VMs updated,
+        # outdated (include updating) and error
+        def vm_ids
+            updated = Array.new
+
+            self.each('UPDATED_VMS/ID') do |id|
+                updated << id.text.to_i
+            end
+
+            outdated = Array.new
+
+            self.each('OUTDATED_VMS/ID') do |id|
+                outdated << id.text.to_i
+            end
+
+            self.each('UPDATING_VMS/ID') do |id|
+                outdated << id.text.to_i
+            end
+
+            error = Array.new
+
+            self.each('ERROR_VMS/ID') do |id|
+                error << id.text.to_i
+            end
+
+            [updated, outdated, error]
+        end
+
     private
         def set_publish(published)
             group_u = published ? 1 : 0

@@ -186,8 +186,32 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d['USED_LEASES']
             end
 
+            column :UPDATED, 'Number of VMs with updated VN attributes', :size=>4 do |d|
+                if d['UPDATED_VMS']['ID'].nil?
+                    '0'
+                else
+                    [d['UPDATED_VMS']['ID']].flatten.size
+                end
+            end
+
+            column :OUTDATED, 'Number of VMs with outdated VN attributes', :size=>4 do |d|
+                if d['OUTDATED_VMS']['ID'].nil?
+                    '0'
+                else
+                    [d['OUTDATED_VMS']['ID']].flatten.size
+                end
+            end
+
+            column :ERROR, 'Number of VMs that failed to update VN attributes', :size=>4 do |d|
+                if d['ERROR_VMS']['ID'].nil?
+                    '0'
+                else
+                    [d['ERROR_VMS']['ID']].flatten.size
+                end
+            end
+
             default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :STATE,
-                    :LEASES
+                    :LEASES, :OUTDATED, :ERROR
         end
     end
 
@@ -473,6 +497,16 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         vn.vrouter_ids.each do |id|
             puts format('%-15s', id)
         end
+
+        puts
+
+        CLIHelper.print_header(str_h1 % 'VIRTUAL MACHINES', false)
+
+        updated, outdated, error = vn.vm_ids
+
+        puts format(str, 'UPDATED', updated.join(','))
+        puts format(str, 'OUTDATED', outdated.join(','))
+        puts format(str, 'ERROR', error.join(','))
 
         return unless options[:show_ar]
 
