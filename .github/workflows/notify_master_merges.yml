@@ -15,5 +15,5 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" --> *New Commit:* <${{ github.event.commit[0].html_url }}|${{ github.event.commit[0].messsage }}>\n\"}}]}' 
+          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" --> *New Commit:* <${{ github.event.head_commit.html_url }}|${{ github.event.head_commit.messsage }}>\n\"}}]}' 
         if: success()
