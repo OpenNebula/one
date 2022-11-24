@@ -976,3 +976,4 @@ tabs:
       VMGroup.chgrp: true
       VMGroup.lockU: true
       VMGroup.unlock: true
+      VMGroup.delete: true
