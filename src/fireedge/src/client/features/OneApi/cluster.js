@@ -15,6 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/cluster'
 import {
+  Actions as ExtraActions,
+  Commands as ExtraCommands,
+} from 'server/routes/api/cluster/routes'
+
+import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
@@ -85,6 +90,24 @@ const clusterApi = oneApi.injectEndpoints({
           )
         } catch {}
       },
+    }),
+    getClusterAdmin: builder.query({
+      /**
+       * Retrieve the information as serveradmin.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.id - Cluster id
+       * @param {boolean} [params.decrypt] - Optional flag to decrypt contained secrets, valid only for admin
+       * @returns {Cluster} Get cluster identified by id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActions.CLUSTER_ADMINSHOW
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
+      },
+      providesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
     }),
     allocateCluster: builder.mutation({
       /**
@@ -281,6 +304,8 @@ export const {
   useLazyGetClustersQuery,
   useGetClusterQuery,
   useLazyGetClusterQuery,
+  useGetClusterAdminQuery,
+  useLazyGetClusterAdminQuery,
 
   // Mutations
   useAllocateClusterMutation,
