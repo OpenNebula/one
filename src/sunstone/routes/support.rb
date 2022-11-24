@@ -131,7 +131,7 @@ end
 get '/support/request' do
     check_zendesk_api_gem
 
-    zrequests = zendesk_client.requests(:status => 'open,pending')
+    zrequests = zendesk_client.requests(:status => 'new,open,pending')
 
     open_requests = 0
     pending_requests = 0
