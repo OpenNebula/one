@@ -220,7 +220,7 @@ export const USER_INPUTS_SCHEMA = object({
         // set default value from MEMORY, CPU and VCPU fields
         default: context.general?.[name],
         ...(['MEMORY', 'CPU'].includes(name) && { mandatory: true }),
-      }))
+      })).filter((capacityInput) => capacityInput.type)
 
       return userInputsToObject([...capacityInputs, ...userInputs])
     }),
