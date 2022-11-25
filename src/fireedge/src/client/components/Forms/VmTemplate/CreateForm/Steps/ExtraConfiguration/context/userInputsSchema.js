@@ -214,13 +214,15 @@ export const USER_INPUTS_SCHEMA = object({
     .afterSubmit((userInputs, { context }) => {
       const capacityInputs = userInputsToArray(context?.general?.MODIFICATION, {
         filterCapacityInputs: false,
-      }).map(({ name, ...userInput }) => ({
-        name,
-        ...userInput,
-        // set default value from MEMORY, CPU and VCPU fields
-        default: context.general?.[name],
-        ...(['MEMORY', 'CPU'].includes(name) && { mandatory: true }),
-      })).filter((capacityInput) => capacityInput.type)
+      })
+        .map(({ name, ...userInput }) => ({
+          name,
+          ...userInput,
+          // set default value from MEMORY, CPU and VCPU fields
+          default: context.general?.[name],
+          ...(['MEMORY', 'CPU'].includes(name) && { mandatory: true }),
+        }))
+        .filter((capacityInput) => capacityInput.type)
 
       return userInputsToObject([...capacityInputs, ...userInputs])
     }),
