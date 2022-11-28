@@ -263,9 +263,11 @@ CommandParser::CmdParser.new(ARGV) do
         Deletes the given Image
     EOT
 
-    command :delete, delete_desc, [:range, :imageid_list] do
+    command :delete, delete_desc, [:range, :imageid_list],
+            :options => [OpenNebulaHelper::FORCE] do
+        force = (options[:force] == true)
         helper.perform_actions(args[0], options, 'deleting') do |image|
-            image.delete
+            image.delete(force)
         end
     end
 

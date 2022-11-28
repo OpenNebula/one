@@ -424,7 +424,7 @@ EOT
     FORCE={
         :name  => 'force',
         :large  => '--force',
-        :description => 'Overwrite the file'
+        :description => 'Ignore errors (if possible)'
     }
 
     EXTENDED={

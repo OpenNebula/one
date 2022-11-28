@@ -445,6 +445,8 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
 
     int backup_vm_id = -1;
 
+    bool success = msg->status() == "SUCCESS";
+
     if ( auto image = ipool->get(msg->oid()) )
     {
         ds_id  = image->get_ds_id();
@@ -461,7 +463,27 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
             }
         }
 
-        rc = ipool->drop(image.get(), tmp_error);
+        bool force = false;
+        image->get_template_attribute("FORCE_DELETE", force);
+
+        success = success || force;
+
+        if (success)
+        {
+            rc = ipool->drop(image.get(), tmp_error);
+        }
+        else
+        {
+            oss << "Error removing image from datastore. Retry the operation "
+                << "or manually remove image source " << source << " and run "
+                << "the delete --force operation to completely delete the image";
+
+            image->set_template_error_message(oss.str());
+
+            image->set_state(Image::ERROR);
+
+            ipool->update(image.get());
+        }
     }
     else
     {
@@ -482,7 +504,7 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
         // TODO BACKUP QUOTA ROLLBACK
     }
 
-    if (msg->status() != "SUCCESS")
+    if (!success)
     {
         goto error;
     }
@@ -505,9 +527,6 @@ error_drop:
     return;
 
 error:
-    oss << "Error removing image from datastore. Manually remove image source "
-        << source << " to completely delete the image";
-
     const auto& info = msg->payload();
 
     if (!info.empty() && (info[0] != '-'))

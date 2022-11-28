@@ -165,8 +165,8 @@ module OpenNebula
         end
 
         # Deletes the Image
-        def delete()
-            super(IMAGE_METHODS[:delete])
+        def delete(force=false)
+            call(IMAGE_METHODS[:delete], @pe_id, force)
         end
 
         # Changes the owner/group

@@ -371,7 +371,7 @@ int VirtualNetworkDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Re
 /* ------------------------------------------------------------------------- */
 
 ImageDelete::ImageDelete()
-    : RequestManagerDelete("one.image.delete", "Deletes an image")
+    : RequestManagerDelete("one.image.delete", "A:sib", "Deletes an image")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_ipool();
@@ -384,9 +384,15 @@ ImageDelete::ImageDelete()
 void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
-    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    int  oid = paramList.getInt(1);
+    bool force = false;
 
-    auto img = pool->get_ro<Image>(oid);
+    if (paramList.size() > 2)
+    {
+        force = paramList.getBoolean(2);
+    }
+
+    auto img = pool->get<Image>(oid);
 
     if (img == nullptr)
     {
@@ -398,11 +404,28 @@ void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
     if (img->is_locked())
     {
         att.auth_op = AuthRequest::ADMIN;
+
+        if (!force)
+        {
+            att.resp_id = oid;
+            att.resp_msg = "Image locked, use --force flag to remove the image. "
+                "Force delete may leave some files on Datastore";
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+
+    if (force)
+    {
+        img->replace_template_attribute("FORCE_DELETE", true);
+
+        pool->update(img.get());
     }
 
     //Save body before deleting for hooks.
     img->to_xml(att.extra_xml);
 
+    img.reset();
 
     ErrorCode ec = delete_object(oid, false, att);
 
