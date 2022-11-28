@@ -752,6 +752,8 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int parse_memory_mode(string& mem_mode, string& error);
+
 int VirtualMachine::insert(SqlDB * db, string& error_str)
 {
     int    rc;
@@ -843,11 +845,28 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     user_obj_template->erase("MEMORY");
     obj_template->add("MEMORY", memory);
 
-    // Check optional MEMORY_MAX attribute
+    // Check optional MEMORY attributes
+    if ( user_obj_template->get("MEMORY_RESIZE_MODE", value) )
+    {
+        if ( parse_memory_mode(value, error_str) == -1 )
+        {
+            goto error_mem_mode;
+        }
+
+        user_obj_template->erase("MEMORY_RESIZE_MODE");
+        obj_template->add("MEMORY_RESIZE_MODE", value);
+    }
+
     if ( user_obj_template->get("MEMORY_MAX", ivalue) && ivalue > 0 )
     {
         user_obj_template->erase("MEMORY_MAX");
         obj_template->add("MEMORY_MAX", ivalue);
+    }
+
+    if ( user_obj_template->get("MEMORY_SLOTS", ivalue) && ivalue > 0 )
+    {
+        user_obj_template->erase("MEMORY_SLOTS");
+        obj_template->add("MEMORY_SLOTS", ivalue);
     }
 
     if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )
@@ -1166,6 +1185,7 @@ error_defaults:
 error_vrouter:
 error_public:
 error_name:
+error_mem_mode:
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
 
@@ -2068,6 +2088,24 @@ void VirtualMachine::reset_resize()
 {
     obj_template->erase("RESIZE");
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int parse_memory_mode(string& mem_mode, string& error)
+{
+    one_util::toupper(mem_mode);
+
+    if (mem_mode != "BALLOONING" && mem_mode != "HOTPLUG")
+    {
+        error = "Unknown MEMORY_RESIZE_MODE: " + mem_mode;
+
+        return -1;
+    }
+
+    return 0;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

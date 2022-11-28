@@ -33,6 +33,7 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/VCPU \
                     /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/MEMORY \
+                    /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/MEMORY_RESIZE_MODE \
                     /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/RESIZE/VCPU \
                     /VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/RESIZE/MEMORY)
 
@@ -40,6 +41,7 @@ unset i
 
 VCPU="${XPATH_ELEMENTS[i++]}"
 MEM="${XPATH_ELEMENTS[i++]}"
+MEM_RESIZE_MODE="${XPATH_ELEMENTS[i++]}"
 VCPU_OLD="${XPATH_ELEMENTS[i++]}"
 MEM_OLD="${XPATH_ELEMENTS[i++]}"
 
@@ -53,8 +55,40 @@ if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
         (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
     fi
 
-    # Add memory to VM
-    exec_and_log "virsh --connect ${LIBVIRT_URI} setmem ${DOMAIN} $((${MEM}*1024))"
+    if [ "x$MEM_RESIZE_MODE" = "xHOTPLUG" ]; then
+        # Hotplug
+
+        # Extract node id from virsh dumpxml
+        XML_INFO=$(virsh --connect ${LIBVIRT_URI} dumpxml ${DOMAIN})
+        IFS= read -r -d '' NODE_ID < <(echo "$XML_INFO" | $XPATH --subtree /domain/cpu/numa/cell/@id)
+
+        MEM_DIFF=$(expr $MEM - $MEM_OLD)
+
+        case $MEM_DIFF in
+        -*)
+        ACTION="detach-device"
+        MEM_DIFF=${MEM_DIFF#-}
+        ;;
+        *)
+        ACTION="attach-device"
+        ;;
+        esac
+
+        # Create tmp file with memory device specification
+        TMPFILE=$(mktemp /tmp/resize.XXXXXX)
+        echo -e "<memory model='dimm'>\n\t<target>\n\
+                <size unit='MiB'>$MEM_DIFF</size>\n\
+                <node>$NODE_ID</node>\n\t</target>\n</memory>" >$TMPFILE
+
+        # Add memory to VM
+        exec_and_log "virsh --connect ${LIBVIRT_URI} ${ACTION} ${DOMAIN} ${TMPFILE} --live"
+
+        # Cleanup
+        rm $TMPFILE
+    else
+        # Ballooning (default)
+        exec_and_log "virsh --connect ${LIBVIRT_URI} setmem ${DOMAIN} $((${MEM}*1024))"
+    fi
 
     # Compact memory
     if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
