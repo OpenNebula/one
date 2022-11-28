@@ -108,7 +108,7 @@ class OpenNebulaDriver < ActionManager
                                          @timeout)
         elsif options[:ssh_stream]
             if options[:stdin]
-                cmdin = "cat << EOT | #{command}"
+                cmdin = "cat << 'EOT' | #{command}"
                 stdin = "#{options[:stdin]}\nEOT\n"
             else
                 cmdin = command

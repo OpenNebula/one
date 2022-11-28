@@ -66,7 +66,7 @@ class VirtualNetworkDriver
                                              log_method(id),
                                              @vm_encoded.to_s)
             elsif !@ssh_stream.nil?
-                cmdin = "cat << EOT | #{cmd}"
+                cmdin = "cat << 'EOT' | #{cmd}"
                 stdin = "#{options[:stdin] || @vm_encoded}\nEOT\n"
 
                 execution = @ssh_stream.run(cmdin, stdin, cmd)
