@@ -311,6 +311,7 @@ tabs:
       ServiceTemplate.rename: false
       ServiceTemplate.clone_dialog: false
       ServiceTemplate.delete: false
+      ServiceTemplate.delete_dialog: false
       ServiceTemplate.edit_labels: true
       ServiceTemplate.menu_labels: true
   vrouter-templates-tab:
