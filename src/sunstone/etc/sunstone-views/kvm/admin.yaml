@@ -759,6 +759,7 @@ tabs:
       Backup.edit_labels: true
       Backup.menu_labels: true
       Backup.restore: true
+      Backup.restore_dialog: true
   marketplaces-tab:
     panel_tabs:
       marketplace_info_tab: true
