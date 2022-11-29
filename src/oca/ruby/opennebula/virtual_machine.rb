@@ -58,8 +58,7 @@ module OpenNebula
             :attachsg       => "vm.attachsg",
             :detachsg       => "vm.detachsg",
             :backup         => "vm.backup",
-            :updatenic      => "vm.updatenic",
-            :recovernic     => "vm.recovernic"
+            :updatenic      => "vm.updatenic"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED

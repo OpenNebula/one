@@ -152,11 +152,12 @@ public class Image extends PoolElement
      *
      * @param client XML-RPC Client.
      * @param id The image id of the target image we want to delete.
+     * @param force Ignore errors
      * @return A encapsulated response.
      */
-    public static OneResponse delete(Client client, int id)
+    public static OneResponse delete(Client client, int id, boolean force)
     {
-        return client.call(DELETE, id);
+        return client.call(DELETE, id, force);
     }
 
     /**
@@ -404,11 +405,12 @@ public class Image extends PoolElement
     /**
      * Deletes the image from OpenNebula.
      *
+     * @param force Ignore errors
      * @return A encapsulated response.
      */
-    public OneResponse delete()
+    public OneResponse delete(boolean force)
     {
-        return delete(client, id);
+        return delete(client, id, force);
     }
 
     /**

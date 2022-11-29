@@ -62,6 +62,7 @@ public class VirtualMachine extends PoolElement{
     private static final String UNLOCK              = METHOD_PREFIX + "unlock";
     private static final String ATTACHSG            = METHOD_PREFIX + "attachsg";
     private static final String DETACHSG            = METHOD_PREFIX + "detachsg";
+    private static final String BACKUP              = METHOD_PREFIX + "backup";
 
     private static final String[] VM_STATES =
     {
@@ -165,7 +166,9 @@ public class VirtualMachine extends PoolElement{
         "HOTPLUG_NIC_POWEROFF",
         "HOTPLUG_RESIZE",
         "HOTPLUG_SAVEAS_UNDEPLOYED",
-        "HOTPLUG_SAVEAS_STOPPED"
+        "HOTPLUG_SAVEAS_STOPPED",
+        "BACKUP",
+        "BACKUP_POWEROFF"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -238,7 +241,9 @@ public class VirtualMachine extends PoolElement{
         "hotp",     // HOTPLUG_NIC_POWEROFF
         "hotp",     // HOTPLUG_RESIZE
         "hotp",     // HOTPLUG_SAVEAS_UNDEPLOYED
-        "hotp"      // HOTPLUG_SAVEAS_STOPPED
+        "hotp",     // HOTPLUG_SAVEAS_STOPPED
+        "back",     // BACKUP
+        "back"      // BACKUP_POWEROFF
     };
 
     /**
@@ -771,6 +776,21 @@ public class VirtualMachine extends PoolElement{
             int nicid, int sgid)
     {
         return client.call(DETACHSG, id, nicid, sgid);
+    }
+
+    /**
+     * Backup Virtual Machine
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @param ds_id Id of the datastore to save the backup
+     * @param reset Reset incremental backup, do full backup
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse backup(Client client, int id, int ds_id,
+            boolean reset)
+    {
+        return client.call(BACKUP, id, ds_id, reset);
     }
 
     // =================================
@@ -1341,6 +1361,18 @@ public class VirtualMachine extends PoolElement{
     public OneResponse sgDetach(int nicid, int sgid)
     {
         return sgDetach(client, id, nicid, sgid);
+    }
+
+    /**
+     * Backup VM
+     *
+     * @param ds_id Id of the datastore to save the backup
+     * @param reset Reset incremental backup, do full backup
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse backup(int ds_id, boolean reset)
+    {
+        return backup(client, id, ds_id, reset);
     }
 
     // =================================
