@@ -2,17 +2,33 @@ name: Slack Push Notifier
 
 on:
   push:
-    branches:
-      - master
-        
+    branches: [master]
+  pull_request:
+    types: [closed]
+    branches: [master]
+  workflow_dispatch:
+
 jobs:
   notify_slack_push:
     name: Notify Slack on pushes
     runs-on: ubuntu-latest
     steps:
-      - uses: abinoda/slack-action@master
+    
+      - name: String manipulation
+        run: echo "COMMIT_ONELINER=${{ github.event.head_commit.message }}${{ github.event.pull_request.title }}"|grep -v '^$'|head -1 >> $GITHUB_ENV
+
+      - name: It is a merged pull request
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
+        uses: abinoda/slack-action@master
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"-------8<-----------------\n*New push on repo [one-ee], branch:* ${{ github.ref_name }}\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"*Pusher:* ${{ github.event.pusher.name }}\n*Commit Message:* ${{ github.event.head_commit.message }}\n----------------->8-------\n\"}}]}' 
-        if: success()
+          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" > --> *New PR merged:* <${{ github.event.pull_request.html_url }}|${{ env.COMMIT_ONELINER }}> (<${{ github.event.pull_request.html_url }}|PR>)\n\"}}]}' 
+
+      - name: It is a direct push
+        if: ${{ github.event_name == 'push' }}
+        uses: abinoda/slack-action@master
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          args: '{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\" > --> *New Commit:* <${{ github.event.head_commit.url }}|${{ env.COMMIT_ONELINER }}>\n\"}}]}' 
