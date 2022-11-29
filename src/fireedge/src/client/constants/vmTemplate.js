@@ -135,3 +135,9 @@ export const NIC_HARDWARE_STR = {
   [NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC]: T.PCIPassthroughAutomatic,
   [NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL]: T.PCIPassthroughManual,
 }
+
+/** @enum {string} Memory resize options */
+export const MEMORY_RESIZE_OPTIONS = {
+  [T.Ballooning]: 'BALLOONING',
+  [T.Hotplug]: 'HOTPLUG',
+}

@@ -132,6 +132,35 @@
     </div>
   </div>
 </div>
+<div class="only_kvm row">
+  <div class="medium-6 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="MEMORY_RESIZE_MODE">
+          {{tr "Memory Resize Mode"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <select id="MEMORY_RESIZE_MODE" wizard_field="MEMORY_RESIZE_MODE" >
+          <option selected value="BALLOONING">{{tr "Ballooning"}}</option>
+          <option value="HOTPLUG">{{tr "Hotplug"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="medium-6 small-12 columns" id="memory_slots_div"  hidden>
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="MEMORY_SLOTS">
+          {{tr "Memory Slots"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <input type="number" id="MEMORY_SLOTS" wizard_field="MEMORY_SLOTS"/>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row">
   <div class="medium-7 small-12 columns">
     <div class="row">

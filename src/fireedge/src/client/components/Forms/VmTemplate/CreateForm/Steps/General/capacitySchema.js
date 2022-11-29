@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number } from 'yup'
+import { number, string } from 'yup'
 
 import {
   generateModificationInputs,
@@ -23,12 +23,20 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
 import { Translate } from 'client/components/HOC'
 import { formatNumberByCurrency } from 'client/models/Helper'
-import { Field } from 'client/utils'
-import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
+import { Field, arrayToOptions } from 'client/utils'
+import {
+  T,
+  HYPERVISORS,
+  VmTemplateFeatures,
+  INPUT_TYPES,
+  MEMORY_RESIZE_OPTIONS,
+} from 'client/constants'
 
 const commonValidation = number()
   .positive()
   .default(() => undefined)
+
+const { vcenter, lxc, firecracker } = HYPERVISORS
 
 // --------------------------------------------------------
 // MEMORY fields
@@ -43,7 +51,7 @@ export const MEMORY = generateCapacityInput({
     .integer()
     .required()
     .when('HYPERVISOR', (hypervisor, schema) =>
-      hypervisor === HYPERVISORS.vcenter ? schema.isDivisibleBy(4) : schema
+      hypervisor === vcenter ? schema.isDivisibleBy(4) : schema
     ),
 })
 
@@ -192,3 +200,42 @@ export const DISK_COST = generateCostCapacityInput({
  */
 export const SHOWBACK_FIELDS = (features) =>
   [MEMORY_COST, !features?.hide_cpu && CPU_COST, DISK_COST].filter(Boolean)
+
+/** @type {Field} Memory resize mode field */
+export const MEMORY_RESIZE_MODE_FIELD = {
+  name: 'MEMORY_RESIZE_MODE',
+  label: T.MemoryResizeMode,
+  type: INPUT_TYPES.SELECT,
+  notOnHypervisors: [lxc, firecracker, vcenter],
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
+  values: arrayToOptions(Object.keys(MEMORY_RESIZE_OPTIONS), {
+    addEmpty: false,
+    getText: (option) => option,
+    getValue: (option) => MEMORY_RESIZE_OPTIONS[option],
+  }),
+  validation: string().default(() => MEMORY_RESIZE_OPTIONS[T.Ballooning]),
+  grid: { md: 6 },
+}
+
+/** @type {Field} Memory slots field */
+export const MEMORY_SLOTS_FIELD = {
+  name: 'MEMORY_SLOTS',
+  label: T.MemorySlots,
+  type: INPUT_TYPES.TEXT,
+  notOnHypervisors: [lxc, firecracker, vcenter],
+  dependOf: MEMORY_RESIZE_MODE_FIELD.name,
+  htmlType: (resizeMode) =>
+    resizeMode === MEMORY_RESIZE_OPTIONS[T.Hotplug]
+      ? 'number'
+      : INPUT_TYPES.HIDDEN,
+  validation: number().default(() => undefined),
+  grid: { md: 6 },
+}
+
+/**
+ * @returns {Field[]} List of memory resize fields
+ */
+export const MEMORY_RESIZE_FIELDS = [
+  MEMORY_RESIZE_MODE_FIELD,
+  MEMORY_SLOTS_FIELD,
+].filter(Boolean)

@@ -307,6 +307,20 @@ define(function(require) {
 
       $("."+classname+"_modify_type", context).change();
     });
+
+    $("#MEMORY_RESIZE_MODE", context).on('change', function(){
+      switch (this.value) {
+        case 'BALLOONING':
+          $("#MEMORY_SLOTS", context).val("")
+          $("#memory_slots_div", context).hide()
+          break;
+        case 'HOTPLUG':
+          $("#memory_slots_div", context).show()
+          break;
+        default:
+          break;
+      }
+    })
   }
 
   /**

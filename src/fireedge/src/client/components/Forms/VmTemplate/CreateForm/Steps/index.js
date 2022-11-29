@@ -32,6 +32,7 @@ import {
   encodeBase64,
   getUnknownAttributes,
 } from 'client/utils'
+import { T, MEMORY_RESIZE_OPTIONS } from 'client/constants'
 
 /**
  * Encodes the start script value to base64 if it is not already encoded.
@@ -121,6 +122,13 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
       !isCapacity && (extraTemplate.CONTEXT[upperName] = `$${upperName}`)
     })
+
+    if (
+      general?.MEMORY_RESIZE_MODE === MEMORY_RESIZE_OPTIONS[T.Ballooning] &&
+      general?.MEMORY_SLOTS
+    ) {
+      delete general.MEMORY_SLOTS
+    }
 
     return jsonToXml({
       ...customVariables,

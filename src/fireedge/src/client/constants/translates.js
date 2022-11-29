@@ -690,6 +690,10 @@ module.exports = {
   AllowUsersToModifyVirtualCpu:
     "Allow users to modify this template's default Virtual CPU on instantiate",
   EnableHotResize: 'Enable hot resize',
+  Hotplug: 'Hotplug',
+  Ballooning: 'Ballooning',
+  MemoryResizeMode: 'Memory resize mode',
+  MemorySlots: 'Memory slots',
   /* VM Template schema - VM Group */
   AssociateToVMGroup: 'Associate VM to a VM Group',
   /* VM Template schema - vCenter */

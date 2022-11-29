@@ -25,6 +25,7 @@ import {
   CPU_FIELDS,
   VCPU_FIELDS,
   SHOWBACK_FIELDS,
+  MEMORY_RESIZE_FIELDS,
 } from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
@@ -61,6 +62,10 @@ const SECTIONS = (hypervisor, isUpdate, features) =>
       id: 'capacity',
       legend: T.Memory,
       fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+    },
+    {
+      id: 'capacity',
+      fields: filterFieldsByHypervisor(MEMORY_RESIZE_FIELDS, hypervisor),
     },
     !features?.hide_cpu && {
       id: 'capacity',
