@@ -110,6 +110,9 @@ tabs:
       VM.vnc: true
       VM.ssh: true
       VM.rdp: true
+      VM.guac_vnc: true
+      VM.guac_ssh: true
+      VM.guac_rdp: true
       VM.save_rdp: true
       VM.save_virt_viewer: true
       VM.updateconf: true
