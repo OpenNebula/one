@@ -27,7 +27,7 @@ module Command
     def self.container_cmd(name, cmd)
         return true if execute_rc_log(cmd)
 
-        STDERR.puts "Check container logs at /var/log/lxc/#{name}"
+        STDERR.puts "Check container logs at /var/log/lxc/#{name}.log"
         false
     end
 
