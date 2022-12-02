@@ -49,14 +49,19 @@ CONTEXT_PATH="$SHARE_LOCATION/context"
 DOCKERFILES="$SHARE_LOCATION/dockerhub/dockerfiles"
 DOCKERFILE="$SHARE_LOCATION/dockerhub"
 
+#Docker image name for deletion
+image_name=$(echo "$MARKET_URL" | cut -d "/" -f3 | cut -d "?" -f1)
+
 #-------------------------------------------------------------------------------
 # This function takes care of removing all temporary directories in case
 # something fails
 #-------------------------------------------------------------------------------
 function clean {
     docker rm -f "$container_id" > /dev/null 2>&1 || true
+    docker rmi $(docker images -q) -f
+    docker rmi -f $image_name
     docker image rm -f one"$sid" > /dev/null 2>&1
-
+    
     rm -rf "$dockerdir"
 }
 
