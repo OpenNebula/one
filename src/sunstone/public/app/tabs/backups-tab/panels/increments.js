@@ -64,7 +64,7 @@ define(function(require){
     increments.forEach(function(increment){
       html += TemplateHTML({
         id: increment.ID,
-        size: Humanize.sizeFromB(increment.SIZE),
+        size: Humanize.sizeFromMB(increment.SIZE),
         date: Humanize.prettyTimeDatatable(increment.DATE),
         type: increment.TYPE
       })
