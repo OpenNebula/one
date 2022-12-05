@@ -39,7 +39,11 @@ const COLUMNS = [
   {
     Header: T.Label,
     id: 'label',
-    accessor: 'USER_TEMPLATE.LABELS',
+    accessor: (row) => {
+      const labels = row?.USER_TEMPLATE?.LABELS?.split(',') ?? []
+
+      return labels.map((label) => label?.trim()?.toUpperCase()).join(',')
+    },
     filter: 'includesSome',
   },
   { Header: T.Type, id: 'type', accessor: getType },
