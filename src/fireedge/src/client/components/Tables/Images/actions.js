@@ -296,10 +296,10 @@ const Actions = () => {
               },
               {
                 accessor: IMAGE_ACTIONS.NON_PERSISTENT,
-                name: T.NonPersistyent,
+                name: T.NonPersistent,
                 isConfirmDialog: true,
                 dialogProps: {
-                  title: T.NonPersistyent,
+                  title: T.NonPersistent,
                   children: MessageToConfirmAction,
                   dataCy: `modal-${IMAGE_ACTIONS.NON_PERSISTENT}`,
                 },
