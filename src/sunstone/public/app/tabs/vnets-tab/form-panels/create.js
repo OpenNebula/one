@@ -143,7 +143,7 @@ define(function(require) {
       $("div.mode_param [wizard_field]", context).prop("wizard_field_disabled", true);
       $("input#vn_mad", context).removeAttr("required").removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
-      $("#vcenter_cluster_id", context).removeAttr("required");
+      $("#vcenter_cluster_id select", context).removeAttr("required");
       $("#phydev", context).removeAttr("required");
       $(".sec_groups_datatable", context).show();
       $("#vnetCreateSecurityTab-label").show();
@@ -153,6 +153,12 @@ define(function(require) {
       $("select#nsx-transport", context).removeAttr("required").removeAttr("value");
       $("select#nsx-instance-id", context).removeAttr("required").removeAttr("value");
       $("select#nsx-host-id", context).removeAttr("required").removeAttr("value");
+
+      // vCenter
+      $("div.mode_param.vcenter", context).hide();
+      $("div.mode_param.vcenter [wizard_field]", context).prop("wizard_field_disabled", true);
+      $("input#bridge", context).removeAttr("value");
+
       switch ($(this).find("option:selected").attr("data-form")) {
       case "bridge":
         $("div.mode_param.bridge", context).show();

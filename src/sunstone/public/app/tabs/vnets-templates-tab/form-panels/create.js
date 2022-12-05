@@ -139,12 +139,17 @@ define(function(require) {
       $("input#vn_mad", context).removeAttr("required");
       $("input#vn_mad", context).removeAttr("value");
       $("#vcenter_switch_name", context).removeAttr("required");
-      $("#vcenter_cluster_id", context).removeAttr("required");
+      $("#vcenter_cluster_id select", context).removeAttr("required");
       $("#phydev", context).removeAttr("required");
       $(".sec_groups_datatable", context).show();
       $("#vntemplateCreateSecurityTab-label").show();
       $("#automatic_vlan_id option[value='NO']", context).show();
       $("input[wizard_field=\"VLAN_ID\"]", context).removeAttr("required");
+
+      // vCenter
+      $("div.mode_param.vcenter", context).hide();
+      $("div.mode_param.vcenter [wizard_field]", context).prop("wizard_field_disabled", true);
+      $("input#bridge", context).removeAttr("value");
 
       switch ($(this).val()) {
       case "bridge":
