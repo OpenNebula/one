@@ -1792,6 +1792,7 @@ NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
                     src/vnm_mad/remotes/dummy/update_sg \
                     src/vnm_mad/remotes/dummy/pre \
+                    src/vnm_mad/remotes/dummy/update_nic \
                     src/vnm_mad/remotes/dummy/vnet_create \
                     src/vnm_mad/remotes/dummy/vnet_delete"
 
@@ -1799,6 +1800,7 @@ NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
                     src/vnm_mad/remotes/bridge/post \
                     src/vnm_mad/remotes/bridge/update_sg \
                     src/vnm_mad/remotes/bridge/pre \
+                    src/vnm_mad/remotes/bridge/update_nic \
                     src/vnm_mad/remotes/bridge/vnet_create \
                     src/vnm_mad/remotes/bridge/vnet_delete"
 
@@ -1840,6 +1842,7 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/post \
                        src/vnm_mad/remotes/vcenter/clean \
                        src/vnm_mad/remotes/vcenter/update_sg \
+                       src/vnm_mad/remotes/vcenter/update_nic \
                        src/vnm_mad/remotes/vcenter/virtual_network_xml.rb \
                        src/vnm_mad/remotes/vcenter/vnet_create \
                        src/vnm_mad/remotes/vcenter/vnet_delete"
@@ -1851,6 +1854,7 @@ NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/remote_post \
                        src/vnm_mad/remotes/elastic/pre \
                        src/vnm_mad/remotes/elastic/update_sg \
+                       src/vnm_mad/remotes/elastic/update_nic \
                        src/vnm_mad/remotes/elastic/vnet_create \
                        src/vnm_mad/remotes/elastic/vnet_delete"
 
@@ -1859,6 +1863,7 @@ NETWORK_NODEPORT_FILES="src/vnm_mad/remotes/nodeport/nodeport.rb \
                         src/vnm_mad/remotes/nodeport/post \
                         src/vnm_mad/remotes/nodeport/pre \
                         src/vnm_mad/remotes/nodeport/update_sg \
+                        src/vnm_mad/remotes/nodeport/update_nic \
                         src/vnm_mad/remotes/nodeport/vnet_create \
                         src/vnm_mad/remotes/nodeport/vnet_delete"
 

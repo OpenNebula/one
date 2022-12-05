@@ -30,14 +30,13 @@ module VNMMAD::VirtualFunction
     #   - rate TXRATE
     #   - max_tx_rate TXRATE
     #   - min_tx_rate TXRATE
-    #   - spoofchk on|off
+    #   - spoofchk on|off (*)
     #   - query_rss on|off
     #   - state auto|enable|disable
-    #   - trust on|off
+    #   - trust on|off (*)
     #   - node_guid eui64 - Infiniband
     #   - port_guid eui64 - Infiniband
     #   (*) = supported by OpenNebula
-    #
     #
     #   VF are linked in the system device map in the system. For example:
     #
