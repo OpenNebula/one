@@ -61,13 +61,13 @@ const imageApi = oneApi.injectEndpoints({
             : [data.IMAGE_POOL.IMAGE]
           : []
 
-        const images = imagesPool?.filter((image) =>
+        const images = imagesPool.filter((image) =>
           IMAGE_TYPES_FOR_IMAGES.some(
             (imageType) => imageType === getType(image)
           )
         )
 
-        return images.flat()
+        return images
       },
       providesTags: (images) =>
         images
@@ -101,13 +101,13 @@ const imageApi = oneApi.injectEndpoints({
             : [data.IMAGE_POOL.IMAGE]
           : []
 
-        const images = imagesPool?.filter((image) =>
+        const files = imagesPool.filter((image) =>
           IMAGE_TYPES_FOR_FILES.some(
             (imageType) => imageType === getType(image)
           )
         )
 
-        return [images ?? []].flat()
+        return files
       },
       providesTags: (images) =>
         images
@@ -141,13 +141,13 @@ const imageApi = oneApi.injectEndpoints({
             : [data.IMAGE_POOL.IMAGE]
           : []
 
-        const images = imagesPool?.filter((image) =>
+        const backups = imagesPool.filter((image) =>
           IMAGE_TYPES_FOR_BACKUPS.some(
             (imageType) => imageType === getType(image)
           )
         )
 
-        return [images ?? []].flat()
+        return backups
       },
       providesTags: (images) =>
         images
