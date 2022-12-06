@@ -22,10 +22,6 @@ import sys
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
 install_requires = [
     'lxml',
     'dicttoxml',
@@ -57,7 +53,10 @@ setup(
     name='pyone',
     version=pyone_version,
     description='Python Bindings for OpenNebula XML-RPC API',
-    long_description=long_description,
+    long_description=''''PyOne is an implementation of OpenNebula XML-RPC
+        bindings in Python. It works as a proxy over the XML-RPC api and
+        utilizes generateDS (https://www.davekuhlman.org/generateDS.html)
+        to ecapsulate the xml response to Python objects.''',
 
     # The project's main homepage.
     url='http://opennebula.io',
