@@ -53,7 +53,7 @@ setup(
     name='pyone',
     version=pyone_version,
     description='Python Bindings for OpenNebula XML-RPC API',
-    long_description=''''PyOne is an implementation of OpenNebula XML-RPC
+    long_description='''PyOne is an implementation of OpenNebula XML-RPC
         bindings in Python. It works as a proxy over the XML-RPC api and
         utilizes generateDS (https://www.davekuhlman.org/generateDS.html)
         to ecapsulate the xml response to Python objects.''',
