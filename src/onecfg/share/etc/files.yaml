@@ -227,6 +227,12 @@
   group: oneadmin
   mode: '0640'
 
+- name: /etc/one/onegate-proxy.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
 - name: /etc/one/vmm_exec/vmm_exec_kvm.conf
   class: Augeas::ONE
   owner: root
