@@ -2437,7 +2437,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
 
         one_util::toupper(type);
 
-        oss << "\tLoading driver: " << name << " (" << type << ")";
+        oss << " Loading driver: " << name << " (" << type << ")";
 
         NebulaLog::log("VMM", Log::INFO, oss);
 
@@ -2460,7 +2460,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
         else
         {
             oss.str("");
-            oss << "\tUnknown driver type: " << type;
+            oss << "  Unknown driver type: " << type;
 
             NebulaLog::log("VMM",Log::ERROR,oss);
 
@@ -2475,7 +2475,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
         }
 
         oss.str("");
-        oss << "\tDriver " << name << " loaded.";
+        oss << "  Driver " << name << " loaded.";
 
         NebulaLog::log("VMM",Log::INFO,oss);
     }
