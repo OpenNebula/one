@@ -22,14 +22,12 @@ if [ -z "$ONE_LOCATION" ]; then
     ONEGATE_PROXY_LOCK_FILE=/var/lock/one/.onegate-proxy.lock
     ONEGATE_PROXY_LOG=/var/log/one/onegate-proxy.log
     ONEGATE_PROXY_LOG_ERROR=/var/log/one/onegate-proxy.error
-    ONEGATE_PROXY_CONF=/etc/one/onegate-proxy.conf
 else
     ONEGATE_PROXY_PID=$ONE_LOCATION/var/onegate-proxy.pid
     ONEGATE_PROXY_SERVER=$ONE_LOCATION/lib/onegate-proxy/onegate-proxy.rb
     ONEGATE_PROXY_LOCK_FILE=$ONE_LOCATION/var/.onegate-proxy.lock
     ONEGATE_PROXY_LOG=$ONE_LOCATION/var/onegate-proxy.log
     ONEGATE_PROXY_LOG_ERROR=$ONE_LOCATION/var/onegate-proxy.error
-    ONEGATE_PROXY_CONF=$ONE_LOCATION/etc/onegate-proxy.conf
 fi
 
 setup()

@@ -40,8 +40,7 @@ else
     REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
 end
 
-CONFIGURATION_FILE         = ETC_LOCATION + '/onegate-proxy.conf'
-DYNAMIC_CONFIGURATION_FILE = REMOTES_LOCATION + '/etc/onegate-proxy.conf'
+CONFIGURATION_FILE = REMOTES_LOCATION + '/etc/onegate-proxy.conf'
 
 # %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
@@ -178,9 +177,9 @@ class OneGateProxy
 
     def setup_inotify
         inotify = INotify::Notifier.new
-        inotify.watch(DYNAMIC_CONFIGURATION_FILE, :modify) do
+        inotify.watch(CONFIGURATION_FILE, :modify) do
             @logger.info(self) do
-                "#{DYNAMIC_CONFIGURATION_FILE} has been just updated, exiting.."
+                "#{CONFIGURATION_FILE} has been just updated, exiting.."
             end
             # We assume here that the service will be restarted by
             # the service manager.
@@ -285,15 +284,13 @@ class OneGateProxy
 end
 
 if caller.empty?
-    # NOTE: The "DYNAMIC_CONFIGURATION_FILE" is copied during the host
-    # sync procedure and should just contain OneGate's address and port.
-    # Contacting OpenNebula's API in this simple service looks like
-    # an overkill..
     options = DEFAULT_OPTIONS.dup
-    [CONFIGURATION_FILE, DYNAMIC_CONFIGURATION_FILE].each do |path|
-        options.merge!(YAML.load_file(path) || {}) if File.exist?(path)
+
+    # NOTE: The "CONFIGURATION_FILE" is updated during the host sync procedure.
+    begin
+        options.merge! YAML.load_file(CONFIGURATION_FILE)
     rescue StandardError => e
-        warn "Error parsing config file #{path}: #{e.message}"
+        warn "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
         exit 1
     end
 

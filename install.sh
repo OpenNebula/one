@@ -158,7 +158,7 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     elif [ "$ONEGATE_PROXY" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $ONEGATE_PROXY_LOCATION $ETC_LOCATION"
+                   $ONEGATE_PROXY_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
 
@@ -225,7 +225,7 @@ else
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$ONEGATE_PROXY" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $ONEGATE_PROXY_LOCATION $ETC_LOCATION"
+                   $ONEGATE_PROXY_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
@@ -944,7 +944,6 @@ INSTALL_ONEGATE_PROXY_FILES=(
 )
 
 INSTALL_ONEGATE_PROXY_ETC_FILES=(
-    ONEGATE_PROXY_ETC_FILES:$ETC_LOCATION
     ONEGATE_PROXY_REMOTES_ETC_FILES:$VAR_LOCATION/remotes/etc
 )
 
@@ -2972,9 +2971,7 @@ ONEGATE_PROXY_FILES="src/onegate-proxy/onegate-proxy.rb"
 
 ONEGATE_PROXY_BIN_FILES="src/onegate-proxy/bin/onegate-proxy"
 
-ONEGATE_PROXY_ETC_FILES="src/onegate-proxy/etc/onegate-proxy.conf"
-
-ONEGATE_PROXY_REMOTES_ETC_FILES="$ONEGATE_PROXY_ETC_FILES"
+ONEGATE_PROXY_REMOTES_ETC_FILES="src/onegate-proxy/etc/onegate-proxy.conf"
 
 #-----------------------------------------------------------------------------
 # OneFlow files
