@@ -458,12 +458,7 @@ int ImageManager::delete_image(int iid, string& error_str)
     string   img_tmpl;
     string   ds_data;
 
-    long long size;
-    long long snap_size;
     int ds_id;
-
-    int uid;
-    int gid;
     int cloning_id = -1;
     int vm_saving_id = -1;
 
@@ -555,10 +550,6 @@ int ImageManager::delete_image(int iid, string& error_str)
     }
 
     source  = img->get_source();
-    size    = img->get_size();
-    ds_id   = img->get_ds_id();
-    uid     = img->get_uid();
-    gid     = img->get_gid();
 
     if (source.empty())
     {
@@ -571,6 +562,23 @@ int ImageManager::delete_image(int iid, string& error_str)
         {
             NebulaLog::log("ImM",Log::ERROR,
                 "Image could not be removed from DB");
+
+            return -1;
+        }
+
+        int uid = img->get_uid();
+        int gid = img->get_gid();
+        long long size = img->get_size() + img->get_snapshots().get_total_size();
+
+        img.reset();
+
+        Quotas::ds_del(uid, gid, ds_id, size);
+
+        // Remove Image reference from Datastore
+        if ( auto ds = dspool->get(ds_id) )
+        {
+            ds->del_image(iid);
+            dspool->update(ds.get());
         }
     }
     else
@@ -586,32 +594,15 @@ int ImageManager::delete_image(int iid, string& error_str)
         img->clear_cloning_id();
 
         ipool->update(img.get());
+
+        img.reset();
     }
-
-    snap_size = (img->get_snapshots()).get_total_size();
-
-    img.reset();
-
-    /* -------------------- Update Group & User quota counters -------------- */
-
-    Template img_usage;
-
-    img_usage.add("DATASTORE", ds_id);
-    img_usage.add("SIZE", size + snap_size);
-
-    Quotas::ds_del(uid, gid, &img_usage);
 
     /* --------------- Update cloning image if needed ----------------------- */
 
     if ( cloning_id != -1 )
     {
         release_cloning_image(cloning_id, iid);
-    }
-
-    if ( auto ds = dspool->get(ds_id) )
-    {
-        ds->del_image(iid);
-        dspool->update(ds.get());
     }
 
     /* --------------- Release VM in hotplug -------------------------------- */

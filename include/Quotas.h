@@ -199,6 +199,26 @@ public:
      *  for the given user and group
      *    @param uid of the user
      *    @param gid of the group
+     *    @param ds_id datastore ID
+     *    @param size size of the image
+     *    @param images number of images
+     */
+    static void ds_del(int uid, int gid, int ds_id, long long size, int images = 1)
+    {
+        Template img_usage;
+
+        img_usage.add("DATASTORE", ds_id);
+        img_usage.add("SIZE", size);
+        img_usage.add("IMAGES", images);
+
+        Quotas::ds_del(uid, gid, &img_usage);
+    }
+
+    /**
+     *  Delete Datastore related usage from quota counters.
+     *  for the given user and group
+     *    @param uid of the user
+     *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
     static void ds_del(int uid, int gid, std::vector<Template *> tmpls)

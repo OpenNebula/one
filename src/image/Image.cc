@@ -1004,11 +1004,6 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
 
 void Image::set_state(ImageState _state)
 {
-    if ( type == Image::BACKUP ) //Backups in READY state at creation
-    {
-        return;
-    }
-
     if (_state == ERROR && (state == LOCKED_USED || state == LOCKED_USED_PERS))
     {
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
@@ -1037,11 +1032,6 @@ void Image::set_state(ImageState _state)
 
 void Image::set_state_unlock()
 {
-    if ( type == Image::BACKUP ) //Backups in READY state at creation
-    {
-        return;
-    }
-
     LifeCycleManager* lcm = Nebula::instance().get_lcm();
 
     bool vms_notify = false;

@@ -163,9 +163,9 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
 
     ostringstream oss;
     istringstream is(info);
-    
+
     NebulaLog::dddebug("ImM", "_clone: " + info);
-    
+
     is >> skipws;
 
     auto image = ipool->get(msg->oid());
@@ -435,11 +435,17 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
 {
     NebulaLog::dddebug("ImM", "_rm: " + msg->payload());
 
+    int img_id = msg->oid();
     int ds_id = -1;
+    int uid;
+    int gid;
     int rc;
 
     string tmp_error;
     string source;
+
+    long long size;
+    long long snap_size;
 
     ostringstream oss;
 
@@ -447,10 +453,34 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
 
     bool success = msg->status() == "SUCCESS";
 
-    if ( auto image = ipool->get(msg->oid()) )
+    if ( auto image = ipool->get(img_id) )
     {
+        bool force = false;
+        image->get_template_attribute("FORCE_DELETE", force);
+
+        success = success || force;
+
+        if (!success)
+        {
+            oss << "Error removing image from datastore. Retry the operation "
+                << "or manually remove image source " << source << " and run "
+                << "the delete --force operation to completely delete the image";
+
+            image->set_template_error_message(oss.str());
+
+            image->set_state(Image::ERROR);
+
+            ipool->update(image.get());
+
+            goto error;
+        }
+
         ds_id  = image->get_ds_id();
+        uid    = image->get_uid();
+        gid    = image->get_gid();
         source = image->get_source();
+        size   = image->get_size();
+        snap_size = (image->get_snapshots()).get_total_size();
 
         if ( image->get_type() == Image::BACKUP )
         {
@@ -463,26 +493,11 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
             }
         }
 
-        bool force = false;
-        image->get_template_attribute("FORCE_DELETE", force);
+        rc = ipool->drop(image.get(), tmp_error);
 
-        success = success || force;
-
-        if (success)
+        if (rc < 0)
         {
-            rc = ipool->drop(image.get(), tmp_error);
-        }
-        else
-        {
-            oss << "Error removing image from datastore. Retry the operation "
-                << "or manually remove image source " << source << " and run "
-                << "the delete --force operation to completely delete the image";
-
-            image->set_template_error_message(oss.str());
-
-            image->set_state(Image::ERROR);
-
-            ipool->update(image.get());
+            goto error_drop;
         }
     }
     else
@@ -490,27 +505,29 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
         return;
     }
 
+    // Remove Image reference from Datastore
+    if ( auto ds = dspool->get(ds_id) )
+    {
+        ds->del_image(img_id);
+        dspool->update(ds.get());
+    }
+
+    // Update Group & User quota counters
+    Quotas::ds_del(uid, gid, ds_id, size + snap_size);
+
+    // Remove Image reference from VM backups
     if ( backup_vm_id != -1 )
     {
         VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
 
         if ( auto vm = vmpool->get(backup_vm_id) )
         {
-            vm->backups().del(msg->oid());
+            vm->backups().del(img_id);
 
             vmpool->update(vm.get());
         }
 
         // TODO BACKUP QUOTA ROLLBACK
-    }
-
-    if (!success)
-    {
-        goto error;
-    }
-    else if (rc < 0)
-    {
-        goto error_drop;
     }
 
     NebulaLog::info("ImM", "Image successfully removed.");
