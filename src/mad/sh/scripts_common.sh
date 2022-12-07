@@ -76,7 +76,7 @@ SCRIPT_NAME=`basename -- $0`
 # /some//path///somewhere/ -> /some/path/somewhere
 function fix_dir_slashes
 {
-    dirname "$1/file" | $SED 's/\/\+/\//g'
+    dirname "$1/file" | $SED 's:/+:/:g'
 }
 
 # ------------------------------------------------------------------------------
