@@ -2,3 +2,7 @@ name: 'onprem'
 
 description: 'On Premises datacenter infrastructure'
 provider: 'onprem'
+provision_type: 'metal'
+connection: {}
+plain:
+  provision_type: 'metal'
