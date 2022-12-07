@@ -213,7 +213,7 @@ class OpenNebula::LdapAuth
         groups = []
         ldap_groups.each do |group|
             if (g = in_hash_ignore_case?(@mapping, group))
-                if ldap_groups.any? {
+                if !@options[:group_admin_group_dn].nil? and ldap_groups.any? {
                         |s| s.casecmp(@options[:group_admin_group_dn])==0
                 }
                     groups << "*#{@mapping[g]}"
