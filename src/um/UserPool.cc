@@ -325,6 +325,7 @@ int UserPool::allocate(
 
     string gname;
     bool driver_managed_group_admin = false;
+    bool password_required          = true;
 
     ostringstream   oss;
 
@@ -346,10 +347,19 @@ int UserPool::allocate(
         return *oid;
     }
 
-    // Check username and password
-    if ( !User::pass_is_valid(password, error_str) )
+    if (nd.get_auth_conf_attribute(auth_driver, "PASSWORD_REQUIRED",
+            password_required) != 0)
     {
-        goto error_pass;
+        password_required = true;
+    }
+
+    // Check username and password
+    if (password_required)
+    {
+        if (!User::pass_is_valid(password, error_str))
+        {
+            goto error_pass;
+        }
     }
 
     if (!PoolObjectSQL::name_is_valid(uname,User::INVALID_NAME_CHARS,error_str))

@@ -103,7 +103,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 return -1, e.message
             end
         else
-            return -1, "You have to specify an Auth method or define a password"
+            return 0, ''
         end
 
         return 0, auth.password

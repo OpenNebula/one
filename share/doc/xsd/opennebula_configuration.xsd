@@ -23,6 +23,7 @@
               <xs:element name="MAX_TOKEN_TIME" type="xs:integer"/>
               <xs:element name="NAME" type="xs:string"/>
               <xs:element name="PASSWORD_CHANGE" type="xs:string"/>
+              <xs:element name="PASSWORD_REQUIRED" type="xs:string" minOccurs="0"/>
             </xs:all>
           </xs:complexType>
         </xs:element>
