@@ -36,7 +36,7 @@ void Monitor::start()
     // -------------------------------------------------------------------------
     // Configuration File
     // -------------------------------------------------------------------------
-    OpenNebulaTemplate oned_config(get_defaults_location(), get_var_location());
+    OpenNebulaTemplate oned_config(get_defaults_location(), get_var_location(), oned_filename);
 
     if (oned_config.load_configuration() != 0)
     {

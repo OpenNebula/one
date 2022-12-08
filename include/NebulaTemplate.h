@@ -30,9 +30,16 @@ public:
     NebulaTemplate(const std::string& etc_location, const char * _conf_name,
             const char * root_name)
         : Template(false, '=', root_name)
-        , conf_file(etc_location + _conf_name)
         , hidden_attributes{ { "DB", { "PASSWD" } } }
     {
+        if (_conf_name[0] == '/')
+        {
+            conf_file =  _conf_name;
+        }
+        else
+        {
+            conf_file = etc_location + _conf_name;
+        }
     }
 
     virtual ~NebulaTemplate() = default;

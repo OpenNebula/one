@@ -79,10 +79,19 @@ int main(int argc, char **argv)
 
     if ( argv[1] !=  0 )
     {
-        //oned passes a single string with all the arguments for monitord
+        // oned passes all arguments as single string, we need to split
+        // the first argument and add the rest to allow also execution from
+        // command line:
+        //    onemonitord -c monitord.conf -o oned.conf
         std::string argv_1 = argv[1];
 
         std::vector<std::string> _argv = one_util::split(argv_1, ' ');
+
+        for (int i = 2; i < argc; ++i)
+        {
+            _argv.push_back(argv[i]);
+        }
+
         int _argc = _argv.size() + 1;
 
         char ** _argv_c = (char **) malloc(sizeof(char *) * (_argc + 1));
@@ -99,15 +108,15 @@ int main(int argc, char **argv)
         static struct option long_options[] = {
             {"version",no_argument, 0, 'v'},
             {"help",   no_argument, 0, 'h'},
-            {"config", no_argument, 0, 'c'},
-            {"oned-config", no_argument, 0, 'o'},
+            {"config", required_argument, 0, 'c'},
+            {"oned-config", required_argument, 0, 'o'},
             {0,        0,           0, 0}
         };
 
         int long_index = 0;
         int opt;
 
-        while ((opt = getopt_long(_argc, _argv_c, "vhc:",
+        while ((opt = getopt_long(_argc, _argv_c, "vhc:o:",
                         long_options, &long_index)) != -1)
         {
             switch(opt)

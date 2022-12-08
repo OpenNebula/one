@@ -30,8 +30,9 @@ class OpenNebulaTemplate : public NebulaTemplate
 public:
 
     OpenNebulaTemplate(const std::string& etc_location,
-                       const std::string& _var_location):
-        NebulaTemplate(etc_location, conf_name, "OPENNEBULA_CONFIGURATION"),
+                       const std::string& _var_location,
+                       const std::string& _conf_name = conf_name):
+        NebulaTemplate(etc_location, _conf_name.c_str(), "OPENNEBULA_CONFIGURATION"),
         var_location(_var_location)
         {};
 
