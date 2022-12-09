@@ -3197,7 +3197,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     // -------------------------------------------------------------------------
     if ( lcm_state != BACKUP && lcm_state != BACKUP_POWEROFF)
     {
-        bool increment = disks.backup_increment(_backups.do_volatile());
+        bool increment = disks.backup_increment(_backups.do_volatile()) &&
+                            !has_snapshots();
 
         if ( _backups.parse(tmpl, increment, append, err) != 0 )
         {

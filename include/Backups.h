@@ -142,7 +142,7 @@ public:
      */
     bool configured()
     {
-        return config.empty();
+        return !config.empty();
     }
 
     /**

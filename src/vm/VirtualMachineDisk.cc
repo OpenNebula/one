@@ -1579,7 +1579,7 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(format);
 
-        if (format != "QCOW2")
+        if (format != "QCOW2" || disk->has_snapshots())
         {
             return false;
         }

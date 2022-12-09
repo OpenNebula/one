@@ -2307,6 +2307,17 @@ void VirtualMachineSnapshotCreate::request_execute(
             return;
         }
 
+        auto vm_bck = vm->backups();
+
+        if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
+        {
+            att.resp_msg = "Action \"snapshot-create\" is not compatible with "
+                "incremental backups";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
         // get quota deltas
         snap = vm->new_snapshot(name, snap_id);
         snap = snap->clone();
@@ -3075,6 +3086,17 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         {
             att.resp_msg = "Action \"disk-snapshot-create\" is not supported for "
                 "imported VMs";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
+        auto vm_bck = vm->backups();
+
+        if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
+        {
+            att.resp_msg = "Action \"disk-snapshot-create\" is not compatible with "
+                "incremental backups";
             failure_response(ACTION, att);
 
             return;

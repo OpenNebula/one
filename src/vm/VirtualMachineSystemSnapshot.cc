@@ -24,7 +24,17 @@ using namespace std;
 // System Snapshot Interface
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-//
+
+bool VirtualMachine::has_snapshots()
+{
+    vector<VectorAttribute *> snaps;
+
+    return obj_template->get("SNAPSHOT", snaps) > 0;
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
 VectorAttribute* VirtualMachine::new_snapshot(string& name, int& snap_id)
 {
     int num_snaps;

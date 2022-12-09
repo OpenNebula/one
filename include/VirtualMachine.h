@@ -1603,6 +1603,11 @@ public:
     // System Snapshot related functions
     // ------------------------------------------------------------------------
     /**
+     * @return true if VM has system snapshots defined
+     */
+    bool has_snapshots();
+
+    /**
      * Creates a new Snapshot attribute, and sets it to ACTIVE=YES
      *
      * @param name for the new Snapshot. If it is empty, the generated name
