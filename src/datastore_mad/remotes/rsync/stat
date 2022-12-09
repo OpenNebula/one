@@ -61,11 +61,11 @@ daction64 = ARGV[0]
 _ds_id    = ARGV[1]
 
 # Image path in the form:
-#   rsync://100/0:cdcf2eb1,1:1bc7efd/var/lib/one/datastores/0/54/backup/disk.0"
+#   rsync://100/0:6da1c7,1:06132a,2:03fc2a//var/lib/one//datastores/100/13/6da1c7/disk.0.0
 #
 #   datastore_id = 100
-#   snapshot id  = cdcf2eb1
-#   path         = /var/lib/one/datastores/0/54/backup/disk.0
+#   last snap    = 03fc2a
+#   base path    = /var/lib/one//datastores/100/13
 
 begin
     rds = REXML::Document.new(Base64::decode64(daction64)).root.elements
@@ -78,7 +78,7 @@ begin
     parts  = img.split('/')
     diskid = parts[-1].match(/disk\.([0-9]+)/)
 
-    base_path = "/#{parts[2..-2].join('/')}/"
+    base_path = "/#{parts[2..-3].join('/')}/"
 
     if !diskid
         STDERR.puts "Wrong format for disk filename #{parts[2]}"
@@ -87,8 +87,7 @@ begin
 
     last_snap = parts[1].split(',')[-1].split(':')[-1]
 
-#    cmd = rds.restic("dump #{last_snap} #{base_path}vm.xml", 'quiet' => '')
-    cmd = "cat #{base_path}vm.xml"
+    cmd = "cat #{base_path}#{last_snap}/vm.xml"
 
 rescue StandardError => se
     STDERR.puts se.message
