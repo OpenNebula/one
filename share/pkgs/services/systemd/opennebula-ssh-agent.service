@@ -8,7 +8,7 @@ Group=oneadmin
 User=oneadmin
 Environment=SSH_AUTH_SOCK=/var/run/one/ssh-agent.sock
 # ssh-agent is executed via shell wrapper to workaround a SELinux issue
-ExecStartPre=/bin/sh -c "echo SSH_AUTH_SOCK=$SSH_AUTH_SOCK > /var/run/one/ssh-agent.env"
+ExecStartPre=/bin/sh -c "echo SSH_AUTH_SOCK=$SSH_AUTH_SOCK > /var/run/one/ssh-agent.env; rm -f $SSH_AUTH_SOCK"
 ExecStart=/bin/sh -c "exec /usr/bin/ssh-agent -a $SSH_AUTH_SOCK"
 ExecStartPost=-/bin/sh -c "/usr/bin/ssh-add"
 ExecStopPost=/usr/bin/rm -f /var/run/one/ssh-agent.env
