@@ -85,8 +85,8 @@ end
 
 path = Pathname.new(base).cleanpath.to_s
 
-backup_id   = "#{vmid}/#{SecureRandom.hex[0, 6]}"
-backup_path = "#{path}/#{backup_id}/"
+backup_id   = "#{SecureRandom.hex[0, 6]}"
+backup_path = "#{path}/#{vmid}/#{backup_id}/"
 
 #-------------------------------------------------------------------------------
 # Compute backup total size

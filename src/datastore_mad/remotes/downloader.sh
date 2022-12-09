@@ -250,20 +250,31 @@ function rsync_env
     done < <(onedatastore show -x --decrypt $1 | $XPATH \
                         /DATASTORE/TEMPLATE/RSYNC_HOST \
                         /DATASTORE/TEMPLATE/RSYNC_USER \
+                        /DATASTORE/TEMPLATE/RSYNC_TMP_DIR \
                         /DATASTORE/BASE_PATH)
 
     RSYNC_HOST="${XPATH_ELEMENTS[j++]}"
     RSYNC_USER="${XPATH_ELEMENTS[j++]}"
-    BASE_PATH="${XPATH_ELEMENTS[j++]}"
+    TMP_DIR="${XPATH_ELEMENTS[j++]}"
+    RSYNC_BASE_PATH="${XPATH_ELEMENTS[j++]}"
 
     if [ -z "${RSYNC_HOST}" -o -z "${RSYNC_USER}" ]; then
         echo "RSYNC_HOST and RSYNC_USER are required" >&2
         exit -1
     fi
 
-    RSYNC_CMD="ssh ${RSYNC_USER}@${RSYNC_HOST} 'cat ${BASE_PATH}"
+    if [ -z "${TMP_DIR}" ]; then
+        TMP_DIR="/var/tmp/"
+    fi
 
-    export RSYNC_CMD
+    RSYNC_TMP_DIR="${TMP_DIR}/`uuidgen`"
+
+    # scp is faster than rsync for singular files
+    RSYNC_PULL_CMD="scp ${RSYNC_USER}@${RSYNC_HOST}:"
+
+    export RSYNC_PULL_CMD
+    export RSYNC_TMP_DIR
+    export RSYNC_BASE_PATH
 }
 
 # Create an SHA-256 hash in hexadecimal.
@@ -586,16 +597,48 @@ restic://*)
     popd
     ;;
 rsync://*)
-    # rsync://<ds_id>/<vm_id>/<backup_id>/<file>
+    # example: rsync://100/0:8a3454,1:f6e63e//var/lib/one//datastores/100/6/8a3454/disk.0.0
+    # RSYNC_TMP_DIR="${TMP_DIR}/`uuidgen`"
+    # RSYNC_PULL_CMD="scp ${RSYNC_USER}@${RSYNC_HOST}:"
     rsync_path=${FROM#rsync://}
     d_id=`echo ${rsync_path} | cut -d'/' -f1`
-    vmid=`echo ${rsync_path} | cut -d'/' -f2`
-    b_id=`echo ${rsync_path} | cut -d'/' -f3`
-    file=`echo ${rsync_path} | cut -d'/' -f4-`
+    b_id=`echo ${rsync_path} | cut -d'/' -f2`
+    file=`echo ${rsync_path} | cut -d'/' -f3-`
+    vm_path=${file%/*/*} #/var/lib/one/datastores/100/6
 
     rsync_env $d_id
 
-    command="${RSYNC_CMD}/${vmid}/${b_id}/${file}'"
+    mkdir -p ${RSYNC_TMP_DIR}
+    pushd ${RSYNC_TMP_DIR}
+
+    incs=(${b_id//,/ })
+    f_name=`echo $file | rev | cut -d'/' -f1 | rev`
+
+    for i in "${incs[@]}"; do
+        inc_id=`echo $i | cut -d':' -f1`
+        snap_id=`echo $i | cut -d':' -f2`
+
+        ${RSYNC_PULL_CMD}/${vm_path}/${snap_id}/${f_name%\.*}.${inc_id} ./disk.${inc_id}
+    done
+
+    for i in `ls disk* | sort -r`; do # for each dumped disk
+        id=`echo $i | cut -d'.' -f2`
+        pid=$((id - 1))
+
+        if [ -f "disk.${pid}" ]; then # rebase to one disk
+            qemu-img rebase -u -F qcow2 -b "disk.${pid}" "disk.${id}"
+        else
+            qemu-img rebase -u -b '' "disk.${id}"
+        fi
+    done
+
+    qemu-img convert -O qcow2 -m 4 `ls disk* | sort -r | head -1` disk.qcow2
+
+    command="cat `realpath disk.qcow2`"
+
+    clean_command="rm -rf ${RSYNC_TMP_DIR}"
+
+    popd
     ;;
 *)
     if [ ! -r $FROM ]; then

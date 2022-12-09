@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
@@ -15,52 +15,109 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
 
-DRV_ACTION=$1
-IMAGE_ID=$2
-
-# ------------ Set up the environment to source common tools ------------
-
-if [ -z "${ONE_LOCATION}" ]; then
-    LIB_LOCATION=/usr/lib/one
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
-    LIB_LOCATION=$ONE_LOCATION/lib
-fi
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-. $LIB_LOCATION/sh/scripts_common.sh
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
 
-DRIVER_PATH=$(dirname $0)
-source ${DRIVER_PATH}/../libfs.sh
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
-# -------- Get datastore arguments from OpenNebula core ------------
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-DRV_ACTION=$1
-ID=$2
+require 'CommandManager'
+require 'rexml/document'
+require 'base64'
 
-XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
+require_relative '../../tm/lib/tm_action'
 
-unset i XPATH_ELEMENTS
+daction64 = ARGV[0]
+_ds_id    = ARGV[1]
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_HOST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_USER \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
+# Image path in the form:
+#   rsync://100/0:cdcf2eb1,1:1bc7efd/var/lib/one/datastores/0/54/backup/disk.0"
+#
+#   datastore_id = 100
+#   snapshot id  = cdcf2eb1
+#   path         = /var/lib/one/datastores/0/54/backup/disk.0
 
-unset i
+begin
+    rds = REXML::Document.new(Base64::decode64(daction64)).root.elements
+    img = rds['/DS_DRIVER_ACTION_DATA/IMAGE/PATH'].text
+    rsync_host = rds['/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    rsync_user = rds['/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_USER'].text
 
-RSYNC_HOST="${XPATH_ELEMENTS[i++]}"
-RSYNC_USER="${XPATH_ELEMENTS[i++]}"
-BASE_PATH="${XPATH_ELEMENTS[i++]}"
-IMG_PATH="${XPATH_ELEMENTS[i++]}"
+    img.slice! 'rsync://'
 
-# rsync://dsid/vmid/backupid/diskid
-VM_ID=$(echo ${IMG_PATH} | cut -d'/' -f4)
-BACKUP_ID=$(echo ${IMG_PATH} | cut -d'/' -f5)
+    parts  = img.split('/')
+    diskid = parts[-1].match(/disk\.([0-9]+)/)
 
-DU="du -ms ${BASE_PATH}/${VM_ID}/${BACKUP_ID}/"
+    base_path = "/#{parts[2..-2].join('/')}/"
 
-SIZE=$(ssh $RSYNC_USER@$RSYNC_HOST "$DU")
+    if !diskid
+        STDERR.puts "Wrong format for disk filename #{parts[2]}"
+        exit(1)
+    end
 
-echo $SIZE | cut -f1
+    last_snap = parts[1].split(',')[-1].split(':')[-1]
+
+#    cmd = rds.restic("dump #{last_snap} #{base_path}vm.xml", 'quiet' => '')
+    cmd = "cat #{base_path}vm.xml"
+
+rescue StandardError => se
+    STDERR.puts se.message
+    exit(1)
+end
+
+rc = TransferManager::Action.ssh('gather_vm_xml',
+                                 :host     => "#{rsync_user}@#{rsync_host}",
+                                 :cmds     => cmd,
+                                 :forward  => true,
+                                 :nostderr => false,
+                                 :nostdout => false)
+
+if rc.code != 0
+    STDERR.puts rc.stderr
+    exit(1)
+end
+
+vm = REXML::Document.new(Base64::decode64(rc.stdout)).root
+
+xpath = "/VM/TEMPLATE/DISK[ DISK_ID = #{diskid[1]} ]/SIZE"
+
+disk  = vm.elements[xpath]
+
+if !disk
+    STDERR.puts "Cannot find disk #{diskid[1]} in VM backup info"
+    exit(1)
+end
+
+puts disk.text
+
+exit 0
