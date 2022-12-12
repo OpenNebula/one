@@ -471,6 +471,11 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
             vmpool->update(vm.get());
         }
 
+        // Update monitoring date in history record
+        vm->set_vm_info();
+
+        vmpool->update_history(vm.get());
+
         /* ------------------------------------------------------------------ */
         /* Apply state changes                                                */
         /* ------------------------------------------------------------------ */
