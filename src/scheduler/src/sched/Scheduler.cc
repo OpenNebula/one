@@ -175,7 +175,7 @@ void Scheduler::start()
             NebulaLog::init_log_system(log_system,
                            clevel,
                            log_file.c_str(),
-                           ios_base::trunc,
+                           ios_base::ate,
                            "mm_sched");
         }
         else
