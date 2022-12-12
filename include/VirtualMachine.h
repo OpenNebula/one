@@ -701,6 +701,8 @@ public:
      */
     void set_vm_info()
     {
+        load_monitoring();
+
         to_xml_extended(history->vm_info, 0);
     };
 
