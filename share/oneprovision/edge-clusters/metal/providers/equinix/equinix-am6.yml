@@ -3,6 +3,9 @@ name: 'equinix-amsterdam'
 description: 'Provision cluster in Equinix Amsterdam'
 provider: 'equinix'
 
+plain:
+  provision_type: 'metal'
+
 connection:
   token: 'Equinix token'
   project: 'Equinix project'

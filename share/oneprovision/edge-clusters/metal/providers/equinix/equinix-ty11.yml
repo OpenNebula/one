@@ -3,6 +3,9 @@ name: 'equinix-tokyo'
 description: 'Provision cluster in Equinix Tokyo, Japan'
 provider: 'equinix'
 
+plain:
+  provision_type: 'metal'
+
 connection:
   token: 'Equinix token'
   project: 'Equinix project'
