@@ -524,8 +524,8 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
         {
             vm->backups().del(img_id);
 
-            //Reset increment pointers when removing active backup
-            if (stoi(vm->backups().last_backup_id()) == img_id)
+            //Reset increment pointers when removing active incremental backup
+            if (vm->backups().incremental_backup_id() == img_id)
             {
                 vm->backups().last_increment_id(-1);
 
