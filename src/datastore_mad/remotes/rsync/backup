@@ -85,7 +85,7 @@ end
 
 path = Pathname.new(base).cleanpath.to_s
 
-backup_id   = "#{SecureRandom.hex[0, 6]}"
+backup_id = SecureRandom.hex[0, 6].to_s
 backup_path = "#{path}/#{vmid}/#{backup_id}/"
 
 #-------------------------------------------------------------------------------
