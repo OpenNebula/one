@@ -1173,3 +1173,40 @@ int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target,
 
     return 0;
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+Image::DiskType Datastore::context_disk_type() const
+{
+    Image::DiskType ctxt_dt = Image::FILE;
+    string          ctxt_dt_s;
+
+    get_template_attribute("CONTEXT_DISK_TYPE", ctxt_dt_s);
+
+    if (!ctxt_dt_s.empty())
+    {
+        ctxt_dt = Image::str_to_disk_type(ctxt_dt_s);
+    }
+
+    switch(ctxt_dt)
+    {
+        //Valid disk types for context devices
+        case Image::FILE:
+        case Image::BLOCK:
+            return ctxt_dt;
+
+        case Image::NONE:
+        case Image::ISCSI:
+        case Image::RBD:
+        case Image::GLUSTER:
+        case Image::SHEEPDOG:
+        case Image::CD_ROM:
+        case Image::RBD_CDROM:
+        case Image::SHEEPDOG_CDROM:
+        case Image::GLUSTER_CDROM:
+            break;
+    }
+
+    return Image::FILE;
+}

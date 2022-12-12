@@ -22,6 +22,8 @@
 #include "VirtualNetwork.h"
 #include "ObjectXML.h"
 #include "Nebula.h"
+#include "Image.h"
+#include "DatastorePool.h"
 
 #include <sstream>
 #include <fstream>
@@ -1516,11 +1518,32 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !target.empty() )
         {
-            ostringstream fname;
+            ostringstream   fname;
+            Image::DiskType ctxt_disk_type = Image::FILE;
+
+            string s_cdt;
+
+            if (auto ds = nd.get_dspool()->get_ro(vm->get_ds_id()))
+            {
+                ctxt_disk_type = ds->context_disk_type();
+            }
+
+            switch (ctxt_disk_type)
+            {
+                case Image::FILE:
+                    s_cdt = "file";
+                    break;
+                case Image::BLOCK:
+                    s_cdt = "block";
+                    break;
+                default:
+                    s_cdt = "file";
+                    break;
+            }
 
             fname << vm->get_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t<disk type='file' device='cdrom'>\n"
+            file << "\t\t<disk type='" << s_cdt << "' device='cdrom'>\n"
                  << "\t\t\t<source file="
                      << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);

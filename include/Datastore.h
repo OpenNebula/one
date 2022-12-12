@@ -188,6 +188,8 @@ public:
         return type;
     };
 
+    Image::DiskType context_disk_type() const;
+
     /**
      * Modifies the given VM disk attribute adding the relevant datastore
      * attributes
