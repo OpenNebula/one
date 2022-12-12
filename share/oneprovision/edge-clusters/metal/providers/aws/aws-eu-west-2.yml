@@ -3,6 +3,9 @@ name: 'aws-london'
 description: 'Provision cluster in AWS London'
 provider: 'aws'
 
+plain:
+  provision_type: 'metal'
+
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'

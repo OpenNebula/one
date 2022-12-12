@@ -3,6 +3,9 @@ name: 'aws-north-california'
 description: 'Provision cluster in AWS North California'
 provider: 'aws'
 
+plain:
+  provision_type: 'metal'
+
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'
