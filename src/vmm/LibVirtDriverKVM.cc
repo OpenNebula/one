@@ -1522,6 +1522,7 @@ int LibVirtDriver::deployment_description_kvm(
             Image::DiskType ctxt_disk_type = Image::FILE;
 
             string s_cdt;
+            string s_cst;
 
             if (auto ds = nd.get_dspool()->get_ro(vm->get_ds_id()))
             {
@@ -1530,21 +1531,20 @@ int LibVirtDriver::deployment_description_kvm(
 
             switch (ctxt_disk_type)
             {
-                case Image::FILE:
-                    s_cdt = "file";
-                    break;
                 case Image::BLOCK:
                     s_cdt = "block";
+                    s_cst = "dev";
                     break;
                 default:
                     s_cdt = "file";
+                    s_cst = "file";
                     break;
             }
 
             fname << vm->get_system_dir() << "/disk." << disk_id;
 
             file << "\t\t<disk type='" << s_cdt << "' device='cdrom'>\n"
-                 << "\t\t\t<source file="
+                 << "\t\t\t<source " << s_cst << "="
                      << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
