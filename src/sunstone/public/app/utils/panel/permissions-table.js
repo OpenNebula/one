@@ -30,7 +30,7 @@ define(function(require) {
   var TemplateOwner = require('hbs!./permissions-table/owner');
   var TemplatePermissions = require('hbs!./permissions-table/permissions');
   var TemplatePermissionsTable = require('hbs!./permissions-table/html');
-  var IMAGES_TAB_ID = require('tabs/images-tab/tabId');
+  var BACKUPS_TAB_ID = require('tabs/backups-tab/tabId');
 
 
   /**
@@ -74,7 +74,7 @@ define(function(require) {
           [element.BACKUPS.BACKUP_IDS.ID]
         if (ids && ids.length > 0){
           ids.forEach( id => {
-            backupsIDs += Navigation.link(id, IMAGES_TAB_ID, id) 
+            backupsIDs += Navigation.link(id, BACKUPS_TAB_ID, id) 
             backupsIDs += (id === ids[ids.length - 1] ? "" : ", ")
           });
         }
