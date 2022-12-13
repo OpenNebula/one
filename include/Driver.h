@@ -49,6 +49,7 @@ public:
         : cmd(c)
         , arg(a)
         , concurrency(ct)
+        , pid(-1)
     {}
 
     ~Driver()
@@ -142,12 +143,12 @@ private:
 
     std::string arg;
 
-    int  concurrency = 0;
+    int  concurrency;
 
     /**
      *  Process ID of the driver
      */
-    pid_t pid = -1;
+    pid_t pid;
 
     /**
      *  Class to read lines from the stream
@@ -222,9 +223,7 @@ void Driver<MSG>
     if (!success)
     {
         kill(pid, SIGKILL);
-    }
-
-    pid = -1;
+    };
 }
 
 /* -------------------------------------------------------------------------- */

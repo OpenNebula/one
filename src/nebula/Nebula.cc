@@ -1237,7 +1237,7 @@ void Nebula::start(bool bootstrap_only)
     return;
 
 error_mad:
-    NebulaLog::log("ONE", Log::ERROR, "Could not load driver, exiting...");
+    NebulaLog::log("ONE", Log::ERROR, "Could not load driver");
     throw runtime_error("Could not load an OpenNebula driver");
 }
 
