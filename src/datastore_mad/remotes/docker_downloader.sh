@@ -58,10 +58,13 @@ image_name=$(echo "$MARKET_URL" | cut -d "/" -f3 | cut -d "?" -f1)
 #-------------------------------------------------------------------------------
 function clean {
     docker rm -f "$container_id" > /dev/null 2>&1 || true
-    docker rmi $(docker images -q) -f
-    docker rmi -f $image_name
+
+    if [ -n "${image_name}" ]; then
+        docker rmi -f "${image_name}"
+    fi
+
     docker image rm -f one"$sid" > /dev/null 2>&1
-    
+
     rm -rf "$dockerdir"
 }
 
