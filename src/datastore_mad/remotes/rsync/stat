@@ -107,8 +107,8 @@ end
 
 vm = REXML::Document.new(Base64.decode64(rc.stdout)).root
 
-xpath = "/VM/TEMPLATE/DISK[ DISK_ID = #{diskid[1]} ]/SIZE"
-
+# Done in two steps to support all Ruby versions
+xpath = "/VM/TEMPLATE/DISK [ DISK_ID =  #{diskid[1]} ]"
 disk  = vm.elements[xpath]
 
 if !disk
@@ -116,6 +116,13 @@ if !disk
     exit(1)
 end
 
-puts disk.text
+size = disk.elements['//SIZE']
+
+if !size
+    STDERR.puts "Cannot find size for disk  #{diskid[1]} in VM backup info"
+    exit(1)
+end
+
+puts size.text
 
 exit 0
