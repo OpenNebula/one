@@ -55,45 +55,8 @@ type VirtualNetwork struct {
 	Template             Template            `xml:"TEMPLATE"`
 
 	// Variable parts between one.vnpool.info and one.vn.info
-	ARs  []AR         `xml:"AR_POOL>AR,omitempty"`
-	Lock *shared.Lock `xml:"LOCK,omitempty"`
-}
-
-type AR struct {
-	ID                string  `xml:"AR_ID,omitempty"`
-	GlobalPrefix      string  `xml:"GLOBAL_PREFIX,omitempty"` // minOccurs=0
-	IP                string  `xml:"IP"`                      // minOccurs=0
-	MAC               string  `xml:"MAC,omitempty"`
-	ParentNetworkARID string  `xml:"PARENT_NETWORK_AR_ID,omitempty"` // minOccurs=0
-	Size              int     `xml:"SIZE"`
-	Type              string  `xml:"TYPE"`
-	ULAPrefix         string  `xml:"ULA_PREFIX,omitempty"` // minOccurs=0
-	VNMAD             string  `xml:"VN_MAD,omitempty"`     // minOccurs=0
-	MACEnd            string  `xml:"MAC_END,omitempty"`
-	IPEnd             string  `xml:"IP_END,omitempty"`
-	IP6ULA            string  `xml:"IP6_ULA,omitempty"`
-	IP6ULAEnd         string  `xml:"IP6_ULA_END,omitempty"`
-	IP6Global         string  `xml:"IP6_GLOBAL,omitempty"`
-	IP6GlobalEnd      string  `xml:"IP6_GLOBAL_END,omitempty"`
-	IP6               string  `xml:"IP6,omitempty"`
-	IP6End            string  `xml:"IP6_END,omitempty"`
-	UsedLeases        string  `xml:"USED_LEASES,omitempty"`
-	Leases            []Lease `xml:"LEASES>LEASE,omitempty"`
-
-	// Not filled with Info
-	Allocated string `xml:"ALLOCATED"`
-}
-
-type Lease struct {
-	IP        string `xml:"IP,omitempty"`
-	IP6       string `xml:"IP6,omitempty"`
-	IP6Global string `xml:"IP6GLOBAL,omitempty"`
-	IP6Link   string `xml:"IP6LINK,omitempty"`
-	IP6ULA    string `xml:"IP6ULA,omitempty"`
-	MAC       string `xml:"MAC,omitempty"`
-	VM        int    `xml:"VM,omitempty"`
-	VNet      int    `xml:"VNET,omitempty"`
-	VRouter   int    `xml:"VROUTER,omitempty"`
+	ARs  []AddressRange `xml:"AR_POOL>AR,omitempty"`
+	Lock *shared.Lock   `xml:"LOCK,omitempty"`
 }
 
 // State is the state of the Virtual Network
