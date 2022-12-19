@@ -2906,7 +2906,12 @@ void VirtualMachine::set_template_error_message(const string& name,
     SingleAttribute * attr;
     ostringstream     error_value;
 
-    error_value << one_util::log_time() << ": " << message;
+    error_value << one_util::log_time() << ": " << message.substr(0, MAX_ERROR_MSG_LENGTH);
+
+    if (message.length() >= MAX_ERROR_MSG_LENGTH)
+    {
+        error_value << "... see more details in VM log";
+    }
 
     attr = new SingleAttribute(name, error_value.str());
 
