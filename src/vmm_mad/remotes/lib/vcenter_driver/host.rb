@@ -233,7 +233,7 @@ module VCenterDriver
             end
 
             nxs_type = @one_item['TEMPLATE/NSX_TYPE']
-            unless nxs_type == NSXDriver::NSXConstants::NSXT; return; end
+            return unless nxs_type == NSXDriver::NSXConstants::NSXT
 
             # URL to test a connection
             url = '/api/v1/transport-zones'
