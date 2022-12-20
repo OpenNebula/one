@@ -785,6 +785,9 @@ Style/RedundantCondition:
 Style/RedundantStringEscape:
   Enabled: false
 
+Style/ConcatArrayLiterals:
+  Enabled: false
+
 ######
 # LINT
 ######
