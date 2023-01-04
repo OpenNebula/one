@@ -121,7 +121,8 @@ const std::vector<const char*> VMTemplateClone::REMOVE_DISK_ATTRS = {
     "IMAGE", "IMAGE_UNAME", "IMAGE_UID", "OPENNEBULA_MANAGED"};
 
 Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
-        int &new_id, bool recursive, const string& s_uattr, RequestAttributes& att)
+        int &new_id, bool recursive, const string& s_uattr, bool persistent,
+        RequestAttributes& att)
 {
     // -------------------------------------------------------------------------
     // Clone the VMTemplate
@@ -185,7 +186,7 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
             oss << name << "-disk-" << ndisk;
 
             ec = img_clone.request_execute(img_id, oss.str(), -1,
-                    false, new_img_id, img_att);
+                    persistent, new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {
