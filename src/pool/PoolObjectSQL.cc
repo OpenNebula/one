@@ -587,10 +587,19 @@ bool PoolObjectSQL::name_is_valid(const string& obj_name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
+int PoolObjectSQL::lock_db(const int owner,
+                           const int req_id,
+                           const int level,
+                           const bool is_admin)
 {
     if ( level < ST_NONE || level > ST_ADMIN )
     {
+        return -1;
+    }
+
+    if (locked != ST_NONE && lock_owner != owner && !is_admin)
+    {
+        // Only admin can override lock
         return -1;
     }
 

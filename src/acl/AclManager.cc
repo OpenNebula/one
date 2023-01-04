@@ -195,11 +195,11 @@ bool AclManager::authorize(
     long long user_req;
     long long resource_oid_req;
 
-    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    if (op & 0x10LL) //No lockable object
     {
         op = static_cast<AuthRequest::Operation>(op & 0x0FLL);
     }
-    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    else if (obj_perms.locked > 0 && obj_perms.locked <= op)
     {
         return false;
     }
@@ -385,11 +385,11 @@ bool AclManager::oneadmin_authorize(
         const PoolObjectAuth&   obj_perms,
         AuthRequest::Operation  op) const
 {
-    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    if (op & 0x10LL) //No lockable object
     {
         return true;
     }
-    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    else if (obj_perms.locked > 0 && obj_perms.locked <= op)
     {
         return false;
     }

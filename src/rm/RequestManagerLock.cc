@@ -62,6 +62,27 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    switch(level)
+    {
+        case 1: //USE + MANAGE + ADMIN
+            level = PoolObjectSQL::ST_USE;
+            break;
+        case 2: //MANAGE + ADMIN
+            level = PoolObjectSQL::ST_MANAGE;
+            break;
+        case 3: //ADMIN
+            level = PoolObjectSQL::ST_ADMIN;
+            break;
+        case 4: //ALL equals USE
+            level = PoolObjectSQL::ST_USE;
+            break;
+
+        default:
+            att.resp_msg = "Wrong lock level specified";
+            failure_response(ACTION, att);
+            return;
+    }
+
     if ((auth_object & PoolObjectSQL::LockableObject) != 0)
     {
         if ( test && object->test_lock_db(att.resp_msg) != 0 )
@@ -70,7 +91,7 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         }
         else
         {
-            rc = lock_db(object.get(), owner, att.req_id, level);
+            rc = lock_db(object.get(), owner, att.req_id, level, att.is_admin());
 
             pool->update(object.get());
 
@@ -87,6 +108,7 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
+        att.resp_msg = "Object cannot be locked.";
         failure_response(AUTHORIZATION, att);
     }
 

@@ -40,9 +40,13 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    int lock_db(PoolObjectSQL * object, const int owner, const int req_id, const int level)
+    int lock_db(PoolObjectSQL * object,
+                const int owner,
+                const int req_id,
+                const int level,
+                const bool is_admin)
     {
-        return object->lock_db(owner, req_id, level);
+        return object->lock_db(owner, req_id, level, is_admin);
     };
 };
 
