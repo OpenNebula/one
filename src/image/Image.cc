@@ -1132,7 +1132,7 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
         persistent = tmpl_persis;
     }
 
-    // Honor template persistent value for ne.image.allocate
+    // Honor template persistent value for one.image.allocate
     if (is_allocate && has_persistent)
     {
         persistent = tmpl_persis;
