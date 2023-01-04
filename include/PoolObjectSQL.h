@@ -75,10 +75,10 @@ public:
      */
     enum LockStates
     {
-        ST_NONE      = 0x0LL,
-        ST_USE       = 0x1LL,
-        ST_MANAGE    = 0x2LL,
-        ST_ADMIN     = 0x4LL
+        ST_NONE      = 0,
+        ST_USE       = 1,
+        ST_MANAGE    = 2,
+        ST_ADMIN     = 3
     };
 
     static const long int LockableObject;
@@ -530,7 +530,10 @@ public:
      *
      * @return 0 if the lock was granted, -1 if the object is already locked
      */
-    int lock_db(const int owner, const int req_id, const int level);
+    int lock_db(const int owner,
+                const int req_id,
+                const int level,
+                const bool is_admin);
 
     /**
      * Unlocks the DB lock for external applications. The object must be locked

@@ -965,7 +965,7 @@ void Image::set_state(ImageState _state)
     }
     else if (state == LOCKED)
     {
-        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
+        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE, true);
     }
 
     if (_state != LOCKED )
