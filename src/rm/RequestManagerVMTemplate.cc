@@ -34,7 +34,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string name = xmlrpc_c::value_string(paramList.getString(2));
     bool   on_hold = false;        //Optional XML-RPC argument
     string str_uattrs;             //Optional XML-RPC argument
-    bool   clone_template = false; //Optional XML-RPC argument
+    bool   persistent = false;     //Optional XML-RPC argument
 
     if ( paramList.size() > 3 )
     {
@@ -44,7 +44,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     if ( paramList.size() > 5 )
     {
-        clone_template = xmlrpc_c::value_boolean(paramList.getBoolean(5));
+        persistent = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
     bool is_vrouter;
@@ -72,8 +72,9 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int instantiate_id = id;
 
-    if (clone_template)
+    if (persistent)
     {
+        // Clone private persistent copy of the template
         int new_id;
 
         VMTemplateClone tmpl_clone;
@@ -86,8 +87,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             tmpl_name = original_tmpl_name + "-copy";
         }
 
-        ErrorCode ec = tmpl_clone.request_execute(id, tmpl_name, new_id, true,
-            str_uattrs, att);
+        ErrorCode ec = tmpl_clone.clone(id, tmpl_name, new_id, true, str_uattrs, true, att);
 
         if (ec != SUCCESS)
         {

@@ -93,19 +93,18 @@ public:
 
     ~VMTemplateClone(){};
 
-    ErrorCode request_execute(int source_id, const std::string &name,
-                              int &new_id, bool recursive,
-                              const std::string& s_uattrs,
-                              RequestAttributes& att)
-    {
-        return clone(source_id, name, new_id, recursive, s_uattrs, att);
-    };
-
-protected:
-
     ErrorCode clone(int source_id, const std::string &name, int &new_id,
                     bool recursive, const std::string& s_a,
-                    RequestAttributes& att) override;
+                    RequestAttributes& att) override
+    {
+        return clone(source_id, name, new_id, recursive, s_a, false, att);
+    }
+
+    ErrorCode clone(int source_id, const std::string &name, int &new_id,
+                    bool recursive, const std::string& s_a, bool persistent,
+                    RequestAttributes& att);
+
+protected:
 
     std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
@@ -152,13 +151,6 @@ public:
     };
 
     ~VNTemplateClone(){};
-
-    ErrorCode request_execute(int source_id, const std::string &name,
-                              int &new_id, const std::string& s_uattrs,
-                              RequestAttributes& att)
-    {
-        return clone(source_id, name, new_id, false, s_uattrs, att);
-    };
 
 protected:
 
