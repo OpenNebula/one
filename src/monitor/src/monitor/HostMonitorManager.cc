@@ -159,6 +159,12 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
                 start_host_monitor(host);
             }
 
+            // Reset last monitoring timestamps
+            host->last_state_vm(0);
+            host->last_monitor_vm(0);
+            host->last_monitor_host(0);
+            host->last_system_host(0);
+
             NebulaLog::debug("HMM", "Updated Host " + to_string(host->oid())
                 + ", state " + Host::state_to_str(host->state()));
         }
