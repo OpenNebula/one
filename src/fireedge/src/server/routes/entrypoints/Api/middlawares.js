@@ -150,7 +150,11 @@ const getZone = (selectedZone) => {
     defaultOpennebulaZones[0] &&
     defaultOpennebulaZones[0].rpc
   ) {
-    if(appConfig.default_zone?.id && appConfig.default_zone?.name && appConfig.default_zone?.endpoint) {
+    if (
+      appConfig.default_zone?.id &&
+      appConfig.default_zone?.name &&
+      appConfig.default_zone?.endpoint
+    ) {
       defaultOpennebulaZones[0] = appConfig.default_zone
     }
     defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
