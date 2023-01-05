@@ -708,7 +708,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         tokens = helper.find_token(user, token_hint, group, false)
 
-        if tokens.length.zero?
+        if tokens.empty?
             exit_with_code 1, 'No valid tokens found.'
         end
 

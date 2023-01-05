@@ -1034,26 +1034,26 @@ module OneProvision
                             ['ansible_processor_count']
 
                         # Compute reserved CPU shares for host
-                        res_cpu = 100 * case host_cpu
-                                        when  1..4
-                                            0 # looks like testing environment
-                                        when  5..10 then 1   # reserve 1 core
-                                        when 11..20 then 2   # 2 cores
-                                        else 3 # 3 cores
-                                        end
+                        res_cpu = case host_cpu
+                                  when  1..4
+                                      0 # looks like testing environment
+                                  when  5..10 then 1   # reserve 1 core
+                                  when 11..20 then 2   # 2 cores
+                                  else 3 # 3 cores
+                                  end * 100
 
                         # Compute reserved MEMORY for host (in KB)
-                        res_mem = 1024 * case host_mem
-                                         when 0..4000
-                                             0 # looks like testing environment
-                                         when  4001..6001 then    1000 # reserv
-                                         when  6001..10000 then   2000 # 2GB
-                                         when 10001..20000 then   4000 # 4GB
-                                         when 20001..40000 then   5000 # 5GB
-                                         when 40001..64000 then   8000 # 8GB
-                                         when 64001..128000 then 12000 # 12GB
-                                         else 16000 # 16GB
-                                         end
+                        res_mem = case host_mem
+                                  when 0..4000
+                                      0 # looks like testing environment
+                                  when  4001..6001 then    1000 # reserv
+                                  when  6001..10000 then   2000 # 2GB
+                                  when 10001..20000 then   4000 # 4GB
+                                  when 20001..40000 then   5000 # 5GB
+                                  when 40001..64000 then   8000 # 8GB
+                                  when 64001..128000 then 12000 # 12GB
+                                  else 16000 # 16GB
+                                  end * 1024
                     rescue StandardError
                         raise OneProvisionLoopException, \
                               "Missing facts for #{hostname}" \
