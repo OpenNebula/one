@@ -399,6 +399,7 @@ helpers do
         response = ""
         if $conf && $conf[:private_fireedge_endpoint] && !$conf[:private_fireedge_endpoint].empty?
           begin
+            $conf[:private_fireedge_endpoint] = $conf[:private_fireedge_endpoint].downcase
             uri = URI($conf[:private_fireedge_endpoint]+'/fireedge/api/auth')
             user_pass = Base64.decode64(session[:auth])
             username = user_pass.split(":")[0]

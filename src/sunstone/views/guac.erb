@@ -104,7 +104,7 @@
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
             'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
             'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>,
-            'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] %>'
+            'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint].downcase %>'
         },
         'view' : view,
         'available_views' : available_views,
