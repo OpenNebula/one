@@ -20,10 +20,10 @@ import { Field, getObjectSchemaFromFields } from 'client/utils'
 import {
   PUNCTUAL_FIELDS,
   RELATIVE_FIELDS,
+  ACTION_FIELD_NAME,
+  ACTION_FIELD_VALIDATION,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
 import { ARGS_TYPES } from 'client/constants'
-
-const { ACTION_FIELD } = PUNCTUAL_FIELDS
 
 const ARG_SCHEMA = string()
   .trim()
@@ -56,8 +56,8 @@ const COMMON_FIELDS = (vm) => [
 
 /** @type {ObjectSchema} Common schema with relative */
 const COMMON_SCHEMA = object({
-  [ACTION_FIELD.name]: ACTION_FIELD.validation,
-  ARGS: object().when(ACTION_FIELD.name, (action) =>
+  [ACTION_FIELD_NAME]: ACTION_FIELD_VALIDATION,
+  ARGS: object().when(ACTION_FIELD_NAME, (action) =>
     getRequiredArgsByAction(action)
       .map((arg) => object({ [arg]: ARG_SCHEMAS[arg] }))
       .reduce((result, argSchema) => result.concat(argSchema), object())
@@ -69,7 +69,7 @@ const COMMON_SCHEMA = object({
  * @returns {Field[]} Fields
  */
 export const SCHED_FIELDS = (vm) => [
-  PUNCTUAL_FIELDS.ACTION_FIELD,
+  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
   PUNCTUAL_FIELDS.TIME_FIELD,
   ...COMMON_FIELDS(vm),
   PUNCTUAL_FIELDS.END_TYPE_FIELD,
@@ -78,7 +78,7 @@ export const SCHED_FIELDS = (vm) => [
 
 /** @type {Field[]} Fields for relative actions */
 export const RELATIVE_SCHED_FIELDS = (vm) => [
-  PUNCTUAL_FIELDS.ACTION_FIELD,
+  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
   RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
   RELATIVE_FIELDS.PERIOD_FIELD,
   ...COMMON_FIELDS(vm),
