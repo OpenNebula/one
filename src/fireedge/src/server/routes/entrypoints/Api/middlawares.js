@@ -136,12 +136,13 @@ const validateSession = ({
 /**
  * Get Zone.
  *
- * @param {string} zone - zone id
+ * @param {string} selectedZone - zone id
  * @returns {object} data zone
  */
-const getZone = (zone = '0') => {
+const getZone = (selectedZone) => {
   // get fireedge config
   const appConfig = getFireedgeConfig()
+  const zone = selectedZone || appConfig?.default_zone?.id || '0'
   // set first zone
   if (
     appConfig.one_xmlrpc &&
@@ -149,6 +150,9 @@ const getZone = (zone = '0') => {
     defaultOpennebulaZones[0] &&
     defaultOpennebulaZones[0].rpc
   ) {
+    if(appConfig.default_zone?.id && appConfig.default_zone?.name && appConfig.default_zone?.endpoint) {
+      defaultOpennebulaZones[0] = appConfig.default_zone
+    }
     defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
     if (appConfig.subscriber_endpoint) {
       defaultOpennebulaZones[0].zeromq = appConfig.subscriber_endpoint
