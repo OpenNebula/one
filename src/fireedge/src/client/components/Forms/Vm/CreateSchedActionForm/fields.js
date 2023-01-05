@@ -21,12 +21,13 @@ import {
   INPUT_TYPES,
   VM_ACTIONS_IN_CHARTER,
   VM_ACTIONS_WITH_SCHEDULE,
+  VM_ACTIONS_WITH_SCHEDULE_INTANTIATED,
   END_TYPE_VALUES,
   REPEAT_VALUES,
   ARGS_TYPES,
   PERIOD_TYPES,
 } from 'client/constants'
-import { Field, sentenceCase, arrayToOptions } from 'client/utils'
+import { Field, sentenceCase, arrayToOptions, prettyBytes } from 'client/utils'
 import {
   isRelative,
   getRequiredArgsByAction,
@@ -84,30 +85,42 @@ const parseDateString = (_, originalValue) => {
 // --------------------------------------------------------
 // Fields
 // --------------------------------------------------------
+export const ACTION_FIELD_NAME = 'ACTION'
+export const ACTION_FIELD_VALIDATION = string().trim().required()
 
 const createArgField = (argName) => ({
   name: `ARGS.${argName}`,
-  dependOf: ACTION_FIELD.name,
+  dependOf: ACTION_FIELD_NAME,
   htmlType: (action) =>
     !getRequiredArgsByAction(action)?.includes(argName) && INPUT_TYPES.HIDDEN,
 })
 
-/** @type {Field} Action name field */
-const ACTION_FIELD = {
-  name: 'ACTION',
+/**
+ * @param {object} vm - Vm resource
+ * @returns {Field} Action name field
+ */
+const ACTION_FIELD = (vm) => ({
+  name: ACTION_FIELD_NAME,
   label: T.Action,
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(VM_ACTIONS_WITH_SCHEDULE, {
-    addEmpty: false,
-    getText: (action) => sentenceCase(action),
-  }),
-  validation: string().trim().required(),
+  values: arrayToOptions(
+    Object.entries({
+      ...VM_ACTIONS_WITH_SCHEDULE,
+      ...(vm?.ID && VM_ACTIONS_WITH_SCHEDULE_INTANTIATED),
+    }),
+    {
+      addEmpty: false,
+      getText: ([, text]) => text,
+      getValue: ([value]) => value,
+    }
+  ),
+  validation: ACTION_FIELD_VALIDATION,
   grid: { xs: 12 },
-}
+})
 
 /** @type {Field} Action name field */
 const ACTION_FIELD_FOR_CHARTERS = {
-  ...ACTION_FIELD,
+  ...ACTION_FIELD(),
   values: arrayToOptions(VM_ACTIONS_IN_CHARTER, {
     addEmpty: false,
     getText: (action) => sentenceCase(action),
@@ -143,10 +156,13 @@ const ARGS_DISK_ID_FIELD = (vm) => ({
   label: T.Disk,
   type: INPUT_TYPES.SELECT,
   values: arrayToOptions(getDisks(vm), {
-    getText: ({ IMAGE_ID, IMAGE, NAME } = {}) => {
+    getText: ({ IMAGE_ID, IMAGE, TARGET, SIZE } = {}) => {
       const isVolatile = !IMAGE && !IMAGE_ID
+      const diskImage = isVolatile
+        ? `${T.Volatile} (${prettyBytes(SIZE, 'MB')})`
+        : IMAGE
 
-      return isVolatile ? NAME : `${NAME}: ${IMAGE}`
+      return `${diskImage}: ${TARGET}`
     },
     getValue: ({ DISK_ID } = {}) => DISK_ID,
   }),
