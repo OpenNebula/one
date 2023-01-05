@@ -87,8 +87,8 @@ vmpool.each do |vm|
         base_net = Time.now.to_i % 10000
 
         mon_s = unindent(<<-EOS)
-          NETTX=#{base_net + (50 * rand(3))}
-          NETRX=#{base_net + (100 * rand(4))}
+          NETTX=#{base_net + (rand(3) * 50)}
+          NETRX=#{base_net + (rand(4) * 100)}
           MEMORY=#{max_memory * rand(20..100)/100}
           CPU=#{max_cpu * rand(5..100)/100}
           DISKRDBYTES=#{rand(1000)}
