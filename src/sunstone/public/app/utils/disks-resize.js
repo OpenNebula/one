@@ -228,7 +228,8 @@ define(function(require){
         if (disk.IMAGE_ID){
           var newDisk = {
             IMAGE_ID: disk.IMAGE_ID,
-            OPENNEBULA_MANAGED: disk.OPENNEBULA_MANAGED
+            OPENNEBULA_MANAGED: disk.OPENNEBULA_MANAGED,
+            RECOVERY_SNAPSHOT_FREQ: disk.RECOVERY_SNAPSHOT_FREQ
           }
           if (disk.SIZE !== fields.SIZE) {
             newDisk["SIZE"] = fields.SIZE
