@@ -21,6 +21,7 @@ import * as STATES from 'client/constants/states'
 import { LockInfo, Permissions } from 'client/constants/common'
 // eslint-disable-next-line no-unused-vars
 import { ScheduleAction } from 'client/constants/scheduler'
+import { T } from 'client/constants'
 
 /**
  * @typedef {object} Disk
@@ -1810,28 +1811,33 @@ export const VM_ACTIONS_BY_STATE = {
   [HYPERVISORS.lxc]: LXC_VM_ACTIONS_BY_STATE,
 }
 
-/** @type {string[]} Actions that can be scheduled */
-export const VM_ACTIONS_WITH_SCHEDULE = [
-  VM_ACTIONS.TERMINATE,
-  VM_ACTIONS.TERMINATE_HARD,
-  VM_ACTIONS.UNDEPLOY,
-  VM_ACTIONS.UNDEPLOY_HARD,
-  VM_ACTIONS.HOLD,
-  VM_ACTIONS.RELEASE,
-  VM_ACTIONS.STOP,
-  VM_ACTIONS.SUSPEND,
-  VM_ACTIONS.RESUME,
-  VM_ACTIONS.REBOOT,
-  VM_ACTIONS.REBOOT_HARD,
-  VM_ACTIONS.POWEROFF,
-  VM_ACTIONS.POWEROFF_HARD,
-  VM_ACTIONS.SNAPSHOT_DISK_CREATE,
-  VM_ACTIONS.SNAPSHOT_DISK_REVERT,
-  VM_ACTIONS.SNAPSHOT_DISK_DELETE,
-  VM_ACTIONS.SNAPSHOT_CREATE,
-  VM_ACTIONS.SNAPSHOT_REVERT,
-  VM_ACTIONS.SNAPSHOT_DELETE,
-]
+/** @type {object} Actions that can be scheduled */
+export const VM_ACTIONS_WITH_SCHEDULE = {
+  [VM_ACTIONS.BACKUP]: T.Backup,
+  [VM_ACTIONS.TERMINATE]: T.Terminate,
+  [VM_ACTIONS.TERMINATE_HARD]: T.TerminateHard,
+  [VM_ACTIONS.UNDEPLOY]: T.Undeploy,
+  [VM_ACTIONS.UNDEPLOY_HARD]: T.UndeployHard,
+  [VM_ACTIONS.HOLD]: T.Hold,
+  [VM_ACTIONS.RELEASE]: T.Release,
+  [VM_ACTIONS.STOP]: T.Stop,
+  [VM_ACTIONS.SUSPEND]: T.Suspend,
+  [VM_ACTIONS.RESUME]: T.Resume,
+  [VM_ACTIONS.REBOOT]: T.Reboot,
+  [VM_ACTIONS.REBOOT_HARD]: T.RebootHard,
+  [VM_ACTIONS.POWEROFF]: T.Poweroff,
+  [VM_ACTIONS.POWEROFF_HARD]: T.PoweroffHard,
+  [VM_ACTIONS.SNAPSHOT_CREATE]: T.SnapshotCreate,
+  [VM_ACTIONS.SNAPSHOT_REVERT]: T.SnapshotRevert,
+  [VM_ACTIONS.SNAPSHOT_DELETE]: T.SnapshotDelete,
+}
+
+/** @type {object} Actions that can be scheduled */
+export const VM_ACTIONS_WITH_SCHEDULE_INTANTIATED = {
+  [VM_ACTIONS.SNAPSHOT_DISK_CREATE]: T.DiskSnapshotCreate,
+  [VM_ACTIONS.SNAPSHOT_DISK_REVERT]: T.DiskSnapshotRevert,
+  [VM_ACTIONS.SNAPSHOT_DISK_DELETE]: T.DiskSnapshotDelete,
+}
 
 /** @type {string[]} Actions that can be used in charter */
 export const VM_ACTIONS_IN_CHARTER = [
