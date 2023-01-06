@@ -110,7 +110,7 @@ end
 #   2. [host] rsync files
 #-------------------------------------------------------------------------------
 rc = TransferManager::Action.ssh('make_dst_path',
-                                 :host => rsync_host,
+                                 :host => "#{rsync_user}@#{rsync_host}",
                                  :cmds => "mkdir -p #{backup_path}")
 
 if rc != 0
