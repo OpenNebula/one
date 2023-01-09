@@ -232,13 +232,12 @@ VectorAttribute * HostShareNode::Core::to_attribute()
 
 // -----------------------------------------------------------------------------
 
-VectorAttribute * HostShareNode::HugePage::to_attribute()
+VectorAttribute * HostShareNode::HugePage::to_attribute() const
 {
     VectorAttribute * vpage = new VectorAttribute("HUGEPAGE");
 
     vpage->replace("SIZE", size_kb);
     vpage->replace("PAGES", nr);
-    vpage->replace("FREE", free);
     vpage->replace("USAGE", usage);
 
     return vpage;
@@ -342,15 +341,13 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
         unsigned long size_kb, usage_kb;
 
         unsigned int  nr;
-        unsigned int  free;
 
         (*vp_it)->vector_value("SIZE", size_kb);
         (*vp_it)->vector_value("PAGES",nr);
-        (*vp_it)->vector_value("FREE", free);
 
         (*vp_it)->vector_value("USAGE", usage_kb);
 
-        set_hugepage(size_kb, nr, free, usage_kb, false);
+        set_hugepage(size_kb, nr, usage_kb, false);
     }
 
     std::string distance_s;
@@ -359,8 +356,6 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
     if (memory != 0)
     {
         memory->vector_value("TOTAL", total_mem);
-        memory->vector_value("FREE", free_mem);
-        memory->vector_value("USED", used_mem);
 
         memory->vector_value("USAGE", mem_usage);
 
@@ -580,8 +575,6 @@ void HostShareNode::set_memory()
     VectorAttribute * mem = new VectorAttribute("MEMORY");
 
     mem->replace("TOTAL", total_mem);
-    mem->replace("USED", used_mem);
-    mem->replace("FREE", free_mem);
 
     mem->replace("USAGE", mem_usage);
 
@@ -625,16 +618,15 @@ void HostShareNode::set_core(unsigned int id, std::string& cpus,
 // -----------------------------------------------------------------------------
 
 void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
-        unsigned int fr, unsigned long usage, bool update)
+        unsigned long usage, bool update)
 {
     auto pt = pages.find(size);
 
     if ( pt != pages.end() )
     {
-        if ( nr != pt->second.nr || fr != pt->second.free )
+        if ( nr != pt->second.nr )
         {
             pt->second.nr   = nr;
-            pt->second.free = fr;
 
             update_hugepages();
         }
@@ -642,7 +634,7 @@ void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
         return;
     }
 
-    HugePage h = {size, nr, fr, usage, 0};
+    HugePage h = {size, nr, usage, 0};
 
     pages.insert(make_pair(h.size_kb, h));
 
@@ -802,7 +794,6 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
     for (auto it = pages.begin(); it != pages.end(); ++it)
     {
         unsigned int pages = 0;
-        unsigned int free = 0;
 
         unsigned long size = 0;
 
@@ -812,12 +803,11 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         }
 
         (*it)->vector_value("SIZE", size);
-        (*it)->vector_value("FREE", free);
         (*it)->vector_value("PAGES",pages);
 
         HostShareNode& node = get_node(node_id);
 
-        node.set_hugepage(size, pages, free, 0, true);
+        node.set_hugepage(size, pages, 0, true);
     }
 
     std::vector<VectorAttribute *> memory;
@@ -836,8 +826,6 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         HostShareNode& node = get_node(node_id);
 
         (*it)->vector_value("TOTAL", node.total_mem);
-        (*it)->vector_value("FREE", node.free_mem);
-        (*it)->vector_value("USED", node.used_mem);
 
         (*it)->vector_value("DISTANCE", distance_s);
 
