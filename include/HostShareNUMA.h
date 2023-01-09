@@ -31,18 +31,21 @@
 /**
  *  This class represents the NUMA nodes in a hypervisor for the following attr:
  *    NODE_ID = 0
- *    HUGEPAGE = [ SIZE = "2048", PAGES = "0", FREE = "0"]
- *    HUGEPAGE = [ SIZE = "1048576", PAGES = "0", FREE = "0"]
- *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2]
- *    CORE = [ ID = "1", CPUS = "1:23,5:-1", FREE = 0 ]
- *    CORE = [ ID = "2", CPUS = "2:47,6:-1", FREE = 1]
- *    CORE = [ ID = "0", CPUS = "0:23,4:-1", FREE = 0]
- *    MEMORY = [ TOTAL = "66806708", FREE = "390568", USED = "66416140",
- *               DISTANCE = "0 1", USAGE = "8388608" ]
+ *    HUGEPAGE = [ SIZE = "2048", PAGES = "0", USAGE = "0" ]
+ *    HUGEPAGE = [ SIZE = "1048576", PAGES = "0", USAGE = "0" ]
+ *    CORE = [ ID = "3", CPUS = "3:-1,7:-1", FREE = 2, DEDICATED="NO"]
+ *    CORE = [ ID = "1", CPUS = "1:23,5:-1", FREE = 0, DEDICATED="YES" ]
+ *    CORE = [ ID = "2", CPUS = "2:47,6:-1", FREE = 1, DEDICATED="NO"]
+ *    CORE = [ ID = "0", CPUS = "0:23,4:-1", FREE = 0, DEDICATED="NO"]
+ *    MEMORY = [ TOTAL = "66806708", DISTANCE = "0 1", USAGE = "8388608" ]
  *
  *  - NODE_ID
- *  - HUGEPAGE is the total PAGES and FREE hugepages of a given SIZE in the node
+ *  - HUGEPAGE is the total PAGES and USAGE hugepages of a given SIZE in the node
  *  - CORE is a CPU core with its ID and sibling CPUs for HT architectures
+ *  - USAGE - hugepages or memory allocated by oned
+ *
+ *  The free hugaepages and memory capacity is stored in the monitoring node,
+ *  see HostMonitoringTemplate.h
  */
 class HostShareNode : public Template
 {
@@ -195,17 +198,15 @@ private:
         unsigned long size_kb;
 
         unsigned int  nr;
-        unsigned int  free;
 
         unsigned long  usage;
         unsigned long  allocated;
 
         /**
          *  @return a VectorAttribute representing this core in the form:
-         *    HUGEPAGE = [ SIZE = "1048576", PAGES = "200", FREE = "100",
-         *          USAGE = "100"]
+         *    HUGEPAGE = [ SIZE = "1048576", PAGES = "200", USAGE = "100"]
          */
-        VectorAttribute * to_attribute();
+        VectorAttribute * to_attribute() const;
     };
 
     /**
@@ -225,13 +226,11 @@ private:
 
     /**
      *  Memory information for this node:
-     *    - total, free and used memory as reported by IM (meminfo file)
-     *    - mem_used memory allocated to VMs by oned in this node
+     *    - total_mem total memory available
+     *    - mem_usage memory allocated to VMs by oned in this node
      *    - distance sorted list of nodes, first is the closest (this one)
      */
     long long total_mem = 0;
-    long long free_mem  = 0;
-    long long used_mem  = 0;
 
     long long mem_usage = 0;
 
@@ -272,10 +271,9 @@ private:
      *  hugepage of the same size already exists this function does nothing
      *    @param size in kb of the page
      *    @param nr number of pages
-     *    @param free pages
      *    @param update if true also adds the page to the object Template
      */
-    void set_hugepage(unsigned long size, unsigned int nr, unsigned int fr,
+    void set_hugepage(unsigned long size, unsigned int nr,
             unsigned long usage, bool update);
 
     void update_hugepage(unsigned long size);

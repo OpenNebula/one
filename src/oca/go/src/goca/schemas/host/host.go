@@ -105,7 +105,6 @@ type NumaNode struct {
 }
 
 type HugePage struct {
-	Free  int `xml:"FREE,omitempty"`
 	Pages int `xml:"PAGES,omitempty"`
 	Size  int `xml:"SIZE,omitempty"`
 	Usage int `xml:"USAGE,omitempty"`
@@ -113,10 +112,8 @@ type HugePage struct {
 
 type Memory struct {
 	Distance string `xml:"DISTANCE,omitempty"`
-	Free     int    `xml:"FREE,omitempty"`
 	Total    int    `xml:"TOTAL,omitempty"`
 	Usage    int    `xml:"USAGE,omitempty"`
-	Used     int    `xml:"USED,omitempty"`
 }
 
 type Core struct {
