@@ -16,6 +16,7 @@
 
 #include "HostMonitoringTemplate.h"
 #include "ObjectXML.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -73,6 +74,174 @@ int SystemMonitoring::from_template(const Template &tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string NUMAMonitoring::to_xml() const
+{
+    ostringstream oss;
+    string node_str;
+
+    for (const auto& node : nodes)
+    {
+        oss << node.second.to_xml(node_str);
+    }
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int NUMAMonitoring::from_xml(ObjectXML& xml, const std::string& xpath_prefix)
+{
+    vector<xmlNodePtr> content;
+
+    xml.get_nodes(xpath_prefix + "NUMA_NODE", content);
+
+    for (const auto node_xml : content)
+    {
+        NUMAMonitoringNode node;
+        node.from_xml_node(node_xml);
+
+        unsigned int id;
+        node.get("NODE_ID", id);
+        nodes[id] = node;
+    }
+
+    xml.free_nodes(content);
+    content.clear();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int NUMAMonitoring::from_template(const Template &tmpl)
+{
+    // Parse HugePages
+    vector<const VectorAttribute*> huge_pages;
+
+    tmpl.get("HUGEPAGE", huge_pages);
+
+    for (const auto* page : huge_pages)
+    {
+        int node_id;
+        unsigned long size;
+        unsigned long fr;
+
+        ostringstream oss;
+
+        if (page->vector_value("NODE_ID", node_id) != 0)
+        {
+            page->to_token(oss);
+
+            NebulaLog::warn("HMM", "Hugepage doesn't contain node ID: "
+                + oss.str());
+
+            continue;
+        }
+
+        if (page->vector_value("SIZE", size) != 0)
+        {
+            page->to_token(oss);
+
+            NebulaLog::warn("HMM", "Hugepage doesn't contain size: "
+                + oss.str());
+
+            continue;
+        }
+
+        page->vector_value("FREE", fr);
+
+        set_huge_page(node_id, size, fr);
+    }
+
+    // Parse Memory nodes
+    vector<const VectorAttribute*> mem_nodes;
+
+    tmpl.get("MEMORY_NODE", mem_nodes);
+
+    for (const auto* mem : mem_nodes)
+    {
+        int node_id;
+        unsigned long used;
+        unsigned long fr;
+
+        ostringstream oss;
+
+        if (mem->vector_value("NODE_ID", node_id) != 0)
+        {
+            mem->to_token(oss);
+
+            NebulaLog::warn("HMM", "Memory node doesn't contain node ID: "
+                + oss.str());
+
+            continue;
+        }
+
+        mem->vector_value("USED", used);
+        mem->vector_value("FREE", fr);
+
+        set_memory(node_id, used, fr);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void NUMAMonitoring::set_huge_page(unsigned int node_id, unsigned long size, unsigned long fr)
+{
+    NUMAMonitoringNode* node;
+
+    auto it = nodes.find(node_id);
+    if ( it != nodes.end())
+    {
+        node = &it->second;
+    }
+    else
+    {
+        auto res = nodes.insert(make_pair(node_id, NUMAMonitoringNode()));
+        node = &res.first->second;
+        node->add("NODE_ID", node_id);
+    }
+
+    auto vatt = new VectorAttribute("HUGEPAGE");
+    vatt->replace("SIZE", size);
+    vatt->replace("FREE", fr);
+
+    node->set(vatt);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void NUMAMonitoring::set_memory(unsigned int node_id, unsigned long used, unsigned long fr)
+{
+    NUMAMonitoringNode* node;
+
+    auto it = nodes.find(node_id);
+    if ( it != nodes.end())
+    {
+        node = &it->second;
+    }
+    else
+    {
+        auto res = nodes.insert(make_pair(node_id, NUMAMonitoringNode()));
+        node = &res.first->second;
+        node->add("NODE_ID", node_id);
+    }
+
+    auto vatt = new VectorAttribute("MEMORY");
+    vatt->replace("USED", used);
+    vatt->replace("FREE", fr);
+
+    node->set(vatt);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string HostMonitoringTemplate::to_xml() const
 {
     if (_oid == -1)
@@ -91,6 +260,7 @@ string HostMonitoringTemplate::to_xml() const
     oss << xml_print(ID, _oid);
     oss << capacity.to_xml(capacity_s);
     oss << system.to_xml(system_s);
+    oss << numa.to_xml();
 
     oss << "</MONITORING>";
 
@@ -135,6 +305,9 @@ int HostMonitoringTemplate::from_xml(const std::string& xml_string)
         content.clear();
     }
 
+    // ------------ NUMA ---------------
+    numa.from_xml(xml, "/MONITORING/");
+
     return 0;
 }
 
@@ -156,6 +329,7 @@ int HostMonitoringTemplate::from_template(const Template &tmpl)
 
     int rc = capacity.from_template(tmpl);
     rc += system.from_template(tmpl);
+    rc += numa.from_template(tmpl);
 
     return rc;
 }
