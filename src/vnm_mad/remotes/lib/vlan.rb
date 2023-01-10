@@ -199,8 +199,6 @@ module VNMMAD
                         return
                     end
                 end
-            rescue StandardError => e
-                raise e
             ensure
                 unlock
             end

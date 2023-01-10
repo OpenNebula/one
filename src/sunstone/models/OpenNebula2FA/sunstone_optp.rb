@@ -33,8 +33,6 @@ class SunstoneOPTP
         @totp.verify(token,
                      :drift_ahead => @five_minutes,
                      :drift_behind => @five_minutes)
-    rescue StandardError => e
-        raise e
     end
 
     def provisioning_uri(account_name)
