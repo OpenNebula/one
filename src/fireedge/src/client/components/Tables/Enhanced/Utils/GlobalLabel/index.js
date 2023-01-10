@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useCallback, useMemo, useState } from 'react'
 
-import SettingsIcon from 'iconoir-react/dist/LabelOutline'
 import { Stack } from '@mui/material'
+import SettingsIcon from 'iconoir-react/dist/LabelOutline'
 import { UseFiltersInstanceProps } from 'react-table'
 
 import { useAuth } from 'client/features/Auth'
 
+import { Translate } from 'client/components/HOC'
+import HeaderPopover from 'client/components/Header/Popover'
 import Allocator from 'client/components/Tables/Enhanced/Utils/GlobalLabel/Allocator'
 import FilterByLabel from 'client/components/Tables/Enhanced/Utils/GlobalLabel/Filter'
-import HeaderPopover from 'client/components/Header/Popover'
-import { areStringEqual, jsonToXml } from 'client/models/Helper'
-import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
+import { areStringEqual, jsonToXml } from 'client/models/Helper'
 
 export const LABEL_COLUMN_ID = 'label'
 
@@ -169,7 +169,10 @@ const GlobalLabel = ({
           disabled: isLoading,
           onClick: handleOpenPopover,
         }}
-        popperProps={{ placement: 'bottom-end' }}
+        popperProps={{
+          placement: 'bottom-end',
+          sx: { width: { xs: '100%', md: 500 } },
+        }}
         onClickAway={handleClickAwayPopover}
       >
         {({ handleClose }) =>
