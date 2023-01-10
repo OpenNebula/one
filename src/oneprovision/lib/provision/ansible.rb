@@ -185,8 +185,6 @@ module OneProvision
                 end
 
                 [0, @facts]
-            rescue StandardError => e
-                raise e
             end
 
             # Checks ssh connection
@@ -281,17 +279,13 @@ module OneProvision
                     when /^fatal: \[([^\]]+)\]: .* => ({.*})$/i
                         host = Regexp.last_match(1)
 
-                        begin
-                            match = JSON.parse(Regexp.last_match(2))
+                        match = JSON.parse(Regexp.last_match(2))
 
-                            msg   = match['msg']
-                            msg   = match['reason'] if msg.nil?
+                        msg   = match['msg']
+                        msg   = match['reason'] if msg.nil?
 
-                            text  = msg.strip.tr("\n", ' ')
-                            text  = "- #{text}"
-                        rescue StandardError => e
-                            raise e
-                        end
+                        text  = msg.strip.tr("\n", ' ')
+                        text  = "- #{text}"
                     when /^fatal: \[([^\]]+)\]: .* =>/i
                         host = Regexp.last_match(1)
                     end
