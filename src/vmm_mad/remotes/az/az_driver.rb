@@ -374,8 +374,6 @@ class AzureDriver
                         end
                     rescue ThreadError
                         nil
-                    rescue StandardError
-                        raise
                     end
                 end
             end

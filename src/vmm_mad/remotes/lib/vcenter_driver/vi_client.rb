@@ -140,90 +140,82 @@ module VCenterDriver
         end
 
         def self.new_from_host(host_id, client = nil)
-            begin
-                client = OpenNebula::Client.new if client.nil?
-                host = OpenNebula::Host.new_with_id(host_id, client)
-                rc = host.info(true)
-                if OpenNebula.is_error?(rc)
-                    raise "Could not get host info for \
-                    ID: #{host_id} - #{rc.message}"
-                end
-
-                connection = {
-                    :host     => host['TEMPLATE/VCENTER_HOST'],
-                    :user     => host['TEMPLATE/VCENTER_USER'],
-                    :rp       => host['TEMPLATE/VCENTER_RESOURCE_POOL'],
-                    :ccr      => host['TEMPLATE/VCENTER_CCR_REF'],
-                    :password => host['TEMPLATE/VCENTER_PASSWORD']
-                }
-
-                vc_port = host['TEMPLATE/VCENTER_PORT']
-                connection[:port] = vc_port unless vc_port.nil?
-
-                new(connection, host_id)
-            rescue StandardError => e
-                raise e
+            client = OpenNebula::Client.new if client.nil?
+            host = OpenNebula::Host.new_with_id(host_id, client)
+            rc = host.info(true)
+            if OpenNebula.is_error?(rc)
+                raise "Could not get host info for \
+                ID: #{host_id} - #{rc.message}"
             end
+
+            connection = {
+                :host     => host['TEMPLATE/VCENTER_HOST'],
+                :user     => host['TEMPLATE/VCENTER_USER'],
+                :rp       => host['TEMPLATE/VCENTER_RESOURCE_POOL'],
+                :ccr      => host['TEMPLATE/VCENTER_CCR_REF'],
+                :password => host['TEMPLATE/VCENTER_PASSWORD']
+            }
+
+            vc_port = host['TEMPLATE/VCENTER_PORT']
+            connection[:port] = vc_port unless vc_port.nil?
+
+            new(connection, host_id)
         end
 
         def self.new_from_datastore(datastore_id)
-            begin
-                client = OpenNebula::Client.new
-                datastore =
-                    OpenNebula::Datastore
+            client = OpenNebula::Client.new
+            datastore =
+                OpenNebula::Datastore
+                .new_with_id(
+                    datastore_id,
+                    client
+                )
+            rc = datastore.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get datastore info \
+                for ID: #{datastore_id} - #{rc.message}"
+            end
+
+            vcenter_id = datastore['TEMPLATE/VCENTER_INSTANCE_ID']
+
+            host_pool = OpenNebula::HostPool.new(client)
+            rc = host_pool.info
+            if OpenNebula.is_error?(rc)
+                raise "Could not get hosts information - #{rc.message}"
+            end
+
+            user = ''
+            password = ''
+            port = 0
+            host_pool.each do |host|
+                vc_instance_id = host['TEMPLATE/VCENTER_INSTANCE_ID']
+                next unless vc_instance_id == vcenter_id
+
+                host_decrypted =
+                    OpenNebula::Host
                     .new_with_id(
-                        datastore_id,
+                        host['ID'],
                         client
                     )
-                rc = datastore.info
-                if OpenNebula.is_error?(rc)
-                    raise "Could not get datastore info \
-                    for ID: #{datastore_id} - #{rc.message}"
-                end
-
-                vcenter_id = datastore['TEMPLATE/VCENTER_INSTANCE_ID']
-
-                host_pool = OpenNebula::HostPool.new(client)
-                rc = host_pool.info
-                if OpenNebula.is_error?(rc)
-                    raise "Could not get hosts information - #{rc.message}"
-                end
-
-                user = ''
-                password = ''
-                port = 0
-                host_pool.each do |host|
-                    vc_instance_id = host['TEMPLATE/VCENTER_INSTANCE_ID']
-                    next unless vc_instance_id == vcenter_id
-
-                    host_decrypted =
-                        OpenNebula::Host
-                        .new_with_id(
-                            host['ID'],
-                            client
-                        )
-                    host_decrypted.info(true)
-                    user = host_decrypted['TEMPLATE/VCENTER_USER']
-                    password = host_decrypted['TEMPLATE/VCENTER_PASSWORD']
-                    port = host_decrypted['TEMPLATE/VCENTER_PORT']
-                end
-                if password.empty? || user.empty?
-                    raise "Error getting \
-                    credentials for datastore #{datastore_id}"
-                end
-
-                connection = {
-                    :host     => datastore['TEMPLATE/VCENTER_HOST'],
-                    :user     => user,
-                    :password => password
-                }
-
-                connection[:port] = port unless port.nil?
-
-                new(connection)
-            rescue StandardError => e
-                raise e
+                host_decrypted.info(true)
+                user = host_decrypted['TEMPLATE/VCENTER_USER']
+                password = host_decrypted['TEMPLATE/VCENTER_PASSWORD']
+                port = host_decrypted['TEMPLATE/VCENTER_PORT']
             end
+            if password.empty? || user.empty?
+                raise "Error getting \
+                credentials for datastore #{datastore_id}"
+            end
+
+            connection = {
+                :host     => datastore['TEMPLATE/VCENTER_HOST'],
+                :user     => user,
+                :password => password
+            }
+
+            connection[:port] = port unless port.nil?
+
+            new(connection)
         end
 
         def self.decrypt(msg, token)
