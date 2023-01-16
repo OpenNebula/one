@@ -42,14 +42,16 @@ const getTabComponent = (tabName) =>
 
 const VNetworkTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetVNetworkQuery({ id })
+  const { isLoading, isError, error, status } = useGetVNetworkQuery({
+    id,
+  })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VNET
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -62,6 +64,7 @@ const VNetworkTabs = memo(({ id }) => {
   if (isLoading || status === 'pending') {
     return <LinearProgress color="secondary" sx={{ width: '100%' }} />
   }
+
   if (status === 'fulfilled') {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
