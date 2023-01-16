@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
-
+import { RESOURCE_NAMES } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { useGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
 import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/SecurityGroup/Info'
@@ -34,7 +33,7 @@ const getTabComponent = (tabName) =>
 
 const SecurityGroupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetSecGroupQuery({ id })
+  const { isLoading, isError, error, status } = useGetSecGroupQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.SEC_GROUP
@@ -51,11 +50,14 @@ const SecurityGroupTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <></>
 })
 
 SecurityGroupTabs.propTypes = { id: PropTypes.string.isRequired }

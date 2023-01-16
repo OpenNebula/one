@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useRef, useEffect, useCallback, Children, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { Children, ReactElement, useCallback, useEffect, useRef } from 'react'
 
+import { Divider, styled } from '@mui/material'
 import Split, { SplitOptions } from 'split-grid'
-import { styled, Divider } from '@mui/material'
 
 const Gutter = styled(Divider)(({ theme, direction = 'row' }) => ({
   position: 'relative',

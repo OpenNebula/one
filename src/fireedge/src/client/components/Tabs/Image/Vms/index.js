@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { T } from 'client/constants'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { useHistory, generatePath } from 'react-router-dom'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { useGetImageQuery } from 'client/features/OneApi/image'
 import { VmsTable } from 'client/components/Tables'
+import EmptyTab from 'client/components/Tabs/EmptyTab'
+import { T } from 'client/constants'
+import { useGetImageQuery } from 'client/features/OneApi/image'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
 
 /**
  * Renders mainly Vms tab.

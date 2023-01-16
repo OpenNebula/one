@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
-import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
 import { Chartist } from 'client/components/Charts'
 import { Tr } from 'client/components/HOC'
-import { prettyBytes } from 'client/utils'
 import { T } from 'client/constants'
+import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
+import { prettyBytes } from 'client/utils'
 
 /**
  * Render Graphs Capacity.

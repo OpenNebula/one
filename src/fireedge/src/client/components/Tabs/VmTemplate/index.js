@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
+import { RESOURCE_NAMES } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
 import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/VmTemplate/Info'
@@ -34,7 +34,7 @@ const getTabComponent = (tabName) =>
 
 const VmTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetTemplateQuery({ id })
+  const { isLoading, isError, error, status } = useGetTemplateQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
@@ -50,14 +50,15 @@ const VmTemplateTabs = memo(({ id }) => {
       </Alert>
     )
   }
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  return <></>
 })
-
 VmTemplateTabs.propTypes = { id: PropTypes.string.isRequired }
 VmTemplateTabs.displayName = 'VmTemplateTabs'
 

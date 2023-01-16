@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
+import { RESOURCE_NAMES } from 'client/constants'
 import { useViews } from 'client/features/Auth/hooks'
 import { useGetHostQuery } from 'client/features/OneApi/host'
 import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Host/Info'
-import Wilds from 'client/components/Tabs/Host/Wilds'
 import Numa from 'client/components/Tabs/Host/Numa'
-import Zombies from 'client/components/Tabs/Host/Zombies'
 import Vms from 'client/components/Tabs/Host/Vms'
+import Wilds from 'client/components/Tabs/Host/Wilds'
+import Zombies from 'client/components/Tabs/Host/Zombies'
 
 const getTabComponent = (tabName) =>
   ({
@@ -40,7 +40,7 @@ const getTabComponent = (tabName) =>
 
 const HostTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetHostQuery(
+  const { isLoading, isError, error, status } = useGetHostQuery(
     { id },
     { refetchOnMountOrArgChange: 10 }
   )
@@ -59,12 +59,14 @@ const HostTabs = memo(({ id }) => {
       </Alert>
     )
   }
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return <Tabs addBorder tabs={tabsAvailable} />
+  }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable} />
-  )
+  return <></>
 })
 
 HostTabs.propTypes = { id: PropTypes.string.isRequired }

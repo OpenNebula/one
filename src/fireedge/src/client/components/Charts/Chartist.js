@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { JSXElementConstructor, useMemo } from 'react'
 
+import { ArgumentScale, ValueScale } from '@devexpress/dx-react-chart'
 import {
-  CircularProgress,
-  Stack,
-  Paper,
-  List,
-  ListItem,
-  Typography,
-} from '@mui/material'
-import {
-  Chart,
   ArgumentAxis,
-  ValueAxis,
+  Chart,
   LineSeries,
+  ValueAxis,
   ZoomAndPan,
 } from '@devexpress/dx-react-chart-material-ui'
-import { scaleTime } from 'd3-scale'
-import { ArgumentScale, ValueScale } from '@devexpress/dx-react-chart'
+import {
+  CircularProgress,
+  List,
+  ListItem,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
+import { scaleTime } from 'd3-scale'
 
 const useStyles = makeStyles(({ palette, typography }) => ({
   graphStyle: {
@@ -128,21 +128,7 @@ const Chartist = ({
 Chartist.propTypes = {
   name: PropTypes.string,
   filter: PropTypes.arrayOf(PropTypes.string),
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      TIMESTAMP: PropTypes.string,
-      DISK_SIZE: PropTypes.arrayOf(PropTypes.shape({})),
-      ID: PropTypes.string,
-      CPU: PropTypes.string,
-      DISKRDBYTES: PropTypes.string,
-      DISKRDIOPS: PropTypes.string,
-      DISKWRBYTES: PropTypes.string,
-      DISKWRIOPS: PropTypes.string,
-      MEMORY: PropTypes.string,
-      NETRX: PropTypes.string,
-      NETTX: PropTypes.string,
-    })
-  ),
+  data: PropTypes.array,
   x: PropTypes.string,
   y: PropTypes.string,
   interpolationY: PropTypes.func,

@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useMemo, useState } from 'react'
 
 import {
-  styled,
-  Tabs as MTabs,
-  TabsProps,
-  Tab as MTab,
   Fade,
+  Tab as MTab,
+  Tabs as MTabs,
   Stack,
+  TabsProps,
+  styled,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
 
