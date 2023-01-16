@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+import { Box, Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import SplitPane from 'client/components/SplitPane'
+import { VmsTable } from 'client/components/Tables'
+import VmActions from 'client/components/Tables/Vms/actions'
+import VmTabs from 'client/components/Tabs/Vm'
+import { T, VM } from 'client/constants'
 import {
   useLazyGetVmQuery,
   useUpdateUserTemplateMutation,
 } from 'client/features/OneApi/vm'
-import { VmsTable } from 'client/components/Tables'
-import VmActions from 'client/components/Tables/Vms/actions'
-import VmTabs from 'client/components/Tabs/Vm'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
-import { T, VM } from 'client/constants'
 
 /**
  * Displays a list of VMs with a split pane between the list and selected row(s).
@@ -41,7 +41,7 @@ import { T, VM } from 'client/constants'
  */
 function VirtualMachines() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
-  const actions = VmActions()
+  const actions = VmActions(selectedRows)
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -55,7 +55,6 @@ function VirtualMachines() {
             globalActions={actions}
             useUpdateMutation={useUpdateUserTemplateMutation}
           />
-
           {hasSelectedRows && (
             <>
               <GutterComponent direction="row" track={1} />

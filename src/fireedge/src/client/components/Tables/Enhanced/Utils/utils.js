@@ -16,8 +16,8 @@
 import { Column } from 'react-table'
 
 import {
-  GlobalAction,
   CategoryFilter,
+  GlobalAction,
   TimeFilter,
 } from 'client/components/Tables/Enhanced/Utils'
 

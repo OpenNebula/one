@@ -14,32 +14,32 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useMemo } from 'react'
 
+import { Box, Chip } from '@mui/material'
 import clsx from 'clsx'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
-import { Box, Chip } from '@mui/material'
 import {
-  useGlobalFilter,
+  // types
+  UseRowSelectRowProps,
   useFilters,
+  useGlobalFilter,
+  useMountedLayoutEffect,
   usePagination,
   useRowSelect,
   useSortBy,
   useTable,
-  useMountedLayoutEffect,
-  // types
-  UseRowSelectRowProps,
 } from 'react-table'
 
 import {
   GlobalActions,
-  GlobalSearch,
   GlobalFilter,
   GlobalLabel,
-  GlobalSort,
+  GlobalSearch,
   GlobalSelectedRows,
+  GlobalSort,
   LABEL_COLUMN_ID,
 } from 'client/components/Tables/Enhanced/Utils'
 import Pagination from 'client/components/Tables/Enhanced/pagination'

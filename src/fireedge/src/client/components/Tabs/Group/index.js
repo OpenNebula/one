@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
+import { RESOURCE_NAMES } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { useGetGroupQuery } from 'client/features/OneApi/group'
 import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Group/Info'
@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const GroupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetGroupQuery({ id })
+  const { isLoading, isError, error, status } = useGetGroupQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.GROUP
@@ -48,12 +48,14 @@ const GroupTabs = memo(({ id }) => {
       </Alert>
     )
   }
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  return <></>
 })
 
 GroupTabs.propTypes = { id: PropTypes.string.isRequired }

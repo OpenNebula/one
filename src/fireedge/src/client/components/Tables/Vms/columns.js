@@ -15,13 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { Column } from 'react-table'
 
-import {
-  getState,
-  getIps,
-  getType,
-  getLastHistory,
-} from 'client/models/VirtualMachine'
 import { T } from 'client/constants'
+import {
+  getIps,
+  getLastHistory,
+  getState,
+  getType,
+} from 'client/models/VirtualMachine'
 
 /** @type {Column[]} VM columns */
 const COLUMNS = [

@@ -13,55 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import {
   AddCircledOutline,
+  Cart,
+  Group,
+  Lock,
   PlayOutline,
   SaveFloppyDisk,
-  TransitionRight,
   SystemShut,
-  Group,
+  TransitionRight,
   Trash,
-  Lock,
-  Cart,
 } from 'iconoir-react'
+import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
-  useLockVmMutation,
-  useUnlockVmMutation,
-  useSaveAsTemplateMutation,
-  useDeployMutation,
   useActionVmMutation,
-  useMigrateMutation,
-  useChangeVmOwnershipMutation,
-  useRecoverMutation,
   useBackupMutation,
+  useChangeVmOwnershipMutation,
+  useDeployMutation,
+  useLockVmMutation,
+  useMigrateMutation,
+  useRecoverMutation,
+  useSaveAsTemplateMutation,
+  useUnlockVmMutation,
 } from 'client/features/OneApi/vm'
 
 import {
   BackupForm,
-  RecoverForm,
-  ChangeUserForm,
   ChangeGroupForm,
+  ChangeUserForm,
   MigrateForm,
+  RecoverForm,
   SaveAsTemplateForm,
 } from 'client/components/Forms/Vm'
 import {
-  createActions,
   GlobalAction,
+  createActions,
 } from 'client/components/Tables/Enhanced/Utils'
 import VmTemplatesTable from 'client/components/Tables/VmTemplates'
 
-import { Translate } from 'client/components/HOC'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { Translate } from 'client/components/HOC'
+import { RESOURCE_NAMES, T, VM_ACTIONS } from 'client/constants'
 import { getLastHistory, isAvailableAction } from 'client/models/VirtualMachine'
-import { T, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const useTableStyles = makeStyles({
   body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },

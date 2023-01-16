@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback, useMemo } from 'react'
 
 import {
-  useGetVmQuery,
+  AttributePanel,
+  Ownership,
+  Permissions,
+} from 'client/components/Tabs/Common'
+import Graphs from 'client/components/Tabs/Vm/Info/Graphs'
+import Capacity from 'client/components/Tabs/Vm/Info/capacity'
+import Information from 'client/components/Tabs/Vm/Info/information'
+import {
   useChangeVmOwnershipMutation,
   useChangeVmPermissionsMutation,
+  useGetVmQuery,
   useUpdateUserTemplateMutation,
 } from 'client/features/OneApi/vm'
-import {
-  Permissions,
-  Ownership,
-  AttributePanel,
-} from 'client/components/Tabs/Common'
-import Information from 'client/components/Tabs/Vm/Info/information'
-import Capacity from 'client/components/Tabs/Vm/Info/capacity'
-import Graphs from 'client/components/Tabs/Vm/Info/Graphs'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { getHypervisor } from 'client/models/VirtualMachine'
 import {
-  getActionsAvailable,
   filterAttributes,
+  getActionsAvailable,
   jsonToXml,
 } from 'client/models/Helper'
+import { getHypervisor } from 'client/models/VirtualMachine'
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/

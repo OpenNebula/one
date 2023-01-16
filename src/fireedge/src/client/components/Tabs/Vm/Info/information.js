@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { generatePath } from 'react-router-dom'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
+import { generatePath } from 'react-router-dom'
 
 import { useViews } from 'client/features/Auth'
 import { useGetClusterAdminQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
 
-import { StatusCircle, StatusChip } from 'client/components/Status'
-import { List } from 'client/components/Tabs/Common'
 import { Translate } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
+import { StatusChip, StatusCircle } from 'client/components/Status'
+import { List } from 'client/components/Tabs/Common'
 
-import {
-  getState,
-  getLastHistory,
-  getIps,
-  getNicWithPortForwarding,
-} from 'client/models/VirtualMachine'
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { RESOURCE_NAMES, T, VM, VM_ACTIONS } from 'client/constants'
 import {
   booleanToString,
   levelLockToString,
   timeToString,
 } from 'client/models/Helper'
-import { T, VM, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import {
+  getIps,
+  getLastHistory,
+  getNicWithPortForwarding,
+  getState,
+} from 'client/models/VirtualMachine'
 
 const { CLUSTER, HOST } = RESOURCE_NAMES
 

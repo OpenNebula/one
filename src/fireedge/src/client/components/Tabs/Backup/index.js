@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Alert, LinearProgress } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
+import { RESOURCE_NAMES } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { useGetImageQuery } from 'client/features/OneApi/image'
 import { getAvailableInfoTabs } from 'client/models/Helper'
-import { RESOURCE_NAMES } from 'client/constants'
 
 import Tabs from 'client/components/Tabs'
+import Increments from 'client/components/Tabs/Backup/Increments'
 import Info from 'client/components/Tabs/Backup/Info'
 import Vms from 'client/components/Tabs/Backup/Vms'
-import Increments from 'client/components/Tabs/Backup/Increments'
 
 const getTabComponent = (tabName) =>
   ({
@@ -36,7 +36,7 @@ const getTabComponent = (tabName) =>
 
 const BackupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetImageQuery({ id })
+  const { isLoading, isError, error, status } = useGetImageQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.BACKUP
@@ -53,11 +53,14 @@ const BackupTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <></>
 })
 
 BackupTabs.propTypes = { id: PropTypes.string.isRequired }

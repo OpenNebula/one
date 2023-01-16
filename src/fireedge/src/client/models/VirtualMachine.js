@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { stringToBoolean } from 'client/models/Helper'
+import { isRelative } from 'client/models/Scheduler'
 import {
   getSecurityGroupsFromResource,
   prettySecurityGroup,
 } from 'client/models/SecurityGroup'
-import { isRelative } from 'client/models/Scheduler'
-import { stringToBoolean } from 'client/models/Helper'
 
 import {
-  STATES,
-  VM_ACTIONS_BY_STATE,
-  VM_STATES,
-  VM_LCM_STATES,
-  NIC_IP_ATTRS,
+  Disk,
   EXTERNAL_IP_ATTRS,
   HISTORY_ACTIONS,
   HYPERVISORS,
-  VM,
-  Disk,
+  HistoryRecord,
+  NIC_IP_ATTRS,
   Nic,
   NicAlias,
+  STATES,
   ScheduleAction,
-  HistoryRecord,
   Snapshot,
+  VM,
+  VM_ACTIONS_BY_STATE,
+  VM_LCM_STATES,
+  VM_STATES,
 } from 'client/constants'
 
 /**

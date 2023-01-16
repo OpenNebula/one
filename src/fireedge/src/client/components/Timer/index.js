@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useState, useMemo, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import { DateTime } from 'luxon'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useEffect, useMemo, useState } from 'react'
 
 import { Translate } from 'client/components/HOC'
 import { timeFromMilliseconds } from 'client/models/Helper'

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
 import { useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
@@ -21,7 +21,7 @@ import { useGetVmsQuery } from 'client/features/OneApi/vm'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES, VM_STATES, STATES } from 'client/constants'
+import { RESOURCE_NAMES, STATES, VM_STATES } from 'client/constants'
 
 const DEFAULT_DATA_CY = 'vms'
 

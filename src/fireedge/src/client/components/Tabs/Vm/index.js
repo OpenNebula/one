@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { Alert, LinearProgress, Fade } from '@mui/material'
-import { Cancel as CloseIcon } from 'iconoir-react'
+import { Alert, Fade, LinearProgress } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
+import { Cancel as CloseIcon } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
+import { Translate } from 'client/components/HOC'
+import { RESOURCE_NAMES, T } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import {
   useGetVmQuery,
@@ -26,22 +28,20 @@ import {
 } from 'client/features/OneApi/vm'
 import {
   getAvailableInfoTabs,
-  jsonToXml,
   getErrorMessage,
+  jsonToXml,
 } from 'client/models/Helper'
-import { RESOURCE_NAMES, T } from 'client/constants'
-import { Translate } from 'client/components/HOC'
 
 import { SubmitButton } from 'client/components/FormControl'
 import Tabs from 'client/components/Tabs'
+import Backup from 'client/components/Tabs/Vm/Backup'
+import Configuration from 'client/components/Tabs/Vm/Configuration'
+import History from 'client/components/Tabs/Vm/History'
 import Info from 'client/components/Tabs/Vm/Info'
 import Network from 'client/components/Tabs/Vm/Network'
-import History from 'client/components/Tabs/Vm/History'
 import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
-import Backup from 'client/components/Tabs/Vm/Backup'
 import Storage from 'client/components/Tabs/Vm/Storage'
-import Configuration from 'client/components/Tabs/Vm/Configuration'
 import Template from 'client/components/Tabs/Vm/Template'
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -70,6 +70,7 @@ const VmTabs = memo(({ id }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const {
+    status,
     isLoading,
     isError,
     error,
@@ -93,7 +94,7 @@ const VmTabs = memo(({ id }) => {
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -103,30 +104,35 @@ const VmTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <>
-      <Fade in={!!vmError} unmountOnExit>
-        <Alert
-          variant="outlined"
-          severity="error"
-          className={classes.vmError}
-          sx={{ gridColumn: 'span 2' }}
-          action={
-            <SubmitButton
-              onClick={handleDismissError}
-              icon={<CloseIcon />}
-              tooltip={<Translate word={T.Dismiss} />}
-            />
-          }
-        >
-          {vmError}
-        </Alert>
-      </Fade>
-      <Tabs addBorder tabs={tabsAvailable} />
-    </>
-  )
+  if (isLoading || status === 'pending') {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+  if (status === 'fulfilled') {
+    return (
+      <>
+        <Fade in={!!vmError} unmountOnExit>
+          <Alert
+            variant="outlined"
+            severity="error"
+            className={classes.vmError}
+            sx={{ gridColumn: 'span 2' }}
+            action={
+              <SubmitButton
+                onClick={handleDismissError}
+                icon={<CloseIcon />}
+                tooltip={<Translate word={T.Dismiss} />}
+              />
+            }
+          >
+            {vmError}
+          </Alert>
+        </Fade>
+        <Tabs addBorder tabs={tabsAvailable} />
+      </>
+    )
+  }
+
+  return <></>
 })
 
 VmTabs.propTypes = { id: PropTypes.string.isRequired }
