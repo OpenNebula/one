@@ -3,7 +3,7 @@
 @@ -79,6 +79,7 @@
  
      <div id="footer" style="overflow:visible;">
-       <a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
+       <a href="http://opennebula.io" target="_blank" rel="nofollow noopener noreferrer">OpenNebula <%= OpenNebula::VERSION %></a>
 +      &nbsp;<a href="http://opennebula.io/enterprise" target="_blank">Enterprise Edition</a>
      </div>
    </body>
