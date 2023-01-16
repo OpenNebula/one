@@ -43,7 +43,7 @@ const BackupTabs = memo(({ id }) => {
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
