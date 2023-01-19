@@ -279,7 +279,7 @@ module TransferManager
         end
 
         def attr_to_s(attr)
-            attr.gsub!('"', '"')
+            attr.gsub!('"', '\"')
             "\"#{attr}\""
         end
 
