@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const ClusterTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetClusterQuery({ id })
+  const { isError, error, status, data } = useGetClusterQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.CLUSTER
@@ -48,14 +48,12 @@ const ClusterTabs = memo(({ id }) => {
       </Alert>
     )
   }
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 ClusterTabs.propTypes = { id: PropTypes.string.isRequired }

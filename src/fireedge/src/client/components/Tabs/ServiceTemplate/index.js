@@ -36,7 +36,7 @@ const getTabComponent = (tabName) =>
 
 const ServiceTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetServiceTemplateQuery({
+  const { isError, error, status, data } = useGetServiceTemplateQuery({
     id,
   })
 
@@ -54,14 +54,12 @@ const ServiceTemplateTabs = memo(({ id }) => {
       </Alert>
     )
   }
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 ServiceTemplateTabs.propTypes = { id: PropTypes.string.isRequired }

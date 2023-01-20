@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const MarketplaceTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetMarketplaceQuery({ id })
+  const { isError, error, status, data } = useGetMarketplaceQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.MARKETPLACE
@@ -49,14 +49,11 @@ const MarketplaceTabs = memo(({ id }) => {
     )
   }
 
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 MarketplaceTabs.propTypes = { id: PropTypes.string.isRequired }
 MarketplaceTabs.displayName = 'MarketplaceTabs'

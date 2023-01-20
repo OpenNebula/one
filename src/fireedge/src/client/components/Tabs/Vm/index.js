@@ -71,14 +71,13 @@ const VmTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
   const {
     status,
-    isLoading,
     isError,
     error,
     data: vm = {},
   } = useGetVmQuery({ id }, { refetchOnMountOrArgChange: 10 })
   const [dismissError] = useUpdateUserTemplateMutation()
 
-  const { USER_TEMPLATE } = vm
+  const { USER_TEMPLATE, ID } = vm
 
   const handleDismissError = async () => {
     const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
@@ -104,10 +103,7 @@ const VmTabs = memo(({ id }) => {
     )
   }
 
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+  if (status === 'fulfilled' || id === ID) {
     return (
       <>
         <Fade in={!!vmError} unmountOnExit>
@@ -132,7 +128,7 @@ const VmTabs = memo(({ id }) => {
     )
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 VmTabs.propTypes = { id: PropTypes.string.isRequired }

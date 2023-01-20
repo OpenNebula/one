@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const UserTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetUserQuery({ id })
+  const { isError, error, status, data } = useGetUserQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.USER
@@ -48,14 +48,12 @@ const UserTabs = memo(({ id }) => {
       </Alert>
     )
   }
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 UserTabs.propTypes = { id: PropTypes.string.isRequired }
