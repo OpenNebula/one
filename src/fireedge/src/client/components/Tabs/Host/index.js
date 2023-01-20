@@ -40,7 +40,7 @@ const getTabComponent = (tabName) =>
 
 const HostTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetHostQuery(
+  const { isError, error, status, data } = useGetHostQuery(
     { id },
     { refetchOnMountOrArgChange: 10 }
   )
@@ -59,14 +59,12 @@ const HostTabs = memo(({ id }) => {
       </Alert>
     )
   }
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 HostTabs.propTypes = { id: PropTypes.string.isRequired }

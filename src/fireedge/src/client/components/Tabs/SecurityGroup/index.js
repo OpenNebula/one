@@ -33,7 +33,7 @@ const getTabComponent = (tabName) =>
 
 const SecurityGroupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetSecGroupQuery({ id })
+  const { isError, error, status, data } = useGetSecGroupQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.SEC_GROUP
@@ -50,14 +50,11 @@ const SecurityGroupTabs = memo(({ id }) => {
     )
   }
 
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 SecurityGroupTabs.propTypes = { id: PropTypes.string.isRequired }

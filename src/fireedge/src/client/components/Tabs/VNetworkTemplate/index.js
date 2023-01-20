@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
 
 const VNetTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetVNTemplateQuery({ id })
+  const { isError, error, status, data } = useGetVNTemplateQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VN_TEMPLATE
@@ -49,14 +49,11 @@ const VNetTemplateTabs = memo(({ id }) => {
     )
   }
 
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 VNetTemplateTabs.propTypes = { id: PropTypes.string.isRequired }

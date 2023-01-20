@@ -34,7 +34,7 @@ const getTabComponent = (tabName) =>
 
 const VmTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error, status } = useGetTemplateQuery({ id })
+  const { isError, error, status, data } = useGetTemplateQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
@@ -50,14 +50,12 @@ const VmTemplateTabs = memo(({ id }) => {
       </Alert>
     )
   }
-  if (isLoading || status === 'pending') {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  }
-  if (status === 'fulfilled') {
+
+  if (status === 'fulfilled' || id === data?.ID) {
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
-  return <></>
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 VmTemplateTabs.propTypes = { id: PropTypes.string.isRequired }
 VmTemplateTabs.displayName = 'VmTemplateTabs'
