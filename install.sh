@@ -1925,6 +1925,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
+              src/tm_mad/lib/datastore.rb \
               src/tm_mad/lib/backup.rb"
 
 TM_SHARED_FILES="src/tm_mad/shared/clone \

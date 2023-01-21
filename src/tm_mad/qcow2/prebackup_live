@@ -55,6 +55,7 @@ require 'rexml/document'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/kvm'
+require_relative '../lib/datastore'
 
 # TODO: fsfreeze for each hypervisor based on VM_MAD
 include TransferManager::KVM
@@ -77,6 +78,10 @@ tmp_dir = "#{rdir}/tmp"
 bck_dir = "#{rdir}/backup"
 
 qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
+qcow2_cmd  = "#{qcow2_util} -l -d \"#{disks}\" -x #{bck_dir}/vm.xml -p #{rdir}"
+
+ds  = TransferManager::Datastore.new(:vm_xml => vm_xml)
+cmd = ds.cmd_confinement(qcow2_cmd, rdir)
 
 pre_script = <<~EOS
     set -ex -o pipefail
@@ -97,7 +102,7 @@ pre_script = <<~EOS
     # --------------------------------------
     # Create backup live
     # --------------------------------------
-    #{qcow2_util} -l -d "#{disks}" -x #{bck_dir}/vm.xml -p #{rdir}
+    #{cmd}
 EOS
 
 rc = TransferManager::Action.ssh('prebackup_live',

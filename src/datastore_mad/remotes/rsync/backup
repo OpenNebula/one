@@ -57,6 +57,7 @@ require 'securerandom'
 require 'pathname'
 
 require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/datastore'
 
 # BACKUP host:remote_dir DISK_ID:..:DISK_ID deploy_id vmid dsid
 
@@ -69,18 +70,28 @@ vmid    = ARGV[3]
 _dsid   = ARGV[4]
 
 vm_host = dir[0]
-vm_dir  = Pathname.new(dir[1]+'/backup/').cleanpath.to_s
 
-ds = REXML::Document.new(ds_xml).root
+rdir   = Pathname.new(dir[1]).cleanpath.to_s
+vm_dir = Pathname.new("#{rdir}/backup/").cleanpath.to_s
 
-rsync_user = ds.elements['TEMPLATE/RSYNC_USER'].text
-rsync_host = ds.elements['TEMPLATE/RSYNC_HOST'].text
-base = ds.elements['BASE_PATH'].text
+begin
+    ds = REXML::Document.new(ds_xml).root
 
-if ds.elements['TEMPLATE/RSYNC_ARGS'].nil?
-    args = '-aS'
-else
-    args = ds.elements['TEMPLATE/RSYNC_ARGS'].text
+    rsync_user = ds.elements['TEMPLATE/RSYNC_USER'].text
+    rsync_host = ds.elements['TEMPLATE/RSYNC_HOST'].text
+
+    base = ds.elements['BASE_PATH'].text
+
+    if ds.elements['TEMPLATE/RSYNC_ARGS'].nil?
+        args = '-aS'
+    else
+        args = ds.elements['TEMPLATE/RSYNC_ARGS'].text
+    end
+
+    ds = TransferManager::Datastore.new(:ds_xml => ds_xml)
+rescue StandardError => e
+    STDERR.puts e.message
+    exit(1)
 end
 
 path = Pathname.new(base).cleanpath.to_s
@@ -89,44 +100,43 @@ backup_id   = SecureRandom.hex[0, 6].to_s
 backup_path = "#{path}/#{vmid}/#{backup_id}/"
 
 #-------------------------------------------------------------------------------
-# Compute backup total size
-#-------------------------------------------------------------------------------
-
-rc = TransferManager::Action.ssh('backup_size',
-                                 :host     => vm_host,
-                                 :cmds     => "du -sm #{vm_dir}",
-                                 :forward  => true,
-                                 :nostdout => false)
-
-backup_size = rc.stdout.split[0]
-
-if rc.code != 0
-    exit rc.code
-end
-
-#-------------------------------------------------------------------------------
 # Rsync backup files to server:
 #   1. [rsync server] make backup path
-#   2. [host] rsync files
+#   2. [host] Compute backup total size & rsync files
 #-------------------------------------------------------------------------------
 rc = TransferManager::Action.ssh('make_dst_path',
                                  :host => "#{rsync_user}@#{rsync_host}",
-                                 :cmds => "mkdir -p #{backup_path}")
+                                 :cmds => "mkdir -p #{backup_path}",
+                                 :nostderr => false,
+                                 :nostdout => false)
 
-if rc != 0
-    exit rc
+if rc.code != 0
+    STDERR.puts "Error making rsync dst path: #{rc.stdout} #{rc.stderr}"
+    exit(-1)
 end
 
 cmd = "rsync #{args} #{vm_dir}/ #{rsync_user}@#{rsync_host}:#{backup_path}"
 
+script = <<~EOS
+    set -ex -o pipefail
+
+    BKSIZE=`du -sm #{vm_dir}`
+
+    #{ds.cmd_confinement(cmd, rdir, ['SSH_AUTH_SOCK'])} > /dev/null
+
+    echo $BKSIZE
+EOS
+
 rc = TransferManager::Action.ssh('backup',
                                  :host     => vm_host,
-                                 :cmds     => cmd,
+                                 :cmds     => script,
                                  :forward  => true,
+                                 :nostderr => false,
                                  :nostdout => false)
 
-if rc.code != 0
-    exit rc.code
+if rc.code != 0 || rc.stdout.empty?
+    STDERR.puts "Error copying backup: #{rc.stdout} #{rc.stderr}"
+    exit(-1)
 end
 
-puts "#{backup_id} #{backup_size}"
+puts "#{backup_id} #{rc.stdout.split[0]}"
