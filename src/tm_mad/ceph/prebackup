@@ -55,6 +55,7 @@ require 'rexml/document'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/kvm'
+require_relative '../lib/datastore'
 
 #-------------------------------------------------------------------------------
 # Helper functions
@@ -83,13 +84,14 @@ rdir      = dir[1]
 xml_doc = REXML::Document.new(vm_xml)
 vm      = xml_doc.root
 
+ds = TransferManager::Datastore.new(:vm_xml => vm_xml)
+
 bck_dir = "#{rdir}/backup"
 
 expo_cmd = ''
 conv_cmd = ''
 clup_cmd = ''
 
-# TODO: Make compression configurable. Does it intefere with deduplication?
 vm.elements.each 'TEMPLATE/DISK' do |d|
     did = d.elements['DISK_ID'].text
     next unless disks.include? did
@@ -110,9 +112,11 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
     draw = "#{bck_dir}/disk.#{did}.raw"
     ddst = "#{bck_dir}/disk.#{did}.0"
 
-    expo_cmd << "#{cmd} export #{rbd_src} #{draw}\n"
+    ceph_cmd = "#{cmd} export #{rbd_src} #{draw}\n"
+    expo_cmd << ds.cmd_confinement(ceph_cmd, rdir)
 
-    conv_cmd << "qemu-img convert -m 4 -O qcow2 #{draw} #{ddst}\n"
+    qemu_cmd = "qemu-img convert -m 4 -O qcow2 #{draw} #{ddst}\n"
+    conv_cmd << ds.cmd_confinement(qemu_cmd, rdir)
 
     clup_cmd << "rm -f #{draw}\n"
 
