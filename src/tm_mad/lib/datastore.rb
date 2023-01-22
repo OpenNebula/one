@@ -27,7 +27,7 @@ module TransferManager
     class Datastore
 
         # Constants for wrapper commands
-        SYSTEMD_RUN = 'systemd-run --user --quiet --pipe --collect --wait --same-dir'
+        SYSTEMD_RUN = 'systemd-run --user --quiet --pipe --collect --wait'
         IONICE      = 'ionice'
         NICE        = 'nice'
 
