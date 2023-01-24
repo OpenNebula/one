@@ -32,10 +32,7 @@ public:
     {
     }
 
-    virtual ~DriverManager()
-    {
-        stop(1);
-    }
+    virtual ~DriverManager() = default;
 
     int load_driver(const VectorAttribute* mad_config);
 
@@ -120,11 +117,11 @@ int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 
     mad_config->vector_value("THREADS", threads, 0);
 
-    NebulaLog::info("DrM", " Loading driver: " + name);
+    NebulaLog::info("DrM", "Loading driver: " + name);
 
     if (exec.empty())
     {
-        NebulaLog::error("DrM", "  Empty executable for driver: " + name);
+        NebulaLog::error("DrM", "\tEmpty executable for driver: " + name);
         return -1;
     }
 
@@ -135,7 +132,7 @@ int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 
     if (access(exec.c_str(), F_OK) != 0)
     {
-        NebulaLog::error("DrM", "  File not exists: " + exec);
+        NebulaLog::error("DrM", "File not exists: " + exec);
         return -1;
     }
 
@@ -144,11 +141,11 @@ int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 
     if (rc.second)
     {
-        NebulaLog::info("DrM", "  Driver loaded: " + name);
+        NebulaLog::info("DrM", "\tDriver loaded: " + name);
     }
     else
     {
-        NebulaLog::error("DrM", "  Driver already exists: " + name);
+        NebulaLog::error("DrM", "\tDriver already exists: " + name);
         return -1;
     }
 
@@ -253,8 +250,6 @@ int DriverManager<D>::add(const std::string& name, std::unique_ptr<D> driver)
     if (!rc.second)
     {
         // Driver already exists
-        NebulaLog::error("DrM", "  Driver already exists: " + name);
-
         return -1;
     }
 

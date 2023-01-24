@@ -76,14 +76,14 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
             if ( error_msg != nullptr )
             {
-                oss << "  Error loading driver configuration file " << cfile <<
+                oss << "Error loading driver configuration file " << cfile <<
                     " : " << error_msg;
 
                 free(error_msg);
             }
             else
             {
-                oss << "  Error loading driver configuration file " << cfile;
+                oss << "Error loading driver configuration file " << cfile;
             }
 
             NebulaLog::log("VMM", Log::ERROR, oss);
@@ -128,7 +128,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     }
     else
     {
-        NebulaLog::log("VMM", Log::INFO, "  Using default imported VMs actions");
+        NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
 
         it = attrs.find("NAME");
 
@@ -158,7 +158,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
         if ( VMActions::action_from_str(action, id) != 0 )
         {
-            NebulaLog::log("VMM", Log::ERROR, "  Wrong action: " + action);
+            NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
             continue;
         }
 
@@ -177,7 +177,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
     if (exec.empty())
     {
-        NebulaLog::error("VMM", "  Empty executable for driver: " + name);
+        NebulaLog::error("VMM", "\tEmpty executable for driver: " + name);
         return;
     }
 
@@ -188,7 +188,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
     if (access(exec.c_str(), F_OK) != 0)
     {
-        NebulaLog::error("VMM", "  File not exists: " + exec);
+        NebulaLog::error("VMM", "File not exists: " + exec);
     }
 
     cmd_(exec);

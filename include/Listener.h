@@ -134,13 +134,6 @@ public:
 
     virtual ~Listener()
     {
-        if (!end)
-        {
-            end = true;
-
-            cond.notify_one();
-        }
-
         join_thread();
     }
 
