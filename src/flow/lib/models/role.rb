@@ -1125,7 +1125,7 @@ module OpenNebula
             # Min is a hard limit, if the current cardinality + adjustment does
             # not reach it, the difference is added
 
-            max = [cardinality, max_cardinality.to_i].max()
+            max = [cardinality, max_cardinality.to_i].max
             # min = [cardinality(), min_cardinality.to_i].min()
             min = min_cardinality.to_i
 
