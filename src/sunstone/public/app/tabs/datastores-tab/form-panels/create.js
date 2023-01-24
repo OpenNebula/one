@@ -291,8 +291,16 @@ define(function(require) {
     var restic_bwlimit = $('#restic_bwlimit', dialog).val();
     var restic_compression = $('#restic_compression', dialog).val();
     var restic_connections = $('#restic_connections', dialog).val();
+    var restic_max_riops = $('#restic_max_riops', dialog).val();
+    var restic_max_wiops = $('#restic_max_wiops', dialog).val();
+    var restic_cpu_quota = $('#restic_cpu_quota', dialog).val();
     var rsync_host = $('#rsync_host', dialog).val();
     var rsync_user = $('#rsync_user', dialog).val();
+    var rsync_ionice = $('#rsync_ionice', dialog).val();
+    var rsync_nice = $('#rsync_nice', dialog).val();
+    var rsync_max_riops = $('#rsync_max_riops', dialog).val();
+    var rsync_max_wiops = $('#rsync_max_wiops', dialog).val();
+    var rsync_cpu_quota = $('#rsync_cpu_quota', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -405,11 +413,35 @@ define(function(require) {
     if (restic_connections)
         ds_obj.datastore.restic_connections = restic_connections;
 
+    if (restic_max_riops)
+      ds_obj.datastore.restic_max_riops = restic_max_riops
+
+    if (restic_max_wiops)
+      ds_obj.datastore.restic_max_wiops = restic_max_wiops;
+
+    if (restic_cpu_quota)
+      ds_obj.datastore.restic_cpu_quota = restic_cpu_quota;
+
     if (rsync_host)
         ds_obj.datastore.rsync_host = rsync_host;
 
     if (rsync_user)
         ds_obj.datastore.rsync_user = rsync_user;
+
+    if (rsync_ionice)
+      ds_obj.datastore.rsync_ionice = rsync_ionice;
+
+    if (rsync_nice)
+      ds_obj.datastore.rsync_nice = rsync_nice;
+
+    if (rsync_max_riops)
+      ds_obj.datastore.rsync_max_riops = rsync_max_riops
+
+    if (rsync_max_wiops)
+      ds_obj.datastore.rsync_max_wiops = rsync_max_wiops;
+
+    if (rsync_cpu_quota)
+      ds_obj.datastore.rsync_cpu_quota = rsync_cpu_quota;
 
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
@@ -467,8 +499,16 @@ define(function(require) {
     $('label[for="restic_bwlimit"]', dialog).parent().hide();
     $('label[for="restic_compression"]', dialog).parent().hide();
     $('label[for="restic_connections"]', dialog).parent().hide();
+    $('label[for="restic_max_riops"]', dialog).parent().hide();
+    $('label[for="restic_max_wiops"]', dialog).parent().hide();
+    $('label[for="restic_cpu_quota"]', dialog).parent().hide();
     $('label[for="rsync_host"]', dialog).parent().hide();
     $('label[for="rsync_user"]', dialog).parent().hide();
+    $('label[for="rsync_ionice"]', dialog).parent().hide();
+    $('label[for="rsync_nice"]', dialog).parent().hide();
+    $('label[for="rsync_max_riops"]', dialog).parent().hide();
+    $('label[for="rsync_max_wiops"]', dialog).parent().hide();
+    $('label[for="rsync_cpu_quota"]', dialog).parent().hide();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().hide();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
@@ -506,8 +546,16 @@ define(function(require) {
     $('label[for="restic_bwlimit"]', dialog).parent().show();
     $('label[for="restic_compression"]', dialog).parent().show();
     $('label[for="restic_connections"]', dialog).parent().show();
+    $('label[for="restic_max_riops"]', dialog).parent().show();
+    $('label[for="restic_max_wiops"]', dialog).parent().show();
+    $('label[for="restic_cpu_quota"]', dialog).parent().show();
     $('label[for="rsync_host"]', dialog).parent().show();
     $('label[for="rsync_user"]', dialog).parent().show();
+    $('label[for="rsync_ionice"]', dialog).parent().show();
+    $('label[for="rsync_nice"]', dialog).parent().show();
+    $('label[for="rsync_max_riops"]', dialog).parent().show();
+    $('label[for="rsync_max_wiops"]', dialog).parent().show();
+    $('label[for="rsync_cpu_quota"]', dialog).parent().show();
 
     $('input[name="ds_tab_custom_ds_mad"]', dialog).parent().show();
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().show();
@@ -624,6 +672,9 @@ define(function(require) {
     $('label[for="restic_bwlimit"]', dialog).parent().fadeIn();
     $('label[for="restic_compression"]', dialog).parent().fadeIn();
     $('label[for="restic_connections"]', dialog).parent().fadeIn();
+    $('label[for="restic_max_riops"]', dialog).parent().fadeIn();
+    $('label[for="restic_max_wiops"]', dialog).parent().fadeIn();
+    $('label[for="restic_cpu_quota"]', dialog).parent().fadeIn();
   }
 
   function _selectRsync(dialog) {
@@ -637,6 +688,11 @@ define(function(require) {
     $('label[for="vcenter_cluster"],div#vcenter_cluster_wrapper', dialog).parent().hide();
     $('label[for="rsync_host"]', dialog).parent().fadeIn();
     $('label[for="rsync_user"]', dialog).parent().fadeIn();
+    $('label[for="rsync_ionice"]', dialog).parent().fadeIn();
+    $('label[for="rsync_nice"]', dialog).parent().fadeIn();
+    $('label[for="rsync_max_riops"]', dialog).parent().fadeIn();
+    $('label[for="rsync_max_wiops"]', dialog).parent().fadeIn();
+    $('label[for="rsync_cpu_quota"]', dialog).parent().fadeIn();
   }
 
   function _selectCustom(dialog) {
