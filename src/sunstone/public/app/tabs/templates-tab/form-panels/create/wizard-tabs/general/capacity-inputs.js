@@ -199,7 +199,7 @@ define(function(require) {
       var vcpuValue = $("div.vcpu_input input", context).val();
       if (vcpuValue !== "") {
         CoresPerSocket.generateCores(VCPU_SELECTOR);
-        if(element && element.TEMPLATE && element.TEMPLATE.TOPOLOGY && element.TEMPLATE.TOPOOGY.CORES) {
+        if(element && element.TEMPLATE && element.TEMPLATE.TOPOLOGY && element.TEMPLATE.TOPOLOGY.CORES) {
           CoresPerSocket.selectOption(element.TEMPLATE.TOPOLOGY.CORES);
         }
       }
