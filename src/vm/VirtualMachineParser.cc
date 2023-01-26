@@ -431,20 +431,21 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
     {
         password = one_util::random_password();
 
-        if ( graphics->vector_value("TYPE") == "SPICE" )
-        {
-            // Spice password must be 60 characters maximum
-            graphics->replace("PASSWD", password.substr(0, 59));
-        } 
-        else if ( graphics->vector_value("TYPE") == "vnc" ) 
-        {
-            // Vnc password must be 8 characters maximum
-            graphics->replace("PASSWD", password.substr(0, 7));
-        }
-        else
-        {
-            graphics->replace("PASSWD", password);
-        }
+        graphics->replace("PASSWD", password);
+    }
+
+    string type = graphics->vector_value("TYPE");
+    one_util::tolower(type);
+
+    if ( type == "spice" && password.size() > MAX_SPICE_PASSWD_LENGTH )
+    {
+        // Spice password must be 60 characters maximum
+        graphics->replace("PASSWD", password.substr(0, MAX_SPICE_PASSWD_LENGTH));
+    }
+    else if ( type == "vnc" && password.size() > MAX_VNC_PASSWD_LENGTH )
+    {
+        // Vnc password must be 8 characters maximum
+        graphics->replace("PASSWD", password.substr(0, MAX_VNC_PASSWD_LENGTH));
     }
 
     return 0;

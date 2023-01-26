@@ -1787,20 +1787,25 @@ int LibVirtDriver::deployment_description_kvm(
 
         port   = graphics->vector_value("PORT");
 
+        one_util::tolower(type);
+
         if ( random_passwrd && passwd.empty())
         {
             passwd = one_util::random_password();
 
-            if ( graphics->vector_value("TYPE") == "SPICE" )
+            if ( type == "spice" )
             {
                 // Spice password must be 60 characters maximum
-                passwd = passwd.substr(0, 59);
+                passwd = passwd.substr(0, VirtualMachine::MAX_SPICE_PASSWD_LENGTH);
+            }
+            else if ( type == "vnc" )
+            {
+                // Vnc password must be 8 characters maximum
+                passwd = passwd.substr(0, VirtualMachine::MAX_VNC_PASSWD_LENGTH);
             }
 
             const_cast<VectorAttribute*>(graphics)->replace("PASSWD", passwd);
         }
-
-        one_util::tolower(type);
 
         if ( type == "vnc" || type == "spice" )
         {
