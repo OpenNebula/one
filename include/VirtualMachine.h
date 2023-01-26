@@ -141,6 +141,9 @@ public:
         HOTPLUG_SAVEAS_STOPPED    = 68
     };
 
+    static const int MAX_VNC_PASSWD_LENGTH = 8;
+    static const int MAX_SPICE_PASSWD_LENGTH = 60;
+
     /**
      *  Functions to convert to/from string the VM states
      */
