@@ -133,7 +133,7 @@ set -e -o pipefail
 # if user requested a swap or specifies a FS, we need to create a local
 # formatted image and upload into existing Ceph image
 FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
-MKFS_CMD=`mkfs_command $DST_PATH raw $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
+MKFS_CMD=`mkfs_command $DST_PATH $FORMAT $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
 
 MKIMAGE_CMD=$(cat <<EOF
     set -e -o pipefail
