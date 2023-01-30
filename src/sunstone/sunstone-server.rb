@@ -190,8 +190,9 @@ set :port, $conf[:port]
 set :sockets, []
 
 if (proxy = $conf[:proxy])
-    ENV['http_proxy'] = proxy
-    ENV['HTTP_PROXY'] = proxy
+    env_proxy = proxy.start_with?('https') ? 'https_proxy' : 'http_proxy'
+    ENV[env_proxy] = proxy
+    ENV[env_proxy.upcase] = proxy
 end
 
 if (no_proxy = $conf[:no_proxy])
