@@ -809,7 +809,7 @@ module CLIHelper
         # @param options [Hash] Object with CLI user options
         def update_columns(options)
             begin
-                if @conf
+                if @conf && File.exists?(@conf)
                     config = YAML.load_file(@conf)
                 else
                     config = {}
