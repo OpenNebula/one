@@ -131,15 +131,19 @@ class SingleAttribute : public Attribute
 {
 public:
 
-    SingleAttribute(const std::string& name):Attribute(name){};
+    SingleAttribute(const std::string& name)
+        : Attribute(name)
+    {}
 
-    SingleAttribute(const std::string& name, const std::string& value):
-        Attribute(name),attribute_value(value){};
+    SingleAttribute(const std::string& name, const std::string& value)
+        : Attribute(name)
+        , attribute_value(value)
+    {}
 
-    SingleAttribute(const SingleAttribute& sa):Attribute(sa.attribute_name)
-    {
-        attribute_value = sa.attribute_value;
-    };
+    SingleAttribute(const SingleAttribute& sa)
+        : Attribute(sa.attribute_name)
+        , attribute_value(sa.attribute_value)
+    {}
 
     ~SingleAttribute(){};
 
@@ -253,21 +257,25 @@ class VectorAttribute : public Attribute
 {
 public:
 
-    VectorAttribute(const std::string& name):Attribute(name){};
+    VectorAttribute(const std::string& name)
+        : Attribute(name)
+    {}
 
     VectorAttribute(const std::string& name,
-                    const  std::map<std::string,std::string>& value):
-            Attribute(name),attribute_value(value){};
+                    const  std::map<std::string,std::string>& value)
+        : Attribute(name)
+        , attribute_value(value)
+    {}
 
-    VectorAttribute(const VectorAttribute& va):Attribute(va.attribute_name)
-    {
-        attribute_value = va.attribute_value;
-    };
+    VectorAttribute(const VectorAttribute& va)
+        : Attribute(va.attribute_name)
+        , attribute_value(va.attribute_value)
+    {}
 
-    VectorAttribute(const VectorAttribute* va):Attribute(va->attribute_name)
-    {
-        attribute_value = va->attribute_value;
-    };
+    VectorAttribute(const VectorAttribute* va)
+        : Attribute(va->attribute_name)
+        , attribute_value(va->attribute_value)
+    {}
 
     ~VectorAttribute(){};
 

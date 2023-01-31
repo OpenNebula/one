@@ -345,7 +345,7 @@ private:
             clear();
         }
 
-        VMGroupRole * get(T k)
+        VMGroupRole * get(const T& k)
         {
             auto it = roles.find(k);
 

@@ -1,0 +1,54 @@
+<suppressions>
+<!--
+	<suppress>
+		<id>variableScope</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>unusedVariable</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>noConstructor</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>noExplicitConstructor</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>constVariable</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>missingOverride</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>shadowVariable</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>unreadVariable</id>
+		<fileName>*</fileName>
+	</suppress>
+-->
+	<suppress>
+		<id>missingInclude</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>danglingLifetime</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>containerOutOfBounds</id>
+		<fileName>src/hm/HookLog.cc</fileName>
+		<symbolName>query_output</symbolName>
+	</suppress>
+	<suppress>
+		<id>ctuuninitvar</id>
+		<fileName>src/sql/LogDB.cc</fileName>
+	</suppress>
+</suppressions>
+

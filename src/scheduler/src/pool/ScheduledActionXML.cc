@@ -311,7 +311,7 @@ static int action_call(int vmid, SchedAction *sa, const std::string& aname,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void scheduled_action(int vmid, SchedAction* action, std::string aname)
+static void scheduled_action(int vmid, SchedAction* action, const std::string& aname)
 {
     std::ostringstream oss;
 

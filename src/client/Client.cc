@@ -135,7 +135,7 @@ int Client::read_oneauth(string &secret, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Client::call(const std::string &method, const std::string format,
+void Client::call(const std::string &method, const std::string &format,
     xmlrpc_c::value * const result, ...)
 {
     va_list args;

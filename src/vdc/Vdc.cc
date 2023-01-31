@@ -390,7 +390,7 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ResourceSet::insert_default_rules(string name_attr, PoolObjectSQL::ObjectType type)
+void ResourceSet::insert_default_rules(const string& name_attr, PoolObjectSQL::ObjectType type)
 {
     string default_vdc_acl;
     vector<string> vdc_acl;

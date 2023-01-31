@@ -312,7 +312,7 @@ int User::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::split_secret(const string secret, string& user, string& pass)
+int User::split_secret(const string& secret, string& user, string& pass)
 {
     size_t pos;
     int    rc = -1;

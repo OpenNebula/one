@@ -67,13 +67,12 @@ public:
         }
     };
 
-    VMGroupRule(VMGroupPolicy p, role_bitset _roles):policy(p), roles(_roles){};
+    VMGroupRule(VMGroupPolicy p, const role_bitset& _roles)
+        : policy(p)
+        , roles(_roles)
+    {}
 
-    VMGroupRule(const VMGroupRule& other)
-    {
-        policy = other.policy;
-        roles  = other.roles;
-    }
+    VMGroupRule(const VMGroupRule& other) = default;
 
     /* ---------------------------------------------------------------------- */
     /* Rule operators                                                         */

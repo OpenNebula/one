@@ -94,7 +94,7 @@ int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
     VectorAttribute * tq;
     string            id;
 
-    for ( it = new_quotas->begin(); it != new_quotas->end(); it++)
+    for (it = new_quotas->begin(); it != new_quotas->end(); ++it)
     {
         id = (*it)->vector_value("ID");
 

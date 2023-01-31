@@ -55,7 +55,7 @@ int NebulaTemplate::load_configuration()
         if ( j == attributes.end() )
         {
             attributes.insert(make_pair(aname,attr));
-            iter++;
+            ++iter;
         }
         else
         {

@@ -611,7 +611,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Incremental backups interface                                          */
     /* ---------------------------------------------------------------------- */
-    int add_increment(std::string source, long long size, Increment::Type type)
+    int add_increment(const std::string& source, long long size, Increment::Type type)
     {
         int rc = increments.add_increment(source, size, type);
 

@@ -76,7 +76,7 @@ public:
         return "";
     };
 
-    static Operation str_to_operation(std::string str)
+    static Operation str_to_operation(const std::string& str)
     {
             if      (str == "USE")    return USE;
             else if (str == "MANAGE") return MANAGE;

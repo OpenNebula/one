@@ -33,29 +33,25 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PostgreSqlDB::PostgreSqlDB(
-    const string& _server,
-    int           _port,
-    const string& _user,
-    const string& _password,
-    const string& _database,
-    int           _connections)
+PostgreSqlDB::PostgreSqlDB(const string& _server,
+                           int           _port,
+                           const string& _user,
+                           const string& _password,
+                           const string& _database,
+                           int           _connections)
+    : server(_server)
+    , port(_port)
+    , user(_user)
+    , password(_password)
+    , database(_database)
+    , max_connections(_connections)
 {
     PGconn* conn;
-
-    server = _server;
-    port   = _port;
-    user   = _user;
-
-    password = _password;
-    database = _database;
 
     if ( port == 0 )
     {
         port = PG_DEFAULT_PORT;
     }
-
-    max_connections = _connections;
 
     // Set up connection parameters
     string params = "host=" + _server

@@ -67,7 +67,7 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
+Request::ErrorCode VNTemplateInstantiate::request_execute(int id, const string& name,
         const string &str_uattrs, Template* extra_attrs, int& vid,
         RequestAttributes& att)
 {

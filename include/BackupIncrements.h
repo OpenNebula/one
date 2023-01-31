@@ -93,7 +93,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Increment interface                                                    */
     /* ---------------------------------------------------------------------- */
-    VectorAttribute * new_increment(std::string source, long long sz,
+    VectorAttribute * new_increment(const std::string& source, long long sz,
             Increment::Type type);
 
     Increment * last_increment()
@@ -173,7 +173,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Increments interface                                                   */
     /* ---------------------------------------------------------------------- */
-    int add_increment(std::string source, long long size, Increment::Type type);
+    int add_increment(const std::string& source, long long size, Increment::Type type);
 
     int last_increment_id();
 

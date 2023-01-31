@@ -607,15 +607,14 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
 /* ------------------------------------------------------------------------*/
 
 HostSharePCI::PCIDevice::PCIDevice(const PCIDevice& src)
+    : vendor_id(src.vendor_id)
+    , device_id(src.device_id)
+    , class_id(src.class_id)
+    , vmid(src.vmid)
+    , address(src.address)
+    , attrs(src.attrs->clone())
 {
-    vendor_id = src.vendor_id;
-    device_id = src.device_id;
-    class_id  = src.class_id;
-    vmid      = src.vmid;
-    address   = src.address;
-
-    attrs = src.attrs->clone();
-};
+}
 
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
