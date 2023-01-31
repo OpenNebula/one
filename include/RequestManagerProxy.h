@@ -25,7 +25,7 @@
 class RequestManagerProxy: public Request
 {
 public:
-    RequestManagerProxy(std::string _method)
+    RequestManagerProxy(const std::string& _method)
         : Request("RequestManagerProxy", "?",
                   "Forwards the request to another OpenNebula")
         , method(_method)

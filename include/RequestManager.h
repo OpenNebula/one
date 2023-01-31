@@ -73,7 +73,7 @@ private:
         std::set<std::string> registered_methods;
         xmlrpc_c::registry registry;
 
-        void addMethod(std::string const name, xmlrpc_c::methodPtr const methodP)
+        void addMethod(const std::string& name, const xmlrpc_c::methodPtr& methodP)
         {
             registered_methods.insert(name);
             registry.addMethod(name, methodP);

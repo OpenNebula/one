@@ -347,7 +347,7 @@ namespace one_util
      *  @return true on success, false otherwise
      */
     template <class T>
-    bool str_cast(const std::string str, T& value)
+    bool str_cast(const std::string& str, T& value)
     {
         std::istringstream iss(str);
 

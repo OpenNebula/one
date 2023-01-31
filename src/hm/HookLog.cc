@@ -179,7 +179,7 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
         << xml_result
         << "</HOOK_EXECUTION_RECORD>";
 
-    sql_xml = db->escape_str(oss.str().c_str());
+    sql_xml = db->escape_str(oss.str());
 
     if ( sql_xml == 0 )
     {

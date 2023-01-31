@@ -149,7 +149,7 @@ public:
      *    @param password
      *    @return 0 on success
      **/
-    static int split_secret(const std::string secret,
+    static int split_secret(const std::string& secret,
                             std::string& user,
                             std::string& pass);
 

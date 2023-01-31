@@ -101,7 +101,7 @@ public:
      *    @param result to store the xmlrpc call result
      *    @param ... xmlrpc arguments
      */
-    void call(const std::string &method, const std::string format,
+    void call(const std::string &method, const std::string &format,
 		xmlrpc_c::value * const result, ...);
 
 private:

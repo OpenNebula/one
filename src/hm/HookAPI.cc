@@ -71,7 +71,7 @@ const string HookAPI::unsupported_calls[] =  {"one.vm.info",
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string HookAPI::format_message(std::string method, ParamList& paramList,
+std::string HookAPI::format_message(const std::string& method, ParamList& paramList,
             const RequestAttributes& att)
 {
     ostringstream oss;

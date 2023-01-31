@@ -120,7 +120,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
+Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string&  name,
         bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
         RequestAttributes& att)
 {

@@ -97,8 +97,10 @@ ExtendedAttribute * ExtendedAttributeSet::delete_attribute(int id)
         return nullptr;
     }
 
+    auto ptr = it->second;
+
     a_set.erase(it);
 
-    return it->second;
+    return ptr;
 }
 

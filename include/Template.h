@@ -48,11 +48,10 @@ public:
                  xml_root(_xml_root){}
 
     Template(const Template& t)
+        : replace_mode(t.replace_mode)
+        , separator(t.separator)
+        , xml_root(t.xml_root)
     {
-        replace_mode = t.replace_mode;
-        separator    = t.separator;
-        xml_root     = t.xml_root;
-
         for (auto it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
             attributes.insert(make_pair(it->first,(it->second)->clone()));

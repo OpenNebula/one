@@ -218,7 +218,7 @@ int Message<E, compress, encode, encrypt, has_timestamp>
 
     is >> buffer;
 
-    _type = _type_str._from_str(buffer.c_str());
+    _type = _type_str._from_str(buffer);
 
     if ( !is.good() || _type == E::UNDEFINED )
     {

@@ -86,7 +86,15 @@ public:
             {
                 cur_sz += STRING_BUFFER_SIZE;
 
-                buffer  = (char *) realloc((void *) buffer, cur_sz * sizeof(char));
+                auto new_buffer = (char *) realloc((void *) buffer, cur_sz * sizeof(char));
+
+                if (!new_buffer)
+                {
+                    // Out of memory
+                    return -1;
+                }
+
+                buffer = new_buffer;
                 cur_ptr = buffer + line_sz;
 
                 continue;

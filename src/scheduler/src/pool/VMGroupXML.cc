@@ -294,7 +294,7 @@ static void schecule_affined_set(const std::set<int>& vms,
         /*    2. Allocate VMs in the same host as the leader                  */
         /*    3. Aggregate requirements in the leader for scheduling          */
         /* ------------------------------------------------------------------ */
-        VirtualMachineXML * vm;
+        VirtualMachineXML * vm = nullptr;
 
         for ( it = vms.begin(); it != vms.end() ; ++it )
         {
