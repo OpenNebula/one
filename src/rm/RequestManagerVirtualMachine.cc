@@ -3420,6 +3420,14 @@ void VirtualMachineDiskResize::request_execute(
         return;
     }
 
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    {
+        return;
+    }
+
     bool img_ds_quota, vm_ds_quota;
     int img_id = -1;
 
