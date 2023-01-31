@@ -36,14 +36,16 @@ const getTabComponent = (tabName) =>
 
 const ServiceTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetServiceTemplateQuery({ id })
+  const { isError, error, status, data } = useGetServiceTemplateQuery({
+    id,
+  })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.SERVICE_TEMPLATE
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -53,11 +55,11 @@ const ServiceTemplateTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (status === 'fulfilled' || id === data?.ID) {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 ServiceTemplateTabs.propTypes = { id: PropTypes.string.isRequired }

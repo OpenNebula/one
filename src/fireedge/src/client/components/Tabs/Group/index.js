@@ -32,14 +32,14 @@ const getTabComponent = (tabName) =>
 
 const GroupTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetGroupQuery({ id })
+  const { isError, error, status, data } = useGetGroupQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.GROUP
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -49,11 +49,11 @@ const GroupTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (status === 'fulfilled' || id === data?.ID) {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 GroupTabs.propTypes = { id: PropTypes.string.isRequired }

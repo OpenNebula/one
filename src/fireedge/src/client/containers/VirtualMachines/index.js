@@ -41,7 +41,7 @@ import { T, VM } from 'client/constants'
  */
 function VirtualMachines() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
-  const actions = VmActions()
+  const actions = VmActions(selectedRows)
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1

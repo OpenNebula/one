@@ -128,21 +128,7 @@ const Chartist = ({
 Chartist.propTypes = {
   name: PropTypes.string,
   filter: PropTypes.arrayOf(PropTypes.string),
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      TIMESTAMP: PropTypes.string,
-      DISK_SIZE: PropTypes.arrayOf(PropTypes.shape({})),
-      ID: PropTypes.string,
-      CPU: PropTypes.string,
-      DISKRDBYTES: PropTypes.string,
-      DISKRDIOPS: PropTypes.string,
-      DISKWRBYTES: PropTypes.string,
-      DISKWRIOPS: PropTypes.string,
-      MEMORY: PropTypes.string,
-      NETRX: PropTypes.string,
-      NETTX: PropTypes.string,
-    })
-  ),
+  data: PropTypes.array,
   x: PropTypes.string,
   y: PropTypes.string,
   interpolationY: PropTypes.func,

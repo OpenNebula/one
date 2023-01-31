@@ -34,14 +34,14 @@ const getTabComponent = (tabName) =>
 
 const VmTemplateTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetTemplateQuery({ id })
+  const { isError, error, status, data } = useGetTemplateQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -51,11 +51,11 @@ const VmTemplateTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (status === 'fulfilled' || id === data?.ID) {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 VmTemplateTabs.propTypes = { id: PropTypes.string.isRequired }

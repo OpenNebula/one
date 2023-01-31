@@ -70,14 +70,14 @@ const VmTabs = memo(({ id }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const {
-    isLoading,
+    status,
     isError,
     error,
     data: vm = {},
   } = useGetVmQuery({ id }, { refetchOnMountOrArgChange: 10 })
   const [dismissError] = useUpdateUserTemplateMutation()
 
-  const { USER_TEMPLATE } = vm
+  const { USER_TEMPLATE, ID } = vm
 
   const handleDismissError = async () => {
     const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
@@ -103,30 +103,32 @@ const VmTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <>
-      <Fade in={!!vmError} unmountOnExit>
-        <Alert
-          variant="outlined"
-          severity="error"
-          className={classes.vmError}
-          sx={{ gridColumn: 'span 2' }}
-          action={
-            <SubmitButton
-              onClick={handleDismissError}
-              icon={<CloseIcon />}
-              tooltip={<Translate word={T.Dismiss} />}
-            />
-          }
-        >
-          {vmError}
-        </Alert>
-      </Fade>
-      <Tabs addBorder tabs={tabsAvailable} />
-    </>
-  )
+  if (status === 'fulfilled' || id === ID) {
+    return (
+      <>
+        <Fade in={!!vmError} unmountOnExit>
+          <Alert
+            variant="outlined"
+            severity="error"
+            className={classes.vmError}
+            sx={{ gridColumn: 'span 2' }}
+            action={
+              <SubmitButton
+                onClick={handleDismissError}
+                icon={<CloseIcon />}
+                tooltip={<Translate word={T.Dismiss} />}
+              />
+            }
+          >
+            {vmError}
+          </Alert>
+        </Fade>
+        <Tabs addBorder tabs={tabsAvailable} />
+      </>
+    )
+  }
+
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 VmTabs.propTypes = { id: PropTypes.string.isRequired }

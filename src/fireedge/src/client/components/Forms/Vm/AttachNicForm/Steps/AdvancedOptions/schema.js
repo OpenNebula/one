@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, number, string, ObjectSchema } from 'yup'
+import { ObjectSchema, boolean, number, string } from 'yup'
 
+import { HYPERVISORS, INPUT_TYPES, Nic, T, VN_DRIVERS } from 'client/constants'
 import {
   Field,
   Section,
-  filterFieldsByHypervisor,
   filterFieldsByDriver,
+  filterFieldsByHypervisor,
   getObjectSchemaFromFields,
 } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS, Nic } from 'client/constants'
 
 import { useDisableInputByUserAndConfig } from 'client/features/Auth'
 
@@ -219,16 +219,6 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
         .trim()
         .notRequired()
         .default(() => undefined),
-      grid: { sm: 6 },
-    },
-    {
-      name: 'EXTERNAL',
-      label: T.External,
-      tooltip: T.ExternalConcept,
-      type: INPUT_TYPES.SWITCH,
-      dependOf: 'PARENT',
-      htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,
-      validation: boolean().yesOrNo(),
       grid: { sm: 6 },
     },
   ].filter(Boolean)

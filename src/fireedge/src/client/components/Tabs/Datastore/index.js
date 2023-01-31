@@ -32,14 +32,16 @@ const getTabComponent = (tabName) =>
 
 const DatastoreTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isLoading, isError, error } = useGetDatastoreQuery({ id })
+  const { isError, error, status, data } = useGetDatastoreQuery({
+    id,
+  })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.DATASTORE
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view])
+  }, [view, id])
 
   if (isError) {
     return (
@@ -49,11 +51,11 @@ const DatastoreTabs = memo(({ id }) => {
     )
   }
 
-  return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
-  ) : (
-    <Tabs addBorder tabs={tabsAvailable ?? []} />
-  )
+  if (status === 'fulfilled' || id === data?.ID) {
+    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+  }
+
+  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
 
 DatastoreTabs.propTypes = { id: PropTypes.string.isRequired }
