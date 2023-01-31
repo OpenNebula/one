@@ -15,19 +15,19 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/host'
 
+import { Host } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
 import {
-  updateResourceOnPool,
   removeResourceOnPool,
   updateNameOnResource,
+  updateResourceOnPool,
   updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
-import { Host } from 'client/constants'
 
 const { HOST } = ONE_RESOURCES
 const { HOST_POOL } = ONE_RESOURCES_POOL
@@ -71,7 +71,49 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      transformResponse: (data) => data?.HOST ?? {},
+      transformResponse: (data) => {
+        if (!data?.HOST) return {}
+
+        const monitoring = data.HOST.MONITORING
+        if (!monitoring) return data.HOST
+
+        /**
+         * [GH-6027] Numa nodes attributes are not together, some of the attributes
+         * now come from monitoring. This means that when we ask for the host
+         * data we need to merge the numa monitoring data with the numa host
+         * share data
+         */
+        const numaNodes =
+          data.HOST.HOST_SHARE?.NUMA_NODES?.NODE &&
+          Array.isArray(data.HOST.HOST_SHARE.NUMA_NODES.NODE)
+            ? data.HOST.HOST_SHARE.NUMA_NODES.NODE
+            : [data.HOST.HOST_SHARE.NUMA_NODES.NODE]
+
+        const monitoringNodes = Array.isArray(monitoring.NUMA_NODE)
+          ? monitoring.NUMA_NODE
+          : [monitoring.NUMA_NODE]
+
+        numaNodes.map((node) => {
+          const monitoringNode = monitoringNodes.find(
+            (mNode) => mNode.NODE_ID === node.NODE_ID
+          )
+          node.MEMORY.FREE = monitoringNode.MEMORY.FREE
+          node.MEMORY.USED = monitoringNode.MEMORY.USED
+
+          node.HUGEPAGE.map((page) => {
+            const monitoringPage = monitoringNode.HUGEPAGE.find(
+              (mPage) => mPage.SIZE === page.SIZE
+            )
+            page.FREE = monitoringPage.FREE
+
+            return page
+          })
+
+          return node
+        })
+
+        return data.HOST
+      },
       providesTags: (_, __, { id }) => [{ type: HOST, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
