@@ -77,7 +77,7 @@ public:
      *
      * @return ErroCode for the request.
      */
-    ErrorCode request_execute(int id, std::string name, bool on_hold,
+    ErrorCode request_execute(int id, const std::string& name, bool on_hold,
         const std::string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 

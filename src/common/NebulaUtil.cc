@@ -200,6 +200,8 @@ string * one_util::aes256cbc_encrypt(const string& in, const string& password)
     }
     else
     {
+        delete aes256;
+
         return nullptr;
     }
 }

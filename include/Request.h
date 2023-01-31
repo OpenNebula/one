@@ -63,72 +63,33 @@ public:
     bool success; /**< True if the call was successfull false otherwise */
 
     RequestAttributes(AuthRequest::Operation api_auth_op)
-    {
-        resp_obj        = PoolObjectSQL::NONE;
-        resp_id         = -1;
-        resp_msg        = "";
-        replication_idx = UINT64_MAX;
-        auth_op         = api_auth_op;
-    };
+        : resp_obj(PoolObjectSQL::NONE)
+        , resp_id(-1)
+        , replication_idx(UINT64_MAX)
+        , auth_op(api_auth_op)
+    {}
 
-    RequestAttributes(const RequestAttributes& ra)
-    {
-        uid = ra.uid;
-        gid = ra.gid;
-
-        uname = ra.uname;
-        gname = ra.gname;
-
-        password = ra.password;
-
-        group_ids = ra.group_ids;
-
-        session  = ra.session;
-        req_id   = ra.req_id;
-
-        umask    = ra.umask;
-
-        retval     = ra.retval;
-        retval_xml = ra.retval_xml;
-
-        resp_obj = ra.resp_obj;
-        resp_id  = ra.resp_id;
-        resp_msg = ra.resp_msg;
-
-        replication_idx = ra.replication_idx;
-
-        auth_op  = ra.auth_op;
-    };
+    RequestAttributes(const RequestAttributes& ra) = default;
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
-    {
-        uid = _uid;
-        gid = _gid;
-
-        password = "";
-
-        group_ids = ra.group_ids;
-
-        uname = "";
-        gname = "";
-
-        umask = 0;
-
-        session  = ra.session;
-        req_id   = ra.req_id;
-
-        umask    = ra.umask;
-
-        retval     = ra.retval;
-        retval_xml = ra.retval_xml;
-
-        resp_obj = PoolObjectSQL::NONE;
-        resp_id  = -1;
-        resp_msg = "";
-
-        replication_idx = UINT64_MAX;
-        auth_op  = ra.auth_op;
-    };
+        : uid(_uid)
+        , gid(_gid)
+        , uname()
+        , gname()
+        , password()
+        , group_ids(ra.group_ids)
+        , session(ra.session)
+        , req_id(ra.req_id)
+        , umask(ra.umask)
+        , retval(ra.retval)
+        , retval_xml(ra.retval_xml)
+        , extra_xml()
+        , resp_obj(PoolObjectSQL::NONE)
+        , resp_id(-1)
+        , resp_msg()
+        , replication_idx(UINT64_MAX)
+        , auth_op(ra.auth_op)
+    {}
 
     bool is_admin() const
     {
@@ -316,22 +277,16 @@ protected:
     Request(const std::string& mn,
             const std::string& signature,
             const std::string& help)
+        : pool(nullptr)
+        , method_name(mn)
+        , vm_action(VMActions::NONE_ACTION)
+        , log_method_call(true)
+        , leader_only(true)
+        , zone_disabled(false)
     {
-        pool = nullptr;
-
-        method_name = mn;
-
         _signature = signature;
-        _help      = help;
-
-        hidden_params.clear();
-
-        log_method_call = true;
-        leader_only     = true;
-        zone_disabled   = false;
-
-        vm_action = VMActions::NONE_ACTION;
-    };
+        _help = help;
+    }
 
     virtual ~Request() = default;
 

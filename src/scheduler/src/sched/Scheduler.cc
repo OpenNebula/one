@@ -1358,7 +1358,7 @@ void Scheduler::dispatch()
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
-        for (i = resources.rbegin() ; i != resources.rend() ; i++)
+        for (i = resources.rbegin() ; i != resources.rend(); ++i)
         {
             hid  = (*i)->oid;
             host = hpool->get(hid);
@@ -1437,7 +1437,7 @@ void Scheduler::dispatch()
                 j = ds_resources.rbegin();
             }
 
-            for ( ; j != ds_resources.rend() ; j++)
+            for ( ; j != ds_resources.rend(); ++j)
             {
                 ds = dspool->get((*j)->oid);
 
@@ -1517,7 +1517,7 @@ void Scheduler::dispatch()
 
                 netid = -1;
 
-                for (n = net_resources.rbegin() ; n != net_resources.rend(); n++)
+                for (n = net_resources.rbegin(); n != net_resources.rend(); ++n)
                 {
                     if ( diff_vnets && matched_networks.find((*n)->oid) != matched_networks.end() )
                     {

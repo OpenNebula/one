@@ -46,10 +46,12 @@ ObjectXML::ObjectXML(const std::string &xml_doc):paths(0),num_paths(0),xml(0),ct
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ObjectXML::ObjectXML(const xmlNodePtr node):paths(0),num_paths(0),xml(0),ctx(0)
+ObjectXML::ObjectXML(const xmlNodePtr node)
+    : paths(0)
+    , num_paths(0)
+    , xml(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0")))
+    , ctx(0)
 {
-    xml = xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"));
-
     if (xml == 0)
     {
         throw("Error allocating XML Document");

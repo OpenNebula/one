@@ -235,7 +235,7 @@ void LogDB::get_last_record_index(uint64_t& _i, unsigned int& _t)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::get_raft_state(std::string name, std::string &raft_xml)
+int LogDB::get_raft_state(const std::string& name, std::string &raft_xml)
 {
     ostringstream oss;
 
@@ -260,7 +260,7 @@ int LogDB::get_raft_state(std::string name, std::string &raft_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::update_raft_state(std::string name, std::string& raft_xml)
+int LogDB::update_raft_state(const std::string& name, std::string& raft_xml)
 {
     std::ostringstream oss;
 

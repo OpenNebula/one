@@ -141,10 +141,10 @@ private:
     /**
      *  Insert acl rules into rules attribute.
      *
-     *  @param default_vdc_acl the mask for the acls.
+     *  @param name_attr the name of the configuration attribute.
      *  @param type Object type for the acls.
      */
-     void insert_default_rules(std::string default_vdc_acl,
+     void insert_default_rules(const std::string& name_attr,
                                PoolObjectSQL::ObjectType type);
  };
 

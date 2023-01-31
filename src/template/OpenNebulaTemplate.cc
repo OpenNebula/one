@@ -207,7 +207,7 @@ void OpenNebulaTemplate::register_multiple_conf_default(
     std::vector<const VectorAttribute*>::const_iterator j;
     std::vector<const VectorAttribute*> attrs;
 
-    get(conf_section.c_str(), attrs);
+    get(conf_section, attrs);
 
     for (i = conf_default.begin(); i != conf_default.end(); )
     {
@@ -224,7 +224,7 @@ void OpenNebulaTemplate::register_multiple_conf_default(
 
             d_name = d_attr->vector_value("NAME");
 
-            for (j = attrs.begin(); j != attrs.end(); j++)
+            for (j = attrs.begin(); j != attrs.end(); ++j)
             {
                 if ( (*j)->vector_value("NAME") == d_name )
                 {
@@ -237,7 +237,7 @@ void OpenNebulaTemplate::register_multiple_conf_default(
             {
                 // insert into attributes
                 attributes.insert(make_pair(conf_section, d_attr));
-                i++;
+                ++i;
             }
             else
             {
@@ -249,7 +249,7 @@ void OpenNebulaTemplate::register_multiple_conf_default(
         }
         else
         {
-            i++;
+            ++i;
         }
     }
 }

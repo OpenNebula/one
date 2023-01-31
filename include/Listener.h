@@ -127,7 +127,7 @@ private:
 class Listener
 {
 public:
-    Listener(std::string _name)
+    Listener(const std::string& _name)
         : name(_name)
     {
     }

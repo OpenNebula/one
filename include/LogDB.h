@@ -146,14 +146,14 @@ public:
      *    @param raft attributes in XML format
      *    @return 0 on success
      */
-    int update_raft_state(std::string name, std::string& raft_xml);
+    int update_raft_state(const std::string& name, std::string& raft_xml);
 
     /**
      *  Returns the raft state attributes as stored in the log
      *    @param raft_xml attributes in xml
      *    @return 0 on success
      */
-    int get_raft_state(std::string name, std::string &raft_xml);
+    int get_raft_state(const std::string& name, std::string &raft_xml);
 
     /**
      *  Purge log records. Delete old records applied to database upto the

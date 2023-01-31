@@ -552,7 +552,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     os << "\tPRI\tID - HOSTS"<< endl
        << "\t------------------------"  << endl;
 
-    for (i = resources.rbegin(); i != resources.rend() ; i++)
+    for (i = resources.rbegin(); i != resources.rend(); ++i)
     {
         os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
@@ -564,7 +564,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
     const vector<Resource *> ds_resources = vm.match_datastores.get_resources();
 
-    for (i = ds_resources.rbegin(); i != ds_resources.rend() ; i++)
+    for (i = ds_resources.rbegin(); i != ds_resources.rend(); ++i)
     {
         os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
@@ -582,7 +582,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
         const vector<Resource *> net_resources = vm.nics[nic_id]->get_match_networks();
 
-        for (i = net_resources.rbegin(); i != net_resources.rend() ; i++)
+        for (i = net_resources.rbegin(); i != net_resources.rend(); ++i)
         {
             os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
         }

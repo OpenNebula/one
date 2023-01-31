@@ -14,6 +14,8 @@ jobs:
           ruby-version: 2.6
       - name: Install rubocop
         run: gem install rubocop
+      - name: Install CppCheck
+        run: sudo apt install -y cppcheck
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
