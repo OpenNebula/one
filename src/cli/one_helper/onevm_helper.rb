@@ -464,7 +464,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             tmp_str << "TIME = #{options[:schedule]}"
             tmp_str << str_periodic << ']'
 
-            vm.sched_action_add(tmp_str)
+            rc = vm.sched_action_add(tmp_str)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
         end
     end
 
