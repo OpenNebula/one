@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 
-import { Network } from 'iconoir-react'
 import {
-  useMediaQuery,
-  Typography,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Paper,
   Stack,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Typography,
+  useMediaQuery,
 } from '@mui/material'
+import { Network } from 'iconoir-react'
 
-import { rowStyles } from 'client/components/Tables/styles'
-import { StatusChip } from 'client/components/Status'
 import MultipleTags from 'client/components/MultipleTags'
+import { StatusChip } from 'client/components/Status'
+import { rowStyles } from 'client/components/Tables/styles'
 
 import { Translate } from 'client/components/HOC'
+import { SecurityGroupRules } from 'client/components/Tabs/Common/RulesSecGroups'
+import { Nic, NicAlias, T } from 'client/constants'
 import { stringToBoolean } from 'client/models/Helper'
 import { groupBy } from 'client/utils'
-import { T, Nic, NicAlias } from 'client/constants'
-import { SecurityGroupRules } from 'client/components/Tabs/Common/RulesSecGroups'
 
 const NicCard = memo(
   /**
@@ -64,6 +64,9 @@ const NicCard = memo(
       NIC_ID,
       NETWORK = '-',
       IP,
+      IP6,
+      IP6_GLOBAL,
+      IP6_ULA,
       MAC,
       PCI_ID,
       RDP,
@@ -97,10 +100,13 @@ const NicCard = memo(
       () =>
         [
           { text: IP, dataCy: `${dataCy}-ip` },
+          { text: IP6, dataCy: `${dataCy}-ip6` },
+          { text: IP6_GLOBAL, dataCy: `${dataCy}-ip6-global` },
+          { text: IP6_ULA, dataCy: `${dataCy}-ip6-ula` },
           { text: MAC, dataCy: `${dataCy}-mac` },
           { text: ADDRESS, dataCy: `${dataCy}-address` },
         ].filter(({ text } = {}) => Boolean(text)),
-      [IP, MAC, ADDRESS]
+      [IP, IP6, IP6_GLOBAL, IP6_ULA, MAC, ADDRESS]
     )
 
     return (

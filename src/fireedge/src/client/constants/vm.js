@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as STATES from 'client/constants/states'
+import { T } from 'client/constants'
 import * as ACTIONS from 'client/constants/actions'
 import COLOR from 'client/constants/color'
+import * as STATES from 'client/constants/states'
 // eslint-disable-next-line no-unused-vars
-import { Permissions, LockInfo } from 'client/constants/common'
+import { LockInfo, Permissions } from 'client/constants/common'
 // eslint-disable-next-line no-unused-vars
 import { ScheduleAction } from 'client/constants/scheduler'
 
@@ -1964,6 +1965,8 @@ export const NIC_IP_ATTRS = [
   'IP',
   'IP6',
   ['IP6_ULA', 'IP6_GLOBAL'],
+  'IP6_GLOBAL',
+  'IP6_ULA',
   'MAC',
 ]
 
