@@ -21,7 +21,6 @@ import * as STATES from 'client/constants/states'
 import { LockInfo, Permissions } from 'client/constants/common'
 // eslint-disable-next-line no-unused-vars
 import { ScheduleAction } from 'client/constants/scheduler'
-import { T } from 'client/constants'
 
 /**
  * @typedef {object} Disk
