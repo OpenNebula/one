@@ -37,7 +37,12 @@ public:
 
     // ---------------------- Constructors ------------------------------------
 
-    ObjectXML():xml(0), ctx(0) {}
+    ObjectXML()
+        : paths(nullptr)
+        , num_paths(0)
+        , xml(nullptr)
+        , ctx(nullptr)
+    {}
 
     /**
      *  Constructs an object using a XML document

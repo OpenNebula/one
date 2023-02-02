@@ -578,7 +578,7 @@ int Host::post_update_template(string& error)
         im_mad_name = new_im_mad;
     }
 
-    if (!new_im_mad.empty())
+    if (!new_vm_mad.empty())
     {
         vmm_mad_name = new_vm_mad;
     }

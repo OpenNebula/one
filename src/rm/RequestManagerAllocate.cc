@@ -175,7 +175,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     int    rc, id;
 
-    int             cluster_id   = ClusterPool::NONE_CLUSTER_ID;
     string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     PoolObjectAuth  cluster_perms;
 
@@ -195,7 +194,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
         }
     }
 
-    cluster_id = get_cluster_id(params);
+    int cluster_id = get_cluster_id(params);
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {

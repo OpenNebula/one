@@ -597,30 +597,36 @@ public:
     //Constructors and = are private to only access the class through instance
     // -----------------------------------------------------------------------
 
-    Nebula():nebula_configuration(0),
-        default_user_quota( "DEFAULT_USER_QUOTAS",
-                            "/DEFAULT_USER_QUOTAS/DATASTORE_QUOTA",
-                            "/DEFAULT_USER_QUOTAS/NETWORK_QUOTA",
-                            "/DEFAULT_USER_QUOTAS/IMAGE_QUOTA",
-                            "/DEFAULT_USER_QUOTAS/VM_QUOTA"),
-        default_group_quota("DEFAULT_GROUP_QUOTAS",
-                            "/DEFAULT_GROUP_QUOTAS/DATASTORE_QUOTA",
-                            "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
-                            "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
-                            "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), db_backend_type("sqlite"), logdb(0), fed_logdb(0),
-        vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
-        dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
-        vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
-        vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0),
-        hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
+    Nebula()
+        : nebula_configuration(0)
+        , federation_enabled(false)
+        , federation_master(false)
+        , cache(false)
+        , zone_id(0)
+        , server_id(-1)
+        , default_user_quota( "DEFAULT_USER_QUOTAS",
+                              "/DEFAULT_USER_QUOTAS/DATASTORE_QUOTA",
+                              "/DEFAULT_USER_QUOTAS/NETWORK_QUOTA",
+                              "/DEFAULT_USER_QUOTAS/IMAGE_QUOTA",
+                              "/DEFAULT_USER_QUOTAS/VM_QUOTA")
+        , default_group_quota("DEFAULT_GROUP_QUOTAS",
+                             "/DEFAULT_GROUP_QUOTAS/DATASTORE_QUOTA",
+                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
+                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
+                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA")
+        , system_db(0), db_backend_type("sqlite"), logdb(0), fed_logdb(0)
+        , vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0)
+        , dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0)
+        , vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0)
+        , vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0)
+        , hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
     };
 
     ~Nebula();
 
 private:
-    Nebula& operator=(Nebula const&){return *this;};
+    Nebula& operator=(Nebula const&) = delete;
 
     // ---------------------------------------------------------------
     // Environment variables

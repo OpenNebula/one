@@ -49,7 +49,6 @@ public:
         : cmd(c)
         , arg(a)
         , concurrency(ct)
-        , pid(-1)
     {}
 
     ~Driver()
@@ -129,12 +128,12 @@ private:
     /**
      *  Communication pipe file descriptor (daemon <- driver)
      */
-    int from_drv;
+    int from_drv = -1;
 
     /**
      *  Communication pipe file descriptor (daemon -> driver)
      */
-    int to_drv;
+    int to_drv = -1;
 
     /**
      *  Driver configuration: path and arguments
@@ -143,12 +142,12 @@ private:
 
     std::string arg;
 
-    int  concurrency;
+    int  concurrency = 0;
 
     /**
      *  Process ID of the driver
      */
-    pid_t pid;
+    pid_t pid = -1;
 
     /**
      *  Class to read lines from the stream

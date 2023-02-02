@@ -113,7 +113,7 @@ private:
 
     std::condition_variable _cond;
 
-    int _concurrency;
+    int _concurrency = 0;
 
     std::map<typename MSG::msg_enum, callback_t > actions;
 

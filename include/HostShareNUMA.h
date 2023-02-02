@@ -50,14 +50,19 @@
 class HostShareNode : public Template
 {
 public:
-    HostShareNode() : Template(false, '=', "NODE"){};
+    HostShareNode()
+        : Template(false, '=', "NODE")
+        , node_id(std::numeric_limits<unsigned int>::max())
+    {}
 
-    HostShareNode(unsigned int i) : Template(false, '=', "NODE"), node_id(i)
+    HostShareNode(unsigned int i)
+        : Template(false, '=', "NODE")
+        , node_id(i)
     {
         replace("NODE_ID", i);
-    };
+    }
 
-    virtual ~HostShareNode(){};
+    virtual ~HostShareNode() = default;
 
     /**
      *  Builds the node from its XML representation. This function is used when

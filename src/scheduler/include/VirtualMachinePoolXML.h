@@ -222,7 +222,7 @@ protected:
 
         oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
 
-        return get_nodes(oss.str().c_str(), content);
+        return get_nodes(oss.str(), content);
     }
 };
 #endif /* VM_POOL_XML_H_ */

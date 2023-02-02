@@ -707,7 +707,7 @@ int VirtualMachinePool::calculate_showback(
 
         std::string acct_str;
 
-        rc = dump_acct(acct_str, start_time, end_time, start_index, chunk_size);
+        dump_acct(acct_str, start_time, end_time, start_index, chunk_size);
         start_index += chunk_size;
 
         ObjectXML xml(acct_str);
@@ -717,7 +717,7 @@ int VirtualMachinePool::calculate_showback(
         //--------------------------------------------------------------------------
 
         nodes.clear();
-        rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
+        xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
 
         for ( auto node : nodes )
         {
@@ -775,10 +775,7 @@ int VirtualMachinePool::calculate_showback(
                     if( (et > t || et == 0) &&
                         (st != 0 && st <= t_next) ) {
 
-                        time_t stime = t;
-                        if(st != 0){
-                            stime = max(t, st);
-                        }
+                        time_t stime = max(t, st);
 
                         time_t etime = t_next;
                         if(et != 0){

@@ -127,6 +127,8 @@ public:
         if ( new_ar == 0 )
         {
             error = "AR not found in IPAM driver response";
+
+            return -1;
         }
 
         vattr->replace(new_ar->value());
@@ -148,6 +150,8 @@ public:
         if ( addr == 0 )
         {
             error = "ADDRESS not found in IPAM driver response";
+
+            return -1;
         }
 
         ip = addr->vector_value("IP");

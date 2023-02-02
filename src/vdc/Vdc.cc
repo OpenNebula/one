@@ -534,9 +534,9 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
             }
         }
 
-        for (auto id : del_ids)
+        for (auto del_id : del_ids)
         {
-            this->del(groups, zone_id, id, error_aux);
+            this->del(groups, zone_id, del_id, error_aux);
         }
     }
 

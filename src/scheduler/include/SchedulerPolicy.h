@@ -115,7 +115,7 @@ private:
 
         float weight;
 
-        float max;
+        float max = 0;
     } sw;
 };
 
