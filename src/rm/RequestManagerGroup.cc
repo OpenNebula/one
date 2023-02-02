@@ -57,7 +57,7 @@ void GroupSetQuota::
         return;
     }
 
-    group->quota.set(&quota_tmpl, att.resp_msg);
+    rc = group->quota.set(&quota_tmpl, att.resp_msg);
 
     static_cast<GroupPool *>(pool)->update_quotas(group.get());
 

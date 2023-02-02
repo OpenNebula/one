@@ -848,10 +848,11 @@ int MarketPlaceDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Reque
 
     {
         unique_ptr<MarketPlace> mp(static_cast<MarketPlace *>(object.release()));
-        bool can_del = mp->is_public() || apps.empty();
 
         apps  = mp->get_marketapp_ids();
         mp_id = mp->get_oid();
+
+        bool can_del = mp->is_public() || apps.empty();
 
         if (!can_del)
         {

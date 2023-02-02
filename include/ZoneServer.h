@@ -81,7 +81,9 @@ public:
      *  attributes
      *    @param tmpl template with SERVER
      */
-    ZoneServers(Template * tmpl):ExtendedAttributeSet(false), next_id(-1)
+    ZoneServers(Template * tmpl)
+        : ExtendedAttributeSet(false)
+        , next_id(-1)
     {
         std::vector<VectorAttribute *> vas;
 
@@ -109,9 +111,12 @@ public:
     /**
      *  Creates an empty zone server set
      */
-    ZoneServers():ExtendedAttributeSet(false){};
+    ZoneServers()
+        : ExtendedAttributeSet(false)
+        , next_id(-1)
+    {}
 
-    virtual ~ZoneServers(){};
+    virtual ~ZoneServers() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Iterators                                                              */

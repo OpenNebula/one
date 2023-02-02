@@ -104,7 +104,7 @@ int VirtualMachineBase::init_attributes()
     }
     else
     {
-        vm_template = 0;
+        vm_template = nullptr;
     }
 
     nodes.clear();
@@ -116,21 +116,21 @@ int VirtualMachineBase::init_attributes()
         user_template->from_xml_node(nodes[0]);
 
         free_nodes(nodes);
+
+        public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
+
+        if (public_cloud == false)
+        {
+            attrs.clear();
+            public_cloud = (user_template->get("EC2", attrs) > 0);
+        }
     }
     else
     {
-        user_template = 0;
+        user_template = nullptr;
     }
 
-    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
-
-    if (public_cloud == false)
-    {
-        attrs.clear();
-        public_cloud = (user_template->get("EC2", attrs) > 0);
-    }
-
-    if (vm_template != 0)
+    if (vm_template != nullptr)
     {
         init_storage_usage();
     }
@@ -200,10 +200,7 @@ void VirtualMachineBase::init_storage_usage()
                 continue;
             }
 
-            if (ds_usage.count(ds_id) == 0)
-            {
-                ds_usage[ds_id] = 0;
-            }
+            ds_usage.emplace(ds_id, 0); // no-op if element already exists
 
             if (disk->vector_value("CLONE", clone) != 0)
             {

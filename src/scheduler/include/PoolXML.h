@@ -90,7 +90,7 @@ public:
         get_suitable_nodes(nodes);
 
         for (unsigned int i=0 ;
-             i < nodes.size() && ( pool_limit <= 0 || i < pool_limit ) ;
+             i < nodes.size() && ( pool_limit == 0 || i < pool_limit ) ;
              i++)
         {
             add_object(nodes[i]);

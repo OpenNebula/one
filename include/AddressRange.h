@@ -753,7 +753,7 @@ private:
     /**
      *  The type of addresses defined in the range
      */
-    AddressType type;
+    AddressType type = NONE;
 
     /**
      *  ID for this range, unique within the Virtual Network
@@ -763,12 +763,12 @@ private:
     /**
      *  Number of addresses in the range
      */
-    unsigned long int size;
+    unsigned long int size = 0;
 
     /**
      *  First IP4 in the range
      */
-    unsigned int ip;
+    unsigned int ip = 0;
 
     /**
      *  First MAC in the range
@@ -809,7 +809,7 @@ private:
      *  The Address Range attributes as a Template VectorAttribute. This is
      *  used to generate XML or a template representation of the AR.
      */
-    VectorAttribute * attr;
+    VectorAttribute * attr = nullptr;
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes                                                  */

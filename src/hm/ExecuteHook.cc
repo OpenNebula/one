@@ -50,7 +50,7 @@ ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
         c_args[i] = nullptr;
     }
 
-    for (int i=1; iss >> args[i] && i < EXECUTE_HOOK_MAX_ARG - 1; ++i)
+    for (int i=1; i < EXECUTE_HOOK_MAX_ARG && iss >> args[i]; ++i)
     {
         c_args[i] = args[i].c_str();
     }

@@ -1,19 +1,66 @@
 <suppressions>
-<!--
+    <!-- Global suppression, issues which we don't want to solve -->
 	<suppress>
 		<id>variableScope</id>
 		<fileName>*</fileName>
 	</suppress>
+	<suppress>
+		<id>noExplicitConstructor</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>missingInclude</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>danglingLifetime</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>shadowFunction</id>
+		<fileName>*</fileName>
+	</suppress>
+	<!-- Suppresions specific per file, false positives -->
+	<suppress>
+		<id>containerOutOfBounds</id>
+		<fileName>src/hm/HookLog.cc</fileName>
+		<symbolName>query_output</symbolName>
+	</suppress>
+	<suppress>
+		<id>ctuuninitvar</id>
+		<fileName>src/sql/LogDB.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/raft/ReplicaThread.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/vmm/LibVirtDriverKVM.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/sql/LogDB.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/monitor/src/data_model/VMRPCPool.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>nullPointer</id>
+		<fileName>src/scheduler/include/Scheduler.h</fileName>
+	</suppress>
+	<suppress>
+		<id>uninitMemberVar</id>
+		<fileName>include/Callbackable.h</fileName>
+	</suppress>
+	<!-- Temporary suppressions, we may want to solve them in the future -->
 	<suppress>
 		<id>unusedVariable</id>
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
 		<id>noConstructor</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>noExplicitConstructor</id>
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
@@ -32,23 +79,13 @@
 		<id>unreadVariable</id>
 		<fileName>*</fileName>
 	</suppress>
--->
 	<suppress>
-		<id>missingInclude</id>
+		<id>constParameter</id>
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
-		<id>danglingLifetime</id>
+		<id>useStlAlgorithm</id>
 		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>containerOutOfBounds</id>
-		<fileName>src/hm/HookLog.cc</fileName>
-		<symbolName>query_output</symbolName>
-	</suppress>
-	<suppress>
-		<id>ctuuninitvar</id>
-		<fileName>src/sql/LogDB.cc</fileName>
 	</suppress>
 </suppressions>
 

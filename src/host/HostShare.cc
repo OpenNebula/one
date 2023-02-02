@@ -246,7 +246,7 @@ void HostShare::update_capacity(Template& ht, string& rcpu, string& rmem)
 
     if ( ht.get("VMS_THREAD", vthread) )
     {
-        if ( vthread <= 0 )
+        if ( vthread == 0 )
         {
             vthread = 1;
 

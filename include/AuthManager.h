@@ -36,10 +36,11 @@ public:
 
     AuthManager(
         time_t             timer,
-        const std::string& mads_location):
-            DriverManager(mads_location),
-            Listener("Authorization Manager"),
-            timer_thread(timer, [this](){timer_action();})
+        const std::string& mads_location)
+            : DriverManager(mads_location)
+            , Listener("Authorization Manager")
+            , timer_thread(timer, [this](){timer_action();})
+            , authz_enabled(false)
     {
     }
 

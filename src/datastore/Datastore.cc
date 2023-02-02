@@ -312,7 +312,7 @@ static int check_tm_target_type(string& tm_tt)
 
 /* -------------------------------------------------------------------------- */
 
-int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
+int Datastore::set_ds_mad(const std::string &mad, std::string &error_str)
 {
     const VectorAttribute* vatt;
     std::vector <std::string> vrequired_attrs;
@@ -371,7 +371,7 @@ error_common:
 
 /* -------------------------------------------------------------------------- */
 
-int Datastore::set_tm_mad(string &tm_mad, string &error_str)
+int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
 {
     const VectorAttribute* vatt;
 
@@ -437,35 +437,35 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
             for (const auto &mode : modes)
             {
-                string tm_mad = one_util::trim(mode);
-                one_util::toupper(tm_mad);
+                string tm = one_util::trim(mode);
+                one_util::toupper(tm);
 
-                st = vatt->vector_value("LN_TARGET_" + tm_mad);
-
-                if (check_tm_target_type(st) == -1)
-                {
-                    goto error;
-                }
-
-                replace_template_attribute("LN_TARGET_" + tm_mad, st);
-
-                st = vatt->vector_value("CLONE_TARGET_" + tm_mad);
+                st = vatt->vector_value("LN_TARGET_" + tm);
 
                 if (check_tm_target_type(st) == -1)
                 {
                     goto error;
                 }
 
-                replace_template_attribute("CLONE_TARGET_" + tm_mad, st);
+                replace_template_attribute("LN_TARGET_" + tm, st);
 
-                st = vatt->vector_value("DISK_TYPE_" + tm_mad);
+                st = vatt->vector_value("CLONE_TARGET_" + tm);
+
+                if (check_tm_target_type(st) == -1)
+                {
+                    goto error;
+                }
+
+                replace_template_attribute("CLONE_TARGET_" + tm, st);
+
+                st = vatt->vector_value("DISK_TYPE_" + tm);
 
                 if (st.empty())
                 {
                     goto error;
                 }
 
-                replace_template_attribute("DISK_TYPE_" + tm_mad, st);
+                replace_template_attribute("DISK_TYPE_" + tm, st);
             }
         }
 

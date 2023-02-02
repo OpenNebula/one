@@ -45,7 +45,10 @@ HostMonitorManager::HostMonitorManager(
         const std::string& driver_path,
         int                timer_period,
         int                monitor_interval_host)
-    : hpool(hp)
+    : driver_manager(make_unique<driver_manager_t>(driver_path))
+    , udp_driver(make_unique<UDPMonitorDriver>(addr, port))
+    , tcp_driver(make_unique<TCPMonitorDriver>(addr, port))
+    , hpool(hp)
     , vmpool(vmp)
     , threads(_threads)
     , timer_period(timer_period)
@@ -53,10 +56,7 @@ HostMonitorManager::HostMonitorManager(
     , is_leader(false)
 {
     oned_driver    = make_unique<OneMonitorDriver>(this);
-    udp_driver     = make_unique<UDPMonitorDriver>(addr, port);
-    tcp_driver     = make_unique<TCPMonitorDriver>(addr, port);
-    driver_manager = make_unique<driver_manager_t>(driver_path);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

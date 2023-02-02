@@ -187,7 +187,7 @@ protected:
         oss << "/VM_POOL/VM/TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
             << " and (not(DONE > 0) or boolean(REPEAT))) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
-        return get_nodes(oss.str().c_str(), content);
+        return get_nodes(oss.str(), content);
     }
 };
 
@@ -220,7 +220,7 @@ protected:
 
         oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
 
-        return get_nodes(oss.str().c_str(), content);
+        return get_nodes(oss.str(), content);
     }
 };
 #endif /* VM_POOL_XML_H_ */

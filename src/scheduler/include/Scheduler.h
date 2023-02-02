@@ -78,6 +78,7 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
+        zone_id(0),
         mem_ds_scale(0),
         diff_vnets(false)
     {

@@ -1325,7 +1325,7 @@ void Scheduler::dispatch()
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
     for (k = vm_rs.rbegin(); k != vm_rs.rend() &&
-            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit ); ++k)
+            ( dispatch_limit == 0 || dispatched_vms < dispatch_limit ); ++k)
     {
         dispatched = false;
 

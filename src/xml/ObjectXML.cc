@@ -31,7 +31,11 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ObjectXML::ObjectXML(const std::string &xml_doc):paths(0),num_paths(0),xml(0),ctx(0)
+ObjectXML::ObjectXML(const std::string &xml_doc)
+    : paths(nullptr)
+    , num_paths(0)
+    , xml(nullptr)
+    , ctx(nullptr)
 {
     try
     {

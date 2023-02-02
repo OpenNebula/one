@@ -53,7 +53,7 @@ public:
 
     virtual ~HostSharePCI()
     {
-        clear();
+        HostSharePCI::clear();
     };
 
     /**
