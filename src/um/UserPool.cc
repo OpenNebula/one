@@ -402,9 +402,9 @@ int UserPool::allocate(
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Add the primary and secondary groups to the collection
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        user->add_group(gid);
+        user->add_group(group_id);
     }
 
     // Set a password for the OneGate tokens
@@ -419,9 +419,9 @@ int UserPool::allocate(
     }
 
     // Add the user to the main and secondary groups
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        auto group = gpool->get(gid);
+        auto group = gpool->get(group_id);
 
         if (!group) //Secondary group no longer exists
         {
@@ -443,9 +443,9 @@ int UserPool::allocate(
     if ( driver_managed_group_admin )
     {
         // Set the user group admin
-        for (auto gid : agids)
+        for (auto group_id : agids)
         {
-            auto group = gpool->get(gid);
+            auto group = gpool->get(group_id);
 
             if (!group) //Secondary group no longer exists
             {
@@ -486,9 +486,9 @@ error_group:
 
     // Remove from all the groups, just in case the user id was added to a any
     // of them before a non-existing group was found
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        if ( auto group = gpool->get(gid) )
+        if ( auto group = gpool->get(group_id) )
         {
             group->del_user(*oid);
 

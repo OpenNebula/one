@@ -84,10 +84,7 @@ public:
      */
     bool test_ds_capacity(int dsid, long long vm_disk_mb)
     {
-        if (ds_free_disk.count(dsid) == 0)
-        {
-            ds_free_disk[dsid] = free_disk;
-        }
+        ds_free_disk.emplace(dsid, free_disk);
 
         return (vm_disk_mb < ds_free_disk[dsid]);
     }
@@ -100,10 +97,7 @@ public:
      */
     void add_ds_capacity(int dsid, long long vm_disk_mb)
     {
-        if (ds_free_disk.count(dsid) == 0)
-        {
-            ds_free_disk[dsid] = free_disk;
-        }
+        ds_free_disk.emplace(dsid, free_disk);
 
         ds_free_disk[dsid] -= vm_disk_mb;
     }
@@ -117,19 +111,19 @@ private:
     friend class HostXML;
 
     // Host computing capacity and usage
-    long long mem_usage;
-    long long cpu_usage;
+    long long mem_usage = 0;
+    long long cpu_usage = 0;
 
-    long long max_mem;
-    long long max_cpu;
+    long long max_mem = 0;
+    long long max_cpu = 0;
 
-    long long running_vms;
+    long long running_vms = 0;
 
     // PCI devices
     HostSharePCI pci;
 
     // System datastore
-    long long free_disk;
+    long long free_disk = 0;
     std::map<int, long long> ds_free_disk;
 
     //Numa Nodes

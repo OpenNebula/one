@@ -228,18 +228,18 @@ void VirtualMachineXML::init_attributes()
         user_template->from_xml_node(nodes[0]);
 
         free_nodes(nodes);
+
+        public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
+
+        if (public_cloud == false)
+        {
+            attrs.clear();
+            public_cloud = (user_template->get("EC2", attrs) > 0);
+        }
     }
     else
     {
         user_template = 0;
-    }
-
-    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
-
-    if (public_cloud == false)
-    {
-        attrs.clear();
-        public_cloud = (user_template->get("EC2", attrs) > 0);
     }
 
     only_public_cloud = false;
@@ -313,10 +313,7 @@ void VirtualMachineXML::init_storage_usage()
                 continue;
             }
 
-            if (ds_usage.count(ds_id) == 0)
-            {
-                ds_usage[ds_id] = 0;
-            }
+            ds_usage.emplace(ds_id, 0);
 
             if (disk->vector_value("CLONE", clone) != 0)
             {
@@ -455,7 +452,7 @@ bool VirtualMachineXML::test_image_datastore_capacity(
         {
             ostringstream oss;
 
-            oss << "Image Datastore " << ds->get_oid()
+            oss << "Image Datastore " << ds_it->first
                 << " does not have enough capacity";
 
             error_msg = oss.str();

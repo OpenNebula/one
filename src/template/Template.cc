@@ -531,7 +531,7 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
         attr = new VectorAttribute(
                         reinterpret_cast<const char *>(node->name));
 
-        for(child = child; child != 0; child = child->next)
+        for( ; child != 0; child = child->next)
         {
             grandchild = child->children;
 

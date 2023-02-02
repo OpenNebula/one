@@ -14,10 +14,10 @@
 # To disable specific error messages use cppcheck-suppressions.xml file
 
 SOURCES="src"
-INCLUDES="-I include"
+INCLUDES="-I include -I src/monitor/include -I src/scheduler/include"
 DEFINES="-DSQLITE_DB -DMYSQL_DB -DPOSTGRESQL_DB -DSYSTEMD"
-ENABLE="--enable=performance,information"
-IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge"
+ENABLE="--enable=performance,information,warning,portability,style"
+IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers"
 SUPRESS="--suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"
 OTHERS="--std=c++14 --error-exitcode=2 -q"
 

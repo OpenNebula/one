@@ -39,30 +39,18 @@ public:
 
 private:
     /* ---------------------------------------------------------------------- */
-    /* Re-implement DB public functions not used in scheduler                */
+    /* Disable public methods not used in scheduler                */
     /* ---------------------------------------------------------------------- */
-    int start()
-    {
-        return -1;
-    }
+    int start() = delete;
 
     int add_rule(long long user,
                  long long resource,
                  long long rights,
-                 std::string&   error_str)
-    {
-        return -1;
-    };
+                 std::string&   error_str) = delete;
 
-    int del_rule(int oid, std::string& error_str)
-    {
-        return -1;
-    };
+    int del_rule(int oid, std::string& error_str) = delete;
 
-    int dump(std::ostringstream& oss)
-    {
-        return -1;
-    };
+    int dump(std::ostringstream& oss) = delete;
 
     Client * client;
 

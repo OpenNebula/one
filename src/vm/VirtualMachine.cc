@@ -2779,12 +2779,6 @@ int VirtualMachine::replace_template(
     auto new_tmpl =
         make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
 
-    if ( new_tmpl == 0 )
-    {
-        error = "Cannot allocate a new template";
-        return -1;
-    }
-
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
         return -1;
@@ -2838,12 +2832,6 @@ int VirtualMachine::append_template(
         make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
     string rname;
 
-    if ( new_tmpl == 0 )
-    {
-        error = "Cannot allocate a new template";
-        return -1;
-    }
-
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
         return -1;
@@ -2852,31 +2840,18 @@ int VirtualMachine::append_template(
     /* ---------------------------------------------------------------------- */
     /* Append new_tmpl to the current user_template                           */
     /* ---------------------------------------------------------------------- */
+    // Create a copy of actual user template
     auto old_user_tmpl = make_unique<VirtualMachineTemplate>(*user_obj_template);
 
-    if (user_obj_template != 0)
+    if (keep_restricted &&
+        new_tmpl->check_restricted(rname, user_obj_template.get()))
     {
-        if (keep_restricted &&
-            new_tmpl->check_restricted(rname, user_obj_template.get()))
-        {
-            error ="User Template includes a restricted attribute " + rname;
+        error ="User Template includes a restricted attribute " + rname;
 
-            return -1;
-        }
-
-        user_obj_template->merge(new_tmpl.get());
+        return -1;
     }
-    else
-    {
-        if (keep_restricted && new_tmpl->check_restricted(rname))
-        {
-            error ="User Template includes a restricted attribute " + rname;
 
-            return -1;
-        }
-
-        user_obj_template = move(new_tmpl);
-    }
+    user_obj_template->merge(new_tmpl.get());
 
     if (post_update_template(error) == -1)
     {
@@ -3470,15 +3445,25 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
 
         VirtualMachineNic * nic = get_nic(nic_id);
 
+        if (!nic)
+        {
+            std::ostringstream oss;
+
+            oss << "NIC_ID " << nic_id << " not found";
+            estr = oss.str();
+
+            return -1;
+        }
+
         net_mode = nic->vector_value("NETWORK_MODE");
 
         string network_id = nic->vector_value("NETWORK_ID");
 
-        if (nic == 0 || !one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
+        if (!one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
         {
             std::ostringstream oss;
 
-            oss << "NIC_ID "<< nic_id << " not found or not AUTO";
+            oss << "NIC_ID " << nic_id << " not AUTO";
             estr = oss.str();
 
             return -1;

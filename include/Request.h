@@ -63,10 +63,16 @@ public:
     bool success; /**< True if the call was successfull false otherwise */
 
     RequestAttributes(AuthRequest::Operation api_auth_op)
-        : resp_obj(PoolObjectSQL::NONE)
+        : uid(-1)
+        , gid(-1)
+        , req_id(-1)
+        , umask(0)
+        , retval(nullptr)
+        , resp_obj(PoolObjectSQL::NONE)
         , resp_id(-1)
         , replication_idx(UINT64_MAX)
         , auth_op(api_auth_op)
+        , success(false)
     {}
 
     RequestAttributes(const RequestAttributes& ra) = default;
@@ -89,6 +95,7 @@ public:
         , resp_msg()
         , replication_idx(UINT64_MAX)
         , auth_op(ra.auth_op)
+        , success(ra.success)
     {}
 
     bool is_admin() const
@@ -257,7 +264,7 @@ protected:
 
     // Configuration for authentication level of the API call
     PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::ObjectType::NONE;
-    AuthRequest::Operation    auth_op;
+    AuthRequest::Operation    auth_op = AuthRequest::NONE;
 
     VMActions::Action vm_action;
 

@@ -424,13 +424,13 @@ private:
      *  related to the DS defined in DS_MAD_CONF specified in the Datastore
      *  template
      */
-    int set_ds_mad(std::string &ds_mad, std::string &error_str);
+    int set_ds_mad(const std::string &ds_mad, std::string &error_str);
 
     /**
      *  Verify the proper definition of the TM_MAD by checking the attributes
      *  related to the TM defined in TM_MAD_CONF
      */
-    int set_tm_mad(std::string &tm_mad, std::string &error_str);
+    int set_tm_mad(const std::string &tm_mad, std::string &error_str);
 
     /**
      * Child classes can process the new template set with replace_template or

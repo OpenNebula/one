@@ -951,7 +951,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             (*it)->vector_value("TOTAL_CPUS", ncpu);
             (*it)->vector_value("MEMORY", nmem);
 
-            if ( ncpu <= 0 || nmem <= 0)
+            if ( ncpu == 0 || nmem <= 0)
             {
                 break;
             }
@@ -970,7 +970,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         tmpl->erase("NUMA_NODE");
 
         if (node_cpu != vcpu || node_mem != memory ||
-                ncpu <= 0 || nmem <= 0)
+            ncpu == 0 || nmem <= 0)
         {
             for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
             {
@@ -978,7 +978,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             }
         }
 
-        if (ncpu <= 0)
+        if (ncpu == 0)
         {
             error = "A NUMA_NODE must have TOTAL_CPUS greater than 0";
             return -1;

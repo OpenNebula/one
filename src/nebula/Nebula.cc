@@ -284,18 +284,15 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
-    federation_enabled = false;
-    federation_master  = false;
-    cache              = false;
-    zone_id            = 0;
-    server_id          = -1;
-    master_oned        = vatt->vector_value("MASTER_ONED");
-    string mode        = vatt->vector_value("MODE");
-
-    one_util::toupper(mode);
+    string mode = "STANDALONE";
 
     if (vatt != 0)
     {
+        master_oned = vatt->vector_value("MASTER_ONED");
+        mode = vatt->vector_value("MODE");
+
+        one_util::toupper(mode);
+
         if (mode == "STANDALONE")
         {
             federation_enabled = false;
