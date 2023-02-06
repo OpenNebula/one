@@ -83,7 +83,8 @@ const exportApp = (
   let rtn = httpBadRequest
   const { id, name, datastore, file, associated, tag, template, vmname } =
     params
-  if (id && name && datastore) {
+  const { user, password} = userData
+  if (id && name && datastore && user, password) {
     let message = ''
     const paramsCommand = [
       'export',
@@ -98,6 +99,8 @@ const exportApp = (
     tag && paramsCommand.push('--tag', tag)
     template && paramsCommand.push('--template', template)
     vmname && paramsCommand.push('--vmname', vmname)
+    user && paramsCommand.push('--user', user)
+    password && paramsCommand.push('--password', password)
 
     const executedCommand = executeCommand(
       defaultCommandMarketApp,
