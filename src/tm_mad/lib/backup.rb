@@ -23,6 +23,47 @@ module TransferManager
     # This class includes methods manage backup images
     class BackupImage
 
+        attr_reader :vm_id, :keep_last
+
+        # Given a sorted list of qcow2 files,
+        # return a shell recipe that reconstructs the backing chain in-place.
+        def self.reconstruct_chain(paths, workdir = nil)
+            return '' unless paths.size > 1
+
+            lhs = paths.last(paths.size - 1)
+            rhs = paths.first(paths.size - 1)
+
+            script = []
+
+            lhs.zip(rhs).each do |target, backing|
+                backing = "#{workdir || File.dirname(backing)}/#{File.basename(backing)}"
+                target  = "#{workdir || File.dirname(target)}/#{File.basename(target)}"
+                script << "qemu-img rebase -u -F qcow2 -b '#{backing}' '#{target}'"
+            end
+
+            script.join("\n")
+        end
+
+        # Given a sorted list of qcow2 files with backing chain properly reconstructed,
+        # return a shell recipe that merges it into a single qcow2 image.
+        def self.merge_chain(paths, workdir = nil)
+            return '' unless paths.size > 1
+
+            clean = paths.first(paths.size - 1)
+
+            origfile = "#{workdir || File.dirname(paths.last)}/#{File.basename(paths.last)}"
+            workfile = "#{origfile}.tmp"
+
+            script = []
+
+            script << "qemu-img convert -O qcow2 '#{origfile}' '#{workfile}'"
+            script << "mv '#{workfile}' '#{origfile}'"
+
+            script << "rm -f #{clean.map {|p| "'#{p}'" }.join(' ')}" unless clean.empty?
+
+            script.join("\n")
+        end
+
         def initialize(action_xml)
             @action = REXML::Document.new(action_xml).root
             @increments = {}
@@ -36,6 +77,9 @@ module TransferManager
             end
 
             @increments[0] = @action.elements["#{prefix}/SOURCE"].text if @increments.empty?
+
+            @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
+            @vm_id     = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/VM_ID']&.text.to_i
         end
 
         def last
@@ -48,6 +92,29 @@ module TransferManager
 
         def chain
             @increments.map {|k, v| "#{k}:#{v}" }.join(',')
+        end
+
+        # Create the chain with the last N elements
+        def chain_last(n)
+            @increments.map {|k, v| "#{k}:#{v}" }.last(n).join(',')
+        end
+
+        # Create the chain with the first N elements
+        def chain_first(n)
+            @increments.map {|k, v| "#{k}:#{v}" }.first(n).join(',')
+        end
+
+        # Create the chain up to a given increment id
+        def chain_up_to(id)
+            @increments.map {|k, v| "#{k}:#{v}" if k <= id }.compact.join(',')
+        end
+
+        # Create the chain up to a given increment id
+        def chain_keep_last(snap_id)
+            chain_a = @increments.map {|k, v| "#{k}:#{v}" }.last(@keep_last)
+            chain_a[0] = "#{@increments.keys[-@keep_last]}:#{snap_id}"
+
+            chain_a.join(',')
         end
 
     end
@@ -95,25 +162,46 @@ module TransferManager
         #   :backup_id => Internal ID used by the backup system
         #   :ds_id     => Datastore to create the images
         #   :proto     => Backup protocol
-        #   :no_ip     => Do not preserve NIC addresses
-        #   :no_nic    => Do not preserve network maps
+        #   :txml      => Object that responds to [] to get TEMPLATE attributes
         #   }
         def initialize(opts = {})
             txt = Base64.decode64(opts[:vm_xml64])
             xml = OpenNebula::XMLElement.build_xml(txt, 'VM')
             @vm = OpenNebula::VirtualMachine.new(xml, nil)
 
-            @base_name = "#{@vm.id}-#{opts[:backup_id]}"
-            @base_url  = "#{opts[:proto]}://#{opts[:ds_id]}/#{opts[:chain]}"
-
             @ds_id = opts[:ds_id]
 
-            if opts[:no_ip]
+            @base_name = begin
+                opts[:txml]['TEMPLATE/NAME']
+            rescue StandardError
+                "#{@vm.id}-#{opts[:backup_id]}"
+            end
+
+            no_ip = begin
+                opts[:txml]['TEMPLATE/NO_IP'].casecmp?('YES')
+            rescue StandardError
+                false
+            end
+
+            @no_nic = begin
+                opts[:txml]['TEMPLATE/NO_NIC'].casecmp?('YES')
+            rescue StandardError
+                false
+            end
+
+            chain = begin
+                inc_id = Integer(opts[:txml]['TEMPLATE/INCREMENT_ID'])
+                opts[:bimage].chain_up_to(inc_id)
+            rescue StandardError
+                opts[:bimage].chain
+            end
+
+            @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{chain}"
+
+            if no_ip
                 NIC_LIST << %w[IP IP6 IP6_ULA IP6_GLOBAL]
                 NIC_LIST.flatten!
             end
-
-            @no_nic = opts[:no_nic]
         end
 
         # Creates Image templates for the backup disks.

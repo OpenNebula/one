@@ -864,6 +864,91 @@ void ImageManager::_restore(unique_ptr<image_msg_t> msg)
 
 /* -------------------------------------------------------------------------- */
 
+void ImageManager::_increment_flatten(unique_ptr<image_msg_t> msg)
+{
+    NebulaLog::dddebug("ImM", "_increment_flatten: " + msg->payload());
+
+    auto image = ipool->get(msg->oid());
+
+    if ( !image )
+    {
+        return;
+    }
+
+    bool error = false;
+
+    long long size_orig;
+    long long size_new;
+
+    int ds_id = image->get_ds_id();
+    int uid   = image->get_uid();
+    int gid   = image->get_gid();
+
+    if (msg->status() == "SUCCESS")
+    {
+        auto& increments = image->increments();
+
+        size_orig = image->get_size();
+
+        string size_mb;
+        string chain;
+
+        istringstream is(msg->payload());
+
+        is >> size_mb;
+
+        is >> chain;
+
+        int rc = increments.update_increments(chain, size_mb);
+
+        size_new = increments.total_size();
+
+        image->set_size(size_new);
+
+        error = rc == -1;
+    }
+    else
+    {
+        error = true;
+    }
+
+    if (error)
+    {
+        ostringstream oss;
+        oss << "Error flattening backup increments";
+
+        const auto& info = msg->payload();
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->set_state_unlock();
+
+    ipool->update(image.get());
+
+    image.reset();
+
+    if (msg->status() == "SUCCESS")
+    {
+        Template quotas;
+
+        quotas.add("DATASTORE", ds_id);
+        quotas.add("SIZE", size_orig - size_new);
+        quotas.add("IMAGES", 0);
+
+        Quotas::ds_del(uid, gid, &quotas);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 void ImageManager::_log(unique_ptr<image_msg_t> msg)
 {
     NebulaLog::log("ImM", log_type(msg->status()[0]), msg->payload());

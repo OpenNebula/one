@@ -26,12 +26,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     TEMPLATE_OPTIONS=[
         {
-            :name => 'name',
-            :large => '--name name',
-            :format => String,
-            :description => 'Name of the new image'
-        },
-        {
             :name => 'description',
             :large => '--description description',
             :format => String,
@@ -496,6 +490,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             template_options = TEMPLATE_OPTIONS.map do |o|
                 o[:name].to_sym
             end
+
+            template_options << :name
 
             template = create_image_variables(
                 options,

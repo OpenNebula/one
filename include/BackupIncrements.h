@@ -24,6 +24,14 @@
 
 /**
  * The Image INCREMENT attribute
+ *
+ *   <INCREMENT>
+ *    <ID> Unique ID within this backup increment
+ *    <TYPE> Of the backup FULL | INCREMENT
+ *    <PARENT_ID> ID of the parent increment (backing file)
+ *    <SOURCE> Reference in the backup system
+ *    <SIZE> Size of this increment
+ *    <DATE> When this backup was taken (epoch)
  */
 class Increment : public ExtendedAttribute
 {
@@ -38,6 +46,9 @@ public:
         INCREMENT = 1, /** < Forward increment */
     };
 
+    /* ---------------------------------------------------------------------- */
+    /* Functions to get/set increment attributes                              */
+    /* ---------------------------------------------------------------------- */
     long long size() const
     {
         long long sz = 0;
@@ -47,9 +58,42 @@ public:
         return sz;
     }
 
+    void size(const std::string& sz)
+    {
+        replace("SIZE", sz);
+    }
+
+    std::string source() const
+    {
+        return vector_value("SOURCE");
+    }
+
+    void source(const std::string& src)
+    {
+        replace("SOURCE", src);
+    }
+
     int id() const
     {
         return get_id();
+    }
+
+    void parent_id(int id)
+    {
+        replace("PARENT_ID", id);
+    }
+
+    void backup_type(Type t)
+    {
+        switch (t)
+        {
+            case FULL:
+                replace("TYPE", "FULL");
+                break;
+            case INCREMENT: 
+                replace("TYPE", "INCREMENT");
+                break;
+        }
     }
 
     Type backup_type() const
@@ -93,6 +137,14 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Increment interface                                                    */
     /* ---------------------------------------------------------------------- */
+    /**
+     *  Creates a new increment in the set
+     *  @param source internal representation for the backup driver of the increment
+     *  @param sz in MB of the increment
+     *  @param type FULL (first increment in the chain) or INCREMENT
+     *
+     *  @return Pointer to the new attribute
+     */
     VectorAttribute * new_increment(const std::string& source, long long sz,
             Increment::Type type);
 
@@ -101,6 +153,27 @@ public:
         return static_cast<Increment *>(last_attribute());
     }
 
+    Increment * get_increment(int id) const
+    {
+        return static_cast<Increment *>(get_attribute(id));
+    }
+
+    Increment * delete_increment(int id)
+    {
+        return static_cast<Increment *>(delete_attribute(id));
+    }
+
+    /**
+     *  @return Number of increments in the chain
+     */
+    unsigned int total()
+    {
+        return size();
+    }
+
+    /**
+     *  @return Total size of the backup (adding all increments), in MB
+     */
     long long total_size();
 
     /* ---------------------------------------------------------------------- */
@@ -177,9 +250,28 @@ public:
 
     int last_increment_id();
 
+    /**
+     *  @return Total size of the backup (adding all increments), in MB
+     */
     long long total_size()
     {
         return increments.total_size();
+    }
+
+    /**
+     *  Update the sources of the increments after a merge operation.
+     *
+     *  @param chain string with format 0:source0, ... N:sourceN Number of increments
+     *  can be less than the current number.
+     */
+    int update_increments(const std::string& incs, const std::string& sz);
+
+    /**
+     *  @return Number of increments in the chain
+     */
+    unsigned int total()
+    {
+        return increments.total();
     }
 
 private:

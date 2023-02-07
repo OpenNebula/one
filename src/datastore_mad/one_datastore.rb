@@ -53,7 +53,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require "OpenNebulaDriver"
+require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'base64'
 require 'rexml/document'
@@ -66,28 +66,29 @@ class DatastoreDriver < OpenNebulaDriver
 
     # Image Driver Protocol constants
     ACTION = {
-        :cp      => "CP",
-        :rm      => "RM",
-        :mkfs    => "MKFS",
-        :log     => "LOG",
-        :stat    => "STAT",
-        :clone   => "CLONE",
-        :monitor => "MONITOR",
-        :snap_delete => "SNAP_DELETE",
-        :snap_revert => "SNAP_REVERT",
-        :snap_flatten=> "SNAP_FLATTEN",
-        :restore => "RESTORE"
+        :cp      => 'CP',
+        :rm      => 'RM',
+        :mkfs    => 'MKFS',
+        :log     => 'LOG',
+        :stat    => 'STAT',
+        :clone   => 'CLONE',
+        :monitor => 'MONITOR',
+        :snap_delete => 'SNAP_DELETE',
+        :snap_revert => 'SNAP_REVERT',
+        :snap_flatten=> 'SNAP_FLATTEN',
+        :restore => 'RESTORE',
+        :increment_flatten => 'INCREMENT_FLATTEN'
     }
 
     # Default System datastores for OpenNebula, override in oned.conf
     SYSTEM_DS_TYPES = [
-      "shared",
-      "ssh",
-      "ceph"
+        'shared',
+        'ssh',
+        'ceph'
     ]
 
     # Register default actions for the protocol
-    def initialize(ds_type, sys_ds_type, options={})
+    def initialize(ds_type, sys_ds_type, options = {})
         @options={
             :concurrency => 10,
             :threaded => true,
@@ -106,9 +107,9 @@ class DatastoreDriver < OpenNebulaDriver
             }
         }.merge!(options)
 
-        super("datastore/", @options)
+        super('datastore/', @options)
 
-        if ds_type == nil
+        if ds_type.nil?
             @types = Dir["#{@local_scripts_path}/*/"].map do |d|
                 d.split('/')[-1]
             end
@@ -118,7 +119,7 @@ class DatastoreDriver < OpenNebulaDriver
             @types = ds_type
         end
 
-        if sys_ds_type == nil
+        if sys_ds_type.nil?
             @sys_types = SYSTEM_DS_TYPES
         elsif sys_ds_type.class == String
             @sys_types = [sys_ds_type]
@@ -128,16 +129,17 @@ class DatastoreDriver < OpenNebulaDriver
 
         @local_tm_scripts_path = File.join(@local_scripts_base_path, 'tm/')
 
-        register_action(ACTION[:cp].to_sym, method("cp"))
-        register_action(ACTION[:rm].to_sym, method("rm"))
-        register_action(ACTION[:mkfs].to_sym, method("mkfs"))
-        register_action(ACTION[:stat].to_sym, method("stat"))
-        register_action(ACTION[:clone].to_sym, method("clone"))
-        register_action(ACTION[:monitor].to_sym, method("monitor"))
-        register_action(ACTION[:snap_delete].to_sym, method("snap_delete"))
-        register_action(ACTION[:snap_revert].to_sym, method("snap_revert"))
-        register_action(ACTION[:snap_flatten].to_sym, method("snap_flatten"))
-        register_action(ACTION[:restore].to_sym, method("restore"))
+        register_action(ACTION[:cp].to_sym, method('cp'))
+        register_action(ACTION[:rm].to_sym, method('rm'))
+        register_action(ACTION[:mkfs].to_sym, method('mkfs'))
+        register_action(ACTION[:stat].to_sym, method('stat'))
+        register_action(ACTION[:clone].to_sym, method('clone'))
+        register_action(ACTION[:monitor].to_sym, method('monitor'))
+        register_action(ACTION[:snap_delete].to_sym, method('snap_delete'))
+        register_action(ACTION[:snap_revert].to_sym, method('snap_revert'))
+        register_action(ACTION[:snap_flatten].to_sym, method('snap_flatten'))
+        register_action(ACTION[:restore].to_sym, method('restore'))
+        register_action(ACTION[:increment_flatten].to_sym, method('increment_flatten'))
     end
 
     ############################################################################
@@ -194,46 +196,52 @@ class DatastoreDriver < OpenNebulaDriver
         do_image_action(id, ds, :restore, "#{drv_message} #{id}")
     end
 
+    def increment_flatten(id, drv_message)
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :increment_flatten, "#{drv_message} #{id}")
+    end
+
     private
 
     def is_available?(ds, id, action)
         if @types.include?(ds)
-            return true
+            true
         else
             send_message(ACTION[action], RESULT[:failure], id,
-                "Datastore driver '#{ds}' not available")
-            return false
+                         "Datastore driver '#{ds}' not available")
+            false
         end
     end
 
     def is_sys_available?(sys, id, action)
         if @sys_types.include?(sys)
-            return true
+            true
         else
             send_message(ACTION[action], RESULT[:failure], id,
-                "System datastore driver '#{sys}' not available")
-            return false
+                         "System datastore driver '#{sys}' not available")
+            false
         end
     end
 
-    def do_image_action(id, ds, action, arguments, sys='', encode64=false)
-
+    def do_image_action(id, ds, action, arguments, sys = '', encode64 = false)
         if !sys.empty?
-            return if not is_sys_available?(sys, id, action)
+            return unless is_sys_available?(sys, id, action)
+
             path = File.join(@local_tm_scripts_path, sys)
         else
-            return if not is_available?(ds, id, action)
+            return unless is_available?(ds, id, action)
+
             path = File.join(@local_scripts_path, ds)
         end
 
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        cmd << ' ' << arguments
 
         rc = LocalCommand.run(cmd, log_method(id))
 
         result, info = get_info_from_execution(rc)
 
-        info = Base64::encode64(info).strip.delete("\n") if encode64
+        info = Base64.encode64(info).strip.delete("\n") if encode64
 
         send_message(ACTION[action], result, id, info)
     end
@@ -250,12 +258,13 @@ class DatastoreDriver < OpenNebulaDriver
         dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TYPE']
 
         if dsxml && dsxml.text == '1'
-          dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD']
-          dssys = dsxml.text if dsxml
+            dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD']
+            dssys = dsxml.text if dsxml
         end
 
-        return dstxt, dssys
+        [dstxt, dssys]
     end
+
 end
 
 ################################################################################
@@ -265,10 +274,10 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ]
+    ['--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
 ds_type     = nil
@@ -279,17 +288,17 @@ timeout     = nil
 begin
     opts.each do |opt, arg|
         case opt
-            when '--threads'
-                threads = arg.to_i
-            when '--ds-types'
-                ds_type = arg.split(',').map {|a| a.strip }
-            when '--system-ds-types'
-                sys_ds_type = arg.split(',').map {|a| a.strip }
-            when '--timeout'
-                timeout = arg.to_i
+        when '--threads'
+            threads = arg.to_i
+        when '--ds-types'
+            ds_type = arg.split(',').map {|a| a.strip }
+        when '--system-ds-types'
+            sys_ds_type = arg.split(',').map {|a| a.strip }
+        when '--timeout'
+            timeout = arg.to_i
         end
     end
-rescue Exception => e
+rescue StandardError
     exit(-1)
 end
 

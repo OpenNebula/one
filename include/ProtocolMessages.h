@@ -60,6 +60,7 @@ enum class ImageManagerMessages : unsigned short int
     SNAP_REVERT,
     SNAP_FLATTEN,
     RESTORE,
+    INCREMENT_FLATTEN,
     LOG,
     ENUM_MAX
 };
