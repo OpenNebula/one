@@ -83,8 +83,8 @@ const exportApp = (
   let rtn = httpBadRequest
   const { id, name, datastore, file, associated, tag, template, vmname } =
     params
-  const { user, password} = userData
-  if (id && name && datastore && user, password) {
+  const { user, password } = userData
+  if ((id && name && datastore && user, password)) {
     let message = ''
     const paramsCommand = [
       'export',
