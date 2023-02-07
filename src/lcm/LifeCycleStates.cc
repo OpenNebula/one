@@ -2765,6 +2765,7 @@ void LifeCycleManager::trigger_backup_success(int vid)
         int ds_id = backups.last_datastore_id();
 
         int incremental_id = backups.incremental_backup_id();
+        int keep_last      = backups.keep_last();
         Backups::Mode mode = backups.mode();
 
         long long reserved_sz = vm->backup_size(ds_deltas);
@@ -2773,11 +2774,6 @@ void LifeCycleManager::trigger_backup_success(int vid)
         one_util::str_cast(backups.last_backup_size(), real_sz);
 
         ds_deltas.add("DATASTORE", backups.last_datastore_id());
-
-        if (mode == Backups::FULL || incremental_id == -1)
-        {
-            ds_deltas.add("IMAGES", 1);
-        }
 
         switch(vm->get_lcm_state())
         {
@@ -2793,6 +2789,11 @@ void LifeCycleManager::trigger_backup_success(int vid)
             default:
                 vm->log("LCM", Log::ERROR, "backup_success, VM in wrong state");
                 vm.reset();
+
+                if (mode == Backups::FULL || incremental_id == -1)
+                {
+                    ds_deltas.add("IMAGES", 1);
+                }
 
                 Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
                 return;
@@ -2822,6 +2823,8 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Update backup information for increments                           */
         /* ------------------------------------------------------------------ */
+        int increments = -1;
+
         if (mode == Backups::INCREMENT)
         {
             Increment::Type itype;
@@ -2849,6 +2852,9 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
                 backups.last_increment_id(image->last_increment_id());
 
+                increments = image->increments().total();
+                ds_id      = image->get_ds_id();
+
                 ipool->update(image.get());
             }
             else
@@ -2862,7 +2868,7 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
         vmpool->update(vm.get());
 
-        if ( delete_ids.size() > 0 )
+        if (delete_ids.size() > 0) // FULL & backups > keep_last
         {
             ostringstream oss;
 
@@ -2872,6 +2878,14 @@ void LifeCycleManager::trigger_backup_success(int vid)
             {
                 oss << " " << i;
             }
+
+            vm->log("LCM", Log::INFO, oss.str());
+        }
+        else if (keep_last > 0 && increments > keep_last) // INCREMENTAL & increments > keep_last
+        {
+            ostringstream oss;
+
+            oss << "Removing " << increments - keep_last << " backup increments";
 
             vm->log("LCM", Log::INFO, oss.str());
         }
@@ -2901,6 +2915,25 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
                     NebulaLog::error("LCM", oss.str());
                 }
+            }
+        }
+        else if (mode == Backups::INCREMENT && keep_last > 0 && increments > keep_last)
+        {
+            ostringstream oss;
+
+            oss << "<EXTRA_DATA>"
+                << "<KEEP_LAST>" << keep_last << "</KEEP_LAST>"
+                << "<VM_ID>" << vid << "</VM_ID>"
+                << "</EXTRA_DATA>";
+
+            if ( imagem->flatten_increments(image_id, ds_id, oss.str(), error) != 0 )
+            {
+                ostringstream oss;
+
+                oss << "backup_success, cannot flatten backup increments for image " 
+                    << image_id << " : " << error;
+
+                NebulaLog::error("LCM", oss.str());
             }
         }
 

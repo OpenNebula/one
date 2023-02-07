@@ -99,6 +99,9 @@ int ImageManager::start()
     register_action(ImageManagerMessages::RESTORE,
             bind(&ImageManager::_restore, this, _1));
 
+    register_action(ImageManagerMessages::INCREMENT_FLATTEN,
+            bind(&ImageManager::_increment_flatten, this, _1));
+
     register_action(ImageManagerMessages::LOG,
             &ImageManager::_log);
 

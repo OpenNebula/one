@@ -162,80 +162,6 @@ function s3_env
     CURRENT_DATE_ISO8601="${CURRENT_DATE_DAY}T$(date -u '+%H%M%S')Z"
 }
 
-# Get restic repo information from datastore template
-# It generates the repo url as: sftp:SFTP_USER@SFTP_SERVER:DATASTORE_PATH
-# Sets the following environment variables
-#  - RESTIC_REPOSITORY (replaces -r in restic command)
-#  - RESTIC_PASSWORD (password to access the repo)
-function restic_env
-{
-    XPATH="$DRIVER_PATH/xpath.rb --stdin"
-
-    unset i j XPATH_ELEMENTS
-
-    while IFS= read -r -d '' element; do
-            XPATH_ELEMENTS[i++]="$element"
-    done < <(onedatastore show -x --decrypt $1 | $XPATH \
-                        /DATASTORE/TEMPLATE/RESTIC_SFTP_SERVER \
-                        /DATASTORE/TEMPLATE/RESTIC_SFTP_USER \
-                        /DATASTORE/BASE_PATH \
-                        /DATASTORE/TEMPLATE/RESTIC_PASSWORD \
-                        /DATASTORE/TEMPLATE/RESTIC_IONICE \
-                        /DATASTORE/TEMPLATE/RESTIC_NICE \
-                        /DATASTORE/TEMPLATE/RESTIC_BWLIMIT \
-                        /DATASTORE/TEMPLATE/RESTIC_CONNECTIONS \
-                        /DATASTORE/TEMPLATE/RESTIC_TMP_DIR)
-
-    SFTP_SERVER="${XPATH_ELEMENTS[j++]}"
-    SFTP_USER="${XPATH_ELEMENTS[j++]:-oneadmin}"
-    BASE_PATH="${XPATH_ELEMENTS[j++]}"
-    PASSWORD="${XPATH_ELEMENTS[j++]}"
-    IONICE="${XPATH_ELEMENTS[j++]}"
-    NICE="${XPATH_ELEMENTS[j++]}"
-    BWLIMIT="${XPATH_ELEMENTS[j++]}"
-    CONNECTIONS="${XPATH_ELEMENTS[j++]}"
-    TMP_DIR="${XPATH_ELEMENTS[j++]}"
-
-    export RESTIC_REPOSITORY="sftp:${SFTP_USER}@${SFTP_SERVER}:${BASE_PATH}"
-    export RESTIC_PASSWORD="${PASSWORD}"
-
-    RESTIC_ONE_PRECMD=""
-
-    if [ -n "${NICE}" ]; then
-        RESTIC_ONE_PRECMD="nice -n ${NICE} "
-    fi
-
-    if [ -z "${TMP_DIR}" ]; then
-        TMP_DIR="/var/tmp/"
-    fi
-
-    export RESTIC_TMP_DIR="${TMP_DIR}/`uuidgen`"
-
-    if [ -n "${IONICE}" ]; then
-        RESTIC_ONE_PRECMD="${RESTIC_ONE_PRECMD}ionice -c2 -n ${IONICE} "
-    fi
-
-    if [ -x "/var/lib/one/remotes/datastore/restic/restic" ]; then
-        RESTIC_ONE_PATH="/var/lib/one/remotes/datastore/restic/restic"
-    elif [ -x "/var/tmp/one/datastore/restic/restic" ]; then
-        RESTIC_ONE_PATH="/var/tmp/one/datastore/restic/restic"
-    else
-        RESTIC_ONE_PATH="restic"
-    fi
-
-    RESTIC_ONE_CMD="${RESTIC_ONE_PRECMD}${RESTIC_ONE_PATH}"
-
-    if [ -n "${BWLIMIT}" ]; then
-        RESTIC_ONE_CMD="${RESTIC_ONE_CMD} --limit-upload ${BWLIMIT} --limit-download ${BWLIMIT}"
-    fi
-
-    if [ -n "${CONNECTIONS}" ]; then
-        RESTIC_ONE_CMD="${RESTIC_ONE_CMD} --option sftp.connections=${CONNECTIONS}"
-    fi
-
-    export RESTIC_ONE_CMD
-}
-
 # Get rsync repo information from DS template
 # Sets the following variables:
 #  - RSYNC_CMD = rsync -a user@host:/base/path
@@ -551,50 +477,7 @@ docker://*|dockerfile://*)
     command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
     ;;
 restic://*)
-    #pseudo restic url restic://<datastore_id>/<id>:<snapshot_id>,.../<file_name>
-    restic_path=${FROM#restic://}
-    d_id=`echo ${restic_path} | cut -d'/' -f1`
-    s_id=`echo ${restic_path} | cut -d'/' -f2`
-    file=`echo ${restic_path} | cut -d'/' -f3-`
-
-    restic_env $d_id
-
-    if [ -z "$RESTIC_REPOSITORY" -o -z "$RESTIC_PASSWORD" ]; then
-        echo "RESTIC_REPOSITORY and RESTIC_PASSWORD are required" >&2
-        exit -1
-    fi
-
-    incs=(${s_id//,/ })
-
-    mkdir -p ${RESTIC_TMP_DIR}
-
-    pushd ${RESTIC_TMP_DIR}
-
-    for i in "${incs[@]}"; do
-        inc_id=`echo $i | cut -d':' -f1`
-        snap_id=`echo $i | cut -d':' -f2`
-
-        ${RESTIC_ONE_CMD} dump -q ${snap_id} /${file}.${inc_id} > disk.${inc_id}
-    done
-
-    for i in `ls disk* | sort -r`; do
-        id=`echo $i | cut -d'.' -f2`
-        pid=$((id - 1))
-
-        if [ -f "disk.${pid}" ]; then
-            qemu-img rebase -u -F qcow2 -b "disk.${pid}" "disk.${id}"
-        else
-            qemu-img rebase -u -b '' "disk.${id}"
-        fi
-    done
-
-    qemu-img convert -O qcow2 -m 4 `ls disk* | sort -r | head -1` disk.qcow2
-
-    command="cat `realpath disk.qcow2`"
-
-    clean_command="rm -rf ${RESTIC_TMP_DIR}"
-
-    popd
+    eval `$VAR_LOCATION/remotes/datastore/restic_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
     ;;
 rsync://*)
     # example: rsync://100/0:8a3454,1:f6e63e//var/lib/one//datastores/100/6/8a3454/disk.0.0

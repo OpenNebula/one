@@ -34,11 +34,15 @@ require_relative './kvm'
 #
 #   IO_ASYNC: if true issues aio_read commands instead of read
 #   OUTSTAND_OPS: number of aio_reads before issuing a aio_flush commnand
+#
+#   BDRV_MAX_REQUEST is the limit for the sieze of qemu-io operations
 #-------------------------------------------------------------------------------
 LOG_FILE     = nil
 QEMU_IO_OPEN = '-t none -i native -o driver=qcow2'
 IO_ASYNC     = false
 OUTSTAND_OPS = 8
+
+BDRV_MAX_REQUEST = 2**30
 
 # rubocop:disable Style/ClassVars
 
@@ -50,7 +54,7 @@ module Command
     def log(message)
         return unless LOG_FILE
 
-        File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", { :mode => 'a' })
+        File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", mode: 'a')
     end
 
     def cmd(command, args, opts = {})
@@ -196,13 +200,52 @@ class QemuImg
         # Create a qemu-io script to pull changes
         # ----------------------------------------------------------------------
         io_script = "open -C #{QEMU_IO_OPEN} #{@path}\n"
+        index     = -1
 
-        exts.each_with_index do |e, i|
-            if IO_ASYNC
-                io_script << "aio_read -q #{e['offset']} #{e['length']}\n"
-                io_script << "aio_flush\n" if (i+1)%OUTSTAND_OPS == 0
+        exts.each do |e|
+
+            ext_length = Integer(e['length'])
+            new_exts    = []
+
+            if ext_length > BDRV_MAX_REQUEST
+                ext_offset = Integer(e['offset'])
+                loop do
+                    index += 1
+
+                    blk_length = if ext_length > BDRV_MAX_REQUEST
+                              BDRV_MAX_REQUEST
+                          else
+                              ext_length
+                          end
+
+                    new_exts << {
+                        'offset' => ext_offset,
+                        'length' => blk_length,
+                        'index'  => index
+                    }
+
+                    ext_offset += BDRV_MAX_REQUEST
+                    ext_length -= BDRV_MAX_REQUEST
+
+                    break if ext_length <= 0
+                end
             else
-                io_script << "read -q #{e['offset']} #{e['length']}\n"
+                index += 1
+
+                new_exts << {
+                    'offset' => e['offset'],
+                    'length' => e['length'],
+                    'index'  => index
+                }
+            end
+
+            new_exts.each do |i|
+                if IO_ASYNC
+                    io_script << "aio_read -q #{i['offset']} #{i['length']}\n"
+                    io_script << "aio_flush\n" if (i['index']+1)%OUTSTAND_OPS == 0
+                else
+                    io_script << "read -q #{i['offset']} #{i['length']}\n"
+                end
             end
         end
 

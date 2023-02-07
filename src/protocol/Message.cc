@@ -63,6 +63,7 @@ const EString<ImageManagerMessages> image_msg_t::_type_str({
     {"SNAP_DELETE", ImageManagerMessages::SNAP_DELETE},
     {"SNAP_REVERT", ImageManagerMessages::SNAP_REVERT},
     {"SNAP_FLATTEN", ImageManagerMessages::SNAP_FLATTEN},
+    {"INCREMENT_FLATTEN", ImageManagerMessages::INCREMENT_FLATTEN},
     {"RESTORE", ImageManagerMessages::RESTORE},
     {"LOG", ImageManagerMessages::LOG},
 });

@@ -4049,6 +4049,11 @@ void VirtualMachineBackup::request_execute(
     {
         quota_tmpl.add("IMAGES", 1);
     }
+    else
+    {
+        quota_tmpl.add("IMAGES", 0);
+    }
+
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 

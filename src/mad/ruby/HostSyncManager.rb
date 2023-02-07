@@ -51,7 +51,18 @@ class HostSyncManager
         @remote_scripts_base_path&.delete!("'")
     end
 
-    def update_remotes(hostname, logger = nil, copy_method = :rsync)
+    def update_remotes(hostname, logger = nil, copy_method = :rsync, subset = nil)
+        sources = '.'
+
+        if subset && copy_method == :rsync
+            # Make sure all files in the subset exist (and are relative).
+            subset.each do |path|
+                File.realpath path, @local_scripts_base_path
+            end
+
+            sources = subset.join(' ')
+        end
+
         assemble_cmd = lambda do |steps|
             "exec 2>/dev/null; #{steps.join(' && ')}"
         end
@@ -64,7 +75,8 @@ class HostSyncManager
             ]
 
             sync_cmd = assemble_cmd.call [
-                "scp -rp '#{@local_scripts_base_path}'/* " \
+                "cd '#{@local_scripts_base_path}'/",
+                "scp -rp #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
             ]
         when :rsync
@@ -73,7 +85,8 @@ class HostSyncManager
             ]
 
             sync_cmd = assemble_cmd.call [
-                "rsync -Laz --delete '#{@local_scripts_base_path}'/ " \
+                "cd '#{@local_scripts_base_path}'/",
+                "rsync -LRaz --delete #{sources} " \
                     "'#{hostname}':'#{@remote_scripts_base_path}'/"
             ]
         end

@@ -432,7 +432,7 @@ string& Image::to_xml(string& xml) const
             app_clone_collection.to_xml(app_clone_collection_xml)     <<
             obj_template->to_xml(template_xml)                        <<
             snapshots.to_xml(snapshots_xml)                           <<
-            increments.to_xml(increments_xml)                         <<
+            _increments.to_xml(increments_xml)                         <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -528,7 +528,7 @@ int Image::from_xml(const string& xml)
 
     if (!content.empty())
     {
-        rc += increments.from_xml_node(content[0]);
+        rc += _increments.from_xml_node(content[0]);
 
         ObjectXML::free_nodes(content);
         content.clear();

@@ -230,6 +230,19 @@ public:
 
         return id;
     }
+
+    int keep_last() const
+    {
+        int kl;
+
+        if (!config.get("KEEP_LAST", kl))
+        {
+            return 0;
+        }
+
+        return kl;
+    }
+
     /* ---------------------------------------------------------------------- */
 
     void last_backup_clear()

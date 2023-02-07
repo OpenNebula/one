@@ -1387,6 +1387,69 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ImageManager::flatten_increments(int iid, int ds_id, const string& edata, string& error)
+{
+    const auto* imd = get();
+
+    if ( imd == nullptr )
+    {
+        error = "Could not get datastore driver";
+        return -1;
+    }
+
+    string ds_data;
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds->decrypt();
+
+        ds->to_xml(ds_data);
+    }
+    else
+    {
+       error = "Datastore no longer exists";
+       return -1;
+    }
+
+    auto img = ipool->get(iid);
+
+    if ( img == nullptr )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::BACKUP )
+    {
+        error = "Image is not of type BACKUP";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot flatten increments in state " + Image::state_to_str(img->get_state());
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
+    string img_tmpl;
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, edata));
+
+    image_msg_t msg(ImageManagerMessages::INCREMENT_FLATTEN, "", iid, drv_msg);
+
+    imd->write(msg);
+
+    img->set_state(Image::LOCKED);
+
+    ipool->update(img.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 int ImageManager::restore_image(int iid, int dst_ds_id, const std::string& txml,
     std::string& result)
 {

@@ -613,21 +613,26 @@ public:
     /* ---------------------------------------------------------------------- */
     int add_increment(const std::string& source, long long size, Increment::Type type)
     {
-        int rc = increments.add_increment(source, size, type);
+        int rc = _increments.add_increment(source, size, type);
 
         if ( rc == -1 )
         {
             return -1;
         }
 
-        size_mb = increments.total_size();
+        size_mb = _increments.total_size();
 
         return 0;
     }
 
     int last_increment_id()
     {
-        return increments.last_increment_id();
+        return _increments.last_increment_id();
+    }
+
+    BackupIncrements& increments()
+    {
+        return _increments;
     }
 
 private:
@@ -744,7 +749,7 @@ private:
      * List of backup increments (only relevant for BACKUP images, of type
      * incremental)
      */
-    BackupIncrements increments;
+    BackupIncrements _increments;
 
     /**
      * ID of the snapshot being processed (if any)
