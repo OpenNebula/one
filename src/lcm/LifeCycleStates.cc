@@ -2775,6 +2775,15 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
         ds_deltas.add("DATASTORE", backups.last_datastore_id());
 
+        if (mode == Backups::FULL || incremental_id == -1)
+        {
+            ds_deltas.add("IMAGES", 1);
+        }
+        else
+        {
+            ds_deltas.add("IMAGES", 0);
+        }
+
         switch(vm->get_lcm_state())
         {
             case VirtualMachine::BACKUP:
@@ -2789,11 +2798,6 @@ void LifeCycleManager::trigger_backup_success(int vid)
             default:
                 vm->log("LCM", Log::ERROR, "backup_success, VM in wrong state");
                 vm.reset();
-
-                if (mode == Backups::FULL || incremental_id == -1)
-                {
-                    ds_deltas.add("IMAGES", 1);
-                }
 
                 Quotas::ds_del(vm_uid, vm_gid, &ds_deltas);
                 return;
