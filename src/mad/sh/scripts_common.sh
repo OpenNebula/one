@@ -158,7 +158,40 @@ function exclusive
 }
 
 # Retries if command fails and STDERR matches
+# exit on error
 function retry_if
+{
+    MATCH=$1
+    TRIES=$2
+    SLEEP=$3
+    shift 3
+
+    unset TSTD TERR RC
+
+    while [ $TRIES -gt 0 ]; do
+        TRIES=$(( TRIES - 1 ))
+
+        eval "$( ("$@" ) \
+                2> >(TERR=$(cat); typeset -p TERR) \
+                 > >(TSTD=$(cat); typeset -p TSTD); RC=$?; typeset -p RC )"
+
+        [ $RC -eq 0 ] && break
+
+        if echo "$TERR" | grep -q "$MATCH"; then
+            sleep $SLEEP;
+            continue
+        fi
+
+        break
+    done
+
+    [ -n "$TERR" ] && echo $TERR >&2
+    [ -n "$TSTD" ] && echo $TSTD
+    exit $RC
+}
+
+# Retries if command fails and STDERR matches
+function retry_if_no_error
 {
     MATCH=$1
     TRIES=$2
