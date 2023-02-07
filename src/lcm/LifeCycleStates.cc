@@ -2806,7 +2806,8 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Create Backup image if needed                                      */
         /* ------------------------------------------------------------------ */
-        int image_id = -1;
+        int image_id   = -1;
+        int increments = -1;
 
         std::set<int> delete_ids;
 
@@ -2827,7 +2828,6 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Update backup information for increments                           */
         /* ------------------------------------------------------------------ */
-        int increments = -1;
 
         if (mode == Backups::INCREMENT)
         {
