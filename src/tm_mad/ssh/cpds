@@ -109,7 +109,7 @@ if [ "${LCM_STATE}" = '26' -a "${SNAP_ID}" = '-1' ]; then
 $(type retry_if| grep -v 'is a function')
 
 touch ${SRC_TEMP_PATH}
-if ! retry_if "active block job" 3 5 virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PATH} --wait --finish; then
+if ! retry_if_no_error "active block job" 3 5 virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PATH} --wait --finish; then
     set -e -o pipefail
 
     if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then

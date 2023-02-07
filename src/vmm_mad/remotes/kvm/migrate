@@ -122,7 +122,7 @@ if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
 fi
 
 if [ "$SHARED" = "YES" ]; then
-    retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
+    retry_if_no_error "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system
 
     RC=$?
