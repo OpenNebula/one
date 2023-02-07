@@ -272,7 +272,7 @@ module OneDBFsck
                     size = e.at_xpath('SIZE').text.to_i
                 end
 
-                if %w[SWAP FS].include? type
+                if ['SWAP', 'FS'].include? type
                     sys_used += size
 
                     next

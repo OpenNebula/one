@@ -351,7 +351,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     (OneProvision::Provision::RESOURCES +
      OneProvision::Provision::FULL_CLUSTER -
-        %w[hosts marketplaceapps flowtemplates]).each do |resource|
+        ['hosts', 'marketplaceapps', 'flowtemplates']).each do |resource|
         list_desc = <<-EOT
             List all available #{resource}
         EOT
@@ -368,7 +368,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     (OneProvision::Provision::RESOURCES +
      OneProvision::Provision::FULL_CLUSTER -
-     %w[hosts marketplaceapps]).each do |resource|
+     ['hosts', 'marketplaceapps']).each do |resource|
         delete_desc = <<-EOT
             Deletes and unprovisions the given #{resource}
         EOT

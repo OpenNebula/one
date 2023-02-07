@@ -32,7 +32,7 @@ module OneProvision
             :network   => 'aws_subnet'
         }
 
-        KEYS = %w[access_key secret_key region]
+        KEYS = ['access_key', 'secret_key', 'region']
 
         # Class constructor
         #

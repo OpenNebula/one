@@ -33,15 +33,15 @@ class BaseExporter
         :destination_user => nil
     }
 
-    VALID_STATES = %w[ACTIVE
-                      POWEROFF
-                      UNDEPLOYED]
+    VALID_STATES = ['ACTIVE',
+                    'POWEROFF',
+                    'UNDEPLOYED']
 
-    VALID_LCM_STATES = %w[LCM_INIT
-                          RUNNING
-                          BACKUP
-                          BACKUP_POWEROFF
-                          BACKUP_UNDEPLOYED]
+    VALID_LCM_STATES = ['LCM_INIT',
+                        'RUNNING',
+                        'BACKUP',
+                        'BACKUP_POWEROFF',
+                        'BACKUP_UNDEPLOYED']
 
     def initialize(vm, config)
         @vm = vm

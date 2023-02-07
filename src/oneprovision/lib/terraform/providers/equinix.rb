@@ -31,7 +31,7 @@ module OneProvision
             :network   => 'packet_reserved_ip_block'
         }
 
-        KEYS = %w[project token facility]
+        KEYS = ['project', 'token', 'facility']
 
         # Class constructor
         #

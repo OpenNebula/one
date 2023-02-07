@@ -151,7 +151,7 @@ CommandParser::CmdParser.new(ARGV) do
         :format => String
     }
 
-    PATCH_FORMATS = %w[line yaml]
+    PATCH_FORMATS = ['line', 'yaml']
 
     begin
         require 'ee'

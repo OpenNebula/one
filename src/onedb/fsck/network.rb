@@ -270,7 +270,7 @@ module OneDBFsck
 
         type = address_range.at_xpath('TYPE').text
 
-        if %w[IP6 IP4_6].include? type
+        if ['IP6', 'IP4_6'].include? type
             ipv6[:link_prefix] = 0xfe80000000000000
         end
 

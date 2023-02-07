@@ -468,10 +468,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         n_elems = options[:n_elems] || 8
 
         # Different available size units
-        units = %w[K M G T]
+        units = ['K', 'M', 'G', 'T']
 
         # Attrs that need units conversion
-        attrs = %w[FREE_MEMORY USED_MEMORY]
+        attrs = ['FREE_MEMORY', 'USED_MEMORY']
 
         if unit && !units.include?(unit)
             STDERR.puts "Invalid unit `#{unit}`"

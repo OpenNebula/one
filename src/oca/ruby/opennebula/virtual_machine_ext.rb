@@ -47,17 +47,16 @@ module OpenNebula::VirtualMachineExt
             # @return [Integer, OpenNebula::Error] the new Template ID in case
             #   of success, error otherwise
             #-------------------------------------------------------------------
-            REMOVE_VNET_ATTRS = %w[AR_ID BRIDGE CLUSTER_ID IP MAC TARGET NIC_ID
-                                   NETWORK_ID VN_MAD SECURITY_GROUPS VLAN_ID
-                                   BRIDGE_TYPE]
+            REMOVE_VNET_ATTRS = ['AR_ID', 'BRIDGE', 'CLUSTER_ID', 'IP', 'MAC', 'TARGET', 'NIC_ID',
+                                 'NETWORK_ID', 'VN_MAD', 'SECURITY_GROUPS', 'VLAN_ID',
+                                 'BRIDGE_TYPE']
 
-            REMOVE_IMAGE_ATTRS = %w[DEV_PREFIX SOURCE ORIGINAL_SIZE SIZE
-                                    DISK_SNAPSHOT_TOTAL_SIZE DRIVER IMAGE_STATE
-                                    SAVE CLONE READONLY PERSISTENT TARGET
-                                    ALLOW_ORPHANS CLONE_TARGET CLUSTER_ID
-                                    DATASTORE DATASTORE_ID DISK_ID DISK_TYPE
-                                    IMAGE_ID IMAGE IMAGE_UNAME IMAGE_UID
-                                    LN_TARGET TM_MAD TYPE OPENNEBULA_MANAGED]
+            REMOVE_IMAGE_ATTRS = ['DEV_PREFIX', 'SOURCE', 'ORIGINAL_SIZE', 'SIZE',
+                                  'DISK_SNAPSHOT_TOTAL_SIZE', 'DRIVER', 'IMAGE_STATE', 'SAVE',
+                                  'CLONE', 'READONLY', 'PERSISTENT', 'TARGET', 'ALLOW_ORPHANS',
+                                  'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE', 'DATASTORE_ID',
+                                  'DISK_ID', 'DISK_TYPE', 'IMAGE_ID', 'IMAGE', 'IMAGE_UNAME',
+                                  'IMAGE_UID', 'LN_TARGET', 'TM_MAD', 'TYPE', 'OPENNEBULA_MANAGED']
 
             def save_as_template(name, desc, opts = {})
                 opts = {

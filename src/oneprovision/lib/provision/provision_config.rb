@@ -87,7 +87,7 @@ module OneProvision
                 ################################################################
 
                 if @config['hosts']
-                    sections = %w[connection provision configuration]
+                    sections = ['connection', 'provision', 'configuration']
 
                     @config['hosts'].map! do |host|
                         sections.each do |section|
@@ -115,7 +115,7 @@ module OneProvision
                 # Datastores & Networks
                 ################################################################
 
-                %w[datastores networks].each do |r|
+                ['datastores', 'networks'].each do |r|
                     next unless @config[r]
 
                     @config[r].map! do |x|
@@ -334,26 +334,26 @@ module OneProvision
         def extra
             ret = {}
 
-            reject = %w[cluster
-                        datastores
-                        defaults
-                        extends
-                        flowtemplates
-                        hosts
-                        images
-                        inputs
-                        marketplaceapps
-                        name
-                        networks
-                        playbook
-                        templates
-                        vntemplates
-                        name
-                        description
-                        state
-                        provider
-                        provision
-                        start_time]
+            reject = ['cluster',
+                      'datastores',
+                      'defaults',
+                      'extends',
+                      'flowtemplates',
+                      'hosts',
+                      'images',
+                      'inputs',
+                      'marketplaceapps',
+                      'name',
+                      'networks',
+                      'playbook',
+                      'templates',
+                      'vntemplates',
+                      'name',
+                      'description',
+                      'state',
+                      'provider',
+                      'provision',
+                      'start_time']
 
             @config.each do |key, value|
                 next if reject.include?(key)
@@ -423,7 +423,7 @@ module OneProvision
                     end
 
                     # merge each defaults section separately
-                    %w[connection provision configuration].each do |section|
+                    ['connection', 'provision', 'configuration'].each do |section|
                         base['defaults'][section] ||= {}
                         yaml['defaults'][section] ||= {}
                         defaults = yaml['defaults'][section]
@@ -520,7 +520,7 @@ module OneProvision
                     when 'boolean'
                         next unless input['default']
 
-                        next if %w[NO YES].include?(input['default'])
+                        next if ['NO', 'YES'].include?(input['default'])
 
                         return [false, "default #{input['default']} is invalid"]
                     when 'list'
@@ -720,7 +720,7 @@ module OneProvision
                     answer = Base64.encode64(answer).strip.delete("\n")
                 end
             when 'boolean'
-                until %w[YES NO].include?(answer)
+                until ['YES', 'NO'].include?(answer)
                     print "Bool `#{input['name']}` " \
                           "(default=#{input['default']}): "
 
@@ -730,7 +730,7 @@ module OneProvision
                     # Add default in case no default value is given
                     answer = 'NO' if !answer || answer.empty?
 
-                    unless %w[YES NO].include?(answer)
+                    unless ['YES', 'NO'].include?(answer)
                         puts "Invalid boolean #{answer} " \
                              'boolean has to be YES or NO'
                     end

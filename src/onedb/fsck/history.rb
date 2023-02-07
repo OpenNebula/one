@@ -67,7 +67,7 @@ module OneDBFsck
 
             history_doc = nokogiri_doc(row[:body])
 
-            %w[RETIME ESTIME EETIME ETIME].each do |att|
+            ['RETIME', 'ESTIME', 'EETIME', 'ETIME'].each do |att|
                 elem = history_doc.root.at_xpath(att)
 
                 elem.content = etime if elem.text == '0'

@@ -42,64 +42,64 @@ module OpenNebula
             'HOLD'                    => 15
         }
 
-        STATE_STR = %w[
-            PENDING
-            DEPLOYING
-            RUNNING
-            UNDEPLOYING
-            WARNING
-            DONE
-            FAILED_UNDEPLOYING
-            FAILED_DEPLOYING
-            SCALING
-            FAILED_SCALING
-            COOLDOWN
-            DEPLOYING_NETS
-            UNDEPLOYING_NETS
-            FAILED_DEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
-            HOLD
+        STATE_STR = [
+            'PENDING',
+            'DEPLOYING',
+            'RUNNING',
+            'UNDEPLOYING',
+            'WARNING',
+            'DONE',
+            'FAILED_UNDEPLOYING',
+            'FAILED_DEPLOYING',
+            'SCALING',
+            'FAILED_SCALING',
+            'COOLDOWN',
+            'DEPLOYING_NETS',
+            'UNDEPLOYING_NETS',
+            'FAILED_DEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS',
+            'HOLD'
         ]
 
-        TRANSIENT_STATES = %w[
-            DEPLOYING
-            UNDEPLOYING
-            SCALING
-            COOLDOWN
-            DEPLOYING_NETS
-            UNDEPLOYING_NETS
+        TRANSIENT_STATES = [
+            'DEPLOYING',
+            'UNDEPLOYING',
+            'SCALING',
+            'COOLDOWN',
+            'DEPLOYING_NETS',
+            'UNDEPLOYING_NETS'
         ]
 
-        FAILED_STATES = %w[
-            FAILED_DEPLOYING
-            FAILED_UNDEPLOYING
-            FAILED_SCALING
-            FAILED_DEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
+        FAILED_STATES = [
+            'FAILED_DEPLOYING',
+            'FAILED_UNDEPLOYING',
+            'FAILED_SCALING',
+            'FAILED_DEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
-        RECOVER_DEPLOY_STATES = %w[
-            FAILED_DEPLOYING
-            DEPLOYING
-            PENDING
+        RECOVER_DEPLOY_STATES = [
+            'FAILED_DEPLOYING',
+            'DEPLOYING',
+            'PENDING'
         ]
 
-        RECOVER_UNDEPLOY_STATES = %w[
-            FAILED_UNDEPLOYING
-            UNDEPLOYING
-            FAILED_UNDEPLOYING_NETS
+        RECOVER_UNDEPLOY_STATES = [
+            'FAILED_UNDEPLOYING',
+            'UNDEPLOYING',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
-        RECOVER_SCALE_STATES = %w[
-            FAILED_SCALING
-            SCALING
+        RECOVER_SCALE_STATES = [
+            'FAILED_SCALING',
+            'SCALING'
         ]
 
-        RECOVER_DEPLOY_NETS_STATES = %w[DEPLOYING_NETS FAILED_DEPLOYING_NETS]
+        RECOVER_DEPLOY_NETS_STATES = ['DEPLOYING_NETS', 'FAILED_DEPLOYING_NETS']
 
-        RECOVER_UNDEPLOY_NETS_STATES = %w[
-            UNDEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
+        RECOVER_UNDEPLOY_NETS_STATES = [
+            'UNDEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
         # List of attributes that can't be changed in update operation
@@ -114,17 +114,17 @@ module OpenNebula
         # ready_status_gate: it only has sense when deploying, not in running
         # state: this is internal information managed by OneFlow server
         # start_time: this is internal information managed by OneFlow server
-        IMMUTABLE_ATTRS = %w[
-            custom_attrs
-            custom_attrs_values
-            deployment
-            log
-            name
-            networks
-            networks_values
-            ready_status_gate
-            state
-            start_time
+        IMMUTABLE_ATTRS = [
+            'custom_attrs',
+            'custom_attrs_values',
+            'deployment',
+            'log',
+            'name',
+            'networks',
+            'networks_values',
+            'ready_status_gate',
+            'state',
+            'start_time'
         ]
 
         LOG_COMP = 'SER'
@@ -677,7 +677,7 @@ module OpenNebula
                 vnet.each do |_, net|
                     key = net.keys.first
 
-                    next unless %w[template_id reserve_from].include?(key)
+                    next unless ['template_id', 'reserve_from'].include?(key)
 
                     rc = OpenNebula::VirtualNetwork.new_with_id(
                         net['id'],

@@ -603,7 +603,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :passwdsearch, passwdsearch_desc, :driver, :password,
             :options => [CLIHelper::CSV_OPT, OpenNebulaHelper::XML] do
-        options[:list] = %w[ID NAME AUTH PASSWORD]
+        options[:list] = ['ID', 'NAME', 'AUTH', 'PASSWORD']
         options[:filter] = ["AUTH=#{args[0]}", "PASSWORD=#{args[1]}"]
 
         helper.list_pool(options)

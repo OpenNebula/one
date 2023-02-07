@@ -29,11 +29,11 @@ class BaseRestorer
     # Constants
     # --------------------------------------------------------------------------
 
-    VALID_STATES = %w[DONE
-                      POWEROFF
-                      UNDEPLOYED]
+    VALID_STATES = ['DONE',
+                    'POWEROFF',
+                    'UNDEPLOYED']
 
-    VALID_LCM_STATES = %w[LCM_INIT]
+    VALID_LCM_STATES = ['LCM_INIT']
 
     # --------------------------------------------------------------------------
     # Default configuration options
@@ -138,15 +138,13 @@ class BaseRestorer
             template << "DESCRIPTION = \"VM restored from backup.\"\n"
 
             # Add disks
-            disk_black_list = Set.new(%w[ALLOW_ORPHANS CLONE CLONE_TARGET
-                                         CLUSTER_ID DATASTORE DATASTORE_ID
-                                         DEV_PREFIX DISK_ID
-                                         DISK_SNAPSHOT_TOTAL_SIZE DISK_TYPE
-                                         DRIVER IMAGE IMAGE_ID IMAGE_STATE
-                                         IMAGE_UID IMAGE_UNAME LN_TARGET
-                                         OPENNEBULA_MANAGED ORIGINAL_SIZE
-                                         PERSISTENT READONLY SAVE SIZE SOURCE
-                                         TARGET TM_MAD TYPE])
+            disk_black_list = Set.new(['ALLOW_ORPHANS', 'CLONE', 'CLONE_TARGET', 'CLUSTER_ID',
+                                       'DATASTORE', 'DATASTORE_ID', 'DEV_PREFIX', 'DISK_ID',
+                                       'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE', 'DRIVER',
+                                       'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID',
+                                       'IMAGE_UNAME', 'LN_TARGET', 'OPENNEBULA_MANAGED',
+                                       'ORIGINAL_SIZE', 'PERSISTENT', 'READONLY', 'SAVE',
+                                       'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE'])
             new_disks.each do |disk|
                 disk_xpath = "/VM//DISK[DISK_ID = #{disk[:id]}]/*"
                 disk_tmpl = "DISK = [\n"
@@ -164,11 +162,11 @@ class BaseRestorer
             end
 
             # Add NICs
-            nic_black_list = Set.new(%w[AR_ID BRIDGE BRIDGE_TYPE CLUSTER_ID IP
-                                        IP6 IP6_ULA IP6_GLOBAL NAME NETWORK_ID
-                                        NIC_ID TARGET VLAN_ID VN_MAD])
+            nic_black_list = Set.new(['AR_ID', 'BRIDGE', 'BRIDGE_TYPE', 'CLUSTER_ID', 'IP', 'IP6',
+                                      'IP6_ULA', 'IP6_GLOBAL', 'NAME', 'NETWORK_ID', 'NIC_ID',
+                                      'TARGET', 'VLAN_ID', 'VN_MAD'])
             if @config[:restore_nics]
-                %w[NIC NIC_ALIAS].each do |type|
+                ['NIC', 'NIC_ALIAS'].each do |type|
                     vm_xml.xpath("/VM//#{type}").each do |nic|
                         nic_tmpl = "#{type} = [\n"
 
@@ -220,7 +218,7 @@ class BaseRestorer
             # subscribe to wait until every image is ready
             img_id = disk[:img].id
 
-            %w[READY ERROR].each do |i|
+            ['READY', 'ERROR'].each do |i|
                 key = "EVENT IMAGE #{img_id}/#{i}/"
                 subscriber.setsockopt(ZMQ::SUBSCRIBE, key)
             end
@@ -239,7 +237,7 @@ class BaseRestorer
                     img = OpenNebula::Image.new_with_id(id, client)
                     img.info
 
-                    next unless %w[READY ERROR].include?(img.state_str)
+                    next unless ['READY', 'ERROR'].include?(img.state_str)
 
                     error = true if img.state_str.upcase == 'ERROR'
                     imgs_set.delete(id)
@@ -256,7 +254,7 @@ class BaseRestorer
                 match = key.match(%r{EVENT IMAGE (?<img_id>\d+)/(?<state>\S+)/})
                 img_id = Integer(match[:img_id])
 
-                %w[READY ERROR].each do |i|
+                ['READY', 'ERROR'].each do |i|
                     key = "EVENT IMAGE #{img_id}/#{i}/"
                     subscriber.setsockopt(ZMQ::UNSUBSCRIBE, key)
                 end

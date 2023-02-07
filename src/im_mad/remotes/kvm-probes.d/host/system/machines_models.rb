@@ -21,7 +21,7 @@ require 'open3'
 ENV['LANG'] = 'C'
 ENV['LC_ALL'] = 'C'
 
-GUEST_ARCHS = %w[i686 x86_64]
+GUEST_ARCHS = ['i686', 'x86_64']
 
 begin
     machines = []

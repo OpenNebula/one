@@ -40,7 +40,7 @@ vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
 XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
 
-OVS_VN_MADS = %w[ovswitch ovswitch_vxlan]
+OVS_VN_MADS = ['ovswitch', 'ovswitch_vxlan']
 
 #----------------------------------------------------------------------------
 

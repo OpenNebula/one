@@ -22,7 +22,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     # This list contains prefixes that should skip adding user home to the path
     # This must have the same content as the case $FROM in downloader.sh
-    PREFIXES = %w[http https ssh s3 rbd vcenter lxd docker dockerfile]
+    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'vcenter', 'lxd', 'docker', 'dockerfile']
 
     TEMPLATE_OPTIONS=[
         {
@@ -67,7 +67,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :format => String,
             :proc => lambda do |o, _options|
                 prefix=o.strip.downcase
-                if %w[hd sd xvd vd].include? prefix
+                if ['hd', 'sd', 'xvd', 'vd'].include? prefix
                     [0, prefix]
                 else
                     [-1, 'The prefix must be hd, sd, xvd or vd']
@@ -328,7 +328,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        %w[OWNER GROUP OTHER].each do |e|
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
             mask = '---'
             mask[0] = 'u' if image["PERMISSIONS/#{e}_U"] == '1'
             mask[1] = 'm' if image["PERMISSIONS/#{e}_M"] == '1'

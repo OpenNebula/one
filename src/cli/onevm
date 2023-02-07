@@ -250,7 +250,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
-        %w[as_gid as_uid].include?(v[:name])
+        ['as_gid', 'as_uid'].include?(v[:name])
     end
 
     ########################################################################
