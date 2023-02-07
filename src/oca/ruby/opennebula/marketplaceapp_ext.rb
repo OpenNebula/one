@@ -314,9 +314,9 @@ module OpenNebula::MarketPlaceAppExt
             # @param image    [OpenNebula::Image]     Image information
             def create_vcenter_template(ds, options, template, image = nil)
                 ret  = {}
-                keys = %w[VCENTER_TEMPLATE_REF
-                          VCENTER_CCR_REF
-                          VCENTER_INSTANCE_ID]
+                keys = ['VCENTER_TEMPLATE_REF',
+                        'VCENTER_CCR_REF',
+                        'VCENTER_INSTANCE_ID']
 
                 if ds['//VCENTER_TEMPLATE_REF']
                     keys.each do |key|

@@ -110,7 +110,7 @@ require 'oneprovision'
 require 'ipaddr'
 require 'digest'
 
-IP_TYPE = %w[public_ipv4 global_ipv4]
+IP_TYPE = ['public_ipv4', 'global_ipv4']
 
 DEFAULT_PRIVATE_CIDR = '172.16.0.0/12'
 

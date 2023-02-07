@@ -33,7 +33,7 @@ module OneProvision
     # Vultr Terraform Provider
     class Vultr < Terraform
 
-        KEYS = %w[key region]
+        KEYS = ['key', 'region']
 
         # Class constructor
         #

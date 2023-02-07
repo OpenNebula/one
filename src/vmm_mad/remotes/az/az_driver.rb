@@ -89,10 +89,14 @@ class AzureDriver
         'OS Disk Write Operations/Sec'
     ]
 
-    AZ_REQUIRED_PARAMS = %w[
-        INSTANCE_TYPE
-        VM_USER VM_PASSWORD
-        IMAGE_PUBLISHER IMAGE_OFFER IMAGE_SKU IMAGE_VERSION
+    AZ_REQUIRED_PARAMS = [
+        'INSTANCE_TYPE',
+        'VM_USER',
+        'VM_PASSWORD',
+        'IMAGE_PUBLISHER',
+        'IMAGE_OFFER',
+        'IMAGE_SKU',
+        'IMAGE_VERSION'
     ]
 
     STATE_MAP = {
@@ -225,7 +229,7 @@ class AzureDriver
             unless @resource_client.resource_groups
                                    .check_existence(@rgroup_name)
 
-        if %w[BOOT BOOT_FAILURE].include?(lcm_state)
+        if ['BOOT', 'BOOT_FAILURE'].include?(lcm_state)
             @defaults = load_default_template_values
 
             az_info, context = get_deployment_info(host, xml_text)

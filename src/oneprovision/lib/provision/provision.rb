@@ -35,28 +35,28 @@ module OneProvision
             'DELETING'    => 5
         }
 
-        STATE_STR = %w[
-            PENDING
-            DEPLOYING
-            CONFIGURING
-            RUNNING
-            ERROR
-            DELETING
+        STATE_STR = [
+            'PENDING',
+            'DEPLOYING',
+            'CONFIGURING',
+            'RUNNING',
+            'ERROR',
+            'DELETING'
         ]
 
         # Available resources that can be created with the provision
         #
         # Note: order is important, some objects depend on others
         # Objects without dependencies need to be created firstly, then the rest
-        RESOURCES = %w[images
-                       marketplaceapps
-                       templates
-                       vntemplates
-                       flowtemplates]
+        RESOURCES = ['images',
+                     'marketplaceapps',
+                     'templates',
+                     'vntemplates',
+                     'flowtemplates']
 
-        INFRASTRUCTURE_RESOURCES = %w[datastores networks]
+        INFRASTRUCTURE_RESOURCES = ['datastores', 'networks']
 
-        FULL_CLUSTER = INFRASTRUCTURE_RESOURCES + %w[hosts clusters]
+        FULL_CLUSTER = INFRASTRUCTURE_RESOURCES + ['hosts', 'clusters']
 
         # Class constructor
         #
@@ -482,7 +482,7 @@ module OneProvision
 
             host['connection'] = {}
 
-            %w[private_key public_key remote_port remote_user].each do |attr|
+            ['private_key', 'public_key', 'remote_port', 'remote_user'].each do |attr|
                 host['connection'][attr] = host['provision_connection'][attr]
             end
 

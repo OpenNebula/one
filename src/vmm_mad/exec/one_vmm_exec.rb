@@ -179,13 +179,10 @@ class VmmAction
 
     # List of xpaths required by the VNM driver actions. TEMPLATE/NIC is
     # also required but added separately to the driver xml
-    XPATH_LIST = %w[
-        ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
-        TEMPLATE/SECURITY_GROUP_RULE
-        HISTORY_RECORDS/HISTORY/HOSTNAME
-        HISTORY_RECORDS/HISTORY/HID
-        HISTORY_RECORDS/HISTORY/DS_ID
-        HISTORY_RECORDS/HISTORY/VM_MAD
+    XPATH_LIST = [
+        'ID', 'DEPLOY_ID', 'TEMPLATE/CONTEXT', 'USER_TEMPLATE', 'TEMPLATE/SECURITY_GROUP_RULE',
+        'HISTORY_RECORDS/HISTORY/HOSTNAME', 'HISTORY_RECORDS/HISTORY/HID',
+        'HISTORY_RECORDS/HISTORY/DS_ID', 'HISTORY_RECORDS/HISTORY/VM_MAD'
     ]
 
     DRIVER_NAMES = {
@@ -212,7 +209,7 @@ class VmmAction
             end
         end
 
-        %w[NIC NIC_ALIAS PCI].each do |r|
+        ['NIC', 'NIC_ALIAS', 'PCI'].each do |r|
             vm_template_xml.elements.each("TEMPLATE/#{r}") do |element|
                 vn_mad = element.get_text('VN_MAD').to_s
 

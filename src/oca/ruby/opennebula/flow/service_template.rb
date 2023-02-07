@@ -60,11 +60,11 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w[
-                        terminate
-                        terminate-hard
-                        shutdown
-                        shutdown-hard
+                    :enum => [
+                        'terminate',
+                        'terminate-hard',
+                        'shutdown',
+                        'shutdown-hard'
                     ],
                     :required => false
                 },
@@ -94,10 +94,10 @@ module OpenNebula
                         :properties => {
                             'type' => {
                                 :type => :string,
-                                :enum => %w[
-                                    CHANGE
-                                    CARDINALITY
-                                    PERCENTAGE_CHANGE
+                                :enum => [
+                                    'CHANGE',
+                                    'CARDINALITY',
+                                    'PERCENTAGE_CHANGE'
                                 ],
                                 :required => true
                             },
@@ -143,10 +143,10 @@ module OpenNebula
                         :properties => {
                             'type' => {
                                 :type => :string,
-                                :enum => %w[
-                                    CHANGE
-                                    CARDINALITY
-                                    PERCENTAGE_CHANGE
+                                :enum => [
+                                    'CHANGE',
+                                    'CARDINALITY',
+                                    'PERCENTAGE_CHANGE'
                                 ],
                                 :required => true
                             },
@@ -182,7 +182,7 @@ module OpenNebula
                 },
                 'deployment' => {
                     :type => :string,
-                    :enum => %w[none straight],
+                    :enum => ['none', 'straight'],
                     :default => 'none'
                 },
                 'description' => {
@@ -191,11 +191,11 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w[
-                        terminate
-                        terminate-hard
-                        shutdown
-                        shutdown-hard
+                    :enum => [
+                        'terminate',
+                        'terminate-hard',
+                        'shutdown',
+                        'shutdown-hard'
                     ],
                     :required => false
                 },
@@ -245,8 +245,8 @@ module OpenNebula
         # List of attributes that can't be changed in update operation
         #
         # registration_time: this is internal info managed by OneFlow server
-        IMMUTABLE_ATTRS = %w[
-            registration_time
+        IMMUTABLE_ATTRS = [
+            'registration_time'
         ]
 
         def self.init_default_vn_name_template(vn_name_template)

@@ -149,7 +149,7 @@ end
 #-------------------------------------------------------------------------------
 #  Script helper functions and gLobals
 #-------------------------------------------------------------------------------
-LOCAL_HYPERVISOR = %w[az ec2 one equinix].freeze
+LOCAL_HYPERVISOR = ['az', 'ec2', 'one', 'equinix'].freeze
 
 def local?(hypervisor)
     LOCAL_HYPERVISOR.include?(hypervisor)

@@ -743,9 +743,9 @@ module VCenterDriver
                         image_path = ''
 
                         # Skip not relevant files
-                        next unless %w[FloppyImageFileInfo
-                                       IsoImageFileInfo
-                                       VmDiskFileInfo].include? image.class.to_s
+                        next unless ['FloppyImageFileInfo',
+                                     'IsoImageFileInfo',
+                                     'VmDiskFileInfo'].include? image.class.to_s
 
                         # Get image path and name
                         image_path << folderpath << image.path

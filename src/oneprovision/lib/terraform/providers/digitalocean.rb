@@ -32,7 +32,7 @@ module OneProvision
             :network   => ''
         }
 
-        KEYS = %w[token region]
+        KEYS = ['token', 'region']
 
         # Class constructor
         #

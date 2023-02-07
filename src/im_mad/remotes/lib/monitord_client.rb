@@ -28,8 +28,8 @@ require 'openssl'
 class MonitorClient
 
     # Defined in src/monitor/include/MonitorDriverMessages.h
-    MESSAGE_TYPES = %w[MONITOR_VM MONITOR_HOST SYSTEM_HOST BEACON_HOST STATE_VM
-                       START_MONITOR STOP_MONITOR].freeze
+    MESSAGE_TYPES = ['MONITOR_VM', 'MONITOR_HOST', 'SYSTEM_HOST', 'BEACON_HOST', 'STATE_VM',
+                     'START_MONITOR', 'STOP_MONITOR'].freeze
 
     MESSAGE_STATUS = { true =>'SUCCESS', false => 'FAILURE' }.freeze
 

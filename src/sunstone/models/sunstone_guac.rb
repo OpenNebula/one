@@ -51,7 +51,7 @@ class SunstoneGuac < SunstoneRemoteConnections
             return error(400, error_message)
         end
 
-        unless %w[vnc rdp ssh].include?(type_connection.downcase)
+        unless ['vnc', 'rdp', 'ssh'].include?(type_connection.downcase)
             return error(400, 'Type connection not supported by Guacamole')
         end
 

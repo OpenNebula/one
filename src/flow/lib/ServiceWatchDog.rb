@@ -36,9 +36,9 @@ class ServiceWD
     ############################################################################
     # WARNING STATES
     ############################################################################
-    WARNING_STATES = %w[
-        POWEROFF
-        UNKNOWN
+    WARNING_STATES = [
+        'POWEROFF',
+        'UNKNOWN'
     ] + EventManager::FAILURE_STATES
 
     # Class constructor
