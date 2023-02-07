@@ -135,7 +135,7 @@ public:
     typedef class IncIterator inc_iterator;
 
 private:
-    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const
+    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const override
     {
         return new Increment(va, id);
     };

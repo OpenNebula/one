@@ -59,9 +59,9 @@ private:
         VMBackupAction():backup("SCHED_ACTION"){};
 
         /** ID of the VM and action**/
-        int vm_id;
+        int vm_id = -1;
 
-        int action_id;
+        int action_id = -1;
 
         /** Pending backup operation **/
         VectorAttribute backup;

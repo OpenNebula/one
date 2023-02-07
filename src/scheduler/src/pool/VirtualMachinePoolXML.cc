@@ -332,7 +332,7 @@ int VirtualMachineActionsPoolXML::get_suitable_nodes(
         << " and (not(DONE > 0) or boolean(REPEAT))) or "
         << "( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
-    return get_nodes(oss.str().c_str(), content);
+    return get_nodes(oss.str(), content);
 }
 
 /* -------------------------------------------------------------------------- */

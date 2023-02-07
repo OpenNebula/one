@@ -3974,8 +3974,6 @@ void VirtualMachineBackup::request_execute(
     Backups::Mode mode;
     int li_id;
 
-    ostringstream oss;
-
     // ------------------------------------------------------------------------
     // Get request parameters
     // ------------------------------------------------------------------------
