@@ -157,7 +157,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
                 CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-                %w[OWNER GROUP OTHER].each do |e|
+                ['OWNER', 'GROUP', 'OTHER'].each do |e|
                     mask = '---'
                     permissions_hash = document['PERMISSIONS']
                     mask[0] = 'u' if permissions_hash["#{e}_U"] == '1'

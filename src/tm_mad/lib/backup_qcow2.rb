@@ -153,7 +153,7 @@ class QemuImg
     #---------------------------------------------------------------------------
     # qemu-img command methods
     #---------------------------------------------------------------------------
-    QEMU_IMG_COMMANDS = %w[convert create rebase info bitmap]
+    QEMU_IMG_COMMANDS = ['convert', 'create', 'rebase', 'info', 'bitmap']
 
     QEMU_IMG_COMMANDS.each do |command|
         define_method(command.to_sym) do |args = '', opts|

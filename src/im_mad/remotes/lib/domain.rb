@@ -64,8 +64,8 @@ class BaseDomain
         Base64.strict_encode64(mon_s)
     end
 
-    MONITOR_KEYS = %w[cpu memory netrx nettx diskrdbytes diskwrbytes diskrdiops
-                      diskwriops]
+    MONITOR_KEYS = ['cpu', 'memory', 'netrx', 'nettx', 'diskrdbytes', 'diskwrbytes', 'diskrdiops',
+                    'diskwriops']
 
 end
 

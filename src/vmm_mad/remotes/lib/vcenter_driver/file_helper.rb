@@ -109,7 +109,7 @@ module VCenterDriver
         def self.needs_unpack?(file_path)
             type = get_type(file_path)
             type.gsub!(%r{^application/(x-)?}, '')
-            %w[bzip2 gzip tar].include?(type)
+            ['bzip2', 'gzip', 'tar'].include?(type)
         end
 
         def self.vcenter_file_info(file_path)

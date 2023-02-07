@@ -197,7 +197,7 @@ module OneCfg::Config
         # @return [Hash] Filtered file data
         def file4desc(data)
             data.select do |k, _v|
-                %w[class owner group mode].include?(k)
+                ['class', 'owner', 'group', 'mode'].include?(k)
             end
         end
 

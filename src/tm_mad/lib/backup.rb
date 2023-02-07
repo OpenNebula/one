@@ -131,31 +131,30 @@ module TransferManager
         #-----------------------------------------------------------------------
         # Attributes that will be rejected when recovering the new template
         #-----------------------------------------------------------------------
-        DISK_LIST = %w[ALLOW_ORPHANS CLONE CLONE_TARGET CLUSTER_ID DATASTORE
-                       DATASTORE_ID DEV_PREFIX DISK_SNAPSHOT_TOTAL_SIZE
-                       DISK_TYPE DRIVER IMAGE IMAGE_ID IMAGE_STATE IMAGE_UID
-                       IMAGE_UNAME LN_TARGET OPENNEBULA_MANAGED ORIGINAL_SIZE
-                       PERSISTENT READONLY SAVE SIZE SOURCE TARGET TM_MAD TYPE
-                       FORMAT]
+        DISK_LIST = ['ALLOW_ORPHANS', 'CLONE', 'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE',
+                     'DATASTORE_ID', 'DEV_PREFIX', 'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE',
+                     'DRIVER', 'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
+                     'LN_TARGET', 'OPENNEBULA_MANAGED', 'ORIGINAL_SIZE', 'PERSISTENT', 'READONLY',
+                     'SAVE', 'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE', 'FORMAT']
 
-        NIC_LIST = %w[AR_ID BRIDGE BRIDGE_TYPE CLUSTER_ID NAME NETWORK_ID
-                      NIC_ID TARGET VLAN_ID VN_MAD MAC VLAN_TAGGED_ID PHYDEV]
+        NIC_LIST = ['AR_ID', 'BRIDGE', 'BRIDGE_TYPE', 'CLUSTER_ID', 'NAME', 'NETWORK_ID', 'NIC_ID',
+                    'TARGET', 'VLAN_ID', 'VN_MAD', 'MAC', 'VLAN_TAGGED_ID', 'PHYDEV']
 
-        GRAPHICS_LIST = %w[PORT]
+        GRAPHICS_LIST = ['PORT']
 
         CONTEXT_LIST = ['DISK_ID', /ETH[0-9]?/, /PCI[0-9]?/]
 
-        NUMA_NODE_LIST = %w[CPUS MEMORY_NODE_ID NODE_ID]
+        NUMA_NODE_LIST = ['CPUS', 'MEMORY_NODE_ID', 'NODE_ID']
 
-        PCI_COMMON = %w[ADDRESS BUS DOMAIN FUNCTION NUMA_NODE PCI_ID SLOT
-                        VM_ADDRESS VM_BUS VM_DOMAIN VM_FUNCTION VM_SLOT]
+        PCI_COMMON = ['ADDRESS', 'BUS', 'DOMAIN', 'FUNCTION', 'NUMA_NODE', 'PCI_ID', 'SLOT',
+                      'VM_ADDRESS', 'VM_BUS', 'VM_DOMAIN', 'VM_FUNCTION', 'VM_SLOT']
 
-        PCI_MANUAL_LIST = NIC_LIST + PCI_COMMON + %w[SHORT_ADDRESS]
-        PCI_AUTO_LIST   = NIC_LIST + PCI_COMMON + %w[VENDOR DEVICE CLASS]
+        PCI_MANUAL_LIST = NIC_LIST + PCI_COMMON + ['SHORT_ADDRESS']
+        PCI_AUTO_LIST   = NIC_LIST + PCI_COMMON + ['VENDOR', 'DEVICE', 'CLASS']
 
-        ATTR_LIST = %w[AUTOMATIC_DS_REQUIREMENTS AUTOMATIC_NIC_REQUIREMENTS
-                       AUTOMATIC_REQUIREMENTS VMID TEMPLATE_ID TM_MAD_SYSTEM
-                       SECURITY_GROUP_RULE ERROR]
+        ATTR_LIST = ['AUTOMATIC_DS_REQUIREMENTS', 'AUTOMATIC_NIC_REQUIREMENTS',
+                     'AUTOMATIC_REQUIREMENTS', 'VMID', 'TEMPLATE_ID', 'TM_MAD_SYSTEM',
+                     'SECURITY_GROUP_RULE', 'ERROR']
 
         # options = {
         #   :vm_xml64  => XML representation of the VM, base64 encoded

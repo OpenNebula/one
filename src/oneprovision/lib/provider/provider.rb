@@ -22,7 +22,7 @@ module OneProvision
         DOCUMENT_TYPE = 102
 
         # These attributes can not be changed when updating the provider
-        IMMUTABLE_ATTRS = %w[provider name]
+        IMMUTABLE_ATTRS = ['provider', 'name']
 
         # These providers get the credentials via some file
         CREDENTIALS_FILE = { 'google' => 'credentials' }
@@ -185,7 +185,7 @@ EOS
         # @return [JSON] Document information in JSON format
         def to_json(template)
             document = {}
-            skip     = %w[provider connection registration_time plain]
+            skip     = ['provider', 'connection', 'registration_time', 'plain']
 
             # Create document JSON
             document['provider']          = template['provider']

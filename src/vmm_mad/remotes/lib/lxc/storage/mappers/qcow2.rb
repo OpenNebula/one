@@ -25,7 +25,7 @@ require 'storageutils'
 class Qcow2Mapper
 
     QEMU_NBD_FORK_VERSION = '2.8.0'
-    CACHE_MODES = %w[none writethrough writeback directsync unsafe]
+    CACHE_MODES = ['none', 'writethrough', 'writeback', 'directsync', 'unsafe']
 
     COMMANDS = {
         :map     => 'sudo -n qemu-nbd --fork -c',

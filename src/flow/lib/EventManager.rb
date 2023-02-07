@@ -40,28 +40,28 @@ class EventManager
         :wait_release_action
     ]
 
-    FAILURE_STATES = %w[
-        BOOT_FAILURE
-        BOOT_MIGRATE_FAILURE
-        PROLOG_MIGRATE_FAILURE
-        PROLOG_FAILURE
-        EPILOG_FAILURE
-        EPILOG_STOP_FAILURE
-        EPILOG_UNDEPLOY_FAILURE
-        PROLOG_MIGRATE_POWEROFF_FAILURE
-        PROLOG_MIGRATE_SUSPEND_FAILURE
-        PROLOG_MIGRATE_UNKNOWN_FAILURE
-        BOOT_UNDEPLOY_FAILURE
-        BOOT_STOPPED_FAILURE
-        PROLOG_RESUME_FAILURE
-        PROLOG_UNDEPLOY_FAILURE
+    FAILURE_STATES = [
+        'BOOT_FAILURE',
+        'BOOT_MIGRATE_FAILURE',
+        'PROLOG_MIGRATE_FAILURE',
+        'PROLOG_FAILURE',
+        'EPILOG_FAILURE',
+        'EPILOG_STOP_FAILURE',
+        'EPILOG_UNDEPLOY_FAILURE',
+        'PROLOG_MIGRATE_POWEROFF_FAILURE',
+        'PROLOG_MIGRATE_SUSPEND_FAILURE',
+        'PROLOG_MIGRATE_UNKNOWN_FAILURE',
+        'BOOT_UNDEPLOY_FAILURE',
+        'BOOT_STOPPED_FAILURE',
+        'PROLOG_RESUME_FAILURE',
+        'PROLOG_UNDEPLOY_FAILURE'
     ]
 
-    SUBSCRIBE_STATES = %w[
-        STOPPED
-        SUSPENDED
-        POWEROFF
-        UNDEPLOYED
+    SUBSCRIBE_STATES = [
+        'STOPPED',
+        'SUSPENDED',
+        'POWEROFF',
+        'UNDEPLOYED'
     ]
 
     # --------------------------------------------------------------------------

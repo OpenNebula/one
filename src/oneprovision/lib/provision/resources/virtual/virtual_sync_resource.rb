@@ -25,7 +25,7 @@ module OneProvision
         DEFAULT_TIMEOUT = 60
 
         # Supported wait modes
-        SUPPORTED_MODES = %w[true false]
+        SUPPORTED_MODES = ['true', 'false']
 
         # Delete object
         def delete(_ = nil, _ = nil, _ = nil)

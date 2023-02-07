@@ -20,7 +20,7 @@ require 'csv'
 module CLIHelper
 
     # Available operators for filtering operations
-    FILTER_OPS = %w[= != < <= > >= ~]
+    FILTER_OPS = ['=', '!=', '<', '<=', '>', '>=', '~']
 
     # CLI general options
     LIST = {
@@ -182,23 +182,23 @@ module CLIHelper
     ANSI_YELLOW = "\33[33m"
 
     # CLI states
-    OK_STATES      = %w[runn rdy on SUCCESS RUNNING]
-    BAD_STATES     = %w[fail
-                        err
-                        error
-                        ERROR
-                        FAILED_DEPLOYING
-                        FAILED_DEPLOYING_NETS
-                        FAILED_UNDEPLOYING
-                        FAILED_UNDEPLOYING_NETS
-                        FAILED_SCALING]
-    REGULAR_STATES = %w[PENDING
-                        DEPLOYING
-                        DEPLOYING_NETS
-                        UNDEPLOYING
-                        UNDEPLOYING_NETS
-                        CONFIGURING
-                        WARNING]
+    OK_STATES      = ['runn', 'rdy', 'on', 'SUCCESS', 'RUNNING']
+    BAD_STATES     = ['fail',
+                      'err',
+                      'error',
+                      'ERROR',
+                      'FAILED_DEPLOYING',
+                      'FAILED_DEPLOYING_NETS',
+                      'FAILED_UNDEPLOYING',
+                      'FAILED_UNDEPLOYING_NETS',
+                      'FAILED_SCALING']
+    REGULAR_STATES = ['PENDING',
+                      'DEPLOYING',
+                      'DEPLOYING_NETS',
+                      'UNDEPLOYING',
+                      'UNDEPLOYING_NETS',
+                      'CONFIGURING',
+                      'WARNING']
 
     # Set state color
     #

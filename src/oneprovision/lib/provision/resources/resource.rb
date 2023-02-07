@@ -20,21 +20,21 @@ module OneProvision
     class Resource
 
         # Keys to remove from template
-        REJECT_KEYS = %w[meta]
+        REJECT_KEYS = ['meta']
 
         # Valid keys in template evaluation
-        EVAL_KEYS = %w[cluster
-                       datastore
-                       host
-                       image
-                       network
-                       template
-                       vntemplate
-                       marketplaceapp]
+        EVAL_KEYS = ['cluster',
+                     'datastore',
+                     'host',
+                     'image',
+                     'network',
+                     'template',
+                     'vntemplate',
+                     'marketplaceapp']
 
-        S_EVAL_KEYS = %w[index
-                         provision
-                         provision_id]
+        S_EVAL_KEYS = ['index',
+                       'provision',
+                       'provision_id']
 
         # @one  ONE object
         # @pool ONE pool

@@ -111,7 +111,7 @@ require 'opennebula'
 require 'oneprovision'
 require 'vultr'
 
-IP_TYPE = %w[v4 v6]
+IP_TYPE = ['v4', 'v6']
 
 DEFAULT_PRIVATE_CIDR = '172.16.0.0/12'
 

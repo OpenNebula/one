@@ -84,7 +84,7 @@ module OneCfg::Common
             # command
             parsed[:command].downcase!
 
-            if !%w[rm ins set].include?(parsed[:command])
+            if !['rm', 'ins', 'set'].include?(parsed[:command])
                 raise OneCfg::Exception::FileParseError,
                       "Invalid patch action '#{parsed[:command]}'"
             end

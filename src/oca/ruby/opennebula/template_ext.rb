@@ -79,7 +79,7 @@ module OpenNebula::TemplateExt
                         image['STATE'].to_i
                     ]
 
-                    unless %w[LOCKED READY USED].include?(i_state)
+                    unless ['LOCKED', 'READY', 'USED'].include?(i_state)
                         logger.fatal "Wrong image state #{i_state}" if logger
 
                         rollback(ids)
@@ -204,7 +204,7 @@ module OpenNebula::TemplateExt
             #   @param nic [XMLElement] to delete attributes from
             #-------------------------------------------------------------------
             def delete_nic_attributes(nic)
-                %w[NETWORK NETWORK_ID NETWORK_UNAME SECURITY_GROUPS].each do |a|
+                ['NETWORK', 'NETWORK_ID', 'NETWORK_UNAME', 'SECURITY_GROUPS'].each do |a|
                     nic.delete_element(a)
                 end
             end
