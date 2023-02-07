@@ -786,6 +786,9 @@ Style/RedundantStringEscape:
 Style/ConcatArrayLiterals:
   Enabled: false
 
+Style/WordArray:
+  EnforcedStyle: brackets
+
 ######
 # LINT
 ######
