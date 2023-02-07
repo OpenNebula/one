@@ -786,6 +786,7 @@ module OpenNebula
             "#{net}-#{id}"
         end
 
+        # rubocop:disable Layout/LineLength
         def resolve_attributes(template)
             template['roles'].each do |role|
                 if role['vm_template_contents']
@@ -831,6 +832,7 @@ module OpenNebula
                 end
             end
         end
+        # rubocop:enable Layout/LineLength
 
     end
 
