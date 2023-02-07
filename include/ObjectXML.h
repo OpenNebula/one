@@ -265,13 +265,15 @@ public:
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
-    void free_nodes(std::vector<xmlNodePtr>& content) const
+    static void free_nodes(std::vector<xmlNodePtr>& content)
     {
         for (auto it : content)
         {
             xmlFreeNode(it);
         }
-    };
+
+        content.clear();
+    }
 
     /**
      *   Updates the object representation with a new XML document. Previous

@@ -671,7 +671,6 @@ bool TemplateAllocate::allocate_authorization(
         PoolObjectAuth *    cluster_perms)
 {
     AuthRequest ar(att.uid, att.group_ids);
-    string      t64;
     string      aname;
 
     if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
@@ -732,7 +731,6 @@ bool VirtualNetworkTemplateAllocate::allocate_authorization(
         PoolObjectAuth *    cluster_perms)
 {
     AuthRequest ar(att.uid, att.group_ids);
-    string      t64;
     string      aname;
 
     if (!RequestManagerAllocate::allocate_authorization(paramList, tmpl, att, cluster_perms))
@@ -1056,8 +1054,6 @@ Request::ErrorCode ZoneAllocate::pool_allocate(
         int&                        id,
         RequestAttributes&          att)
 {
-    string name = xmlrpc_c::value_string(paramList.getString(1));
-
     ZonePool * zonepool = static_cast<ZonePool *>(pool);
 
     int rc = zonepool->allocate(move(tmpl), &id, att.resp_msg);
@@ -1103,8 +1099,6 @@ Request::ErrorCode VdcAllocate::pool_allocate(
         int&                        id,
         RequestAttributes&          att)
 {
-    string name = xmlrpc_c::value_string(paramList.getString(1));
-
     VdcPool * vdcpool = static_cast<VdcPool *>(pool);
 
     int rc = vdcpool->allocate(move(tmpl), &id, att.resp_msg);

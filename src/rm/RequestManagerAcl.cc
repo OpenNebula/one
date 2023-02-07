@@ -88,7 +88,6 @@ void AclDelRule::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
     int    oid = xmlrpc_c::value_int(paramList.getInt(1));
-    string error_msg;
 
     if ( basic_authorization(-1, att) == false )
     {

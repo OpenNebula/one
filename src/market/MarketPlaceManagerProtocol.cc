@@ -264,7 +264,7 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
         }
 
         int app_id;
-        int rc = apppool->import(apps[i]->value(), id, name, app_id, err);
+        rc = apppool->import(apps[i]->value(), id, name, app_id, err);
 
         if (rc == -1)
         {

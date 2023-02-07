@@ -140,7 +140,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     VirtualMachineTemplate extended_tmpl;
     VirtualMachineTemplate uattrs;
 
-    string aname;
     string tmpl_name;
 
     /* ---------------------------------------------------------------------- */

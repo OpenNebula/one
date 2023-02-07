@@ -157,7 +157,6 @@ public:
 
         if ( ec == SUCCESS )
         {
-            std::vector<int> zids;
             success_response(oid, att);
         }
         else

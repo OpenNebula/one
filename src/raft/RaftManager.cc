@@ -289,7 +289,6 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 void RaftManager::delete_server(int follower_id)
 {
     std::ostringstream oss;
-    std::map<int, std::string> _servers;
 
     std::lock_guard<mutex> lock(raft_mutex);
 
@@ -746,7 +745,6 @@ void RaftManager::timer_action()
 void RaftManager::purge_action()
 {
     static int mark_tics  = 0;
-    ostringstream oss;
 
     Nebula& nd = Nebula::instance();
 

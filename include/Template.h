@@ -672,7 +672,7 @@ private:
     }
 
     template<typename T>
-    void _set(std::vector<T *>& values)
+    void _set(const std::vector<T *>& values)
     {
         for (auto v : values)
         {

@@ -114,8 +114,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     if (rc != 0)
     {
         return -1;
@@ -134,8 +132,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     if (rc != 0)
     {
         return -1;
@@ -150,8 +146,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
         rc += numa.from_xml_node(content, vms_thread);
 
         ObjectXML::free_nodes(content);
-
-        content.clear();
 
         if (rc != 0)
         {

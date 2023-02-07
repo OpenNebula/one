@@ -54,9 +54,6 @@ protected:
 
     /* --------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att) = 0;
-
     void add_generic(
             int                         cluster_id,
             int                         object_id,

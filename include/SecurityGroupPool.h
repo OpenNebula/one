@@ -112,7 +112,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", "body", one_db::sg_table,
                 where, sid, eid, desc);
@@ -126,7 +126,7 @@ public:
      * @param sgs security group ID set
      * @param rules Security Group rules will be added at the end of this vector
      */
-    void get_security_group_rules(int vmid, std::set<int>& sgs,
+    void get_security_group_rules(int vmid, const std::set<int>& sgs,
                                   std::vector<VectorAttribute*> &rules)
     {
         for (auto sg : sgs)
@@ -153,7 +153,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new SecurityGroup(-1,-1,"","",0,0);
     };

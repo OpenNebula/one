@@ -46,7 +46,7 @@ public:
         Template::decrypt(one_key, encrypted);
     }
 
-    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
+    static void parse_encrypted(const std::vector<const SingleAttribute *>& ea)
     {
         Template::parse_encrypted(ea, encrypted);
     }

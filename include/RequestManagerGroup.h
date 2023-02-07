@@ -39,9 +39,6 @@ protected:
     };
 
     ~RequestManagerGroup(){};
-
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */

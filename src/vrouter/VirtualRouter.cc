@@ -99,7 +99,6 @@ VirtualRouter::VirtualRouter(   int             id,
 int VirtualRouter::insert(SqlDB *db, string& error_str)
 {
     int             rc;
-    ostringstream   oss;
 
     // ---------------------------------------------------------------------
     // Check default attributes
@@ -385,7 +384,6 @@ int VirtualRouter::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     if (rc != 0)
     {
@@ -420,7 +418,6 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
     int     vnid;
     int     ar_id;
     string  mac;
-    string  error_msg;
 
     if (nic == nullptr)
     {

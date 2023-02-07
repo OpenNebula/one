@@ -244,17 +244,17 @@ public:
      *
      *    @return -1 if the element was not found
      */
-    virtual int search(const char *name, std::string& value)
+    int search(const char *name, std::string& value) override
     {
         return __search(name, value);
     }
 
-    virtual int search(const char *name, int& value)
+    int search(const char *name, int& value) override
     {
         return __search(name, value);
     }
 
-    virtual int search(const char *name, float& value)
+    int search(const char *name, float& value) override
     {
         return __search(name, value);
     }

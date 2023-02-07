@@ -79,8 +79,8 @@ public:
     int prolog_transfer_command(
             VirtualMachine *        vm,
             const VirtualMachineDisk* disk,
-            std::string&            system_tm_mad,
-            std::string&            opennebula_hostname,
+            const std::string&      system_tm_mad,
+            const std::string&      opennebula_hostname,
             std::ostream&           xfr,
             std::ostringstream&     error);
 
@@ -98,7 +98,7 @@ public:
     int prolog_context_command(
             VirtualMachine *        vm,
             const std::string&      token_password,
-            std::string&            system_tm_mad,
+            const std::string&      system_tm_mad,
             int&                    disk_id,
             std::ostream&           xfr);
 
@@ -214,7 +214,7 @@ private:
     // -------------------------------------------------------------------------
     static const int drivers_timeout = 10;
 
-    void finalize_action()
+    void finalize_action() override
     {
         DriverManager::stop(drivers_timeout);
     };

@@ -708,7 +708,6 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     int          rc;
     unsigned int mac_end[2];
-    string       aux_st;
 
     bool all_vms = (vms.size() == 1 && vms[0] == -1);
     bool all_vns = (vns.size() == 1 && vns[0] == -1);

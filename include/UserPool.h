@@ -40,8 +40,8 @@ class UserPool : public PoolSQL
 public:
 
     UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
-        std::vector<const SingleAttribute *>& restricted_attrs,
-        std::vector<const SingleAttribute *>& encrypted_attrs);
+        const std::vector<const SingleAttribute *>& restricted_attrs,
+        const std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~UserPool() = default;
 
@@ -68,7 +68,7 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -160,7 +160,7 @@ public:
      *    @param user pointer to User
      *    @return 0 on success
      */
-    int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      * Update a particular User's Quotas
@@ -218,7 +218,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where,
-             int sid, int eid, bool desc);
+             int sid, int eid, bool desc) override;
 
     /**
      *  Name for the OpenNebula core authentication process
@@ -316,7 +316,7 @@ private:
      *  Factory method to produce User objects
      *    @return a pointer to the new User
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };

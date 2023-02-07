@@ -23,7 +23,6 @@ void RequestManagerUser::
                     RequestAttributes& att)
 {
     int    id  = xmlrpc_c::value_int(paramList.getInt(1));
-    string error_str;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -232,10 +231,7 @@ void UserEditGroup::
 
     int rc;
 
-    string error_str;
-
     string gname;
-    string uname;
     string auth_driver;
 
     PoolObjectAuth uperms;
@@ -244,8 +240,6 @@ void UserEditGroup::
     if ( auto user = upool->get_ro(user_id) )
     {
         user->get_permissions(uperms);
-
-        uname = user->get_name();
 
         auth_driver = user->get_auth_driver();
     }
@@ -411,8 +405,6 @@ int UserDelGroup::secondary_group_action(
 void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
                     RequestAttributes& att)
 {
-    string error_str;
-
     /* ---------------------------------------------------------------------- */
     /* Parse request attributes and authorize request                         */
     /* ---------------------------------------------------------------------- */

@@ -158,9 +158,9 @@ void VirtualMachineXML::init_attributes()
 
             nic_template.from_xml_node(*it_nodes);
 
-            bool rc = nic_template.get("NETWORK_MODE", net_mode);
+            bool rc2 = nic_template.get("NETWORK_MODE", net_mode);
 
-            if ( !rc || !one_util::icasecmp(net_mode, "AUTO") )
+            if ( !rc2 || !one_util::icasecmp(net_mode, "AUTO") )
             {
                 continue;
             }
@@ -199,8 +199,6 @@ void VirtualMachineXML::init_attributes()
         free_nodes(nodes);
     }
 
-    nodes.clear();
-
     /**************************************************************************/
     /*  Template, user template, history information and rescheduling flag    */
     /**************************************************************************/
@@ -216,8 +214,6 @@ void VirtualMachineXML::init_attributes()
     {
         vm_template = nullptr;
     }
-
-    nodes.clear();
 
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
@@ -421,8 +417,6 @@ void VirtualMachineXML::add_capacity(HostShareCapacity &sr)
 
 void VirtualMachineXML::reset_capacity(HostShareCapacity &sr)
 {
-    std::vector<VectorAttribute *> numa_nodes;
-
     sr.cpu  = cpu;
     sr.mem  = memory;
     sr.disk = system_ds_usage;

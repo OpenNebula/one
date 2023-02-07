@@ -496,7 +496,6 @@ int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
 void HostShareNode::del_cpu(const std::string &cpu_ids, unsigned int vmid)
 {
     std::vector<unsigned int> ids;
-    std::set<unsigned int> core_ids;
 
     one_util::split(cpu_ids, ',', ids);
 
@@ -793,8 +792,7 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 
     for (auto it = pages.begin(); it != pages.end(); ++it)
     {
-        unsigned int pages = 0;
-
+        unsigned int nr = 0;
         unsigned long size = 0;
 
         if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
@@ -803,11 +801,11 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         }
 
         (*it)->vector_value("SIZE", size);
-        (*it)->vector_value("PAGES",pages);
+        (*it)->vector_value("PAGES",nr);
 
         HostShareNode& node = get_node(node_id);
 
-        node.set_hugepage(size, pages, 0, true);
+        node.set_hugepage(size, nr, 0, true);
     }
 
     std::vector<VectorAttribute *> memory;
@@ -1027,7 +1025,6 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
 
 int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc)
 {
-    unsigned int t_max; //Max threads per core for this topology
     std::set<int> t_valid; //Viable threads per core combinations for all nodes
 
     // -------------------------------------------------------------------------
@@ -1088,13 +1085,11 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
     //--------------------------------------------------------------------------
     if ( dedicated )
     {
-        t_max = 1;
-
         t_valid.insert(1);
     }
     else
     {
-        t_max = v_t;
+        unsigned int t_max = v_t; //Max threads per core for this topology
 
         if ( t_max > threads_core || t_max == 0 )
         {

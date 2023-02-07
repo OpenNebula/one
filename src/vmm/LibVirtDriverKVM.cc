@@ -352,8 +352,9 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
  *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
  *               'sata' or 'scsi'
  */
-static string get_disk_bus(std::string &machine, std::string &target,
-        std::string &sd_default)
+static string get_disk_bus(const std::string &machine,
+                           const std::string &target,
+                           const std::string &sd_default)
 {
     switch (target[0])
     {
@@ -601,8 +602,6 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_bus    = "";
     string vm_slot   = "";
     string vm_func   = "";
-
-    string uuid = "";
 
     bool pae                = false;
     bool acpi               = false;
@@ -1810,7 +1809,7 @@ int LibVirtDriver::deployment_description_kvm(
         vm_slot    = pci[i]->vector_value("VM_SLOT");
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
 
-        uuid = pci[i]->vector_value("UUID");
+        string uuid = pci[i]->vector_value("UUID");
 
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {

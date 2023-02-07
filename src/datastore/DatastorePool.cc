@@ -46,7 +46,7 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 DatastorePool::DatastorePool(
         SqlDB * db,
         const vector<const SingleAttribute *>& _inherit_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs) :
+        const vector<const SingleAttribute *>& encrypted_attrs) :
     PoolSQL(db, one_db::ds_table)
 
 {

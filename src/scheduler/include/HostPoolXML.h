@@ -33,7 +33,7 @@ public:
 
     ~HostPoolXML(){};
 
-    int set_up();
+    int set_up() override;
 
     /**
      *  Gets an object from the pool
@@ -68,9 +68,9 @@ protected:
         return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* HOST_POOL_XML_H_ */

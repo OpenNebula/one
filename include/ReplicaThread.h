@@ -106,7 +106,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components
@@ -133,7 +133,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components
@@ -162,7 +162,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components

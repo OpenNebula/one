@@ -126,7 +126,6 @@ void StdLog::log(
 {
     char        str[26];
     time_t      the_time;
-    ofstream    file;
 
     if( type <= log_level)
     {

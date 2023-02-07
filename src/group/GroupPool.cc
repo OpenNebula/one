@@ -41,7 +41,7 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 
 GroupPool::GroupPool(SqlDB * db, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs)
+        const vector<const SingleAttribute *>& restricted_attrs)
     : PoolSQL(db, one_db::group_table)
 {
     ostringstream oss;

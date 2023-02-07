@@ -30,7 +30,7 @@ public:
 
     ~VirtualNetworkPoolXML(){};
 
-    int set_up();
+    int set_up() override;
 
     /**
      *  Gets an object from the pool
@@ -50,9 +50,9 @@ protected:
         return get_nodes("/VNET_POOL/VNET", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* VNET_POOL_XML_H_ */

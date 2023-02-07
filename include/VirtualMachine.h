@@ -987,7 +987,7 @@ public:
      *    @param message Message string
      */
     void set_template_error_message(const std::string& name,
-                                    const std::string& message);
+                                    const std::string& message) override;
 
     /**
      *  Deletes the error message from the template

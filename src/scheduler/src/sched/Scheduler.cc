@@ -254,7 +254,7 @@ void Scheduler::start()
                 break;
             }
 
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << message;
 
@@ -262,7 +262,7 @@ void Scheduler::start()
         }
         catch (exception const& e)
         {
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << e.what();
 
@@ -398,8 +398,6 @@ void Scheduler::start()
 int Scheduler::set_up_pools()
 {
     int                             rc;
-    ostringstream                   oss;
-    map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the pools
@@ -1776,10 +1774,10 @@ int Scheduler::do_scheduled_actions()
 
         if (!vm->update_sched_action(first_action))
         {
-            ostringstream oss;
-            first_action->to_xml(oss);
+            ostringstream oss_aux;
+            first_action->to_xml(oss_aux);
             NebulaLog::warn("SCHED", string("Unable to update sched action: ")
-                + oss.str());
+                + oss_aux.str());
         }
 
         NebulaLog::log("VM", Log::INFO, oss);

@@ -746,7 +746,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
-    string error_str;
 
     bool auth = false;
     bool check_nic_auto = false;
@@ -1058,8 +1057,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     bool auth = false;
     bool ds_migr;
-
-    string error;
 
     VMActions::Action action;
 
@@ -1895,7 +1892,6 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager *   dm = nd.get_dm();
 
     int rc;
-    string error_str;
 
     int     id      = xmlrpc_c::value_int(paramList.getInt(1));
     int     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -2231,8 +2227,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                 vm->store_resize(ocpu, omemory, ovcpu);
 
                 vm->set_resched(false);
-
-                auto vmm = Nebula::instance().get_vmm();
 
                 vmm->trigger_resize(id);
             }
@@ -2818,8 +2812,6 @@ void VirtualMachinePoolCalculateShowback::request_execute(
     int end_month   = xmlrpc_c::value_int(paramList.getInt(3));
     int end_year    = xmlrpc_c::value_int(paramList.getInt(4));
 
-    ostringstream oss;
-    string        where;
     int           rc;
 
     if ( att.gid != 0 )
@@ -3352,7 +3344,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         ClusterPool * cpool = Nebula::instance().get_clpool();
 
-        int rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
+        rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
 
         if ( rc != 0 )
         {

@@ -360,7 +360,7 @@ class empty_cb : public Callbackable
 public:
     void set_callback(Callback _cb, void * _arg = 0){};
 
-    bool isCallBackSet()
+    bool isCallBackSet() override
     {
         return false;
     };

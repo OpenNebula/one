@@ -20,7 +20,31 @@
 		<id>shadowFunction</id>
 		<fileName>*</fileName>
 	</suppress>
+	<suppress>
+		<id>constParameter</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>constVariable</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>useStlAlgorithm</id>
+		<fileName>*</fileName>
+	</suppress>
 	<!-- Suppresions specific per file, false positives -->
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/monitor/src/data_model/VMRPCPool.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>nullPointer</id>
+		<fileName>src/scheduler/include/Scheduler.h</fileName>
+	</suppress>
+	<suppress>
+		<id>uninitMemberVar</id>
+		<fileName>include/Callbackable.h</fileName>
+	</suppress>
 	<suppress>
 		<id>containerOutOfBounds</id>
 		<fileName>src/hm/HookLog.cc</fileName>
@@ -54,38 +78,9 @@
 		<id>uninitMemberVar</id>
 		<fileName>include/Callbackable.h</fileName>
 	</suppress>
-	<!-- Temporary suppressions, we may want to solve them in the future -->
-	<suppress>
-		<id>unusedVariable</id>
-		<fileName>*</fileName>
-	</suppress>
 	<suppress>
 		<id>noConstructor</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>constVariable</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>missingOverride</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>shadowVariable</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>unreadVariable</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>constParameter</id>
-		<fileName>*</fileName>
-	</suppress>
-	<suppress>
-		<id>useStlAlgorithm</id>
-		<fileName>*</fileName>
+		<fileName>include/Callbackable.h</fileName>
 	</suppress>
 </suppressions>
 

@@ -43,10 +43,6 @@ int HostBase::from_xml(const std::string &xml_str)
 
 string HostBase::to_xml() const
 {
-    string template_xml;
-    string vm_collection_xml;
-    string share_xml;
-
     ostringstream oss;
 
     oss << "<HOST>";
@@ -104,9 +100,8 @@ int HostBase::init_attributes()
     rc += _obj_template.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

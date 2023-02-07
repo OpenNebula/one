@@ -31,8 +31,8 @@ using namespace std;
 
 VirtualMachinePool::VirtualMachinePool(
         SqlDB * db,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs,
+        const vector<const SingleAttribute *>& restricted_attrs,
+        const vector<const SingleAttribute *>& encrypted_attrs,
         bool    on_hold,
         float   default_cpu_cost,
         float   default_mem_cost,
@@ -197,9 +197,9 @@ int VirtualMachinePool::allocate(
 
     if (*oid >= 0)
     {
-        if (auto vm = get_ro(*oid))
+        if (auto vm2 = get_ro(*oid))
         {
-            std::string event = HookStateVM::format_message(vm.get());
+            std::string event = HookStateVM::format_message(vm2.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
         }

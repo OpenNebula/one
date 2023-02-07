@@ -439,7 +439,7 @@ public:
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-                std::string& str)
+                std::string& str) override
     {
         (static_cast<Hook *>(object))->to_xml_extended(str);
     };

@@ -260,7 +260,7 @@ int LogDB::get_raft_state(const std::string& name, std::string &raft_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int LogDB::update_raft_state(const std::string& name, std::string& raft_xml)
+int LogDB::update_raft_state(const std::string& name, const std::string& raft_xml)
 {
     std::ostringstream oss;
 
@@ -394,7 +394,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-uint64_t LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
+uint64_t LogDB::insert_log_record(unsigned int term, const std::ostringstream& sql,
         time_t timestamp, uint64_t fed_index)
 {
     lock_guard<mutex> lock(_mutex);
@@ -443,7 +443,7 @@ uint64_t LogDB::insert_log_record(unsigned int term, std::ostringstream& sql,
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(uint64_t index, unsigned int term,
-        std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
+        const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
         bool replace)
 {
     lock_guard<mutex> lock(_mutex);

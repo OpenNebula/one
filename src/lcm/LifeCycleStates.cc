@@ -2549,9 +2549,9 @@ void LifeCycleManager::trigger_resize_failure(int vid)
         {
             HostShareCapacity sr, sr_orig;
 
-            VirtualMachine::LcmState state = vm->get_lcm_state();
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
-            if (state == VirtualMachine::HOTPLUG_RESIZE)
+            if (lcm_state == VirtualMachine::HOTPLUG_RESIZE)
             {
                 vm->set_state(VirtualMachine::RUNNING);
                 vm->log("LCM", Log::INFO,

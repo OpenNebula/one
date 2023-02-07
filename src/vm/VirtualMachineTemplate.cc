@@ -250,8 +250,6 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
 static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
         const char * name)
 {
-    string value;
-
     const VectorAttribute * old_attr = old_tmpl->get(name);
 
     if ( old_attr == 0 )

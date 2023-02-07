@@ -271,7 +271,6 @@ int ObjectXML::add_node(
         const char *    new_name)
 {
     xmlXPathObjectPtr obj;
-    vector<string>    content;
 
     obj = xmlXPathEvalExpression(
         reinterpret_cast<const xmlChar *>(xpath_expr), ctx);

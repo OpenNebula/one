@@ -63,7 +63,7 @@ public:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB * db);
+    int drop(SqlDB * db) override;
 
 protected:
 
@@ -96,14 +96,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Writes the Quotas in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, std::string& error_str)
+    int insert(SqlDB *db, std::string& error_str) override
     {
         return insert_replace(db, false, error_str);
     };
@@ -113,7 +113,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         std::string error_str;
         return insert_replace(db, true, error_str);
@@ -173,17 +173,17 @@ public:
 
 protected:
 
-    const char * table() const
+    const char * table() const override
     {
         return one_db::group_quotas_db_table;
     };
 
-    const char * table_names() const
+    const char * table_names() const override
     {
         return one_db::group_quotas_db_names;
     };
 
-    const char * table_oid_column() const
+    const char * table_oid_column() const override
     {
         return one_db::group_quotas_db_oid_column;
     };
@@ -219,17 +219,17 @@ public:
 
 protected:
 
-    const char * table() const
+    const char * table() const override
     {
         return one_db::user_quotas_db_table;
     };
 
-    const char * table_names() const
+    const char * table_names() const override
     {
         return one_db::user_quotas_db_names;
     };
 
-    const char * table_oid_column() const
+    const char * table_oid_column() const override
     {
         return one_db::user_quotas_db_oid_column;
     };

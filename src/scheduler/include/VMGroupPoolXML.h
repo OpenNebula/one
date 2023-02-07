@@ -43,9 +43,9 @@ protected:
         return get_nodes("/VM_GROUP_POOL/VM_GROUP", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* VMGROUP_POOL_XML_H_ */

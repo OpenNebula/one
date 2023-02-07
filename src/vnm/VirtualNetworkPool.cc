@@ -50,8 +50,8 @@ VirtualNetworkPool::VirtualNetworkPool(
     SqlDB *                             db,
     const string&                       prefix,
     unsigned long int                   __default_size,
-    vector<const SingleAttribute *>&    restricted_attrs,
-    vector<const SingleAttribute *>&    encrypted_attrs,
+    vector<const SingleAttribute *>& restricted_attrs,
+    vector<const SingleAttribute *>& encrypted_attrs,
     const vector<const SingleAttribute *>& _inherit_attrs,
     const VectorAttribute *             _vlan_conf,
     const VectorAttribute *             _vxlan_conf):

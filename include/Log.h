@@ -115,10 +115,10 @@ public:
 
     virtual ~FileLog();
 
-    virtual void log(
+    void log(
         const char *            module,
         const MessageType       type,
-        const char *            message);
+        const char *            message) override;
 
 private:
     std::string log_file_name;
@@ -142,7 +142,7 @@ public:
     void log(
         const char *            module,
         const MessageType       type,
-        const char *            message)
+        const char *            message) override
     {
         std::lock_guard <std::mutex> lock(log_mutex);
         FileLog::log(module,type,message);
@@ -173,7 +173,7 @@ public:
     void log(
         const char *            module,
         const MessageType       type,
-        const char *            message);
+        const char *            message) override;
 
 private:
     std::string resource_label;
@@ -200,7 +200,7 @@ public:
     void log(
         const char *            module,
         const MessageType       type,
-        const char *            message);
+        const char *            message) override;
 
     /**
      *  Return the associated syslog level

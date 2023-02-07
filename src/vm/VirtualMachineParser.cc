@@ -321,7 +321,6 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
     static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
     static int num_attrs  = 3;
 
-    string bus;
     bool   found = false;
 
     for (int i = 0; i < num_attrs; i++)
@@ -614,7 +613,6 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 {
     const char *  str;
     int           rc;
-    ostringstream oss_parsed;
     char *        error_msg = 0;
 
     size_t non_blank_pos;

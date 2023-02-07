@@ -183,7 +183,6 @@ void RequestManagerClusterHost::add_generic(
 
     string cluster_name;
     string obj_name;
-    string err_msg;
 
     PoolObjectAuth c_perms;
     PoolObjectAuth obj_perms;

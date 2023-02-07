@@ -90,7 +90,6 @@ int Image::insert(SqlDB *db, string& error_str)
     string tm_mad;
 
     istringstream iss;
-    ostringstream oss;
 
     // ---------------------------------------------------------------------
     // Check default image attributes
@@ -479,8 +478,6 @@ int Image::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     rc += vm_collection.from_xml(this, "/IMAGE/");
     rc += img_clone_collection.from_xml(this, "/IMAGE/");
     rc += app_clone_collection.from_xml(this, "/IMAGE/");
@@ -492,7 +489,6 @@ int Image::from_xml(const string& xml)
         rc += snapshots.from_xml_node(content[0]);
 
         ObjectXML::free_nodes(content);
-        content.clear();
     }
 
     if (rc != 0)
@@ -512,7 +508,6 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
                            const vector<string>&   inherit_attrs)
 {
     string target;
-    string driver;
     string disk_attr_type;
     string inherit_val;
 
@@ -527,7 +522,6 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     string template_target;
     string template_driver;
     string template_ptype;
-    string template_size;
 
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);

@@ -108,7 +108,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "VM_GROUP_POOL", "body",
             one_db::vm_group_table, where, sid, eid, desc);
@@ -146,7 +146,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new VMGroup(-1,-1,"","",0,0);
     };

@@ -121,7 +121,6 @@ int SystemDB::local_bootstrap()
 int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
                       char **names)
 {
-    istringstream   iss;
     string *        loaded_db_version;
 
     loaded_db_version = static_cast<string *>(_loaded_db_version);
@@ -319,7 +318,6 @@ int SystemDB::select_attr_cb(void *  _xml_attr,
                              char ** values,
                              char ** names)
 {
-    istringstream   iss;
     string *        xml_attr;
 
     xml_attr = static_cast<string *>(_xml_attr);

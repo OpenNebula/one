@@ -69,7 +69,7 @@ public:
      *
      *    @return 0 on success
      */
-    int add(int hkid, int rc, std::string &xml_result);
+    int add(int hkid, int rc, const std::string &xml_result);
 
     /**
      *  Retries a given execution for a host, using the same execution context

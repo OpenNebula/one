@@ -516,10 +516,9 @@ Attribute * Template::single_xml_att(const xmlNode * node)
 
 Attribute * Template::vector_xml_att(const xmlNode * node)
 {
-    VectorAttribute *   attr        = 0;
+    VectorAttribute *   attr        = nullptr;
 
     xmlNode *           child       = node->children;
-    xmlNode *           grandchild  = 0;
 
     while(child != 0 && child->type != XML_ELEMENT_NODE)
     {
@@ -533,7 +532,7 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
 
         for( ; child != 0; child = child->next)
         {
-            grandchild = child->children;
+            xmlNode *grandchild = child->children;
 
             if( grandchild != 0 && (grandchild->type == XML_TEXT_NODE ||
                                     grandchild->type == XML_CDATA_SECTION_NODE))

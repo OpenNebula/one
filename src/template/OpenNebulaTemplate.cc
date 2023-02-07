@@ -357,7 +357,6 @@ void OpenNebulaTemplate::set_conf_vn(const std::string& name,
 void OpenNebulaTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
-    string              value;
     map<string,string>  vvalue;
 
 /*
