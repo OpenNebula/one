@@ -40,8 +40,8 @@ public:
             const std::string&                    __default_type,
             const std::string&                    __default_dev_prefix,
             const std::string&                    __default_cdrom_dev_prefix,
-            std::vector<const SingleAttribute *>& restricted_attrs,
-            std::vector<const SingleAttribute *>& encrypted_attrs,
+            const std::vector<const SingleAttribute *>& restricted_attrs,
+            const std::vector<const SingleAttribute *>& encrypted_attrs,
             const std::vector<const SingleAttribute *>& inherit_attrs);
 
     ~ImagePool(){};
@@ -88,7 +88,7 @@ public:
         std::string&             error_str);
 
     /**
-     *  Updates an Image in the data base. It also updates the previous state 
+     *  Updates an Image in the data base. It also updates the previous state
      *  after executing the hooks.
      *    @param objsql a pointer to the VM
      *
@@ -167,7 +167,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "IMAGE_POOL", "body", one_db::image_table,
                              where, sid, eid, desc);
@@ -259,7 +259,7 @@ private:
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Image(-1,-1,"","",0,0);
     };

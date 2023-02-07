@@ -65,7 +65,6 @@ int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
 {
     int                 rc;
     vector<xmlNodePtr>  content;
-    ostringstream       oss;
 
     xml->get_nodes(xpath_prefix + collection_name, content);
 

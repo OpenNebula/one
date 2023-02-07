@@ -260,7 +260,7 @@ void Scheduler::start()
                 break;
             }
 
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << message;
 
@@ -268,7 +268,7 @@ void Scheduler::start()
         }
         catch (exception const& e)
         {
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << e.what();
 
@@ -404,8 +404,6 @@ void Scheduler::start()
 int Scheduler::set_up_pools()
 {
     int                             rc;
-    ostringstream                   oss;
-    map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the pools

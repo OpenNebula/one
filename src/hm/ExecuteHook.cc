@@ -32,7 +32,6 @@
 ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
         const std::string& _arg, const std::string& rl): name(_name), cmd(_cmd)
 {
-    std::string s(_arg);
     std::istringstream iss(_arg);
 
     if (cmd[0] != '/')

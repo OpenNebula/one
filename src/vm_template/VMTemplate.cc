@@ -207,8 +207,6 @@ int VMTemplate::parse_sched_action(string& error_str)
 
 int VMTemplate::post_update_template(string& error)
 {
-    vector<const VectorAttribute *> raw;
-
     int rc = parse_sched_action(error);
 
     if (rc == -1)

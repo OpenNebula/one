@@ -126,7 +126,7 @@ public:
      *    @return 0 on sucess, -1 on failure
      */
     int insert_log_record(uint64_t index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
+            const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
             bool replace);
 
     /**
@@ -146,7 +146,7 @@ public:
      *    @param raft attributes in XML format
      *    @return 0 on success
      */
-    int update_raft_state(const std::string& name, std::string& raft_xml);
+    int update_raft_state(const std::string& name, const std::string& raft_xml);
 
     /**
      *  Returns the raft state attributes as stored in the log
@@ -169,12 +169,12 @@ public:
      *  This function replicates the DB changes on followers before updating
      *  the DB state
      */
-    int exec_wr(std::ostringstream& cmd)
+    int exec_wr(std::ostringstream& cmd) override
     {
         return _exec_wr(cmd, UINT64_MAX);
     }
 
-    int exec_wr(std::ostringstream& cmd, Callbackable* obj)
+    int exec_wr(std::ostringstream& cmd, Callbackable* obj) override
     {
         return exec_wr(cmd);
     }
@@ -189,32 +189,32 @@ public:
         return _exec_wr(cmd, index);
     }
 
-    int exec_local_wr(std::ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd) override
     {
         return db->exec_local_wr(cmd);
     }
 
-    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj) override
     {
         return db->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const std::string& str) const
+    char * escape_str(const std::string& str) const override
     {
         return db->escape_str(str);
     }
 
-    void free_str(char * str) const
+    void free_str(char * str) const override
     {
         db->free_str(str);
     }
 
-    bool supports(SqlDB::SqlFeature ft) const
+    bool supports(SqlDB::SqlFeature ft) const override
     {
         return db->supports(ft);
     }
 
-    std::string limit_string(int start_id, int end_id) const
+    std::string limit_string(int start_id, int end_id) const override
     {
         return db->limit_string(start_id, end_id);
     }
@@ -264,13 +264,13 @@ public:
      *
      *  @return pointer to the non-federated logDB
      */
-    virtual SqlDB * get_local_db()
+    SqlDB * get_local_db() override
     {
         return this;
     }
 
 protected:
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
     {
         return SqlDB::INTERNAL;
     };
@@ -382,7 +382,7 @@ private:
      *
      *    @return -1 on failure, index of the inserted record on success
      */
-    uint64_t insert_log_record(unsigned int term, std::ostringstream& sql,
+    uint64_t insert_log_record(unsigned int term, const std::ostringstream& sql,
             time_t timestamp, uint64_t fed_index);
 };
 
@@ -397,29 +397,29 @@ public:
 
     virtual ~FedLogDB(){};
 
-    int exec_wr(std::ostringstream& cmd);
+    int exec_wr(std::ostringstream& cmd) override;
 
-    int exec_local_wr(std::ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd) override
     {
         return _logdb->exec_local_wr(cmd);
     }
 
-    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj) override
     {
         return _logdb->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const std::string& str) const
+    char * escape_str(const std::string& str) const override
     {
         return _logdb->escape_str(str);
     }
 
-    void free_str(char * str) const
+    void free_str(char * str) const override
     {
         _logdb->free_str(str);
     }
 
-    bool supports(SqlDB::SqlFeature ft) const
+    bool supports(SqlDB::SqlFeature ft) const override
     {
         return _logdb->supports(ft);
     }
@@ -431,13 +431,13 @@ public:
      *
      *  @return pointer to the non-federated logDB
      */
-    virtual SqlDB * get_local_db()
+    SqlDB * get_local_db() override
     {
         return _logdb->get_local_db();
     }
 
 protected:
-    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
     {
         return SqlDB::INTERNAL;
     };

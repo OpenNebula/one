@@ -196,9 +196,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    ostringstream       ose;
-
-    string sg_str, vis;
+    string sg_str;
 
     string value;
     string name;
@@ -302,7 +300,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     if (bridge.empty() && bridge_type != "none")
     {
-        ostringstream oss;
+        oss.str("");
 
         oss << "onebr";
 
@@ -843,7 +841,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     //Security groups internal attribute (from /VNET/TEMPLATE/SECURITY_GROUPS)
     string sg_str;

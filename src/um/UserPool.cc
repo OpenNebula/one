@@ -54,8 +54,8 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs)
+        const vector<const SingleAttribute *>& restricted_attrs,
+        const vector<const SingleAttribute *>& encrypted_attrs)
     : PoolSQL(db, one_db::user_table)
 {
     int one_uid    = -1;
@@ -477,11 +477,11 @@ error_no_groups:
     goto error_common;
 
 error_group:
-    if ( auto user = get(*oid) )
+    if ( auto u = get(*oid) )
     {
         string aux_str;
 
-        drop(user.get(), aux_str);
+        drop(u.get(), aux_str);
     }
 
     // Remove from all the groups, just in case the user id was added to a any
@@ -1199,7 +1199,6 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_name;
     string mad_pass;
     string error_str;
-    string tmp_str;
     string default_auth;
 
     Nebula& nd = Nebula::instance();

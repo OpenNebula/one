@@ -53,9 +53,9 @@ protected:
         return get_nodes("/CLUSTER_POOL/CLUSTER", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* CLUSTER_POOL_XML_H_ */

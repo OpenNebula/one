@@ -49,7 +49,7 @@ public:
             const std::string& _database,
             const std::string& _encoding,
             int                _connections,
-            std::string&       _compare_binary);
+            const std::string& _compare_binary);
 
     ~MySqlDB();
 
@@ -60,13 +60,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const std::string& str) const;
+    char * escape_str(const std::string& str) const override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str) const
+    void free_str(char * str) const override
     {
         delete[] str;
     }

@@ -320,7 +320,7 @@ private:
      *   @param string with reserved bits
      */
 
-    void set_reserved_bit(std::string& reserved)
+    void set_reserved_bit(const std::string& reserved)
     {
         std::vector<std::string> strings;
         std::vector<std::string> range;

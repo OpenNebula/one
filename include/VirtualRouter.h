@@ -214,7 +214,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const std::string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     // *************************************************************************
     // Constructor

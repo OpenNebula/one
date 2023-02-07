@@ -261,7 +261,6 @@ int SecurityGroup::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     rc += updated.from_xml(this, "/SECURITY_GROUP/");
     rc += outdated.from_xml(this, "/SECURITY_GROUP/");

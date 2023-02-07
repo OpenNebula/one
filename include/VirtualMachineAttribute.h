@@ -126,15 +126,6 @@ protected:
      *    @return the attribute for which the flag was cleared, 0 if none
      */
     VirtualMachineAttribute * clear_flag(const std::string& flag_name);
-
-    /* ---------------------------------------------------------------------- */
-    /* Attribute map interface                                                */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Abstract method to create the VirtualMachineAttributes for this set
-     */
-    virtual ExtendedAttribute * attribute_factory(VectorAttribute * va,
-            int id) const = 0;
 };
 
 #endif  /*VIRTUAL_MACHINE_ATTRIBUTE_H_*/

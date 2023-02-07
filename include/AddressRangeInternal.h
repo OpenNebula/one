@@ -39,7 +39,7 @@ public:
      *    @param error_msg description if error
      *    @return 0 on success
      */
-    int from_vattr(VectorAttribute * attr, std::string& error_msg)
+    int from_vattr(VectorAttribute * attr, std::string& error_msg) override
     {
         return AddressRange::from_attr(attr, error_msg);
     }
@@ -53,7 +53,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(unsigned int index, unsigned int rsize,
-                      std::string& error_msg)
+                      std::string& error_msg) override
     {
         return 0;
     }
@@ -67,7 +67,7 @@ public:
      *    @return 0 if success
      */
     int get_addr(unsigned int& index, unsigned int rsize,
-                 std::string& error_msg)
+                 std::string& error_msg) override
     {
         if ( rsize == 1 )
         {
@@ -84,7 +84,7 @@ public:
      *
      *    @return 0 if success
      */
-    int free_addr(unsigned int index, std::string& msg)
+    int free_addr(unsigned int index, std::string& msg) override
     {
         return 0;
     };

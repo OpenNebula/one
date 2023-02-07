@@ -107,8 +107,6 @@ int VirtualMachineBase::init_attributes()
         vm_template = nullptr;
     }
 
-    nodes.clear();
-
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
         user_template = make_unique<VirtualMachineTemplate>();
@@ -139,7 +137,7 @@ int VirtualMachineBase::init_attributes()
         system_ds_usage = 0;
     }
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

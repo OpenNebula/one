@@ -73,22 +73,22 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    std::string marshall(const char * _sep = 0) const
+    std::string marshall(const char * _sep = 0) const  override
     {
         return va->marshall(_sep);
     };
 
-    void to_xml(std::ostringstream& s) const
+    void to_xml(std::ostringstream& s) const override
     {
         return va->to_xml(s);
     };
 
-    void to_json(std::ostringstream& s) const
+    void to_json(std::ostringstream& s) const override
     {
         return va->to_json(s);
     };
 
-    void to_token(std::ostringstream& s) const
+    void to_token(std::ostringstream& s) const override
     {
         return va->to_token(s);
     };
@@ -110,7 +110,7 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    void unmarshall(const std::string& sattr, const char * _sep = 0)
+    void unmarshall(const std::string& sattr, const char * _sep = 0) override
     {
         va->unmarshall(sattr, _sep);
     }

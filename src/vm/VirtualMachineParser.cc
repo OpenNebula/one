@@ -619,7 +619,6 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 {
     const char *  str;
     int           rc;
-    ostringstream oss_parsed;
     char *        error_msg = 0;
 
     size_t non_blank_pos;

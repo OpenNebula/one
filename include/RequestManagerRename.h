@@ -515,7 +515,7 @@ public:
 
     ~HookRename() = default;
 
-    int exist(const std::string& name, int uid)
+    int exist(const std::string& name, int uid) override
     {
         return pool->exist(name, uid);
     }

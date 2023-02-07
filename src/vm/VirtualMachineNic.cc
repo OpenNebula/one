@@ -583,8 +583,6 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
         {
             if ( (*it)->vector_value("NAME") == nic->vector_value("PARENT") )
             {
-                std::set<int> a_ids;
-
                 pnic = *it;
 
                 pid = pnic->get_nic_id();

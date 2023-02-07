@@ -38,7 +38,7 @@ public:
         delete rp_vm;
     };
 
-    void register_policies(const SchedulerTemplate& conf)
+    void register_policies(const SchedulerTemplate& conf) override
     {
         rp_host = new RankHostPolicy(hpool, conf.get_policy(), 1.0);
 

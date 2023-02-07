@@ -44,9 +44,6 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) = 0;
-
     // Authorize the request, set failure_response message
     bool vm_authorization(int id,
                           ImageTemplate *         tmpl,

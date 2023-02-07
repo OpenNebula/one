@@ -282,7 +282,6 @@ int User::from_xml(const string& xml)
     }
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);
@@ -295,7 +294,6 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     rc += vm_actions.set_auth_ops(*obj_template, error);
 

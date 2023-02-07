@@ -109,7 +109,6 @@ error:
 
 int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttributes& ra)
 {
-    ostringstream oss;
     string import_state;
 
     int uid;
@@ -1181,8 +1180,6 @@ int DispatchManager::delete_vm(int vid, const RequestAttributes& ra,
 int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
         const RequestAttributes& ra, string& error)
 {
-    ostringstream oss;
-
     int rc = 0;
 
     Template vm_quotas_snp;
@@ -1807,7 +1804,6 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
         string&  error_str)
 {
     ostringstream oss;
-    string        tmp_error;
 
     auto vm = vmpool->get(vid);
 

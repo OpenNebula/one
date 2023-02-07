@@ -455,7 +455,7 @@ protected:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -464,7 +464,7 @@ protected:
      *    @param att the specific request attributes
      */
     static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     /**
      *    @param tmpl describing the object
@@ -477,16 +477,16 @@ private:
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
     static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     static void group_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function

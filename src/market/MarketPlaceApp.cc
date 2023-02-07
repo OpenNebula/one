@@ -346,10 +346,6 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 
 int MarketPlaceApp::post_update_template(string& error)
 {
-	std::string n_description;
-	std::string n_apptemplate64;
-	std::string n_version;
-
 	// -------------------------------------------------------------------------
     // Update well known attributes
     // -------------------------------------------------------------------------

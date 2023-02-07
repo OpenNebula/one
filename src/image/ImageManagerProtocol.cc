@@ -275,14 +275,14 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     {
         if (msg->status() == "SUCCESS")
         {
-            ostringstream oss;
-
             if (!source.empty())
             {
                 oss << "MKFS operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
                 NebulaLog::log("ImM", Log::ERROR, oss);
+
+                oss.str("");
             }
         }
 

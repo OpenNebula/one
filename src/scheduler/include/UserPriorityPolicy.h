@@ -50,7 +50,7 @@ protected:
      *  Implements the actual schedule by computing the priority of each
      *  matching resource.
      */
-    void policy(ObjectXML * null, std::vector<float>& priority)
+    void policy(ObjectXML * null, std::vector<float>& priority) override
     {
         float up;
 

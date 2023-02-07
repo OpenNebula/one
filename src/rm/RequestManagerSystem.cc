@@ -231,7 +231,7 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
     string   quota_str = xmlrpc_c::value_string(paramList.getString(1));
-    string   error_str, xml;
+    string   xml;
     Template quota_tmpl;
 
     int     rc;

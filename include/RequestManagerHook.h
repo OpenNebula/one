@@ -40,11 +40,6 @@ protected:
     };
 
     ~RequestManagerHook() = default;
-
-    /* -------------------------------------------------------------------- */
-
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -62,8 +57,7 @@ public:
     ~HookRetry() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
-
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

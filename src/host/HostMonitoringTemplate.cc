@@ -107,7 +107,6 @@ int NUMAMonitoring::from_xml(ObjectXML& xml, const std::string& xpath_prefix)
     }
 
     xml.free_nodes(content);
-    content.clear();
 
     return 0;
 }
@@ -291,7 +290,6 @@ int HostMonitoringTemplate::from_xml(const std::string& xml_string)
         capacity.from_xml_node(content[0]);
 
         xml.free_nodes(content);
-        content.clear();
     }
 
     // ------------ System ---------------
@@ -302,7 +300,6 @@ int HostMonitoringTemplate::from_xml(const std::string& xml_string)
         system.from_xml_node(content[0]);
 
         xml.free_nodes(content);
-        content.clear();
     }
 
     // ------------ NUMA ---------------

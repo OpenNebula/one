@@ -48,7 +48,7 @@ public:
     /**
      *  Parse and loads the configuration in the template
      */
-    virtual int load_configuration();
+    int load_configuration() override;
 
     /**
      *  Returns action set from a string of actions seperated by commas
@@ -84,12 +84,12 @@ private:
     /**
      *  Sets the defaults value for the template
      */
-    void set_conf_default();
+    void set_conf_default() override;
 
     /**
      *  Sets the defaults value for multiple attributes
      */
-    void set_multiple_conf_default();
+    void set_multiple_conf_default() override;
 
     /**
      *  register the multiple configuration attributes and clean the

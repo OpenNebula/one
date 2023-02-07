@@ -53,17 +53,17 @@ public:
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual bool check_restricted(std::string& rs_attr, const Template* base)
+    bool check_restricted(std::string& rs_attr, const Template* base) override
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool check_restricted(std::string& rs_attr)
+    bool check_restricted(std::string& rs_attr) override
     {
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
+    static void parse_restricted(const std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
     }
@@ -71,17 +71,17 @@ public:
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual void encrypt(const std::string& one_key)
+    void encrypt(const std::string& one_key) override
     {
         Template::encrypt(one_key, encrypted);
     }
 
-    virtual void decrypt(const std::string& one_key)
+    void decrypt(const std::string& one_key) override
     {
         Template::decrypt(one_key, encrypted);
     }
 
-    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
+    static void parse_encrypted(const std::vector<const SingleAttribute *>& ea)
     {
         Template::parse_encrypted(ea, encrypted);
     }

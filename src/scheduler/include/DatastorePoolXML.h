@@ -43,9 +43,9 @@ public:
 
 protected:
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 /* -------------------------------------------------------------------------- */

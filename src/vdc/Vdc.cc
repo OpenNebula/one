@@ -274,7 +274,6 @@ int Vdc::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Groups
     ObjectXML::get_nodes("/VDC/GROUPS/ID", content);
@@ -291,7 +290,6 @@ int Vdc::from_xml(const string& xml)
     }
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Clusters
     ObjectXML::get_nodes("/VDC/CLUSTERS/CLUSTER", content);
@@ -299,7 +297,6 @@ int Vdc::from_xml(const string& xml)
     rc += clusters.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Hosts
     ObjectXML::get_nodes("/VDC/HOSTS/HOST", content);
@@ -307,7 +304,6 @@ int Vdc::from_xml(const string& xml)
     rc += hosts.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Datastores
     ObjectXML::get_nodes("/VDC/DATASTORES/DATASTORE", content);
@@ -315,7 +311,6 @@ int Vdc::from_xml(const string& xml)
     rc += datastores.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of VNets
     ObjectXML::get_nodes("/VDC/VNETS/VNET", content);
@@ -323,7 +318,6 @@ int Vdc::from_xml(const string& xml)
     rc += vnets.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     if (rc != 0)
     {
@@ -420,9 +414,7 @@ void ResourceSet::insert_default_rules(const string& name_attr, PoolObjectSQL::O
 
 ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 {
-    string default_vdc_acl;
     vector<string> cluster_res = { "HOST", "NET", "DATASTORE" };
-    string str_type;
     string name_attr= "";
 
     switch(type)

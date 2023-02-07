@@ -27,7 +27,7 @@ class DatastorePool : public PoolSQL
 public:
     DatastorePool(SqlDB * db,
                   const std::vector<const SingleAttribute *>& _inherit_attrs,
-                  std::vector<const SingleAttribute *>& encrypted_attrs);
+                  const std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~DatastorePool(){};
 
@@ -126,7 +126,7 @@ public:
      *    @return 0 on success, -1 DB error
      *            -3 Datastore's Image IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Bootstraps the database table(s) associated to the Datastore pool
@@ -149,7 +149,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "DATASTORE_POOL", "body", one_db::ds_table,
                 where, sid, eid, desc);
@@ -205,7 +205,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         std::set<int> empty;
 

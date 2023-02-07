@@ -31,8 +31,8 @@ class VirtualMachinePool : public PoolSQL
 public:
 
     VirtualMachinePool(SqlDB * db,
-                       std::vector<const SingleAttribute *>& restricted_attrs,
-                       std::vector<const SingleAttribute *>& encrypted_attrs,
+                       const std::vector<const SingleAttribute *>& restricted_attrs,
+                       const std::vector<const SingleAttribute *>& encrypted_attrs,
                        bool                         on_hold,
                        float                        default_cpu_cost,
                        float                        default_mem_cost,
@@ -252,7 +252,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "VM_POOL", "short_body", one_db::vm_table, where,
                              sid, eid, desc);
@@ -272,7 +272,7 @@ public:
      */
     int dump_extended(std::string& oss, const std::string& where,
                       int sid, int eid,
-                      bool desc)
+                      bool desc) override
     {
         return PoolSQL::dump(oss, "VM_POOL", "body", one_db::vm_table, where,
                              sid, eid, desc);
@@ -415,7 +415,7 @@ private:
      *  Factory method to produce VM objects
      *    @return a pointer to the new VM
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new VirtualMachine(-1,-1,-1,"","",0,0);
     };

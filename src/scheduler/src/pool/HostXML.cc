@@ -77,8 +77,6 @@ void HostShareXML::init_attributes(ObjectXML * host)
         pci.from_xml_node(content[0]);
 
         host->free_nodes(content);
-
-        content.clear();
     }
 
     //---------------------- HostShare NUMA Nodes ------------------------------
@@ -93,8 +91,6 @@ void HostShareXML::init_attributes(ObjectXML * host)
         numa.from_xml_node(content, vms_thread);
 
         host->free_nodes(content);
-
-        content.clear();
     }
 };
 
