@@ -44,7 +44,7 @@ public:
      *          -1 on error
      *          -2 if no VMs need to be scheduled
      */
-    int set_up();
+    int set_up() override;
 
     /**
      *  Gets an object from the pool
@@ -123,9 +123,9 @@ protected:
                 "(LCM_STATE=3 or LCM_STATE=16)) and RESCHED=1)]", content);
     }
 
-    virtual void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    virtual int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 
     /**
      * Do live migrations to resched VMs
@@ -161,7 +161,7 @@ public:
      *          -1 on error
      *          -2 if no VMs with pending actions
      */
-    int set_up();
+    int set_up() override;
 
     int active_backups()
     {
@@ -212,7 +212,7 @@ public:
      *          -1 on error
      *          -2 if no VMs in a role
      */
-    int set_up();
+    int set_up() override;
 
 protected:
 

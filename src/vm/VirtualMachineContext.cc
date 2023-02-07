@@ -114,8 +114,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
     ofstream file;
     string   files_ds, error_str;
 
-    vector<const VectorAttribute*> attrs;
-
     files = "";
     bool token;
 
@@ -355,7 +353,6 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
         string& error_str, bool only_auto)
 {
     bool net_context;
-    string net_mode = "";
 
     bool parse_vnets = false; //VNETs needs parse, NIC context generated
 
@@ -619,7 +616,6 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
     if (!files_ds.empty())
     {
         string files_ds_parsed;
-        string st;
 
         ostringstream oss_parsed;
 

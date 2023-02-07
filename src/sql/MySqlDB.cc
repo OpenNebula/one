@@ -175,7 +175,7 @@ int MySqlDB::db_encoding(string& error)
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
-    const string& d, const string& e, int m, string& _compare_binary)
+    const string& d, const string& e, int m, const string& _compare_binary)
     : max_connections(m), server(s), port(p), user(u), password(_p),
       database(d), encoding(e)
 {
@@ -213,7 +213,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
 
         if ( rc == nullptr)
         {
-            std::string error = "Could not open connect to database server: ";
+            error = "Could not open connect to database server: ";
             error.append(mysql_error(connections[i]));
 
             throw runtime_error(error);
@@ -232,7 +232,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
 
     if ( rc == nullptr)
     {
-        std::string error = "Could not open connect to database server: ";
+        error = "Could not open connect to database server: ";
         error.append(mysql_error(db_escape_connect));
 
         throw runtime_error(error);
@@ -240,7 +240,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
 
     if ( mysql_set_character_set(db_escape_connect, encoding.c_str()) != 0 )
     {
-        std::string error = "Could not set encoding : ";
+        error = "Could not set encoding : ";
         error.append(mysql_error(db_escape_connect));
 
         throw runtime_error(error);

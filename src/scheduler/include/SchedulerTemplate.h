@@ -45,12 +45,12 @@ private:
     /**
      *  Sets the defaults value for the template
      */
-    void set_conf_default();
+    void set_conf_default() override;
 
     /**
      *  Sets the defaults value for multiple attributes
      */
-    void set_multiple_conf_default(){};
+    void set_multiple_conf_default()  override {};
 };
 
 #endif /*SCHEDULER_TEMPLATE_H_*/

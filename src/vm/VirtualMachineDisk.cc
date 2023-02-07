@@ -417,9 +417,7 @@ long long VirtualMachineDisk::image_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
-    string tm_target = get_tm_target();
-
-    if (  get_tm_target() != "SELF" )
+    if ( get_tm_target() != "SELF" )
     {
         return 0;
     }
@@ -547,7 +545,7 @@ void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
 
 void VirtualMachineDisk::clear_resize(bool restore)
 {
-    string size, size_prev;
+    string size_prev;
 
     if ( restore && vector_value("SIZE_PREV", size_prev) == 0 )
     {
@@ -741,7 +739,6 @@ void VirtualMachineDisks::assign_disk_targets(
         std::set<string>& used_targets)
 
 {
-    int    index = 0;
     string target;
 
     pair <string, VirtualMachineDisk *> disk_pair;
@@ -749,7 +746,7 @@ void VirtualMachineDisks::assign_disk_targets(
     while (dqueue.size() > 0 )
     {
         disk_pair = dqueue.front();
-        index     = 0;
+        int index = 0;
 
         do
         {

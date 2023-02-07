@@ -90,7 +90,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "VMTEMPLATE_POOL", "body",
             one_db::vm_template_table, where, sid, eid, desc);
@@ -110,7 +110,7 @@ private:
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new VMTemplate(-1,-1,-1,"","",0,0);
     };

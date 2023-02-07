@@ -50,7 +50,6 @@ MarketPlaceManager::MarketPlaceManager(
 
 int MarketPlaceManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    std::ostringstream      oss;
     const VectorAttribute * vattr = nullptr;
 
     NebulaLog::log("MKP", Log::INFO,"Loading Marketplace Manager driver.");

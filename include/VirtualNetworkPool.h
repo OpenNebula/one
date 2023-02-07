@@ -84,7 +84,7 @@ public:
     /**
      *  Drops a Virtual Network and the associated VLAN_ID if needed
      */
-    int drop(PoolObjectSQL * vn, std::string& error_msg)
+    int drop(PoolObjectSQL * vn, std::string& error_msg) override
     {
         release_vlan_id(static_cast<VirtualNetwork *>(vn));
 
@@ -169,7 +169,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "VNET_POOL", "body", one_db::vn_table,
                 where, sid, eid, desc);
@@ -400,7 +400,7 @@ private:
      *  Factory method to produce VN objects
      *    @return a pointer to the new VN
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         std::set <int> empty;
         return new VirtualNetwork(-1,-1,"","",0,-1,empty,0);

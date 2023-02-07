@@ -101,7 +101,7 @@ public:
     virtual ~RaftReplicaManager(){};
 
 private:
-    ReplicaThread * thread_factory(int follower_id);
+    ReplicaThread * thread_factory(int follower_id) override;
 };
 
 class HeartBeatManager : public ReplicaManager
@@ -112,7 +112,7 @@ public:
     virtual ~HeartBeatManager(){};
 
 private:
-    ReplicaThread * thread_factory(int follower_id);
+    ReplicaThread * thread_factory(int follower_id) override;
 };
 
 #endif /*REPLICA_MANAGER_H_*/

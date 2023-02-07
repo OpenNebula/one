@@ -140,7 +140,7 @@ int HookLog::drop(SqlDB *db, const int hook_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HookLog::add(int hkid, int hkrc, std::string &xml_result)
+int HookLog::add(int hkid, int hkrc, const std::string &xml_result)
 {
     std::ostringstream oss;
 

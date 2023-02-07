@@ -52,7 +52,7 @@ private:
      *    @param obj The Schedulable object
      *    @param priority for each resource.
      */
-    void policy(ObjectXML * obj, std::vector<float>& priority)
+    void policy(ObjectXML * obj, std::vector<float>& priority) override
     {
         ObjectXML * resource;
         char *      errmsg = 0;

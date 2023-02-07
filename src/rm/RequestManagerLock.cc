@@ -45,7 +45,6 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         test = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
-    string          error_str;
     int             rc;
 
     if ( basic_authorization(oid, att) == false )
@@ -122,8 +121,6 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
     int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
-
-    string          error_str;
 
     int owner  = att.uid;
     int req_id = att.req_id;

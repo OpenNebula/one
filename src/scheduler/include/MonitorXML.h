@@ -76,7 +76,7 @@ protected:
         return get_nodes("/MONITORING_DATA/MONITORING", content);
     };
 
-    void add_object(xmlNodePtr node)
+    void add_object(xmlNodePtr node) override
     {
         if ( node == 0 || node->children == 0 )
         {
@@ -90,7 +90,7 @@ protected:
         objects.insert(std::pair<int,ObjectXML*>(monitor->get_oid(), monitor));
     }
 
-    int load_info(xmlrpc_c::value &result)
+    int load_info(xmlrpc_c::value &result) override
     {
         try
         {

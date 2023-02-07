@@ -301,17 +301,16 @@ static void replace_substring(std::string& cmd, const std::string& s1,
 std::string PostgreSqlDB::preprocess_query(std::ostringstream& cmd)
 {
     std::string query = cmd.str();
-    size_t pos;
 
     // Both CREATE TABLE and REPLACE should be at the start
     // so we don't change user data
-    if ((pos = query.find("CREATE TABLE")) == 0)
+    if (query.find("CREATE TABLE") == 0)
     {
         replace_substring(query, "MEDIUMTEXT", "TEXT");
         replace_substring(query, "LONGTEXT", "TEXT");
         replace_substring(query, "BIGINT UNSIGNED", "NUMERIC(20)");
     }
-    else if ((pos = query.find("REPLACE")) == 0)
+    else if (query.find("REPLACE") == 0)
     {
         query.replace(0, 7, "INSERT");
 

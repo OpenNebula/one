@@ -197,7 +197,7 @@ public:
     }
 
 protected:
-    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const
+    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const override
     {
         return new ZoneServer(va, id);
     };

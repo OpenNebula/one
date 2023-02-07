@@ -96,7 +96,6 @@ void Datastore::disk_attribute(
 {
     string st, tm_mad;
     string inherit_val;
-    string current_val;
 
     disk->replace("DATASTORE", get_name());
     disk->replace("DATASTORE_ID", oid);
@@ -382,7 +381,6 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
     std::vector<std::string> modes;
 
     ostringstream oss;
-    std::stringstream ss;
 
     string orph;
 
@@ -442,8 +440,6 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
             replace_template_attribute("TM_MAD_SYSTEM", st);
 
             modes = one_util::split(st, ',', true);
-
-            string s;
 
             for (const auto &mode : modes)
             {
@@ -624,7 +620,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
 {
     string s_disk_type;
     string s_ds_type;
-    string datastore_location;
 
     string safe_dirs;
     string restricted_dirs;
@@ -951,8 +946,6 @@ int Datastore::post_update_template(string& error_str)
     string new_tm_mad;
     string s_ds_type;
     string new_disk_type;
-    string new_base_path;
-    string vcenter_password;
 
     DatastoreType new_ds_type;
 

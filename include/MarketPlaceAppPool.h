@@ -67,7 +67,7 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Imports an app into the marketplace, as reported by the monitor driver
@@ -154,7 +154,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "MARKETPLACEAPP_POOL", "body",
                              one_db::mp_app_table, where, sid, eid, desc);
@@ -164,13 +164,13 @@ public:
      *    @param zone pointer to Zone
      *    @return 0 on success
      */
-    int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new MarketPlaceApp(-1,-1,"","", 0, 0);
     };

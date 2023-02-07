@@ -513,7 +513,6 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   oss;
     ostringstream   ose;
 
-    string system_dir;
     int    rc;
     int    last_seq;
 
@@ -1880,7 +1879,6 @@ void VirtualMachine::add_history(
     const string& tm_mad,
     int           ds_id)
 {
-    ostringstream os;
     int           seq;
     string        vm_xml;
 
@@ -2421,8 +2419,6 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         oss << "<HISTORY_RECORDS/>";
     }
 
-    VirtualMachineDisks::disk_iterator disk;
-
     for (auto disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
             disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
     {
@@ -2681,7 +2677,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     nics.init(vnics, true);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // -------------------------------------------------------------------------
     // Virtual Machine user template
@@ -2696,7 +2691,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += user_obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // -------------------------------------------------------------------------
     // Last history entry
@@ -2741,7 +2735,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     if (!content.empty())
     {
         ObjectXML::free_nodes(content);
-        content.clear();
     }
 
     rc += _backups.from_xml(this);
@@ -3476,8 +3469,6 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
     /* Get the network leases & security groups for NICs in auto mode         */
     /* ---------------------------------------------------------------------- */
     vector<VectorAttribute*> sgs;
-
-    vector<Attribute *> anics;
 
     VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
 

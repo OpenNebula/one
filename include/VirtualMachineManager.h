@@ -347,7 +347,7 @@ private:
 
     static const int drivers_timeout = 10;
 
-    void finalize_action()
+    void finalize_action() override
     {
         DriverManager::stop(drivers_timeout);
     };

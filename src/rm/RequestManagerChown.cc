@@ -456,7 +456,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     bool remove_old_group;
 
     string ngname;
-    string uname;
     string auth_driver;
 
     PoolObjectAuth uperms;
@@ -475,8 +474,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if ( auto user = upool->get_ro(oid) )
     {
         user->get_permissions(uperms);
-
-        uname = user->get_name();
 
         auth_driver = user->get_auth_driver();
         new_group   = user->get_groups().count(ngid) != 1;

@@ -34,7 +34,7 @@ class VdcEditGroup : public Request
 {
 public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 protected:
     VdcEditGroup(const std::string& method_name,
@@ -99,7 +99,7 @@ class VdcEditResource : public Request
 {
 public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 protected:
     VdcEditResource(const std::string& method_name,

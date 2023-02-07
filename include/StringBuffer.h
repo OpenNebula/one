@@ -80,7 +80,7 @@ public:
 
             line_sz += rc;
 
-            const char * eom = strchr(cur_ptr, '\n');
+            eom = strchr(cur_ptr, '\n');
 
             if ( eom == 0)
             {

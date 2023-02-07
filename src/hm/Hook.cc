@@ -95,7 +95,7 @@ string& Hook::_to_xml(string& xml, bool log) const
 int Hook::from_xml(const std::string& xml)
 {
     vector<xmlNodePtr> content;
-    std::string type_str, remote_str;
+    std::string type_str;
     std::string error_msg;
 
     int rc = 0;
@@ -138,8 +138,6 @@ int Hook::from_xml(const std::string& xml)
     get_template_attribute("REMOTE",  remote);
 
     ObjectXML::free_nodes(content);
-
-    content.clear();
 
     if (rc != 0)
     {
@@ -197,7 +195,6 @@ int Hook::bootstrap(SqlDB * db)
 int Hook::insert(SqlDB *db, std::string& error_str)
 {
     std::string type_str;
-    std::string remote_str;
 
     int rc;
 
@@ -350,7 +347,6 @@ error_common:
 
 int Hook::set_hook(HookType hook_type, string& error)
 {
-    std::string type_str;
     std::string resource;
 
     if (hook_type == UNDEFINED)

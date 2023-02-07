@@ -2333,8 +2333,6 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
     string   vm_tmpl;
     string   drv_msg;
 
-    ostringstream os;
-
     if (!vm->hasHistory())
     {
         return -1;

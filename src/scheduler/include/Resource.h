@@ -130,7 +130,7 @@ protected:
 class VirtualMachineResourceMatch: public ResourceMatch
 {
 public:
-    void sort_resources()
+    void sort_resources() override
     {
         struct ResourceCompare
         {
@@ -138,8 +138,6 @@ public:
             {
                 if ( a->priority == b->priority )
                 {
-                    std::ostringstream oss;
-
                     return a->oid > b->oid;
                 }
 

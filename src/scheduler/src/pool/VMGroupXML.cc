@@ -40,8 +40,6 @@ void VMGroupXML::init_attributes()
 
     free_nodes(content);
 
-    content.clear();
-
     xpaths(srules, "/VM_GROUP/TEMPLATE/AFFINED");
 
     for ( const auto& srule : srules )

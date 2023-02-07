@@ -74,7 +74,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    std::string& to_xml(std::string& xml) const
+    std::string& to_xml(std::string& xml) const override
     {
         return _to_xml(xml, false);
     }
@@ -105,7 +105,7 @@ private:
     /**
      *  Factory method for Hook templates
      */
-    std::unique_ptr<Template> get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
         return std::make_unique<Template>();
     }
@@ -117,13 +117,13 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const std::string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /* Checks the mandatory templates attrbutes
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(std::string& error);
+    int post_update_template(std::string& error) override;
 
     // -------------------------------------------------------------------------
     // Hook Attributes

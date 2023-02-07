@@ -32,7 +32,7 @@
 class HostPool : public PoolSQL
 {
 public:
-    HostPool(SqlDB * db, std::vector<const SingleAttribute *>& secrets);
+    HostPool(SqlDB * db, const std::vector<const SingleAttribute *>& secrets);
 
     ~HostPool() = default;
 
@@ -185,7 +185,7 @@ public:
         }
     }
 
-    int drop(PoolObjectSQL * objsql, std::string& error_msg)
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override
     {
         Host * host = static_cast<Host *>(objsql);
 
@@ -210,7 +210,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "HOST_POOL", "body", one_db::host_table,
                 where, sid, eid, desc);
@@ -269,7 +269,7 @@ private:
      *  Factory method to produce Host objects
      *    @return a pointer to the new Host
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Host(-1,"","","",-1,"");
     };

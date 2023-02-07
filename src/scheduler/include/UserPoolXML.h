@@ -49,9 +49,9 @@ protected:
         return get_nodes("/USER_POOL/USER", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* USER_POOL_XML_H_ */

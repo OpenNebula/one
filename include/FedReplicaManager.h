@@ -120,7 +120,7 @@ private:
     /**
      *  Creates federation replica thread objects
      */
-    ReplicaThread * thread_factory(int follower_id);
+    ReplicaThread * thread_factory(int follower_id) override;
 
     /**
      *  Controls access to the zone list and server data

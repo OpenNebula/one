@@ -45,8 +45,8 @@ ImagePool::ImagePool(
         const string&                    __default_type,
         const string&                    __default_dev_prefix,
         const string&                    __default_cdrom_dev_prefix,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs,
+        const vector<const SingleAttribute *>& restricted_attrs,
+        const vector<const SingleAttribute *>& encrypted_attrs,
         const vector<const SingleAttribute *>& _inherit_attrs)
     : PoolSQL(db, one_db::image_table)
 {
@@ -104,7 +104,6 @@ int ImagePool::allocate (
     Image *         img;
     string          name;
     string          type;
-    string          driver;
     ostringstream   oss;
 
     int db_oid;
@@ -190,38 +189,26 @@ int ImagePool::allocate (
         if (cloning_id == -1)
         {
             rc = imagem->register_image(*oid, ds_data, extra_data, error_str);
-
-            if ( rc == -1 )
-            {
-                if ( auto img = get(*oid) )
-                {
-                    string aux_str;
-
-                    drop(img.get(), aux_str);
-                }
-
-                *oid = -1;
-                return -1;
-            }
         }
         else
         {
             rc = imagem->clone_image(*oid, cloning_id, ds_data, extra_data,
                     error_str);
-
-            if (rc == -1)
-            {
-                if ( auto img = get(*oid) )
-                {
-                    string aux_str;
-
-                    drop(img.get(), aux_str);
-                }
-
-                *oid = -1;
-                return -1;
-            }
         }
+
+        if ( rc == -1 )
+        {
+            if ( auto image = get(*oid) )
+            {
+                string aux_str;
+
+                drop(image.get(), aux_str);
+            }
+
+            *oid = -1;
+            return -1;
+        }
+
     }
 
     return *oid;
@@ -279,7 +266,7 @@ int ImagePool::update(PoolObjectSQL * objsql)
 
     return image->update(db);
 }
- 
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -323,8 +310,6 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if ( uiid == -1)
         {
-            ostringstream oss;
-
             oss << "User " << uid << " does not own an image with name: "
                 << source << " . Set IMAGE_UNAME or IMAGE_UID of owner in DISK.";
             error_str =  oss.str();
@@ -355,7 +340,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         long long size;
 
-        int rc = disk->vector_value("SIZE", size);
+        rc = disk->vector_value("SIZE", size);
 
         if ( rc != 0 || size <= 0 )
         {
@@ -466,8 +451,6 @@ void ImagePool::disk_attribute(
 
     string           dev_prefix;
     Image::ImageType img_type;
-
-    ostringstream oss;
 
     Nebula&         nd      = Nebula::instance();
     DatastorePool * ds_pool = nd.get_dspool();

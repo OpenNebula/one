@@ -66,8 +66,8 @@ int TransferManager::start()
 int TransferManager::prolog_transfer_command(
         VirtualMachine *        vm,
         const VirtualMachineDisk* disk,
-        string&                 vm_tm_mad,
-        string&                 opennebula_hostname,
+        const string&           vm_tm_mad,
+        const string&           opennebula_hostname,
         ostream&                xfr,
         ostringstream&          os)
 {
@@ -257,7 +257,7 @@ static string prolog_os_transfer_commands(
 int TransferManager::prolog_context_command(
         VirtualMachine *        vm,
         const string&           token_password,
-        string&                 vm_tm_mad,
+        const string&           vm_tm_mad,
         int&                    disk_id,
         ostream&                xfr)
 {

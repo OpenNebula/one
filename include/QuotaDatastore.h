@@ -54,13 +54,13 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, std::string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error) override;
 
     /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */
-    void del(Template* tmpl);
+    void del(Template* tmpl) override;
 
 protected:
 
@@ -75,7 +75,7 @@ protected:
      */
     int get_default_quota(const std::string& id,
                         Quotas& default_quotas,
-                        VectorAttribute **va);
+                        VectorAttribute **va) override;
 
     static const char * DS_METRICS[];
 

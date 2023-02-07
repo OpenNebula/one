@@ -74,7 +74,7 @@ public:
      *    @param zone pointer to Zone
      *    @return 0 on success
      */
-    int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Drops the Zone from the data base. The object mutex SHOULD be
@@ -85,7 +85,7 @@ public:
      *          -1 DB error,
      *          -2 object is a default Zone (ID < 100)
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Bootstraps the database table(s) associated to the Zone pool
@@ -108,7 +108,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "ZONE_POOL", "body", one_db::zone_table,
                 where, sid, eid, desc);
@@ -143,7 +143,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Zone(-1,0);
     };

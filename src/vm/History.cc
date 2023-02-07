@@ -467,8 +467,6 @@ int History::rebuild_attributes()
         vm_info = oss.str();
 
         ObjectXML::free_nodes(content);
-
-        content.clear();
     }
 
     non_persistent_data();

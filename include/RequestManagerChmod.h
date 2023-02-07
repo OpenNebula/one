@@ -103,7 +103,7 @@ protected:
 
     ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
         int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, bool recursive, RequestAttributes& att);
+        int other_m, int other_a, bool recursive, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */

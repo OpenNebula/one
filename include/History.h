@@ -125,7 +125,7 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqlDB * db, std::string& error_str)
+    int insert(SqlDB * db, std::string& error_str) override
     {
         error_str.clear();
 
@@ -137,14 +137,14 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Updates the history record
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-     int update(SqlDB * db)
+     int update(SqlDB * db) override
      {
         return insert_replace(db, true);
      }
@@ -154,7 +154,7 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int drop(SqlDB * db);
+    int drop(SqlDB * db) override;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

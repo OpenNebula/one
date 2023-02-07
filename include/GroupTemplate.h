@@ -42,7 +42,7 @@ public:
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
+    static void parse_restricted(const std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
     }
