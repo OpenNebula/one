@@ -80,7 +80,9 @@ protected:
         host_dispatch_limit(0),
         zone_id(0),
         mem_ds_scale(0),
-        diff_vnets(false)
+        diff_vnets(false),
+        max_backups(5),
+        max_backups_host(2)
     {
     }
 

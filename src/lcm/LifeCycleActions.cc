@@ -2039,7 +2039,7 @@ void LifeCycleManager::trigger_updatevnet(int vnid)
                 // -------------------------------------------------------------
                 if ( is_tmpl || is_update )
                 {
-                    auto rc = vm->nic_update(vnid);
+                    rc = vm->nic_update(vnid);
 
                     if (rc < 0)
                     {

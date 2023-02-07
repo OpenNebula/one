@@ -163,12 +163,12 @@ public:
      */
     int set_up() override;
 
-    int active_backups()
+    int active_backups() const
     {
         return _active_backups;
     }
 
-    int host_backups(int host_id)
+    int host_backups(int host_id) const
     {
         return backups_host[host_id];
     }
@@ -183,7 +183,7 @@ protected:
     /**
      * Total backup operations in progress
      */
-    mutable int _active_backups;
+    mutable int _active_backups = 0;
 
     /**
      * Backup operations per host

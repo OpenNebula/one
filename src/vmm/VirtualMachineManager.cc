@@ -2374,8 +2374,6 @@ int VirtualMachineManager::updatenic(VirtualMachine * vm, int vnid)
     string   vm_tmpl;
     string   drv_msg;
 
-    ostringstream os;
-
     if (!vm->hasHistory())
     {
         return -1;
