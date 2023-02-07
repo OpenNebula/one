@@ -51,11 +51,13 @@ BDRV_MAX_REQUEST = 2**30
 #---------------------------------------------------------------------------
 module Command
 
+    # rubocop:disable Style/HashSyntax
     def log(message)
         return unless LOG_FILE
 
         File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", mode: 'a')
     end
+    # rubocop:enable Style/HashSyntax
 
     def cmd(command, args, opts = {})
         opts.each do |key, value|
@@ -112,7 +114,7 @@ module Nbd
         @@server = fork do
             args  = ['-r', '-k', @@socket, '-f', 'qcow2', '-t']
             args << '-B' << map unless map.empty?
-            args  = file
+            args << file
 
             exec('qemu-nbd', *args)
         end
@@ -162,7 +164,47 @@ class QemuImg
     end
 
     #---------------------------------------------------------------------------
-    #  Image information methods
+    #  Image information methods.
+    #
+    #  Sample output of qemu image info output in json format
+    #  {
+    #  "backing-filename-format": "qcow2",
+    #  "virtual-size": 268435456,
+    #  "filename": "disk.0",
+    #  "cluster-size": 65536,
+    #  "format": "qcow2",
+    #  "actual-size": 2510848,
+    #  "format-specific": {
+    #      "type": "qcow2",
+    #      "data": {
+    #          "compat": "1.1",
+    #          "compression-type": "zlib",
+    #          "lazy-refcounts": false,
+    #          "bitmaps": [
+    #              {
+    #                  "flags": [
+    #                      "auto"
+    #                  ],
+    #                  "name": "one-0-5",
+    #                  "granularity": 65536
+    #              },
+    #              {
+    #                  "flags": [
+    #                      "auto"
+    #                  ],
+    #                  "name": "one-0-4",
+    #                  "granularity": 65536
+    #              }
+    #          ],
+    #          "refcount-bits": 16,
+    #          "corrupt": false,
+    #          "extended-l2": false
+    #      }
+    #  },
+    #  "full-backing-filename": "/var/lib/one/datastores/1/e948982",
+    #  "backing-filename": "/var/lib/one/datastores/1/e948982",
+    #  "dirty-flag": false
+    # }
     #---------------------------------------------------------------------------
     def [](key)
         if !@_info
@@ -171,6 +213,12 @@ class QemuImg
         end
 
         @_info[key]
+    end
+
+    def bitmaps
+        self['format-specific']['data']['bitmaps']
+    rescue StandardError
+        []
     end
 
     #---------------------------------------------------------------------------
@@ -203,20 +251,16 @@ class QemuImg
         index     = -1
 
         exts.each do |e|
-
             ext_length = Integer(e['length'])
-            new_exts    = []
+            new_exts   = []
 
             if ext_length > BDRV_MAX_REQUEST
                 ext_offset = Integer(e['offset'])
+
                 loop do
                     index += 1
 
-                    blk_length = if ext_length > BDRV_MAX_REQUEST
-                              BDRV_MAX_REQUEST
-                          else
-                              ext_length
-                          end
+                    blk_length = [ext_length, BDRV_MAX_REQUEST].min
 
                     new_exts << {
                         'offset' => ext_offset,
@@ -400,14 +444,31 @@ class KVMDomain
             check_ids << m[2].to_i
         end
 
+        # Remove current checkpoint (e.g. a previous failed backup operation)
+        if check_ids.include? @backup_id
+            cpname = "one-#{@vid}-#{@backup_id}"
+
+            begin
+                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname)
+            rescue StandardError
+                cmd("#{virsh} checkpoint-delete", @dom,
+                    :checkpointname => cpname, :metadata => '')
+            end
+        end
+
         return if check_ids.include? @parent_id
 
         #-----------------------------------------------------------------------
         # Try to re-define checkpoint, will fail if not present in storage.
         # Can be queried using qemu-monitor
         #
-        # out = cmd("#{virsh} qemu-monitor-command", @dom,
+        # out  = cmd("#{virsh} qemu-monitor-command", @dom,
         #           :cmd => '{"execute": "query-block","arguments": {}}')
+        # outh = JSON.parse(out)
+        #
+        # outh['return'][0]['inserted']['dirty-bitmaps']
+        #   => [{"name"=>"one-0-2", "recording"=>true, "persistent"=>true,
+        #        "busy"=>false, "granularity"=>65536, "count"=>327680}]
         #-----------------------------------------------------------------------
         disks = disks_s.split ':'
         tgts  = []
@@ -443,7 +504,8 @@ class KVMDomain
     end
 
     #---------------------------------------------------------------------------
-    # Cleans defined checkpoints up to the last one taken for this backup
+    # Cleans defined checkpoints up to the last two. This way we can retry
+    # the backup operation in case it fails
     #---------------------------------------------------------------------------
     def clean_checkpoints(all = false)
         return unless @checkpoint
@@ -453,7 +515,7 @@ class KVMDomain
 
         out.each_line do |l|
             m = l.match(/(one-[0-9]+)-([0-9]+)/)
-            next if !m || (!all && m[2].to_i == @backup_id)
+            next if !m || (!all && m[2].to_i >= @parent_id)
 
             cmd("#{virsh} checkpoint-delete", "#{@dom} #{m[1]}-#{m[2]}")
         end
@@ -620,6 +682,12 @@ class KVMDomain
         # TODO: Check if baking files needs bitmap
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
+
+            idisk.bitmaps.each do |b|
+                next if b['name'] == "one-#{@vid}-#{@parent_id}"
+
+                idisk.bitmap(b['name'], :remove => '')
+            end
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
         end if @checkpoint
