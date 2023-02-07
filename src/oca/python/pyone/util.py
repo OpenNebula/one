@@ -14,13 +14,33 @@
 # limitations under the License.
 
 
-import dicttoxml
+import dict2xml
 import xmltodict
 from lxml.etree import tostring
 from collections import OrderedDict
 from aenum import IntEnum
 
+# this is a bit hackish way to avoid escaping <,> characters
+# by dict2xml, as it would break <!CDATA[]> which is injected before
+dict2xml.Node.entities = []
+
 TEMPLATE_ALWAYS_LIST_ELEM = ['SNAPSHOT']
+
+def add_cdata(d):
+    '''
+    recursively traverse nested dict and add xml
+    CDATA element to the leaves
+    '''
+
+    if isinstance(d, list):
+        return [ add_cdata(x) for x in d ]
+
+    elif isinstance(d, dict):
+        return { k: add_cdata(v) for (k,v) in d.items()}
+
+    else:
+        return f"<![CDATA[{str(d)}]]>"
+
 
 def cast2one(param):
 
@@ -52,8 +72,8 @@ def cast2one(param):
             root = list(param.values())[0]
             if is_nested_dict(param):
                 # We return this dictionary as XML
-                return dicttoxml.dicttoxml(param, root=False, attr_type=False,
-                                           cdata=True).decode('utf8')
+                return dict2xml.dict2xml(add_cdata(param),
+                                        indent="", newlines=False)
             else:
                 # We return this dictionary as attribute=value vector
                 ret = u""

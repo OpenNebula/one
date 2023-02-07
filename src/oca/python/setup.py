@@ -24,7 +24,7 @@ here = path.abspath(path.dirname(__file__))
 
 install_requires = [
     'lxml',
-    'dicttoxml',
+    'dict2xml',
     'xmltodict',
     'six',
     'aenum',
