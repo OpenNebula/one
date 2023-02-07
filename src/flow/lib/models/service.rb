@@ -323,6 +323,9 @@ module OpenNebula
 
             template['start_time'] = Integer(Time.now)
 
+            # Replace $attibute by the corresponding value
+            resolve_attributes(template)
+
             super(template.to_json, template['name'])
         end
 
@@ -789,9 +792,17 @@ module OpenNebula
                     # $CUSTOM1_VAR Any word character
                     # (letter, number, underscore)
                     role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
+                        # Check if $ var value is in custom_attrs_values within the role
+                        if !role['custom_attrs_values'].nil? && role['custom_attrs_values'].key?(key[0])
+                            role['vm_template_contents'].gsub!(
+                                '$'+key[0],
+                                role['custom_attrs_values'][key[0]]
+                            )
+                            next
+                        end
+
                         # Check if $ var value is in custom_attrs_values
-                        if !template['custom_attrs_values'].nil? &&
-                           template['custom_attrs_values'].key?(key[0])
+                        if !template['custom_attrs_values'].nil? && template['custom_attrs_values'].key?(key[0])
                             role['vm_template_contents'].gsub!(
                                 '$'+key[0],
                                 template['custom_attrs_values'][key[0]]

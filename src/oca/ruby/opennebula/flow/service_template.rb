@@ -42,6 +42,16 @@ module OpenNebula
                     :type => :string,
                     :required => false
                 },
+                'custom_attrs' => {
+                    :type => :object,
+                    :properties => {},
+                    :required => false
+                },
+                'custom_attrs_values' => {
+                    :type => :object,
+                    :properties => {},
+                    :required => false
+                },
                 'parents' => {
                     :type => :array,
                     :items => {
@@ -487,7 +497,7 @@ module OpenNebula
                 instantiate_template = JSON.parse(@body.to_json)
             else
                 instantiate_template = JSON.parse(@body.to_json)
-                                           .merge(merge_template)
+                                           .deep_merge(merge_template)
             end
 
             begin
