@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { Link as RouterLink } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
-import { v4 as uuidv4 } from 'uuid'
 import { Tr, Translate } from 'client/components/HOC'
-import { T, PrettySecurityGroupRule, RESOURCE_NAMES } from 'client/constants'
+import { PrettySecurityGroupRule, RESOURCE_NAMES, T } from 'client/constants'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
-  styled,
-  List,
-  ListItem,
-  Typography,
-  Paper,
-  Stack,
   Box,
   Link,
+  List,
+  ListItem,
+  Paper,
+  Stack,
+  Typography,
+  styled,
 } from '@mui/material'
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -140,7 +140,7 @@ export const SecurityGroupRules = memo(
           {rules.map((rule) => (
             <SecurityGroupRule
               key={uuidv4()}
-              data-cy={`${parentKey}-rule-${rule.RULE_TYPE}`}
+              data-cy={`${parentKey}-rule-${rule?.RULE_TYPE}`}
               rule={rule}
             />
           ))}
