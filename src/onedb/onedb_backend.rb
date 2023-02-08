@@ -332,6 +332,7 @@ class BackEndMySQL < OneDBBacKEnd
             "T.table_name = '#{table}';"
         ) do |row|
             enconding = row[:character_set_name]
+            enconding ||= row[:CHARACTER_SET_NAME]
         end
 
         table_to_nk(enconding)
