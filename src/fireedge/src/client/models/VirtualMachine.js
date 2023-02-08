@@ -218,18 +218,13 @@ export const getNics = (vm, options = {}) => {
 
 /**
  * @param {Nic} nic - NIC
- * @returns {string} Ips from resource
+ * @returns {string[]} Ips from resource
  */
 export const getIpsFromNic = (nic) => {
-  const attributeIp = NIC_IP_ATTRS.find((attr) =>
-    [attr].flat().every((flatted) => nic[flatted] !== undefined)
-  )
+  const ipAttributes = NIC_IP_ATTRS.filter((attr) => nic[attr] !== undefined)
 
-  if (attributeIp) {
-    return [attributeIp]
-      .flat()
-      .map((attribute) => nic[attribute])
-      .join(' ')
+  if (ipAttributes) {
+    return [ipAttributes].flat().map((attribute) => nic[attribute])
   }
 }
 
