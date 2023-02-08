@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, number, object } from 'yup'
+import { INPUT_TYPES, T } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { boolean, number, object } from 'yup'
 
 const ENFORCE = {
   name: 'enforce',
@@ -52,7 +52,7 @@ const PHYSICAL_CPU = {
 
 const VIRTUAL_CPU = {
   name: 'VCPU',
-  label: T.VirtualCpuWithPercent,
+  label: T.VirtualCpuWithDecimal,
   tooltip: T.VirtualCpuConcept,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
