@@ -2013,7 +2013,6 @@ export const NIC_IP_ATTRS = [
   'EXTERNAL_IP', // external IP must be first
   'IP',
   'IP6',
-  ['IP6_ULA', 'IP6_GLOBAL'],
   'IP6_GLOBAL',
   'IP6_ULA',
   'MAC',
