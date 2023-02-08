@@ -15,21 +15,21 @@
  * ------------------------------------------------------------------------- */
 import { NumberSchema } from 'yup'
 
-import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
-import { getUserInputParams } from 'client/models/Helper'
 import {
-  Field,
-  schemaUserInput,
-  prettyBytes,
-  isDivisibleBy,
-} from 'client/utils'
-import {
-  T,
   HYPERVISORS,
+  T,
   USER_INPUT_TYPES,
   VmTemplate,
   VmTemplateFeatures,
 } from 'client/constants'
+import { getUserInputParams } from 'client/models/Helper'
+import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
+import {
+  Field,
+  isDivisibleBy,
+  prettyBytes,
+  schemaUserInput,
+} from 'client/utils'
 
 const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
 
@@ -42,7 +42,7 @@ const TRANSLATES = {
   CPU: { name: 'CPU', label: T.PhysicalCpuWithPercent, tooltip: T.CpuConcept },
   VCPU: {
     name: 'VCPU',
-    label: T.VirtualCpuWithPercent,
+    label: T.VirtualCpuWithDecimal,
     tooltip: T.VirtualCpuConcept,
   },
 }
