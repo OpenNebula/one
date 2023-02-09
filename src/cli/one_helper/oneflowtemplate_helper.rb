@@ -193,35 +193,6 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         ret
     end
 
-    # Get custom role attributes values from user
-    #
-    # @param role [Hash] Service role with custom attributes
-    #
-    # @return [Hash] Role with custom attributes values
-    def custom_role_attrs(roles)
-        return if roles.nil? || roles.empty?
-
-        ret = {}
-        role_with_custom_attrs = false
-
-        roles.each do |role|
-            next unless role.key?('custom_attrs')
-
-            ####################################################################
-            # Display Role Information
-            ####################################################################
-            header = "> Please insert the user inputs for the role \"#{role['name']}\""
-            puts header
-
-            role.merge!(custom_attrs(role['custom_attrs']))
-            role_with_custom_attrs = true
-        end
-
-        ret['roles'] = roles if role_with_custom_attrs
-
-        ret
-    end
-
     def networks(vnets)
         return unless vnets
 
