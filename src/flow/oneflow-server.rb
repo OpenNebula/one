@@ -186,25 +186,6 @@ def one_error_to_http(error)
     end
 end
 
-# Check if the custom_attrs and their respective values are correct
-#
-# @param error_msg  [String]  Error message
-# @param error_code [Integer] Http error code
-def check_custom_attrs(custom_attrs, custom_attrs_values)
-    return if custom_attrs.nil? || custom_attrs.empty?
-
-    if  !custom_attrs.is_a?(Hash) || !custom_attrs_values.is_a?(Hash)
-        return internal_error('Wrong custom_attrs or custom_attrs_values format', VALIDATION_EC)
-    end
-
-    return if (custom_attrs.keys - custom_attrs_values.keys).empty?
-
-    internal_error(
-        'Verify that every custom attribute have its corresponding value defined',
-        VALIDATION_EC
-    )
-end
-
 ##############################################################################
 # Defaults
 ##############################################################################
@@ -656,15 +637,28 @@ post '/service_template/:id/action' do
             custom_attrs_values = merge_template['custom_attrs_values']
         end
 
-        check_custom_attrs(custom_attrs, custom_attrs_values)
+        if custom_attrs && !(custom_attrs.is_a? Hash)
+            return internal_error('Wrong custom_attrs format',
+                                  VALIDATION_EC)
+        end
 
-        # Check role custom_attrs
-        roles = merge_template['roles']
+        if custom_attrs_values && !(custom_attrs_values.is_a? Hash)
+            return internal_error('Wrong custom_attrs_values format',
+                                  VALIDATION_EC)
+        end
 
-        roles.each do |role|
-            role_custom_attrs        = role['custom_attrs']
-            role_custom_attrs_values = role['custom_attrs_values']
-            check_custom_attrs(role_custom_attrs, role_custom_attrs_values)
+        if custom_attrs && !custom_attrs.empty? && !custom_attrs_values
+            return internal_error('No custom_attrs_values found',
+                                  VALIDATION_EC)
+        end
+
+        if custom_attrs &&
+           !custom_attrs.empty? &&
+           custom_attrs_values &&
+           !(custom_attrs.keys - custom_attrs_values.keys).empty?
+            return internal_error('Every custom_attrs key must have its ' \
+                                  'value defined at custom_attrs_value',
+                                  VALIDATION_EC)
         end
 
         # Check networks
