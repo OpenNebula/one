@@ -1110,58 +1110,77 @@ bool Datastore::get_avail_mb(long long &avail) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::is_persistent_only() const
+template <typename T>
+static T ds_conf_value(const string& mad, const string& name, const T& defval)
 {
-    int rc;
-    bool persistent_only = false;
-
     const VectorAttribute* vatt;
 
-    rc = Nebula::instance().get_ds_conf_attribute(ds_mad, vatt);
+    int rc = Nebula::instance().get_ds_conf_attribute(mad, vatt);
 
     if ( rc != 0 )
     {
         // No DS_MAD_CONF is available for this DS_MAD.
-        // Assuming this DS is not PERSISTENT_ONLY
-        return false;
+        return defval;
     }
 
-    vatt->vector_value("PERSISTENT_ONLY", persistent_only);
+    T value;
 
-    return persistent_only;
-};
+    rc = vatt->vector_value(name, value);
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+    if ( rc != 0 )
+    {
+        // Attribute missing in DS_MAD_CONF
+        return defval;
+    }
+
+    return value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool Datastore::is_persistent_only() const
+{
+    return ds_conf_value(ds_mad, "PERSISTENT_ONLY", false);
+}
+
+bool Datastore::is_concurrent_forget() const
+{
+    return ds_conf_value(ds_mad, "CONCURRENT_FORGET", false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target,
         string& clone_target, string& disk_type) const
 {
-    if (!tm_mad.empty())
+    if (tm_mad.empty())
     {
-        string tm_mad_t = one_util::trim(tm_mad);
-        one_util::toupper(tm_mad_t);
+        return 0;
+    }
 
-        get_template_attribute("CLONE_TARGET_" + tm_mad_t, clone_target);
+    string tm_mad_t = one_util::trim(tm_mad);
+    one_util::toupper(tm_mad_t);
 
-        if (clone_target.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("CLONE_TARGET_" + tm_mad_t, clone_target);
 
-        get_template_attribute("LN_TARGET_" + tm_mad_t, ln_target);
+    if (clone_target.empty())
+    {
+        return -1;
+    }
 
-        if (ln_target.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("LN_TARGET_" + tm_mad_t, ln_target);
 
-        get_template_attribute("DISK_TYPE_" + tm_mad_t, disk_type);
+    if (ln_target.empty())
+    {
+        return -1;
+    }
 
-        if (disk_type.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("DISK_TYPE_" + tm_mad_t, disk_type);
+
+    if (disk_type.empty())
+    {
+        return -1;
     }
 
     return 0;

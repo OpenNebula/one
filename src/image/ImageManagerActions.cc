@@ -462,6 +462,8 @@ int ImageManager::delete_image(int iid, string& error_str)
     int cloning_id = -1;
     int vm_saving_id = -1;
 
+    bool cforget;
+
     ostringstream oss;
 
     if (auto img = ipool->get_ro(iid))
@@ -479,6 +481,8 @@ int ImageManager::delete_image(int iid, string& error_str)
         ds->decrypt();
 
         ds->to_xml(ds_data);
+
+        cforget = ds->is_concurrent_forget();
     }
     else
     {
@@ -492,6 +496,34 @@ int ImageManager::delete_image(int iid, string& error_str)
     {
         error_str = "Image does not exist";
         return -1;
+    }
+
+    // Check associted VM state for backups. Note VM can no longer exist
+    // Fai if VM is in BACKUP and INCREMENT mode or FULL with no CONCURRENT_FORGET
+    if ( img->get_type() == Image::BACKUP )
+    {
+        auto ids   = img->get_running_ids();
+        auto first = ids.cbegin();
+
+        if (first != ids.cend())
+        {
+            VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+
+            if (auto vm = vmpool->get_ro(*first))
+            {
+                auto lstate = vm->get_lcm_state();
+                auto bmode  = vm->backups().mode();
+
+                if ((lstate == VirtualMachine::BACKUP ||
+                        lstate == VirtualMachine::BACKUP_POWEROFF) &&
+                        (bmode == Backups::INCREMENT || !cforget))
+                {
+                    error_str = "Active backup on the associated VM. Wait till "
+                        "it finish to delete the backup Image";
+                    return -1;
+                }
+            }
+        }
     }
 
     switch (img->get_state())

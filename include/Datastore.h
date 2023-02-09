@@ -240,10 +240,15 @@ public:
     };
 
     /**
-     * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
-     * @return true if persistent only
+     * @return true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
      */
     bool is_persistent_only() const;
+
+    /**
+     * (only relevant for backup datastores)
+     * @return true if the DS_MAD_CONF has CONCURRENT_FORGET = "YES" flag
+     */
+    bool is_concurrent_forget() const;
 
     /**
      * Enable or disable the DS. Only for System DS.
