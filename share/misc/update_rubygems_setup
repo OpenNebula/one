@@ -27,7 +27,7 @@ RG_SETUP_END   = '%%RUBYGEMS_SETUP_END%%'
 # Bundled Ruby gems loader code.
 # IMPORTANT: Update here and commit into Git as well!
 # rubocop:disable Layout/HeredocIndentation
-RG_SETUP = <<-'EOT'
+RG_SETUP = <<-EOT
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]

@@ -152,7 +152,7 @@ one_client = OpenNebula::Client.new(token)
 # Create backup object templates for VM and associated disk images
 # Monkey patch REXML::DOCUMENT to respond to []
 # ------------------------------------------------------------------------------
-rds.define_singleton_method('[]'){|xpath| self.elements[xpath].text }
+rds.define_singleton_method('[]') {|xpath| elements[xpath].text }
 
 restorer = TransferManager::BackupRestore.new(
     :vm_xml64  => vm_xml,
