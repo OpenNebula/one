@@ -197,10 +197,10 @@ module TransferManager
 
             @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{chain}"
 
-            if no_ip
-                NIC_LIST << %w[IP IP6 IP6_ULA IP6_GLOBAL]
-                NIC_LIST.flatten!
-            end
+            return unless no_ip
+
+            NIC_LIST << ['IP', 'IP6', 'IP6_ULA', 'IP6_GLOBAL']
+            NIC_LIST.flatten!
         end
 
         # Creates Image templates for the backup disks.

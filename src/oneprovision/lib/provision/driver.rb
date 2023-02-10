@@ -110,7 +110,7 @@ module OneProvision
                 rtn = nil
 
                 begin
-                    if Hash == cmd.last
+                    if cmd.last == Hash
                         opts = cmd.pop.dup
                     else
                         opts = {}
