@@ -85,6 +85,8 @@ define(function(require) {
       
       var noNIC = $("#restore_no_nic", dialog).prop('checked')
       var noIP = $("#restore_no_ip", dialog).prop('checked')
+      var name = $("#restore_name", dialog).val()
+      var incrementId = $("#restore_name", dialog).val()
       var restore_opts = ""
 
       if (noNIC) {
@@ -92,7 +94,15 @@ define(function(require) {
       }
       
       if (noIP) {
-        restore_opts = 'NO_IP="YES"'
+        restore_opts = 'NO_IP="YES"\n'
+      }
+
+      if (name && name !== '') {
+        restore_opts = 'NAME="' + name + '"\n'
+      }
+
+      if (incrementId && incrementId !== '') {
+        restore_opts = 'INCREMENT_ID="' + incrementId + '"\n'
       }
 
       extra_info["restore_opts"] = restore_opts;      
