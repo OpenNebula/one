@@ -576,7 +576,9 @@ CommandParser::CmdParser.new(ARGV) do
             end
         rescue StandardError => e
             puts e.message
+            # rubocop:disable Lint/Debugger
             pp e.backtrace
+            # rubocop:enable Lint/Debugger
             [-1, e.message]
         end
 
@@ -604,7 +606,9 @@ CommandParser::CmdParser.new(ARGV) do
             end
         rescue StandardError => e
             puts e.name
+            # rubocop:disable Lint/Debugger
             pp e.backtrace
+            # rubocop:enable Lint/Debugger
             [-1, e.message]
         end
 

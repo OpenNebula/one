@@ -1126,7 +1126,7 @@ end
                 when OPAQUE_CARD.to_s
                     # Select only Opaque Networks
                     opaque_networks = @item.network.select do |net|
-                        RbVmomi::VIM::OpaqueNetwork == net.class
+                        net.class == RbVmomi::VIM::OpaqueNetwork
                     end
                     opaque_network = opaque_networks.find do |opn|
                         backing.opaqueNetworkId == opn.summary.opaqueNetworkId
@@ -1296,7 +1296,7 @@ end
                             when OPAQUE_CARD.to_s
                                 # Select only Opaque Networks
                                 opaque_networks = @item.network.select do |net|
-                                    RbVmomi::VIM::OpaqueNetwork == net.class
+                                    net.class == RbVmomi::VIM::OpaqueNetwork
                                 end
                                 opaque_network = opaque_networks.find do |opn|
                                     nic.backing.opaqueNetworkId ==

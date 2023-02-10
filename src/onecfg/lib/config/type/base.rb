@@ -388,7 +388,7 @@ module OneCfg::Config::Type
         def self.run_shell_command((*cmd), stdin = nil)
             rtn = nil
 
-            if Hash == cmd.last
+            if cmd.last == Hash
                 opts = cmd.pop.dup
             else
                 opts = {}
