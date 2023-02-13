@@ -52,9 +52,27 @@ const VmsTable = (props) => {
       ...result,
       data:
         result?.data
-          ?.filter((vm) =>
-            host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
-          )
+          ?.filter((vm) => {
+            if (host?.ID) {
+              if (
+                host?.ERROR_VMS?.ID ||
+                host?.UPDATED_VMS?.ID ||
+                host?.UPDATING_VMS?.ID
+              ) {
+                return [
+                  host?.ERROR_VMS.ID ?? [],
+                  host?.UPDATED_VMS.ID ?? [],
+                  host?.UPDATING_VMS.ID ?? [],
+                ]
+                  .flat()
+                  .includes(vm.ID)
+              }
+
+              return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
+            }
+
+            return true
+          })
           ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
     }),
   })

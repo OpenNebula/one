@@ -281,6 +281,9 @@ module.exports = {
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',
   ErrorsOcurred: '%s error(s) occurred',
+  UpdatedNic: 'Updated nic',
+  ErrorUpdatingSecGroups: 'VMs in error. The Update to the latest rules failed',
+  PendingUpdatingSecGroups: 'VMs waiting to be updated with the latest rules',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',

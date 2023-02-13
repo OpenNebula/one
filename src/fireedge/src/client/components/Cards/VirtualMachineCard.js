@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 
+import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import {
-  Lock,
-  HardDrive,
   Cpu,
+  HardDrive,
+  Lock,
   Network,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
-import { Box, Stack, Typography, Tooltip } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
-import MultipleTags from 'client/components/MultipleTags'
-import Timer from 'client/components/Timer'
-import { MemoryIcon } from 'client/components/Icons'
-import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
+import { MemoryIcon } from 'client/components/Icons'
+import MultipleTags from 'client/components/MultipleTags'
+import { StatusChip, StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import Timer from 'client/components/Timer'
+import { useViews } from 'client/features/Auth'
 
-import { getState, getLastHistory, getIps } from 'client/models/VirtualMachine'
+import { ACTIONS, RESOURCE_NAMES, T, VM } from 'client/constants'
 import {
-  timeFromMilliseconds,
-  getUniqueLabels,
-  getErrorMessage,
   getColorFromString,
+  getErrorMessage,
+  getUniqueLabels,
+  timeFromMilliseconds,
 } from 'client/models/Helper'
+import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
 import { prettyBytes } from 'client/utils'
-import { T, VM, ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const VirtualMachineCard = memo(
   /**
@@ -51,9 +51,17 @@ const VirtualMachineCard = memo(
    * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
+   * @param {object[]} [props.globalErrors] - Errors globals
    * @returns {ReactElement} - Card
    */
-  ({ vm, rootProps, actions, onClickLabel, onDeleteLabel }) => {
+  ({
+    vm,
+    rootProps,
+    actions,
+    onClickLabel,
+    onDeleteLabel,
+    globalErrors = [],
+  }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
@@ -86,6 +94,31 @@ const VirtualMachineCard = memo(
       name: stateName,
       displayName: stateDisplayName,
     } = getState(vm)
+
+    const errorRows = globalErrors.filter(
+      (errorRow) => errorRow?.rows?.length && errorRow?.rows?.includes(ID)
+    )
+    const IconsError = () => (
+      <>
+        {errorRows.map((value, index) => (
+          <Tooltip
+            arrow
+            placement="bottom"
+            key={`icon-${ID}-${index}`}
+            title={
+              <Typography variant="subtitle2">
+                {value?.message || ''}
+              </Typography>
+            }
+          >
+            <Box color={`${value?.type || 'error'}.main`} component="span">
+              {value?.icon || ''}
+            </Box>
+          </Tooltip>
+        ))}
+      </>
+    )
+
     const error = useMemo(() => getErrorMessage(vm), [vm])
     const ips = useMemo(() => getIps(vm), [vm])
     const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB'), [MEMORY])
@@ -112,6 +145,7 @@ const VirtualMachineCard = memo(
             <Typography noWrap component="span">
               {NAME}
             </Typography>
+            <IconsError />
             {error && (
               <Tooltip
                 arrow
@@ -171,6 +205,7 @@ VirtualMachineCard.propTypes = {
   onClickLabel: PropTypes.func,
   onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
+  globalErrors: PropTypes.array,
 }
 
 VirtualMachineCard.displayName = 'VirtualMachineCard'
