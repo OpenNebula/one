@@ -24,7 +24,6 @@
 #include "DefaultQuotas.h"
 #include "UserPool.h"
 #include "Zone.h"
-#include "NebulaLog.h"
 
 class LogDB;
 class FedLogDB;

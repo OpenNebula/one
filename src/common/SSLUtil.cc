@@ -340,7 +340,6 @@ namespace ssl_util
             if ( rc != -1 )
             {
                 result.append(out_c, rc);
-                rc = 0;
             }
             else
             {

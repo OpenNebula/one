@@ -27,7 +27,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "NebulaLog.h"
 #include "SqlDB.h"
 #include "ObjectSQL.h"
 

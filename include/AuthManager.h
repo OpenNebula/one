@@ -19,7 +19,6 @@
 
 #include <time.h>
 
-#include "NebulaLog.h"
 #include "Listener.h"
 #include "ProtocolMessages.h"
 #include "DriverManager.h"

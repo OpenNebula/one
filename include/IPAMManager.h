@@ -22,7 +22,6 @@
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
 #include "Listener.h"
-#include "NebulaLog.h"
 
 //Forward definitions
 class IPAMRequest;

@@ -1828,36 +1828,6 @@ private:
     std::string      deploy_id;
 
     /**
-     *  Memory in MB used by the VM
-     */
-    long int    memory;
-
-    /**
-     *  CPU usage (percent)
-     */
-    int         cpu;
-
-    /**
-     *  Network usage, transmitted bytes
-     */
-    long long   net_tx;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   net_rx;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   disk_actual;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   disk_virtual;
-
-    /**
      *  History record, for the current host
      */
     History *   history;

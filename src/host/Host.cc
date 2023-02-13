@@ -287,8 +287,7 @@ void Host::update_wilds()
                 wild << ", ";
             }
 
-            string wname;
-            wname = vatt->vector_value("VM_NAME");
+            string wname = vatt->vector_value("VM_NAME");
 
             if (wname.empty())
             {

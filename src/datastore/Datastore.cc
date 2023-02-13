@@ -94,7 +94,7 @@ void Datastore::disk_attribute(
         VirtualMachineDisk *    disk,
         const vector<string>&   inherit_attrs)
 {
-    string st, tm_mad;
+    string st, tm_mad_system;
     string inherit_val;
 
     disk->replace("DATASTORE", get_name());
@@ -105,17 +105,17 @@ void Datastore::disk_attribute(
 
     disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
-    tm_mad = disk->get_tm_mad_system();
+    tm_mad_system = disk->get_tm_mad_system();
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        tm_mad = one_util::trim(tm_mad);
-        one_util::toupper(tm_mad);
+        tm_mad_system = one_util::trim(tm_mad_system);
+        one_util::toupper(tm_mad_system);
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("CLONE_TARGET_" + tm_mad, st);
+        get_template_attribute("CLONE_TARGET_" + tm_mad_system, st);
 
         if (st.empty())
         {
@@ -132,9 +132,9 @@ void Datastore::disk_attribute(
         disk->replace("CLONE_TARGET", st);
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("LN_TARGET_" + tm_mad, st);
+        get_template_attribute("LN_TARGET_" + tm_mad_system, st);
 
         if (st.empty())
         {
@@ -181,9 +181,9 @@ void Datastore::disk_attribute(
         }
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("DISK_TYPE_" + tm_mad, st);
+        get_template_attribute("DISK_TYPE_" + tm_mad_system, st);
 
         if (!st.empty())
         {
@@ -202,15 +202,15 @@ void Datastore::disk_attribute(
      *  4. Default set to "raw"
      */
 
-    string type = disk->vector_value("TYPE");
+    string type_disk = disk->vector_value("TYPE");
 
-    one_util::toupper(type);
+    one_util::toupper(type_disk);
 
-    if (type!= "CDROM" && disk->is_volatile())
+    if (type_disk!= "CDROM" && disk->is_volatile())
     {
         string driver = get_ds_driver();
 
-        if (type == "FS") /* Volatile Datablock */
+        if (type_disk == "FS") /* Volatile Datablock */
         {
             if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
             {
