@@ -2951,6 +2951,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/image-tab.yaml\
                                 src/fireedge/etc/sunstone/user/file-tab.yaml\
                                 src/fireedge/etc/sunstone/user/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/user/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vnet-tab.yaml"
 
 #-----------------------------------------------------------------------------
