@@ -106,7 +106,7 @@ if [ "${LCM_STATE}" = '26' -a "${SNAP_ID}" = '-1' ]; then
     log "VM is running, trying blockcopy, fsfreeze, suspend"
 
     CPDS_CMD_EXPORT=$(cat <<EOF
-$(type retry_if| grep -v 'is a function')
+$(type retry_if_no_error| grep -v 'is a function')
 
 touch ${SRC_TEMP_PATH}
 if ! retry_if_no_error "active block job" 3 5 virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PATH} --wait --finish; then
