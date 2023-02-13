@@ -48,8 +48,8 @@ def system(cpu, mem)
         FREEMEMORY=#{16777216-used_memory}
         USEDCPU=#{used_cpu}
         FREECPU=#{800-used_cpu}
-        NETTX=0
-        NETRX=0
+        NETTX=1241307203246698
+        NETRX=50104108822222
     EOS
 end
 
