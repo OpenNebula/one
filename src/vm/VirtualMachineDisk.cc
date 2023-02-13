@@ -958,11 +958,9 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
         {
             long long original_size, size;
 
-            int rc;
-
             /* ---------- Update size on source image if needed ------------- */
-            rc  = (*it)->vector_value("SIZE", size);
-            rc += (*it)->vector_value("ORIGINAL_SIZE", original_size);
+            (*it)->vector_value("SIZE", size);
+            (*it)->vector_value("ORIGINAL_SIZE", original_size);
 
             if ( size > original_size )
             {

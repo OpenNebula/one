@@ -167,7 +167,7 @@ void VirtualMachineXML::init_attributes()
                 continue;
             }
 
-            std::string reqs, rank;
+            std::string reqs, sched_rank;
             int nic_id;
 
             nic_template.get("NIC_ID", nic_id);
@@ -192,9 +192,9 @@ void VirtualMachineXML::init_attributes()
                 the_nic->set_requirements(reqs);
             }
 
-            if ( nic_template.get("SCHED_RANK", rank) )
+            if ( nic_template.get("SCHED_RANK", sched_rank) )
             {
-                the_nic->set_rank(rank);
+                the_nic->set_rank(sched_rank);
             }
         }
 

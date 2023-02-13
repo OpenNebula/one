@@ -68,7 +68,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     int img_id;
 
     Image::ImageType  type;
-    Image::ImageState state;
+    Image::ImageState st;
 
     DatastorePool * ds_pool = nd.get_dspool();
     int             ds_id;
@@ -111,7 +111,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    state = img->get_state();
+    st = img->get_state();
 
     ds_id = img->get_ds_id();
     type  = img->get_type();
@@ -138,7 +138,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    if ( state != Image::READY )
+    if ( st != Image::READY )
     {
         ostringstream oss;
 
