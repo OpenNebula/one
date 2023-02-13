@@ -2932,9 +2932,9 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
             if ( imagem->flatten_increments(image_id, ds_id, oss.str(), error) != 0 )
             {
-                ostringstream oss;
+                oss.str("");
 
-                oss << "backup_success, cannot flatten backup increments for image " 
+                oss << "backup_success, cannot flatten backup increments for image "
                     << image_id << " : " << error;
 
                 NebulaLog::error("LCM", oss.str());

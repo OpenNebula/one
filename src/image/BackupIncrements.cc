@@ -157,7 +157,7 @@ int BackupIncrements::update_increments(const std::string& incs, const std::stri
             return -1;
         }
 
-        Increment * inc = increments.get_increment(id);
+        inc = increments.get_increment(id);
 
         if ( inc == nullptr )
         {
