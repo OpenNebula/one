@@ -17,12 +17,12 @@
 import PropTypes from 'prop-types'
 import { useMemo } from 'react'
 
-import { Box, Chip } from '@mui/material'
+import { Alert, Box, Chip, Grid } from '@mui/material'
 import clsx from 'clsx'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
+
 import {
-  // types
   UseRowSelectRowProps,
   useFilters,
   useGlobalFilter,
@@ -73,6 +73,7 @@ const EnhancedTable = ({
   rootProps = {},
   searchProps = {},
   noDataMessage,
+  messages = [],
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -186,6 +187,26 @@ const EnhancedTable = ({
 
   const canResetFilter = state.filters?.length > 0 || state.sortBy?.length > 0
 
+  const messageValues = messages.filter(
+    (messageValue) => messageValue?.rows?.length
+  )
+  const MessagesRowsAlerts = () => {
+    let grid = 12
+    messageValues.length && (grid = grid / messageValues.length)
+
+    return (
+      <Grid container spacing={2}>
+        {messageValues.map((value, index) => (
+          <Grid item xs={grid} key={`messageAlert-${index}`}>
+            <Alert icon={value?.icon || ''} severity={value?.type || 'info'}>
+              {value?.message || ''}
+            </Alert>
+          </Grid>
+        ))}
+      </Grid>
+    )
+  }
+
   return (
     <Box
       {...getTableProps()}
@@ -233,7 +254,6 @@ const EnhancedTable = ({
           <GlobalFilter {...useTableProps} />
           {!disableGlobalSort && <GlobalSort {...useTableProps} />}
         </div>
-
         {/* SELECTED ROWS */}
         {displaySelectedRows && (
           <div>
@@ -259,6 +279,7 @@ const EnhancedTable = ({
       />
 
       <div className={clsx(styles.body, classes.body)}>
+        {messages && <MessagesRowsAlerts />}
         {/* NO DATA MESSAGE */}
         {!isLoading &&
           !isUninitialized &&
@@ -290,6 +311,9 @@ const EnhancedTable = ({
               key={key}
               original={original}
               value={values}
+              {...(messageValues.length && {
+                globalErrors: messageValues,
+              })}
               className={isSelected ? 'selected' : ''}
               {...(!cannotFilterByLabel && {
                 onClickLabel: (label) => {
@@ -358,6 +382,7 @@ EnhancedTable.propTypes = {
     PropTypes.node,
     PropTypes.bool,
   ]),
+  messages: PropTypes.array,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'
