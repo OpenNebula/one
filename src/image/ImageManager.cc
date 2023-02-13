@@ -141,7 +141,6 @@ void ImageManager::timer_action()
     vector<int>           datastores;
 
     Nebula& nd             = Nebula::instance();
-    DatastorePool * dspool = nd.get_dspool();
     RaftManager * raftm    = nd.get_raftm();
 
     if ( !raftm->is_leader() && !raftm->is_solo() )
@@ -176,7 +175,6 @@ void ImageManager::monitor_datastore(int ds_id)
     bool shared;
 
     Nebula& nd             = Nebula::instance();
-    DatastorePool * dspool = nd.get_dspool();
 
     Datastore::DatastoreType ds_type;
 

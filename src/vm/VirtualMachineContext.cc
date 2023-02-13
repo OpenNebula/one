@@ -574,7 +574,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
             ImagePool * ipool = nd.get_ipool();
 
             Image::ImageType type;
-            Image::ImageState state;
+            Image::ImageState st;
 
             for ( auto iid : img_ids )
             {
@@ -584,7 +584,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
                                << img->get_name() << "' ";
 
                     type  = img->get_type();
-                    state = img->get_state();
+                    st = img->get_state();
 
                     if (type != Image::CONTEXT)
                     {
@@ -593,7 +593,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
                         return -1;
                     }
 
-                    if ( state != Image::READY )
+                    if ( st != Image::READY )
                     {
                         ostringstream oss;
 

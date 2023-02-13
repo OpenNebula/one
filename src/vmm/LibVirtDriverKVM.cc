@@ -1714,12 +1714,12 @@ int LibVirtDriver::deployment_description_kvm(
             if ( type == "spice" )
             {
                 // Spice password must be 60 characters maximum
-                passwd = passwd.substr(0, VirtualMachine::MAX_SPICE_PASSWD_LENGTH);
+                passwd.resize(VirtualMachine::MAX_SPICE_PASSWD_LENGTH);
             }
             else if ( type == "vnc" )
             {
                 // Vnc password must be 8 characters maximum
-                passwd = passwd.substr(0, VirtualMachine::MAX_VNC_PASSWD_LENGTH);
+                passwd.resize(VirtualMachine::MAX_VNC_PASSWD_LENGTH);
             }
 
             const_cast<VectorAttribute*>(graphics)->replace("PASSWD", passwd);
@@ -1936,8 +1936,6 @@ int LibVirtDriver::deployment_description_kvm(
         if ( iothreads > 0 )
         {
             file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
-
-            iothread_actual = (iothread_actual % iothreads) + 1;
         }
 
         file << "/>" << endl;

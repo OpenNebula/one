@@ -63,15 +63,15 @@ int HookStateImage::parse_template(Template * tmpl, std::string& error_str)
         return -1;
     }
 
-    Image::ImageState state = Image::str_to_state(state_str);
+    Image::ImageState st = Image::str_to_state(state_str);
 
-    if ( state == Image::INIT )
+    if ( st == Image::INIT )
     {
         error_str = "Invalid or unkown STATE condition: " + state_str;
         return -1;
     }
 
-    tmpl->replace("STATE", Image::state_to_str(state));
+    tmpl->replace("STATE", Image::state_to_str(st));
 
     return 0;
 }

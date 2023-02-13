@@ -38,7 +38,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( owner_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( owner_m == 1 )
@@ -62,7 +62,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( group_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( group_m == 1 )
@@ -86,7 +86,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( other_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( other_m == 1 )

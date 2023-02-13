@@ -879,7 +879,7 @@ void RaftManager::request_vote()
                     return;
                 }
             }
-            else if ( success == true )
+            else // success == true
             {
                 granted_votes++;
 

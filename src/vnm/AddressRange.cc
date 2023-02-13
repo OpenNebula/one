@@ -160,10 +160,10 @@ int AddressRange::init_ipv6_static(string& error_msg)
 
     if ( attr->vector_value("SIZE").empty() )
     {
-        unsigned long int size = pl <= 64 ? std::numeric_limits<unsigned long int>::max()
+        unsigned long int s = pl <= 64 ? std::numeric_limits<unsigned long int>::max()
             : 1UL << (128 - pl);
 
-        attr->replace("SIZE", size);
+        attr->replace("SIZE", s);
     }
 
     return 0;
@@ -872,7 +872,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-int AddressRange::mac_to_i(string mac, unsigned int i_mac[]) const
+int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
 {
     istringstream iss;
 
@@ -915,7 +915,7 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string AddressRange::mac_to_s(const unsigned int i_mac[]) const
+string AddressRange::mac_to_s(const unsigned int i_mac[])
 {
     ostringstream oss;
     unsigned int  temp_byte;
@@ -951,7 +951,7 @@ string AddressRange::mac_to_s(const unsigned int i_mac[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
+int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip)
 {
     istringstream iss;
     size_t        pos=0;
@@ -1000,7 +1000,7 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string AddressRange::ip_to_s(unsigned int i_ip) const
+string AddressRange::ip_to_s(unsigned int i_ip)
 {
     ostringstream oss;
     unsigned int  temp_byte;
@@ -1025,7 +1025,7 @@ string AddressRange::ip_to_s(unsigned int i_ip) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip6_to_i(const string& _ip, unsigned int i_ip[]) const
+int AddressRange::ip6_to_i(const string& _ip, unsigned int i_ip[])
 {
     struct in6_addr s6;
 
@@ -1052,7 +1052,7 @@ int AddressRange::ip6_to_i(const string& _ip, unsigned int i_ip[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
+int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[])
 {
     struct in6_addr s6;
 
@@ -1079,7 +1079,7 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::ip6_to_s(const unsigned int prefix[],
-        const unsigned int mac[], string& ip6_s) const
+        const unsigned int mac[], string& ip6_s)
 {
     unsigned int eui64[2];
     unsigned int mlow = mac[0];
@@ -1108,7 +1108,7 @@ int AddressRange::ip6_to_s(const unsigned int prefix[],
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::ip6_to_s(const unsigned int ip6_i[], string& ip6_s) const
+int AddressRange::ip6_to_s(const unsigned int ip6_i[], string& ip6_s)
 {
     struct in6_addr ip6;
     char dst[INET6_ADDRSTRLEN];

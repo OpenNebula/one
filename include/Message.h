@@ -175,7 +175,7 @@ private:
     /**
      *  Message fields
      */
-    E _type;
+    E _type = E::UNDEFINED;
 
     std::string _status = std::string("-");
 

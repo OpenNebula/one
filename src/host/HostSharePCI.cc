@@ -340,9 +340,7 @@ void HostSharePCI::clear()
 int HostSharePCI::get_pci_value(const char * name,
     const VectorAttribute * pci_device, unsigned int &pci_value)
 {
-    string temp;
-
-    temp = pci_device->vector_value(name);
+    string temp = pci_device->vector_value(name);
 
     if (temp.empty())
     {
