@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
-import vmApi, { useUpdateUserTemplateMutation } from 'client/features/OneApi/vm'
-import { VirtualMachineCard } from 'client/components/Cards'
 import { ConsoleButton } from 'client/components/Buttons'
-import { jsonToXml } from 'client/models/Helper'
+import { VirtualMachineCard } from 'client/components/Cards'
 import { VM_ACTIONS } from 'client/constants'
+import vmApi, { useUpdateUserTemplateMutation } from 'client/features/OneApi/vm'
+import { jsonToXml } from 'client/models/Helper'
 
 const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
 const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 const Row = memo(
-  ({ original, value, onClickLabel, ...props }) => {
+  ({ original, value, onClickLabel, globalErrors, ...props }) => {
     const [update] = useUpdateUserTemplateMutation()
 
     const state = vmApi.endpoints.getVms.useQueryState(undefined, {
@@ -54,6 +54,7 @@ const Row = memo(
         rootProps={props}
         onClickLabel={onClickLabel}
         onDeleteLabel={handleDeleteLabel}
+        globalErrors={globalErrors}
         actions={
           <>
             {CONNECTION_TYPES.map((connectionType) => (
@@ -78,6 +79,7 @@ Row.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  globalErrors: PropTypes.array,
 }
 
 Row.displayName = 'VirtualMachineRow'
