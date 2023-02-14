@@ -17,6 +17,7 @@
 #include "MySqlDB.h"
 #include <mysql/errmsg.h>
 #include <mysqld_error.h>
+#include "NebulaLog.h"
 
 /*********
  * Doc: https://dev.mysql.com/doc/refman/8.0/en/c-api.html
