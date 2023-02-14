@@ -2940,7 +2940,6 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
             oss << "<EXTRA_DATA>"
                 << "<KEEP_LAST>" << keep_last << "</KEEP_LAST>"
-                << "<VM_ID>" << vid << "</VM_ID>"
                 << "</EXTRA_DATA>";
 
             if ( imagem->flatten_increments(image_id, ds_id, oss.str(), error) != 0 )

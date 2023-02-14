@@ -66,6 +66,7 @@ ds_id      = tokens[0].to_i
 snaps      = tokens[1].split(',').map {|s| s.split(':')[1] }
 disk_path  = tokens[2..].join('/')
 disk_index = File.basename(disk_path).split('.')[1]
+vm_id      = disk_path.match('/(\d+)/backup/[^/]+$')[1].to_i
 
 begin
     # Do a sanity check if Restic is available/enabled.
@@ -81,12 +82,11 @@ begin
 
     rc = backup_ds.info(true)
 
-    raise StandardError, rc.message \
-        if OpenNebula.is_error?(backup_ds)
+    raise StandardError, rc.message if OpenNebula.is_error?(backup_ds)
 
     # Pull from Restic, then post-process qcow2 disks.
 
-    rds = Restic.new backup_ds.to_xml
+    rds = Restic.new backup_ds.to_xml, :vm_id => vm_id
 
     tmp_dir = "#{rds.tmp_dir}/#{SecureRandom.uuid}"
     FileUtils.mkdir_p tmp_dir
@@ -101,8 +101,7 @@ begin
         mv '#{tmp_dir}/#{File.basename(disk_paths.last)}' '#{tmp_dir}/disk.#{disk_index}'
     EOS
 
-    raise StandardError, rc.stderr \
-        if rc.code != 0
+    raise StandardError, rc.stderr if rc.code != 0
 
     # Return shell code snippets according to the downloader's interface.
 

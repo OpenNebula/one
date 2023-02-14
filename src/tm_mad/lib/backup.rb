@@ -78,8 +78,10 @@ module TransferManager
 
             @increments[0] = @action.elements["#{prefix}/SOURCE"].text if @increments.empty?
 
+            # NOTE: In the case of backup images, there should always be just a single ID in the VMS array.
+            @vm_id = @action.elements["#{prefix}/VMS/ID"].text.to_i
+
             @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
-            @vm_id     = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/VM_ID']&.text.to_i
         end
 
         def last
