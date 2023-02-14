@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import { AddCircledOutline, Group, Trash } from 'iconoir-react'
+import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
-import { useViews } from 'client/features/Auth'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { useViews } from 'client/features/Auth'
 import {
-  useCloneSegGroupMutation,
   useChangeSecGroupOwnershipMutation,
-  useRemoveSecGroupMutation,
+  useCloneSegGroupMutation,
   useCommitSegGroupMutation,
+  useRemoveSecGroupMutation,
 } from 'client/features/OneApi/securityGroup'
 
-import { ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
-import { CloneForm } from 'client/components/Forms/SecurityGroups'
+import { CloneForm, CommitForm } from 'client/components/Forms/SecurityGroups'
+import { ChangeGroupForm, ChangeUserForm } from 'client/components/Forms/Vm'
 import {
-  createActions,
   GlobalAction,
+  createActions,
 } from 'client/components/Tables/Enhanced/Utils'
 
 import { Tr, Translate } from 'client/components/HOC'
-import { T, SEC_GROUP_ACTIONS, RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, SEC_GROUP_ACTIONS, T } from 'client/constants'
 
 const ListSecGroupNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -163,16 +163,17 @@ const Actions = () => {
             color: 'secondary',
             options: [
               {
-                isConfirmDialog: true,
                 dialogProps: {
                   title: T.Confirm,
                   dataCy: `modal-${SEC_GROUP_ACTIONS.COMMIT}`,
-                  children: (rows) =>
-                    MessageToConfirmAction(rows, T.CommitMessageSecGroups),
                 },
-                onSubmit: (rows) => async () => {
+                form: (rows) => CommitForm(),
+                onSubmit: (rows) => async (formData) => {
+                  const { recover } = formData
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => commitSecGroup({ id })))
+                  await Promise.all(
+                    ids.map((id) => commitSecGroup({ id, recover }))
+                  )
                 },
               },
             ],

@@ -13,29 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback } from 'client/utils/schema'
+import {
+  FIELDS,
+  SCHEMA,
+} from 'client/components/Forms/SecurityGroups/CommitForm/schema'
+import { createForm } from 'client/utils'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CloneForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CloneForm' }, configProps)
+const cloneSecGroupForm = createForm(SCHEMA, FIELDS)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CreateForm' }, configProps)
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CommitForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CommitForm' }, configProps)
-
-export { CloneForm, CreateForm, CommitForm }
+export default cloneSecGroupForm
