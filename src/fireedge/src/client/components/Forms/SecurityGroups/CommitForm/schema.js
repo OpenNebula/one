@@ -13,29 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback } from 'client/utils/schema'
+import { boolean, object } from 'yup'
+
+import { INPUT_TYPES, T } from 'client/constants'
+import { Field, getValidationFromFields } from 'client/utils'
+
+const RECOVER = {
+  name: 'recover',
+  label: T.RecoverCommitMessageSecGroups,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
+  grid: { md: 12 },
+}
 
 /**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ * @returns {Field[]} Fields
  */
-const CloneForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CloneForm' }, configProps)
+export const FIELDS = () => [RECOVER]
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CreateForm' }, configProps)
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CommitForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CommitForm' }, configProps)
-
-export { CloneForm, CreateForm, CommitForm }
+export const SCHEMA = object(getValidationFromFields(FIELDS()))
