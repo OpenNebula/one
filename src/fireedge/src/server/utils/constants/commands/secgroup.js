@@ -106,7 +106,7 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        vms: {
+        recover: {
           from: postBody,
           default: false,
         },

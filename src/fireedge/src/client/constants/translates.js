@@ -1164,6 +1164,8 @@ module.exports = {
     This action will force the propagation of security group changes to VMs. 
     The operation takes time to iterate over all VMs in the security group, 
     the progress can be checked in the "VMs" panel.`,
+  RecoverCommitMessageSecGroups:
+    'If set the commit operation will only operate on outdated and error VMs',
   /** Image */
   NotVmsCurrentyImage: 'There are currently no VMs associated with this image',
   NotSnapshotCurrenty:
