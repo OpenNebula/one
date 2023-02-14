@@ -2870,10 +2870,9 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
         backups.last_backup_clear();
 
-        vmpool->update(vm.get());
-
-        if (delete_ids.size() > 0) // FULL & backups > keep_last
+        if (delete_ids.size() > 0)
         {
+            // FULL & backups > keep_last
             ostringstream oss;
 
             oss << "Removing backup snapshots:";
@@ -2885,14 +2884,28 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
             vm->log("LCM", Log::INFO, oss.str());
         }
-        else if (keep_last > 0 && increments > keep_last) // INCREMENTAL & increments > keep_last
+        else if (keep_last > 0 && increments > keep_last)
         {
+            // INCREMENTAL & increments > keep_last
             ostringstream oss;
 
             oss << "Removing " << increments - keep_last << " backup increments";
 
             vm->log("LCM", Log::INFO, oss.str());
+
+            //Rollback state to prevent backup operations while increment_flatten
+            if ( vm->get_lcm_state() == VirtualMachine::RUNNING)
+            {
+                vm->set_state(VirtualMachine::BACKUP);
+            }
+            else
+            {
+                vm->set_state(VirtualMachine::ACTIVE);
+                vm->set_state(VirtualMachine::BACKUP_POWEROFF);
+            }
         }
+
+        vmpool->update(vm.get());
 
         vm.reset();
 
