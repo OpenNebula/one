@@ -21,21 +21,32 @@ import DatastoresTable, {
 } from 'client/components/Forms/Backup/RestoreForm/Steps/DatastoresTable'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps(
-  (app) => [BasicConfiguration, DatastoresTable].filter(Boolean),
-  {
-    transformInitialValue: (app, schema) =>
-      schema.cast({}, { context: { app } }),
-    transformBeforeSubmit: (formData) => {
-      const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
-        formData
+const Steps = createSteps([BasicConfiguration, DatastoresTable], {
+  transformInitialValue: (increments, schema) => {
+    const castedValuesBasic = schema.cast(
+      { [BASIC_ID]: { increments } },
+      { stripUnknown: true }
+    )
 
-      return {
-        datastore: datastore?.ID,
-        ...configuration,
-      }
-    },
-  }
-)
+    const castedValuesDatastore = schema.cast(
+      { [DATASTORE_ID]: {} },
+      { stripUnknown: true }
+    )
+
+    return {
+      [BASIC_ID]: castedValuesBasic[BASIC_ID],
+      [DATASTORE_ID]: castedValuesDatastore[DATASTORE_ID],
+    }
+  },
+  transformBeforeSubmit: (formData) => {
+    const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
+      formData
+
+    return {
+      datastore: datastore?.ID,
+      ...configuration,
+    }
+  },
+})
 
 export default Steps
