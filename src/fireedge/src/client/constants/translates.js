@@ -413,6 +413,8 @@ module.exports = {
   Incremental: 'Incremental',
   Mode: 'Mode',
   ResetBackup: 'Reset',
+  IncrementId: 'Increment ID',
+  RestoreBackup: 'Restore backup',
 
   /* sections - templates & instances */
   Instances: 'Instances',

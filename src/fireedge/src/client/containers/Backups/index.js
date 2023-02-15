@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+import { Box, Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
-import { useLazyGetImageQuery } from 'client/features/OneApi/image'
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import SplitPane from 'client/components/SplitPane'
 import { BackupsTable } from 'client/components/Tables'
 import BackupActions from 'client/components/Tables/Backups/actions'
 import BackupTabs from 'client/components/Tabs/Backup'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
-import { T, Image } from 'client/constants'
+import { Image, T } from 'client/constants'
+import { useLazyGetImageQuery } from 'client/features/OneApi/image'
 
 /**
  * Displays a list of Backups with a split pane between the list and selected row(s).
@@ -38,7 +38,7 @@ import { T, Image } from 'client/constants'
  */
 function Backups() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
-  const actions = BackupActions()
+  const actions = BackupActions(selectedRows)
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
