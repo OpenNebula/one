@@ -679,7 +679,6 @@ class KVMDomain
             Nbd.stop_nbd
         end
 
-        # TODO: Check if baking files needs bitmap
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
 
@@ -708,6 +707,12 @@ class KVMDomain
             ddisk = "#{@bck_dir}/disk.#{did}.0"
 
             sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
+
+            if @checkpoint
+                sdisk.bitmaps.each {|bm| sdisk.bitmap(bm['name'], :remove => '') }
+                sdisk.bitmap("one-#{@vid}-0", :add => '')
+            end
+
             sdisk.bitmap("one-#{@vid}-0", :add => '') if @checkpoint
         end
 
