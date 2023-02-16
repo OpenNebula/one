@@ -514,9 +514,10 @@ int ImageManager::delete_image(int iid, string& error_str)
                 auto lstate = vm->get_lcm_state();
                 auto bmode  = vm->backups().mode();
 
-                if ((lstate == VirtualMachine::BACKUP ||
+                if (vm->backups().active_flatten() ||
+                     ((lstate == VirtualMachine::BACKUP ||
                         lstate == VirtualMachine::BACKUP_POWEROFF) &&
-                        (bmode == Backups::INCREMENT || !cforget))
+                        (bmode == Backups::INCREMENT || !cforget)))
                 {
                     error_str = "Active backup on the associated VM. Wait till "
                         "it finish to delete the backup Image";

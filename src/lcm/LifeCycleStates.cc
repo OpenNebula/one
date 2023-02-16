@@ -2893,16 +2893,8 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
             vm->log("LCM", Log::INFO, oss.str());
 
-            //Rollback state to prevent backup operations while increment_flatten
-            if ( vm->get_lcm_state() == VirtualMachine::RUNNING)
-            {
-                vm->set_state(VirtualMachine::BACKUP);
-            }
-            else
-            {
-                vm->set_state(VirtualMachine::ACTIVE);
-                vm->set_state(VirtualMachine::BACKUP_POWEROFF);
-            }
+            //Flag the flatten operation to prevent race coditions with backup
+            backups.active_flatten(true);
         }
 
         vmpool->update(vm.get());

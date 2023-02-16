@@ -2756,6 +2756,15 @@ int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
     // -------------------------------------------------------------------------
     VirtualMachine::VmState state = vm->get_state();
 
+    if ( vm->backups().active_flatten() )
+    {
+        oss << "Could not create a new backup for VM " << vid
+            << ", consolidating backup increments";
+        error_str = oss.str();
+
+        return -1;
+    }
+
     switch (state)
     {
         case VirtualMachine::ACTIVE:

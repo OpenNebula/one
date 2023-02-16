@@ -38,6 +38,7 @@ class ObjectXML;
  *     <LAST_DATASTORE_ID> The dastore ID used to store the active backups(*)
  *     <LAST_BACKUP_ID> ID of the active backup(*)
  *     <LAST_BACKUP_SIZE> SIZE of the active backup(*)
+ *     <ACTIVE_FLATTEN> if true current chain is being flatten
  *   <BACKUP_IDS>
  *     <ID> ID of the image with a valid backup
  *
@@ -184,6 +185,11 @@ public:
         config.replace("INCREMENTAL_BACKUP_ID", id);
     }
 
+    void active_flatten(bool status)
+    {
+        config.replace("ACTIVE_FLATTEN", status);
+    }
+
     /* ---------------------------------------------------------------------- */
 
     int last_datastore_id() const
@@ -241,6 +247,15 @@ public:
         }
 
         return kl;
+    }
+
+    bool active_flatten() const
+    {
+        bool af = false;
+
+        config.get("ACTIVE_FLATTEN", af);
+
+        return af;
     }
 
     /* ---------------------------------------------------------------------- */

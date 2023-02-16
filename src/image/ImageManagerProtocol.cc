@@ -959,31 +959,16 @@ void ImageManager::_increment_flatten(unique_ptr<image_msg_t> msg)
     /* ---------------------------------------------------------------------- */
     /* Update VM state to RUNNING/POWEROFF after increment_flatten            */
     /* ---------------------------------------------------------------------- */
-    if ( vm_id == -1 )
+    if ( vm_id != -1 )
     {
-        return;
-    }
+        VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
 
-    VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
-
-    if (auto vm = vmpool->get(vm_id))
-    {
-        switch(vm->get_lcm_state())
+        if (auto vm = vmpool->get(vm_id))
         {
-            case VirtualMachine::BACKUP:
-                vm->set_state(VirtualMachine::RUNNING);
-                break;
+            vm->backups().active_flatten(false);
 
-            case VirtualMachine::BACKUP_POWEROFF:
-                vm->set_state(VirtualMachine::POWEROFF);
-                vm->set_state(VirtualMachine::LCM_INIT);
-                break;
-
-            default:
-                return;
+            vmpool->update(vm.get());
         }
-
-        vmpool->update(vm.get());
     }
 }
 
