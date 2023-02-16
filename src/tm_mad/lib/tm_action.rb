@@ -91,12 +91,8 @@ module TransferManager
                 #{opt[:cmds]}
             EOS
 
-            ssh_opts = ''
-
-            if opt[:forward]
-                ssh_opts = '-o ForwardAgent=yes -o ControlMaster=no ' \
-                           '-o ControlPath=none'
-            end
+            ssh_opts = '-o ControlMaster=no -o ControlPath=none'
+            ssh_opts << ' -o ForwardAgent=yes' if opt[:forward]
 
             shell = 'bash -s'
 
