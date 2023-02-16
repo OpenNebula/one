@@ -128,7 +128,7 @@ module TransferManager
             <<~EOS
                 mkdir -p #{spath}
 
-                (flock -n #{FD} || exit 1
+                (flock -w 180 #{FD} || exit 1
                  echo '#{slice}' > #{spath}/#{sname}
                  systemctl --user daemon-reload
                 ) #{FD}> #{spath}/.lock
