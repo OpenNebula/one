@@ -486,7 +486,9 @@ define(function(require) {
     "VM.backup_dialog": {
       type: "custom",
       call: function(){
-        Sunstone.getDialog(BACKUP_DIALOG_ID).show();
+        var dialog = Sunstone.getDialog(BACKUP_DIALOG_ID);
+        dialog.reset();
+        dialog.show();
       }
     },
     "VM.backup": {
