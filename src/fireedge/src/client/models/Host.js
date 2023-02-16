@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { prettyBytes } from 'client/utils'
 import {
-  DEFAULT_CPU_MODELS,
   CUSTOM_HOST_HYPERVISOR,
-  Host,
+  DEFAULT_CPU_MODELS,
   HOST_STATES,
-  STATES,
   HYPERVISORS,
+  Host,
   NumaNode,
   PciDevice,
+  STATES,
 } from 'client/constants'
 import { useGetOneConfigQuery } from 'client/features/OneApi/system'
+import { prettyBytes } from 'client/utils'
 
 /**
  * Returns information about the host state.
@@ -106,11 +106,15 @@ export const getPciDevices = (host) =>
  * @param {Host[]} hosts - Hosts
  * @returns {Array} List of KVM CPU Models from the pool
  */
-export const getKvmCpuModels = (hosts = []) =>
-  hosts
+export const getKvmCpuModels = (hosts = []) => {
+  const hostData = hosts
     .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
     .map((host) => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
     .flat()
+
+  // Removes the repeated
+  return [...new Set(hostData)]
+}
 
 /**
  * Returns list of KVM Machines available from the host pool.
@@ -124,7 +128,8 @@ export const getKvmMachines = (hosts = []) => {
     .map((host) => host.TEMPLATE?.KVM_MACHINES.split(' '))
     .flat()
 
-  return [DEFAULT_CPU_MODELS, ...machineTypes]
+  // Removes the repeated
+  return [...new Set([DEFAULT_CPU_MODELS, ...machineTypes])]
 }
 
 /**
