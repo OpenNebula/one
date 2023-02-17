@@ -1,12 +1,18 @@
 ---
 # Ceph basics
 ceph_origin: repository
-ceph_repository: community
-ceph_rhcs_version: 6
-ceph_stable_release: pacific
-ceph_stable_release_num: 16
+ceph_repository: uca
+ceph_rhcs_version: 7
+ceph_stable_release: quincy
+ceph_stable_release_num: 17
 dashboard_enabled: false
 configure_firewall: false
+ceph_stable_openstack_release_uca: yoga
+
+# ceph overrides (applying in ceph.conf)
+ceph_conf_overrides:
+  global:
+    bluefs_buffered_io: false
 
 # OSD
 osd_objectstore: bluestore
@@ -20,7 +26,7 @@ ceph_opennebula_mon_pools:
       type: replicated
       set:
           - name: size
-            value: 2
+            value: 3
 
 # ceph default vars
 <%= vars %>
