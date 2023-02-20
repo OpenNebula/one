@@ -173,7 +173,7 @@ define(function(require) {
           !isNaN(parseInt(leases[action.ACTION].time)) &&
           leases[action.ACTION].color
         ){
-          var endTime = (action.TIME.startsWith("+")? action.TIME : action.TIME - startTime).toString();
+          var endTime = (action.TIME.startsWith("+")? action.TIME : action.TIME - element.STIME).toString();
 
           if(checkTime(element.STIME, endTime)){
             rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:endTime, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
