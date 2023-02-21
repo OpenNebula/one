@@ -2150,6 +2150,7 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/lxd_downloader.sh \
                              src/datastore_mad/remotes/docker_downloader.sh \
                              src/datastore_mad/remotes/restic_downloader.rb \
+                             src/datastore_mad/remotes/rsync_downloader.rb \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
                              src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
@@ -2236,7 +2237,8 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/rm \
                          src/datastore_mad/remotes/rsync/backup \
                          src/datastore_mad/remotes/rsync/restore \
-                         src/datastore_mad/remotes/rsync/export"
+                         src/datastore_mad/remotes/rsync/export \
+                         src/datastore_mad/remotes/rsync/increment_flatten"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 
