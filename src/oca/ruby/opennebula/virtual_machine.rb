@@ -803,7 +803,7 @@ module OpenNebula
         # @param ds_id  [Integer] Id of the datastore to save the backup
         # @return [Integer, OpenNebula::Error] ID of the resulting BACKUP image
         # in case of success, Error otherwise.
-        def backup(ds_id, reset = false)
+        def backup(ds_id = -1, reset = false)
             return @client.call(VM_METHODS[:backup], @pe_id, ds_id, reset)
         end
 

@@ -1573,11 +1573,7 @@ CommandParser::CmdParser.new(ARGV) do
                          OneVMHelper::YEARLY,
                          OneVMHelper::HOURLY,
                          OneVMHelper::END_TIME] do
-        if options[:datastore].nil?
-            STDERR.puts 'Datastore to save the backup is mandatory: '
-            STDERR.puts "\t -d datastore_id | name"
-            exit(-1)
-        end
+        options[:datastore] = -1 if options[:datastore].nil?
 
         reset = options[:reset] == true
 
