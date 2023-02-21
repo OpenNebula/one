@@ -46,6 +46,7 @@ module TransferManager
 
         # Given a sorted list of qcow2 files with backing chain properly reconstructed,
         # return a shell recipe that merges it into a single qcow2 image.
+        # rubocop:disable Layout/LineLength
         def self.merge_chain(paths, workdir = nil, sparsify = false)
             return '' unless paths.size > 1
 
@@ -67,6 +68,7 @@ module TransferManager
 
             script.join("\n")
         end
+        # rubocop:enable Layout/LineLength
 
         def initialize(action_xml)
             @action = REXML::Document.new(action_xml).root
