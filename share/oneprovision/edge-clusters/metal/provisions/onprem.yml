@@ -32,11 +32,16 @@ extends:
     - onprem.d/networks.yml
 
 #-------------------------------------------------------------------------------
-# playbook: Ansible playbook used for hosts configuration. Check ansible/aws.yml
-# for the specific roles applied.
+# ansible
+#   ver_min: ansible core required minimal version (>=)
+#   ver_max: ansible core required maximal version (<)
+#   playbook: Ansible playbook used for hosts configuration.
 #-------------------------------------------------------------------------------
-playbook:
-  - onprem
+ansible:
+  ver_min: 2.8
+  ver_max: 2.13
+  playbook:
+    - onprem
 
 #-------------------------------------------------------------------------------
 # defaults: Common configuration attributes for provision objects

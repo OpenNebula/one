@@ -228,6 +228,17 @@ module OneProvision
             @body['ceph_vars']
         end
 
+        # Returns required ansible version pair
+        def ansible_ver
+            begin
+                min, max = @body['ansible']['ver_min'], @body['ansible']['ver_max']
+            rescue
+                Utils.fail('Provision is missing ansible min and max version')
+            end
+
+            [Gem::Version.new(min), Gem::Version.new(max)]
+        end
+
         # Returns vars
         def ceph_vars
             @body['ceph_vars']
@@ -293,8 +304,6 @@ module OneProvision
         #
         # @return [Integer] Provision ID
         def deploy(config, cleanup, timeout, skip, provider)
-            Ansible.check_ansible_version(nil) if skip == :none
-
             # Config contains
             #   :inputs -> array with user inputs values
             #   :config -> string with path to configuration file
@@ -899,7 +908,7 @@ module OneProvision
 
                 count.times.each do |idx|
                     Driver.retry_loop('Failed to create some host', self) do
-                        playbooks = cfg['playbook']
+                        playbooks = cfg['ansible']['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
                         h = Marshal.load(Marshal.dump(h_bck))
