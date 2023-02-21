@@ -156,7 +156,6 @@ module TransferManager
 
         NUMA_NODE_LIST = ['CPUS', 'MEMORY_NODE_ID', 'NODE_ID']
 
-
         OS_LIST = ['UUID']
 
         PCI_COMMON = ['ADDRESS', 'BUS', 'DOMAIN', 'FUNCTION', 'NUMA_NODE', 'PCI_ID', 'SLOT',
