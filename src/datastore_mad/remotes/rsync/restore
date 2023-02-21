@@ -22,14 +22,12 @@ if !ONE_LOCATION
     GEMS_LOCATION     = '/usr/share/one/gems'
     VMDIR             = '/var/lib/one'
     CONFIG_FILE       = '/var/lib/one/config'
-
     VAR_LOCATION      = '/var/lib/one'
 else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     VMDIR             = ONE_LOCATION + '/var'
     CONFIG_FILE       = ONE_LOCATION + '/var/config'
-
     VAR_LOCATION      = ONE_LOCATION + '/var'
 end
 
@@ -58,11 +56,10 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'base64'
-
-require 'CommandManager'
-require 'rexml/document'
 require 'opennebula'
 require 'opennebula/server_cipher_auth'
+require 'pathname'
+require 'rexml/document'
 
 require_relative '../../tm/lib/backup'
 require_relative '../../tm/lib/tm_action'
@@ -72,71 +69,87 @@ require_relative '../../tm/lib/tm_action'
 #   - vm.xml description
 #   - list of disks in the backup
 # ------------------------------------------------------------------------------
-drv_action  = Base64.decode64(ARGV[0])
+daction64   = ARGV[0]
 _request_id = ARGV[1]
 
-rds = REXML::Document.new(drv_action).root
-
 begin
-    buid = rds.elements['IMAGE/SOURCE'].text
-    iid  = rds.elements['IMAGE/ID'].text.to_i
-    dsid = rds.elements['DATASTORE/ID'].text.to_i
-    base = rds.elements['DATASTORE/BASE_PATH'].text
+    action = Base64.decode64 daction64
 
-    rsync_host = rds.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
-    rsync_user = rds.elements['DATASTORE/TEMPLATE/RSYNC_USER'].text
+    image = TransferManager::BackupImage.new(action)
 
-    vm_id = rds.elements['IMAGE/VMS[1]/ID'].text.to_i
-    image = TransferManager::BackupImage.new(drv_action)
+    xml = REXML::Document.new(action).root.elements
+
+    ds_id      = xml['DATASTORE/ID'].text.to_i
+    base_path  = xml['DATASTORE/BASE_PATH'].text
+    rsync_user = xml['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host = xml['DATASTORE/TEMPLATE/RSYNC_HOST'].text
 rescue StandardError => e
     STDERR.puts "Missing datastore or image attributes: #{e.message}"
-    exit(1)
+    exit(-1)
 end
 
 begin
-    username  = rds.elements['TEMPLATE/USERNAME'].text
-    dst_ds_id = rds.elements['DESTINATION_DS_ID'].text.to_i
+    username  = xml['TEMPLATE/USERNAME'].text
+    dst_ds_id = xml['DESTINATION_DS_ID'].text.to_i
 rescue StandardError
     STDERR.puts 'Cannot find USERNAME / DESTINATION_DS_ID'
-    exit(1)
+    exit(-1)
 end
 
-bk_path = "#{base}/#{vm_id}/#{buid}"
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
 
-rc = TransferManager::Action.ssh('list_bkp_files',
-                                 :host     => "#{rsync_user}@#{rsync_host}",
-                                 :cmds     => "ls -d #{bk_path}/*",
-                                 :nostdout => false)
-if rc.code != 0
-    STDERR.puts rc.stderr
-    exit(1)
+    snap_dirs = image.snapshots.map do |snap|
+        raw     = %(#{base_path}/#{image.vm_id}/#{snap}/)
+        cleaned = Pathname.new(raw).cleanpath.to_s
+        quoted  = %('#{cleaned}/')
+        quoted
+    end
+
+    script << %(find #{snap_dirs.join(' ')} -type f -name 'disk.*' -or -name 'vm.xml')
+
+    rc = TransferManager::Action.ssh 'list_files',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to list backup files: #{rc.stderr}" if rc.code != 0
+
+    stdout_lines = rc.stdout.lines.map(&:strip).reject(&:empty?)
+
+    disk_paths = stdout_lines.select do |line|
+        line.include?('/disk.')
+    end
+
+    vm_xml_path = stdout_lines.find do |line|
+        line.include?("/#{image.last}/vm.xml")
+    end
+
+    raise StandardError, 'Backup does not contain any disks or missing vm.xml' \
+        if disk_paths.empty? || vm_xml_path.nil?
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
 end
 
-disks       = []
-vm_xml_path = ''
+begin
+    rc = TransferManager::Action.ssh 'read_vm_xml',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :cmds     => "cat '#{vm_xml_path}'",
+                                     :nostdout => false,
+                                     :nostderr => false
 
-rc.stdout.each_line do |l|
-    l.delete('"').strip!
+    raise StandardError, "Unable to read vm.xml: #{rc.stderr}" if rc.code != 0
 
-    disks << l if l.match(/disk\.[0-9]+\.[0-9]+$/)
-    vm_xml_path = l if l.match(/vm\.xml$/)
+    vm_xml = rc.stdout
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
 end
-
-if disks.empty? || vm_xml_path.empty?
-    STDERR.puts 'Backup does not contain any disk or missing vm.xml'
-    exit(1)
-end
-
-rc = TransferManager::Action.ssh('gather_vm_xml',
-                                 :host     => "#{rsync_user}@#{rsync_host}",
-                                 :cmds     => "cat #{vm_xml_path}",
-                                 :nostdout => false)
-if rc.code != 0
-    STDERR.puts rc.stderr
-    exit(1)
-end
-
-vm_xml = rc.stdout
 
 # ------------------------------------------------------------------------------
 # Prepare an OpenNebula client to impersonate the target user
@@ -152,48 +165,47 @@ one_client = OpenNebula::Client.new(token)
 # Create backup object templates for VM and associated disk images
 # Monkey patch REXML::DOCUMENT to respond to []
 # ------------------------------------------------------------------------------
-rds.define_singleton_method('[]') {|xpath| elements[xpath].text }
+xml.define_singleton_method('[]') {|xpath| elements[xpath].text }
 
 restorer = TransferManager::BackupRestore.new(
     :vm_xml64  => vm_xml,
-    :backup_id => buid,
+    :backup_id => image.last,
     :bimage    => image,
-    :ds_id     => dsid,
-    :image_id  => iid,
-    :txml      => rds,
+    :ds_id     => ds_id,
+    :txml      => xml,
     :proto     => 'rsync'
 )
 
-br_disks = restorer.disk_images(disks)
+br_disks = restorer.disk_images(disk_paths)
 
-one_error = ''
-images    = []
+one_error       = ''
+restored_images = []
 
 # Create disk images
 br_disks.each do |_id, disk|
     # Fix image name - maybe not necessary any longer
     # disk[:template].gsub!(%r{(NAME = "[0-9]+-)[0-9]+/}, '\1')
-    image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
-    rc    = image.allocate(disk[:template], dst_ds_id)
+    restored_image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
+    rc             = restored_image.allocate(disk[:template], dst_ds_id)
 
     if OpenNebula.is_error?(rc)
         one_error = rc.message
         break
     end
 
-    disk[:image_id] = image.id
-    images << image.id
+    disk[:image_id] = restored_image.id
+    restored_images << restored_image.id
 end
 
 if !one_error.empty?
     message = "Error restoring disk image: #{one_error}"
 
-    if !images.empty?
-        message << " The following images were restored: #{images.join(' ')}"
+    if !restored_images.empty?
+        message << " The following images were restored: #{restored_images.join(' ')}"
     end
 
     STDERR.puts message
-    exit(1)
+    exit(-1)
 end
 
 # Create VM template
@@ -208,14 +220,14 @@ rc   = tmpl.allocate(vm_template)
 if OpenNebula.is_error?(rc)
     message = "Error creating VM template: #{rc.message}"
 
-    if !images.empty?
-        message << " The following images were restored: #{images.join(' ')}"
+    if !restored_images.empty?
+        message << " The following images were restored: #{restored_images.join(' ')}"
     end
 
     STDERR.puts message
-    exit(1)
+    exit(-1)
 end
 
-STDOUT.puts "#{tmpl.id} #{images.join(' ')}"
+STDOUT.puts "#{tmpl.id} #{restored_images.join(' ')}"
 
 exit(0)

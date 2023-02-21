@@ -67,6 +67,10 @@ begin
 
     image = TransferManager::BackupImage.new action
 
+    exit(0) if image.snapshots.size <= image.keep_last
+
+    snaps = image.snapshots.first(image.snapshots.size - image.keep_last + 1)
+
     xml = REXML::Document.new(action).root.elements
 
     base_path  = xml['DATASTORE/BASE_PATH'].text
@@ -77,30 +81,111 @@ rescue StandardError => e
     exit(-1)
 end
 
+# Gather and resolve paths.
+
 begin
     script = [<<~EOS]
         set -e -o pipefail; shopt -qs failglob
     EOS
 
-    snap_dirs = image.snapshots.map do |snap|
+    snap_dirs = snaps.map do |snap|
         raw     = %(#{base_path}/#{image.vm_id}/#{snap}/)
         cleaned = Pathname.new(raw).cleanpath.to_s
         quoted  = %('#{cleaned}/')
         quoted
     end
 
-    raise StandardError, 'Nothing to remove' if snap_dirs.empty?
+    script << %(find #{snap_dirs.join(' ')} -type f -name 'disk.*')
 
-    script << %(rm -rf #{snap_dirs.join(' ')})
-
-    rc = TransferManager::Action.ssh 'remove_snapshots',
+    rc = TransferManager::Action.ssh 'list_disks',
                                      :host     => "#{rsync_user}@#{rsync_host}",
                                      :forward  => true,
                                      :cmds     => script.join("\n"),
                                      :nostdout => false,
                                      :nostderr => false
 
-    raise StandardError, "Unable to remove snapshots: #{rc.stderr}" if rc.code != 0
+    raise StandardError, "Unable to list qcow2 images: #{rc.stderr}" if rc.code != 0
+
+    stdout_lines = rc.stdout.lines.map(&:strip).reject(&:empty?)
+
+    disks = { :by_snap => {}, :by_index => {} }
+
+    snaps.each do |snap|
+        disks[:by_snap][snap] = stdout_lines.select do |line|
+            line.include?("/#{snap}/disk.")
+        end
+    end
+
+    disks[:by_snap].values.flatten.each do |path|
+        name   = Pathname.new(path).basename.to_s
+        tokens = name.split('.')
+        (disks[:by_index][tokens[1]] ||= []) << path
+    end
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Reconstruct qcow2 chains for all viable disks.
+
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    disks[:by_index].each do |_, disk_paths|
+        script << image.class.reconstruct_chain(disk_paths)
+    end
+
+    rc = TransferManager::Action.ssh 'reconstruct_chains',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to reconstruct qcow2 chains: #{rc.stderr}" if rc.code != 0
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Merge qcow2 chains for all viable disks.
+
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    disks[:by_index].each do |_, disk_paths|
+        script << image.class.merge_chain(disk_paths)
+    end
+
+    # Calculate the new snapshot's size (sum of all qcow2 image sizes in the snapshot).
+    script << 'RC=`('
+    disks[:by_index].each do |_, disk_paths|
+        script << "qemu-img info --output json '#{disk_paths.last}';"
+    end
+    script << ')`'
+    script << %(SIZE=`jq --slurp 'map(."actual-size" | tonumber) | add' <<< "$RC"`)
+
+    to_delete = snap_dirs.first(snap_dirs.size - 1)
+    script << %(rm -rf #{to_delete.join(' ')}) unless to_delete.empty?
+
+    script << %(echo "$SIZE")
+
+    rc = TransferManager::Action.ssh 'flatten_chains',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to flatten increments: #{rc.stderr}" if rc.code != 0
+
+    new_size = rc.stdout.lines.last.strip.to_i / 1024**2
+
+    STDOUT.puts "#{new_size} #{image.chain_keep_last(snaps.last)}"
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
