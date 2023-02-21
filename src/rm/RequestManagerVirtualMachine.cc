@@ -3973,13 +3973,19 @@ void VirtualMachineBackup::request_execute(
 
     Backups::Mode mode;
     int li_id;
+    int bk_id = -1;
 
     // ------------------------------------------------------------------------
     // Get request parameters
     // ------------------------------------------------------------------------
     int  vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
-    int  backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int  backup_ds_id = -1;
     bool reset        = false;
+
+    if ( paramList.size() > 2 )
+    {
+        backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    }
 
     if ( paramList.size() > 3 )
     {
@@ -3997,6 +4003,8 @@ void VirtualMachineBackup::request_execute(
 
         mode  = vm->backups().mode();
         li_id = vm->backups().last_increment_id();
+
+        bk_id = vm->backups().incremental_backup_id();
     }
     else
     {
@@ -4004,6 +4012,25 @@ void VirtualMachineBackup::request_execute(
 
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    // Incremental backups use the current datastore if not resetting the chain
+    if ( mode == Backups::INCREMENT && !reset && li_id != -1 )
+    {
+        ImagePool* ipool = nd.get_ipool();
+
+        if (auto img = ipool->get_ro(bk_id))
+        {
+            backup_ds_id = img->get_ds_id();
+        }
+        else
+        {
+            att.resp_obj = PoolObjectSQL::IMAGE;
+            att.resp_id  = bk_id;
+
+            failure_response(NO_EXISTS, att);
+            return;
+        }
     }
 
     if ( auto ds = dspool->get_ro(backup_ds_id) )
