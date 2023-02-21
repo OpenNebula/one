@@ -539,7 +539,7 @@ const getDataZone = (zone = '0', configuredZones) => {
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
     if (Number.isInteger(parseInt(zone, 10))) {
-      rtn = zones.find((zn) => zn && zn.id && String(zn.id) === zone)
+      rtn = zones.find((zn) => zn && zn.id && String(zn.id) === String(zone))
     }
   }
 
