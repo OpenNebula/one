@@ -140,20 +140,23 @@ module TransferManager
         #-----------------------------------------------------------------------
         # Attributes that will be rejected when recovering the new template
         #-----------------------------------------------------------------------
+
         DISK_LIST = ['ALLOW_ORPHANS', 'CLONE', 'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE',
-                     'DATASTORE_ID', 'DEV_PREFIX', 'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE',
-                     'DRIVER', 'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
-                     'LN_TARGET', 'OPENNEBULA_MANAGED', 'ORIGINAL_SIZE', 'PERSISTENT', 'READONLY',
-                     'SAVE', 'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE', 'FORMAT']
+                     'DATASTORE_ID', 'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE', 'DRIVER',
+                     'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
+                     'LN_TARGET', 'OPENNEBULA_MANAGED', 'ORIGINAL_SIZE', 'PERSISTENT',
+                     'READONLY', 'SAVE', 'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE', 'FORMAT']
 
         NIC_LIST = ['AR_ID', 'BRIDGE', 'BRIDGE_TYPE', 'CLUSTER_ID', 'NAME', 'NETWORK_ID', 'NIC_ID',
-                    'TARGET', 'VLAN_ID', 'VN_MAD', 'MAC', 'VLAN_TAGGED_ID', 'PHYDEV']
+                    'TARGET', 'VLAN_ID', 'VN_MAD', 'VLAN_TAGGED_ID', 'PHYDEV']
 
         GRAPHICS_LIST = ['PORT']
 
         CONTEXT_LIST = ['DISK_ID', /ETH[0-9]?/, /PCI[0-9]?/]
 
         NUMA_NODE_LIST = ['CPUS', 'MEMORY_NODE_ID', 'NODE_ID']
+
+        OS_LIST = ['UUID']
 
         PCI_COMMON = ['ADDRESS', 'BUS', 'DOMAIN', 'FUNCTION', 'NUMA_NODE', 'PCI_ID', 'SLOT',
                       'VM_ADDRESS', 'VM_BUS', 'VM_DOMAIN', 'VM_FUNCTION', 'VM_SLOT']
@@ -208,7 +211,7 @@ module TransferManager
 
             return unless no_ip
 
-            NIC_LIST << ['IP', 'IP6', 'IP6_ULA', 'IP6_GLOBAL']
+            NIC_LIST << ['IP', 'IP6', 'IP6_ULA', 'IP6_GLOBAL', 'MAC']
             NIC_LIST.flatten!
         end
 
@@ -277,6 +280,7 @@ module TransferManager
             remove_keys(CONTEXT_LIST, template['CONTEXT'])
             remove_keys(GRAPHICS_LIST, template['GRAPHICS'])
             remove_keys(NUMA_NODE_LIST, template['NUMA_NODE'])
+            remove_keys(OS_LIST, template['OS'])
             remove_keys(PCI_MANUAL_LIST, template['PCI'])
 
             disks = [template['DISK']].flatten
