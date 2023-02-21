@@ -46,7 +46,7 @@ module TransferManager
 
         # Given a sorted list of qcow2 files with backing chain properly reconstructed,
         # return a shell recipe that merges it into a single qcow2 image.
-        def self.merge_chain(paths, workdir = nil)
+        def self.merge_chain(paths, workdir = nil, sparsify = false)
             return '' unless paths.size > 1
 
             clean = paths.first(paths.size - 1)
@@ -58,6 +58,10 @@ module TransferManager
 
             script << "qemu-img convert -O qcow2 '#{origfile}' '#{workfile}'"
             script << "mv '#{workfile}' '#{origfile}'"
+
+            if sparsify
+                script << "[ $(type -P virt-sparsify) ] && virt-sparsify -q --in-place '#{origfile}'"
+            end
 
             script << "rm -f #{clean.map {|p| "'#{p}'" }.join(' ')}" unless clean.empty?
 
