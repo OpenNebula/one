@@ -78,10 +78,12 @@ begin
 
     ds_hash = backup_ds.to_hash['DATASTORE']
 
-    base_path     = ds_hash['BASE_PATH']
-    rsync_user    = ds_hash['TEMPLATE']['RSYNC_USER'] || 'oneadmin'
-    rsync_host    = ds_hash['TEMPLATE']['RSYNC_HOST']
-    rsync_tmp_dir = ds_hash['TEMPLATE']['RSYNC_TMP_DIR'] || '/var/tmp'
+    base_path      = ds_hash['BASE_PATH']
+    rsync_user     = ds_hash['TEMPLATE']['RSYNC_USER'] || 'oneadmin'
+    rsync_host     = ds_hash['TEMPLATE']['RSYNC_HOST']
+    rsync_tmp_dir  = ds_hash['TEMPLATE']['RSYNC_TMP_DIR'] || '/var/tmp'
+    rsync_sparsify = ds_hash['TEMPLATE']['RSYNC_SPARSIFY'] || 'no'
+    rsync_sparsify = rsync_sparsify.downcase == 'yes'
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
@@ -90,10 +92,6 @@ end
 # Prepare image.
 
 begin
-    script = [<<~EOS]
-        set -e -o pipefail; shopt -qs failglob
-    EOS
-
     disk_paths = increments.map do |index, snap|
         raw     = %(#{base_path}/#{vm_id}/#{snap}/disk.#{disk_index}.#{index})
         cleaned = Pathname.new(raw).cleanpath.to_s
@@ -103,11 +101,17 @@ begin
     tmp_dir  = "#{rsync_tmp_dir}/#{SecureRandom.uuid}"
     tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
 
-    script << <<~EOS
-        mkdir -p '#{tmp_dir}/'
-        #{TransferManager::BackupImage.reconstruct_chain(disk_paths)}
-        qemu-img convert -O qcow2 '#{disk_paths.last}' '#{tmp_path}'
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
     EOS
+
+    script << TransferManager::BackupImage.reconstruct_chain(disk_paths)
+
+    script << "mkdir -p '#{tmp_dir}/'"
+
+    script << TransferManager::BackupImage.merge_chain(disk_paths,
+                                                       :destdir  => tmp_dir,
+                                                       :sparsify => rsync_sparsify)
 
     rc = TransferManager::Action.ssh 'prepare_image',
                                      :host     => "#{rsync_user}@#{rsync_host}",
@@ -121,6 +125,8 @@ rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
 end
+
+# Return shell code snippets according to the downloader's interface.
 
 ssh_opts = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
 

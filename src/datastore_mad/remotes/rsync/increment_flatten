@@ -73,9 +73,11 @@ begin
 
     xml = REXML::Document.new(action).root
 
-    base_path  = xml.elements['DATASTORE/BASE_PATH'].text
-    rsync_user = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
-    rsync_host = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    base_path      = xml.elements['DATASTORE/BASE_PATH'].text
+    rsync_user     = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host     = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    rsync_sparsify = xml.elements['DATASTORE/TEMPLATE/RSYNC_SPARSIFY']&.text || 'no'
+    rsync_sparsify = rsync_sparsify.downcase == 'yes'
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
@@ -158,7 +160,7 @@ begin
     EOS
 
     disks[:by_index].each do |_, disk_paths|
-        script << image.class.merge_chain(disk_paths)
+        script << image.class.merge_chain(disk_paths, :sparsify => rsync_sparsify)
     end
 
     # Calculate the new snapshot's size (sum of all qcow2 image sizes in the snapshot).

@@ -105,16 +105,22 @@ begin
 
     tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
 
-    script = <<~EOS
+    script = [<<~EOS]
         set -e -o pipefail; shopt -qs failglob
-        #{TransferManager::BackupImage.reconstruct_chain(disk_paths, tmp_dir)}
-        #{TransferManager::BackupImage.merge_chain(disk_paths, tmp_dir, rds.sparsify)}
+        #{rds.resticenv_sh}
     EOS
+
+    script << TransferManager::BackupImage.reconstruct_chain(disk_paths,
+                                                             :workdir => tmp_dir)
+
+    script << TransferManager::BackupImage.merge_chain(disk_paths,
+                                                       :workdir  => tmp_dir,
+                                                       :sparsify => rds.sparsify)
 
     rc = TransferManager::Action.ssh 'prepare_image',
                                      :host     => "#{rds.user}@#{rds.sftp}",
                                      :forward  => true,
-                                     :cmds     => script,
+                                     :cmds     => script.join("\n"),
                                      :nostdout => true,
                                      :nostderr => false
 

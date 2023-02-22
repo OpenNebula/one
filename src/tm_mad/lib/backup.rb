@@ -27,8 +27,13 @@ module TransferManager
 
         # Given a sorted list of qcow2 files,
         # return a shell recipe that reconstructs the backing chain in-place.
-        def self.reconstruct_chain(paths, workdir = nil)
+        # rubocop:disable Layout/LineLength
+        def self.reconstruct_chain(paths, opts = {})
             return '' unless paths.size > 1
+
+            opts = {
+                :workdir => nil
+            }.merge!(opts)
 
             lhs = paths.last(paths.size - 1)
             rhs = paths.first(paths.size - 1)
@@ -36,39 +41,57 @@ module TransferManager
             script = []
 
             lhs.zip(rhs).each do |target, backing|
-                backing = "#{workdir || File.dirname(backing)}/#{File.basename(backing)}"
-                target  = "#{workdir || File.dirname(target)}/#{File.basename(target)}"
+                backing = "#{opts[:workdir] || File.dirname(backing)}/#{File.basename(backing)}"
+                target  = "#{opts[:workdir] || File.dirname(target)}/#{File.basename(target)}"
                 script << "qemu-img rebase -u -F qcow2 -b '#{backing}' '#{target}'"
             end
 
             script.join("\n")
         end
+        # rubocop:enable Layout/LineLength
 
         # Given a sorted list of qcow2 files with backing chain properly reconstructed,
         # return a shell recipe that merges it into a single qcow2 image.
-        # rubocop:disable Layout/LineLength
-        def self.merge_chain(paths, workdir = nil, sparsify = false)
+        # rubocop:disable Style/ParallelAssignment, Layout/LineLength
+        def self.merge_chain(paths, opts = {})
             return '' unless paths.size > 1
 
-            clean = paths.first(paths.size - 1)
+            opts = {
+                :workdir  => nil,
+                :destdir  => nil,
+                :sparsify => false,
+                :clean    => false
+            }.merge!(opts)
 
-            origfile = "#{workdir || File.dirname(paths.last)}/#{File.basename(paths.last)}"
-            workfile = "#{origfile}.tmp"
+            dirname, basename = File.dirname(paths.last),
+                                File.basename(paths.last)
+
+            orig = "#{opts[:workdir] || dirname}/#{basename}"
+            temp = "#{orig}.tmp"
+            dest = opts[:destdir].nil? ? orig : "#{opts[:destdir]}/#{basename}"
 
             script = []
 
-            script << "qemu-img convert -O qcow2 '#{origfile}' '#{workfile}'"
-            script << "mv '#{workfile}' '#{origfile}'"
-
-            if sparsify
-                script << "[ $(type -P virt-sparsify) ] && virt-sparsify -q --in-place '#{origfile}'"
+            if orig == dest
+                script << "qemu-img convert -O qcow2 '#{orig}' '#{temp}'"
+                script << "mv '#{temp}' '#{dest}'"
+            else
+                script << "qemu-img convert -O qcow2 '#{orig}' '#{dest}'"
             end
 
-            script << "rm -f #{clean.map {|p| "'#{p}'" }.join(' ')}" unless clean.empty?
+            if opts[:sparsify]
+                script << "[ $(type -P virt-sparsify) ] && virt-sparsify -q --in-place '#{dest}'"
+            end
+
+            if opts[:clean]
+                to_clean = paths.first(paths.size - 1)
+                                .map {|p| "'#{p}'" } # single-quoted
+                script << "rm -f #{to_clean.join(' ')}" unless to_clean.empty?
+            end
 
             script.join("\n")
         end
-        # rubocop:enable Layout/LineLength
+        # rubocop:enable Style/ParallelAssignment, Layout/LineLength
 
         def initialize(action_xml)
             @action = REXML::Document.new(action_xml).root
