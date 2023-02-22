@@ -41,7 +41,7 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_ARGS        = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
+ANSIBLE_ARGS = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 CEPH_ANSIBLE_URL    = 'https://github.com/ceph/ceph-ansible.git'
 CEPH_ANSIBLE_BRANCH = 'stable-7.0'
@@ -75,7 +75,7 @@ module OneProvision
                 version = version.match(/\d+[.]\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
-                ansible_min, ansible_max = provision.ansible_ver()
+                ansible_min, ansible_max = provision.ansible_ver
 
                 if (version < ansible_min) || (version >= ansible_max)
                     Utils.fail("Unsupported Ansible ver. #{version}, " \

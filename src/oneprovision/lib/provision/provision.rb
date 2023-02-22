@@ -231,8 +231,9 @@ module OneProvision
         # Returns required ansible version pair
         def ansible_ver
             begin
-                min, max = @body['ansible']['ver_min'], @body['ansible']['ver_max']
-            rescue
+                min = @body['ansible']['ver_min']
+                max = @body['ansible']['ver_max']
+            rescue StandardError
                 Utils.fail('Provision is missing ansible min and max version')
             end
 
