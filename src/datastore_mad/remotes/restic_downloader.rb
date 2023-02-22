@@ -51,13 +51,14 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
-require 'fileutils'
 require 'opennebula'
+require 'pathname'
 require 'securerandom'
 
-require 'CommandManager'
-
 require_relative '../tm/lib/backup'
+require_relative '../tm/lib/tm_action'
+
+# Parse input data.
 
 # restic://<datastore_id>/<id>:<snapshot_id>,.../<file_name>
 restic_url = ARGV[0]
@@ -65,7 +66,7 @@ tokens     = restic_url.delete_prefix('restic://').split('/')
 ds_id      = tokens[0].to_i
 snaps      = tokens[1].split(',').map {|s| s.split(':')[1] }
 disk_path  = tokens[2..].join('/')
-disk_index = File.basename(disk_path).split('.')[1]
+disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match('/(\d+)/backup/[^/]+$')[1].to_i
 
 begin
@@ -86,32 +87,50 @@ begin
 
     # Pull from Restic, then post-process qcow2 disks.
 
-    rds = Restic.new backup_ds.to_xml, :vm_id => vm_id
-
-    tmp_dir = "#{rds.tmp_dir}/#{SecureRandom.uuid}"
-    FileUtils.mkdir_p tmp_dir
-
-    paths      = rds.pull_chain(snaps, disk_index, nil, tmp_dir)
-    disk_paths = paths[:disks][:by_index][disk_index]
-
-    rc = LocalCommand.run '/bin/bash -s', nil, <<~EOS
-        set -e -o pipefail
-        #{TransferManager::BackupImage.reconstruct_chain(disk_paths, tmp_dir)}
-        #{TransferManager::BackupImage.merge_chain(disk_paths, tmp_dir)}
-        mv '#{tmp_dir}/#{File.basename(disk_paths.last)}' '#{tmp_dir}/disk.#{disk_index}'
-    EOS
-
-    raise StandardError, rc.stderr if rc.code != 0
-
-    # Return shell code snippets according to the downloader's interface.
-
-    STDOUT.puts <<~EOS
-        command="cat '#{tmp_dir}/disk.#{disk_index}'"
-        clean_command="rm -rf '#{tmp_dir}/'"
-    EOS
+    rds = Restic.new backup_ds.to_xml, :vm_id     => vm_id,
+                                       :repo_type => :local,
+                                       :host_type => :hypervisor
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
 end
+
+# Prepare image.
+
+begin
+    tmp_dir = "#{rds.tmp_dir}/#{SecureRandom.uuid}"
+
+    paths      = rds.pull_chain(snaps, disk_index, rds.sftp, tmp_dir)
+    disk_paths = paths[:disks][:by_index][disk_index]
+
+    tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
+
+    script = <<~EOS
+        set -e -o pipefail; shopt -qs failglob
+        #{TransferManager::BackupImage.reconstruct_chain(disk_paths, tmp_dir)}
+        #{TransferManager::BackupImage.merge_chain(disk_paths, tmp_dir, rds.sparsify)}
+    EOS
+
+    rc = TransferManager::Action.ssh 'prepare_image',
+                                     :host     => "#{rds.user}@#{rds.sftp}",
+                                     :forward  => true,
+                                     :cmds     => script,
+                                     :nostdout => true,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Return shell code snippets according to the downloader's interface.
+
+ssh_opts = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
+
+STDOUT.puts <<~EOS
+    command="ssh #{ssh_opts} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
+    clean_command="ssh #{ssh_opts} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
+EOS
 
 exit(0)
