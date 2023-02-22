@@ -42,7 +42,7 @@ module OneCfg::Config::Type
             reset
 
             if Gem::Version.new(Psych.const_get(:VERSION)) >= Gem::Version.new('4.0')
-                @content = YAML.load_file(name, aliases: true)
+                @content = YAML.load_file(name, :aliases => true)
             else
                 @content = YAML.load_file(name)
             end
