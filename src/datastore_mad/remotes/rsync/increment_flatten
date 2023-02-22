@@ -71,11 +71,11 @@ begin
 
     snaps = image.snapshots.first(image.snapshots.size - image.keep_last + 1)
 
-    xml = REXML::Document.new(action).root.elements
+    xml = REXML::Document.new(action).root
 
-    base_path  = xml['DATASTORE/BASE_PATH'].text
-    rsync_user = xml['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
-    rsync_host = xml['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    base_path  = xml.elements['DATASTORE/BASE_PATH'].text
+    rsync_user = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)

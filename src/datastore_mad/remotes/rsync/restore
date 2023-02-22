@@ -77,20 +77,20 @@ begin
 
     image = TransferManager::BackupImage.new(action)
 
-    xml = REXML::Document.new(action).root.elements
+    xml = REXML::Document.new(action).root
 
-    ds_id      = xml['DATASTORE/ID'].text.to_i
-    base_path  = xml['DATASTORE/BASE_PATH'].text
-    rsync_user = xml['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
-    rsync_host = xml['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    ds_id      = xml.elements['DATASTORE/ID'].text.to_i
+    base_path  = xml.elements['DATASTORE/BASE_PATH'].text
+    rsync_user = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
 rescue StandardError => e
     STDERR.puts "Missing datastore or image attributes: #{e.message}"
     exit(-1)
 end
 
 begin
-    username  = xml['TEMPLATE/USERNAME'].text
-    dst_ds_id = xml['DESTINATION_DS_ID'].text.to_i
+    username  = xml.elements['TEMPLATE/USERNAME'].text
+    dst_ds_id = xml.elements['DESTINATION_DS_ID'].text.to_i
 rescue StandardError
     STDERR.puts 'Cannot find USERNAME / DESTINATION_DS_ID'
     exit(-1)
