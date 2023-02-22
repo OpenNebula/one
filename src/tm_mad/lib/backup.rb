@@ -299,6 +299,7 @@ module TransferManager
                 template.delete('NIC')
             else
                 remove_keys(NIC_LIST, template['NIC'])
+                remove_address(template['NIC'])
             end
 
             remove_empty(template)
@@ -337,6 +338,24 @@ module TransferManager
                 v.reject! {|e| e.empty? } if v.instance_of? Array
 
                 v.empty?
+            end
+        end
+
+        # Sanity check - A NIC can only have one of IP / IP6 / MAC.
+        def remove_address(nic)
+            return if nic.nil?
+
+            if nic.instance_of? Array
+                nic.each {|n| remove_addresses(n) }
+            else
+                if nic['IP']
+                    nic.delete('MAC')
+                    nic.delete('IP6')
+                    nic.delete('IP6_ULA')
+                    nic.delete('IP6_GLOBAL')
+                elsif nic['IP6']
+                    nic.delete('MAC')
+                end
             end
         end
 
