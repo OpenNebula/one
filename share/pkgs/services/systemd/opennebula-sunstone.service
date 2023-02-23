@@ -10,6 +10,9 @@ Type=simple
 Group=oneadmin
 User=oneadmin
 AmbientCapabilities=CAP_NET_BIND_SERVICE
+SocketBindAllow=tcp:80
+SocketBindAllow=tcp:443
+SocketBindDeny=any
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-sunstone -s /var/lib/one/.logrotate.status
 ExecStartPre=-sh 'gzip -9 /var/log/one/sunstone.log-* &'
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
@@ -30,11 +33,19 @@ ProtectHome=yes
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
 ProtectKernelLogs=yes
+ProtectHostname=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectProc=invisible
+RestrictRealtime=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
 StartLimitInterval=60
 StartLimitBurst=3
 Restart=on-failure
 RestartSec=5
 SyslogIdentifier=opennebula-sunstone
+
 
 [Install]
 WantedBy=multi-user.target
