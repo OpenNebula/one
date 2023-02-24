@@ -90,7 +90,7 @@ define(function(require) {
   function _setup(context) {
     Tips.setup(context);
     var that = this;
-    this.ds_tm_mads = [];
+    var ds_tm_mads = [];
     var groupDropdownOptions = '<option value="">'+Locale.tr("Default")+'</option>';
 
     that.numberOfDisks = 0;
@@ -120,15 +120,14 @@ define(function(require) {
             if (tm_mad_system){
               tm_mad_system.split(",").map(function(item) {
                 var i = item.trim();
-                if(that.ds_tm_mads.indexOf(i) === -1){
-                  that.ds_tm_mads.push(i);
-                  groupDropdownOptions += '<option elem_id="'+i+'" value="'+i+'">'+i+'</option>';
+                if(ds_tm_mads.indexOf(i) === -1){
+                  ds_tm_mads.push(i);
+                  $('select#TM_MAD_SYSTEM > option.' + i, context).show()
                 }
               });
             }
           }
         });
-        $('select#TM_MAD_SYSTEM', context).html(groupDropdownOptions);
       }
     });
   }
