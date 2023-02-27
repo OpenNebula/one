@@ -54,6 +54,26 @@ DST_DIR="$(dirname $DST_PATH)"
 SRC_DIR="$(dirname $SRC_PATH)"
 
 #-------------------------------------------------------------------------------
+# Convert potentially qcow2 chain to single image (replica recovery snaps)
+# and delete base + base.1, snap link and snap dir (if empty)
+#-------------------------------------------------------------------------------
+CONVERT_CMD=$(cat <<EOF
+   if [ -L "$SRC_PATH" ] && readlink "$SRC_PATH" | grep -q base.1; then
+       $QEMU_IMG convert -O qcow2 $SRC_PATH $SRC_PATH.full
+       rm -f $SRC_PATH $SRC_PATH_SNAP/base $SRC_PATH_SNAP/base.1 $SRC_PATH_SNAP/rs_tmp
+
+       if [ "\$(ls $SRC_PATH_SNAP)" = "${SRC_FILE}.snap" ]; then
+           rm -f $SRC_PATH_SNAP/${SRC_FILE}.snap
+           rmdir $SRC_PATH_SNAP
+       fi
+       mv $SRC_PATH.full $SRC_PATH
+   fi
+EOF
+)
+
+ssh_exec_and_log "$SRC_HOST" "$CONVERT_CMD" "Error converting $SRC to standalone image"
+
+#-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 
