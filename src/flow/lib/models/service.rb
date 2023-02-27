@@ -323,6 +323,9 @@ module OpenNebula
 
             template['start_time'] = Integer(Time.now)
 
+            # Replace $attibute by the corresponding value
+            resolve_attributes(template)
+
             super(template.to_json, template['name'])
         end
 
@@ -660,7 +663,7 @@ module OpenNebula
             end if deploy
 
             # Replace $attibute by the corresponding value
-            resolve_attributes(body)
+            resolve_networks(body)
 
             # @body = template.to_hash
 
@@ -784,31 +787,49 @@ module OpenNebula
         end
 
         # rubocop:disable Layout/LineLength
+        def resolve_networks(template)
+            template['roles'].each do |role|
+                next unless role['vm_template_contents']
+
+                # $CUSTOM1_VAR Any word character
+                # (letter, number, underscore)
+                role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
+                    net = template['networks_values'].find {|att| att.key? key[0] }
+
+                    next if net.nil?
+
+                    role['vm_template_contents'].gsub!(
+                        '$'+key[0],
+                        net[net.keys[0]]['id'].to_s
+                    )
+                end
+            end
+        end
+
         def resolve_attributes(template)
             template['roles'].each do |role|
                 if role['vm_template_contents']
                     # $CUSTOM1_VAR Any word character
                     # (letter, number, underscore)
                     role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
-                        # Check if $ var value is in custom_attrs_values
-                        if !template['custom_attrs_values'].nil? &&
-                           template['custom_attrs_values'].key?(key[0])
+                        # Check if $ var value is in custom_attrs_values within the role
+                        if !role['custom_attrs_values'].nil? && \
+                            role['custom_attrs_values'].key?(key[0])
                             role['vm_template_contents'].gsub!(
                                 '$'+key[0],
-                                template['custom_attrs_values'][key[0]]
+                                role['custom_attrs_values'][key[0]]
                             )
                             next
                         end
 
-                        # Check if $ var value is in networks
-                        net = template['networks_values']
-                              .find {|att| att.key? key[0] }
+                        # Check if $ var value is in custom_attrs_values
 
-                        next if net.nil?
+                        next unless !template['custom_attrs_values'].nil? && \
+                                     template['custom_attrs_values'].key?(key[0])
 
                         role['vm_template_contents'].gsub!(
                             '$'+key[0],
-                            net[net.keys[0]]['id'].to_s
+                            template['custom_attrs_values'][key[0]]
                         )
                     end
                 end

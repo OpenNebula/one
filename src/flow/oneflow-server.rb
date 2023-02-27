@@ -186,6 +186,22 @@ def one_error_to_http(error)
     end
 end
 
+# Check if the custom_attrs and their respective values are correct
+#
+# @param custom_attrs        [Hash] Custom attrs of the service/role
+# @param custom_attrs_values [Hash] Custom attrs values to check
+def check_custom_attrs(custom_attrs, custom_attrs_values)
+    return if custom_attrs.nil? || custom_attrs.empty?
+
+    if  !custom_attrs.is_a?(Hash) || !custom_attrs_values.is_a?(Hash)
+        raise 'Wrong custom_attrs or custom_attrs_values format'
+    end
+
+    return if (custom_attrs.keys - custom_attrs_values.keys).empty?
+
+    raise 'Verify that every custom attribute have its corresponding value defined'
+end
+
 ##############################################################################
 # Defaults
 ##############################################################################
@@ -629,36 +645,40 @@ post '/service_template/:id/action' do
         merge_template = opts['merge_template']
         service_json   = JSON.parse(service_template.to_json)
 
-        # Check custom_attrs
-        body         = service_json['DOCUMENT']['TEMPLATE']['BODY']
-        custom_attrs = body['custom_attrs']
+        body = service_json['DOCUMENT']['TEMPLATE']['BODY']
 
-        if merge_template
+        begin
+            # Check service custom_attrs
+            custom_attrs = body['custom_attrs']
             custom_attrs_values = merge_template['custom_attrs_values']
-        end
+            check_custom_attrs(custom_attrs, custom_attrs_values)
 
-        if custom_attrs && !(custom_attrs.is_a? Hash)
-            return internal_error('Wrong custom_attrs format',
-                                  VALIDATION_EC)
-        end
+            # Check custom attrs in each role
+            body['roles'].each do |role|
+                next if role['custom_attrs'].nil?
 
-        if custom_attrs_values && !(custom_attrs_values.is_a? Hash)
-            return internal_error('Wrong custom_attrs_values format',
-                                  VALIDATION_EC)
-        end
+                roles_merge_template = merge_template['roles']
 
-        if custom_attrs && !custom_attrs.empty? && !custom_attrs_values
-            return internal_error('No custom_attrs_values found',
-                                  VALIDATION_EC)
-        end
+                # merge_template must have 'role' key if role has custom attributes
+                if roles_merge_template.nil?
+                    raise 'The Service template specifies custom attributes for roles ' \
+                          'but no values have been found'
+                end
 
-        if custom_attrs &&
-           !custom_attrs.empty? &&
-           custom_attrs_values &&
-           !(custom_attrs.keys - custom_attrs_values.keys).empty?
-            return internal_error('Every custom_attrs key must have its ' \
-                                  'value defined at custom_attrs_value',
-                                  VALIDATION_EC)
+                if !roles_merge_template.is_a?(Array) || roles_merge_template.empty?
+                    raise 'The role custom attributes are empty or do not have a valid format'
+                end
+
+                # Select role from merge_template by role name
+                merge_role = roles_merge_template.find {|item| item['name'] == role['name'] }
+
+                role_custom_attrs = role['custom_attrs']
+                role_custom_attrs_values = merge_role['custom_attrs_values']
+
+                check_custom_attrs(role_custom_attrs, role_custom_attrs_values)
+            end
+        rescue StandardError => e
+            return internal_error(e.message, VALIDATION_EC)
         end
 
         # Check networks
