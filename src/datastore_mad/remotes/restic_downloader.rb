@@ -58,6 +58,8 @@ require 'securerandom'
 require_relative '../tm/lib/backup'
 require_relative '../tm/lib/tm_action'
 
+SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
+
 # Parse input data.
 
 # restic://<datastore_id>/<id>:<snapshot_id>,.../<file_name>
@@ -105,6 +107,19 @@ begin
 
     tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
 
+    # FULL BACKUP
+
+    if disk_paths.size == 1
+        # Return shell code snippets according to the downloader's interface.
+        STDOUT.puts <<~EOS
+            command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
+            clean_command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
+        EOS
+        exit(0)
+    end
+
+    # INCREMENTAL BACKUP
+
     script = [<<~EOS]
         set -e -o pipefail; shopt -qs failglob
         #{rds.resticenv_sh}
@@ -114,8 +129,7 @@ begin
                                                              :workdir => tmp_dir)
 
     script << TransferManager::BackupImage.merge_chain(disk_paths,
-                                                       :workdir  => tmp_dir,
-                                                       :sparsify => rds.sparsify)
+                                                       :workdir => tmp_dir)
 
     rc = TransferManager::Action.ssh 'prepare_image',
                                      :host     => "#{rds.user}@#{rds.sftp}",
@@ -125,18 +139,14 @@ begin
                                      :nostderr => false
 
     raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+
+    # Return shell code snippets according to the downloader's interface.
+    STDOUT.puts <<~EOS
+        command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
+        clean_command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
+    EOS
+    exit(0)
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
 end
-
-# Return shell code snippets according to the downloader's interface.
-
-ssh_opts = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
-
-STDOUT.puts <<~EOS
-    command="ssh #{ssh_opts} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
-    clean_command="ssh #{ssh_opts} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
-EOS
-
-exit(0)

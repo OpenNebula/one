@@ -58,6 +58,8 @@ require 'securerandom'
 require_relative '../tm/lib/backup'
 require_relative '../tm/lib/tm_action'
 
+SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
+
 # Parse input data.
 
 # rsync://100/0:8a3454,1:f6e63e//var/lib/one//datastores/100/6/8a3454/disk.0.0
@@ -78,12 +80,10 @@ begin
 
     ds_hash = backup_ds.to_hash['DATASTORE']
 
-    base_path      = ds_hash['BASE_PATH']
-    rsync_user     = ds_hash['TEMPLATE']['RSYNC_USER'] || 'oneadmin'
-    rsync_host     = ds_hash['TEMPLATE']['RSYNC_HOST']
-    rsync_tmp_dir  = ds_hash['TEMPLATE']['RSYNC_TMP_DIR'] || '/var/tmp'
-    rsync_sparsify = ds_hash['TEMPLATE']['RSYNC_SPARSIFY'] || 'no'
-    rsync_sparsify = rsync_sparsify.downcase == 'yes'
+    base_path     = ds_hash['BASE_PATH']
+    rsync_user    = ds_hash['TEMPLATE']['RSYNC_USER'] || 'oneadmin'
+    rsync_host    = ds_hash['TEMPLATE']['RSYNC_HOST']
+    rsync_tmp_dir = ds_hash['TEMPLATE']['RSYNC_TMP_DIR'] || '/var/tmp'
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
@@ -98,6 +98,19 @@ begin
         cleaned
     end
 
+    # FULL BACKUP
+
+    if disk_paths.size == 1
+        # Return shell code snippets according to the downloader's interface.
+        STDOUT.puts <<~EOS
+            command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{disk_path}'"
+            clean_command=""
+        EOS
+        exit(0)
+    end
+
+    # INCREMENTAL BACKUP
+
     tmp_dir  = "#{rsync_tmp_dir}/#{SecureRandom.uuid}"
     tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
 
@@ -110,8 +123,7 @@ begin
     script << "mkdir -p '#{tmp_dir}/'"
 
     script << TransferManager::BackupImage.merge_chain(disk_paths,
-                                                       :destdir  => tmp_dir,
-                                                       :sparsify => rsync_sparsify)
+                                                       :destdir => tmp_dir)
 
     rc = TransferManager::Action.ssh 'prepare_image',
                                      :host     => "#{rsync_user}@#{rsync_host}",
@@ -121,18 +133,14 @@ begin
                                      :nostderr => false
 
     raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+
+    # Return shell code snippets according to the downloader's interface.
+    STDOUT.puts <<~EOS
+        command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{tmp_path}'"
+        clean_command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' rm -rf '#{tmp_dir}/'"
+    EOS
+    exit(0)
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)
 end
-
-# Return shell code snippets according to the downloader's interface.
-
-ssh_opts = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
-
-STDOUT.puts <<~EOS
-    command="ssh #{ssh_opts} '#{rsync_user}@#{rsync_host}' cat '#{tmp_path}'"
-    clean_command="ssh #{ssh_opts} '#{rsync_user}@#{rsync_host}' rm -rf '#{tmp_dir}/'"
-EOS
-
-exit(0)
