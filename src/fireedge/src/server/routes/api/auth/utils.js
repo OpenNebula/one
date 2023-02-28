@@ -366,9 +366,7 @@ const setZones = () => {
                 ? [zonesOpennebula.ZONE_POOL.ZONE]
                 : zonesOpennebula.ZONE_POOL.ZONE
               global.zones = oneZones.map((oneZone) => {
-                const rpc =
-                  (oneZone && oneZone.TEMPLATE && oneZone.TEMPLATE.ENDPOINT) ||
-                  ''
+                const rpc = oneZone?.TEMPLATE?.ENDPOINT || ''
                 const parsedURL = rpc && parse(rpc)
                 const parsedHost = parsedURL.hostname || ''
 

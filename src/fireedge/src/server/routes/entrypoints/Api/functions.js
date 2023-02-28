@@ -30,6 +30,7 @@ const { httpResponse, validateHttpMethod } = require('server/utils/server')
 const { opennebulaConnect } = require('server/utils/opennebula')
 const { httpCodes } = require('server/utils/constants')
 const routes = require('server/routes/api')
+const { writeInLoggerInvalidRPC } = require('server/utils/logger')
 
 const { resource, query, postBody } = fromData
 const { internalServerError } = httpCodes
@@ -66,7 +67,7 @@ const functionsRoutes = ({
               const password = getPassOpennebula()
               const userId = getIdUserOpennebula()
               const { rpc } = zoneData
-
+              writeInLoggerInvalidRPC(rpc)
               req.serverDataSource = {
                 [resource]: req.params,
                 [query]: req.query,
