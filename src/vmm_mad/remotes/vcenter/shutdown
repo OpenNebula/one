@@ -93,6 +93,10 @@ begin
     vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
     vm.shutdown # Undeploy, Poweroff or Terminate
+
+    if lcm_state_str == 'SHUTDOWN_UNDEPLOY'
+        vm.mark_as_template
+    end
 rescue StandardError => e
     message = "Shutdown of VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
               "failed due to \"#{e.message}\" on attempt \##{retries}"
