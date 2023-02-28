@@ -422,7 +422,7 @@ func (vc *VMController) SnapshotRevert(snapID int) error {
 
 // Migrate a VM to a target host and/or to another ds
 func (vc *VMController) Migrate(hostID int, live, enforce bool, dsID int, migrationType int) error {
-	_, err := vc.c.Client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
+	_, err := vc.c.Client.Call("one.vm.migrate", vc.ID, hostID, live, enforce, dsID, migrationType)
 	return err
 }
 
