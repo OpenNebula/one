@@ -67,7 +67,7 @@ restic_url = ARGV[0]
 tokens     = restic_url.delete_prefix('restic://').split('/')
 ds_id      = tokens[0].to_i
 snaps      = tokens[1].split(',').map {|s| s.split(':')[1] }
-disk_path  = tokens[2..].join('/')
+disk_path  = tokens[2..-1].join('/')
 disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match('/(\d+)/backup/[^/]+$')[1].to_i
 

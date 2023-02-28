@@ -67,7 +67,7 @@ rsync_url  = ARGV[0]
 tokens     = rsync_url.delete_prefix('rsync://').split('/')
 ds_id      = tokens[0].to_i
 increments = tokens[1].split(',').map {|s| s.split(':') }
-disk_path  = tokens[2..].join('/')
+disk_path  = tokens[2..-1].join('/')
 disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match("/#{ds_id}/(\\d+)/[^/]+/[^/]+$")[1].to_i
 
