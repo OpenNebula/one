@@ -111,6 +111,14 @@ begin
         end
     end
 
+    lcm_state = drv_action['LCM_STATE']
+    check_valid(lcm_state, 'lcm_state')
+    lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
+
+    if lcm_state_str == 'BOOT_UNDEPLOY'
+        vm.mark_as_virtual_machine
+    end
+
     if vm.powered_off?
         spec_hash = {}
         spec_hash[:cpuHotAddEnabled] = vm.cpu_hot_add_enabled?
