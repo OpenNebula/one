@@ -187,7 +187,11 @@ const Actions = () => {
                     const vmTemplates = rows?.map?.(
                       ({ original: { ID, NAME } = {} }) =>
                         // overwrite all names with prefix+NAME
-                        ({ id: ID, name: prefix ? `${prefix} ${NAME}` : name, image })
+                        ({
+                          id: ID,
+                          name: prefix ? `${prefix} ${NAME}` : name,
+                          image,
+                        })
                     )
 
                     await Promise.all(vmTemplates.map(clone))
