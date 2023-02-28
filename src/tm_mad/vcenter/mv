@@ -73,6 +73,8 @@ begin
 
     exit 0 if last_action_str == 'stop'
 
+    exit 0 if last_action_str == 'undeploy'
+
     src_ds = vm.retrieve_elements('HISTORY_RECORDS/HISTORY/DS_ID')[-2]
 
     if src_ds == dsid

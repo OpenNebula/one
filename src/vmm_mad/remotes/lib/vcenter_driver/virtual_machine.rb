@@ -3302,6 +3302,12 @@ end
             @item.MarkAsTemplate
         end
 
+        def mark_as_virtual_machine
+            @item.MarkAsVirtualMachine(
+                :pool => cluster['resourcePool']
+            )
+        end
+
         def reset
             @item.ResetVM_Task.wait_for_completion
         end
