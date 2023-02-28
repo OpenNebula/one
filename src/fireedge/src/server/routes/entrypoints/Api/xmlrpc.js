@@ -28,7 +28,10 @@ const {
 const { fillResourceforHookConnection } = require('server/utils/opennebula')
 const { httpResponse, validateHttpMethod } = require('server/utils/server')
 const { useWorker, parseReturnWorker } = require('server/utils/worker')
-const { writeInLogger } = require('server/utils/logger')
+const {
+  writeInLogger,
+  writeInLoggerInvalidRPC,
+} = require('server/utils/logger')
 
 const {
   defaultEmptyFunction,
@@ -59,6 +62,7 @@ const executeWorker = ({
   next,
   res,
 }) => {
+  writeInLoggerInvalidRPC(rpc)
   if (!(user && password && rpc && command && paramsCommand)) {
     return
   }

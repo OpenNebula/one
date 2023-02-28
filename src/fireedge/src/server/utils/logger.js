@@ -118,4 +118,23 @@ const writeInLogger = (message = '', optLog = {}) => {
   }
 }
 
-module.exports = { initLogger, getLogger, getLoggerMiddleware, writeInLogger }
+/**
+ * Write in logger when XMLRPC is invalid.
+ *
+ * @param {string} rpc - XMLRPC URL
+ */
+const writeInLoggerInvalidRPC = (rpc = '') => {
+  !/^(http|https):\/\/[^ "]+$/.test(rpc) &&
+    writeInLogger(rpc, {
+      format: 'XMLRPC is not a URL valid: %s',
+      level: 2,
+    })
+}
+
+module.exports = {
+  initLogger,
+  getLogger,
+  getLoggerMiddleware,
+  writeInLogger,
+  writeInLoggerInvalidRPC,
+}
