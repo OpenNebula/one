@@ -42,10 +42,12 @@ type Pair struct {
 	Value   string `xml:",innerxml"`
 }
 
+type Pairs []Pair
+
 // Vector contains an array of keyvalue pairs
 type Vector struct {
 	XMLName xml.Name
-	Pairs   []Pair
+	Pairs
 }
 
 type TemplateAny struct {
@@ -91,21 +93,31 @@ func (p *Pair) String() string {
 	}
 }
 
-func (v *Vector) String() string {
-	s := fmt.Sprintf("%s=[\n", strings.ToUpper(v.XMLName.Local))
+func (v *Pairs) String() string {
+	s := strings.Builder{}
 
 	endToken := ",\n"
-	for i, pair := range v.Pairs {
-		if i == len(v.Pairs)-1 {
+	for i, pair := range *v {
+		if i == len(*v)-1 {
 			endToken = ""
 		}
 
-		s += fmt.Sprintf("    %s%s", pair.String(), endToken)
+		s.WriteString(fmt.Sprintf("    %s%s", pair.String(), endToken))
 
 	}
-	s += " ]"
 
-	return s
+	return s.String()
+}
+
+func (v *Vector) String() string {
+	s := strings.Builder{}
+
+	s.WriteString(fmt.Sprintf("%s=[\n", strings.ToUpper(v.XMLName.Local)))
+
+	s.WriteString(v.Pairs.String())
+	s.WriteString(" ]")
+
+	return s.String()
 }
 
 // GetPair retrieve a pair by it's key
@@ -131,17 +143,17 @@ func (t *Template) GetPairs(key string) []*Pair {
 }
 
 // GetPair retrieve a pair by it's key
-func (v *Vector) GetPairs(key string) []*Pair {
+func (v *Pairs) GetPairs(key string) []*Pair {
 
 	pairs := make([]*Pair, 0, 1)
 
-	for i, _ := range v.Pairs {
+	for i, _ := range *v {
 
-		if v.Pairs[i].XMLName.Local != key {
+		if (*v)[i].XMLName.Local != key {
 			continue
 		}
 
-		pairs = append(pairs, &v.Pairs[i])
+		pairs = append(pairs, &(*v)[i])
 	}
 
 	return pairs
@@ -162,7 +174,7 @@ func (t *Template) GetPair(key string) (*Pair, error) {
 }
 
 // GetPair retrieve a pair by it's key
-func (v *Vector) GetPair(key string) (*Pair, error) {
+func (v *Pairs) GetPair(key string) (*Pair, error) {
 
 	pairs := v.GetPairs(key)
 	switch len(pairs) {
@@ -221,7 +233,7 @@ func (t *Template) GetStr(key string) (string, error) {
 }
 
 // GetStr allow to retrieve the value of a pair
-func (t *Vector) GetStr(key string) (string, error) {
+func (t *Pairs) GetStr(key string) (string, error) {
 	pair, err := t.GetPair(key)
 	if err != nil {
 		return "", err
@@ -243,7 +255,7 @@ func (t *Template) GetStrs(key string) []string {
 }
 
 // GetStrs allow to retrieve a slice of string from pairs with the same key
-func (v *Vector) GetStrs(key string) []string {
+func (v *Pairs) GetStrs(key string) []string {
 
 	pairs := v.GetPairs(key)
 	strs := make([]string, len(pairs))
@@ -269,7 +281,7 @@ func (t *Template) GetInt(key string) (int, error) {
 }
 
 // GetInt returns a pair value as an int
-func (t *Vector) GetInt(key string) (int, error) {
+func (t *Pairs) GetInt(key string) (int, error) {
 
 	pair, err := t.GetPair(key)
 	if err != nil {
@@ -302,7 +314,7 @@ func (t *Template) GetInts(key string) []int {
 }
 
 // GetInts allow to retrieve a slice of int from pairs with the same key
-func (v *Vector) GetInts(key string) []int {
+func (v *Pairs) GetInts(key string) []int {
 
 	pairs := v.GetPairs(key)
 	ints := make([]int, 0, len(pairs))
@@ -334,7 +346,7 @@ func (t *Template) GetFloat(key string) (float64, error) {
 }
 
 // GetFloat returns a pair value as an float
-func (t *Vector) GetFloat(key string) (float64, error) {
+func (t *Pairs) GetFloat(key string) (float64, error) {
 	pair, err := t.GetPair(key)
 	if err != nil {
 		return -1, err
@@ -411,14 +423,14 @@ func (t *Template) AddPair(key string, v interface{}) error {
 	return nil
 }
 
-// AddPair adds a new pair to a Template
-func (t *Vector) AddPair(key string, v interface{}) error {
+// AddPair adds a new pair to a Vector
+func (t *Pairs) AddPair(key string, v interface{}) error {
 
 	pair, err := MakePair(key, v)
 	if err != nil {
 		return fmt.Errorf("AddPair: %s", err)
 	}
-	t.Pairs = append(t.Pairs, *pair)
+	(*t) = append((*t), *pair)
 
 	return nil
 }

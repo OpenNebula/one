@@ -210,6 +210,44 @@ func unmarshalTemplateElement(d *xml.Decoder, tokPrev xml.StartElement, t *Templ
 	return nil
 }
 
+// UnmarshalXML parse dynamically a bunch of pairs
+func (t *Pairs) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+
+	// In case we unmarshal a simple vector, then we need to initialize it
+	if t == nil {
+		pairs := make(Pairs, 0, 2)
+		t = &pairs
+	}
+
+loop:
+	for {
+
+		// Retrieve the next token
+		token, err := d.Token()
+		if err != nil {
+			if err.Error() == io.EOF.Error() {
+				return nil
+			}
+			return err
+		}
+
+		// Add a pair to the vector on a StartElement
+		switch e := token.(type) {
+
+		case xml.StartElement:
+		// unexpected
+		case xml.CharData:
+			t.AddPair(start.Name.Local, string(e))
+		case xml.EndElement:
+			break loop
+
+		}
+
+	}
+
+	return nil
+}
+
 // UnmarshalXML parse dynamically a vector. Either a single vector, or inside of a TEMPLATE.
 func (t *Vector) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
