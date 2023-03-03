@@ -97,7 +97,7 @@ define(function(require) {
   function get_numa_information(nodes, monitoring){
     var numa_nodes = Object.assign([], nodes);
 
-    if (!monitoring) return numa_nodes;
+    if (!monitoring || !monitoring.NUMA_NODE) return numa_nodes;
     var monitoring_nodes = Array.isArray(monitoring.NUMA_NODE) ? monitoring.NUMA_NODE : [monitoring.NUMA_NODE];
 
     numa_nodes.forEach(function(node) {
