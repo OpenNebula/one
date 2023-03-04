@@ -144,6 +144,10 @@ private
             terminator_e = nil
             mutex = Mutex.new
 
+            # print stdout and stderr for troubleshooting
+            STDERR.puts o.read
+            STDERR.puts e.read
+
             out_reader = Thread.new { o.read }
             err_reader = Thread.new { e.read }
             terminator = Thread.new {

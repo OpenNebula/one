@@ -64,7 +64,7 @@ class HostSyncManager
         end
 
         assemble_cmd = lambda do |steps|
-            "exec 2>/dev/null; #{steps.join(' && ')}"
+            "exec 2>&1 /dev/null; #{steps.join(' && ')}"
         end
 
         case copy_method
