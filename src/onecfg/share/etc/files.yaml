@@ -28,222 +28,259 @@
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default
 
 - name: /etc/one/ec2_driver.default
   class: Simple
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/ec2/ec2_driver.default
 
 - name: /etc/one/az_driver.default
   class: Simple
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/az/az_driver.default
 
 - name: /etc/one/packet_driver.default
   class: Simple
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/packet/packet_driver.default
 
 - name: /etc/one/auth/ldap_auth.conf
   class: Yaml::Strict
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/authm_mad/remotes/ldap/ldap_auth.conf
 
 - name: /etc/one/auth/server_x509_auth.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/authm_mad/remotes/server_x509/server_x509_auth.conf
 
 - name: /etc/one/auth/x509_auth.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/authm_mad/remotes/x509/x509_auth.conf
 
 - name: /etc/one/az_driver.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/az/az_driver.conf
 
 - name: /etc/one/cli/*.yaml
   class: Yaml::Strict
   owner: root
   group: root
   mode: '0644'
+  src: src/cli/etc/*.yaml
 
 - name: /etc/one/defaultrc
   class: Augeas::Shell
   owner: root
   group: oneadmin
   mode: '0640'
+  src: share/etc/defaultrc
 
 - name: /etc/one/ec2_driver.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/ec2/ec2_driver.conf
 
 - name: /etc/one/ec2query_templates/*.erb
   class: Simple
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/cloud/ec2/etc/templates/*
 
 - name: /etc/one/econe.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/cloud/ec2/etc/econe.conf
 
 - name: /etc/one/fireedge-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/fireedge-server.conf
 
 - name: /etc/one/fireedge/provision/provision-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/provision/provision-server.conf
 
 - name: /etc/one/fireedge/provision/providers.d/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/provision/providers.d/*.yaml
 
 - name: /etc/one/fireedge/provision/providers.d-extra/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: share/oneprovision/edge-clusters-extra/*/providers/*/*.yaml
 
 - name: /etc/one/fireedge/sunstone/sunstone-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/sunstone/sunstone-server.conf
 
 - name: /etc/one/fireedge/sunstone/sunstone-views.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/sunstone/sunstone-views.yaml
 
 - name: /etc/one/fireedge/sunstone/*/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/fireedge/etc/sunstone/user/*/*.yaml
 
 - name: /etc/one/monitord.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/monitor/etc/monitord.conf
 
 - name: /etc/one/hm/hmrc
   class: Augeas::Shell
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/hm_mad/hmrc
 
 - name: /etc/one/oned.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
+  src: share/etc/oned.conf
 
 - name: /etc/one/oneflow-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/flow/etc/oneflow-server.conf
 
 - name: /etc/one/onegate-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/onegate/etc/onegate-server.conf
 
 - name: /etc/one/sched.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/scheduler/etc/sched.conf
 
 - name: /etc/one/sunstone-logos.yaml
   class: Yaml::Strict
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/sunstone/etc/sunstone-logos.yaml
 
 - name: /etc/one/sunstone-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/sunstone/etc/sunstone-server.conf
 
 - name: /etc/one/onehem-server.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/hem/etc/onehem-server.conf
 
 - name: /etc/one/sunstone-views/**/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/sunstone/etc/sunstone-views/*/*.yaml
 
 - name: /etc/one/sunstone-views.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/sunstone/etc/sunstone-views.yaml
 
 - name: /etc/one/tmrc
   class: Augeas::Shell
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/tm_mad/tmrc
 
 - name: /etc/one/guacd
   class: Augeas::Shell
   owner: root
   group: oneadmin
   mode: '0640'
+  src: share/etc/guacd
 
 - name: /etc/one/vcenter_driver.conf
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.conf
 
 - name: /etc/one/vmm_exec/vmm_exec_kvm.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/exec/vmm_exec_kvm.conf
 
 - name: /etc/one/vmm_exec/vmm_execrc
   class: Augeas::Shell
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/exec/vmm_execrc
 
 - name: /etc/one/vmm_exec/vmm_exec_vcenter.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/exec/vmm_exec_vcenter.conf
 
 
 ### Dir: /var/lib/one/remotes/etc/ #########################
@@ -253,132 +290,154 @@
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/datastore_mad/remotes/datastore.conf
 
 - name: /var/lib/one/remotes/etc/datastore/ceph/ceph.conf
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/datastore_mad/remotes/ceph/ceph.conf
 
 - name: /var/lib/one/remotes/etc/datastore/fs/fs.conf
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/datastore_mad/remotes/fs/fs.conf
 
 - name: /var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/kvm-probes.d/pci.conf
 
 - name: /var/lib/one/remotes/etc/im/kvm-probes.d/probe_db.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lib/probe_db.conf
 
 - name: /var/lib/one/remotes/etc/im/qemu-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/node-probes.d/pci.conf
 
 - name: /var/lib/one/remotes/etc/im/qemu-probes.d/probe_db.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lib/probe_db.conf
 
 - name: /var/lib/one/remotes/etc/im/lxc-probes.d/probe_db.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lib/probe_db.conf
 
 - name: /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lxd-probes.d/pci.conf
 
 - name: /var/lib/one/remotes/etc/im/lxd-probes.d/probe_db.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lib/probe_db.conf
 
 - name: /var/lib/one/remotes/etc/im/firecracker-probes.d/probe_db.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/im_mad/remotes/lib/probe_db.conf
 
 - name: /var/lib/one/remotes/etc/market/http/http.conf
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/market_mad/remotes/http/http.conf
 
 - name: /var/lib/one/remotes/etc/onegate-proxy.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/onegate-proxy/etc/onegate-proxy.conf
 
 - name: /var/lib/one/remotes/etc/tm/fs_lvm/fs_lvm.conf
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/tm_mad/fs_lvm/fs_lvm.conf
 
 - name: /var/lib/one/remotes/etc/tm/ssh/sshrc
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/tm_mad/ssh/sshrc
 
 - name: /var/lib/one/remotes/etc/vmm/kvm/kvmrc
   class: Augeas::Shell
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/kvm/kvmrc
 
 - name: /var/lib/one/remotes/etc/vmm/lxc/lxcrc
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/lxc/lxcrc
 
 - name: /var/lib/one/remotes/etc/vmm/lxc/profiles/*
   class: Simple
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/lxc/profile_privileged
 
 - name: /var/lib/one/remotes/etc/vmm/lxd/lxdrc
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/lxd/lxdrc
 
 - name: /var/lib/one/remotes/etc/vmm/firecracker/firecrackerrc
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/firecracker/firecrackerrc
 
 - name: /var/lib/one/remotes/etc/vmm/vcenter/vcenterrc
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vmm_mad/remotes/vcenter/vcenterrc
 
 - name: /var/lib/one/remotes/etc/vnm/OpenNebulaNetwork.conf
   class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
+  src: src/vnm_mad/remotes/OpenNebulaNetwork.conf
 
 
 ### Dir: /var/lib/one/remotes/ (ONE < 5.6) #################
