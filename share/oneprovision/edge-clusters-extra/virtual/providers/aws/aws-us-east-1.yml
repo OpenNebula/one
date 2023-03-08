@@ -12,7 +12,7 @@ inputs:
    - name: 'aws_ami_image'
      type: 'text'
      default: 'default'
-     description: 'AWS AMI image (default = Ubuntu Focal)'
+     description: 'AWS AMI image (default = Ubuntu Jammy)'
    - name: 'aws_instance_type'
      type: 'list'
      default: 't2.micro'
