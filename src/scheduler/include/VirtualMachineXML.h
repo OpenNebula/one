@@ -423,7 +423,7 @@ public:
      *
      * @param action sched action to update
      */
-    bool update_sched_action(SchedAction* action);
+    bool update_sched_action(const SchedAction* action);
 
     /**
      * Sets an attribute in the VM Template, it must be allocated in the heap

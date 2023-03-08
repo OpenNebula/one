@@ -2909,9 +2909,9 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
         clouds.insert("ec2");
     }
 
-    for (auto vattr : attrs)
+    for (const auto* vattr : attrs)
     {
-        string type = vattr->vector_value("TYPE");
+        const string& type = vattr->vector_value("TYPE");
 
         if (!type.empty())
         {

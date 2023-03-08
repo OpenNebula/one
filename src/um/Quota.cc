@@ -363,14 +363,13 @@ int Quota::update_limits(
         VectorAttribute *       quota,
         const VectorAttribute * va)
 {
-    string  limit;
     float   limit_f;
 
     for (int i=0; i < num_metrics; i++)
     {
-        limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (limit == "")
+        if (limit.empty())
         {
             if ( is_default )
             {
@@ -401,11 +400,10 @@ int Quota::update_limits(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * Quota::new_quota(VectorAttribute * va)
+VectorAttribute * Quota::new_quota(const VectorAttribute * va)
 {
     map<string,string> limits;
 
-    string limit;
     float  limit_f;
 
     for (int i=0; i < num_metrics; i++)
@@ -414,9 +412,9 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         metrics_used += "_USED";
 
-        limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (limit == "")
+        if (limit.empty())
         {
             if ( is_default )
             {
@@ -441,7 +439,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
         limits.insert(make_pair(metrics_used, "0"));
     }
 
-    string id = va->vector_value("ID");
+    const string& id = va->vector_value("ID");
 
     if ( !id.empty() )
     {

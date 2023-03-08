@@ -466,7 +466,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                         break;
                     }
                     // else fallthrough to default
-
+                    [[fallthrough]];
                 default:
                     oss.str("");
                     oss << "Could not terminate VM " << vid
@@ -1221,6 +1221,8 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
             do_quotas = true;
 
+            [[fallthrough]];
+
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
             {
@@ -1294,6 +1296,8 @@ int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
             vm->get_capacity(sr);
 
             hpool->del_capacity(vm->get_hid(), sr);
+
+            [[fallthrough]];
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:

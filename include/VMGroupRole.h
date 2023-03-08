@@ -75,7 +75,7 @@ public:
      */
     VMGroupPolicy policy();
 
-    std::string policy_s()
+    std::string policy_s() const
     {
         return va->vector_value("POLICY");
     };

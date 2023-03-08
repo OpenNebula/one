@@ -67,7 +67,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml, cmd, arg;
+    std::string raft_xml;
 
     // -------------------------------------------------------------------------
     // Initialize Raft variables:
@@ -138,8 +138,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     if ( leader_hook_mad != 0 )
     {
-        cmd = leader_hook_mad->vector_value("COMMAND");
-        arg = leader_hook_mad->vector_value("ARGUMENTS");
+        const string& cmd = leader_hook_mad->vector_value("COMMAND");
+        const string& arg = leader_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {
@@ -159,8 +159,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     if ( follower_hook_mad != 0 )
     {
-        cmd = follower_hook_mad->vector_value("COMMAND");
-        arg = follower_hook_mad->vector_value("ARGUMENTS");
+        const string& cmd = follower_hook_mad->vector_value("COMMAND");
+        const string& arg = follower_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {

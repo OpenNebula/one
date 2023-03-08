@@ -148,7 +148,7 @@ public:
      *
      *    @return 0 on success
      */
-    int snapshot_transfer_command(VirtualMachine * vm,
+    int snapshot_transfer_command(const VirtualMachine * vm,
                                   const char * snap_action,
                                   std::ostream& xfr);
 
@@ -303,11 +303,6 @@ public:
      *  This function starts the epilog detach sequence
      */
     void trigger_epilog_detach(VirtualMachine * vm);
-
-    /**
-     *  This function starts the epilog sequence
-     */
-    void trigger_checkpoint(int vid);
 
     /**
      * This function cancels the operation being performed by the driver
