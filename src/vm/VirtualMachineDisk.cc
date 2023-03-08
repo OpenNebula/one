@@ -174,14 +174,7 @@ int VirtualMachineDisk::get_image_id(int &id, int uid) const
 
 string VirtualMachineDisk::get_tm_mad_system() const
 {
-    std::string tm_mad_system;
-
-    if (vector_value("TM_MAD_SYSTEM", tm_mad_system) != 0)
-    {
-        return "";
-    }
-
-    return tm_mad_system;
+    return vector_value("TM_MAD_SYSTEM");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1085,7 +1078,8 @@ int VirtualMachineDisks::set_attach(int id)
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-        int cluster_id, VectorAttribute * vdisk, const std::string& tsys, VectorAttribute * vcontext,
+        int cluster_id, VectorAttribute * vdisk, const std::string& tsys,
+        const VectorAttribute * vcontext,
         string& error)
 {
     set<string> used_targets;
@@ -1113,7 +1107,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
 
     if ( vcontext != 0 )
     {
-        string target = vcontext->vector_value("TARGET");
+        const string& target = vcontext->vector_value("TARGET");
 
         if ( !target.empty() )
         {

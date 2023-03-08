@@ -32,13 +32,10 @@ class Attribute
 {
 public:
 
-    Attribute(const std::string& aname):attribute_name(aname)
+    Attribute(const std::string& aname)
+        : attribute_name(aname)
     {
-        transform (
-            attribute_name.begin(),
-            attribute_name.end(),
-            attribute_name.begin(),
-            (int(*)(int))toupper);
+        one_util::toupper(attribute_name);
 
         // FIX Attribute name if it does not conform XML element
         // naming conventions
@@ -117,6 +114,8 @@ protected:
      *  The attribute name.
      */
     std::string attribute_name;
+
+    static const std::string EMPTY_ATTRIBUTE;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -267,15 +266,14 @@ public:
         , attribute_value(value)
     {}
 
-    VectorAttribute(const VectorAttribute& va)
-        : Attribute(va.attribute_name)
-        , attribute_value(va.attribute_value)
-    {}
+    VectorAttribute(const VectorAttribute& va) = default;
 
     VectorAttribute(const VectorAttribute* va)
         : Attribute(va->attribute_name)
         , attribute_value(va->attribute_value)
     {}
+
+    VectorAttribute& operator=(const VectorAttribute& va) = default;
 
     ~VectorAttribute(){};
 
@@ -291,9 +289,23 @@ public:
      *  Returns the string value
      *    @param name of the attribute
      *
-     *    @return the value of the attribute if found, empty otherwise
+     *    @return copy of the value of the attribute if found, empty otherwise
+     *
+     *    @note Non const version must return copy, as subsequent call to replace or remove
+     *      may change the value
      */
-    std::string vector_value(const std::string& name) const;
+    std::string vector_value(const std::string& name);
+
+    /**
+     *  Returns the string value
+     *    @param name of the attribute
+     *
+     *    @return reference of the value of the attribute if found, empty otherwise
+     *
+     *    @note It's safe to return reference here, as we are using
+     *      the const object, which can't change the value
+     */
+    const std::string& vector_value(const std::string& name) const;
 
     /**
      * Returns the value of the given element of the VectorAttribute
@@ -371,18 +383,18 @@ public:
      * @return the value in string form on success, "" otherwise
      */
     template<typename T>
-    std::string vector_value_str(const std::string& name, T& value) const
+    const std::string& vector_value_str(const std::string& name, T& value) const
     {
         auto it = attribute_value.find(name);
 
         if ( it == attribute_value.end() )
         {
-            return  "";
+            return EMPTY_ATTRIBUTE;
         }
 
         if ( it->second.empty() )
         {
-            return "";
+            return EMPTY_ATTRIBUTE;
         }
 
         std::istringstream iss(it->second);
@@ -390,7 +402,7 @@ public:
 
         if (iss.fail() || !iss.eof())
         {
-            return "";
+            return EMPTY_ATTRIBUTE;
         }
 
         return it->second;
@@ -445,7 +457,7 @@ public:
      *  Replace the value of the given vector attribute
      */
     template<typename T>
-    void replace(const std::string& name, T value)
+    void replace(const std::string& name, const T& value)
     {
         std::ostringstream oss;
 

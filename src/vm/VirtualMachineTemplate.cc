@@ -263,7 +263,7 @@ static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
 
     for (const auto& vname : vnames)
     {
-        std::string vval = old_attr->vector_value(vname);
+        const string& vval = old_attr->vector_value(vname);
 
         if (!vval.empty())
         {

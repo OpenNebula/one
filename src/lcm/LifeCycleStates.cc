@@ -1941,6 +1941,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             {
                 case VirtualMachine::DISK_SNAPSHOT:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
@@ -1955,6 +1956,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
@@ -2089,6 +2091,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             {
                 case VirtualMachine::DISK_SNAPSHOT:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
@@ -2098,6 +2101,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
@@ -2312,6 +2316,7 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
             {
                 case VirtualMachine::DISK_RESIZE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
 
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
@@ -2390,7 +2395,7 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
             {
                 case VirtualMachine::DISK_RESIZE:
                     vm->set_state(VirtualMachine::RUNNING);
-
+                    [[fallthrough]];
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
                     vm->log("LCM", Log::INFO, "VM disk resize operation completed.");

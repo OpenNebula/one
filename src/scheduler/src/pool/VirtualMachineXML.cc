@@ -677,13 +677,13 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 // Updates to oned
 //******************************************************************************
 
-bool VirtualMachineXML::update_sched_action(SchedAction* action)
+bool VirtualMachineXML::update_sched_action(const SchedAction* action)
 {
     xmlrpc_c::value result;
 
     try
     {
-        string action_id_str = action->vector_value("ID");
+        const string& action_id_str = action->vector_value("ID");
         int action_id = std::stoi(action_id_str);
 
         ostringstream oss;

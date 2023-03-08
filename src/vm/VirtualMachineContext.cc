@@ -417,9 +417,9 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 /* -------------------------------------------------------------------------- */
 
 static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic)
+        VectorAttribute * context, const VectorAttribute * nic)
 {
-    string pci_id = nic->vector_value("PCI_ID");
+    const string& pci_id = nic->vector_value("PCI_ID");
 
     for (const auto& con : cvars)
     {

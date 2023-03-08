@@ -301,7 +301,7 @@ private:
      *
      *    @return a new attribute representing the quota, 0 on error
      */
-    VectorAttribute * new_quota(VectorAttribute* va);
+    VectorAttribute * new_quota(const VectorAttribute* va);
 
     /**
      *  Adds a new quota, it also updates an internal index for fast accessing

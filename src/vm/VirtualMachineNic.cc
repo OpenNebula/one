@@ -154,9 +154,7 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     set<int> sgroups;
 
-    string net_mode = "";
-
-    net_mode = this->vector_value("NETWORK_MODE");
+    string net_mode = this->vector_value("NETWORK_MODE");
 
     if ( one_util::icasecmp(net_mode, "AUTO") )
     {
@@ -195,17 +193,17 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
 void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
 {
-    std::string ip      = vector_value("IP");
-    std::string ip6     = vector_value("IP6");
-    std::string ip6_ula = vector_value("IP6_ULA");
+    const string& ip      = vector_value("IP");
+    const string& ip6     = vector_value("IP6");
+    const string& ip6_ula = vector_value("IP6_ULA");
 
-    std::string ip6_link    = vector_value("IP6_LINK");
-    std::string ip6_global  = vector_value("IP6_GLOBAL");
-    std::string ip_external = vector_value("EXTERNAL_IP"); /* PROVISION AWS_IPAM */
+    const string& ip6_link    = vector_value("IP6_LINK");
+    const string& ip6_global  = vector_value("IP6_GLOBAL");
+    const string& ip_external = vector_value("EXTERNAL_IP"); /* PROVISION AWS_IPAM */
 
-    std::string reqs = vector_value("SCHED_REQUIREMENTS");
-    std::string rank = vector_value("SCHED_RANK");
-    std::string mode = vector_value("NETWORK_MODE");
+    const string& reqs = vector_value("SCHED_REQUIREMENTS");
+    const string& rank = vector_value("SCHED_RANK");
+    const string& mode = vector_value("NETWORK_MODE");
 
     oss << "<NIC>";
 

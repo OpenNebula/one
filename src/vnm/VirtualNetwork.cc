@@ -1116,9 +1116,9 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
 
     unsigned int ar_id;
 
-    string  ip  = lease->vector_value("IP");
-    string  ip6 = lease->vector_value("IP6");
-    string  mac = lease->vector_value("MAC");
+    const string& ip  = lease->vector_value("IP");
+    const string& ip6 = lease->vector_value("IP6");
+    const string& mac = lease->vector_value("MAC");
 
     int ip_ne  = ip.empty() ? 0 : 1;
     int ip6_ne = ip6.empty() ? 0 : 1;
@@ -1192,9 +1192,9 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
     unsigned int ar_id;
 
-    string  ip  = lease->vector_value("IP");
-    string  ip6 = lease->vector_value("IP6");
-    string  mac = lease->vector_value("MAC");
+    const string& ip  = lease->vector_value("IP");
+    const string& ip6 = lease->vector_value("IP6");
+    const string& mac = lease->vector_value("MAC");
 
     int ip_ne  = ip.empty() ? 0 : 1;
     int ip6_ne = ip6.empty() ? 0 : 1;

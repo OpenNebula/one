@@ -862,6 +862,8 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
                     vm->set_state(VirtualMachine::CLEANUP_DELETE);
                     vmpool->update(vm.get());
 
+                    [[fallthrough]];
+
                 case VirtualMachine::CLEANUP_DELETE:
                     dm->trigger_done(vid);
                 break;

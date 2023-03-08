@@ -48,13 +48,18 @@ public:
         return va->vector_value(name, value);
     }
 
-    std::string vector_value(const std::string& name) const
+    std::string vector_value(const std::string& name)
     {
         return va->vector_value(name);
     }
 
+    const std::string& vector_value(const std::string& name) const
+    {
+        return const_cast<const VectorAttribute*>(va)->vector_value(name);
+    }
+
     template<typename T>
-    void replace(const std::string& name, T value)
+    void replace(const std::string& name, const T& value)
     {
         va->replace(name, value);
     }

@@ -152,7 +152,6 @@ public:
     void trigger_suspend(int vid, const RequestAttributes& ra);
     void trigger_restore(int vid, const RequestAttributes& ra);
     void trigger_stop(int vid, const RequestAttributes& ra);
-    void trigger_checkpoint(int vid);
     void trigger_migrate(int vid, const RequestAttributes& ra,
                          VMActions::Action vm_action);
     void trigger_migrate(int vid, const RequestAttributes& ra)

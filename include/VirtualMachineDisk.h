@@ -603,7 +603,7 @@ public:
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
             VectorAttribute * vdisk, const std::string& tsys,
-            VectorAttribute * vcontext, std::string& error);
+            const VectorAttribute * vcontext, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */
