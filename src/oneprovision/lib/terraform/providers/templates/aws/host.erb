@@ -1,7 +1,7 @@
 resource "aws_instance" "device_<%= obj['ID'] %>" {
 
     <% if provision['AMI'] == 'default' %>
-    ami                    = data.aws_ami.ubuntu2004.id
+    ami                    = data.aws_ami.ubuntu2204.id
     <% else %>
     ami                    = "<%= provision['AMI'] %>"
     <% end %>

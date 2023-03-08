@@ -24,7 +24,7 @@ inputs:
   - name: 'google_image'
     type: text
     description: 'Google image used for host deployments'
-    default: 'ubuntu-2004-focal-v20220118'
+    default: 'ubuntu-2204-jammy-v20221214'
 
   - name: 'google_machine_type'
     type: text

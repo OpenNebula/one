@@ -2,8 +2,9 @@
 
 - name: Check supported platform
   assert:
-    that: |
-      ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
+    that:
+      - ansible_distribution == 'Ubuntu'
+      - ansible_distribution_version in ['20.04', '22.04']
     msg: "Unsupported target OS"
 
 - name: Disable ufw
