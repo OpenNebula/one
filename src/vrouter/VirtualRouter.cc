@@ -417,7 +417,6 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 
     int     vnid;
     int     ar_id;
-    string  mac;
 
     if (nic == nullptr)
     {
@@ -429,7 +428,7 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    mac = nic->vector_value("VROUTER_MAC");
+    const string& mac = nic->vector_value("VROUTER_MAC");
 
     auto vn = vnpool->get(vnid);
 

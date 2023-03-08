@@ -196,7 +196,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
         unsigned int nv = 0;
 
         std::vector<unsigned int> cpus_a;
-        std::string cpus = (*it)->vector_value("CPUS");
+        const string& cpus = (*it)->vector_value("CPUS");
 
         (*it)->vector_value("TOTAL_CPUS", nv);
 
@@ -297,8 +297,8 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     {
         unsigned int ncpu = 0;
 
-        std::string mem    = (*it)->vector_value("MEMORY");
-        std::string mem_id = (*it)->vector_value("MEMORY_NODE_ID");
+        const string& mem    = (*it)->vector_value("MEMORY");
+        const string& mem_id = (*it)->vector_value("MEMORY_NODE_ID");
 
         (*it)->vector_value("TOTAL_CPUS", ncpu);
 
@@ -687,7 +687,7 @@ int LibVirtDriver::deployment_description_kvm(
     auto os = vm->get_template_attribute("OS");
     if (os)
     {
-        auto uuid = os->vector_value("UUID");
+        const string& uuid = os->vector_value("UUID");
         if (!uuid.empty())
         {
             file << "\t<uuid>" << uuid << "</uuid>" << endl;

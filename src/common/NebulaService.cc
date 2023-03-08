@@ -29,7 +29,7 @@ Log::MessageType NebulaService::get_debug_level(Log::MessageType default_) const
 
     if (log != 0)
     {
-        string value = log->vector_value("DEBUG_LEVEL");
+        const string& value = log->vector_value("DEBUG_LEVEL");
 
         log_level_int = std::atoi(value.c_str());
 

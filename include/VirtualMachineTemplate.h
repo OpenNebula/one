@@ -40,6 +40,8 @@ public:
 
     VirtualMachineTemplate(const Template& vmt):Template(vmt){};
 
+    VirtualMachineTemplate(const VirtualMachineTemplate& t) = default;
+
     VirtualMachineTemplate& operator=(const VirtualMachineTemplate& t)
     {
         if (this != &t)

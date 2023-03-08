@@ -2584,7 +2584,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
         ostringstream                   oss;
         VirtualMachineManagerDriver *   vmm_driver = nullptr;
 
-        string name  = vattr->vector_value("NAME");
+        const string& name = vattr->vector_value("NAME");
         string type  = vattr->vector_value("TYPE");
 
         one_util::toupper(type);
