@@ -208,11 +208,11 @@ string SchedulerTemplate::get_nics_policy() const
     switch (policy)
     {
         case 0: //Packing
-            rank = "- USED_LEASES";
+            rank = "USED_LEASES";
         break;
 
         case 1: //Striping
-            rank = "USED_LEASES";
+            rank = "- USED_LEASES";
         break;
 
         case 2: //Custom
