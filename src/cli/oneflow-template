@@ -78,7 +78,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     RECURSIVE = {
         :name  => 'recursive',
-        :short => '-r',
+        :short => '-R',
         :large => '--recursive',
         :description => 'Clone the template recursively (templates and images)'
     }
