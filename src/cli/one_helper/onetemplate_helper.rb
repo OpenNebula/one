@@ -53,6 +53,7 @@ EOT
 
     RECURSIVE={
         :name => "recursive",
+        :short => "-R",
         :large => "--recursive",
         :description => "Applies the action to the template plus any "+
         "image defined in DISK"
