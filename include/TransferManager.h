@@ -174,6 +174,19 @@ public:
     int backup_transfer_commands(
             VirtualMachine *    vm,
             std::ostream&       xfr);
+
+    /**
+     *  Generate backup cancel command
+     *    @param vm
+     *    @param xfr stream to include the command.
+     *    @param os describing error if any
+     *
+     *    @return 0 on success
+     */
+    int backup_cancel_transfer_commands(
+            VirtualMachine *    vm,
+            std::ostream&       xfr);
+
 private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

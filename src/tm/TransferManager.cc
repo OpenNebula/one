@@ -2299,6 +2299,37 @@ int TransferManager::backup_transfer_commands(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int TransferManager::backup_cancel_transfer_commands(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    if (!vm->hasHistory())
+    {
+        return -1;
+    }
+
+    string tm_mad_system;
+    /*
+    string tsys = disk->vector_value("TM_MAD_SYSTEM");
+    if (!tsys.empty())
+    {
+        tm_mad_system = "." + tsys;
+    }
+    */
+
+    //BACKUPCANCEL(.tm_mad_system) tm_mad host:remote_dir deploy_id
+    xfr << "BACKUPCANCEL" << tm_mad_system
+        << " " << vm->get_tm_mad() << " "
+        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
+        << vm->get_deploy_id()
+        << endl;
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 /* ************************************************************************** */
 /* MAD Loading                                                                */
 /* ************************************************************************** */

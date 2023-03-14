@@ -4105,3 +4105,33 @@ void VirtualMachineBackup::request_execute(
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineBackupCancel::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    Nebula&            nd = Nebula::instance();
+    DispatchManager *  dm = nd.get_dm();
+
+    // Get request parameters
+    int vm_id = xmlrpc_c::value_int(paramList.getInt(1));
+
+    // Authorize request (VM access)
+    if (!vm_authorization(vm_id, 0, 0, att, 0, 0, 0))
+    {
+        return;
+    }
+
+    // Cancel the backup, VM state is checked in DM
+    if (dm->backup_cancel(vm_id, att, att.resp_msg) != 0)
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(vm_id, att);
+
+    return;
+}

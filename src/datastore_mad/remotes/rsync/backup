@@ -51,23 +51,22 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'CommandManager'
+require 'pathname'
 require 'rexml/document'
 require 'securerandom'
-require 'pathname'
 
-require_relative '../../tm/lib/tm_action'
 require_relative '../../tm/lib/datastore'
+require_relative '../../tm/lib/tm_action'
 
-# BACKUP host:remote_dir DISK_ID:..:DISK_ID deploy_id vmid dsid
+# BACKUP host:remote_dir DISK_ID:..:DISK_ID vm_uuid vm_id ds_id
 
 ds_xml = STDIN.read
 
-dir     = ARGV[0].split ':'
-_disks  = ARGV[1].split ':'
-_vmuuid = ARGV[2]
-vmid    = ARGV[3]
-_dsid   = ARGV[4]
+dir      = ARGV[0].split(':')
+_disks   = ARGV[1].split(':')
+_vm_uuid = ARGV[2]
+vm_id    = ARGV[3]
+_ds_id   = ARGV[4]
 
 vm_host = dir[0]
 
@@ -88,7 +87,7 @@ begin
         args = ds.elements['TEMPLATE/RSYNC_ARGS'].text
     end
 
-    ds = TransferManager::Datastore.new(:ds_xml => ds_xml)
+    ds = TransferManager::Datastore.new :ds_xml => ds_xml
 rescue StandardError => e
     STDERR.puts e.message
     exit(-1)
@@ -97,21 +96,49 @@ end
 path = Pathname.new(base).cleanpath.to_s
 
 backup_id   = SecureRandom.hex[0, 6].to_s
-backup_path = "#{path}/#{vmid}/#{backup_id}/"
+backup_path = "#{path}/#{vm_id}/#{backup_id}/"
+
+#-------------------------------------------------------------------------------
+# Install cleanup handler (triggered by backup_cancel action).
+#   1. [rsync server] delete backup path recursively
+#-------------------------------------------------------------------------------
+Signal.trap(:TERM) do
+    Thread.new do
+        rc = TransferManager::Action.ssh 'purge_dst_path',
+                                         :host     => "#{rsync_user}@#{rsync_host}",
+                                         :cmds     => "rm -rf #{backup_path}",
+                                         :nostdout => true,
+                                         :nostderr => false
+
+        if rc.code != 0
+            STDERR.puts "Error purging rsync dst path: #{rc.stderr}"
+            exit(-1)
+        end
+
+        STDERR.puts "Backup cancelled: #{backup_id}"
+        STDERR.flush
+
+        # Suppress "`read': stream closed in another thread (IOError)".
+        STDOUT.reopen IO::NULL
+        STDERR.reopen IO::NULL
+
+        exit(-1) # fail anyway
+    end.join
+end
 
 #-------------------------------------------------------------------------------
 # Rsync backup files to server:
 #   1. [rsync server] make backup path
 #   2. [host] Compute backup total size & rsync files
 #-------------------------------------------------------------------------------
-rc = TransferManager::Action.ssh('make_dst_path',
-                                 :host => "#{rsync_user}@#{rsync_host}",
-                                 :cmds => "mkdir -p #{backup_path}",
-                                 :nostderr => false,
-                                 :nostdout => false)
+rc = TransferManager::Action.ssh 'make_dst_path',
+                                 :host     => "#{rsync_user}@#{rsync_host}",
+                                 :cmds     => "mkdir -p #{backup_path}",
+                                 :nostdout => true,
+                                 :nostderr => false
 
 if rc.code != 0
-    STDERR.puts "Error making rsync dst path: #{rc.stdout} #{rc.stderr}"
+    STDERR.puts "Error making rsync dst path: #{rc.stderr}"
     exit(-1)
 end
 
@@ -127,18 +154,17 @@ script = <<~EOS
     echo $BKSIZE
 EOS
 
-rc = TransferManager::Action.ssh('backup',
+rc = TransferManager::Action.ssh 'backup',
                                  :host     => vm_host,
                                  :cmds     => script,
                                  :forward  => true,
-                                 :nostderr => false,
-                                 :nostdout => false)
+                                 :nostdout => false,
+                                 :nostderr => false
 
 if rc.code != 0 || rc.stdout.empty?
-    STDERR.puts "Error copying backup: #{rc.stdout} #{rc.stderr}"
+    STDERR.puts "Error copying backup: #{rc.stderr}"
     exit(-1)
 end
 
-STDOUT.puts "#{backup_id} #{rc.stdout.split[0]}"
-
+STDOUT.puts "#{backup_id} #{rc.stdout.lines.last.split[0]}"
 exit(0)

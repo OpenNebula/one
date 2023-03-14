@@ -131,6 +131,9 @@ int VirtualMachineManager::start()
     register_action(VMManagerMessages::UPDATENIC,
             bind(&VirtualMachineManager::_updatenic, this, _1));
 
+    register_action(VMManagerMessages::BACKUPCANCEL,
+            bind(&VirtualMachineManager::_driver_cancel, this, _1));
+
     string error;
     if ( DriverManager::start(error) != 0 )
     {
@@ -2544,25 +2547,116 @@ void VirtualMachineManager::trigger_backup(int vid)
 
     error_history:
         os.str("");
-        os << "backup_create_action, VM has no history";
+        os << "backup, VM has no history";
         goto error_common;
 
     error_driver:
         os.str("");
-        os << "backup_create_action, error getting driver " << vm->get_vmm_mad();
+        os << "backup, error getting driver " << vm->get_vmm_mad();
         goto error_common;
 
     error_ds:
         os.str("");
-        os << "backup_create_action, backup datastore " << ds_backup_id
+        os << "backup, backup datastore " << ds_backup_id
            << " does not exist";
         goto error_common;
 
     error_common:
         LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-        lcm->trigger_snapshot_create_failure(vid);
+        lcm->trigger_backup_failure(vid);
 
+        vm->log("VMM", Log::ERROR, os);
+        return;
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineManager::trigger_backup_cancel(int vid)
+{
+    trigger([this, vid] {
+        const VirtualMachineManagerDriver * vmd;
+
+        ostringstream os, xfr;
+
+        string  vm_tmpl;
+        string  drv_msg;
+
+        Nebula&           nd = Nebula::instance();
+        TransferManager * tm = nd.get_tm();
+        int ds_backup_id;
+
+        // Get the VM from the pool
+        auto vm = vmpool->get(vid);
+
+        if (vm == nullptr)
+        {
+            return;
+        }
+
+        if (!vm->hasHistory())
+        {
+            goto error_history;
+        }
+
+        // Generate backup cancel command
+        if (tm->backup_cancel_transfer_commands(vm.get(), xfr) == -1)
+        {
+            return;
+        }
+
+        // Get the driver for this VM
+        vmd = get(vm->get_vmm_mad());
+
+        if (vmd == nullptr)
+        {
+            goto error_driver;
+        }
+
+        ds_backup_id = vm->backups().last_datastore_id();
+
+        if (ds_pool->exist(ds_backup_id) == -1)
+        {
+            goto error_ds;
+        }
+
+        drv_msg = format_message(
+            vm->get_hostname(),
+            "",
+            vm->get_deploy_id(),
+            "",
+            "",
+            "",
+            xfr.str(),
+            "",
+            "",
+            vm->to_xml(vm_tmpl),
+            ds_backup_id,
+            -1);
+
+        vmd->backup_cancel(vid, drv_msg);
+
+        return;
+
+    error_history:
+        os.str("");
+        os << "backup cancel, VM has no history";
+        goto error_common;
+
+    error_driver:
+        os.str("");
+        os << "backup cancel, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
+
+    error_ds:
+        os.str("");
+        os << "backup cancel, backup datastore " << ds_backup_id
+           << " does not exist";
+        goto error_common;
+
+    error_common:
         vm->log("VMM", Log::ERROR, os);
         return;
     });

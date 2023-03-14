@@ -661,4 +661,23 @@ protected:
             RequestAttributes& ra) override;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineBackupCancel : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineBackupCancel():
+        RequestManagerVirtualMachine("one.vm.backupcancel",
+                           "Cancel an active backup operation",
+                           "A:si")
+    {
+        vm_action = VMActions::BACKUP_ACTION;
+        auth_op   = AuthRequest::ADMIN;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
 #endif
