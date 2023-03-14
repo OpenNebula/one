@@ -188,7 +188,8 @@ class VmmAction
     DRIVER_NAMES = {
         :vmm => 'virtualization driver',
         :vnm => 'network driver',
-        :tm  => 'transfer manager driver'
+        :tm  => 'transfer manager driver',
+        :ds  => 'datastore driver'
     }
 
     # Prepares the list of drivers executed on the host and the xml that will
@@ -1365,6 +1366,31 @@ class ExecDriver < VirtualMachineDriver
                 :action     => post_name,
                 :parameters => post_tm,
                 :stdin      => vm_xml
+            }
+        ]
+
+        action.run(steps)
+    end
+
+    def backup_cancel(id, drv_message)
+        aname    = ACTION[:backup_cancel]
+        xml_data = decode(drv_message)
+
+        action = VmmAction.new(self, id, :backup_cancel, drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, aname, 'TM_COMMAND') || return
+        bck_mad    = ensure_xpath(xml_data, id, aname, 'DATASTORE/DS_MAD') || return
+
+        tm = tm_command.split
+
+        ds_command = ['BACKUP_CANCEL', bck_mad].concat(tm[2..-1])
+
+        # Backup cancel operation steps
+        steps = [
+            {
+                :driver     => :ds,
+                :action     => :backup_cancel,
+                :parameters => ds_command
             }
         ]
 

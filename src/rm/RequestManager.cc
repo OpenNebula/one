@@ -347,6 +347,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_attachsg(new VirtualMachineAttachSG());
     xmlrpc_c::methodPtr vm_detachsg(new VirtualMachineDetachSG());
     xmlrpc_c::methodPtr vm_backup(new VirtualMachineBackup());
+    xmlrpc_c::methodPtr vm_backupcancel(new VirtualMachineBackupCancel());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -587,6 +588,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.attachsg", vm_attachsg);
     RequestManagerRegistry.addMethod("one.vm.detachsg", vm_detachsg);
     RequestManagerRegistry.addMethod("one.vm.backup", vm_backup);
+    RequestManagerRegistry.addMethod("one.vm.backupcancel", vm_backupcancel);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);

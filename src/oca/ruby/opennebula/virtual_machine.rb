@@ -58,7 +58,8 @@ module OpenNebula
             :attachsg       => "vm.attachsg",
             :detachsg       => "vm.detachsg",
             :backup         => "vm.backup",
-            :updatenic      => "vm.updatenic"
+            :updatenic      => "vm.updatenic",
+            :backupcancel   => "vm.backupcancel"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -805,6 +806,14 @@ module OpenNebula
         # in case of success, Error otherwise.
         def backup(ds_id = -1, reset = false)
             return @client.call(VM_METHODS[:backup], @pe_id, ds_id, reset)
+        end
+
+        # Cancel ongoing backup operation for the VM
+        #
+        # @return [nil, OpenNebula::Error] nil in case of sucess, Error
+        #  otherwise.
+        def backup_cancel()
+            return @client.call(VM_METHODS[:backupcancel], @pe_id)
         end
 
         ########################################################################

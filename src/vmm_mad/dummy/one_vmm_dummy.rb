@@ -225,6 +225,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:backup], result, id, 'dummy-backup-id 1024')
     end
 
+    def backup_cancel(id, drv_message)
+        result = retrieve_result("backup_cancel")
+
+        send_message(ACTION[:backup_cancel], result, id)
+    end
+
     def update_nic(id, drv_message)
         result = retrieve_result("update_nic")
 

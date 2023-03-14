@@ -554,11 +554,18 @@ public:
     void trigger_resize(int vid);
 
   /**
-     * Create backup fot the VM
+     * Create backup for the VM
      *
      * @param vid the id of the VM.
      */
     void trigger_backup(int vid);
+
+  /**
+     * Cancel ongoing backup operation
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_backup_cancel(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

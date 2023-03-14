@@ -1594,6 +1594,25 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    backup_cancel_desc = <<-EOT.unindent
+        Cancels an active VM backup operation
+
+        States: RUNNING, POWEROFF
+    EOT
+
+    command :'backup-cancel',
+            backup_cancel_desc,
+            :vmid do
+        helper.perform_action(args[0], options, 'Canceling backup') do |vm|
+            rc = vm.backup_cancel
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error canceling VM backup: #{rc.message}"
+                exit(-1)
+            end
+        end
+    end
+
     ssh_desc = <<-EOT.unindent
         SSH into VM
 

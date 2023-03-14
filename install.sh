@@ -2236,6 +2236,7 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/snap_flatten \
                          src/datastore_mad/remotes/rsync/rm \
                          src/datastore_mad/remotes/rsync/backup \
+                         src/datastore_mad/remotes/rsync/backup_cancel \
                          src/datastore_mad/remotes/rsync/restore \
                          src/datastore_mad/remotes/rsync/export \
                          src/datastore_mad/remotes/rsync/increment_flatten"

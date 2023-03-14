@@ -2819,3 +2819,42 @@ int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::backup_cancel(int vid,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine::LcmState state;
+
+    if ( auto vm = vmpool->get(vid) )
+    {
+        state = vm->get_lcm_state();
+    }
+    else
+    {
+        oss << "Could not cancel backup for VM " << vid
+            << ", VM does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    // Check backup state
+    if (state != VirtualMachine::BACKUP &&
+        state != VirtualMachine::BACKUP_POWEROFF)
+    {
+        oss << "Could not cancel backup for VM " << vid
+            << ", no backup in progress";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    vmm->trigger_backup_cancel(vid);
+
+    return 0;
+}

@@ -586,6 +586,19 @@ private:
     }
 
     /**
+     *  Sends a backup cancel create request to the MAD:
+     *  "BACKUPCANCEL ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void backup_cancel(
+        const int          oid,
+        const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::BACKUPCANCEL, oid, drv_msg);
+    }
+
+    /**
      *  Sends a request to update the VM nic:
      *  "UPDATENIC ID XML_DRV_MSG"
      *    @param oid the virtual machine id.
