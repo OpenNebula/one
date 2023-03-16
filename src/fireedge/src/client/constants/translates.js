@@ -375,6 +375,8 @@ module.exports = {
   NetworksTopologies: 'Networks topologies',
   SecurityGroup: 'Security group',
   SecurityGroups: 'Security groups',
+  NoNetworksInMonitoring:
+    'There is currently no network monitoring information associated with this VM',
 
   /* sections - storage */
   Backups: 'Backups',

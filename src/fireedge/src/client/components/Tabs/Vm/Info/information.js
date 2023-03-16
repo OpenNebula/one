@@ -75,7 +75,8 @@ const InformationPanel = ({ vm = {}, actions }) => {
     CID: clusterId,
   } = getLastHistory(vm)
 
-  const { data: cluster } = useGetClusterAdminQuery({ id: clusterId })
+  const { data: cluster } =
+    clusterId !== undefined ? useGetClusterAdminQuery({ id: clusterId }) : {}
   const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
 
   const handleRename = async (_, newName) => {
