@@ -29,11 +29,9 @@ import {
   entrypointApi,
   entrypointApp,
 } from './routes/entrypoints'
-import opennebulaWebsockets from './routes/websockets/opennebula'
 import guacamole from './routes/websockets/guacamole'
+import opennebulaWebsockets from './routes/websockets/opennebula'
 import vmrc from './routes/websockets/vmrc'
-import { getFireedgeConfig } from './utils/yml'
-import { messageTerminal } from './utils/general'
 import {
   defaultAppName,
   defaultApps,
@@ -42,6 +40,7 @@ import {
   defaultPort,
   defaultWebpackMode,
 } from './utils/constants/defaults'
+import { messageTerminal } from './utils/general'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
   genFireedgeKey,
@@ -50,6 +49,7 @@ import {
   getKey,
   validateServerIsSecure,
 } from './utils/server'
+import { getFireedgeConfig } from './utils/yml'
 
 // set paths
 genPathResources()
@@ -75,7 +75,7 @@ let frontPath = 'client'
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 
-if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
+if (env?.NODE_ENV === defaultWebpackMode) {
   try {
     const webpackConfig = require('../../webpack.config.dev.client')
     const compiler = webpack(webpackConfig)
@@ -115,7 +115,7 @@ if (loggerMiddleware) {
   app.use(loggerMiddleware)
 }
 
-// cors
+// CORS
 if (appConfig.cors) {
   app.use(cors())
 }
@@ -129,7 +129,7 @@ frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/sunstone`))
+app.get('/*', (_, res) => res.redirect(`/${defaultAppName}/sunstone`))
 // 404 - public
 app.get('*', entrypoint404)
 

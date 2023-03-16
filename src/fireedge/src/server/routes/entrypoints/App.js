@@ -21,10 +21,19 @@ const root = require('window-or-global')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
+const { request: axios } = require('axios')
 
 // server
-const { getSunstoneConfig, getProvisionConfig } = require('server/utils/yml')
-const { defaultApps } = require('server/utils/constants/defaults')
+const {
+  getSunstoneConfig,
+  getProvisionConfig,
+  getFireedgeConfig,
+} = require('server/utils/yml')
+const {
+  defaultApps,
+  defaultAppName,
+  defaultHeaderRemote,
+} = require('server/utils/constants/defaults')
 
 // client
 const rootReducer = require('client/store/reducers')
@@ -44,7 +53,30 @@ const ensuredScriptValue = (value) =>
 
 const router = Router()
 
-router.get('*', (req, res) => {
+router.get('*', async (req, res) => {
+  const remoteJWT = {}
+
+  const appConfig = getFireedgeConfig()
+  if (appConfig?.auth === 'remote') {
+    remoteJWT.remote = true
+    if (req.get(defaultHeaderRemote)) {
+      try {
+        const jwt = await axios({
+          method: 'POST',
+          url: `${req.protocol}://${req.get(
+            'host'
+          )}/${defaultAppName}/api/auth`,
+          data: {
+            user: req.get(defaultHeaderRemote),
+          },
+          validateStatus: (status) => status >= 200 && status <= 400,
+        })
+        jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
+        jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
+      } catch {}
+    }
+  }
+
   const appName = parse(req.url)
     .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
@@ -69,6 +101,7 @@ router.get('*', (req, res) => {
   const config = `
     <script id="preload-server-side">
       window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
+      window.__REMOTE_AUTH__ = ${JSON.stringify(remoteJWT)}
     </script>`
 
   const storeRender = `

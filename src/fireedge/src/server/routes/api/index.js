@@ -14,10 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { env } = require('process')
 const multer = require('multer')
 const { messageTerminal } = require('server/utils/general')
 const { getRequestParameters, getRequestFiles } = require('server/utils/server')
 const {
+  defaultWebpackMode,
   defaultConfigErrorMessage,
   defaultTmpPath,
 } = require('server/utils/constants/defaults')
@@ -126,6 +128,14 @@ routes.forEach((file) => {
       )
     }
   } catch (error) {
+    if (env.NODE_ENV === defaultWebpackMode) {
+      messageTerminal({
+        color: 'red',
+        message: 'error: %s',
+        error,
+      })
+    }
+
     if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
       const config = defaultConfigErrorMessage
       config.error = error.message

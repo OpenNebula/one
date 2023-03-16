@@ -14,195 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { ReactElement, useState, useMemo } from 'react'
-import {
-  Box,
-  Container,
-  LinearProgress,
-  Link,
-  useMediaQuery,
-} from '@mui/material'
-
-import {
-  useLoginMutation,
-  useChangeAuthGroupMutation,
-} from 'client/features/OneApi/auth'
-import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useGeneral } from 'client/features/General'
-
-import Form from 'client/containers/Login/Form'
-import * as FORMS from 'client/containers/Login/schema'
-import { OpenNebulaLogo } from 'client/components/Icons'
-import { Translate } from 'client/components/HOC'
-import { sentenceCase } from 'client/utils'
-import { T, APPS, APP_URL, APPS_WITH_ONE_PREFIX } from 'client/constants'
-
-const STEPS = {
-  USER_FORM: 0,
-  FA2_FORM: 1,
-  GROUP_FORM: 2,
-}
+import OpenNebula from 'client/containers/Login/Opennebula'
+import Remote from 'client/containers/Login/Remote'
+import { ReactElement } from 'react'
 
 /**
  * Displays the login form and handles the login process.
  *
  * @returns {ReactElement} The login form.
  */
-function Login() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
-
-  const { logout } = useAuthApi()
-  const { error: authError, isLoginInProgress: needGroupToContinue } = useAuth()
-
-  const [changeAuthGroup, changeAuthGroupState] = useChangeAuthGroupMutation()
-  const [login, loginState] = useLoginMutation()
-  const isLoading = loginState.isLoading || changeAuthGroupState.isLoading
-  const errorMessage = loginState.error?.data?.message ?? authError
-
-  const [dataUserForm, setDataUserForm] = useState(undefined)
-  const [step, setStep] = useState(() =>
-    needGroupToContinue ? STEPS.GROUP_FORM : STEPS.USER_FORM
+const Login = () =>
+  window?.__REMOTE_AUTH__?.remote ? (
+    <Remote data={window?.__REMOTE_AUTH__} />
+  ) : (
+    <OpenNebula />
   )
-
-  const handleSubmitUser = async (dataForm) => {
-    try {
-      const response = await login({ ...dataUserForm, ...dataForm }).unwrap()
-      const { jwt, user, isLoginInProgress } = response || {}
-
-      if (jwt && isLoginInProgress) {
-        setStep(STEPS.GROUP_FORM)
-      } else if (!jwt && user?.ID) {
-        setStep(STEPS.FA2_FORM)
-        setDataUserForm(dataForm)
-      }
-    } catch {}
-  }
-
-  const handleSubmitGroup = (dataForm) => {
-    changeAuthGroup(dataForm)
-  }
-
-  const handleBack = () => {
-    logout()
-    setDataUserForm(undefined)
-    setStep(STEPS.USER_FORM)
-  }
-
-  return (
-    <Container
-      component="main"
-      disableGutters={isMobile}
-      maxWidth={isMobile ? 'lg' : 'xs'}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100vh',
-      }}
-    >
-      <LinearProgress
-        color="secondary"
-        sx={{ visibility: isLoading ? 'visible' : 'hidden' }}
-      />
-      <Box
-        sx={{
-          p: 2,
-          overflow: 'hidden',
-          minHeight: 440,
-          border: ({ palette }) => ({
-            xs: 'none',
-            sm: `1px solid ${palette.divider}`,
-          }),
-          borderRadius: ({ shape }) => shape.borderRadius / 2,
-          height: { xs: 'calc(100vh - 4px)', sm: 'auto' },
-          backgroundColor: { xs: 'transparent', sm: 'background.paper' },
-        }}
-      >
-        <OpenNebulaLogo
-          data-cy="opennebula-logo"
-          height={100}
-          width="100%"
-          withText
-        />
-
-        <Box display="flex" py={2} px={1} overflow="hidden">
-          {step === STEPS.USER_FORM && (
-            <Form
-              transitionProps={{
-                direction: 'right',
-                in: step === STEPS.USER_FORM,
-                enter: false,
-              }}
-              onSubmit={handleSubmitUser}
-              resolver={FORMS.FORM_USER_SCHEMA}
-              fields={FORMS.FORM_USER_FIELDS}
-              error={errorMessage}
-              isLoading={isLoading}
-            />
-          )}
-          {step === STEPS.FA2_FORM && (
-            <Form
-              transitionProps={{
-                direction: 'left',
-                in: step === STEPS.FA2_FORM,
-              }}
-              onBack={handleBack}
-              onSubmit={handleSubmitUser}
-              resolver={FORMS.FORM_2FA_SCHEMA}
-              fields={FORMS.FORM_2FA_FIELDS}
-              error={errorMessage}
-              isLoading={isLoading}
-            />
-          )}
-          {step === STEPS.GROUP_FORM && (
-            <Form
-              transitionProps={{
-                direction: 'left',
-                in: step === STEPS.GROUP_FORM,
-              }}
-              onBack={handleBack}
-              onSubmit={handleSubmitGroup}
-              resolver={FORMS.FORM_GROUP_SCHEMA}
-              fields={FORMS.FORM_GROUP_FIELDS}
-              error={errorMessage}
-              isLoading={isLoading}
-            />
-          )}
-        </Box>
-
-        {useMemo(() => STEPS.USER_FORM === step && <AppLinks />, [step])}
-      </Box>
-    </Container>
-  )
-}
-
-const AppLinks = () => {
-  const { appTitle } = useGeneral()
-  const otherApps = APPS.filter((app) => app !== `${appTitle}`.toLowerCase())
-
-  if (otherApps?.length === 0) {
-    return null
-  }
-
-  return otherApps.map((app) => (
-    <Link
-      key={app}
-      data-cy={`goto-${app}`.toLowerCase()}
-      href={`${APP_URL}/${app}`.toLowerCase()}
-      variant="caption"
-      color="text.secondary"
-      padding={1}
-    >
-      <Translate
-        word={T.TakeMeToTheAppGui}
-        values={
-          APPS_WITH_ONE_PREFIX.includes(app)
-            ? `One${sentenceCase(app)}`
-            : sentenceCase(app)
-        }
-      />
-    </Link>
-  ))
-}
 
 export default Login
