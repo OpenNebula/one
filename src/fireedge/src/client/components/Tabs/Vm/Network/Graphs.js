@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { Grid } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
-import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
 import { Chartist } from 'client/components/Charts'
-import { Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
+import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
 
 const interpolationBytesSeg = (value) => `${value}B/s`
 const interpolationBytes = (value) => `${value}B`
@@ -35,7 +35,11 @@ const interpolationBytes = (value) => `${value}B`
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = useGetMonitoringQuery(id)
 
-  return (
+  return !monitoring.length ? (
+    <Typography variant="h6" zIndex={2} noWrap>
+      <Translate word={T.NoNetworksInMonitoring} />
+    </Typography>
+  ) : (
     <Grid container spacing={1}>
       <Grid item xs={12} sm={6}>
         <Chartist
