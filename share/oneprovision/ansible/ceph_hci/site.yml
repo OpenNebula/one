@@ -249,6 +249,12 @@
       vars:
         ceph_opennebula_osd_libvirt_enabled: "{% if oneprovision_hypervisor == 'lxc' %}False{% else %}True{% endif %}"
 
+    - name: Install rbd-nbd ceph client
+      package:
+        name: rbd-nbd
+        state: latest
+        update_cache: yes
+      when: oneprovision_hypervisor== 'lxc'
 
   post_tasks:
     - name: set ceph client install 'Complete'
