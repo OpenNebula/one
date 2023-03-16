@@ -1058,10 +1058,16 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
-        case VirtualMachine::BACKUP:
             vm->set_running_etime(the_time);
 
             vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
+        break;
+
+        case VirtualMachine::BACKUP:
+            vm->set_running_etime(the_time);
+
+            vmm->trigger_backup_cancel(vid);
             vmm->trigger_cleanup(vid, false);
         break;
 
