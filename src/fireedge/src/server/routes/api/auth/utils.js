@@ -47,6 +47,9 @@ const { ok, unauthorized, accepted, internalServerError } = httpCodes
 
 const { GET } = httpMethod
 
+const { USER_INFO, USER_POOL_INFO } = ActionUsers
+const { ZONE_POOL_INFO } = ActionZones
+
 let user = ''
 let pass = ''
 let type = ''
@@ -230,13 +233,7 @@ const connectOpennebula = (usr = '', pss = '') => {
  * @param {string} code - http code
  */
 const updaterResponse = (code) => {
-  if (
-    'id' in code &&
-    'message' in code &&
-    res &&
-    res.locals &&
-    res.locals.httpCode
-  ) {
+  if ('id' in code && 'message' in code && res?.locals?.httpCode) {
     res.locals.httpCode = code
   }
 }
@@ -283,12 +280,10 @@ const validate2faAuthentication = (informationUser) => {
  */
 const genJWT = (token, informationUser) => {
   if (
-    token &&
-    token.token &&
-    token.time &&
-    informationUser &&
-    informationUser.ID &&
-    informationUser.NAME
+    token?.token &&
+    token?.time &&
+    informationUser?.ID &&
+    informationUser?.NAME
   ) {
     const { ID: id, TEMPLATE: userTemplate, NAME: username } = informationUser
     const dataJWT = { id, user: username, token: token.token }
@@ -296,7 +291,7 @@ const genJWT = (token, informationUser) => {
     const jwt = createJWT(dataJWT, nowUnix, expire)
     if (jwt) {
       const rtn = { token: jwt, id }
-      if (userTemplate && userTemplate.SUNSTONE && userTemplate.SUNSTONE.LANG) {
+      if (userTemplate?.SUNSTONE?.LANG) {
         rtn.language = userTemplate.SUNSTONE.LANG
       }
       updaterResponse(httpResponse(ok, rtn))
@@ -345,11 +340,8 @@ const setZones = () => {
   if (global && !global.zones) {
     const oneConnect = connectOpennebula()
     oneConnect({
-      action: ActionZones.ZONE_POOL_INFO,
-      parameters: getDefaultParamsOfOpennebulaCommand(
-        ActionZones.ZONE_POOL_INFO,
-        GET
-      ),
+      action: ZONE_POOL_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(ZONE_POOL_INFO, GET),
       callback: (err, value) => {
         // res, err, value, response, next
         responseOpennebula(
@@ -486,48 +478,86 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
 }
 
 /**
+ * Get server admin.
+ *
+ * @returns {object|undefined} data serveradmin
+ */
+const getServerAdmin = () => {
+  const serverAdminData = getSunstoneAuth()
+  const { username, key, iv } = serverAdminData
+  if (username && key && iv) {
+    return {
+      ...serverAdminData,
+      token: createTokenServerAdmin({
+        serverAdmin: username,
+        username,
+        key,
+        iv,
+      }),
+    }
+  }
+}
+
+/**
  * Get server admin and wrap user.
  *
  * @param {object} userData - opennebula user data
  */
 const getServerAdminAndWrapUser = (userData = {}) => {
-  const serverAdminData = getSunstoneAuth()
-  if (
-    serverAdminData &&
-    serverAdminData.username &&
-    serverAdminData.key &&
-    serverAdminData.iv
-  ) {
-    const tokenWithServerAdmin = createTokenServerAdmin({
-      serverAdmin: serverAdminData.username,
-      username: serverAdminData.username,
-      key: serverAdminData.key,
-      iv: serverAdminData.iv,
+  const serverAdminData = getServerAdmin()
+  const { username, token } = serverAdminData
+  if (username && token) {
+    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
+    oneConnect({
+      action: USER_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(USER_INFO, GET),
+      callback: (err, value) => {
+        responseOpennebula(
+          updaterResponse,
+          err,
+          value,
+          (serverAdmin = {}) => wrapUserWithServerAdmin(serverAdmin, userData),
+          next
+        )
+      },
+      fillHookResource: false,
     })
-    if (tokenWithServerAdmin.token) {
-      const oneConnect = connectOpennebula(
-        `${serverAdminData.username}:${serverAdminData.username}`,
-        tokenWithServerAdmin.token
-      )
-      oneConnect({
-        action: ActionUsers.USER_INFO,
-        parameters: getDefaultParamsOfOpennebulaCommand(
-          ActionUsers.USER_INFO,
-          GET
-        ),
-        callback: (err, value) => {
-          responseOpennebula(
-            updaterResponse,
-            err,
-            value,
-            (serverAdmin = {}) =>
-              wrapUserWithServerAdmin(serverAdmin, userData),
-            next
+  }
+}
+
+/**
+ * Remote login route function.
+ *
+ * @param {string} userData - user remote data user:password
+ */
+const remoteLogin = (userData = '') => {
+  const serverAdminData = getServerAdmin()
+  const { username, token } = serverAdminData
+  const [usr, pss] = userData.split(':')
+  if (username && token && usr && pss) {
+    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
+    oneConnect({
+      action: USER_POOL_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(USER_POOL_INFO, GET),
+      callback: (_, value) => {
+        const users = value?.USER_POOL?.USER || []
+        if (users.length) {
+          const userFound = users.find(
+            (data) =>
+              data.NAME === usr &&
+              data.PASSWORD === pss &&
+              data.AUTH_DRIVER === 'public'
           )
-        },
-        fillHookResource: false,
-      })
-    }
+          if (userFound) {
+            setZones()
+            getServerAdminAndWrapUser(userFound)
+          } else {
+            next()
+          }
+        }
+      },
+      fillHookResource: false,
+    })
   }
 }
 
@@ -541,7 +571,7 @@ const login = (userData) => {
   if (userData) {
     const appConfig = getFireedgeConfig()
     const namespace = appConfig.namespace || defaultNamespace
-    const findTextError = `[${namespace}.${ActionUsers.USER_INFO}]`
+    const findTextError = `[${namespace}.${USER_INFO}]`
     if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
       updaterResponse(httpResponse(unauthorized))
     } else {
@@ -578,6 +608,7 @@ const functionRoutes = {
   connectOpennebula,
   getCreatedTokenOpennebula,
   createTokenServerAdmin,
+  remoteLogin,
 }
 
 module.exports = functionRoutes

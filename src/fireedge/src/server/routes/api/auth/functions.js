@@ -27,10 +27,12 @@ const {
   setNodeConnect,
   connectOpennebula,
   updaterResponse,
+  remoteLogin,
 } = require('server/routes/api/auth/utils')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 const { Actions } = require('server/utils/constants/commands/user')
+const { getFireedgeConfig } = require('server/utils/yml')
 const {
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
@@ -73,7 +75,7 @@ const loginUser = (
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const auth = (
+const coreAuth = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
@@ -127,6 +129,57 @@ const auth = (
   }
 }
 
+/**
+ * Fireedge user remote auth.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ */
+const remoteAuth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const { user } = params
+  setRes(res)
+  setNext(next)
+  setNodeConnect(oneConnection)
+  updaterResponse(new Map(internalServerError).toObject())
+  user ? remoteLogin(user) : next()
+}
+
+/**
+ * Fireedge select type auth.
+ * (This is because the authentication methods have to be extended after that).
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ * @returns {Function} - auth function
+ */
+const selectTypeAuth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const appConfig = getFireedgeConfig()
+  switch (appConfig?.auth) {
+    case 'remote':
+      return remoteAuth(res, next, params, userData, oneConnection)
+    default:
+      return coreAuth(res, next, params, userData, oneConnection)
+  }
+}
+
 module.exports = {
-  auth,
+  selectTypeAuth,
 }

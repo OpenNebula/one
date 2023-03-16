@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
+import { FILTER_POOL, JWT_NAME } from 'client/constants'
 import { removeStoreData } from 'client/utils'
-import { JWT_NAME, FILTER_POOL } from 'client/constants'
 
 export const logout = createAction('logout')
 
@@ -54,6 +54,8 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(logout, (_, { payload }) => {
+      delete window?.__REMOTE_AUTH__?.jwt
+      delete window?.__REMOTE_AUTH__?.id
       removeStoreData([JWT_NAME])
 
       return { ...initial(), error: payload }
