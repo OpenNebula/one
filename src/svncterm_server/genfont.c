@@ -35,6 +35,7 @@
 #include <string.h>
 #include <linux/limits.h>
 #include <getopt.h>
+#include <stdint.h>
 
 /* -------------------------------------------------------------------------- */
 /* Font glyph storage array and map pointer                                   */
@@ -104,11 +105,11 @@ static int font_add_glyph (const char *data, unsigned int gsize)
  *  Convert UTF8 to (1, 2 & 3 bytes) Unicode char
  *  Return 0 success, -1 not ucode, -2 EOU (end of unicode)
  */
-static int utf8_2_unicode(gzFile stream, char s, u_int16_t * ucode)
+static int utf8_2_unicode(gzFile stream, char s, uint16_t * ucode)
 {
     char  s1, s2;
 
-    *ucode = (u_int16_t) s;
+    *ucode = (uint16_t) s;
 
     if (*ucode == 0xFFFF)
     {
@@ -228,7 +229,7 @@ static int load_psf_font (const char *filename, int is_default)
 
         while (gzread(f, &s, 1) == 1)
         {
-            u_int16_t uchar;
+            uint16_t uchar;
 
             int rc = utf8_2_unicode(f, s, &uchar);
 
