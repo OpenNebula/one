@@ -34,7 +34,7 @@ import PropTypes from 'prop-types'
  */
 function Remote({ data = {} }) {
   const dispatch = useDispatch()
-  const { jwt, ...user } = data
+  const { jwt, remote_redirect: remoteRedirect = '.', ...user } = data
 
   useEffect(() => {
     if (jwt) {
@@ -95,7 +95,7 @@ function Remote({ data = {} }) {
             color="secondary"
             variant="contained"
             onClick={() => {
-              window.location.href = '.'
+              window.location.href = remoteRedirect
             }}
           >
             <Translate word={T.SignIn} />
@@ -110,6 +110,7 @@ Remote.propTypes = {
   data: PropTypes.shape({
     jwt: PropTypes.string,
     id: PropTypes.string,
+    remote_redirect: PropTypes.string,
   }),
 }
 Remote.displayName = 'Remote'
