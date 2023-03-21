@@ -59,6 +59,7 @@ router.get('*', async (req, res) => {
   const appConfig = getFireedgeConfig()
   if (appConfig?.auth === 'remote') {
     remoteJWT.remote = true
+    remoteJWT.remote_redirect = appConfig?.auth_redirect ?? '.'
     if (req.get(defaultHeaderRemote)) {
       try {
         const jwt = await axios({
