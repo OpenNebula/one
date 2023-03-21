@@ -49,10 +49,6 @@ func (c *Controller) VM(id int) *VMController {
 
 // Disk returns a new vm disk controller.
 func (vc *VMController) Disk(id int) *VMDiskController {
-	return vc.DiskContext(context.Background(), id)
-}
-
-func (vc *VMController) DiskContext(ctx context.Context, id int) *VMDiskController {
 	return &VMDiskController{vc.c, vc.ID, id}
 }
 
