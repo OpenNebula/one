@@ -46,6 +46,7 @@ func (c *HostsController) ByName(name string) (int, error) {
 	return c.ByNameContext(context.Background(), name)
 }
 
+// ByNameContext finds a Host ID from name
 func (c *HostsController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
@@ -77,6 +78,8 @@ func (hc *HostsController) Info() (*host.Pool, error) {
 	return hc.InfoContext(context.Background())
 }
 
+// InfoContext returns a host pool. A connection to OpenNebula is
+// performed
 func (hc *HostsController) InfoContext(ctx context.Context) (*host.Pool, error) {
 	response, err := hc.c.Client.CallContext(ctx, "one.hostpool.info")
 	if err != nil {
@@ -96,6 +99,7 @@ func (hc *HostController) Info(decrypt bool) (*host.Host, error) {
 	return hc.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext retrieves information for the host from ID
 func (hc *HostController) InfoContext(ctx context.Context, decrypt bool) (*host.Host, error) {
 	response, err := hc.c.Client.CallContext(ctx, "one.host.info", hc.ID, decrypt)
 	if err != nil {
@@ -118,6 +122,12 @@ func (hc *HostsController) Create(name, im, vm string, clusterID int) (int, erro
 	return hc.CreateContext(context.Background(), name, im, vm, clusterID)
 }
 
+// Create allocates a new host. It returns the new host ID.
+// * ctx: context for cancelation
+// * name: name of the host
+// * im: information driver for the host
+// * vm: virtualization driver for the host
+// * clusterID: The cluster ID. If it is -1, the default one will be used.
 func (hc *HostsController) CreateContext(ctx context.Context, name, im, vm string, clusterID int) (int, error) {
 	response, err := hc.c.Client.CallContext(ctx, "one.host.allocate", name, im, vm, clusterID)
 	if err != nil {
@@ -134,6 +144,10 @@ func (hc *HostsController) Monitoring(num int) (*host.PoolMonitoring, error) {
 	return hc.MonitoringContext(context.Background(), num)
 }
 
+// MonitoringContext Returns the Hosts monitoring records
+// ctx: context for cancelation
+// num: Retrieve monitor records in the last num seconds.
+// 0 just the last record, -1 all records
 func (hc *HostsController) MonitoringContext(ctx context.Context, num int) (*host.PoolMonitoring, error) {
 	monitorData, err := hc.c.Client.CallContext(ctx, "one.hostpool.monitoring", num)
 	if err != nil {
@@ -154,6 +168,7 @@ func (hc *HostController) Delete() error {
 	return hc.DeleteContext(context.Background())
 }
 
+// DeleteContext deletes the given host from the pool
 func (hc *HostController) DeleteContext(ctx context.Context) error {
 	_, err := hc.c.Client.CallContext(ctx, "one.host.delete", hc.ID)
 	return err
@@ -165,19 +180,27 @@ func (hc *HostController) Status(status int) error {
 	return hc.StatusContext(context.Background(), status)
 }
 
+// StatusContext sets the status of the host
+// * ctx: context for cancelation
+// * status: 0: ENABLED, 1: DISABLED, 2: OFFLINE
 func (hc *HostController) StatusContext(ctx context.Context, status int) error {
 	_, err := hc.c.Client.CallContext(ctx, "one.host.status", hc.ID, status)
 	return err
 }
 
 // Update adds host content.
-// * tpl: The new host contents. Syntax can be the usual attribute=value or XML.
-// * uType: Update type: Replace: Replace the whole template.
-//   Merge: Merge new template with the existing one.
+//   - tpl: The new host contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (hc *HostController) Update(tpl string, uType parameters.UpdateType) error {
 	return hc.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext adds host content.
+//   - ctx: context for cancelation
+//   - tpl: The new host contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (hc *HostController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
 	_, err := hc.c.Client.CallContext(ctx, "one.host.update", hc.ID, tpl, uType)
 	return err
@@ -189,6 +212,9 @@ func (hc *HostController) Rename(newName string) error {
 	return hc.RenameContext(context.Background(), newName)
 }
 
+// RenameContext renames a host.
+// * ctx: context for cancelation
+// * newName: The new name.
 func (hc *HostController) RenameContext(ctx context.Context, newName string) error {
 	_, err := hc.c.Client.CallContext(ctx, "one.host.rename", hc.ID, newName)
 	return err
@@ -199,6 +225,7 @@ func (hc *HostController) Monitoring() (*host.Monitoring, error) {
 	return hc.MonitoringContext(context.Background())
 }
 
+// MonitoringContext returns the host monitoring records.
 func (hc *HostController) MonitoringContext(ctx context.Context) (*host.Monitoring, error) {
 	monitorData, err := hc.c.Client.CallContext(ctx, "one.host.monitoring", hc.ID)
 	if err != nil {

@@ -84,6 +84,7 @@ func (c *Controller) SystemVersion() (string, error) {
 	return c.SystemVersionContext(context.Background())
 }
 
+// SystemVersionContext returns the current OpenNebula Version
 func (c *Controller) SystemVersionContext(ctx context.Context) (string, error) {
 	response, err := c.Client.CallContext(ctx, "one.system.version")
 	if err != nil {
@@ -98,6 +99,7 @@ func (c *Controller) SystemConfig() (string, error) {
 	return c.SystemConfigContext(context.Background())
 }
 
+// SystemConfigContext returns the current OpenNebula config
 func (c *Controller) SystemConfigContext(ctx context.Context) (string, error) {
 	response, err := c.Client.CallContext(ctx, "one.system.config")
 	if err != nil {

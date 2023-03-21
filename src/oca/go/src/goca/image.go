@@ -55,6 +55,7 @@ func (c *ImagesController) ByName(name string, args ...int) (int, error) {
 	return c.ByNameContext(context.Background(), name, args...)
 }
 
+// ByNameContext returns an Image ID from name
 func (c *ImagesController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
@@ -86,6 +87,7 @@ func (ic *ImagesController) Info(args ...int) (*image.Pool, error) {
 	return ic.InfoContext(context.Background(), args...)
 }
 
+// InfoContext returns a new image pool. It accepts the scope of the query.
 func (ic *ImagesController) InfoContext(ctx context.Context, args ...int) (*image.Pool, error) {
 
 	fArgs, err := handleArgs(args)
@@ -112,6 +114,7 @@ func (ic *ImageController) Info(decrypt bool) (*image.Image, error) {
 	return ic.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext connects to OpenNebula and fetches the information of the Image
 func (ic *ImageController) InfoContext(ctx context.Context, decrypt bool) (*image.Image, error) {
 	response, err := ic.c.Client.CallContext(ctx, "one.image.info", ic.ID, decrypt)
 	if err != nil {
@@ -131,6 +134,8 @@ func (ic *ImagesController) Create(template string, dsid uint) (int, error) {
 	return ic.CreateContext(context.Background(), template, dsid)
 }
 
+// CreateContext allocates a new image based on the template string provided. It
+// returns the image ID.
 func (ic *ImagesController) CreateContext(ctx context.Context, template string, dsid uint) (int, error) {
 	response, err := ic.c.Client.CallContext(ctx, "one.image.allocate", template, dsid)
 	if err != nil {
@@ -145,6 +150,7 @@ func (ic *ImageController) Clone(cloneName string, dsid int) (int, error) {
 	return ic.CloneContext(context.Background(), cloneName, dsid)
 }
 
+// CloneContext clones an existing image. It returns the clone ID
 func (ic *ImageController) CloneContext(ctx context.Context, cloneName string, dsid int) (int, error) {
 	response, err := ic.c.Client.CallContext(ctx, "one.image.clone", ic.ID, cloneName, dsid)
 	if err != nil {
@@ -162,6 +168,11 @@ func (ic *ImageController) Update(tpl string, uType parameters.UpdateType) error
 	return ic.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext adds image content.
+//   - ctx: context for cancelation
+//   - tpl: The new image contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (ic *ImageController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.update", ic.ID, tpl, uType)
 	return err
@@ -172,6 +183,7 @@ func (ic *ImageController) Chtype(newType string) error {
 	return ic.ChtypeContext(context.Background(), newType)
 }
 
+// ChtypeContext changes the type of the Image
 func (ic *ImageController) ChtypeContext(ctx context.Context, newType string) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.chtype", ic.ID, newType)
 	return err
@@ -183,6 +195,8 @@ func (ic *ImageController) Chown(uid, gid int) error {
 	return ic.ChownContext(context.Background(), uid, gid)
 }
 
+// ChownContext changes the owner/group of the image. If uid or gid is -1 it will not
+// change
 func (ic *ImageController) ChownContext(ctx context.Context, uid, gid int) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.chown", ic.ID, uid, gid)
 	return err
@@ -194,6 +208,8 @@ func (ic *ImageController) Chmod(perm shared.Permissions) error {
 	return ic.ChmodContext(context.Background(), perm)
 }
 
+// ChmodContext changes the permissions of the image. If any perm is -1 it will not
+// change
 func (ic *ImageController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{ic.ID}, perm.ToArgs()...)
 
@@ -206,6 +222,7 @@ func (ic *ImageController) Rename(newName string) error {
 	return ic.RenameContext(context.Background(), newName)
 }
 
+// RenameContext changes the name of the image
 func (ic *ImageController) RenameContext(ctx context.Context, newName string) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.rename", ic.ID, newName)
 	return err
@@ -216,6 +233,7 @@ func (ic *ImageSnapshotController) Delete() error {
 	return ic.DeleteContext(context.Background())
 }
 
+// DeleteContext will delete a snapshot from the image
 func (ic *ImageSnapshotController) DeleteContext(ctx context.Context) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.snapshotdelete", ic.entityID, ic.ID)
 	return err
@@ -226,6 +244,7 @@ func (ic *ImageSnapshotController) Revert() error {
 	return ic.RevertContext(context.Background())
 }
 
+// RevertContext reverts image state to a previous snapshot
 func (ic *ImageSnapshotController) RevertContext(ctx context.Context) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.snapshotrevert", ic.entityID, ic.ID)
 	return err
@@ -236,6 +255,7 @@ func (ic *ImageSnapshotController) Flatten() error {
 	return ic.FlattenContext(context.Background())
 }
 
+// FlattenContext flattens the snapshot image and discards others
 func (ic *ImageSnapshotController) FlattenContext(ctx context.Context) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.snapshotflatten", ic.entityID, ic.ID)
 	return err
@@ -246,6 +266,7 @@ func (ic *ImageController) Enable(enable bool) error {
 	return ic.EnableContext(context.Background(), enable)
 }
 
+// EnableContext enables (or disables) the image
 func (ic *ImageController) EnableContext(ctx context.Context, enable bool) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.enable", ic.ID, enable)
 	return err
@@ -256,6 +277,7 @@ func (ic *ImageController) Persistent(persistent bool) error {
 	return ic.PersistentContext(context.Background(), persistent)
 }
 
+// PersistentContext sets the image as persistent (or not)
 func (ic *ImageController) PersistentContext(ctx context.Context, persistent bool) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.persistent", ic.ID, persistent)
 	return err
@@ -266,6 +288,7 @@ func (ic *ImageController) Lock(level shared.LockLevel) error {
 	return ic.LockContext(context.Background(), level)
 }
 
+// LockContext locks the image following lock level. See levels in locks.go.
 func (ic *ImageController) LockContext(ctx context.Context, level shared.LockLevel) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.lock", ic.ID, level)
 	return err
@@ -276,6 +299,7 @@ func (ic *ImageController) Unlock() error {
 	return ic.UnlockContext(context.Background())
 }
 
+// UnlockContext unlocks the image.
 func (ic *ImageController) UnlockContext(ctx context.Context) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.unlock", ic.ID)
 	return err
@@ -287,6 +311,8 @@ func (ic *ImageController) Delete() error {
 	return ic.DeleteContext(context.Background())
 }
 
+// DeleteContext will remove the image from OpenNebula, which will remove it from the
+// backend.
 func (ic *ImageController) DeleteContext(ctx context.Context) error {
 	_, err := ic.c.Client.CallContext(ctx, "one.image.delete", ic.ID)
 	return err

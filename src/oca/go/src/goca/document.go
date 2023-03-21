@@ -50,6 +50,7 @@ func (dc *DocumentsController) ByName(name string, args ...int) (int, error) {
 	return dc.ByNameContext(context.Background(), name, args...)
 }
 
+// ByNameContext returns a Document ID from name
 func (dc *DocumentsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
@@ -82,6 +83,8 @@ func (dc *DocumentsController) Info(args ...int) (*document.Pool, error) {
 	return dc.InfoContext(context.Background(), args...)
 }
 
+// InfoContext returns a document pool. A connection to OpenNebula is
+// performed.
 func (dc *DocumentsController) InfoContext(ctx context.Context, args ...int) (*document.Pool, error) {
 	fArgs, err := handleArgs(args)
 	if err != nil {
@@ -108,6 +111,7 @@ func (dc *DocumentController) Info(decrypt bool) (*document.Document, error) {
 	return dc.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext retrieves information for the document.
 func (dc *DocumentController) InfoContext(ctx context.Context, decrypt bool) (*document.Document, error) {
 	response, err := dc.c.Client.CallContext(ctx, "one.document.info", dc.ID, decrypt)
 	if err != nil {
@@ -127,6 +131,7 @@ func (dc *DocumentsController) Create(tpl string) (int, error) {
 	return dc.CreateContext(context.Background(), tpl)
 }
 
+// CreateContext allocates a new document. It returns the new document ID.
 func (dc *DocumentsController) CreateContext(ctx context.Context, tpl string) (int, error) {
 	response, err := dc.c.Client.CallContext(ctx, "one.document.allocate", tpl)
 	if err != nil {
@@ -142,6 +147,9 @@ func (dc *DocumentController) Clone(newName string) error {
 	return dc.CloneContext(context.Background(), newName)
 }
 
+// CloneContext clones an existing document.
+// * ctx: context for cancelation
+// * newName: Name for the new document.
 func (dc *DocumentController) CloneContext(ctx context.Context, newName string) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.clone", dc.ID, newName)
 	return err
@@ -152,6 +160,7 @@ func (dc *DocumentController) Delete() error {
 	return dc.DeleteContext(context.Background())
 }
 
+// DeleteContext deletes the given document from the pool.
 func (dc *DocumentController) DeleteContext(ctx context.Context) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.delete", dc.ID)
 	return err
@@ -165,6 +174,11 @@ func (dc *DocumentController) Update(tpl string, uType parameters.UpdateType) er
 	return dc.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext adds document content.
+//   - ctx: context for cancelation
+//   - tpl: The new document contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (dc *DocumentController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.update", dc.ID, tpl, uType)
 	return err
@@ -175,6 +189,7 @@ func (dc *DocumentController) Chmod(perm shared.Permissions) error {
 	return dc.ChmodContext(context.Background(), perm)
 }
 
+// ChmodContext changes the permission bits of a document.
 func (dc *DocumentController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{dc.ID}, perm.ToArgs()...)
 	_, err := dc.c.Client.CallContext(ctx, "one.document.chmod", args...)
@@ -188,6 +203,10 @@ func (dc *DocumentController) Chown(userID, groupID int) error {
 	return dc.ChownContext(context.Background(), userID, groupID)
 }
 
+// ChownContext changes the ownership of a document.
+// * ctx: context for cancelation
+// * userID: The User ID of the new owner. If set to -1, it will not change.
+// * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (dc *DocumentController) ChownContext(ctx context.Context, userID, groupID int) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.chown", dc.ID, userID, groupID)
 	return err
@@ -199,6 +218,9 @@ func (dc *DocumentController) Rename(newName string) error {
 	return dc.RenameContext(context.Background(), newName)
 }
 
+// RenameContext renames a document.
+// * ctx: context for cancelation
+// * newName: The new name.
 func (dc *DocumentController) RenameContext(ctx context.Context, newName string) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.rename", dc.ID, newName)
 	return err
@@ -209,6 +231,7 @@ func (dc *DocumentController) Lock(level shared.LockLevel) error {
 	return dc.LockContext(context.Background(), level)
 }
 
+// LockContext locks the document following lock level. See levels in locks.go.
 func (dc *DocumentController) LockContext(ctx context.Context, level shared.LockLevel) error {
 	_, err := dc.c.Client.CallContext(ctx, "one.document.lock", dc.ID, level)
 	return err

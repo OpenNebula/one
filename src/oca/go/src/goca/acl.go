@@ -38,6 +38,8 @@ func (ac *ACLsController) Info() (*acl.Pool, error) {
 	return ac.InfoContext(context.Background())
 }
 
+// InfoContext returns an acl pool. A connection to OpenNebula is
+// performed.
 func (ac *ACLsController) InfoContext(ctx context.Context) (*acl.Pool, error) {
 	response, err := ac.c.Client.CallContext(ctx, "one.acl.info")
 	if err != nil {
@@ -62,6 +64,12 @@ func (ac *ACLsController) CreateRule(user, resource, rights string, zone ...stri
 	return ac.CreateRuleContext(context.Background(), user, resource, rights, zone...)
 }
 
+// CreateRuleContext adds a new ACL rule.
+// * ctx: context for cancelation
+// * user: User component of the new rule. A string containing a hex number.
+// * resource: Resource component of the new rule. A string containing a hex number.
+// * rights: Rights component of the new rule. A string containing a hex number.
+// * zone: Optional zone component of the new rule. A string containing a hex number.
 func (ac *ACLsController) CreateRuleContext(ctx context.Context, user, resource, rights string, zone ...string) (int, error) {
 	if len(zone) > 1 {
 		return -1, fmt.Errorf("CreateRule: %d extra parameters passed", len(zone)-1)
@@ -88,6 +96,7 @@ func (ac *ACLsController) DeleteRule(aclID int) error {
 	return ac.DeleteRuleContext(context.Background(), aclID)
 }
 
+// DeleteRuleContext deletes an ACL rule.
 func (ac *ACLsController) DeleteRuleContext(ctx context.Context, aclID int) error {
 	_, err := ac.c.Client.CallContext(ctx, "one.acl.delrule", aclID)
 	return err

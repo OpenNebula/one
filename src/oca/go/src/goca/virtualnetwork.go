@@ -47,6 +47,7 @@ func (c *VirtualNetworksController) ByName(name string, args ...int) (int, error
 	return c.ByNameContext(context.Background(), name, args...)
 }
 
+// ByNameContext returns a VirtualNetwork ID from name
 func (c *VirtualNetworksController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
@@ -78,6 +79,7 @@ func (vc *VirtualNetworksController) Info(args ...int) (*vn.Pool, error) {
 	return vc.InfoContext(context.Background(), args...)
 }
 
+// InfoContext returns a virtualnetwork pool.
 func (vc *VirtualNetworksController) InfoContext(ctx context.Context, args ...int) (*vn.Pool, error) {
 	var who, start, end int
 
@@ -117,6 +119,7 @@ func (vc *VirtualNetworkController) Info(decrypt bool) (*vn.VirtualNetwork, erro
 	return vc.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext retrieves information for the virtual network.
 func (vc *VirtualNetworkController) InfoContext(ctx context.Context, decrypt bool) (*vn.VirtualNetwork, error) {
 	response, err := vc.c.Client.CallContext(ctx, "one.vn.info", vc.ID, decrypt)
 	if err != nil {
@@ -137,6 +140,10 @@ func (vc *VirtualNetworksController) Create(tpl string, clusterID int) (int, err
 	return vc.CreateContext(context.Background(), tpl, clusterID)
 }
 
+// CreateContext allocates a new virtualnetwork. It returns the new virtualnetwork ID.
+// * ctx: context for cancelation
+// * tpl: template of the virtualnetwork
+// * clusterID: The cluster ID. If it is -1, the default one will be used.
 func (vc *VirtualNetworksController) CreateContext(ctx context.Context, tpl string, clusterID int) (int, error) {
 	response, err := vc.c.Client.CallContext(ctx, "one.vn.allocate", tpl, clusterID)
 	if err != nil {
@@ -151,6 +158,7 @@ func (vc *VirtualNetworkController) Delete() error {
 	return vc.DeleteContext(context.Background())
 }
 
+// DeleteContext deletes the given virtual network from the pool.
 func (vc *VirtualNetworkController) DeleteContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.delete", vc.ID)
 	return err
@@ -162,6 +170,9 @@ func (vc *VirtualNetworkController) AddAR(tpl string) error {
 	return vc.AddARContext(context.Background(), tpl)
 }
 
+// AddARContext adds address ranges to a virtual network.
+// * ctx: context for cancelation
+// * tpl: template of the address ranges to add. Syntax can be the usual attribute=value or XML
 func (vc *VirtualNetworkController) AddARContext(ctx context.Context, tpl string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.add_ar", vc.ID, tpl)
 	return err
@@ -173,6 +184,9 @@ func (vc *VirtualNetworkController) RmAR(arID int) error {
 	return vc.RmARContext(context.Background(), arID)
 }
 
+// RmARContext removes an address range from a virtual network.
+// * ctx: context for cancelation
+// * arID: ID of the address range to remove.
 func (vc *VirtualNetworkController) RmARContext(ctx context.Context, arID int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.rm_ar", vc.ID, arID)
 	return err
@@ -184,6 +198,9 @@ func (vc *VirtualNetworkController) UpdateAR(tpl string) error {
 	return vc.UpdateARContext(context.Background(), tpl)
 }
 
+// UpdateARContext updates the attributes of an address range.
+// * ctx: context for cancelation
+// * tpl: template of the address ranges to update. Syntax can be the usual attribute=value or XML
 func (vc *VirtualNetworkController) UpdateARContext(ctx context.Context, tpl string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.update_ar", vc.ID, tpl)
 	return err
@@ -195,6 +212,9 @@ func (vc *VirtualNetworkController) Reserve(tpl string) (int, error) {
 	return vc.ReserveContext(context.Background(), tpl)
 }
 
+// ReserveContext reserve network addresses. It returns the Reserved Virtual Network ID
+// * ctx: context for cancelation
+// * tpl: Template
 func (vc *VirtualNetworkController) ReserveContext(ctx context.Context, tpl string) (int, error) {
 	response, err := vc.c.Client.CallContext(ctx, "one.vn.reserve", vc.ID, tpl)
 	if err != nil {
@@ -210,6 +230,9 @@ func (vc *VirtualNetworkController) FreeAR(arID int) error {
 	return vc.FreeARContext(context.Background(), arID)
 }
 
+// FreeARContext frees a reserved address range from a virtual network.
+// * ctx: context for cancelation
+// * arID: ID of the address range to free.
 func (vc *VirtualNetworkController) FreeARContext(ctx context.Context, arID int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.free_ar", vc.ID, arID)
 	return err
@@ -221,6 +244,9 @@ func (vc *VirtualNetworkController) Hold(tpl string) error {
 	return vc.HoldContext(context.Background(), tpl)
 }
 
+// HoldContext holds a virtual network Lease as used.
+// * ctx: context for cancelation
+// * tpl: template of the lease to hold
 func (vc *VirtualNetworkController) HoldContext(ctx context.Context, tpl string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.hold", vc.ID, tpl)
 	return err
@@ -232,6 +258,9 @@ func (vc *VirtualNetworkController) Release(tpl string) error {
 	return vc.ReleaseContext(context.Background(), tpl)
 }
 
+// ReleaseContext releases a virtual network Lease on hold.
+// * ctx: context for cancelation
+// * tpl: template of the lease to release
 func (vc *VirtualNetworkController) ReleaseContext(ctx context.Context, tpl string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.release", vc.ID, tpl)
 	return err
@@ -245,6 +274,11 @@ func (vc *VirtualNetworkController) Update(tpl string, uType parameters.UpdateTy
 	return vc.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext adds virtual network content.
+//   - ctx: context for cancelation
+//   - tpl: The new virtual network contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (vc *VirtualNetworkController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.update", vc.ID, tpl, uType)
 	return err
@@ -255,6 +289,7 @@ func (vc *VirtualNetworkController) Chmod(perm shared.Permissions) error {
 	return vc.ChmodContext(context.Background(), perm)
 }
 
+// ChmodContext changes the permission bits of a virtual network.
 func (vc *VirtualNetworkController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.chmod", args...)
@@ -268,6 +303,10 @@ func (vc *VirtualNetworkController) Chown(userID, groupID int) error {
 	return vc.ChownContext(context.Background(), userID, groupID)
 }
 
+// ChownContext changes the ownership of a virtual network.
+// * ctx: context for cancelation
+// * userID: The User ID of the new owner. If set to -1, it will not change.
+// * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (vc *VirtualNetworkController) ChownContext(ctx context.Context, userID, groupID int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.chown", vc.ID, userID, groupID)
 	return err
@@ -279,6 +318,9 @@ func (vc *VirtualNetworkController) Rename(newName string) error {
 	return vc.RenameContext(context.Background(), newName)
 }
 
+// RenameContext renames a virtual network.
+// * ctx: context for cancelation
+// * newName: The new name.
 func (vc *VirtualNetworkController) RenameContext(ctx context.Context, newName string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.rename", vc.ID, newName)
 	return err
@@ -289,6 +331,7 @@ func (vc *VirtualNetworkController) Lock(level shared.LockLevel) error {
 	return vc.LockContext(context.Background(), level)
 }
 
+// LockContext locks the vn following lock level. See levels in locks.go.
 func (vc *VirtualNetworkController) LockContext(ctx context.Context, level shared.LockLevel) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.lock", vc.ID, level)
 	return err
@@ -299,6 +342,7 @@ func (vc *VirtualNetworkController) Unlock() error {
 	return vc.UnlockContext(context.Background())
 }
 
+// UnlockContext unlocks the vn.
 func (vc *VirtualNetworkController) UnlockContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.unlock", vc.ID)
 	return err
@@ -310,6 +354,9 @@ func (vc *VirtualNetworkController) Recover(op int) error {
 	return vc.RecoverContext(context.Background(), op)
 }
 
+// RecoverContext recovers a stuck Virtual Network
+// * ctx: context for cancelation
+// * op: (0) failure, (1) success, (2) retry, (3) delete
 func (vc *VirtualNetworkController) RecoverContext(ctx context.Context, op int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vn.recover", vc.ID, op)
 	return err

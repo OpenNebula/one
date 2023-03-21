@@ -46,6 +46,7 @@ func (c *VMGroupsController) ByName(name string, args ...int) (int, error) {
 	return c.ByNameContext(context.Background(), name, args...)
 }
 
+// ByNameContext returns a VMGroup ID from name
 func (c *VMGroupsController) ByNameContext(ctx context.Context, name string, args ...int) (int, error) {
 	var id int
 
@@ -78,6 +79,8 @@ func (vc *VMGroupsController) Info(args ...int) (*vmgroup.Pool, error) {
 	return vc.InfoContext(context.Background(), args...)
 }
 
+// InfoContext returns a vm group pool. A connection to OpenNebula is
+// performed.
 func (vc *VMGroupsController) InfoContext(ctx context.Context, args ...int) (*vmgroup.Pool, error) {
 
 	fArgs, err := handleArgs(args)
@@ -104,6 +107,7 @@ func (vc *VMGroupController) Info(decrypt bool) (*vmgroup.VMGroup, error) {
 	return vc.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext retrieves information for the vm group.
 func (vc *VMGroupController) InfoContext(ctx context.Context, decrypt bool) (*vmgroup.VMGroup, error) {
 	response, err := vc.c.Client.CallContext(ctx, "one.vmgroup.info", vc.ID, decrypt)
 	if err != nil {
@@ -123,6 +127,7 @@ func (vc *VMGroupsController) Create(tpl string) (int, error) {
 	return vc.CreateContext(context.Background(), tpl)
 }
 
+// CreateContext allocates a new vmGroup. It returns the new vmGroup ID.
 func (vc *VMGroupsController) CreateContext(ctx context.Context, tpl string) (int, error) {
 	response, err := vc.c.Client.CallContext(ctx, "one.vmgroup.allocate", tpl)
 	if err != nil {
@@ -138,6 +143,9 @@ func (vc *VMGroupController) Clone(newName string) error {
 	return vc.CloneContext(context.Background(), newName)
 }
 
+// CloneContext clones an existing vmGroup.
+// * ctx: context for cancelation
+// * newName: Name for the new vmGroup.
 func (vc *VMGroupController) CloneContext(ctx context.Context, newName string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.clone", vc.ID, newName)
 	return err
@@ -148,6 +156,7 @@ func (vc *VMGroupController) Delete() error {
 	return vc.DeleteContext(context.Background())
 }
 
+// DeleteContext deletes the given vmGroup from the pool.
 func (vc *VMGroupController) DeleteContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.delete", vc.ID)
 	return err
@@ -160,6 +169,10 @@ func (vc *VMGroupController) Update(tpl string, uType int) error {
 	return vc.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext replaces the vmGroup template content.
+// * ctx: context for cancelation
+// * tpl: The new vmGroup template contents. Syntax can be the usual attribute=value or XML.
+// * appendTemplate: Update type: 0: Replace the whole template. 1: Merge new template with the existing one.
 func (vc *VMGroupController) UpdateContext(ctx context.Context, tpl string, uType int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.update", vc.ID, tpl, uType)
 	return err
@@ -170,6 +183,7 @@ func (vc *VMGroupController) Chmod(perm shared.Permissions) error {
 	return vc.ChmodContext(context.Background(), perm)
 }
 
+// ChmodContext changes the permission bits of a vmGroup.
 func (vc *VMGroupController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.chmod", args...)
@@ -183,6 +197,10 @@ func (vc *VMGroupController) Chown(userID, groupID int) error {
 	return vc.ChownContext(context.Background(), userID, groupID)
 }
 
+// ChownContext changes the ownership of a vmGroup.
+// * ctx: context for cancelation
+// * userID: The User ID of the new owner. If set to -1, it will not change.
+// * groupID: The Group ID of the new group. If set to -1, it will not change.
 func (vc *VMGroupController) ChownContext(ctx context.Context, userID, groupID int) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.chown", vc.ID, userID, groupID)
 	return err
@@ -194,6 +212,9 @@ func (vc *VMGroupController) Rename(newName string) error {
 	return vc.RenameContext(context.Background(), newName)
 }
 
+// RenameContext renames a vmGroup.
+// * ctx: context for cancelation
+// * newName: The new name.
 func (vc *VMGroupController) RenameContext(ctx context.Context, newName string) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.rename", vc.ID, newName)
 	return err
@@ -204,6 +225,7 @@ func (vc *VMGroupController) Lock(level shared.LockLevel) error {
 	return vc.LockContext(context.Background(), level)
 }
 
+// LockContext locks the vmGroup following lock level. See levels in locks.go.
 func (vc *VMGroupController) LockContext(ctx context.Context, level shared.LockLevel) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.lock", vc.ID, level)
 	return err
@@ -214,6 +236,7 @@ func (vc *VMGroupController) Unlock() error {
 	return vc.UnlockContext(context.Background())
 }
 
+// UnlockContext unlocks the vmGroup.
 func (vc *VMGroupController) UnlockContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.unlock", vc.ID)
 	return err

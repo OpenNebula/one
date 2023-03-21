@@ -46,6 +46,7 @@ func (c *ZonesController) ByName(name string) (int, error) {
 	return c.ByNameContext(context.Background(), name)
 }
 
+// ByNameContext returns a zone id from name
 func (c *ZonesController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
@@ -78,6 +79,8 @@ func (zc *ZonesController) Info() (*zone.Pool, error) {
 	return zc.InfoContext(context.Background())
 }
 
+// InfoContext returns a zone pool. A connection to OpenNebula is
+// performed.
 func (zc *ZonesController) InfoContext(ctx context.Context) (*zone.Pool, error) {
 	response, err := zc.c.Client.CallContext(ctx, "one.zonepool.info")
 	if err != nil {
@@ -98,6 +101,7 @@ func (zc *ZoneController) Info(decrypt bool) (*zone.Zone, error) {
 	return zc.InfoContext(context.Background(), decrypt)
 }
 
+// InfoContext retrieves information for the zone.
 func (zc *ZoneController) InfoContext(ctx context.Context, decrypt bool) (*zone.Zone, error) {
 	response, err := zc.c.Client.CallContext(ctx, "one.zone.info", zc.ID, decrypt)
 	if err != nil {
@@ -119,6 +123,11 @@ func (zc *ZonesController) Create(tpl string, clusterID int) (int, error) {
 	return zc.CreateContext(context.Background(), tpl, clusterID)
 }
 
+// CreateContext allocates a new zone. It returns the new zc.ID.
+//   - ctx: context for cancelation
+//   - tpl:	A string containing the template of the ZONE. Syntax can be the usual
+//     attribute=value or XML.
+//   - clusterID: The id of the cluster. If -1, the default one will be used
 func (zc *ZonesController) CreateContext(ctx context.Context, tpl string, clusterID int) (int, error) {
 	response, err := zc.c.Client.CallContext(ctx, "one.zone.allocate", tpl, clusterID)
 	if err != nil {
@@ -133,6 +142,7 @@ func (zc *ZoneController) Delete() error {
 	return zc.DeleteContext(context.Background())
 }
 
+// DeleteContext deletes the given zone from the pool.
 func (zc *ZoneController) DeleteContext(ctx context.Context) error {
 	_, err := zc.c.Client.CallContext(ctx, "one.zone.delete", zc.ID)
 	return err
@@ -146,6 +156,11 @@ func (zc *ZoneController) Update(tpl string, uType parameters.UpdateType) error 
 	return zc.UpdateContext(context.Background(), tpl, uType)
 }
 
+// UpdateContext adds zone content.
+//   - ctx: context for cancelation
+//   - tpl: The new zone contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (zc *ZoneController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
 	_, err := zc.c.Client.CallContext(ctx, "one.zone.update", zc.ID, tpl, uType)
 	return err
@@ -157,6 +172,9 @@ func (zc *ZoneController) Rename(newName string) error {
 	return zc.RenameContext(context.Background(), newName)
 }
 
+// RenameContext renames a zone.
+// * ctx: context for cancelation
+// * newName: The new name.
 func (zc *ZoneController) RenameContext(ctx context.Context, newName string) error {
 	_, err := zc.c.Client.CallContext(ctx, "one.zone.rename", zc.ID, newName)
 	return err
@@ -167,6 +185,7 @@ func (zc *ZonesController) ServerRaftStatus() (*zone.ServerRaftStatus, error) {
 	return zc.ServerRaftStatusContext(context.Background())
 }
 
+// ServerRaftStatusContext give the raft status of the server behind the current RPC endpoint. To get endpoints make an info call.
 func (zc *ZonesController) ServerRaftStatusContext(ctx context.Context) (*zone.ServerRaftStatus, error) {
 	response, err := zc.c.Client.CallContext(ctx, "one.zone.raftstatus")
 	if err != nil {
