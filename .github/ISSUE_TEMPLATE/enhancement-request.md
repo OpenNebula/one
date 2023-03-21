@@ -1,7 +1,7 @@
 ---
 name: New Feature request
 about: Suggest an idea to improve OpenNebula
-
+labels: 'Type: Feature'
 ---
 
 **Description**

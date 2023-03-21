@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
+labels: 'Type: Bug'
 ---
 
 /!\ To report a **security issue** please follow this procedure:
