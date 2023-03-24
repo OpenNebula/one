@@ -49,7 +49,7 @@ import { CreateFormCallback, CreateStepsCallback } from 'client/utils'
  * @property {'text'|'outlined'|'contained'} [variant] - Button variant
  * @property {Option[]} [options] - Group of actions
  * @property {function(Row[])} [action] - Singular action without form
- * @property {boolean|{min: number, max: number}} [selected] - Condition for selected rows
+ * @property {boolean|{min: number, max: number}} [selected] - If `true`, the action is always active. If it is an object, it contains the conditions for selected rows
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, action will be disabled
  * @property {function(Row[]):object} [useQuery] - Function to get rtk query result
  */
@@ -68,7 +68,7 @@ const ActionItem = memo(({ item, selectedRows }) => {
     action,
     disabled,
     useQuery,
-    selected = false,
+    selected,
   } = item
 
   const isDisabledByNumberOfSelectedRows = useMemo(() => {
@@ -78,7 +78,7 @@ const ActionItem = memo(({ item, selectedRows }) => {
 
     return (
       (selected === true && !numberOfRowSelected) ||
-      (selected && min > numberOfRowSelected && numberOfRowSelected < max)
+      (selected && (numberOfRowSelected < min || numberOfRowSelected > max))
     )
   }, [selectedRows.length, selected])
 

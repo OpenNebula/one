@@ -13,27 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, array } from 'yup'
-
-import { ClustersTable } from 'client/components/Tables'
-import { T, INPUT_TYPES } from 'client/constants'
+import { object, ObjectSchema, array, string } from 'yup'
 import { Field, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES, DATASTORE_TYPES } from 'client/constants'
+import { DatastoresTable } from 'client/components/Tables'
+import {
+  COMMON_FIELDS,
+  CEPH_FIELDS,
+  VCENTER_FIELDS,
+  RESTIC_FIELDS,
+  RSYNC_FIELDS,
+} from './Fields'
+import { isCustom, typeIsOneOf } from '../functions'
 
-/** @type {Field} Cluster field */
-const CLUSTER = {
-  name: 'cluster',
-  label: T.SelectNewCluster,
+const COMPATIBLE_SYSTEM_DATASTORES = {
+  name: 'COMPATIBLE_SYSTEM_DATASTORES',
+  label: T.CompatibleSystemDatastores,
+  tooltip: T.CompatibleSystemDatastoresConcept,
   type: INPUT_TYPES.TABLE,
-  Table: () => ClustersTable,
+  Table: () => DatastoresTable,
   singleSelect: false,
   validation: array(string().trim())
-    .required()
+    .notRequired()
     .default(() => undefined),
+  fieldProps: {
+    initialState: {
+      filters: [{ id: 'TYPE', value: 'SYSTEM' }],
+    },
+  },
+  dependOf: ['$general.TYPE', '$general.STORAGE_BACKEND'],
+  htmlType: ([type, storageBackend] = []) =>
+    (typeIsOneOf(storageBackend, [isCustom]) ||
+      type !== DATASTORE_TYPES.IMAGE.value) &&
+    INPUT_TYPES.HIDDEN,
   grid: { md: 12 },
 }
 
-/** @type {Field[]} List of fields */
-export const FIELDS = [CLUSTER]
+/**
+ * @returns {Field[]} Fields
+ */
+export const FIELDS = [
+  ...COMMON_FIELDS,
+  ...CEPH_FIELDS,
+  ...VCENTER_FIELDS,
+  ...RESTIC_FIELDS,
+  ...RSYNC_FIELDS,
+  COMPATIBLE_SYSTEM_DATASTORES,
+]
 
-/** @type {ObjectSchema} Schema */
+/**
+ * @param {object} [stepProps] - Step props
+ * @returns {ObjectSchema} Schema
+ */
 export const SCHEMA = object(getValidationFromFields(FIELDS))

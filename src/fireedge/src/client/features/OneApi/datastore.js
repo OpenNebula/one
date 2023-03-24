@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/datastore'
+import { Datastore, Permission } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
-import { Permission, Datastore } from 'client/constants'
+import { Actions, Commands } from 'server/utils/constants/commands/datastore'
 
 const { DATASTORE } = ONE_RESOURCES
 const { DATASTORE_POOL } = ONE_RESOURCES_POOL
@@ -93,15 +93,16 @@ const datastoreApi = oneApi.injectEndpoints({
       /**
        * Deletes the given datastore from the pool.
        *
-       * @param {number|string} id - Datastore id
+       * @param {object} params - Request params
+       * @param {number|string} params.id - Datastore id
        * @returns {number} Datastore id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.DATASTORE_DELETE
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: [DATASTORE_POOL],
     }),

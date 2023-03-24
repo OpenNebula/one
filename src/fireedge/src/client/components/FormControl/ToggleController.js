@@ -66,7 +66,7 @@ const ToggleController = memo(
     return (
       <FormControl fullWidth margin="dense">
         {label && (
-          <Label htmlFor={cy} error={Boolean(message)}>
+          <Label htmlFor={cy} error={message}>
             {labelCanBeTranslated(label) ? Tr(label) : label}
             {tooltip && <Tooltip title={tooltip} />}
           </Label>

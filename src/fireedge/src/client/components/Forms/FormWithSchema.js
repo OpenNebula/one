@@ -176,8 +176,8 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
   const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
     attributes
   ).reduce((field, attribute) => {
-    const [key, value] = attribute
-    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+    const [attrKey, value] = attribute
+    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(attrKey)
 
     const finalValue =
       typeof value === 'function' &&
@@ -186,12 +186,19 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
         ? value(valueOfDependField, formContext)
         : value
 
-    return { ...field, [key]: finalValue }
+    return { ...field, [attrKey]: finalValue }
   }, {})
 
   const dataCy = useMemo(() => `${cy}-${name ?? ''}`.replaceAll('.', '-'), [cy])
   const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
   const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
+  const key = useMemo(
+    () =>
+      fieldProps?.values
+        ? `${name}-${JSON.stringify(fieldProps.values)}`
+        : undefined,
+    [fieldProps]
+  )
 
   if (isHidden) return null
 
@@ -199,6 +206,7 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
     INPUT_CONTROLLER[type] && (
       <Grid item xs={12} md={6} {...grid}>
         {createElement(INPUT_CONTROLLER[type], {
+          key,
           control: formContext.control,
           cy: dataCy,
           dependencies: nameOfDependField,

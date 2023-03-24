@@ -375,11 +375,16 @@ export const groupBy = (list, key) =>
 
 /**
  * Clone an object.
+ * If the object is null or undefined, returns an empty object.
  *
  * @param {object} obj - Object
  * @returns {object} Object cloned
  */
-export const cloneObject = (obj) => JSON.parse(JSON.stringify(obj))
+export const cloneObject = (obj) => {
+  if (!obj) return {}
+
+  return JSON.parse(JSON.stringify(obj))
+}
 
 /**
  * Removes undefined and null values from object.

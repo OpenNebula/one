@@ -97,6 +97,13 @@ const ServiceTemplateDetail = loadable(
 const Datastores = loadable(() => import('client/containers/Datastores'), {
   ssr: false,
 })
+const CreateDatastores = loadable(
+  () => import('client/containers/Datastores/Create'),
+  {
+    ssr: false,
+  }
+)
+
 const Images = loadable(() => import('client/containers/Images'), {
   ssr: false,
 })
@@ -227,6 +234,7 @@ export const PATH = {
     DATASTORES: {
       LIST: `/${RESOURCE_NAMES.DATASTORE}`,
       DETAIL: `/${RESOURCE_NAMES.DATASTORE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.DATASTORE}/create`,
     },
     IMAGES: {
       LIST: `/${RESOURCE_NAMES.IMAGE}`,
@@ -410,6 +418,11 @@ const ENDPOINTS = [
         sidebar: true,
         icon: DatastoreIcon,
         Component: Datastores,
+      },
+      {
+        title: T.CreateDatastore,
+        path: PATH.STORAGE.DATASTORES.CREATE,
+        Component: CreateDatastores,
       },
       {
         title: T.Images,

@@ -13,27 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, array } from 'yup'
+import { COMMON_FIELDS } from './common'
+import { CEPH_FIELDS } from './ceph'
+import { VCENTER_FIELDS } from './vcenter'
+import { RESTIC_FIELDS } from './restic'
+import { RSYNC_FIELDS } from './rsync'
 
-import { ClustersTable } from 'client/components/Tables'
-import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getValidationFromFields } from 'client/utils'
-
-/** @type {Field} Cluster field */
-const CLUSTER = {
-  name: 'cluster',
-  label: T.SelectNewCluster,
-  type: INPUT_TYPES.TABLE,
-  Table: () => ClustersTable,
-  singleSelect: false,
-  validation: array(string().trim())
-    .required()
-    .default(() => undefined),
-  grid: { md: 12 },
+export {
+  COMMON_FIELDS,
+  CEPH_FIELDS,
+  VCENTER_FIELDS,
+  RESTIC_FIELDS,
+  RSYNC_FIELDS,
 }
-
-/** @type {Field[]} List of fields */
-export const FIELDS = [CLUSTER]
-
-/** @type {ObjectSchema} Schema */
-export const SCHEMA = object(getValidationFromFields(FIELDS))

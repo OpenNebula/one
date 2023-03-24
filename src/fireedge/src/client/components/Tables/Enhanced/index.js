@@ -331,9 +331,13 @@ const EnhancedTable = ({
                 typeof onRowClick === 'function' && onRowClick(original)
 
                 if (!disableRowSelect) {
-                  singleSelect ||
-                    (!(e.ctrlKey || e.metaKey) &&
-                      toggleAllRowsSelected?.(false))
+                  if (
+                    singleSelect ||
+                    (!singleSelect && !(e.ctrlKey || e.metaKey))
+                  ) {
+                    toggleAllRowsSelected?.(false)
+                  }
+
                   toggleRowSelected?.(!isSelected)
                 }
               }}

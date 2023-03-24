@@ -15,22 +15,21 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
-import * as HostModel from 'client/models/Host'
+import * as ImageModel from 'client/models/Image'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  {
-    Header: 'Name',
-    id: 'NAME',
-    accessor: (row) => row?.TEMPLATE?.NAME ?? row.NAME,
-  },
+  { Header: 'Name', accessor: 'NAME' },
+  { Header: 'Owner', accessor: 'UNAME' },
+  { Header: 'Group', accessor: 'GNAME' },
+  { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
   {
     Header: 'State',
     id: 'STATE',
-    accessor: (row) => HostModel.getState(row)?.name,
+    accessor: (row) => ImageModel.getState(row)?.name,
     disableFilters: false,
     Filter: ({ column }) =>
       CategoryFilter({
@@ -40,37 +39,22 @@ export default [
       }),
     filter: 'includesValue',
   },
-  { Header: 'Cluster', accessor: 'CLUSTER' },
   {
-    Header: 'IM MAD',
-    id: 'IM_MAD',
-    accessor: 'IM_MAD',
-    disableFilters: false,
-    Filter: ({ column }) =>
-      CategoryFilter({
-        column,
-        multiple: true,
-        title: 'IM Mad',
-      }),
-    filter: 'includesValue',
+    Header: 'Type',
+    id: 'TYPE',
+    accessor: (row) => ImageModel.getType(row),
   },
   {
-    Header: 'VM MAD',
-    id: 'VM_MAD',
-    accessor: 'VM_MAD',
-    disableFilters: false,
-    Filter: ({ column }) =>
-      CategoryFilter({
-        column,
-        multiple: true,
-        title: 'VM Mad',
-      }),
-    filter: 'includesValue',
+    Header: 'Disk Type',
+    id: 'DISK_TYPE',
+    accessor: (row) => ImageModel.getDiskType(row),
   },
+  { Header: 'Registration Time', accessor: 'REGTIME' },
+  { Header: 'Datastore', accessor: 'DATASTORE' },
+  { Header: 'Persistent', accessor: 'PERSISTENT' },
   {
     Header: 'Running VMs',
-    id: 'RUNNING_VMS',
-    accessor: 'HOST_SHARE.RUNNING_VMS',
+    accessor: 'RUNNING_VMS',
     sortType: 'number',
   },
   {
@@ -78,10 +62,5 @@ export default [
     id: 'TOTAL_VMS',
     accessor: (row) => getTotalOfResources(row?.VMS),
     sortType: 'number',
-  },
-  {
-    Header: 'Host Share',
-    accessor: 'HOST_SHARE',
-    disableSortBy: true,
   },
 ]

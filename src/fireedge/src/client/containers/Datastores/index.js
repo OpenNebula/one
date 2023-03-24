@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+import { Box, Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import SplitPane from 'client/components/SplitPane'
+import { DatastoresTable } from 'client/components/Tables'
+import DatastoreActions from 'client/components/Tables/Datastores/actions'
+import DatastoreTabs from 'client/components/Tabs/Datastore'
+import { Datastore, T } from 'client/constants'
 import {
   useLazyGetDatastoreQuery,
   useUpdateDatastoreMutation,
 } from 'client/features/OneApi/datastore'
-import { DatastoresTable } from 'client/components/Tables'
-import DatastoreTabs from 'client/components/Tabs/Datastore'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
-import { T, Datastore } from 'client/constants'
 
 /**
  * Displays a list of Datastores with a split pane between the list and selected row(s).
@@ -40,6 +41,7 @@ import { T, Datastore } from 'client/constants'
  */
 function Datastores() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const actions = DatastoreActions()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -50,6 +52,7 @@ function Datastores() {
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <DatastoresTable
             onSelectedRowsChange={onSelectedRowsChange}
+            globalActions={actions}
             useUpdateMutation={useUpdateDatastoreMutation}
           />
 

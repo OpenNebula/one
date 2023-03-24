@@ -16,20 +16,20 @@
 import { useMemo, ReactElement } from 'react'
 
 import { useViews } from 'client/features/Auth'
-import { useGetFilesQuery } from 'client/features/OneApi/image'
+import { useGetAllImagesQuery } from 'client/features/OneApi/image'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
-import ImageColumns from 'client/components/Tables/Images/columns'
-import ImageRow from 'client/components/Tables/Images/row'
+import ImageColumns from 'client/components/Tables/AllImages/columns'
+import ImageRow from 'client/components/Tables/AllImages/row'
 import { RESOURCE_NAMES } from 'client/constants'
 
-const DEFAULT_DATA_CY = 'images'
+const DEFAULT_DATA_CY = 'allimages'
 
 /**
  * @param {object} props - Props
  * @returns {ReactElement} Images table
  */
-const FilesTable = (props) => {
+const AllImagesTable = (props) => {
   const { rootProps = {}, searchProps = {}, datastoreId, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
@@ -39,7 +39,7 @@ const FilesTable = (props) => {
     data = [],
     isFetching,
     refetch,
-  } = useGetFilesQuery(undefined, {
+  } = useGetAllImagesQuery(undefined, {
     selectFromResult: (result) => ({
       ...result,
       data: result?.data?.filter((image) => {
@@ -76,7 +76,7 @@ const FilesTable = (props) => {
   )
 }
 
-FilesTable.propTypes = { ...EnhancedTable.propTypes }
-FilesTable.displayName = 'FilesTable'
+AllImagesTable.propTypes = { ...EnhancedTable.propTypes }
+AllImagesTable.displayName = 'AllImagesTable'
 
-export default FilesTable
+export default AllImagesTable
