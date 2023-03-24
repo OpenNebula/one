@@ -22,6 +22,7 @@ const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 const { request: axios } = require('axios')
+const { writeInLogger } = require('server/utils/logger')
 
 // server
 const {
@@ -60,21 +61,23 @@ router.get('*', async (req, res) => {
   if (appConfig?.auth === 'remote') {
     remoteJWT.remote = true
     remoteJWT.remote_redirect = appConfig?.auth_redirect ?? '.'
-    if (req.get(defaultHeaderRemote)) {
-      try {
-        const jwt = await axios({
-          method: 'POST',
-          url: `${req.protocol}://${req.get(
-            'host'
-          )}/${defaultAppName}/api/auth`,
-          data: {
-            user: req.get(defaultHeaderRemote),
-          },
-          validateStatus: (status) => status >= 200 && status <= 400,
-        })
-        jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
-        jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
-      } catch {}
+    try {
+      if (!req.get(defaultHeaderRemote)) {
+        // eslint-disable-next-line no-throw-literal
+        throw new Error(`missing header: ${JSON.stringify(req.headers)}`)
+      }
+      const jwt = await axios({
+        method: 'POST',
+        url: `${req.protocol}://${req.get('host')}/${defaultAppName}/api/auth`,
+        data: {
+          user: req.get(defaultHeaderRemote),
+        },
+        validateStatus: (status) => status >= 200 && status <= 400,
+      })
+      jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
+      jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
+    } catch (e) {
+      writeInLogger(e)
     }
   }
 
