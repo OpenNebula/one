@@ -69,17 +69,18 @@ module.exports = {
   Configuration: 'Configuration',
   CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
+  CreateDatastore: 'Create Datastore',
+  CreateDockerfile: 'Create Dockerfile',
+  CreateFile: 'Create File',
   CreateHost: 'Create Host',
+  CreateImage: 'Create Image',
   CreateMarketApp: 'Create Marketplace App',
   CreateProvider: 'Create Provider',
   CreateProvision: 'Create Provision',
+  CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
-  CreateImage: 'Create Image',
-  CreateSecurityGroup: 'Create Security Group',
-  CreateFile: 'Create File',
-  CreateDockerfile: 'Create Dockerfile',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -292,6 +293,7 @@ module.exports = {
   UpdatedNic: 'Updated nic',
   ErrorUpdatingSecGroups: 'VMs in error. The Update to the latest rules failed',
   PendingUpdatingSecGroups: 'VMs waiting to be updated with the latest rules',
+  Unknown: 'Unknown',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',
@@ -417,6 +419,112 @@ module.exports = {
   ResetBackup: 'Reset',
   IncrementId: 'Increment ID',
   RestoreBackup: 'Restore backup',
+
+  /* storage backends */
+  StorageBackend: 'Storage backend',
+  DatastoreType: 'Datastore type',
+  FilesystemShared: 'Filesystem - shared mode',
+  FilesystemSSH: 'Filesystem - SSH mode',
+  Ceph: 'Ceph',
+  Vcenter: 'vCenter',
+  LVM: 'LVM',
+  RawDeviceMapping: 'Raw device mapping',
+  StorageRestic: 'Backup - Restic (EE only)',
+  StorageRsync: 'Backup - RSync',
+
+  /* datastore */
+  Transfer: 'Transfer',
+  CustomDSMAD: 'Custom DS_MAD',
+  CustomTMMAD: 'Custom TM_MAD',
+  Filesystem: 'Filesystem',
+  Devices: 'Devices',
+  Shared: 'Shared',
+  SSH: 'SSH',
+  FSLVM: 'FS LVM',
+  ConfigurationAttributes: 'Configuration attributes',
+  RestrictedDirs: 'Restricted directories',
+  SafeDirs: 'Safe directories',
+  StorageUsageLimit: 'Storage usage limit (in MB)',
+  TransferBandwidthLimit: 'Transfer bandwidth limit (B/s)',
+  DoNotTryToUntarOrDecompress: 'Do not try to untar or decompress',
+  CheckDSCapacityBeforeCreatingImage:
+    'Check available capacity of the Datastore before creating a new Image',
+  HostBridgeList: 'Host bridge list',
+  CephPoolToStoreImages: 'Ceph pool to store images',
+  CephHost: 'Ceph host',
+  CephUser: 'Ceph user',
+  CephSecret: 'Ceph secret',
+  CephUserConcept: 'The username to interact with the Ceph cluster',
+  CephSecretConcept: 'A generated UUID for a LibVirt secret',
+  ResticPassword: 'Restic password',
+  ResticSFTPUser: 'Restic SFTP user',
+  ResticSFTPServer: 'Restic SFTP server',
+  BackupIOPriority: 'Backup I/O priority',
+  BackupIOPriorityConcept:
+    'Run restic operations under a given ionice priority using the best-effort I/O scheduler',
+  BackupCPUPriority: 'Backup CPU priority',
+  BackupCPUPriorityConcept:
+    'Run restic operations with a given scheduler priority (nice)',
+  BandwidthLimit: 'Bandwidth limit',
+  BandwidthLimitConcept: 'limit download and upload to a maximum rate in KiB/s',
+  NumberOfConcurrentConnections: 'Number of concurrent connections',
+  NumberOfConcurrentConnectionsConcept:
+    'Set the number of concurrent connections to the backup backend (default is 5)',
+  MaximumReadIOPS: 'Maximum read IOPS',
+  MaximumReadIOPSConcept:
+    'Run backups in a systemd slice, limiting the max number of read IOPS',
+  MaximumWriteIOPS: 'Maximum write IOPS',
+  MaximumWriteIOPSConcept:
+    'Run backups in a systemd slice, limiting the max number of write IOPS',
+  CPUQuota: 'CPU quota',
+  CPUQuotaConcept:
+    'Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs',
+  CompressionLevel: 'Compression level',
+  CompressionLevelConcept:
+    'Compress backups in the datastore, it needs a Restic repository with format version 2',
+  RsyncHost: 'Rsync host',
+  RsyncUser: 'Rsync user',
+  VolumeGroupName: 'Volume group name',
+  GlusterHost: 'Gluster host',
+  GlusterHostConcept:
+    'Host and port of one (and only one) Gluster server (host:port)',
+  GlusterVolume: 'Gluster volume',
+  GlusterVolumeConcept: 'Gluster volume to use for the datastore',
+  RDBFormat: 'RDB format',
+  CephConfigurationFilePath: 'Ceph configuration file path',
+  CephConfigurationFilePathConcept:
+    'Needed if using a non-default path for the ceph configuration file',
+  CephKeyfile: 'Ceph keyfile',
+  CephKeyfileConcept: 'File containing the secret key of user',
+
+  CompatibleSystemDatastores: 'Compatible system datastores',
+  CompatibleSystemDatastoresConcept:
+    'Specifies which system datastores are compatible with this image datastore',
+  StagingDirectoryForImageRegistration:
+    'Staging directory for Image registration',
+  AdapterTypeUsedByVirtualDisksVMs: 'Adapter type used by virtual disks VMs',
+  TypeOfDiskToBeCreated: 'Type of disk to be created',
+  ManagedObjectReferenceOfTheDatastore:
+    'Managed Object Reference of the datastore',
+  NameOfTheVcenterDatastore: 'Name of the vCenter datastore',
+  ManagedObjectReferenceOfTheDatacenter:
+    'Managed Object Reference of the vCenter datacenter',
+  NameOfTheVcenterDatacenter: 'Name of the vCenter datacenter',
+  vCenterImageDirectory: 'vCenter image directory',
+  vCenterVolatileDirectory: 'vCenter volatile directory',
+  HostnameOrIPOfTheVcenterHost: 'Hostname or IP of the vCenter host',
+  MaxNumberOSThreads: 'Max number of OS threads',
+  MaxNumberOSThreadsConcept:
+    'Sets GOMAXPROCS for restic to limit the OS threads that execute user-level Go code simultaneously.',
+  Sparsify: 'Sparsify',
+  SparsifyConcept:
+    'Runs virt-sparsify on flatten backups to reduce backup size. It requires libguestfs package.',
+  Arguments: 'Arguments',
+  RsyncArgumentsConcept:
+    'Command line arguments for rsync command (Default: -az)',
+  TemporalDirectory: 'Temporal directory',
+  TemporalDirectoryConcept:
+    'Temporary Directory used for rebasing incremental images (Default: /var/tmp)',
 
   /* sections - templates & instances */
   Instances: 'Instances',

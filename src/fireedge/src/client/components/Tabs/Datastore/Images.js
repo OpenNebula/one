@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, array } from 'yup'
+import { ReactElement } from 'react'
+import PropTypes from 'prop-types'
 
-import { ClustersTable } from 'client/components/Tables'
-import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getValidationFromFields } from 'client/utils'
+import { AllImagesTable } from 'client/components/Tables'
 
-/** @type {Field} Cluster field */
-const CLUSTER = {
-  name: 'cluster',
-  label: T.SelectNewCluster,
-  type: INPUT_TYPES.TABLE,
-  Table: () => ClustersTable,
-  singleSelect: false,
-  validation: array(string().trim())
-    .required()
-    .default(() => undefined),
-  grid: { md: 12 },
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Datastore id
+ * @returns {ReactElement} Information tab
+ */
+const ImagesInfoTab = ({ id }) => (
+  <AllImagesTable disableRowSelect disableGlobalSort datastoreId={id} />
+)
+
+ImagesInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
-/** @type {Field[]} List of fields */
-export const FIELDS = [CLUSTER]
+ImagesInfoTab.displayName = 'ImagesInfoTab'
 
-/** @type {ObjectSchema} Schema */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export default ImagesInfoTab

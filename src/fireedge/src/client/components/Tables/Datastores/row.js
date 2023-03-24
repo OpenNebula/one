@@ -13,29 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import api from 'client/features/OneApi/datastore'
+import api, {
+  useUpdateDatastoreMutation,
+} from 'client/features/OneApi/datastore'
 import { DatastoreCard } from 'client/components/Cards'
+import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, ...props }) => {
+  ({ original, onClickLabel, ...props }) => {
+    const [update] = useUpdateDatastoreMutation()
+
     const state = api.endpoints.getDatastores.useQueryState(undefined, {
       selectFromResult: ({ data = [] }) =>
         data.find((datastore) => +datastore.ID === +original.ID),
     })
 
-    return <DatastoreCard datastore={state ?? original} rootProps={props} />
+    const memoDs = useMemo(() => state ?? original, [state, original])
+
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoDs.TEMPLATE?.LABELS?.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newDsTemplate = { ...memoDs.TEMPLATE, LABELS: newLabels }
+        const templateXml = jsonToXml(newDsTemplate)
+
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoDs.TEMPLATE?.LABELS, update]
+    )
+
+    return (
+      <DatastoreCard
+        datastore={state ?? original}
+        onClickLabel={onClickLabel}
+        onDeleteLabel={handleDeleteLabel}
+        rootProps={props}
+      />
+    )
   },
   (prev, next) => prev.className === next.className
 )
 
 Row.propTypes = {
   original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 Row.displayName = 'DatastoreRow'

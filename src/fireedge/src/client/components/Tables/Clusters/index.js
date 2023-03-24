@@ -34,13 +34,29 @@ const ClustersTable = (props) => {
     rootProps = {},
     searchProps = {},
     useQuery = useGetClustersQuery,
+    datastoreId,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useQuery()
+  const {
+    data = [],
+    isFetching,
+    refetch,
+  } = useQuery(undefined, {
+    selectFromResult: (result) => ({
+      ...result,
+      data: result?.data?.filter((cluster) => {
+        if (datastoreId) {
+          return cluster?.DATASTORES?.ID?.includes(datastoreId)
+        }
+
+        return true
+      }),
+    }),
+  })
 
   const columns = useMemo(
     () =>

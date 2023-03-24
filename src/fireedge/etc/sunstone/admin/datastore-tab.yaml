@@ -16,6 +16,7 @@ actions:
   delete: true
   enable: true
   disable: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
@@ -48,8 +49,8 @@ info-tabs:
         edit: true
         delete: true
 
-  image:
+  images:
     enabled: true
 
-  cluster:
+  clusters:
     enabled: true

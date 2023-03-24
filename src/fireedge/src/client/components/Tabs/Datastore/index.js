@@ -24,10 +24,14 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Datastore/Info'
+import Images from 'client/components/Tabs/Datastore/Images'
+import Clusters from 'client/components/Tabs/Datastore/Clusters'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    images: Images,
+    clusters: Clusters,
   }[tabName])
 
 const DatastoreTabs = memo(({ id }) => {

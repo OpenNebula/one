@@ -16,15 +16,24 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as DatastoreModel from 'client/models/Datastore'
+import { Column } from 'react-table'
+import { T } from 'client/constants'
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
-  { Header: 'Owner', accessor: 'UNAME' },
-  { Header: 'Group', accessor: 'GNAME' },
+/** @type {Column[]} Datastore columns */
+const COLUMNS = [
+  { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: T.Name, id: 'name', accessor: 'NAME' },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
   {
-    Header: 'State',
-    id: 'STATE',
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
+  {
+    Header: T.State,
+    id: 'state',
     accessor: (row) => DatastoreModel.getState(row)?.name,
     disableFilters: false,
     Filter: ({ column }) =>
@@ -36,8 +45,8 @@ export default [
     filter: 'includesValue',
   },
   {
-    Header: 'Type',
-    id: 'TYPE',
+    Header: T.Type,
+    id: 'type',
     accessor: (row) => DatastoreModel.getType(row),
     Filter: ({ column }) =>
       CategoryFilter({
@@ -49,28 +58,35 @@ export default [
   },
   {
     Header: 'Clusters IDs',
-    id: 'CLUSTERS',
+    id: 'clusters',
     accessor: (row) => [row?.CLUSTERS?.ID ?? []].flat(),
     sortType: 'length',
   },
   {
     Header: 'Allocated CPU',
+    id: 'allocated-cpu',
     accessor: 'ALLOCATED_CPU',
     sortType: 'number',
   },
   {
     Header: 'Total Capacity',
+    id: 'total-capacity',
     accessor: 'TOTAL_MB',
     sortType: 'number',
   },
   {
     Header: 'Free Capacity',
+    id: 'free-capacity',
     accessor: 'USED_MB',
     sortType: 'number',
   },
   {
     Header: 'Provision ID',
-    id: 'PROVISION_ID',
+    id: 'provision-id',
     accessor: 'PROVISION.ID',
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'type', 'label']
+
+export default COLUMNS

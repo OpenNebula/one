@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, array } from 'yup'
 
-import { ClustersTable } from 'client/components/Tables'
-import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getValidationFromFields } from 'client/utils'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-/** @type {Field} Cluster field */
-const CLUSTER = {
-  name: 'cluster',
-  label: T.SelectNewCluster,
-  type: INPUT_TYPES.TABLE,
-  Table: () => ClustersTable,
-  singleSelect: false,
-  validation: array(string().trim())
-    .required()
-    .default(() => undefined),
-  grid: { md: 12 },
-}
+import { SCHEMA, FIELDS } from './schema'
+import { T } from 'client/constants'
 
-/** @type {Field[]} List of fields */
-export const FIELDS = [CLUSTER]
+export const STEP_ID = 'confAttributes'
 
-/** @type {ObjectSchema} Schema */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
+
+/**
+ * General configuration about VM Template.
+ *
+ * @returns {object} General configuration step
+ */
+const General = () => ({
+  id: STEP_ID,
+  label: T.ConfigurationAttributes,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content,
+})
+
+export default General
