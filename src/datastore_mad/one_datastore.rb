@@ -53,7 +53,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require "OpenNebulaDriver"
+require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'base64'
 require 'rexml/document'
@@ -66,31 +66,32 @@ class DatastoreDriver < OpenNebulaDriver
 
     # Image Driver Protocol constants
     ACTION = {
-        :cp      => "CP",
-        :rm      => "RM",
-        :mkfs    => "MKFS",
-        :log     => "LOG",
-        :stat    => "STAT",
-        :clone   => "CLONE",
-        :monitor => "MONITOR",
-        :snap_delete => "SNAP_DELETE",
-        :snap_revert => "SNAP_REVERT",
-        :snap_flatten=> "SNAP_FLATTEN"
+        :cp      => 'CP',
+        :rm      => 'RM',
+        :mkfs    => 'MKFS',
+        :log     => 'LOG',
+        :stat    => 'STAT',
+        :clone   => 'CLONE',
+        :monitor => 'MONITOR',
+        :snap_delete => 'SNAP_DELETE',
+        :snap_revert => 'SNAP_REVERT',
+        :snap_flatten=> 'SNAP_FLATTEN'
     }
 
     # Default System datastores for OpenNebula, override in oned.conf
     SYSTEM_DS_TYPES = [
-      "shared",
-      "ssh",
-      "ceph"
+        'shared',
+        'ssh',
+        'ceph'
     ]
 
     # Register default actions for the protocol
-    def initialize(ds_type, sys_ds_type, options={})
+    def initialize(ds_type, sys_ds_type, options = {})
         @options={
             :concurrency => 10,
             :threaded => true,
             :retries => 0,
+            :stdin   => false,
             :local_actions => {
                 ACTION[:stat]    => nil,
                 ACTION[:cp]      => nil,
@@ -104,9 +105,9 @@ class DatastoreDriver < OpenNebulaDriver
             }
         }.merge!(options)
 
-        super("datastore/", @options)
+        super('datastore/', @options)
 
-        if ds_type == nil
+        if ds_type.nil?
             @types = Dir["#{@local_scripts_path}/*/"].map do |d|
                 d.split('/')[-1]
             end
@@ -116,7 +117,7 @@ class DatastoreDriver < OpenNebulaDriver
             @types = ds_type
         end
 
-        if sys_ds_type == nil
+        if sys_ds_type.nil?
             @sys_types = SYSTEM_DS_TYPES
         elsif sys_ds_type.class == String
             @sys_types = [sys_ds_type]
@@ -126,15 +127,15 @@ class DatastoreDriver < OpenNebulaDriver
 
         @local_tm_scripts_path = File.join(@local_scripts_base_path, 'tm/')
 
-        register_action(ACTION[:cp].to_sym, method("cp"))
-        register_action(ACTION[:rm].to_sym, method("rm"))
-        register_action(ACTION[:mkfs].to_sym, method("mkfs"))
-        register_action(ACTION[:stat].to_sym, method("stat"))
-        register_action(ACTION[:clone].to_sym, method("clone"))
-        register_action(ACTION[:monitor].to_sym, method("monitor"))
-        register_action(ACTION[:snap_delete].to_sym, method("snap_delete"))
-        register_action(ACTION[:snap_revert].to_sym, method("snap_revert"))
-        register_action(ACTION[:snap_flatten].to_sym, method("snap_flatten"))
+        register_action(ACTION[:cp].to_sym, method('cp'))
+        register_action(ACTION[:rm].to_sym, method('rm'))
+        register_action(ACTION[:mkfs].to_sym, method('mkfs'))
+        register_action(ACTION[:stat].to_sym, method('stat'))
+        register_action(ACTION[:clone].to_sym, method('clone'))
+        register_action(ACTION[:monitor].to_sym, method('monitor'))
+        register_action(ACTION[:snap_delete].to_sym, method('snap_delete'))
+        register_action(ACTION[:snap_revert].to_sym, method('snap_revert'))
+        register_action(ACTION[:snap_flatten].to_sym, method('snap_flatten'))
     end
 
     ############################################################################
@@ -142,93 +143,103 @@ class DatastoreDriver < OpenNebulaDriver
     ############################################################################
 
     def cp(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :cp, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :cp, drv_message)
     end
 
     def rm(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :rm, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :rm, drv_message)
     end
 
     def mkfs(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :mkfs, drv_message)
     end
 
     def stat(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :stat, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :stat, drv_message)
     end
 
     def clone(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :clone, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :clone, drv_message)
     end
 
     def monitor(id, drv_message)
         ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :monitor, "#{drv_message} #{id}", sys, true)
+        do_image_action(id, ds, :monitor, drv_message, sys, true)
     end
 
     def snap_delete(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_delete, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :snap_delete, drv_message)
     end
 
     def snap_revert(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_revert, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :snap_revert, drv_message)
     end
 
     def snap_flatten(id, drv_message)
-        ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_flatten, "#{drv_message} #{id}")
+        ds, _sys = get_ds_type(drv_message)
+        do_image_action(id, ds, :snap_flatten, drv_message)
     end
 
     private
 
-    def is_available?(ds, id, action)
+    def available?(ds, id, action)
         if @types.include?(ds)
-            return true
+            true
         else
             send_message(ACTION[action], RESULT[:failure], id,
-                "Datastore driver '#{ds}' not available")
-            return false
+                         "Datastore driver '#{ds}' not available")
+            false
         end
     end
 
-    def is_sys_available?(sys, id, action)
+    def sys_available?(sys, id, action)
         if @sys_types.include?(sys)
-            return true
+            true
         else
             send_message(ACTION[action], RESULT[:failure], id,
-                "System datastore driver '#{sys}' not available")
-            return false
+                         "System datastore driver '#{sys}' not available")
+            false
         end
     end
 
-    def do_image_action(id, ds, action, arguments, sys='', encode64=false)
-
+    # rubocop:disable Metrics/ParameterLists
+    def do_image_action(id, ds, action, stdin, sys = '', encode64 = false)
         if !sys.empty?
-            return if not is_sys_available?(sys, id, action)
+            return unless sys_available?(sys, id, action)
+
             path = File.join(@local_tm_scripts_path, sys)
         else
-            return if not is_available?(ds, id, action)
+            return unless available?(ds, id, action)
+
             path = File.join(@local_scripts_path, ds)
         end
 
-        cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        if @options[:stdin]
+            arguments = " - #{id}"
+        else
+            arguments = " #{stdin} #{id}"
+            stdin = nil
+        end
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        cmd  = File.join(path, ACTION[action].downcase)
+        cmd << arguments
+
+        rc = LocalCommand.run(cmd, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
 
-        info = Base64::encode64(info).strip.delete("\n") if encode64
+        info = Base64.encode64(info).strip.delete("\n") if encode64
 
         send_message(ACTION[action], result, id, info)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def get_ds_type(drv_message)
         message = Base64.decode64(drv_message)
@@ -242,12 +253,13 @@ class DatastoreDriver < OpenNebulaDriver
         dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TYPE']
 
         if dsxml && dsxml.text == '1'
-          dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD']
-          dssys = dsxml.text if dsxml
+            dsxml = xml_doc.root.elements['/DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD']
+            dssys = dsxml.text if dsxml
         end
 
-        return dstxt, dssys
+        [dstxt, dssys]
     end
+
 end
 
 ################################################################################
@@ -257,35 +269,40 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ]
+    ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--ds-types', '-d', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--stdin', '-i', GetoptLong::NO_ARGUMENT]
 )
 
 ds_type     = nil
 sys_ds_type = nil
 threads     = 15
 timeout     = nil
+stdin       = false
 
 begin
     opts.each do |opt, arg|
         case opt
-            when '--threads'
-                threads = arg.to_i
-            when '--ds-types'
-                ds_type = arg.split(',').map {|a| a.strip }
-            when '--system-ds-types'
-                sys_ds_type = arg.split(',').map {|a| a.strip }
-            when '--timeout'
-                timeout = arg.to_i
+        when '--threads'
+            threads = arg.to_i
+        when '--ds-types'
+            ds_type = arg.split(',').map {|a| a.strip }
+        when '--system-ds-types'
+            sys_ds_type = arg.split(',').map {|a| a.strip }
+        when '--timeout'
+            timeout = arg.to_i
+        when '--stdin'
+            stdin = true
         end
     end
-rescue Exception => e
+rescue StandardError => _e
     exit(-1)
 end
 
 ds_driver = DatastoreDriver.new(ds_type, sys_ds_type,
-                                :concurrency    => threads,
-                                :timeout        => timeout)
+                                :concurrency => threads,
+                                :timeout     => timeout,
+                                :stdin       => stdin)
 ds_driver.start_driver

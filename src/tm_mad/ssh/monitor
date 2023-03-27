@@ -16,5 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+STDIN=`cat -`
+
 #The ssh system ds is monitored in each host using the monitor_ds.sh probe
 exit 0

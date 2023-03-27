@@ -41,6 +41,10 @@ source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 DRV_ACTION=$1
 ID=$2
 
+if [ "${DRV_ACTION}" = "-" ]; then
+    DRV_ACTION=`cat -`
+fi
+
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
