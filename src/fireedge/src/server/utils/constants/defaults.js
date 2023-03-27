@@ -59,7 +59,7 @@ const defaults = {
   defaultRegexpSplitLine: /\r|\n/,
   defaultSizeRotate: '100k',
   defaultAppName: appName,
-  defaultHeaderRemote: 'HTTP_X_AUTH_USERNAME',
+  defaultHeaderRemote: ['http_x_auth_username', 'x_auth_username'],
   defaultConfigErrorMessage: {
     color: 'red',
     message: 'file not found: %s',
