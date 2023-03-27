@@ -40,6 +40,10 @@ source ${DRIVER_PATH}/../../etc/datastore/fs/fs.conf
 DRV_ACTION=$1
 ID=$2
 
+if [ "${DRV_ACTION}" = "-" ]; then
+    DRV_ACTION=`cat -`
+fi
+
 export DRV_ACTION
 
 UTILS_PATH="${DRIVER_PATH}/.."

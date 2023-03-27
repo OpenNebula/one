@@ -38,6 +38,10 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 DRV_ACTION=$1
 DS_ID=$2
 
+if [ "${DRV_ACTION}" = "-" ]; then
+    DRV_ACTION=`cat -`
+fi
+
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS

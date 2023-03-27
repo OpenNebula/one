@@ -93,6 +93,7 @@ class DatastoreDriver < OpenNebulaDriver
             :concurrency => 10,
             :threaded => true,
             :retries => 0,
+            :stdin   => false,
             :local_actions => {
                 ACTION[:stat]    => nil,
                 ACTION[:cp]      => nil,
@@ -148,62 +149,62 @@ class DatastoreDriver < OpenNebulaDriver
 
     def cp(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :cp, "#{drv_message} #{id}")
+        do_image_action(id, ds, :cp, drv_message)
     end
 
     def rm(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :rm, "#{drv_message} #{id}")
+        do_image_action(id, ds, :rm, drv_message)
     end
 
     def mkfs(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :mkfs, "#{drv_message} #{id}")
+        do_image_action(id, ds, :mkfs, drv_message)
     end
 
     def stat(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :stat, "#{drv_message} #{id}")
+        do_image_action(id, ds, :stat, drv_message)
     end
 
     def clone(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :clone, "#{drv_message} #{id}")
+        do_image_action(id, ds, :clone, drv_message)
     end
 
     def monitor(id, drv_message)
         ds, sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :monitor, "#{drv_message} #{id}", sys, true)
+        do_image_action(id, ds, :monitor, drv_message, sys, true)
     end
 
     def snap_delete(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_delete, "#{drv_message} #{id}")
+        do_image_action(id, ds, :snap_delete, drv_message)
     end
 
     def snap_revert(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_revert, "#{drv_message} #{id}")
+        do_image_action(id, ds, :snap_revert, drv_message)
     end
 
     def snap_flatten(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :snap_flatten, "#{drv_message} #{id}")
+        do_image_action(id, ds, :snap_flatten, drv_message)
     end
 
     def restore(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :restore, "#{drv_message} #{id}")
+        do_image_action(id, ds, :restore, drv_message)
     end
 
     def increment_flatten(id, drv_message)
         ds, _sys = get_ds_type(drv_message)
-        do_image_action(id, ds, :increment_flatten, "#{drv_message} #{id}")
+        do_image_action(id, ds, :increment_flatten, drv_message)
     end
 
     private
 
-    def is_available?(ds, id, action)
+    def available?(ds, id, action)
         if @types.include?(ds)
             true
         else
@@ -213,7 +214,7 @@ class DatastoreDriver < OpenNebulaDriver
         end
     end
 
-    def is_sys_available?(sys, id, action)
+    def sys_available?(sys, id, action)
         if @sys_types.include?(sys)
             true
         else
@@ -223,21 +224,29 @@ class DatastoreDriver < OpenNebulaDriver
         end
     end
 
-    def do_image_action(id, ds, action, arguments, sys = '', encode64 = false)
+    # rubocop:disable Metrics/ParameterLists
+    def do_image_action(id, ds, action, stdin, sys = '', encode64 = false)
         if !sys.empty?
-            return unless is_sys_available?(sys, id, action)
+            return unless sys_available?(sys, id, action)
 
             path = File.join(@local_tm_scripts_path, sys)
         else
-            return unless is_available?(ds, id, action)
+            return unless available?(ds, id, action)
 
             path = File.join(@local_scripts_path, ds)
         end
 
-        cmd  = File.join(path, ACTION[action].downcase)
-        cmd << ' ' << arguments
+        if @options[:stdin]
+            arguments = " - #{id}"
+        else
+            arguments = " #{stdin} #{id}"
+            stdin = nil
+        end
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        cmd  = File.join(path, ACTION[action].downcase)
+        cmd << arguments
+
+        rc = LocalCommand.run(cmd, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
 
@@ -245,6 +254,7 @@ class DatastoreDriver < OpenNebulaDriver
 
         send_message(ACTION[action], result, id, info)
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def get_ds_type(drv_message)
         message = Base64.decode64(drv_message)
@@ -274,16 +284,18 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    ['--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--ds-types',        '-d', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--ds-types', '-d', GetoptLong::OPTIONAL_ARGUMENT],
     ['--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT]
+    ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--stdin', '-i', GetoptLong::NO_ARGUMENT]
 )
 
 ds_type     = nil
 sys_ds_type = nil
 threads     = 15
 timeout     = nil
+stdin       = false
 
 begin
     opts.each do |opt, arg|
@@ -296,13 +308,16 @@ begin
             sys_ds_type = arg.split(',').map {|a| a.strip }
         when '--timeout'
             timeout = arg.to_i
+        when '--stdin'
+            stdin = true
         end
     end
-rescue StandardError
+rescue StandardError => _e
     exit(-1)
 end
 
 ds_driver = DatastoreDriver.new(ds_type, sys_ds_type,
-                                :concurrency    => threads,
-                                :timeout        => timeout)
+                                :concurrency => threads,
+                                :timeout     => timeout,
+                                :stdin       => stdin)
 ds_driver.start_driver

@@ -59,6 +59,7 @@ require_relative '../../tm/lib/backup'
 require_relative '../../tm/lib/tm_action'
 
 daction64 = ARGV[0]
+daction64 = STDIN.read if daction64 == '-'
 
 # Parse input data.
 

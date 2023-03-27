@@ -19,6 +19,10 @@
 DRV_ACTION=$1
 ID=$2
 
+if [ "${DRV_ACTION}" = "-" ]; then
+    DRV_ACTION=`cat -`
+fi
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
     DATASTORES=/var/lib/one/datastores
