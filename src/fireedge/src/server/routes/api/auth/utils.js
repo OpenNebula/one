@@ -533,7 +533,7 @@ const getServerAdminAndWrapUser = (userData = {}) => {
 const remoteLogin = (userData = '') => {
   const serverAdminData = getServerAdmin()
   const { username, token } = serverAdminData
-  const [usr, pss] = userData.split(':')
+  const [usr, pss = usr] = userData.split(':')
   if (username && token && usr && pss) {
     const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
     oneConnect({

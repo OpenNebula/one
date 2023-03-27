@@ -565,8 +565,12 @@ helpers do
         session[:mode] = $conf[:mode]
 
         if RUBY_VERSION > '2.0.0'
-          auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>(\w|\W)+)/)
-          session[:auth] = auth[:pass]
+          if request.env['HTTP_AUTHORIZATION']
+            auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>(\w|\W)+)/) 
+            session[:auth] = auth[:pass]
+          else
+            session[:auth] = Base64.encode64("#{user['NAME']}:#{user['PASSWORD']}")
+          end
         else
           auth = request.env['HTTP_AUTHORIZATION'].split(" ")
           if auth[0] && auth[0].downcase === 'basic'

@@ -61,16 +61,26 @@ router.get('*', async (req, res) => {
   if (appConfig?.auth === 'remote') {
     remoteJWT.remote = true
     remoteJWT.remote_redirect = appConfig?.auth_redirect ?? '.'
+    const finderHeader = () => {
+      const headers = Object.keys(req.headers)
+
+      return headers.find((header) => defaultHeaderRemote.includes(header))
+    }
+    const findHeader = finderHeader()
     try {
-      if (!req.get(defaultHeaderRemote)) {
+      if (!findHeader) {
         // eslint-disable-next-line no-throw-literal
-        throw new Error(`missing header: ${JSON.stringify(req.headers)}`)
+        throw new Error(
+          `missing remote auth header: ${defaultHeaderRemote.join()} in ${JSON.stringify(
+            req.headers
+          )}`
+        )
       }
       const jwt = await axios({
         method: 'POST',
         url: `${req.protocol}://${req.get('host')}/${defaultAppName}/api/auth`,
         data: {
-          user: req.get(defaultHeaderRemote),
+          user: req.get(findHeader),
         },
         validateStatus: (status) => status >= 200 && status <= 400,
       })
