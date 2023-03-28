@@ -15,10 +15,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
-DRV_ACTION=$1
-ID=$2
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
     DATASTORES=/var/lib/one/datastores
