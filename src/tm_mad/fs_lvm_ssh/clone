@@ -38,6 +38,7 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../scripts_common.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -150,7 +151,7 @@ CLONE_CMD=$(cat <<EOF
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
 
-    $SSH -n $SRC_HOST "$TAR -cSO $SRC_PATH 2> /dev/null" | tar -xO 2> /dev/null > "$DEV"
+    $SSH -n $SRC_HOST "$TAR -cSO $SRC_PATH 2> /dev/null" | $TAR -xO 2> /dev/null > "$DEV"
 EOF
 )
 
