@@ -37,6 +37,6 @@ const (
 	// LockAdmin locks admin actions
 	LockAdmin LockLevel = 3
 
-	// LockAll locks all actions
+	// LockAll locks all actions. Deprecated use LockUse
 	LockAll LockLevel = 4
 )
