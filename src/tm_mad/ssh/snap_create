@@ -34,6 +34,8 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
+source ${DRIVER_PATH}/../../scripts_common.sh
+
 source $TMCOMMON
 source $SSH_RC
 source $SSH_UTILS
@@ -70,10 +72,10 @@ if [ -n "$REPLICA_HOST" ]; then
     ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
     cd $VM_DIR
-    tar --transform="flags=r;s|${DISK_NAME}.snap/${SNAP_ID}|${DISK_NAME}.replica_snap|" \
+    $TAR --transform="flags=r;s|${DISK_NAME}.snap/${SNAP_ID}|${DISK_NAME}.replica_snap|" \
         -cSf - ${DISK_NAME}.snap/${SNAP_ID} | \
         ssh $REPLICA_SSH_OPTS ${REPLICA_HOST} \
-        "tar xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+        "$TAR -xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 fi
 EOT
 )

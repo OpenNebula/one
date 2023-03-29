@@ -38,6 +38,7 @@ source $TMCOMMON
 source $SSH_RC
 source $SSH_UTILS
 source ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
+source ${DRIVER_PATH}/../../scripts_common.sh
 
 SRC_PATH=$(arg_path $SRC NOFIX)
 SRC_HOST=$(arg_host $SRC)
@@ -79,10 +80,10 @@ if [ -n "$REPLICA_HOST" ]; then
     ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
     cd $VM_DIR
-    tar --transform="flags=r;s|${DISK_NAME}.snap/${SNAP_ID}|${DISK_NAME}.replica_snap|" \
+    $TAR --transform="flags=r;s|${DISK_NAME}.snap/${SNAP_ID}|${DISK_NAME}.replica_snap|" \
         -cSf - ${DISK_NAME}.snap/${SNAP_ID} | \
         ssh $REPLICA_SSH_OPTS ${REPLICA_HOST} \
-        "tar xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+        "$TAR -xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 fi
 EOT
 )
