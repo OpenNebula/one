@@ -93,7 +93,6 @@ class DatastoreDriver < OpenNebulaDriver
             :concurrency => 10,
             :threaded => true,
             :retries => 0,
-            :stdin   => false,
             :local_actions => {
                 ACTION[:stat]    => nil,
                 ACTION[:cp]      => nil,
@@ -236,15 +235,8 @@ class DatastoreDriver < OpenNebulaDriver
             path = File.join(@local_scripts_path, ds)
         end
 
-        if @options[:stdin]
-            arguments = " - #{id}"
-        else
-            arguments = " #{stdin} #{id}"
-            stdin = nil
-        end
-
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << arguments
+        cmd << " #{id}"
 
         rc = LocalCommand.run(cmd, log_method(id), stdin)
 
@@ -287,15 +279,13 @@ opts = GetoptLong.new(
     ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
     ['--ds-types', '-d', GetoptLong::OPTIONAL_ARGUMENT],
     ['--system-ds-types', '-s', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--stdin', '-i', GetoptLong::NO_ARGUMENT]
+    ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
 ds_type     = nil
 sys_ds_type = nil
 threads     = 15
 timeout     = nil
-stdin       = false
 
 begin
     opts.each do |opt, arg|
@@ -308,8 +298,6 @@ begin
             sys_ds_type = arg.split(',').map {|a| a.strip }
         when '--timeout'
             timeout = arg.to_i
-        when '--stdin'
-            stdin = true
         end
     end
 rescue StandardError => _e
@@ -318,6 +306,5 @@ end
 
 ds_driver = DatastoreDriver.new(ds_type, sys_ds_type,
                                 :concurrency => threads,
-                                :timeout     => timeout,
-                                :stdin       => stdin)
+                                :timeout     => timeout)
 ds_driver.start_driver

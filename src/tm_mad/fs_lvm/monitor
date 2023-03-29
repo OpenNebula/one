@@ -35,12 +35,8 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 # -------- Get datastore arguments from OpenNebula core ------------
 
-DRV_ACTION=$1
-DS_ID=$2
-
-if [ "${DRV_ACTION}" = "-" ]; then
-    DRV_ACTION=`cat -`
-fi
+DRV_ACTION=`cat -`
+DS_ID=$1
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 

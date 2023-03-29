@@ -51,9 +51,8 @@ $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-drv_action_enc = ARGV[0]
-id             = ARGV[1]
-drv_action_enc = STDIN.read if drv_action_enc == '-'
+id             = ARGV[0]
+drv_action_enc = STDIN.read
 
 DRV_ACTION_DS = '/DS_DRIVER_ACTION_DATA/DATASTORE/'
 

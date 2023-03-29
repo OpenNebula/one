@@ -37,12 +37,8 @@ source ${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 # -------- Get datastore arguments from OpenNebula core ------------
 
-DRV_ACTION=$1
-ID=$2
-
-if [ "${DRV_ACTION}" = "-" ]; then
-    DRV_ACTION=`cat -`
-fi
+DRV_ACTION=`cat -`
+ID=$1
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 

@@ -57,10 +57,8 @@ require 'base64'
 
 require_relative '../../tm/lib/tm_action'
 
-daction64 = ARGV[0]
-daction64 = STDIN.read if daction64 == '-'
-
-_ds_id    = ARGV[1]
+daction64 = STDIN.read
+_ds_id    = ARGV[0]
 
 # Image path in the form:
 #   rsync://100/0:6da1c7,1:06132a,2:03fc2a//var/lib/one//datastores/100/13/6da1c7/disk.0.0

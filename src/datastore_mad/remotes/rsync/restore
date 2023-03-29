@@ -69,10 +69,8 @@ require_relative '../../tm/lib/tm_action'
 #   - vm.xml description
 #   - list of disks in the backup
 # ------------------------------------------------------------------------------
-daction64 = ARGV[0]
-daction64 = STDIN.read if daction64 == '-'
-
-_request_id = ARGV[1]
+daction64   = STDIN.read
+_request_id = ARGV[0]
 
 begin
     action = Base64.decode64 daction64

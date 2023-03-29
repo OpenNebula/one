@@ -37,12 +37,8 @@ source ${DRIVER_PATH}/../../etc/datastore/fs/fs.conf
 
 # -------- Get cp and datastore arguments from OpenNebula core ------------
 
-DRV_ACTION=$1
-ID=$2
-
-if [ "${DRV_ACTION}" = "-" ]; then
-    DRV_ACTION=`cat -`
-fi
+DRV_ACTION=`cat -`
+ID=$1
 
 export DRV_ACTION
 

@@ -300,7 +300,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         end
 
         if stdin
-            arguments = " - #{id}"
+            arguments = " #{id}"
         else
             arguments  = " #{drv_action} #{id}"
             drv_action = nil
@@ -347,14 +347,12 @@ opts = GetoptLong.new(
     ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
     ['--market-types', '-m', GetoptLong::OPTIONAL_ARGUMENT],
     ['--timeout',  '-w', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--proxy', '-p', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--stdin', '-i', GetoptLong::NO_ARGUMENT]
+    ['--proxy', '-p', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
 mp_type = nil
 threads = 15
 timeout = nil
-stdin   = false
 
 begin
     opts.each do |opt, arg|
@@ -367,8 +365,6 @@ begin
             timeout = arg.to_i
         when '--proxy'
             ENV['http_proxy'] = arg
-        when '--stdin'
-            stdin = true
         end
     end
 rescue StandardError
@@ -377,7 +373,5 @@ end
 
 mp_driver = MarketPlaceDriver.new(mp_type,
                                   :concurrency  => threads,
-                                  :timeout      => timeout,
-                                  :stdin        => stdin)
+                                  :timeout      => timeout)
 mp_driver.start_driver
-
