@@ -594,3 +594,15 @@ func (vc *VMController) DetachSG(nicID int, sgID int) error {
 	_, err := vc.c.Client.Call("one.vm.detachsg", vc.ID, nicID, sgID)
 	return err
 }
+
+// Backup Virtual Machine
+func (vc *VMController) Backup(dsID int, reset bool) error {
+	_, err := vc.c.Client.Call("one.vm.backup", vc.ID, dsID, reset)
+	return err
+}
+
+// Cancel ongoing backup operation
+func (vc *VMController) BackupCancel() error {
+	_, err := vc.c.Client.Call("one.vm.backupcancel", vc.ID)
+	return err
+}
