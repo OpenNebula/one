@@ -151,7 +151,7 @@ else
             fi
 
             # do initial rsync
-            multiline_exec_and_log "tar -cSf - $DISK_PATH | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK_PATH | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk $DISK_PATH to $DEST_HOST:$DISK_PATH"
 
         elif [ "$FORMAT" = "qcow2" ]; then
@@ -168,7 +168,7 @@ else
 
         # copy disk snapshots
         if [ -d "${DISK_PATH}.snap" ] || [ -L "${DISK_PATH}.snap" ]; then
-            multiline_exec_and_log "tar -cSf - $DISK_PATH.snap | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK_PATH.snap | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk snapshot ${DISK_PATH}.snap to $DEST_HOST"
         fi
 
@@ -182,7 +182,7 @@ else
 
     # copy vm.xml and ds.xml from the $VM_DIR
     if ls $VM_DIR/*.xml > /dev/null; then
-        multiline_exec_and_log "tar -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST 'tar xSf - -C / '" \
+        multiline_exec_and_log "$TAR -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
             "Failed to copy xml files to $DEST_HOST"
     fi
 
@@ -204,7 +204,7 @@ else
         fi
 
         for DISK in $RAW_DISKS; do
-            multiline_exec_and_log "tar -cSf - $DISK | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
         done
     fi

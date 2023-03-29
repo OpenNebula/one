@@ -26,6 +26,8 @@ fi
 
 . $SSH_RC
 
+source ${ONE_LOCAL_VAR}/remotes/scripts_common.sh
+
 # ------------------------------------------------------------------------------
 # Returns REPLICA_HOST attribute from DATASTORE template
 # ------------------------------------------------------------------------------
@@ -105,8 +107,8 @@ function rsync_img_to_replica {
         LOCK="replica-$REPLICA_HOST-${IMG_PATH//\//-}"
         RSYNC_CMD=$(cat <<EOF
             set -e -o pipefail
-            tar -cSf - ${IMG_PATH}* | \
-                ssh $REPLICA_SSH_FE_OPTS $REPLICA_HOST 'tar xSf - -C / '
+            $TAR -cSf - ${IMG_PATH}* | \
+                ssh $REPLICA_SSH_FE_OPTS $REPLICA_HOST '$TAR -xSf - -C / '
 EOF
 )
         exclusive "$LOCK" "$LOCK_TIMEOUT" \
