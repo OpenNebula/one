@@ -83,7 +83,6 @@ class MarketPlaceDriver < OpenNebulaDriver
             :concurrency => 10,
             :threaded => true,
             :retries => 0,
-            :stdin   => false,
             :local_actions => {
                 ACTION[:import]  => nil,
                 ACTION[:delete]  => nil,
@@ -161,7 +160,7 @@ class MarketPlaceDriver < OpenNebulaDriver
                                      :export,
                                      Base64.strict_encode64(ds_msg),
                                      false,
-                                     @options[:stdin])
+                                     true)
 
             if result == RESULT[:failure]
                 failure(:import, id, "Error exporting image to file: #{info}")
