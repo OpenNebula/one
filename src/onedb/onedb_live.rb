@@ -436,7 +436,9 @@ class OneDBLive
                 if options[:delete]
                     el.remove
                 else
-                    el.content = value
+                    if !options[:append]
+                        el.content = value
+                    end
                 end
             end
 
