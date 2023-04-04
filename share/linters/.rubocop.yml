@@ -791,6 +791,9 @@ Style/ConcatArrayLiterals:
 Style/WordArray:
   EnforcedStyle: brackets
 
+Style/RedundantLineContinuation:
+  Enabled: false
+
 ######
 # LINT
 ######
