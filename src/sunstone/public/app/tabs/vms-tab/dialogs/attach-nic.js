@@ -96,6 +96,10 @@ define(function(require) {
 
       if($("#cb_attach_alias", context).prop("checked")) {
         templateJSON.PARENT = $("#parent").val();
+
+        if ($('#cb_external').is(':checked')) {
+          templateJSON.EXTERNAL = 'YES'
+        }
         
         var obj = {
             "NIC_ALIAS": templateJSON
