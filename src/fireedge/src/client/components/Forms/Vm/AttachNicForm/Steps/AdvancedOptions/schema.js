@@ -100,8 +100,8 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
     },
     {
       name: 'EXTERNAL',
-      label: T.External,
-      tooltip: T.ExternalConcept,
+      label: T.SkipNetworkContextualization,
+      tooltip: T.SkipNetworkContextualizationConcept,
       type: INPUT_TYPES.SWITCH,
       dependOf: 'PARENT',
       htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,
