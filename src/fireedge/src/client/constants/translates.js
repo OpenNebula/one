@@ -677,8 +677,9 @@ module.exports = {
   NIC: 'NIC',
   Alias: 'Alias',
   AsAnAlias: 'Attach as an alias',
-  External: 'External',
-  ExternalConcept: 'The NIC will be attached as an external alias of the VM',
+  SkipNetworkContextualization: 'Skip network contextualization',
+  SkipNetworkContextualizationConcept:
+    'A virtual router can be configured to route SDNAT traffic for this NIC IP address',
   OverrideNetworkValuesIPv4: 'Override Network Values IPv4',
   OverrideNetworkValuesIPv6: 'Override Network Values IPv6',
   OverrideNetworkInboundTrafficQos: 'Override Network Inbound Traffic QoS',
