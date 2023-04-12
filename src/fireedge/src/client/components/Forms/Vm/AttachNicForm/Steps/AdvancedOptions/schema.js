@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema, boolean, number, string } from 'yup'
+import { boolean, number, string, ObjectSchema } from 'yup'
 
 import {
-  getPciAttributes,
-  transformPciToString,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/pciDevicesSchema'
+  Field,
+  Section,
+  filterFieldsByHypervisor,
+  filterFieldsByDriver,
+  getObjectSchemaFromFields,
+  arrayToOptions,
+} from 'client/utils'
 import {
-  HYPERVISORS,
+  T,
   INPUT_TYPES,
+  HYPERVISORS,
+  VN_DRIVERS,
+  Nic,
   NIC_HARDWARE,
   NIC_HARDWARE_STR,
-  Nic,
   PCI_TYPES,
-  T,
-  VN_DRIVERS,
 } from 'client/constants'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getPciDevices } from 'client/models/Host'
 import {
-  Field,
-  Section,
-  arrayToOptions,
-  filterFieldsByDriver,
-  filterFieldsByHypervisor,
-  getObjectSchemaFromFields,
-} from 'client/utils'
+  getPciAttributes,
+  transformPciToString,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/pciDevicesSchema'
 
 import { useDisableInputByUserAndConfig } from 'client/features/Auth'
 
@@ -96,6 +96,16 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
         .trim()
         .notRequired()
         .default(() => undefined),
+      grid: { sm: 6 },
+    },
+    {
+      name: 'EXTERNAL',
+      label: T.External,
+      tooltip: T.ExternalConcept,
+      type: INPUT_TYPES.SWITCH,
+      dependOf: 'PARENT',
+      htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,
+      validation: boolean().yesOrNo(),
       grid: { sm: 6 },
     },
   ].filter(Boolean)
