@@ -50,7 +50,7 @@ class LinuxContainersMarket
         :format => 'raw',
         :agent => 'OpenNebula',
         :tested_apps => ['alpine', 'alt', 'centos', 'rockylinux', 'almalinux', 'oracle', 'debian',
-                         'ubuntu', 'fedora', 'devuan'],
+                         'ubuntu', 'fedora', 'devuan', 'opensuse', 'amazonlinux'],
         :skip_untested => 'yes',
         :memory => '768',
         :cpu => 1,
