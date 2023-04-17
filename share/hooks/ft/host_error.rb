@@ -282,16 +282,6 @@ if vm_ids_array
             next
         end
 
-        vm_ds_id  = vm.retrieve_elements("/VM/HISTORY_RECORDS/HISTORY[last()]/DS_ID")[0]
-
-        ds_xpath  = "/DATASTORE_POOL/DATASTORE[ID=\"#{vm_ds_id}\"]/TEMPLATE/SHARED"
-        is_shared = ds_pool.retrieve_elements(ds_xpath)[0]
-
-        if is_shared == "NO"
-            log "Skipping VM #{vm_id} deployed on non-shared datastore"
-            next
-        end
-
         case mode
         when :recreate
             log "recreate #{vm_id}"
@@ -300,6 +290,15 @@ if vm_ids_array
             log "delete #{vm_id}"
             vm.delete
         when :migrate
+            vm_ds_id  = vm.retrieve_elements("/VM/HISTORY_RECORDS/HISTORY[last()]/DS_ID")[0]
+
+            ds_xpath  = "/DATASTORE_POOL/DATASTORE[ID=\"#{vm_ds_id}\"]/TEMPLATE/SHARED"
+            is_shared = ds_pool.retrieve_elements(ds_xpath)[0]
+
+            if is_shared == "NO"
+                log "Skipping VM #{vm_id} deployed on non-shared datastore"
+                next
+            end
             log "resched #{vm_id}"
             vm.resched
         else
