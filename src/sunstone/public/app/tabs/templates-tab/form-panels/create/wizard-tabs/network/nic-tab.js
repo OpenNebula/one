@@ -449,6 +449,10 @@ define(function(require) {
         delete nicJSON["PARENT"];
     } else {
       nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
+
+      if ($("#" + this.nicTabId + "_alias_external", context).is(':checked')) {
+        nicJSON["EXTERNAL"] =  'YES';
+      }
     }
 
     if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {
