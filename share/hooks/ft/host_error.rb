@@ -290,7 +290,7 @@ if vm_ids_array
             log "delete #{vm_id}"
             vm.delete
         when :migrate
-            vm_ds_id  = vm.retrieve_elements("/VM/HISTORY_RECORDS/HISTORY[last()]/DS_ID")[0]
+            vm_ds_id  = vm.retrieve_elements("/VM/HISTORY_RECORDS/HISTORY[position()=last()]/DS_ID")[0]
 
             ds_xpath  = "/DATASTORE_POOL/DATASTORE[ID=\"#{vm_ds_id}\"]/TEMPLATE/SHARED"
             is_shared = ds_pool.retrieve_elements(ds_xpath)[0]
