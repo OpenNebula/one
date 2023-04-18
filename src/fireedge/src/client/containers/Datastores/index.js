@@ -85,7 +85,8 @@ function Datastores() {
  * @returns {ReactElement} Datastore details
  */
 const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
-  const [get, { data: lazyData, isFetching }] = useLazyGetDatastoreQuery()
+  const [getDatastore, { data: lazyData, isFetching }] =
+    useLazyGetDatastoreQuery()
   const id = lazyData?.ID ?? datastore.ID
   const name = lazyData?.NAME ?? datastore.NAME
 
@@ -95,14 +96,12 @@ const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
         <Typography color="text.primary" noWrap flexGrow={1}>
           {`#${id} | ${name}`}
         </Typography>
-
-        {/* -- ACTIONS -- */}
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => get({ id })}
+          onClick={() => getDatastore({ id })}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton
@@ -120,9 +119,8 @@ const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
-        {/* -- END ACTIONS -- */}
       </Stack>
-      <DatastoreTabs id={id} />
+      <DatastoreTabs id={datastore.ID} />
     </Stack>
   )
 })

@@ -81,7 +81,7 @@ const Steps = createSteps(
         [CONF_ID]: {
           RESTRICTED_DIRS,
           SAFE_DIRS,
-          HOST_BRIDGE_LIST,
+          BRIDGE_LIST,
           CEPH_HOST,
           BACKUP_IONICE,
           BACKUP_NICE,
@@ -102,8 +102,25 @@ const Steps = createSteps(
         CUSTOM_TM_MAD,
       })
 
+      const diskType = DISK_TYPES_BY_STORAGE_BACKEND[STORAGE_BACKEND]
+
       const dsMadValue =
         TYPE === DATASTORE_TYPES.SYSTEM.value ? undefined : dsMad
+
+      const restrictedDirs =
+        RESTRICTED_DIRS?.length > 0 ? RESTRICTED_DIRS.join(' ') : undefined
+
+      const safeDirs = SAFE_DIRS?.length > 0 ? SAFE_DIRS.join(' ') : undefined
+
+      const bridgeList =
+        BRIDGE_LIST?.length > 0 ? BRIDGE_LIST.join(' ') : undefined
+
+      const compatibleSysDs =
+        COMPATIBLE_SYSTEM_DATASTORES?.length > 0
+          ? COMPATIBLE_SYSTEM_DATASTORES.join(',')
+          : undefined
+
+      const cephHost = CEPH_HOST?.length > 0 ? CEPH_HOST.join(',') : undefined
 
       const dsObject = {
         template: {
@@ -111,44 +128,16 @@ const Steps = createSteps(
           TYPE,
           DS_MAD: dsMadValue,
           TM_MAD: tmMad,
-        },
-        cluster: cluster.ID,
-      }
-
-      if (STORAGE_BACKEND === DS_STORAGE_BACKENDS.CUSTOM.value) {
-        const diskType = DISK_TYPES_BY_STORAGE_BACKEND[STORAGE_BACKEND]
-
-        const restrictedDirs =
-          RESTRICTED_DIRS?.length > 0 ? RESTRICTED_DIRS.join(' ') : undefined
-
-        const safeDirs = SAFE_DIRS?.length > 0 ? SAFE_DIRS.join(' ') : undefined
-
-        const bridgeList =
-          HOST_BRIDGE_LIST?.length > 0 ? HOST_BRIDGE_LIST.join(' ') : undefined
-
-        const compatibleSysDs =
-          COMPATIBLE_SYSTEM_DATASTORES?.length > 0
-            ? COMPATIBLE_SYSTEM_DATASTORES.join(',')
-            : undefined
-
-        const cephHost = CEPH_HOST?.length > 0 ? CEPH_HOST.join(',') : undefined
-
-        dsObject.template = {
-          ...dsObject.template,
-          DISK_TYPE: diskType,
           RESTRICTED_DIRS: restrictedDirs,
           SAFE_DIRS: safeDirs,
           BRIDGE_LIST: bridgeList,
           COMPATIBLE_SYS_DS: compatibleSysDs,
           CEPH_HOST: cephHost,
+          DISK_TYPE: diskType,
           ...restConf,
           ...customVariables,
-        }
-      } else {
-        dsObject.template = {
-          ...dsObject.template,
-          ...customVariables,
-        }
+        },
+        cluster: cluster.ID,
       }
 
       return dsObject

@@ -116,13 +116,20 @@ const DATASTORE_CAPACITY_CHECK = {
 }
 
 /** @type {Field} - Host bridge field */
-const HOST_BRIDGE_LIST = {
-  name: 'HOST_BRIDGE_LIST',
+const BRIDGE_LIST = {
+  name: 'BRIDGE_LIST',
   label: T.HostBridgeList,
   tooltip: [T.PressKeysToAddAValue, ['ENTER']],
   type: INPUT_TYPES.AUTOCOMPLETE,
   multiple: true,
-  validation: array(string().trim()).default(() => []),
+  validation: array(string().trim())
+    .compact()
+    .default(() => [])
+    .when('$general.STORAGE_BACKEND', (storageBackend, schema) =>
+      isCeph(storageBackend)
+        ? schema.min(1, 'Is a required field').required()
+        : schema.notRequired()
+    ),
   dependOf: '$general.STORAGE_BACKEND',
   htmlType: (type) =>
     !typeIsOneOf(type, [isShared, isSsh, isCeph]) && INPUT_TYPES.HIDDEN,
@@ -136,7 +143,7 @@ const HOST_BRIDGE_LIST = {
 export const COMMON_FIELDS = [
   RESTRICTED_DIRS,
   SAFE_DIRS,
-  HOST_BRIDGE_LIST,
+  BRIDGE_LIST,
   STAGING_DIR,
   LIMIT_MB,
   LIMIT_TRANSFER_BW,
