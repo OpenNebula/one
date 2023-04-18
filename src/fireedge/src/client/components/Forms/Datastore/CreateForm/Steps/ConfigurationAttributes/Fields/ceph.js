@@ -39,12 +39,13 @@ const CEPH_HOST = {
   multiple: true,
   htmlType: (type) => !typeIsOneOf(type, [isCeph]) && INPUT_TYPES.HIDDEN,
   validation: array(string().trim())
+    .compact()
     .default(() => [])
-    .when('$general.STORAGE_BACKEND', {
-      is: (storageBackend) => isCeph(storageBackend),
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    .when('$general.STORAGE_BACKEND', (storageBackend, schema) =>
+      isCeph(storageBackend)
+        ? schema.min(1, 'Is a required field').required()
+        : schema
+    ),
   fieldProps: {
     freeSolo: true,
     placeholder: 'host1 host2 host3',

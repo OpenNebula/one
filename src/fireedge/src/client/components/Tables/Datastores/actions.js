@@ -31,7 +31,7 @@ import {
   useEnableDatastoreMutation,
   useRemoveDatastoreMutation,
 } from 'client/features/OneApi/datastore'
-import { AddCircledOutline, Group, Trash } from 'iconoir-react'
+import { AddCircledOutline, Group, MoreVert, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -131,28 +131,41 @@ const Actions = () => {
             ],
           },
           {
-            accessor: DATASTORE_ACTIONS.ENABLE,
-            color: 'secondary',
-            dataCy: `datastore_${DATASTORE_ACTIONS.ENABLE}`,
-            label: T.Enable,
             tooltip: T.Enable,
+            icon: MoreVert,
             selected: true,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => enable(id)))
-            },
-          },
-          {
-            accessor: DATASTORE_ACTIONS.DISABLE,
             color: 'secondary',
-            dataCy: `datastore_${DATASTORE_ACTIONS.DISABLE}`,
-            label: T.Disable,
-            tooltip: T.Disable,
-            selected: true,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => disable(id)))
-            },
+            dataCy: 'datastore-options',
+            options: [
+              {
+                accessor: DATASTORE_ACTIONS.ENABLE,
+                name: T.Enable,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Enable,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${DATASTORE_ACTIONS.ENABLE}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => enable(id)))
+                },
+              },
+              {
+                accessor: DATASTORE_ACTIONS.DISABLE,
+                name: T.Disable,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Disable,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${DATASTORE_ACTIONS.DISABLE}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(ids.map((id) => disable(id)))
+                },
+              },
+            ],
           },
           {
             tooltip: T.Ownership,
@@ -206,7 +219,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Delete,
                   children: MessageToConfirmAction,
-                  dataCy: `modal-datastore-${DATASTORE_ACTIONS.DELETE}`,
+                  dataCy: `modal-${DATASTORE_ACTIONS.DELETE}`,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)

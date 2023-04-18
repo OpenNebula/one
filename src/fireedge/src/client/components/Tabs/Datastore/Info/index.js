@@ -39,9 +39,6 @@ import {
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
-const VCENTER_ATTRIBUTES_REG =
-  /^VCENTER_(?!(HOST|USER|PASSWORD|DS_IMAGE_DIR|DS_VOLATILE_DIR)$)/
-
 /**
  * Renders mainly information tab.
  *
@@ -55,15 +52,13 @@ const DatastoreInfoTab = ({ tabProps = {}, id }) => {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
-    vcenter_panel: vcenterPanel,
     attributes_panel: attributesPanel,
   } = tabProps
 
   const [changeOwnership] = useChangeDatastoreOwnershipMutation()
   const [changePermissions] = useChangeDatastorePermissionsMutation()
   const [update] = useUpdateDatastoreMutation()
-  const { data: datastore } = useGetDatastoreQuery({ id })
-
+  const { data: datastore = {} } = useGetDatastoreQuery({ id })
   const { UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = datastore
 
   const handleChangeOwnership = async (newOwnership) => {
@@ -87,10 +82,7 @@ const DatastoreInfoTab = ({ tabProps = {}, id }) => {
     [getActionsAvailable]
   )
 
-  const { attributes, vcenter: vcenterAttributes } = filterAttributes(
-    TEMPLATE,
-    { extra: { vcenter: VCENTER_ATTRIBUTES_REG } }
-  )
+  const { attributes } = filterAttributes(TEMPLATE)
 
   const ATTRIBUTE_FUNCTION = {
     handleAdd: handleAttributeInXml,
@@ -142,14 +134,6 @@ const DatastoreInfoTab = ({ tabProps = {}, id }) => {
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
-        />
-      )}
-      {vcenterPanel?.enabled && vcenterAttributes && (
-        <AttributePanel
-          {...ATTRIBUTE_FUNCTION}
-          actions={getActions(vcenterPanel?.actions)}
-          attributes={vcenterAttributes}
-          title={`vCenter ${Tr(T.Information)}`}
         />
       )}
     </Stack>

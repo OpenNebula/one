@@ -23,9 +23,9 @@ import { useGetDatastoreQuery } from 'client/features/OneApi/datastore'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
-import Info from 'client/components/Tabs/Datastore/Info'
-import Images from 'client/components/Tabs/Datastore/Images'
 import Clusters from 'client/components/Tabs/Datastore/Clusters'
+import Images from 'client/components/Tabs/Datastore/Images'
+import Info from 'client/components/Tabs/Datastore/Info'
 
 const getTabComponent = (tabName) =>
   ({
@@ -36,9 +36,7 @@ const getTabComponent = (tabName) =>
 
 const DatastoreTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isError, error, status, data } = useGetDatastoreQuery({
-    id,
-  })
+  const { isError, error, status, data } = useGetDatastoreQuery({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.DATASTORE

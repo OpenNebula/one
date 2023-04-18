@@ -30,17 +30,12 @@ const DEFAULT_DATA_CY = 'datastores'
  * @returns {ReactElement} Datastores table
  */
 const DatastoresTable = (props) => {
-  const {
-    rootProps = {},
-    searchProps = {},
-    useQuery = useGetDatastoresQuery,
-    ...rest
-  } = props ?? {}
+  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useQuery()
+  const { data = [], isFetching, refetch } = useGetDatastoresQuery()
 
   const columns = useMemo(
     () =>

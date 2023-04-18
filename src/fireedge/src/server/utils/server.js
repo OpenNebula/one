@@ -492,7 +492,7 @@ const replaceEscapeSequence = (text = '') => {
  */
 const getSunstoneAuth = () => {
   let rtn
-  if (global && global.paths && global.paths.SUNSTONE_AUTH_PATH) {
+  if (global?.paths?.SUNSTONE_AUTH_PATH) {
     existsFile(
       global.paths.SUNSTONE_AUTH_PATH,
       (filedata) => {
