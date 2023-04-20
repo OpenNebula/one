@@ -135,6 +135,8 @@ class LinuxContainersMarket
         #-----------------------------------------------------------------------
         tree.each do |distro, value|
             value.each do |version, path|
+                path = URI.decode_www_form_component(path)
+
                 description = "Downloaded from #{@options[:url]}"
                 regtime = app_time(path).to_s
 
@@ -190,10 +192,8 @@ class LinuxContainersMarket
 
     # Returns build date based on image path
     def app_time(path)
-        m1 = 'amd64/default/./'
-        m2 = '/rootfs.tar.xz'
+        buildate = path.split('/')[6]
 
-        buildate = path[/#{m1}(.*?)#{m2}/m, 1]
         buildate = DateTime.strptime(buildate, '%Y%m%d_%H:%M')
         buildate.to_time.to_i
     end
