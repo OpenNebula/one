@@ -58,6 +58,7 @@
           </fieldset>
         {{/if}}
         {{#if displaySelection}}
+        {{#isFeatureEnabled "automatic_selection_vnet"}}
           <fieldset class="small-12 large-6 columns" style="margin:0px;">
             <legend style="margin:0px;">{{tr "Network selection"}}</legend>
             <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_network_selection">
@@ -73,6 +74,7 @@
               </label>
             </div>
           </fieldset>
+        {{/isFeatureEnabled}}
         {{/if}}
       </div>
       <div class="row autoContainer">
