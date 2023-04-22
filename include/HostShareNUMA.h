@@ -128,6 +128,12 @@ public:
     void reserve_cpus(const std::string& rcpus);
 
     /**
+     * List the cpus of this node (as a , separated string)
+     *   @param inc_reserved include reserved CPUs or not
+     */
+    void ls_cpus(bool inc_reserved, std::string &cpu_s);
+
+    /**
      *  Prints the NUMA node to an output stream.
      */
     friend std::ostream& operator<<(std::ostream& o, const HostShareNode& n);

@@ -795,6 +795,20 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
     HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
 
+    int affinity;
+
+    if (vtopol->vector_value("NODE_AFFINITY", affinity) == -1) 
+    {
+        vtopol->remove("NODE_AFFINITY"); //remove in case of parse error
+        affinity = -1;
+    }
+
+    if (pp != HostShare::PP_NONE && affinity != -1)
+    {
+        error = "NUMA node affinity cannot be set for pinned VMs";
+        return -1;
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
     /* ---------------------------------------------------------------------- */
@@ -844,7 +858,14 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
     if ( pp == HostShare::PP_NONE )
     {
-        if ( c == 0 || t == 0 || s == 0 )
+        if ( c == 0 && t == 0 && s == 0 )
+        {
+            //Generate a default topology
+            vtopol->replace("SOCKETS", 1);
+            vtopol->replace("CORES", vcpu);
+            vtopol->replace("THREADS", 1);
+        }
+        else if ( c == 0 || t == 0 || s == 0 )
         {
             error = "Non-pinned VMs with a virtual topology needs to set "
                 " SOCKETS, CORES and THREADS numbers.";
@@ -859,6 +880,16 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         vtopol->replace("PIN_POLICY", "NONE");
 
         tmpl->erase("NUMA_NODE");
+
+        if ( affinity != -1 ) // Add a NUMA_NODE to set cpu affinity
+        {
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", vcpu);
+            node->replace("MEMORY", memory * 1024);
+
+            tmpl->set(node);
+        }
 
         return 0;
     }

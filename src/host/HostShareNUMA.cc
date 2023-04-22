@@ -675,6 +675,31 @@ void HostShareNode::free_dedicated_capacity(unsigned int &fcpus,
     }
 }
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::ls_cpus(bool inc_reserved, std::string &cpu_s)
+{
+    std::ostringstream oss;
+
+    for (const auto& core : cores)
+    {
+        for (const auto& cpu : core.second.cpus)
+        {
+            if ( !inc_reserved && core.second.reserved_cpus.count(cpu.first) == 1)
+            {
+                continue;
+            }
+
+            oss << cpu.first << ",";
+        }
+    }
+
+    cpu_s = oss.str();
+
+    cpu_s.pop_back(); //remove last ','
+}
+
 /* ************************************************************************** */
 /* ************************************************************************** */
 /* HostShareNUMA                                                              */
@@ -1025,22 +1050,60 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
 
 int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc)
 {
-    std::set<int> t_valid; //Viable threads per core combinations for all nodes
+    // -------------------------------------------------------------------------
+    // Regular VMS (not pinned and no NUMA affinity)
+    // -------------------------------------------------------------------------
+    if ( sr.topology == 0 || sr.nodes.empty() )
+    {
+        return 0;
+    }
 
     // -------------------------------------------------------------------------
-    // User preferences will be used if possible if not they fix an upperbound
+    // NUMA node affinity
+    //   TODO HUGEPAGES WITHOUT PINNING
+    // -------------------------------------------------------------------------
+    int affinity = -1;
+
+    sr.topology->vector_value("NODE_AFFINITY", affinity);
+
+    if (affinity != -1)
+    {
+        auto it = nodes.find(affinity);
+
+        if ( it == nodes.end() ) // Check that node exists
+        {
+            return -1;
+        }
+
+        if (!do_alloc)
+        {
+            return 0;
+        }
+
+        std::string cpu_ids;
+
+        it->second->ls_cpus(false, cpu_ids);
+
+        for (auto &vm_node : sr.nodes)
+        {
+            vm_node->replace("NODE_ID", affinity);
+            vm_node->replace("CPUS", cpu_ids);
+        }
+
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // User preferences will be used if possible. If not they fix an upperbound
     // for the topology parameter.
     // -------------------------------------------------------------------------
+    std::set<int> t_valid; //Viable threads per core combinations for all nodes
+
     int v_t = 0;
     int c_t = 0;
     int s_t = 0;
 
     unsigned long hpsz_kb = 0;
-
-    if ( sr.topology == 0 || sr.nodes.empty() )
-    {
-        return 0;
-    }
 
     sr.topology->vector_value("THREADS", v_t);
     sr.topology->vector_value("CORES", c_t);
@@ -1212,7 +1275,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         return -1;
     }
 
-    if ( do_alloc == false )
+    if (!do_alloc)
     {
         return 0;
     }
