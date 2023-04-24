@@ -1087,6 +1087,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         for (auto &vm_node : sr.nodes)
         {
             vm_node->replace("NODE_ID", affinity);
+            vm_node->replace("MEMORY_NODE_ID", affinity);
             vm_node->replace("CPUS", cpu_ids);
         }
 
