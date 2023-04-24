@@ -879,9 +879,13 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
         vtopol->replace("PIN_POLICY", "NONE");
 
+        unsigned int hpsz = 0;
+
+        vtopol->vector_value("HUGEPAGE_SIZE", hpsz);
+
         tmpl->erase("NUMA_NODE");
 
-        if ( affinity != -1 ) // Add a NUMA_NODE to set cpu affinity
+        if ( affinity != -1 || hpsz != 0) // Add a virtua NODE to set NUMA affinity
         {
             VectorAttribute * node = new VectorAttribute("NUMA_NODE");
 

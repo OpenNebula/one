@@ -462,12 +462,24 @@ private:
      * in the nod,
      *
      *   @param sr the resource allocation request
-     *   @param nodeid of the NUMA node
+     *   @param node_id of the NUMA node
+     *   @param hpsz_kb size of the requested huge page (in KB) 0 if none
      *   @param do_alloc actually allocate the node (true) or just test (false).
      *   @return 0 success (vm was allocated) -1 otherwise
      */
-    int make_affined_topology(HostShareCapacity &sr, int nodeid, bool do_alloc);
+    int make_affined_topology(HostShareCapacity &sr, int node_id,
+            unsigned long hpsz_kb, bool do_alloc);
 
+    /*
+     * Computes the virtual topology for the VM based on the huge pages allocation
+     *
+     *   @param sr the resource allocation request
+     *   @param hpsz_kb size of the requested huge page (in KB)
+     *   @param do_alloc actually allocate the node (true) or just test (false).
+     *   @return 0 success (vm was allocated) -1 otherwise
+     */
+    int make_hugepage_topology(HostShareCapacity &sr, unsigned long hpzs_kb,
+            bool do_alloc);
     /**
      *  This is an internal structure to represent a virtual node allocation
      *  request and the resulting schedule
