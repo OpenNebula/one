@@ -23,6 +23,7 @@ const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 const { request: axios } = require('axios')
 const { writeInLogger } = require('server/utils/logger')
+const { MissingRemoteHeaderError } = require('server/utils/errors')
 
 // server
 const {
@@ -60,7 +61,8 @@ router.get('*', async (req, res) => {
   const appConfig = getFireedgeConfig()
   if (appConfig?.auth === 'remote') {
     remoteJWT.remote = true
-    remoteJWT.remote_redirect = appConfig?.auth_redirect ?? '.'
+    remoteJWT.remoteRedirect = appConfig?.auth_redirect ?? '.'
+
     const finderHeader = () => {
       const headers = Object.keys(req.headers)
 
@@ -69,13 +71,9 @@ router.get('*', async (req, res) => {
     const findHeader = finderHeader()
     try {
       if (!findHeader) {
-        // eslint-disable-next-line no-throw-literal
-        throw new Error(
-          `missing remote auth header: ${defaultHeaderRemote.join()} in ${JSON.stringify(
-            req.headers
-          )}`
-        )
+        throw new MissingRemoteHeaderError(JSON.stringify(req.headers))
       }
+      const remoteUser = req.get(findHeader)
       const jwt = await axios({
         method: 'POST',
         url: `${req.protocol}://${req.get('host')}/${defaultAppName}/api/auth`,
@@ -84,8 +82,16 @@ router.get('*', async (req, res) => {
         },
         validateStatus: (status) => status >= 200 && status <= 400,
       })
-      jwt?.data?.data?.token && (remoteJWT.jwt = jwt.data.data.token)
-      jwt?.data?.data?.id && (remoteJWT.id = jwt.data.data.id)
+      if (!global.remoteUsers) {
+        global.remoteUsers = {}
+      }
+      global.remoteUsers[remoteUser] = {}
+
+      jwt?.data?.data?.token &&
+        (global.remoteUsers[remoteUser].jwt = remoteJWT.jwt =
+          jwt.data.data.token)
+      jwt?.data?.data?.id &&
+        (global.remoteUsers[remoteUser].id = remoteJWT.id = jwt.data.data.id)
     } catch (e) {
       writeInLogger(e)
     }

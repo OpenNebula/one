@@ -91,17 +91,17 @@ const coreAuth = (
     const oneConnect = connectOpennebula(user, token)
 
     /**
-     * Run if have information.
+     * Run if have user data.
      *
-     * @param {object} oneValue - opennebula value
+     * @param {object} opennebulaUserData - opennebula user data
      */
-    const success = (oneValue) => {
+    const success = (opennebulaUserData) => {
       setUser(user || '')
       setPass(token || '')
       setType(type || '')
       setTfaToken(token2fa || '')
       setRemember(remember || false)
-      login(oneValue)
+      login(opennebulaUserData)
     }
 
     /**
