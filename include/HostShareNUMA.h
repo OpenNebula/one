@@ -456,6 +456,18 @@ private:
      */
     int make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc);
 
+    /*
+     * Computes the virtual topology for this VM setting the affinity to a given
+     * NUMA node. If hugepages are used it checks that enough pages are available
+     * in the nod,
+     *
+     *   @param sr the resource allocation request
+     *   @param nodeid of the NUMA node
+     *   @param do_alloc actually allocate the node (true) or just test (false).
+     *   @return 0 success (vm was allocated) -1 otherwise
+     */
+    int make_affined_topology(HostShareCapacity &sr, int nodeid, bool do_alloc);
+
     /**
      *  This is an internal structure to represent a virtual node allocation
      *  request and the resulting schedule
