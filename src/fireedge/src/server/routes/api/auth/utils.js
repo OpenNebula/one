@@ -59,12 +59,6 @@ let next = defaultEmptyFunction
 let req = {}
 let res = {}
 let nodeConnect = defaultEmptyFunction
-let now = ''
-let nowUnix = ''
-let expireTime = ''
-let relativeTime = ''
-let limitToken = defaultSessionExpiration
-let limitExpirationReuseToken = defaultSessionLimitExpiration
 
 /**
  * Get user opennebula.
@@ -79,13 +73,6 @@ const getUser = () => user
  * @returns {string} get password user opennebula
  */
 const getPass = () => pass
-
-/**
- * Get relative time.
- *
- * @returns {string} date
- */
-const getRelativeTime = () => relativeTime
 
 /**
  * Username opennebula.
@@ -197,20 +184,29 @@ const setRes = (newRes = {}) => {
 
 /**
  * Set dates.
+ *
+ * @returns {object} times
  */
 const setDates = () => {
   const appConfig = getFireedgeConfig()
-  limitToken = remember
+  const limitToken = remember
     ? appConfig.session_remember_expiration || defaultRememberSessionExpiration
     : appConfig.session_expiration || defaultSessionExpiration
-  limitExpirationReuseToken =
-    parseInt(appConfig.session_reuse_token_time, 10) ||
+  const limitExpirationReuseToken =
+    parseInt(appConfig.minimun_opennebula_expiration, 10) ||
     defaultSessionLimitExpiration
-  now = DateTime.local()
-  nowUnix = now.toSeconds()
-  expireTime = now.plus({ minutes: limitToken })
+  const now = DateTime.local()
+  const expireTime = now.plus({ minutes: limitToken })
   const diff = expireTime.diff(now, 'seconds')
-  relativeTime = diff.seconds
+
+  return {
+    now,
+    nowUnix: now.toSeconds(),
+    limitToken,
+    limitExpirationReuseToken,
+    expireTime: expireTime.toSeconds(),
+    relativeTime: diff.seconds,
+  }
 }
 
 /**
@@ -287,8 +283,7 @@ const genJWT = (token, informationUser) => {
   ) {
     const { ID: id, TEMPLATE: userTemplate, NAME: username } = informationUser
     const dataJWT = { id, user: username, token: token.token }
-    const expire = token.time || expireTime.toSeconds()
-    const jwt = createJWT(dataJWT, nowUnix, expire)
+    const jwt = createJWT(dataJWT)
     if (jwt) {
       const rtn = { token: jwt, id }
       if (userTemplate?.SUNSTONE?.LANG) {
@@ -306,27 +301,28 @@ const genJWT = (token, informationUser) => {
  * @returns {object} - user token
  */
 const getCreatedTokenOpennebula = (username = '') => {
+  const { now, nowUnix, limitExpirationReuseToken } = setDates()
+
   if (username && global?.users?.[username]?.tokens) {
     let acc = { token: '', time: 0 }
     global.users[username].tokens.forEach((curr = {}, index = 0) => {
-      const currentTime = parseInt(curr.time, 10)
+      const tokenExpirationTime = parseInt(curr.time, 10)
 
       // this delete expired tokens of global.users[username]
-      if (currentTime < nowUnix) {
+      if (tokenExpirationTime < nowUnix) {
         delete global.users[username].tokens[index]
       }
 
       // this select a valid token
       if (
-        DateTime.fromSeconds(currentTime).minus({
+        DateTime.fromSeconds(tokenExpirationTime).minus({
           minutes: limitExpirationReuseToken,
         }) >= now &&
-        currentTime >= acc.time
+        tokenExpirationTime >= acc.time
       ) {
         acc = { token: curr.token, time: curr.time }
       }
     })
-
     if (acc.token && acc.time) {
       return acc
     }
@@ -396,12 +392,11 @@ const createTokenServerAdmin = ({
   serverAdmin = username,
 }) => {
   if (username && key && iv) {
-    !(expireTime && typeof expireTime.toSeconds === 'function') && setDates()
-    const expire = parseInt(expireTime.toSeconds(), 10)
+    const { expireTime } = setDates()
+    const expire = parseInt(expireTime, 10)
 
     return {
       token: encrypt(`${serverAdmin}:${username}:${expire}`, key, iv),
-      time: expire,
     }
   }
 }
@@ -416,9 +411,10 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
   let serverAdminName = ''
   let serverAdminPassword = ''
   let userName = ''
+  const { relativeTime, expireTime } = setDates()
 
   if (
-    getRelativeTime() &&
+    relativeTime &&
     serverAdminData &&
     serverAdminData.USER &&
     (serverAdminName = serverAdminData.USER.NAME) &&
@@ -466,7 +462,7 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
         }
         global.users[JWTusername].tokens.push({
           token: tokenWithServerAdmin.token,
-          time: parseInt(expireTime.toSeconds(), 10),
+          time: parseInt(expireTime, 10),
         })
       }
       next()
@@ -581,7 +577,6 @@ const login = (userData) => {
       setZones()
       if (validate2faAuthentication(userData.USER)) {
         rtn = false
-        setDates()
         getServerAdminAndWrapUser(userData.USER)
       }
     }
@@ -591,7 +586,7 @@ const login = (userData) => {
   }
 }
 
-const functionRoutes = {
+module.exports = {
   login,
   getUser,
   getPass,
@@ -609,6 +604,5 @@ const functionRoutes = {
   getCreatedTokenOpennebula,
   createTokenServerAdmin,
   remoteLogin,
+  getServerAdmin,
 }
-
-module.exports = functionRoutes

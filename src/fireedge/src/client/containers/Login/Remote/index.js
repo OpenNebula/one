@@ -34,7 +34,7 @@ import PropTypes from 'prop-types'
  */
 function Remote({ data = {} }) {
   const dispatch = useDispatch()
-  const { jwt, remote_redirect: remoteRedirect = '.', ...user } = data
+  const { jwt, remoteRedirect = '.', ...user } = data
 
   useEffect(() => {
     if (jwt) {
@@ -110,7 +110,7 @@ Remote.propTypes = {
   data: PropTypes.shape({
     jwt: PropTypes.string,
     id: PropTypes.string,
-    remote_redirect: PropTypes.string,
+    remoteRedirect: PropTypes.string,
   }),
 }
 Remote.displayName = 'Remote'

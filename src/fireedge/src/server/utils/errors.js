@@ -13,33 +13,51 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { global } = require('window-or-global')
 
-/**
- * Get data fireedge session.
- *
- * @param {string} username - username
- * @param {string} token - pass
- * @returns {object} user session
- */
-const getSession = (username = '', token = '') => {
-  if (
-    username &&
-    token &&
-    global &&
-    global.users &&
-    username &&
-    global.users[username] &&
-    global.users[username].tokens
-  ) {
-    return global.users[username].tokens.find(
-      (curr = {}, index = 0) => curr.token === token
-    )
+const { defaultHeaderRemote } = require('server/utils/constants/defaults')
+class OpenNebulaError extends Error {
+  /**
+   * @param {string} message - message error.
+   */
+  constructor(message) {
+    super(message)
+    this.name = 'OpenNebulaError'
   }
 }
 
-const functions = {
-  getSession,
+class JWTError extends OpenNebulaError {
+  /**
+   * @param {string} message - error message description.
+   */
+  constructor(message) {
+    super(message)
+    this.name = 'JWTError'
+  }
 }
 
-module.exports = functions
+class MissingRemoteHeaderError extends OpenNebulaError {
+  /**
+   * @param {string} headers - error message description.
+   */
+  constructor(headers = '') {
+    super(`missing header: ${defaultHeaderRemote.join()} in ${headers}`)
+    this.name = 'MissingRemoteHeaderError'
+  }
+}
+
+class MissingFireEdgeKeyError extends OpenNebulaError {
+  /**
+   *
+   */
+  constructor() {
+    super('FireEdge key is not loaded in globals.path')
+    this.name = 'MissingFireEdgeKeyError'
+  }
+}
+
+module.exports = {
+  JWTError,
+  MissingFireEdgeKeyError,
+  OpenNebulaError,
+  MissingRemoteHeaderError,
+}
