@@ -525,6 +525,9 @@ module.exports = {
   TemporalDirectory: 'Temporal directory',
   TemporalDirectoryConcept:
     'Temporary Directory used for rebasing incremental images (Default: /var/tmp)',
+  StandaloneQcow2Clone: 'Standalone qcow2 clone',
+  StandaloneQcow2CloneConcept:
+    'Clone qcow2 without a backing chain and no dependencies with Image datastore files',
 
   /* sections - templates & instances */
   Instances: 'Instances',

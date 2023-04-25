@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, array, number, boolean } from 'yup'
 import { Field } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES, DATASTORE_TYPES } from 'client/constants'
 import { isShared, isSsh, isCeph, isLvm, typeIsOneOf } from '../../functions'
 
 /** @type {Field} - Options field */
@@ -139,6 +139,26 @@ const BRIDGE_LIST = {
   grid: { xs: 12, md: 12 },
 }
 
+/** @type {Field} - Qcow2 standalone field */
+const QCOW2_STANDALONE = {
+  name: 'QCOW2_STANDALONE',
+  label: T.StandaloneQcow2Clone,
+  tooltip: T.StandaloneQcow2CloneConcept,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo(),
+  htmlType: (_, context) => {
+    const { general: { STORAGE_BACKEND, TYPE } = {} } =
+      context?.getValues() || {}
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) &&
+      TYPE === DATASTORE_TYPES.IMAGE.value
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  grid: { xs: 12, md: 6 },
+}
+
 /** @type {Field[]} - Common fields */
 export const COMMON_FIELDS = [
   RESTRICTED_DIRS,
@@ -149,4 +169,5 @@ export const COMMON_FIELDS = [
   LIMIT_TRANSFER_BW,
   NO_DECOMPRESS,
   DATASTORE_CAPACITY_CHECK,
+  QCOW2_STANDALONE,
 ]
