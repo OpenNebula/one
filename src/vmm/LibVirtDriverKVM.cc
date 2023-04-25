@@ -1310,11 +1310,19 @@ int LibVirtDriver::deployment_description_kvm(
         else if ( type == "CDROM" )
         {
             ostringstream cd_name;
+            string cd_type   = "file";
+            string cd_source = "file";
 
             cd_name << vm->get_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t<disk type='file' device='cdrom'>\n"
-                 << "\t\t\t<source file="
+            if ( disk_type == "BLOCK" )
+            {
+                cd_type   = "block";
+                cd_source = "dev";
+            }
+
+            file << "\t\t<disk type='" << cd_type << "' device='cdrom'>\n"
+                 << "\t\t\t<source " << cd_source << "="
                  << one_util::escape_xml_attr(cd_name.str())<< "/>\n";
         }
         else
