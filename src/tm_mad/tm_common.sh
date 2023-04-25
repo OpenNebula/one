@@ -254,3 +254,9 @@ function qcow_dir_cmd
     echo "ln -sf ${DST_FILE}.snap/0 $DST_PATH"
     echo "popd"
 }
+
+# To allow more positive parameters options
+function is_yes
+{
+    [[ "$1" =~ ^(yes|YES|true|TRUE)$ ]]
+}
