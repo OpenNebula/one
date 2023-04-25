@@ -1076,7 +1076,7 @@ int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
             continue; //Node has no huge pages of requested size
         }
 
-        unsigned long n_fhp = pt->second.nr - pt->second.usage;
+        long long n_fhp = pt->second.nr - pt->second.usage;
 
         if (n_fhp <= 0 || n_fhp < n_hp)
         {
@@ -1172,7 +1172,7 @@ int HostShareNUMA::make_affined_topology(HostShareCapacity &sr, int node_id,
         hpage = &(jt->second);
 
         n_hp  = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
-        unsigned long n_fhp = hpage->nr - hpage->usage;
+        long long n_fhp = hpage->nr - hpage->usage;
 
         if (n_fhp <= 0 || n_fhp < n_hp)
         {
