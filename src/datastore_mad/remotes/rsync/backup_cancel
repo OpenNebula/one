@@ -64,7 +64,7 @@ vm_host = dir[0]
 vm_dir  = Pathname.new(dir[1]).cleanpath.to_s
 
 begin
-    # Kill the backup script, when parameters contain vm_uuid.
+    # Kill the backup script.
     script = <<~EOS
         set -x -e -o pipefail; shopt -qs failglob
         (ps --no-headers -o pid,cmd -C ruby \
@@ -80,7 +80,8 @@ begin
     raise StandardError, "Unable to stop rsync backup action: #{rc.stderr}" \
         if rc.code != 0
 
-    # Kill the rsync script, when parameters contain vm_dir.
+    # Kill the rsync process. This step is a failsafe in case the TERM signal handler
+    # inside the "backup" action fails to properly cleanup all leftover processes.
     script = <<~EOS
         set -x -e -o pipefail; shopt -qs failglob
         (ps --no-headers -o pid,cmd -C rsync \
