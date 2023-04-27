@@ -163,6 +163,17 @@ int AddressRange::init_ipv6_static(string& error_msg)
         unsigned long int s = pl <= 64 ? std::numeric_limits<unsigned long int>::max()
             : 1UL << (128 - pl);
 
+        // The IP range doesn't have to start from ::0 address. The user may want to skip
+        // few addresses. In this case we have to reduce the size, as the last address
+        // should be ::ffff:ffff, which should equal to first IP + size
+        unsigned long size_mask = pl <= 64 ? s : s -1;
+
+        unsigned long first_ip = ((unsigned long)ip6[1] << 32) + ip6[0];
+
+        first_ip = first_ip & size_mask;
+
+        s = s - first_ip;
+
         attr->replace("SIZE", s);
     }
 
@@ -718,7 +729,7 @@ void AddressRange::to_xml(ostringstream &oss) const
 
         ip_low[3] = ip6[3];
         ip_low[2] = ip6[2];
-        ip_low[1] = ip6[1];
+        ip_low[1] = ip6[1] + ((size - 1) >> 32);
         ip_low[0] = ip6[0] +  size - 1;
 
         ip6_to_s(ip_low, ip6_s);
@@ -810,7 +821,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         ip_low[3] = ip6[3];
         ip_low[2] = ip6[2];
-        ip_low[1] = ip6[1];
+        ip_low[1] = ip6[1] + ((size - 1) >> 32);
         ip_low[0] = ip6[0] +  size - 1;
 
         ip6_to_s(ip_low, ip6_s);
