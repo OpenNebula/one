@@ -208,9 +208,11 @@ module.exports = {
   /* Scheduling */
   Action: 'Action',
   ScheduleAction: 'Schedule action',
+  ScheduleActionType: 'Schedule action type',
   Charter: 'Charter',
-  PunctualAction: 'Punctual action',
-  RelativeAction: 'Relative action',
+  OneTimeAction: 'One time',
+  PeriodicAction: 'Periodic',
+  RelativeAction: 'Relative',
   DoneAgo: 'Done %s',
   NextInTime: 'Next in %s',
   FirstTime: 'First time %s',

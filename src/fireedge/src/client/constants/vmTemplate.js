@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from 'client/constants'
 import * as ACTIONS from 'client/constants/actions'
 // eslint-disable-next-line no-unused-vars
-import { Permissions, LockInfo } from 'client/constants/common'
-import { T } from 'client/constants'
+import { LockInfo, Permissions } from 'client/constants/common'
 
 /**
  * @typedef VmTemplate
