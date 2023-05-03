@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, ReactElement } from 'react'
+import { ClockOutline, Edit, Trash } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { Trash, Edit, ClockOutline } from 'iconoir-react'
+import { ReactElement, memo, useMemo } from 'react'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
@@ -26,14 +26,14 @@ import {
 } from 'client/components/Forms/Vm'
 
 import { Tr, Translate } from 'client/components/HOC'
-import { sentenceCase } from 'client/utils'
 import {
+  SERVER_CONFIG,
+  ScheduleAction,
   T,
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
-  SERVER_CONFIG,
-  ScheduleAction,
 } from 'client/constants'
+import { sentenceCase } from 'client/utils'
 
 /**
  * Returns a button to trigger form to create a scheduled action.
@@ -207,8 +207,8 @@ CharterButton.propTypes = ButtonPropTypes
 CharterButton.displayName = 'CharterButton'
 
 export {
+  CharterButton,
   CreateSchedButton,
   DeleteSchedButton,
   UpdateSchedButton,
-  CharterButton,
 }

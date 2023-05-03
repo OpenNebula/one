@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
 import PropTypes from 'prop-types'
+import { memo } from 'react'
 
-import { useController } from 'react-hook-form'
-import { TextField } from '@mui/material'
 import DateTimePicker from '@mui/lab/DateTimePicker'
+import { TextField } from '@mui/material'
+import { useController } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
-import { generateKey } from 'client/utils'
 import { T } from 'client/constants'
+import { generateKey } from 'client/utils'
 
 const TimeController = memo(
   ({

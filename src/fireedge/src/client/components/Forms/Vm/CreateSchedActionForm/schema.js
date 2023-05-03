@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema } from 'yup'
+import { ObjectSchema, object, string } from 'yup'
 
-import { getRequiredArgsByAction } from 'client/models/Scheduler'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
 import {
-  PUNCTUAL_FIELDS,
-  RELATIVE_FIELDS,
   ACTION_FIELD_NAME,
   ACTION_FIELD_VALIDATION,
+  PUNCTUAL_FIELDS,
+  RELATIVE_FIELDS,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
 import { ARGS_TYPES } from 'client/constants'
+import { getRequiredArgsByAction } from 'client/models/Scheduler'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
 
 const ARG_SCHEMA = string()
   .trim()
@@ -39,14 +39,15 @@ const ARG_SCHEMAS = {
 
 /**
  * @param {object} vm - Vm resource
+ * @param {boolean} isVM - is VM form
  * @returns {Field[]} Common fields
  */
-const COMMON_FIELDS = (vm) => [
+const COMMON_FIELDS = (vm, isVM = false) => [
   PUNCTUAL_FIELDS.ARGS_NAME_FIELD,
   PUNCTUAL_FIELDS.ARGS_DISK_ID_FIELD(vm),
   PUNCTUAL_FIELDS.ARGS_SNAPSHOT_ID_FIELD(vm),
   PUNCTUAL_FIELDS.ARGS_DS_ID_FIELD,
-  PUNCTUAL_FIELDS.PERIODIC_FIELD,
+  PUNCTUAL_FIELDS.PERIODIC_FIELD(isVM),
   PUNCTUAL_FIELDS.REPEAT_FIELD,
   PUNCTUAL_FIELDS.WEEKLY_FIELD,
   PUNCTUAL_FIELDS.MONTHLY_FIELD,
@@ -68,29 +69,19 @@ const COMMON_SCHEMA = object({
  * @param {object} vm - Vm resource
  * @returns {Field[]} Fields
  */
-export const SCHED_FIELDS = (vm) => [
+export const VM_SCHED_FIELDS = (vm) => [
   PUNCTUAL_FIELDS.ACTION_FIELD(vm),
+  ...COMMON_FIELDS(vm, true),
   PUNCTUAL_FIELDS.TIME_FIELD,
-  ...COMMON_FIELDS(vm),
   PUNCTUAL_FIELDS.END_TYPE_FIELD,
   PUNCTUAL_FIELDS.END_VALUE_FIELD,
 ]
 
-/** @type {Field[]} Fields for relative actions */
-export const RELATIVE_SCHED_FIELDS = (vm) => [
-  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
-  RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
-  RELATIVE_FIELDS.PERIOD_FIELD,
-  ...COMMON_FIELDS(vm),
-  RELATIVE_FIELDS.END_TYPE_FIELD_WITHOUT_DATE,
-  PUNCTUAL_FIELDS.END_VALUE_FIELD,
-]
-
 /** @type {ObjectSchema} Schema */
-export const SCHED_SCHEMA = COMMON_SCHEMA.concat(
+export const VM_SCHED_SCHEMA = COMMON_SCHEMA.concat(
   getObjectSchemaFromFields([
     PUNCTUAL_FIELDS.TIME_FIELD,
-    PUNCTUAL_FIELDS.PERIODIC_FIELD,
+    PUNCTUAL_FIELDS.PERIODIC_FIELD(true),
     PUNCTUAL_FIELDS.REPEAT_FIELD,
     PUNCTUAL_FIELDS.WEEKLY_FIELD,
     PUNCTUAL_FIELDS.MONTHLY_FIELD,
@@ -102,12 +93,24 @@ export const SCHED_SCHEMA = COMMON_SCHEMA.concat(
   ])
 )
 
+/** @type {Field[]} Fields for relative actions */
+export const TEMPLATE_SCHED_FIELDS = (vm) => [
+  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
+  ...COMMON_FIELDS(vm),
+  PUNCTUAL_FIELDS.TIME_FIELD,
+  RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
+  RELATIVE_FIELDS.PERIOD_FIELD,
+  RELATIVE_FIELDS.END_TYPE_FIELD_WITHOUT_DATE,
+  PUNCTUAL_FIELDS.END_VALUE_FIELD,
+]
+
 /** @type {ObjectSchema} Relative Schema */
-export const RELATIVE_SCHED_SCHEMA = COMMON_SCHEMA.concat(
+export const TEMPLATE_SCHED_SCHEMA = COMMON_SCHEMA.concat(
   getObjectSchemaFromFields([
+    PUNCTUAL_FIELDS.TIME_FIELD,
     RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
     RELATIVE_FIELDS.PERIOD_FIELD,
-    PUNCTUAL_FIELDS.PERIODIC_FIELD,
+    PUNCTUAL_FIELDS.PERIODIC_FIELD(),
     PUNCTUAL_FIELDS.REPEAT_FIELD,
     PUNCTUAL_FIELDS.WEEKLY_FIELD,
     PUNCTUAL_FIELDS.MONTHLY_FIELD,

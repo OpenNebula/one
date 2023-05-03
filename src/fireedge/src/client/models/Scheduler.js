@@ -14,16 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/valid-types */
-import { isDate, timeToString } from 'client/models/Helper'
 import { Tr } from 'client/components/HOC'
 import {
+  ARGS_TYPES,
+  CharterOptions,
+  PERIOD_TYPES,
+  SCHEDULE_TYPE,
+  ScheduleAction,
   T,
   VM_ACTIONS,
-  ARGS_TYPES,
-  PERIOD_TYPES,
-  ScheduleAction,
-  CharterOptions,
 } from 'client/constants'
+import { isDate, timeToString } from 'client/models/Helper'
 
 const {
   BACKUP,
@@ -61,6 +62,47 @@ export const getFixedLeases = (leases) =>
  */
 export const getEditableLeases = (leases) =>
   leases?.filter(([_, { edit } = {}]) => !!edit)
+
+/**
+ * Validate if Schedule action is a One time.
+ *
+ * @param {string[]} scheduleActionkeys - Schedule action keys.
+ * @returns {boolean} is onetime action
+ */
+export const isOneTimeAction = (scheduleActionkeys) => {
+  const keysScheduleActionInVM = ['MESSAGE', 'WARNING']
+  const parsedKeys = scheduleActionkeys.filter(
+    (key) => !keysScheduleActionInVM.includes(key)
+  )
+
+  const allowedValues = ['ID', 'TIME', 'ACTION', 'NAME', 'ARGS']
+  for (const value of parsedKeys) {
+    if (!allowedValues.includes(value)) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
+ * Get type schedule action.
+ *
+ * @param {object} scheduledAction - Schecule action type
+ * @returns {string} type schedule action
+ */
+export const getTypeScheduleAction = (scheduledAction) => {
+  let defaultType = ''
+  if (/^(\+).*$/.test(scheduledAction?.TIME)) {
+    defaultType = SCHEDULE_TYPE.RELATIVE
+  } else if (isOneTimeAction(Object.keys(scheduledAction))) {
+    defaultType = SCHEDULE_TYPE.ONETIME
+  } else {
+    defaultType = SCHEDULE_TYPE.PERIODIC
+  }
+
+  return defaultType
+}
 
 /**
  * Returns the periodicity of time in seconds.

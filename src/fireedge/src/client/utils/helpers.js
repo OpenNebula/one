@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { v4 as uuidv4 } from 'uuid'
-import DOMPurify from 'dompurify'
-import { object, reach, ObjectSchema, BaseSchema } from 'yup'
+import { HYPERVISORS, VN_DRIVERS } from 'client/constants'
 import { isMergeableObject } from 'client/utils/merge'
 import { Field } from 'client/utils/schema'
-import { HYPERVISORS, VN_DRIVERS } from 'client/constants'
+import DOMPurify from 'dompurify'
+import { v4 as uuidv4 } from 'uuid'
+import { BaseSchema, ObjectSchema, object, reach } from 'yup'
 
 /**
  * Simulate a delay in a function.

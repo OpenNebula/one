@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  ReactElement,
-  Fragment,
-  createElement,
-  memo,
-  useMemo,
-  useCallback,
-  isValidElement,
-} from 'react'
 import PropTypes from 'prop-types'
+import {
+  Fragment,
+  ReactElement,
+  createElement,
+  isValidElement,
+  memo,
+  useCallback,
+  useMemo,
+} from 'react'
 
+import { Accordion, AccordionSummary, FormControl, Grid } from '@mui/material'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { FormControl, Accordion, AccordionSummary, Grid } from '@mui/material'
 
 import * as FC from 'client/components/FormControl'
 import Legend from 'client/components/Forms/Legend'
-import { Field } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
+import { Field } from 'client/utils'
 
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
