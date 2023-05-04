@@ -112,10 +112,16 @@ module TransferManager
             @vm_id = @action.elements["#{prefix}/VMS/ID"].text.to_i
 
             @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
+
+            @incr_id = @action.elements['/DS_DRIVER_ACTION_DATA/TEMPLATE/INCREMENT_ID']&.text.to_i
         end
 
         def last
             @increments[@increments.keys.last]
+        end
+
+        def selected
+            @increments[@incr_id] unless @incr_id.nil?
         end
 
         def snapshots

@@ -83,6 +83,8 @@ begin
     base_path  = xml.elements['DATASTORE/BASE_PATH'].text
     rsync_user = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
     rsync_host = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+
+    snap = image.selected || image.last
 rescue StandardError => e
     STDERR.puts "Missing datastore or image attributes: #{e.message}"
     exit(-1)
@@ -101,14 +103,10 @@ begin
         set -e -o pipefail; shopt -qs failglob
     EOS
 
-    snap_dirs = image.snapshots.map do |snap|
-        raw     = %(#{base_path}/#{image.vm_id}/#{snap}/)
-        cleaned = Pathname.new(raw).cleanpath.to_s
-        quoted  = %('#{cleaned}/')
-        quoted
-    end
+    snap_dir = %(#{base_path}/#{image.vm_id}/#{snap}/)
+    snap_dir = Pathname.new(snap_dir).cleanpath.to_s
 
-    script << %(find #{snap_dirs.join(' ')} -type f -name 'disk.*' -or -name 'vm.xml')
+    script << %(find '#{snap_dir}' -type f -name 'disk.*' -or -name 'vm.xml')
 
     rc = TransferManager::Action.ssh 'list_files',
                                      :host     => "#{rsync_user}@#{rsync_host}",
@@ -126,7 +124,7 @@ begin
     end
 
     vm_xml_path = stdout_lines.find do |line|
-        line.include?("/#{image.last}/vm.xml")
+        line.include?("/#{snap}/vm.xml")
     end
 
     raise StandardError, 'Backup does not contain any disks or missing vm.xml' \
@@ -159,7 +157,7 @@ ENV['ONE_CIPHER_AUTH'] = SERVERADMIN_AUTH
 sauth = OpenNebula::ServerCipherAuth.new_client
 token = sauth.login_token(Time.now.to_i + 120, username)
 
-one_client = OpenNebula::Client.new(token)
+one_client = OpenNebula::Client.new token
 
 # ------------------------------------------------------------------------------
 # Create backup object templates for VM and associated disk images
@@ -167,16 +165,14 @@ one_client = OpenNebula::Client.new(token)
 # ------------------------------------------------------------------------------
 xml.define_singleton_method('[]') {|xpath| elements[xpath].text }
 
-restorer = TransferManager::BackupRestore.new(
-    :vm_xml64  => vm_xml,
-    :backup_id => image.last,
-    :bimage    => image,
-    :ds_id     => ds_id,
-    :txml      => xml,
-    :proto     => 'rsync'
-)
+restorer = TransferManager::BackupRestore.new :vm_xml64  => vm_xml,
+                                              :backup_id => snap,
+                                              :bimage    => image,
+                                              :ds_id     => ds_id,
+                                              :txml      => xml,
+                                              :proto     => 'rsync'
 
-br_disks = restorer.disk_images(disk_paths)
+br_disks = restorer.disk_images disk_paths
 
 one_error       = ''
 restored_images = []
@@ -185,8 +181,8 @@ restored_images = []
 br_disks.each do |_id, disk|
     # Fix image name - maybe not necessary any longer
     # disk[:template].gsub!(%r{(NAME = "[0-9]+-)[0-9]+/}, '\1')
-    restored_image = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
-    rc             = restored_image.allocate(disk[:template], dst_ds_id)
+    restored_image = OpenNebula::Image.new OpenNebula::Image.build_xml, one_client
+    rc             = restored_image.allocate disk[:template], dst_ds_id
 
     if OpenNebula.is_error?(rc)
         one_error = rc.message
@@ -209,13 +205,13 @@ if !one_error.empty?
 end
 
 # Create VM template
-vm_template = restorer.vm_template(br_disks)
+vm_template = restorer.vm_template br_disks
 
 # Fix template name (maybe not necessary any longer)
 # vm_template.gsub!(%r{(NAME= "[0-9]+-)[0-9]+/}, '\1')
 
-tmpl = OpenNebula::Template.new(OpenNebula::Template.build_xml, one_client)
-rc   = tmpl.allocate(vm_template)
+tmpl = OpenNebula::Template.new OpenNebula::Template.build_xml, one_client
+rc   = tmpl.allocate vm_template
 
 if OpenNebula.is_error?(rc)
     message = "Error creating VM template: #{rc.message}"
