@@ -28,18 +28,14 @@ const { JWTError, MissingFireEdgeKeyError } = require('server/utils/errors')
  * @param {string} jwtData.token - token opennebula
  * @returns {string} JWT
  */
-const createJWT = ({ id: iss, user: aud, token: jti }) => {
-  let rtn = null
-  if (iss && aud && jti) {
-    const payload = {
-      iss, // user ID
-      aud, // user name
-      jti, // token
-    }
-    rtn = jwtEncode(payload)
+const createJWT = ({ id, user, token }) => {
+  if (id && user && token) {
+    return jwtEncode({
+      iss: id, // user ID
+      aud: user, // user name
+      jti: token, // token
+    })
   }
-
-  return rtn
 }
 
 /**
