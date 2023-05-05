@@ -276,14 +276,14 @@ const validate2faAuthentication = (informationUser) => {
  */
 const genJWT = (token, informationUser) => {
   if (
-    token?.token &&
     token?.time &&
+    token?.token &&
     informationUser?.ID &&
     informationUser?.NAME
   ) {
     const { ID: id, TEMPLATE: userTemplate, NAME: username } = informationUser
-    const dataJWT = { id, user: username, token: token.token }
-    const jwt = createJWT(dataJWT)
+    const jwt = createJWT({ id, user: username, token: token.token })
+
     if (jwt) {
       const rtn = { token: jwt, id }
       if (userTemplate?.SUNSTONE?.LANG) {
@@ -302,7 +302,6 @@ const genJWT = (token, informationUser) => {
  */
 const getCreatedTokenOpennebula = (username = '') => {
   const { now, nowUnix, limitExpirationReuseToken } = setDates()
-
   if (username && global?.users?.[username]?.tokens) {
     let acc = { token: '', time: 0 }
     global.users[username].tokens.forEach((curr = {}, index = 0) => {
@@ -397,6 +396,7 @@ const createTokenServerAdmin = ({
 
     return {
       token: encrypt(`${serverAdmin}:${username}:${expire}`, key, iv),
+      time: expire,
     }
   }
 }
@@ -415,8 +415,7 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
 
   if (
     relativeTime &&
-    serverAdminData &&
-    serverAdminData.USER &&
+    serverAdminData?.USER &&
     (serverAdminName = serverAdminData.USER.NAME) &&
     (serverAdminPassword = serverAdminData.USER.PASSWORD) &&
     userData &&

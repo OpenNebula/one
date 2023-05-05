@@ -535,7 +535,7 @@ const getSunstoneAuth = () => {
  */
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
-  const zones = (global && global.zones) || configuredZones
+  const zones = global?.zones || configuredZones
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
     if (Number.isInteger(parseInt(zone, 10))) {
