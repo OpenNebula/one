@@ -129,6 +129,8 @@ module Nbd
         File.unlink(@@socket)
 
         @@server = nil
+
+        sleep(1) # TODO: improve settle down FS/qemu locks
     end
 
     def self.uri
@@ -614,7 +616,7 @@ class KVMDomain
         fsthaw
 
         qdisk.each do |did, disk|
-            disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2')
+            disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2', :U => '')
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
@@ -706,14 +708,14 @@ class KVMDomain
             sdisk = QemuImg.new("#{@vm_dir}/disk.#{did}")
             ddisk = "#{@bck_dir}/disk.#{did}.0"
 
-            sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
+            sdisk.convert(ddisk, :m => '4', :O => 'qcow2', :U => '')
 
-            if @checkpoint
-                sdisk.bitmaps.each {|bm| sdisk.bitmap(bm['name'], :remove => '') }
-                sdisk.bitmap("one-#{@vid}-0", :add => '')
-            end
+            next unless @checkpoint
 
-            sdisk.bitmap("one-#{@vid}-0", :add => '') if @checkpoint
+            bms = sdisk.bitmaps
+            bms.each {|bm| sdisk.bitmap(bm['name'], :remove => '') } unless bms.nil?
+
+            sdisk.bitmap("one-#{@vid}-0", :add => '')
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
