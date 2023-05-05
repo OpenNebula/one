@@ -56,26 +56,30 @@ module OneDBFsck
                     end
                 }
 
-                # re-do list of VM IDs
-                vms_elem = doc.root.xpath("VMS").remove
+                # For non-backup Images check VM references
+                image_type = doc.root.xpath('TYPE').text.to_i
+                if image_type != 6
+                    # re-do list of VM IDs
+                    vms_elem = doc.root.xpath("VMS").remove
 
-                vms_new_elem = doc.create_element("VMS")
-                doc.root.add_child(vms_new_elem)
+                    vms_new_elem = doc.create_element("VMS")
+                    doc.root.add_child(vms_new_elem)
 
-                # DATA: CHECK: running vm list with this image
-                counters_img[:vms].each do |id|
-                    id_elem = vms_elem.xpath("ID[.=#{id}]").remove
+                    # DATA: CHECK: running vm list with this image
+                    counters_img[:vms].each do |id|
+                        id_elem = vms_elem.xpath("ID[.=#{id}]").remove
 
-                    if id_elem.nil?
-                        log_error("VM #{id} is missing from Image #{oid} VM id list")
+                        if id_elem.nil?
+                            log_error("VM #{id} is missing from Image #{oid} VM id list")
+                        end
+
+                        i_e = doc.create_element('ID')
+                        vms_new_elem.add_child(i_e).content = id.to_s
                     end
 
-                    i_e = doc.create_element('ID')
-                    vms_new_elem.add_child(i_e).content = id.to_s
-                end
-
-                vms_elem.children.each do |id_elem|
-                    log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
+                    vms_elem.children.each do |id_elem|
+                        log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
+                    end
                 end
 
 
