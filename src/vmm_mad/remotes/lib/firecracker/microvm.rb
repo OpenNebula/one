@@ -220,17 +220,19 @@ class MicroVM
 
     # rubocop:disable Lint/RedundantCopDisableDirective
     # rubocop:disable Lint/SuppressedException
+    # rubocop:disable Style/FileEmpty
     def wait_cgroup(path)
         t_start = Time.now
         timeout = @one.fcrc[:cgroup_delete_timeout]
 
-        next while !File.empty?(path) && (Time.now - t_start < timeout)
+        next while !File.zero?(path) && (Time.now - t_start < timeout)
 
-        File.empty?(path)
+        File.zero?(path)
     rescue Errno::ENOENT
     end
     # rubocop:enable Lint/SuppressedException
     # rubocop:enable Lint/RedundantCopDisableDirective
+    # rubocop:enable Style/FileEmpty
 
     def prepare_domain
         cgroup_path = @one.fcrc[:cgroup_location]

@@ -400,11 +400,15 @@ class ExecDriver < VirtualMachineDriver
         # ----------------------------------------------------------------------
         local_dfile = action.data[:local_dfile]
 
-        if !local_dfile || File.empty?(local_dfile)
+        # rubocop:disable Style/FileEmpty
+
+        if !local_dfile || File.zero?(local_dfile)
             send_message(ACTION[:deploy], RESULT[:failure], id,
                          "Cannot open deployment file #{local_dfile}")
             return
         end
+
+        # rubocop:enable Style/FileEmpty
 
         domain = File.read(local_dfile)
 
