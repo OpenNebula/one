@@ -1182,7 +1182,7 @@ class ExecDriver < VirtualMachineDriver
     end
 
     #
-    # DISKSNAPSHOTCREATE action, takes a snapshot of a dis
+    # DISKSNAPSHOTCREATE action, takes a snapshot of a disk
     #
     def disk_snapshot_create(id, drv_message)
         xml_data = decode(drv_message)

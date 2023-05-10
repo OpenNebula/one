@@ -3110,7 +3110,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         long long ssize;
         disk->vector_value("SIZE", ssize);
 
-        ssize = 2 * ssize; //Sanpshot accounts as another disk of same size
+        ssize = 2 * ssize; //Snapshot accounts as another disk of same size
 
         disk->resize_quotas(ssize, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
 
