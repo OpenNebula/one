@@ -1245,7 +1245,24 @@ VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
 #-------------------------------------------------------------------------------
 VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
                             src/vmm_mad/remotes/firecracker/shutdown \
-                            src/vmm_mad/remotes/firecracker/cancel"
+                            src/vmm_mad/remotes/firecracker/cancel \
+                            src/vmm_mad/remotes/firecracker/migrate \
+                            src/vmm_mad/remotes/firecracker/migrate_local \
+                            src/vmm_mad/remotes/firecracker/restore \
+                            src/vmm_mad/remotes/firecracker/reboot \
+                            src/vmm_mad/remotes/firecracker/reset \
+                            src/vmm_mad/remotes/firecracker/save \
+                            src/vmm_mad/remotes/firecracker/attach_disk \
+                            src/vmm_mad/remotes/firecracker/detach_disk \
+                            src/vmm_mad/remotes/firecracker/attach_nic \
+                            src/vmm_mad/remotes/firecracker/detach_nic \
+                            src/vmm_mad/remotes/firecracker/snapshot_create \
+                            src/vmm_mad/remotes/firecracker/snapshot_revert \
+                            src/vmm_mad/remotes/firecracker/snapshot_delete \
+                            src/vmm_mad/remotes/firecracker/reconfigure \
+                            src/vmm_mad/remotes/firecracker/prereconfigure \
+                            src/vmm_mad/remotes/firecracker/resize \
+                            src/vmm_mad/remotes/firecracker/resize_disk"
 
 VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
                         src/vmm_mad/remotes/lib/firecracker/client.rb \
