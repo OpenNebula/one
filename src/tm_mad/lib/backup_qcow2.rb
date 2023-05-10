@@ -550,14 +550,14 @@ class KVMDomain
 
             cid = m[2].to_i
 
-            to_define << cid unless check_ids.include? cid
+            next if check_ids.include? cid
+
+            to_define << cid
             check_ids << cid
         end unless idisk.bitmaps.nil?
 
         # Redefine checkpoints in libvirt and remove
         redefine_checkpoints(to_define, disks_s)
-
-        check_ids.uniq!
 
         check_ids.each do |cid|
             next if !all && cid >= @parent_id
