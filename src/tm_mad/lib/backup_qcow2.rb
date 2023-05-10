@@ -422,18 +422,10 @@ class KVMDomain
     end
 
     #---------------------------------------------------------------------------
-    # Re-define the parent_id checkpoint if not included in the checkpoint-list.
-    # If the checkpoint is not present in storage the methods will fail.
-    #
-    #   @param[String] List of disks to include in the checkpoint
-    #   @param[Integer] id of the checkpoint to define
+    # List the checkpoints defined in the domain
+    #    @return[Array]  an array of checkpint ids
     #---------------------------------------------------------------------------
-    def define_checkpoint(disks_s)
-        return if @parent_id == -1
-
-        #-----------------------------------------------------------------------
-        #  Check if the parent_id checkpoint is already defined for this domain
-        #-----------------------------------------------------------------------
+    def checkpoints
         out = cmd("#{virsh} checkpoint-list", @dom, :name => '')
         out.strip!
 
@@ -446,35 +438,22 @@ class KVMDomain
             check_ids << m[2].to_i
         end
 
-        # Remove current checkpoint (e.g. a previous failed backup operation)
-        if check_ids.include? @backup_id
-            cpname = "one-#{@vid}-#{@backup_id}"
+        check_ids
+    end
 
-            begin
-                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname)
-            rescue StandardError
-                cmd("#{virsh} checkpoint-delete", @dom,
-                    :checkpointname => cpname, :metadata => '')
-            end
-        end
-
-        return if check_ids.include? @parent_id
-
-        #-----------------------------------------------------------------------
-        # Try to re-define checkpoint, will fail if not present in storage.
-        # Can be queried using qemu-monitor
-        #
-        # out  = cmd("#{virsh} qemu-monitor-command", @dom,
-        #           :cmd => '{"execute": "query-block","arguments": {}}')
-        # outh = JSON.parse(out)
-        #
-        # outh['return'][0]['inserted']['dirty-bitmaps']
-        #   => [{"name"=>"one-0-2", "recording"=>true, "persistent"=>true,
-        #        "busy"=>false, "granularity"=>65536, "count"=>327680}]
-        #-----------------------------------------------------------------------
+    #---------------------------------------------------------------------------
+    # Re-define the checkpoints. This method will fail if not present in storage
+    #
+    #   @param[Array]  Array of checkpoint ids to re-define
+    #   @param[String] List of disks to include in the checkpoint
+    #---------------------------------------------------------------------------
+    def redefine_checkpoints(check_ids, disks_s)
         disks = disks_s.split ':'
         tgts  = []
 
+        return if check_ids.empty? || disks.empty?
+
+        # Create XML definition for the VM disks
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
 
@@ -489,37 +468,101 @@ class KVMDomain
         tgts.each {|tgt| disks << "<disk name='#{tgt}'/>" }
         disks << '</disks>'
 
-        checkpoint_xml = <<~EOS
-            <domaincheckpoint>
-                <name>one-#{@vid}-#{@parent_id}</name>
-                <creationTime>#{Time.now.to_i}</creationTime>
-                #{disks}
-            </domaincheckpoint>
-        EOS
+        #-----------------------------------------------------------------------
+        # Try to re-define checkpoints, will fail if not present in storage.
+        # Can be queried using qemu-monitor
+        #
+        # out  = cmd("#{virsh} qemu-monitor-command", @dom,
+        #           :cmd => '{"execute": "query-block","arguments": {}}')
+        # outh = JSON.parse(out)
+        #
+        # outh['return'][0]['inserted']['dirty-bitmaps']
+        #   => [{"name"=>"one-0-2", "recording"=>true, "persistent"=>true,
+        #        "busy"=>false, "granularity"=>65536, "count"=>327680}]
+        #-----------------------------------------------------------------------
+        check_ids.each do |cid|
+            checkpoint_xml = <<~EOS
+                <domaincheckpoint>
+                    <name>one-#{@vid}-#{cid}</name>
+                    <creationTime>#{Time.now.to_i}</creationTime>
+                    #{disks}
+                </domaincheckpoint>
+            EOS
 
-        cpath = "#{@tmp_dir}/checkpoint.xml"
+            cpath = "#{@tmp_dir}/checkpoint.xml"
 
-        File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
+            File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
-        cmd("#{virsh} checkpoint-create", @dom,
-            :xmlfile => cpath, :redefine => '')
+            cmd("#{virsh} checkpoint-create", @dom, :xmlfile => cpath,
+                :redefine => '')
+        end
+    end
+
+    #---------------------------------------------------------------------------
+    # Re-define the parent_id checkpoint if not included in the checkpoint-list.
+    # If the checkpoint is not present in storage the methods will fail.
+    #
+    #   @param[String] List of disks to include in the checkpoint
+    #   @param[Integer] id of the checkpoint to define
+    #---------------------------------------------------------------------------
+    def define_parent(disks_s)
+        return if @parent_id == -1
+
+        check_ids = checkpoints
+
+        # Remove current checkpoint (e.g. a previous failed backup operation)
+        if check_ids.include? @backup_id
+            cpname = "one-#{@vid}-#{@backup_id}"
+
+            begin
+                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname)
+            rescue StandardError
+                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname,
+                    :metadata => '')
+            end
+        end
+
+        return if check_ids.include? @parent_id
+
+        redefine_checkpoints([@parent_id], disks_s)
     end
 
     #---------------------------------------------------------------------------
     # Cleans defined checkpoints up to the last two. This way we can retry
     # the backup operation in case it fails
     #---------------------------------------------------------------------------
-    def clean_checkpoints(all = false)
+    def clean_checkpoints(disks_s, all = false)
         return unless @checkpoint
 
-        out = cmd("#{virsh} checkpoint-list", @dom, :name => '')
-        out.strip!
+        # Get a list of dirty checkpoints
+        check_ids = checkpoints
 
-        out.each_line do |l|
-            m = l.match(/(one-[0-9]+)-([0-9]+)/)
-            next if !m || (!all && m[2].to_i >= @parent_id)
+        # Use first disk to get a list of defined bitmaps
+        to_define = []
 
-            cmd("#{virsh} checkpoint-delete", "#{@dom} #{m[1]}-#{m[2]}")
+        disk_id = disks_s.split(':').first
+
+        idisk = QemuImg.new("#{@vm_dir}/disk.#{disk_id}")
+
+        idisk.bitmaps.each do |b|
+            m = b['name'].match(/(one-[0-9]+)-([0-9]+)/)
+            next unless m
+
+            cid = m[2].to_i
+
+            to_define << cid unless check_ids.include? cid
+            check_ids << cid
+        end unless idisk.bitmaps.nil?
+
+        # Redefine checkpoints in libvirt and remove
+        redefine_checkpoints(to_define, disks_s)
+
+        check_ids.uniq!
+
+        check_ids.each do |cid|
+            next if !all && cid >= @parent_id
+
+            cmd("#{virsh} checkpoint-delete", "#{@dom} one-#{@vid}-#{cid}")
         end
     end
 
@@ -859,15 +902,15 @@ begin
     #---------------------------------------------------------------------------
     if live
         if vm.parent_id == -1
-            vm.clean_checkpoints(true)
+            vm.clean_checkpoints(disk, true)
 
             vm.backup_full_live(disk)
         else
-            vm.define_checkpoint(disk)
+            vm.define_parent(disk)
 
             vm.backup_nbd_live(disk)
 
-            vm.clean_checkpoints
+            vm.clean_checkpoints(disk)
         end
     else
         if vm.parent_id == -1
