@@ -65,7 +65,7 @@ function image_format {
 #   @return string representation of the format, empty if error
 #-------------------------------------------------------------------------------
 function image_vsize {
-    echo "$($QEMU_IMG info "${1}" 2>/dev/null | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')"
+    echo "$($QEMU_IMG info --output json "${1}" | jq '."virtual-size"')"
 }
 
 #-------------------------------------------------------------------------------
