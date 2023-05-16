@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
+import { createRef, memo, useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 
-import { Typography, Link, Stack } from '@mui/material'
+import { InputAdornment, Link, Stack, Typography } from '@mui/material'
 
-import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
+import { useDialog } from 'client/hooks'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -30,7 +30,13 @@ const Column = (props) => (
   <Stack
     direction="row"
     alignItems="center"
-    sx={{ '&:hover > .actions': { display: 'contents' } }}
+    sx={{
+      '&:hover > .actions': { display: 'contents' },
+      '&': { overflow: 'visible !important' },
+      '& .slider > span[data-index="0"][aria-hidden="true"]': {
+        left: '0px !important',
+      },
+    }}
     {...props}
   />
 )
@@ -56,6 +62,12 @@ const Attribute = memo(
     value,
     valueInOptionList,
     dataCy,
+    min,
+    max,
+    currentValue,
+    unit,
+    unitParser = false,
+    title = '',
   }) => {
     const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
 
@@ -126,6 +138,26 @@ const Attribute = memo(
                   ref={inputRef}
                   options={options}
                 />
+              ) : min && max ? (
+                <Inputs.SliderInput
+                  name={name}
+                  initialValue={currentValue}
+                  ref={inputRef}
+                  min={+min}
+                  max={+max}
+                  unitParser={unitParser}
+                  {...(unit
+                    ? {
+                        InputProps: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {unit}
+                            </InputAdornment>
+                          ),
+                        },
+                      }
+                    : {})}
+                />
               ) : (
                 <Inputs.Text name={name} initialValue={value} ref={inputRef} />
               )}
@@ -154,6 +186,7 @@ const Attribute = memo(
                 {value && canCopy && <Actions.Copy name={name} value={value} />}
                 {(value || numberOfParents > 0) && canEdit && (
                   <Actions.Edit
+                    title={title || name}
                     name={name}
                     handleClick={handleActiveEditForm}
                   />
@@ -201,6 +234,12 @@ export const AttributePropTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   valueInOptionList: PropTypes.string,
   dataCy: PropTypes.string,
+  min: PropTypes.string,
+  max: PropTypes.string,
+  currentValue: PropTypes.string,
+  unit: PropTypes.string,
+  unitParser: PropTypes.bool,
+  title: PropTypes.string,
 }
 
 Attribute.propTypes = AttributePropTypes

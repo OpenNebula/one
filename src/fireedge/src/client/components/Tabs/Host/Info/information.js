@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 import { generatePath } from 'react-router'
 
-import { useRenameHostMutation } from 'client/features/OneApi/host'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
-import { StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+import { LinearProgressWithLabel, StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
-
-import { getState, getDatastores, getAllocatedInfo } from 'client/models/Host'
-import { getCapacityInfo } from 'client/models/Datastore'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
+  useRenameHostMutation,
+  useUpdateHostMutation,
+} from 'client/features/OneApi/host'
+
+import { PATH } from 'client/apps/sunstone/routesOne'
+import {
+  DS_THRESHOLD,
+  HOST_THRESHOLD,
+  Host,
   T,
   VM_ACTIONS,
-  Host,
-  HOST_THRESHOLD,
-  DS_THRESHOLD,
 } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { getCapacityInfo } from 'client/models/Datastore'
+import { jsonToXml } from 'client/models/Helper'
+import { getAllocatedInfo, getDatastores, getState } from 'client/models/Host'
 
 /**
  * Renders mainly information tab.
@@ -43,15 +47,44 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  */
 const InformationPanel = ({ host = {}, actions }) => {
   const [renameHost] = useRenameHostMutation()
+  const [updateHost] = useUpdateHostMutation()
   const { data: datastores = [] } = useGetDatastoresQuery()
 
   const { ID, NAME, IM_MAD, VM_MAD, CLUSTER_ID, CLUSTER } = host
   const { name: stateName, color: stateColor } = getState(host)
-  const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
-    getAllocatedInfo(host)
+  const {
+    percentCpuUsed,
+    percentCpuLabel,
+    percentMemUsed,
+    percentMemLabel,
+    maxCpu,
+    maxMem,
+    totalCpu,
+    totalMem,
+  } = getAllocatedInfo(host)
 
   const handleRename = async (_, newName) => {
     await renameHost({ id: ID, name: newName })
+  }
+
+  const handleOvercommitment = async (name, value) => {
+    let newTemplate
+    if (/memory/i.test(name)) {
+      newTemplate = {
+        RESERVED_MEM: value !== totalMem ? totalMem - value : '',
+      }
+    }
+    if (/cpu/i.test(name)) {
+      newTemplate = {
+        RESERVED_CPU: value !== totalCpu ? totalCpu - value : '',
+      }
+    }
+    newTemplate &&
+      (await updateHost({
+        id: ID,
+        template: jsonToXml(newTemplate),
+        replace: 1,
+      }))
   }
 
   const info = [
@@ -84,6 +117,8 @@ const InformationPanel = ({ host = {}, actions }) => {
   const capacity = [
     {
       name: T.AllocatedCpu,
+      handleEdit: handleOvercommitment,
+      canEdit: true,
       value: (
         <LinearProgressWithLabel
           value={percentCpuUsed}
@@ -92,9 +127,15 @@ const InformationPanel = ({ host = {}, actions }) => {
           low={HOST_THRESHOLD.CPU.low}
         />
       ),
+      min: '0',
+      max: `${totalCpu * 2}`,
+      currentValue: maxCpu,
+      title: T.Overcommitment,
     },
     {
       name: T.AllocatedMemory,
+      handleEdit: handleOvercommitment,
+      canEdit: true,
       value: (
         <LinearProgressWithLabel
           value={percentMemUsed}
@@ -103,6 +144,12 @@ const InformationPanel = ({ host = {}, actions }) => {
           low={HOST_THRESHOLD.MEMORY.low}
         />
       ),
+      min: '0',
+      max: `${totalMem * 2}`,
+      currentValue: maxMem,
+      unit: 'KB',
+      unitParser: true,
+      title: T.Overcommitment,
     },
   ]
 
