@@ -105,6 +105,7 @@ class Logger
         }
     end
 
+    # rubocop:disable Style/ArgumentsForwarding
     def error(*args, &block)
         @err.error(*args, &block)
     end
@@ -120,6 +121,7 @@ class Logger
     def debug(*args, &block)
         @err.debug(*args, &block)
     end
+    # rubocop:enable Style/ArgumentsForwarding
 
 end
 
