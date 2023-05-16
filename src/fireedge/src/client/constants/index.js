@@ -35,6 +35,17 @@ export const SERVER_CONFIG = (() => {
   return config
 })()
 
+export const UNITS = {
+  KB: 'KB',
+  MB: 'MB',
+  GB: 'GB',
+  TB: 'TB',
+  PB: 'PB',
+  EB: 'EB',
+  ZB: 'ZB',
+  YB: 'YB',
+}
+
 // should be equal to the apps in src/server/utils/constants/defaults.js
 export const _APPS = { sunstone: 'sunstone', provision: 'provision' }
 export const APPS = Object.keys(_APPS)

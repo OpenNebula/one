@@ -53,16 +53,17 @@ export const getDatastores = (host) =>
  * }} Allocated information object
  */
 export const getAllocatedInfo = (host) => {
-  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = host?.HOST_SHARE ?? {}
+  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM, MAX_MEM, MAX_CPU } =
+    host?.HOST_SHARE ?? {}
 
-  const percentCpuUsed = (+CPU_USAGE * 100) / +TOTAL_CPU || 0
-  const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} 
+  const percentCpuUsed = (+CPU_USAGE * 100) / +MAX_CPU || 0
+  const percentCpuLabel = `${CPU_USAGE} / ${MAX_CPU} 
     (${Math.round(isFinite(percentCpuUsed) ? percentCpuUsed : '--')}%)`
 
   const isMemUsageNegative = +MEM_USAGE < 0
-  const percentMemUsed = (+MEM_USAGE * 100) / +TOTAL_MEM || 0
+  const percentMemUsed = (+MEM_USAGE * 100) / +MAX_MEM || 0
   const usedMemBytes = prettyBytes(Math.abs(+MEM_USAGE))
-  const totalMemBytes = prettyBytes(+TOTAL_MEM)
+  const totalMemBytes = prettyBytes(+MAX_MEM)
   const percentMemLabel = `${
     isMemUsageNegative ? '-' : ''
   }${usedMemBytes} / ${totalMemBytes} 
@@ -73,6 +74,10 @@ export const getAllocatedInfo = (host) => {
     percentCpuLabel,
     percentMemUsed,
     percentMemLabel,
+    totalCpu: TOTAL_CPU,
+    totalMem: TOTAL_MEM,
+    maxCpu: MAX_CPU,
+    maxMem: MAX_MEM,
   }
 }
 

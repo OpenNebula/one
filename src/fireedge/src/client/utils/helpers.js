@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { HYPERVISORS, VN_DRIVERS } from 'client/constants'
+import { HYPERVISORS, UNITS, VN_DRIVERS } from 'client/constants'
 import { isMergeableObject } from 'client/utils/merge'
 import { Field } from 'client/utils/schema'
 import DOMPurify from 'dompurify'
@@ -125,20 +125,20 @@ export const downloadFile = (file) => {
  * - Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
  * @returns {string} Returns an string displaying sizes for humans.
  */
-export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
-  const UNITS = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+export const prettyBytes = (value, unit = UNITS.KB, fractionDigits = 0) => {
+  const units = Object.values(UNITS)
   let ensuredValue = +value
 
-  if (Math.abs(ensuredValue) === 0) return `${value} ${UNITS[0]}`
+  if (Math.abs(ensuredValue) === 0) return `${value} ${units[0]}`
 
-  let idxUnit = UNITS.indexOf(unit)
+  let idxUnit = units.indexOf(unit)
 
   while (ensuredValue > 1024) {
     ensuredValue /= 1024
     idxUnit += 1
   }
 
-  return `${ensuredValue.toFixed(fractionDigits)} ${UNITS[idxUnit]}`
+  return `${ensuredValue.toFixed(fractionDigits)} ${units[idxUnit]}`
 }
 
 /**
