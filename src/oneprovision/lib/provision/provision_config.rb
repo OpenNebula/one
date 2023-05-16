@@ -293,7 +293,7 @@ module OneProvision
         def validate(check_load = true)
             self.load if check_load
 
-            @config.delete_if {|_k, v| v.nil? }
+            @config.compact!
 
             parse
 
