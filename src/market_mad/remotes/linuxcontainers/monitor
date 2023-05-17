@@ -45,7 +45,7 @@ class LinuxContainersMarket
     #---------------------------------------------------------------------------
     DEFAULTS = {
         :url           => 'https://images.linuxcontainers.org/',
-        :sizemb        => 1024,
+        :sizemb        => 2048,
         :fs            => 'ext4',
         :format        => 'raw',
         :agent         => 'OpenNebula',
