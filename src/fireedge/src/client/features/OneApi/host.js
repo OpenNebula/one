@@ -74,8 +74,10 @@ const hostApi = oneApi.injectEndpoints({
       transformResponse: (data) => {
         if (!data?.HOST) return {}
 
-        const monitoring = data.HOST.MONITORING
-        if (!monitoring) return data.HOST
+        const monitoring = data?.HOST?.MONITORING
+        const hostShare = data?.HOST_SHARE?.NUMA_NODES
+
+        if (!monitoring || !hostShare) return data.HOST
 
         /**
          * [GH-6027] Numa nodes attributes are not together, some of the attributes
@@ -84,23 +86,22 @@ const hostApi = oneApi.injectEndpoints({
          * share data
          */
         const numaNodes =
-          data.HOST.HOST_SHARE?.NUMA_NODES?.NODE &&
-          Array.isArray(data.HOST.HOST_SHARE.NUMA_NODES.NODE)
-            ? data.HOST.HOST_SHARE.NUMA_NODES.NODE
-            : [data.HOST.HOST_SHARE.NUMA_NODES.NODE]
+          hostShare?.NODE && Array.isArray(hostShare.NODE)
+            ? hostShare.NODE
+            : [hostShare.NODE]
 
         const monitoringNodes = Array.isArray(monitoring.NUMA_NODE)
           ? monitoring.NUMA_NODE
           : [monitoring.NUMA_NODE]
 
-        numaNodes.map((node) => {
+        numaNodes.forEach((node) => {
           const monitoringNode = monitoringNodes.find(
-            (mNode) => mNode.NODE_ID === node.NODE_ID
+            (mNode) => mNode?.NODE_ID === node?.NODE_ID
           )
           node.MEMORY.FREE = monitoringNode.MEMORY.FREE
           node.MEMORY.USED = monitoringNode.MEMORY.USED
 
-          node.HUGEPAGE.map((page) => {
+          node.HUGEPAGE.forEach((page) => {
             const monitoringPage = monitoringNode.HUGEPAGE.find(
               (mPage) => mPage.SIZE === page.SIZE
             )
