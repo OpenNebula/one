@@ -16,12 +16,12 @@
 import BasicConfiguration, {
   STEP_ID as BASIC_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
-import UserInputs, {
-  STEP_ID as USER_INPUTS_ID,
-} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import UserInputs, {
+  STEP_ID as USER_INPUTS_ID,
+} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps, deleteObjectKeys } from 'client/utils'
 
@@ -49,13 +49,7 @@ const Steps = createSteps(
 
       return initialValue
     },
-    transformBeforeSubmit: (
-      formData,
-      vmTemplate,
-      stepProps,
-      adminGroup,
-      oneConfig
-    ) => {
+    transformBeforeSubmit: (formData, vmTemplate, _, adminGroup, oneConfig) => {
       const {
         [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
         [USER_INPUTS_ID]: userInputs,
