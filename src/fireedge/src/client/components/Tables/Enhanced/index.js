@@ -279,7 +279,7 @@ const EnhancedTable = ({
       />
 
       <div className={clsx(styles.body, classes.body)}>
-        {messages && <MessagesRowsAlerts />}
+        {!!messages.length && <MessagesRowsAlerts />}
         {/* NO DATA MESSAGE */}
         {!isLoading &&
           !isUninitialized &&
