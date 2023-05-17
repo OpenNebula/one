@@ -88,10 +88,13 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+# snapshot delete is mandatory as it could lead to data loss after
+# persitent/nonpersistent image switch
+
 LN_CMD=$(cat <<EOF
     RBD="${RBD}"
 
-    rbd_rm_snap $SRC_PATH ||:
+    rbd_rm_snap $SRC_PATH
 EOF
 )
 
