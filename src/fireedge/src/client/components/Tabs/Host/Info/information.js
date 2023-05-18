@@ -61,6 +61,8 @@ const InformationPanel = ({ host = {}, actions }) => {
     maxMem,
     totalCpu,
     totalMem,
+    alertCpu,
+    alertMemory,
   } = getAllocatedInfo(host)
 
   const handleRename = async (_, newName) => {
@@ -125,6 +127,7 @@ const InformationPanel = ({ host = {}, actions }) => {
           label={percentCpuLabel}
           high={HOST_THRESHOLD.CPU.high}
           low={HOST_THRESHOLD.CPU.low}
+          alert={alertCpu}
         />
       ),
       min: '0',
@@ -142,6 +145,7 @@ const InformationPanel = ({ host = {}, actions }) => {
           label={percentMemLabel}
           high={HOST_THRESHOLD.MEMORY.high}
           low={HOST_THRESHOLD.MEMORY.low}
+          alert={alertMemory}
         />
       ),
       min: '0',

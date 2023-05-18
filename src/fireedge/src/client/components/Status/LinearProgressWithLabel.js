@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
 import PropTypes from 'prop-types'
+import { memo } from 'react'
 
 import {
-  styled,
-  Typography,
   LinearProgress,
+  Typography,
   linearProgressClasses,
+  styled,
 } from '@mui/material'
 
 import { SCHEMES } from 'client/constants'
@@ -48,12 +48,16 @@ const BorderLinearProgress = styled(LinearProgress)(
   })
 )
 
+const StyledTypography = styled(Typography)(({ theme, alert }) => ({
+  ...(alert ? { color: theme.palette.error.main } : {}),
+}))
+
 const LinearProgressWithLabel = memo(
-  ({ value, high, low, label, title }) => (
+  ({ value, high, low, label, title, alert = false }) => (
     <div style={{ textAlign: 'end' }} title={title}>
-      <Typography component="span" variant="body2" noWrap>
+      <StyledTypography component="span" variant="body2" noWrap alert={alert}>
         {label}
-      </Typography>
+      </StyledTypography>
       <BorderLinearProgress
         variant="determinate"
         value={value}
@@ -71,6 +75,7 @@ LinearProgressWithLabel.propTypes = {
   high: PropTypes.number,
   label: PropTypes.string.isRequired,
   title: PropTypes.string,
+  alert: PropTypes.bool,
 }
 
 LinearProgressWithLabel.displayName = 'LinearProgressWithLabel'
