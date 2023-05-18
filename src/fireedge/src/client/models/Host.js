@@ -86,7 +86,7 @@ export const getAllocatedInfo = (host) => {
     colorCpu:
       MAX_CPU > TOTAL_CPU ? 'error' : MAX_CPU < TOTAL_CPU ? 'success' : '',
     colorMem:
-      MAX_MEM > TOTAL_MEM ? 'error' : MAX_MEM > TOTAL_MEM ? 'success' : '',
+      MAX_MEM > TOTAL_MEM ? 'error' : MAX_MEM < TOTAL_MEM ? 'success' : '',
   }
 }
 
