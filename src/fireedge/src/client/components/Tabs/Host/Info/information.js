@@ -61,8 +61,12 @@ const InformationPanel = ({ host = {}, actions }) => {
     maxMem,
     totalCpu,
     totalMem,
-    alertCpu,
-    alertMemory,
+    colorCpu,
+    colorMem,
+    usageCpu,
+    usageMem,
+    reservedCpu,
+    reservedMem,
   } = getAllocatedInfo(host)
 
   const handleRename = async (_, newName) => {
@@ -70,17 +74,23 @@ const InformationPanel = ({ host = {}, actions }) => {
   }
 
   const handleOvercommitment = async (name, value) => {
+    let valueNumber = +value
     let newTemplate
-    if (/memory/i.test(name)) {
-      newTemplate = {
-        RESERVED_MEM: value !== totalMem ? totalMem - value : '',
-      }
-    }
     if (/cpu/i.test(name)) {
+      valueNumber === 0 && (valueNumber = usageCpu)
       newTemplate = {
-        RESERVED_CPU: value !== totalCpu ? totalCpu - value : '',
+        RESERVED_CPU:
+          value !== totalCpu ? totalCpu - valueNumber : reservedCpu ? 0 : '',
       }
     }
+    if (/memory/i.test(name)) {
+      valueNumber === 0 && (valueNumber = usageMem)
+      newTemplate = {
+        RESERVED_MEM:
+          value !== totalMem ? totalMem - valueNumber : reservedMem ? 0 : '',
+      }
+    }
+
     newTemplate &&
       (await updateHost({
         id: ID,
@@ -127,7 +137,7 @@ const InformationPanel = ({ host = {}, actions }) => {
           label={percentCpuLabel}
           high={HOST_THRESHOLD.CPU.high}
           low={HOST_THRESHOLD.CPU.low}
-          alert={alertCpu}
+          color={colorCpu}
         />
       ),
       min: '0',
@@ -145,7 +155,7 @@ const InformationPanel = ({ host = {}, actions }) => {
           label={percentMemLabel}
           high={HOST_THRESHOLD.MEMORY.high}
           low={HOST_THRESHOLD.MEMORY.low}
-          alert={alertMemory}
+          color={colorMem}
         />
       ),
       min: '0',
