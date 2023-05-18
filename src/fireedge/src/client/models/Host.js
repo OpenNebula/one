@@ -78,6 +78,8 @@ export const getAllocatedInfo = (host) => {
     totalMem: TOTAL_MEM,
     maxCpu: MAX_CPU,
     maxMem: MAX_MEM,
+    alertCpu: MAX_CPU > TOTAL_CPU,
+    alertMemory: MAX_MEM > TOTAL_MEM,
   }
 }
 
