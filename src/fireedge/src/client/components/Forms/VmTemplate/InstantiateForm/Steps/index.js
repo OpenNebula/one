@@ -91,7 +91,7 @@ const Steps = createSteps(
 
       const data = { instances, hold, persistent, template: templateXML }
 
-      const templates = [...new Array(instances)].map((_, idx) => ({
+      const templates = [...new Array(instances)].map((__, idx) => ({
         id: vmTemplate.ID,
         name: name?.replace(/%idx/gi, idx),
         ...data,
