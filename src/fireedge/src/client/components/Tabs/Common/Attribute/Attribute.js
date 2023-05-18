@@ -26,20 +26,30 @@ import { useDialog } from 'client/hooks'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Column = (props) => (
-  <Stack
-    direction="row"
-    alignItems="center"
-    sx={{
-      '&:hover > .actions': { display: 'contents' },
-      '&': { overflow: 'visible !important' },
-      '& .slider > span[data-index="0"][aria-hidden="true"]': {
-        left: '0px !important',
-      },
-    }}
-    {...props}
-  />
-)
+const Column = (props) => {
+  const { isEditing, ...restProps } = props
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      sx={{
+        '&:hover > .actions': { display: 'contents' },
+        '&': { ...(isEditing ? { overflow: 'visible !important' } : {}) },
+        '& .slider > span[data-index="0"][aria-hidden="true"]': {
+          left: '0px !important',
+        },
+      }}
+      {...restProps}
+    />
+  )
+}
+
+Column.propTypes = {
+  isEditing: PropTypes.bool,
+}
+
+Column.displayName = 'Column'
 
 const ActionWrapper = (props) => (
   <Stack direction="row" component="span" className="actions" {...props} />
@@ -128,7 +138,7 @@ const Attribute = memo(
             {canCopy && <Actions.Copy name={name} value={name} />}
           </ActionWrapper>
         </Column>
-        <Column>
+        <Column isEditing={isEditing}>
           {isEditing ? (
             <>
               {handleGetOptionList ? (
