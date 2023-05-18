@@ -47,8 +47,8 @@ const HostCard = memo(
       percentCpuLabel,
       percentMemUsed,
       percentMemLabel,
-      alertCpu,
-      alertMemory,
+      colorCpu,
+      colorMem,
     } = getAllocatedInfo(host)
 
     const runningVms = HOST_SHARE?.RUNNING_VMS || 0
@@ -90,7 +90,7 @@ const HostCard = memo(
             low={HOST_THRESHOLD.CPU.low}
             label={percentCpuLabel}
             title={`${Tr(T.AllocatedCpu)}`}
-            alert={alertCpu}
+            color={colorCpu}
           />
           <LinearProgressWithLabel
             value={percentMemUsed}
@@ -98,7 +98,7 @@ const HostCard = memo(
             low={HOST_THRESHOLD.MEMORY.low}
             label={percentMemLabel}
             title={`${Tr(T.AllocatedMemory)}`}
-            alert={alertMemory}
+            color={colorMem}
           />
         </div>
         {actions && <div className={classes.actions}>{actions}</div>}

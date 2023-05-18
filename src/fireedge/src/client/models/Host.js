@@ -55,6 +55,7 @@ export const getDatastores = (host) =>
 export const getAllocatedInfo = (host) => {
   const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM, MAX_MEM, MAX_CPU } =
     host?.HOST_SHARE ?? {}
+  const { RESERVED_CPU, RESERVED_MEM } = host?.TEMPLATE ?? {}
 
   const percentCpuUsed = (+CPU_USAGE * 100) / +MAX_CPU || 0
   const percentCpuLabel = `${CPU_USAGE} / ${MAX_CPU} 
@@ -78,8 +79,14 @@ export const getAllocatedInfo = (host) => {
     totalMem: TOTAL_MEM,
     maxCpu: MAX_CPU,
     maxMem: MAX_MEM,
-    alertCpu: MAX_CPU > TOTAL_CPU,
-    alertMemory: MAX_MEM > TOTAL_MEM,
+    usageCpu: CPU_USAGE,
+    usageMem: MEM_USAGE,
+    reservedCpu: RESERVED_CPU,
+    reservedMem: RESERVED_MEM,
+    colorCpu:
+      MAX_CPU > TOTAL_CPU ? 'error' : MAX_CPU < TOTAL_CPU ? 'success' : '',
+    colorMem:
+      MAX_MEM > TOTAL_MEM ? 'error' : MAX_MEM > TOTAL_MEM ? 'success' : '',
   }
 }
 
