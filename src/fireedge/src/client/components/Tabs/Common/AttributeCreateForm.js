@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
-import { AddSquare as AddIcon } from 'iconoir-react'
 import { Box, TextField } from '@mui/material'
+import { AddSquare as AddIcon } from 'iconoir-react'
 import { useForm } from 'react-hook-form'
 
 import { SubmitButton } from 'client/components/FormControl'
@@ -40,10 +40,7 @@ const AttributeCreateForm = memo(({ handleAdd }) => {
 
         if (!name || !value || formState.isSubmitting) return
 
-        const upperName = `${name}`.toUpperCase()
-        const upperValue = `${value}`.toUpperCase()
-
-        await handleAdd?.(upperName, upperValue)
+        await handleAdd?.(`${name}`.toUpperCase(), `${value}`) // The field name is always in uppercase, but the value is whatever the user enters in the input
         reset()
       } catch {}
     },
