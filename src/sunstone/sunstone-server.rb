@@ -564,24 +564,29 @@ helpers do
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
 
-        if RUBY_VERSION > '2.0.0'
-          if request.env['HTTP_AUTHORIZATION']
-            auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>(\w|\W)+)/) 
-            session[:auth] = auth[:pass]
-          else
-            session[:auth] = Base64.encode64("#{user['NAME']}:#{user['PASSWORD']}")
-          end
+        begin
+            http_authorization_header = request.env['HTTP_AUTHORIZATION']
+        rescue StandardError => e
+            logger.error { 'Authorization header not received' }
         else
-          auth = request.env['HTTP_AUTHORIZATION'].split(" ")
-          if auth[0] && auth[0].downcase === 'basic'
-            session[:auth] = auth[1]
-          else
-            logger.info { 'Unauthorized login attempt' }
-            return [401, '']
-          end
+            begin
+                if RUBY_VERSION > '2.0.0'
+                    auth = http_authorization_header.match(/(?<basic>\w+) (?<pass>(\w|\W)+)/)
+                    type, pass = auth[:basic], auth[:pass]
+                else
+                    type, pass = http_authorization_header.split(' ')
+                end
+            rescue StandardError => e
+                logger.error { 'Invalid authorization header format' }
+            else
+                if type && type.downcase == 'basic'
+                    session[:auth] = pass
+                else
+                    logger.info { 'Unauthorized login attempt or invalid authorization header' }
+                    return [401, '']
+                end
+            end
         end
-
-
 
         #get firedge JWT
         session[:fireedge_token] = get_fireedge_token(two_factor_auth_token)
