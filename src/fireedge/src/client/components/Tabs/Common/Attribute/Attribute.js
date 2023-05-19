@@ -78,6 +78,7 @@ const Attribute = memo(
     unit,
     unitParser = false,
     title = '',
+    fullWidth = false,
   }) => {
     const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
 
@@ -169,7 +170,12 @@ const Attribute = memo(
                     : {})}
                 />
               ) : (
-                <Inputs.Text name={name} initialValue={value} ref={inputRef} />
+                <Inputs.Text
+                  name={name}
+                  initialValue={value}
+                  ref={inputRef}
+                  fullWidth={fullWidth}
+                />
               )}
               <Actions.Accept name={name} handleClick={handleEditAttribute} />
               <Actions.Cancel name={name} handleClick={handleCancel} />
@@ -250,6 +256,7 @@ export const AttributePropTypes = {
   unit: PropTypes.string,
   unitParser: PropTypes.bool,
   title: PropTypes.string,
+  fullWidth: PropTypes.bool,
 }
 
 Attribute.propTypes = AttributePropTypes
