@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback } from 'react'
 
+import { AttributePanel } from 'client/components/Tabs/Common'
+import Information from 'client/components/Tabs/Host/Info/information'
 import {
   useGetHostQuery,
   useUpdateHostMutation,
 } from 'client/features/OneApi/host'
-import { AttributePanel } from 'client/components/Tabs/Common'
-import Information from 'client/components/Tabs/Host/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import {
-  getActionsAvailable,
   filterAttributes,
+  getActionsAvailable,
   jsonToXml,
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
@@ -108,6 +108,7 @@ const HostInfoTab = ({ tabProps = {}, id }) => {
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
+          fullWidth={true}
         />
       )}
       {vcenterPanel?.enabled && vcenterAttributes && (
