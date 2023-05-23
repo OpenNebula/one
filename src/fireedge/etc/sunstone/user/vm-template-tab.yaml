@@ -107,5 +107,5 @@ dialogs:
     numa:
       enabled: true
       not_on:
-        - vcenter
-        - kvm
+        - lxc
+    backup: true
