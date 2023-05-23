@@ -63,7 +63,13 @@ export const VM_TEMPLATE_ACTIONS = {
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
 
-export const NUMA_PIN_POLICIES = ['NONE', 'THREAD', 'SHARED', 'CORE']
+export const NUMA_PIN_POLICIES = {
+  NONE: 'NONE',
+  THREAD: 'THREAD',
+  SHARED: 'SHARED',
+  CORE: 'CORE',
+  NODE_AFFINITY: 'NODE_AFFINITY',
+}
 
 export const NUMA_MEMORY_ACCESS = ['shared', 'private']
 
