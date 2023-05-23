@@ -1021,6 +1021,8 @@ module.exports = {
   NumaTopologyConcept:
     'These settings will help you to fine tune the performance of VMs',
   PinPolicy: 'Pin Policy',
+  NodeAffinity: 'Numa Affinity',
+  NodeAffinityConcept: 'Number of NUMA nodes (node affinity)',
   NumaNodeItem: 'Node #%s',
   NumaNodeTitle: 'Cores & CPUS',
   PinPolicyConcept: 'Virtual CPU pinning preference: %s',
