@@ -197,6 +197,15 @@ define(function(require) {
       delete templateJSON["TOPOLOGY"];
     }
 
+
+    if(templateJSON && templateJSON["TOPOLOGY"]["PIN_POLICY"]) {
+      if(templateJSON["TOPOLOGY"]["PIN_POLICY"]==="NODE_AFFINITY"){
+        delete templateJSON["TOPOLOGY"]["PIN_POLICY"]
+      }else if(templateJSON["TOPOLOGY"]["NODE_AFFINITY"]){
+        delete templateJSON["TOPOLOGY"]["NODE_AFFINITY"]
+      }
+    }
+
     if(
       templateJSON["TOPOLOGY"] &&
       (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined ||
