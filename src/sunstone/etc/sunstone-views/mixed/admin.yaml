@@ -477,6 +477,7 @@ tabs:
         Role.undeploy_hard: true
         Role.terminate: true
         Role.terminate_hard: true
+        Role.scale_dialog: true
         RoleVM.hold: true
         RoleVM.release: true
         RoleVM.suspend: true
