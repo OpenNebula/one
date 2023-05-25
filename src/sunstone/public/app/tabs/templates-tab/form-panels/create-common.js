@@ -198,7 +198,7 @@ define(function(require) {
     }
 
 
-    if(templateJSON && templateJSON["TOPOLOGY"]["PIN_POLICY"]) {
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["PIN_POLICY"]) {
       if(templateJSON["TOPOLOGY"]["PIN_POLICY"]==="NODE_AFFINITY"){
         delete templateJSON["TOPOLOGY"]["PIN_POLICY"]
       }else if(templateJSON["TOPOLOGY"]["NODE_AFFINITY"]){
