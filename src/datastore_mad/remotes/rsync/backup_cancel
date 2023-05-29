@@ -68,7 +68,8 @@ begin
     script = <<~EOS
         set -x -e -o pipefail; shopt -qs failglob
         (ps --no-headers -o pid,cmd -C ruby \
-        | awk '$0 ~ "backup .*#{vm_uuid}" { print $1 } END { print "\\0" }' || :) \\
+        | awk '$0 !~ "prebackup(_live)? .*#{vm_uuid} " { print }' \
+        | awk '$0 ~ "backup .*#{vm_uuid} " { print $1 } END { print "\\0" }' || :) \\
         | (read -d '' PIDS
            [[ -n "$PIDS" ]] || exit 0                           # empty
            [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
