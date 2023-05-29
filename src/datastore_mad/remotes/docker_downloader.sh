@@ -290,7 +290,7 @@ if [ -n "$one_entrypoint" ]; then
     one_env="RUN echo '#!/bin/sh\n"
 
     if [ -n "$env" ] && ! [ "$env" == "null" ]; then
-        env=$(echo "$env" | jq -jr '.[] | "export " + . + "\\n"')
+        env=$(echo "$env" | jq -jr '.[] | "export \"" + . + "\"\\n"')
         one_env="${one_env}$env"
     fi
 
