@@ -69,7 +69,7 @@ info-tabs:
 
   log:
     enabled: true
-
+  
   scheduler_actions:
     enabled: true
     actions:
