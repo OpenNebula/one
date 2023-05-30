@@ -21,7 +21,7 @@
 
 resource_name: "VM-TEMPLATE"
 
-# Features - 
+# Features -
 
 features:
   # True to hide the CPU setting in the dialogs
