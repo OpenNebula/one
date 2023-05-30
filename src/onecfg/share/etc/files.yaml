@@ -128,19 +128,19 @@
   mode: '0640'
   src: src/fireedge/etc/provision/provision-server.conf
 
-- name: /etc/one/fireedge/provision/providers.d/*.yaml
+- name: /etc/one/fireedge/provision/providers.d/*.yml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
   src: src/fireedge/etc/provision/providers.d/*.yaml
 
-- name: /etc/one/fireedge/provision/providers.d-extra/*.yaml
+- name: /etc/one/fireedge/provision/providers.d-extra/*.yml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
-  src: share/oneprovision/edge-clusters-extra/*/providers/*/*.yaml
+  src: share/oneprovision/edge-clusters-extra/*/providers/*/*.yml
 
 - name: /etc/one/fireedge/sunstone/sunstone-server.conf
   class: Yaml
@@ -161,7 +161,7 @@
   owner: root
   group: oneadmin
   mode: '0640'
-  src: src/fireedge/etc/sunstone/user/*/*.yaml
+  src: src/fireedge/etc/sunstone/*/*.yaml
 
 - name: /etc/one/monitord.conf
   class: Augeas::ONE
@@ -467,4 +467,6 @@
 ### Catch all unclassified files above and fail ############
 
 - name: '/etc/one/**/**'
+  catch: true
 - name: '/var/lib/one/remotes/etc/**/**'
+  catch: true
