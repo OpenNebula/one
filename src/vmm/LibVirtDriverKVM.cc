@@ -38,6 +38,8 @@ const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
 
 const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
 
+const int LibVirtDriver::Q35_ROOT_DEFAULT_PORTS = 16;
+
 const char * LibVirtDriver::XML_DOMAIN_RNG_PATH = "/schemas/libvirt/domain.rng";
 
 #define set_sec_default(v, dv) if (v.empty() && !dv.empty()){v = dv;}
@@ -1952,6 +1954,31 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     file << "\t</devices>" << endl;
+
+    std::size_t found = machine.find("q35");
+
+    if (found != std::string::npos)
+    {
+        int q35_root_ports = 0;
+        get_attribute(nullptr, host, cluster, "Q35_ROOT_PORTS", q35_root_ports);
+
+        if (!q35_root_ports)
+        {
+            q35_root_ports = Q35_ROOT_DEFAULT_PORTS;
+        }
+
+        file << "\t<devices>" << endl;
+        file << "\t\t<controller index='0' type='pci' model='pcie-root'/>" << endl;
+
+        for (int i=0; i<q35_root_ports; ++i)
+        {
+            file << "\t\t<controller type='pci' model='pcie-root-port'/>" << endl;
+        }
+
+        file << "\t\t<controller type='pci' model='pcie-to-pci-bridge'/>" << endl;
+        file << "\t</devices>" << endl;
+    }
+
 
     // ------------------------------------------------------------------------
     // Features
