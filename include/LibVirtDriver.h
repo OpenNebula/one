@@ -46,11 +46,13 @@ public:
                           std::string& error) const override;
 
 private:
-    static const int    CEPH_DEFAULT_PORT;
+    static const int CEPH_DEFAULT_PORT;
 
-    static const int    GLUSTER_DEFAULT_PORT;
+    static const int GLUSTER_DEFAULT_PORT;
 
-    static const int    ISCSI_DEFAULT_PORT;
+    static const int ISCSI_DEFAULT_PORT;
+
+    static const int Q35_ROOT_DEFAULT_PORTS;
 
     static const char * XML_DOMAIN_RNG_PATH;
 
