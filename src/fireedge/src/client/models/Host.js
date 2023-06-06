@@ -197,13 +197,15 @@ export const getHostNuma = (host = {}) =>
  * }} Numa Node memory information
  */
 export const getNumaMemory = (numa) => {
-  const { TOTAL, USED } = numa?.MEMORY ?? {}
+  const { TOTAL = 0, USED = 0 } = numa?.MEMORY ?? {}
 
+  const isMemUsageNegative = +USED < 0
   const percentMemUsed = (+USED * 100) / +TOTAL || 0
-
   const usedMemBytes = prettyBytes(Math.abs(+USED))
   const totalMemBytes = prettyBytes(+TOTAL)
-  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} 
+  const percentMemLabel = `${
+    isMemUsageNegative ? '-' : ''
+  }${usedMemBytes} / ${totalMemBytes} 
       (${Math.round(isFinite(percentMemUsed) ? percentMemUsed : '--')}%)`
 
   return {
