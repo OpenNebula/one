@@ -44,12 +44,6 @@ const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 
 const APP_NAMES = Object.keys(defaultApps)
 
-const APP_CONFIG = {
-  [defaultApps.provision.name]: getProvisionConfig() || {},
-  [defaultApps.sunstone.name]:
-    getSunstoneConfig({ includeProtectedConfig: false }) || {},
-}
-
 const ensuredScriptValue = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c')
 
@@ -57,6 +51,12 @@ const router = Router()
 
 router.get('*', async (req, res) => {
   const remoteJWT = {}
+
+  const APP_CONFIG = {
+    [defaultApps.provision.name]: getProvisionConfig() || {},
+    [defaultApps.sunstone.name]:
+      getSunstoneConfig({ includeProtectedConfig: false }) || {},
+  }
 
   const appConfig = getFireedgeConfig()
   if (appConfig?.auth === 'remote') {
