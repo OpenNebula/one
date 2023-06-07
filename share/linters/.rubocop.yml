@@ -792,6 +792,9 @@ Style/WordArray:
 Style/RedundantLineContinuation:
   Enabled: false
 
+Style/RedundantFilterChain:
+  Enabled: false
+
 ######
 # LINT
 ######
