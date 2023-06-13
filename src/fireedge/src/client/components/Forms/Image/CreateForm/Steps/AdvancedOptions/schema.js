@@ -35,8 +35,6 @@ const FORMAT_TYPES = {
   CUSTOM: 'custom',
 }
 
-
-
 const htmlType = (opt) => (value) => value !== opt && INPUT_TYPES.HIDDEN
 
 /** @type {Field} Bus field */
