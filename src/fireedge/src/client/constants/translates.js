@@ -650,7 +650,7 @@ module.exports = {
   PhysicalCpu: 'Physical CPU',
   PhysicalCpuWithPercent: 'Physical CPU (%)',
   VirtualCpu: 'Virtual CPU',
-  VirtualCpuWithDecimal: 'Virtual CPU (Decimal values are allowed)',
+  VirtualCpuWithDecimal: 'Virtual CPU',
   VirtualCores: 'Virtual Cores',
   Cores: 'Cores',
   Sockets: 'Sockets',
