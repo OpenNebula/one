@@ -517,7 +517,7 @@ module.exports = {
   PhysicalCpu: 'Physical CPU',
   PhysicalCpuWithPercent: 'Physical CPU (%)',
   VirtualCpu: 'Virtual CPU',
-  VirtualCpuWithPercent: 'Virtual CPU (%)',
+  VirtualCpuWithDecimal: 'Virtual CPU',
   VirtualCores: 'Virtual Cores',
   Cores: 'Cores',
   Sockets: 'Sockets',
@@ -1161,8 +1161,8 @@ module.exports = {
     'There are currently no VMs associated with this Security Group',
   CommitMessageSecGroups: `
     Please note: each time the rules are edited, the commit operation is done automatically.
-    This action will force the propagation of security group changes to VMs. 
-    The operation takes time to iterate over all VMs in the security group, 
+    This action will force the propagation of security group changes to VMs.
+    The operation takes time to iterate over all VMs in the security group,
     the progress can be checked in the "VMs" panel.`,
   RecoverCommitMessageSecGroups:
     'If set the commit operation will only operate on outdated and error VMs',
