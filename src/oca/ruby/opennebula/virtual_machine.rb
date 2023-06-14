@@ -18,225 +18,218 @@ require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
+
     class VirtualMachine < PoolElement
+
         #######################################################################
         # Constants and Class Methods
         #######################################################################
 
         VM_METHODS = {
-            :info           => "vm.info",
-            :allocate       => "vm.allocate",
-            :action         => "vm.action",
-            :migrate        => "vm.migrate",
-            :deploy         => "vm.deploy",
-            :chown          => "vm.chown",
-            :chmod          => "vm.chmod",
-            :monitoring     => "vm.monitoring",
-            :attach         => "vm.attach",
-            :detach         => "vm.detach",
-            :rename         => "vm.rename",
-            :update         => "vm.update",
-            :resize         => "vm.resize",
-            :snapshotcreate => "vm.snapshotcreate",
-            :snapshotrevert => "vm.snapshotrevert",
-            :snapshotdelete => "vm.snapshotdelete",
-            :attachnic      => "vm.attachnic",
-            :detachnic      => "vm.detachnic",
-            :recover        => "vm.recover",
-            :disksaveas     => "vm.disksaveas",
-            :disksnapshotcreate => "vm.disksnapshotcreate",
-            :disksnapshotrevert => "vm.disksnapshotrevert",
-            :disksnapshotdelete => "vm.disksnapshotdelete",
-            :disksnapshotrename => "vm.disksnapshotrename",
-            :diskresize     => "vm.diskresize",
-            :updateconf     => "vm.updateconf",
-            :lock           => "vm.lock",
-            :unlock         => "vm.unlock",
-            :schedadd       => "vm.schedadd",
-            :scheddelete    => "vm.scheddelete",
-            :schedupdate    => "vm.schedupdate",
-            :attachsg       => "vm.attachsg",
-            :detachsg       => "vm.detachsg",
-            :backup         => "vm.backup",
-            :updatenic      => "vm.updatenic",
-            :backupcancel   => "vm.backupcancel"
+            :info           => 'vm.info',
+            :allocate       => 'vm.allocate',
+            :action         => 'vm.action',
+            :migrate        => 'vm.migrate',
+            :deploy         => 'vm.deploy',
+            :chown          => 'vm.chown',
+            :chmod          => 'vm.chmod',
+            :monitoring     => 'vm.monitoring',
+            :attach         => 'vm.attach',
+            :detach         => 'vm.detach',
+            :rename         => 'vm.rename',
+            :update         => 'vm.update',
+            :resize         => 'vm.resize',
+            :snapshotcreate => 'vm.snapshotcreate',
+            :snapshotrevert => 'vm.snapshotrevert',
+            :snapshotdelete => 'vm.snapshotdelete',
+            :attachnic      => 'vm.attachnic',
+            :detachnic      => 'vm.detachnic',
+            :recover        => 'vm.recover',
+            :disksaveas     => 'vm.disksaveas',
+            :disksnapshotcreate => 'vm.disksnapshotcreate',
+            :disksnapshotrevert => 'vm.disksnapshotrevert',
+            :disksnapshotdelete => 'vm.disksnapshotdelete',
+            :disksnapshotrename => 'vm.disksnapshotrename',
+            :diskresize     => 'vm.diskresize',
+            :updateconf     => 'vm.updateconf',
+            :lock           => 'vm.lock',
+            :unlock         => 'vm.unlock',
+            :schedadd       => 'vm.schedadd',
+            :scheddelete    => 'vm.scheddelete',
+            :schedupdate    => 'vm.schedupdate',
+            :attachsg       => 'vm.attachsg',
+            :detachsg       => 'vm.detachsg',
+            :backup         => 'vm.backup',
+            :updatenic      => 'vm.updatenic',
+            :backupcancel   => 'vm.backupcancel'
         }
 
-        VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
-            POWEROFF UNDEPLOYED CLONING CLONING_FAILURE}
+        VM_STATE=['INIT', 'PENDING', 'HOLD', 'ACTIVE', 'STOPPED', 'SUSPENDED', 'DONE', 'FAILED',
+                  'POWEROFF', 'UNDEPLOYED', 'CLONING', 'CLONING_FAILURE']
 
-        LCM_STATE=%w{
-            LCM_INIT
-            PROLOG
-            BOOT
-            RUNNING
-            MIGRATE
-            SAVE_STOP
-            SAVE_SUSPEND
-            SAVE_MIGRATE
-            PROLOG_MIGRATE
-            PROLOG_RESUME
-            EPILOG_STOP
-            EPILOG
-            SHUTDOWN
-            CANCEL
-            FAILURE
-            CLEANUP_RESUBMIT
-            UNKNOWN
-            HOTPLUG
-            SHUTDOWN_POWEROFF
-            BOOT_UNKNOWN
-            BOOT_POWEROFF
-            BOOT_SUSPENDED
-            BOOT_STOPPED
-            CLEANUP_DELETE
-            HOTPLUG_SNAPSHOT
-            HOTPLUG_NIC
-            HOTPLUG_SAVEAS
-            HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED
-            SHUTDOWN_UNDEPLOY
-            EPILOG_UNDEPLOY
-            PROLOG_UNDEPLOY
-            BOOT_UNDEPLOY
-            HOTPLUG_PROLOG_POWEROFF
-            HOTPLUG_EPILOG_POWEROFF
-            BOOT_MIGRATE
-            BOOT_FAILURE
-            BOOT_MIGRATE_FAILURE
-            PROLOG_MIGRATE_FAILURE
-            PROLOG_FAILURE
-            EPILOG_FAILURE
-            EPILOG_STOP_FAILURE
-            EPILOG_UNDEPLOY_FAILURE
-            PROLOG_MIGRATE_POWEROFF
-            PROLOG_MIGRATE_POWEROFF_FAILURE
-            PROLOG_MIGRATE_SUSPEND
-            PROLOG_MIGRATE_SUSPEND_FAILURE
-            BOOT_UNDEPLOY_FAILURE
-            BOOT_STOPPED_FAILURE
-            PROLOG_RESUME_FAILURE
-            PROLOG_UNDEPLOY_FAILURE
-            DISK_SNAPSHOT_POWEROFF
-            DISK_SNAPSHOT_REVERT_POWEROFF
-            DISK_SNAPSHOT_DELETE_POWEROFF
-            DISK_SNAPSHOT_SUSPENDED
-            DISK_SNAPSHOT_REVERT_SUSPENDED
-            DISK_SNAPSHOT_DELETE_SUSPENDED
-            DISK_SNAPSHOT
-            DISK_SNAPSHOT_REVERT
-            DISK_SNAPSHOT_DELETE
-            PROLOG_MIGRATE_UNKNOWN
-            PROLOG_MIGRATE_UNKNOWN_FAILURE
-            DISK_RESIZE
-            DISK_RESIZE_POWEROFF
-            DISK_RESIZE_UNDEPLOYED
-            HOTPLUG_NIC_POWEROFF
-            HOTPLUG_RESIZE
-            HOTPLUG_SAVEAS_UNDEPLOYED
-            HOTPLUG_SAVEAS_STOPPED
-            BACKUP
-            BACKUP_POWEROFF
-        }
+        LCM_STATE=[
+            'LCM_INIT',
+            'PROLOG',
+            'BOOT',
+            'RUNNING',
+            'MIGRATE',
+            'SAVE_STOP',
+            'SAVE_SUSPEND',
+            'SAVE_MIGRATE',
+            'PROLOG_MIGRATE',
+            'PROLOG_RESUME',
+            'EPILOG_STOP',
+            'EPILOG',
+            'SHUTDOWN',
+            'CANCEL',
+            'FAILURE',
+            'CLEANUP_RESUBMIT',
+            'UNKNOWN',
+            'HOTPLUG',
+            'SHUTDOWN_POWEROFF',
+            'BOOT_UNKNOWN',
+            'BOOT_POWEROFF',
+            'BOOT_SUSPENDED',
+            'BOOT_STOPPED',
+            'CLEANUP_DELETE',
+            'HOTPLUG_SNAPSHOT',
+            'HOTPLUG_NIC',
+            'HOTPLUG_SAVEAS',
+            'HOTPLUG_SAVEAS_POWEROFF',
+            'HOTPLUG_SAVEAS_SUSPENDED',
+            'SHUTDOWN_UNDEPLOY',
+            'EPILOG_UNDEPLOY',
+            'PROLOG_UNDEPLOY',
+            'BOOT_UNDEPLOY',
+            'HOTPLUG_PROLOG_POWEROFF',
+            'HOTPLUG_EPILOG_POWEROFF',
+            'BOOT_MIGRATE',
+            'BOOT_FAILURE',
+            'BOOT_MIGRATE_FAILURE',
+            'PROLOG_MIGRATE_FAILURE',
+            'PROLOG_FAILURE',
+            'EPILOG_FAILURE',
+            'EPILOG_STOP_FAILURE',
+            'EPILOG_UNDEPLOY_FAILURE',
+            'PROLOG_MIGRATE_POWEROFF',
+            'PROLOG_MIGRATE_POWEROFF_FAILURE',
+            'PROLOG_MIGRATE_SUSPEND',
+            'PROLOG_MIGRATE_SUSPEND_FAILURE',
+            'BOOT_UNDEPLOY_FAILURE',
+            'BOOT_STOPPED_FAILURE',
+            'PROLOG_RESUME_FAILURE',
+            'PROLOG_UNDEPLOY_FAILURE',
+            'DISK_SNAPSHOT_POWEROFF',
+            'DISK_SNAPSHOT_REVERT_POWEROFF',
+            'DISK_SNAPSHOT_DELETE_POWEROFF',
+            'DISK_SNAPSHOT_SUSPENDED',
+            'DISK_SNAPSHOT_REVERT_SUSPENDED',
+            'DISK_SNAPSHOT_DELETE_SUSPENDED',
+            'DISK_SNAPSHOT',
+            'DISK_SNAPSHOT_REVERT',
+            'DISK_SNAPSHOT_DELETE',
+            'PROLOG_MIGRATE_UNKNOWN',
+            'PROLOG_MIGRATE_UNKNOWN_FAILURE',
+            'DISK_RESIZE',
+            'DISK_RESIZE_POWEROFF',
+            'DISK_RESIZE_UNDEPLOYED',
+            'HOTPLUG_NIC_POWEROFF',
+            'HOTPLUG_RESIZE',
+            'HOTPLUG_SAVEAS_UNDEPLOYED',
+            'HOTPLUG_SAVEAS_STOPPED',
+            'BACKUP',
+            'BACKUP_POWEROFF'
+        ]
 
         SHORT_VM_STATES={
-            "INIT"              => "init",
-            "PENDING"           => "pend",
-            "HOLD"              => "hold",
-            "ACTIVE"            => "actv",
-            "STOPPED"           => "stop",
-            "SUSPENDED"         => "susp",
-            "DONE"              => "done",
-            "FAILED"            => "fail",
-            "POWEROFF"          => "poff",
-            "UNDEPLOYED"        => "unde",
-            "CLONING"           => "clon",
-            "CLONING_FAILURE"   => "fail"
+            'INIT'              => 'init',
+            'PENDING'           => 'pend',
+            'HOLD'              => 'hold',
+            'ACTIVE'            => 'actv',
+            'STOPPED'           => 'stop',
+            'SUSPENDED'         => 'susp',
+            'DONE'              => 'done',
+            'FAILED'            => 'fail',
+            'POWEROFF'          => 'poff',
+            'UNDEPLOYED'        => 'unde',
+            'CLONING'           => 'clon',
+            'CLONING_FAILURE'   => 'fail'
         }
 
         SHORT_LCM_STATES={
-            "PROLOG"            => "prol",
-            "BOOT"              => "boot",
-            "RUNNING"           => "runn",
-            "MIGRATE"           => "migr",
-            "SAVE_STOP"         => "save",
-            "SAVE_SUSPEND"      => "save",
-            "SAVE_MIGRATE"      => "save",
-            "PROLOG_MIGRATE"    => "migr",
-            "PROLOG_RESUME"     => "prol",
-            "EPILOG_STOP"       => "epil",
-            "EPILOG"            => "epil",
-            "SHUTDOWN"          => "shut",
-            "CANCEL"            => "shut",
-            "FAILURE"           => "fail",
-            "CLEANUP_RESUBMIT"  => "clea",
-            "UNKNOWN"           => "unkn",
-            "HOTPLUG"           => "hotp",
-            "SHUTDOWN_POWEROFF" => "shut",
-            "BOOT_UNKNOWN"      => "boot",
-            "BOOT_POWEROFF"     => "boot",
-            "BOOT_SUSPENDED"    => "boot",
-            "BOOT_STOPPED"      => "boot",
-            "CLEANUP_DELETE"    => "clea",
-            "HOTPLUG_SNAPSHOT"  => "snap",
-            "HOTPLUG_NIC"       => "hotp",
-            "HOTPLUG_SAVEAS"           => "hotp",
-            "HOTPLUG_SAVEAS_POWEROFF"  => "hotp",
-            "HOTPLUG_SAVEAS_SUSPENDED" => "hotp",
-            "SHUTDOWN_UNDEPLOY" => "shut",
-            "EPILOG_UNDEPLOY"   => "epil",
-            "PROLOG_UNDEPLOY"   => "prol",
-            "BOOT_UNDEPLOY"     => "boot",
-            "HOTPLUG_PROLOG_POWEROFF"   => "hotp",
-            "HOTPLUG_EPILOG_POWEROFF"   => "hotp",
-            "BOOT_MIGRATE"              => "boot",
-            "BOOT_FAILURE"              => "fail",
-            "BOOT_MIGRATE_FAILURE"      => "fail",
-            "PROLOG_MIGRATE_FAILURE"    => "fail",
-            "PROLOG_FAILURE"            => "fail",
-            "EPILOG_FAILURE"            => "fail",
-            "EPILOG_STOP_FAILURE"       => "fail",
-            "EPILOG_UNDEPLOY_FAILURE"   => "fail",
-            "PROLOG_MIGRATE_POWEROFF"   => "migr",
-            "PROLOG_MIGRATE_POWEROFF_FAILURE"   => "fail",
-            "PROLOG_MIGRATE_SUSPEND"            => "migr",
-            "PROLOG_MIGRATE_SUSPEND_FAILURE"    => "fail",
-            "BOOT_UNDEPLOY_FAILURE"     => "fail",
-            "BOOT_STOPPED_FAILURE"      => "fail",
-            "PROLOG_RESUME_FAILURE"     => "fail",
-            "PROLOG_UNDEPLOY_FAILURE"   => "fail",
-            "DISK_SNAPSHOT_POWEROFF"        => "snap",
-            "DISK_SNAPSHOT_REVERT_POWEROFF" => "snap",
-            "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap",
-            "DISK_SNAPSHOT_SUSPENDED"       => "snap",
-            "DISK_SNAPSHOT_REVERT_SUSPENDED"=> "snap",
-            "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap",
-            "DISK_SNAPSHOT"        => "snap",
-            "DISK_SNAPSHOT_DELETE" => "snap",
-            "PROLOG_MIGRATE_UNKNOWN" => "migr",
-            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
-            "DISK_RESIZE"            => "drsz",
-            "DISK_RESIZE_POWEROFF"   => "drsz",
-            "DISK_RESIZE_UNDEPLOYED" => "drsz",
-            "HOTPLUG_NIC_POWEROFF"   => "hotp",
-            "HOTPLUG_RESIZE"         => "hotp",
-            "HOTPLUG_SAVEAS_UNDEPLOYED"  => "hotp",
-            "HOTPLUG_SAVEAS_STOPPED"     => "hotp",
-            "BACKUP"            => "back",
-            "BACKUP_POWEROFF"   => "back",
+            'PROLOG'            => 'prol',
+            'BOOT'              => 'boot',
+            'RUNNING'           => 'runn',
+            'MIGRATE'           => 'migr',
+            'SAVE_STOP'         => 'save',
+            'SAVE_SUSPEND'      => 'save',
+            'SAVE_MIGRATE'      => 'save',
+            'PROLOG_MIGRATE'    => 'migr',
+            'PROLOG_RESUME'     => 'prol',
+            'EPILOG_STOP'       => 'epil',
+            'EPILOG'            => 'epil',
+            'SHUTDOWN'          => 'shut',
+            'CANCEL'            => 'shut',
+            'FAILURE'           => 'fail',
+            'CLEANUP_RESUBMIT'  => 'clea',
+            'UNKNOWN'           => 'unkn',
+            'HOTPLUG'           => 'hotp',
+            'SHUTDOWN_POWEROFF' => 'shut',
+            'BOOT_UNKNOWN'      => 'boot',
+            'BOOT_POWEROFF'     => 'boot',
+            'BOOT_SUSPENDED'    => 'boot',
+            'BOOT_STOPPED'      => 'boot',
+            'CLEANUP_DELETE'    => 'clea',
+            'HOTPLUG_SNAPSHOT'  => 'snap',
+            'HOTPLUG_NIC'       => 'hotp',
+            'HOTPLUG_SAVEAS'           => 'hotp',
+            'HOTPLUG_SAVEAS_POWEROFF'  => 'hotp',
+            'HOTPLUG_SAVEAS_SUSPENDED' => 'hotp',
+            'SHUTDOWN_UNDEPLOY' => 'shut',
+            'EPILOG_UNDEPLOY'   => 'epil',
+            'PROLOG_UNDEPLOY'   => 'prol',
+            'BOOT_UNDEPLOY'     => 'boot',
+            'HOTPLUG_PROLOG_POWEROFF'   => 'hotp',
+            'HOTPLUG_EPILOG_POWEROFF'   => 'hotp',
+            'BOOT_MIGRATE'              => 'boot',
+            'BOOT_FAILURE'              => 'fail',
+            'BOOT_MIGRATE_FAILURE'      => 'fail',
+            'PROLOG_MIGRATE_FAILURE'    => 'fail',
+            'PROLOG_FAILURE'            => 'fail',
+            'EPILOG_FAILURE'            => 'fail',
+            'EPILOG_STOP_FAILURE'       => 'fail',
+            'EPILOG_UNDEPLOY_FAILURE'   => 'fail',
+            'PROLOG_MIGRATE_POWEROFF'   => 'migr',
+            'PROLOG_MIGRATE_POWEROFF_FAILURE'   => 'fail',
+            'PROLOG_MIGRATE_SUSPEND'            => 'migr',
+            'PROLOG_MIGRATE_SUSPEND_FAILURE'    => 'fail',
+            'BOOT_UNDEPLOY_FAILURE'     => 'fail',
+            'BOOT_STOPPED_FAILURE'      => 'fail',
+            'PROLOG_RESUME_FAILURE'     => 'fail',
+            'PROLOG_UNDEPLOY_FAILURE'   => 'fail',
+            'DISK_SNAPSHOT_POWEROFF'        => 'snap',
+            'DISK_SNAPSHOT_REVERT_POWEROFF' => 'snap',
+            'DISK_SNAPSHOT_DELETE_POWEROFF' => 'snap',
+            'DISK_SNAPSHOT_SUSPENDED'       => 'snap',
+            'DISK_SNAPSHOT_REVERT_SUSPENDED'=> 'snap',
+            'DISK_SNAPSHOT_DELETE_SUSPENDED'=> 'snap',
+            'DISK_SNAPSHOT'        => 'snap',
+            'DISK_SNAPSHOT_DELETE' => 'snap',
+            'PROLOG_MIGRATE_UNKNOWN' => 'migr',
+            'PROLOG_MIGRATE_UNKNOWN_FAILURE' => 'fail',
+            'DISK_RESIZE'            => 'drsz',
+            'DISK_RESIZE_POWEROFF'   => 'drsz',
+            'DISK_RESIZE_UNDEPLOYED' => 'drsz',
+            'HOTPLUG_NIC_POWEROFF'   => 'hotp',
+            'HOTPLUG_RESIZE'         => 'hotp',
+            'HOTPLUG_SAVEAS_UNDEPLOYED'  => 'hotp',
+            'HOTPLUG_SAVEAS_STOPPED'     => 'hotp',
+            'BACKUP'            => 'back',
+            'BACKUP_POWEROFF'   => 'back'
         }
 
-        HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
-            undeploy undeploy-hard hold release stop suspend resume boot delete
-            delete-recreate reboot reboot-hard resched unresched poweroff
-            poweroff-hard disk-attach disk-detach nic-attach nic-detach
-            disk-snapshot-create disk-snapshot-delete terminate terminate-hard
-            disk-resize deploy chown chmod updateconf rename resize update
-            snapshot-resize snapshot-delete snapshot-revert disk-saveas
-            disk-snapshot-revert recover retry monitor disk-snapshot-rename
-            alias-attach alias-detach poweroff-migrate poweroff-hard-migrate
-            backup nic-update
-            }
+        HISTORY_ACTION=['none', 'migrate', 'live-migrate', 'shutdown', 'shutdown-hard', 'undeploy',
+                        'undeploy-hard', 'hold', 'release', 'stop', 'suspend', 'resume', 'boot', 'delete', 'delete-recreate', 'reboot', 'reboot-hard', 'resched', 'unresched', 'poweroff', 'poweroff-hard', 'disk-attach', 'disk-detach', 'nic-attach', 'nic-detach', 'disk-snapshot-create', 'disk-snapshot-delete', 'terminate', 'terminate-hard', 'disk-resize', 'deploy', 'chown', 'chmod', 'updateconf', 'rename', 'resize', 'update', 'snapshot-resize', 'snapshot-delete', 'snapshot-revert', 'disk-saveas', 'disk-snapshot-revert', 'recover', 'retry', 'monitor', 'disk-snapshot-rename', 'alias-attach', 'alias-detach', 'poweroff-migrate', 'poweroff-hard-migrate', 'backup', 'nic-update']
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -249,14 +242,15 @@ module OpenNebula
 
         # VirtualMachineDriver constants
         module Driver
+
             POLL_ATTRIBUTE = {
-                :memory          => "MEMORY",
-                :cpu             => "CPU",
-                :nettx           => "NETTX",
-                :netrx           => "NETRX",
-                :state           => "STATE",
-                :disk_size       => "DISK_SIZE",
-                :snapshot_size   => "SNAPSHOT_SIZE"
+                :memory          => 'MEMORY',
+                :cpu             => 'CPU',
+                :nettx           => 'NETTX',
+                :netrx           => 'NETRX',
+                :state           => 'STATE',
+                :disk_size       => 'DISK_SIZE',
+                :snapshot_size   => 'SNAPSHOT_SIZE'
             }
 
             VM_STATE = {
@@ -266,6 +260,7 @@ module OpenNebula
                 :deleted => 'd',
                 :unknown => '-'
             }
+
         end
 
         # Creates a VirtualMachine description with just its identifier
@@ -275,25 +270,25 @@ module OpenNebula
         # Example:
         #   vm = VirtualMachine.new(VirtualMachine.build_xml(3),rpc_client)
         #
-        def VirtualMachine.build_xml(pe_id=nil)
+        def self.build_xml(pe_id = nil)
             if pe_id
                 vm_xml = "<VM><ID>#{pe_id}</ID></VM>"
             else
-                vm_xml = "<VM></VM>"
+                vm_xml = '<VM></VM>'
             end
 
             XMLElement.build_xml(vm_xml, 'VM')
         end
 
-        def VirtualMachine.get_history_action(action)
-            return HISTORY_ACTION[action.to_i]
+        def self.get_history_action(action)
+            HISTORY_ACTION[action.to_i]
         end
 
         # Class constructor
         def initialize(xml, client)
             LockableExt.make_lockable(self, VM_METHODS)
 
-            super(xml,client)
+            super(xml, client)
         end
 
         #######################################################################
@@ -305,7 +300,7 @@ module OpenNebula
             super(VM_METHODS[:info], 'VM', decrypt)
         end
 
-        alias_method :info!, :info
+        alias info! info
 
         # Allocates a new VirtualMachine in OpenNebula
         #
@@ -316,7 +311,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(description, hold=false)
+        def allocate(description, hold = false)
             super(VM_METHODS[:allocate], description, hold)
         end
 
@@ -328,7 +323,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template=nil, append=false)
+        def update(new_template = nil, append = false)
             super(VM_METHODS[:update], new_template, append ? 1 : 0)
         end
 
@@ -337,7 +332,7 @@ module OpenNebula
         # @param indent [true,false] indents the resulting string, defaults to true
         #
         # @return [String] The USER_TEMPLATE
-        def user_template_str(indent=true)
+        def user_template_str(indent = true)
             template_like_str('USER_TEMPLATE', indent)
         end
 
@@ -353,7 +348,7 @@ module OpenNebula
         end
 
         def replace(opts = {})
-            super(opts, "USER_TEMPLATE")
+            super(opts, 'USER_TEMPLATE')
         end
 
         # Initiates the instance of the VM on the target host.
@@ -368,40 +363,40 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def deploy(host_id, enforce=false, ds_id=-1, extra_template="")
+        def deploy(host_id, enforce = false, ds_id = -1, extra_template = '')
             enforce ||= false
             ds_id ||= -1
-            extra_template ||= ""
+            extra_template ||= ''
 
-            self.info
+            info
 
-            return call(VM_METHODS[:deploy],
-                        @pe_id,
-                        host_id.to_i,
-                        enforce,
-                        ds_id.to_i,
-                        extra_template)
+            call(VM_METHODS[:deploy],
+                 @pe_id,
+                 host_id.to_i,
+                 enforce,
+                 ds_id.to_i,
+                 extra_template)
         end
 
         # Shutdowns an already deployed VM
-        def terminate(hard=false)
+        def terminate(hard = false)
             action(hard ? 'terminate-hard' : 'terminate')
         end
 
-        alias_method :shutdown, :terminate
+        alias shutdown terminate
 
         # Shuts down an already deployed VM, saving its state in the system DS
-        def undeploy(hard=false)
+        def undeploy(hard = false)
             action(hard ? 'undeploy-hard' : 'undeploy')
         end
 
         # Powers off a running VM
-        def poweroff(hard=false)
+        def poweroff(hard = false)
             action(hard ? 'poweroff-hard' : 'poweroff')
         end
 
         # Reboots an already deployed VM
-        def reboot(hard=false)
+        def reboot(hard = false)
             action(hard ? 'reboot-hard' : 'reboot')
         end
 
@@ -436,10 +431,10 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def disk_attach(disk_template)
-            return call(VM_METHODS[:attach], @pe_id, disk_template)
+            call(VM_METHODS[:attach], @pe_id, disk_template)
         end
 
-        alias_method :attachdisk, :disk_attach
+        alias attachdisk disk_attach
 
         # Detaches a disk from a running VM
         #
@@ -447,10 +442,10 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def disk_detach(disk_id)
-            return call(VM_METHODS[:detach], @pe_id, disk_id)
+            call(VM_METHODS[:detach], @pe_id, disk_id)
         end
 
-        alias_method :detachdisk, :disk_detach
+        alias detachdisk disk_detach
 
         # Attaches a NIC to a running VM
         #
@@ -458,7 +453,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def nic_attach(nic_template)
-            return call(VM_METHODS[:attachnic], @pe_id, nic_template)
+            call(VM_METHODS[:attachnic], @pe_id, nic_template)
         end
 
         # Detaches a NIC from a running VM
@@ -467,7 +462,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def nic_detach(nic_id)
-            return call(VM_METHODS[:detachnic], @pe_id, nic_id)
+            call(VM_METHODS[:detachnic], @pe_id, nic_id)
         end
 
         # Updates a NIC for a running VM
@@ -479,7 +474,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def nic_update(nic_id, nic_template, append = false)
-            return call(VM_METHODS[:updatenic], @pe_id, nic_id, nic_template, append ? 1 : 0)
+            call(VM_METHODS[:updatenic], @pe_id, nic_id, nic_template, append ? 1 : 0)
         end
 
         # Attaches a Security Groupt to a running VM
@@ -489,7 +484,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def sg_attach(nic_id, sg_id)
-            return call(VM_METHODS[:attachsg], @pe_id, nic_id, sg_id)
+            call(VM_METHODS[:attachsg], @pe_id, nic_id, sg_id)
         end
 
         # Detaches a Security Group from a running VM
@@ -498,7 +493,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def sg_detach(nic_id, sg_id)
-            return call(VM_METHODS[:detachsg], @pe_id, nic_id, sg_id)
+            call(VM_METHODS[:detachsg], @pe_id, nic_id, sg_id)
         end
 
         # Sets the re-scheduling flag for the VM
@@ -530,13 +525,13 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def migrate(host_id, live=false, enforce=false, ds_id=-1, mtype=0)
+        def migrate(host_id, live = false, enforce = false, ds_id = -1, mtype = 0)
             call(VM_METHODS[:migrate], @pe_id, host_id.to_i, live==true,
-                enforce, ds_id.to_i, mtype)
+                 enforce, ds_id.to_i, mtype)
         end
 
         # @deprecated use {#migrate} instead
-        def live_migrate(host_id, enforce=false)
+        def live_migrate(host_id, enforce = false)
             migrate(host_id, true, enforce)
         end
 
@@ -552,16 +547,15 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def disk_saveas(disk_id, image_name, image_type="", snap_id=-1)
-            return Error.new('ID not defined') if !@pe_id
+        def disk_saveas(disk_id, image_name, image_type = '', snap_id = -1)
+            return Error.new('ID not defined') unless @pe_id
 
-            rc = @client.call(VM_METHODS[:disksaveas],
-                              @pe_id,
-                              disk_id,
-                              image_name,
-                              image_type,
-                              snap_id)
-            return rc
+            @client.call(VM_METHODS[:disksaveas],
+                         @pe_id,
+                         disk_id,
+                         image_name,
+                         image_type,
+                         snap_id)
         end
 
         # Resize the VM
@@ -576,7 +570,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def resize(capacity_template, enforce)
-            return call(VM_METHODS[:resize], @pe_id, capacity_template, enforce)
+            call(VM_METHODS[:resize], @pe_id, capacity_template, enforce)
         end
 
         # Changes the owner/group
@@ -602,7 +596,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
-                other_m, other_a)
+                  other_m, other_a)
             super(VM_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
@@ -625,16 +619,16 @@ module OpenNebula
         #   }
         #
         def monitoring(xpath_expressions)
-            return super(VM_METHODS[:monitoring], xpath_expressions)
+            super(VM_METHODS[:monitoring], xpath_expressions)
         end
 
         # Retrieves this VM's monitoring data from OpenNebula, in XML
         #
         # @return [String] VM monitoring data, in XML
-        def monitoring_xml()
-            return Error.new('ID not defined') if !@pe_id
+        def monitoring_xml
+            return Error.new('ID not defined') unless @pe_id
 
-            return @client.call(VM_METHODS[:monitoring], @pe_id)
+            @client.call(VM_METHODS[:monitoring], @pe_id)
         end
 
         # Renames this VM
@@ -644,7 +638,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(VM_METHODS[:rename], @pe_id, name)
+            call(VM_METHODS[:rename], @pe_id, name)
         end
 
         # Creates a new VM snapshot
@@ -653,11 +647,11 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] The new snaphost ID in case
         #   of success, Error otherwise
-        def snapshot_create(name="")
-            return Error.new('ID not defined') if !@pe_id
+        def snapshot_create(name = '')
+            return Error.new('ID not defined') unless @pe_id
 
-            name ||= ""
-            return @client.call(VM_METHODS[:snapshotcreate], @pe_id, name)
+            name ||= ''
+            @client.call(VM_METHODS[:snapshotcreate], @pe_id, name)
         end
 
         # Reverts to a snapshot
@@ -667,7 +661,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def snapshot_revert(snap_id)
-            return call(VM_METHODS[:snapshotrevert], @pe_id, snap_id)
+            call(VM_METHODS[:snapshotrevert], @pe_id, snap_id)
         end
 
         # Deletes a  VM snapshot
@@ -677,7 +671,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def snapshot_delete(snap_id)
-            return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
+            call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
         # Takes a new snapshot of a disk
@@ -687,7 +681,7 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] The new snapshot ID or error
         def disk_snapshot_create(disk_id, name)
-          return call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, name)
+            call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, name)
         end
 
         # Reverts disk state to a previously taken snapshot
@@ -698,7 +692,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def disk_snapshot_revert(disk_id, snap_id)
-          return call(VM_METHODS[:disksnapshotrevert], @pe_id, disk_id, snap_id)
+            call(VM_METHODS[:disksnapshotrevert], @pe_id, disk_id, snap_id)
         end
 
         # Deletes a disk snapshot
@@ -709,7 +703,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def disk_snapshot_delete(disk_id, snap_id)
-          return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
+            call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
         end
 
         # Renames a disk snapshot
@@ -721,7 +715,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def disk_snapshot_rename(disk_id, snap_id, new_name)
-            return call(VM_METHODS[:disksnapshotrename], @pe_id, disk_id, snap_id, new_name)
+            call(VM_METHODS[:disksnapshotrename], @pe_id, disk_id, snap_id, new_name)
         end
 
         # Changes the size of a disk
@@ -731,7 +725,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success or error
         def disk_resize(disk_id, size)
-            return call(VM_METHODS[:diskresize], @pe_id, disk_id, size.to_s)
+            call(VM_METHODS[:diskresize], @pe_id, disk_id, size.to_s)
         end
 
         # Recovers an ACTIVE VM
@@ -742,11 +736,11 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def recover(result)
-            return call(VM_METHODS[:recover], @pe_id, result)
+            call(VM_METHODS[:recover], @pe_id, result)
         end
 
         # Deletes a VM from the pool
-        def delete(recreate=false)
+        def delete(recreate = false)
             if recreate
                 recover(4)
             else
@@ -767,7 +761,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def updateconf(new_conf, append = false)
-            return call(VM_METHODS[:updateconf], @pe_id, new_conf, append ? 1 : 0)
+            call(VM_METHODS[:updateconf], @pe_id, new_conf, append ? 1 : 0)
         end
 
         # Add sched actions
@@ -776,7 +770,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def sched_action_add(sched_template)
-            return call(VM_METHODS[:schedadd], @pe_id, sched_template)
+            call(VM_METHODS[:schedadd], @pe_id, sched_template)
         end
 
         # Delete sched action
@@ -785,7 +779,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def sched_action_delete(sched_id)
-            return call(VM_METHODS[:scheddelete], @pe_id, sched_id.to_i)
+            call(VM_METHODS[:scheddelete], @pe_id, sched_id.to_i)
         end
 
         # Update sched_action
@@ -795,8 +789,8 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def sched_action_update(sched_id, sched_template)
-            return call(VM_METHODS[:schedupdate], @pe_id, sched_id.to_i,
-                sched_template)
+            call(VM_METHODS[:schedupdate], @pe_id, sched_id.to_i,
+                 sched_template)
         end
 
         # Generate a backup for the VM (backup config must be set)
@@ -805,15 +799,15 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] ID of the resulting BACKUP image
         # in case of success, Error otherwise.
         def backup(ds_id = -1, reset = false)
-            return @client.call(VM_METHODS[:backup], @pe_id, ds_id, reset)
+            @client.call(VM_METHODS[:backup], @pe_id, ds_id, reset)
         end
 
         # Cancel ongoing backup operation for the VM
         #
         # @return [nil, OpenNebula::Error] nil in case of sucess, Error
         #  otherwise.
-        def backup_cancel()
-            return @client.call(VM_METHODS[:backupcancel], @pe_id)
+        def backup_cancel
+            @client.call(VM_METHODS[:backupcancel], @pe_id)
         end
 
         ########################################################################
@@ -844,7 +838,7 @@ module OpenNebula
         def status
             short_state_str=SHORT_VM_STATES[state_str]
 
-            if short_state_str=="actv"
+            if short_state_str=='actv'
                 short_state_str=SHORT_LCM_STATES[lcm_state_str]
             end
 
@@ -866,7 +860,7 @@ module OpenNebula
             retrieve_xmlelements('//HISTORY')[seq].to_xml
         end
 
-        def wait_state(state, timeout=120)
+        def wait_state(state, timeout = 120)
             require 'opennebula/wait_ext'
 
             extend OpenNebula::WaitExt
@@ -878,7 +872,7 @@ module OpenNebula
             true
         end
 
-        def wait_state2(state, lcm_state, timeout=120)
+        def wait_state2(state, lcm_state, timeout = 120)
             extend OpenNebula::WaitExt
 
             rc = wait2(state, lcm_state, timeout)
@@ -888,26 +882,27 @@ module OpenNebula
             true
         end
 
-    private
+        private
+
         def action(name)
-            return Error.new('ID not defined') if !@pe_id
+            return Error.new('ID not defined') unless @pe_id
 
             rc = @client.call(VM_METHODS[:action], name, @pe_id)
-            rc = nil if !OpenNebula.is_error?(rc)
+            rc = nil unless OpenNebula.is_error?(rc)
 
-            return rc
+            rc
         end
 
-        def wait_lcm_state(state, timeout=10)
-            vm_state = ""
-            lcm_state = ""
+        def wait_lcm_state(state, timeout = 10)
+            vm_state = ''
+            lcm_state = ''
 
             timeout.times do
-                rc = info()
+                rc = info
                 return rc if OpenNebula.is_error?(rc)
 
-                vm_state = state_str()
-                lcm_state = lcm_state_str()
+                vm_state = state_str
+                lcm_state = lcm_state_str
 
                 if lcm_state == state
                     return true
@@ -916,8 +911,10 @@ module OpenNebula
                 sleep 1
             end
 
-            return Error.new("Timeout expired for state #{state}. "<<
+            Error.new("Timeout expired for state #{state}. "<<
                 "VM is in state #{vm_state}, #{lcm_state}")
         end
+
     end
+
 end
