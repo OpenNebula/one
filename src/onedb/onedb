@@ -559,13 +559,14 @@ CommandParser::CmdParser.new(ARGV) do
     # Purge history
     ###########################################################################
     purge_history_desc = <<-EOT.unindent
-        Deletes all but the last history records from non DONE VMs
+        Deletes all but the last history records from non DONE VMs. A single VM
+        history deletion can be specified with the --id option.
 
         #{LIVE_ACTION_HELP}
+
     EOT
 
-    command :'purge-history', purge_history_desc,
-            :options => [START_TIME, END_TIME] do
+    command :'purge-history', purge_history_desc, :options => [ID, START_TIME, END_TIME] do
         begin
             action = OneDBLive.new
             rc     = action.purge_history(options)
@@ -576,9 +577,7 @@ CommandParser::CmdParser.new(ARGV) do
             end
         rescue StandardError => e
             puts e.message
-            # rubocop:disable Lint/Debugger
             pp e.backtrace
-            # rubocop:enable Lint/Debugger
             [-1, e.message]
         end
 
