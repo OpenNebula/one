@@ -215,7 +215,7 @@ class OneDBLive
         # Renumerate sequence numbers
         old_seq.each_with_index do |o_seq, index|
             row = history.find {|r| o_seq.to_s == r['seq'] }
-            return unless row
+            next unless row
 
             body = Base64.decode64(row['body64'])
 
