@@ -92,12 +92,20 @@ class HostSyncManager
         end
 
         cmd = SSHCommand.run(mkdir_cmd, hostname, logger)
-        return cmd.code if cmd.code != 0
+        return cmd.code if error?(cmd)
 
         cmd = LocalCommand.run(sync_cmd, logger)
-        return cmd.code if cmd.code != 0
+        return cmd.code if error?(cmd)
 
         0
+    end
+
+    def error?(cmd)
+        return false if cmd.code == 0
+
+        STDERR.puts cmd.stderr
+        STDOUT.puts cmd.stdout
+        true
     end
 
 end
