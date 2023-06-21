@@ -215,7 +215,7 @@ int VMActions::set_auth_ops(const string& ops_str,
             ops_set.set(SCHED_UPDATE_ACTION);
             ops_set.set(SCHED_DELETE_ACTION);
         }
-        else if ( the_op == "security-group" )
+        else if ( the_op == "sg-attach" )
         {
             ops_set.set(SG_ATTACH_ACTION);
             ops_set.set(SG_DETACH_ACTION);
