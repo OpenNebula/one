@@ -459,7 +459,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             rc = vm.sched_action_add(tmp_str)
 
             if OpenNebula.is_error?(rc)
-                return rc
+                STDERR.puts rc.message
+                return -1
             end
         end
     end
