@@ -1512,10 +1512,7 @@ CommandParser::CmdParser.new(ARGV) do
                                              action.to_s,
                                              time[:warning][:time] + acc_w)
 
-                if OpenNebula.is_error?(rc)
-                    STDERR.puts rc.message
-                    exit(-1)
-                end
+                exit(-1) if rc < 0
 
                 acc_t += time[:time].to_i
                 acc_w += time[:warning][:time].to_i
