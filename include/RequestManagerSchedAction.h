@@ -30,6 +30,7 @@ public:
     {
         auth_object = PoolObjectSQL::VM;
         auth_op = AuthRequest::MANAGE;
+        vm_action = VMActions::SCHED_ADD_ACTION;
 
         Nebula& nd = Nebula::instance();
         pool = nd.get_vmpool();
@@ -50,6 +51,7 @@ public:
     {
         auth_object = PoolObjectSQL::VM;
         auth_op = AuthRequest::MANAGE;
+        vm_action = VMActions::SCHED_DELETE_ACTION;
 
         Nebula& nd = Nebula::instance();
         pool = nd.get_vmpool();
@@ -70,6 +72,7 @@ public:
     {
         auth_object = PoolObjectSQL::VM;
         auth_op = AuthRequest::MANAGE;
+        vm_action = VMActions::SCHED_DELETE_ACTION;
 
         Nebula& nd = Nebula::instance();
         pool = nd.get_vmpool();

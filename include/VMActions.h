@@ -79,7 +79,13 @@ public:
         POFF_MIGRATE_ACTION      = 48,      // "one.vm.migrate"
         POFF_HARD_MIGRATE_ACTION = 49,      // "one.vm.migrate"
         BACKUP_ACTION            = 50,      // "one.vm.backup"
-        NIC_UPDATE_ACTION        = 51       // "one.vm.updatenic"
+        NIC_UPDATE_ACTION        = 51,      // "one.vm.updatenic"
+        BACKUP_CANCEL_ACTION     = 52,      // "one.vm.backupcancel"
+        SCHED_ADD_ACTION         = 53,      // "one.vm.schedadd"
+        SCHED_UPDATE_ACTION      = 54,      // "one.vm.schedupdate"
+        SCHED_DELETE_ACTION      = 55,      // "one.vm.scheddelete"
+        SG_ATTACH_ACTION         = 56,      // "one.vm.attachsg"
+        SG_DETACH_ACTION         = 57,      // "one.vm.detachsg"
     };
 
     static std::string action_to_str(Action action);

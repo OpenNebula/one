@@ -616,6 +616,7 @@ public:
                            "Attaches a SG to the virtual machine NIC",
                            "A:siii")
     {
+        vm_action  = VMActions::SG_ATTACH_ACTION;
     }
 
 protected:
@@ -634,6 +635,7 @@ public:
                            "Detaches a SG form virtual machine NIC",
                            "A:siii")
     {
+        vm_action  = VMActions::SG_DETACH_ACTION;
     }
 
 protected:
@@ -672,7 +674,7 @@ public:
                            "Cancel an active backup operation",
                            "A:si")
     {
-        vm_action = VMActions::BACKUP_ACTION;
+        vm_action = VMActions::BACKUP_CANCEL_ACTION;
         auth_op   = AuthRequest::ADMIN;
     }
 
