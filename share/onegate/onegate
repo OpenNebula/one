@@ -560,32 +560,26 @@ module OneGate
 
     def self.help_str
         return <<-EOT
-Available commands
-    $ onegate vm show [VMID] [--json]
+## COMMANDS
 
-    $ onegate vm update [VMID] --data KEY=VALUE\\nKEY2=VALUE2
-
-    $ onegate vm update [VMID] --erase KEY
-
-    $ onegate vm ACTION VMID
-        $ onegate resume [VMID]
-        $ onegate stop [VMID]
-        $ onegate suspend [VMID]
-        $ onegate terminate [VMID] [--hard]
-        $ onegate reboot [VMID] [--hard]
-        $ onegate poweroff [VMID] [--hard]
-        $ onegate resched [VMID]
-        $ onegate unresched [VMID]
-        $ onegate hold [VMID]
-        $ onegate release [VMID]
-
-    $ onegate service show [--json][--extended]
-
-    $ onegate service scale --role ROLE --cardinality CARDINALITY
-
-    $ onegate vrouter show [--json]
-
-    $ onegate vnet show VNETID [--json][--extended]
+    * onegate vm show [VMID] [--json]
+    * onegate vm update [VMID] --data KEY=VALUE\\nKEY2=VALUE2
+    * onegate vm update [VMID] --erase KEY
+    * onegate vm ACTION VMID
+        * onegate resume [VMID]
+        * onegate stop [VMID]
+        * onegate suspend [VMID]
+        * onegate terminate [VMID] [--hard]
+        * onegate reboot [VMID] [--hard]
+        * onegate poweroff [VMID] [--hard]
+        * onegate resched [VMID]
+        * onegate unresched [VMID]
+        * onegate hold [VMID]
+        * onegate release [VMID]
+    * onegate service show [--json][--extended]
+    * onegate service scale --role ROLE --cardinality CARDINALITY
+    * onegate vrouter show [--json]
+    * onegate vnet show VNETID [--json][--extended]
 EOT
     end
 end
