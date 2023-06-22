@@ -597,6 +597,7 @@ public:
                            "Attaches a SG to the virtual machine NIC",
                            "A:siii")
     {
+        vm_action  = VMActions::SG_ATTACH_ACTION;
     }
 
 protected:
@@ -615,6 +616,7 @@ public:
                            "Detaches a SG form virtual machine NIC",
                            "A:siii")
     {
+        vm_action  = VMActions::SG_DETACH_ACTION;
     }
 
 protected:
