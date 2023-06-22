@@ -30,12 +30,20 @@ const DEFAULT_DATA_CY = 'datastores'
  * @returns {ReactElement} Datastores table
  */
 const DatastoresTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    filter = (dataToFilter) => dataToFilter,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useGetDatastoresQuery()
+
+  // Filter data with input funcion called "filter"
+  const filteredData = filter(data)
 
   const columns = useMemo(
     () =>
@@ -49,7 +57,7 @@ const DatastoresTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={useMemo(() => filteredData, [filteredData])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

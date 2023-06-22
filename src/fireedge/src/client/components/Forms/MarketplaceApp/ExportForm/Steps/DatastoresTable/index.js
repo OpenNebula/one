@@ -20,7 +20,7 @@ import { useFormContext } from 'react-hook-form'
 import { DatastoresTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable/schema'
 import { Step, decodeBase64 } from 'client/utils'
-import { T } from 'client/constants'
+import { T, DATASTORE_TYPES } from 'client/constants'
 
 export const STEP_ID = 'datastore'
 
@@ -52,6 +52,13 @@ const Content = ({ data, app }) => {
         filters: [{ id: 'TYPE', value: isKernelType ? 'FILE' : 'IMAGE' }],
       }}
       onSelectedRowsChange={handleSelectedRows}
+      // Filter data by type IMAGE_DS B#6213 when export an app
+      filter={(dataToFilter) =>
+        dataToFilter.filter(
+          (datastore) =>
+            datastore?.TEMPLATE?.TYPE === DATASTORE_TYPES.IMAGE.value
+        )
+      }
     />
   )
 }
