@@ -89,6 +89,8 @@ int VMActions::set_auth_ops(const string& ops_str,
         {
             ops_set.set(MIGRATE_ACTION);
             ops_set.set(LIVE_MIGRATE_ACTION);
+            ops_set.set(POFF_MIGRATE_ACTION);
+            ops_set.set(POFF_HARD_MIGRATE_ACTION);
         }
         else if ( the_op == "delete" )
         {
@@ -156,6 +158,9 @@ int VMActions::set_auth_ops(const string& ops_str,
         {
             ops_set.set(NIC_ATTACH_ACTION);
             ops_set.set(NIC_DETACH_ACTION);
+            ops_set.set(ALIAS_ATTACH_ACTION);
+            ops_set.set(ALIAS_DETACH_ACTION);
+            ops_set.set(NIC_UPDATE_ACTION);
         }
         else if ( the_op == "disk-snapshot" )
         {
@@ -202,6 +207,18 @@ int VMActions::set_auth_ops(const string& ops_str,
         else if ( the_op == "backup" )
         {
             ops_set.set(BACKUP_ACTION);
+            ops_set.set(BACKUP_CANCEL_ACTION);
+        }
+        else if ( the_op == "sched-action" )
+        {
+            ops_set.set(SCHED_ADD_ACTION);
+            ops_set.set(SCHED_UPDATE_ACTION);
+            ops_set.set(SCHED_DELETE_ACTION);
+        }
+        else if ( the_op == "sg-attach" )
+        {
+            ops_set.set(SG_ATTACH_ACTION);
+            ops_set.set(SG_DETACH_ACTION);
         }
         else
         {
@@ -363,11 +380,29 @@ string VMActions::action_to_str(Action action)
         case BACKUP_ACTION:
             st = "backup";
         break;
-        case NONE_ACTION:
-            st = "none";
+        case BACKUP_CANCEL_ACTION:
+            st = "backup-cancel";
         break;
         case NIC_UPDATE_ACTION:
             st = "nic-update";
+        break;
+        case SCHED_ADD_ACTION:
+            st = "sched-add";
+        break;
+        case SCHED_UPDATE_ACTION:
+            st = "sched-update";
+        break;
+        case SCHED_DELETE_ACTION:
+            st = "sched-delete";
+        break;
+        case SG_ATTACH_ACTION:
+            st = "sg-attach";
+        break;
+        case SG_DETACH_ACTION:
+            st = "sg-detach";
+        break;
+        case NONE_ACTION:
+            st = "none";
         break;
     }
 
@@ -476,6 +511,14 @@ int VMActions::action_from_str(const string& st, Action& action)
     {
         action = ALIAS_DETACH_ACTION;
     }
+    else if (st == "poweroff-migrate")
+    {
+        action = POFF_MIGRATE_ACTION;
+    }
+    else if (st == "poweroff-hard-migrate")
+    {
+        action = POFF_HARD_MIGRATE_ACTION;
+    }
     else if (st == "disk-snapshot-create")
     {
         action = DISK_SNAPSHOT_CREATE_ACTION;
@@ -559,6 +602,30 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "nic-update")
     {
         action = NIC_UPDATE_ACTION;
+    }
+    else if ( st == "backup-cancel")
+    {
+        action = BACKUP_CANCEL_ACTION;
+    }
+    else if ( st == "sched-add")
+    {
+        action = SCHED_ADD_ACTION;
+    }
+    else if ( st == "sched-update")
+    {
+        action = SCHED_UPDATE_ACTION;
+    }
+    else if ( st == "sched-delete")
+    {
+        action = SCHED_DELETE_ACTION;
+    }
+    else if ( st == "sg-attach")
+    {
+        action = SG_ATTACH_ACTION;
+    }
+    else if ( st == "sg-detach")
+    {
+        action = SG_DETACH_ACTION;
     }
     else
     {
