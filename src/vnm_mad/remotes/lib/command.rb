@@ -45,7 +45,7 @@ module VNMMAD
 
             iptables_version = Gem::Version.new(stdout.match(regex)[:version])
 
-            if Gem::Version.new('1.6.1') > iptables_version
+            if Gem::Version.new('1.6.1') > iptables_version || iptables_version > Gem::Version.new('1.8.7')
                 COMMANDS[:iptables]  = 'sudo -n iptables -w 3'
                 COMMANDS[:ip6tables] = 'sudo -n ip6tables -w 3'
             end
