@@ -22,40 +22,42 @@ set -e
 # 'command' 'description'
 # we want to generate the manual pages for
 COMMANDS=(
-    'oneacct'           'OpenNebula Accounting Tool'
-    'oneacl'            'manages OpenNebula ACLs'
-    'onecfg'            'OpenNebula configuration management tool'
-    'onedb'             'OpenNebula database migration tool'
-    'onegroup'          'manages OpenNebula groups'
-    'onehost'           'manages OpenNebula hosts'
-    'onehook'           'manages OpenNebula hooks'
-    'oneimage'          'manages OpenNebula images'
-    'onetemplate'       'manages OpenNebula templates'
-    'oneuser'           'manages OpenNebula users'
-    'onevm'             'manages OpenNebula virtual machines'
-    'onevnet'           'manages OpenNebula networks'
-    'onezone'           'manages OpenNebula zones'
-    'onevdc'            'manages OpenNebula Virtual DataCenters'
-    'onecluster'        'manages OpenNebula clusters'
-    'onedatastore'      'manages OpenNebula datastores'
-    'onevcenter'        'vCenter import tool'
-    'oneshowback'       'OpenNebula Showback Tool'
-    'onesecgroup'       'manages OpenNebula security groups'
-    'onevrouter'        'manages OpenNebula Virtual Routers'
-    'onemarket'         'manages internal and external Marketplaces'
-    'onemarketapp'      'manages appliances from Marketplaces'
-    'onevmgroup'        'manages VM groups'
-    'onevntemplate'     'manages Virtual Network Templates'
+    'bin/oneacct'           'OpenNebula Accounting Tool'
+    'bin/oneacl'            'manages OpenNebula ACLs'
+    'bin/onecfg'            'OpenNebula configuration management tool'
+    'bin/onedb'             'OpenNebula database migration tool'
+    'bin/onegroup'          'manages OpenNebula groups'
+    'bin/onehost'           'manages OpenNebula hosts'
+    'bin/onehook'           'manages OpenNebula hooks'
+    'bin/oneimage'          'manages OpenNebula images'
+    'bin/onetemplate'       'manages OpenNebula templates'
+    'bin/oneuser'           'manages OpenNebula users'
+    'bin/onevm'             'manages OpenNebula virtual machines'
+    'bin/onevnet'           'manages OpenNebula networks'
+    'bin/onezone'           'manages OpenNebula zones'
+    'bin/onevdc'            'manages OpenNebula Virtual DataCenters'
+    'bin/onecluster'        'manages OpenNebula clusters'
+    'bin/onedatastore'      'manages OpenNebula datastores'
+    'bin/onevcenter'        'vCenter import tool'
+    'bin/oneshowback'       'OpenNebula Showback Tool'
+    'bin/onesecgroup'       'manages OpenNebula security groups'
+    'bin/onevrouter'        'manages OpenNebula Virtual Routers'
+    'bin/onemarket'         'manages internal and external Marketplaces'
+    'bin/onemarketapp'      'manages appliances from Marketplaces'
+    'bin/onevmgroup'        'manages VM groups'
+    'bin/onevntemplate'     'manages Virtual Network Templates'
 
-    'oneprovision'      'manages OpenNebula provisions'
-    'oneprovider'       'manages OpenNebula providers'
+    'bin/oneprovision'      'manages OpenNebula provisions'
+    'bin/oneprovider'       'manages OpenNebula providers'
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'
     'onevmdump'         'Dumps VM content'
 
-    'onelog'            'Access to OpenNebula services log files'
-    'oneirb'            'Opens an irb session'
+    'lib/onegate/onegate'   'Manage communication between VMs and OpenNebula'
+
+    'bin/onelog'            'Access to OpenNebula services log files'
+    'bin/oneirb'            'Opens an irb session'
 )
 
 DIR_BUILD=$(mktemp -d)
@@ -76,19 +78,20 @@ export ONE_LOCATION="${DIR_BUILD}"
 
 INDEX=0
 while [ -n "${COMMANDS[${INDEX}]}" ]; do
-    MAN_CMD="${COMMANDS[${INDEX}]}"
+    MAN_CMD_PATH="${COMMANDS[${INDEX}]}"
+    MAN_CMD=$(basename "${COMMANDS[${INDEX}]}")
     MAN_DESC="${MAN_CMD}(1) -- ${COMMANDS[$((INDEX + 1))]}"
 
     echo "${MAN_DESC}"
 
     # base document
     echo "# ${MAN_DESC}" >"${MAN_CMD}.1.ronn"
-    echo >>"${MAN_CMD}.1.ronn"
-    "${DIR_BUILD}/bin/${MAN_CMD}" --help >>"${MAN_CMD}.1.ronn" || :
+    echo >> "${MAN_CMD}.1.ronn"
+    "${DIR_BUILD}/${MAN_CMD_PATH}" --help &>> "${MAN_CMD}.1.ronn" || :
 
     # manual pages/html
     ronn --style toc --manual="${MAN_DESC}" "${MAN_CMD}.1.ronn"
-    gzip -c "${MAN_CMD}.1" >>"${MAN_CMD}.1.gz"
+    gzip -c "${MAN_CMD}.1" >> "${MAN_CMD}.1.gz"
 
     unlink "${MAN_CMD}.1.ronn"
 
