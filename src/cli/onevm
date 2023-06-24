@@ -862,6 +862,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     nic_attach_desc = <<-EOT.unindent
         Attaches a NIC to a VM. When using --file add only one NIC instance.
+        The NIC ID used is the ID found in the available Virtual Networks list.
 
         To hotplug a PCI device and use it as a NIC interface in the VM select
         it with --pci (short_address) or --pci_device (device ID),
@@ -872,7 +873,7 @@ CommandParser::CmdParser.new(ARGV) do
         States: RUNNING, POWEROFF
     EOT
 
-    command :"nic-attach", nic_attach_desc, :vmid,
+    command :"nic-attach", nic_attach_desc, :vmid, :nicid
             :options => [OneVMHelper::FILE,
                          OneVMHelper::NETWORK,
                          OneVMHelper::IP,
@@ -932,6 +933,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     nic_detach_desc = <<-EOT.unindent
         Detaches a NIC from a running VM
+        The NIC ID used is the ID found in the running VM's NIC list
 
         States: RUNNING, POWEROFF
     EOT
