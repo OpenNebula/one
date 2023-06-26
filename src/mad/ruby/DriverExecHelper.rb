@@ -189,7 +189,7 @@ module DriverExecHelper
                 cfg=file.read
             end
 
-            cfg.split(/\n/).each do |line|
+            cfg.split("\n").each do |line|
                 m=line.match(/^([^=]+)=(.*)$/)
 
                 next unless m

@@ -91,7 +91,7 @@ module NSXDriver
                            .get(url)
                            .xpath(NSXConstants::NSXV_LS_XPATH)
             virtualwires.each do |virtualwire|
-                lsname_arr = name.split(/-sid-/)
+                lsname_arr = name.split('-sid-')
                 lsname = lsname_arr[-1].split('-', 2)[-1]
                 lsid = lsname_arr[0].split(/vxw-dvs-\w.-/)[-1]
                 if virtualwire.xpath('name').text == lsname &&

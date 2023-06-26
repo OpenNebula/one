@@ -55,8 +55,8 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'yaml'
 require 'rexml/document'
 
-require_relative './vcenter_cluster'
-require_relative './monitord_client'
+require_relative 'vcenter_cluster'
+require_relative 'monitord_client'
 
 #---------------------------------------------------------------------------
 #
