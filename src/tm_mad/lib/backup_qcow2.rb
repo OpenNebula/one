@@ -22,7 +22,7 @@ require 'rexml/document'
 require 'base64'
 require 'getoptlong'
 
-require_relative './kvm'
+require_relative 'kvm'
 
 #-------------------------------------------------------------------------------
 # CONFIGURATION CONSTANTS
