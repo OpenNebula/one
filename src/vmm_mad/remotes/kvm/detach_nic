@@ -52,7 +52,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require_relative './opennebula_vm'
+require_relative 'opennebula_vm'
 require_relative '../lib/command'
 
 include VirtualMachineManagerKVM

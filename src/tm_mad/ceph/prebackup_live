@@ -126,7 +126,6 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
 
     clup_cmd << "#{cmd} snap rm #{rbd_src}@backup\n"
     clup_cmd << "rm -f #{draw}\n"
-
 rescue StandardError => e
     STDERR.puts "Missing configuration attributes in DISK: #{e.message}"
     exit(1)

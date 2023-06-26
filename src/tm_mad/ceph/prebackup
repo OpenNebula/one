@@ -119,7 +119,6 @@ vm.elements.each 'TEMPLATE/DISK' do |d|
     conv_cmd << ds.cmd_confinement(qemu_cmd, rdir)
 
     clup_cmd << "rm -f #{draw}\n"
-
 rescue StandardError => e
     STDERR.puts "Missing configuration attributes in DISK: #{e.message}"
     exit(1)
