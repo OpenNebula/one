@@ -267,8 +267,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         vm_nics.each do |nic|
-            %w[IP EXTERNAL_IP IP6_GLOBAL IP6_ULA IP6
-               VROUTER_IP VROUTER_IP6_GLOBAL VROUTER_IP6_ULA].each do |attr|
+            ['IP', 'EXTERNAL_IP', 'IP6_GLOBAL', 'IP6_ULA', 'IP6', 'VROUTER_IP',
+             'VROUTER_IP6_GLOBAL', 'VROUTER_IP6_ULA'].each do |attr|
                 if nic.key?(attr)
                     ips.push(nic[attr])
                 end
@@ -333,7 +333,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(config_file, self) do
             column :ID, 'ONE identifier for Virtual Machine', :size => 6 do |d|
                 d['ID']
             end
@@ -377,7 +377,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                    :left, :size => 10 do |d|
                 if d['HISTORY_RECORDS'] && d['HISTORY_RECORDS']['HISTORY']
                     state_str = VirtualMachine::VM_STATE[d['STATE'].to_i]
-                    if %w[ACTIVE SUSPENDED POWEROFF].include? state_str
+                    if ['ACTIVE', 'SUSPENDED', 'POWEROFF'].include? state_str
                         d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
                     end
                 end
@@ -414,8 +414,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             default :ID, :USER, :GROUP, :NAME, :STAT, :CPU, :MEM, :HOST,
                     :TIME
         end
-
-        table
     end
 
     def schedule_actions(ids, options, action, warning = nil)
@@ -428,8 +426,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                       "#{action} scheduled after #{options[:schedule]}s from start"
                   end
 
-        perform_actions( ids, options, message) do |vm|
-
+        perform_actions(ids, options, message) do |vm|
             str_periodic = ''
 
             if options.key?(:weekly)
@@ -457,7 +454,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 str_periodic << ', END_TYPE = 0'
             end
 
-            tmp_str = "SCHED_ACTION = ["
+            tmp_str = 'SCHED_ACTION = ['
             tmp_str << "ACTION = #{action}, "
             tmp_str << "WARNING = #{warning}," if warning
             tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
@@ -601,7 +598,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 EOF
 
                 ans = ''
-                until %w[n a r q].include?(ans)
+                until ['n', 'a', 'r', 'q'].include?(ans)
                     printf '> '
                     ans = STDIN.gets.strip.downcase
 
@@ -619,7 +616,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                         if result == 'SUCCESS'
                             success = true
-                            puts result.to_s
+                            puts result
                         else
                             puts
                             puts "#{result}. Repeat command.".red
@@ -661,7 +658,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     #       - action
     #           - time
     #           - warning
-    def get_charters
+    def charters
         YAML.load_file(self.class.table_conf)[:charters]
     end
 
@@ -726,9 +723,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             options[:ssh_opts].nil? ? opts = '' : opts = options[:ssh_opts]
 
             if opts.empty?
-                exec(*%W[ssh #{login}@#{ip} -p #{port} #{cmd}])
+                exec('ssh', "#{login}@#{ip}", '-p', port.to_s, cmd.to_s)
             else
-                exec('ssh', *opts.split, *%W[#{login}@#{ip} -p #{port} #{cmd}])
+                exec('ssh', *opts.split, "#{login}@#{ip}", '-p', port.to_s, cmd.to_s)
             end
         end
 
@@ -760,7 +757,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         vm_hash = vm.to_hash
 
-        if %w[ACTIVE SUSPENDED POWEROFF].include? vm.state_str
+        if ['ACTIVE', 'SUSPENDED', 'POWEROFF'].include? vm.state_str
             cluster_id = vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID']
         else
             cluster_id = nil
@@ -795,7 +792,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     OpenNebulaHelper.level_lock_to_str(vm['LOCK/LOCKED']))
         puts format(str, 'RESCHED',
                     OpenNebulaHelper.boolean_to_str(vm['RESCHED']))
-        if %w[ACTIVE SUSPENDED POWEROFF].include? vm.state_str
+        if ['ACTIVE', 'SUSPENDED', 'POWEROFF'].include? vm.state_str
             puts format(str, 'HOST',
                         vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME'])
         end
@@ -824,7 +821,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        order_attrs = %w[CPU MEMORY NETTX NETRX]
+        order_attrs = ['CPU', 'MEMORY', 'NETTX', 'NETRX']
 
         vm_monitoring_sort = []
         order_attrs.each do |key|
@@ -835,7 +832,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         vm_monitoring_sort.sort_by {|a| a[0] }
 
-        filter_attrs = %w[STATE DISK_SIZE SNAPSHOT_SIZE]
+        filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE']
         vm_monitoring.each do |key, val|
             if !filter_attrs.include?(key)
                 vm_monitoring_sort << [key, val]
@@ -857,7 +854,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        %w[OWNER GROUP OTHER].each do |e|
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
             mask = '---'
             mask[0] = 'u' if vm["PERMISSIONS/#{e}_U"] == '1'
             mask[1] = 'm' if vm["PERMISSIONS/#{e}_M"] == '1'
@@ -970,9 +967,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end.show(vm_disks, {})
 
             if !options[:all]
-                while vm.has_elements?('/VM/TEMPLATE/DISK')
-                    vm.delete_element('/VM/TEMPLATE/DISK')
-                end
+                vm.delete_element('/VM/TEMPLATE/DISK') while vm.has_elements?('/VM/TEMPLATE/DISK')
             end
         end
 
@@ -1007,17 +1002,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         # array. Duplicate IPs are not shown.
         extra_ips = []
 
-        if (val = vm['/VM/MONITORING/GUEST_IP'])
-            extra_ips << val if val && !val.empty?
+        if (val = vm['/VM/MONITORING/GUEST_IP']) && (val && !val.empty?)
+            extra_ips << val
         end
 
-        if (val = vm['/VM/MONITORING/GUEST_IP_ADDRESSES'])
-            extra_ips += val.split(',') if val && !val.empty?
+        if (val = vm['/VM/MONITORING/GUEST_IP_ADDRESSES']) && (val && !val.empty?)
+            extra_ips += val.split(',')
         end
 
         extra_ips.uniq!
 
-        %w[NIC NIC_ALIAS].each do |type|
+        ['NIC', 'NIC_ALIAS'].each do |type|
             next unless vm.has_elements?("/VM/TEMPLATE/#{type}") ||
                         vm.has_elements?('/VM/TEMPLATE/PCI[NIC_ID>-1]') ||
                         !extra_ips.empty?
@@ -1053,7 +1048,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm_nics.each do |nic|
                 next if nic.key?('CLI_DONE')
 
-                %w[EXTERNAL_IP IP6_LINK IP6_ULA IP6_GLOBAL IP6].each do |attr|
+                ['EXTERNAL_IP', 'IP6_LINK', 'IP6_ULA', 'IP6_GLOBAL', 'IP6'].each do |attr|
                     next unless nic.key?(attr)
 
                     shown_ips << nic[attr]
@@ -1066,8 +1061,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     array_id += 1
                 end
 
-                %w[VROUTER_IP VROUTER_IP6_LINK
-                   VROUTER_IP6_ULA VROUTER_IP6_GLOBAL].each do |attr|
+                ['VROUTER_IP', 'VROUTER_IP6_LINK', 'VROUTER_IP6_ULA',
+                 'VROUTER_IP6_GLOBAL'].each do |attr|
                     next unless nic.key?(attr)
 
                     shown_ips << nic[attr]
@@ -1149,15 +1144,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             next if options[:all]
 
-            while vm.has_elements?("/VM/TEMPLATE/#{type}")
-                vm.delete_element("/VM/TEMPLATE/#{type}")
-            end
+            vm.delete_element("/VM/TEMPLATE/#{type}") while vm.has_elements?("/VM/TEMPLATE/#{type}")
         end
 
         if vm_hash['VM']['TEMPLATE']['NIC']
             nic = [vm_hash['VM']['TEMPLATE']['NIC']]
             nic = nic.flatten
-            nic = nic.select {|v| !v['EXTERNAL_PORT_RANGE'].nil? }[0]
+            nic = nic.reject {|v| v['EXTERNAL_PORT_RANGE'].nil? }[0]
 
             if nic
                 ip   = vm_hash['VM']['HISTORY_RECORDS']['HISTORY']
@@ -1175,9 +1168,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         if !options[:all]
-            while vm.has_elements?('/VM/TEMPLATE/NIC')
-                vm.delete_element('/VM/TEMPLATE/NIC')
-            end
+            vm.delete_element('/VM/TEMPLATE/NIC') while vm.has_elements?('/VM/TEMPLATE/NIC')
         end
 
         if vm.has_elements?('/VM/TEMPLATE/SECURITY_GROUP_RULE') && !is_hybrid
@@ -1323,15 +1314,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 column :REPEAT, '', :adjust => true do |d|
                     str_rep = ''
                     if !d.nil? && d.key?('REPEAT')
-                        if d['REPEAT'] == '0'
+                        case d['REPEAT']
+                        when '0'
                             str_rep << 'Weekly '
-                        elsif d['REPEAT'] == '1'
+                        when '1'
                             str_rep << 'Monthly '
-                        elsif d['REPEAT'] == '2'
+                        when '2'
                             str_rep << 'Yearly '
-                        elsif d['REPEAT'] == '3'
+                        when '3'
                             str_rep << 'Each ' << d['DAYS'] << ' hours'
                         end
+
                         if d['REPEAT'] != '3'
                             str_rep << d['DAYS']
                         end
@@ -1342,20 +1335,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 column :END, '', :adjust => true do |d|
                     str_end = ''
                     if !d.nil? && d.key?('END_TYPE')
-                        if d['END_TYPE'] == '0'
+                        case d['END_TYPE']
+                        when '0'
                             str_end << 'None'
-                        elsif d['END_TYPE'] == '1'
+                        when '1'
                             str_end << 'After ' << d['END_VALUE'] << ' times'
-                        elsif d['END_TYPE'] == '2'
+                        when '2'
                             str_end << 'On ' << \
-                                OpenNebulaHelper.time_to_str(d['END_VALUE'],
-                                                             false, false,
-                                                             true)
+                                OpenNebulaHelper.time_to_str(d['END_VALUE'], false, false, true)
                         end
                     end
                     str_end unless d.nil?
                 end
-                column :STATUS, '', :left, :size => 50  do |d|
+                column :STATUS, '', :left, :size => 50 do |d|
                     if d['DONE'] && !d['REPEAT']
                         "Done on #{OpenNebulaHelper.time_to_str(d['DONE'], false)}"
                     elsif d['MESSAGE']
@@ -1378,7 +1370,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                         elsif minutes > 0
                             "Next in #{minutes} minutes"
                         else
-                            "Overdue!"
+                            'Overdue!'
                         end
                     end
                 end
@@ -1428,18 +1420,18 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def print_backups(vm, vm_hash)
         if vm.has_elements?('/VM/BACKUPS/BACKUP_CONFIG')
             puts
-            CLIHelper.print_header('%-80s' % 'BACKUP CONFIGURATION', false)
+            CLIHelper.print_header(format('%-80s', 'BACKUP CONFIGURATION'), false)
             puts vm.template_like_str('BACKUPS/BACKUP_CONFIG')
         end
 
-        if vm.has_elements?('/VM/BACKUPS/BACKUP_IDS')
-            puts
-            CLIHelper.print_header('%-80s' % 'VM BACKUPS', false)
+        return unless vm.has_elements?('/VM/BACKUPS/BACKUP_IDS')
 
-            ids = [vm_hash['VM']['BACKUPS']['BACKUP_IDS']['ID']].flatten
+        puts
+        CLIHelper.print_header(format('%-80s', 'VM BACKUPS'), false)
 
-            puts format('IMAGE IDS: %s', ids.join(','))
-        end
+        ids = [vm_hash['VM']['BACKUPS']['BACKUP_IDS']['ID']].flatten
+
+        puts format('IMAGE IDS: %s', ids.join(','))
     end
 
     def print_numa_nodes(numa_nodes)

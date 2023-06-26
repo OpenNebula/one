@@ -340,7 +340,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists VN Templates in the pool
+        Lists VN Templates in the pool. #{OneVNTemplateHelper.list_layout_help}
     EOT
 
     rename_desc = <<-EOT.unindent

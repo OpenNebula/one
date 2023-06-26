@@ -229,7 +229,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Hooks in the pool
+        Lists Hooks in the pool. #{OneHookHelper.list_layout_help}
     EOT
 
     command :list, list_desc, [:filterflag, nil], :options => list_options do

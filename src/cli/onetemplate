@@ -404,7 +404,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Templates in the pool
+        Lists Templates in the pool. #{OneTemplateHelper.list_layout_help}
     EOT
 
     rename_desc = <<-EOT.unindent

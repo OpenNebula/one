@@ -21,27 +21,28 @@ require 'io/console'
 begin
     require 'opennebula'
 rescue Exception => e
-    puts "Error: "+e.message.to_s
+    puts 'Error: '+e.message.to_s
     exit(-1)
 end
 
 include OpenNebula
 
 module OpenNebulaHelper
-    ONE_VERSION=<<-EOT
-OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
-EOT
+
+    ONE_VERSION=<<~EOT
+        OpenNebula #{OpenNebula::VERSION}
+        Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
+    EOT
 
     if ONE_LOCATION
-        TABLE_CONF_PATH     = ONE_LOCATION + "/etc/cli"
-        VAR_LOCATION        = ONE_LOCATION + "/var" if !defined?(VAR_LOCATION)
-        CLI_ADDONS_LOCATION = ONE_LOCATION + "/lib/ruby/cli/addons"
+        TABLE_CONF_PATH     = ONE_LOCATION + '/etc/cli'
+        VAR_LOCATION        = ONE_LOCATION + '/var' unless defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = ONE_LOCATION + '/lib/ruby/cli/addons'
         XSD_PATH            = ONE_LOCATION + '/share/schemas/xsd'
     else
-        TABLE_CONF_PATH     = "/etc/one/cli"
-        VAR_LOCATION        = "/var/lib/one" if !defined?(VAR_LOCATION)
-        CLI_ADDONS_LOCATION = "/usr/lib/one/ruby/cli/addons"
+        TABLE_CONF_PATH     = '/etc/one/cli'
+        VAR_LOCATION        = '/var/lib/one' unless defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = '/usr/lib/one/ruby/cli/addons'
         XSD_PATH            = '/usr/share/one/schemas/xsd'
     end
 
@@ -51,10 +52,10 @@ EOT
     # Options
     ########################################################################
     XML={
-        :name  => "xml",
-        :short => "-x",
-        :large => "--xml",
-        :description => "Show the resource in xml format"
+        :name  => 'xml',
+        :short => '-x',
+        :large => '--xml',
+        :description => 'Show the resource in xml format'
     }
 
     JSON = {
@@ -75,30 +76,30 @@ EOT
     }
 
     NUMERIC={
-        :name  => "numeric",
-        :short => "-n",
-        :large => "--numeric",
-        :description => "Do not translate user and group IDs"
+        :name  => 'numeric',
+        :short => '-n',
+        :large => '--numeric',
+        :description => 'Do not translate user and group IDs'
     }
 
     KILOBYTES={
-        :name  => "kilobytes",
-        :short => "-k",
-        :large => "--kilobytes",
-        :description => "Show units in kilobytes"
+        :name  => 'kilobytes',
+        :short => '-k',
+        :large => '--kilobytes',
+        :description => 'Show units in kilobytes'
     }
 
     DESCRIBE={
-        :name  => "describe",
-        :large => "--describe",
-        :description => "Describe list columns"
+        :name  => 'describe',
+        :large => '--describe',
+        :description => 'Describe list columns'
     }
 
     APPEND = {
-        :name => "append",
-        :short => "-a",
-        :large => "--append",
-        :description => "Append new attributes to the current template"
+        :name => 'append',
+        :short => '-a',
+        :large => '--append',
+        :description => 'Append new attributes to the current template'
     }
 
     # Command line VM template options
@@ -122,7 +123,7 @@ EOT
             :large  => '--user name',
             :description => 'User name used to connect to OpenNebula',
             :format => String,
-            :proc => lambda do |o, options|
+            :proc => lambda do |o, _options|
                 OneHelper.set_user(o)
                 [0, o]
             end
@@ -132,7 +133,7 @@ EOT
             :large  => '--password password',
             :description => 'Password to authenticate with OpenNebula',
             :format => String,
-            :proc => lambda do |o, options|
+            :proc => lambda do |o, _options|
                 OneHelper.set_password(o)
                 [0, o]
             end
@@ -142,7 +143,7 @@ EOT
             :large  => '--endpoint endpoint',
             :description => 'URL of OpenNebula xmlrpc frontend',
             :format => String,
-            :proc => lambda do |o, options|
+            :proc => lambda do |o, _options|
                 OneHelper.set_endpoint(o)
                 [0, o]
             end
@@ -153,7 +154,7 @@ EOT
         {
             :name   => 'name',
             :large  => '--name name',
-            :short => "-n",
+            :short => '-n',
             :description =>
                 'Name for the new group',
             :format => String
@@ -161,7 +162,7 @@ EOT
         {
             :name   => 'admin_user',
             :large  => '--admin_user name',
-            :short => "-u",
+            :short => '-u',
             :description =>
                 'Creates an admin user for the group with name',
             :format => String
@@ -169,7 +170,7 @@ EOT
         {
             :name   => 'admin_password',
             :large  => '--admin_password pass',
-            :short => "-p",
+            :short => '-p',
             :description =>
                 'Password for the admin user of the group',
             :format => String
@@ -177,7 +178,7 @@ EOT
         {
             :name   => 'admin_driver',
             :large  => '--admin_driver driver',
-            :short => "-d",
+            :short => '-d',
             :description =>
                 'Auth driver for the admin user of the group',
             :format => String
@@ -185,43 +186,43 @@ EOT
         {
             :name   => 'resources',
             :large  => '--resources res_str',
-            :short => "-r",
+            :short => '-r',
             :description =>
-                "Which resources can be created by group users "<<
-                "(VM+NET+IMAGE+TEMPLATE by default)",
+                'Which resources can be created by group users '<<
+                '(VM+NET+IMAGE+TEMPLATE by default)',
             :format => String
         }
     ]
 
     AS_USER = {
-            :name   => 'as_uid',
+        :name   => 'as_uid',
             :large  => '--as_uid uid',
             :format => Integer,
             :description => 'The User ID to instantiate the VM'
     }
 
     AS_GROUP = {
-            :name   => 'as_gid',
+        :name   => 'as_gid',
             :large  => '--as_gid gid',
             :format => Integer,
             :description => 'The Group ID to instantiate the VM'
     }
 
-    #NOTE: Other options defined using this array, add new options at the end
+    # NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
             :name   => 'cpu',
             :large  => '--cpu cpu',
             :description =>
                 "CPU percentage reserved for the VM (1=100% one\n"<<
-                " "*31<<"CPU)",
+                ' '*31<<'CPU)',
             :format => Float
         },
         {
             :name   => 'vcpu',
             :large  => '--vcpu vcpu',
             :description =>
-                "Number of virtualized CPUs",
+                'Number of virtualized CPUs',
             :format => Integer
         },
         {
@@ -236,20 +237,20 @@ EOT
             :large  => '--memory memory',
             :description => 'Memory amount given to the VM. By default the '<<
                 "unit is megabytes. To use gigabytes add a 'g', floats "<<
-                "can be used: 8g=8192, 0.5g=512",
+                'can be used: 8g=8192, 0.5g=512',
             :format => String,
-            :proc   => lambda do |o,options|
+            :proc   => lambda do |o, _options|
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
 
                 if !m
                     [-1, 'Memory value malformed']
                 else
                     multiplier=case m[2]
-                    when /(g|gb)/i
-                        1024
-                    else
-                        1
-                    end
+                               when /(g|gb)/i
+                                   1024
+                               else
+                                   1
+                               end
 
                     value=m[1].to_f*multiplier
 
@@ -260,29 +261,29 @@ EOT
         {
             :name   => 'disk',
             :large  => '--disk image0,image1',
-            :description => "Disks to attach. To use an image owned by"<<
-                            " other user use user[disk]. Add any additional"<<
+            :description => 'Disks to attach. To use an image owned by'<<
+                            ' other user use user[disk]. Add any additional'<<
                             " attributes separated by ':' and in the shape of"<<
-                            " KEY=VALUE. For example, if the disk must be"<<
-                            " resized, use image0:size=1000 . Or"<<
-                            " image0:size=1000:target=vda,image1:target=vdb",
+                            ' KEY=VALUE. For example, if the disk must be'<<
+                            ' resized, use image0:size=1000 . Or'<<
+                            ' image0:size=1000:target=vda,image1:target=vdb',
             :format => Array
         },
         {
             :name   => 'nic',
             :large  => '--nic network0,network1',
-            :description => "Networks to attach. To use a network owned by"<<
-                            " other user use user[network]. Additional"<<
-                            " attributes are supported like with the --disk"<<
-                            " option. Also you can use auto if you want that" <<
-                            " OpenNebula select automatically the network",
+            :description => 'Networks to attach. To use a network owned by'<<
+                            ' other user use user[network]. Additional'<<
+                            ' attributes are supported like with the --disk'<<
+                            ' option. Also you can use auto if you want that' <<
+                            ' OpenNebula select automatically the network',
             :format => Array
         },
         {
             :name   => 'raw',
             :large  => '--raw string',
             :description => "Raw string to add to the template. Not to be\n"<<
-                            " "*31<<"confused with the RAW attribute",
+                            ' '*31<<'confused with the RAW attribute',
             :format => String
         },
         {
@@ -338,9 +339,9 @@ EOT
             :large  => '--ssh [file]',
             :description => "Add an ssh public key to the context. If the \n"<<
                 (' '*31) << "file is omited then the user variable \n"<<
-                (' '*31) << "SSH_PUBLIC_KEY will be used.",
+                (' '*31) << 'SSH_PUBLIC_KEY will be used.',
             :format => String,
-            :proc => lambda do |o, options|
+            :proc => lambda do |o, _options|
                 if !o
                     [0, true]
                 else
@@ -393,8 +394,8 @@ EOT
             :name   => 'vcenter_vm_folder',
             :large  => '--vcenter_vm_folder path',
             :format => String,
-            :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
-            " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
+            :description => 'In a vCenter environment sets the the VMs and Template folder where the VM will be placed in.' \
+            ' The path uses slashes to separate folders. For example: --vcenter_vm_folder "/Management/VMs"'
         },
         {
             :name   => 'user_inputs',
@@ -442,19 +443,20 @@ EOT
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
 
     CAPACITY_OPTIONS_VM   = [TEMPLATE_OPTIONS[0], TEMPLATE_OPTIONS[1],
-      TEMPLATE_OPTIONS[3]]
+                             TEMPLATE_OPTIONS[3]]
 
     UPDATECONF_OPTIONS_VM = TEMPLATE_OPTIONS[6..15] + [TEMPLATE_OPTIONS[2],
-      TEMPLATE_OPTIONS[17], TEMPLATE_OPTIONS[18]]
+                                                       TEMPLATE_OPTIONS[17], TEMPLATE_OPTIONS[18]]
 
     FORMAT = [XML, JSON, YAML]
 
     OPTIONS = FORMAT, EXTENDED, NUMERIC, KILOBYTES
 
     class OneHelper
+
         attr_accessor :client
 
-        def self.get_client(options={}, force=false)
+        def self.get_client(options = {}, force = false)
             if !force && defined?(@@client)
                 @@client
             else
@@ -470,7 +472,7 @@ EOT
                 end
 
                 if user
-                    password=password||options[:password]||self.get_password
+                    password=password||options[:password]||get_password
                     secret="#{user}:#{password}"
                 end
 
@@ -497,7 +499,7 @@ EOT
             if defined?(@@client)
                 @@client
             else
-                self.get_client
+                get_client
             end
         end
 
@@ -513,10 +515,10 @@ EOT
             @@endpoint=endpoint
         end
 
-        if RUBY_VERSION>="1.9.3"
+        if RUBY_VERSION>='1.9.3'
             require 'io/console'
             def self.get_password
-                print "Password: "
+                print 'Password: '
                 pass=nil
                 STDIN.noecho {|io| pass=io.gets }
                 puts
@@ -528,25 +530,29 @@ EOT
         else
             # This function is copied from ruby net/imap.rb
             def self.get_password
-                print "Password: "
-                system("stty", "-echo")
+                print 'Password: '
+                system('stty', '-echo')
                 begin
                     @@password = STDIN.gets.chop
-                    return @@password
+                    @@password
                 ensure
-                    system("stty", "echo")
+                    system('stty', 'echo')
                     print "\n"
                 end
             end
         end
 
-        def initialize(secret=nil, endpoint=nil)
+        def self.list_layout_help
+            "The default columns and their layout can be configured in #{conf_file}"
+        end
+
+        def initialize(_secret = nil, _endpoint = nil)
             @client=nil
 
             @translation_hash = nil
         end
 
-        def set_client(options, client=nil)
+        def set_client(options, client = nil)
             if client.nil?
                 @client=OpenNebulaHelper::OneHelper.get_client(options, true)
             else
@@ -554,15 +560,15 @@ EOT
             end
         end
 
-        def create_resource(options, &block)
+        def create_resource(_options, &block)
             resource = factory
 
             rc = block.call(resource)
             if OpenNebula.is_error?(rc)
-                return -1, rc.message
+                [-1, rc.message]
             else
-                puts "ID: #{resource.id.to_s}"
-                return 0
+                puts "ID: #{resource.id}"
+                0
             end
         end
 
@@ -596,7 +602,7 @@ EOT
             p_w.close
             p_r.close
 
-            return lpid
+            lpid
         end
 
         def stop_pager(lpid)
@@ -605,7 +611,7 @@ EOT
             begin
                 Process.wait(lpid)
             rescue Interrupt
-                Process.kill("TERM", lpid)
+                Process.kill('TERM', lpid)
                 Process.wait(lpid)
             rescue Errno::ECHILD
             end
@@ -613,7 +619,7 @@ EOT
 
         def print_page(pool, options)
             elements = 0
-            page     = ""
+            page     = ''
 
             if options[:xml]
                 elements += 1
@@ -640,20 +646,20 @@ EOT
                 end
             end
 
-            return elements, page
+            [elements, page]
         end
 
         #-----------------------------------------------------------------------
         # List the pool in table form, it uses pagination for interactive
         # output
         #-----------------------------------------------------------------------
-        def list_pool_table(table, pool, options, filter_flag)
-            if $stdout.isatty and (!options.key?:no_pager)
+        def list_pool_table(table, pool, options, _filter_flag)
+            if $stdout.isatty and (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, false, options[:state])
-                ps = ""
+                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -719,21 +725,21 @@ EOT
                 table.show(hash, options)
             end
 
-            return 0
+            0
         end
 
         #-----------------------------------------------------------------------
         # List pool in XML format, pagination is used in interactive output
         #-----------------------------------------------------------------------
-        def list_pool_xml(pool, options, filter_flag)
+        def list_pool_xml(pool, options, _filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty and (!options.key?:no_pager)
+            if $stdout.isatty and (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, extended, options[:state])
-                ps = ""
+                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -789,7 +795,7 @@ EOT
 
                 stop_pager(ppid)
             else
-                if pool.pool_name == "VM_POOL" && extended
+                if pool.pool_name == 'VM_POOL' && extended
                     rc = pool.info_all_extended
                 else
                     rc = pool.info
@@ -800,21 +806,21 @@ EOT
                 puts pool.to_xml(true)
             end
 
-            return 0
+            0
         end
 
         #-----------------------------------------------------------------------
         # List pool in JSON format, pagination is used in interactive output
         #-----------------------------------------------------------------------
-        def list_pool_format(pool, options, filter_flag)
+        def list_pool_format(pool, options, _filter_flag)
             extended = options.include?(:extended) && options[:extended]
 
-            if $stdout.isatty and (!options.key?:no_pager)
+            if $stdout.isatty and (!options.key? :no_pager)
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
                 rc = pool.get_page(size, 0, extended, options[:state])
-                ps = ""
+                ps = ''
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -865,7 +871,7 @@ EOT
 
                 stop_pager(ppid)
             else
-                if pool.pool_name == "VM_POOL" && extended
+                if pool.pool_name == 'VM_POOL' && extended
                     rc = pool.info_all_extended
                 else
                     rc = pool.info
@@ -876,26 +882,25 @@ EOT
                 yield(pool) if block_given?
             end
 
-            return 0
+            0
         end
 
         #-----------------------------------------------------------------------
         # List pool table in top-like form
         #-----------------------------------------------------------------------
         def list_pool_top(table, pool, options)
-            table.top(options) {
+            table.top(options) do
                 array = pool.get_hash
 
                 return -1, array.message if OpenNebula.is_error?(array)
 
                 array
-            }
+            end
 
-            return 0
+            0
         end
 
-
-        def list_pool(options, top=false, filter_flag=nil)
+        def list_pool(options, top = false, filter_flag = nil)
             # Capture Broken pipe
             Signal.trap('PIPE', 'EXIT')
 
@@ -919,19 +924,19 @@ EOT
                 return list_pool_xml(pool, options, filter_flag)
             elsif options[:json]
                 list_pool_format(pool, options, filter_flag) do |pool|
-                    hash        = check_resource_xsd(pool, pname)
+                    hash = check_resource_xsd(pool, pname)
                     puts ::JSON.pretty_generate(hash)
                 end
             elsif options[:yaml]
                 list_pool_format(pool, options, filter_flag) do |pool|
-                    hash        = check_resource_xsd(pool, pname)
+                    hash = check_resource_xsd(pool, pname)
                     puts hash.to_yaml(:indent => 4)
                 end
             else
                 return list_pool_table(table, pool, options, filter_flag)
             end
 
-            return 0
+            0
         rescue SystemExit, Interrupt
             # Rescue ctrl + c when paginated
             0
@@ -972,21 +977,21 @@ EOT
             return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
-                return 0, resource.to_xml(true)
+                [0, resource.to_xml(true)]
             elsif options[:json]
                 # If body is set, the resource contains a JSON inside
                 if options[:body]
-                    return 0, check_resource_xsd(resource)
+                    [0, check_resource_xsd(resource)]
                 else
-                    return 0, ::JSON.pretty_generate(
+                    [0, ::JSON.pretty_generate(
                         check_resource_xsd(resource)
-                    )
+                    )]
                 end
             elsif options[:yaml]
-                return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
+                [0, check_resource_xsd(resource).to_yaml(:indent => 4)]
             else
                 format_resource(resource, options)
-                return 0
+                0
             end
         end
 
@@ -995,19 +1000,19 @@ EOT
 
             rc = block.call(resource)
             if OpenNebula.is_error?(rc)
-                return -1, rc.message
+                [-1, rc.message]
             else
                 if options[:verbose]
                     puts "#{self.class.rname} #{id}: #{verbose}"
                 end
-                return 0
+                0
             end
         end
 
-        def perform_actions(ids,options,verbose,&block)
+        def perform_actions(ids, options, verbose, &block)
             exit_code = 0
             ids.each do |id|
-                rc = perform_action(id,options,verbose,&block)
+                rc = perform_action(id, options, verbose, &block)
 
                 unless rc[0]==0
                     STDERR.puts rc[1]
@@ -1021,7 +1026,7 @@ EOT
         ########################################################################
         # Id translation
         ########################################################################
-        def user_name(resource, options={})
+        def user_name(resource, options = {})
             if options[:numeric]
                 resource['UID']
             else
@@ -1029,7 +1034,7 @@ EOT
             end
         end
 
-        def group_name(resource, options={})
+        def group_name(resource, options = {})
             if options[:numeric]
                 resource['GID']
             else
@@ -1053,7 +1058,7 @@ EOT
         end
 
         def self.to_id_desc
-            "OpenNebula #{self.rname} name or id"
+            "OpenNebula #{rname} name or id"
         end
 
         def list_to_id(names)
@@ -1063,7 +1068,7 @@ EOT
             pool     = rc[1]
             poolname = self.class.rname
 
-            result = names.split(',').collect { |name|
+            result = names.split(',').collect do |name|
                 if name.match(/^[0123456789]+$/)
                     name.to_i
                 else
@@ -1075,76 +1080,70 @@ EOT
 
                     rc[1]
                 end
-            }
+            end
 
-            return 0, result
+            [0, result]
         end
 
         def self.list_to_id_desc
-            "Comma-separated list of OpenNebula #{self.rname} names or ids"
+            "Comma-separated list of OpenNebula #{rname} names or ids"
         end
 
         def self.name_to_id(name, pool, ename)
-            if ename=="CLUSTER" and name.upcase=="ALL"
-                return 0, "ALL"
+            if ename=='CLUSTER' and name.upcase=='ALL'
+                return 0, 'ALL'
             end
 
             objects=pool.select {|object| object.name==name }
 
-            if objects.length>0
-                if objects.length>1
-                    return -1, "There are multiple #{ename}s with name #{name}."
-                else
-                    result = objects.first.id
-                end
-            else
-                return -1, "#{ename} named #{name} not found."
-            end
+            return -1, "#{ename} named #{name} not found." unless objects.length>0
+            return -1, "There are multiple #{ename}s with name #{name}." if objects.length>1
 
-            return 0, result
+            result = objects.first.id
+
+            [0, result]
         end
 
         def filterflag_to_i(str)
             filter_flag = case str
-            when "a", "all"   then OpenNebula::Pool::INFO_ALL
-            when "m", "mine"  then OpenNebula::Pool::INFO_MINE
-            when "g", "group" then OpenNebula::Pool::INFO_GROUP
-            when "G", "primary group" then OpenNebula::Pool::INFO_PRIMARY_GROUP
-            else
-                if str.match(/^[0123456789]+$/)
-                    str.to_i
-                else
-                    rc = OpenNebulaHelper.rname_to_id(str, "USER")
-                    if rc.first==-1
-                        return rc
-                    else
-                        rc[1]
-                    end
-                end
-            end
+                          when 'a', 'all'   then OpenNebula::Pool::INFO_ALL
+                          when 'm', 'mine'  then OpenNebula::Pool::INFO_MINE
+                          when 'g', 'group' then OpenNebula::Pool::INFO_GROUP
+                          when 'G', 'primary group' then OpenNebula::Pool::INFO_PRIMARY_GROUP
+                          else
+                              if str.match(/^[0123456789]+$/)
+                                  str.to_i
+                              else
+                                  rc = OpenNebulaHelper.rname_to_id(str, 'USER')
+                                  return rc if rc.first==-1
 
-            return 0, filter_flag
+                                  rc[1]
+
+                              end
+                          end
+
+            [0, filter_flag]
         end
 
         def self.filterflag_to_i_desc
-            desc=<<-EOT
-a, all            all the known #{self.rname}s
-m, mine           the #{self.rname} belonging to the user in ONE_AUTH
-g, group          'mine' plus the #{self.rname} belonging to the groups
-                  the user is member of
-G, primary group  the #{self.rname} owned the user's primary group
-uid               #{self.rname} of the user identified by this uid
-user              #{self.rname} of the user identified by the username
-EOT
+            desc=<<~EOT
+                a, all            all the known #{rname}s
+                m, mine           the #{rname} belonging to the user in ONE_AUTH
+                g, group          'mine' plus the #{rname} belonging to the groups
+                                  the user is member of
+                G, primary group  the #{rname} owned the user's primary group
+                uid               #{rname} of the user identified by this uid
+                user              #{rname} of the user identified by the username
+            EOT
         end
 
-        def self.table_conf(conf_file=self.conf_file)
-            path = "#{ENV["HOME"]}/.one/cli/#{conf_file}"
+        def self.table_conf(conf_file = self.conf_file)
+            path = "#{ENV['HOME']}/.one/cli/#{conf_file}"
 
-            if File.exists?(path)
-                return path
+            if File.exist?(path)
+                path
             else
-                return "#{TABLE_CONF_PATH}/#{conf_file}"
+                "#{TABLE_CONF_PATH}/#{conf_file}"
             end
         end
 
@@ -1171,7 +1170,7 @@ EOT
                     phash = [phash["#{rname}_POOL"]["#{rname}"]]
                 end
             else
-                phash = Array.new
+                phash = []
             end
 
             phash
@@ -1183,15 +1182,14 @@ EOT
 
             rc = pool.info
             if OpenNebula.is_error?(rc)
-                if rc.message.empty?
-                    return -1, "OpenNebula #{self.class.rname} name not " <<
-                           "found, use the ID instead"
-                else
-                    return -1,rc.message
-                end
+                return -1, rc.message unless rc.message.empty?
+
+                return -1, "OpenNebula #{self.class.rname} name not " <<
+                       'found, use the ID instead'
+
             end
 
-            return 0, pool
+            [0, pool]
         end
 
         def get_format_size(pool, options)
@@ -1217,7 +1215,7 @@ EOT
         # @return [Object] Hash with correct values
         def check_resource_xsd(resource, ename = nil)
             hash  = resource.to_hash
-            ename = hash.keys.first unless ename
+            ename ||= hash.keys.first
             xsd   = read_xsd(ename)
 
             return hash unless xsd
@@ -1228,13 +1226,12 @@ EOT
                 xsd = xsd['element']
             end
 
-            xsd = [ xsd ] unless xsd.is_a? Array
+            xsd = [xsd] unless xsd.is_a? Array
 
             check_xsd(hash[ename], xsd)
 
             hash
         end
-
 
         # Replaces refs in xsd definition
         # limited func: only traverse hashes (not arrays), but works well for pools
@@ -1248,14 +1245,14 @@ EOT
             if h.keys.include? 'ref'
                 ref_xsd = read_xsd(h['ref'])
                 return ref_xsd unless ref_xsd.nil?
-                return h
+
+                h
             else
-                h.each do |k,v|
+                h.each do |k, v|
                     h[k] = replace_refs(v)
                 end
             end
         end
-
 
         # Read XSD file and parse to XML
         #
@@ -1275,16 +1272,14 @@ EOT
 
             unless File.exist?(file)
                 STDERR.puts "WARNING: XSD for #{ename} not found, skipping check"
-                return nil
+                return
             end
 
             hash = Hash.from_xml(Nokogiri::XML(File.read(file)).to_s)
 
             hash = hash['schema']['element']
 
-            hash = replace_refs(hash)
-
-            hash
+            replace_refs(hash)
         end
 
         # Decides if given xsd definiton should be array in xml
@@ -1298,6 +1293,7 @@ EOT
         def is_array?(e)
             return false if e.nil?
             return false unless e.is_a? Hash
+
             e['maxOccurs'] == 'unbounded' || e['maxOccurs'].to_i > 1
         end
 
@@ -1338,16 +1334,15 @@ EOT
             return unless hash or hash.empty?
 
             hash.each do |k, v|
-
                 # find the elem definition in xsd array
-                xsd_elem = xsd.select { |e| e['name'] == k }.first unless xsd.nil?
+                xsd_elem = xsd.select {|e| e['name'] == k }.first unless xsd.nil?
 
                 if xsd_complex_sequence?(xsd_elem) || xsd_complex_all?(xsd_elem)
 
                     # go deeper in xsd, xsd is ehter complex sequence or all
                     begin
                         inner_xsd = xsd_elem['complexType']['sequence']['element']
-                    rescue
+                    rescue StandardError
                         inner_xsd = xsd_elem['complexType']['all']['element']
                     end
 
@@ -1365,81 +1360,82 @@ EOT
                 end
 
                 # if XSD requires array, do so in resource if missing
-                if is_array?(xsd_elem) && (! v.is_a? Array)
-                    hash[k] = [ v ]
+                if is_array?(xsd_elem) && (!v.is_a? Array)
+                    hash[k] = [v]
                 end
             end
         end
+
     end
 
-    def OpenNebulaHelper.rname_to_id(name, poolname)
+    def self.rname_to_id(name, poolname)
         return 0, name.to_i if name.match(/^[0123456789]+$/)
 
         client=OneHelper.client
 
         pool = case poolname
-        when "HOST"          then OpenNebula::HostPool.new(client)
-        when "HOOK"          then OpenNebula::HookPool.new(client)
-        when "GROUP"         then OpenNebula::GroupPool.new(client)
-        when "USER"          then OpenNebula::UserPool.new(client)
-        when "DATASTORE"     then OpenNebula::DatastorePool.new(client)
-        when "CLUSTER"       then OpenNebula::ClusterPool.new(client)
-        when "VNET"          then OpenNebula::VirtualNetworkPool.new(client)
-        when "IMAGE"         then OpenNebula::ImagePool.new(client)
-        when "VMTEMPLATE"    then OpenNebula::TemplatePool.new(client)
-        when "VNTEMPLATES"   then OpenNebula::VNTemplatePool.new(client)
-        when "VM"            then OpenNebula::VirtualMachinePool.new(client)
-        when "ZONE"          then OpenNebula::ZonePool.new(client)
-        when "MARKETPLACE"   then OpenNebula::MarketPlacePool.new(client)
-        when "FLOWTEMPLATES" then OpenNebula::ServiceTemplatePool.new(client)
-        end
+               when 'HOST'          then OpenNebula::HostPool.new(client)
+               when 'HOOK'          then OpenNebula::HookPool.new(client)
+               when 'GROUP'         then OpenNebula::GroupPool.new(client)
+               when 'USER'          then OpenNebula::UserPool.new(client)
+               when 'DATASTORE'     then OpenNebula::DatastorePool.new(client)
+               when 'CLUSTER'       then OpenNebula::ClusterPool.new(client)
+               when 'VNET'          then OpenNebula::VirtualNetworkPool.new(client)
+               when 'IMAGE'         then OpenNebula::ImagePool.new(client)
+               when 'VMTEMPLATE'    then OpenNebula::TemplatePool.new(client)
+               when 'VNTEMPLATES'   then OpenNebula::VNTemplatePool.new(client)
+               when 'VM'            then OpenNebula::VirtualMachinePool.new(client)
+               when 'ZONE'          then OpenNebula::ZonePool.new(client)
+               when 'MARKETPLACE'   then OpenNebula::MarketPlacePool.new(client)
+               when 'FLOWTEMPLATES' then OpenNebula::ServiceTemplatePool.new(client)
+               end
 
         rc = pool.info
         if OpenNebula.is_error?(rc)
             return -1, "OpenNebula #{poolname} name not found," <<
-                       " use the ID instead"
+                       ' use the ID instead'
         end
 
         OneHelper.name_to_id(name, pool, poolname)
     end
 
-    def OpenNebulaHelper.size_in_mb(size)
+    def self.size_in_mb(size)
         m = size.match(/^(\d+(?:\.\d+)?)(t|tb|m|mb|g|gb)?$/i)
 
         if !m
             # return OpenNebula::Error.new('Size value malformed')
-            return -1, 'Size value malformed'
+            [-1, 'Size value malformed']
         else
             multiplier=case m[2]
-            when /(t|tb)/i
-                1024*1024
-            when /(g|gb)/i
-                1024
-            else
-                1
-            end
+                       when /(t|tb)/i
+                           1024*1024
+                       when /(g|gb)/i
+                           1024
+                       else
+                           1
+                       end
 
             value=m[1].to_f*multiplier
 
             # return value.ceil
-            return 0, value.ceil
+            [0, value.ceil]
         end
     end
 
-    def OpenNebulaHelper.rname_to_id_desc(poolname)
+    def self.rname_to_id_desc(poolname)
         "OpenNebula #{poolname} name or id"
     end
 
-    def OpenNebulaHelper.boolean_to_str(str)
+    def self.boolean_to_str(str)
         if str.to_i == 1
-            "Yes"
+            'Yes'
         else
-            "No"
+            'No'
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true,
-        print_hours=true, print_years=false)
+    def self.time_to_str(time, print_seconds = true,
+                         print_hours = true, print_years = false)
 
         value = time.to_i
 
@@ -1449,63 +1445,63 @@ EOT
             if print_hours
                 if print_seconds
                     if print_years
-                        value=Time.at(value).strftime("%m/%d/%y %H:%M:%S")
+                        value=Time.at(value).strftime('%m/%d/%y %H:%M:%S')
                     else
-                        value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                        value=Time.at(value).strftime('%m/%d %H:%M:%S')
                     end
                 else
                     if print_years
-                        value=Time.at(value).strftime("%m/%d/%y %H:%M")
+                        value=Time.at(value).strftime('%m/%d/%y %H:%M')
                     else
-                        value=Time.at(value).strftime("%m/%d %H:%M")
+                        value=Time.at(value).strftime('%m/%d %H:%M')
                     end
                 end
             else
                 if print_years
-                    value=Time.at(value).strftime("%m/%d/%y")
+                    value=Time.at(value).strftime('%m/%d/%y')
                 else
-                    value=Time.at(value).strftime("%m/%d")
+                    value=Time.at(value).strftime('%m/%d')
                 end
             end
         end
 
-        return value
+        value
     end
 
-    def OpenNebulaHelper.period_to_str(time, print_seconds=true)
+    def self.period_to_str(time, print_seconds = true)
         seconds=time.to_i
         minutes, seconds=seconds.divmod(60)
         hours, minutes=minutes.divmod(60)
         days, hours=hours.divmod(24)
 
         if print_seconds
-            "%3dd %02dh%02dm%02ds" % [days, hours, minutes, seconds]
+            format('%3dd %02dh%02dm%02ds', days, hours, minutes, seconds)
         else
-            "%3dd %02dh%02dm" % [days, hours, minutes]
+            format('%3dd %02dh%02dm', days, hours, minutes)
         end
     end
 
-    def OpenNebulaHelper.short_period_to_str(time, print_seconds=true)
+    def self.short_period_to_str(time, print_seconds = true)
         seconds=time.to_i
         minutes, seconds=seconds.divmod(60)
         hours, minutes=minutes.divmod(60)
 
         if print_seconds
-            "%3dh%02dm%02ds" % [hours, minutes, seconds]
+            format('%3dh%02dm%02ds', hours, minutes, seconds)
         else
-            "%3dh%02dm" % [hours, minutes]
+            format('%3dh%02dm', hours, minutes)
         end
     end
 
-    BinarySufix = ["K", "M", "G", "T" ]
+    BinarySufix = ['K', 'M', 'G', 'T']
 
-    def OpenNebulaHelper.unit_to_str(value, options, unit="K")
+    def self.unit_to_str(value, options, unit = 'K')
         if options[:kilobytes]
             value
         else
             i=BinarySufix.index(unit).to_i
 
-            while value > 1024 && i < 3 do
+            while value > 1024 && i < 3
                 value /= 1024.0
                 i+=1
             end
@@ -1517,11 +1513,11 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.bytes_to_unit(value, unit = 'K')
+    def self.bytes_to_unit(value, unit = 'K')
         j = 0
         i = BinarySufix.index(unit).to_i
 
-        while j < i do
+        while j < i
             value /= 1024.0
             j += 1
         end
@@ -1533,51 +1529,50 @@ EOT
     #
     # @param str [String || Hash] Cluster name, or empty Hash (when <CLUSTER/>)
     # @return [String] the same Cluster name, or '-' if it is empty
-    def OpenNebulaHelper.cluster_str(str)
-        if str != nil && !str.empty?
+    def self.cluster_str(str)
+        if !str.nil? && !str.empty?
             str
         else
-            "-"
+            '-'
         end
     end
 
-    def OpenNebulaHelper.clusters_str(clusters)
+    def self.clusters_str(clusters)
         if clusters.nil?
-            "-"
+            '-'
         else
             [clusters].flatten.join(',')
         end
-
     end
 
-    def OpenNebulaHelper.update_template(id, resource, path=nil, xpath='TEMPLATE')
-        return update_template_helper(false, id, resource, path, xpath)
+    def self.update_template(id, resource, path = nil, xpath = 'TEMPLATE')
+        update_template_helper(false, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.append_template(id, resource, path=nil, xpath='TEMPLATE')
-        return update_template_helper(true, id, resource, path, xpath)
+    def self.append_template(id, resource, path = nil, xpath = 'TEMPLATE')
+        update_template_helper(true, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
+    def self.update_template_helper(append, _id, resource, path, xpath, update = true)
         if path
-            return File.read(path)
+            File.read(path)
         elsif append
-            return editor_input()
+            editor_input
         else
             if update
                 rc = resource.info
 
                 if OpenNebula.is_error?(rc)
                     puts rc.message
-                    exit -1
+                    exit(-1)
                 end
             end
 
-            return editor_input(resource.template_like_str(xpath))
+            editor_input(resource.template_like_str(xpath))
         end
     end
 
-    def OpenNebulaHelper.update_obj(obj, file, plain = false)
+    def self.update_obj(obj, file, plain = false)
         rc = obj.info(true)
 
         return rc if OpenNebula.is_error?(rc)
@@ -1614,28 +1609,27 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.editor_input(contents=nil)
+    def self.editor_input(contents = nil)
         require 'tempfile'
 
-        tmp  = Tempfile.new("one_cli")
+        tmp = Tempfile.new('one_cli')
 
         if contents
             tmp << contents
             tmp.flush
         end
 
-        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+        editor_path = ENV['EDITOR'] ? ENV['EDITOR'] : EDITOR_PATH
         system("#{editor_path} #{tmp.path}")
 
         unless $?.exitstatus == 0
-            puts "Editor not defined"
-            exit -1
+            puts 'Editor not defined'
+            exit(-1)
         end
 
         tmp.close
 
-        str = File.read(tmp.path)
-        return str
+        File.read(tmp.path)
     end
 
     def self.parse_user_object(user_object)
@@ -1643,7 +1637,7 @@ EOT
 
         m=user_object.match(reg)
 
-        return nil if !m
+        return unless m
 
         user=nil
         if m[2]
@@ -1660,7 +1654,7 @@ EOT
         template=''
 
         objects.each do |obj|
-            obj, *extra_attributes = obj.split(":")
+            obj, *extra_attributes = obj.split(':')
 
             # When extra attributes do not contain = character include
             # them in the previous value. Fixes adding MAC addresses. These
@@ -1673,26 +1667,27 @@ EOT
             #
             attrs = []
             extra_attributes.each do |str|
-                if str.include?("=")
+                if str.include?('=')
                     attrs << str
                 else
                     attrs.last << ":#{str}"
-               end
+                end
             end
 
             extra_attributes = attrs
 
             res=parse_user_object(obj)
-            return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
+            return [-1, "#{section.capitalize} \"#{obj}\" malformed"] unless res
+
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
-            if object.downcase == "auto"
+            if object.downcase == 'auto'
                 template<<"  NETWORK_MODE=\"#{object}\"\n"
             else
                 template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
                 extra_attributes.each do |extra_attribute|
-                    key, value = extra_attribute.split("=")
+                    key, value = extra_attribute.split('=')
                     template<<"  #{key.upcase}=\"#{value}\",\n"
                 end
                 if object.match(/^\d+$/)
@@ -1708,13 +1703,14 @@ EOT
     end
 
     def self.create_context(options)
-        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript, :report_ready]
+        context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript,
+                           :report_ready]
         if !(options.keys & context_options).empty?
             lines=[]
 
             if options[:ssh]
                 if options[:ssh]==true
-                    lines<<"SSH_PUBLIC_KEY=\"$USER[SSH_PUBLIC_KEY]\""
+                    lines<<'SSH_PUBLIC_KEY="$USER[SSH_PUBLIC_KEY]"'
                 else
                     begin
                         key=File.read(options[:ssh]).strip
@@ -1727,7 +1723,7 @@ EOT
             end
 
             if options[:net_context]
-                lines << "NETWORK = \"YES\""
+                lines << 'NETWORK = "YES"'
             end
 
             lines+=options[:context] if options[:context]
@@ -1735,7 +1731,7 @@ EOT
             if options[:files_ds]
                 text='FILES_DS="'
                 text << options[:files_ds].map do |file|
-                    %Q<$FILE[IMAGE=\\"#{file}\\"]>
+                    %($FILE[IMAGE=\\"#{file}\\"])
                 end.join(' ')
                 text << '"'
 
@@ -1743,7 +1739,7 @@ EOT
             end
 
             if options[:init]
-                lines << %Q<INIT_SCRIPTS="#{options[:init].join(' ')}">
+                lines << %(INIT_SCRIPTS="#{options[:init].join(' ')}")
             end
 
             if options[:startscript]
@@ -1754,16 +1750,16 @@ EOT
                     STDERR.puts e.message
                     exit(-1)
                 end
-                script = Base64::strict_encode64(script)
+                script = Base64.strict_encode64(script)
                 lines<<"START_SCRIPT_BASE64=\"#{script}\""
             end
 
             if options[:report_ready]
-                lines << "REPORT_READY = \"YES\""
+                lines << 'REPORT_READY = "YES"'
             end
 
             if !lines.empty?
-                "CONTEXT=[\n" << lines.map{|l| "  " << l }.join(",\n") << "\n]\n"
+                "CONTEXT=[\n" << lines.map {|l| '  ' << l }.join(",\n") << "\n]\n"
             else
                 nil
             end
@@ -1772,7 +1768,7 @@ EOT
         end
     end
 
-    def self.create_template(options, template_obj=nil)
+    def self.create_template(options, template_obj = nil)
         template=''
 
         template<<"NAME=\"#{options[:name]}\"\n" if options[:name]
@@ -1812,7 +1808,7 @@ EOT
         end
 
         if options[:vnc]
-            vnc_listen=options[:vnc_listen] || "0.0.0.0"
+            vnc_listen=options[:vnc_listen] || '0.0.0.0'
             template<<"GRAPHICS=[ TYPE=\"vnc\", LISTEN=\"#{vnc_listen}\""
             if options[:vnc_password]
                 template << ", PASSWD=\"#{options[:vnc_password]}\""
@@ -1824,7 +1820,7 @@ EOT
         end
 
         if options[:spice]
-            spice_listen=options[:spice_listen] || "0.0.0.0"
+            spice_listen=options[:spice_listen] || '0.0.0.0'
             template<<"GRAPHICS=[ TYPE=\"spice\", LISTEN=\"#{spice_listen}\""
             if options[:spice_password]
                 template << ", PASSWD=\"#{options[:spice_password]}\""
@@ -1840,15 +1836,15 @@ EOT
         context=create_context(options)
         template<<context if context
 
-        if options[:userdata] && !template_obj.nil?
-            if template_obj.has_elements?('TEMPLATE/EC2')
-                template_obj.add_element(
-                    'TEMPLATE/EC2',
-                    'USERDATA' => options[:userdata])
+        if options[:userdata] && !template_obj.nil? && template_obj.has_elements?('TEMPLATE/EC2')
+            template_obj.add_element(
+                'TEMPLATE/EC2',
+                'USERDATA' => options[:userdata]
+            )
 
-                template << template_obj.template_like_str(
-                    'TEMPLATE', false, 'EC2')
-            end
+            template << template_obj.template_like_str(
+                'TEMPLATE', false, 'EC2'
+            )
         end
 
         [0, template]
@@ -1946,21 +1942,21 @@ EOT
 
     def self.sunstone_url
         if (one_sunstone = ENV['ONE_SUNSTONE'])
-           one_sunstone
+            one_sunstone
         elsif (one_xmlrpc = ENV['ONE_XMLRPC'])
             uri = URI(one_xmlrpc)
             "#{uri.scheme}://#{uri.host}:9869"
         else
-            "http://localhost:9869"
+            'http://localhost:9869'
         end
     end
 
-    def self.download_resource_sunstone(kind, id, path, force)
+    def self.download_resource_sunstone(kind, id, path, _force)
         client = OneHelper.client
-        user, password = client.one_auth.split(":", 2)
+        user, password = client.one_auth.split(':', 2)
 
         # Step 1: Build Session to get Cookie
-        uri = URI(File.join(sunstone_url,"login"))
+        uri = URI(File.join(sunstone_url, 'login'))
 
         req = Net::HTTP::Post.new(uri)
         req.basic_auth user, password
@@ -1969,14 +1965,14 @@ EOT
             res = Net::HTTP.start(uri.hostname, uri.port) do |http|
                 http.request(req)
             end
-        rescue
+        rescue StandardError
             return OpenNebula::Error.new("Error connecting to '#{uri}'.")
         end
 
         cookie = res.response['set-cookie'].split('; ')[0]
 
         if cookie.nil?
-           return OpenNebula::Error.new("Unable to get Cookie. Is OpenNebula running?")
+            return OpenNebula::Error.new('Unable to get Cookie. Is OpenNebula running?')
         end
 
         # Step 2: Open '/' to get the csrftoken
@@ -1989,7 +1985,7 @@ EOT
             res = Net::HTTP.start(uri.hostname, uri.port) do |http|
                 http.request(req)
             end
-        rescue
+        rescue StandardError
             return OpenNebula::Error.new("Error connecting to '#{uri}'.")
         end
 
@@ -1997,7 +1993,7 @@ EOT
         csrftoken = m[1] rescue nil
 
         if csrftoken.nil?
-           return OpenNebula::Error.new("Unable to get csrftoken.")
+            return OpenNebula::Error.new('Unable to get csrftoken.')
         end
 
         # Step 3: Download resource
@@ -2009,7 +2005,7 @@ EOT
         req = Net::HTTP::Get.new(uri)
 
         req['Cookie'] = cookie
-        req['User-Agent'] = "OpenNebula CLI"
+        req['User-Agent'] = 'OpenNebula CLI'
 
         begin
             File.open(path, 'wb') do |f|
@@ -2022,7 +2018,7 @@ EOT
                 end
             end
         rescue Errno::EACCES
-            return OpenNebula::Error.new("Target file not writable.")
+            return OpenNebula::Error.new('Target file not writable.')
         end
 
         error_message = nil
@@ -2039,30 +2035,30 @@ EOT
             error_message = m[1] if m
         end
 
-        if error_message
-            File.unlink(path)
-            return OpenNebula::Error.new("Remote server error: #{error_message}")
-        end
+        return unless error_message
+
+        File.unlink(path)
+        OpenNebula::Error.new("Remote server error: #{error_message}")
     end
 
-    def OpenNebulaHelper.level_lock_to_str(str)
+    def self.level_lock_to_str(str)
         level = str.to_i
         if level == 0
-            "None"
+            'None'
         elsif level == 1
-            "Use"
+            'Use'
         elsif level == 2
-            "Manage"
+            'Manage'
         elsif level == 3
-            "Admin"
+            'Admin'
         elsif level == 4
-            "All"
+            'All'
         else
-            "-"
+            '-'
         end
     end
 
-    def OpenNebulaHelper.parse_user_inputs(inputs, keys = [])
+    def self.parse_user_inputs(inputs, keys = [])
         unless inputs.keys == keys
             puts 'There are some parameters that require user input. ' \
                  'Use the string <<EDITOR>> to launch an editor ' \
@@ -2132,7 +2128,7 @@ EOT
                 # use default in case it's empty
                 answer = initial if answer.empty?
 
-                unless %w[YES NO].include?(answer)
+                unless ['YES', 'NO'].include?(answer)
                     STDERR.puts "Invalid boolean '#{answer}'"
                     STDERR.puts 'Boolean has to be YES or NO'
                     exit(-1)
@@ -2160,8 +2156,8 @@ EOT
                     answer = STDIN.readline.chop
 
                     answer = initial if answer == ''
-                        noanswer = ((answer == '') && optional)
-                end while !noanswer && (answer =~ exp) == nil
+                    noanswer = ((answer == '') && optional)
+                end while !noanswer && (answer =~ exp).nil?
 
                 if noanswer
                     next
@@ -2198,7 +2194,7 @@ EOT
                     answer = initial if answer == ''
 
                     noanswer = (answer == '') && optional
-                end while !noanswer && ((answer =~ exp) == nil ||
+                end while !noanswer && ((answer =~ exp).nil? ||
                           answer.to_f < min || answer.to_f > max)
 
                 if noanswer
@@ -2257,7 +2253,7 @@ EOT
     # @param title [String] Plot title
     #
     # @return Gnuplot plot object
-    def OpenNebulaHelper.get_plot(x, y, attr, title)
+    def self.get_plot(x, y, attr, title)
         # Require gnuplot gem only here
         begin
             require 'gnuplot'
@@ -2307,7 +2303,7 @@ EOT
     # @param perm [String] Permissions in human readbale format
     #
     # @return [String] Permissions in octet format
-    def OpenNebulaHelper.to_octet(perm)
+    def self.to_octet(perm)
         begin
             Integer(perm)
             perm

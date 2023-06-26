@@ -306,7 +306,6 @@ AllCops:
     - src/cli/one_helper/onesecgroup_helper.rb
     - src/cli/one_helper/onezone_helper.rb
     - src/cli/one_helper/onetemplate_helper.rb
-    - src/cli/one_helper/onevm_helper.rb
     - src/cli/one_helper/oneacct_helper.rb
     - src/cli/one_helper/onequota_helper.rb
     - src/cli/one_helper/oneuser_helper.rb

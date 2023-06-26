@@ -562,7 +562,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Users in the pool
+        Lists Users in the pool. #{OneUserHelper.list_layout_help}
     EOT
 
     command :list, list_desc, :options => list_options do
