@@ -297,7 +297,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Hosts in the pool
+        Lists Hosts in the pool. #{OneHostHelper.list_layout_help}
     EOT
 
     command :list, list_desc,

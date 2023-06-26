@@ -1278,7 +1278,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists VMs in the pool
+        Lists VMs in the pool. #{OneVMHelper.list_layout_help}
     EOT
 
     command :list, list_desc, [:filterflag, nil],
@@ -1485,11 +1485,11 @@ CommandParser::CmdParser.new(ARGV) do
     create_chart_desc = <<-EOT.unindent
         Adds a charter to the VM, these are some consecutive scheduled actions
 
-        You can configure the actions in /etc/one/cli/onevm.yaml
+        You can configure the actions in #{OneVMHelper.conf_file}
     EOT
 
     command :'create-chart', create_chart_desc, :vmid do
-        charters = helper.get_charters
+        charters = helper.charters
 
         if charters.nil?
             STDERR.puts 'No charters found on configuration file'

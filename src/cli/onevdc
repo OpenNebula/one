@@ -300,7 +300,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists VDCs in the pool
+        Lists VDCs in the pool. #{OneVdcHelper.list_layout_help}
     EOT
 
     command :list, list_desc, :options => list_options do
