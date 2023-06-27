@@ -33,7 +33,7 @@ const DatastoresTable = (props) => {
   const {
     rootProps = {},
     searchProps = {},
-    filter = (dataToFilter) => dataToFilter,
+    useQuery = useGetDatastoresQuery,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -41,9 +41,6 @@ const DatastoresTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useQuery()
-
-  // Filter data with input funcion called "filter"
-  const filteredData = filter(data)
 
   const columns = useMemo(
     () =>
@@ -57,7 +54,7 @@ const DatastoresTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => filteredData, [filteredData])}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
