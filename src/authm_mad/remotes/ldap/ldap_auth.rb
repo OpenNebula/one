@@ -89,7 +89,7 @@ class OpenNebula::LdapAuth
         file=@options[:mapping_file_path]
         generate = false
 
-        if File.exists?(file)
+        if File.exist?(file)
             stat = File.stat(file)
             age = Time.now.to_i - stat.mtime.to_i
             generate = true if age > @options[:mapping_timeout]
@@ -124,7 +124,7 @@ class OpenNebula::LdapAuth
 
         @mapping = {}
 
-        if File.exists?(file)
+        if File.exist?(file)
             @mapping = YAML.load(File.read(file))
         end
 

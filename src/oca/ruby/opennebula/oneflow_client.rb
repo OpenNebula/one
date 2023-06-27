@@ -339,9 +339,9 @@ module Service
                 url = opts[:url]
             elsif ENV['ONEFLOW_URL']
                 url = ENV['ONEFLOW_URL']
-            elsif ENV['HOME'] && File.exists?(ENV['HOME'] + endpoint)
+            elsif ENV['HOME'] && File.exist?(ENV['HOME'] + endpoint)
                 url = File.read(ENV['HOME'] + endpoint).strip
-            elsif File.exists?('/var/lib/one/.one/oneflow_endpoint')
+            elsif File.exist?('/var/lib/one/.one/oneflow_endpoint')
                 url = File.read('/var/lib/one/.one/oneflow_endpoint').strip
             else
                 url = 'http://localhost:2474'

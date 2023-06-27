@@ -403,7 +403,7 @@ def install_dependencies(gems, distro)
         if distro.first == :debian
             # on Debian-like platforms, the augeas gem build might fail
             # due to incompatible libxml include paths
-            unless File.exists?('/usr/include/libxml')
+            unless File.exist?('/usr/include/libxml')
                 require 'fileutils'
 
                 FileUtils.ln_s('/usr/include/libxml2/libxml',

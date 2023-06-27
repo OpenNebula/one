@@ -1141,7 +1141,7 @@ EOT
         def self.table_conf(conf_file=self.conf_file)
             path = "#{ENV["HOME"]}/.one/cli/#{conf_file}"
 
-            if File.exists?(path)
+            if File.exist?(path)
                 return path
             else
                 return "#{TABLE_CONF_PATH}/#{conf_file}"

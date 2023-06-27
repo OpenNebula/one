@@ -180,7 +180,7 @@ class OneDB
     def backup(bck_file, ops, backend=@backend)
         bck_file = backend.bck_file(ops[:federated]) if bck_file.nil?
 
-        if !ops[:force] && File.exists?(bck_file)
+        if !ops[:force] && File.exist?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
         end
@@ -190,7 +190,7 @@ class OneDB
     end
 
     def restore(bck_file, ops, backend=@backend)
-        if !File.exists?(bck_file)
+        if !File.exist?(bck_file)
             raise "File #{bck_file} doesn't exist, backup restoration aborted."
         end
 
@@ -464,7 +464,7 @@ class OneDB
 
         file = "#{RUBY_LIB_LOCATION}/onedb/fsck.rb"
 
-        if File.exists? file
+        if File.exist? file
 
             one_not_running()
 
@@ -525,7 +525,7 @@ class OneDB
             puts ""
         end
 
-        if File.exists? file
+        if File.exist? file
 
             load(file)
             @backend.extend OneDBPatch
@@ -620,7 +620,7 @@ class OneDB
 
         file = "#{RUBY_LIB_LOCATION}/onedb/vcenter_one54.rb"
 
-        if File.exists? file
+        if File.exist? file
             load(file)
             @backend.extend One54Vcenter
 
@@ -725,7 +725,7 @@ class OneDB
     private
 
     def one_not_running()
-        if File.exists?(LOCK_FILE)
+        if File.exist?(LOCK_FILE)
             raise "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
         end
 
