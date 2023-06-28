@@ -1758,7 +1758,7 @@ void VirtualMachineAttach::request_execute(
     }
 
     // -------------------------------------------------------------------------
-    // Parse NIC template
+    // Parse disk template
     // -------------------------------------------------------------------------
     rc = tmpl.parse_str_or_xml(str_tmpl, att.resp_msg);
 
@@ -1814,7 +1814,7 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+    ar.add_auth(att.auth_op, vm_perms);
 
     VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
 
@@ -2577,7 +2577,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+    ar.add_auth(att.auth_op, vm_perms);
 
     VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
 
@@ -2750,7 +2750,7 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+    ar.add_auth(att.auth_op, vm_perms);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -2820,6 +2820,15 @@ void VirtualMachineUpdateNic::request_execute(
 
         auto nic = vm->get_nic(nic_id);
 
+        if (!nic)
+        {
+            att.resp_msg = "VM " + to_string(id) + ": NIC " + to_string(nic_id) +
+                " does not exists";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
         if (nic->is_alias())
         {
             att.resp_msg = "Action not supported for NIC_ALIAS";
@@ -2857,7 +2866,7 @@ void VirtualMachineUpdateNic::request_execute(
     // -------------------------------------------------------------------------
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+    ar.add_auth(att.auth_op, vm_perms);
 
     VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
 
@@ -3855,7 +3864,7 @@ void VirtualMachineAttachSG::request_execute(
     // Authorize the operation
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
+    ar.add_auth(att.auth_op, vm_perms);
 
     nic_tmpl->authorize(att.uid, &ar, true);
 
@@ -3893,52 +3902,8 @@ void VirtualMachineDetachSG::request_execute(
     int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
     int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
 
-    PoolObjectAuth   vm_perms;
-
-    if (auto vm = get_vm_ro(vm_id, att))
+    if (!vm_authorization(vm_id, 0, 0, att, 0, 0, 0))
     {
-        auto nic = vm->get_nic(nic_id);
-
-        if (!nic)
-        {
-            ostringstream oss;
-            oss << "VM " << vm_id << " doesn't have NIC id " << nic_id;
-            att.resp_msg = oss.str();
-
-            failure_response(Request::INTERNAL, att);
-            return;
-        }
-
-        set<int> sgs;
-        nic->get_security_groups(sgs);
-
-        if (sgs.find(sg_id) == sgs.end())
-        {
-            ostringstream oss;
-            oss << "VM " << vm_id << " NIC " << nic_id
-                << " doesn't contain SG " << sg_id;
-            att.resp_msg = oss.str();
-
-            failure_response(INTERNAL, att);
-            return;
-        }
-
-        vm->get_permissions(vm_perms);
-    }
-    else
-    {
-        return;
-    }
-
-    // Authorize the operation
-    AuthRequest ar(att.uid, att.group_ids);
-
-    ar.add_auth(AuthRequest::MANAGE, vm_perms);
-
-    if (UserPool::authorize(ar) == -1)
-    {
-        att.resp_msg = ar.message;
-        failure_response(Request::AUTHORIZATION, att);
         return;
     }
 
