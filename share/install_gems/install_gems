@@ -83,8 +83,7 @@ case "${TARGET}" in
             >/dev/null
         ;;
     *)
-        echo "ERROR: Unknown target ${TARGET}" >&2
-        exit 1
+        echo "Unknown target ${TARGET}. Skipping build dependencies" >&2
         ;;
 esac
 
