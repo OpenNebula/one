@@ -312,7 +312,7 @@ CommandParser::CmdParser.new(ARGV) do
     ###
 
     host_list_desc = <<-EOT.unindent
-        Lists bare metal Hosts in the pool. #{OneProviderHelper.list_layout_help}
+        Lists bare metal Hosts in the pool. #{OneProvisionHelper.list_layout_help}
     EOT
 
     command [:host, :list],
