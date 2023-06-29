@@ -2523,12 +2523,13 @@ string& VirtualMachine::to_token(string& text) const
 string& VirtualMachine::to_xml_short(string& xml)
 {
     string disks_xml, user_template_xml, history_xml, nics_xml;
-    string cpu_tmpl, mem_tmpl;
+    string cpu_tmpl, mem_tmpl, vcpu_tmpl;
 
     ostringstream   oss;
 
     obj_template->get("CPU", cpu_tmpl);
     obj_template->get("MEMORY", mem_tmpl);
+    obj_template->get("VCPU", vcpu_tmpl);
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2553,6 +2554,7 @@ string& VirtualMachine::to_xml_short(string& xml)
     oss << "<TEMPLATE>"
         << "<CPU>"       << cpu_tmpl  << "</CPU>"
         << "<MEMORY>"    << mem_tmpl  << "</MEMORY>"
+        << "<VCPU>"      << vcpu_tmpl << "</VCPU>"
         << disks.to_xml_short(disks_xml)
         << nics.to_xml_short(nics_xml);
 

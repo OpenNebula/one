@@ -25,6 +25,7 @@
                   <xs:sequence>
                     <xs:element name="CPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
