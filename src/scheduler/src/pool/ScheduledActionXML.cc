@@ -273,16 +273,22 @@ static int action_call(int vmid, SchedAction *sa, const std::string& aname,
         }
         else if (aname == "backup")
         {
-            int dsid;
+            int dsid = -1;
+            bool reset = false;
 
-            if (parse_args(args, dsid) != 0)
+            if (args.size() == 1)
+            {
+                args.push("0"); // For backward compatibility set reset = false
+            }
+
+            if (parse_args(args, dsid, reset) != 0)
             {
                 error = "Missing or malformed ARGS for: backup."
-                        " Format: datastore-id";
+                        " Format: datastore-id, reset";
                 return -1;
             }
 
-            Client::client()->call("one.vm.backup", "ii", &result, vmid, dsid);
+            Client::client()->call("one.vm.backup", "iib", &result, vmid, dsid, reset);
         }
         else
         {

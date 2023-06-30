@@ -1575,7 +1575,7 @@ CommandParser::CmdParser.new(ARGV) do
         reset = options[:reset] == true
 
         if !options[:schedule].nil?
-            options[:args] = options[:datastore]
+            options[:args] = "#{options[:datastore]},#{reset ? 1 : 0}"
 
             helper.schedule_actions([args[0]], options, @comm_name)
         else
