@@ -110,19 +110,23 @@ EOF
     fi
 
     # copy volume between datastores
-    if [ "${SRC_PATH}" != "${DST_PATH}" ]; then
+    if [ "${SRC_PATH}" != "${DST_PATH}" ] || [ "${SRC_HOST}" != "${DST_HOST}" ]; then
         # create new volume
         CREATE_CMD=$(cat <<EOF
             set -e -o pipefail
             ${SYNC}
             ${SUDO} ${LVSCAN}
             SIZE=\$(${SUDO} ${LVS} --noheadings --units B -o lv_size "${SRC_DEV}" | tr -d '[:blank:]')
-            ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
+            if [ "${SRC_HOST}" != "${DST_HOST}" ]; then
+                $SSH -n $DST_HOST ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
+            else
+                ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
+            fi
 EOF
 )
 
         LOCK="tm-fs_lvm-${DST_DS_SYS_ID}.lock"
-        exclusive "${LOCK}" 120 ssh_exec_and_log "${DST_HOST}" "${CREATE_CMD}" \
+        exclusive "${LOCK}" 120 ssh_exec_and_log "${SRC_HOST}" "${CREATE_CMD}" \
                 "Error creating LV named ${LV_NAME}"
 
         # activate src volume (on DST)
@@ -138,8 +142,13 @@ EOF
             "Error deactivating disk ${SRC_PATH}"
 
         # copy volume data
-        ssh_exec_and_log "$DST_HOST" \
-            "${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k}" \
+        if [ "${SRC_HOST}" != "${DST_HOST}" ]; then
+            COPY_CMD="$SSH -n $SRC_HOST \\"${DD} if=${SRC_DEV} of=- bs=${DD_BLOCK_SIZE:-64k} 2> /dev/null\\" | ${DD} if=- of=${DST_DEV}"
+        else
+            COPY_CMD="${DD} if=${SRC_DEV} of=${DST_DEV} bs=${DD_BLOCK_SIZE:-64k}"
+        fi
+        LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 7200 ssh_exec_and_log "${DST_HOST}" "${COPY_CMD}" \
             "Error copying ${SRC} to ${DST}"
 
         # delete old volume and update device symlinks
