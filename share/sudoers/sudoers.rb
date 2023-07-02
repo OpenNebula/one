@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,15 +34,15 @@ class Sudoers
                 'ip route *',
                 'ip neighbour *'
             ],
-            :LVM    => %w[
-                lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend
+            :LVM    => [
+                'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend'
             ],
-            :OVS    => %w[ovs-ofctl ovs-vsctl],
-            :CEPH   => %w[rbd],
-            :LXD    => %w[
-                /snap/bin/lxc /usr/bin/catfstab mount umount mkdir lsblk losetup
-                kpartx qemu-nbd blkid e2fsck resize2fs xfs_growfs rbd-nbd
-                xfs_admin tune2fs
+            :OVS    => ['ovs-ofctl', 'ovs-vsctl'],
+            :CEPH   => ['rbd'],
+            :LXD    => [
+                '/snap/bin/lxc', '/usr/bin/catfstab', 'mount', 'umount', 'mkdir', 'lsblk',
+                'losetup', 'kpartx', 'qemu-nbd', 'blkid', 'e2fsck', 'resize2fs', 'xfs_growfs',
+                'rbd-nbd', 'xfs_admin', 'tune2fs'
             ],
             :HA => [
                 'systemctl start opennebula-flow',
@@ -62,18 +62,18 @@ class Sudoers
                 'arping',
                 'ip address *'
             ],
-            :MARKET => %W[#{lib_location}/sh/create_container_image.sh
-                          #{lib_location}/sh/create_docker_image.sh  ],
-            :FIRECRACKER => %w[/usr/bin/jailer
-                               /usr/sbin/one-clean-firecracker-domain
-                               /usr/sbin/one-prepare-firecracker-domain],
-            :LXC => %w[
-                mount umount bindfs losetup qemu-nbd lxc-attach lxc-config
-                lxc-create lxc-destroy lxc-info lxc-ls lxc-start lxc-stop
-                lxc-console e2fsck resize2fs xfs_growfs rbd-nbd
+            :MARKET => ["#{lib_location}/sh/create_container_image.sh",
+                        "#{lib_location}/sh/create_docker_image.sh"],
+            :FIRECRACKER => ['/usr/bin/jailer',
+                             '/usr/sbin/one-clean-firecracker-domain',
+                             '/usr/sbin/one-prepare-firecracker-domain'],
+            :LXC => [
+                'mount', 'umount', 'bindfs', 'losetup', 'qemu-nbd', 'lxc-attach', 'lxc-config',
+                'lxc-create', 'lxc-destroy', 'lxc-info', 'lxc-ls', 'lxc-start', 'lxc-stop',
+                'lxc-console', 'e2fsck', 'resize2fs', 'xfs_growfs', 'rbd-nbd'
             ],
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
-            :VGPU => %w[sudo /var/tmp/one/vgpu]
+            :VGPU => ['sudo', '/var/tmp/one/vgpu']
         }
     end
 

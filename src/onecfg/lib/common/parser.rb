@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -84,7 +84,7 @@ module OneCfg::Common
             # command
             parsed[:command].downcase!
 
-            if !%w[rm ins set].include?(parsed[:command])
+            if !['rm', 'ins', 'set'].include?(parsed[:command])
                 raise OneCfg::Exception::FileParseError,
                       "Invalid patch action '#{parsed[:command]}'"
             end

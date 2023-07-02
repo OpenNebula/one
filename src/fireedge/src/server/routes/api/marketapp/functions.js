@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -83,7 +83,8 @@ const exportApp = (
   let rtn = httpBadRequest
   const { id, name, datastore, file, associated, tag, template, vmname } =
     params
-  if (id && name && datastore) {
+  const { user, password } = userData
+  if ((id && name && datastore && user, password)) {
     let message = ''
     const paramsCommand = [
       'export',
@@ -98,6 +99,8 @@ const exportApp = (
     tag && paramsCommand.push('--tag', tag)
     template && paramsCommand.push('--template', template)
     vmname && paramsCommand.push('--vmname', vmname)
+    user && paramsCommand.push('--user', user)
+    password && paramsCommand.push('--password', password)
 
     const executedCommand = executeCommand(
       defaultCommandMarketApp,

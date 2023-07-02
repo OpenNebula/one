@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,6 +42,16 @@ module OpenNebula
                     :type => :string,
                     :required => false
                 },
+                'custom_attrs' => {
+                    :type => :object,
+                    :properties => {},
+                    :required => false
+                },
+                'custom_attrs_values' => {
+                    :type => :object,
+                    :properties => {},
+                    :required => false
+                },
                 'parents' => {
                     :type => :array,
                     :items => {
@@ -50,11 +60,11 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w[
-                        terminate
-                        terminate-hard
-                        shutdown
-                        shutdown-hard
+                    :enum => [
+                        'terminate',
+                        'terminate-hard',
+                        'shutdown',
+                        'shutdown-hard'
                     ],
                     :required => false
                 },
@@ -84,10 +94,10 @@ module OpenNebula
                         :properties => {
                             'type' => {
                                 :type => :string,
-                                :enum => %w[
-                                    CHANGE
-                                    CARDINALITY
-                                    PERCENTAGE_CHANGE
+                                :enum => [
+                                    'CHANGE',
+                                    'CARDINALITY',
+                                    'PERCENTAGE_CHANGE'
                                 ],
                                 :required => true
                             },
@@ -133,10 +143,10 @@ module OpenNebula
                         :properties => {
                             'type' => {
                                 :type => :string,
-                                :enum => %w[
-                                    CHANGE
-                                    CARDINALITY
-                                    PERCENTAGE_CHANGE
+                                :enum => [
+                                    'CHANGE',
+                                    'CARDINALITY',
+                                    'PERCENTAGE_CHANGE'
                                 ],
                                 :required => true
                             },
@@ -172,7 +182,7 @@ module OpenNebula
                 },
                 'deployment' => {
                     :type => :string,
-                    :enum => %w[none straight],
+                    :enum => ['none', 'straight'],
                     :default => 'none'
                 },
                 'description' => {
@@ -181,11 +191,11 @@ module OpenNebula
                 },
                 'shutdown_action' => {
                     :type => :string,
-                    :enum => %w[
-                        terminate
-                        terminate-hard
-                        shutdown
-                        shutdown-hard
+                    :enum => [
+                        'terminate',
+                        'terminate-hard',
+                        'shutdown',
+                        'shutdown-hard'
                     ],
                     :required => false
                 },
@@ -235,8 +245,8 @@ module OpenNebula
         # List of attributes that can't be changed in update operation
         #
         # registration_time: this is internal info managed by OneFlow server
-        IMMUTABLE_ATTRS = %w[
-            registration_time
+        IMMUTABLE_ATTRS = [
+            'registration_time'
         ]
 
         def self.init_default_vn_name_template(vn_name_template)
@@ -487,7 +497,7 @@ module OpenNebula
                 instantiate_template = JSON.parse(@body.to_json)
             else
                 instantiate_template = JSON.parse(@body.to_json)
-                                           .merge(merge_template)
+                                           .deep_merge(merge_template)
             end
 
             begin

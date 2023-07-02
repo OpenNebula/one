@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -120,7 +120,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
+Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string&  name,
         bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
         RequestAttributes& att)
 {
@@ -140,7 +140,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     VirtualMachineTemplate extended_tmpl;
     VirtualMachineTemplate uattrs;
 
-    string aname;
     string tmpl_name;
 
     /* ---------------------------------------------------------------------- */

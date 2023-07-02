@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,7 +29,7 @@ Log::MessageType NebulaService::get_debug_level(Log::MessageType default_) const
 
     if (log != 0)
     {
-        string value = log->vector_value("DEBUG_LEVEL");
+        const string& value = log->vector_value("DEBUG_LEVEL");
 
         log_level_int = std::atoi(value.c_str());
 

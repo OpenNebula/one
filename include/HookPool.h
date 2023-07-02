@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -84,7 +84,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "HOOK_POOL", "body", one_db::hook_table,
                              where, sid, eid, desc);
@@ -94,7 +94,7 @@ public:
      *  Factory method to produce Hook objects
      *    @return a pointer to the new VN
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Hook(0);
     };

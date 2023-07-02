@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -386,7 +386,8 @@ define(function(require) {
     LCM_STATES.SHUTDOWN_UNDEPLOY,
     LCM_STATES.DISK_SNAPSHOT,
     LCM_STATES.DISK_SNAPSHOT_REVERT,
-    LCM_STATES.DISK_RESIZE
+    LCM_STATES.DISK_RESIZE,
+    LCM_STATES.BACKUP
   ];
 
   var RDP_STATES = [

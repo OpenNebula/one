@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -175,7 +175,7 @@ private:
     /**
      *  Message fields
      */
-    E _type;
+    E _type = E::UNDEFINED;
 
     std::string _status = std::string("-");
 
@@ -218,7 +218,7 @@ int Message<E, compress, encode, encrypt, has_timestamp>
 
     is >> buffer;
 
-    _type = _type_str._from_str(buffer.c_str());
+    _type = _type_str._from_str(buffer);
 
     if ( !is.good() || _type == E::UNDEFINED )
     {

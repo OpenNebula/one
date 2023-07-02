@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -127,7 +127,7 @@ end
             }
         }
         NSXV_RULE_BASE = 'xxx'
-        NSX_RULE_IPSEC_PORTS = %w[500 4500]
+        NSX_RULE_IPSEC_PORTS = ['500', '4500']
         # Logical Ports
         NSXT_LP_BASE = NSXT_BASE + '/logical-ports/'
         NSXV_LP_BASE = ''

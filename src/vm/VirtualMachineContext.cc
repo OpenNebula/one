@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -113,8 +113,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 {
     ofstream file;
     string   files_ds, error_str;
-
-    vector<const VectorAttribute*> attrs;
 
     files = "";
     bool token;
@@ -355,7 +353,6 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
         string& error_str, bool only_auto)
 {
     bool net_context;
-    string net_mode = "";
 
     bool parse_vnets = false; //VNETs needs parse, NIC context generated
 
@@ -479,9 +476,9 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 /* -------------------------------------------------------------------------- */
 
 static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic)
+        VectorAttribute * context, const VectorAttribute * nic)
 {
-    string pci_id = nic->vector_value("PCI_ID");
+    const string& pci_id = nic->vector_value("PCI_ID");
 
     for (const auto& con : cvars)
     {
@@ -619,7 +616,6 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
     if (!files_ds.empty())
     {
         string files_ds_parsed;
-        string st;
 
         ostringstream oss_parsed;
 
@@ -637,7 +633,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
             ImagePool * ipool = nd.get_ipool();
 
             Image::ImageType type;
-            Image::ImageState state;
+            Image::ImageState st;
 
             for ( auto iid : img_ids )
             {
@@ -647,7 +643,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
                                << img->get_name() << "' ";
 
                     type  = img->get_type();
-                    state = img->get_state();
+                    st = img->get_state();
 
                     if (type != Image::CONTEXT)
                     {
@@ -656,7 +652,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
                         return -1;
                     }
 
-                    if ( state != Image::READY )
+                    if ( st != Image::READY )
                     {
                         ostringstream oss;
 

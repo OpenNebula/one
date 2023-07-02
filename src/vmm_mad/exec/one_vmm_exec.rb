@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -179,19 +179,17 @@ class VmmAction
 
     # List of xpaths required by the VNM driver actions. TEMPLATE/NIC is
     # also required but added separately to the driver xml
-    XPATH_LIST = %w[
-        ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
-        TEMPLATE/SECURITY_GROUP_RULE
-        HISTORY_RECORDS/HISTORY/HOSTNAME
-        HISTORY_RECORDS/HISTORY/HID
-        HISTORY_RECORDS/HISTORY/DS_ID
-        HISTORY_RECORDS/HISTORY/VM_MAD
+    XPATH_LIST = [
+        'ID', 'DEPLOY_ID', 'TEMPLATE/CONTEXT', 'USER_TEMPLATE', 'TEMPLATE/SECURITY_GROUP_RULE',
+        'HISTORY_RECORDS/HISTORY/HOSTNAME', 'HISTORY_RECORDS/HISTORY/HID',
+        'HISTORY_RECORDS/HISTORY/DS_ID', 'HISTORY_RECORDS/HISTORY/VM_MAD'
     ]
 
     DRIVER_NAMES = {
         :vmm => 'virtualization driver',
         :vnm => 'network driver',
-        :tm  => 'transfer manager driver'
+        :tm  => 'transfer manager driver',
+        :ds  => 'datastore driver'
     }
 
     # Prepares the list of drivers executed on the host and the xml that will
@@ -212,7 +210,7 @@ class VmmAction
             end
         end
 
-        %w[NIC NIC_ALIAS PCI].each do |r|
+        ['NIC', 'NIC_ALIAS', 'PCI'].each do |r|
             vm_template_xml.elements.each("TEMPLATE/#{r}") do |element|
                 vn_mad = element.get_text('VN_MAD').to_s
 
@@ -413,7 +411,7 @@ class ExecDriver < VirtualMachineDriver
         # ----------------------------------------------------------------------
         local_dfile = action.data[:local_dfile]
 
-        if !local_dfile || File.zero?(local_dfile)
+        if !local_dfile || File.empty?(local_dfile)
             send_message(ACTION[:deploy], RESULT[:failure], id,
                          "Cannot open deployment file #{local_dfile}")
             return
@@ -1368,6 +1366,31 @@ class ExecDriver < VirtualMachineDriver
                 :action     => post_name,
                 :parameters => post_tm,
                 :stdin      => vm_xml
+            }
+        ]
+
+        action.run(steps)
+    end
+
+    def backup_cancel(id, drv_message)
+        aname    = ACTION[:backup_cancel]
+        xml_data = decode(drv_message)
+
+        action = VmmAction.new(self, id, :backup_cancel, drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, aname, 'TM_COMMAND') || return
+        bck_mad    = ensure_xpath(xml_data, id, aname, 'DATASTORE/DS_MAD') || return
+
+        tm = tm_command.split
+
+        ds_command = ['BACKUP_CANCEL', bck_mad].concat(tm[2..-1])
+
+        # Backup cancel operation steps
+        steps = [
+            {
+                :driver     => :ds,
+                :action     => :backup_cancel,
+                :parameters => ds_command
             }
         ]
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -462,6 +462,8 @@ int ImageManager::delete_image(int iid, string& error_str)
     int cloning_id = -1;
     int vm_saving_id = -1;
 
+    bool cforget;
+
     ostringstream oss;
 
     if (auto img = ipool->get_ro(iid))
@@ -479,6 +481,8 @@ int ImageManager::delete_image(int iid, string& error_str)
         ds->decrypt();
 
         ds->to_xml(ds_data);
+
+        cforget = ds->is_concurrent_forget();
     }
     else
     {
@@ -492,6 +496,35 @@ int ImageManager::delete_image(int iid, string& error_str)
     {
         error_str = "Image does not exist";
         return -1;
+    }
+
+    // Check associted VM state for backups. Note VM can no longer exist
+    // Fai if VM is in BACKUP and INCREMENT mode or FULL with no CONCURRENT_FORGET
+    if ( img->get_type() == Image::BACKUP )
+    {
+        auto ids   = img->get_running_ids();
+        auto first = ids.cbegin();
+
+        if (first != ids.cend())
+        {
+            VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+
+            if (auto vm = vmpool->get_ro(*first))
+            {
+                auto lstate = vm->get_lcm_state();
+                auto bmode  = vm->backups().mode();
+
+                if (vm->backups().active_flatten() ||
+                     ((lstate == VirtualMachine::BACKUP ||
+                        lstate == VirtualMachine::BACKUP_POWEROFF) &&
+                        (bmode == Backups::INCREMENT || !cforget)))
+                {
+                    error_str = "Active backup on the associated VM. Wait till "
+                        "it finish to delete the backup Image";
+                    return -1;
+                }
+            }
+        }
     }
 
     switch (img->get_state())
@@ -1387,6 +1420,69 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ImageManager::flatten_increments(int iid, int ds_id, const string& edata, string& error)
+{
+    const auto* imd = get();
+
+    if ( imd == nullptr )
+    {
+        error = "Could not get datastore driver";
+        return -1;
+    }
+
+    string ds_data;
+
+    if (auto ds = dspool->get_ro(ds_id))
+    {
+        ds->decrypt();
+
+        ds->to_xml(ds_data);
+    }
+    else
+    {
+       error = "Datastore no longer exists";
+       return -1;
+    }
+
+    auto img = ipool->get(iid);
+
+    if ( img == nullptr )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    if ( img->get_type() != Image::BACKUP )
+    {
+        error = "Image is not of type BACKUP";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot flatten increments in state " + Image::state_to_str(img->get_state());
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
+    string img_tmpl;
+    string drv_msg(format_message(img->to_xml(img_tmpl), ds_data, edata));
+
+    image_msg_t msg(ImageManagerMessages::INCREMENT_FLATTEN, "", iid, drv_msg);
+
+    imd->write(msg);
+
+    img->set_state(Image::LOCKED);
+
+    ipool->update(img.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 int ImageManager::restore_image(int iid, int dst_ds_id, const std::string& txml,
     std::string& result)
 {

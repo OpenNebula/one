@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -43,6 +43,9 @@
             </span>
           </label>
           <select wizard_field="TM_MAD_SYSTEM" id="TM_MAD_SYSTEM" name="TM_MAD_SYSTEM">
+            <option value="">{{tr "Default"}}</option>
+            <option class="ssh" value="ssh" style="display: none;">ssh</option>
+            <option class="shared" value="shared" style="display: none;">shared</option>
           </select>
         </div>
       </div>

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,26 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import compression from 'compression'
-import cors from 'cors'
-import express from 'express'
-import { readFileSync } from 'fs-extra'
-import helmet from 'helmet'
-import http from 'http'
-import https from 'https'
-import { resolve } from 'path'
-import { env } from 'process'
-import webpack from 'webpack'
-import {
-  entrypoint404,
-  entrypointApi,
-  entrypointApp,
-} from './routes/entrypoints'
-import opennebulaWebsockets from './routes/websockets/opennebula'
-import guacamole from './routes/websockets/guacamole'
-import vmrc from './routes/websockets/vmrc'
-import { getFireedgeConfig } from './utils/yml'
-import { messageTerminal } from './utils/general'
 import {
   defaultAppName,
   defaultApps,
@@ -42,7 +22,11 @@ import {
   defaultPort,
   defaultWebpackMode,
 } from './utils/constants/defaults'
-import { getLoggerMiddleware, initLogger } from './utils/logger'
+import {
+  entrypoint404,
+  entrypointApi,
+  entrypointApp,
+} from './routes/entrypoints'
 import {
   genFireedgeKey,
   genPathResources,
@@ -50,6 +34,23 @@ import {
   getKey,
   validateServerIsSecure,
 } from './utils/server'
+import { getLoggerMiddleware, initLogger } from './utils/logger'
+
+import compression from 'compression'
+import cors from 'cors'
+import { env } from 'process'
+import express from 'express'
+import { getFireedgeConfig } from './utils/yml'
+import guacamole from './routes/websockets/guacamole'
+import helmet from 'helmet'
+import http from 'http'
+import https from 'https'
+import { messageTerminal } from './utils/general'
+import opennebulaWebsockets from './routes/websockets/opennebula'
+import { readFileSync } from 'fs-extra'
+import { resolve } from 'path'
+import vmrc from './routes/websockets/vmrc'
+import webpack from 'webpack'
 
 // set paths
 genPathResources()
@@ -75,7 +76,7 @@ let frontPath = 'client'
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 
-if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
+if (env?.NODE_ENV === defaultWebpackMode) {
   try {
     const webpackConfig = require('../../webpack.config.dev.client')
     const compiler = webpack(webpackConfig)
@@ -115,7 +116,7 @@ if (loggerMiddleware) {
   app.use(loggerMiddleware)
 }
 
-// cors
+// CORS
 if (appConfig.cors) {
   app.use(cors())
 }
@@ -129,7 +130,7 @@ frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/sunstone`))
+app.get('/*', (_, res) => res.redirect(`/${defaultAppName}/sunstone`))
 // 404 - public
 app.get('*', entrypoint404)
 

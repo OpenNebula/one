@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -439,7 +439,7 @@ public:
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-                std::string& str)
+                std::string& str) override
     {
         (static_cast<Hook *>(object))->to_xml_extended(str);
     };

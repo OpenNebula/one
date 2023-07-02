@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,15 +22,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     # This list contains prefixes that should skip adding user home to the path
     # This must have the same content as the case $FROM in downloader.sh
-    PREFIXES = %w[http https ssh s3 rbd vcenter lxd docker dockerfile]
+    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'vcenter', 'lxd', 'docker', 'dockerfile']
 
     TEMPLATE_OPTIONS=[
-        {
-            :name => 'name',
-            :large => '--name name',
-            :format => String,
-            :description => 'Name of the new image'
-        },
         {
             :name => 'description',
             :large => '--description description',
@@ -67,7 +61,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :format => String,
             :proc => lambda do |o, _options|
                 prefix=o.strip.downcase
-                if %w[hd sd xvd vd].include? prefix
+                if ['hd', 'sd', 'xvd', 'vd'].include? prefix
                     [0, prefix]
                 else
                     [-1, 'The prefix must be hd, sd, xvd or vd']
@@ -328,7 +322,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        %w[OWNER GROUP OTHER].each do |e|
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
             mask = '---'
             mask[0] = 'u' if image["PERMISSIONS/#{e}_U"] == '1'
             mask[1] = 'm' if image["PERMISSIONS/#{e}_M"] == '1'
@@ -496,6 +490,8 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             template_options = TEMPLATE_OPTIONS.map do |o|
                 o[:name].to_sym
             end
+
+            template_options << :name
 
             template = create_image_variables(
                 options,

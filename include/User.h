@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -149,7 +149,7 @@ public:
      *    @param password
      *    @return 0 on success
      **/
-    static int split_secret(const std::string secret,
+    static int split_secret(const std::string& secret,
                             std::string& user,
                             std::string& pass);
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -583,6 +583,19 @@ private:
         const std::string& drv_msg) const
     {
         write_drv(VMManagerMessages::BACKUP, oid, drv_msg);
+    }
+
+    /**
+     *  Sends a backup cancel create request to the MAD:
+     *  "BACKUPCANCEL ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void backup_cancel(
+        const int          oid,
+        const std::string& drv_msg) const
+    {
+        write_drv(VMManagerMessages::BACKUPCANCEL, oid, drv_msg);
     }
 
     /**

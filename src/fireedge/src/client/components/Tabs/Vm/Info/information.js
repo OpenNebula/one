@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { generatePath } from 'react-router-dom'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
+import { generatePath } from 'react-router-dom'
 
 import { useViews } from 'client/features/Auth'
 import { useGetClusterAdminQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
 
-import { StatusCircle, StatusChip } from 'client/components/Status'
-import { List } from 'client/components/Tabs/Common'
 import { Translate } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
+import { StatusChip, StatusCircle } from 'client/components/Status'
+import { List } from 'client/components/Tabs/Common'
 
-import {
-  getState,
-  getLastHistory,
-  getIps,
-  getNicWithPortForwarding,
-} from 'client/models/VirtualMachine'
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { RESOURCE_NAMES, T, VM, VM_ACTIONS } from 'client/constants'
 import {
   booleanToString,
   levelLockToString,
   timeToString,
 } from 'client/models/Helper'
-import { T, VM, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import {
+  getIps,
+  getLastHistory,
+  getNicWithPortForwarding,
+  getState,
+} from 'client/models/VirtualMachine'
 
 const { CLUSTER, HOST } = RESOURCE_NAMES
 
@@ -75,7 +75,8 @@ const InformationPanel = ({ vm = {}, actions }) => {
     CID: clusterId,
   } = getLastHistory(vm)
 
-  const { data: cluster } = useGetClusterAdminQuery({ id: clusterId })
+  const { data: cluster } =
+    clusterId !== undefined ? useGetClusterAdminQuery({ id: clusterId }) : {}
   const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
 
   const handleRename = async (_, newName) => {

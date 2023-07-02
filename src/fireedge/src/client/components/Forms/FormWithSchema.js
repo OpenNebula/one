@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  ReactElement,
-  Fragment,
-  createElement,
-  memo,
-  useMemo,
-  useCallback,
-  isValidElement,
-} from 'react'
 import PropTypes from 'prop-types'
+import {
+  Fragment,
+  ReactElement,
+  createElement,
+  isValidElement,
+  memo,
+  useCallback,
+  useMemo,
+} from 'react'
 
+import { Accordion, AccordionSummary, FormControl, Grid } from '@mui/material'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { FormControl, Accordion, AccordionSummary, Grid } from '@mui/material'
 
 import * as FC from 'client/components/FormControl'
 import Legend from 'client/components/Forms/Legend'
-import { Field } from 'client/utils'
 import { INPUT_TYPES } from 'client/constants'
+import { Field } from 'client/utils'
 
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
@@ -176,8 +176,8 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
   const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
     attributes
   ).reduce((field, attribute) => {
-    const [key, value] = attribute
-    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(key)
+    const [attrKey, value] = attribute
+    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(attrKey)
 
     const finalValue =
       typeof value === 'function' &&
@@ -186,12 +186,19 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
         ? value(valueOfDependField, formContext)
         : value
 
-    return { ...field, [key]: finalValue }
+    return { ...field, [attrKey]: finalValue }
   }, {})
 
   const dataCy = useMemo(() => `${cy}-${name ?? ''}`.replaceAll('.', '-'), [cy])
   const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
   const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
+  const key = useMemo(
+    () =>
+      fieldProps?.values
+        ? `${name}-${JSON.stringify(fieldProps.values)}`
+        : undefined,
+    [fieldProps]
+  )
 
   if (isHidden) return null
 
@@ -199,6 +206,7 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
     INPUT_CONTROLLER[type] && (
       <Grid item xs={12} md={6} {...grid}>
         {createElement(INPUT_CONTROLLER[type], {
+          key,
           control: formContext.control,
           cy: dataCy,
           dependencies: nameOfDependField,

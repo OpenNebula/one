@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -80,13 +80,21 @@ public:
 
             line_sz += rc;
 
-            const char * eom = strchr(cur_ptr, '\n');
+            eom = strchr(cur_ptr, '\n');
 
             if ( eom == 0)
             {
                 cur_sz += STRING_BUFFER_SIZE;
 
-                buffer  = (char *) realloc((void *) buffer, cur_sz * sizeof(char));
+                auto new_buffer = (char *) realloc((void *) buffer, cur_sz * sizeof(char));
+
+                if (!new_buffer)
+                {
+                    // Out of memory
+                    return -1;
+                }
+
+                buffer = new_buffer;
                 cur_ptr = buffer + line_sz;
 
                 continue;

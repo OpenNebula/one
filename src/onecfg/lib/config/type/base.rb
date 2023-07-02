@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -388,7 +388,7 @@ module OneCfg::Config::Type
         def self.run_shell_command((*cmd), stdin = nil)
             rtn = nil
 
-            if Hash == cmd.last
+            if cmd.last == Hash
                 opts = cmd.pop.dup
             else
                 opts = {}

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -171,11 +171,9 @@ fi
 if [ -n "$SRC" ]; then
     # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
     RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
-    RBD_SNAP="${VM_ID}-${DISK_ID}"
 else
     # volatile
     RBD_SRC="${POOL_NAME}/one-sys-${VM_ID}-${DISK_ID}"
-    RBD_SNAP=""
 fi
 
 #-------------------------------------------------------------------------------
@@ -190,8 +188,8 @@ DELETE_CMD=$(cat <<EOF
     if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
         rbd_rm_r \$(rbd_top_parent $RBD_SRC) "$CEPH_MOVE_TO_TRASH"
 
-        if [ -n "$RBD_SNAP" ]; then
-            rbd_rm_snap $SRC $RBD_SNAP
+        if [ -n "$SRC" ]; then
+            rbd_rm_snap $SRC ||: # delete the snap if not used
         fi
     else
         $RBD $RM_CMD $RBD_SRC

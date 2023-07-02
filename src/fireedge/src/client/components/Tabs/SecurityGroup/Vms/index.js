@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { T } from 'client/constants'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { useHistory, generatePath } from 'react-router-dom'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { useGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
 import { VmsTable } from 'client/components/Tables'
+import EmptyTab from 'client/components/Tabs/EmptyTab'
+import { T } from 'client/constants'
+import { useGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
+import { CloudDesync, WarningTriangleOutline } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
 
 /**
  * Renders mainly Vms tab.
@@ -43,6 +44,20 @@ const VmsTab = ({ id }) => {
       disableGlobalSort
       displaySelectedRows
       host={secGroup}
+      messages={[
+        {
+          rows: [secGroup?.ERROR_VMS.ID ?? []].flat(),
+          message: T.ErrorUpdatingSecGroups,
+          icon: <WarningTriangleOutline />,
+          type: 'error',
+        },
+        {
+          rows: [secGroup?.UPDATING_VMS.ID ?? []].flat(),
+          message: T.PendingUpdatingSecGroups,
+          icon: <CloudDesync />,
+          type: 'info',
+        },
+      ]}
       onRowClick={(row) => handleRowClick(row.ID)}
       noDataMessage={<EmptyTab label={T.NotVmsCurrentySecGroups} />}
     />

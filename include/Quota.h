@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -88,32 +88,32 @@ protected:
  */
 class QuotaDecorator : public QuotaInterface
 {
-    virtual bool check(Template* tmpl, Quotas& default_quotas, std::string& error)
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error) override
     {
         return quota->check(tmpl, default_quotas, error);
     }
 
-    virtual void del(Template* tmpl)
+    void del(Template* tmpl) override
     {
         return quota->del(tmpl);
     }
 
-    virtual int set(std::vector<VectorAttribute*> * quotas, std::string& error)
+    int set(std::vector<VectorAttribute*> * quotas, std::string& error) override
     {
         return quota->set(quotas, error);
     }
 
-    virtual bool update(Template * tmpl, Quotas& default_quotas, std::string& error)
+    bool update(Template * tmpl, Quotas& default_quotas, std::string& error) override
     {
         return quota->update(tmpl, default_quotas, error);
     }
 
-    virtual const char * get_quota_name() const
+    const char * get_quota_name() const override
     {
         return quota->get_quota_name();
     }
 
-    virtual int get_quota(const std::string& id, VectorAttribute **va)
+    int get_quota(const std::string& id, VectorAttribute **va) override
     {
         return quota->get_quota(id, va);
     }
@@ -142,7 +142,7 @@ public:
      *
      *    @return 0 on success -1 otherwise
      */
-    int set(std::vector<VectorAttribute*> * quotas, std::string& error);
+    int set(std::vector<VectorAttribute*> * quotas, std::string& error) override;
 
     /**
      *  Check if a resource update in usage counters will exceed the
@@ -152,7 +152,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    virtual bool update(Template * tmpl, Quotas& default_quotas, std::string& error)
+    bool update(Template * tmpl, Quotas& default_quotas, std::string& error) override
     {
         error = "Update operation for quotas not supported.";
         return false;
@@ -161,7 +161,7 @@ public:
     /**
      * Returns the name that identifies the quota in a template
      */
-     const char * get_quota_name() const
+     const char * get_quota_name() const override
      {
         return template_name;
      }
@@ -172,7 +172,7 @@ public:
       *    @param va The quota, if it is found
       *    @return 0 on success, -1 if not found
       */
-     virtual int get_quota(const std::string& id, VectorAttribute **va)
+     int get_quota(const std::string& id, VectorAttribute **va) override
      {
          std::map<std::string, Attribute *>::iterator it;
          return get_quota(id, va, it);
@@ -301,7 +301,7 @@ private:
      *
      *    @return a new attribute representing the quota, 0 on error
      */
-    VectorAttribute * new_quota(VectorAttribute* va);
+    VectorAttribute * new_quota(const VectorAttribute* va);
 
     /**
      *  Adds a new quota, it also updates an internal index for fast accessing

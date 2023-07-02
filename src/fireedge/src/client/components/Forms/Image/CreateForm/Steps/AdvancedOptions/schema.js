@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -23,23 +23,16 @@ import {
 import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 
 export const BUS_TYPES = {
-  VD: 'path',
-  SD: 'upload',
-  HD: 'empty',
-  CUSTOM: 'custom',
+  VD: T.Vd,
+  SD: T.Sd,
+  HD: T.Hd,
+  CUSTOM: T.Custom,
 }
 
 const FORMAT_TYPES = {
   RAW: 'raw',
   QCOW2: 'qcow2',
   CUSTOM: 'custom',
-}
-
-const BUS = {
-  [BUS_TYPES.VD]: T.Vd,
-  [BUS_TYPES.SD]: T.Sd,
-  [BUS_TYPES.HD]: T.Hd,
-  [BUS_TYPES.CUSTOM]: T.Custom,
 }
 
 const htmlType = (opt) => (value) => value !== opt && INPUT_TYPES.HIDDEN
@@ -49,7 +42,7 @@ export const DEV_PREFIX = {
   name: 'DEV_PREFIX',
   label: T.Bus,
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(Object.entries(BUS), {
+  values: arrayToOptions(Object.entries(BUS_TYPES), {
     addEmpty: true,
     getText: ([_, name]) => name,
     getValue: ([key]) => key,

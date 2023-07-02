@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -122,7 +122,7 @@ end
 
 mode    = nil    # **must** be set to something other than nil using the options
 force   = false  # By default, don't recreate/delete suspended and poweroff VMs
-repeat  = 2      # By default, wait for 2 monitorization cycles
+repeat  = 2      # By default, wait for 2 monitorization cycles
 fencing = true
 
 opts = GetoptLong.new(
@@ -248,6 +248,13 @@ if OpenNebula.is_error?(rc)
     exit_error "Could not get vm pool"
 end
 
+ds_pool = OpenNebula::DatastorePool.new(client)
+rc = ds_pool.info_all
+
+if OpenNebula.is_error?(rc)
+    exit_error "Could not get datastore pool"
+end
+
 # STATE=3: ACTIVE (LCM unknown)
 # STATE=5: SUSPENDED
 # STATE=8: POWEROFF
@@ -283,6 +290,21 @@ if vm_ids_array
             log "delete #{vm_id}"
             vm.delete
         when :migrate
+            begin
+                vm_ds_id  = vm.retrieve_elements('/VM/HISTORY_RECORDS/HISTORY[last()]/DS_ID')[0]
+
+                ds_xpath  = "/DATASTORE_POOL/DATASTORE[ID=\"#{vm_ds_id}\"]/TEMPLATE/SHARED"
+                is_shared = ds_pool.retrieve_elements(ds_xpath)[0]
+
+                if is_shared.upcase == "NO"
+                    log "Skipping VM #{vm_id} deployed on non-shared datastore"
+                    next
+                end
+            rescue
+                log_error "Could not get Datastore ID or SHARED attribute for VM #{vm_id}"
+                next
+            end
+
             log "resched #{vm_id}"
             vm.resched
         else

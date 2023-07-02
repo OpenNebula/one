@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -58,20 +58,20 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
     #
     TABLE = {
         VOBJECT::DATASTORE => {
-            :struct  => %w[DATASTORE_LIST DATASTORE],
+            :struct  => ['DATASTORE_LIST', 'DATASTORE'],
             :columns =>
                 { :IMID => 5, :REF => 15, :NAME => 50, :CLUSTERS => 10 },
             :cli     => [:host],
             :dialogue => ->(arg) {}
         },
         VOBJECT::TEMPLATE => {
-            :struct  => %w[TEMPLATE_LIST TEMPLATE],
+            :struct  => ['TEMPLATE_LIST', 'TEMPLATE'],
             :columns => { :IMID => 5, :REF => 10, :NAME => 50 },
             :cli     => [:host],
             :dialogue => ->(arg) { OneVcenterHelper.template_dialogue(arg) }
         },
         VOBJECT::NETWORK => {
-            :struct  => %w[NETWORK_LIST NETWORK],
+            :struct  => ['NETWORK_LIST', 'NETWORK'],
             :columns => {
                 :IMID => 5,
                 :REF => 15,
@@ -82,13 +82,13 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
             :dialogue => ->(arg) { OneVcenterHelper.network_dialogue(arg) }
         },
         VOBJECT::IMAGE => {
-            :struct  => %w[IMAGE_LIST IMAGE],
+            :struct  => ['IMAGE_LIST', 'IMAGE'],
             :columns => { :IMID => 5, :REF => 35, :PATH => 60 },
             :cli     => [:host, :datastore],
             :dialogue => ->(arg) {}
         },
         VOBJECT::HOST => {
-            :struct  => %w[HOST_LIST HOST],
+            :struct  => ['HOST_LIST', 'HOST'],
             :columns => { :DATACENTER => 10, :NAME => 30, :REF => 35 },
             :cli     => [],
             :dialogue => ->(arg) {}
@@ -471,7 +471,7 @@ class OneVcenterHelper < OpenNebulaHelper::OneHelper
                    ' do you want to create (IPv[4],IPv[6], [E]thernet)? '
         type_answer = ask.call(question, 'ether')
 
-        supported_types = %w[4 6 ether e ip4 ip6]
+        supported_types = ['4', '6', 'ether', 'e', 'ip4', 'ip6']
         if !supported_types.include?(type_answer)
             type_answer = 'e'
             STDOUT.puts "    Type [#{type_answer}] not supported,"\

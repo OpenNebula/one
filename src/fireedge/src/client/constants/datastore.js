@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,12 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as ACTIONS from 'client/constants/actions'
-import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
+import * as STATES from 'client/constants/states'
 // eslint-disable-next-line no-unused-vars
 import { DISK_TYPES_STR } from 'client/constants/image'
 // eslint-disable-next-line no-unused-vars
 import { Permissions } from 'client/constants/common'
+import { T } from 'client/constants'
 
 /**
  * @typedef Datastore
@@ -34,7 +35,7 @@ import { Permissions } from 'client/constants/common'
  * @property {string} DS_MAD - Datastore driver name
  * @property {string} TM_MAD - Transfer driver name
  * @property {string} BASE_PATH - Datastore directory
- * @property {DATASTORE_TYPES} TYPE - Type
+ * @property {string} TYPE - Type
  * @property {DISK_TYPES_STR} DISK_TYPE - Disk type
  * @property {{ ID: string[] }} CLUSTERS - Clusters
  * @property {{ ID: string[] }} IMAGES - Images
@@ -52,9 +53,6 @@ import { Permissions } from 'client/constants/common'
  * @property {string} [TEMPLATE.VCENTER_HOST] - vCenter information
  * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
  */
-
-/** @type {string[]} Datastore type information */
-export const DATASTORE_TYPES = ['IMAGE', 'SYSTEM', 'FILE', 'BACKUP']
 
 /** @type {STATES.StateInfo[]} Datastore states */
 export const DATASTORE_STATES = [
@@ -74,11 +72,15 @@ export const DATASTORE_STATES = [
 export const DATASTORE_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
   DELETE: 'delete',
+  EDIT_LABELS: 'edit_labels',
 
   // INFORMATION
   RENAME: ACTIONS.RENAME,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+  CHANGE_CLUSTER: 'change_cluster',
+  ENABLE: 'enable',
+  DISABLE: 'disable',
 }
 
 /**
@@ -88,3 +90,120 @@ export const DATASTORE_ACTIONS = {
 export const DS_THRESHOLD = {
   CAPACITY: { high: 66, low: 33 },
 }
+
+export const DATASTORE_OPTIONS = {
+  FILESYSTEM: { name: T.Filesystem, value: 'fs' },
+  CEPH: { name: T.Ceph, value: 'ceph' },
+  DEVICES: { name: T.Devices, value: 'dev' },
+  VCENTER: { name: T.Vcenter, value: 'vcenter' },
+  RESTIC: { name: T.StorageRestic, value: 'restic' },
+  RSYNC: { name: T.StorageRsync, value: 'rsync' },
+  CUSTOM: { name: T.Custom, value: 'custom' },
+}
+
+export const TRANSFER_OPTIONS = {
+  SHARED: { name: T.Shared, value: 'shared' },
+  SSH: { name: T.SSH, value: 'ssh' },
+  FS_LVM: { name: T.FSLVM, value: 'fs_lvm' },
+  CEPH: { name: T.Ceph, value: 'ceph' },
+  DEVICES: { name: T.Devices, value: 'dev' },
+  VCENTER: { name: T.Vcenter, value: 'vcenter' },
+  CUSTOM: { name: T.Custom, value: 'custom' },
+}
+
+export const DS_STORAGE_BACKENDS = {
+  FS_SHARED: { name: T.FilesystemShared, value: 'fs-shared' },
+  FS_SSH: { name: T.FilesystemSSH, value: 'fs-ssh' },
+  CEPH: { name: T.Ceph, value: 'ceph-ceph' },
+  FS_LVM: { name: T.LVM, value: 'fs-fs_lvm' },
+  VCENTER: { name: T.Vcenter, value: 'vcenter-vcenter' },
+  RAW: { name: T.RawDeviceMapping, value: 'dev-dev' },
+  RESTIC: { name: T.StorageRestic, value: 'restic' },
+  RSYNC: { name: T.StorageRsync, value: 'rsync' },
+  CUSTOM: { name: T.Custom, value: 'custom' },
+}
+
+export const DS_DISK_TYPES = {
+  RBD: 'RBD',
+  FILE: 'FILE',
+  BLOCK: 'BLOCK',
+  GLUSTER: 'GLUSTER',
+}
+
+export const DISK_TYPES_BY_STORAGE_BACKEND = {
+  [DS_STORAGE_BACKENDS.FS_SHARED.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.FS_SSH.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.CEPH.value]: DS_DISK_TYPES.RBD,
+  [DS_STORAGE_BACKENDS.FS_LVM.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.VCENTER.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.RAW.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.RESTIC.value]: DS_DISK_TYPES.FILE,
+  [DS_STORAGE_BACKENDS.RSYNC.value]: DS_DISK_TYPES.FILE,
+}
+
+export const DATASTORE_TYPES = {
+  IMAGE: {
+    id: 0,
+    name: T.Image,
+    value: 'IMAGE_DS',
+    storageBackends: [
+      DS_STORAGE_BACKENDS.FS_SHARED,
+      DS_STORAGE_BACKENDS.FS_SSH,
+      DS_STORAGE_BACKENDS.CEPH,
+      DS_STORAGE_BACKENDS.FS_LVM,
+      DS_STORAGE_BACKENDS.VCENTER,
+      DS_STORAGE_BACKENDS.RAW,
+      DS_STORAGE_BACKENDS.CUSTOM,
+    ],
+  },
+  SYSTEM: {
+    id: 1,
+    name: T.System,
+    value: 'SYSTEM_DS',
+    storageBackends: [
+      DS_STORAGE_BACKENDS.FS_SHARED,
+      DS_STORAGE_BACKENDS.FS_SSH,
+      DS_STORAGE_BACKENDS.CEPH,
+      DS_STORAGE_BACKENDS.FS_LVM,
+      DS_STORAGE_BACKENDS.VCENTER,
+      DS_STORAGE_BACKENDS.CUSTOM,
+    ],
+  },
+  FILE: {
+    id: 2,
+    name: T.File,
+    value: 'FILE_DS',
+    storageBackends: [
+      DS_STORAGE_BACKENDS.FS_SHARED,
+      DS_STORAGE_BACKENDS.FS_SSH,
+      DS_STORAGE_BACKENDS.CUSTOM,
+    ],
+  },
+  BACKUP: {
+    id: 3,
+    name: T.Backup,
+    value: 'BACKUP_DS',
+    storageBackends: [
+      DS_STORAGE_BACKENDS.RESTIC,
+      DS_STORAGE_BACKENDS.RSYNC,
+      DS_STORAGE_BACKENDS.CUSTOM,
+    ],
+  },
+}
+
+export const DS_VCENTER_ADAPTER_TYPE_OPTIONS = ['lsiLogic', 'ide', 'busLogic']
+export const DS_VCENTER_DISK_TYPE_OPTIONS = [
+  'delta',
+  'eagerZeroedThick',
+  'flatMonolithic',
+  'preallocated',
+  'raw',
+  'rdm',
+  'rdmp',
+  'seSparse',
+  'sparse2Gb',
+  'sparseMonolithic',
+  'thick',
+  'thick2Gb',
+  'thin',
+]

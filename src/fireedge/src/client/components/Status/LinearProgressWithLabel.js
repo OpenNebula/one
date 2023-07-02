@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
 import PropTypes from 'prop-types'
+import { memo } from 'react'
 
 import {
-  styled,
-  Typography,
+  Chip,
+  Grid,
   LinearProgress,
+  Tooltip,
+  Typography,
   linearProgressClasses,
+  styled,
+  tooltipClasses,
 } from '@mui/material'
+
+import { StatusCircle } from 'client/components/Status'
 
 import { SCHEMES } from 'client/constants'
 
@@ -48,18 +54,75 @@ const BorderLinearProgress = styled(LinearProgress)(
   })
 )
 
+const StyledTypography = styled(Typography)(({ theme, color }) => ({
+  ...(color && theme.palette[color]?.main
+    ? { color: theme.palette[color].main }
+    : {}),
+}))
+
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: theme.typography.pxToRem(170),
+  },
+}))
+
+const StyledChip = styled(Chip)(({ theme, colorSvg }) => ({
+  '&': {
+    color: theme.palette.common.white,
+    marginBottom: theme.typography.pxToRem(1),
+  },
+  '& svg': {
+    marginLeft: theme.typography.pxToRem(12),
+    ...(colorSvg ? { color: theme.palette[colorSvg].main } : {}),
+  },
+}))
+
 const LinearProgressWithLabel = memo(
-  ({ value, high, low, label, title }) => (
-    <div style={{ textAlign: 'end' }} title={title}>
-      <Typography component="span" variant="body2" noWrap>
+  ({ value, high, low, label, title, color = '' }) => (
+    <div style={{ textAlign: 'end' }}>
+      <StyledTypography component="span" variant="body2" noWrap color={color}>
         {label}
-      </Typography>
-      <BorderLinearProgress
-        variant="determinate"
-        value={value}
-        high={high}
-        low={low}
-      />
+      </StyledTypography>
+      <StyledTooltip
+        arrow
+        title={
+          <Grid container>
+            <Grid item xs={12}>
+              <Typography>{title}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <StyledChip
+                colorSvg="success"
+                icon={<StatusCircle />}
+                label={`< ${low}%`}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <StyledChip
+                colorSvg="warning"
+                icon={<StatusCircle />}
+                label={`> ${low}% and < ${high}%`}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <StyledChip
+                colorSvg="error"
+                icon={<StatusCircle />}
+                label={`> ${high}%`}
+              />
+            </Grid>
+          </Grid>
+        }
+      >
+        <BorderLinearProgress
+          variant="determinate"
+          value={value}
+          high={high}
+          low={low}
+        />
+      </StyledTooltip>
     </div>
   ),
   (prev, next) => prev.value === next.value && prev.label === next.label
@@ -71,6 +134,7 @@ LinearProgressWithLabel.propTypes = {
   high: PropTypes.number,
   label: PropTypes.string.isRequired,
   title: PropTypes.string,
+  color: PropTypes.string,
 }
 
 LinearProgressWithLabel.displayName = 'LinearProgressWithLabel'

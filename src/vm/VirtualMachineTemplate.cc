@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -256,8 +256,6 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
 static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
         const char * name)
 {
-    string value;
-
     const VectorAttribute * old_attr = old_tmpl->get(name);
 
     if ( old_attr == 0 )
@@ -271,7 +269,7 @@ static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
 
     for (const auto& vname : vnames)
     {
-        std::string vval = old_attr->vector_value(vname);
+        const string& vval = old_attr->vector_value(vname);
 
         if (!vval.empty())
         {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,7 +27,7 @@ class ClusterPool : public PoolSQL
 public:
     ClusterPool(SqlDB * db,
                 const VectorAttribute * vnc_conf,
-                std::vector<const SingleAttribute *>& encrypted_attrs);
+                const std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~ClusterPool(){};
 
@@ -162,7 +162,7 @@ public:
      *          -2 object is a system cluster (ID < 100)
      *          -3 Cluster's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Bootstraps the database table(s) associated to the Cluster pool
@@ -192,7 +192,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "CLUSTER_POOL", "body",
                              one_db::cluster_table, where,
@@ -267,7 +267,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Cluster(-1,"",0, &vnc_conf);
     };

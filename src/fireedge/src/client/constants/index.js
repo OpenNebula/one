@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -34,6 +34,17 @@ export const SERVER_CONFIG = (() => {
 
   return config
 })()
+
+export const UNITS = {
+  KB: 'KB',
+  MB: 'MB',
+  GB: 'GB',
+  TB: 'TB',
+  PB: 'PB',
+  EB: 'EB',
+  ZB: 'ZB',
+  YB: 'YB',
+}
 
 // should be equal to the apps in src/server/utils/constants/defaults.js
 export const _APPS = { sunstone: 'sunstone', provision: 'provision' }

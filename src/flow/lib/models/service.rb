@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,64 +42,64 @@ module OpenNebula
             'HOLD'                    => 15
         }
 
-        STATE_STR = %w[
-            PENDING
-            DEPLOYING
-            RUNNING
-            UNDEPLOYING
-            WARNING
-            DONE
-            FAILED_UNDEPLOYING
-            FAILED_DEPLOYING
-            SCALING
-            FAILED_SCALING
-            COOLDOWN
-            DEPLOYING_NETS
-            UNDEPLOYING_NETS
-            FAILED_DEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
-            HOLD
+        STATE_STR = [
+            'PENDING',
+            'DEPLOYING',
+            'RUNNING',
+            'UNDEPLOYING',
+            'WARNING',
+            'DONE',
+            'FAILED_UNDEPLOYING',
+            'FAILED_DEPLOYING',
+            'SCALING',
+            'FAILED_SCALING',
+            'COOLDOWN',
+            'DEPLOYING_NETS',
+            'UNDEPLOYING_NETS',
+            'FAILED_DEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS',
+            'HOLD'
         ]
 
-        TRANSIENT_STATES = %w[
-            DEPLOYING
-            UNDEPLOYING
-            SCALING
-            COOLDOWN
-            DEPLOYING_NETS
-            UNDEPLOYING_NETS
+        TRANSIENT_STATES = [
+            'DEPLOYING',
+            'UNDEPLOYING',
+            'SCALING',
+            'COOLDOWN',
+            'DEPLOYING_NETS',
+            'UNDEPLOYING_NETS'
         ]
 
-        FAILED_STATES = %w[
-            FAILED_DEPLOYING
-            FAILED_UNDEPLOYING
-            FAILED_SCALING
-            FAILED_DEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
+        FAILED_STATES = [
+            'FAILED_DEPLOYING',
+            'FAILED_UNDEPLOYING',
+            'FAILED_SCALING',
+            'FAILED_DEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
-        RECOVER_DEPLOY_STATES = %w[
-            FAILED_DEPLOYING
-            DEPLOYING
-            PENDING
+        RECOVER_DEPLOY_STATES = [
+            'FAILED_DEPLOYING',
+            'DEPLOYING',
+            'PENDING'
         ]
 
-        RECOVER_UNDEPLOY_STATES = %w[
-            FAILED_UNDEPLOYING
-            UNDEPLOYING
-            FAILED_UNDEPLOYING_NETS
+        RECOVER_UNDEPLOY_STATES = [
+            'FAILED_UNDEPLOYING',
+            'UNDEPLOYING',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
-        RECOVER_SCALE_STATES = %w[
-            FAILED_SCALING
-            SCALING
+        RECOVER_SCALE_STATES = [
+            'FAILED_SCALING',
+            'SCALING'
         ]
 
-        RECOVER_DEPLOY_NETS_STATES = %w[DEPLOYING_NETS FAILED_DEPLOYING_NETS]
+        RECOVER_DEPLOY_NETS_STATES = ['DEPLOYING_NETS', 'FAILED_DEPLOYING_NETS']
 
-        RECOVER_UNDEPLOY_NETS_STATES = %w[
-            UNDEPLOYING_NETS
-            FAILED_UNDEPLOYING_NETS
+        RECOVER_UNDEPLOY_NETS_STATES = [
+            'UNDEPLOYING_NETS',
+            'FAILED_UNDEPLOYING_NETS'
         ]
 
         # List of attributes that can't be changed in update operation
@@ -114,17 +114,17 @@ module OpenNebula
         # ready_status_gate: it only has sense when deploying, not in running
         # state: this is internal information managed by OneFlow server
         # start_time: this is internal information managed by OneFlow server
-        IMMUTABLE_ATTRS = %w[
-            custom_attrs
-            custom_attrs_values
-            deployment
-            log
-            name
-            networks
-            networks_values
-            ready_status_gate
-            state
-            start_time
+        IMMUTABLE_ATTRS = [
+            'custom_attrs',
+            'custom_attrs_values',
+            'deployment',
+            'log',
+            'name',
+            'networks',
+            'networks_values',
+            'ready_status_gate',
+            'state',
+            'start_time'
         ]
 
         LOG_COMP = 'SER'
@@ -322,6 +322,9 @@ module OpenNebula
             end
 
             template['start_time'] = Integer(Time.now)
+
+            # Replace $attibute by the corresponding value
+            resolve_attributes(template)
 
             super(template.to_json, template['name'])
         end
@@ -660,7 +663,7 @@ module OpenNebula
             end if deploy
 
             # Replace $attibute by the corresponding value
-            resolve_attributes(body)
+            resolve_networks(body)
 
             # @body = template.to_hash
 
@@ -677,7 +680,7 @@ module OpenNebula
                 vnet.each do |_, net|
                     key = net.keys.first
 
-                    next unless %w[template_id reserve_from].include?(key)
+                    next unless ['template_id', 'reserve_from'].include?(key)
 
                     rc = OpenNebula::VirtualNetwork.new_with_id(
                         net['id'],
@@ -783,31 +786,50 @@ module OpenNebula
             "#{net}-#{id}"
         end
 
+        # rubocop:disable Layout/LineLength
+        def resolve_networks(template)
+            template['roles'].each do |role|
+                next unless role['vm_template_contents']
+
+                # $CUSTOM1_VAR Any word character
+                # (letter, number, underscore)
+                role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
+                    net = template['networks_values'].find {|att| att.key? key[0] }
+
+                    next if net.nil?
+
+                    role['vm_template_contents'].gsub!(
+                        '$'+key[0],
+                        net[net.keys[0]]['id'].to_s
+                    )
+                end
+            end
+        end
+
         def resolve_attributes(template)
             template['roles'].each do |role|
                 if role['vm_template_contents']
                     # $CUSTOM1_VAR Any word character
                     # (letter, number, underscore)
                     role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
-                        # Check if $ var value is in custom_attrs_values
-                        if !template['custom_attrs_values'].nil? &&
-                           template['custom_attrs_values'].key?(key[0])
+                        # Check if $ var value is in custom_attrs_values within the role
+                        if !role['custom_attrs_values'].nil? && \
+                            role['custom_attrs_values'].key?(key[0])
                             role['vm_template_contents'].gsub!(
                                 '$'+key[0],
-                                template['custom_attrs_values'][key[0]]
+                                role['custom_attrs_values'][key[0]]
                             )
                             next
                         end
 
-                        # Check if $ var value is in networks
-                        net = template['networks_values']
-                              .find {|att| att.key? key[0] }
+                        # Check if $ var value is in custom_attrs_values
 
-                        next if net.nil?
+                        next unless !template['custom_attrs_values'].nil? && \
+                                     template['custom_attrs_values'].key?(key[0])
 
                         role['vm_template_contents'].gsub!(
                             '$'+key[0],
-                            net[net.keys[0]]['id'].to_s
+                            template['custom_attrs_values'][key[0]]
                         )
                     end
                 end
@@ -820,6 +842,7 @@ module OpenNebula
                 end
             end
         end
+        # rubocop:enable Layout/LineLength
 
     end
 

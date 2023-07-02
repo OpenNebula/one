@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -185,7 +185,7 @@ xml_host_template.xpath('HOST/VMS').text.split.each do |vm_id|
     last_action = vm["#{last_history_xpath}/ACTION"]
     last_action_str = OpenNebula::VirtualMachine.get_history_action(last_action)
 
-    if !%w[none live-migrate].include?(last_action_str) && autostart != 'always'
+    if !['none', 'live-migrate'].include?(last_action_str) && autostart != 'always'
         log "vm #{vm_id}: skip: last_action (#{last_action_str}) " \
             'is not none or live-migrate'
         next

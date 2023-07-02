@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -69,7 +69,7 @@ std::unique_ptr<VMGroup> VMGroupPool::get_from_attribute(
 {
     std::unique_ptr<VMGroup> vmgroup;
 
-    string vmg_name = va->vector_value("VMGROUP_NAME");
+    const string& vmg_name = va->vector_value("VMGROUP_NAME");
     int vmg_id;
 
     if ( !vmg_name.empty() )
@@ -140,7 +140,7 @@ void VMGroupPool::del_vm(const VectorAttribute * va, int vid)
         return;
     }
 
-    string vmg_role = va->vector_value("ROLE");
+    const string& vmg_role = va->vector_value("ROLE");
 
     if ( vmg_role.empty() )
     {

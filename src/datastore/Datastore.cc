@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -94,9 +94,8 @@ void Datastore::disk_attribute(
         VirtualMachineDisk *    disk,
         const vector<string>&   inherit_attrs)
 {
-    string st, tm_mad;
+    string st, tm_mad_system;
     string inherit_val;
-    string current_val;
 
     disk->replace("DATASTORE", get_name());
     disk->replace("DATASTORE_ID", oid);
@@ -106,17 +105,17 @@ void Datastore::disk_attribute(
 
     disk->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
-    tm_mad = disk->get_tm_mad_system();
+    tm_mad_system = disk->get_tm_mad_system();
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        tm_mad = one_util::trim(tm_mad);
-        one_util::toupper(tm_mad);
+        tm_mad_system = one_util::trim(tm_mad_system);
+        one_util::toupper(tm_mad_system);
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("CLONE_TARGET_" + tm_mad, st);
+        get_template_attribute("CLONE_TARGET_" + tm_mad_system, st);
 
         if (st.empty())
         {
@@ -133,9 +132,9 @@ void Datastore::disk_attribute(
         disk->replace("CLONE_TARGET", st);
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("LN_TARGET_" + tm_mad, st);
+        get_template_attribute("LN_TARGET_" + tm_mad_system, st);
 
         if (st.empty())
         {
@@ -182,9 +181,9 @@ void Datastore::disk_attribute(
         }
     }
 
-    if (!tm_mad.empty())
+    if (!tm_mad_system.empty())
     {
-        get_template_attribute("DISK_TYPE_" + tm_mad, st);
+        get_template_attribute("DISK_TYPE_" + tm_mad_system, st);
 
         if (!st.empty())
         {
@@ -203,15 +202,15 @@ void Datastore::disk_attribute(
      *  4. Default set to "raw"
      */
 
-    string type = disk->vector_value("TYPE");
+    string type_disk = disk->vector_value("TYPE");
 
-    one_util::toupper(type);
+    one_util::toupper(type_disk);
 
-    if (type!= "CDROM" && disk->is_volatile())
+    if (type_disk!= "CDROM" && disk->is_volatile())
     {
         string driver = get_ds_driver();
 
-        if (type == "FS") /* Volatile Datablock */
+        if (type_disk == "FS") /* Volatile Datablock */
         {
             if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
             {
@@ -316,7 +315,7 @@ static int check_tm_target_type(string& tm_tt)
 
 /* -------------------------------------------------------------------------- */
 
-int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
+int Datastore::set_ds_mad(const std::string &mad, std::string &error_str)
 {
     const VectorAttribute* vatt;
     std::vector <std::string> vrequired_attrs;
@@ -375,14 +374,13 @@ error_common:
 
 /* -------------------------------------------------------------------------- */
 
-int Datastore::set_tm_mad(string &tm_mad, string &error_str)
+int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
 {
     const VectorAttribute* vatt;
 
     std::vector<std::string> modes;
 
     ostringstream oss;
-    std::stringstream ss;
 
     string orph;
 
@@ -443,39 +441,37 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
             modes = one_util::split(st, ',', true);
 
-            string s;
-
             for (const auto &mode : modes)
             {
-                string tm_mad = one_util::trim(mode);
-                one_util::toupper(tm_mad);
+                string tm = one_util::trim(mode);
+                one_util::toupper(tm);
 
-                st = vatt->vector_value("LN_TARGET_" + tm_mad);
-
-                if (check_tm_target_type(st) == -1)
-                {
-                    goto error;
-                }
-
-                replace_template_attribute("LN_TARGET_" + tm_mad, st);
-
-                st = vatt->vector_value("CLONE_TARGET_" + tm_mad);
+                st = vatt->vector_value("LN_TARGET_" + tm);
 
                 if (check_tm_target_type(st) == -1)
                 {
                     goto error;
                 }
 
-                replace_template_attribute("CLONE_TARGET_" + tm_mad, st);
+                replace_template_attribute("LN_TARGET_" + tm, st);
 
-                st = vatt->vector_value("DISK_TYPE_" + tm_mad);
+                st = vatt->vector_value("CLONE_TARGET_" + tm);
+
+                if (check_tm_target_type(st) == -1)
+                {
+                    goto error;
+                }
+
+                replace_template_attribute("CLONE_TARGET_" + tm, st);
+
+                st = vatt->vector_value("DISK_TYPE_" + tm);
 
                 if (st.empty())
                 {
                     goto error;
                 }
 
-                replace_template_attribute("DISK_TYPE_" + tm_mad, st);
+                replace_template_attribute("DISK_TYPE_" + tm, st);
             }
         }
 
@@ -624,7 +620,6 @@ int Datastore::insert(SqlDB *db, string& error_str)
 {
     string s_disk_type;
     string s_ds_type;
-    string datastore_location;
 
     string safe_dirs;
     string restricted_dirs;
@@ -951,8 +946,6 @@ int Datastore::post_update_template(string& error_str)
     string new_tm_mad;
     string s_ds_type;
     string new_disk_type;
-    string new_base_path;
-    string vcenter_password;
 
     DatastoreType new_ds_type;
 
@@ -1117,58 +1110,77 @@ bool Datastore::get_avail_mb(long long &avail) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-bool Datastore::is_persistent_only() const
+template <typename T>
+static T ds_conf_value(const string& mad, const string& name, const T& defval)
 {
-    int rc;
-    bool persistent_only = false;
-
     const VectorAttribute* vatt;
 
-    rc = Nebula::instance().get_ds_conf_attribute(ds_mad, vatt);
+    int rc = Nebula::instance().get_ds_conf_attribute(mad, vatt);
 
     if ( rc != 0 )
     {
         // No DS_MAD_CONF is available for this DS_MAD.
-        // Assuming this DS is not PERSISTENT_ONLY
-        return false;
+        return defval;
     }
 
-    vatt->vector_value("PERSISTENT_ONLY", persistent_only);
+    T value;
 
-    return persistent_only;
-};
+    rc = vatt->vector_value(name, value);
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+    if ( rc != 0 )
+    {
+        // Attribute missing in DS_MAD_CONF
+        return defval;
+    }
+
+    return value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+bool Datastore::is_persistent_only() const
+{
+    return ds_conf_value(ds_mad, "PERSISTENT_ONLY", false);
+}
+
+bool Datastore::is_concurrent_forget() const
+{
+    return ds_conf_value(ds_mad, "CONCURRENT_FORGET", false);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target,
         string& clone_target, string& disk_type) const
 {
-    if (!tm_mad.empty())
+    if (tm_mad.empty())
     {
-        string tm_mad_t = one_util::trim(tm_mad);
-        one_util::toupper(tm_mad_t);
+        return 0;
+    }
 
-        get_template_attribute("CLONE_TARGET_" + tm_mad_t, clone_target);
+    string tm_mad_t = one_util::trim(tm_mad);
+    one_util::toupper(tm_mad_t);
 
-        if (clone_target.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("CLONE_TARGET_" + tm_mad_t, clone_target);
 
-        get_template_attribute("LN_TARGET_" + tm_mad_t, ln_target);
+    if (clone_target.empty())
+    {
+        return -1;
+    }
 
-        if (ln_target.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("LN_TARGET_" + tm_mad_t, ln_target);
 
-        get_template_attribute("DISK_TYPE_" + tm_mad_t, disk_type);
+    if (ln_target.empty())
+    {
+        return -1;
+    }
 
-        if (disk_type.empty())
-        {
-            return -1;
-        }
+    get_template_attribute("DISK_TYPE_" + tm_mad_t, disk_type);
+
+    if (disk_type.empty())
+    {
+        return -1;
     }
 
     return 0;

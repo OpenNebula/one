@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -94,7 +94,7 @@ int Quota::set(vector<VectorAttribute*> * new_quotas, string& error)
     VectorAttribute * tq;
     string            id;
 
-    for ( it = new_quotas->begin(); it != new_quotas->end(); it++)
+    for (it = new_quotas->begin(); it != new_quotas->end(); ++it)
     {
         id = (*it)->vector_value("ID");
 
@@ -363,14 +363,13 @@ int Quota::update_limits(
         VectorAttribute *       quota,
         const VectorAttribute * va)
 {
-    string  limit;
     float   limit_f;
 
     for (int i=0; i < num_metrics; i++)
     {
-        limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (limit == "")
+        if (limit.empty())
         {
             if ( is_default )
             {
@@ -401,11 +400,10 @@ int Quota::update_limits(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * Quota::new_quota(VectorAttribute * va)
+VectorAttribute * Quota::new_quota(const VectorAttribute * va)
 {
     map<string,string> limits;
 
-    string limit;
     float  limit_f;
 
     for (int i=0; i < num_metrics; i++)
@@ -414,9 +412,9 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         metrics_used += "_USED";
 
-        limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (limit == "")
+        if (limit.empty())
         {
             if ( is_default )
             {
@@ -441,7 +439,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
         limits.insert(make_pair(metrics_used, "0"));
     }
 
-    string id = va->vector_value("ID");
+    const string& id = va->vector_value("ID");
 
     if ( !id.empty() )
     {

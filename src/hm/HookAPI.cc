@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -71,7 +71,8 @@ const string HookAPI::unsupported_calls[] =  {"one.vm.info",
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-std::string HookAPI::format_message(std::string method, ParamList& paramList,
+std::string HookAPI::format_message(const std::string& method,
+            const ParamList& paramList,
             const RequestAttributes& att)
 {
     ostringstream oss;

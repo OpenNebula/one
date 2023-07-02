@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,6 +63,7 @@ const EString<ImageManagerMessages> image_msg_t::_type_str({
     {"SNAP_DELETE", ImageManagerMessages::SNAP_DELETE},
     {"SNAP_REVERT", ImageManagerMessages::SNAP_REVERT},
     {"SNAP_FLATTEN", ImageManagerMessages::SNAP_FLATTEN},
+    {"INCREMENT_FLATTEN", ImageManagerMessages::INCREMENT_FLATTEN},
     {"RESTORE", ImageManagerMessages::RESTORE},
     {"LOG", ImageManagerMessages::LOG},
 });
@@ -145,6 +146,7 @@ const EString<VMManagerMessages> vm_msg_t::_type_str({
     {"RESIZE", VMManagerMessages::RESIZE},
     {"BACKUP", VMManagerMessages::BACKUP},
     {"UPDATENIC", VMManagerMessages::UPDATENIC},
+    {"BACKUPCANCEL", VMManagerMessages::BACKUPCANCEL},
 });
 
 template<>

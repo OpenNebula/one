@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -24,11 +24,11 @@ import {
   useRestoreBackupMutation,
 } from 'client/features/OneApi/image'
 
-import { ChangeGroupForm, ChangeUserForm } from 'client/components/Forms/Vm'
 import { RestoreForm } from 'client/components/Forms/Backup'
+import { ChangeGroupForm, ChangeUserForm } from 'client/components/Forms/Vm'
 import {
-  createActions,
   GlobalAction,
+  createActions,
 } from 'client/components/Tables/Enhanced/Utils'
 
 import { Translate } from 'client/components/HOC'
@@ -67,7 +67,7 @@ const MessageToConfirmAction = (rows) => (
 )
 
 /**
- * Generates the actions to operate resources on Image table.
+ * Generates the actions to operate resources on Backup table.
  *
  * @returns {GlobalAction} - Actions
  */
@@ -79,7 +79,7 @@ const Actions = () => {
 
   const resourcesView = getResourceView(RESOURCE_NAMES.BACKUP)?.actions
 
-  const imageActions = useMemo(
+  const backupActions = useMemo(
     () =>
       createActions({
         filters: resourcesView,
@@ -90,22 +90,42 @@ const Actions = () => {
             dataCy: `image-${IMAGE_ACTIONS.RESTORE}`,
             label: T.Restore,
             tooltip: T.Restore,
-            selected: { min: 1 },
+            selected: { max: 1 },
             options: [
               {
                 dialogProps: {
-                  title: T.SelectCluster,
+                  title: T.RestoreBackup,
                   dataCy: 'modal-select-cluster',
                 },
-                form: (rows) => RestoreForm(),
+                form: (row) => {
+                  const backup = row?.[0]?.original
+                  let increments = backup?.BACKUP_INCREMENTS?.INCREMENT || []
+                  increments = Array.isArray(increments)
+                    ? increments
+                    : [increments]
+                  increments = increments.map((increment) => ({
+                    id: increment.ID,
+                    date: increment.DATE,
+                    source: increment.SOURCE,
+                  }))
+
+                  return RestoreForm({
+                    stepProps: { increments },
+                    initialValues: increments,
+                  })
+                },
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
+                  let options = `NO_IP="${formData.no_ip}"\nNO_NIC="${formData.no_nic}"\n`
+                  if (formData.name) options += `NAME="${formData.name}"\n`
+                  if (formData.increment_id !== '')
+                    options += `INCREMENT_ID="${formData.increment_id}"\n`
                   await Promise.all(
                     ids.map((id) =>
                       restoreBackup({
                         id: id,
                         datastore: formData.datastore,
-                        options: `NO_IP="${formData.no_ip}"\nNO_NIC="${formData.no_nic}"`,
+                        options,
                       })
                     )
                   )
@@ -183,7 +203,7 @@ const Actions = () => {
     [view]
   )
 
-  return imageActions
+  return backupActions
 }
 
 export default Actions

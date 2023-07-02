@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,27 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useState, createRef } from 'react'
 import PropTypes from 'prop-types'
+import { createRef, memo, useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 
-import { Typography, Link, Stack } from '@mui/material'
+import { InputAdornment, Link, Stack, Typography } from '@mui/material'
 
-import { useDialog } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
+import { useDialog } from 'client/hooks'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Column = (props) => (
-  <Stack
-    direction="row"
-    alignItems="center"
-    sx={{ '&:hover > .actions': { display: 'contents' } }}
-    {...props}
-  />
-)
+const Column = (props) => {
+  const { isEditing, ...restProps } = props
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      sx={{
+        '&:hover > .actions': { display: 'contents' },
+        '&': { ...(isEditing ? { overflow: 'visible !important' } : {}) },
+        '& .slider > span[data-index="0"][aria-hidden="true"]': {
+          left: '0px !important',
+        },
+      }}
+      {...restProps}
+    />
+  )
+}
+
+Column.propTypes = {
+  isEditing: PropTypes.bool,
+}
+
+Column.displayName = 'Column'
 
 const ActionWrapper = (props) => (
   <Stack direction="row" component="span" className="actions" {...props} />
@@ -56,6 +72,13 @@ const Attribute = memo(
     value,
     valueInOptionList,
     dataCy,
+    min,
+    max,
+    currentValue,
+    unit,
+    unitParser = false,
+    title = '',
+    fullWidth = false,
   }) => {
     const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
 
@@ -116,7 +139,7 @@ const Attribute = memo(
             {canCopy && <Actions.Copy name={name} value={name} />}
           </ActionWrapper>
         </Column>
-        <Column>
+        <Column isEditing={isEditing}>
           {isEditing ? (
             <>
               {handleGetOptionList ? (
@@ -126,8 +149,33 @@ const Attribute = memo(
                   ref={inputRef}
                   options={options}
                 />
+              ) : min && max ? (
+                <Inputs.SliderInput
+                  name={name}
+                  initialValue={currentValue}
+                  ref={inputRef}
+                  min={+min}
+                  max={+max}
+                  unitParser={unitParser}
+                  {...(unit
+                    ? {
+                        InputProps: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {unit}
+                            </InputAdornment>
+                          ),
+                        },
+                      }
+                    : {})}
+                />
               ) : (
-                <Inputs.Text name={name} initialValue={value} ref={inputRef} />
+                <Inputs.Text
+                  name={name}
+                  initialValue={value}
+                  ref={inputRef}
+                  fullWidth={fullWidth}
+                />
               )}
               <Actions.Accept name={name} handleClick={handleEditAttribute} />
               <Actions.Cancel name={name} handleClick={handleCancel} />
@@ -154,6 +202,7 @@ const Attribute = memo(
                 {value && canCopy && <Actions.Copy name={name} value={value} />}
                 {(value || numberOfParents > 0) && canEdit && (
                   <Actions.Edit
+                    title={title || name}
                     name={name}
                     handleClick={handleActiveEditForm}
                   />
@@ -201,6 +250,13 @@ export const AttributePropTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   valueInOptionList: PropTypes.string,
   dataCy: PropTypes.string,
+  min: PropTypes.string,
+  max: PropTypes.string,
+  currentValue: PropTypes.string,
+  unit: PropTypes.string,
+  unitParser: PropTypes.bool,
+  title: PropTypes.string,
+  fullWidth: PropTypes.bool,
 }
 
 Attribute.propTypes = AttributePropTypes

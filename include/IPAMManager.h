@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,7 +22,6 @@
 #include "ProtocolMessages.h"
 #include "DriverManager.h"
 #include "Listener.h"
-#include "NebulaLog.h"
 
 //Forward definitions
 class IPAMRequest;
@@ -37,7 +36,7 @@ class IPAMManager :
 {
 public:
 
-    IPAMManager(time_t timer, const std::string mad_location)
+    IPAMManager(time_t timer, const std::string& mad_location)
         : DriverManager(mad_location)
         , Listener("IPAM Manager")
         , timer_thread(timer, [this](){timer_action();})

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,7 +32,6 @@
 ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
         const std::string& _arg, const std::string& rl): name(_name), cmd(_cmd)
 {
-    std::string s(_arg);
     std::istringstream iss(_arg);
 
     if (cmd[0] != '/')
@@ -50,7 +49,7 @@ ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
         c_args[i] = nullptr;
     }
 
-    for (int i=1; iss >> args[i] && i < EXECUTE_HOOK_MAX_ARG - 1; ++i)
+    for (int i=1; i < EXECUTE_HOOK_MAX_ARG && iss >> args[i]; ++i)
     {
         c_args[i] = args[i].c_str();
     }

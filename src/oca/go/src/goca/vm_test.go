@@ -1,7 +1,7 @@
 // +build !disabled
 
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,6 +38,7 @@ type VMSuite struct {
 	hostID     int
 	vnID       int
 	sgID       int
+	dsID       int
 }
 
 var _ = Suite(&VMSuite{})
@@ -63,6 +64,13 @@ func (s *VMSuite) SetUpSuite(c *C) {
 	testCtrl.Datastore(1).Update(tmpl.String(), 1)
 
 	testCtrl.Datastore(0).Update(tmpl.String(), 1)
+
+	dsTmpl := "NAME = go_backup_ds\n" +
+			  "DS_MAD = dummy\n" +
+			  "TM_MAD = dummy\n" +
+			  "TYPE = BACKUP_DS\n";
+
+	s.dsID, _ = testCtrl.Datastores().Create(dsTmpl, 0)
 
 	vnTpl := "NAME = vn_go_test_sg\n" +
 			 "BRIDGE = vbr0\n" +
@@ -93,7 +101,15 @@ func (s *VMSuite) TearDownTest(c *C) {
 }
 
 func (s *VMSuite) TearDownSuite(c *C) {
-	err := testCtrl.Template(s.templateID).Delete()
+	backupDS, err := testCtrl.Datastore(s.dsID).Info(false)
+	c.Assert(err, IsNil)
+
+	for i := 0; i < len(backupDS.Images.ID); i++ {
+	err := testCtrl.Image(backupDS.Images.ID[i]).Delete()
+		c.Assert(err, IsNil)
+	}
+
+	err = testCtrl.Template(s.templateID).Delete()
 	c.Assert(err, IsNil)
 
 	err = testCtrl.Host(s.hostID).Delete()
@@ -103,6 +119,9 @@ func (s *VMSuite) TearDownSuite(c *C) {
 	c.Assert(err, IsNil)
 
 	err = testCtrl.SecurityGroup(s.sgID).Delete()
+	c.Assert(err, IsNil)
+
+	err = testCtrl.Datastore(s.dsID).Delete()
 	c.Assert(err, IsNil)
 }
 
@@ -295,6 +314,25 @@ func (s *VMSuite) TestVMNicSgAttachDetach(c *C) {
 
 	// Detach NIC
 	err = vmC.DetachNIC(0)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+}
+
+func (s *VMSuite) TestVMBackup(c *C) {
+	// Deploy VM
+	vmC := testCtrl.VM(s.vmID)
+	err := vmC.Deploy(s.hostID, false, -1)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Backup
+	err = vmC.Backup(s.dsID, false)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	// Cancel Backup
+	vmC.Backup(s.dsID, false)
+	err = vmC.BackupCancel()
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
 }

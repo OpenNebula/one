@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -109,6 +109,14 @@ begin
             rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
             rest_client.sync_tags(vm)
         end
+    end
+
+    lcm_state = drv_action['LCM_STATE']
+    check_valid(lcm_state, 'lcm_state')
+    lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
+
+    if lcm_state_str == 'BOOT_UNDEPLOY'
+        vm.mark_as_virtual_machine
     end
 
     if vm.powered_off?

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,31 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
+import { Paper, Stack, Typography, styled, useTheme } from '@mui/material'
 import { WarningTriangleOutline as WarningIcon } from 'iconoir-react'
-import { useTheme, Typography, Paper, Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo } from 'react'
 
-import Timer from 'client/components/Timer'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import Timer from 'client/components/Timer'
 
+import { T, TEMPLATE_SCHEDULE_TYPE_STRING } from 'client/constants'
+import { timeFromMilliseconds } from 'client/models/Helper'
 import {
-  isRelative,
   getPeriodicityByTimeInSeconds,
   getRepeatInformation,
+  getTypeScheduleAction,
+  isRelative,
 } from 'client/models/Scheduler'
-import { timeFromMilliseconds } from 'client/models/Helper'
 import { sentenceCase } from 'client/utils'
-import { T } from 'client/constants'
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  marginLeft: `${theme.spacing(1)} !important`,
+}))
+
+const StyledTypographyTypeSchedule = styled(Typography)(() => ({
+  fontStyle: 'italic',
+}))
 
 const ScheduleActionCard = memo(({ schedule, actions }) => {
   const classes = rowStyles()
   const { palette } = useTheme()
 
-  const { ID, ACTION, TIME, MESSAGE, DONE, WARNING } = schedule
+  const { ID, ACTION, TIME, MESSAGE, DONE, WARNING, NAME } = schedule
 
-  const titleAction = `#${ID} ${sentenceCase(ACTION)}`
+  const typeScheduleText =
+    `${TEMPLATE_SCHEDULE_TYPE_STRING?.[getTypeScheduleAction(schedule)]}:` || ''
+
+  const titleName = NAME ? `(${NAME})` : ''
+  const titleAction = `#${ID} ${sentenceCase(ACTION)} ${titleName}`
   const timeIsRelative = isRelative(TIME)
 
   const time = timeIsRelative ? getPeriodicityByTimeInSeconds(TIME) : TIME
@@ -69,24 +82,29 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
           flexWrap="wrap"
           direction="row"
         >
-          {repeat && <Typography variant="caption">{repeat}</Typography>}
-          {end && <Typography variant="caption">{end}</Typography>}
+          <StyledTypographyTypeSchedule variant="caption">
+            {typeScheduleText}
+          </StyledTypographyTypeSchedule>
+          {repeat && (
+            <StyledTypography variant="caption">{repeat}</StyledTypography>
+          )}
+          {end && <StyledTypography variant="caption">{end}</StyledTypography>}
           {DONE && (
-            <Typography variant="caption" title={formatDoneTime}>
+            <StyledTypography variant="caption" title={formatDoneTime}>
               <Timer initial={DONE} translateWord={T.DoneAgo} />
-            </Typography>
+            </StyledTypography>
           )}
           {!noMore && (
             <>
-              <Typography variant="caption">
+              <StyledTypography variant="caption">
                 {timeIsRelative ? (
                   <span>{Object.values(time).join(' ')}</span>
                 ) : (
                   <span title={formatTime}>
-                    <Timer initial={TIME} translateWord={T.FirstTime} />
+                    <Timer initial={TIME} />
                   </span>
                 )}
-              </Typography>
+              </StyledTypography>
               {WARNING && <WarningIcon color={palette.warning.main} />}
             </>
           )}

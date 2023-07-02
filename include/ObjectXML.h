@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,7 +37,12 @@ public:
 
     // ---------------------- Constructors ------------------------------------
 
-    ObjectXML():xml(0), ctx(0) {}
+    ObjectXML()
+        : paths(nullptr)
+        , num_paths(0)
+        , xml(nullptr)
+        , ctx(nullptr)
+    {}
 
     /**
      *  Constructs an object using a XML document
@@ -267,13 +272,15 @@ public:
      *  Frees a vector of XMLNodes, as returned by the get_nodes function
      *    @param content the vector of xmlNodePtr
      */
-    void free_nodes(std::vector<xmlNodePtr>& content) const
+    static void free_nodes(std::vector<xmlNodePtr>& content)
     {
         for (auto it : content)
         {
             xmlFreeNode(it);
         }
-    };
+
+        content.clear();
+    }
 
     /**
      *   Updates the object representation with a new XML document. Previous

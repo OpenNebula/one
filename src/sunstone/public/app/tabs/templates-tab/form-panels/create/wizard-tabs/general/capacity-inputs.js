@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -199,7 +199,7 @@ define(function(require) {
       var vcpuValue = $("div.vcpu_input input", context).val();
       if (vcpuValue !== "") {
         CoresPerSocket.generateCores(VCPU_SELECTOR);
-        if(element && element.TEMPLATE && element.TEMPLATE.TOPOLOGY && element.TEMPLATE.TOPOOGY.CORES) {
+        if(element && element.TEMPLATE && element.TEMPLATE.TOPOLOGY && element.TEMPLATE.TOPOLOGY.CORES) {
           CoresPerSocket.selectOption(element.TEMPLATE.TOPOLOGY.CORES);
         }
       }

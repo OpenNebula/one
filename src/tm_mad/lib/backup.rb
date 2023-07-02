@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,6 +23,76 @@ module TransferManager
     # This class includes methods manage backup images
     class BackupImage
 
+        attr_reader :vm_id, :keep_last
+
+        # Given a sorted list of qcow2 files,
+        # return a shell recipe that reconstructs the backing chain in-place.
+        # rubocop:disable Layout/LineLength
+        def self.reconstruct_chain(paths, opts = {})
+            return '' unless paths.size > 1
+
+            opts = {
+                :workdir => nil
+            }.merge!(opts)
+
+            lhs = paths.last(paths.size - 1)
+            rhs = paths.first(paths.size - 1)
+
+            script = []
+
+            lhs.zip(rhs).each do |target, backing|
+                backing = "#{opts[:workdir] || File.dirname(backing)}/#{File.basename(backing)}"
+                target  = "#{opts[:workdir] || File.dirname(target)}/#{File.basename(target)}"
+                script << "qemu-img rebase -u -F qcow2 -b '#{backing}' '#{target}'"
+            end
+
+            script.join("\n")
+        end
+        # rubocop:enable Layout/LineLength
+
+        # Given a sorted list of qcow2 files with backing chain properly reconstructed,
+        # return a shell recipe that merges it into a single qcow2 image.
+        # rubocop:disable Style/ParallelAssignment, Layout/LineLength
+        def self.merge_chain(paths, opts = {})
+            return '' unless paths.size > 1
+
+            opts = {
+                :workdir  => nil,
+                :destdir  => nil,
+                :sparsify => false,
+                :clean    => false
+            }.merge!(opts)
+
+            dirname, basename = File.dirname(paths.last),
+                                File.basename(paths.last)
+
+            orig = "#{opts[:workdir] || dirname}/#{basename}"
+            temp = "#{orig}.tmp"
+            dest = opts[:destdir].nil? ? orig : "#{opts[:destdir]}/#{basename}"
+
+            script = []
+
+            if orig == dest
+                script << "qemu-img convert -O qcow2 '#{orig}' '#{temp}'"
+                script << "mv '#{temp}' '#{dest}'"
+            else
+                script << "qemu-img convert -O qcow2 '#{orig}' '#{dest}'"
+            end
+
+            if opts[:sparsify]
+                script << "[ $(type -P virt-sparsify) ] && virt-sparsify -q --in-place '#{dest}'"
+            end
+
+            if opts[:clean]
+                to_clean = paths.first(paths.size - 1)
+                                .map {|p| "'#{p}'" } # single-quoted
+                script << "rm -f #{to_clean.join(' ')}" unless to_clean.empty?
+            end
+
+            script.join("\n")
+        end
+        # rubocop:enable Style/ParallelAssignment, Layout/LineLength
+
         def initialize(action_xml)
             @action = REXML::Document.new(action_xml).root
             @increments = {}
@@ -36,10 +106,22 @@ module TransferManager
             end
 
             @increments[0] = @action.elements["#{prefix}/SOURCE"].text if @increments.empty?
+
+            # NOTE: In the case of backup images, there should always
+            # be just a single ID in the VMS array.
+            @vm_id = @action.elements["#{prefix}/VMS/ID"].text.to_i
+
+            @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
+
+            @incr_id = @action.elements['/DS_DRIVER_ACTION_DATA/TEMPLATE/INCREMENT_ID']&.text.to_i
         end
 
         def last
             @increments[@increments.keys.last]
+        end
+
+        def selected
+            @increments[@incr_id] unless @incr_id.nil?
         end
 
         def snapshots
@@ -48,6 +130,29 @@ module TransferManager
 
         def chain
             @increments.map {|k, v| "#{k}:#{v}" }.join(',')
+        end
+
+        # Create the chain with the last N elements
+        def chain_last(n)
+            @increments.map {|k, v| "#{k}:#{v}" }.last(n).join(',')
+        end
+
+        # Create the chain with the first N elements
+        def chain_first(n)
+            @increments.map {|k, v| "#{k}:#{v}" }.first(n).join(',')
+        end
+
+        # Create the chain up to a given increment id
+        def chain_up_to(id)
+            @increments.map {|k, v| "#{k}:#{v}" if k <= id }.compact.join(',')
+        end
+
+        # Create the chain up to a given increment id
+        def chain_keep_last(snap_id)
+            chain_a = @increments.map {|k, v| "#{k}:#{v}" }.last(@keep_last)
+            chain_a[0] = "#{@increments.keys[-@keep_last]}:#{snap_id}"
+
+            chain_a.join(',')
         end
 
     end
@@ -64,56 +169,79 @@ module TransferManager
         #-----------------------------------------------------------------------
         # Attributes that will be rejected when recovering the new template
         #-----------------------------------------------------------------------
-        DISK_LIST = %w[ALLOW_ORPHANS CLONE CLONE_TARGET CLUSTER_ID DATASTORE
-                       DATASTORE_ID DEV_PREFIX DISK_SNAPSHOT_TOTAL_SIZE
-                       DISK_TYPE DRIVER IMAGE IMAGE_ID IMAGE_STATE IMAGE_UID
-                       IMAGE_UNAME LN_TARGET OPENNEBULA_MANAGED ORIGINAL_SIZE
-                       PERSISTENT READONLY SAVE SIZE SOURCE TARGET TM_MAD TYPE
-                       FORMAT]
 
-        NIC_LIST = %w[AR_ID BRIDGE BRIDGE_TYPE CLUSTER_ID NAME NETWORK_ID
-                      NIC_ID TARGET VLAN_ID VN_MAD MAC VLAN_TAGGED_ID PHYDEV]
+        DISK_LIST = ['ALLOW_ORPHANS', 'CLONE', 'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE',
+                     'DATASTORE_ID', 'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE', 'DRIVER',
+                     'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
+                     'LN_TARGET', 'OPENNEBULA_MANAGED', 'ORIGINAL_SIZE', 'PERSISTENT',
+                     'READONLY', 'SAVE', 'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE', 'FORMAT']
 
-        GRAPHICS_LIST = %w[PORT]
+        NIC_LIST = ['AR_ID', 'BRIDGE', 'BRIDGE_TYPE', 'CLUSTER_ID', 'NAME', 'NETWORK_ID', 'NIC_ID',
+                    'TARGET', 'VLAN_ID', 'VN_MAD', 'VLAN_TAGGED_ID', 'PHYDEV']
+
+        GRAPHICS_LIST = ['PORT']
 
         CONTEXT_LIST = ['DISK_ID', /ETH[0-9]?/, /PCI[0-9]?/]
 
-        NUMA_NODE_LIST = %w[CPUS MEMORY_NODE_ID NODE_ID]
+        NUMA_NODE_LIST = ['CPUS', 'MEMORY_NODE_ID', 'NODE_ID']
 
-        PCI_COMMON = %w[ADDRESS BUS DOMAIN FUNCTION NUMA_NODE PCI_ID SLOT
-                        VM_ADDRESS VM_BUS VM_DOMAIN VM_FUNCTION VM_SLOT]
+        OS_LIST = ['UUID']
 
-        PCI_MANUAL_LIST = NIC_LIST + PCI_COMMON + %w[SHORT_ADDRESS]
-        PCI_AUTO_LIST   = NIC_LIST + PCI_COMMON + %w[VENDOR DEVICE CLASS]
+        PCI_COMMON = ['ADDRESS', 'BUS', 'DOMAIN', 'FUNCTION', 'NUMA_NODE', 'PCI_ID', 'SLOT',
+                      'VM_ADDRESS', 'VM_BUS', 'VM_DOMAIN', 'VM_FUNCTION', 'VM_SLOT']
 
-        ATTR_LIST = %w[AUTOMATIC_DS_REQUIREMENTS AUTOMATIC_NIC_REQUIREMENTS
-                       AUTOMATIC_REQUIREMENTS VMID TEMPLATE_ID TM_MAD_SYSTEM
-                       SECURITY_GROUP_RULE ERROR]
+        PCI_MANUAL_LIST = NIC_LIST + PCI_COMMON + ['SHORT_ADDRESS']
+        PCI_AUTO_LIST   = NIC_LIST + PCI_COMMON + ['VENDOR', 'DEVICE', 'CLASS']
+
+        ATTR_LIST = ['AUTOMATIC_DS_REQUIREMENTS', 'AUTOMATIC_NIC_REQUIREMENTS',
+                     'AUTOMATIC_REQUIREMENTS', 'VMID', 'TEMPLATE_ID', 'TM_MAD_SYSTEM',
+                     'SECURITY_GROUP_RULE', 'ERROR']
 
         # options = {
         #   :vm_xml64  => XML representation of the VM, base64 encoded
         #   :backup_id => Internal ID used by the backup system
         #   :ds_id     => Datastore to create the images
         #   :proto     => Backup protocol
-        #   :no_ip     => Do not preserve NIC addresses
-        #   :no_nic    => Do not preserve network maps
+        #   :txml      => Object that responds to [] to get TEMPLATE attributes
         #   }
         def initialize(opts = {})
             txt = Base64.decode64(opts[:vm_xml64])
             xml = OpenNebula::XMLElement.build_xml(txt, 'VM')
             @vm = OpenNebula::VirtualMachine.new(xml, nil)
 
-            @base_name = "#{@vm.id}-#{opts[:backup_id]}"
-            @base_url  = "#{opts[:proto]}://#{opts[:ds_id]}/#{opts[:chain]}"
-
             @ds_id = opts[:ds_id]
 
-            if opts[:no_ip]
-                NIC_LIST << %w[IP IP6 IP6_ULA IP6_GLOBAL]
-                NIC_LIST.flatten!
+            @base_name = begin
+                opts[:txml]['TEMPLATE/NAME']
+            rescue StandardError
+                "#{@vm.id}-#{opts[:backup_id]}"
             end
 
-            @no_nic = opts[:no_nic]
+            no_ip = begin
+                opts[:txml]['TEMPLATE/NO_IP'].casecmp?('YES')
+            rescue StandardError
+                false
+            end
+
+            @no_nic = begin
+                opts[:txml]['TEMPLATE/NO_NIC'].casecmp?('YES')
+            rescue StandardError
+                false
+            end
+
+            chain = begin
+                inc_id = Integer(opts[:txml]['TEMPLATE/INCREMENT_ID'])
+                opts[:bimage].chain_up_to(inc_id)
+            rescue StandardError
+                opts[:bimage].chain
+            end
+
+            @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{chain}"
+
+            return unless no_ip
+
+            NIC_LIST << ['IP', 'IP6', 'IP6_ULA', 'IP6_GLOBAL', 'MAC']
+            NIC_LIST.flatten!
         end
 
         # Creates Image templates for the backup disks.
@@ -181,6 +309,7 @@ module TransferManager
             remove_keys(CONTEXT_LIST, template['CONTEXT'])
             remove_keys(GRAPHICS_LIST, template['GRAPHICS'])
             remove_keys(NUMA_NODE_LIST, template['NUMA_NODE'])
+            remove_keys(OS_LIST, template['OS'])
             remove_keys(PCI_MANUAL_LIST, template['PCI'])
 
             disks = [template['DISK']].flatten
@@ -199,6 +328,7 @@ module TransferManager
                 template.delete('NIC')
             else
                 remove_keys(NIC_LIST, template['NIC'])
+                remove_address(template['NIC'])
             end
 
             remove_empty(template)
@@ -237,6 +367,24 @@ module TransferManager
                 v.reject! {|e| e.empty? } if v.instance_of? Array
 
                 v.empty?
+            end
+        end
+
+        # Sanity check - A NIC can only have one of IP / IP6 / MAC.
+        def remove_address(nic)
+            return if nic.nil?
+
+            if nic.instance_of? Array
+                nic.each {|n| remove_addresses(n) }
+            else
+                if nic['IP']
+                    nic.delete('MAC')
+                    nic.delete('IP6')
+                    nic.delete('IP6_ULA')
+                    nic.delete('IP6_GLOBAL')
+                elsif nic['IP6']
+                    nic.delete('MAC')
+                end
             end
         end
 
@@ -279,7 +427,7 @@ module TransferManager
         end
 
         def attr_to_s(attr)
-            attr.gsub!('"', '"')
+            attr.gsub!('"', '\"')
             "\"#{attr}\""
         end
 

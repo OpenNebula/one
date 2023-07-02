@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -79,8 +79,8 @@ public:
     int prolog_transfer_command(
             VirtualMachine *        vm,
             const VirtualMachineDisk* disk,
-            std::string&            system_tm_mad,
-            std::string&            opennebula_hostname,
+            const std::string&      system_tm_mad,
+            const std::string&      opennebula_hostname,
             std::ostream&           xfr,
             std::ostringstream&     error);
 
@@ -98,7 +98,7 @@ public:
     int prolog_context_command(
             VirtualMachine *        vm,
             const std::string&      token_password,
-            std::string&            system_tm_mad,
+            const std::string&      system_tm_mad,
             int&                    disk_id,
             std::ostream&           xfr);
 
@@ -148,7 +148,7 @@ public:
      *
      *    @return 0 on success
      */
-    int snapshot_transfer_command(VirtualMachine * vm,
+    int snapshot_transfer_command(const VirtualMachine * vm,
                                   const char * snap_action,
                                   std::ostream& xfr);
 
@@ -174,6 +174,19 @@ public:
     int backup_transfer_commands(
             VirtualMachine *    vm,
             std::ostream&       xfr);
+
+    /**
+     *  Generate backup cancel command
+     *    @param vm
+     *    @param xfr stream to include the command.
+     *    @param os describing error if any
+     *
+     *    @return 0 on success
+     */
+    int backup_cancel_transfer_commands(
+            VirtualMachine *    vm,
+            std::ostream&       xfr);
+
 private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
@@ -226,7 +239,7 @@ private:
     // -------------------------------------------------------------------------
     static const int drivers_timeout = 10;
 
-    void finalize_action()
+    void finalize_action() override
     {
         DriverManager::stop(drivers_timeout);
     };
@@ -303,11 +316,6 @@ public:
      *  This function starts the epilog detach sequence
      */
     void trigger_epilog_detach(VirtualMachine * vm);
-
-    /**
-     *  This function starts the epilog sequence
-     */
-    void trigger_checkpoint(int vid);
 
     /**
      * This function cancels the operation being performed by the driver

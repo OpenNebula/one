@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,11 +34,15 @@ require_relative './kvm'
 #
 #   IO_ASYNC: if true issues aio_read commands instead of read
 #   OUTSTAND_OPS: number of aio_reads before issuing a aio_flush commnand
+#
+#   BDRV_MAX_REQUEST is the limit for the sieze of qemu-io operations
 #-------------------------------------------------------------------------------
 LOG_FILE     = nil
 QEMU_IO_OPEN = '-t none -i native -o driver=qcow2'
 IO_ASYNC     = false
 OUTSTAND_OPS = 8
+
+BDRV_MAX_REQUEST = 2**30
 
 # rubocop:disable Style/ClassVars
 
@@ -47,11 +51,13 @@ OUTSTAND_OPS = 8
 #---------------------------------------------------------------------------
 module Command
 
+    # rubocop:disable Style/HashSyntax
     def log(message)
         return unless LOG_FILE
 
-        File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", { :mode => 'a' })
+        File.write(LOG_FILE, "#{Time.now.strftime('%H:%M:%S.%L')} #{message}\n", mode: 'a')
     end
+    # rubocop:enable Style/HashSyntax
 
     def cmd(command, args, opts = {})
         opts.each do |key, value|
@@ -108,7 +114,7 @@ module Nbd
         @@server = fork do
             args  = ['-r', '-k', @@socket, '-f', 'qcow2', '-t']
             args << '-B' << map unless map.empty?
-            args  = file
+            args << file
 
             exec('qemu-nbd', *args)
         end
@@ -123,6 +129,8 @@ module Nbd
         File.unlink(@@socket)
 
         @@server = nil
+
+        sleep(1) # TODO: improve settle down FS/qemu locks
     end
 
     def self.uri
@@ -149,7 +157,7 @@ class QemuImg
     #---------------------------------------------------------------------------
     # qemu-img command methods
     #---------------------------------------------------------------------------
-    QEMU_IMG_COMMANDS = %w[convert create rebase info bitmap]
+    QEMU_IMG_COMMANDS = ['convert', 'create', 'rebase', 'info', 'bitmap']
 
     QEMU_IMG_COMMANDS.each do |command|
         define_method(command.to_sym) do |args = '', opts|
@@ -158,7 +166,47 @@ class QemuImg
     end
 
     #---------------------------------------------------------------------------
-    #  Image information methods
+    #  Image information methods.
+    #
+    #  Sample output of qemu image info output in json format
+    #  {
+    #  "backing-filename-format": "qcow2",
+    #  "virtual-size": 268435456,
+    #  "filename": "disk.0",
+    #  "cluster-size": 65536,
+    #  "format": "qcow2",
+    #  "actual-size": 2510848,
+    #  "format-specific": {
+    #      "type": "qcow2",
+    #      "data": {
+    #          "compat": "1.1",
+    #          "compression-type": "zlib",
+    #          "lazy-refcounts": false,
+    #          "bitmaps": [
+    #              {
+    #                  "flags": [
+    #                      "auto"
+    #                  ],
+    #                  "name": "one-0-5",
+    #                  "granularity": 65536
+    #              },
+    #              {
+    #                  "flags": [
+    #                      "auto"
+    #                  ],
+    #                  "name": "one-0-4",
+    #                  "granularity": 65536
+    #              }
+    #          ],
+    #          "refcount-bits": 16,
+    #          "corrupt": false,
+    #          "extended-l2": false
+    #      }
+    #  },
+    #  "full-backing-filename": "/var/lib/one/datastores/1/e948982",
+    #  "backing-filename": "/var/lib/one/datastores/1/e948982",
+    #  "dirty-flag": false
+    # }
     #---------------------------------------------------------------------------
     def [](key)
         if !@_info
@@ -167,6 +215,12 @@ class QemuImg
         end
 
         @_info[key]
+    end
+
+    def bitmaps
+        self['format-specific']['data']['bitmaps']
+    rescue StandardError
+        []
     end
 
     #---------------------------------------------------------------------------
@@ -196,13 +250,48 @@ class QemuImg
         # Create a qemu-io script to pull changes
         # ----------------------------------------------------------------------
         io_script = "open -C #{QEMU_IO_OPEN} #{@path}\n"
+        index     = -1
 
-        exts.each_with_index do |e, i|
-            if IO_ASYNC
-                io_script << "aio_read -q #{e['offset']} #{e['length']}\n"
-                io_script << "aio_flush\n" if (i+1)%OUTSTAND_OPS == 0
+        exts.each do |e|
+            ext_length = Integer(e['length'])
+            new_exts   = []
+
+            if ext_length > BDRV_MAX_REQUEST
+                ext_offset = Integer(e['offset'])
+
+                loop do
+                    index += 1
+
+                    blk_length = [ext_length, BDRV_MAX_REQUEST].min
+
+                    new_exts << {
+                        'offset' => ext_offset,
+                        'length' => blk_length,
+                        'index'  => index
+                    }
+
+                    ext_offset += BDRV_MAX_REQUEST
+                    ext_length -= BDRV_MAX_REQUEST
+
+                    break if ext_length <= 0
+                end
             else
-                io_script << "read -q #{e['offset']} #{e['length']}\n"
+                index += 1
+
+                new_exts << {
+                    'offset' => e['offset'],
+                    'length' => e['length'],
+                    'index'  => index
+                }
+            end
+
+            new_exts.each do |i|
+                if IO_ASYNC
+                    io_script << "aio_read -q #{i['offset']} #{i['length']}\n"
+                    io_script << "aio_flush\n" if (i['index']+1)%OUTSTAND_OPS == 0
+                else
+                    io_script << "read -q #{i['offset']} #{i['length']}\n"
+                end
             end
         end
 
@@ -333,18 +422,10 @@ class KVMDomain
     end
 
     #---------------------------------------------------------------------------
-    # Re-define the parent_id checkpoint if not included in the checkpoint-list.
-    # If the checkpoint is not present in storage the methods will fail.
-    #
-    #   @param[String] List of disks to include in the checkpoint
-    #   @param[Integer] id of the checkpoint to define
+    # List the checkpoints defined in the domain
+    #    @return[Array]  an array of checkpint ids
     #---------------------------------------------------------------------------
-    def define_checkpoint(disks_s)
-        return if @parent_id == -1
-
-        #-----------------------------------------------------------------------
-        #  Check if the parent_id checkpoint is already defined for this domain
-        #-----------------------------------------------------------------------
+    def checkpoints
         out = cmd("#{virsh} checkpoint-list", @dom, :name => '')
         out.strip!
 
@@ -357,18 +438,22 @@ class KVMDomain
             check_ids << m[2].to_i
         end
 
-        return if check_ids.include? @parent_id
+        check_ids
+    end
 
-        #-----------------------------------------------------------------------
-        # Try to re-define checkpoint, will fail if not present in storage.
-        # Can be queried using qemu-monitor
-        #
-        # out = cmd("#{virsh} qemu-monitor-command", @dom,
-        #           :cmd => '{"execute": "query-block","arguments": {}}')
-        #-----------------------------------------------------------------------
+    #---------------------------------------------------------------------------
+    # Re-define the checkpoints. This method will fail if not present in storage
+    #
+    #   @param[Array]  Array of checkpoint ids to re-define
+    #   @param[String] List of disks to include in the checkpoint
+    #---------------------------------------------------------------------------
+    def redefine_checkpoints(check_ids, disks_s)
         disks = disks_s.split ':'
         tgts  = []
 
+        return if check_ids.empty? || disks.empty?
+
+        # Create XML definition for the VM disks
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
 
@@ -383,36 +468,101 @@ class KVMDomain
         tgts.each {|tgt| disks << "<disk name='#{tgt}'/>" }
         disks << '</disks>'
 
-        checkpoint_xml = <<~EOS
-            <domaincheckpoint>
-                <name>one-#{@vid}-#{@parent_id}</name>
-                <creationTime>#{Time.now.to_i}</creationTime>
-                #{disks}
-            </domaincheckpoint>
-        EOS
+        #-----------------------------------------------------------------------
+        # Try to re-define checkpoints, will fail if not present in storage.
+        # Can be queried using qemu-monitor
+        #
+        # out  = cmd("#{virsh} qemu-monitor-command", @dom,
+        #           :cmd => '{"execute": "query-block","arguments": {}}')
+        # outh = JSON.parse(out)
+        #
+        # outh['return'][0]['inserted']['dirty-bitmaps']
+        #   => [{"name"=>"one-0-2", "recording"=>true, "persistent"=>true,
+        #        "busy"=>false, "granularity"=>65536, "count"=>327680}]
+        #-----------------------------------------------------------------------
+        check_ids.each do |cid|
+            checkpoint_xml = <<~EOS
+                <domaincheckpoint>
+                    <name>one-#{@vid}-#{cid}</name>
+                    <creationTime>#{Time.now.to_i}</creationTime>
+                    #{disks}
+                </domaincheckpoint>
+            EOS
 
-        cpath = "#{@tmp_dir}/checkpoint.xml"
+            cpath = "#{@tmp_dir}/checkpoint.xml"
 
-        File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
+            File.open(cpath, 'w') {|f| f.write(checkpoint_xml) }
 
-        cmd("#{virsh} checkpoint-create", @dom,
-            :xmlfile => cpath, :redefine => '')
+            cmd("#{virsh} checkpoint-create", @dom, :xmlfile => cpath,
+                :redefine => '')
+        end
     end
 
     #---------------------------------------------------------------------------
-    # Cleans defined checkpoints up to the last one taken for this backup
+    # Re-define the parent_id checkpoint if not included in the checkpoint-list.
+    # If the checkpoint is not present in storage the methods will fail.
+    #
+    #   @param[String] List of disks to include in the checkpoint
+    #   @param[Integer] id of the checkpoint to define
     #---------------------------------------------------------------------------
-    def clean_checkpoints(all = false)
+    def define_parent(disks_s)
+        return if @parent_id == -1
+
+        check_ids = checkpoints
+
+        # Remove current checkpoint (e.g. a previous failed backup operation)
+        if check_ids.include? @backup_id
+            cpname = "one-#{@vid}-#{@backup_id}"
+
+            begin
+                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname)
+            rescue StandardError
+                cmd("#{virsh} checkpoint-delete", @dom, :checkpointname => cpname,
+                    :metadata => '')
+            end
+        end
+
+        return if check_ids.include? @parent_id
+
+        redefine_checkpoints([@parent_id], disks_s)
+    end
+
+    #---------------------------------------------------------------------------
+    # Cleans defined checkpoints up to the last two. This way we can retry
+    # the backup operation in case it fails
+    #---------------------------------------------------------------------------
+    def clean_checkpoints(disks_s, all = false)
         return unless @checkpoint
 
-        out = cmd("#{virsh} checkpoint-list", @dom, :name => '')
-        out.strip!
+        # Get a list of dirty checkpoints
+        check_ids = checkpoints
 
-        out.each_line do |l|
-            m = l.match(/(one-[0-9]+)-([0-9]+)/)
-            next if !m || (!all && m[2].to_i == @backup_id)
+        # Use first disk to get a list of defined bitmaps
+        to_define = []
 
-            cmd("#{virsh} checkpoint-delete", "#{@dom} #{m[1]}-#{m[2]}")
+        disk_id = disks_s.split(':').first
+
+        idisk = QemuImg.new("#{@vm_dir}/disk.#{disk_id}")
+
+        idisk.bitmaps.each do |b|
+            m = b['name'].match(/(one-[0-9]+)-([0-9]+)/)
+            next unless m
+
+            cid = m[2].to_i
+
+            next if check_ids.include? cid
+
+            to_define << cid
+            check_ids << cid
+        end unless idisk.bitmaps.nil?
+
+        # Redefine checkpoints in libvirt and remove
+        redefine_checkpoints(to_define, disks_s)
+
+        check_ids.each do |cid|
+            next if !all && cid >= @parent_id
+
+            cmd("#{virsh} checkpoint-delete", "#{@dom} one-#{@vid}-#{cid}")
         end
     end
 
@@ -509,7 +659,7 @@ class KVMDomain
         fsthaw
 
         qdisk.each do |did, disk|
-            disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2')
+            disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2', :U => '')
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
@@ -574,9 +724,14 @@ class KVMDomain
             Nbd.stop_nbd
         end
 
-        # TODO: Check if baking files needs bitmap
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
+
+            idisk.bitmaps.each do |b|
+                next if b['name'] == "one-#{@vid}-#{@parent_id}"
+
+                idisk.bitmap(b['name'], :remove => '')
+            end
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
         end if @checkpoint
@@ -596,8 +751,14 @@ class KVMDomain
             sdisk = QemuImg.new("#{@vm_dir}/disk.#{did}")
             ddisk = "#{@bck_dir}/disk.#{did}.0"
 
-            sdisk.convert(ddisk, :m => '4', :O => 'qcow2')
-            sdisk.bitmap("one-#{@vid}-0", :add => '') if @checkpoint
+            sdisk.convert(ddisk, :m => '4', :O => 'qcow2', :U => '')
+
+            next unless @checkpoint
+
+            bms = sdisk.bitmaps
+            bms.each {|bm| sdisk.bitmap(bm['name'], :remove => '') } unless bms.nil?
+
+            sdisk.bitmap("one-#{@vid}-0", :add => '')
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
@@ -741,15 +902,15 @@ begin
     #---------------------------------------------------------------------------
     if live
         if vm.parent_id == -1
-            vm.clean_checkpoints(true)
+            vm.clean_checkpoints(disk, true)
 
             vm.backup_full_live(disk)
         else
-            vm.define_checkpoint(disk)
+            vm.define_parent(disk)
 
             vm.backup_nbd_live(disk)
 
-            vm.clean_checkpoints
+            vm.clean_checkpoints(disk)
         end
     else
         if vm.parent_id == -1

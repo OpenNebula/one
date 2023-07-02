@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -231,9 +231,7 @@ define(function(require){
             OPENNEBULA_MANAGED: disk.OPENNEBULA_MANAGED,
             RECOVERY_SNAPSHOT_FREQ: disk.RECOVERY_SNAPSHOT_FREQ
           }
-          if (disk.SIZE !== fields.SIZE) {
-            newDisk["SIZE"] = fields.SIZE
-          }
+          newDisk["SIZE"] = fields.SIZE // Always send the value of the size, as the default form has the value of the template
           disks.push(newDisk)
         } else {
           var diskAux = $.extend(true, {}, disk);

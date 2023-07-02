@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,7 +28,7 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db, std::vector<const SingleAttribute *>& ea) :
+    DocumentPool(SqlDB * db, const std::vector<const SingleAttribute *>& ea) :
         PoolSQL(db, one_db::doc_table) {
         DocumentTemplate::parse_encrypted(ea);
     };
@@ -103,7 +103,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", one_db::doc_table,
                              where, sid, eid, desc);
@@ -123,7 +123,7 @@ private:
      *  Factory method to produce Image objects
      *    @return a pointer to the new Image
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Document(-1,-1,-1,"","",0,0,0);
     };

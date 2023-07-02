@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -196,9 +196,7 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
-    ostringstream       ose;
-
-    string sg_str, vis;
+    string sg_str;
 
     string value;
     string name;
@@ -302,7 +300,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     if (bridge.empty() && bridge_type != "none")
     {
-        ostringstream oss;
+        oss.str("");
 
         oss << "onebr";
 
@@ -843,7 +841,6 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     //Security groups internal attribute (from /VNET/TEMPLATE/SECURITY_GROUPS)
     string sg_str;
@@ -1307,9 +1304,9 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
 
     unsigned int ar_id;
 
-    string  ip  = lease->vector_value("IP");
-    string  ip6 = lease->vector_value("IP6");
-    string  mac = lease->vector_value("MAC");
+    const string& ip  = lease->vector_value("IP");
+    const string& ip6 = lease->vector_value("IP6");
+    const string& mac = lease->vector_value("MAC");
 
     int ip_ne  = ip.empty() ? 0 : 1;
     int ip6_ne = ip6.empty() ? 0 : 1;
@@ -1383,9 +1380,9 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 
     unsigned int ar_id;
 
-    string  ip  = lease->vector_value("IP");
-    string  ip6 = lease->vector_value("IP6");
-    string  mac = lease->vector_value("MAC");
+    const string& ip  = lease->vector_value("IP");
+    const string& ip6 = lease->vector_value("IP6");
+    const string& mac = lease->vector_value("MAC");
 
     int ip_ne  = ip.empty() ? 0 : 1;
     int ip6_ne = ip6.empty() ? 0 : 1;

@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ here = path.abspath(path.dirname(__file__))
 
 install_requires = [
     'lxml',
-    'dicttoxml',
+    'dict2xml',
     'xmltodict',
     'six',
     'aenum',

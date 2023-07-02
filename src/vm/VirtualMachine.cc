@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -513,7 +513,6 @@ int VirtualMachine::select(SqlDB * db)
     ostringstream   oss;
     ostringstream   ose;
 
-    string system_dir;
     int    rc;
     int    last_seq;
 
@@ -1880,7 +1879,6 @@ void VirtualMachine::add_history(
     const string& tm_mad,
     int           ds_id)
 {
-    ostringstream os;
     int           seq;
     string        vm_xml;
 
@@ -2421,8 +2419,6 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         oss << "<HISTORY_RECORDS/>";
     }
 
-    VirtualMachineDisks::disk_iterator disk;
-
     for (auto disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
             disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
     {
@@ -2681,7 +2677,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     nics.init(vnics, true);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // -------------------------------------------------------------------------
     // Virtual Machine user template
@@ -2696,7 +2691,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += user_obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // -------------------------------------------------------------------------
     // Last history entry
@@ -2741,7 +2735,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     if (!content.empty())
     {
         ObjectXML::free_nodes(content);
-        content.clear();
     }
 
     rc += _backups.from_xml(this);
@@ -2778,12 +2771,6 @@ int VirtualMachine::replace_template(
 
     auto new_tmpl =
         make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
-
-    if ( new_tmpl == 0 )
-    {
-        error = "Cannot allocate a new template";
-        return -1;
-    }
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
@@ -2838,12 +2825,6 @@ int VirtualMachine::append_template(
         make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
     string rname;
 
-    if ( new_tmpl == 0 )
-    {
-        error = "Cannot allocate a new template";
-        return -1;
-    }
-
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
         return -1;
@@ -2852,31 +2833,18 @@ int VirtualMachine::append_template(
     /* ---------------------------------------------------------------------- */
     /* Append new_tmpl to the current user_template                           */
     /* ---------------------------------------------------------------------- */
+    // Create a copy of actual user template
     auto old_user_tmpl = make_unique<VirtualMachineTemplate>(*user_obj_template);
 
-    if (user_obj_template != 0)
+    if (keep_restricted &&
+        new_tmpl->check_restricted(rname, user_obj_template.get()))
     {
-        if (keep_restricted &&
-            new_tmpl->check_restricted(rname, user_obj_template.get()))
-        {
-            error ="User Template includes a restricted attribute " + rname;
+        error ="User Template includes a restricted attribute " + rname;
 
-            return -1;
-        }
-
-        user_obj_template->merge(new_tmpl.get());
+        return -1;
     }
-    else
-    {
-        if (keep_restricted && new_tmpl->check_restricted(rname))
-        {
-            error ="User Template includes a restricted attribute " + rname;
 
-            return -1;
-        }
-
-        user_obj_template = move(new_tmpl);
-    }
+    user_obj_template->merge(new_tmpl.get());
 
     if (post_update_template(error) == -1)
     {
@@ -2941,9 +2909,9 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
         clouds.insert("ec2");
     }
 
-    for (auto vattr : attrs)
+    for (const auto* vattr : attrs)
     {
-        string type = vattr->vector_value("TYPE");
+        const string& type = vattr->vector_value("TYPE");
 
         if (!type.empty())
         {
@@ -3470,15 +3438,25 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
 
         VirtualMachineNic * nic = get_nic(nic_id);
 
+        if (!nic)
+        {
+            std::ostringstream oss;
+
+            oss << "NIC_ID " << nic_id << " not found";
+            estr = oss.str();
+
+            return -1;
+        }
+
         net_mode = nic->vector_value("NETWORK_MODE");
 
         string network_id = nic->vector_value("NETWORK_ID");
 
-        if (nic == 0 || !one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
+        if (!one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
         {
             std::ostringstream oss;
 
-            oss << "NIC_ID "<< nic_id << " not found or not AUTO";
+            oss << "NIC_ID " << nic_id << " not AUTO";
             estr = oss.str();
 
             return -1;
@@ -3491,8 +3469,6 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
     /* Get the network leases & security groups for NICs in auto mode         */
     /* ---------------------------------------------------------------------- */
     vector<VectorAttribute*> sgs;
-
-    vector<Attribute *> anics;
 
     VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
 

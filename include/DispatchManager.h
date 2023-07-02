@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -493,6 +493,7 @@ public:
      *
      *  @param vid the VM id
      *  @param bck_ds_is the ID of the datastore to save the backup
+     *  @param reset create a full backup (valid only for incremental backup mode)
      *  @param ra information about the API call request
      *  @param error_str Error reason, if any
      *
@@ -500,6 +501,17 @@ public:
      */
     int backup(int vid, int bck_ds_id, bool reset,
             const RequestAttributes& ra, std::string& error_str);
+
+    /**
+     * Cancel ongoing backup operation
+     *
+     *  @param vid the VM id
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int backup_cancel(int vid, const RequestAttributes& ra, std::string& error_str);
 
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ public class VirtualMachine extends PoolElement{
     private static final String ATTACHSG            = METHOD_PREFIX + "attachsg";
     private static final String DETACHSG            = METHOD_PREFIX + "detachsg";
     private static final String BACKUP              = METHOD_PREFIX + "backup";
+    private static final String BACKUPCANCEL        = METHOD_PREFIX + "backupcancel";
 
     private static final String[] VM_STATES =
     {
@@ -793,6 +794,18 @@ public class VirtualMachine extends PoolElement{
         return client.call(BACKUP, id, ds_id, reset);
     }
 
+    /**
+     * Cancel ongoing backup operation
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse backupCancel(Client client, int id)
+    {
+        return client.call(BACKUPCANCEL, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -1373,6 +1386,16 @@ public class VirtualMachine extends PoolElement{
     public OneResponse backup(int ds_id, boolean reset)
     {
         return backup(client, id, ds_id, reset);
+    }
+
+    /**
+     * Cancel ongoing backup operation
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse backupCancel()
+    {
+        return backupCancel(client, id);
     }
 
     // =================================

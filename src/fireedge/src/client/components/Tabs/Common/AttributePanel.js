@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import makeStyles from '@mui/styles/makeStyles'
+import PropTypes from 'prop-types'
+import { memo, useCallback } from 'react'
 
 import { List } from 'client/components/Tabs/Common'
 import { ACTIONS } from 'client/constants'
@@ -79,6 +79,7 @@ const AttributePanel = memo(
     filtersSpecialAttributes = true,
     collapse = false,
     askToDelete = true,
+    fullWidth = false,
   }) => {
     const classes = useStyles()
 
@@ -101,6 +102,7 @@ const AttributePanel = memo(
         handleEdit,
         handleDelete,
         askToDelete,
+        fullWidth,
       })
     )
 
@@ -129,6 +131,7 @@ AttributePanel.propTypes = {
   allActionsEnabled: PropTypes.bool,
   collapse: PropTypes.bool,
   askToDelete: PropTypes.bool,
+  fullWidth: PropTypes.bool,
 }
 
 AttributePanel.displayName = 'AttributePanel'

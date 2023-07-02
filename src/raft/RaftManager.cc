@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -67,7 +67,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
-    std::string raft_xml, cmd, arg;
+    std::string raft_xml;
 
     // -------------------------------------------------------------------------
     // Initialize Raft variables:
@@ -138,8 +138,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     if ( leader_hook_mad != 0 )
     {
-        cmd = leader_hook_mad->vector_value("COMMAND");
-        arg = leader_hook_mad->vector_value("ARGUMENTS");
+        const string& cmd = leader_hook_mad->vector_value("COMMAND");
+        const string& arg = leader_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {
@@ -159,8 +159,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 
     if ( follower_hook_mad != 0 )
     {
-        cmd = follower_hook_mad->vector_value("COMMAND");
-        arg = follower_hook_mad->vector_value("ARGUMENTS");
+        const string& cmd = follower_hook_mad->vector_value("COMMAND");
+        const string& arg = follower_hook_mad->vector_value("ARGUMENTS");
 
         if ( cmd.empty() )
         {
@@ -289,7 +289,6 @@ void RaftManager::add_server(int follower_id, const std::string& endpoint)
 void RaftManager::delete_server(int follower_id)
 {
     std::ostringstream oss;
-    std::map<int, std::string> _servers;
 
     std::lock_guard<mutex> lock(raft_mutex);
 
@@ -746,7 +745,6 @@ void RaftManager::timer_action()
 void RaftManager::purge_action()
 {
     static int mark_tics  = 0;
-    ostringstream oss;
 
     Nebula& nd = Nebula::instance();
 
@@ -881,7 +879,7 @@ void RaftManager::request_vote()
                     return;
                 }
             }
-            else if ( success == true )
+            else // success == true
             {
                 granted_votes++;
 

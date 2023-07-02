@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -180,6 +180,9 @@ define(function(require) {
       context.off("click", 'button#rm_ar_button');
       context.on("click", 'button#rm_ar_button', function(){
         var ar_id = $(this).attr('ar_id');
+        var ar_list = Array.isArray(that.element.TEMPLATE.AR)
+          ? that.element.TEMPLATE.AR
+          : [that.element.TEMPLATE.AR]
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
@@ -187,16 +190,15 @@ define(function(require) {
           body : Locale.tr("This will delete all the addresses in this range"),
           //question :
           submit : function(){
-            var obj = {ar_id: ar_id};
-
-            for (i in that.element.TEMPLATE.AR) {
-              if ( that.element.TEMPLATE.AR[i].AR_ID == ar_id ) {
-                that.element.TEMPLATE.AR.splice(i, 1);
+            for (var i=0; i<ar_list.length; i++){
+              if (ar_id == i){
+                delete ar_list[i]
                 break;
               }
             }
 
-            delete that.element.TEMPLATE.AR_POOL;
+            that.element.TEMPLATE.AR = ar_list
+            that.element.TEMPLATE.AR_POOL = ar_list
 
             Sunstone.runAction('VNTemplate.remove_ar', that.element.ID, TemplateUtils.templateToString(that.element.TEMPLATE));
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,13 +36,18 @@ MARKET_URL=$1
 CONTEXT_API="https://api.github.com/repos/OpenNebula/addon-context-linux/releases"
 CONTEXT_URL="https://github.com/OpenNebula/addon-context-linux/releases/download"
 
-PKG_ALT="curl openssh-server"
-PKG_APK="curl openssh"
-PKG_DEB="curl dbus openssh-server"
-PKG_RPM="openssh-server"
-PKG_CENTOS6="epel-release $PKG_RPM"
-PKG_FEDORA="network-scripts $PKG_RPM"
-PKG_ORACLE8="oracle-release-el8 $PKG_RPM"
+
+PKG_RPM="util-linux bash curl bind-utils cloud-utils-growpart parted ruby rubygem-json sudo shadow-utils openssh-server qemu-guest-agent gawk virt-what"
+PKG_el7=$PKG_RPM
+PKG_el8="${PKG_RPM} network-scripts"
+PKG_el9=$PKG_RPM
+PKG_FEDORA=$PKG_el8
+PKG_ORACLE="oracle-epel-release-el" #suffix
+PKG_DEB="util-linux bash curl bind9-host cloud-utils parted ruby sudo passwd dbus openssh-server open-vm-tools qemu-guest-agent gawk virt-what" # ifupdown|ifupdown2 acpid|systemd
+PKG_APK="util-linux bash curl udev sfdisk parted e2fsprogs-extra sudo shadow ruby ruby-json bind-tools openssh open-vm-tools qemu-guest-agent gawk virt-what"
+PKG_SUSE="util-linux bash curl bind-utils growpart parted parted ruby sudo shadow openssh open-vm-tools qemu-guest-agent gawk virt-what"
+PKG_ALT="bind-utils btrfs-progs cloud-utils-growpart curl e2fsprogs iproute2 openssl parted passwd qemu-guest-agent open-vm-tools ruby-json-pure sudo systemd-services wget which xfsprogs gawk virt-what"
+
 
 #Default DNS server to download the packages
 DNS_SERVER="8.8.8.8"
@@ -159,139 +164,26 @@ mkdir $TMP_DIR/$id
 # 2- Setup randomness
 # 3- Download and install context package
 #--------------------------------------------------------------------
+terminal="/bin/sh"
 
 case "$rootfs_url" in
-*ubuntu*|*debian*|*devuan*)
-    terminal="/bin/bash"
+*opensuse*)
     commands=$(cat <<EOC
-export PATH=\$PATH:/bin:/sbin
-
-rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
+[ -h /etc/resolv.conf ] && rm /etc/resolv.conf
 echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/tty ] && mknod /dev/tty c 5 0  >> /var/log/chroot.log 2>&1
 
-apt-get update >> /var/log/chroot.log 2>&1
-apt-get install $PKG_DEB -y >> /var/log/chroot.log 2>&1
+zypper clean >> /var/log/chroot.log 2>&1
+zypper ref >> /var/log/chroot.log 2>&1
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lfo /root/context.deb >> /var/log/chroot.log 2>&1
-apt-get install -y /root/context.deb >> /var/log/chroot.log 2>&1
-rm /root/context.deb
+zypper install -ny $PKG_SUSE >> /var/log/chroot.log 2>&1
 
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*centos/6*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-export PATH=\$PATH:/bin:/sbin
-
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
-
-yum install $PKG_CENTOS6 -y  >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el6.noarch.rpm -Lfo /root/context.rpm  >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y  >> /var/log/chroot.log 2>&1
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.suse.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+zypper install -ny  --allow-unsigned-rpm /root/context.rpm >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*centos/7*|*oracle/7*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
-
-yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
-rm /root/context.rpm
-
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*centos/8*|*almalinux/8*|*rockylinux/8*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
-
-yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
-rm /root/context.rpm
-
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*oracle/8*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
-
-yum install $PKG_ORACLE8 -y >> /var/log/chroot.log 2>&1
-dnf makecache >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
-rm /root/context.rpm
-
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*fedora28*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
-
-yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
-rm /root/context.rpm
-
-rm /dev/random /dev/urandom
-EOC
-)
-    ;;
-*fedora/29*|*fedora/3*)
-    terminal="/bin/bash"
-    commands=$(cat <<EOC
-rm /etc/resolv.conf
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
-
-[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8
-[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9
-
-yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
-
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
-yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
-rm /root/context.rpm
-
-rm /dev/random /dev/urandom
+rm /dev/tty
 EOC
 )
     ;;
@@ -316,7 +208,6 @@ EOC
 )
     ;;
 *alt*)
-    terminal="/bin/bash"
     commands=$(cat <<EOC
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
@@ -337,8 +228,155 @@ rm /dev/random /dev/urandom
 EOC
 )
     ;;
+*ubuntu*|*debian*|*devuan*)
+    commands=$(cat <<EOC
+export PATH=\$PATH:/bin:/sbin
+
+rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+apt-get update >> /var/log/chroot.log 2>&1
+apt-get install $PKG_DEB -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context_$selected_tag-1.deb -Lfo /root/context.deb >> /var/log/chroot.log 2>&1
+apt-get install -y /root/context.deb >> /var/log/chroot.log 2>&1
+rm /root/context.deb
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*centos/7*)
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_el7 -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*oracle/7*)
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install ${PKG_ORACLE}7 -y >> /var/log/chroot.log 2>&1
+yum install $PKG_el7 -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el7.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*centos/8*|*almalinux/8*|*rockylinux/8*)
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_RPM -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*oracle/8*)
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install ${PKG_ORACLE}8 -y >> /var/log/chroot.log 2>&1
+yum install $PKG_el8 -y >> /var/log/chroot.log 2>&1
+dnf makecache >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*fedora*)
+    commands=$(cat <<EOC
+[ -h /etc/resolv.conf ] && rm /etc/resolv.conf
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*almalinux/9*|*rockylinux/9*|*amazonlinux*)
+    commands=$(cat <<EOC
+[ -h /etc/resolv.conf ] && rm /etc/resolv.conf
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install $PKG_el9 -y >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el9.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
+*oracle/9*)
+    commands=$(cat <<EOC
+echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+
+[ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
+[ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
+
+yum install ${PKG_ORACLE}9 -y >> /var/log/chroot.log 2>&1
+yum install $PKG_el9 -y >> /var/log/chroot.log 2>&1
+dnf makecache >> /var/log/chroot.log 2>&1
+
+$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el9.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
+rm /root/context.rpm
+
+rm /dev/random /dev/urandom
+EOC
+)
+    ;;
 *)
-    terminal="/bin/sh"
+
     commands=$(cat <<EOC
 echo "$distro-$version is not supported by OpenNebula context" > /root/opennebula_context.log
 EOC

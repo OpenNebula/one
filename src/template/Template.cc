@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -516,10 +516,9 @@ Attribute * Template::single_xml_att(const xmlNode * node)
 
 Attribute * Template::vector_xml_att(const xmlNode * node)
 {
-    VectorAttribute *   attr        = 0;
+    VectorAttribute *   attr        = nullptr;
 
     xmlNode *           child       = node->children;
-    xmlNode *           grandchild  = 0;
 
     while(child != 0 && child->type != XML_ELEMENT_NODE)
     {
@@ -531,9 +530,9 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
         attr = new VectorAttribute(
                         reinterpret_cast<const char *>(node->name));
 
-        for(child = child; child != 0; child = child->next)
+        for( ; child != 0; child = child->next)
         {
-            grandchild = child->children;
+            xmlNode *grandchild = child->children;
 
             if( grandchild != 0 && (grandchild->type == XML_TEXT_NODE ||
                                     grandchild->type == XML_CDATA_SECTION_NODE))

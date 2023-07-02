@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -325,6 +325,36 @@
       <input type="number" name="restic_connections" id="restic_connections"/>
     </div>
 
+    <div class="medium-6 columns">
+      <label for="restic_max_riops">
+        {{tr "Max Read IOPS"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice, limiting the max number of read iops"}}
+        </span>
+      </label>
+      <input type="number" name="restic_max_riops" id="restic_max_riops"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_max_wiops">
+        {{tr "Max Write IOPS"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice, limiting the max number of write iops"}}
+        </span>
+      </label>
+      <input type="number" name="restic_max_wiops" id="restic_max_wiops"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="restic_cpu_quota">
+        {{tr "CPU Quota"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"}}
+        </span>
+      </label>
+      <input type="number" name="restic_cpu_quota" id="restic_cpu_quota"/>
+    </div>
+
     <!-- RSYNC ATTRIBUTES -->
     <div class="medium-6 columns">
       <label for="rsync_host">
@@ -340,6 +370,55 @@
       <input type="text" name="rsync_user" id="rsync_user"/>
     </div>
 
+    <div class="medium-6 columns">
+      <label for="rsync_ionice">
+        {{tr "Backup I/O Priority"}}
+        <span class="tip">
+          {{tr "Run restic operations under a given ionice priority using the best-effort I/O scheduler"}}
+        </span>
+      </label>
+      <input type="number" name="rsync_ionice" id="rsync_ionice" min="0" max="7" />
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="rsync_nice">
+        {{tr "Backup CPU Priority"}}
+        <span class="tip">
+          {{tr "Run restic operations with a given scheduler priority (nice)"}}
+        </span>
+      </label>
+      <input type="number" name="rsync_nice" id="rsync_nice" min="1" max="19" />
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="rsync_max_riops">
+        {{tr "Max Read IOPS"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice, limiting the max number of read iops"}}
+        </span>
+      </label>
+      <input type="number" name="rsync_max_riops" id="rsync_max_riops"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="rsync_max_wiops">
+        {{tr "Max Write IOPS"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice, limiting the max number of write iops"}}
+        </span>
+      </label>
+      <input type="number" name="rsync_max_wiops" id="rsync_max_wiops"/>
+    </div>
+
+    <div class="medium-6 columns">
+      <label for="rsync_cpu_quota">
+        {{tr "CPU Quota"}}
+        <span class="tip">
+          {{tr "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"}}
+        </span>
+      </label>
+      <input type="number" name="rsync_cpu_quota" id="rsync_cpu_quota"/>
+    </div>
   </div>
   <div class="ceph_advanced">
     {{#advancedSection (tr "Advanced options") }}

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -261,7 +261,6 @@ int SecurityGroup::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     rc += updated.from_xml(this, "/SECURITY_GROUP/");
     rc += outdated.from_xml(this, "/SECURITY_GROUP/");

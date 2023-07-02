@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,10 +43,6 @@ int HostBase::from_xml(const std::string &xml_str)
 
 string HostBase::to_xml() const
 {
-    string template_xml;
-    string vm_collection_xml;
-    string share_xml;
-
     ostringstream oss;
 
     oss << "<HOST>";
@@ -104,9 +100,8 @@ int HostBase::init_attributes()
     rc += _obj_template.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2023, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -39,8 +39,6 @@ void VMGroupXML::init_attributes()
     }
 
     free_nodes(content);
-
-    content.clear();
 
     xpaths(srules, "/VM_GROUP/TEMPLATE/AFFINED");
 
@@ -294,7 +292,7 @@ static void schecule_affined_set(const std::set<int>& vms,
         /*    2. Allocate VMs in the same host as the leader                  */
         /*    3. Aggregate requirements in the leader for scheduling          */
         /* ------------------------------------------------------------------ */
-        VirtualMachineXML * vm;
+        VirtualMachineXML * vm = nullptr;
 
         for ( it = vms.begin(); it != vms.end() ; ++it )
         {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -65,7 +65,6 @@ int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
 {
     int                 rc;
     vector<xmlNodePtr>  content;
-    ostringstream       oss;
 
     xml->get_nodes(xpath_prefix + collection_name, content);
 

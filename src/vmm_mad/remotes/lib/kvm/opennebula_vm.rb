@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -143,10 +143,10 @@ module VirtualMachineManagerKVM
                 dev << '</filterref>'
             end
 
-            inb_keys = %w[INBOUND_AVG_BW INBOUND_PEAK_BW INBOUND_PEAK_KB]
+            inb_keys = ['INBOUND_AVG_BW', 'INBOUND_PEAK_BW', 'INBOUND_PEAK_KB']
             inbound  = inb_keys.any? {|e| exist? e }
 
-            outb_keys = %w[OUTBOUND_AVG_BW OUTBOUND_PEAK_BW OUTBOUND_PEAK_KB]
+            outb_keys = ['OUTBOUND_AVG_BW', 'OUTBOUND_PEAK_BW', 'OUTBOUND_PEAK_KB']
             outbound  = outb_keys.any? {|e| exist? e }
 
             if inbound || outbound
@@ -260,7 +260,7 @@ module VirtualMachineManagerKVM
 
                 # Setting Bus address needs to check that a PCI contoller is
                 # present for Bus 1
-                vm_addr = %w[VM_DOMAIN VM_BUS VM_SLOT VM_FUNCTION].all? {|e| exist? e }
+                vm_addr = ['VM_DOMAIN', 'VM_BUS', 'VM_SLOT', 'VM_FUNCTION'].all? {|e| exist? e }
 
                 if vm_addr && opts[:pci]
                     dev << '<address type="pci"'

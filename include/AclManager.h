@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -106,11 +106,11 @@ public:
      *    -2 if the rule is malformed,
      *    -3 if the DB insert failed
      */
-    virtual int add_rule(long long user,
-                         long long resource,
-                         long long rights,
-                         long long zone,
-                         std::string& error_str);
+    int add_rule(long long user,
+                 long long resource,
+                 long long rights,
+                 long long zone,
+                 std::string& error_str);
     /**
      *  Deletes a rule from the ACL rule set
      *
@@ -118,7 +118,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    virtual int del_rule(int oid, std::string& error_str);
+    int del_rule(int oid, std::string& error_str);
 
     /**
      *  Deletes a new rule from the ACL rule set
@@ -131,11 +131,11 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    virtual int del_rule(long long user,
-                         long long resource,
-                         long long rights,
-                         long long zone,
-                         std::string& error_str);
+    int del_rule(long long user,
+                 long long resource,
+                 long long rights,
+                 long long zone,
+                 std::string& error_str);
 
     /**
      * Deletes rules that apply to this user id
@@ -212,7 +212,7 @@ public:
      *    @param oss The output stream to dump the rule set contents
      *    @return 0 on success
      */
-    virtual int dump(std::ostringstream& oss);
+    int dump(std::ostringstream& oss);
 
 protected:
     /**

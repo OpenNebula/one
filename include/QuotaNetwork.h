@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,7 +46,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, std::string& err)
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& err) override
     {
         return check(PoolObjectSQL::VM, tmpl, default_quotas, err);
     }
@@ -56,7 +56,7 @@ public:
      *  the object type to accounto for FLOATING IP addresses or not
      *    @param tmpl template for the resource
      */
-    void del(Template* tmpl)
+    void del(Template* tmpl) override
     {
         del(PoolObjectSQL::VM, tmpl);
     }
@@ -73,7 +73,7 @@ protected:
      */
     int get_default_quota(const std::string& id,
                         Quotas& default_quotas,
-                        VectorAttribute **va);
+                        VectorAttribute **va) override;
 
     static const char * NET_METRICS[];
 
@@ -120,14 +120,14 @@ public:
 
     virtual ~QuotaNetworkVirtualRouter(){};
 
-    bool check(Template* tmpl, Quotas& default_quotas, std::string& err)
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& err) override
     {
         QuotaNetwork * qn = static_cast<QuotaNetwork *>(quota);
 
         return qn->check(PoolObjectSQL::VROUTER, tmpl, default_quotas, err);
     }
 
-    void del(Template* tmpl)
+void del(Template* tmpl) override
     {
         QuotaNetwork * qn = static_cast<QuotaNetwork *>(quota);
 

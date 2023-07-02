@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -492,7 +492,7 @@ const replaceEscapeSequence = (text = '') => {
  */
 const getSunstoneAuth = () => {
   let rtn
-  if (global && global.paths && global.paths.SUNSTONE_AUTH_PATH) {
+  if (global?.paths?.SUNSTONE_AUTH_PATH) {
     existsFile(
       global.paths.SUNSTONE_AUTH_PATH,
       (filedata) => {
@@ -535,11 +535,11 @@ const getSunstoneAuth = () => {
  */
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
-  const zones = (global && global.zones) || configuredZones
+  const zones = global?.zones || configuredZones
   if (zones && Array.isArray(zones)) {
     rtn = zones[0]
     if (Number.isInteger(parseInt(zone, 10))) {
-      rtn = zones.find((zn) => zn && zn.id && String(zn.id) === zone)
+      rtn = zones.find((zn) => zn && zn.id && String(zn.id) === String(zone))
     }
   }
 

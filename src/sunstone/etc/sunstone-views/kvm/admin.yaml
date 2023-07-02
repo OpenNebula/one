@@ -108,6 +108,9 @@ features:
 
   # True to show boot order section to instantiate VM
   show_boot_order: true
+
+  # True to show the automatic selection of the vnet in the VM creation dialog
+  automatic_selection_vnet: true
 tabs:
   dashboard-tab:
     # The following widgets can be used inside any of the '_per_row' settings
@@ -474,6 +477,7 @@ tabs:
         Role.undeploy_hard: true
         Role.terminate: true
         Role.terminate_hard: true
+        Role.scale_dialog: true
         RoleVM.hold: true
         RoleVM.release: true
         RoleVM.suspend: true

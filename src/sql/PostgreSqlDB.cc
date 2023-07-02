@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,29 +33,25 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PostgreSqlDB::PostgreSqlDB(
-    const string& _server,
-    int           _port,
-    const string& _user,
-    const string& _password,
-    const string& _database,
-    int           _connections)
+PostgreSqlDB::PostgreSqlDB(const string& _server,
+                           int           _port,
+                           const string& _user,
+                           const string& _password,
+                           const string& _database,
+                           int           _connections)
+    : server(_server)
+    , port(_port)
+    , user(_user)
+    , password(_password)
+    , database(_database)
+    , max_connections(_connections)
 {
     PGconn* conn;
-
-    server = _server;
-    port   = _port;
-    user   = _user;
-
-    password = _password;
-    database = _database;
 
     if ( port == 0 )
     {
         port = PG_DEFAULT_PORT;
     }
-
-    max_connections = _connections;
 
     // Set up connection parameters
     string params = "host=" + _server
@@ -305,17 +301,16 @@ static void replace_substring(std::string& cmd, const std::string& s1,
 std::string PostgreSqlDB::preprocess_query(std::ostringstream& cmd)
 {
     std::string query = cmd.str();
-    size_t pos;
 
     // Both CREATE TABLE and REPLACE should be at the start
     // so we don't change user data
-    if ((pos = query.find("CREATE TABLE")) == 0)
+    if (query.find("CREATE TABLE") == 0)
     {
         replace_substring(query, "MEDIUMTEXT", "TEXT");
         replace_substring(query, "LONGTEXT", "TEXT");
         replace_substring(query, "BIGINT UNSIGNED", "NUMERIC(20)");
     }
-    else if ((pos = query.find("REPLACE")) == 0)
+    else if (query.find("REPLACE") == 0)
     {
         query.replace(0, 7, "INSERT");
 

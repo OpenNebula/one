@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -68,7 +68,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     int img_id;
 
     Image::ImageType  type;
-    Image::ImageState state;
+    Image::ImageState st;
 
     DatastorePool * ds_pool = nd.get_dspool();
     int             ds_id;
@@ -111,7 +111,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    state = img->get_state();
+    st = img->get_state();
 
     ds_id = img->get_ds_id();
     type  = img->get_type();
@@ -138,7 +138,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    if ( state != Image::READY )
+    if ( st != Image::READY )
     {
         ostringstream oss;
 
@@ -431,20 +431,21 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
     {
         password = one_util::random_password();
 
-        if ( graphics->vector_value("TYPE") == "SPICE" )
-        {
-            // Spice password must be 60 characters maximum
-            graphics->replace("PASSWD", password.substr(0, 59));
-        } 
-        else if ( graphics->vector_value("TYPE") == "vnc" ) 
-        {
-            // Vnc password must be 8 characters maximum
-            graphics->replace("PASSWD", password.substr(0, 7));
-        }
-        else
-        {
-            graphics->replace("PASSWD", password);
-        }
+        graphics->replace("PASSWD", password);
+    }
+
+    string type = graphics->vector_value("TYPE");
+    one_util::tolower(type);
+
+    if ( type == "spice" && password.size() > MAX_SPICE_PASSWD_LENGTH )
+    {
+        // Spice password must be 60 characters maximum
+        graphics->replace("PASSWD", password.substr(0, MAX_SPICE_PASSWD_LENGTH));
+    }
+    else if ( type == "vnc" && password.size() > MAX_VNC_PASSWD_LENGTH )
+    {
+        // Vnc password must be 8 characters maximum
+        graphics->replace("PASSWD", password.substr(0, MAX_VNC_PASSWD_LENGTH));
     }
 
     return 0;
@@ -618,7 +619,6 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 {
     const char *  str;
     int           rc;
-    ostringstream oss_parsed;
     char *        error_msg = 0;
 
     size_t non_blank_pos;
@@ -795,6 +795,20 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
     HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
 
+    int affinity;
+
+    if (vtopol->vector_value("NODE_AFFINITY", affinity) == -1) 
+    {
+        vtopol->remove("NODE_AFFINITY"); //remove in case of parse error
+        affinity = -1;
+    }
+
+    if (pp != HostShare::PP_NONE && affinity != -1)
+    {
+        error = "NUMA node affinity cannot be set for pinned VMs";
+        return -1;
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
     /* ---------------------------------------------------------------------- */
@@ -844,7 +858,14 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
     if ( pp == HostShare::PP_NONE )
     {
-        if ( c == 0 || t == 0 || s == 0 )
+        if ( c == 0 && t == 0 && s == 0 )
+        {
+            //Generate a default topology
+            vtopol->replace("SOCKETS", 1);
+            vtopol->replace("CORES", vcpu);
+            vtopol->replace("THREADS", 1);
+        }
+        else if ( c == 0 || t == 0 || s == 0 )
         {
             error = "Non-pinned VMs with a virtual topology needs to set "
                 " SOCKETS, CORES and THREADS numbers.";
@@ -858,7 +879,21 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 
         vtopol->replace("PIN_POLICY", "NONE");
 
+        unsigned int hpsz = 0;
+
+        vtopol->vector_value("HUGEPAGE_SIZE", hpsz);
+
         tmpl->erase("NUMA_NODE");
+
+        if ( affinity != -1 || hpsz != 0) // Add a virtua NODE to set NUMA affinity
+        {
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", vcpu);
+            node->replace("MEMORY", memory * 1024);
+
+            tmpl->set(node);
+        }
 
         return 0;
     }
@@ -950,7 +985,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             (*it)->vector_value("TOTAL_CPUS", ncpu);
             (*it)->vector_value("MEMORY", nmem);
 
-            if ( ncpu <= 0 || nmem <= 0)
+            if ( ncpu == 0 || nmem <= 0)
             {
                 break;
             }
@@ -969,7 +1004,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         tmpl->erase("NUMA_NODE");
 
         if (node_cpu != vcpu || node_mem != memory ||
-                ncpu <= 0 || nmem <= 0)
+            ncpu == 0 || nmem <= 0)
         {
             for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
             {
@@ -977,7 +1012,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
             }
         }
 
-        if (ncpu <= 0)
+        if (ncpu == 0)
         {
             error = "A NUMA_NODE must have TOTAL_CPUS greater than 0";
             return -1;

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ----------------------------------------------------------------------------
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -53,7 +53,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require "OpenNebulaDriver"
+require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'base64'
 require 'rexml/document'
@@ -66,11 +66,11 @@ class MarketPlaceDriver < OpenNebulaDriver
 
     # Market Driver Protocol constants
     ACTION = {
-        :import  => "IMPORT",
-        :delete  => "DELETE",
-        :log     => "LOG",
-        :monitor => "MONITOR",
-        :export  => "EXPORT"  #For Datastore export action
+        :import  => 'IMPORT',
+        :delete  => 'DELETE',
+        :log     => 'LOG',
+        :monitor => 'MONITOR',
+        :export  => 'EXPORT' # For Datastore export action
     }
 
     # XPATHs for driver messages
@@ -78,7 +78,7 @@ class MarketPlaceDriver < OpenNebulaDriver
     MARKETPLACEAPP_XPATH = '/MARKET_DRIVER_ACTION_DATA/MARKETPLACEAPP'
 
     # Register default actions for the protocol
-    def initialize(market_type, options={})
+    def initialize(market_type, options = {})
         @options={
             :concurrency => 10,
             :threaded => true,
@@ -91,9 +91,9 @@ class MarketPlaceDriver < OpenNebulaDriver
             }
         }.merge!(options)
 
-        super("market/", @options)
+        super('market/', @options)
 
-        if market_type == nil
+        if market_type.nil?
             @types = Dir["#{@local_scripts_path}/*/"].map do |d|
                 d.split('/')[-1]
             end
@@ -105,11 +105,11 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         @local_ds_scripts_path = File.join(@local_scripts_base_path, 'datastore/')
 
-        @one = OpenNebula::Client.new()
+        @one = OpenNebula::Client.new
 
-        register_action(ACTION[:import].to_sym, method("import"))
-        register_action(ACTION[:delete].to_sym, method("delete"))
-        register_action(ACTION[:monitor].to_sym,method("monitor"))
+        register_action(ACTION[:import].to_sym, method('import'))
+        register_action(ACTION[:delete].to_sym, method('delete'))
+        register_action(ACTION[:monitor].to_sym, method('monitor'))
     end
 
     ############################################################################
@@ -123,7 +123,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         xml = decode(drv_message)
 
         if xml.nil?
-            failure(:import, id, "Cannot decode driver message")
+            failure(:import, id, 'Cannot decode driver message')
             return
         end
 
@@ -132,7 +132,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         mp_mad = xml['MARKETPLACE/MARKET_MAD']
 
         if type.nil? || origin.nil? || mp_mad.nil?
-            failure(:import, id, "Wrong driver message format")
+            failure(:import, id, 'Wrong driver message format')
             return
         end
 
@@ -140,26 +140,29 @@ class MarketPlaceDriver < OpenNebulaDriver
         #-----------------------------------------------------------------------
         # Export marketplace origin to a file path, IMAGE
         #-----------------------------------------------------------------------
-        when "IMAGE" then
+        when 'IMAGE'
             # ------------ Execute export action from Datastore ----------------
             ds_mad = xml['DATASTORE/DS_MAD']
 
             if ds_mad.nil?
-                failure(:import, id, "Wrong driver message format")
+                failure(:import, id, 'Wrong driver message format')
                 return
             end
 
-            ds_msg = "<DS_DRIVER_ACTION_DATA>"\
+            ds_msg = '<DS_DRIVER_ACTION_DATA>'\
                      "#{xml.element_xml('IMAGE')}"\
                      "#{xml.element_xml('DATASTORE')}"\
-                     "</DS_DRIVER_ACTION_DATA>"
+                     '</DS_DRIVER_ACTION_DATA>'
 
-            ds_msg64 = Base64::strict_encode64(ds_msg)
+            result, info = do_action(id,
+                                     nil,
+                                     ds_mad,
+                                     :export,
+                                     Base64.strict_encode64(ds_msg),
+                                     false,
+                                     true)
 
-            result, info = do_action(id, nil, ds_mad, :export,
-                "#{ds_msg64} #{id}", false)
-
-            if ( result == RESULT[:failure] )
+            if result == RESULT[:failure]
                 failure(:import, id, "Error exporting image to file: #{info}")
                 return
             end
@@ -177,6 +180,7 @@ class MarketPlaceDriver < OpenNebulaDriver
         end
 
         # --------------- Import image app into the marketplace ----------------
+        # rubocop:disable Style/RedundantInterpolation
         xml.add_element('/MARKET_DRIVER_ACTION_DATA',
                         'IMPORT_SOURCE' => "#{info_doc['IMPORT_SOURCE']}",
                         'MD5'           => "#{info_doc['MD5']}",
@@ -184,10 +188,15 @@ class MarketPlaceDriver < OpenNebulaDriver
                         'FORMAT'        => "#{info_doc['FORMAT']}",
                         'DISPOSE'       => "#{info_doc['DISPOSE']}",
                         'DISPOSE_CMD'   => "#{info_doc['DISPOSE_CMD']}")
+        # rubocop:enable Style/RedundantInterpolation
 
-        mp_msg64 = Base64::strict_encode64(xml.to_xml)
-
-        rc, info = do_action(id, mp_mad, nil, :import, "#{mp_msg64} #{id}",true)
+        rc, info = do_action(id,
+                             mp_mad,
+                             nil,
+                             :import,
+                             Base64.strict_encode64(xml.to_xml),
+                             true,
+                             false)
 
         send_message(ACTION[:import], rc, id, info)
     end
@@ -199,14 +208,14 @@ class MarketPlaceDriver < OpenNebulaDriver
         xml = decode(drv_message)
 
         if xml.nil?
-            failure(:import, id, "Cannot decode driver message")
+            failure(:import, id, 'Cannot decode driver message')
             return
         end
 
         mp_mad = xml['MARKETPLACE/MARKET_MAD']
 
         if mp_mad.nil?
-            failure(:delete, id, "Wrong driver message format")
+            failure(:delete, id, 'Wrong driver message format')
             return
         end
 
@@ -217,7 +226,8 @@ class MarketPlaceDriver < OpenNebulaDriver
                                  mp_mad,
                                  nil,
                                  :delete,
-                                 "#{drv_message} #{id}",
+                                 drv_message,
+                                 false,
                                  false)
 
             send_message(ACTION[:delete], rc, id, info)
@@ -233,18 +243,24 @@ class MarketPlaceDriver < OpenNebulaDriver
         xml = decode(drv_message)
 
         if xml.nil?
-            failure(:monitor, id, "Cannot decode driver message")
+            failure(:monitor, id, 'Cannot decode driver message')
             return
         end
 
         mp_mad = xml['MARKETPLACE/MARKET_MAD']
 
         if mp_mad.nil?
-            failure(:monitor, id, "Wrong driver message format")
+            failure(:monitor, id, 'Wrong driver message format')
             return
         end
 
-        rc, info = do_action(id,mp_mad,nil,:monitor,"#{drv_message} #{id}",true)
+        rc, info = do_action(id,
+                             mp_mad,
+                             nil,
+                             :monitor,
+                             drv_message,
+                             true,
+                             false)
 
         send_message(ACTION[:monitor], rc, id, info)
     end
@@ -252,43 +268,55 @@ class MarketPlaceDriver < OpenNebulaDriver
     private
 
     # Check if the selected marketplace driver is enabled in the configuration
-    def is_available?(market, id, action)
+    def available?(market, id, action)
         if @types.include?(market)
-            return true
+            true
         else
             send_message(ACTION[action], RESULT[:failure], id,
-                "Marketplace driver '#{market}' not available")
-            return false
+                         "Marketplace driver '#{market}' not available")
+            false
         end
     end
 
-    #Execute marketplace or datastore actions for
+    # Execute marketplace or datastore actions for
     #  @param id of the app
     #  @param market driver to use
     #  @param datastore driver to use
     #  @param action to invoke from the driver
-    #  @param arguments for the action
+    #  @param drv_action message for the driver, it will be append with id
+    #  @param encode base64 encode returning info
+    #  @param stdin use stdin to pass drv_action and not command line argument
+    #
     #  @return result and info of the action
-    def do_action(id, market, datastore, action, arguments, encode)
-
+    # rubocop:disable Metric/ParameterLists
+    def do_action(id, market, datastore, action, drv_action, encode, stdin)
         if !datastore.nil?
             path = File.join(@local_ds_scripts_path, datastore)
         else
-            return if not is_available?(market, id, action)
+            return unless available?(market, id, action)
+
             path = File.join(@local_scripts_path, market)
         end
 
-        cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        if stdin
+            arguments = " #{id}"
+        else
+            arguments  = " #{drv_action} #{id}"
+            drv_action = nil
+        end
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        cmd  = File.join(path, ACTION[action].downcase)
+        cmd << arguments
+
+        rc = LocalCommand.run(cmd, log_method(id), drv_action)
 
         result, info = get_info_from_execution(rc)
 
-        info = Base64::strict_encode64(info) if encode && result != RESULT[:failure]
+        info = Base64.strict_encode64(info) if encode && result != RESULT[:failure]
 
-        return result, info
+        [result, info]
     end
+    # rubocop:enable Metric/ParameterLists
 
     # Decodes the core message and returns the app and market information as
     # xml documents
@@ -299,12 +327,13 @@ class MarketPlaceDriver < OpenNebulaDriver
 
         doc = nil if doc.xml_nil?
 
-        return doc
+        doc
     end
 
     def failure(asym, id, message)
         send_message(ACTION[asym], RESULT[:failure], id, message)
     end
+
 end
 
 ################################################################################
@@ -314,10 +343,10 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--threads',         '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--market-types',    '-m', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--timeout',         '-w', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--proxy'            '-p', GetoptLong::OPTIONAL_ARGUMENT ]
+    ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--market-types', '-m', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--timeout',  '-w', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--proxy', '-p', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
 mp_type = nil
@@ -327,17 +356,17 @@ timeout = nil
 begin
     opts.each do |opt, arg|
         case opt
-            when '--threads'
-                threads = arg.to_i
-            when '--market-types'
-                mp_type = arg.split(',').map {|a| a.strip }
-            when '--timeout'
-                timeout = arg.to_i
-	        when '--proxy'
-		        ENV['http_proxy'] = arg
+        when '--threads'
+            threads = arg.to_i
+        when '--market-types'
+            mp_type = arg.split(',').map {|a| a.strip }
+        when '--timeout'
+            timeout = arg.to_i
+        when '--proxy'
+            ENV['http_proxy'] = arg
         end
     end
-rescue
+rescue StandardError
     exit(-1)
 end
 

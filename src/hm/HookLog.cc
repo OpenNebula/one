@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -140,7 +140,7 @@ int HookLog::drop(SqlDB *db, const int hook_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HookLog::add(int hkid, int hkrc, std::string &xml_result)
+int HookLog::add(int hkid, int hkrc, const std::string &xml_result)
 {
     std::ostringstream oss;
 
@@ -179,7 +179,7 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
         << xml_result
         << "</HOOK_EXECUTION_RECORD>";
 
-    sql_xml = db->escape_str(oss.str().c_str());
+    sql_xml = db->escape_str(oss.str());
 
     if ( sql_xml == 0 )
     {

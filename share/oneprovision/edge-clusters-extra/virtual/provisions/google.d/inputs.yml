@@ -1,6 +1,6 @@
 ---
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -24,7 +24,7 @@ inputs:
   - name: 'google_image'
     type: text
     description: 'Google image used for host deployments'
-    default: 'ubuntu-2004-focal-v20220118'
+    default: 'ubuntu-2204-jammy-v20221214'
 
   - name: 'google_machine_type'
     type: text

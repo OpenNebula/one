@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -183,11 +183,15 @@ const Actions = () => {
                 },
                 onSubmit:
                   (rows) =>
-                  async ({ prefix, name } = {}) => {
+                  async ({ prefix, name, image } = {}) => {
                     const vmTemplates = rows?.map?.(
                       ({ original: { ID, NAME } = {} }) =>
                         // overwrite all names with prefix+NAME
-                        ({ id: ID, name: prefix ? `${prefix} ${NAME}` : name })
+                        ({
+                          id: ID,
+                          name: prefix ? `${prefix} ${NAME}` : name,
+                          image,
+                        })
                     )
 
                     await Promise.all(vmTemplates.map(clone))

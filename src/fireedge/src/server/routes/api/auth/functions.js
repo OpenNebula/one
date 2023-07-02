@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -27,10 +27,12 @@ const {
   setNodeConnect,
   connectOpennebula,
   updaterResponse,
+  remoteLogin,
 } = require('server/routes/api/auth/utils')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 const { Actions } = require('server/utils/constants/commands/user')
+const { getFireedgeConfig } = require('server/utils/yml')
 const {
   getDefaultParamsOfOpennebulaCommand,
 } = require('server/utils/opennebula')
@@ -73,7 +75,7 @@ const loginUser = (
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - function of xmlrpc
  */
-const auth = (
+const coreAuth = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
@@ -89,17 +91,17 @@ const auth = (
     const oneConnect = connectOpennebula(user, token)
 
     /**
-     * Run if have information.
+     * Run if have user data.
      *
-     * @param {object} oneValue - opennebula value
+     * @param {object} opennebulaUserData - opennebula user data
      */
-    const success = (oneValue) => {
+    const success = (opennebulaUserData) => {
       setUser(user || '')
       setPass(token || '')
       setType(type || '')
       setTfaToken(token2fa || '')
       setRemember(remember || false)
-      login(oneValue)
+      login(opennebulaUserData)
     }
 
     /**
@@ -127,6 +129,57 @@ const auth = (
   }
 }
 
+/**
+ * Fireedge user remote auth.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ */
+const remoteAuth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const { user } = params
+  setRes(res)
+  setNext(next)
+  setNodeConnect(oneConnection)
+  updaterResponse(new Map(internalServerError).toObject())
+  user ? remoteLogin(user) : next()
+}
+
+/**
+ * Fireedge select type auth.
+ * (This is because the authentication methods have to be extended after that).
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} userData - user of http request
+ * @param {Function} oneConnection - function of xmlrpc
+ * @returns {Function} - auth function
+ */
+const selectTypeAuth = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {},
+  oneConnection = defaultEmptyFunction
+) => {
+  const appConfig = getFireedgeConfig()
+  switch (appConfig?.auth) {
+    case 'remote':
+      return remoteAuth(res, next, params, userData, oneConnection)
+    default:
+      return coreAuth(res, next, params, userData, oneConnection)
+  }
+}
+
 module.exports = {
-  auth,
+  selectTypeAuth,
 }

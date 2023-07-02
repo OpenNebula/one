@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -121,7 +121,6 @@ int SystemDB::local_bootstrap()
 int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
                       char **names)
 {
-    istringstream   iss;
     string *        loaded_db_version;
 
     loaded_db_version = static_cast<string *>(_loaded_db_version);
@@ -319,7 +318,6 @@ int SystemDB::select_attr_cb(void *  _xml_attr,
                              char ** values,
                              char ** names)
 {
-    istringstream   iss;
     string *        xml_attr;
 
     xml_attr = static_cast<string *>(_xml_attr);

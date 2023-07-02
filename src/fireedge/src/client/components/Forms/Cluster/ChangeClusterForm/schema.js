@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema } from 'yup'
+import { string, object, ObjectSchema, array } from 'yup'
 
 import { ClustersTable } from 'client/components/Tables'
 import { T, INPUT_TYPES } from 'client/constants'
@@ -25,8 +25,8 @@ const CLUSTER = {
   label: T.SelectNewCluster,
   type: INPUT_TYPES.TABLE,
   Table: () => ClustersTable,
-  validation: string()
-    .trim()
+  singleSelect: false,
+  validation: array(string().trim())
     .required()
     .default(() => undefined),
   grid: { md: 12 },

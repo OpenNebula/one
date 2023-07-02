@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,7 +73,7 @@ private:
         std::set<std::string> registered_methods;
         xmlrpc_c::registry registry;
 
-        void addMethod(std::string const name, xmlrpc_c::methodPtr const methodP)
+        void addMethod(const std::string& name, const xmlrpc_c::methodPtr& methodP)
         {
             registered_methods.insert(name);
             registry.addMethod(name, methodP);

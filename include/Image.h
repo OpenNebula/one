@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -611,23 +611,28 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Incremental backups interface                                          */
     /* ---------------------------------------------------------------------- */
-    int add_increment(std::string source, long long size, Increment::Type type)
+    int add_increment(const std::string& source, long long size, Increment::Type type)
     {
-        int rc = increments.add_increment(source, size, type);
+        int rc = _increments.add_increment(source, size, type);
 
         if ( rc == -1 )
         {
             return -1;
         }
 
-        size_mb = increments.total_size();
+        size_mb = _increments.total_size();
 
         return 0;
     }
 
     int last_increment_id()
     {
-        return increments.last_increment_id();
+        return _increments.last_increment_id();
+    }
+
+    BackupIncrements& increments()
+    {
+        return _increments;
     }
 
 private:
@@ -744,7 +749,7 @@ private:
      * List of backup increments (only relevant for BACKUP images, of type
      * incremental)
      */
-    BackupIncrements increments;
+    BackupIncrements _increments;
 
     /**
      * ID of the snapshot being processed (if any)

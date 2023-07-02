@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -863,6 +863,8 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
                     vm->set_state(VirtualMachine::CLEANUP_DELETE);
                     vmpool->update(vm.get());
 
+                    [[fallthrough]];
+
                 case VirtualMachine::CLEANUP_DELETE:
                     dm->trigger_done(vid);
                 break;
@@ -1056,10 +1058,16 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
-        case VirtualMachine::BACKUP:
             vm->set_running_etime(the_time);
 
             vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
+        break;
+
+        case VirtualMachine::BACKUP:
+            vm->set_running_etime(the_time);
+
+            vmm->trigger_backup_cancel(vid);
             vmm->trigger_cleanup(vid, false);
         break;
 
@@ -2039,7 +2047,7 @@ void LifeCycleManager::trigger_updatevnet(int vnid)
                 // -------------------------------------------------------------
                 if ( is_tmpl || is_update )
                 {
-                    auto rc = vm->nic_update(vnid);
+                    rc = vm->nic_update(vnid);
 
                     if (rc < 0)
                     {

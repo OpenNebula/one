@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -106,7 +106,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components
@@ -133,7 +133,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components
@@ -162,7 +162,7 @@ private:
     /**
      * Specific logic for the replicate process
      */
-    int replicate();
+    int replicate() override;
 
     /**
      * Pointers to other components

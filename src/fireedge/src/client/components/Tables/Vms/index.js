@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
 import { useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
@@ -21,7 +21,7 @@ import { useGetVmsQuery } from 'client/features/OneApi/vm'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES, VM_STATES, STATES } from 'client/constants'
+import { RESOURCE_NAMES, STATES, VM_STATES } from 'client/constants'
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -52,9 +52,27 @@ const VmsTable = (props) => {
       ...result,
       data:
         result?.data
-          ?.filter((vm) =>
-            host?.ID ? [host?.VMS?.ID ?? []].flat().includes(vm.ID) : true
-          )
+          ?.filter((vm) => {
+            if (host?.ID) {
+              if (
+                host?.ERROR_VMS?.ID ||
+                host?.UPDATED_VMS?.ID ||
+                host?.UPDATING_VMS?.ID
+              ) {
+                return [
+                  host?.ERROR_VMS.ID ?? [],
+                  host?.UPDATED_VMS.ID ?? [],
+                  host?.UPDATING_VMS.ID ?? [],
+                ]
+                  .flat()
+                  .includes(vm.ID)
+              }
+
+              return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
+            }
+
+            return true
+          })
           ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
     }),
   })

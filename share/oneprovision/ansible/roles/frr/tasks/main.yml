@@ -15,7 +15,7 @@
 
 - name: Add frr repository
   ansible.builtin.apt_repository:
-    repo: deb https://deb.frrouting.org/frr focal frr-stable
+    repo: "deb https://deb.frrouting.org/frr {{ ansible_distribution_release }} frr-stable"
     state: present
 
 - name: Install FRR

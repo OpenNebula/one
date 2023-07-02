@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -223,8 +223,8 @@ func TestVirtualRouter(t *testing.T) {
 		t.Errorf("Test failed:\n" + err.Error())
 	}
 
-	//LockAll for VirtualRouter
-	err = vrC.Lock(shared.LockAll)
+	//LockUse for VirtualRouter
+	err = vrC.Lock(shared.LockUse)
 
 	if err != nil {
 		t.Errorf("Test failed:\n" + err.Error())
@@ -239,8 +239,8 @@ func TestVirtualRouter(t *testing.T) {
 	if actualLock == nil {
 		t.Errorf("Test failed, expected: '%s', got:  '%s'", "LockInfos", "nil")
 	}
-	if actualLock.Locked != 4 {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", 4, actualLock.Locked)
+	if actualLock.Locked != int(shared.LockUse) {
+		t.Errorf("Test failed, expected: '%d', got:  '%d'", shared.LockUse, actualLock.Locked)
 	}
 
 	//Unlock VirtualRouter

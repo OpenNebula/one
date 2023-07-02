@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -224,9 +224,9 @@ class MicroVM
         t_start = Time.now
         timeout = @one.fcrc[:cgroup_delete_timeout]
 
-        next while !File.read(path).empty? && (Time.now - t_start < timeout)
+        next while !File.empty?(path) && (Time.now - t_start < timeout)
 
-        File.read(path).empty?
+        File.empty?(path)
     rescue Errno::ENOENT
     end
     # rubocop:enable Lint/SuppressedException

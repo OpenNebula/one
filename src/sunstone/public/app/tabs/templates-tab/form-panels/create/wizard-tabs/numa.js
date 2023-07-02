@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,6 +40,7 @@ define(function(require) {
   var BUTTON_NUMA_TOPOLOGY = "#numa-topology";
   var HUGEPAGE_SELECTED_VALUE = "";
   var idsElements = {
+    numaAffinity: '#node-affinity',
     cores: "#numa-cores",
     threads: "#numa-threads",
     hugepages: "#numa-hugepages",
@@ -48,6 +49,7 @@ define(function(require) {
     pin: "#numa-pin-policy"
   }
 
+  var NODE_AFFINITY = 'NODE_AFFINITY';
   var numaStatus = null;
   var VCPU_SELECTOR = '#VCPU';
   /*
@@ -144,6 +146,16 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    // this if for display the node-affinity input
+    context.on("change", "#numa-pin-policy", function(){
+      if (this.value === NODE_AFFINITY){
+        $(idsElements.numaAffinity, context).attr("required", "");
+        $(idsElements.numaAffinity, context).closest(".columns").removeClass("hidden");
+      }else{
+        $(idsElements.numaAffinity, context).removeAttr("required");
+        $(idsElements.numaAffinity, context).closest(".columns").addClass("hidden");
+      }
+    })
     $(BUTTON_NUMA_TOPOLOGY, context).on( 'click', function() {
       var form = $(".numa-form",context);
       if( $(this).is(':checked') ){
@@ -187,6 +199,10 @@ define(function(require) {
       var policy = _getValue(idsElements.pin, context);
       if(policy && policy.length){
         temp.PIN_POLICY = policy;
+      }
+      var nodeAffinity = _getValue(idsElements.numaAffinity, context);
+      if(nodeAffinity && nodeAffinity.length){
+        temp.NODE_AFFINITY = nodeAffinity;
       }
       var sockets = _getValue(idsElements.sockets, context);
       if(sockets && sockets.length){
@@ -235,12 +251,19 @@ define(function(require) {
       }
       if(topology && topology.PIN_POLICY){
         _fillBootValue(idsElements.pin, context, topology.PIN_POLICY);
+      }else if(topology && topology.NODE_AFFINITY){
+        _fillBootValue(idsElements.pin, context, NODE_AFFINITY);
       }
       if(topology && topology.SOCKETS){
         _fillBootValue(idsElements.sockets, context, topology.SOCKETS);
       }
       if(topology && topology.THREADS){
         _fillBootValue(idsElements.threads, context, topology.THREADS);
+      }
+      if(topology && topology.NODE_AFFINITY){
+        $(idsElements.numaAffinity, context).closest(".columns").removeClass("hidden");
+        $(idsElements.numaAffinity, context).attr("required", "");
+        _fillBootValue(idsElements.numaAffinity, context, topology.NODE_AFFINITY);
       }
     }
   }

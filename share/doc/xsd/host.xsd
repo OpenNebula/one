@@ -98,7 +98,6 @@
                           <xs:element name="HUGEPAGE" minOccurs="0" maxOccurs="unbounded">
                             <xs:complexType>
                               <xs:all>
-                                <xs:element name="FREE" type="xs:integer"/>
                                 <xs:element name="PAGES" type="xs:integer"/>
                                 <xs:element name="SIZE" type="xs:integer"/>
                                 <xs:element name="USAGE" type="xs:integer"/>
@@ -109,10 +108,8 @@
                             <xs:complexType>
                               <xs:all>
                                 <xs:element name="DISTANCE" type="xs:string"/>
-                                <xs:element name="FREE" type="xs:integer"/>
                                 <xs:element name="TOTAL" type="xs:integer"/>
                                 <xs:element name="USAGE" type="xs:integer"/>
-                                <xs:element name="USED" type="xs:integer"/>
                               </xs:all>
                             </xs:complexType>
                           </xs:element>
@@ -174,6 +171,29 @@
                   <xs:sequence>
                     <xs:element name="NETRX" type="xs:integer" minOccurs="0"/>
                     <xs:element name="NETTX" type="xs:integer" minOccurs="0"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="NUMA_NODE" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="HUGEPAGE" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:all>
+                          <xs:element name="FREE" type="xs:integer"/>
+                          <xs:element name="SIZE" type="xs:integer"/>
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="MEMORY">
+                      <xs:complexType>
+                        <xs:all>
+                          <xs:element name="FREE" type="xs:string"/>
+                          <xs:element name="USED" type="xs:integer"/>
+                        </xs:all>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="NODE_ID" type="xs:integer"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

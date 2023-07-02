@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -105,6 +105,26 @@ define(function(require) {
     return typeof string !== 'string'? "" : string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
+  function get_numa_information(nodes, monitoring){
+    var numa_nodes = Object.assign([], nodes);
+
+    if (!monitoring || !monitoring.NUMA_NODE) return numa_nodes;
+    var monitoring_nodes = Array.isArray(monitoring.NUMA_NODE) ? monitoring.NUMA_NODE : [monitoring.NUMA_NODE];
+
+    numa_nodes.forEach(function(node) {
+      monitoring_node = monitoring_nodes.find(function (m_node) {return m_node.NODE_ID === node.NODE_ID});
+      node['MEMORY']['FREE'] = monitoring_node['MEMORY']['FREE'];
+      node['MEMORY']['USED'] = monitoring_node['MEMORY']['USED'];
+
+      node.HUGEPAGE.forEach(function(page){
+        monitoring_page = monitoring_node.HUGEPAGE.find(function (m_page) {return m_page.SIZE === page.SIZE});
+        page['FREE'] = monitoring_page['FREE'];
+      })
+    })
+
+    return numa_nodes;
+  }
+
   function _setup() {
     var that = this;
 
@@ -121,10 +141,12 @@ define(function(require) {
       that.element.HOST_SHARE && 
       that.element.HOST_SHARE.NUMA_NODES
     ) {
-      var numaNodes = that.element.HOST_SHARE.NUMA_NODES.NODE;
-      if (!(numaNodes instanceof Array)) {
-        numaNodes = [numaNodes];
-      }
+      var numaNodes = get_numa_information(
+        Array.isArray(that.element.HOST_SHARE.NUMA_NODES.NODE) 
+          ? that.element.HOST_SHARE.NUMA_NODES.NODE
+          : [that.element.HOST_SHARE.NUMA_NODES.NODE],
+        that.element.MONITORING
+      );
       var options = [{'value':'NONE'},{'value':'PINNED'}];
       var select = $("<select/>",{'id': SELECT_ID});
       options.map(function(element){

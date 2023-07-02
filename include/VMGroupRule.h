@@ -1,6 +1,6 @@
 
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -67,13 +67,12 @@ public:
         }
     };
 
-    VMGroupRule(VMGroupPolicy p, role_bitset _roles):policy(p), roles(_roles){};
+    VMGroupRule(VMGroupPolicy p, const role_bitset& _roles)
+        : policy(p)
+        , roles(_roles)
+    {}
 
-    VMGroupRule(const VMGroupRule& other)
-    {
-        policy = other.policy;
-        roles  = other.roles;
-    }
+    VMGroupRule(const VMGroupRule& other) = default;
 
     /* ---------------------------------------------------------------------- */
     /* Rule operators                                                         */

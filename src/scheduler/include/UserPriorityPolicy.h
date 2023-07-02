@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,7 +50,7 @@ protected:
      *  Implements the actual schedule by computing the priority of each
      *  matching resource.
      */
-    void policy(ObjectXML * null, std::vector<float>& priority)
+    void policy(ObjectXML * null, std::vector<float>& priority) override
     {
         float up;
 

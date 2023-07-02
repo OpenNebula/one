@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -460,10 +460,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         n_elems = options[:n_elems] || 8
 
         # Different available size units
-        units = %w[K M G T]
+        units = ['K', 'M', 'G', 'T']
 
         # Attrs that need units conversion
-        attrs = %w[FREE_MEMORY USED_MEMORY]
+        attrs = ['FREE_MEMORY', 'USED_MEMORY']
 
         if unit && !units.include?(unit)
             STDERR.puts "Invalid unit `#{unit}`"
@@ -684,7 +684,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
 
         if numa_nodes && !numa_nodes.empty?
-            print_numa_nodes(numa_nodes)
+            begin
+                monitoring_numa =
+                    host.to_hash['HOST']['MONITORING']['NUMA_NODE']
+            rescue StandardError
+                monitoring_numa = nil
+            end
+
+            print_numa_nodes(numa_nodes, monitoring_numa)
         end
 
         puts
@@ -769,12 +776,32 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         table.show(pcis)
     end
 
-    def print_numa_nodes(numa_nodes)
+    def print_numa_nodes(numa_nodes, monitoring)
         numa_nodes = get_numa_data(numa_nodes)
+
+        merge_numa_monitoring(numa_nodes, monitoring)
 
         print_numa_cores(numa_nodes)
         print_numa_memory(numa_nodes)
         print_numa_hugepages(numa_nodes)
+    end
+
+    def merge_numa_monitoring(numa_nodes, monitoring)
+        return if monitoring.nil?
+
+        monitoring = [monitoring] if monitoring.class == Hash
+
+        numa_nodes.each do |node|
+            mon_node = monitoring.find {|x| x['NODE_ID'] == node['NODE_ID'] }
+
+            node['MEMORY']['FREE'] = mon_node['MEMORY']['FREE']
+            node['MEMORY']['USED'] = mon_node['MEMORY']['USED']
+
+            node['HUGEPAGE'].each do |hp|
+                mon_hp = mon_node['HUGEPAGE'].find {|x| x['SIZE'] == hp['SIZE'] }
+                hp['FREE'] = mon_hp['FREE']
+            end
+        end
     end
 
     def get_numa_data(numa_nodes)
@@ -886,7 +913,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :USED_REAL, 'Used memory', :size => 20, :left => true do |d|
-                OpenNebulaHelper.unit_to_str(d['MEMORY']['USED'].to_i, {})
+                if d['MEMORY']['USED'].nil?
+                    '-'
+                else
+                    OpenNebulaHelper.unit_to_str(d['MEMORY']['USED'].to_i, {})
+                end
             end
 
             column :USED_ALLOCATED, 'U memory',
@@ -895,7 +926,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :FREE, 'Free memory', :size => 8, :left => true do |d|
-                OpenNebulaHelper.unit_to_str(d['MEMORY']['FREE'].to_i, {})
+                if d['MEMORY']['FREE'].nil?
+                    '-'
+                else
+                    OpenNebulaHelper.unit_to_str(d['MEMORY']['FREE'].to_i, {})
+                end
             end
 
             default :NODE_ID, :TOTAL, :USED_REAL, :USED_ALLOCATED, :FREE
@@ -933,7 +968,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             column :FREE, 'Free pages', :size => 8, :left => true do |d|
-                d['HUGEPAGE']['FREE']
+                d['HUGEPAGE']['FREE'] || '-'
             end
 
             column :USED, 'allocated pages', :size => 8, :left => true do |d|

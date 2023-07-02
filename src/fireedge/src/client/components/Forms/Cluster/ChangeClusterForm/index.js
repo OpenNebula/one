@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -19,6 +19,14 @@ import {
   FIELDS,
 } from 'client/components/Forms/Cluster/ChangeClusterForm/schema'
 
-const ChangeClusterForm = createForm(SCHEMA, FIELDS)
+const ChangeClusterForm = createForm(SCHEMA, FIELDS, {
+  transformInitialValue: (clusterIds, schema) => {
+    const cluster = Array.isArray(clusterIds) ? clusterIds : [clusterIds]
+
+    return {
+      ...schema.cast({ cluster }, { stripUnknown: true }),
+    }
+  },
+})
 
 export default ChangeClusterForm

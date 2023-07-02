@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -100,8 +100,8 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
     },
     {
       name: 'EXTERNAL',
-      label: T.External,
-      tooltip: T.ExternalConcept,
+      label: T.SkipNetworkContextualization,
+      tooltip: T.SkipNetworkContextualizationConcept,
       type: INPUT_TYPES.SWITCH,
       dependOf: 'PARENT',
       htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,

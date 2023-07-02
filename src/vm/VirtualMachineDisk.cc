@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -174,14 +174,7 @@ int VirtualMachineDisk::get_image_id(int &id, int uid) const
 
 string VirtualMachineDisk::get_tm_mad_system() const
 {
-    std::string tm_mad_system;
-
-    if (vector_value("TM_MAD_SYSTEM", tm_mad_system) != 0)
-    {
-        return "";
-    }
-
-    return tm_mad_system;
+    return vector_value("TM_MAD_SYSTEM");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -417,9 +410,7 @@ long long VirtualMachineDisk::image_ds_size() const
 {
 	long long disk_sz, snapshot_sz = 0;
 
-    string tm_target = get_tm_target();
-
-    if (  get_tm_target() != "SELF" )
+    if ( get_tm_target() != "SELF" )
     {
         return 0;
     }
@@ -547,7 +538,7 @@ void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
 
 void VirtualMachineDisk::clear_resize(bool restore)
 {
-    string size, size_prev;
+    string size_prev;
 
     if ( restore && vector_value("SIZE_PREV", size_prev) == 0 )
     {
@@ -741,7 +732,6 @@ void VirtualMachineDisks::assign_disk_targets(
         std::set<string>& used_targets)
 
 {
-    int    index = 0;
     string target;
 
     pair <string, VirtualMachineDisk *> disk_pair;
@@ -749,7 +739,7 @@ void VirtualMachineDisks::assign_disk_targets(
     while (dqueue.size() > 0 )
     {
         disk_pair = dqueue.front();
-        index     = 0;
+        int index = 0;
 
         do
         {
@@ -961,11 +951,9 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
         {
             long long original_size, size;
 
-            int rc;
-
             /* ---------- Update size on source image if needed ------------- */
-            rc  = (*it)->vector_value("SIZE", size);
-            rc += (*it)->vector_value("ORIGINAL_SIZE", original_size);
+            (*it)->vector_value("SIZE", size);
+            (*it)->vector_value("ORIGINAL_SIZE", original_size);
 
             if ( size > original_size )
             {
@@ -1090,7 +1078,8 @@ int VirtualMachineDisks::set_attach(int id)
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-        int cluster_id, VectorAttribute * vdisk, const std::string& tsys, VectorAttribute * vcontext,
+        int cluster_id, VectorAttribute * vdisk, const std::string& tsys,
+        const VectorAttribute * vcontext,
         string& error)
 {
     set<string> used_targets;
@@ -1118,7 +1107,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
 
     if ( vcontext != 0 )
     {
-        string target = vcontext->vector_value("TARGET");
+        const string& target = vcontext->vector_value("TARGET");
 
         if ( !target.empty() )
         {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,7 +38,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( owner_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( owner_m == 1 )
@@ -62,7 +62,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( group_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( group_m == 1 )
@@ -86,7 +86,7 @@ void PoolObjectAuth::get_acl_rules(AclRule& owner_rule,
 
     if ( other_u == 1 )
     {
-        perm_rights = perm_rights | AuthRequest::USE;
+        perm_rights = AuthRequest::USE;
     }
 
     if ( other_m == 1 )

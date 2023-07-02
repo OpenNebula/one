@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -66,19 +66,13 @@ int TransferManager::start()
 int TransferManager::prolog_transfer_command(
         VirtualMachine *        vm,
         const VirtualMachineDisk* disk,
-        string&                 vm_tm_mad,
-        string&                 opennebula_hostname,
+        const string&           vm_tm_mad,
+        const string&           opennebula_hostname,
         ostream&                xfr,
         ostringstream&          os)
 {
-    string source;
     string type;
-    string clon;
-    string size;
-    string format;
-    string tm_mad;
     string tm_mad_system;
-    string ds_id;
 
     int disk_id = disk->get_disk_id();
 
@@ -91,7 +85,7 @@ int TransferManager::prolog_transfer_command(
         // -----------------------------------------------------------------
         // Generate a swap disk image
         // -----------------------------------------------------------------
-        size = disk->vector_value("SIZE");
+        const string& size = disk->vector_value("SIZE");
 
         if ( size.empty() )
         {
@@ -115,8 +109,8 @@ int TransferManager::prolog_transfer_command(
         // -----------------------------------------------------------------
         // Create a clean file system disk image
         // -----------------------------------------------------------------
-        size   = disk->vector_value("SIZE");
-        format = disk->vector_value("FORMAT");
+        const string& size   = disk->vector_value("SIZE");
+        const string& format = disk->vector_value("FORMAT");
 
         if ( size.empty() || format.empty() )
         {
@@ -141,10 +135,10 @@ int TransferManager::prolog_transfer_command(
         // -----------------------------------------------------------------
         // Get transfer attributes & check errors
         // -----------------------------------------------------------------
-        tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
-        source = disk->vector_value("SOURCE");
-        clon   = disk->vector_value("CLONE");
+        const string& tm_mad = disk->vector_value("TM_MAD");
+        const string& ds_id  = disk->vector_value("DATASTORE_ID");
+        const string& source = disk->vector_value("SOURCE");
+        const string& clon   = disk->vector_value("CLONE");
 
         if ( source.empty() ||
              tm_mad.empty() ||
@@ -213,7 +207,7 @@ static string prolog_os_transfer_commands(
 {
     string base_ds = base + "_DS";
 
-    string name_ds = os_attr->vector_value(base_ds);
+    const string& name_ds = os_attr->vector_value(base_ds);
 
     if ( name_ds.empty() )
     {
@@ -224,9 +218,9 @@ static string prolog_os_transfer_commands(
     string base_ds_id  = base + "_DS_DSID";
     string base_tm     = base + "_DS_TM";
 
-    string source = os_attr->vector_value(base_source);
-    string ds_id  = os_attr->vector_value(base_ds_id);
-    string tm_mad = os_attr->vector_value(base_tm);
+    const string& source = os_attr->vector_value(base_source);
+    const string& ds_id  = os_attr->vector_value(base_ds_id);
+    const string& tm_mad = os_attr->vector_value(base_tm);
 
     if ( source.empty() || ds_id.empty() || tm_mad.empty() )
     {
@@ -236,7 +230,7 @@ static string prolog_os_transfer_commands(
     ostringstream base_dst;
     string        name = base;
 
-    transform(name.begin(), name.end(), name.begin(), (int(*)(int))tolower);
+    one_util::tolower(name);
 
     base_dst << vm->get_system_dir() << "/" << name;
 
@@ -257,7 +251,7 @@ static string prolog_os_transfer_commands(
 int TransferManager::prolog_context_command(
         VirtualMachine *        vm,
         const string&           token_password,
-        string&                 vm_tm_mad,
+        const string&           vm_tm_mad,
         int&                    disk_id,
         ostream&                xfr)
 {
@@ -943,9 +937,9 @@ void TransferManager::epilog_transfer_command(
 
     if ( one_util::toupper(save) == "YES" )
     {
-        string source = disk->vector_value("SOURCE");
-        string tm_mad = disk->vector_value("TM_MAD");
-        string ds_id  = disk->vector_value("DATASTORE_ID");
+        const string& source = disk->vector_value("SOURCE");
+        const string& tm_mad = disk->vector_value("TM_MAD");
+        const string& ds_id  = disk->vector_value("DATASTORE_ID");
 
         if ( ds_id.empty() || tm_mad.empty() )
         {
@@ -959,7 +953,7 @@ void TransferManager::epilog_transfer_command(
             return;
         }
 
-        string tsys = disk->vector_value("TM_MAD_SYSTEM");
+        const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -992,7 +986,7 @@ void TransferManager::epilog_transfer_command(
             vv_rc  = disk->vector_value("DATASTORE_ID", ds_id_i);
         }
 
-        string tsys = disk->vector_value("TM_MAD_SYSTEM");
+        const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -1220,7 +1214,7 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
                 }
             }
 
-            string tsys = disk->vector_value("TM_MAD_SYSTEM");
+            const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
             if (!tsys.empty())
             {
                 tm_mad_system = "." + tsys;
@@ -1350,7 +1344,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
     // -------------------------------------------------------------------------
     // Delete disk images and the remote system Directory
     // -------------------------------------------------------------------------
-    for (auto disk : disks)
+    for (const auto* disk : disks)
     {
         disk_id = disk->get_disk_id();
 
@@ -1370,7 +1364,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
             }
         }
 
-        string tsys = disk->vector_value("TM_MAD_SYSTEM");
+        const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
            tm_mad_system = "." + tsys;
@@ -1816,14 +1810,6 @@ void TransferManager::trigger_driver_cancel(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::trigger_checkpoint(int vid)
-{
-
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void TransferManager::trigger_saveas_hot(int vid)
 {
     trigger([this, vid] {
@@ -1833,7 +1819,6 @@ void TransferManager::trigger_saveas_hot(int vid)
         string snap_id;
         string tm_mad;
         string ds_id;
-        string tsys;
         string tm_mad_system;
         string hostname;
 
@@ -1843,7 +1828,7 @@ void TransferManager::trigger_saveas_hot(int vid)
         string   xfr_name;
 
         const Driver<transfer_msg_t> * tm_md;
-        VirtualMachineDisk * disk;
+        const VirtualMachineDisk * disk;
 
         Nebula& nd = Nebula::instance();
 
@@ -1886,7 +1871,7 @@ void TransferManager::trigger_saveas_hot(int vid)
 
         if (disk != nullptr)
         {
-            tsys = disk->vector_value("TM_MAD_SYSTEM");
+            const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
             if (!tsys.empty())
             {
                 tm_mad_system = "." + tsys;
@@ -1974,15 +1959,14 @@ void TransferManager::migrate_transfer_command(
 /* -------------------------------------------------------------------------- */
 
 int TransferManager::snapshot_transfer_command(
-        VirtualMachine * vm, const char * snap_action, ostream& xfr)
+        const VirtualMachine * vm, const char * snap_action, ostream& xfr)
 {
     string tm_mad;
-    string tsys;
     string tm_mad_system;
     int    ds_id;
     int    disk_id;
     int    snap_id;
-    VirtualMachineDisk * disk;
+    const VirtualMachineDisk * disk;
 
     if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
     {
@@ -1995,7 +1979,7 @@ int TransferManager::snapshot_transfer_command(
 
     if (disk != nullptr)
     {
-        tsys = disk->vector_value("TM_MAD_SYSTEM");
+        const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -2146,7 +2130,7 @@ void TransferManager::resize_command(VirtualMachine * vm,
         ds_id  = disk->vector_value("DATASTORE_ID");
     }
 
-    string tsys = disk->vector_value("TM_MAD_SYSTEM");
+    const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
     if (!tsys.empty())
     {
         tm_mad_system = "." + tsys;
@@ -2307,6 +2291,37 @@ int TransferManager::backup_transfer_commands(
         << vm->get_deploy_id() << " "
         << vm->get_oid() << " "
         << vm->get_ds_id()
+        << endl;
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int TransferManager::backup_cancel_transfer_commands(
+        VirtualMachine *        vm,
+        ostream&                xfr)
+{
+    if (!vm->hasHistory())
+    {
+        return -1;
+    }
+
+    string tm_mad_system;
+    /*
+    string tsys = disk->vector_value("TM_MAD_SYSTEM");
+    if (!tsys.empty())
+    {
+        tm_mad_system = "." + tsys;
+    }
+    */
+
+    //BACKUPCANCEL(.tm_mad_system) tm_mad host:remote_dir deploy_id
+    xfr << "BACKUPCANCEL" << tm_mad_system
+        << " " << vm->get_tm_mad() << " "
+        << vm->get_hostname() << ":" << vm->get_system_dir() << " "
+        << vm->get_deploy_id()
         << endl;
 
     return 0;

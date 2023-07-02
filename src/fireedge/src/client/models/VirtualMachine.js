@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { stringToBoolean } from 'client/models/Helper'
+import { isRelative } from 'client/models/Scheduler'
 import {
   getSecurityGroupsFromResource,
   prettySecurityGroup,
 } from 'client/models/SecurityGroup'
-import { isRelative } from 'client/models/Scheduler'
-import { stringToBoolean } from 'client/models/Helper'
 
 import {
-  STATES,
-  VM_ACTIONS_BY_STATE,
-  VM_STATES,
-  VM_LCM_STATES,
-  NIC_IP_ATTRS,
+  Disk,
   EXTERNAL_IP_ATTRS,
   HISTORY_ACTIONS,
   HYPERVISORS,
-  VM,
-  Disk,
+  HistoryRecord,
+  NIC_IP_ATTRS,
   Nic,
   NicAlias,
+  STATES,
   ScheduleAction,
-  HistoryRecord,
   Snapshot,
+  VM,
+  VM_ACTIONS_BY_STATE,
+  VM_LCM_STATES,
+  VM_STATES,
 } from 'client/constants'
 
 /**
@@ -218,18 +218,13 @@ export const getNics = (vm, options = {}) => {
 
 /**
  * @param {Nic} nic - NIC
- * @returns {string} Ips from resource
+ * @returns {string[]} Ips from resource
  */
 export const getIpsFromNic = (nic) => {
-  const attributeIp = NIC_IP_ATTRS.find((attr) =>
-    [attr].flat().every((flatted) => nic[flatted] !== undefined)
-  )
+  const ipAttributes = NIC_IP_ATTRS.filter((attr) => nic[attr] !== undefined)
 
-  if (attributeIp) {
-    return [attributeIp]
-      .flat()
-      .map((attribute) => nic[attribute])
-      .join(' ')
+  if (ipAttributes) {
+    return [ipAttributes].flat().map((attribute) => nic[attribute])
   }
 }
 

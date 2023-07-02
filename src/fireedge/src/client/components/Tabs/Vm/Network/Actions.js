@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { Edit, ShieldAdd, ShieldCross, Trash } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { Edit, Trash, ShieldAdd, ShieldCross } from 'iconoir-react'
+import { memo, useEffect } from 'react'
 
-import {
-  useAttachNicMutation,
-  useDetachNicMutation,
-  useUpdateNicMutation,
-  useAttachSecurityGroupMutation,
-  useDetachSecurityGroupMutation,
-} from 'client/features/OneApi/vm'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
   AttachNicForm,
   AttachSecGroupForm,
   UpdateNicForm,
 } from 'client/components/Forms/Vm'
+import {
+  useAttachNicMutation,
+  useAttachSecurityGroupMutation,
+  useDetachNicMutation,
+  useDetachSecurityGroupMutation,
+  useUpdateNicMutation,
+} from 'client/features/OneApi/vm'
 
-import { useGeneralApi } from 'client/features/General'
-import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
+import { jsonToXml } from 'client/models/Helper'
 
 const AttachAction = memo(
   ({ vmId, hypervisor, nic, currentNics, onSubmit, sx }) => {

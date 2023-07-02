@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -1952,6 +1952,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             {
                 case VirtualMachine::DISK_SNAPSHOT:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
@@ -1966,6 +1967,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
@@ -2100,6 +2102,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             {
                 case VirtualMachine::DISK_SNAPSHOT:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
@@ -2109,6 +2112,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
@@ -2323,6 +2327,7 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
             {
                 case VirtualMachine::DISK_RESIZE:
                     vm->set_state(VirtualMachine::RUNNING);
+                    [[fallthrough]];
 
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
@@ -2401,7 +2406,7 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
             {
                 case VirtualMachine::DISK_RESIZE:
                     vm->set_state(VirtualMachine::RUNNING);
-
+                    [[fallthrough]];
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
                     vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
@@ -2560,9 +2565,9 @@ void LifeCycleManager::trigger_resize_failure(int vid)
         {
             HostShareCapacity sr, sr_orig;
 
-            VirtualMachine::LcmState state = vm->get_lcm_state();
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
-            if (state == VirtualMachine::HOTPLUG_RESIZE)
+            if (lcm_state == VirtualMachine::HOTPLUG_RESIZE)
             {
                 vm->set_state(VirtualMachine::RUNNING);
                 vm->log("LCM", Log::INFO,
@@ -2765,6 +2770,7 @@ void LifeCycleManager::trigger_backup_success(int vid)
         int ds_id = backups.last_datastore_id();
 
         int incremental_id = backups.incremental_backup_id();
+        int keep_last      = backups.keep_last();
         Backups::Mode mode = backups.mode();
 
         long long reserved_sz = vm->backup_size(ds_deltas);
@@ -2777,6 +2783,10 @@ void LifeCycleManager::trigger_backup_success(int vid)
         if (mode == Backups::FULL || incremental_id == -1)
         {
             ds_deltas.add("IMAGES", 1);
+        }
+        else
+        {
+            ds_deltas.add("IMAGES", 0);
         }
 
         switch(vm->get_lcm_state())
@@ -2801,7 +2811,8 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Create Backup image if needed                                      */
         /* ------------------------------------------------------------------ */
-        int image_id = -1;
+        int image_id   = -1;
+        int increments = -1;
 
         std::set<int> delete_ids;
 
@@ -2822,6 +2833,7 @@ void LifeCycleManager::trigger_backup_success(int vid)
         /* ------------------------------------------------------------------ */
         /* Update backup information for increments                           */
         /* ------------------------------------------------------------------ */
+
         if (mode == Backups::INCREMENT)
         {
             Increment::Type itype;
@@ -2849,6 +2861,9 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
                 backups.last_increment_id(image->last_increment_id());
 
+                increments = image->increments().total();
+                ds_id      = image->get_ds_id();
+
                 ipool->update(image.get());
             }
             else
@@ -2860,10 +2875,9 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
         backups.last_backup_clear();
 
-        vmpool->update(vm.get());
-
-        if ( delete_ids.size() > 0 )
+        if (delete_ids.size() > 0)
         {
+            // FULL & backups > keep_last
             ostringstream oss;
 
             oss << "Removing backup snapshots:";
@@ -2875,6 +2889,20 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
             vm->log("LCM", Log::INFO, oss.str());
         }
+        else if (keep_last > 0 && increments > keep_last)
+        {
+            // INCREMENTAL & increments > keep_last
+            ostringstream oss;
+
+            oss << "Removing " << increments - keep_last << " backup increments";
+
+            vm->log("LCM", Log::INFO, oss.str());
+
+            //Flag the flatten operation to prevent race coditions with backup
+            backups.active_flatten(true);
+        }
+
+        vmpool->update(vm.get());
 
         vm.reset();
 
@@ -2901,6 +2929,24 @@ void LifeCycleManager::trigger_backup_success(int vid)
 
                     NebulaLog::error("LCM", oss.str());
                 }
+            }
+        }
+        else if (mode == Backups::INCREMENT && keep_last > 0 && increments > keep_last)
+        {
+            ostringstream oss;
+
+            oss << "<EXTRA_DATA>"
+                << "<KEEP_LAST>" << keep_last << "</KEEP_LAST>"
+                << "</EXTRA_DATA>";
+
+            if ( imagem->flatten_increments(image_id, ds_id, oss.str(), error) != 0 )
+            {
+                oss.str("");
+
+                oss << "backup_success, cannot flatten backup increments for image "
+                    << image_id << " : " << error;
+
+                NebulaLog::error("LCM", oss.str());
             }
         }
 

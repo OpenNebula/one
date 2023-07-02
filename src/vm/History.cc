@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -467,8 +467,6 @@ int History::rebuild_attributes()
         vm_info = oss.str();
 
         ObjectXML::free_nodes(content);
-
-        content.clear();
     }
 
     non_persistent_data();

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -107,7 +107,6 @@ int Quotas::from_xml(ObjectXML * object_xml)
     }
 
     object_xml->free_nodes(content);
-    content.clear();
 
     object_xml->get_nodes(net_xpath, content);
 
@@ -117,7 +116,6 @@ int Quotas::from_xml(ObjectXML * object_xml)
     }
 
     object_xml->free_nodes(content);
-    content.clear();
 
     object_xml->get_nodes(vm_xpath, content);
 
@@ -127,7 +125,6 @@ int Quotas::from_xml(ObjectXML * object_xml)
     }
 
     object_xml->free_nodes(content);
-    content.clear();
 
     object_xml->get_nodes(img_xpath, content);
 

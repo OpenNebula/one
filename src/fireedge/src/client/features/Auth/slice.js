@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { createAction, createSlice } from '@reduxjs/toolkit'
 
+import { FILTER_POOL, JWT_NAME } from 'client/constants'
 import { removeStoreData } from 'client/utils'
-import { JWT_NAME, FILTER_POOL } from 'client/constants'
 
 export const logout = createAction('logout')
 
@@ -54,6 +54,8 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(logout, (_, { payload }) => {
+      delete window?.__REMOTE_AUTH__?.jwt
+      delete window?.__REMOTE_AUTH__?.id
       removeStoreData([JWT_NAME])
 
       return { ...initial(), error: payload }

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -314,9 +314,9 @@ module OpenNebula::MarketPlaceAppExt
             # @param image    [OpenNebula::Image]     Image information
             def create_vcenter_template(ds, options, template, image = nil)
                 ret  = {}
-                keys = %w[VCENTER_TEMPLATE_REF
-                          VCENTER_CCR_REF
-                          VCENTER_INSTANCE_ID]
+                keys = ['VCENTER_TEMPLATE_REF',
+                        'VCENTER_CCR_REF',
+                        'VCENTER_INSTANCE_ID']
 
                 if ds['//VCENTER_TEMPLATE_REF']
                     keys.each do |key|

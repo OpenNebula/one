@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -44,7 +44,7 @@ public:
      *          -1 on error
      *          -2 if no VMs need to be scheduled
      */
-    int set_up();
+    int set_up() override;
 
     /**
      *  Gets an object from the pool
@@ -123,9 +123,9 @@ protected:
                 "(LCM_STATE=3 or LCM_STATE=16)) and RESCHED=1)]", content);
     }
 
-    virtual void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    virtual int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 
     /**
      * Do live migrations to resched VMs
@@ -161,14 +161,14 @@ public:
      *          -1 on error
      *          -2 if no VMs with pending actions
      */
-    int set_up();
+    int set_up() override;
 
-    int active_backups()
+    int active_backups() const
     {
         return _active_backups;
     }
 
-    int host_backups(int host_id)
+    int host_backups(int host_id) const
     {
         return backups_host[host_id];
     }
@@ -183,7 +183,7 @@ protected:
     /**
      * Total backup operations in progress
      */
-    mutable int _active_backups;
+    mutable int _active_backups = 0;
 
     /**
      * Backup operations per host
@@ -212,7 +212,7 @@ public:
      *          -1 on error
      *          -2 if no VMs in a role
      */
-    int set_up();
+    int set_up() override;
 
 protected:
 
@@ -222,7 +222,7 @@ protected:
 
         oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
 
-        return get_nodes(oss.str().c_str(), content);
+        return get_nodes(oss.str(), content);
     }
 };
 #endif /* VM_POOL_XML_H_ */

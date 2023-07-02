@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -23,7 +23,7 @@ import {
   Cloud,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
-import { Box, Typography, Tooltip } from '@mui/material'
+import { Box, Stack, Typography, Tooltip } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
@@ -86,10 +86,7 @@ const NetworkCard = memo(
     const leasesInfo = useMemo(() => getLeasesInfo(network), [network])
     const { percentOfUsed, percentLabel } = leasesInfo
 
-    const totalClusters = useMemo(
-      () => [CLUSTERS?.ID ?? []].flat().length || 0,
-      [CLUSTERS?.ID]
-    )
+    const clusters = useMemo(() => [CLUSTERS?.ID ?? []].flat(), [CLUSTERS?.ID])
 
     const labels = useMemo(
       () =>
@@ -136,10 +133,14 @@ const NetworkCard = memo(
               <Group />
               <span>{` ${GNAME}`}</span>
             </span>
-            <span title={`${Tr(T.TotalClusters)}: ${totalClusters}`}>
-              <Server />
-              <span>{` ${totalClusters}`}</span>
-            </span>
+            {!!clusters?.length && (
+              <span title={`${Tr(T.Clusters)}`}>
+                <Server />
+                <Stack direction="row" justifyContent="end" alignItems="center">
+                  <MultipleTags tags={clusters} />
+                </Stack>
+              </span>
+            )}
             {provisionId && (
               <span title={`${Tr(T.ProvisionId)}: #${provisionId}`}>
                 <Cloud />

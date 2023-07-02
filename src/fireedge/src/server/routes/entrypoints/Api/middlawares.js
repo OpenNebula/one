@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,8 +17,12 @@ const { env } = require('process')
 const { DateTime } = require('luxon')
 const { httpCodes, defaults } = require('server/utils/constants')
 const { getFireedgeConfig } = require('server/utils/yml')
-const { defaultWebpackMode, defaultEmptyFunction, defaultOpennebulaZones } =
-  defaults
+const {
+  defaultWebpackMode,
+  defaultEmptyFunction,
+  defaultOpennebulaZones,
+  defaultSessionExpiration,
+} = defaults
 const { validateAuth } = require('server/utils/jwt')
 const { getDataZone } = require('server/utils/server')
 
@@ -35,7 +39,6 @@ let passOpennebula = ''
  */
 const userValidation = (user = '', token = '') => {
   const nowUnix = DateTime.local().toSeconds()
-  let rtn = false
   if (
     user &&
     token &&
@@ -45,10 +48,10 @@ const userValidation = (user = '', token = '') => {
         time > nowUnix && internalToken === token
     )
   ) {
-    rtn = true
+    return true
   }
 
-  return rtn
+  return false
 }
 
 /**
@@ -91,40 +94,39 @@ const validateSession = ({
   let status = badRequest
   if (auth) {
     const session = validateAuth(req)
+    status = unauthorized
+
     if (session) {
-      const { iss, aud, jti, exp } = session
+      const { iss, aud, jti } = session
       idUserOpennebula = iss
       userOpennebula = aud
       passOpennebula = jti
-      if (env && (!env.NODE_ENV || env.NODE_ENV !== defaultWebpackMode)) {
-        /** Validate User in production */
-        if (userValidation(userOpennebula, passOpennebula)) {
-          next()
+      if (env?.NODE_ENV === defaultWebpackMode) {
+        const appConfig = getFireedgeConfig()
+        const expirationSession =
+          appConfig.session_expiration || defaultSessionExpiration
+        const now = DateTime.local()
 
-          return
-        } else {
-          status = unauthorized
-        }
-      } else {
-        /** Validate user in development mode */
+        /** Create global state for user when the enviroment is development */
         if (global && !global.users) {
           global.users = {}
         }
         if (!global.users[userOpennebula]) {
           global.users[userOpennebula] = {
-            tokens: [{ token: passOpennebula, time: exp }],
+            tokens: [
+              {
+                token: passOpennebula,
+                time: now.plus({ minutes: expirationSession }).toSeconds(),
+              },
+            ],
           }
         }
-        if (userValidation(userOpennebula, passOpennebula)) {
-          next()
-
-          return
-        } else {
-          status = unauthorized
-        }
       }
-    } else {
-      status = unauthorized
+      if (userValidation(userOpennebula, passOpennebula)) {
+        next()
+
+        return
+      }
     }
   } else {
     next()
@@ -147,8 +149,7 @@ const getZone = (selectedZone) => {
   if (
     appConfig.one_xmlrpc &&
     Array.isArray(defaultOpennebulaZones) &&
-    defaultOpennebulaZones[0] &&
-    defaultOpennebulaZones[0].rpc
+    defaultOpennebulaZones[0]?.rpc
   ) {
     if (
       appConfig.default_zone?.id &&

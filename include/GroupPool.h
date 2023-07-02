@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,7 +26,7 @@ class GroupPool : public PoolSQL
 public:
 
     GroupPool(SqlDB * db, bool is_federation_slave,
-        std::vector<const SingleAttribute *>& restricted_attrs);
+        const std::vector<const SingleAttribute *>& restricted_attrs);
 
     ~GroupPool() = default;
 
@@ -120,7 +120,7 @@ public:
      *    @param user pointer to Group
      *    @return 0 on success
      */
-    int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      * Update a particular Group's Quotas
@@ -139,7 +139,7 @@ public:
      *          -2 object is a system group (ID < 100)
      *          -3 Group's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Bootstraps the database table(s) associated to the Group pool
@@ -162,7 +162,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where,
-             int sid, int eid, bool desc);
+             int sid, int eid, bool desc) override;
 
 private:
 
@@ -170,7 +170,7 @@ private:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new Group(-1,"");
     };

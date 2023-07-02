@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -347,7 +347,7 @@ private:
 
     static const int drivers_timeout = 10;
 
-    void finalize_action()
+    void finalize_action() override
     {
         DriverManager::stop(drivers_timeout);
     };
@@ -554,11 +554,18 @@ public:
     void trigger_resize(int vid);
 
   /**
-     * Create backup fot the VM
+     * Create backup for the VM
      *
      * @param vid the id of the VM.
      */
     void trigger_backup(int vid);
+
+  /**
+     * Cancel ongoing backup operation
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_backup_cancel(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

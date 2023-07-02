@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -33,8 +33,6 @@ class SunstoneOPTP
         @totp.verify(token,
                      :drift_ahead => @five_minutes,
                      :drift_behind => @five_minutes)
-    rescue StandardError => e
-        raise e
     end
 
     def provisioning_uri(account_name)

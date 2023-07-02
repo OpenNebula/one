@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -34,6 +34,12 @@
         </label>
         <select id="parent" style="width: 200px; margin-bottom: 0;"></select>
         <br>
+      </div>
+      <div class="attach_external" style="min-height: 50px;">
+        <label>
+          <input type="checkbox" id="cb_external" style="margin-left: 15px"> {{tr "Skip network contextualization"}}
+                {{{tip (tr "A virtual router can be configured to route SDNAT traffic for this NIC IP address")}}}
+        </label>
       </div>
       {{{nicTabHTML}}}
       <div class="reveal-footer">

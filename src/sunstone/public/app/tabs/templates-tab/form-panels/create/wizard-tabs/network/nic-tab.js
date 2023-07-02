@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -449,6 +449,10 @@ define(function(require) {
         delete nicJSON["PARENT"];
     } else {
       nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
+
+      if ($("#" + this.nicTabId + "_alias_external", context).is(':checked')) {
+        nicJSON["EXTERNAL"] =  'YES';
+      }
     }
 
     if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {

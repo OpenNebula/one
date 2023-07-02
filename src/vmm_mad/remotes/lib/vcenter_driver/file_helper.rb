@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -109,7 +109,7 @@ module VCenterDriver
         def self.needs_unpack?(file_path)
             type = get_type(file_path)
             type.gsub!(%r{^application/(x-)?}, '')
-            %w[bzip2 gzip tar].include?(type)
+            ['bzip2', 'gzip', 'tar'].include?(type)
         end
 
         def self.vcenter_file_info(file_path)

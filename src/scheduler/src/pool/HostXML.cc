@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,8 +77,6 @@ void HostShareXML::init_attributes(ObjectXML * host)
         pci.from_xml_node(content[0]);
 
         host->free_nodes(content);
-
-        content.clear();
     }
 
     //---------------------- HostShare NUMA Nodes ------------------------------
@@ -93,8 +91,6 @@ void HostShareXML::init_attributes(ObjectXML * host)
         numa.from_xml_node(content, vms_thread);
 
         host->free_nodes(content);
-
-        content.clear();
     }
 };
 

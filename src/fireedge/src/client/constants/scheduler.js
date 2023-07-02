@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from 'client/constants'
 
 /**
  * @typedef ScheduleAction
@@ -77,4 +78,23 @@ export const PERIOD_TYPES = {
   DAYS: 'days',
   HOURS: 'hours',
   MINUTES: 'minutes',
+}
+
+export const SCHEDULE_TYPE = {
+  ONETIME: 'ONETIME',
+  PERIODIC: 'PERIODIC',
+  RELATIVE: 'RELATIVE',
+}
+
+/** @enum {string} Schedule type options */
+export const TEMPLATE_SCHEDULE_TYPE_STRING = {
+  [SCHEDULE_TYPE.ONETIME]: T.OneTimeAction,
+  [SCHEDULE_TYPE.PERIODIC]: T.PeriodicAction,
+  [SCHEDULE_TYPE.RELATIVE]: T.RelativeAction,
+}
+
+/** @enum {string} Schedule type options */
+export const VM_SCHEDULE_TYPE_STRING = {
+  [SCHEDULE_TYPE.ONETIME]: T.OneTimeAction,
+  [SCHEDULE_TYPE.PERIODIC]: T.PeriodicAction,
 }

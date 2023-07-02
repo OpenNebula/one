@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -35,7 +35,15 @@
           <option value="THREAD">{{tr "thread"}}</option>
           <option value="SHARED">{{tr "shared"}}</option>
           <option value="CORE">{{tr "core"}}</option>
+          <option value="NODE_AFFINITY"> {{tr "node affinity"}}</option>
         </select>
+      </div>
+      <div class="small-6 columns hidden">
+        <label for="node-number">
+          {{tr "Node Number"}}
+          {{{tip (tr "Number of NUMA nodes (node affinity)")}}}
+        </label>
+        <input type="number" id="node-affinity" class="disabled_firecracker">
       </div>
       <div class="small-6 columns">
         <label for="numa-sockets">
@@ -81,7 +89,7 @@
       </div>
       <div class="small-6 columns">
         <label for="selectedVCPU">
-          {{tr "Virtual CPU selected"}}
+          {{tr "Virtual CPU"}}
           {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
         </label>
         <input type="number" id="selectedVCPU">

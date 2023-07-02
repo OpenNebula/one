@@ -1,5 +1,5 @@
  /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -195,6 +195,15 @@ define(function(require) {
 
     if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["DELETE"]){
       delete templateJSON["TOPOLOGY"];
+    }
+
+
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["PIN_POLICY"]) {
+      if(templateJSON["TOPOLOGY"]["PIN_POLICY"]==="NODE_AFFINITY"){
+        delete templateJSON["TOPOLOGY"]["PIN_POLICY"]
+      }else if(templateJSON["TOPOLOGY"]["NODE_AFFINITY"]){
+        delete templateJSON["TOPOLOGY"]["NODE_AFFINITY"]
+      }
     }
 
     if(

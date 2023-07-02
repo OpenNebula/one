@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,8 +28,8 @@ require 'openssl'
 class MonitorClient
 
     # Defined in src/monitor/include/MonitorDriverMessages.h
-    MESSAGE_TYPES = %w[MONITOR_VM MONITOR_HOST SYSTEM_HOST BEACON_HOST STATE_VM
-                       START_MONITOR STOP_MONITOR].freeze
+    MESSAGE_TYPES = ['MONITOR_VM', 'MONITOR_HOST', 'SYSTEM_HOST', 'BEACON_HOST', 'STATE_VM',
+                     'START_MONITOR', 'STOP_MONITOR'].freeze
 
     MESSAGE_STATUS = { true =>'SUCCESS', false => 'FAILURE' }.freeze
 

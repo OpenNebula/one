@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -464,7 +464,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             tmp_str << "TIME = #{options[:schedule]}"
             tmp_str << str_periodic << ']'
 
-            vm.sched_action_add(tmp_str)
+            rc = vm.sched_action_add(tmp_str)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
         end
     end
 

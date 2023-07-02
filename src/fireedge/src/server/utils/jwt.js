@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,32 +17,25 @@
 const jwt = require('jwt-simple')
 const speakeasy = require('speakeasy')
 const { messageTerminal } = require('server/utils/general')
+const { JWTError, MissingFireEdgeKeyError } = require('server/utils/errors')
 
 /**
  * Create a JWT.
  *
- * @param {object} param0 - object of data to JWT {ID, USER, Opennebula_token}
- * @param {string} param0.id - user ID
- * @param {string} param0.user - username
- * @param {string} param0.token - token opennebula
- * @param {number} iat - epoch create time (now)
- * @param {number} exp - epoch expire time
+ * @param {object} jwtData - object of data to JWT {ID, USER, Opennebula_token}
+ * @param {string} jwtData.id - user ID
+ * @param {string} jwtData.user - username
+ * @param {string} jwtData.token - token opennebula
  * @returns {string} JWT
  */
-const createJWT = ({ id: iss, user: aud, token: jti }, iat = '', exp = '') => {
-  let rtn = null
-  if (iss && aud && jti && iat && exp) {
-    const payload = {
-      iss,
-      aud,
-      jti,
-      iat,
-      exp,
-    }
-    rtn = jwtEncode(payload)
+const createJWT = ({ id, user, token }) => {
+  if (id && user && token) {
+    return jwtEncode({
+      iss: id, // user ID
+      aud: user, // user name
+      jti: token, // token
+    })
   }
-
-  return rtn
 }
 
 /**
@@ -67,16 +60,14 @@ const jwtEncode = (payload = {}) => {
  * @returns {object} data JWT
  */
 const jwtDecode = (token = '') => {
-  if (global && global.paths && global.paths.FIREEDGE_KEY) {
+  if (global?.paths?.FIREEDGE_KEY) {
     try {
       return jwt.decode(token, global.paths.FIREEDGE_KEY)
-    } catch (messageError) {
-      messageTerminal({
-        color: 'red',
-        message: 'invalid: %s',
-        error: messageError,
-      })
+    } catch (error) {
+      throw new JWTError(error.message)
     }
+  } else {
+    throw new MissingFireEdgeKeyError()
   }
 }
 
@@ -88,41 +79,23 @@ const jwtDecode = (token = '') => {
  */
 const validateAuth = (req = {}) => {
   let rtn = false
-  if (req && req.headers && req.headers.authorization) {
+  if (req?.headers?.authorization) {
     const authorization = req.headers.authorization
     const removeBearer = /^Bearer /i
     const token = authorization.replace(removeBearer, '')
-    if (token) {
-      try {
-        const payload = jwtDecode(token)
-        if (
-          payload &&
-          'iss' in payload &&
-          'aud' in payload &&
-          'jti' in payload &&
-          'iat' in payload &&
-          'exp' in payload
-        ) {
-          const { iss, aud, jti, iat, exp } = payload
-          rtn = {
-            iss,
-            aud,
-            jti,
-            iat,
-            exp,
-          }
-        }
-      } catch (error) {}
-    } else {
-      const messageError =
-        token || (global && global.paths && global.paths.FIREEDGE_KEY)
-      if (messageError) {
-        messageTerminal({
-          color: 'red',
-          message: 'invalid: %s',
-          error: messageError,
-        })
+    try {
+      const payload = jwtDecode(token)
+      const { iss, aud, jti } = payload
+      rtn = {
+        iss,
+        aud,
+        jti,
       }
+    } catch (error) {
+      messageTerminal({
+        color: 'red',
+        error: `${error.stack}`,
+      })
     }
   }
 

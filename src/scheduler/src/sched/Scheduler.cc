@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -260,7 +260,7 @@ void Scheduler::start()
                 break;
             }
 
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << message;
 
@@ -268,7 +268,7 @@ void Scheduler::start()
         }
         catch (exception const& e)
         {
-            ostringstream oss;
+            oss.str("");
 
             oss << "Cannot contact oned, will retry... Error: " << e.what();
 
@@ -404,8 +404,6 @@ void Scheduler::start()
 int Scheduler::set_up_pools()
 {
     int                             rc;
-    ostringstream                   oss;
-    map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
     //Cleans the cache and get the pools
@@ -1331,7 +1329,7 @@ void Scheduler::dispatch()
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
     for (k = vm_rs.rbegin(); k != vm_rs.rend() &&
-            ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit ); ++k)
+            ( dispatch_limit == 0 || dispatched_vms < dispatch_limit ); ++k)
     {
         dispatched = false;
 
@@ -1364,7 +1362,7 @@ void Scheduler::dispatch()
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
-        for (i = resources.rbegin() ; i != resources.rend() ; i++)
+        for (i = resources.rbegin() ; i != resources.rend(); ++i)
         {
             hid  = (*i)->oid;
             host = hpool->get(hid);
@@ -1443,7 +1441,7 @@ void Scheduler::dispatch()
                 j = ds_resources.rbegin();
             }
 
-            for ( ; j != ds_resources.rend() ; j++)
+            for ( ; j != ds_resources.rend(); ++j)
             {
                 ds = dspool->get((*j)->oid);
 
@@ -1523,7 +1521,7 @@ void Scheduler::dispatch()
 
                 netid = -1;
 
-                for (n = net_resources.rbegin() ; n != net_resources.rend(); n++)
+                for (n = net_resources.rbegin(); n != net_resources.rend(); ++n)
                 {
                     if ( diff_vnets && matched_networks.find((*n)->oid) != matched_networks.end() )
                     {

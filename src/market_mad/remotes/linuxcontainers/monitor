@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -44,18 +44,18 @@ class LinuxContainersMarket
     #   :privileged container idmap
     #---------------------------------------------------------------------------
     DEFAULTS = {
-        :url => 'https://images.linuxcontainers.org',
-        :sizemb => 1024,
-        :fs => 'ext4',
-        :format => 'raw',
-        :agent => 'OpenNebula',
-        :tested_apps => %w[alpine alt centos rockylinux almalinux oracle debian
-                           ubuntu fedora devuan],
+        :url           => 'https://images.linuxcontainers.org/',
+        :sizemb        => 2048,
+        :fs            => 'ext4',
+        :format        => 'raw',
+        :agent         => 'OpenNebula',
+        :tested_apps   => ['alpine', 'alt', 'centos', 'rockylinux', 'almalinux', 'oracle',
+                           'debian', 'ubuntu', 'fedora', 'devuan', 'opensuse', 'amazonlinux'],
         :skip_untested => 'yes',
-        :memory => '768',
-        :cpu => 1,
-        :vcpu => 2,
-        :privileged => true
+        :memory        => '768',
+        :cpu           => 1,
+        :vcpu          => 2,
+        :privileged    => true
     }
 
     def initialize(options = {})
@@ -64,7 +64,7 @@ class LinuxContainersMarket
 
         version_path = File.dirname(__FILE__) + '/../../VERSION'
         @options[:agent] = "OpenNebula #{File.read(version_path)}" \
-            if File.exist? version_path
+          if File.exist? version_path
 
         @http_client = nil
     end
@@ -83,98 +83,92 @@ class LinuxContainersMarket
         [response.code.to_i, response.msg]
     end
 
-    # Get the list of appliances
+    # Relevant image.json format fields are
+    #
+    # {...,
+    #   "products": {
+    #     $distro:$version:$arch:$variant: {
+    #       ...
+    #       "versions": {
+    #         $release_date: {
+    #           "items": {
+    #             $container_type: {
+    #               ...
+    #               "size": int
+    #               "path": $path
+    #               "sha256": $sha256
+    #             }
+    #           }
+    #         }
+    #       }
+    #     }
+    #   }
+    # }
+
     def fetch_appliances
-        first_level = '/images/'
+        image_list_address = '/streams/v1/images.json'
 
         open_connection
-
-        rc, body = get(first_level)
+        rc, body = get(image_list_address)
 
         return rc, body if rc != 0
 
-        distros = body.scan(%r{a href="([a-z].*/)">})
-        distros.map! {|d| d.join.chomp('/') }
-
-        if @options[:skip_untested] == 'yes'
-            distros.delete_if {|d| !@options[:tested_apps].include?(d) }
-        end
-
-        tree = {}
-
-        distros.each do |distro|
-            d_suf = "#{distro}/"
-            rc, body = get(first_level + d_suf)
-
-            next if rc != 0
-
-            versions = body.scan(%r{a href="(.*/)">})
-            versions.shift # Remove first entry ("Parent Directory")
-
-            version_path = {}
-            versions.each do |version|
-                path = "#{first_level}#{d_suf}#{version[0]}amd64/default/"
-                rc, body = get(path)
-
-                next if rc != 0
-
-                release_dates = body.scan(%r{a href="(.*/)">})
-
-                # Previous release_dates array leaves a point in the html page
-                release_date  = release_dates.last[0]
-                version_path[version[0]] = "#{path}#{release_date}rootfs.tar.xz"
-            end
-
-            tree[d_suf] = version_path
-        end
-
+        image_list = JSON.parse(body)
         appstr = ''
 
-        #-----------------------------------------------------------------------
-        # Generate the container app information
-        #-----------------------------------------------------------------------
-        tree.each do |distro, value|
-            value.each do |version, path|
-                description = "Downloaded from #{@options[:url]}"
-                regtime = app_time(path).to_s
+        image_list['products'].each do |img, img_data|
+            distro, version, arch, variant = img.split(':')
 
-                data = {
-                    'NAME' => "#{distro[0...-1]}_#{version[0...-1]} - LXD",
-                    'SIZE' => @options[:sizemb],
-                    'PUBLISHER' => @options[:url],
-                    'FORMAT' => @options[:format],
-                    'REGTIME' => regtime,
-                    'SOURCE' => app_url(path).to_s,
-                    'MD5' => md5(regtime),
-                    'IMPORT_ID' => '-1',
-                    'ORIGIN_ID' => '-1',
-                    'VERSION' => '1.0',
-                    'TYPE' => 'IMAGE',
-                    'DESCRIPTION' => description,
-                    'TAGS' => '',
-                    'LINK' => "#{@options[:url]}#{path}"
-                       .gsub('/rootfs.tar.xz', '')
-                }
+            next if variant != 'default' || arch != 'amd64'
+            next if @options[:skip_untested] == 'yes' && !@options[:tested_apps].include?(distro)
 
-                tmpl = ''
-                data.each {|key, val| print_var(tmpl, key, val) }
+            # Use the last version for each container
+            regtime = img_data['versions'].to_a.last[0]
 
-                tmpl64 = ''
-                print_var(tmpl64, 'DRIVER', 'raw')
-
-                data = { 'APPTEMPLATE64' => tmpl64,
-                         'VMTEMPLATE64' => LXDMarket.template(@options) }
-                data.each do |key, val|
-                    print_var(tmpl, key, Base64.strict_encode64(val))
-                end
-
-                appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
+            begin
+                path = img_data['versions'][regtime]['items']['root.tar.xz']['path']
+            rescue StandardError
+                next
             end
+
+            builddate = DateTime.strptime(regtime, '%Y%m%d_%H:%M').to_time.to_i
+
+            data = {
+                'NAME'        => "#{distro}_#{version} - LXD",
+                'SIZE'        => @options[:sizemb],
+                'PUBLISHER'   => @options[:url],
+                'FORMAT'      => @options[:format],
+                'REGTIME'     => builddate,
+                'SOURCE'      => app_url(path).to_s,
+                'MD5'         => md5(regtime),
+                'IMPORT_ID'   => '-1',
+                'ORIGIN_ID'   => '-1',
+                'VERSION'     => '1.0',
+                'TYPE'        => 'IMAGE',
+                'DESCRIPTION' =>  "Downloaded from #{@options[:url]}",
+                'TAGS'        => '',
+                'LINK'        => "#{@options[:url]}#{path}"
+            }
+
+            tmpl = ''
+            data.each {|key, val| print_var(tmpl, key, val) }
+
+            tmpl64 = ''
+            print_var(tmpl64, 'DRIVER', 'raw')
+
+            data = { 'APPTEMPLATE64' => tmpl64,
+                     'VMTEMPLATE64' => LXDMarket.template(@options) }
+
+            data.each do |key, val|
+                print_var(tmpl, key, Base64.strict_encode64(val))
+            end
+
+            appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
         end
 
         appstr
     ensure
-        @http_client.finish if @http_client
+        @http_client&.finish if @http_client
     end
 
     private
@@ -186,16 +180,6 @@ class LinuxContainersMarket
     def app_url(path)
         "lxd://#{@options[:url]}#{path}?size=#{@options[:sizemb]}" \
         "&filesystem=#{@options[:fs]}&format=#{@options[:format]}"
-    end
-
-    # Returns build date based on image path
-    def app_time(path)
-        m1 = 'amd64/default/./'
-        m2 = '/rootfs.tar.xz'
-
-        buildate = path[/#{m1}(.*?)#{m2}/m, 1]
-        buildate = DateTime.strptime(buildate, '%Y%m%d_%H:%M')
-        buildate.to_time.to_i
     end
 
     # Print variable in an APP template
@@ -213,7 +197,7 @@ class LinuxContainersMarket
 
     # Opens a TCP connection to @options[:url]
     def open_connection
-        @http_client.finish if @http_client
+        @http_client&.finish if @http_client
 
         http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY'] # for ruby 1.9.3
 
@@ -244,7 +228,7 @@ class LinuxContainersMarket
 end
 
 ################################################################################
-# Main Program. Outpust the list of marketplace appliances
+# Main Program. Its output is the list of marketplace appliances
 ################################################################################
 def set_option(option, doc, name, path)
     option[name] = doc.elements[path].text if doc.elements[path]
@@ -258,15 +242,15 @@ begin
     pre = 'MARKETPLACE/TEMPLATE'
 
     data = {
-        :url => "#{pre}/ENDPOINT",
-        :sizemb => "#{pre}/IMAGE_SIZE_MB",
-        :fs => "#{pre}/FILESYSTEM",
-        :format => "#{pre}/FORMAT",
+        :url           => "#{pre}/ENDPOINT",
+        :sizemb        => "#{pre}/IMAGE_SIZE_MB",
+        :fs            => "#{pre}/FILESYSTEM",
+        :format        => "#{pre}/FORMAT",
         :skip_untested => "#{pre}/SKIP_UNTESTED",
-        :memory => "#{pre}/MEMORY",
-        :cpu => "#{pre}/CPU",
-        :vcpu => "#{pre}/VCPU",
-        :privileged => "#{pre}/PRIVILEGED"
+        :memory        => "#{pre}/MEMORY",
+        :cpu           => "#{pre}/CPU",
+        :vcpu          => "#{pre}/VCPU",
+        :privileged    => "#{pre}/PRIVILEGED"
     }
 
     data.each {|key, value| set_option(options, doc, key, value) }

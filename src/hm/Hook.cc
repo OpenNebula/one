@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -95,7 +95,7 @@ string& Hook::_to_xml(string& xml, bool log) const
 int Hook::from_xml(const std::string& xml)
 {
     vector<xmlNodePtr> content;
-    std::string type_str, remote_str;
+    std::string type_str;
     std::string error_msg;
 
     int rc = 0;
@@ -138,8 +138,6 @@ int Hook::from_xml(const std::string& xml)
     get_template_attribute("REMOTE",  remote);
 
     ObjectXML::free_nodes(content);
-
-    content.clear();
 
     if (rc != 0)
     {
@@ -197,7 +195,6 @@ int Hook::bootstrap(SqlDB * db)
 int Hook::insert(SqlDB *db, std::string& error_str)
 {
     std::string type_str;
-    std::string remote_str;
 
     int rc;
 
@@ -276,14 +273,14 @@ int Hook::insert_replace(SqlDB *db, bool replace, std::string& error_str)
     set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
    // Update the Hook
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -350,7 +347,6 @@ error_common:
 
 int Hook::set_hook(HookType hook_type, string& error)
 {
-    std::string type_str;
     std::string resource;
 
     if (hook_type == UNDEFINED)

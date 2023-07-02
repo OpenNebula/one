@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
+labels: 'Type: Bug'
 ---
 
 /!\ To report a **security issue** please follow this procedure:
@@ -17,7 +17,7 @@ Steps to reproduce the behavior.
 A clear and concise description of what you expected to happen.
 
 **Details**
- - Affected Component: [e.g. Sunstone, Scheduler or Storage]
+ - Affected Component: [e.g. Sunstone, Scheduler, or Storage]
  - Hypervisor: [e.g. KVM]
  - Version: [e.g. 5.4.12 or development]
 

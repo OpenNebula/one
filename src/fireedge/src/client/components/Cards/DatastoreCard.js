@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,43 +13,70 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { memo, ReactElement, useMemo } from 'react'
 
+import { Box, Stack, Tooltip, Typography } from '@mui/material'
+import MultipleTags from 'client/components/MultipleTags'
 import {
-  User,
+  Cloud,
   Group,
   Lock,
-  Cloud,
   Server,
+  User,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
-import { Box, Typography, Tooltip } from '@mui/material'
 
-import {
-  StatusCircle,
-  StatusChip,
-  LinearProgressWithLabel,
-} from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
+import {
+  LinearProgressWithLabel,
+  StatusChip,
+  StatusCircle,
+} from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import { getState, getType, getCapacityInfo } from 'client/models/Datastore'
-import { getErrorMessage } from 'client/models/Helper'
-import { T, Datastore, DS_THRESHOLD } from 'client/constants'
+import {
+  Datastore,
+  DS_THRESHOLD,
+  T,
+  DATASTORE_ACTIONS,
+  RESOURCE_NAMES,
+} from 'client/constants'
+import { getCapacityInfo, getState, getType } from 'client/models/Datastore'
+import {
+  getColorFromString,
+  getErrorMessage,
+  getUniqueLabels,
+} from 'client/models/Helper'
+import { useViews } from 'client/features/Auth'
 
 const DatastoreCard = memo(
   /**
    * @param {object} props - Props
    * @param {Datastore} props.datastore - Datastore resource
    * @param {object} props.rootProps - Props to root component
-   * @param {ReactElement} props.actions - Actions
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
+   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ datastore: ds, rootProps, actions }) => {
+  ({ datastore: ds, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { [RESOURCE_NAMES.DATASTORE]: dsView } = useViews()
 
-    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = ds
+    const enableEditLabels =
+      dsView?.actions?.[DATASTORE_ACTIONS.EDIT_LABELS] === true &&
+      !!onDeleteLabel
+
+    const {
+      ID,
+      NAME,
+      UNAME,
+      GNAME,
+      CLUSTERS,
+      LOCK,
+      PROVISION_ID,
+      TEMPLATE: { LABELS } = {},
+    } = ds
 
     const type = getType(ds)
     const { color: stateColor, name: stateName } = getState(ds)
@@ -57,9 +84,18 @@ const DatastoreCard = memo(
     const capacity = useMemo(() => getCapacityInfo(ds), [ds])
     const { percentOfUsed, percentLabel } = capacity
 
-    const clusters = useMemo(
-      () => [CLUSTERS?.ID ?? []].flat().join(),
-      [CLUSTERS?.ID]
+    const clusters = useMemo(() => [CLUSTERS?.ID ?? []].flat(), [CLUSTERS?.ID])
+
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+          onDelete: enableEditLabels && onDeleteLabel,
+        })),
+      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 
     return (
@@ -79,9 +115,10 @@ const DatastoreCard = memo(
                 </Box>
               </Tooltip>
             )}
+            {LOCK && <Lock />}
             <span className={classes.labels}>
-              {LOCK && <Lock />}
               <StatusChip text={type} />
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>
@@ -100,10 +137,14 @@ const DatastoreCard = memo(
                 <span>{` ${PROVISION_ID}`}</span>
               </span>
             )}
-            <span title={`${Tr(T.Clusters)}: ${clusters}`}>
-              <Server />
-              <span>{` ${clusters}`}</span>
-            </span>
+            {!!clusters?.length && (
+              <span title={`${Tr(T.Clusters)}`}>
+                <Server />
+                <Stack direction="row" justifyContent="end" alignItems="center">
+                  <MultipleTags tags={clusters} />
+                </Stack>
+              </span>
+            )}
           </div>
         </div>
         <div className={classes.secondary}>
@@ -115,7 +156,6 @@ const DatastoreCard = memo(
             title={Tr(T.UsedOfTotal)}
           />
         </div>
-        {actions && <div className={classes.actions}>{actions}</div>}
       </div>
     )
   }
@@ -127,6 +167,8 @@ DatastoreCard.propTypes = {
     className: PropTypes.string,
   }),
   actions: PropTypes.any,
+  onClickLabel: PropTypes.func,
+  onDeleteLabel: PropTypes.func,
 }
 
 DatastoreCard.displayName = 'DatastoreCard'

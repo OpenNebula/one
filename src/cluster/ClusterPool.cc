@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 
 ClusterPool::ClusterPool(SqlDB * db,
                          const VectorAttribute * _vnc_conf,
-                         vector<const SingleAttribute *>& encrypted_attrs):
+                         const vector<const SingleAttribute *>& encrypted_attrs):
     PoolSQL(db, one_db::cluster_table), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
@@ -99,7 +99,6 @@ error_bootstrap:
 int ClusterPool::allocate(string name, int * oid, string& error_str)
 {
     Cluster * cluster;
-    string    error;
 
     ostringstream oss;
 
@@ -364,7 +363,7 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
         oss << "DELETE FROM " << table << " WHERE cid = "
             << cluster->get_oid() << " AND oid = " << resource_id;
 
-        int rc = db->exec_wr(oss);
+        rc = db->exec_wr(oss);
 
         if (rc != 0)
         {

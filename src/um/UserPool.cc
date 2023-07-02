@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -54,8 +54,8 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs)
+        const vector<const SingleAttribute *>& restricted_attrs,
+        const vector<const SingleAttribute *>& encrypted_attrs)
     : PoolSQL(db, one_db::user_table)
 {
     int one_uid    = -1;
@@ -402,9 +402,9 @@ int UserPool::allocate(
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Add the primary and secondary groups to the collection
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        user->add_group(gid);
+        user->add_group(group_id);
     }
 
     // Set a password for the OneGate tokens
@@ -419,9 +419,9 @@ int UserPool::allocate(
     }
 
     // Add the user to the main and secondary groups
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        auto group = gpool->get(gid);
+        auto group = gpool->get(group_id);
 
         if (!group) //Secondary group no longer exists
         {
@@ -443,9 +443,9 @@ int UserPool::allocate(
     if ( driver_managed_group_admin )
     {
         // Set the user group admin
-        for (auto gid : agids)
+        for (auto group_id : agids)
         {
-            auto group = gpool->get(gid);
+            auto group = gpool->get(group_id);
 
             if (!group) //Secondary group no longer exists
             {
@@ -477,18 +477,18 @@ error_no_groups:
     goto error_common;
 
 error_group:
-    if ( auto user = get(*oid) )
+    if ( auto u = get(*oid) )
     {
         string aux_str;
 
-        drop(user.get(), aux_str);
+        drop(u.get(), aux_str);
     }
 
     // Remove from all the groups, just in case the user id was added to a any
     // of them before a non-existing group was found
-    for (auto gid : gids)
+    for (auto group_id : gids)
     {
-        if ( auto group = gpool->get(gid) )
+        if ( auto group = gpool->get(group_id) )
         {
             group->del_user(*oid);
 
@@ -1199,7 +1199,6 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_name;
     string mad_pass;
     string error_str;
-    string tmp_str;
     string default_auth;
 
     Nebula& nd = Nebula::instance();

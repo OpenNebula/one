@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -69,25 +69,21 @@ module VCenterDriver
         end
 
         def self.new_from_host(host_id)
-            begin
-                client = OpenNebula::Client.new
-                host = OpenNebula::Host.new_with_id(host_id, client)
-                rc = host.info(true)
-                if OpenNebula.is_error?(rc)
-                    raise "Could not get host info for ID: \
-                           #{host_id} - #{rc.message}"
-                end
-
-                connection = {
-                    :hostname => host['TEMPLATE/VCENTER_HOST'],
-                    :username => host['TEMPLATE/VCENTER_USER'],
-                    :password => host['TEMPLATE/VCENTER_PASSWORD']
-                }
-
-                new(connection)
-            rescue StandardError => e
-                raise e
+            client = OpenNebula::Client.new
+            host = OpenNebula::Host.new_with_id(host_id, client)
+            rc = host.info(true)
+            if OpenNebula.is_error?(rc)
+                raise "Could not get host info for ID: \
+                       #{host_id} - #{rc.message}"
             end
+
+            connection = {
+                :hostname => host['TEMPLATE/VCENTER_HOST'],
+                :username => host['TEMPLATE/VCENTER_USER'],
+                :password => host['TEMPLATE/VCENTER_PASSWORD']
+            }
+
+            new(connection)
         end
 
         def get_or_create_tag(

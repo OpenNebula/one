@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,26 +32,26 @@ module OpenNebula
         attr_reader :service
 
         # Actions that can be performed on the VMs of a given Role
-        SCHEDULE_ACTIONS = %w[
-            terminate
-            terminate-hard
-            undeploy
-            undeploy-hard
-            hold
-            release
-            stop
-            suspend
-            resume
-            reboot
-            reboot-hard
-            poweroff
-            poweroff-hard
-            snapshot-create
-            snapshot-revert
-            snapshot-delete
-            disk-snapshot-create
-            disk-snapshot-revert
-            disk-snapshot-delete
+        SCHEDULE_ACTIONS = [
+            'terminate',
+            'terminate-hard',
+            'undeploy',
+            'undeploy-hard',
+            'hold',
+            'release',
+            'stop',
+            'suspend',
+            'resume',
+            'reboot',
+            'reboot-hard',
+            'poweroff',
+            'poweroff-hard',
+            'snapshot-create',
+            'snapshot-revert',
+            'snapshot-delete',
+            'disk-snapshot-create',
+            'disk-snapshot-revert',
+            'disk-snapshot-delete'
         ]
 
         STATE = {
@@ -69,52 +69,52 @@ module OpenNebula
             'HOLD'               => 11
         }
 
-        STATE_STR = %w[
-            PENDING
-            DEPLOYING
-            RUNNING
-            UNDEPLOYING
-            WARNING
-            DONE
-            FAILED_UNDEPLOYING
-            FAILED_DEPLOYING
-            SCALING
-            FAILED_SCALING
-            COOLDOWN
-            HOLD
+        STATE_STR = [
+            'PENDING',
+            'DEPLOYING',
+            'RUNNING',
+            'UNDEPLOYING',
+            'WARNING',
+            'DONE',
+            'FAILED_UNDEPLOYING',
+            'FAILED_DEPLOYING',
+            'SCALING',
+            'FAILED_SCALING',
+            'COOLDOWN',
+            'HOLD'
         ]
 
-        RECOVER_DEPLOY_STATES = %w[
-            FAILED_DEPLOYING
-            DEPLOYING
-            PENDING
+        RECOVER_DEPLOY_STATES = [
+            'FAILED_DEPLOYING',
+            'DEPLOYING',
+            'PENDING'
         ]
 
-        RECOVER_UNDEPLOY_STATES = %w[
-            FAILED_UNDEPLOYING
-            UNDEPLOYING
+        RECOVER_UNDEPLOY_STATES = [
+            'FAILED_UNDEPLOYING',
+            'UNDEPLOYING'
         ]
 
-        RECOVER_SCALE_STATES = %w[
-            FAILED_SCALING
-            SCALING
+        RECOVER_SCALE_STATES = [
+            'FAILED_SCALING',
+            'SCALING'
         ]
 
-        VM_FAILURE_STATES = %w[
-            BOOT_FAILURE
-            BOOT_MIGRATE_FAILURE
-            PROLOG_MIGRATE_FAILURE
-            PROLOG_FAILURE
-            EPILOG_FAILURE
-            EPILOG_STOP_FAILURE
-            EPILOG_UNDEPLOY_FAILURE
-            PROLOG_MIGRATE_POWEROFF_FAILURE
-            PROLOG_MIGRATE_SUSPEND_FAILURE
-            PROLOG_MIGRATE_UNKNOWN_FAILURE
-            BOOT_UNDEPLOY_FAILURE
-            BOOT_STOPPED_FAILURE
-            PROLOG_RESUME_FAILURE
-            PROLOG_UNDEPLOY_FAILURE
+        VM_FAILURE_STATES = [
+            'BOOT_FAILURE',
+            'BOOT_MIGRATE_FAILURE',
+            'PROLOG_MIGRATE_FAILURE',
+            'PROLOG_FAILURE',
+            'EPILOG_FAILURE',
+            'EPILOG_STOP_FAILURE',
+            'EPILOG_UNDEPLOY_FAILURE',
+            'PROLOG_MIGRATE_POWEROFF_FAILURE',
+            'PROLOG_MIGRATE_SUSPEND_FAILURE',
+            'PROLOG_MIGRATE_UNKNOWN_FAILURE',
+            'BOOT_UNDEPLOY_FAILURE',
+            'BOOT_STOPPED_FAILURE',
+            'PROLOG_RESUME_FAILURE',
+            'PROLOG_UNDEPLOY_FAILURE'
         ]
 
         SCALE_WAYS = {
@@ -129,17 +129,17 @@ module OpenNebula
         # parents: this has only sense in deploy operation
         # state: this is internal information managed by OneFlow server
         # vm_template: this will affect scale operation
-        IMMUTABLE_ATTRS = %w[
-            cardinality
-            last_vmname
-            nodes
-            parents
-            state
-            vm_template
+        IMMUTABLE_ATTRS = [
+            'cardinality',
+            'last_vmname',
+            'nodes',
+            'parents',
+            'state',
+            'vm_template'
         ]
 
         # VM information to save in document
-        VM_INFO = %w[ID UID GID UNAME GNAME NAME]
+        VM_INFO = ['ID', 'UID', 'GID', 'UNAME', 'GNAME', 'NAME']
 
         LOG_COMP = 'ROL'
 
@@ -1125,7 +1125,7 @@ module OpenNebula
             # Min is a hard limit, if the current cardinality + adjustment does
             # not reach it, the difference is added
 
-            max = [cardinality, max_cardinality.to_i].max()
+            max = [cardinality, max_cardinality.to_i].max
             # min = [cardinality(), min_cardinality.to_i].min()
             min = min_cardinality.to_i
 

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,31 +14,31 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
-  Cell2X2 as InstancesIcons,
-  ModernTv as VmsIcons,
-  Shuffle as VRoutersIcons,
-  Archive as TemplatesIcon,
-  EmptyPage as TemplateIcon,
-  Packages as ServicesIcon,
-  MultiplePagesEmpty as ServiceTemplateIcon,
-  Box as StorageIcon,
+  RefreshDouble as BackupIcon,
+  Server as ClusterIcon,
   Db as DatastoreIcon,
-  BoxIso as ImageIcon,
   Folder as FileIcon,
-  SimpleCart as MarketplaceIcon,
+  Group as GroupIcon,
+  HardDrive as HostIcon,
+  BoxIso as ImageIcon,
+  CloudSync as InfrastructureIcon,
+  Cell2X2 as InstancesIcons,
   CloudDownload as MarketplaceAppIcon,
-  ServerConnection as NetworksIcon,
+  SimpleCart as MarketplaceIcon,
   NetworkAlt as NetworkIcon,
   KeyframesCouple as NetworkTemplateIcon,
-  CloudSync as InfrastructureIcon,
-  Server as ClusterIcon,
-  HardDrive as HostIcon,
-  MinusPinAlt as ZoneIcon,
-  Home as SystemIcon,
-  User as UserIcon,
-  Group as GroupIcon,
+  ServerConnection as NetworksIcon,
   HistoricShield as SecurityGroupIcon,
-  RefreshDouble as BackupIcon,
+  MultiplePagesEmpty as ServiceTemplateIcon,
+  Packages as ServicesIcon,
+  Box as StorageIcon,
+  Home as SystemIcon,
+  EmptyPage as TemplateIcon,
+  Archive as TemplatesIcon,
+  User as UserIcon,
+  Shuffle as VRoutersIcons,
+  ModernTv as VmsIcons,
+  MinusPinAlt as ZoneIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -97,6 +97,13 @@ const ServiceTemplateDetail = loadable(
 const Datastores = loadable(() => import('client/containers/Datastores'), {
   ssr: false,
 })
+const CreateDatastores = loadable(
+  () => import('client/containers/Datastores/Create'),
+  {
+    ssr: false,
+  }
+)
+
 const Images = loadable(() => import('client/containers/Images'), {
   ssr: false,
 })
@@ -227,6 +234,7 @@ export const PATH = {
     DATASTORES: {
       LIST: `/${RESOURCE_NAMES.DATASTORE}`,
       DETAIL: `/${RESOURCE_NAMES.DATASTORE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.DATASTORE}/create`,
     },
     IMAGES: {
       LIST: `/${RESOURCE_NAMES.IMAGE}`,
@@ -410,6 +418,11 @@ const ENDPOINTS = [
         sidebar: true,
         icon: DatastoreIcon,
         Component: Datastores,
+      },
+      {
+        title: T.CreateDatastore,
+        path: PATH.STORAGE.DATASTORES.CREATE,
+        Component: CreateDatastores,
       },
       {
         title: T.Images,

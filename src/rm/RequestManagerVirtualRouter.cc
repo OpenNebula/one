@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -59,7 +59,6 @@ void VirtualRouterInstantiate::request_execute(
     VMTemplatePool*     tpool = nd.get_tpool();
 
     PoolObjectAuth vr_perms;
-    string         error;
     string         vr_name, tmp_name;
     ostringstream  oss;
 
@@ -292,11 +291,11 @@ void VirtualRouterAttachNic::request_execute(
 
     for (auto vmid : vms)
     {
-        VirtualMachineTemplate tmpl;
+        VirtualMachineTemplate vm_tmpl;
 
-        tmpl.set(nic_bck->clone());
+        vm_tmpl.set(nic_bck->clone());
 
-        ErrorCode ec = vm_attach_nic.request_execute(vmid, tmpl, att);
+        ErrorCode ec = vm_attach_nic.request_execute(vmid, vm_tmpl, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -59,8 +59,8 @@ def not_dsid_or_dsref_valid?(ds_id, ds_ref)
     ds_id.nil? || ds_ref.nil?
 end
 
-drv_action_enc = ARGV[0]
-id             = ARGV[1]
+id             = ARGV[0]
+drv_action_enc = STDIN.read
 
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),

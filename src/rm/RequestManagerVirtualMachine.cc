@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -746,7 +746,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
-    string error_str;
 
     bool auth = false;
     bool check_nic_auto = false;
@@ -1058,8 +1057,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     bool auth = false;
     bool ds_migr;
-
-    string error;
 
     VMActions::Action action;
 
@@ -1896,7 +1893,6 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager *   dm = nd.get_dm();
 
     int rc;
-    string error_str;
 
     int     id      = xmlrpc_c::value_int(paramList.getInt(1));
     int     disk_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -2232,8 +2228,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
                 vm->store_resize(ocpu, omemory, ovcpu);
 
                 vm->set_resched(false);
-
-                auto vmm = Nebula::instance().get_vmm();
 
                 vmm->trigger_resize(id);
             }
@@ -3022,8 +3016,6 @@ void VirtualMachinePoolCalculateShowback::request_execute(
     int end_month   = xmlrpc_c::value_int(paramList.getInt(3));
     int end_year    = xmlrpc_c::value_int(paramList.getInt(4));
 
-    ostringstream oss;
-    string        where;
     int           rc;
 
     if ( att.gid != 0 )
@@ -3569,7 +3561,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         ClusterPool * cpool = Nebula::instance().get_clpool();
 
-        int rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
+        rc = cpool->get_vnc_port(vm->get_cid(), vm->get_oid(), port);
 
         if ( rc != 0 )
         {
@@ -3634,6 +3626,14 @@ void VirtualMachineDiskResize::request_execute(
         att.resp_msg = "Disk SIZE is not a valid integer";
         failure_response(ACTION, att);
 
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    {
         return;
     }
 
@@ -3973,15 +3973,19 @@ void VirtualMachineBackup::request_execute(
 
     Backups::Mode mode;
     int li_id;
-
-    ostringstream oss;
+    int bk_id = -1;
 
     // ------------------------------------------------------------------------
     // Get request parameters
     // ------------------------------------------------------------------------
     int  vm_id        = xmlrpc_c::value_int(paramList.getInt(1));
-    int  backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    int  backup_ds_id = -1;
     bool reset        = false;
+
+    if ( paramList.size() > 2 )
+    {
+        backup_ds_id = xmlrpc_c::value_int(paramList.getInt(2));
+    }
 
     if ( paramList.size() > 3 )
     {
@@ -3999,6 +4003,8 @@ void VirtualMachineBackup::request_execute(
 
         mode  = vm->backups().mode();
         li_id = vm->backups().last_increment_id();
+
+        bk_id = vm->backups().incremental_backup_id();
     }
     else
     {
@@ -4006,6 +4012,25 @@ void VirtualMachineBackup::request_execute(
 
         failure_response(NO_EXISTS, att);
         return;
+    }
+
+    // Incremental backups use the current datastore if not resetting the chain
+    if ( mode == Backups::INCREMENT && !reset && li_id != -1 )
+    {
+        ImagePool* ipool = nd.get_ipool();
+
+        if (auto img = ipool->get_ro(bk_id))
+        {
+            backup_ds_id = img->get_ds_id();
+        }
+        else
+        {
+            att.resp_obj = PoolObjectSQL::IMAGE;
+            att.resp_id  = bk_id;
+
+            failure_response(NO_EXISTS, att);
+            return;
+        }
     }
 
     if ( auto ds = dspool->get_ro(backup_ds_id) )
@@ -4051,6 +4076,11 @@ void VirtualMachineBackup::request_execute(
     {
         quota_tmpl.add("IMAGES", 1);
     }
+    else
+    {
+        quota_tmpl.add("IMAGES", 0);
+    }
+
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
@@ -4067,6 +4097,36 @@ void VirtualMachineBackup::request_execute(
     {
         quota_rollback(&quota_tmpl, Quotas::DATASTORE, att_quota);
 
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(vm_id, att);
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineBackupCancel::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    Nebula&            nd = Nebula::instance();
+    DispatchManager *  dm = nd.get_dm();
+
+    // Get request parameters
+    int vm_id = xmlrpc_c::value_int(paramList.getInt(1));
+
+    // Authorize request (VM access)
+    if (!vm_authorization(vm_id, 0, 0, att, 0, 0, 0))
+    {
+        return;
+    }
+
+    // Cancel the backup, VM state is checked in DM
+    if (dm->backup_cancel(vm_id, att, att.resp_msg) != 0)
+    {
         failure_response(INTERNAL, att);
         return;
     }

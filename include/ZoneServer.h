@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -81,7 +81,9 @@ public:
      *  attributes
      *    @param tmpl template with SERVER
      */
-    ZoneServers(Template * tmpl):ExtendedAttributeSet(false), next_id(-1)
+    ZoneServers(Template * tmpl)
+        : ExtendedAttributeSet(false)
+        , next_id(-1)
     {
         std::vector<VectorAttribute *> vas;
 
@@ -109,9 +111,12 @@ public:
     /**
      *  Creates an empty zone server set
      */
-    ZoneServers():ExtendedAttributeSet(false){};
+    ZoneServers()
+        : ExtendedAttributeSet(false)
+        , next_id(-1)
+    {}
 
-    virtual ~ZoneServers(){};
+    virtual ~ZoneServers() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Iterators                                                              */
@@ -192,7 +197,7 @@ public:
     }
 
 protected:
-    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const
+    ExtendedAttribute * attribute_factory(VectorAttribute * va, int id) const override
     {
         return new ZoneServer(va, id);
     };

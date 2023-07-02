@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,52 +15,95 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
 
-###############################################################################
-# This script is used to remove a VM image (SRC) from the image repository
-###############################################################################
-
-# ------------ Set up the environment to source common tools ------------
-
-if [ -z "${ONE_LOCATION}" ]; then
-    LIB_LOCATION=/usr/lib/one
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
-    LIB_LOCATION=$ONE_LOCATION/lib
-fi
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-. $LIB_LOCATION/sh/scripts_common.sh
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
 
-DRIVER_PATH=$(dirname $0)
-source ${DRIVER_PATH}/../libfs.sh
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
-# -------- Get rm and datastore arguments from OpenNebula core ------------
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-DRV_ACTION=$1
-ID=$2
+require 'base64'
+require 'pathname'
+require 'rexml/document'
 
-XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
+require_relative '../../tm/lib/backup'
+require_relative '../../tm/lib/tm_action'
 
-unset i XPATH_ELEMENTS
+daction64 = STDIN.read
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_HOST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RSYNC_USER \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
-		    /DS_DRIVER_ACTION_DATA/IMAGE/VMS[1]/ID )
+# Parse input data.
 
-unset i
+begin
+    action = Base64.decode64 daction64
 
-SRC="${XPATH_ELEMENTS[i++]}"
-RSYNC_HOST="${XPATH_ELEMENTS[i++]}"
-RSYNC_USER="${XPATH_ELEMENTS[i++]}"
-BASE_PATH="${XPATH_ELEMENTS[i++]}"
-VM_ID="${XPATH_ELEMENTS[i++]}"
+    image = TransferManager::BackupImage.new action
 
-# ------------ Remove the image from the repository ------------
+    xml = REXML::Document.new(action).root
 
-BACKUP_PATH="${BASE_PATH}/${VM_ID}/${SRC}"
+    base_path  = xml.elements['DATASTORE/BASE_PATH'].text
+    rsync_user = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
 
-ssh_exec_and_log "$RSYNC_USER@$RSYNC_HOST" "[ -d $BACKUP_PATH ] && rm -rf $BACKUP_PATH" \
-    "Error deleting $BACKUP_PATH in $RSYNC_HOST"
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    snap_dirs = image.snapshots.map do |snap|
+        raw     = %(#{base_path}/#{image.vm_id}/#{snap}/)
+        cleaned = Pathname.new(raw).cleanpath.to_s
+        quoted  = %('#{cleaned}/')
+        quoted
+    end
+
+    raise StandardError, 'Nothing to remove' if snap_dirs.empty?
+
+    script << %(rm -rf #{snap_dirs.join(' ')})
+
+    rc = TransferManager::Action.ssh 'remove_snapshots',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to remove snapshots: #{rc.stderr}" if rc.code != 0
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+exit(0)

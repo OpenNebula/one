@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/datastore'
+import { Datastore, Permission } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
-import { Permission, Datastore } from 'client/constants'
+import {
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateOwnershipOnResource,
+  updatePermissionOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+import { Actions, Commands } from 'server/utils/constants/commands/datastore'
 
 const { DATASTORE } = ONE_RESOURCES
 const { DATASTORE_POOL } = ONE_RESOURCES_POOL
@@ -69,7 +77,29 @@ const datastoreApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => data?.DATASTORE ?? {},
-      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      providesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastores',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastores',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     allocateDatastore: builder.mutation({
       /**
@@ -93,15 +123,16 @@ const datastoreApi = oneApi.injectEndpoints({
       /**
        * Deletes the given datastore from the pool.
        *
-       * @param {number|string} id - Datastore id
+       * @param {object} params - Request params
+       * @param {number|string} params.id - Datastore id
        * @returns {number} Datastore id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.DATASTORE_DELETE
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: [DATASTORE_POOL],
     }),
@@ -126,14 +157,38 @@ const datastoreApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchDatastore = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastore',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchDatastores = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastores',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchDatastore.undo()
+            patchDatastores.undo()
+          })
+        } catch {}
+      },
     }),
     changeDatastorePermissions: builder.mutation({
       /**
-       * Changes the permission bits of a virtual network.
+       * Changes the permission bits of a datastore.
        * If set any permission to -1, it's not changed.
        *
        * @param {object} params - Request parameters
-       * @param {string|number} params.id - Virtual network id
+       * @param {string|number} params.id - Datastore id
        * @param {Permission|'-1'} params.ownerUse - User use
        * @param {Permission|'-1'} params.ownerManage - User manage
        * @param {Permission|'-1'} params.ownerAdmin - User administrator
@@ -143,16 +198,29 @@ const datastoreApi = oneApi.injectEndpoints({
        * @param {Permission|'-1'} params.otherUse - Other use
        * @param {Permission|'-1'} params.otherManage - Other manage
        * @param {Permission|'-1'} params.otherAdmin - Other administrator
-       * @returns {number} Virtual network id
+       * @returns {number} Datastore id
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = Actions.VN_CHMOD
+        const name = Actions.DATASTORE_CHMOD
         const command = { name, ...Commands[name] }
 
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchDatastore = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastore',
+              { id: params.id },
+              updatePermissionOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(patchDatastore.undo)
+        } catch {}
+      },
     }),
     changeDatastoreOwnership: builder.mutation({
       /**
@@ -172,10 +240,20 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [
-        { type: DATASTORE, id },
-        DATASTORE_POOL,
-      ],
+      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchDatastore = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastore',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(patchDatastore.undo)
+        } catch {}
+      },
     }),
     renameDatastore: builder.mutation({
       /**
@@ -197,6 +275,30 @@ const datastoreApi = oneApi.injectEndpoints({
         { type: DATASTORE, id },
         DATASTORE_POOL,
       ],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchDatastore = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastore',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchDatastores = dispatch(
+            datastoreApi.util.updateQueryData(
+              'getDatastores',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchDatastore.undo()
+            patchDatastores.undo()
+          })
+        } catch {}
+      },
     }),
     enableDatastore: builder.mutation({
       /**

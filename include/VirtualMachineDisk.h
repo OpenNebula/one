@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -616,7 +616,7 @@ public:
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
             VectorAttribute * vdisk, const std::string& tsys,
-            VectorAttribute * vcontext, std::string& error);
+            const VectorAttribute * vcontext, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */

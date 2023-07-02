@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -99,7 +99,6 @@ VirtualRouter::VirtualRouter(   int             id,
 int VirtualRouter::insert(SqlDB *db, string& error_str)
 {
     int             rc;
-    ostringstream   oss;
 
     // ---------------------------------------------------------------------
     // Check default attributes
@@ -385,7 +384,6 @@ int VirtualRouter::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     if (rc != 0)
     {
@@ -419,8 +417,6 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 
     int     vnid;
     int     ar_id;
-    string  mac;
-    string  error_msg;
 
     if (nic == nullptr)
     {
@@ -432,7 +428,7 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    mac = nic->vector_value("VROUTER_MAC");
+    const string& mac = nic->vector_value("VROUTER_MAC");
 
     auto vn = vnpool->get(vnid);
 

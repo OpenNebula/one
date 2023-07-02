@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,7 +35,7 @@ int BackupIncrements::from_xml_node(const xmlNodePtr node)
 
 /* -------------------------------------------------------------------------- */
 
-int BackupIncrements::add_increment(std::string source, long long size,
+int BackupIncrements::add_increment(const std::string& source, long long size,
         Increment::Type type)
 {
     VectorAttribute * va = increments.new_increment(source, size, type);
@@ -67,7 +67,7 @@ int BackupIncrements::last_increment_id()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * IncrementSet::new_increment(std::string source, long long sz,
+VectorAttribute * IncrementSet::new_increment(const std::string& source, long long sz,
         Increment::Type type)
 {
     Increment * li = last_increment();
@@ -127,4 +127,67 @@ long long IncrementSet::total_size()
     }
 
     return sz;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int BackupIncrements::update_increments(const std::string& incs, const std::string& sz)
+{
+    int first = -1;
+
+    Increment * inc;
+
+    std::vector<std::string> id_sources = one_util::split(incs, ',');
+
+    for (const std::string& is: id_sources)
+    {
+        std::vector<std::string> parts = one_util::split(is, ':');
+
+        if (parts.size() != 2)
+        {
+            return -1;
+        }
+
+        int id;
+
+        if (!one_util::str_cast(parts[0], id))
+        {
+            return -1;
+        }
+
+        inc = increments.get_increment(id);
+
+        if ( inc == nullptr )
+        {
+            return -1;
+        }
+
+        if ( first == -1 )
+        {
+            first = id;
+
+            inc->backup_type(Increment::FULL);
+
+            inc->parent_id(-1);
+
+            inc->size(sz);
+        }
+
+        inc->source(parts[1]);
+    }
+
+    first = first - 1;
+
+    while (first >= 0 && (inc = increments.delete_increment(first)) != nullptr)
+    {
+        delete _template.remove(inc->vector_attribute());
+
+        delete inc;
+
+        first = first - 1;
+    }
+
+    return 0;
 }

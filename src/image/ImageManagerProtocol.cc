@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -275,14 +275,14 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     {
         if (msg->status() == "SUCCESS")
         {
-            ostringstream oss;
-
             if (!source.empty())
             {
                 oss << "MKFS operation succeeded but image no longer exists."
                     << " Source image: " << source << ", may be left in datastore";
 
                 NebulaLog::log("ImM", Log::ERROR, oss);
+
+                oss.str("");
             }
         }
 
@@ -859,6 +859,116 @@ void ImageManager::_restore(unique_ptr<image_msg_t> msg)
     else
     {
         notify_request(msg->oid(), false, msg->payload());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManager::_increment_flatten(unique_ptr<image_msg_t> msg)
+{
+    NebulaLog::dddebug("ImM", "_increment_flatten: " + msg->payload());
+
+    auto image = ipool->get(msg->oid());
+
+    if ( !image )
+    {
+        return;
+    }
+
+    bool error = false;
+
+    long long size_orig;
+    long long size_new;
+
+    int ds_id = image->get_ds_id();
+    int uid   = image->get_uid();
+    int gid   = image->get_gid();
+
+    auto ids   = image->get_running_ids();
+    auto first = ids.cbegin();
+
+    int vm_id  = -1;
+
+    if (first != ids.cend())
+    {
+        vm_id = *first;
+    }
+
+    if (msg->status() == "SUCCESS")
+    {
+        auto& increments = image->increments();
+
+        size_orig = image->get_size();
+
+        string size_mb;
+        string chain;
+
+        istringstream is(msg->payload());
+
+        is >> size_mb;
+
+        is >> chain;
+
+        int rc = increments.update_increments(chain, size_mb);
+
+        size_new = increments.total_size();
+
+        image->set_size(size_new);
+
+        error = rc == -1;
+    }
+    else
+    {
+        error = true;
+    }
+
+    if (error)
+    {
+        ostringstream oss;
+        oss << "Error flattening backup increments";
+
+        const auto& info = msg->payload();
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->set_state_unlock();
+
+    ipool->update(image.get());
+
+    image.reset();
+
+    if (msg->status() == "SUCCESS")
+    {
+        Template quotas;
+
+        quotas.add("DATASTORE", ds_id);
+        quotas.add("SIZE", size_orig - size_new);
+        quotas.add("IMAGES", 0);
+
+        Quotas::ds_del(uid, gid, &quotas);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Update VM state to RUNNING/POWEROFF after increment_flatten            */
+    /* ---------------------------------------------------------------------- */
+    if ( vm_id != -1 )
+    {
+        VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+
+        if (auto vm = vmpool->get(vm_id))
+        {
+            vm->backups().active_flatten(false);
+
+            vmpool->update(vm.get());
+        }
     }
 }
 

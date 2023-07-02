@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -275,7 +275,6 @@ AllCops:
     - src/onegate/onegate-server.rb
     - src/datastore_mad/remotes/xpath.rb
     - src/datastore_mad/remotes/url.rb
-    - src/datastore_mad/one_datastore.rb
     - src/im_mad/dummy/one_im_dummy.rb
     - src/im_mad/im_exec/one_im_exec.rb
     - src/im_mad/remotes/lxd-probes.d/lxd.rb
@@ -501,7 +500,6 @@ AllCops:
     - src/onedb/local/5.10.0_to_5.12.0.rb
     - src/onedb/onedb_backend.rb
     - src/onedb/sqlite2mysql.rb
-    - src/market_mad/one_market.rb
     - src/tm_mad/one_tm.rb
     - src/oca/ruby/opennebula/flow/grammar.rb
     - src/oca/ruby/opennebula/flow/validator.rb
@@ -784,6 +782,15 @@ Style/RedundantStringEscape:
   Enabled: false
 
 Style/ConcatArrayLiterals:
+  Enabled: false
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+Style/RedundantLineContinuation:
+  Enabled: false
+
+Style/RedundantFilterChain:
   Enabled: false
 
 ######

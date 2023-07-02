@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
-import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
 import { Chartist } from 'client/components/Charts'
 import { Tr } from 'client/components/HOC'
-import { prettyBytes } from 'client/utils'
 import { T } from 'client/constants'
+import { useGetMonitoringQuery } from 'client/features/OneApi/vm'
+import { prettyBytes } from 'client/utils'
 
 /**
  * Render Graphs Capacity.

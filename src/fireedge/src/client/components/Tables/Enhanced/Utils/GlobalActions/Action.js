@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-// eslint-disable-next-line no-unused-vars
-import { memo, ReactElement, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
+// eslint-disable-next-line no-unused-vars
+import { ReactElement, memo, useCallback, useMemo } from 'react'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
@@ -24,9 +24,9 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { ButtonToTriggerForm } from 'client/components/Forms'
 import { Tr } from 'client/components/HOC'
 // eslint-disable-next-line no-unused-vars
-import { DialogPropTypes, DialogProps } from 'client/components/Dialogs'
+import { DialogProps } from 'client/components/Dialogs'
 // eslint-disable-next-line no-unused-vars
-import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
+import { CreateFormCallback, CreateStepsCallback } from 'client/utils'
 
 /**
  * @typedef {object} Option
@@ -49,102 +49,91 @@ import { CreateStepsCallback, CreateFormCallback } from 'client/utils'
  * @property {'text'|'outlined'|'contained'} [variant] - Button variant
  * @property {Option[]} [options] - Group of actions
  * @property {function(Row[])} [action] - Singular action without form
- * @property {boolean|{min: number, max: number}} [selected] - Condition for selected rows
+ * @property {boolean|{min: number, max: number}} [selected] - If `true`, the action is always active. If it is an object, it contains the conditions for selected rows
  * @property {boolean|function(Row[]):boolean} [disabled] - If `true`, action will be disabled
  * @property {function(Row[]):object} [useQuery] - Function to get rtk query result
  */
 
-const ActionItem = memo(
-  ({ item, selectedRows }) => {
-    /** @type {GlobalAction} */
-    const {
-      accessor,
-      dataCy,
-      tooltip,
-      label,
-      color,
-      variant = 'contained',
-      icon: Icon,
-      options,
-      action,
-      disabled,
-      useQuery,
-      selected = false,
-    } = item
+const ActionItem = memo(({ item, selectedRows }) => {
+  /** @type {GlobalAction} */
+  const {
+    accessor,
+    dataCy,
+    tooltip,
+    label,
+    color,
+    variant = 'contained',
+    icon: Icon,
+    options,
+    action,
+    disabled,
+    useQuery,
+    selected,
+  } = item
 
-    const isDisabledByNumberOfSelectedRows = useMemo(() => {
-      const numberOfRowSelected = selectedRows.length
-      const min = selected?.min ?? 1
-      const max = selected?.max ?? Number.MAX_SAFE_INTEGER
-
-      return (
-        (selected === true && !numberOfRowSelected) ||
-        (selected && min > numberOfRowSelected && numberOfRowSelected < max)
-      )
-    }, [selectedRows.length, selected])
-
-    const buttonProps = {
-      color,
-      variant,
-      'data-cy':
-        (dataCy && `action-${dataCy}`) ?? (accessor && `action-${accessor}`),
-      disabled:
-        isDisabledByNumberOfSelectedRows ||
-        (typeof disabled === 'function' ? disabled(selectedRows) : disabled),
-      icon: Icon && <Icon />,
-      label: label && Tr(label),
-      title: tooltip && Tr(tooltip),
-    }
-
-    const addRowsToFn = useCallback(
-      (fn) => (typeof fn === 'function' ? fn(selectedRows) : fn),
-      [selectedRows]
-    )
-
-    const addRowsToEntries = useCallback(
-      (entries) =>
-        Object.entries(entries).reduce(
-          (res, [prop, value]) => ({ ...res, [prop]: addRowsToFn(value) }),
-          {}
-        ),
-      [addRowsToFn]
-    )
-
-    return action ? (
-      <Action {...buttonProps} handleClick={() => addRowsToFn(action)} />
-    ) : useQuery ? (
-      <QueryButton {...buttonProps} useQuery={() => addRowsToFn(useQuery)} />
-    ) : (
-      <ButtonToTriggerForm
-        buttonProps={buttonProps}
-        options={options?.map((option) => {
-          const {
-            form,
-            accessor: optionAccessor,
-            dialogProps = {},
-            ...restOfOption
-          } = option ?? {}
-
-          return {
-            ...addRowsToEntries(restOfOption),
-            form: form ? () => addRowsToFn(form) : undefined,
-            cy: optionAccessor && `action-${optionAccessor}`,
-            dialogProps: addRowsToEntries(dialogProps),
-          }
-        })}
-      />
-    )
-  },
-  (prev, next) => {
-    const prevStates = prev.selectedRows?.map?.(({ values }) => values?.STATE)
-    const nextStates = next.selectedRows?.map?.(({ values }) => values?.STATE)
+  const isDisabledByNumberOfSelectedRows = useMemo(() => {
+    const numberOfRowSelected = selectedRows.length
+    const min = selected?.min ?? 1
+    const max = selected?.max ?? Number.MAX_SAFE_INTEGER
 
     return (
-      prev.selectedRows?.length === next.selectedRows?.length &&
-      prevStates?.every((prevState) => nextStates?.includes(prevState))
+      (selected === true && !numberOfRowSelected) ||
+      (selected && (numberOfRowSelected < min || numberOfRowSelected > max))
     )
+  }, [selectedRows.length, selected])
+
+  const buttonProps = {
+    color,
+    variant,
+    'data-cy':
+      (dataCy && `action-${dataCy}`) ?? (accessor && `action-${accessor}`),
+    disabled:
+      isDisabledByNumberOfSelectedRows ||
+      (typeof disabled === 'function' ? disabled(selectedRows) : disabled),
+    icon: Icon && <Icon />,
+    label: label && Tr(label),
+    title: tooltip && Tr(tooltip),
   }
-)
+
+  const addRowsToFn = useCallback(
+    (fn) => (typeof fn === 'function' ? fn(selectedRows) : fn),
+    [selectedRows]
+  )
+
+  const addRowsToEntries = useCallback(
+    (entries) =>
+      Object.entries(entries).reduce(
+        (res, [prop, value]) => ({ ...res, [prop]: addRowsToFn(value) }),
+        {}
+      ),
+    [addRowsToFn]
+  )
+
+  return action ? (
+    <Action {...buttonProps} handleClick={() => addRowsToFn(action)} />
+  ) : useQuery ? (
+    <QueryButton {...buttonProps} useQuery={() => addRowsToFn(useQuery)} />
+  ) : (
+    <ButtonToTriggerForm
+      buttonProps={buttonProps}
+      options={options?.map((option) => {
+        const {
+          form,
+          accessor: optionAccessor,
+          dialogProps = {},
+          ...restOfOption
+        } = option ?? {}
+
+        return {
+          ...addRowsToEntries(restOfOption),
+          form: form ? () => addRowsToFn(form) : undefined,
+          cy: optionAccessor && `action-${optionAccessor}`,
+          dialogProps: addRowsToEntries(dialogProps),
+        }
+      })}
+    />
+  )
+})
 
 ActionItem.propTypes = {
   item: PropTypes.object,

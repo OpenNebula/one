@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -57,8 +57,8 @@ require 'base64'
 
 require_relative '../../tm/lib/tm_action'
 
-daction64 = ARGV[0]
-_ds_id    = ARGV[1]
+daction64 = STDIN.read
+_ds_id    = ARGV[0]
 
 # Image path in the form:
 #   rsync://100/0:6da1c7,1:06132a,2:03fc2a//var/lib/one//datastores/100/13/6da1c7/disk.0.0
@@ -82,7 +82,7 @@ begin
 
     if !diskid
         STDERR.puts "Wrong format for disk filename #{parts[2]}"
-        exit(1)
+        exit(-1)
     end
 
     last_snap = parts[1].split(',')[-1].split(':')[-1]
@@ -90,7 +90,7 @@ begin
     cmd = "cat #{base_path}#{last_snap}/vm.xml"
 rescue StandardError => e
     STDERR.puts e.message
-    exit(1)
+    exit(-1)
 end
 
 rc = TransferManager::Action.ssh('gather_vm_xml',
@@ -102,7 +102,7 @@ rc = TransferManager::Action.ssh('gather_vm_xml',
 
 if rc.code != 0
     STDERR.puts rc.stderr
-    exit(1)
+    exit(-1)
 end
 
 vm = REXML::Document.new(Base64.decode64(rc.stdout)).root
@@ -113,16 +113,16 @@ disk  = vm.elements[xpath]
 
 if !disk
     STDERR.puts "Cannot find disk #{diskid[1]} in VM backup info"
-    exit(1)
+    exit(-1)
 end
 
 size = disk.elements['//SIZE']
 
 if !size
     STDERR.puts "Cannot find size for disk  #{diskid[1]} in VM backup info"
-    exit(1)
+    exit(-1)
 end
 
-puts size.text
+STDOUT.puts size.text
 
-exit 0
+exit(0)

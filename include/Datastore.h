@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -240,10 +240,15 @@ public:
     };
 
     /**
-     * Returns true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
-     * @return true if persistent only
+     * @return true if the DS_MAD_CONF has PERSISTENT_ONLY = "YES" flag
      */
     bool is_persistent_only() const;
+
+    /**
+     * (only relevant for backup datastores)
+     * @return true if the DS_MAD_CONF has CONCURRENT_FORGET = "YES" flag
+     */
+    bool is_concurrent_forget() const;
 
     /**
      * Enable or disable the DS. Only for System DS.
@@ -424,13 +429,13 @@ private:
      *  related to the DS defined in DS_MAD_CONF specified in the Datastore
      *  template
      */
-    int set_ds_mad(std::string &ds_mad, std::string &error_str);
+    int set_ds_mad(const std::string &ds_mad, std::string &error_str);
 
     /**
      *  Verify the proper definition of the TM_MAD by checking the attributes
      *  related to the TM defined in TM_MAD_CONF
      */
-    int set_tm_mad(std::string &tm_mad, std::string &error_str);
+    int set_tm_mad(const std::string &tm_mad, std::string &error_str);
 
     /**
      * Child classes can process the new template set with replace_template or

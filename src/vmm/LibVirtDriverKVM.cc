@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -169,7 +169,9 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
         const VectorAttribute * topology, std::vector<const VectorAttribute *> &nodes)
 {
     HostShare::PinPolicy pp = HostShare::PP_NONE;
+
     unsigned int vcpu_id = 0;
+    int affinity = -1;
 
     std::ostringstream oss;
 
@@ -179,9 +181,11 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
 
         pp_s = topology->vector_value("PIN_POLICY");
         pp   = HostShare::str_to_pin_policy(pp_s);
+
+        topology->vector_value("NODE_AFFINITY", affinity);
     }
 
-    if ( pp == HostShare::PP_NONE )
+    if ( pp == HostShare::PP_NONE && affinity == -1)
     {
         if (!emulator_cpus.empty())
         {
@@ -196,7 +200,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
         unsigned int nv = 0;
 
         std::vector<unsigned int> cpus_a;
-        std::string cpus = (*it)->vector_value("CPUS");
+        const string& cpus = (*it)->vector_value("CPUS");
 
         (*it)->vector_value("TOTAL_CPUS", nv);
 
@@ -211,7 +215,8 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
         {
             file << "\t\t<vcpupin vcpu='" << vcpu_id << "' cpuset='";
 
-            if ( pp == HostShare::PP_SHARED )
+            //PP_NONE is used when NUMA affinity is configured
+            if ( pp == HostShare::PP_SHARED || pp == HostShare::PP_NONE )
             {
                 file << cpus << "'/>\n";
             }
@@ -266,7 +271,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
 
         ma = topology->vector_value("MEMORY_ACCESS");
 
-        if (!ma.empty() &&  hpsz_kb != 0)
+        if (!ma.empty() && hpsz_kb != 0)
         {
             one_util::tolower(ma);
 
@@ -297,8 +302,8 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     {
         unsigned int ncpu = 0;
 
-        std::string mem    = (*it)->vector_value("MEMORY");
-        std::string mem_id = (*it)->vector_value("MEMORY_NODE_ID");
+        const string& mem    = (*it)->vector_value("MEMORY");
+        const string& mem_id = (*it)->vector_value("MEMORY_NODE_ID");
 
         (*it)->vector_value("TOTAL_CPUS", ncpu);
 
@@ -337,10 +342,11 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
     if (!mnodes.str().empty())
     {
         oss << "\t\t<memory mode='strict' nodeset='" << mnodes.str() << "'/>\n";
-        oss << "\t</numatune>\n";
-
-        numatune = oss.str();
     }
+
+    oss << "\t</numatune>\n";
+
+    numatune = oss.str();
 
     if ( hpsz_kb != 0 )
     {
@@ -368,8 +374,9 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
  *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
  *               'sata' or 'scsi'
  */
-static string get_disk_bus(std::string &machine, std::string &target,
-        std::string &sd_default)
+static string get_disk_bus(const std::string &machine,
+                           const std::string &target,
+                           const std::string &sd_default)
 {
     switch (target[0])
     {
@@ -618,8 +625,6 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_slot   = "";
     string vm_func   = "";
 
-    string uuid = "";
-
     bool pae                = false;
     bool acpi               = false;
     bool apic               = false;
@@ -688,7 +693,7 @@ int LibVirtDriver::deployment_description_kvm(
     auto os = vm->get_template_attribute("OS");
     if (os)
     {
-        auto uuid = os->vector_value("UUID");
+        const string& uuid = os->vector_value("UUID");
         if (!uuid.empty())
         {
             file << "\t<uuid>" << uuid << "</uuid>" << endl;
@@ -1305,11 +1310,19 @@ int LibVirtDriver::deployment_description_kvm(
         else if ( type == "CDROM" )
         {
             ostringstream cd_name;
+            string cd_type   = "file";
+            string cd_source = "file";
 
             cd_name << vm->get_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t<disk type='file' device='cdrom'>\n"
-                 << "\t\t\t<source file="
+            if ( disk_type == "BLOCK" )
+            {
+                cd_type   = "block";
+                cd_source = "dev";
+            }
+
+            file << "\t\t<disk type='" << cd_type << "' device='cdrom'>\n"
+                 << "\t\t\t<source " << cd_source << "="
                  << one_util::escape_xml_attr(cd_name.str())<< "/>\n";
         }
         else
@@ -1787,20 +1800,25 @@ int LibVirtDriver::deployment_description_kvm(
 
         port   = graphics->vector_value("PORT");
 
+        one_util::tolower(type);
+
         if ( random_passwrd && passwd.empty())
         {
             passwd = one_util::random_password();
 
-            if ( graphics->vector_value("TYPE") == "SPICE" )
+            if ( type == "spice" )
             {
                 // Spice password must be 60 characters maximum
-                passwd = passwd.substr(0, 59);
+                passwd.resize(VirtualMachine::MAX_SPICE_PASSWD_LENGTH);
+            }
+            else if ( type == "vnc" )
+            {
+                // Vnc password must be 8 characters maximum
+                passwd.resize(VirtualMachine::MAX_VNC_PASSWD_LENGTH);
             }
 
             const_cast<VectorAttribute*>(graphics)->replace("PASSWD", passwd);
         }
-
-        one_util::tolower(type);
 
         if ( type == "vnc" || type == "spice" )
         {
@@ -1886,7 +1904,7 @@ int LibVirtDriver::deployment_description_kvm(
         vm_slot    = pci[i]->vector_value("VM_SLOT");
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
 
-        uuid = pci[i]->vector_value("UUID");
+        string uuid = pci[i]->vector_value("UUID");
 
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
@@ -2013,8 +2031,6 @@ int LibVirtDriver::deployment_description_kvm(
         if ( iothreads > 0 )
         {
             file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
-
-            iothread_actual = (iothread_actual % iothreads) + 1;
         }
 
         file << "/>" << endl;

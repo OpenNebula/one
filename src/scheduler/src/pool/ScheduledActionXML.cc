@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -311,7 +311,7 @@ static int action_call(int vmid, SchedAction *sa, const std::string& aname,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void scheduled_action(int vmid, SchedAction* action, std::string aname)
+static void scheduled_action(int vmid, SchedAction* action, const std::string& aname)
 {
     std::ostringstream oss;
 

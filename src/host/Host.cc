@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -287,8 +287,7 @@ void Host::update_wilds()
                 wild << ", ";
             }
 
-            string wname;
-            wname = vatt->vector_value("VM_NAME");
+            string wname = vatt->vector_value("VM_NAME");
 
             if (wname.empty())
             {
@@ -462,8 +461,6 @@ int Host::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     // ------------ Host Template ---------------
 
     ObjectXML::get_nodes("/HOST/TEMPLATE", content);
@@ -476,8 +473,6 @@ int Host::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-
-    content.clear();
 
     // ------------ VMS collection ---------------
     rc += vm_collection.from_xml(this, "/HOST/");
@@ -578,7 +573,7 @@ int Host::post_update_template(string& error)
         im_mad_name = new_im_mad;
     }
 
-    if (!new_im_mad.empty())
+    if (!new_vm_mad.empty())
     {
         vmm_mad_name = new_vm_mad;
     }

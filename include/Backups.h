@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,6 +38,7 @@ class ObjectXML;
  *     <LAST_DATASTORE_ID> The dastore ID used to store the active backups(*)
  *     <LAST_BACKUP_ID> ID of the active backup(*)
  *     <LAST_BACKUP_SIZE> SIZE of the active backup(*)
+ *     <ACTIVE_FLATTEN> if true current chain is being flatten
  *   <BACKUP_IDS>
  *     <ID> ID of the image with a valid backup
  *
@@ -184,6 +185,11 @@ public:
         config.replace("INCREMENTAL_BACKUP_ID", id);
     }
 
+    void active_flatten(bool status)
+    {
+        config.replace("ACTIVE_FLATTEN", status);
+    }
+
     /* ---------------------------------------------------------------------- */
 
     int last_datastore_id() const
@@ -230,6 +236,28 @@ public:
 
         return id;
     }
+
+    int keep_last() const
+    {
+        int kl;
+
+        if (!config.get("KEEP_LAST", kl))
+        {
+            return 0;
+        }
+
+        return kl;
+    }
+
+    bool active_flatten() const
+    {
+        bool af = false;
+
+        config.get("ACTIVE_FLATTEN", af);
+
+        return af;
+    }
+
     /* ---------------------------------------------------------------------- */
 
     void last_backup_clear()

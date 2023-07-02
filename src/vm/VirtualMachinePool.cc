@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,8 +32,8 @@ using namespace std;
 
 VirtualMachinePool::VirtualMachinePool(
         SqlDB * db,
-        vector<const SingleAttribute *>& restricted_attrs,
-        vector<const SingleAttribute *>& encrypted_attrs,
+        const vector<const SingleAttribute *>& restricted_attrs,
+        const vector<const SingleAttribute *>& encrypted_attrs,
         bool    on_hold,
         float   default_cpu_cost,
         float   default_mem_cost,
@@ -198,9 +198,9 @@ int VirtualMachinePool::allocate(
 
     if (*oid >= 0)
     {
-        if (auto vm = get_ro(*oid))
+        if (auto vm2 = get_ro(*oid))
         {
-            std::string event = HookStateVM::format_message(vm.get());
+            std::string event = HookStateVM::format_message(vm2.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
         }
@@ -707,7 +707,7 @@ int VirtualMachinePool::calculate_showback(
 
         std::string acct_str;
 
-        rc = dump_acct(acct_str, start_time, end_time, start_index, chunk_size);
+        dump_acct(acct_str, start_time, end_time, start_index, chunk_size);
         start_index += chunk_size;
 
         ObjectXML xml(acct_str);
@@ -717,7 +717,7 @@ int VirtualMachinePool::calculate_showback(
         //--------------------------------------------------------------------------
 
         nodes.clear();
-        rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
+        xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
 
         for ( auto node : nodes )
         {
@@ -775,10 +775,7 @@ int VirtualMachinePool::calculate_showback(
                     if( (et > t || et == 0) &&
                         (st != 0 && st <= t_next) ) {
 
-                        time_t stime = t;
-                        if(st != 0){
-                            stime = max(t, st);
-                        }
+                        time_t stime = max(t, st);
 
                         time_t etime = t_next;
                         if(et != 0){

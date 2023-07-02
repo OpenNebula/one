@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,7 +13,6 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-  {{!-- {{#isFeatureEnabled "automatic_selection_vnet"}} --}}
   <div class="only_create">
     <div class="row autoContainer">
       <fieldset id="{{nicTabId}}interface_type" class="small-12 large-6 columns">
@@ -35,20 +34,34 @@
           </span>
           <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
         </div>
-      </fieldset>
-      <fieldset class="small-12 large-6 columns">
-        <legend style="margin:0px;">{{tr "Network selection"}}</legend>
-        <div class="switch left network_selection">
-          <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
-          <label class="switch-paddle" for="{{nicTabId}}_network_mode">
+        <div id="{{nicTabId}}_alias_external_wrapper" style="min-height: 40px;">
+          <div class="switch left">
+            <input class="switch-input" id="{{nicTabId}}_alias_external" type="checkbox">
+            <label class="switch-paddle" for="{{nicTabId}}_alias_external">
+            </label>
+          </div>
+          <label class="left">
+            &nbsp;&nbsp;
+            {{tr "Skip network contextualizacion"}}
+            {{{tip (tr "A virtual router can be configured to route SDNAT traffic for this NIC IP address")}}}
           </label>
         </div>
-        <label class="left network_selection">
-          &nbsp;&nbsp;
-          {{tr "Automatic selection"}}
-          {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
-        </label>
       </fieldset>
+      {{#isFeatureEnabled "automatic_selection_vnet"}}
+        <fieldset class="small-12 large-6 columns">
+          <legend style="margin:0px;">{{tr "Network selection"}}</legend>
+          <div class="switch left network_selection">
+            <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
+            <label class="switch-paddle" for="{{nicTabId}}_network_mode">
+            </label>
+          </div>
+          <label class="left network_selection">
+            &nbsp;&nbsp;
+            {{tr "Automatic selection"}}
+            {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
+          </label>
+        </fieldset>
+      {{/isFeatureEnabled}}
     </div>
     <div class="row autoContainer">
       <fieldset id="rdp_connection" class="small-12 large-6 columns">
@@ -132,7 +145,6 @@
       </div>
     </div>
   </div>
-  {{!-- {{/isFeatureEnabled}} --}}
   <div class="no_auto">
     {{{vnetsTableSelectHTML}}}
   </div>

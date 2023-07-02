@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -108,6 +108,10 @@ define(function(require) {
       else{
         if($("#cb_attach_alias", context).prop("checked")) {
           templateJSON.PARENT = $("#parent").val();
+
+          if ($('#cb_external').is(':checked')) {
+            templateJSON.EXTERNAL = 'YES'
+          }
           
           obj = {
               "NIC_ALIAS": templateJSON

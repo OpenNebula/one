@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,36 +14,41 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { DateTime } from 'luxon'
-import { ref, mixed, boolean, string, date, lazy, array, number } from 'yup'
+import { array, date, lazy, mixed, number, ref, string } from 'yup'
 
 import {
-  T,
+  ARGS_TYPES,
+  END_TYPE_VALUES,
   INPUT_TYPES,
+  PERIOD_TYPES,
+  REPEAT_VALUES,
+  SCHEDULE_TYPE,
+  T,
+  TEMPLATE_SCHEDULE_TYPE_STRING,
   VM_ACTIONS_IN_CHARTER,
   VM_ACTIONS_WITH_SCHEDULE,
   VM_ACTIONS_WITH_SCHEDULE_INTANTIATED,
-  END_TYPE_VALUES,
-  REPEAT_VALUES,
-  ARGS_TYPES,
-  PERIOD_TYPES,
+  VM_SCHEDULE_TYPE_STRING,
 } from 'client/constants'
-import { Field, sentenceCase, arrayToOptions, prettyBytes } from 'client/utils'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
-  isRelative,
-  getRequiredArgsByAction,
-  getPeriodicityByTimeInSeconds,
-} from 'client/models/Scheduler'
-import {
+  dateToMilliseconds,
   isDate,
   timeFromMilliseconds,
-  dateToMilliseconds,
 } from 'client/models/Helper'
-import { getSnapshotList, getDisks } from 'client/models/VirtualMachine'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import {
+  getPeriodicityByTimeInSeconds,
+  getRequiredArgsByAction,
+  isRelative,
+} from 'client/models/Scheduler'
+import { getDisks, getSnapshotList } from 'client/models/VirtualMachine'
+import { Field, arrayToOptions, prettyBytes, sentenceCase } from 'client/utils'
 
 // --------------------------------------------------------
 // Constants
 // --------------------------------------------------------
+
+const PERIODIC_FIELD_NAME = 'PERIODIC'
 
 /** @type {RegExp} Regex to days of month (1-31) */
 const MONTH_DAYS_REG = /^(3[01]|[12][0-9]|[1-9])(,(3[01]|[12][0-9]|[1-9]))*$/
@@ -190,38 +195,56 @@ const ARGS_SNAPSHOT_ID_FIELD = (vm) => ({
 })
 
 /** @type {Field} Periodic field */
-const PERIODIC_FIELD = {
-  name: 'PERIODIC',
-  label: T.Periodic,
-  type: INPUT_TYPES.SWITCH,
-  validation: lazy((_, { context }) =>
-    boolean().default(
-      () => !!(context?.[DAYS_FIELD.name] || context?.[REPEAT_FIELD.name])
-    )
-  ),
+const PERIODIC_FIELD = (isVM = false) => ({
+  name: PERIODIC_FIELD_NAME,
+  label: T.ScheduleActionType,
+  type: INPUT_TYPES.TOGGLE,
+  values: () => {
+    const periodicValues = isVM
+      ? VM_SCHEDULE_TYPE_STRING
+      : TEMPLATE_SCHEDULE_TYPE_STRING
+
+    const periodicTypes = arrayToOptions(Object.keys(periodicValues), {
+      addEmpty: false,
+      getText: (key) => periodicValues[key],
+      getValue: (key) => key,
+    })
+
+    return periodicTypes
+  },
+  validation: string()
+    .trim()
+    .required()
+    .default(() => TEMPLATE_SCHEDULE_TYPE_STRING.ONETIME),
   grid: { md: 12 },
-}
+  notNull: true,
+})
+// --------------------------------------------------------
+// One time fields
+// --------------------------------------------------------
 
 /** @type {Field} Time field */
 const TIME_FIELD = {
   name: 'TIME',
   label: T.Time,
   type: INPUT_TYPES.TIME,
-  validation: lazy(() =>
-    date()
-      .min(getNow().toJSDate())
-      .required()
-      .transform(parseDateString)
-      .afterSubmit(dateToMilliseconds)
-  ),
+  dependOf: PERIODIC_FIELD_NAME,
+  htmlType: (typeAction) =>
+    typeAction === SCHEDULE_TYPE.RELATIVE && INPUT_TYPES.HIDDEN,
+  validation: date()
+    .min(getNow().toJSDate())
+    .transform(parseDateString)
+    .afterSubmit(dateToMilliseconds)
+    .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
+      typeAction !== SCHEDULE_TYPE.RELATIVE ? schema.required() : schema
+    ),
   fieldProps: {
     defaultValue: getTomorrowAtMidnight(),
     minDateTime: getNow(),
   },
 }
-
 // --------------------------------------------------------
-// Repeat fields
+// Periodic fields
 // --------------------------------------------------------
 
 /** @type {Field} Granularity of action */
@@ -229,27 +252,29 @@ const REPEAT_FIELD = {
   name: 'REPEAT',
   label: T.GranularityOfAction,
   type: INPUT_TYPES.SELECT,
-  dependOf: PERIODIC_FIELD.name,
-  htmlType: (isPeriodic) => (!isPeriodic ? INPUT_TYPES.HIDDEN : undefined),
   values: arrayToOptions(Object.keys(REPEAT_VALUES), {
-    addEmpty: false,
+    addEmpty: true,
     getText: (key) => sentenceCase(key),
     getValue: (key) => REPEAT_VALUES[key],
   }),
+  dependOf: PERIODIC_FIELD_NAME,
+  htmlType: (typeAction) =>
+    typeAction !== SCHEDULE_TYPE.PERIODIC && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
-    .required()
-    .default(() => REPEAT_VALUES.WEEKLY)
-    .when(PERIODIC_FIELD.name, {
-      is: false,
-      then: (schema) => schema.strip().notRequired(),
-    }),
+    .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
+      typeAction === TEMPLATE_SCHEDULE_TYPE_STRING.PERIODIC
+        ? schema.required()
+        : schema
+    ),
+  grid: { md: 6 },
+  notNull: true,
 }
 
 /** @type {Field} Weekly field */
 const WEEKLY_FIELD = {
   name: 'WEEKLY',
-  dependOf: [REPEAT_FIELD.name, PERIODIC_FIELD.name],
+  dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
   type: INPUT_TYPES.SELECT,
   multiple: true,
   label: T.DayOfWeek,
@@ -257,88 +282,114 @@ const WEEKLY_FIELD = {
     addEmpty: false,
     getValue: (_, index) => String(index),
   }),
-  htmlType: ([repeatType, isPeriodic] = []) =>
-    (!isPeriodic || repeatType !== REPEAT_VALUES.WEEKLY) && INPUT_TYPES.HIDDEN,
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+
+    return (
+      !(
+        values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+        values?.REPEAT === REPEAT_VALUES.WEEKLY
+      ) && INPUT_TYPES.HIDDEN
+    )
+  },
   validation: lazy((_, { context }) =>
     array(string())
-      .required(T.DaysBetween0_6)
       .min(1)
       .default(() => context?.[DAYS_FIELD.name]?.split?.(',') ?? [])
-      .when([PERIODIC_FIELD.name, REPEAT_FIELD.name], {
-        is: (isPeriodic, repeatType) =>
-          !isPeriodic || repeatType !== REPEAT_VALUES.WEEKLY,
-        then: (schema) => schema.strip().notRequired(),
-      })
+      .when(REPEAT_FIELD.name, (repeatType, schema) =>
+        repeatType !== REPEAT_VALUES.WEEKLY
+          ? schema.strip()
+          : schema.required(T.DaysBetween0_6)
+      )
       .afterSubmit((value) => value?.join?.(','))
   ),
+  grid: { md: 6 },
 }
 
 /** @type {Field} Monthly field */
 const MONTHLY_FIELD = {
   name: 'MONTHLY',
-  dependOf: [REPEAT_FIELD.name, PERIODIC_FIELD.name],
+  dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
   type: INPUT_TYPES.TEXT,
   label: T.DayOfMonth,
-  htmlType: ([repeatType, isPeriodic] = []) =>
-    (!isPeriodic || repeatType !== REPEAT_VALUES.MONTHLY) && INPUT_TYPES.HIDDEN,
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+
+    return (
+      !(
+        values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+        values?.REPEAT === REPEAT_VALUES.MONTHLY
+      ) && INPUT_TYPES.HIDDEN
+    )
+  },
+  grid: { md: 6 },
   validation: lazy((_, { context }) =>
     string()
       .trim()
       .matches(MONTH_DAYS_REG, { message: T.DaysBetween1_31 })
-      .required()
       .default(() => context?.[DAYS_FIELD.name])
-      .when([PERIODIC_FIELD.name, REPEAT_FIELD.name], {
-        is: (isPeriodic, repeatType) =>
-          !isPeriodic || repeatType !== REPEAT_VALUES.MONTHLY,
-        then: (schema) => schema.strip().notRequired(),
-      })
+      .when(REPEAT_FIELD.name, (repeatType, schema) =>
+        repeatType !== REPEAT_VALUES.MONTHLY
+          ? schema.strip()
+          : schema.required()
+      )
   ),
 }
 
 /** @type {Field} Yearly field */
 const YEARLY_FIELD = {
   name: 'YEARLY',
-  dependOf: [REPEAT_FIELD.name, PERIODIC_FIELD.name],
+  dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
   type: INPUT_TYPES.TEXT,
   label: T.DayOfYear,
-  htmlType: ([repeatType, isPeriodic] = []) =>
-    (!isPeriodic || repeatType !== REPEAT_VALUES.YEARLY) && INPUT_TYPES.HIDDEN,
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+
+    return (
+      !(
+        values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+        values?.REPEAT === REPEAT_VALUES.YEARLY
+      ) && INPUT_TYPES.HIDDEN
+    )
+  },
+  grid: { md: 6 },
   validation: lazy((_, { context }) =>
     string()
       .trim()
       .matches(YEAR_DAYS_REG, { message: T.DaysBetween0_365 })
-      .required()
       .default(() => context?.[DAYS_FIELD.name])
-      .when([PERIODIC_FIELD.name, REPEAT_FIELD.name], {
-        is: (isPeriodic, repeatType) =>
-          !isPeriodic || repeatType !== REPEAT_VALUES.YEARLY,
-        then: (schema) => schema.strip().notRequired(),
-      })
+      .when(REPEAT_FIELD.name, (repeatType, schema) =>
+        repeatType !== REPEAT_VALUES.YEARLY ? schema.strip() : schema.required()
+      )
   ),
 }
 
 /** @type {Field} Hourly field */
 const HOURLY_FIELD = {
   name: 'HOURLY',
-  dependOf: [REPEAT_FIELD.name, PERIODIC_FIELD.name],
+  dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
   type: INPUT_TYPES.TEXT,
   label: T.EachXHours,
-  htmlType: ([repeatType, isPeriodic] = []) =>
-    !isPeriodic || repeatType !== REPEAT_VALUES.HOURLY
-      ? INPUT_TYPES.HIDDEN
-      : 'number',
+  grid: { md: 6 },
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+
+    return (
+      !(
+        values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+        values?.REPEAT === REPEAT_VALUES.HOURLY
+      ) && INPUT_TYPES.HIDDEN
+    )
+  },
   validation: lazy((_, { context }) =>
     number()
       .min(0)
       .max(168)
       .integer()
-      .required()
       .default(() => context?.[DAYS_FIELD.name])
-      .when([PERIODIC_FIELD.name, REPEAT_FIELD.name], {
-        is: (isPeriodic, repeatType) =>
-          !isPeriodic || repeatType !== REPEAT_VALUES.HOURLY,
-        then: (schema) => schema.strip().notRequired(),
-      })
+      .when(REPEAT_FIELD.name, (repeatType, schema) =>
+        repeatType !== REPEAT_VALUES.HOURLY ? schema.strip() : schema.required()
+      )
       .afterSubmit((value) => `${value}`)
   ),
   fieldProps: { min: 0, max: 168, step: 1 },
@@ -355,7 +406,7 @@ const HOURLY_FIELD = {
 const DAYS_FIELD = {
   name: 'DAYS',
   validation: string().afterSubmit((_, { parent }) => {
-    const isPeriodic = !!parent?.[PERIODIC_FIELD.name]
+    const isPeriodic = !!parent?.[PERIODIC_FIELD_NAME]
     const repeatType = parent?.[REPEAT_FIELD.name]
 
     if (!isPeriodic) return undefined
@@ -380,8 +431,9 @@ const END_TYPE_FIELD = {
   name: 'END_TYPE',
   label: T.EndType,
   type: INPUT_TYPES.SELECT,
-  dependOf: PERIODIC_FIELD.name,
-  htmlType: (isPeriodic) => !isPeriodic && INPUT_TYPES.HIDDEN,
+  dependOf: PERIODIC_FIELD_NAME,
+  htmlType: (typeAction) =>
+    typeAction !== SCHEDULE_TYPE.PERIODIC && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(Object.keys(END_TYPE_VALUES), {
     addEmpty: false,
     getText: (value) => sentenceCase(value),
@@ -389,39 +441,48 @@ const END_TYPE_FIELD = {
   }),
   validation: string()
     .trim()
-    .required()
     .default(() => END_TYPE_VALUES.NEVER)
-    .when(PERIODIC_FIELD.name, {
-      is: false,
-      then: (schema) => schema.strip().notRequired(),
-    }),
+    .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
+      typeAction === SCHEDULE_TYPE.PERIODIC ? schema.required() : schema
+    ),
 }
 
 /** @type {Field} End value field */
 const END_VALUE_FIELD = {
   name: 'END_VALUE',
   label: T.WhenYouWantThatTheActionFinishes,
-  dependOf: [PERIODIC_FIELD.name, END_TYPE_FIELD.name],
-  type: ([_, endType] = []) =>
-    endType === END_TYPE_VALUES.DATE ? INPUT_TYPES.TIME : INPUT_TYPES.TEXT,
-  htmlType: ([isPeriodic, endType] = []) =>
-    !isPeriodic || endType === END_TYPE_VALUES.NEVER
-      ? INPUT_TYPES.HIDDEN
-      : 'number',
+  dependOf: [PERIODIC_FIELD_NAME, END_TYPE_FIELD.name],
+  type: ([typeAction, endType] = []) =>
+    typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
+      ? INPUT_TYPES.TIME
+      : INPUT_TYPES.TEXT,
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+
+    return values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+      values?.END_TYPE !== END_TYPE_VALUES.NEVER
+      ? 'number'
+      : INPUT_TYPES.HIDDEN
+  },
   validation: mixed().when(
-    END_TYPE_FIELD.name,
-    (endType) =>
-      ({
-        [END_TYPE_VALUES.NEVER]: string().strip(),
-        [END_TYPE_VALUES.REPETITION]: number().required().min(1).default(1),
-        [END_TYPE_VALUES.DATE]: lazy(() =>
-          date()
-            .min(ref(TIME_FIELD.name))
-            .required()
-            .transform(parseDateString)
-            .afterSubmit(dateToMilliseconds)
-        ),
-      }[endType])
+    [PERIODIC_FIELD_NAME, END_TYPE_FIELD.name],
+    (typeAction, endType) => {
+      if (typeAction === SCHEDULE_TYPE.PERIODIC) {
+        return {
+          [END_TYPE_VALUES.NEVER]: string().strip(),
+          [END_TYPE_VALUES.REPETITION]: number().required().min(1).default(1),
+          [END_TYPE_VALUES.DATE]: lazy(() =>
+            date()
+              .min(ref(TIME_FIELD.name))
+              .required()
+              .transform(parseDateString)
+              .afterSubmit(dateToMilliseconds)
+          ),
+        }[endType]
+      } else {
+        return string().trim().notRequired()
+      }
+    }
   ),
   fieldProps: ([_, endType] = []) =>
     endType === END_TYPE_VALUES.DATE && { defaultValue: getNextWeek() },
@@ -433,17 +494,21 @@ const END_VALUE_FIELD = {
 
 /** @type {Field} Relative time field */
 export const RELATIVE_TIME_FIELD = {
-  name: 'TIME',
+  name: 'RELATIVE_TIME',
   label: T.TimeAfterTheVmIsInstantiated,
   type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
+  dependOf: PERIODIC_FIELD_NAME,
+  htmlType: (typeAction) =>
+    typeAction === SCHEDULE_TYPE.RELATIVE ? 'number' : INPUT_TYPES.HIDDEN,
   validation: number()
-    .required()
     .positive()
     .transform((value, originalValue) =>
       isRelative(originalValue)
         ? getPeriodicityByTimeInSeconds(originalValue)?.time
         : value
+    )
+    .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
+      typeAction === SCHEDULE_TYPE.RELATIVE ? schema.required() : schema
     ),
 }
 
@@ -452,6 +517,9 @@ export const PERIOD_FIELD = {
   name: 'PERIOD',
   label: T.PeriodType,
   type: INPUT_TYPES.SELECT,
+  dependOf: PERIODIC_FIELD_NAME,
+  htmlType: (typeAction) =>
+    typeAction !== SCHEDULE_TYPE.RELATIVE && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(Object.keys(PERIOD_TYPES), {
     addEmpty: false,
     getText: (key) => sentenceCase(key),
@@ -460,14 +528,22 @@ export const PERIOD_FIELD = {
   validation: lazy((_, { context }) =>
     string()
       .trim()
-      .required()
       .default(
         () =>
           getPeriodicityByTimeInSeconds(context?.[TIME_FIELD.name])?.period ??
           PERIOD_TYPES.YEARS
       )
+      .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
+        typeAction === SCHEDULE_TYPE.RELATIVE
+          ? schema.required()
+          : schema.strip()
+      )
   ),
 }
+
+// --------------------------------------------------------
+// End fields
+// --------------------------------------------------------
 
 /**
  * Filters the types to discard absolute times.

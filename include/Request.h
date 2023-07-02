@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -63,72 +63,40 @@ public:
     bool success; /**< True if the call was successfull false otherwise */
 
     RequestAttributes(AuthRequest::Operation api_auth_op)
-    {
-        resp_obj        = PoolObjectSQL::NONE;
-        resp_id         = -1;
-        resp_msg        = "";
-        replication_idx = UINT64_MAX;
-        auth_op         = api_auth_op;
-    };
+        : uid(-1)
+        , gid(-1)
+        , req_id(-1)
+        , umask(0)
+        , retval(nullptr)
+        , resp_obj(PoolObjectSQL::NONE)
+        , resp_id(-1)
+        , replication_idx(UINT64_MAX)
+        , auth_op(api_auth_op)
+        , success(false)
+    {}
 
-    RequestAttributes(const RequestAttributes& ra)
-    {
-        uid = ra.uid;
-        gid = ra.gid;
-
-        uname = ra.uname;
-        gname = ra.gname;
-
-        password = ra.password;
-
-        group_ids = ra.group_ids;
-
-        session  = ra.session;
-        req_id   = ra.req_id;
-
-        umask    = ra.umask;
-
-        retval     = ra.retval;
-        retval_xml = ra.retval_xml;
-
-        resp_obj = ra.resp_obj;
-        resp_id  = ra.resp_id;
-        resp_msg = ra.resp_msg;
-
-        replication_idx = ra.replication_idx;
-
-        auth_op  = ra.auth_op;
-    };
+    RequestAttributes(const RequestAttributes& ra) = default;
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
-    {
-        uid = _uid;
-        gid = _gid;
-
-        password = "";
-
-        group_ids = ra.group_ids;
-
-        uname = "";
-        gname = "";
-
-        umask = 0;
-
-        session  = ra.session;
-        req_id   = ra.req_id;
-
-        umask    = ra.umask;
-
-        retval     = ra.retval;
-        retval_xml = ra.retval_xml;
-
-        resp_obj = PoolObjectSQL::NONE;
-        resp_id  = -1;
-        resp_msg = "";
-
-        replication_idx = UINT64_MAX;
-        auth_op  = ra.auth_op;
-    };
+        : uid(_uid)
+        , gid(_gid)
+        , uname()
+        , gname()
+        , password()
+        , group_ids(ra.group_ids)
+        , session(ra.session)
+        , req_id(ra.req_id)
+        , umask(ra.umask)
+        , retval(ra.retval)
+        , retval_xml(ra.retval_xml)
+        , extra_xml()
+        , resp_obj(PoolObjectSQL::NONE)
+        , resp_id(-1)
+        , resp_msg()
+        , replication_idx(UINT64_MAX)
+        , auth_op(ra.auth_op)
+        , success(ra.success)
+    {}
 
     bool is_admin() const
     {
@@ -296,7 +264,7 @@ protected:
 
     // Configuration for authentication level of the API call
     PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::ObjectType::NONE;
-    AuthRequest::Operation    auth_op;
+    AuthRequest::Operation    auth_op = AuthRequest::NONE;
 
     VMActions::Action vm_action;
 
@@ -316,22 +284,16 @@ protected:
     Request(const std::string& mn,
             const std::string& signature,
             const std::string& help)
+        : pool(nullptr)
+        , method_name(mn)
+        , vm_action(VMActions::NONE_ACTION)
+        , log_method_call(true)
+        , leader_only(true)
+        , zone_disabled(false)
     {
-        pool = nullptr;
-
-        method_name = mn;
-
         _signature = signature;
-        _help      = help;
-
-        hidden_params.clear();
-
-        log_method_call = true;
-        leader_only     = true;
-        zone_disabled   = false;
-
-        vm_action = VMActions::NONE_ACTION;
-    };
+        _help = help;
+    }
 
     virtual ~Request() = default;
 
@@ -493,7 +455,7 @@ protected:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -502,7 +464,7 @@ protected:
      *    @param att the specific request attributes
      */
     static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     /**
      *    @param tmpl describing the object
@@ -515,16 +477,16 @@ private:
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
     static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, std::string& error_str);
+        const RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     static void group_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att);
+        const RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function

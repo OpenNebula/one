@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, number, boolean, lazy, ObjectSchema } from 'yup'
+import { ObjectSchema, boolean, lazy, number, string } from 'yup'
 
+import {
+  HYPERVISORS,
+  INPUT_TYPES,
+  NUMA_MEMORY_ACCESS,
+  NUMA_PIN_POLICIES,
+  T,
+} from 'client/constants'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getHugepageSizes } from 'client/models/Host'
 import {
-  T,
-  INPUT_TYPES,
-  NUMA_PIN_POLICIES,
-  NUMA_MEMORY_ACCESS,
-  HYPERVISORS,
-} from 'client/constants'
-import {
   Field,
+  arrayToOptions,
   filterFieldsByHypervisor,
   getFactorsOfNumber,
-  sentenceCase,
-  prettyBytes,
-  arrayToOptions,
   getObjectSchemaFromFields,
+  prettyBytes,
+  sentenceCase,
 } from 'client/utils'
 
 const { kvm, vcenter, firecracker } = HYPERVISORS
+const numaPinPolicies = Object.keys(NUMA_PIN_POLICIES)
 
 const ENABLE_NUMA = {
   name: 'TOPOLOGY.ENABLE_NUMA',
@@ -51,9 +52,9 @@ const ENABLE_NUMA = {
 const PIN_POLICY = {
   name: 'TOPOLOGY.PIN_POLICY',
   label: T.PinPolicy,
-  tooltip: [T.PinPolicyConcept, NUMA_PIN_POLICIES.join(', ')],
+  tooltip: [T.PinPolicyConcept, numaPinPolicies.join(', ')],
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(NUMA_PIN_POLICIES, {
+  values: arrayToOptions(numaPinPolicies, {
     addEmpty: false,
     getText: sentenceCase,
   }),
@@ -62,15 +63,45 @@ const PIN_POLICY = {
     string()
       .trim()
       .notRequired()
-      .default(
-        () =>
-          context?.general?.HYPERVISOR === firecracker
-            ? NUMA_PIN_POLICIES[2] // SHARED
-            : NUMA_PIN_POLICIES[0] // NONE
-      )
+      .default(() => {
+        const { general, extra } = context || {}
+
+        return general?.HYPERVISOR === firecracker
+          ? NUMA_PIN_POLICIES.SHARED
+          : ![vcenter].includes(general?.HYPERVISOR) &&
+            extra?.TOPOLOGY?.NODE_AFFINITY
+          ? NUMA_PIN_POLICIES.NODE_AFFINITY
+          : NUMA_PIN_POLICIES.NONE
+      })
   ),
   fieldProps: (hypervisor) => ({
     disabled: [vcenter, firecracker].includes(hypervisor),
+  }),
+}
+
+/** @type {Field} NODE_AFFINITY field */
+const NODE_AFFINITY = {
+  name: 'TOPOLOGY.NODE_AFFINITY',
+  label: T.NodeAffinity,
+  tooltip: T.NodeAffinityConcept,
+  dependOf: ['$general.HYPERVISOR', PIN_POLICY.name],
+  type: INPUT_TYPES.TEXT,
+  htmlType: (_, context) => {
+    const values = context?.getValues() || {}
+    const { general, extra } = values || {}
+
+    return ![vcenter, firecracker].includes(general?.HYPERVISOR) &&
+      extra?.TOPOLOGY?.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY
+      ? 'number'
+      : INPUT_TYPES.HIDDEN
+  },
+  validation: lazy((_, { context }) => {
+    const { general, extra } = context || {}
+
+    return ![vcenter, firecracker].includes(general?.HYPERVISOR) &&
+      extra?.TOPOLOGY?.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY
+      ? string().trim().required()
+      : string().trim().notRequired()
   }),
 }
 
@@ -190,7 +221,15 @@ const MEMORY_ACCESS = {
  */
 const NUMA_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
-    [PIN_POLICY, CORES, SOCKETS, THREADS, HUGEPAGES, MEMORY_ACCESS],
+    [
+      PIN_POLICY,
+      NODE_AFFINITY,
+      CORES,
+      SOCKETS,
+      THREADS,
+      HUGEPAGES,
+      MEMORY_ACCESS,
+    ],
     hypervisor
   )
 
@@ -211,17 +250,25 @@ const NUMA_SCHEMA = (hypervisor) =>
       const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
       const hyperv = context?.general?.HYPERVISOR
 
-      ![vcenter, kvm].includes(hyperv) &&
-        isEnabled &&
-        (ensuredResult.TOPOLOGY = { ...restOfTopology })
+      if ([vcenter, kvm].includes(hyperv) && isEnabled) {
+        if (
+          restOfTopology?.NODE_AFFINITY &&
+          restOfTopology.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY
+        ) {
+          delete restOfTopology.PIN_POLICY
+        } else {
+          delete restOfTopology.NODE_AFFINITY
+        }
+        ensuredResult.TOPOLOGY = { ...restOfTopology }
+      }
 
       return { ...ensuredResult }
     }
   )
 
 export {
-  NUMA_FIELDS,
-  SCHEMA_FIELDS as FIELDS,
-  NUMA_SCHEMA as SCHEMA,
   ENABLE_NUMA,
+  SCHEMA_FIELDS as FIELDS,
+  NUMA_FIELDS,
+  NUMA_SCHEMA as SCHEMA,
 }

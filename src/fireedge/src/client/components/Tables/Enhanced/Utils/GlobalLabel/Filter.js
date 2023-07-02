@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement, MouseEvent } from 'react'
 import PropTypes from 'prop-types'
+import { MouseEvent, ReactElement, memo } from 'react'
 
+import { Autocomplete, Box, Tooltip, Typography } from '@mui/material'
 import CheckIcon from 'iconoir-react/dist/Check'
 import LockIcon from 'iconoir-react/dist/Lock'
-import { Box, Typography, Autocomplete } from '@mui/material'
 
 import { useAddLabelMutation } from 'client/features/OneApi/auth'
 
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr, Translate } from 'client/components/HOC'
+import { StatusCircle } from 'client/components/Status'
 import {
   PopperComponent,
   StyledInput,
 } from 'client/components/Tables/Enhanced/Utils/GlobalLabel/styles'
-import { SubmitButton } from 'client/components/FormControl'
-import { StatusCircle } from 'client/components/Status'
-import { getColorFromString } from 'client/models/Helper'
-import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
+import { getColorFromString } from 'client/models/Helper'
 
 const Label = memo(({ label, selected, unknown, ...props }) => {
   const [addLabel, { isLoading }] = useAddLabelMutation()
@@ -46,24 +46,32 @@ const Label = memo(({ label, selected, unknown, ...props }) => {
   }
 
   return (
-    <Box component="li" gap="0.5em" {...props}>
-      <CheckIcon
-        style={{
-          minWidth: 'fit-content',
-          visibility: selected ? 'visible' : 'hidden',
-        }}
-      />
-      <StatusCircle color={getColorFromString(label)} size={18} />
-      <Typography noWrap variant="body2" sx={{ flexGrow: 1 }}>
-        {label}
-      </Typography>
-      <SubmitButton
-        onClick={unknown ? handleLockLabel : undefined}
-        isSubmitting={isLoading}
-        title={Tr(T.SavesInTheUserTemplate)}
-        icon={<LockIcon />}
-        sx={{ p: 0, visibility: unknown ? 'visible' : 'hidden' }}
-      />
+    <Box component="li">
+      <Tooltip
+        arrow
+        placement="right"
+        title={<Typography variant="subtitle2">{label}</Typography>}
+      >
+        <Box gap="0.5em" {...props}>
+          <CheckIcon
+            style={{
+              minWidth: 'fit-content',
+              visibility: selected ? 'visible' : 'hidden',
+            }}
+          />
+          <StatusCircle color={getColorFromString(label)} size={18} />
+          <Typography noWrap variant="body2" sx={{ flexGrow: 1 }}>
+            {label}
+          </Typography>
+          <SubmitButton
+            onClick={unknown ? handleLockLabel : undefined}
+            isSubmitting={isLoading}
+            title={Tr(T.SavesInTheUserTemplate)}
+            icon={<LockIcon />}
+            sx={{ p: 0, visibility: unknown ? 'visible' : 'hidden' }}
+          />
+        </Box>
+      </Tooltip>
     </Box>
   )
 })

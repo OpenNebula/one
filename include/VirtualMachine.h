@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -143,6 +143,9 @@ public:
         BACKUP            = 69,
         BACKUP_POWEROFF   = 70
     };
+
+    static const int MAX_VNC_PASSWD_LENGTH = 8;
+    static const int MAX_SPICE_PASSWD_LENGTH = 60;
 
     /**
      *  Functions to convert to/from string the VM states
@@ -987,7 +990,7 @@ public:
      *    @param message Message string
      */
     void set_template_error_message(const std::string& name,
-                                    const std::string& message);
+                                    const std::string& message) override;
 
     /**
      *  Deletes the error message from the template
@@ -1823,36 +1826,6 @@ private:
      *  Deployment specific identification string, as returned by the VM driver
      */
     std::string      deploy_id;
-
-    /**
-     *  Memory in MB used by the VM
-     */
-    long int    memory;
-
-    /**
-     *  CPU usage (percent)
-     */
-    int         cpu;
-
-    /**
-     *  Network usage, transmitted bytes
-     */
-    long long   net_tx;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   net_rx;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   disk_actual;
-
-    /**
-     *  Network usage, received bytes
-     */
-    long long   disk_virtual;
 
     /**
      *  History record, for the current host

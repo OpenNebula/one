@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import ImagesTable, {
-  STEP_ID as STEP_IMAGE,
-} from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
 import AdvancedOptions, {
   STEP_ID as STEP_ADVANCED,
 } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/AdvancedOptions'
-import { mapUserInputs, createSteps } from 'client/utils'
+import ImagesTable, {
+  STEP_ID as STEP_IMAGE,
+} from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
+import { createSteps, mapUserInputs } from 'client/utils'
 
 const Steps = createSteps([ImagesTable, AdvancedOptions], {
   transformInitialValue: (initialValue) => {
@@ -52,13 +52,13 @@ const Steps = createSteps([ImagesTable, AdvancedOptions], {
 
     return {
       ...imageProps,
+      ...mapUserInputs(advanced),
       IMAGE: NAME,
       IMAGE_ID: ID,
       IMAGE_UID: UID,
       IMAGE_UNAME: UNAME,
       IMAGE_STATE: STATE,
       ORIGINAL_SIZE: SIZE,
-      ...mapUserInputs(advanced),
     }
   },
 })

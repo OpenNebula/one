@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,7 +65,7 @@ function image_format {
 #   @return string representation of the format, empty if error
 #-------------------------------------------------------------------------------
 function image_vsize {
-    echo "$($QEMU_IMG info "${1}" 2>/dev/null | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')"
+    echo "$($QEMU_IMG info --output json "${1}" | jq '."virtual-size"')"
 }
 
 #-------------------------------------------------------------------------------

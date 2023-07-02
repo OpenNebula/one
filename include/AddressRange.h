@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -560,27 +560,27 @@ private:
      *    @param mac in string form 00:02:01:02:03:04
      *    @return 0 on success
      */
-    int mac_to_i(std::string mac, unsigned int i_mac[]) const;
+    static int mac_to_i(std::string mac, unsigned int i_mac[]);
 
     /**
      *  MAC to string
      *    @param mac in array form
      */
-    std::string mac_to_s(const unsigned int mac[]) const;
+    static std::string mac_to_s(const unsigned int mac[]);
 
     /**
      *  IP version 4 to binary (32 bits)
      *    @param ip in string form 192.168.0.2
      *    @return 0 on success
      */
-    int ip_to_i(const std::string& _ip, unsigned int& i_ip) const;
+    static int ip_to_i(const std::string& _ip, unsigned int& i_ip);
 
     /**
      *  IP version 6 to binary (32 bits)
      *    @param ip string form 2a00:1bc0:b001:A::3
      *    @return 0 on success
      */
-    int ip6_to_i(const std::string& _ip, unsigned int i_ip[]) const;
+    static int ip6_to_i(const std::string& _ip, unsigned int i_ip[]);
 
     /**
      * IP version 4 to dot notation
@@ -588,14 +588,14 @@ private:
      * @param i_ip Numeric (32 bits) IP
      * @return dot notation
      */
-    std::string ip_to_s(unsigned int i_ip) const;
+    static std::string ip_to_s(unsigned int i_ip);
 
     /**
      *  IPv6 64bits prefix conversion
      *    @param prefix in string form 2a00:1bc0:b001:A::
      *    @return 0 on success
      */
-    int prefix6_to_i(const std::string& prefix, unsigned int ip[]) const;
+    static int prefix6_to_i(const std::string& prefix, unsigned int ip[]);
 
     /**
      * IPv6 to string
@@ -604,10 +604,10 @@ private:
      * @param ip6_s Will contain the resulting IPv6 string
      * @return 0 on success
      */
-    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
-        std::string& ip6_s) const;
+    static int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
+        std::string& ip6_s);
 
-    int ip6_to_s(const unsigned int ip6_i[], std::string& ip6_s) const;
+    static int ip6_to_s(const unsigned int ip6_i[], std::string& ip6_s);
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */
@@ -769,7 +769,7 @@ private:
     /**
      *  The type of addresses defined in the range
      */
-    AddressType type;
+    AddressType type = NONE;
 
     /**
      *  ID for this range, unique within the Virtual Network
@@ -779,12 +779,12 @@ private:
     /**
      *  Number of addresses in the range
      */
-    unsigned long int size;
+    unsigned long int size = 0;
 
     /**
      *  First IP4 in the range
      */
-    unsigned int ip;
+    unsigned int ip = 0;
 
     /**
      *  First MAC in the range
@@ -825,7 +825,7 @@ private:
      *  The Address Range attributes as a Template VectorAttribute. This is
      *  used to generate XML or a template representation of the AR.
      */
-    VectorAttribute * attr;
+    VectorAttribute * attr = nullptr;
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes                                                  */

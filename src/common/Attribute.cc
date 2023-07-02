@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,7 @@ using namespace std;
 
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
+const string Attribute::EMPTY_ATTRIBUTE = "";
 
 string VectorAttribute::marshall(const char * _sep) const
 {
@@ -252,13 +253,30 @@ void VectorAttribute::remove(const string& name)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string VectorAttribute::vector_value(const string& name) const
+string VectorAttribute::vector_value(const string& name)
 {
     auto it = attribute_value.find(name);
 
     if ( it == attribute_value.end() )
     {
-        return "";
+        return EMPTY_ATTRIBUTE;
+    }
+    else
+    {
+        return it->second;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+const string& VectorAttribute::vector_value(const string& name) const
+{
+    auto it = attribute_value.find(name);
+
+    if ( it == attribute_value.end() )
+    {
+        return EMPTY_ATTRIBUTE;
     }
     else
     {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,9 +43,6 @@ protected:
     ~RequestManagerVirtualMachine() = default;
 
     /* -------------------------------------------------------------------- */
-
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) = 0;
 
     // Authorize the request, set failure_response message
     bool vm_authorization(int id,
@@ -664,4 +661,23 @@ protected:
             RequestAttributes& ra) override;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineBackupCancel : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineBackupCancel():
+        RequestManagerVirtualMachine("one.vm.backupcancel",
+                           "Cancel an active backup operation",
+                           "A:si")
+    {
+        vm_action = VMActions::BACKUP_ACTION;
+        auth_op   = AuthRequest::ADMIN;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
 #endif

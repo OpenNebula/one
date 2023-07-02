@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -332,7 +332,7 @@ int VirtualMachineActionsPoolXML::get_suitable_nodes(
         << " and (not(DONE > 0) or boolean(REPEAT))) or "
         << "( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
-    return get_nodes(oss.str().c_str(), content);
+    return get_nodes(oss.str(), content);
 }
 
 /* -------------------------------------------------------------------------- */

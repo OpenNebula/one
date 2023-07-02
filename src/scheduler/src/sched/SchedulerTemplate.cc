@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -213,11 +213,11 @@ string SchedulerTemplate::get_nics_policy() const
     switch (policy)
     {
         case 0: //Packing
-            rank = "- USED_LEASES";
+            rank = "USED_LEASES";
         break;
 
         case 1: //Striping
-            rank = "USED_LEASES";
+            rank = "- USED_LEASES";
         break;
 
         case 2: //Custom

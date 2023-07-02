@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------*/
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems             */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems             */
 /*                                                                         */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may */
 /* not use this file except in compliance with the License. You may obtain */
@@ -232,13 +232,12 @@ VectorAttribute * HostShareNode::Core::to_attribute()
 
 // -----------------------------------------------------------------------------
 
-VectorAttribute * HostShareNode::HugePage::to_attribute()
+VectorAttribute * HostShareNode::HugePage::to_attribute() const
 {
     VectorAttribute * vpage = new VectorAttribute("HUGEPAGE");
 
     vpage->replace("SIZE", size_kb);
     vpage->replace("PAGES", nr);
-    vpage->replace("FREE", free);
     vpage->replace("USAGE", usage);
 
     return vpage;
@@ -342,15 +341,13 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
         unsigned long size_kb, usage_kb;
 
         unsigned int  nr;
-        unsigned int  free;
 
         (*vp_it)->vector_value("SIZE", size_kb);
         (*vp_it)->vector_value("PAGES",nr);
-        (*vp_it)->vector_value("FREE", free);
 
         (*vp_it)->vector_value("USAGE", usage_kb);
 
-        set_hugepage(size_kb, nr, free, usage_kb, false);
+        set_hugepage(size_kb, nr, usage_kb, false);
     }
 
     std::string distance_s;
@@ -359,8 +356,6 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
     if (memory != 0)
     {
         memory->vector_value("TOTAL", total_mem);
-        memory->vector_value("FREE", free_mem);
-        memory->vector_value("USED", used_mem);
 
         memory->vector_value("USAGE", mem_usage);
 
@@ -501,7 +496,6 @@ int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
 void HostShareNode::del_cpu(const std::string &cpu_ids, unsigned int vmid)
 {
     std::vector<unsigned int> ids;
-    std::set<unsigned int> core_ids;
 
     one_util::split(cpu_ids, ',', ids);
 
@@ -580,8 +574,6 @@ void HostShareNode::set_memory()
     VectorAttribute * mem = new VectorAttribute("MEMORY");
 
     mem->replace("TOTAL", total_mem);
-    mem->replace("USED", used_mem);
-    mem->replace("FREE", free_mem);
 
     mem->replace("USAGE", mem_usage);
 
@@ -625,16 +617,15 @@ void HostShareNode::set_core(unsigned int id, std::string& cpus,
 // -----------------------------------------------------------------------------
 
 void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
-        unsigned int fr, unsigned long usage, bool update)
+        unsigned long usage, bool update)
 {
     auto pt = pages.find(size);
 
     if ( pt != pages.end() )
     {
-        if ( nr != pt->second.nr || fr != pt->second.free )
+        if ( nr != pt->second.nr )
         {
-            pt->second.nr   = nr;
-            pt->second.free = fr;
+            pt->second.nr = nr;
 
             update_hugepages();
         }
@@ -642,7 +633,7 @@ void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
         return;
     }
 
-    HugePage h = {size, nr, fr, usage, 0};
+    HugePage h = {size, nr, usage, 0};
 
     pages.insert(make_pair(h.size_kb, h));
 
@@ -682,6 +673,31 @@ void HostShareNode::free_dedicated_capacity(unsigned int &fcpus,
             fcpus = fcpus + 1;
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+void HostShareNode::ls_cpus(bool inc_reserved, std::string &cpu_s)
+{
+    std::ostringstream oss;
+
+    for (const auto& core : cores)
+    {
+        for (const auto& cpu : core.second.cpus)
+        {
+            if ( !inc_reserved && core.second.reserved_cpus.count(cpu.first) == 1)
+            {
+                continue;
+            }
+
+            oss << cpu.first << ",";
+        }
+    }
+
+    cpu_s = oss.str();
+
+    cpu_s.pop_back(); //remove last ','
 }
 
 /* ************************************************************************** */
@@ -801,9 +817,7 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 
     for (auto it = pages.begin(); it != pages.end(); ++it)
     {
-        unsigned int pages = 0;
-        unsigned int free = 0;
-
+        unsigned int nr = 0;
         unsigned long size = 0;
 
         if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
@@ -812,12 +826,11 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         }
 
         (*it)->vector_value("SIZE", size);
-        (*it)->vector_value("FREE", free);
-        (*it)->vector_value("PAGES",pages);
+        (*it)->vector_value("PAGES",nr);
 
         HostShareNode& node = get_node(node_id);
 
-        node.set_hugepage(size, pages, free, 0, true);
+        node.set_hugepage(size, nr, 0, true);
     }
 
     std::vector<VectorAttribute *> memory;
@@ -836,8 +849,6 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         HostShareNode& node = get_node(node_id);
 
         (*it)->vector_value("TOTAL", node.total_mem);
-        (*it)->vector_value("FREE", node.free_mem);
-        (*it)->vector_value("USED", node.used_mem);
 
         (*it)->vector_value("DISTANCE", distance_s);
 
@@ -1036,36 +1047,222 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
+        unsigned long hpsz_kb, bool do_alloc)
+{
+    unsigned long n_hp = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
+    unsigned long node_fhp = 0;
+
+    int node_id = -1;
+
+    HostShareNode * node = nullptr;
+    HostShareNode::HugePage * hpage = nullptr;
+
+    for (auto it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        long long free_mem = it->second->total_mem - it->second->mem_usage;
+
+        if ( free_mem <= 0  || free_mem < sr.mem )
+        {
+            continue; //Node has no enough memory
+        }
+
+        auto pt = it->second->pages.find(hpsz_kb);
+
+        if (pt == it->second->pages.end())
+        {
+            continue; //Node has no huge pages of requested size
+        }
+
+        long long n_fhp = pt->second.nr - pt->second.usage;
+
+        if (n_fhp <= 0 || n_fhp < n_hp)
+        {
+            continue; //Node has not enough free huge pages (n_fhp)
+        }
+
+        //Prefer node with higher number of n_fhp
+        if (n_fhp > node_fhp)
+        {
+            node_id  = it->first;
+            node_fhp = n_fhp;
+
+            node  = it->second;
+            hpage = &(pt->second);
+        }
+    }
+
+    if (node_id == -1 || node == nullptr || hpage == nullptr)
+    {
+        return -1;
+    }
+
+    if (!do_alloc)
+    {
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Save CPUs and memory allocation to the VM NUMA node
+    // -------------------------------------------------------------------------
+    std::string cpu_ids;
+
+    node->ls_cpus(false, cpu_ids);
+
+    node->mem_usage += sr.mem;
+
+    hpage->usage += n_hp;
+
+    node->update_hugepages();
+
+    node->update_memory();
+
+    for (auto &vm_node : sr.nodes)
+    {
+        vm_node->replace("NODE_ID", node_id);
+        vm_node->replace("MEMORY_NODE_ID", node_id);
+        vm_node->replace("CPUS", cpu_ids);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int HostShareNUMA::make_affined_topology(HostShareCapacity &sr, int node_id,
+        unsigned long hpsz_kb, bool do_alloc)
+{
+    auto it = nodes.find(node_id);
+
+    if ( it == nodes.end() ) // Check that node exists
+    {
+        return -1;
+    }
+
+    HostShareNode * node = it->second;
+
+    // -------------------------------------------------------------------------
+    // Check that the node has enough free memory
+    // -------------------------------------------------------------------------
+    long long free_mem = node->total_mem - node->mem_usage;
+
+    if ( free_mem <= 0 || free_mem < sr.mem )
+    {
+        return -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Check that the node has enough free huge pages
+    // -------------------------------------------------------------------------
+    unsigned long n_hp = 0;
+
+    HostShareNode::HugePage * hpage = nullptr;
+
+    if (hpsz_kb != 0)
+    {
+        auto jt = node->pages.find(hpsz_kb);
+
+        if ( jt == node->pages.end())
+        {
+            return -1; // Node has no huge pages of requested size
+        }
+
+        hpage = &(jt->second);
+
+        n_hp  = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
+        long long n_fhp = hpage->nr - hpage->usage;
+
+        if (n_fhp <= 0 || n_fhp < n_hp)
+        {
+            return -1; //Node has not enough free huge pages (n_fhp)
+        }
+    }
+
+    if (!do_alloc)
+    {
+        return 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Save CPUs and memory allocation to the VM NUMA node
+    // -------------------------------------------------------------------------
+    std::string cpu_ids;
+
+    node->ls_cpus(false, cpu_ids);
+
+    node->mem_usage += sr.mem;
+
+    if (hpsz_kb != 0 && hpage != nullptr)
+    {
+        hpage->usage += n_hp;
+
+        node->update_hugepages();
+    }
+
+    node->update_memory();
+
+    for (auto &vm_node : sr.nodes)
+    {
+        vm_node->replace("NODE_ID", node_id);
+        vm_node->replace("MEMORY_NODE_ID", node_id);
+        vm_node->replace("CPUS", cpu_ids);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc)
 {
-    unsigned int t_max; //Max threads per core for this topology
-    std::set<int> t_valid; //Viable threads per core combinations for all nodes
-
     // -------------------------------------------------------------------------
-    // User preferences will be used if possible if not they fix an upperbound
-    // for the topology parameter.
+    // Regular VMS (not pinned and no NUMA affinity)
     // -------------------------------------------------------------------------
-    int v_t = 0;
-    int c_t = 0;
-    int s_t = 0;
-
-    unsigned long hpsz_kb = 0;
-
     if ( sr.topology == 0 || sr.nodes.empty() )
     {
         return 0;
     }
 
-    sr.topology->vector_value("THREADS", v_t);
-    sr.topology->vector_value("CORES", c_t);
-    sr.topology->vector_value("SOCKETS", s_t);
+    // -------------------------------------------------------------------------
+    // NUMA node affinity
+    // -------------------------------------------------------------------------
+    int affinity = -1;
+    unsigned long hpsz_kb = 0;
+
+    std::string policy      = sr.topology->vector_value("PIN_POLICY");
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(policy);
+
+    sr.topology->vector_value("NODE_AFFINITY", affinity);
 
     sr.topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
     hpsz_kb = hpsz_kb * 1024;
 
-    std::string policy      = sr.topology->vector_value("PIN_POLICY");
-    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(policy);
+    if (affinity != -1)
+    {
+        return make_affined_topology(sr, affinity, hpsz_kb, do_alloc);
+    }
+
+    if (hpsz_kb != 0 && pp == HostShare::PP_NONE)
+    {
+        return make_hugepage_topology(sr, hpsz_kb, do_alloc);
+    }
+
+    // -------------------------------------------------------------------------
+    // User preferences will be used if possible. If not they fix an upperbound
+    // for the topology parameter.
+    // -------------------------------------------------------------------------
+    std::set<int> t_valid; //Viable threads per core combinations for all nodes
+
+    int v_t = 0;
+    int c_t = 0;
+    int s_t = 0;
+
+    sr.topology->vector_value("THREADS", v_t);
+    sr.topology->vector_value("CORES", c_t);
+    sr.topology->vector_value("SOCKETS", s_t);
 
     bool dedicated = pp == HostShare::PP_CORE;
 
@@ -1100,13 +1297,11 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
     //--------------------------------------------------------------------------
     if ( dedicated )
     {
-        t_max = 1;
-
         t_valid.insert(1);
     }
     else
     {
-        t_max = v_t;
+        unsigned int t_max = v_t; //Max threads per core for this topology
 
         if ( t_max > threads_core || t_max == 0 )
         {
@@ -1193,6 +1388,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
 
     for (auto tc_it = t_valid.rbegin(); tc_it != t_valid.rend(); ++tc_it, na = 0)
     {
+        // Clear tmp allocation counters
         for(auto it = nodes.begin(); it != nodes.end(); ++it)
         {
             HostShareNode * thn = it->second;
@@ -1206,6 +1402,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
             }
         }
 
+        // Check allocation of virtual NUMA nodes
         for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
         {
             if (!schedule_nodes(*vn_it, *tc_it, dedicated, hpsz_kb, pci_nodes,
@@ -1229,7 +1426,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         return -1;
     }
 
-    if ( do_alloc == false )
+    if (!do_alloc)
     {
         return 0;
     }

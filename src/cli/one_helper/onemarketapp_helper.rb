@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -60,7 +60,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
     }
 
     # Available market place mads to import apps on them
-    MARKETS = %w[http s3]
+    MARKETS = ['http', 's3']
 
     def self.rname
         'MARKETPLACEAPP'
@@ -413,7 +413,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        %w[OWNER GROUP OTHER].each do |e|
+        ['OWNER', 'GROUP', 'OTHER'].each do |e|
             mask = '---'
             mask[0] = 'u' if app["PERMISSIONS/#{e}_U"] == '1'
             mask[1] = 'm' if app["PERMISSIONS/#{e}_M"] == '1'

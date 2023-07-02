@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -85,14 +85,24 @@ define(function(require) {
       
       var noNIC = $("#restore_no_nic", dialog).prop('checked')
       var noIP = $("#restore_no_ip", dialog).prop('checked')
+      var name = $("#restore_name", dialog).val()
+      var incrementId = $("#restore_increment_id", dialog).val()
       var restore_opts = ""
 
       if (noNIC) {
-        restore_opts = 'NO_NIC="YES"\n'
+        restore_opts += 'NO_NIC="YES"\n'
       }
       
       if (noIP) {
-        restore_opts = 'NO_IP="YES"'
+        restore_opts += 'NO_IP="YES"\n'
+      }
+
+      if (name && name !== '') {
+        restore_opts += 'NAME="' + name + '"\n'
+      }
+
+      if (incrementId && incrementId !== '') {
+        restore_opts += 'INCREMENT_ID="' + incrementId + '"\n'
       }
 
       extra_info["restore_opts"] = restore_opts;      

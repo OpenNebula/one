@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -360,7 +360,7 @@ class empty_cb : public Callbackable
 public:
     void set_callback(Callback _cb, void * _arg = 0){};
 
-    bool isCallBackSet()
+    bool isCallBackSet() override
     {
         return false;
     };

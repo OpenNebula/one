@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -106,6 +106,21 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Do not keep network mappings'
     }
 
+    INCREMENT = {
+        :name => 'increment',
+        :large => '--increment increment_id',
+        :format => Integer,
+        :description => 'Use the given increment ID to restore the backup.'\
+            ' If not provided the last one will be used'
+    }
+
+    NAME = {
+        :name => 'name',
+        :large => '--name name',
+        :format => String,
+        :description => 'Name of the new image'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -118,6 +133,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE,
                       OneImageHelper::IMAGE,
+                      NAME,
                       NO_CONTEXT]
 
     ########################################################################
@@ -432,7 +448,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :restore,
             restore_desc,
             :imageid,
-            :options => [OneDatastoreHelper::DATASTORE, NO_NIC, NO_IP] do
+            :options => [OneDatastoreHelper::DATASTORE, NO_NIC, NO_IP, NAME, INCREMENT] do
         helper.perform_action(args[0], options, 'vm backup restored') do |o|
             if options[:datastore].nil?
                 STDERR.puts 'Datastore to restore the backup is mandatory: '
@@ -444,6 +460,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             restore_opts << "NO_NIC=\"YES\"\n" if options[:no_nic]
             restore_opts << "NO_IP=\"YES\"\n" if options[:no_ip]
+            restore_opts << "NAME=\"#{options[:name]}\"\n" if options[:name]
+            restore_opts << "INCREMENT_ID=\"#{options[:increment]}\"\n" if options[:increment]
 
             rc = o.restore(options[:datastore].to_i, restore_opts)
 

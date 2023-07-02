@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -21,10 +21,21 @@ const root = require('window-or-global')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
+const { request: axios } = require('axios')
+const { writeInLogger } = require('server/utils/logger')
+const { MissingRemoteHeaderError } = require('server/utils/errors')
 
 // server
-const { getSunstoneConfig, getProvisionConfig } = require('server/utils/yml')
-const { defaultApps } = require('server/utils/constants/defaults')
+const {
+  getSunstoneConfig,
+  getProvisionConfig,
+  getFireedgeConfig,
+} = require('server/utils/yml')
+const {
+  defaultApps,
+  defaultAppName,
+  defaultHeaderRemote,
+} = require('server/utils/constants/defaults')
 
 // client
 const rootReducer = require('client/store/reducers')
@@ -33,18 +44,59 @@ const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 
 const APP_NAMES = Object.keys(defaultApps)
 
-const APP_CONFIG = {
-  [defaultApps.provision.name]: getProvisionConfig() || {},
-  [defaultApps.sunstone.name]:
-    getSunstoneConfig({ includeProtectedConfig: false }) || {},
-}
-
 const ensuredScriptValue = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c')
 
 const router = Router()
 
-router.get('*', (req, res) => {
+router.get('*', async (req, res) => {
+  const remoteJWT = {}
+
+  const APP_CONFIG = {
+    [defaultApps.provision.name]: getProvisionConfig() || {},
+    [defaultApps.sunstone.name]:
+      getSunstoneConfig({ includeProtectedConfig: false }) || {},
+  }
+
+  const appConfig = getFireedgeConfig()
+  if (appConfig?.auth === 'remote') {
+    remoteJWT.remote = true
+    remoteJWT.remoteRedirect = appConfig?.auth_redirect ?? '.'
+
+    const finderHeader = () => {
+      const headers = Object.keys(req.headers)
+
+      return headers.find((header) => defaultHeaderRemote.includes(header))
+    }
+    const findHeader = finderHeader()
+    try {
+      if (!findHeader) {
+        throw new MissingRemoteHeaderError(JSON.stringify(req.headers))
+      }
+      const remoteUser = req.get(findHeader)
+      const jwt = await axios({
+        method: 'POST',
+        url: `${req.protocol}://${req.get('host')}/${defaultAppName}/api/auth`,
+        data: {
+          user: req.get(findHeader),
+        },
+        validateStatus: (status) => status >= 200 && status <= 400,
+      })
+      if (!global.remoteUsers) {
+        global.remoteUsers = {}
+      }
+      global.remoteUsers[remoteUser] = {}
+
+      jwt?.data?.data?.token &&
+        (global.remoteUsers[remoteUser].jwt = remoteJWT.jwt =
+          jwt.data.data.token)
+      jwt?.data?.data?.id &&
+        (global.remoteUsers[remoteUser].id = remoteJWT.id = jwt.data.data.id)
+    } catch (e) {
+      writeInLogger(e)
+    }
+  }
+
   const appName = parse(req.url)
     .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
@@ -69,6 +121,7 @@ router.get('*', (req, res) => {
   const config = `
     <script id="preload-server-side">
       window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
+      window.__REMOTE_AUTH__ = ${JSON.stringify(remoteJWT)}
     </script>`
 
   const storeRender = `

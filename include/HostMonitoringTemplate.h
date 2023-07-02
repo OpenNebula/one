@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,8 @@
 #define HOST_MONITORING_TEMPLATE_H_
 
 #include "Template.h"
+
+class ObjectXML;
 
 /**
  *  CapacityMonitoring stores host monitoring values like
@@ -56,6 +58,44 @@ public:
     int from_template(const Template &tmpl);
 };
 
+class NUMAMonitoringNode : public Template
+{
+public:
+    NUMAMonitoringNode()
+        : Template(false, '=', "NUMA_NODE")
+    {}
+};
+
+/**
+ *  NUMA stores hugepages and memory monitoring
+ *  <NUMA_NODE>
+ *      <ID>
+ *      <HUGEPAGE>
+ *          <SIZE>
+ *          <FREE>
+ *      <MEMORY>
+ *          <FREE>
+ *          <USED>
+ */
+class NUMAMonitoring
+{
+public:
+    NUMAMonitoring() = default;
+
+    std::string to_xml() const;
+
+    int from_xml(ObjectXML& xml, const std::string& xpath_prefix);
+
+    int from_template(const Template &tmpl);
+
+private:
+    void set_huge_page(unsigned int node_id, unsigned long size, unsigned long fr);
+
+    void set_memory(unsigned int node_id, unsigned long used, unsigned long fr);
+
+    std::map<unsigned int, NUMAMonitoringNode> nodes;
+};
+
 /**
  *  HostMonitoringTemplate stores all host monitoring info, divided to 3 main sections:
  *  - capacity
@@ -89,6 +129,7 @@ private:
 
     CapacityMonitoring capacity;
     SystemMonitoring system;
+    NUMAMonitoring numa;
 };
 
 #endif // HOST_MONITORING_TEMPLATE_H_

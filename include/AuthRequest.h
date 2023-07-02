@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,7 +76,7 @@ public:
         return "";
     };
 
-    static Operation str_to_operation(std::string str)
+    static Operation str_to_operation(const std::string& str)
     {
             if      (str == "USE")    return USE;
             else if (str == "MANAGE") return MANAGE;

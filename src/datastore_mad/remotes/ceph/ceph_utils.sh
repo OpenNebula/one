@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project (OpenNebula.org), C12G Labs           #
+# Copyright 2002-2023, OpenNebula Project (OpenNebula.org), C12G Labs           #
 #                                                                               #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may       #
 # not use this file except in compliance with the License. You may obtain       #
@@ -167,7 +167,11 @@ rbd_top_parent() {
 
 #--------------------------------------------------------------------------------
 # Remove all the images and snapshots from a given volume
+#   if $2 is yes/true the rbd volume is moved to ceph
+#   trash instead, before that it is flattend
+#
 #   @param $1 the volume (or snapshot to delete)
+#   @param $2 [yes|no] if move img to ceph trash instead
 #--------------------------------------------------------------------------------
 rbd_rm_r() {
     local rbd rbd_base children snaps
@@ -187,6 +191,7 @@ rbd_rm_r() {
         $RBD snap rm $rbd
     else
         if [[ $move_to_trash =~ ^(yes|YES|true|TRUE)$ ]]; then
+            $RBD flatten $rbd
             $RBD trash move $rbd
         else
             snaps=$($RBD snap ls $rbd 2>/dev/null| awk 'NR > 1 {print $2}')

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -537,7 +537,7 @@ Request::ErrorCode Request::basic_authorization(
 
 bool Request::user_quota_authorization (Template * tmpl,
                                         Quotas::QuotaType  qtype,
-                                        RequestAttributes& att,
+                                        const RequestAttributes& att,
                                         string& error_str)
 {
     Nebula& nd        = Nebula::instance();
@@ -578,7 +578,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
 bool Request::group_quota_authorization (Template * tmpl,
                                          Quotas::QuotaType  qtype,
-                                         RequestAttributes& att,
+                                         const RequestAttributes& att,
                                          string& error_str)
 {
     Nebula&     nd    = Nebula::instance();
@@ -619,7 +619,7 @@ bool Request::group_quota_authorization (Template * tmpl,
 
 void Request::user_quota_rollback(Template *         tmpl,
                                   Quotas::QuotaType  qtype,
-                                  RequestAttributes& att)
+                                  const RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
     UserPool * upool  = nd.get_upool();
@@ -636,7 +636,7 @@ void Request::user_quota_rollback(Template *         tmpl,
 
 void Request::group_quota_rollback(Template *         tmpl,
                                    Quotas::QuotaType  qtype,
-                                   RequestAttributes& att)
+                                   const RequestAttributes& att)
 {
     Nebula& nd        = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
@@ -672,7 +672,7 @@ bool Request::quota_authorization(Template *         tmpl,
 bool Request::quota_authorization(
         Template *          tmpl,
         Quotas::QuotaType   qtype,
-        RequestAttributes&  att,
+        const RequestAttributes&  att,
         string&             error_str)
 {
     // uid/gid == -1 means do not update user/group
@@ -709,7 +709,7 @@ bool Request::quota_authorization(
 
 void Request::quota_rollback(Template *         tmpl,
                              Quotas::QuotaType  qtype,
-                             RequestAttributes& att)
+                             const RequestAttributes& att)
 {
     // uid/gid == -1 means do not update user/group
 

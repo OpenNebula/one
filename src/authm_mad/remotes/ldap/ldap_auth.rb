@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -168,7 +168,7 @@ class OpenNebula::LdapAuth
         result=@ldap.search(
                     :base   => group,
                     :attributes => [@options[:group_field]],
-                    :filter => "(#{@options[:group_field]}=#{username})")
+                    :filter => "(#{@options[:group_field]}:=#{username})")
 
         if result && result.first
             true
@@ -202,7 +202,7 @@ class OpenNebula::LdapAuth
             ldap_groups = [@user['memberOf']].flatten
         else
             group_base = @options[:group_base] ? @options[:group_base] : @options[:base]
-            filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
+            filter = Net::LDAP::Filter.ex(@options[:group_field], @user[@options[:user_group_field]].first)
             ldap_groups = @ldap.search(
                 :base       => group_base,
                 :attributes => [ "dn" ],

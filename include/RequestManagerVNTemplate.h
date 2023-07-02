@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,9 +31,6 @@ protected:
                              const std::string& params);
 
     ~RequestManagerVNTemplate() = default;
-
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -65,7 +62,7 @@ public:
      *
      * @return ErroCode for the request.
      */
-    ErrorCode request_execute(int id, std::string name,
+    ErrorCode request_execute(int id, const std::string& name,
         const std::string& s_uattr, Template* extra_attrs, int& vid,
         RequestAttributes& att);
 

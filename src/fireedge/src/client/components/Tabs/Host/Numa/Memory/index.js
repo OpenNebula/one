@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
 import { Box, Paper, Typography } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
 import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
 
-import { T } from 'client/constants'
 import { Tr, Translate } from 'client/components/HOC'
+import { HOST_THRESHOLD, T } from 'client/constants'
 
 import { getNumaMemory } from 'client/models/Host'
 
@@ -42,6 +42,8 @@ const NumaMemory = ({ node }) => {
           value={percentMemUsed}
           label={percentMemLabel}
           title={`${Tr(T.AllocatedCpu)}`}
+          high={HOST_THRESHOLD.CPU.high}
+          low={HOST_THRESHOLD.CPU.low}
         />
       </Paper>
     </Box>

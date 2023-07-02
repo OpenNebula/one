@@ -3,3 +3,6 @@ roles:
 
 collections:
   - ansible.utils
+  - name: https://opendev.org/openstack/ansible-config_template
+    version: master
+    type: git

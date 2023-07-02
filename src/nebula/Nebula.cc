@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -284,18 +284,15 @@ void Nebula::start(bool bootstrap_only)
     // -----------------------------------------------------------
     const VectorAttribute * vatt = nebula_configuration->get("FEDERATION");
 
-    federation_enabled = false;
-    federation_master  = false;
-    cache              = false;
-    zone_id            = 0;
-    server_id          = -1;
-    master_oned        = vatt->vector_value("MASTER_ONED");
-    string mode        = vatt->vector_value("MODE");
-
-    one_util::toupper(mode);
+    string mode = "STANDALONE";
 
     if (vatt != 0)
     {
+        master_oned = vatt->vector_value("MASTER_ONED");
+        mode = vatt->vector_value("MODE");
+
+        one_util::toupper(mode);
+
         if (mode == "STANDALONE")
         {
             federation_enabled = false;
@@ -1146,14 +1143,11 @@ void Nebula::start(bool bootstrap_only)
         lcm->init_managers();
 
         marketm->init_managers();
-    }
 
-    // ---- Start the Request Manager & Information Manager----
-    // This modules recevie request from users / monitor and need to be
-    // started in last place when all systems are up
+        // ---- Start the Request Manager & Information Manager----
+        // This modules recevie request from users / monitor and need to be
+        // started in last place when all systems are up
 
-    if (!cache)
-    {
         if ( im->start() != 0 )
         {
             throw runtime_error("Could not start the Information Manager");
@@ -1272,7 +1266,7 @@ void Nebula::get_ds_location(string& dsloc) const
 string Nebula::get_vm_log_filename(int oid) const
 {
     ostringstream oss;
-    bool use_vms_location;
+    bool use_vms_location = false;
 
     const VectorAttribute * log = nebula_configuration->get("LOG");
 
@@ -1302,20 +1296,14 @@ int Nebula::get_conf_attribute(
     const VectorAttribute* &value) const
 {
     std::vector<const VectorAttribute*> values;
-    std::string template_name;
-    std::string name_upper = name;
-
-    one_util::toupper(name_upper);
 
     nebula_configuration->get(key, values);
 
     for (auto vattr : values)
     {
-        template_name = vattr->vector_value("NAME");
+        const string& template_name = vattr->vector_value("NAME");
 
-        one_util::toupper(template_name);
-
-        if ( template_name == name_upper )
+        if ( one_util::icasecmp(name, template_name) )
         {
             value = vattr;
             return 0;

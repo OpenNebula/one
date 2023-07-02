@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -86,7 +86,7 @@ public:
      *    @param  objsql points to the market
      *    @return 0 on success
      */
-    int update(PoolObjectSQL * objsql);
+    int update(PoolObjectSQL * objsql) override;
 
     /**
      *  Drops the MarketPlace data in the data base. The object mutex SHOULD be
@@ -95,7 +95,7 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error -3 MarketPlace's App ID set not empty
      */
-    int drop(PoolObjectSQL * objsql, std::string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override;
 
     /**
      *  Bootstraps the database table(s) associated to the MarketPlace pool
@@ -118,7 +118,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc)
+        bool desc) override
     {
         return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", one_db::mp_table,
                 where, sid, eid, desc);
@@ -139,7 +139,7 @@ public:
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */
-    PoolObjectSQL * create()
+    PoolObjectSQL * create() override
     {
         return new MarketPlace(-1,-1,"","", 0, 0);
     };

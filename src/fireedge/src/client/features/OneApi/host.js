@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -15,19 +15,19 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/host'
 
+import { Host } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
 import {
-  updateResourceOnPool,
   removeResourceOnPool,
   updateNameOnResource,
+  updateResourceOnPool,
   updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
-import { Host } from 'client/constants'
 
 const { HOST } = ONE_RESOURCES
 const { HOST_POOL } = ONE_RESOURCES_POOL
@@ -71,7 +71,50 @@ const hostApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      transformResponse: (data) => data?.HOST ?? {},
+      transformResponse: (data) => {
+        if (!data?.HOST) return {}
+
+        const monitoring = data?.HOST?.MONITORING
+        const hostShare = data?.HOST_SHARE?.NUMA_NODES
+
+        if (!monitoring || !hostShare) return data.HOST
+
+        /**
+         * [GH-6027] Numa nodes attributes are not together, some of the attributes
+         * now come from monitoring. This means that when we ask for the host
+         * data we need to merge the numa monitoring data with the numa host
+         * share data
+         */
+        const numaNodes =
+          hostShare?.NODE && Array.isArray(hostShare.NODE)
+            ? hostShare.NODE
+            : [hostShare.NODE]
+
+        const monitoringNodes = Array.isArray(monitoring.NUMA_NODE)
+          ? monitoring.NUMA_NODE
+          : [monitoring.NUMA_NODE]
+
+        numaNodes.forEach((node) => {
+          const monitoringNode = monitoringNodes.find(
+            (mNode) => mNode?.NODE_ID === node?.NODE_ID
+          )
+          node.MEMORY.FREE = monitoringNode.MEMORY.FREE
+          node.MEMORY.USED = monitoringNode.MEMORY.USED
+
+          node.HUGEPAGE.forEach((page) => {
+            const monitoringPage = monitoringNode.HUGEPAGE.find(
+              (mPage) => mPage.SIZE === page.SIZE
+            )
+            page.FREE = monitoringPage.FREE
+
+            return page
+          })
+
+          return node
+        })
+
+        return data.HOST
+      },
       providesTags: (_, __, { id }) => [{ type: HOST, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {

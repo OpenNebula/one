@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -84,8 +84,6 @@ bool RequestManagerPoolInfoFilter::use_filter(RequestAttributes& att,
     bool all;
 
     string acl_str;
-    string usr_str;
-
 
     PoolSQL::acl_filter(att.uid, att.group_ids, aobj, all,
         disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
@@ -196,9 +194,7 @@ void RequestManagerPoolInfoFilter::dump(
 {
     std::string str;
 
-    std::ostringstream oss;
-
-    std::string where_string, limit_clause;
+    std::string where_string;
     std::string desc;
 
     int limit_end_id = -1;
@@ -389,7 +385,6 @@ void VirtualMachinePoolInfoSet::request_execute(
     extended            = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
     ostringstream and_filter;
-    ostringstream oss;
     std::set<unsigned int> ids;
 
     one_util::split_unique(ids_str, ',', ids);
@@ -637,8 +632,6 @@ void VirtualNetworkPoolInfo::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Build pagination limits                                               */
     /* ---------------------------------------------------------------------- */
-
-    ostringstream limit_clause;
 
     if ( end_id < -1 )
     {

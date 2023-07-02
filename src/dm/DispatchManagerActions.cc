@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -109,7 +109,6 @@ error:
 
 int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttributes& ra)
 {
-    ostringstream oss;
     string import_state;
 
     int uid;
@@ -467,7 +466,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                         break;
                     }
                     // else fallthrough to default
-
+                    [[fallthrough]];
                 default:
                     oss.str("");
                     oss << "Could not terminate VM " << vid
@@ -1181,8 +1180,6 @@ int DispatchManager::delete_vm(int vid, const RequestAttributes& ra,
 int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
         const RequestAttributes& ra, string& error)
 {
-    ostringstream oss;
-
     int rc = 0;
 
     Template vm_quotas_snp;
@@ -1223,6 +1220,8 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
                     ds_quotas_snp);
 
             do_quotas = true;
+
+            [[fallthrough]];
 
         case VirtualMachine::HOLD:
             if (vm->hasHistory())
@@ -1297,6 +1296,8 @@ int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
             vm->get_capacity(sr);
 
             hpool->del_capacity(vm->get_hid(), sr);
+
+            [[fallthrough]];
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
@@ -1807,7 +1808,6 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
         string&  error_str)
 {
     ostringstream oss;
-    string        tmp_error;
 
     auto vm = vmpool->get(vid);
 
@@ -2760,6 +2760,15 @@ int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
     // -------------------------------------------------------------------------
     VirtualMachine::VmState state = vm->get_state();
 
+    if ( vm->backups().active_flatten() )
+    {
+        oss << "Could not create a new backup for VM " << vid
+            << ", consolidating backup increments";
+        error_str = oss.str();
+
+        return -1;
+    }
+
     switch (state)
     {
         case VirtualMachine::ACTIVE:
@@ -2807,6 +2816,45 @@ int DispatchManager::backup(int vid, int backup_ds_id, bool reset,
     vmpool->update(vm.get());
 
     vm.reset();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::backup_cancel(int vid,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine::LcmState state;
+
+    if ( auto vm = vmpool->get(vid) )
+    {
+        state = vm->get_lcm_state();
+    }
+    else
+    {
+        oss << "Could not cancel backup for VM " << vid
+            << ", VM does not exist";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    // Check backup state
+    if (state != VirtualMachine::BACKUP &&
+        state != VirtualMachine::BACKUP_POWEROFF)
+    {
+        oss << "Could not cancel backup for VM " << vid
+            << ", no backup in progress";
+        error_str = oss.str();
+
+        return -1;
+    }
+
+    vmm->trigger_backup_cancel(vid);
 
     return 0;
 }

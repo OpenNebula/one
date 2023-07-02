@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Grid, Slider, TextField } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+import { prettyBytes } from 'client/utils'
+import PropTypes from 'prop-types'
 import {
-  forwardRef,
-  useState,
   ForwardedRef,
   JSXElementConstructor,
+  forwardRef,
+  useState,
 } from 'react'
-import PropTypes from 'prop-types'
-
-import { TextField } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { Actions } from 'client/components/Tabs/Common/Attribute'
 
@@ -44,6 +44,18 @@ const useStyles = makeStyles({
     textOverflow: 'ellipsis',
   },
 })
+
+const useStylesInput = makeStyles((theme) => ({
+  input: (color) => {
+    const styles = {}
+    const backgroundColor = theme?.palette?.[color.inputColor]?.[100]
+    if (backgroundColor) {
+      styles.backgroundColor = backgroundColor
+    }
+
+    return styles
+  },
+}))
 
 const Select = forwardRef(
   /**
@@ -105,6 +117,71 @@ const Text = forwardRef(
   }
 )
 
+const SliderInput = forwardRef(
+  /**
+   * @param {InputProps} props - Props
+   * @param {ForwardedRef} ref - Forward reference
+   * @returns {JSXElementConstructor} Text field
+   */
+  ({ name = '', initialValue = '', min, max, unitParser, ...props }, ref) => {
+    const [newValue, setNewValue] = useState(() => +initialValue)
+    const [inputColor, setInputColor] = useState()
+
+    const handleChange = (event) => {
+      const targetValue = +event.target.value
+      setNewValue(targetValue < min ? min : targetValue)
+      setInputColor(
+        targetValue > +initialValue
+          ? 'success'
+          : targetValue < +initialValue
+          ? 'error'
+          : ''
+      )
+    }
+    const classes = useStylesInput({ inputColor })
+
+    return (
+      <Grid container>
+        <Grid item xs={12}>
+          <Slider
+            className="slider"
+            color="secondary"
+            onChange={handleChange}
+            value={newValue}
+            marks={[
+              {
+                value: 0,
+                label: unitParser ? prettyBytes(0) : '0',
+              },
+              {
+                value: max,
+                label: unitParser ? prettyBytes(max) : max,
+              },
+            ]}
+            min={min}
+            max={max}
+            {...props}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            inputProps={{
+              'data-cy': Actions.getAttributeCy('text', name),
+              className: classes.input,
+            }}
+            type="number"
+            inputRef={ref}
+            onChange={handleChange}
+            value={newValue}
+            name={name}
+            {...props}
+          />
+        </Grid>
+      </Grid>
+    )
+  }
+)
+
 const InputPropTypes = {
   name: PropTypes.string,
   initialValue: PropTypes.string,
@@ -116,9 +193,26 @@ const InputPropTypes = {
   ),
 }
 
+const InputSlidePropTypes = {
+  name: PropTypes.string,
+  initialValue: PropTypes.string,
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      value: PropTypes.string,
+    })
+  ),
+  min: PropTypes.number,
+  max: PropTypes.number,
+  unitParser: PropTypes.bool,
+  inputProps: PropTypes.object,
+}
+
 Select.displayName = 'Select'
 Select.propTypes = InputPropTypes
 Text.displayName = 'Text'
 Text.propTypes = InputPropTypes
+SliderInput.displayName = 'SliderInput'
+SliderInput.propTypes = InputSlidePropTypes
 
-export { Select, Text, InputPropTypes }
+export { InputPropTypes, Select, SliderInput, Text }

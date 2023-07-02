@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -588,7 +588,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      std::unique_ptr<Template>   tmpl,
                                      int&                        id,
-                                     RequestAttributes&          att);
+                                     RequestAttributes&          att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -781,7 +781,7 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    std::unique_ptr<Template> get_object_template() const
+    std::unique_ptr<Template> get_object_template() const override
     {
         return std::make_unique<Template>();
     };
@@ -789,7 +789,7 @@ public:
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
                       std::unique_ptr<Template> tmpl,
                       int& id,
-                      RequestAttributes& att);
+                      RequestAttributes& att) override;
 
 
 };

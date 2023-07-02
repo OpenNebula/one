@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,15 +16,15 @@
 import { array, object, ObjectSchema } from 'yup'
 
 import {
-  transformChartersToSchedActions,
-  getFixedLeases,
-  getEditableLeases,
-} from 'client/models/Scheduler'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
-import {
   PUNCTUAL_FIELDS,
   RELATIVE_FIELDS,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
+import {
+  getEditableLeases,
+  getFixedLeases,
+  transformChartersToSchedActions,
+} from 'client/models/Scheduler'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
 
 const punctualFields = [
   PUNCTUAL_FIELDS.ACTION_FIELD_FOR_CHARTERS,

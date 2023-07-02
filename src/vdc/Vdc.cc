@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -274,7 +274,6 @@ int Vdc::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Groups
     ObjectXML::get_nodes("/VDC/GROUPS/ID", content);
@@ -291,7 +290,6 @@ int Vdc::from_xml(const string& xml)
     }
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Clusters
     ObjectXML::get_nodes("/VDC/CLUSTERS/CLUSTER", content);
@@ -299,7 +297,6 @@ int Vdc::from_xml(const string& xml)
     rc += clusters.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Hosts
     ObjectXML::get_nodes("/VDC/HOSTS/HOST", content);
@@ -307,7 +304,6 @@ int Vdc::from_xml(const string& xml)
     rc += hosts.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of Datastores
     ObjectXML::get_nodes("/VDC/DATASTORES/DATASTORE", content);
@@ -315,7 +311,6 @@ int Vdc::from_xml(const string& xml)
     rc += datastores.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Set of VNets
     ObjectXML::get_nodes("/VDC/VNETS/VNET", content);
@@ -323,7 +318,6 @@ int Vdc::from_xml(const string& xml)
     rc += vnets.from_xml_node(content);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     if (rc != 0)
     {
@@ -390,7 +384,7 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void ResourceSet::insert_default_rules(string name_attr, PoolObjectSQL::ObjectType type)
+void ResourceSet::insert_default_rules(const string& name_attr, PoolObjectSQL::ObjectType type)
 {
     string default_vdc_acl;
     vector<string> vdc_acl;
@@ -420,9 +414,7 @@ void ResourceSet::insert_default_rules(string name_attr, PoolObjectSQL::ObjectTy
 
 ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 {
-    string default_vdc_acl;
     vector<string> cluster_res = { "HOST", "NET", "DATASTORE" };
-    string str_type;
     string name_attr= "";
 
     switch(type)
@@ -534,9 +526,9 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
             }
         }
 
-        for (auto id : del_ids)
+        for (auto del_id : del_ids)
         {
-            this->del(groups, zone_id, id, error_aux);
+            this->del(groups, zone_id, del_id, error_aux);
         }
     }
 

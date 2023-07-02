@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,8 +64,8 @@ class BaseDomain
         Base64.strict_encode64(mon_s)
     end
 
-    MONITOR_KEYS = %w[cpu memory netrx nettx diskrdbytes diskwrbytes diskrdiops
-                      diskwriops]
+    MONITOR_KEYS = ['cpu', 'memory', 'netrx', 'nettx', 'diskrdbytes', 'diskwrbytes', 'diskrdiops',
+                    'diskwriops']
 
 end
 

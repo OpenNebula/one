@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -110,9 +110,9 @@ private:
 template<typename D>
 int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
 {
-    auto name = mad_config->vector_value("NAME");
+    const auto& name = mad_config->vector_value("NAME");
     auto exec = mad_config->vector_value("EXECUTABLE");
-    auto args = mad_config->vector_value("ARGUMENTS");
+    const auto& args = mad_config->vector_value("ARGUMENTS");
     int  threads;
 
     mad_config->vector_value("THREADS", threads, 0);

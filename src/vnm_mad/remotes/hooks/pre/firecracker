@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,7 +40,7 @@ vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
 XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
 
-OVS_VN_MADS = %w[ovswitch ovswitch_vxlan]
+OVS_VN_MADS = ['ovswitch', 'ovswitch_vxlan']
 
 #----------------------------------------------------------------------------
 

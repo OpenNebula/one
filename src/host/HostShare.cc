@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------*/
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems             */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems             */
 /*                                                                         */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may */
 /* not use this file except in compliance with the License. You may obtain */
@@ -114,8 +114,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     if (rc != 0)
     {
         return -1;
@@ -134,8 +132,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     if (rc != 0)
     {
         return -1;
@@ -150,8 +146,6 @@ int HostShare::from_xml_node(const xmlNodePtr node)
         rc += numa.from_xml_node(content, vms_thread);
 
         ObjectXML::free_nodes(content);
-
-        content.clear();
 
         if (rc != 0)
         {
@@ -246,7 +240,7 @@ void HostShare::update_capacity(Template& ht, string& rcpu, string& rmem)
 
     if ( ht.get("VMS_THREAD", vthread) )
     {
-        if ( vthread <= 0 )
+        if ( vthread == 0 )
         {
             vthread = 1;
 

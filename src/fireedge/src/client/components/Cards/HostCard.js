@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { memo, ReactElement } from 'react'
 
-import { Server, ModernTv } from 'iconoir-react'
 import { Typography } from '@mui/material'
+import { ModernTv, Server } from 'iconoir-react'
 
+import { Tr } from 'client/components/HOC'
 import {
-  StatusCircle,
-  StatusChip,
   LinearProgressWithLabel,
+  StatusChip,
+  StatusCircle,
 } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
-import { Tr } from 'client/components/HOC'
 
+import { Host, HOST_THRESHOLD, T } from 'client/constants'
 import { getAllocatedInfo, getState } from 'client/models/Host'
-import { T, Host, HOST_THRESHOLD } from 'client/constants'
 
 const HostCard = memo(
   /**
@@ -42,8 +42,14 @@ const HostCard = memo(
     const classes = rowStyles()
     const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER } = host
 
-    const { percentCpuUsed, percentCpuLabel, percentMemUsed, percentMemLabel } =
-      getAllocatedInfo(host)
+    const {
+      percentCpuUsed,
+      percentCpuLabel,
+      percentMemUsed,
+      percentMemLabel,
+      colorCpu,
+      colorMem,
+    } = getAllocatedInfo(host)
 
     const runningVms = HOST_SHARE?.RUNNING_VMS || 0
     const totalVms = [host?.VMS?.ID ?? []].flat().length || 0
@@ -84,6 +90,7 @@ const HostCard = memo(
             low={HOST_THRESHOLD.CPU.low}
             label={percentCpuLabel}
             title={`${Tr(T.AllocatedCpu)}`}
+            color={colorCpu}
           />
           <LinearProgressWithLabel
             value={percentMemUsed}
@@ -91,6 +98,7 @@ const HostCard = memo(
             low={HOST_THRESHOLD.MEMORY.low}
             label={percentMemLabel}
             title={`${Tr(T.AllocatedMemory)}`}
+            color={colorMem}
           />
         </div>
         {actions && <div className={classes.actions}>{actions}</div>}

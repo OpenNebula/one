@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,7 +25,7 @@
 class RequestManagerProxy: public Request
 {
 public:
-    RequestManagerProxy(std::string _method)
+    RequestManagerProxy(const std::string& _method)
         : Request("RequestManagerProxy", "?",
                   "Forwards the request to another OpenNebula")
         , method(_method)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,13 +48,18 @@ public:
         return va->vector_value(name, value);
     }
 
-    std::string vector_value(const std::string& name) const
+    std::string vector_value(const std::string& name)
     {
         return va->vector_value(name);
     }
 
+    const std::string& vector_value(const std::string& name) const
+    {
+        return const_cast<const VectorAttribute*>(va)->vector_value(name);
+    }
+
     template<typename T>
-    void replace(const std::string& name, T value)
+    void replace(const std::string& name, const T& value)
     {
         va->replace(name, value);
     }
@@ -73,22 +78,22 @@ public:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    std::string marshall(const char * _sep = 0) const
+    std::string marshall(const char * _sep = 0) const  override
     {
         return va->marshall(_sep);
     };
 
-    void to_xml(std::ostringstream& s) const
+    void to_xml(std::ostringstream& s) const override
     {
         return va->to_xml(s);
     };
 
-    void to_json(std::ostringstream& s) const
+    void to_json(std::ostringstream& s) const override
     {
         return va->to_json(s);
     };
 
-    void to_token(std::ostringstream& s) const
+    void to_token(std::ostringstream& s) const override
     {
         return va->to_token(s);
     };
@@ -110,7 +115,7 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    void unmarshall(const std::string& sattr, const char * _sep = 0)
+    void unmarshall(const std::string& sattr, const char * _sep = 0) override
     {
         va->unmarshall(sattr, _sep);
     }

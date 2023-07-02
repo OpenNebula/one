@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,14 +87,14 @@ vmpool.each do |vm|
         base_net = Time.now.to_i % 10000
 
         mon_s = unindent(<<-EOS)
-          NETTX=#{base_net + (rand(3) * 50)}
-          NETRX=#{base_net + (rand(4) * 100)}
+          NETTX=#{base_net + (rand(1..3) * 50)}
+          NETRX=#{base_net + (rand(1..4) * 100)}
           MEMORY=#{max_memory * rand(20..100)/100}
           CPU=#{max_cpu * rand(5..100)/100}
-          DISKRDBYTES=#{rand(1000)}
-          DISKWRBYTES=#{rand(1000)}
-          DISKRDIOPS=#{rand(1000)}
-          DISKWRIOPS=#{rand(1000)}
+          DISKRDBYTES=#{rand(1..1000)}
+          DISKWRBYTES=#{rand(1..1000)}
+          DISKRDIOPS=#{rand(1..1000)}
+          DISKWRIOPS=#{rand(1..1000)}
         EOS
 
         mon_s64 = Base64.strict_encode64(mon_s)

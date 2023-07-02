@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -55,7 +55,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         :update_conf => "UPDATECONF",
         :resize      => "RESIZE",
         :backup      => "BACKUP",
-        :update_nic   => "UPDATENIC"
+        :update_nic   => "UPDATENIC",
+        :backup_cancel=> "BACKUPCANCEL"
     }
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -104,6 +105,7 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:resize].to_sym, method("resize"))
         register_action(ACTION[:backup].to_sym, method("backup"))
         register_action(ACTION[:update_nic].to_sym, method("update_nic"))
+        register_action(ACTION[:backup_cancel].to_sym, method("backup_cancel"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -246,6 +248,11 @@ class VirtualMachineDriver < OpenNebulaDriver
     def update_nic(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:update_nic],RESULT[:failure],id,error)
+    end
+
+    def backup_cancel(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:backup_cancel],RESULT[:failure],id,error)
     end
 
 private

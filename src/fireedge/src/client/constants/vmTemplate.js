@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from 'client/constants'
 import * as ACTIONS from 'client/constants/actions'
 // eslint-disable-next-line no-unused-vars
-import { Permissions, LockInfo } from 'client/constants/common'
-import { T } from 'client/constants'
+import { LockInfo, Permissions } from 'client/constants/common'
 
 /**
  * @typedef VmTemplate
@@ -63,7 +63,13 @@ export const VM_TEMPLATE_ACTIONS = {
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 }
 
-export const NUMA_PIN_POLICIES = ['NONE', 'THREAD', 'SHARED', 'CORE']
+export const NUMA_PIN_POLICIES = {
+  NONE: 'NONE',
+  THREAD: 'THREAD',
+  SHARED: 'SHARED',
+  CORE: 'CORE',
+  NODE_AFFINITY: 'NODE_AFFINITY',
+}
 
 export const NUMA_MEMORY_ACCESS = ['shared', 'private']
 

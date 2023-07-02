@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -346,10 +346,6 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 
 int MarketPlaceApp::post_update_template(string& error)
 {
-	std::string n_description;
-	std::string n_apptemplate64;
-	std::string n_version;
-
 	// -------------------------------------------------------------------------
     // Update well known attributes
     // -------------------------------------------------------------------------

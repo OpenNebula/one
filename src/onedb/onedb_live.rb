@@ -121,96 +121,111 @@ class OneDBLive
     end
 
     def purge_history(options = {})
+        default_options = {
+            :start_time => 0,
+            :end_time => Time.now
+        }
+
+        options.merge!(default_options)
+
+        options[:start_time] = options[:start_time].to_i
+        options[:end_time] = options[:end_time].to_i
+
+        if options[:id]
+            vm = OpenNebula::VirtualMachine.new_with_id(options[:id], client)
+
+            rc = vm.info
+            return rc if OpenNebula.is_error?(rc)
+
+            return purge_vm_history(vm, options)
+        end
+
         vmpool = OpenNebula::VirtualMachinePool.new(client)
         rc     = vmpool.info_all
 
         return rc if OpenNebula.is_error?(rc)
 
-        ops = {
-            :start_time => 0,
-            :end_time => Time.now
-        }.merge(options)
+        last_vm_id = vmpool['/VM_POOL/VM[last()]/ID']
 
-        start_time  = ops[:start_time].to_i
-        end_time    = ops[:end_time].to_i
+        vmpool.each do |v|
+            print percentage_line(v.id, last_vm_id, true)
 
-        last_id = vmpool['/VM_POOL/VM[last()]/ID']
+            purge_vm_history(v, options)
+        end
+    end
 
-        vmpool.each do |vm|
-            print percentage_line(vm.id, last_id, true)
+    def purge_vm_history(vm, options = {})
+        time = vm['STIME'].to_i
+        return unless time >= options[:start_time] && time < options[:end_time]
 
-            time = vm['STIME'].to_i
-            next unless time >= start_time && time < end_time
+        # vmpool info only returns the last history record. We can check
+        # if this VM can have more than one record using the sequence
+        # number. If it's 0 or it does not exist we can skip the VM.
+        # Also take tone that xpaths on VM info that comes from VMPool
+        # or VM is different. We can not use absolute searches with
+        # objects coming from pool.
+        seq = vm['HISTORY_RECORDS/HISTORY/SEQ']
+        return if !seq || seq == '0'
 
-            # vmpool info only returns the last history record. We can check
-            # if this VM can have more than one record using the sequence
-            # number. If it's 0 or it does not exist we can skip the VM.
-            # Also take tone that xpaths on VM info that comes from VMPool
-            # or VM is different. We can not use absolute searches with
-            # objects coming from pool.
-            seq = vm['HISTORY_RECORDS/HISTORY/SEQ']
-            next if !seq || seq == '0'
+        # If the history can contain more than one record we get
+        # all the info for two reasons:
+        #
+        #   * Make sure that all the info is written back
+        #   * Refresh the information so it's less probable that the info
+        #     was modified during this process
+        vm.info
 
-            # If the history can contain more than one record we get
-            # all the info for two reasons:
-            #
-            #   * Make sure that all the info is written back
-            #   * Refresh the information so it's less probable that the info
-            #     was modified during this process
-            vm.info
+        hash = vm.to_hash
+        val_history = hash['VM']['HISTORY_RECORDS']['HISTORY']
 
-            hash = vm.to_hash
-            val_history = hash['VM']['HISTORY_RECORDS']['HISTORY']
+        history_num = 2
 
-            history_num = 2
+        val_history = [val_history].flatten
+        last_seq = val_history.last['SEQ'].to_i rescue 0
 
-            val_history = [val_history].flatten
-            last_seq = val_history.last['SEQ'].to_i rescue 0
+        return unless last_seq >= history_num
 
-            next unless last_seq >= history_num
+        last_history = val_history.last(history_num)
 
-            last_history = val_history.last(history_num)
+        old_seq = []
+        seq_num = last_history.first['SEQ']
 
-            old_seq = []
-            seq_num = last_history.first['SEQ']
+        # Renumerate the sequence
+        last_history.each_with_index do |history, index|
+            old_seq << history['SEQ'].to_i
+            history['SEQ'] = index
+        end
 
-            # Renumerate the sequence
-            last_history.each_with_index do |history, index|
-                old_seq << history['SEQ'].to_i
-                history['SEQ'] = index
-            end
+        # Only the last history record is saved in vm_pool
+        vm.delete_element('HISTORY_RECORDS/HISTORY')
+        vm.add_element('HISTORY_RECORDS',
+                       'HISTORY' => last_history.last)
 
-            # Only the last history record is saved in vm_pool
-            vm.delete_element('HISTORY_RECORDS/HISTORY')
-            vm.add_element('HISTORY_RECORDS',
-                           'HISTORY' => last_history.last)
+        # Update VM body to leave only the last history record
+        body = db_escape(vm.to_xml)
+        update_body('vm_pool', vm.to_xml, "oid = #{vm.id}", false)
 
-            # Update VM body to leave only the last history record
-            body = db_escape(vm.to_xml)
-            update_body('vm_pool', vm.to_xml, "oid = #{vm.id}", false)
+        # Delete any history record that does not have the same
+        # SEQ number as the last history record
+        delete('history', "vid = #{vm.id} and seq < #{seq_num}", false)
 
-            # Delete any history record that does not have the same
-            # SEQ number as the last history record
-            delete('history', "vid = #{vm.id} and seq < #{seq_num}", false)
+        # Get VM history
+        history = select('history', "vid = #{vm.id}")
 
-            # Get VM history
-            history = select('history', "vid = #{vm.id}")
+        # Renumerate sequence numbers
+        old_seq.each_with_index do |o_seq, index|
+            row = history.find {|r| o_seq.to_s == r['seq'] }
+            next unless row
 
-            # Renumerate sequence numbers
-            old_seq.each_with_index do |o_seq, index|
-                row = history.find {|r| o_seq.to_s == r['seq'] }
-                next unless row
+            body = Base64.decode64(row['body64'])
 
-                body = Base64.decode64(row['body64'])
+            doc = Nokogiri::XML(body)
+            doc.xpath('/HISTORY/SEQ').first.content = index.to_s
+            new_body = doc.root.to_xml
 
-                doc = Nokogiri::XML(body)
-                doc.xpath('/HISTORY/SEQ').first.content = index.to_s
-                new_body = doc.root.to_xml
-
-                update('history',
-                       { :seq => index, :body => new_body },
-                       "vid = #{vm.id} and seq = #{o_seq}", false)
-            end
+            update('history',
+                   { :seq => index, :body => new_body },
+                   "vid = #{vm.id} and seq = #{o_seq}", false)
         end
     end
 
@@ -436,7 +451,9 @@ class OneDBLive
                 if options[:delete]
                     el.remove
                 else
-                    el.content = value
+                    if !options[:append]
+                        el.content = value
+                    end
                 end
             end
 

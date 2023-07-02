@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -78,8 +78,11 @@ protected:
         machines_limit(0),
         dispatch_limit(0),
         host_dispatch_limit(0),
+        zone_id(0),
         mem_ds_scale(0),
-        diff_vnets(false)
+        diff_vnets(false),
+        max_backups(5),
+        max_backups_host(2)
     {
     }
 

@@ -1,7 +1,7 @@
 # !/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -75,7 +75,7 @@ module NUMA
             hp_info = { 'size' => hp_size }
 
             begin
-                %w[free nr surplus].each do |var|
+                ['free', 'nr', 'surplus'].each do |var|
                     var_path = "#{hpsz_path}/#{var}_hugepages"
                     hp_info[var] = File.read(var_path).chomp
                 end
@@ -102,7 +102,7 @@ module NUMA
 
         bind = binding
 
-        mem_vars = %w[MemTotal MemFree MemUsed]
+        mem_vars = ['MemTotal', 'MemFree', 'MemUsed']
 
         # rubocop:disable Style/DocumentDynamicEvalDefinition
         mem_vars.each {|var| bind.eval("#{var.downcase.to_sym} = 0") }

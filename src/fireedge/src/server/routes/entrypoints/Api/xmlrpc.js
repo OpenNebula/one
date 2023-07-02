@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -28,7 +28,10 @@ const {
 const { fillResourceforHookConnection } = require('server/utils/opennebula')
 const { httpResponse, validateHttpMethod } = require('server/utils/server')
 const { useWorker, parseReturnWorker } = require('server/utils/worker')
-const { writeInLogger } = require('server/utils/logger')
+const {
+  writeInLogger,
+  writeInLoggerInvalidRPC,
+} = require('server/utils/logger')
 
 const {
   defaultEmptyFunction,
@@ -59,6 +62,7 @@ const executeWorker = ({
   next,
   res,
 }) => {
+  writeInLoggerInvalidRPC(rpc)
   if (!(user && password && rpc && command && paramsCommand)) {
     return
   }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -160,14 +160,14 @@ void VirtualMachineXML::init_attributes()
 
             nic_template.from_xml_node(*it_nodes);
 
-            bool rc = nic_template.get("NETWORK_MODE", net_mode);
+            bool rc2 = nic_template.get("NETWORK_MODE", net_mode);
 
-            if ( !rc || !one_util::icasecmp(net_mode, "AUTO") )
+            if ( !rc2 || !one_util::icasecmp(net_mode, "AUTO") )
             {
                 continue;
             }
 
-            std::string reqs, rank;
+            std::string reqs, sched_rank;
             int nic_id;
 
             nic_template.get("NIC_ID", nic_id);
@@ -192,16 +192,14 @@ void VirtualMachineXML::init_attributes()
                 the_nic->set_requirements(reqs);
             }
 
-            if ( nic_template.get("SCHED_RANK", rank) )
+            if ( nic_template.get("SCHED_RANK", sched_rank) )
             {
-                the_nic->set_rank(rank);
+                the_nic->set_rank(sched_rank);
             }
         }
 
         free_nodes(nodes);
     }
-
-    nodes.clear();
 
     /**************************************************************************/
     /*  Template, user template, history information and rescheduling flag    */
@@ -219,8 +217,6 @@ void VirtualMachineXML::init_attributes()
         vm_template = nullptr;
     }
 
-    nodes.clear();
-
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
         user_template = make_unique<VirtualMachineTemplate>();
@@ -228,18 +224,18 @@ void VirtualMachineXML::init_attributes()
         user_template->from_xml_node(nodes[0]);
 
         free_nodes(nodes);
+
+        public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
+
+        if (public_cloud == false)
+        {
+            attrs.clear();
+            public_cloud = (user_template->get("EC2", attrs) > 0);
+        }
     }
     else
     {
         user_template = 0;
-    }
-
-    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
-
-    if (public_cloud == false)
-    {
-        attrs.clear();
-        public_cloud = (user_template->get("EC2", attrs) > 0);
     }
 
     only_public_cloud = false;
@@ -313,10 +309,7 @@ void VirtualMachineXML::init_storage_usage()
                 continue;
             }
 
-            if (ds_usage.count(ds_id) == 0)
-            {
-                ds_usage[ds_id] = 0;
-            }
+            ds_usage.emplace(ds_id, 0);
 
             if (disk->vector_value("CLONE", clone) != 0)
             {
@@ -426,8 +419,6 @@ void VirtualMachineXML::add_capacity(HostShareCapacity &sr)
 
 void VirtualMachineXML::reset_capacity(HostShareCapacity &sr)
 {
-    std::vector<VectorAttribute *> numa_nodes;
-
     sr.cpu  = cpu;
     sr.mem  = memory;
     sr.disk = system_ds_usage;
@@ -455,7 +446,7 @@ bool VirtualMachineXML::test_image_datastore_capacity(
         {
             ostringstream oss;
 
-            oss << "Image Datastore " << ds->get_oid()
+            oss << "Image Datastore " << ds_it->first
                 << " does not have enough capacity";
 
             error_msg = oss.str();
@@ -554,7 +545,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     os << "\tPRI\tID - HOSTS"<< endl
        << "\t------------------------"  << endl;
 
-    for (i = resources.rbegin(); i != resources.rend() ; i++)
+    for (i = resources.rbegin(); i != resources.rend(); ++i)
     {
         os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
@@ -566,7 +557,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
     const vector<Resource *> ds_resources = vm.match_datastores.get_resources();
 
-    for (i = ds_resources.rbegin(); i != ds_resources.rend() ; i++)
+    for (i = ds_resources.rbegin(); i != ds_resources.rend(); ++i)
     {
         os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
     }
@@ -584,7 +575,7 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 
         const vector<Resource *> net_resources = vm.nics[nic_id]->get_match_networks();
 
-        for (i = net_resources.rbegin(); i != net_resources.rend() ; i++)
+        for (i = net_resources.rbegin(); i != net_resources.rend(); ++i)
         {
             os << "\t" << (*i)->priority << "\t" << (*i)->oid << endl;
         }
@@ -689,13 +680,13 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 // Updates to oned
 //******************************************************************************
 
-bool VirtualMachineXML::update_sched_action(SchedAction* action)
+bool VirtualMachineXML::update_sched_action(const SchedAction* action)
 {
     xmlrpc_c::value result;
 
     try
     {
-        string action_id_str = action->vector_value("ID");
+        const string& action_id_str = action->vector_value("ID");
         int action_id = std::stoi(action_id_str);
 
         ostringstream oss;

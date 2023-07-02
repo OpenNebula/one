@@ -35,28 +35,28 @@ module OneProvision
             'DELETING'    => 5
         }
 
-        STATE_STR = %w[
-            PENDING
-            DEPLOYING
-            CONFIGURING
-            RUNNING
-            ERROR
-            DELETING
+        STATE_STR = [
+            'PENDING',
+            'DEPLOYING',
+            'CONFIGURING',
+            'RUNNING',
+            'ERROR',
+            'DELETING'
         ]
 
         # Available resources that can be created with the provision
         #
         # Note: order is important, some objects depend on others
         # Objects without dependencies need to be created firstly, then the rest
-        RESOURCES = %w[images
-                       marketplaceapps
-                       templates
-                       vntemplates
-                       flowtemplates]
+        RESOURCES = ['images',
+                     'marketplaceapps',
+                     'templates',
+                     'vntemplates',
+                     'flowtemplates']
 
-        INFRASTRUCTURE_RESOURCES = %w[datastores networks]
+        INFRASTRUCTURE_RESOURCES = ['datastores', 'networks']
 
-        FULL_CLUSTER = INFRASTRUCTURE_RESOURCES + %w[hosts clusters]
+        FULL_CLUSTER = INFRASTRUCTURE_RESOURCES + ['hosts', 'clusters']
 
         # Class constructor
         #
@@ -228,6 +228,18 @@ module OneProvision
             @body['ceph_vars']
         end
 
+        # Returns required ansible version pair
+        def ansible_ver
+            begin
+                min = @body['ansible']['ver_min']
+                max = @body['ansible']['ver_max']
+            rescue StandardError
+                Utils.fail('Provision is missing ansible min and max version')
+            end
+
+            [Gem::Version.new(min), Gem::Version.new(max)]
+        end
+
         # Returns vars
         def ceph_vars
             @body['ceph_vars']
@@ -293,8 +305,6 @@ module OneProvision
         #
         # @return [Integer] Provision ID
         def deploy(config, cleanup, timeout, skip, provider)
-            Ansible.check_ansible_version(nil) if skip == :none
-
             # Config contains
             #   :inputs -> array with user inputs values
             #   :config -> string with path to configuration file
@@ -482,7 +492,7 @@ module OneProvision
 
             host['connection'] = {}
 
-            %w[private_key public_key remote_port remote_user].each do |attr|
+            ['private_key', 'public_key', 'remote_port', 'remote_user'].each do |attr|
                 host['connection'][attr] = host['provision_connection'][attr]
             end
 
@@ -899,7 +909,7 @@ module OneProvision
 
                 count.times.each do |idx|
                     Driver.retry_loop('Failed to create some host', self) do
-                        playbooks = cfg['playbook']
+                        playbooks = cfg['ansible']['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
                         h = Marshal.load(Marshal.dump(h_bck))

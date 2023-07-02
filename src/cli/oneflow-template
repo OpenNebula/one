@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -61,6 +61,7 @@ require 'command_parser'
 require 'opennebula/oneflow_client'
 require 'cli_helper'
 require 'one_helper/oneflowtemplate_helper'
+require 'one_helper/onetemplate_helper'
 
 USER_AGENT = 'CLI'
 
@@ -78,7 +79,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     RECURSIVE = {
         :name  => 'recursive',
-        :short => '-r',
+        :short => '-R',
         :large => '--recursive',
         :description => 'Clone the template recursively (templates and images)'
     }
@@ -253,14 +254,18 @@ CommandParser::CmdParser.new(ARGV) do
                     break
                 end
 
+                params['merge_template'] = {}
                 body = JSON.parse(response.body)['DOCUMENT']['TEMPLATE']['BODY']
 
-                params['merge_template'] = helper.custom_attrs(
-                    body['custom_attrs']
-                )
+                # Check global custom attributes
+                custom_attrs = helper.custom_attrs(body['custom_attrs'])
+                params['merge_template'].merge!(custom_attrs) unless custom_attrs.nil?
 
-                params['merge_template'] = {} unless params['merge_template']
+                # Check role level custom attributes
+                custom_role_attrs = helper.custom_role_attrs(body['roles'])
+                params['merge_template'].merge!(custom_role_attrs) unless custom_role_attrs.nil?
 
+                # Check vnets attributes
                 vnets = helper.networks(body['networks'])
                 params['merge_template'].merge!(vnets) unless vnets.nil?
             end

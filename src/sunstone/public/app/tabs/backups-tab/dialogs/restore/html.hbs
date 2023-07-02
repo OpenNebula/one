@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -31,7 +31,14 @@
           <input type="checkbox" id="restore_no_ip" name="restore_no_ip">
           <label for="restore_no_ip">{{tr "Do not restore IP attributes"}}</label>
         </div>
-
+        <div class="columns medium-6">
+          <label for="restore_name">{{tr "Name"}}</label>
+          <input type="text" id="restore_name" name="restore_name">
+        </div>
+        <div class="columns medium-6">
+          <label for="restore_increment_id">{{tr "Increment ID"}}</label>
+          <input type="text" id="restore_increment_id" name="restore_increment_id">
+        </div>
       </fieldset>
     </div>
     <div class="row">

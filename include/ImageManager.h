@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -300,13 +300,23 @@ public:
      int revert_snapshot(int iid, int sid, std::string& error);
 
      /**
-      *  Flattens ths snapshot by commiting changes to base image.
+      *  Flattens the snapshot by commiting changes to base image.
       *    @param iid id of image
       *    @param sid id of the snapshot
       *    @param error_str Error reason, if any
       *    @return 0 on success
       */
      int flatten_snapshot(int iid, int sid, std::string& error);
+
+     /**
+      *  Flattens the backup chain by commiting changes to first (full) backup
+      *    @param iid id of image
+      *    @param ds_id id of the datastore
+      *    @param edata XML string with KEEP_LAST and VM_ID
+      *    @param error_str Error reason, if any
+      *    @return 0 on success
+      */
+     int flatten_increments(int iid, int ds_id, const std::string& edata, std::string& error);
 
 private:
     /**
@@ -408,6 +418,8 @@ private:
     void _snap_revert(std::unique_ptr<image_msg_t> msg);
 
     void _snap_flatten(std::unique_ptr<image_msg_t> msg);
+
+    void _increment_flatten(std::unique_ptr<image_msg_t> msg);
 
     void _restore(std::unique_ptr<image_msg_t> msg);
 

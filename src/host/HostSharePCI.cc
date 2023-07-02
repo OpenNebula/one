@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------*/
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems             */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems             */
 /*                                                                         */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may */
 /* not use this file except in compliance with the License. You may obtain */
@@ -489,9 +489,7 @@ void HostSharePCI::clear()
 int HostSharePCI::get_pci_value(const char * name,
     const VectorAttribute * pci_device, unsigned int &pci_value)
 {
-    string temp;
-
-    temp = pci_device->vector_value(name);
+    const string& temp = pci_device->vector_value(name);
 
     if (temp.empty())
     {
@@ -607,15 +605,14 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
 /* ------------------------------------------------------------------------*/
 
 HostSharePCI::PCIDevice::PCIDevice(const PCIDevice& src)
+    : vendor_id(src.vendor_id)
+    , device_id(src.device_id)
+    , class_id(src.class_id)
+    , vmid(src.vmid)
+    , address(src.address)
+    , attrs(src.attrs->clone())
 {
-    vendor_id = src.vendor_id;
-    device_id = src.device_id;
-    class_id  = src.class_id;
-    vmid      = src.vmid;
-    address   = src.address;
-
-    attrs = src.attrs->clone();
-};
+}
 
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/

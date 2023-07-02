@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -1126,7 +1126,7 @@ end
                 when OPAQUE_CARD.to_s
                     # Select only Opaque Networks
                     opaque_networks = @item.network.select do |net|
-                        RbVmomi::VIM::OpaqueNetwork == net.class
+                        net.class == RbVmomi::VIM::OpaqueNetwork
                     end
                     opaque_network = opaque_networks.find do |opn|
                         backing.opaqueNetworkId == opn.summary.opaqueNetworkId
@@ -1296,7 +1296,7 @@ end
                             when OPAQUE_CARD.to_s
                                 # Select only Opaque Networks
                                 opaque_networks = @item.network.select do |net|
-                                    RbVmomi::VIM::OpaqueNetwork == net.class
+                                    net.class == RbVmomi::VIM::OpaqueNetwork
                                 end
                                 opaque_network = opaque_networks.find do |opn|
                                     nic.backing.opaqueNetworkId ==
@@ -3300,6 +3300,12 @@ end
 
         def mark_as_template
             @item.MarkAsTemplate
+        end
+
+        def mark_as_virtual_machine
+            @item.MarkAsVirtualMachine(
+                :pool => cluster['resourcePool']
+            )
         end
 
         def reset

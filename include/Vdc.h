@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -141,10 +141,10 @@ private:
     /**
      *  Insert acl rules into rules attribute.
      *
-     *  @param default_vdc_acl the mask for the acls.
+     *  @param name_attr the name of the configuration attribute.
      *  @param type Object type for the acls.
      */
-     void insert_default_rules(std::string default_vdc_acl,
+     void insert_default_rules(const std::string& name_attr,
                                PoolObjectSQL::ObjectType type);
  };
 

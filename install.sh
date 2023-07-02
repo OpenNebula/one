@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -1245,7 +1245,24 @@ VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
 #-------------------------------------------------------------------------------
 VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
                             src/vmm_mad/remotes/firecracker/shutdown \
-                            src/vmm_mad/remotes/firecracker/cancel"
+                            src/vmm_mad/remotes/firecracker/cancel \
+                            src/vmm_mad/remotes/firecracker/migrate \
+                            src/vmm_mad/remotes/firecracker/migrate_local \
+                            src/vmm_mad/remotes/firecracker/restore \
+                            src/vmm_mad/remotes/firecracker/reboot \
+                            src/vmm_mad/remotes/firecracker/reset \
+                            src/vmm_mad/remotes/firecracker/save \
+                            src/vmm_mad/remotes/firecracker/attach_disk \
+                            src/vmm_mad/remotes/firecracker/detach_disk \
+                            src/vmm_mad/remotes/firecracker/attach_nic \
+                            src/vmm_mad/remotes/firecracker/detach_nic \
+                            src/vmm_mad/remotes/firecracker/snapshot_create \
+                            src/vmm_mad/remotes/firecracker/snapshot_revert \
+                            src/vmm_mad/remotes/firecracker/snapshot_delete \
+                            src/vmm_mad/remotes/firecracker/reconfigure \
+                            src/vmm_mad/remotes/firecracker/prereconfigure \
+                            src/vmm_mad/remotes/firecracker/resize \
+                            src/vmm_mad/remotes/firecracker/resize_disk"
 
 VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
                         src/vmm_mad/remotes/lib/firecracker/client.rb \
@@ -1925,6 +1942,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
+              src/tm_mad/lib/datastore.rb \
               src/tm_mad/lib/backup.rb"
 
 TM_SHARED_FILES="src/tm_mad/shared/clone \
@@ -2148,6 +2166,8 @@ DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
                              src/datastore_mad/remotes/lxd_downloader.sh \
                              src/datastore_mad/remotes/docker_downloader.sh \
+                             src/datastore_mad/remotes/restic_downloader.rb \
+                             src/datastore_mad/remotes/rsync_downloader.rb \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
                              src/datastore_mad/remotes/vcenter_downloader.rb \
                              src/datastore_mad/remotes/url.rb \
@@ -2233,8 +2253,10 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/snap_flatten \
                          src/datastore_mad/remotes/rsync/rm \
                          src/datastore_mad/remotes/rsync/backup \
+                         src/datastore_mad/remotes/rsync/backup_cancel \
                          src/datastore_mad/remotes/rsync/restore \
-                         src/datastore_mad/remotes/rsync/export"
+                         src/datastore_mad/remotes/rsync/export \
+                         src/datastore_mad/remotes/rsync/increment_flatten"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 
@@ -2941,6 +2963,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/file-tab.yaml\
                                 src/fireedge/etc/sunstone/admin/sec-group-tab.yaml\
                                 src/fireedge/etc/sunstone/admin/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
@@ -2949,6 +2972,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/image-tab.yaml\
                                 src/fireedge/etc/sunstone/user/file-tab.yaml\
                                 src/fireedge/etc/sunstone/user/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/user/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vnet-tab.yaml"
 
 #-----------------------------------------------------------------------------

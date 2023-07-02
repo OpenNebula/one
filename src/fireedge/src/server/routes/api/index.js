@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,10 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const { env } = require('process')
 const multer = require('multer')
 const { messageTerminal } = require('server/utils/general')
 const { getRequestParameters, getRequestFiles } = require('server/utils/server')
 const {
+  defaultWebpackMode,
   defaultConfigErrorMessage,
   defaultTmpPath,
 } = require('server/utils/constants/defaults')
@@ -126,6 +128,14 @@ routes.forEach((file) => {
       )
     }
   } catch (error) {
+    if (env.NODE_ENV === defaultWebpackMode) {
+      messageTerminal({
+        color: 'red',
+        message: 'error: %s',
+        error,
+      })
+    }
+
     if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
       const config = defaultConfigErrorMessage
       config.error = error.message

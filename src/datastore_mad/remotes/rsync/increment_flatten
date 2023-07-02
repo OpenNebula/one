@@ -1,0 +1,196 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'base64'
+require 'pathname'
+require 'rexml/document'
+
+require_relative '../../tm/lib/backup'
+require_relative '../../tm/lib/tm_action'
+
+daction64 = STDIN.read
+
+# Parse input data.
+
+begin
+    action = Base64.decode64 daction64
+
+    image = TransferManager::BackupImage.new action
+
+    exit(0) if image.snapshots.size <= image.keep_last
+
+    snaps = image.snapshots.first(image.snapshots.size - image.keep_last + 1)
+
+    xml = REXML::Document.new(action).root
+
+    base_path      = xml.elements['DATASTORE/BASE_PATH'].text
+    rsync_user     = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rsync_host     = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    rsync_sparsify = xml.elements['DATASTORE/TEMPLATE/RSYNC_SPARSIFY']&.text || 'no'
+    rsync_sparsify = rsync_sparsify.downcase == 'yes'
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Gather and resolve paths.
+
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    snap_dirs = snaps.map do |snap|
+        raw     = %(#{base_path}/#{image.vm_id}/#{snap}/)
+        cleaned = Pathname.new(raw).cleanpath.to_s
+        quoted  = %('#{cleaned}/')
+        quoted
+    end
+
+    script << %(find #{snap_dirs.join(' ')} -type f -name 'disk.*')
+
+    rc = TransferManager::Action.ssh 'list_disks',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to list qcow2 images: #{rc.stderr}" if rc.code != 0
+
+    stdout_lines = rc.stdout.lines.map(&:strip).reject(&:empty?)
+
+    disks = { :by_snap => {}, :by_index => {} }
+
+    snaps.each do |snap|
+        disks[:by_snap][snap] = stdout_lines.select do |line|
+            line.include?("/#{snap}/disk.")
+        end
+    end
+
+    disks[:by_snap].values.flatten.each do |path|
+        name   = Pathname.new(path).basename.to_s
+        tokens = name.split('.')
+        (disks[:by_index][tokens[1]] ||= []) << path
+    end
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Reconstruct qcow2 chains for all viable disks.
+
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    disks[:by_index].each do |_, disk_paths|
+        script << image.class.reconstruct_chain(disk_paths)
+    end
+
+    rc = TransferManager::Action.ssh 'reconstruct_chains',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to reconstruct qcow2 chains: #{rc.stderr}" if rc.code != 0
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Merge qcow2 chains for all viable disks.
+
+begin
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    disks[:by_index].each do |_, disk_paths|
+        script << image.class.merge_chain(disk_paths, :sparsify => rsync_sparsify)
+    end
+
+    # Calculate the new snapshot's size (sum of all qcow2 image sizes in the snapshot).
+    script << 'RC=`('
+    disks[:by_index].each do |_, disk_paths|
+        script << "qemu-img info --output json '#{disk_paths.last}';"
+    end
+    script << ')`'
+    script << %(SIZE=`jq --slurp 'map(."actual-size" | tonumber) | add' <<< "$RC"`)
+
+    to_delete = snap_dirs.first(snap_dirs.size - 1)
+    script << %(rm -rf #{to_delete.join(' ')}) unless to_delete.empty?
+
+    script << %(echo "$SIZE")
+
+    rc = TransferManager::Action.ssh 'flatten_chains',
+                                     :host     => "#{rsync_user}@#{rsync_host}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to flatten increments: #{rc.stderr}" if rc.code != 0
+
+    new_size = rc.stdout.lines.last.strip.to_i / 1024**2
+
+    STDOUT.puts "#{new_size} #{image.chain_keep_last(snaps.last)}"
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+exit(0)

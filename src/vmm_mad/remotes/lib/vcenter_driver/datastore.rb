@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -743,9 +743,9 @@ module VCenterDriver
                         image_path = ''
 
                         # Skip not relevant files
-                        next unless %w[FloppyImageFileInfo
-                                       IsoImageFileInfo
-                                       VmDiskFileInfo].include? image.class.to_s
+                        next unless ['FloppyImageFileInfo',
+                                     'IsoImageFileInfo',
+                                     'VmDiskFileInfo'].include? image.class.to_s
 
                         # Get image path and name
                         image_path << folderpath << image.path

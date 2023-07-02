@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -456,7 +456,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     bool remove_old_group;
 
     string ngname;
-    string uname;
     string auth_driver;
 
     PoolObjectAuth uperms;
@@ -475,8 +474,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if ( auto user = upool->get_ro(oid) )
     {
         user->get_permissions(uperms);
-
-        uname = user->get_name();
 
         auth_driver = user->get_auth_driver();
         new_group   = user->get_groups().count(ngid) != 1;

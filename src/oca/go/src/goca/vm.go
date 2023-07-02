@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -422,7 +422,7 @@ func (vc *VMController) SnapshotRevert(snapID int) error {
 
 // Migrate a VM to a target host and/or to another ds
 func (vc *VMController) Migrate(hostID int, live, enforce bool, dsID int, migrationType int) error {
-	_, err := vc.c.Client.Call("one.vm.migrate", int(hostID), live, enforce, int(dsID), migrationType)
+	_, err := vc.c.Client.Call("one.vm.migrate", vc.ID, hostID, live, enforce, dsID, migrationType)
 	return err
 }
 
@@ -592,5 +592,17 @@ func (vc *VMController) AttachSG(nicID int, sgID int) error {
 // DetachSG detaches a Security Group from Virtual Machine NIC
 func (vc *VMController) DetachSG(nicID int, sgID int) error {
 	_, err := vc.c.Client.Call("one.vm.detachsg", vc.ID, nicID, sgID)
+	return err
+}
+
+// Backup Virtual Machine
+func (vc *VMController) Backup(dsID int, reset bool) error {
+	_, err := vc.c.Client.Call("one.vm.backup", vc.ID, dsID, reset)
+	return err
+}
+
+// Cancel ongoing backup operation
+func (vc *VMController) BackupCancel() error {
+	_, err := vc.c.Client.Call("one.vm.backupcancel", vc.ID)
 	return err
 }

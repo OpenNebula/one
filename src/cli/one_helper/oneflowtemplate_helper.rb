@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -157,7 +157,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
                 CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-                %w[OWNER GROUP OTHER].each do |e|
+                ['OWNER', 'GROUP', 'OTHER'].each do |e|
                     mask = '---'
                     permissions_hash = document['PERMISSIONS']
                     mask[0] = 'u' if permissions_hash["#{e}_U"] == '1'
@@ -190,6 +190,35 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         ret['custom_attrs_values'] = OpenNebulaHelper.parse_user_inputs(custom_attrs)
 
         # rubocop:enable Layout/LineLength
+        ret
+    end
+
+    # Get custom role attributes values from user
+    #
+    # @param role [Hash] Service role with custom attributes
+    #
+    # @return [Hash] Role with custom attributes values
+    def custom_role_attrs(roles)
+        return if roles.nil? || roles.empty?
+
+        ret = {}
+        role_with_custom_attrs = false
+
+        roles.each do |role|
+            next unless role.key?('custom_attrs')
+
+            ####################################################################
+            # Display Role Information
+            ####################################################################
+            header = "> Please insert the user inputs for the role \"#{role['name']}\""
+            puts header
+
+            role.merge!(custom_attrs(role['custom_attrs']))
+            role_with_custom_attrs = true
+        end
+
+        ret['roles'] = roles if role_with_custom_attrs
+
         ret
     end
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,11 +48,10 @@ public:
                  xml_root(_xml_root){}
 
     Template(const Template& t)
+        : replace_mode(t.replace_mode)
+        , separator(t.separator)
+        , xml_root(t.xml_root)
     {
-        replace_mode = t.replace_mode;
-        separator    = t.separator;
-        xml_root     = t.xml_root;
-
         for (auto it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
             attributes.insert(make_pair(it->first,(it->second)->clone()));
@@ -673,7 +672,7 @@ private:
     }
 
     template<typename T>
-    void _set(std::vector<T *>& values)
+    void _set(const std::vector<T *>& values)
     {
         for (auto v : values)
         {

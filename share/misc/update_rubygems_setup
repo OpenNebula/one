@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -27,7 +27,7 @@ RG_SETUP_END   = '%%RUBYGEMS_SETUP_END%%'
 # Bundled Ruby gems loader code.
 # IMPORTANT: Update here and commit into Git as well!
 # rubocop:disable Layout/HeredocIndentation
-RG_SETUP = <<-'EOT'
+RG_SETUP = <<-EOT
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]

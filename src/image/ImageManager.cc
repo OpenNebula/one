@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -99,6 +99,9 @@ int ImageManager::start()
     register_action(ImageManagerMessages::RESTORE,
             bind(&ImageManager::_restore, this, _1));
 
+    register_action(ImageManagerMessages::INCREMENT_FLATTEN,
+            bind(&ImageManager::_increment_flatten, this, _1));
+
     register_action(ImageManagerMessages::LOG,
             &ImageManager::_log);
 
@@ -146,7 +149,6 @@ void ImageManager::timer_action()
     vector<int>           datastores;
 
     Nebula& nd             = Nebula::instance();
-    DatastorePool * dspool = nd.get_dspool();
     RaftManager * raftm    = nd.get_raftm();
 
     if ( !raftm->is_leader() && !raftm->is_solo() )
@@ -181,7 +183,6 @@ void ImageManager::monitor_datastore(int ds_id)
     bool shared;
 
     Nebula& nd             = Nebula::instance();
-    DatastorePool * dspool = nd.get_dspool();
 
     Datastore::DatastoreType ds_type;
 

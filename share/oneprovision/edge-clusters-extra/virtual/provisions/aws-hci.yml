@@ -1,6 +1,6 @@
 ---
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -34,12 +34,17 @@ extends:
     - aws.d/networks.yml
 
 #-------------------------------------------------------------------------------
-# playbook: Ansible playbook used for hosts configuration. Check ansible/aws.yml
-# for the specific roles applied.
+# ansible
+#   ver_min: ansible core required minimal version (>=)
+#   ver_max: ansible core required maximal version (<)
+#   playbook: Ansible playbook used for hosts configuration.
 #-------------------------------------------------------------------------------
-playbook:
-  - aws
-  - ceph_hci/site
+ansible:
+  ver_min: 2.12
+  ver_max: 2.13
+  playbook:
+    - aws
+    - ceph_hci/site
 
 #-------------------------------------------------------------------------------
 # defaults: Common configuration attributes for provision objects

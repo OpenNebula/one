@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,32 +14,32 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useMemo } from 'react'
 
+import { Alert, Box, Chip, Grid } from '@mui/material'
 import clsx from 'clsx'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
-import { Box, Chip } from '@mui/material'
+
 import {
-  useGlobalFilter,
+  UseRowSelectRowProps,
   useFilters,
+  useGlobalFilter,
+  useMountedLayoutEffect,
   usePagination,
   useRowSelect,
   useSortBy,
   useTable,
-  useMountedLayoutEffect,
-  // types
-  UseRowSelectRowProps,
 } from 'react-table'
 
 import {
   GlobalActions,
-  GlobalSearch,
   GlobalFilter,
   GlobalLabel,
-  GlobalSort,
+  GlobalSearch,
   GlobalSelectedRows,
+  GlobalSort,
   LABEL_COLUMN_ID,
 } from 'client/components/Tables/Enhanced/Utils'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
@@ -73,6 +73,7 @@ const EnhancedTable = ({
   rootProps = {},
   searchProps = {},
   noDataMessage,
+  messages = [],
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -186,6 +187,26 @@ const EnhancedTable = ({
 
   const canResetFilter = state.filters?.length > 0 || state.sortBy?.length > 0
 
+  const messageValues = messages.filter(
+    (messageValue) => messageValue?.rows?.length
+  )
+  const MessagesRowsAlerts = () => {
+    let grid = 12
+    messageValues.length && (grid = grid / messageValues.length)
+
+    return (
+      <Grid container spacing={2}>
+        {messageValues.map((value, index) => (
+          <Grid item xs={grid} key={`messageAlert-${index}`}>
+            <Alert icon={value?.icon || ''} severity={value?.type || 'info'}>
+              {value?.message || ''}
+            </Alert>
+          </Grid>
+        ))}
+      </Grid>
+    )
+  }
+
   return (
     <Box
       {...getTableProps()}
@@ -233,7 +254,6 @@ const EnhancedTable = ({
           <GlobalFilter {...useTableProps} />
           {!disableGlobalSort && <GlobalSort {...useTableProps} />}
         </div>
-
         {/* SELECTED ROWS */}
         {displaySelectedRows && (
           <div>
@@ -259,6 +279,7 @@ const EnhancedTable = ({
       />
 
       <div className={clsx(styles.body, classes.body)}>
+        {!!messages.length && <MessagesRowsAlerts />}
         {/* NO DATA MESSAGE */}
         {!isLoading &&
           !isUninitialized &&
@@ -290,6 +311,9 @@ const EnhancedTable = ({
               key={key}
               original={original}
               value={values}
+              {...(messageValues.length && {
+                globalErrors: messageValues,
+              })}
               className={isSelected ? 'selected' : ''}
               {...(!cannotFilterByLabel && {
                 onClickLabel: (label) => {
@@ -307,9 +331,13 @@ const EnhancedTable = ({
                 typeof onRowClick === 'function' && onRowClick(original)
 
                 if (!disableRowSelect) {
-                  singleSelect ||
-                    (!(e.ctrlKey || e.metaKey) &&
-                      toggleAllRowsSelected?.(false))
+                  if (
+                    singleSelect ||
+                    (!singleSelect && !(e.ctrlKey || e.metaKey))
+                  ) {
+                    toggleAllRowsSelected?.(false)
+                  }
+
                   toggleRowSelected?.(!isSelected)
                 }
               }}
@@ -358,6 +386,7 @@ EnhancedTable.propTypes = {
     PropTypes.node,
     PropTypes.bool,
   ]),
+  messages: PropTypes.array,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

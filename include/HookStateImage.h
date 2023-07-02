@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -50,7 +50,7 @@ private:
      *    @param error_str string with error information
      *    @return 0 on success
      */
-    int parse_template(Template *tmpl, std::string& error_str);
+    int parse_template(Template *tmpl, std::string& error_str) override;
 
     /**
      *  Rebuilds the object from a template
@@ -58,14 +58,14 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_template(const Template * tmpl, std::string& error);
+    int from_template(const Template * tmpl, std::string& error) override;
 
     /* Checks the mandatory template attributes
      *    @param tmpl The hook template
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(Template * tmpl, std::string& error);
+    int post_update_template(Template * tmpl, std::string& error) override;
 
     // -------------------------------------------------------------------------
     // Hook API Attributes

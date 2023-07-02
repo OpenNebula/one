@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -14,54 +14,112 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
+  getTypeScheduleAction,
   timeToSecondsByPeriodicity,
   transformStringToArgsObject,
 } from 'client/models/Scheduler'
+
+import { DateTime } from 'luxon'
+
 import { createForm } from 'client/utils'
 
 import {
-  SCHED_SCHEMA,
-  SCHED_FIELDS,
-  RELATIVE_SCHED_SCHEMA,
-  RELATIVE_SCHED_FIELDS,
+  TEMPLATE_SCHED_FIELDS,
+  TEMPLATE_SCHED_SCHEMA,
+  VM_SCHED_FIELDS,
+  VM_SCHED_SCHEMA,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/schema'
+import { REPEAT_VALUES, SCHEDULE_TYPE } from 'client/constants'
 
-const commonTransformInitialValue = (scheduledAction, schema) => {
+const commonTransformInitialValue = (scheduledAction, schema, typeForm) => {
+  const type = getTypeScheduleAction(scheduledAction)
+
   const dataToCast = {
     ...scheduledAction,
-    // get action arguments from ARGS
+    PERIODIC: type !== '' ? type : undefined,
     ARGS: transformStringToArgsObject(scheduledAction),
   }
 
-  return schema.cast(dataToCast, { context: scheduledAction })
+  if (type === SCHEDULE_TYPE.RELATIVE) {
+    dataToCast.RELATIVE_TIME = scheduledAction.TIME
+  } else {
+    dataToCast.TIME = DateTime.fromSeconds(+scheduledAction.TIME)
+    if (scheduledAction.WEEKLY) {
+      dataToCast.WEEKLY = scheduledAction?.WEEKLY?.split?.(',') ?? []
+    }
+  }
+
+  return schema.cast(dataToCast, {
+    context: scheduledAction,
+    stripUnknown: true,
+  })
 }
 
 const commonTransformBeforeSubmit = (formData) => {
-  const { WEEKLY, MONTHLY, YEARLY, HOURLY, PERIODIC, ARGS, ...filteredData } =
-    formData
+  const {
+    ACTION,
+    TIME,
+    PERIODIC,
+    PERIOD,
+    ARGS,
+    RELATIVE_TIME,
+    REPEAT,
+    END_TYPE,
+    END_VALUE,
+    WEEKLY,
+    MONTHLY,
+    YEARLY,
+    HOURLY,
+  } = formData
+
+  const scheduleAction = {
+    ACTION,
+    TIME: `${TIME}`,
+    ARGS,
+  }
 
   // transform action arguments to string
   const argValues = Object.values(ARGS ?? {})?.filter(Boolean)
-  argValues.length && (filteredData.ARGS = argValues.join(','))
+  argValues.length && (scheduleAction.ARGS = argValues.join(','))
 
-  return filteredData
+  if (PERIODIC === SCHEDULE_TYPE.RELATIVE) {
+    scheduleAction.TIME = `+${timeToSecondsByPeriodicity(
+      PERIOD,
+      RELATIVE_TIME
+    )}`
+  } else {
+    if (PERIODIC === SCHEDULE_TYPE.PERIODIC) {
+      scheduleAction.END_TYPE = END_TYPE
+      scheduleAction.END_VALUE = END_VALUE
+      scheduleAction.REPEAT = REPEAT
+      switch (REPEAT) {
+        case REPEAT_VALUES.WEEKLY:
+          scheduleAction.WEEKLY = WEEKLY
+          break
+        case REPEAT_VALUES.MONTHLY:
+          scheduleAction.MONTHLY = MONTHLY
+          break
+        case REPEAT_VALUES.YEARLY:
+          scheduleAction.YEARLY = YEARLY
+          break
+        default:
+          scheduleAction.HOURLY = HOURLY
+          break
+      }
+    }
+  }
+
+  return scheduleAction
 }
 
-const CreateSchedActionForm = createForm(SCHED_SCHEMA, SCHED_FIELDS, {
+const CreateSchedActionForm = createForm(VM_SCHED_SCHEMA, VM_SCHED_FIELDS, {
   transformInitialValue: commonTransformInitialValue,
   transformBeforeSubmit: commonTransformBeforeSubmit,
 })
 
-const RelativeForm = createForm(RELATIVE_SCHED_SCHEMA, RELATIVE_SCHED_FIELDS, {
+const RelativeForm = createForm(TEMPLATE_SCHED_SCHEMA, TEMPLATE_SCHED_FIELDS, {
   transformInitialValue: commonTransformInitialValue,
-  transformBeforeSubmit: (formData) => {
-    const { PERIOD, TIME, ...restData } = commonTransformBeforeSubmit(formData)
-
-    return {
-      ...restData,
-      TIME: `+${timeToSecondsByPeriodicity(PERIOD, TIME)}`,
-    }
-  },
+  transformBeforeSubmit: commonTransformBeforeSubmit,
 })
 
 export { RelativeForm }

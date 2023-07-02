@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -231,7 +231,7 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
     string   quota_str = xmlrpc_c::value_string(paramList.getString(1));
-    string   error_str, xml;
+    string   xml;
     Template quota_tmpl;
 
     int     rc;

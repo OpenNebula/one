@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,7 +48,7 @@ public:
     /**
      *  Parse and loads the configuration in the template
      */
-    virtual int load_configuration();
+    int load_configuration() override;
 
     /**
      *  Returns action set from a string of actions seperated by commas
@@ -84,12 +84,12 @@ private:
     /**
      *  Sets the defaults value for the template
      */
-    void set_conf_default();
+    void set_conf_default() override;
 
     /**
      *  Sets the defaults value for multiple attributes
      */
-    void set_multiple_conf_default();
+    void set_multiple_conf_default() override;
 
     /**
      *  register the multiple configuration attributes and clean the

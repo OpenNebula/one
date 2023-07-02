@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -60,6 +60,7 @@ enum class ImageManagerMessages : unsigned short int
     SNAP_REVERT,
     SNAP_FLATTEN,
     RESTORE,
+    INCREMENT_FLATTEN,
     LOG,
     ENUM_MAX
 };
@@ -176,6 +177,7 @@ enum class VMManagerMessages : unsigned short int
     RESIZE,
     BACKUP,
     UPDATENIC,
+    BACKUPCANCEL,
     ENUM_MAX
 };
 

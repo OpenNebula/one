@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -347,7 +347,7 @@ namespace one_util
      *  @return true on success, false otherwise
      */
     template <class T>
-    bool str_cast(const std::string str, T& value)
+    bool str_cast(const std::string& str, T& value)
     {
         std::istringstream iss(str);
 

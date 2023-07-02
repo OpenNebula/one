@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -282,7 +282,6 @@ int User::from_xml(const string& xml)
     }
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);
@@ -295,7 +294,6 @@ int User::from_xml(const string& xml)
     rc += obj_template->from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
-    content.clear();
 
     rc += vm_actions.set_auth_ops(*obj_template, error);
 
@@ -312,7 +310,7 @@ int User::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::split_secret(const string secret, string& user, string& pass)
+int User::split_secret(const string& secret, string& user, string& pass)
 {
     size_t pos;
     int    rc = -1;

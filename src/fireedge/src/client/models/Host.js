@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { prettyBytes } from 'client/utils'
 import {
-  DEFAULT_CPU_MODELS,
   CUSTOM_HOST_HYPERVISOR,
-  Host,
+  DEFAULT_CPU_MODELS,
   HOST_STATES,
-  STATES,
   HYPERVISORS,
+  Host,
   NumaNode,
   PciDevice,
+  STATES,
 } from 'client/constants'
 import { useGetOneConfigQuery } from 'client/features/OneApi/system'
+import { prettyBytes } from 'client/utils'
 
 /**
  * Returns information about the host state.
@@ -53,16 +53,18 @@ export const getDatastores = (host) =>
  * }} Allocated information object
  */
 export const getAllocatedInfo = (host) => {
-  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = host?.HOST_SHARE ?? {}
+  const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM, MAX_MEM, MAX_CPU } =
+    host?.HOST_SHARE ?? {}
+  const { RESERVED_CPU, RESERVED_MEM } = host?.TEMPLATE ?? {}
 
-  const percentCpuUsed = (+CPU_USAGE * 100) / +TOTAL_CPU || 0
-  const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} 
+  const percentCpuUsed = (+CPU_USAGE * 100) / +MAX_CPU || 0
+  const percentCpuLabel = `${CPU_USAGE} / ${MAX_CPU} 
     (${Math.round(isFinite(percentCpuUsed) ? percentCpuUsed : '--')}%)`
 
   const isMemUsageNegative = +MEM_USAGE < 0
-  const percentMemUsed = (+MEM_USAGE * 100) / +TOTAL_MEM || 0
+  const percentMemUsed = (+MEM_USAGE * 100) / +MAX_MEM || 0
   const usedMemBytes = prettyBytes(Math.abs(+MEM_USAGE))
-  const totalMemBytes = prettyBytes(+TOTAL_MEM)
+  const totalMemBytes = prettyBytes(+MAX_MEM)
   const percentMemLabel = `${
     isMemUsageNegative ? '-' : ''
   }${usedMemBytes} / ${totalMemBytes} 
@@ -73,6 +75,18 @@ export const getAllocatedInfo = (host) => {
     percentCpuLabel,
     percentMemUsed,
     percentMemLabel,
+    totalCpu: TOTAL_CPU,
+    totalMem: TOTAL_MEM,
+    maxCpu: MAX_CPU,
+    maxMem: MAX_MEM,
+    usageCpu: CPU_USAGE,
+    usageMem: MEM_USAGE,
+    reservedCpu: RESERVED_CPU,
+    reservedMem: RESERVED_MEM,
+    colorCpu:
+      MAX_CPU > TOTAL_CPU ? 'error' : MAX_CPU < TOTAL_CPU ? 'success' : '',
+    colorMem:
+      MAX_MEM > TOTAL_MEM ? 'error' : MAX_MEM < TOTAL_MEM ? 'success' : '',
   }
 }
 
@@ -106,11 +120,15 @@ export const getPciDevices = (host) =>
  * @param {Host[]} hosts - Hosts
  * @returns {Array} List of KVM CPU Models from the pool
  */
-export const getKvmCpuModels = (hosts = []) =>
-  hosts
+export const getKvmCpuModels = (hosts = []) => {
+  const hostData = hosts
     .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
     .map((host) => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
     .flat()
+
+  // Removes the repeated
+  return [...new Set(hostData)]
+}
 
 /**
  * Returns list of KVM Machines available from the host pool.
@@ -124,7 +142,8 @@ export const getKvmMachines = (hosts = []) => {
     .map((host) => host.TEMPLATE?.KVM_MACHINES.split(' '))
     .flat()
 
-  return [DEFAULT_CPU_MODELS, ...machineTypes]
+  // Removes the repeated
+  return [...new Set([DEFAULT_CPU_MODELS, ...machineTypes])]
 }
 
 /**
@@ -178,13 +197,15 @@ export const getHostNuma = (host = {}) =>
  * }} Numa Node memory information
  */
 export const getNumaMemory = (numa) => {
-  const { TOTAL, USED } = numa?.MEMORY ?? {}
+  const { TOTAL = 0, USED = 0 } = numa?.MEMORY ?? {}
 
+  const isMemUsageNegative = +USED < 0
   const percentMemUsed = (+USED * 100) / +TOTAL || 0
-
   const usedMemBytes = prettyBytes(Math.abs(+USED))
   const totalMemBytes = prettyBytes(+TOTAL)
-  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} 
+  const percentMemLabel = `${
+    isMemUsageNegative ? '-' : ''
+  }${usedMemBytes} / ${totalMemBytes} 
       (${Math.round(isFinite(percentMemUsed) ? percentMemUsed : '--')}%)`
 
   return {

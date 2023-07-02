@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -17,17 +17,23 @@ import { prettyBytes } from 'client/utils'
 import {
   Datastore,
   DATASTORE_STATES,
-  DATASTORE_TYPES,
+  DATASTORE_TYPES, // REVISAR!!
   STATES,
+  T,
 } from 'client/constants'
 
 /**
  * Returns the datastore type name.
  *
  * @param {Datastore} datastore - Datastore
- * @returns {DATASTORE_TYPES} - Datastore type object
+ * @returns {string} - Datastore type object
  */
-export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
+export const getType = ({ TYPE } = {}) => {
+  const ds = Object.values(DATASTORE_TYPES).filter((type) => type.id === +TYPE)
+  const name = ds.length ? ds[0].name : T.Unknown
+
+  return name.toUpperCase()
+}
 
 /**
  * Returns information about datastore state.
@@ -45,7 +51,8 @@ export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
  */
 export const getDeployMode = (datastore = {}) => {
   const { TEMPLATE = {} } = datastore
-  const isImage = getType(datastore)?.name === DATASTORE_TYPES[0]?.name
+  const isImage =
+    getType(datastore) === DATASTORE_TYPES.IMAGE.name.toUpperCase()
 
   return isImage
     ? TEMPLATE?.TM_MAD_SYSTEM?.split(',')?.filter(Boolean) ?? []

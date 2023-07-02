@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -208,6 +208,7 @@ class LXCVM < OpenNebulaVM
         @xml.elements('//TEMPLATE/DISK').each do |xml|
             next if xml['TYPE'].downcase == 'swap'
 
+            # rubocop:disable Style/ConditionalAssignment
             if xml['DISK_ID'] == @rootfs_id
                 adisks << Disk.new_root(xml, @sysds_path, @vm_id,
                                         @lxcrc[:mountopts])
@@ -215,6 +216,7 @@ class LXCVM < OpenNebulaVM
                 adisks << Disk.new_disk(xml, @sysds_path, @vm_id,
                                         @lxcrc[:mountopts])
             end
+            # rubocop:enable Style/ConditionalAssignment
         end
 
         context_xml = @xml.element('//TEMPLATE/CONTEXT')
@@ -271,11 +273,13 @@ class LXCVM < OpenNebulaVM
                 key = match[1].strip
                 value = match[2].strip
 
+                # rubocop:disable Style/ConditionalAssignment
                 if !raw_map[key].nil?
                     raw_map[key] = value
                 else
                     raw_map[key] = Array(raw_map[key]) << value
                 end
+                # rubocop:enable Style/ConditionalAssignment
             end
         rescue StandardError
         end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -177,9 +177,9 @@ int SchedAction::ends_in_range(EndOn eo, std::string& error)
         return -2;
     }
 
-    if ( eo == TIMES && end_value <= 0 )
+    if ( eo == TIMES && end_value < 0 )
     {
-        error = "Error parsing END_VALUE, times has to be greater than 0";
+        error = "Error parsing END_VALUE, times has to be >= 0";
         return -1;
     }
     else if ( eo == DATE )
@@ -328,17 +328,63 @@ time_t SchedAction::get_time(time_t stime)
 
 bool SchedAction::is_due(time_t stime)
 {
-    time_t action_time, done_time;
-    int repeat;
+    // -------------------------------------------------------------------------
+    // Check action has already finished (END_TYPE and END_VALUE defined)
+    // -------------------------------------------------------------------------
+    Repeat r;
+    EndOn  eo;
 
-    bool has_done   = vector_value("DONE", done_time) == 0;
-    bool has_repeat = vector_value("REPEAT", repeat) == 0;
+    if ( repeat(r) == -1 )
+    {
+        return false; //Parse error - consistency check
+    }
 
-    action_time = get_time(stime);
+    bool has_repeat = r != NONE;
+    bool has_ended  = false;
 
-    return (action_time != -1)
-           && ((!has_done || done_time < action_time || has_repeat)
-           && action_time < time(0));
+    time_t end_value;
+
+    if (endon(eo) == 0 && vector_value("END_VALUE", end_value) != -1)
+    {
+        switch (eo)
+        {
+            case END_NONE:
+            case NEVER:
+                has_ended = false;
+                break;
+            case TIMES:
+                has_ended = end_value <= 0;
+                break;
+            case DATE:
+                has_ended = time(0) > end_value;
+                break;
+        }
+    }
+
+    if (has_repeat && has_ended)
+    {
+        return false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Check if the action has been completed
+    // -------------------------------------------------------------------------
+    time_t due_time, done_time;
+    bool has_done = vector_value("DONE", done_time) == 0;
+
+    due_time = get_time(stime);
+
+    if (due_time == -1)
+    {
+        return false; //Parse error
+    }
+
+    if (has_done && done_time >= due_time)
+    {
+        return false; //Action has been already completed
+    }
+
+    return due_time < time(0); //Action is due
 }
 
 /* -------------------------------------------------------------------------- */

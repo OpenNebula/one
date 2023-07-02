@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -118,7 +118,7 @@ main_env.Append(LIBPATH=[
 main_env.Append(CPPFLAGS=[
     "-g",
     "-Wall",
-    "-std=c++14"
+    "-std=c++17"
 ])
 
 # Linking flags & common libraries
@@ -128,6 +128,26 @@ main_env.Append(LIBS=['z'])
 #######################
 # EXTRA CONFIGURATION #
 #######################
+
+# Generate help text
+vars = Variables('custom.py')
+vars.Add('sqlite_dir', 'Path to sqlite directory', '')
+vars.Add('sqlite', 'Build with SQLite support', 'yes')
+vars.Add('mysql', 'Build with MySQL support', 'no')
+vars.Add('postgresql', 'Build with PostgreSQL support', 'no')
+vars.Add('parsers', 'Obsolete. Rebuild flex/bison files', 'no')
+vars.Add('xmlrpc', 'Path to xmlrpc directory', '')
+vars.Add('new_xmlrpc', 'Use xmlrpc-c version >=1.31', 'no')
+vars.Add('sunstone', 'Build Sunstone', 'no')
+vars.Add('fireedge', 'Build FireEdge', 'no')
+vars.Add('systemd', 'Build with systemd support', 'no')
+vars.Add('docker_machine', 'Build Docker machine driver', 'no')
+vars.Add('rubygems', 'Generate Ruby gems', 'no')
+vars.Add('svncterm', 'Build VNC support for LXD drivers', 'yes')
+vars.Add('context', 'Download guest contextualization packages', 'no')
+vars.Add('strict', 'Strict C++ compiler, more warnings, treat warnings as errors', 'no')
+env = Environment(variables = vars)
+Help(vars.GenerateHelpText(env))
 
 # SQLITE
 sqlite_dir = ARGUMENTS.get('sqlite_dir', "none")
@@ -191,6 +211,18 @@ if build_parsers == 'yes':
     main_env.Append(parsers='yes')
 else:
     main_env.Append(parsers='no')
+
+# strict: Add more warnings add treat warnings as errors
+strict = ARGUMENTS.get('strict', 'no')
+if strict == 'yes':
+    main_env.Append(CPPFLAGS=[
+        "-Wextra",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+        "-Wno-unused-parameter",
+        "-Wno-unused-result"
+    ])
+
 
 # Rubygem generation
 main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))

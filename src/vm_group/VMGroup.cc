@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -109,8 +109,6 @@ int VMGroup::from_xml(const string &xml_str)
 
     ObjectXML::free_nodes(content);
 
-    content.clear();
-
     // VMGroup roles
     ObjectXML::get_nodes("/VM_GROUP/ROLES", content);
 
@@ -120,8 +118,6 @@ int VMGroup::from_xml(const string &xml_str)
     }
 
     ObjectXML::free_nodes(content);
-
-    content.clear();
 
     if (rc != 0)
     {
@@ -247,7 +243,7 @@ int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 
         if ( roles.names_to_ids(sattr->value(), id_set) != 0 )
         {
-            std::ostringstream oss;
+            oss.str("");
 
             oss << "Some roles used in " << aname << " attribute ("
                 << sattr->value() << ") are not defined";
@@ -288,7 +284,7 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
 
         if ( rc.second == false )
         {
-            std::ostringstream oss;
+            oss.str("");
 
             oss << "Duplicated " << aname << " rule (" << sattr->value()
                 << ") detected.";

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------- *
- * Copyright 2002-2022, OpenNebula Project, OpenNebula Systems               *
+ * Copyright 2002-2023, OpenNebula Project, OpenNebula Systems               *
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
  * not use this file except in compliance with the License. You may obtain   *
@@ -16,21 +16,21 @@
 import { number, string } from 'yup'
 
 import {
-  generateModificationInputs,
-  generateHotResizeInputs,
   generateCapacityInput,
   generateCostCapacityInput,
+  generateHotResizeInputs,
+  generateModificationInputs,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacityUtils'
 import { Translate } from 'client/components/HOC'
-import { formatNumberByCurrency } from 'client/models/Helper'
-import { Field, arrayToOptions } from 'client/utils'
 import {
-  T,
   HYPERVISORS,
-  VmTemplateFeatures,
   INPUT_TYPES,
   MEMORY_RESIZE_OPTIONS,
+  T,
+  VmTemplateFeatures,
 } from 'client/constants'
+import { formatNumberByCurrency } from 'client/models/Helper'
+import { Field, arrayToOptions } from 'client/utils'
 
 const commonValidation = number()
   .positive()
@@ -96,7 +96,7 @@ export const CPU_FIELDS = [PHYSICAL_CPU, ...MOD_CPU_FIELDS]
 /** @type {Field} Virtual CPU field */
 export const VIRTUAL_CPU = generateCapacityInput({
   name: 'VCPU',
-  label: T.VirtualCpuWithPercent,
+  label: T.VirtualCpuWithDecimal,
   tooltip: T.VirtualCpuConcept,
   validation: commonValidation,
 })

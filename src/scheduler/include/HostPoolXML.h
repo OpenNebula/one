@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,7 +33,7 @@ public:
 
     ~HostPoolXML(){};
 
-    int set_up();
+    int set_up() override;
 
     /**
      *  Gets an object from the pool
@@ -68,9 +68,9 @@ protected:
         return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
     };
 
-    void add_object(xmlNodePtr node);
+    void add_object(xmlNodePtr node) override;
 
-    int load_info(xmlrpc_c::value &result);
+    int load_info(xmlrpc_c::value &result) override;
 };
 
 #endif /* HOST_POOL_XML_H_ */

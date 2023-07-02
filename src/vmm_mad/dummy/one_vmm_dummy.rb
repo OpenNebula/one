@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -223,6 +223,12 @@ class DummyDriver < VirtualMachineDriver
         result = retrieve_result("backup")
 
         send_message(ACTION[:backup], result, id, 'dummy-backup-id 1024')
+    end
+
+    def backup_cancel(id, drv_message)
+        result = retrieve_result("backup_cancel")
+
+        send_message(ACTION[:backup_cancel], result, id)
     end
 
     def update_nic(id, drv_message)

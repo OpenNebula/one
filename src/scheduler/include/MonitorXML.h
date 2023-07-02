@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -76,7 +76,7 @@ protected:
         return get_nodes("/MONITORING_DATA/MONITORING", content);
     };
 
-    void add_object(xmlNodePtr node)
+    void add_object(xmlNodePtr node) override
     {
         if ( node == 0 || node->children == 0 )
         {
@@ -90,7 +90,7 @@ protected:
         objects.insert(std::pair<int,ObjectXML*>(monitor->get_oid(), monitor));
     }
 
-    int load_info(xmlrpc_c::value &result)
+    int load_info(xmlrpc_c::value &result) override
     {
         try
         {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,7 +27,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "NebulaLog.h"
 #include "SqlDB.h"
 #include "ObjectSQL.h"
 
@@ -49,7 +48,7 @@ public:
             const std::string& _database,
             const std::string& _encoding,
             int                _connections,
-            std::string&       _compare_binary);
+            const std::string& _compare_binary);
 
     ~MySqlDB();
 
@@ -60,13 +59,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const std::string& str) const;
+    char * escape_str(const std::string& str) const override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str) const
+    void free_str(char * str) const override
     {
         delete[] str;
     }

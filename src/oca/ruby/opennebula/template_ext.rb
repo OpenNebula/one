@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -79,7 +79,7 @@ module OpenNebula::TemplateExt
                         image['STATE'].to_i
                     ]
 
-                    unless %w[LOCKED READY USED].include?(i_state)
+                    unless ['LOCKED', 'READY', 'USED'].include?(i_state)
                         logger.fatal "Wrong image state #{i_state}" if logger
 
                         rollback(ids)
@@ -204,7 +204,7 @@ module OpenNebula::TemplateExt
             #   @param nic [XMLElement] to delete attributes from
             #-------------------------------------------------------------------
             def delete_nic_attributes(nic)
-                %w[NETWORK NETWORK_ID NETWORK_UNAME SECURITY_GROUPS].each do |a|
+                ['NETWORK', 'NETWORK_ID', 'NETWORK_UNAME', 'SECURITY_GROUPS'].each do |a|
                     nic.delete_element(a)
                 end
             end

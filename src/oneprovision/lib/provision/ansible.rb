@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -41,12 +41,11 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_VERSION     = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
-ANSIBLE_ARGS        = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
+ANSIBLE_ARGS = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 CEPH_ANSIBLE_URL    = 'https://github.com/ceph/ceph-ansible.git'
-CEPH_ANSIBLE_BRANCH = 'v6.0.26' # 'stable-6.0'
-CEPH_ANSIBLE_DIR    = '/var/lib/one/.ansible/ceph-6.0'
+CEPH_ANSIBLE_BRANCH = 'stable-7.0'
+CEPH_ANSIBLE_DIR    = '/var/lib/one/.ansible/ceph-7.0'
 
 module OneProvision
 
@@ -76,11 +75,11 @@ module OneProvision
                 version = version.match(/\d+[.]\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
-                if (version < ANSIBLE_VERSION[0]) ||
-                   (version >= ANSIBLE_VERSION[1])
+                ansible_min, ansible_max = provision.ansible_ver
+
+                if (version < ansible_min) || (version >= ansible_max)
                     Utils.fail("Unsupported Ansible ver. #{version}, " \
-                         "must be >= #{ANSIBLE_VERSION[0]} " \
-                         "and < #{ANSIBLE_VERSION[1]}")
+                         "must be >= #{ansible_min} and < #{ansible_max}")
                 end
 
                 return if provision.nil? || !provision.hci?
@@ -185,8 +184,6 @@ module OneProvision
                 end
 
                 [0, @facts]
-            rescue StandardError => e
-                raise e
             end
 
             # Checks ssh connection
@@ -281,17 +278,13 @@ module OneProvision
                     when /^fatal: \[([^\]]+)\]: .* => ({.*})$/i
                         host = Regexp.last_match(1)
 
-                        begin
-                            match = JSON.parse(Regexp.last_match(2))
+                        match = JSON.parse(Regexp.last_match(2))
 
-                            msg   = match['msg']
-                            msg   = match['reason'] if msg.nil?
+                        msg   = match['msg']
+                        msg   = match['reason'] if msg.nil?
 
-                            text  = msg.strip.tr("\n", ' ')
-                            text  = "- #{text}"
-                        rescue StandardError => e
-                            raise e
-                        end
+                        text  = msg.strip.tr("\n", ' ')
+                        text  = "- #{text}"
                     when /^fatal: \[([^\]]+)\]: .* =>/i
                         host = Regexp.last_match(1)
                     end

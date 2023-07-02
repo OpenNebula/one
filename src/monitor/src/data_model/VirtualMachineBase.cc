@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -104,10 +104,8 @@ int VirtualMachineBase::init_attributes()
     }
     else
     {
-        vm_template = 0;
+        vm_template = nullptr;
     }
-
-    nodes.clear();
 
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
@@ -116,21 +114,21 @@ int VirtualMachineBase::init_attributes()
         user_template->from_xml_node(nodes[0]);
 
         free_nodes(nodes);
+
+        public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
+
+        if (public_cloud == false)
+        {
+            attrs.clear();
+            public_cloud = (user_template->get("EC2", attrs) > 0);
+        }
     }
     else
     {
-        user_template = 0;
+        user_template = nullptr;
     }
 
-    public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
-
-    if (public_cloud == false)
-    {
-        attrs.clear();
-        public_cloud = (user_template->get("EC2", attrs) > 0);
-    }
-
-    if (vm_template != 0)
+    if (vm_template != nullptr)
     {
         init_storage_usage();
     }
@@ -139,7 +137,7 @@ int VirtualMachineBase::init_attributes()
         system_ds_usage = 0;
     }
 
-    return 0;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -200,10 +198,7 @@ void VirtualMachineBase::init_storage_usage()
                 continue;
             }
 
-            if (ds_usage.count(ds_id) == 0)
-            {
-                ds_usage[ds_id] = 0;
-            }
+            ds_usage.emplace(ds_id, 0); // no-op if element already exists
 
             if (disk->vector_value("CLONE", clone) != 0)
             {

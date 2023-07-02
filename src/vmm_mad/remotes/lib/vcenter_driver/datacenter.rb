@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -929,30 +929,26 @@ module VCenterDriver
             spec.configSpec.maxMtu = mtu
 
             # The DVS must be created in the networkFolder of the datacenter
-            begin
-                dvs_creation_task = @item
-                                    .networkFolder
-                                    .CreateDVS_Task(
-                                        :spec => spec
-                                    )
-                dvs_creation_task.wait_for_completion
+            dvs_creation_task = @item
+                                .networkFolder
+                                .CreateDVS_Task(
+                                    :spec => spec
+                                )
+            dvs_creation_task.wait_for_completion
 
-                # If task finished successfuly we rename the uplink portgroup
-                dvs = nil
-                if dvs_creation_task.info.state == 'success'
-                    dvs = dvs_creation_task.info.result
-                    dvs
-                        .config
-                        .uplinkPortgroup[0]
-                        .Rename_Task(
-                            :newName => "#{switch_name}-uplink-pg"
-                        ).wait_for_completion
-                else
-                    raise "The Distributed vSwitch #{switch_name} \
-                    could not be created. "
-                end
-            rescue StandardError => e
-                raise e
+            # If task finished successfuly we rename the uplink portgroup
+            dvs = nil
+            if dvs_creation_task.info.state == 'success'
+                dvs = dvs_creation_task.info.result
+                dvs
+                    .config
+                    .uplinkPortgroup[0]
+                    .Rename_Task(
+                        :newName => "#{switch_name}-uplink-pg"
+                    ).wait_for_completion
+            else
+                raise "The Distributed vSwitch #{switch_name} \
+                could not be created. "
             end
 
             @net_rollback << {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -207,8 +207,7 @@ int MarketPlacePool::allocate(
         vector<xmlrpc_c::value> values;
 
         std::string        mp_xml;
-        std::ostringstream oss("Cannot allocate market at federation master: ",
-                std::ios::ate);
+        oss << "Cannot allocate market at federation master: ";
 
         mp->to_xml(mp_xml);
         delete mp;

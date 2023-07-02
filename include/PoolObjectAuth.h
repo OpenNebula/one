@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,23 +30,25 @@ class PoolObjectAuth
 public:
     /* ------------------- Constructor and Methods -------------------------- */
 
-    PoolObjectAuth():
-        oid(-1),
-        uid(-1),
-        gid(-1),
-        owner_u(1),
-        owner_m(1),
-        owner_a(0),
-        group_u(0),
-        group_m(0),
-        group_a(0),
-        other_u(0),
-        other_m(0),
-        other_a(0),
-        disable_all_acl(false),
-        disable_cluster_acl(false),
-        disable_group_acl(false),
-        locked(0) {};
+    PoolObjectAuth()
+        : obj_type(PoolObjectSQL::NONE)
+        , oid(-1)
+        , uid(-1)
+        , gid(-1)
+        , owner_u(1)
+        , owner_m(1)
+        , owner_a(0)
+        , group_u(0)
+        , group_m(0)
+        , group_a(0)
+        , other_u(0)
+        , other_m(0)
+        , other_a(0)
+        , disable_all_acl(false)
+        , disable_cluster_acl(false)
+        , disable_group_acl(false)
+        , locked(0)
+    {}
 
     void get_acl_rules(AclRule& owner_rule,
                        AclRule& group_rule,

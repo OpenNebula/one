@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -122,7 +122,7 @@ if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
 fi
 
 if [ "$SHARED" = "YES" ]; then
-    retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
+    retry_if_no_error "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system
 
     RC=$?
@@ -151,7 +151,7 @@ else
             fi
 
             # do initial rsync
-            multiline_exec_and_log "tar -cSf - $DISK_PATH | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK_PATH | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk $DISK_PATH to $DEST_HOST:$DISK_PATH"
 
         elif [ "$FORMAT" = "qcow2" ]; then
@@ -168,7 +168,7 @@ else
 
         # copy disk snapshots
         if [ -d "${DISK_PATH}.snap" ] || [ -L "${DISK_PATH}.snap" ]; then
-            multiline_exec_and_log "tar -cSf - $DISK_PATH.snap | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK_PATH.snap | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk snapshot ${DISK_PATH}.snap to $DEST_HOST"
         fi
 
@@ -182,7 +182,7 @@ else
 
     # copy vm.xml and ds.xml from the $VM_DIR
     if ls $VM_DIR/*.xml > /dev/null; then
-        multiline_exec_and_log "tar -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST 'tar xSf - -C / '" \
+        multiline_exec_and_log "$TAR -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
             "Failed to copy xml files to $DEST_HOST"
     fi
 
@@ -204,7 +204,7 @@ else
         fi
 
         for DISK in $RAW_DISKS; do
-            multiline_exec_and_log "tar -cSf - $DISK | $SSH $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "$TAR -cSf - $DISK | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
                 "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
         done
     fi
@@ -214,7 +214,7 @@ else
         DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS}"
     fi
 
-    retry_if "active block job" 3 5 \
+    retry_if_no_error "active block job" 3 5 \
         virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
         $DISK_OPTS

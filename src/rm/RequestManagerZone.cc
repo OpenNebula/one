@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -156,7 +156,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
             while (!updated)
             {
-                if ( auto zone = pool->get_ro<Zone>(id) )
+                if ( zone = pool->get_ro<Zone>(id) )
                 {
                     if ( zone->get_server(zs_id) != 0 )
                     {
@@ -256,8 +256,6 @@ void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     int id     = xmlrpc_c::value_int(paramList.getInt(1));
     int zs_id  = xmlrpc_c::value_int(paramList.getInt(2));
-
-    string error_str;
 
     if ( id != nd.get_zone_id() )
     {

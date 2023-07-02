@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,7 +51,7 @@ class SunstoneGuac < SunstoneRemoteConnections
             return error(400, error_message)
         end
 
-        unless %w[vnc rdp ssh].include?(type_connection.downcase)
+        unless ['vnc', 'rdp', 'ssh'].include?(type_connection.downcase)
             return error(400, 'Type connection not supported by Guacamole')
         end
 

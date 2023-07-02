@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2022, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -351,7 +351,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     (OneProvision::Provision::RESOURCES +
      OneProvision::Provision::FULL_CLUSTER -
-        %w[hosts marketplaceapps flowtemplates]).each do |resource|
+        ['hosts', 'marketplaceapps', 'flowtemplates']).each do |resource|
         list_desc = <<-EOT
             List all available #{resource}
         EOT
@@ -368,7 +368,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     (OneProvision::Provision::RESOURCES +
      OneProvision::Provision::FULL_CLUSTER -
-     %w[hosts marketplaceapps]).each do |resource|
+     ['hosts', 'marketplaceapps']).each do |resource|
         delete_desc = <<-EOT
             Deletes and unprovisions the given #{resource}
         EOT
