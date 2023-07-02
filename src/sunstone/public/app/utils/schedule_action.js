@@ -630,7 +630,11 @@ define(function (require) {
                   var dataDays = dataJSON.DAYS.split(",");
                   dataDays.forEach(function(dataValue){
                     if(days[dataValue]){
-                      $(days[dataValue]).prop("checked", true);
+                      if (dataValue > 0){
+                        $(days[dataValue - 1]).prop("checked", true);
+                      } else if (dataValue == 0){
+                        $(days[6]).prop("checked", true);
+                      }
                     }
                   });
                 }
