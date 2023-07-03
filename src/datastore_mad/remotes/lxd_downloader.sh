@@ -179,6 +179,8 @@ zypper ref >> /var/log/chroot.log 2>&1
 
 zypper install -ny $PKG_SUSE >> /var/log/chroot.log 2>&1
 
+systemctl enable sshd >> /var/log/chroot.log 2>&1
+
 $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.suse.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
 zypper install -ny  --allow-unsigned-rpm /root/context.rpm >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
