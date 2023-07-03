@@ -402,5 +402,20 @@ public:
     ~HookDelete() = default;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class BackupJobDelete : public RequestManagerDelete
+{
+public:
+    BackupJobDelete();
+
+protected:
+
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
+};
+
 #endif
 

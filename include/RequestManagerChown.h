@@ -20,6 +20,7 @@
 #include "Request.h"
 #include "Nebula.h"
 
+#include "BackupJobPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
 #include "ImagePool.h"
@@ -359,5 +360,22 @@ public:
 
     ~VMGroupChown(){};
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobChown: public RequestManagerChown
+{
+public:
+    BackupJobChown():
+        RequestManagerChown("one.backupjob.chown",
+                            "Changes ownership of a Backup Job")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
+};
+
 
 #endif

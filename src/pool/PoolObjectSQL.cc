@@ -37,7 +37,8 @@ const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
                                 | PoolObjectSQL::ObjectType::VMGROUP
                                 | PoolObjectSQL::ObjectType::VNTEMPLATE
                                 | PoolObjectSQL::ObjectType::DOCUMENT
-                                | PoolObjectSQL::ObjectType::HOOK;
+                                | PoolObjectSQL::ObjectType::HOOK
+                                | PoolObjectSQL::ObjectType::BACKUPJOB;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

@@ -16,6 +16,7 @@
 
 #include "RequestManagerLock.h"
 #include "Nebula.h"
+#include "BackupJobPool.h"
 #include "DocumentPool.h"
 #include "HookPool.h"
 #include "ImagePool.h"
@@ -397,4 +398,28 @@ HookUnlock::HookUnlock()
     Nebula& nd  = Nebula::instance();
     auth_object = PoolObjectSQL::HOOK;
     pool        = nd.get_hkpool();
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+BackupJobLock::BackupJobLock()
+    : RequestManagerLock("one.backupjob.lock",
+                         "Lock a Backup Job")
+{
+    Nebula& nd  = Nebula::instance();
+    auth_object = PoolObjectSQL::BACKUPJOB;
+    pool        = nd.get_bjpool();
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+BackupJobUnlock::BackupJobUnlock()
+    : RequestManagerUnlock("one.backupjob.unlock",
+                           "Unlock a BackupJob")
+{
+    Nebula& nd  = Nebula::instance();
+    auth_object = PoolObjectSQL::BACKUPJOB;
+    pool        = nd.get_bjpool();
 }

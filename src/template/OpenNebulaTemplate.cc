@@ -425,6 +425,9 @@ void OpenNebulaTemplate::set_conf_default()
     vattribute = new VectorAttribute("VNC_PORTS",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
 
+    set_conf_single("MAX_BACKUPS", "5");
+    set_conf_single("MAX_BACKUPS_HOST", "2");
+
 /*
 #*******************************************************************************
 # Federation configuration attributes

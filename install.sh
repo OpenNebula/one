@@ -1014,6 +1014,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevcenter \
            src/cli/onevntemplate \
            src/cli/onehook \
+           src/cli/onebackupjob \
            src/cli/onelog \
            src/cli/oneirb \
            src/onedb/onedb \
@@ -2492,6 +2493,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/vntemplate.rb \
                             src/oca/ruby/opennebula/hook_pool.rb \
                             src/oca/ruby/opennebula/hook.rb \
+                            src/oca/ruby/opennebula/backupjob_pool.rb \
+                            src/oca/ruby/opennebula/backupjob.rb \
                             src/oca/ruby/opennebula/hook_log.rb \
                             src/oca/ruby/opennebula/flow.rb"
 
@@ -2548,6 +2551,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onemarket_helper.rb \
                    src/cli/one_helper/onevntemplate_helper.rb \
                    src/cli/one_helper/onehook_helper.rb \
+                   src/cli/one_helper/onebackupjob_helper.rb \
                    src/cli/one_helper/oneflow_helper.rb \
                    src/cli/one_helper/oneflowtemplate_helper.rb"
 
@@ -2575,7 +2579,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onevntemplate \
                src/cli/oneirb \
                src/cli/onelog \
-               src/cli/onehook"
+               src/cli/onehook \
+               src/cli/onebackupjob"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -2598,6 +2603,7 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onemarket.yaml \
                 src/cli/etc/onevntemplate.yaml \
                 src/cli/etc/onehook.yaml \
+                src/cli/etc/onebackupjob.yaml \
                 src/cli/etc/oneflow.yaml \
                 src/cli/etc/oneflowtemplate.yaml"
 
@@ -3102,6 +3108,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneshowback.1.gz \
         share/man/oneacl.1.gz \
         share/man/onehook.1.gz \
+        share/man/onebackupjob.1.gz \
         share/man/onelog.1.gz \
         share/man/oneirb.1.gz \
         share/man/onehost.1.gz \
@@ -3163,6 +3170,8 @@ LIBVIRT_RNG_SHARE_MODULE_FILES="share/schemas/libvirt/basictypes.rng \
 XSD_FILES="share/doc/xsd/acct.xsd \
            share/doc/xsd/acl_pool.xsd
            share/doc/xsd/api_info.xsd
+           share/doc/xsd/backupjob.xsd
+           share/doc/xsd/backupjob_pool.xsd
            share/doc/xsd/cluster.xsd
            share/doc/xsd/cluster_pool.xsd
            share/doc/xsd/datastore.xsd
@@ -3190,6 +3199,7 @@ XSD_FILES="share/doc/xsd/acct.xsd \
            share/doc/xsd/raftstatus.xsd
            share/doc/xsd/security_group.xsd
            share/doc/xsd/security_group_pool.xsd
+           share/doc/xsd/shared.xsd
            share/doc/xsd/showback.xsd
            share/doc/xsd/user.xsd
            share/doc/xsd/user_pool.xsd

@@ -262,6 +262,24 @@ namespace one_db
     extern const char * zone_db_bootstrap;
 
     extern const char * zone_table;
+
+    /* ---------------------------------------------------------------------- */
+    /* Backup Job tables                                                      */
+    /* ---------------------------------------------------------------------- */
+    extern const char * backup_job_table;
+
+    extern const char * backup_job_db_names;
+
+    extern const char * backup_job_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
+    /* Scheduled Action tables                                                */
+    /* ---------------------------------------------------------------------- */
+    extern const char * scheduled_action_table;
+
+    extern const char * scheduled_action_db_names;
+
+    extern const char * scheduled_action_db_bootstrap;
 }
 
 

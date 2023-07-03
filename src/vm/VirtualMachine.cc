@@ -21,12 +21,12 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
-#include "ScheduledAction.h"
 #include "LifeCycleManager.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "SecurityGroupPool.h"
 #include "Nebula.h"
+#include "ScheduledActionPool.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
@@ -59,7 +59,8 @@ VirtualMachine::VirtualMachine(int           id,
         previous_history(0),
         disks(false),
         nics(false),
-        _log(0)
+        _log(0),
+        _sched_actions("SCHED_ACTIONS")
 {
     if (_vm_template != 0)
     {
@@ -1105,14 +1106,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_rollback;
     }
 
-    // ------------------------------------------------------------------------
-    // Parse VM actions
-    // ------------------------------------------------------------------------
-    if ( parse_sched_action(error_str) == -1 )
-    {
-        goto error_rollback;
-    }
-
     // Encrypt all the secrets
     encrypt();
 
@@ -1893,7 +1886,7 @@ void VirtualMachine::add_history(
         previous_history = history;
     }
 
-    to_xml_extended(vm_xml, 0);
+    to_xml_extended(vm_xml, 0, false);
 
     history = new History(oid, seq, hid, hostname, cid, vmm_mad, tm_mad, ds_id,
             vm_xml);
@@ -1914,7 +1907,7 @@ void VirtualMachine::cp_history()
         return;
     }
 
-    to_xml_extended(vm_xml, 0);
+    to_xml_extended(vm_xml, 0, false);
 
     htmp = new History(oid,
                        history->seq + 1,
@@ -1945,7 +1938,7 @@ void VirtualMachine::cp_previous_history()
         return;
     }
 
-    to_xml_extended(vm_xml, 0);
+    to_xml_extended(vm_xml, 0, false);
 
     htmp = new History(oid,
                        history->seq + 1,
@@ -2362,7 +2355,7 @@ void VirtualMachine::set_auth_request(int uid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
+string& VirtualMachine::to_xml_extended(string& xml, int n_history, bool sa) const
 {
     string template_xml;
     string user_template_xml;
@@ -2371,8 +2364,17 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string snap_xml;
     string bck_xml;
     string lock_str;
+    string sas_xml;
+    string tmp_xml;
 
     ostringstream oss;
+
+    if ( sa )
+    {
+        ScheduledActionPool * sa_pool = Nebula::instance().get_sapool();
+
+        sa_pool->dump(_sched_actions.get_collection(), sas_xml);
+    }
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -2393,7 +2395,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
         << lock_db_to_xml(lock_str)
         << monitoring.to_xml()
-        << obj_template->to_xml(template_xml)
+        << _sched_actions.to_xml(tmp_xml)
+        << obj_template->to_xml(template_xml, sas_xml)
         << user_obj_template->to_xml(user_template_xml);
 
     if ( hasHistory() && n_history > 0 )
@@ -2740,6 +2743,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
 
     rc += _backups.from_xml(this);
+
+    _sched_actions.from_xml(this, "/VM/");
 
     // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
@@ -3831,25 +3836,6 @@ void VirtualMachine::release_vmgroup()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VirtualMachine::parse_sched_action(string& error_str)
-{
-    vector<VectorAttribute*> vas;
-
-    if (user_obj_template->remove("SCHED_ACTION", vas) == 0)
-    {
-        return 0;
-    }
-
-    int rc = SchedActions::parse(vas, error_str, true, true);
-
-    obj_template->set(vas);
-
-    return rc;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
 {
     string tm_mad_sys;
@@ -3903,118 +3889,6 @@ int VirtualMachine::check_shareable_disks(const string& vmm_mad, string& error)
             return -1;
         }
     }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualMachine::sched_action_add(const string& sched_template,
-                                     std::string& error)
-{
-    // Read and verify SCHED_ACTION in incoming string
-    VirtualMachineTemplate new_tmpl(false, '=', "TEMPLATE");
-
-    if (new_tmpl.parse_str_or_xml(sched_template, error) != 0 )
-    {
-        return -1;
-    }
-
-    vector<VectorAttribute*> sa;
-
-    if (new_tmpl.remove("SCHED_ACTION", sa) == 0 || sa.empty())
-    {
-        error = "Cannot read SCHED_ACTION from the template: " + sched_template;
-        return -1;
-    }
-
-    vector<const VectorAttribute*> vm_sa;
-
-    obj_template->get("SCHED_ACTION", vm_sa);
-
-    VectorAttribute * new_sa = SchedActions::new_action(vm_sa, sa[0], error);
-
-    if (!new_sa)
-    {
-        return -1;
-    }
-
-    obj_template->set(new_sa);
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualMachine::sched_action_delete(int sched_id, std::string& error)
-{
-    vector<VectorAttribute*> sched_actions;
-
-    obj_template->get("SCHED_ACTION", sched_actions);
-
-    VectorAttribute* sa = SchedActions::get_action(sched_actions, sched_id);
-
-    if (!sa)
-    {
-        error = "Sched action with id = " + to_string(sched_id) +
-                "doesn't exist";
-        return -1;
-    }
-
-    obj_template->remove(sa);
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualMachine::sched_action_update(int sched_id,
-                                        const string& sched_template,
-                                        std::string& error)
-{
-    // Get SchedAction with ID = sched_id
-    vector<VectorAttribute*> sched_actions;
-
-    obj_template->get("SCHED_ACTION", sched_actions);
-
-    VectorAttribute* sa = SchedActions::get_action(sched_actions, sched_id);
-
-    if (!sa)
-    {
-        error = "Sched action with id = " + to_string(sched_id) +
-                "doesn't exist";
-        return -1;
-    }
-
-    // Read and verify SCHED_ACTION in incoming string
-    VirtualMachineTemplate new_tmpl(false, '=', "TEMPLATE");
-
-    if (new_tmpl.parse_str_or_xml(sched_template, error) != 0 )
-    {
-        return -1;
-    }
-
-    vector<VectorAttribute*> new_sa_v;
-
-    if (new_tmpl.remove("SCHED_ACTION", new_sa_v) == 0 || new_sa_v.empty())
-    {
-        error = "Cannot read SCHED_ACTION from the template: " + sched_template;
-        return -1;
-    }
-
-    SchedAction new_sa(new_sa_v[0], sched_id);
-
-    if ( new_sa.parse(error, false) == -1 )
-    {
-        return -1;
-    }
-
-    new_sa_v[0]->replace("ID", sched_id);
-
-    sa->replace(new_sa_v[0]->value());
 
     return 0;
 }

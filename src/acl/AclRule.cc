@@ -23,15 +23,14 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const long long AclRule::INDIVIDUAL_ID  = 0x0000000100000000LL;
-const long long AclRule::GROUP_ID       = 0x0000000200000000LL;
-const long long AclRule::ALL_ID         = 0x0000000400000000LL;
-const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
+const long long AclRule::INDIVIDUAL_ID = 0x0000000100000000LL;
+const long long AclRule::GROUP_ID      = 0x0000000200000000LL;
+const long long AclRule::ALL_ID        = 0x0000000400000000LL;
+const long long AclRule::CLUSTER_ID    = 0x0000000800000000LL;
 
-const long long AclRule::NONE_ID        = 0x1000000000000000LL;
+const long long AclRule::NONE_ID       = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 18;
-const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
+const std::array<PoolObjectSQL::ObjectType, 19> AclRule::pool_objects = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
             PoolObjectSQL::NET,
@@ -49,11 +48,11 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::MARKETPLACE,
             PoolObjectSQL::MARKETPLACEAPP,
             PoolObjectSQL::VMGROUP,
-            PoolObjectSQL::VNTEMPLATE
+            PoolObjectSQL::VNTEMPLATE,
+            PoolObjectSQL::BACKUPJOB
 };
 
-const int AclRule::num_auth_operations = 4;
-const AuthRequest::Operation AclRule::auth_operations[] = {
+const std::array<AuthRequest::Operation, 4> AclRule::auth_operations = {
             AuthRequest::USE,
             AuthRequest::MANAGE,
             AuthRequest::ADMIN,
@@ -242,7 +241,7 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] type is missing";
     }
 
-    if ( (resource & 0xFF80000000000000LL) != 0 )
+    if ( (resource & 0xFE80000000000000LL) != 0 )
     {
         if ( error )
         {
@@ -382,16 +381,16 @@ void AclRule::build_str()
 
     bool prefix = false;
 
-    for ( int i = 0; i < num_pool_objects; i++ )
+    for (const auto& pobject: pool_objects)
     {
-        if ( (resource & pool_objects[i]) != 0 )
+        if ( (resource & pobject) != 0 )
         {
             if ( prefix )
             {
                 oss << "+";
             }
 
-            oss << PoolObjectSQL::type_to_str( pool_objects[i] );
+            oss << PoolObjectSQL::type_to_str(pobject);
             prefix = true;
         }
     }
@@ -423,16 +422,16 @@ void AclRule::build_str()
 
     prefix = false;
 
-    for ( int i = 0; i < num_auth_operations; i++ )
+    for (const auto &aoperation : auth_operations)
     {
-        if ( (rights & auth_operations[i]) != 0 )
+        if ( (rights & aoperation) != 0 )
         {
             if ( prefix )
             {
                 oss << "+";
             }
 
-            oss << AuthRequest::operation_to_str( auth_operations[i] );
+            oss << AuthRequest::operation_to_str(aoperation);
             prefix = true;
         }
     }

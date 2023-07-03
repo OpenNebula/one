@@ -129,6 +129,32 @@ int ObjectCollection::del(int id)
     return 0;
 };
 
+int ObjectCollection::del_not_present(const ObjectCollection& base)
+{
+    int removed = 0;
+
+    if ( collection_set.size() == 0 )
+    {
+        return 0;
+    }
+
+    for (auto it = collection_set.begin(); it != collection_set.end(); )
+    {
+        if ( base.contains(*it) )
+        {
+            ++it;
+        }
+        else
+        {
+            it = collection_set.erase(it);
+
+            removed++;
+        }
+    }
+
+    return removed;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

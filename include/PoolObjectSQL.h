@@ -67,7 +67,9 @@ public:
         MARKETPLACEAPP = 0x0010000000000000LL,
         VMGROUP        = 0x0020000000000000LL,
         VNTEMPLATE     = 0x0040000000000000LL,
-        HOOK           = 0x0080000000000000LL
+        HOOK           = 0x0080000000000000LL,
+        BACKUPJOB      = 0x0100000000000000LL,
+        SCHEDULEDACTION= 0x0200000000000000LL
     };
 
     /**
@@ -107,6 +109,7 @@ public:
             case VMGROUP:        return "VMGROUP"; break;
             case VNTEMPLATE:     return "VNTEMPLATE"; break;
             case HOOK:           return "HOOK"; break;
+            case BACKUPJOB:      return "BACKUPJOB"; break;
             default:             return "";
         }
     };
@@ -133,6 +136,7 @@ public:
         else if ( type == "VMGROUP" )        return VMGROUP;
         else if ( type == "VNTEMPLATE" )     return VNTEMPLATE;
         else if ( type == "HOOK" )           return HOOK;
+        else if ( type == "BACKUPJOB" )      return BACKUPJOB;
         else                                 return NONE;
     };
 

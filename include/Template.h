@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -186,6 +187,8 @@ public:
      */
     std::string& to_xml(std::string& xml) const;
 
+    std::string& to_xml(std::string& xml, const std::string& extra) const;
+
     std::string& to_json(std::string& xml) const;
 
     std::string& to_token(std::string& xml) const;
@@ -292,6 +295,24 @@ public:
         for ( auto i = index.first; i != index.second; i++,j++ )
         {
             values.push_back(static_cast<T *>(i->second));
+        }
+
+        attributes.erase(index.first, index.second);
+
+        return j;
+    }
+
+    template<typename T>
+    int remove(const std::string& name, std::vector<std::unique_ptr<T>>& values)
+    {
+        int j = 0;
+
+        auto index = attributes.equal_range(name);
+
+        for ( auto i = index.first; i != index.second; i++,j++ )
+        {
+            std::unique_ptr<T> va(static_cast<T *>(i->second));
+            values.push_back(std::move(va));
         }
 
         attributes.erase(index.first, index.second);

@@ -124,25 +124,8 @@
               <xs:element name="STIME" type="xs:integer"/>
               <xs:element name="ETIME" type="xs:integer"/>
               <xs:element name="DEPLOY_ID" type="xs:string"/>
-              <xs:element name="MONITORING">
-              <!--
-                <xs:complexType>
-                  <xs:all>
-                    <- Percentage of 1 CPU consumed (two fully consumed cpu is 200) ->
-                    <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
-
-                    <- MEMORY consumption in kilobytes ->
-                    <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-                    <- NETTX: Sent bytes to the network ->
-                    <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-                    <- NETRX: Received bytes from the network ->
-                    <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-                  </xs:all>
-                </xs:complexType>
-              -->
-              </xs:element>
+              <xs:element name="MONITORING"/>
+              <xs:element name="SCHED_ACTIONS" type="xs:anyType"/>
               <xs:element name="TEMPLATE" type="xs:anyType"/>
               <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
               <xs:element name="HISTORY_RECORDS">

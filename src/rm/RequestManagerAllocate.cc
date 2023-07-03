@@ -25,6 +25,7 @@
 #include "FedReplicaManager.h"
 #include "ImageManager.h"
 #include "MarketPlaceManager.h"
+#include "ScheduledActionPool.h"
 
 using namespace std;
 
@@ -264,6 +265,22 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+static int drop_sched_actions(ScheduledActionPool *pool, std::vector<int> sa_ids)
+{
+    std::string error;
+    int i = 0;
+
+    for (const auto& id : sa_ids)
+    {
+        if (auto sa = pool->get(id))
+        {
+            pool->drop(sa.get(), error);
+            i++;
+        }
+    }
+
+    return i;
+}
 
 Request::ErrorCode VirtualMachineAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
@@ -271,52 +288,119 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
         int&                        id,
         RequestAttributes&          att)
 {
-    bool on_hold = false;
+    auto sapool = Nebula::instance().get_sapool();
+    auto vmpool = static_cast<VirtualMachinePool *>(pool);
+
+    std::vector<int> sa_ids;
+
+    bool on_hold  = false;
+    bool sa_error = false;
+
+    time_t stime  = time(0);
 
     if ( paramList.size() > 2 )
     {
         on_hold = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Save SCHED_ACTION attributes for allocation                            */
+    /* ---------------------------------------------------------------------- */
+    std::vector<unique_ptr<VectorAttribute>> sas;
+
+    tmpl->remove("SCHED_ACTION", sas);
+
+    /* ---------------------------------------------------------------------- */
+    /* Allocate VirtualMachine object                                         */
+    /* ---------------------------------------------------------------------- */
     Template tmpl_back(*tmpl);
 
-    unique_ptr<VirtualMachineTemplate> ttmpl(
-        static_cast<VirtualMachineTemplate*>(tmpl.release()));
-    VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
+    auto tmpl_ptr = static_cast<VirtualMachineTemplate*>(tmpl.release());
+
+    unique_ptr<VirtualMachineTemplate> ttmpl(tmpl_ptr);
 
     int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             move(ttmpl), &id, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
-        vector<unique_ptr<Template>> ds_quotas;
-        std::string memory, cpu;
+        goto error_drop_vm;
+    }
 
-        tmpl_back.get("MEMORY", memory);
-        tmpl_back.get("CPU", cpu);
+    /* ---------------------------------------------------------------------- */
+    /* Create ScheduleAction and associate to the BackupJob                   */
+    /* ---------------------------------------------------------------------- */
+    for (const auto& sa : sas)
+    {
+        int sa_id = sapool->allocate(PoolObjectSQL::VM, id, stime, sa.get(), att.resp_msg);
 
-        tmpl_back.add("RUNNING_MEMORY", memory);
-        tmpl_back.add("RUNNING_CPU", cpu);
-        tmpl_back.add("RUNNING_VMS", 1);
-        tmpl_back.add("VMS", 1);
-
-        quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
-
-        VirtualMachineDisks::extended_info(att.uid, &tmpl_back);
-
-        VirtualMachineDisks::image_ds_quotas(&tmpl_back, ds_quotas);
-
-        for (auto& quota : ds_quotas)
+        if (sa_id < 0)
         {
-            quota_rollback(quota.get(), Quotas::DATASTORE, att);
+            sa_error = true;
+            break;
         }
+
+        sa_ids.push_back(sa_id);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Error creating a SCHED_ACTION rollback created objects                 */
+    /* ---------------------------------------------------------------------- */
+    if (sa_error)
+    {
+        drop_sched_actions(sapool, sa_ids);
+
+        goto error_drop_vm;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Associate SCHED_ACTIONS to the BackupJob                               */
+    /* ---------------------------------------------------------------------- */
+    if ( auto vm = vmpool->get(id) )
+    {
+        for (const auto id: sa_ids)
+        {
+            vm->sched_actions().add(id);
+        }
+
+        vmpool->update(vm.get());
+    }
+    else
+    {
+        att.resp_msg = "VM deleted while setting up SCHED_ACTION";
+
+        drop_sched_actions(sapool, sa_ids);
 
         return Request::INTERNAL;
     }
 
     return Request::SUCCESS;
-}
 
+error_drop_vm:
+    vector<unique_ptr<Template>> ds_quotas;
+    std::string memory, cpu;
+
+    tmpl_back.get("MEMORY", memory);
+    tmpl_back.get("CPU", cpu);
+
+    tmpl_back.add("RUNNING_MEMORY", memory);
+    tmpl_back.add("RUNNING_CPU", cpu);
+    tmpl_back.add("RUNNING_VMS", 1);
+    tmpl_back.add("VMS", 1);
+
+    quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
+
+    VirtualMachineDisks::extended_info(att.uid, &tmpl_back);
+
+    VirtualMachineDisks::image_ds_quotas(&tmpl_back, ds_quotas);
+
+    for (auto& quota : ds_quotas)
+    {
+        quota_rollback(quota.get(), Quotas::DATASTORE, att);
+    }
+
+    return Request::INTERNAL;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1360,6 +1444,107 @@ Request::ErrorCode HookAllocate::pool_allocate(
 
     if (id < 0)
     {
+        return Request::INTERNAL;
+    }
+
+    return Request::SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode BackupJobAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        unique_ptr<Template>        tmpl,
+        int&                        id,
+        RequestAttributes&          att)
+{
+    /* ---------------------------------------------------------------------- */
+    /* Get SCHED_ACTION attributes                                            */
+    /* ---------------------------------------------------------------------- */
+    std::vector<unique_ptr<VectorAttribute>> sas;
+
+    tmpl->remove("SCHED_ACTION", sas);
+
+    /* ---------------------------------------------------------------------- */
+    /* Create BackupJob object                                                */
+    /* ---------------------------------------------------------------------- */
+    BackupJobPool * bjpool = static_cast<BackupJobPool *>(pool);
+
+    int rc = bjpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                     move(tmpl), &id, att.resp_msg);
+
+    if (rc < 0)
+    {
+        return Request::INTERNAL;
+    }
+
+    if (sas.empty())
+    {
+        return Request::SUCCESS;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Create ScheduleAction and associate to the BackupJob                   */
+    /* ---------------------------------------------------------------------- */
+    auto sapool = Nebula::instance().get_sapool();
+
+    std::vector<int> sa_ids;
+
+    bool sa_error = false;
+
+    for (const auto& sa : sas)
+    {
+        int sa_id = sapool->allocate(PoolObjectSQL::BACKUPJOB, id, 0, sa.get(),
+                att.resp_msg);
+
+        if (sa_id < 0)
+        {
+            sa_error = true;
+            break;
+        }
+        else
+        {
+            sa_ids.push_back(sa_id);
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Error creating a SCHED_ACTION rollback created objects                 */
+    /* ---------------------------------------------------------------------- */
+    if (sa_error)
+    {
+        drop_sched_actions(sapool, sa_ids);
+
+        if ( auto bj = bjpool->get(id) )
+        {
+            string error;
+
+            bjpool->drop(bj.get(), error);
+        }
+
+        return Request::INTERNAL;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Associate SCHED_ACTIONS to the BackupJob                               */
+    /* ---------------------------------------------------------------------- */
+    if ( auto bj = bjpool->get(id) )
+    {
+        for (const auto id: sa_ids)
+        {
+            bj->sched_actions().add(id);
+        }
+
+        bjpool->update(bj.get());
+    }
+    else
+    {
+        // BackupJob no longer exits, delete SchedActions
+        drop_sched_actions(sapool, sa_ids);
+
+        att.resp_msg = "BACKUPJOB deleted while setting up SCHED_ACTION";
+
         return Request::INTERNAL;
     }
 

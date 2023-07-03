@@ -17,6 +17,7 @@
 require 'cli_helper'
 require 'open3'
 require 'io/console'
+require 'time'
 
 begin
     require 'opennebula'
@@ -439,6 +440,73 @@ module OpenNebulaHelper
         :large => '--decrypt',
         :description => 'Get decrypted attributes'
     }
+
+    SCHEDULE_OPTIONS=[
+        SCHEDULE = {
+            :name => 'schedule',
+            :large => '--schedule TIME',
+            :description => 'Schedules this action to be executed after' \
+            'the given time. For example: onevm resume 0 --schedule "09/23 14:15"',
+            :format => String,
+            :proc => lambda {|o, options|
+                if o[0] == '+'
+                    options[:schedule] = o
+                elsif o == 'now'
+                    options[:schedule] = Time.now.to_i
+                else
+                    begin
+                        options[:schedule] = Time.parse(o).to_i
+                    rescue StandardError
+                        STDERR.puts "Error parsing time spec: #{o}"
+                        exit(-1)
+                    end
+                end
+            }
+        },
+
+        WEEKLY = {
+            :name => 'weekly',
+            :large => '--weekly days',
+            :description => 'Repeats the schedule action the days of the week ' \
+            'specified, it can be a number between 0 (Sunday) to 6 (Saturday) ' \
+            'separated with commas. ' \
+            'For example: onevm resume 0 --schedule "09/23 14:15" --weekly 0,2,4',
+            :format => String
+        },
+
+        MONTHLY = {
+            :name => 'monthly',
+            :large => '--monthly days',
+            :description => 'Repeats the schedule action the days of the month ' \
+            'specified, it can be a number between 1,31 separated with commas. ' \
+            'For example: onevm resume 0 --schedule "09/23 14:15" --monthly 1,14',
+            :format => String
+        },
+
+        YEARLY = {
+            :name => 'yearly',
+            :large => '--yearly days',
+            :description => 'Repeats the schedule action the days of the year ' \
+            'specified, it can be a number between 0,365 separated with commas. ' \
+            'For example: onevm resume 0 --schedule "09/23 14:15" --yearly 30,60',
+            :format => String
+        },
+
+        HOURLY = {
+            :name => 'hourly',
+            :large => '--hourly hour',
+            :description => 'Repeats the schedule action with the given hourly frequency. ' \
+            'For example (every 5 hours): onevm resume 0 --schedule "09/23 14:15" --hourly 5',
+            :format => Numeric
+        },
+
+        END_TIME = {
+            :name => 'end',
+            :large => '--end number|TIME',
+            :description => '----',
+            :format => String
+        }
+    ]
 
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
 
@@ -2344,6 +2412,150 @@ module OpenNebulaHelper
                     "0#{ret}"
                 else
                     ret
+                end
+            end
+        end
+    end
+
+    def self.schedule_action_tmpl(options, action, warning = nil)
+        str_periodic = ''
+
+        if options.key?(:weekly)
+            str_periodic << ", REPEAT = 0, DAYS = \"#{options[:weekly]}\""
+        elsif options.key?(:monthly)
+            str_periodic << ", REPEAT = 1, DAYS = \"#{options[:monthly]}\""
+        elsif options.key?(:yearly)
+            str_periodic << ", REPEAT = 2, DAYS = \"#{options[:yearly]}\""
+        elsif options.key?(:hourly)
+            str_periodic << ", REPEAT = 3, DAYS = \"#{options[:hourly]}\""
+        end
+
+        if options.key?(:end)
+            begin
+                end_date = Date.parse(options[:end])
+                str_periodic << ", END_TYPE = 2, END_VALUE = #{end_date.to_time.to_i}"
+            rescue ArgumentError
+                if options[:end].to_i > 0
+                    str_periodic << ", END_TYPE = 1, END_VALUE = #{options[:end].to_i}"
+                end
+            end
+        elsif str_periodic != ''
+            str_periodic << ', END_TYPE = 0'
+        end
+
+        tmp_str = 'SCHED_ACTION = ['
+        tmp_str << "ACTION  = #{action}, " if action
+        tmp_str << "WARNING = #{warning}," if warning
+        tmp_str << "ARGS    = \"#{options[:args]}\"," if options[:args]
+        tmp_str << "TIME    = #{options[:schedule]}"
+        tmp_str << str_periodic << ']'
+
+        tmp_str
+    end
+
+    def self.scheduled_action_table(object)
+        CLIHelper::ShowTable.new(nil, object) do
+            column :ID, '', :adjust => true do |d|
+                d['ID']
+            end
+
+            column :ACTION, '', :adjust => true do |d|
+                d['ACTION']
+            end
+
+            column :ARGS, '', :adjust => true do |d|
+                d['ARGS'] && !d['ARGS'].empty? ? d['ARGS'] : '-'
+            end
+
+            column :SCHEDULED, '', :adjust => true do |d|
+                t = d['TIME'].to_i
+
+                # relative action for VMs
+                if d['TIME'] !~ /^[0-9].*/ && !object['STIME'].nil?
+                    t += object['STIME'].to_i
+                end
+
+                OpenNebulaHelper.time_to_str(t, false) unless d.nil?
+            end
+
+            column :REPEAT, '', :adjust => true do |d|
+                begin
+                    str_rep = ''
+
+                    case d['REPEAT']
+                    when '0'
+                        str_rep << 'Weekly '
+                    when '1'
+                        str_rep << 'Monthly '
+                    when '2'
+                        str_rep << 'Yearly '
+                    when '3'
+                        str_rep << 'Each ' << d['DAYS'] << ' hours'
+                    end
+
+                    if d['REPEAT'] != '3'
+                        str_rep << d['DAYS']
+                    end
+
+                    str_rep
+                rescue StandardError
+                    ''
+                end
+            end
+
+            column :END, '', :adjust => true do |d|
+                begin
+                    str_end = ''
+
+                    case d['END_TYPE']
+                    when '0'
+                        str_end << 'None'
+                    when '1'
+                        str_end << 'After ' << d['END_VALUE'] << ' times'
+                    when '2'
+                        str_end << 'On ' << \
+                            OpenNebulaHelper.time_to_str(d['END_VALUE'], false, false, true)
+                    end
+
+                    str_end
+                rescue StandardError
+                    ''
+                end
+            end
+
+            column :STATUS, '', :left, :size => 50 do |d|
+                begin
+                    if d['DONE'].to_i > 0 && d['REPEAT'].to_i < 0
+                        "Done on #{OpenNebulaHelper.time_to_str(d['DONE'], false)}"
+                    elsif d['MESSAGE'] && !d['MESSAGE'].empty?
+                        "Error! #{d['MESSAGE']}"
+                    else
+                        t1 = Time.now
+                        t2 = d['TIME'].to_i
+
+                        # relative action for VMs
+                        if (d['TIME'] !~ /^[0-9].*/) && !object['STIME'].nil?
+                            t2 += object['STIME'].to_i
+                        end
+
+                        t2 = Time.at(t2)
+
+                        days    = ((t2 - t1) / (24 * 3600)).round(2)
+                        hours   = ((t2 - t1) / 3600).round(2)
+                        minutes = ((t2 - t1) / 60).round(2)
+
+                        if days > 1
+                            "Next in #{days} days"
+                        elsif days <= 1 && hours > 1
+                            "Next in #{hours} hours"
+                        elsif minutes > 0
+                            "Next in #{minutes} minutes"
+                        else
+                            'Overdue!'
+                        end
+                    end
+                rescue StandardError
+                    ''
                 end
             end
         end

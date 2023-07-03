@@ -34,7 +34,7 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
     def self.resource_mask(str)
         resource_type=str.split('/')[0]
 
-        mask = '------------------'
+        mask = '-------------------'
 
         resource_type.split('+').each do |type|
             case type
@@ -74,6 +74,8 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
                 mask[16] = 'P'
             when 'VNTEMPLATE'
                 mask[17] = 't'
+            when 'BACKUPJOB'
+                mask[18] = 'B'
             end
         end
         mask
@@ -128,9 +130,9 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
                 d['STRING'].split(' ')[0]
             end
 
-            column :RES_VHNIUTGDCOZSvRMAPt,
+            column :RES_VHNIUTGDCOZSvRMAPtB,
                    'Resource to which the rule applies',
-                   :size => 22 do |d|
+                   :size => 23 do |d|
                 OneAclHelper.resource_mask d['STRING'].split(' ')[1]
             end
 
@@ -155,7 +157,7 @@ class OneAclHelper < OpenNebulaHelper::OneHelper
                 d['STRING']
             end
 
-            default :ID, :USER, :RES_VHNIUTGDCOZSvRMAPt, :RID, :OPE_UMAC, :ZONE
+            default :ID, :USER, :RES_VHNIUTGDCOZSvRMAPtB, :RID, :OPE_UMAC, :ZONE
         end
     end
     # rubocop:enable Lint/IneffectiveAccessModifier

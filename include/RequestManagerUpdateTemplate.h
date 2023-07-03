@@ -20,6 +20,7 @@
 #include "Request.h"
 #include "Nebula.h"
 
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -471,6 +472,31 @@ public:
     };
 
     ~HookUpdateTemplate(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    BackupJobUpdateTemplate():
+        RequestManagerUpdateTemplate("one.backupjob.update",
+                                     "Updates a Backup Job template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
+
+    //Always append to BackupJob templates (not duplicated attributes)
+    int replace_template(PoolObjectSQL * object,
+                                 const std::string & tmpl,
+                                 const RequestAttributes &att,
+                                 std::string &error_str) override
+    {
+        return RequestManagerUpdateTemplate::append_template(object, tmpl, att, error_str);
+    }
 };
 
 #endif

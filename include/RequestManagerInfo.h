@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -445,5 +446,27 @@ protected:
     };
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobInfo : public RequestManagerInfo
+{
+public:
+    BackupJobInfo():
+        RequestManagerInfo("one.backupjob.info",
+                           "Returns Backup Job information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
+
+protected:
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+            std::string& str) override
+    {
+        static_cast<BackupJob *>(object)->to_xml_extended(str, true);
+    };
+};
 
 #endif

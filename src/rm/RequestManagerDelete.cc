@@ -26,6 +26,7 @@
 #include "IPAMManager.h"
 #include "MarketPlaceManager.h"
 
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -42,6 +43,7 @@
 #include "VMTemplatePool.h"
 #include "VNTemplatePool.h"
 #include "ZonePool.h"
+#include "ScheduledActionPool.h"
 
 using namespace std;
 
@@ -1036,3 +1038,51 @@ HookDelete::HookDelete():
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
+
+BackupJobDelete::BackupJobDelete():
+    RequestManagerDelete("one.backupjob.delete",
+                         "Deletes a Backup Job")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_bjpool();
+    auth_object = PoolObjectSQL::BACKUPJOB;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int BackupJobDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, RequestAttributes& att)
+{
+    BackupJob * bj = static_cast<BackupJob *>(object.get());
+
+    std::set<int> sa_ids(bj->sched_actions().get_collection());
+
+    int rc = RequestManagerDelete::drop(std::move(object), false, att);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
+
+    auto sapool = Nebula::instance().get_sapool();
+
+    string error;
+    rc = 0;
+
+    for (const auto& id: sa_ids)
+    {
+        if (auto sa = sapool->get(id))
+        {
+            rc += sapool->drop(sa.get(), error);
+        }
+    }
+
+    if ( rc != 0 )
+    {
+        att.resp_msg = "BackupJob deleted, but some associated schedules could not be removed";
+        return -1;
+    }
+
+    return rc;
+}
+

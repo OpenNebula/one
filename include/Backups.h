@@ -190,6 +190,11 @@ public:
         config.replace("ACTIVE_FLATTEN", status);
     }
 
+    void backup_job_id(int id)
+    {
+        config.replace("BACKUP_JOB_ID", id);
+    }
+
     /* ---------------------------------------------------------------------- */
 
     int last_datastore_id() const
@@ -258,6 +263,18 @@ public:
         return af;
     }
 
+    int backup_job_id() const
+    {
+        int id;
+
+        if (!config.get("BACKUP_JOB_ID", id))
+        {
+            return -1;
+        }
+
+        return id;
+    }
+
     /* ---------------------------------------------------------------------- */
 
     void last_backup_clear()
@@ -266,6 +283,8 @@ public:
 
         config.erase("LAST_BACKUP_ID");
         config.erase("LAST_BACKUP_SIZE");
+
+        config.erase("BACKUP_JOB_ID");
     }
 
     /**

@@ -73,6 +73,8 @@ require 'opennebula/hook'
 require 'opennebula/hook_pool'
 require 'opennebula/hook_log'
 require 'opennebula/flow'
+require 'opennebula/backupjob'
+require 'opennebula/backupjob_pool'
 
 module OpenNebula
 

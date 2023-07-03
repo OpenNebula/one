@@ -23,8 +23,7 @@ lib_name='nebula_vmtemplate'
 # Sources to generate the library
 source_files=[
     'VMTemplate.cc',
-    'VMTemplatePool.cc',
-    'ScheduledAction.cc'
+    'VMTemplatePool.cc'
 ]
 
 # Build library

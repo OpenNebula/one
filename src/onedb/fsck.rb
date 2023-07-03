@@ -51,6 +51,7 @@ require 'fsck/vrouter'
 require 'fsck/template'
 
 require 'fsck/quotas'
+require 'fsck/scheduled_actions'
 
 module OneDBFsck
 
@@ -543,6 +544,19 @@ EOT
 
         fix_template
 
+        log_time
+
+        ########################################################################
+        # Scheduled Actions
+        ########################################################################
+
+        check_scheduled_actions
+
+        fix_scheduled_actions
+
+        log_time
+
+        # Log results
         log_total_errors
 
         return true

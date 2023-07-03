@@ -250,6 +250,20 @@ int VirtualMachinePool::get_pending(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::get_backup(vector<int>& oids)
+{
+    ostringstream   os;
+
+    os << "state = " << VirtualMachine::ACTIVE
+       << " and ( lcm_state = " << VirtualMachine::BACKUP
+       << " or lcm_state = " << VirtualMachine::BACKUP_POWEROFF << " )";
+
+    return PoolSQL::search(oids, one_db::vm_table, os.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachinePool::dump_acct(string& oss, const string&  where,
     int time_start, int time_end)
 {

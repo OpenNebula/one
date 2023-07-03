@@ -1,0 +1,369 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+
+require 'tempfile'
+require 'command_parser'
+require 'one_helper/onebackupjob_helper'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onebackupjob` <command> [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneBackupJobHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    USE = {
+        :name => 'use',
+        :large => '--use',
+        :description => 'lock use actions'
+    }
+
+    MANAGE = {
+        :name => 'manage',
+        :large => '--manage',
+        :description => 'lock manage actions'
+    }
+
+    ADMIN = {
+        :name => 'admin',
+        :large => '--admin',
+        :description => 'lock admin actions'
+    }
+
+    ALL = {
+        :name => 'all',
+        :large => '--all',
+        :description => 'lock all actions'
+    }
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
+
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
+    list_options << OpenNebulaHelper::NUMERIC
+    list_options << OpenNebulaHelper::DESCRIBE
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
+    end
+
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
+    end
+
+    set :format, :backupjobid, OneBackupJobHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
+
+    set :format, :backupjobid_list, OneBackupJobHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
+    end
+
+    set :format, :filterflag, OneBackupJobHelper.filterflag_to_i_desc do |arg|
+        helper.filterflag_to_i(arg)
+    end
+
+    ########################################################################
+    # Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Creates a new Backup Job
+        Examples:
+          - using a template description file:
+
+            onebackupjob create centOS.tmpl
+    EOT
+
+    command :create,
+            create_desc,
+            [:file, nil],
+            :options => [OpenNebulaHelper::SCHEDULE_OPTIONS] +
+                        OneBackupJobHelper::TEMPLATE_OPTIONS do
+        rc = nil
+
+        helper.create_resource(options) do |bj|
+            begin
+                if args[0]
+                    template = File.read(args[0])
+                else
+                    template = OneBackupJobHelper.create_backupjob_template(options)
+                end
+
+                rc = bj.allocate(template)
+            rescue StandardError => e
+                STDERR.puts e.message
+                exit(-1)
+            end
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit(-1)
+            end
+
+            helper.schedule_actions([bj.id], options) unless options[:schedule].nil?
+        end
+    end
+
+    delete_desc = <<-EOT.unindent
+        Deletes the given Backup Job
+    EOT
+
+    command :delete, delete_desc, [:range, :backupjobid_list] do
+        helper.perform_actions(args[0], options, 'deleting') do |bj|
+            bj.delete
+        end
+    end
+
+    update_desc = <<-EOT.unindent
+        Update the Backup Job contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :backupjobid, [:file, nil] do
+        helper.perform_action(args[0], options, 'modified') do |obj|
+            if args[1]
+                str = File.read(args[1])
+            else
+                rc = obj.info
+
+                if OpenNebula.is_error?(rc)
+                    puts rc.message
+                    exit(-1)
+                end
+
+                obj.delete_element('TEMPLATE/SCHED_ACTION')
+
+                str = OpenNebulaHelper.editor_input(obj.template_like_str('TEMPLATE'))
+            end
+
+            obj.update(str)
+        end
+    end
+
+    chgrp_desc = <<-EOT.unindent
+        Changes the Backup Job group
+    EOT
+
+    command :chgrp, chgrp_desc, [:range, :backupjobid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |bj|
+            bj.chown(-1, args[1].to_i)
+        end
+    end
+
+    chown_desc = <<-EOT.unindent
+        Changes the Backup Job owner and group
+    EOT
+
+    command :chown, chown_desc, [:range, :backupjobid_list], :userid,
+            [:groupid, nil] do
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
+        helper.perform_actions(args[0], options,
+                               'Owner/Group changed') do |bj|
+            bj.chown(args[1].to_i, gid)
+        end
+    end
+
+    chmod_desc = <<-EOT.unindent
+        Changes the BackupJob permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :backupjobid_list], :octet do
+        helper.perform_actions(args[0], options,
+                               'Permissions changed') do |bj|
+            bj.chmod_octet(OpenNebulaHelper.to_octet(args[1]))
+        end
+    end
+
+    rename_desc = <<-EOT.unindent
+        Renames the Backup Job
+    EOT
+
+    command :rename, rename_desc, :backupjobid, :name do
+        helper.perform_action(args[0], options, 'renamed') do |bj|
+            bj.rename(args[1])
+        end
+    end
+
+    list_desc = <<-EOT.unindent
+        Lists Backup Jobs in the pool
+    EOT
+
+    command :list, list_desc, [:filterflag, nil], :options => list_options do
+        helper.list_pool(options, false, args[0])
+    end
+
+    show_desc = <<-EOT.unindent
+        Shows information for the given Backup Job
+    EOT
+
+    command :show, show_desc, :backupjobid,
+            :options => [OpenNebulaHelper::FORMAT] do
+        helper.show_resource(args[0], options)
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks an Backup Job to prevent certain actions defined by different levels.
+        The show action will never be locked.
+        Levels:
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
+    EOT
+
+    command :lock, lock_desc, [:range, :backupjobid_list],
+            :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_actions(args[0], options, 'Backup Job locked') do |bj|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            bj.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks an Backup Job.
+    EOT
+
+    command :unlock, unlock_desc, [:range, :backupjobid_list] do
+        helper.perform_actions(args[0], options, 'Backup Job unlocked') do |bj|
+            bj.unlock
+        end
+    end
+
+    backup_desc = <<-EOT.unindent
+        Start the Backup Job execution.
+    EOT
+
+    command :backup, backup_desc, [:range, :backupjobid_list],
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
+        if !options[:schedule].nil?
+            helper.schedule_actions(args[0], options)
+        else
+            helper.perform_actions(args[0], options, 'Starting Backups') do |bj|
+                bj.backup
+            end
+        end
+    end
+
+    cancel_desc = <<-EOT.unindent
+        Cancel pending Backup Job, removing Virtual Machines from the waiting list
+    EOT
+
+    command :cancel, cancel_desc, [:range, :backupjobid_list] do
+        helper.perform_actions(args[0], options, 'Backups canceled') do |bj|
+            bj.cancel
+        end
+    end
+
+    retry_desc = <<-EOT.unindent
+        Retry failed Backup Job. Trigger backup on Virtual Machines from error list.
+    EOT
+
+    command :retry, retry_desc, [:range, :backupjobid_list] do
+        helper.perform_actions(args[0], options,
+                               'Retrying backups for failed Virtual Machines') do |bj|
+            bj.retry
+        end
+    end
+
+    priority_desc = <<-EOT.unindent
+        Change the priority of the Backup Job. Only oneadmin may increase priority over 50.
+    EOT
+
+    command :priority, priority_desc, [:range, :backupjobid_list], :priority do
+        helper.perform_actions(args[0], options, 'Priority changed') do |bj|
+            bj.priority(args[1].to_i)
+        end
+    end
+
+    sched_delete_desc = <<-EOT.unindent
+        Remove Scheduled Action from Backup Job.
+    EOT
+
+    command :"sched-delete", sched_delete_desc, :bjid, :schedid do
+        schedid = args[1]
+
+        helper.perform_action(args[0], options, 'Scheduled Action deleted') do |bj|
+            bj.sched_action_delete(schedid)
+        end
+    end
+
+    sched_update_desc = <<-EOT.unindent
+        Start the Backup Job execution.
+    EOT
+
+    command :"sched-update", sched_update_desc, :bjid, :schedid,
+            [:file, nil] do
+        bj_id = args[0]
+        sched_id = args[1]
+        file = args[2]
+
+        helper.update_schedule_action(bj_id, sched_id, file, options)
+    end
+end

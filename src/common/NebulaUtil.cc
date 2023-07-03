@@ -464,3 +464,19 @@ string one_util::uuid()
 
     return oss.str();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+template <>
+bool one_util::str_cast(const std::string& str, std::string& value)
+{
+    if (str.empty())
+    {
+        return false;
+    }
+
+    value = str;
+
+    return true;
+}

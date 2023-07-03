@@ -54,7 +54,15 @@ class OneDBBacKEnd
 
         document_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
             "body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, " <<
-            "owner_u INTEGER, group_u INTEGER, other_u INTEGER"
+            "owner_u INTEGER, group_u INTEGER, other_u INTEGER",
+
+        backupjob_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
+            "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
+            "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
+            "priority INTEGER,  outdated_vms INTEGER",
+
+        schedaction_pool: "oid INTEGER PRIMARY KEY, parent_id INTEGER, "<<
+            "type VARCHAR(128), body MEDIUMTEXT, time INTEGER, done INTEGER"
     }
 
     VERSION_SCHEMA = {

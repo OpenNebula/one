@@ -323,7 +323,7 @@ bool Template::get(const string& name, string& value) const
 
     value = s->value();
 
-	return true;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -362,6 +362,29 @@ string& Template::to_xml(string& xml) const
     for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
         it->second->to_xml(oss);
+    }
+
+    oss << "</" << xml_root << ">";
+
+    xml = oss.str();
+
+    return xml;
+}
+
+string& Template::to_xml(string& xml, const string& extra) const
+{
+    ostringstream oss;
+
+    oss << "<" << xml_root << ">";
+
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        it->second->to_xml(oss);
+    }
+
+    if (!extra.empty())
+    {
+        oss << extra;
     }
 
     oss << "</" << xml_root << ">";

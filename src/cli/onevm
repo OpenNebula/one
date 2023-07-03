@@ -422,12 +422,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :hold, hold_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             helper.schedule_actions(args[0], options, @comm_name)
         else
@@ -444,12 +439,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :release, release_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             helper.schedule_actions(args[0], options, @comm_name)
         else
@@ -512,13 +502,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :terminate, terminate_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME,
-                         OneVMHelper::HARD] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS +
+                        [OneVMHelper::HARD] do
         command_name = 'terminate'
         command_name << '-hard' if options[:hard]
 
@@ -540,13 +525,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :undeploy, undeploy_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME,
-                         OneVMHelper::HARD] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS +
+                        [OneVMHelper::HARD] do
         command_name = 'undeploy'
         command_name << '-hard' if options[:hard]
 
@@ -567,13 +547,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :poweroff, poweroff_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME,
-                         OneVMHelper::HARD] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS +
+                        [OneVMHelper::HARD] do
         command_name = 'poweroff'
         command_name << '-hard' if options[:hard]
 
@@ -596,13 +571,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :reboot, reboot_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME,
-                         OneVMHelper::HARD] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS +
+                        [OneVMHelper::HARD] do
         command_name = 'reboot'
         command_name << '-hard' if options[:hard]
 
@@ -680,12 +650,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :stop, stop_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             helper.schedule_actions(args[0], options, @comm_name)
         else
@@ -705,12 +670,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :suspend, suspend_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             helper.schedule_actions(args[0], options, @comm_name)
         else
@@ -727,12 +687,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :resume, resume_desc, [:range, :vmid_list],
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             helper.schedule_actions(args[0], options, @comm_name)
         else
@@ -1084,12 +1039,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"snapshot-create", snapshot_create_desc, [:range, :vmid_list],
-            [:name, nil], :options => [OneVMHelper::SCHEDULE,
-                                       OneVMHelper::WEEKLY,
-                                       OneVMHelper::MONTHLY,
-                                       OneVMHelper::YEARLY,
-                                       OneVMHelper::HOURLY,
-                                       OneVMHelper::END_TIME] do
+            [:name, nil], :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add name as an argument
             options[:args] = args[1]
@@ -1108,12 +1058,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"snapshot-revert", snapshot_revert_desc, :vmid, :snapshot_id,
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add snap ID as an argument
             options[:args] = args[1]
@@ -1132,12 +1077,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"snapshot-delete", snapshot_delete_desc, :vmid, :snapshot_id,
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add snap ID as an argument
             options[:args] = args[1]
@@ -1159,12 +1099,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-snapshot-create", disk_snapshot_create_desc,
             :vmid, :diskid, :name,
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add disk ID and name as arguments
             options[:args] = "#{args[1]},#{args[2]}"
@@ -1186,12 +1121,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
             :vmid, :diskid, :disk_snapshot_id,
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add disk ID and snap ID as arguments
             options[:args] = "#{args[1]},#{args[2]}"
@@ -1213,12 +1143,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
             :vmid, :diskid, :disk_snapshot_id,
-            :options => [OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+            :options => OpenNebulaHelper::SCHEDULE_OPTIONS do
         if !options[:schedule].nil?
             # add disk ID and snap ID as arguments
             options[:args] = "#{args[1]},#{args[2]}"
@@ -1548,7 +1473,38 @@ CommandParser::CmdParser.new(ARGV) do
             :vmid,
             :sched_id,
             [:file, nil] do
-        helper.update_schedule_action(args[0], args[1], args[2])
+        helper.update_schedule_action(args[0], args[1], args[2], options)
+
+        0
+    end
+
+    sched_delete_desc = <<-EOT.unindent
+        Deletes a Scheduled Action from the VM
+    EOT
+
+    command :'sched-delete', sched_delete_desc, :vmid, :sched_id do
+        helper.perform_action(args[0], {}, 'Scheduled Action deleted') do |vm|
+            rc = vm.sched_action_delete(args[1])
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error deleting: #{rc.message}"
+                exit(-1)
+            end
+        end
+
+        0
+    end
+
+    sched_update_desc = <<-EOT.unindent
+        Updates a Scheduled Action from a VM
+    EOT
+
+    command :'sched-update',
+            sched_update_desc,
+            :vmid,
+            :sched_id,
+            [:file, nil] do
+        helper.update_schedule_action(args[0], args[1], args[2], options)
 
         0
     end
@@ -1563,19 +1519,14 @@ CommandParser::CmdParser.new(ARGV) do
             backup_vm_desc,
             :vmid,
             :options => [RESET_BACKUP,
-                         OneDatastoreHelper::DATASTORE,
-                         OneVMHelper::SCHEDULE,
-                         OneVMHelper::WEEKLY,
-                         OneVMHelper::MONTHLY,
-                         OneVMHelper::YEARLY,
-                         OneVMHelper::HOURLY,
-                         OneVMHelper::END_TIME] do
+                         OneDatastoreHelper::DATASTORE] +
+                        OpenNebulaHelper::SCHEDULE_OPTIONS do
         options[:datastore] = -1 if options[:datastore].nil?
 
         reset = options[:reset] == true
 
         if !options[:schedule].nil?
-            options[:args] = options[:datastore]
+            options[:args] = "#{options[:datastore]},#{reset ? 1 : 0}"
 
             helper.schedule_actions([args[0]], options, @comm_name)
         else
@@ -1713,8 +1664,8 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    # Deprecated commands
+    # Deprecated commands, remove these commands in release 8.x
 
-    deprecated_command(:shutdown, 'terminate')
-    deprecated_command(:delete, 'recover')
+    deprecated_command(:'delete-chart', 'sched-delete')
+    deprecated_command(:'update-chart', 'sched-update')
 end

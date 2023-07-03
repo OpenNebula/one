@@ -4,6 +4,8 @@
     <xs:include schemaLocation="acct.xsd"/>
     <xs:include schemaLocation="acl_pool.xsd"/>
     <xs:include schemaLocation="api_info.xsd"/>
+    <xs:include schemaLocation="backupjob_pool.xsd"/>
+    <xs:include schemaLocation="backupjob.xsd"/>
     <xs:include schemaLocation="cluster_pool.xsd"/>
     <xs:include schemaLocation="cluster.xsd"/>
     <xs:include schemaLocation="datastore_pool.xsd"/>
@@ -28,6 +30,7 @@
     <xs:include schemaLocation="raftstatus.xsd"/>
     <xs:include schemaLocation="security_group_pool.xsd"/>
     <xs:include schemaLocation="security_group.xsd"/>
+    <xs:include schemaLocation="shared.xsd"/>
     <xs:include schemaLocation="showback.xsd"/>
     <xs:include schemaLocation="user_pool.xsd"/>
     <xs:include schemaLocation="user.xsd"/>

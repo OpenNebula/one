@@ -17,7 +17,6 @@
 #include <algorithm>
 
 #include "VirtualMachineXML.h"
-#include "ScheduledAction.h"
 #include "DatastoreXML.h"
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
@@ -679,38 +678,6 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 //******************************************************************************
 // Updates to oned
 //******************************************************************************
-
-bool VirtualMachineXML::update_sched_action(const SchedAction* action)
-{
-    xmlrpc_c::value result;
-
-    try
-    {
-        const string& action_id_str = action->vector_value("ID");
-        int action_id = std::stoi(action_id_str);
-
-        ostringstream oss;
-        oss << "<TEMPLATE>";
-        action->to_xml(oss);
-        oss << "</TEMPLATE>";
-
-        Client::client()->call("one.vm.schedupdate", "iis", &result, oid,
-                               action_id,
-                               oss.str().c_str());
-    }
-    catch (exception const& e)
-    {
-        return false;
-    }
-
-    vector<xmlrpc_c::value> values =
-            xmlrpc_c::value_array(result).vectorValueValue();
-
-    return xmlrpc_c::value_boolean(values[0]);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 bool VirtualMachineXML::update(const string &vm_template, bool append)
 {

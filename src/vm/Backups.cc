@@ -177,6 +177,8 @@ int Backups::parse(Template *tmpl, bool can_increment,
 
     sattr = cfg->vector_value("FS_FREEZE");
 
+    one_util::toupper(sattr);
+
     if ( !sattr.empty() )
     {
         if ((sattr != "NONE") && (sattr != "AGENT") && (sattr != "SUSPEND"))

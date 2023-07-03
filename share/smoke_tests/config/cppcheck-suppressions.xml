@@ -80,5 +80,9 @@
 		<id>noConstructor</id>
 		<fileName>include/Callbackable.h</fileName>
 	</suppress>
+	<suppress>
+		<id>knownEmptyContainer</id>
+		<fileName>src/schedule/ScheduledActionManager.cc</fileName>
+	</suppress>
 </suppressions>
 

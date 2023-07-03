@@ -21,7 +21,7 @@
 #include <map>
 #include <vector>
 
-#include "ScheduledAction.h"
+#include "SchedAction.h"
 
 class VirtualMachineActionsPoolXML;
 

@@ -35,7 +35,9 @@ source_files=[
     'VirtualMachineMonitorInfo.cc',
     'VMActions.cc',
     'Snapshots.cc',
-    'Backups.cc'
+    'Backups.cc',
+    'BackupJob.cc',
+    'BackupJobPool.cc'
 ]
 
 # Build library

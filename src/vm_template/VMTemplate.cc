@@ -17,8 +17,9 @@
 #include "VMTemplate.h"
 #include "Nebula.h"
 #include "VirtualMachineManager.h"
-#include "ScheduledAction.h"
 #include "OneDB.h"
+
+#include "ScheduledAction.h"
 
 using namespace std;
 
@@ -188,18 +189,24 @@ int VMTemplate::bootstrap(SqlDB * db)
 
 int VMTemplate::parse_sched_action(string& error_str)
 {
-    vector<VectorAttribute*> vas;
+    vector<const VectorAttribute*> vas;
 
-    if (obj_template->remove("SCHED_ACTION", vas) == 0)
+    if (obj_template->get("SCHED_ACTION", vas) == 0)
     {
         return 0;
     }
 
-    int rc = SchedActions::parse(vas, error_str, true, false);
+    for (const auto& i: vas)
+    {
+        ScheduledAction sa(PoolObjectSQL::VM, 0);
 
-    obj_template->set(vas);
+        if ( sa.parse(i, 0, error_str) == -1 )
+        {
+            return -1;
+        }
+    }
 
-    return rc;
+    return 0;
 }
 
 /* ------------------------------------------------------------------------ */

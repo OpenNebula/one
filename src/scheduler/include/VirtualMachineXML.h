@@ -25,7 +25,6 @@
 #include "Resource.h"
 
 #include "VirtualMachineTemplate.h"
-#include "ScheduledAction.h"
 
 class ImageDatastorePoolXML;
 
@@ -382,9 +381,6 @@ public:
         return affined_vms;
     }
 
-    //--------------------------------------------------------------------------
-    // Scheduled Action Interface
-    //--------------------------------------------------------------------------
     /**
      *  Get the user template of the VM
      *    @return the template as a XML string
@@ -407,23 +403,6 @@ public:
     {
         return vm_template.get();
     }
-
-    /**
-     * Get scheduled actions of the VM
-     *
-     * @param attributes to hold the VM actions
-     */
-    SchedActions get_actions() const
-    {
-        return SchedActions(vm_template.get());
-    }
-
-    /**
-     * Update scheduled action of the VM
-     *
-     * @param action sched action to update
-     */
-    bool update_sched_action(const SchedAction* action);
 
     /**
      * Sets an attribute in the VM Template, it must be allocated in the heap

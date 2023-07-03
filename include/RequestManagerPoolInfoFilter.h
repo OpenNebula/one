@@ -393,4 +393,14 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class BackupJobPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    BackupJobPoolInfo();
+};
+
+
 #endif

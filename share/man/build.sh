@@ -24,6 +24,7 @@ set -e
 COMMANDS=(
     'bin/oneacct'           'OpenNebula Accounting Tool'
     'bin/oneacl'            'manages OpenNebula ACLs'
+    'bin/onebackupjob'      'manages OpenNebula Backup Jobs'
     'bin/onecfg'            'OpenNebula configuration management tool'
     'bin/onedb'             'OpenNebula database migration tool'
     'bin/onegroup'          'manages OpenNebula groups'

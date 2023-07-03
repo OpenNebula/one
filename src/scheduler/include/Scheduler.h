@@ -95,7 +95,6 @@ protected:
         delete vmpool;
         delete vm_roles_pool;
         delete vnetpool;
-        delete vmapool;
 
         delete dspool;
         delete img_dspool;
@@ -124,8 +123,6 @@ protected:
     VirtualNetworkPoolXML *     vnetpool = nullptr;
 
     VMGroupPoolXML * vmgpool = nullptr;
-
-    VirtualMachineActionsPoolXML* vmapool = nullptr;
 
     MonitorPoolXML * hmonpool = nullptr;
 
@@ -174,8 +171,6 @@ protected:
      *          -2 if no VMs need to be scheduled
      */
     virtual int set_up_pools();
-
-    virtual int do_scheduled_actions();
 
     virtual void do_vm_groups();
 

@@ -37,7 +37,7 @@ module OpenNebula
         SELF = -1
 
         # Default resource ACL's for group users (create)
-        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP"
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP+BACKUPJOB"
 
         # The default view for group and group admins, must be defined in
         # sunstone_views.yaml

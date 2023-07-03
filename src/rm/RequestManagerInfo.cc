@@ -19,6 +19,7 @@
 #include "VirtualMachineDisk.h"
 #include "Nebula.h"
 #include "VirtualRouterPool.h"
+#include "ScheduledActionPool.h"
 
 using namespace std;
 
@@ -291,3 +292,4 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
 
     static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets, vrs);
 };
+

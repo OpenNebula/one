@@ -373,4 +373,42 @@ namespace one_db
         "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
         "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
         "UNIQUE(name))";
+
+    /* ---------------------------------------------------------------------- */
+    /* Backup Job tables                                                      */
+    /* ---------------------------------------------------------------------- */
+    const char * backup_job_table = "backupjob_pool";
+
+    const char * backup_job_db_names =
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, priority, outdated_vms";
+
+    const char * backup_job_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS backupjob_pool ("
+        "   oid INTEGER PRIMARY KEY,"
+        "   name VARCHAR(128),"
+        "   body MEDIUMTEXT,"
+        "   uid INTEGER,"
+        "   gid INTEGER,"
+        "   owner_u INTEGER,"
+        "   group_u INTEGER,"
+        "   other_u INTEGER,"
+        "   priority INTEGER,"
+        "   outdated_vms INTEGER)";
+
+    /* ---------------------------------------------------------------------- */
+    /* Scheduled Action tables                                                */
+    /* ---------------------------------------------------------------------- */
+    const char * scheduled_action_table = "schedaction_pool";
+
+    const char * scheduled_action_db_names =
+        "oid, parent_id, type, body, time, done";
+
+    const char * scheduled_action_db_bootstrap =
+        "CREATE TABLE IF NOT EXISTS schedaction_pool ("
+        "   oid INTEGER PRIMARY KEY,"
+        "   parent_id INTEGER,"
+        "   type VARCHAR(128),"
+        "   body MEDIUMTEXT,"
+        "   time INTEGER,"
+        "   done INTEGER)";
 }

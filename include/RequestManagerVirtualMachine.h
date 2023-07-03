@@ -35,6 +35,7 @@ protected:
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
+        dm          = nd.get_dm();
 
         auth_object = PoolObjectSQL::VM;
         auth_op     = AuthRequest::MANAGE;
@@ -46,6 +47,15 @@ protected:
 
     // Authorize the request, set failure_response message
     bool vm_authorization(int id,
+                          ImageTemplate *         tmpl,
+                          VirtualMachineTemplate* vtmpl,
+                          RequestAttributes&      att,
+                          PoolObjectAuth *        host_perms,
+                          PoolObjectAuth *        ds_perm,
+                          PoolObjectAuth *        img_perm);
+
+    // Authorize the request, do not set failure_response message
+    ErrorCode vm_authorization_no_response(int id,
                           ImageTemplate *         tmpl,
                           VirtualMachineTemplate* vtmpl,
                           RequestAttributes&      att,
@@ -98,6 +108,8 @@ protected:
     std::unique_ptr<VirtualMachine> get_vm(int id, RequestAttributes& att);
 
     std::unique_ptr<VirtualMachine> get_vm_ro(int id, RequestAttributes& att);
+
+    DispatchManager * dm;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -110,7 +122,10 @@ public:
         RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
                                      "A:ssi") {}
-    ~VirtualMachineAction() = default;
+
+    ErrorCode request_execute(RequestAttributes& att,
+                              const std::string& action_str,
+                              int vid);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -370,7 +385,7 @@ public:
         vm_action = VMActions::SNAPSHOT_CREATE_ACTION;
     }
 
-    ~VirtualMachineSnapshotCreate() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, std::string& name);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -391,7 +406,7 @@ public:
         vm_action = VMActions::SNAPSHOT_REVERT_ACTION;
     }
 
-    ~VirtualMachineSnapshotRevert() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, int snap_id);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -412,7 +427,7 @@ public:
         vm_action = VMActions::SNAPSHOT_DELETE_ACTION;
     }
 
-    ~VirtualMachineSnapshotDelete() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, int snap_id);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -478,7 +493,8 @@ public:
         vm_action   = VMActions::DISK_SNAPSHOT_CREATE_ACTION;
     }
 
-    ~VirtualMachineDiskSnapshotCreate() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, int disk_id,
+            const std::string& name);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -502,7 +518,7 @@ public:
         vm_action = VMActions::DISK_SNAPSHOT_REVERT_ACTION;
     }
 
-    ~VirtualMachineDiskSnapshotRevert() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, int disk_id, int snap_id);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -526,7 +542,7 @@ public:
         vm_action = VMActions::DISK_SNAPSHOT_DELETE_ACTION;
     }
 
-    ~VirtualMachineDiskSnapshotDelete() = default;
+    ErrorCode request_execute(RequestAttributes& att, int vid, int disk_id, int snap_id);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
@@ -657,6 +673,11 @@ public:
         vm_action = VMActions::BACKUP_ACTION;
         auth_op   = AuthRequest::ADMIN;
     }
+
+    ErrorCode request_execute(RequestAttributes& att,
+                              int vm_id,
+                              int backup_ds_id,
+                              bool reset);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,

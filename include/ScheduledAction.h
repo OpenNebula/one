@@ -14,17 +14,16 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef SCHED_ACTION_ATTRIBUTE_H_
-#define SCHED_ACTION_ATTRIBUTE_H_
+#ifndef SCHEDULED_ACTION_H_
+#define SCHEDULED_ACTION_H_
 
-#include <set>
-
-#include "VirtualMachineAttribute.h"
+#include "PoolObjectSQL.h"
 
 /**
- * The VirtualMachine SCHED_ACTION attribute
+ *  The Scheduled Action class,
+ *  it represents planned actions fro Virtual Machine, Backup Jobs, ...
  */
-class SchedAction: public VirtualMachineAttribute
+class ScheduledAction : public PoolObjectSQL
 {
 public:
     enum Repeat
@@ -44,206 +43,193 @@ public:
         DATE     = 2
     };
 
-    SchedAction(VectorAttribute *va, int id):VirtualMachineAttribute(va, id){};
-
-    virtual ~SchedAction(){};
-
-    int action_id()
-    {
-        return get_id();
-    }
+    ScheduledAction(PoolObjectSQL::ObjectType type, int parent_id);
 
     /**
-     *  Returns the REPEAT value of the SCHED_ACTION
-     *    @param r repeat WEEKLY, MONTHLY, YEARLY or HOURLY
-     *    @return -1 if REPEAT not found or in wrong format 0 on success
+     * Function to print the Scheduled Action into a string in
+     * XML format. String and StreamString versions
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    int repeat(Repeat& r);
+    std::string& to_xml(std::string& xml) const override;
 
     /**
-     *  Returns the END_TYPE value of the SCHED_ACTION
-     *    @param eo ends on TIMES   WEEKLY, MONTHLY, YEARLY or HOURLY
-     *    @return -1 if REPEAT not found or in wrong format 0 on success
+     * Init the Scheduled Action from Template string
+     *  @param str Template as a string
+     *  @return 0 on success, -1 otherwise
      */
-    int endon(EndOn& eo);
-
-    /**
-     *  Parse the DAYS attribute of the sched action
-     *    @param d set of days (unique)
-     *    @return -1 if not found (d will be empty) 0 otherwise
-     */
-    int days(std::set<int>& _d);
+    int parse(const VectorAttribute * va, time_t origin, std::string& error_str);
 
     /**
      *  This function checks that the DAYS attributes are in range
      *  according to the Repeat value:
-     *    @param r repeat type (hourly, weekly...)
      *    @param error in case of error
      *
      *    @return true if days are in range false (error) if not
      */
-    bool days_in_range(Repeat r, std::string& error);
+    bool days_in_range(std::string& error);
 
     /**
      *  This function checks that END_VALUE is properly defined for the
      *  associated END_TYPE
-     *    @param eo end type (date, times)
      *    @param error in case of error
      *
-     *    @return 0 if days are in range -1 (error) if not or -2 (not defined)
+     *    @return 0 if days are in range, -1 error
      */
-    int ends_in_range(EndOn eo, std::string& error);
+    int ends_in_range(std::string& error);
 
     /**
-     *  This function parse and checks the sched action attributes: REPEAT, DAYS
-     *  , END_TYPE, END_DATE. It also removed DONE and MESSAGE.
-     *    @param error
-     *    @param clean indicates if the user wants to remove DONE and MESSAGE
-     *    @return 0 if success -1 otherwise
-     */
-    int parse(std::string& error, bool clean);
-
-    /**
-     *  @param stime time when the VM was started for relative time specs
-     *  @return action execution time. Returns -1 on error
-     */
-    time_t get_time(time_t stime);
-
-    /**
-     *  @param stime time when the VM was started for relative time specs
      *  @return true if the action needs to be executed.
      */
-    bool is_due(time_t stime);
+    bool is_due();
 
     /**
      *  Compute the next action, updating the TIME attribute for this action
      *    @return time for next action, if ended or error -1
      */
     time_t next_action();
+
+    /**
+     * Set Scheduled Action error message
+     */
+    void log_error(const std::string& error)
+    {
+        _message = error;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+    const std::string& action()
+    {
+        return _action;
+    }
+
+    const std::string& args()
+    {
+        return _args;
+    }
+
+    // Friends
+    friend class ScheduledActionPool;
+    friend class PoolSQL;
+
+private:
+    /**
+     * Objects that can include scheduled actions
+     */
+    static std::set<PoolObjectSQL::ObjectType> SCHED_OBJECTS;
+
+    /**
+     * Valid actions for VMs
+     */
+    static std::set<std::string> VM_ACTIONS;
+
+    // ----------------------------------------
+    // Scheduled Action fields
+    // ----------------------------------------
+
+    /**
+     *  Type of object associated to the Scheduled Action
+     */
+    PoolObjectSQL::ObjectType _type;
+
+    /**
+     *  ID of object associated to the Scheduled Action
+     */
+    int _parent_id;
+
+    /**
+     * Action and arguments
+     */
+    std::string _action;
+
+    std::string _args;
+
+    /**
+     *  Date to perform the action
+     */
+    time_t _time;
+
+    /**
+     *  Repeat schedule for the action
+     */
+    Repeat _repeat;
+
+    std::string _days;
+
+    EndOn _end_type;
+
+    time_t _end_value;
+
+    /**
+     *
+     */
+    time_t _done;
+
+    std::string _message;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const std::string &xml_str) override
+    {
+        update_from_str(xml_str);
+
+        return rebuild_attributes();
+    }
+
+    /**
+     *  Rebuilds the internal attributes using xpath
+     */
+    int rebuild_attributes();
+
+    /**
+     * Parse string time
+     *  @param str_time Time as string
+     *  @return action execution time. Returns -1 on error
+     */
+    time_t parse_time(std::string str_time, time_t origin);
+
+    /**
+     * Return number of days in the Repeat period
+     */
+    int days_in_period(int month, int year);
+
+    // --------------- DB access methods ---------------
+
+    /**
+     *  Write the Scheduled Action to the DB
+     *    @param db pointer to the database.
+     *    @return 0 on success.
+     */
+    int insert(SqlDB * db, std::string& error_str) override;
+
+    /**
+     *  Updates the Scheduled Action
+     *    @param db pointer to the database.
+     *    @return 0 on success.
+     */
+     int update(SqlDB * db) override
+     {
+        std::string error;
+
+        return insert_replace(db, true, error);
+     }
+
+    /**
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @return 0 on success
+     */
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 };
 
-/**
- *  Set of VirtualMachine SCHED_ACTION attributes
- */
-class SchedActions : public VirtualMachineAttributeSet
-{
-public:
-    /* ---------------------------------------------------------------------- */
-    /* Constructor and Initialization functions                               */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Creates the SchedAction set from a Template with SCHED_ACTION=[...]
-     *  attributes, id's are auto-assigned for internal use
-     *    @param tmpl template with DISK
-     */
-    SchedActions(Template * tmpl): VirtualMachineAttributeSet(false)
-    {
-        std::vector<VectorAttribute *> vas;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-        tmpl->get("SCHED_ACTION", vas);
-
-        init_attribute_map("ID", vas);
-    };
-
-    virtual ~SchedActions(){};
-
-    /**
-     *  Parse the ScheduleActions of a template
-     *    @param error
-     *    @param clean indicates if the user wants to remove DONE and MESSAGE
-     *    @return -1 in case of error 0 otherwise
-     */
-    int parse(std::string& error, bool clean)
-    {
-        for ( schedaction_iterator action = begin(); action != end(); ++action)
-        {
-            if ( (*action)->parse(error, clean) == -1 )
-            {
-                return -1;
-            }
-        }
-
-        return 0;
-    }
-
-    bool empty()
-    {
-        return a_set.empty();
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-
-    /* ---------------------------------------------------------------------- */
-    /* Raw VectorAttribute helpers                                            */
-    /* ---------------------------------------------------------------------- */
-    /**
-     * Parse a set of scheduled actions and optionally assign them a valid id
-     *   @param vas the vector of SCHED_ACTION
-     *   @param err string in case of error
-     *   @param clean remove DONE and MESSAGE attributes
-     *   @param set_id to set ID for each action
-     *
-     *   @return 0 on success -1 if error
-     */
-    static int parse(std::vector<VectorAttribute *>& vas, std::string& err,
-            bool clean, bool set_id);
-
-    /**
-     *  Adds a new SchedAction based on the provided VectorAttribute. The new
-     *  attribute is check and parsed
-     *    @param va VectorAttribute with the action
-     *    @param err with description
-     *
-     *    @return pointer to new attribute nullptr on error
-     */
-    static VectorAttribute * new_action(
-            const std::vector<const VectorAttribute *>& vas,
-            VectorAttribute * va, std::string &err);
-
-    static VectorAttribute * get_action(
-            const std::vector<VectorAttribute *>& sched_actions, int id);
-
-    /* ---------------------------------------------------------------------- */
-    /* Iterators                                                              */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Generic iterator for the SchedActions set.
-     */
-    class SchedActionIterator : public AttributeIterator
-    {
-    public:
-        SchedActionIterator():AttributeIterator(){};
-        SchedActionIterator(const AttributeIterator& i):AttributeIterator(i){};
-        virtual ~SchedActionIterator(){};
-
-        SchedAction * operator*() const
-        {
-            return static_cast<SchedAction *>(map_it->second);
-        }
-    };
-
-    SchedActionIterator begin()
-    {
-        SchedActionIterator it(ExtendedAttributeSet::begin());
-        return it;
-    }
-
-    SchedActionIterator end()
-    {
-        SchedActionIterator it(ExtendedAttributeSet::end());
-        return it;
-    }
-
-    typedef class SchedActionIterator schedaction_iterator;
-
-protected:
-    VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-        int id) const
-    {
-        return new SchedAction(va, id);
-    };
-};
-
-#endif  /*SCHED_ACTION_ATTRIBUTE_H_*/
+#endif /*SCHEDULED_ACTION_H_*/
 

@@ -709,7 +709,7 @@ public:
     {
         load_monitoring();
 
-        to_xml_extended(history->vm_info, 0);
+        to_xml_extended(history->vm_info, 0, false);
     };
 
     /**
@@ -717,7 +717,7 @@ public:
      */
     void set_previous_vm_info()
     {
-        to_xml_extended(previous_history->vm_info, 0);
+        to_xml_extended(previous_history->vm_info, 0, false);
     };
 
     /**
@@ -728,7 +728,7 @@ public:
     {
         history->etime = _etime;
 
-        to_xml_extended(history->vm_info, 0);
+        to_xml_extended(history->vm_info, 0, false);
     };
 
     /**
@@ -748,7 +748,7 @@ public:
     {
         previous_history->etime = _etime;
 
-        to_xml_extended(previous_history->vm_info, 0);
+        to_xml_extended(previous_history->vm_info, 0, false);
     };
 
     /**
@@ -898,7 +898,7 @@ public:
      */
     std::string& to_xml(std::string& xml) const override
     {
-        return to_xml_extended(xml, 1);
+        return to_xml_extended(xml, 1, false);
     }
 
     /**
@@ -917,7 +917,7 @@ public:
      */
     std::string& to_xml_extended(std::string& xml) const
     {
-        return to_xml_extended(xml, 2);
+        return to_xml_extended(xml, 2, true);
     }
 
     /**
@@ -1724,42 +1724,9 @@ public:
      */
     int check_shareable_disks(const std::string& vmm_mad, std::string& error);
 
-    /**
-     *  Add scheduled actions
-     *  @param sched_template Teplate with scheduled actions
-     *  @param error Error string in case of failure
-     *  @return 0 on success, -1 on failure
-     */
-    int sched_action_add(const std::string& sched_template,
-                         std::string& error);
-
-    /**
-     *  Update one scheduled action
-     *  @param sched_id ID of the scheduled action to delete
-     *  @param error Error string in case of failure
-     *  @return 0 on success, -1 on failure
-     */
-    int sched_action_delete(int sched_id,
-                            std::string& error);
-
-    /**
-     *  Update one scheduled action
-     *  @param sched_id ID of the scheduled action to update
-     *  @param sched_template New value of scheduled action
-     *  @param error Error string in case of failure
-     *  @return 0 on success, -1 on failure
-     */
-    int sched_action_update(int sched_id,
-                            const std::string& sched_template,
-                            std::string& error);
-
     // ------------------------------------------------------------------------
     // Backup related functions
     // ------------------------------------------------------------------------
-
-    /**
-     *
-     */
     long long backup_size(Template &ds_quota)
     {
         return disks.backup_size(ds_quota, _backups.do_volatile());
@@ -1768,6 +1735,19 @@ public:
     Backups& backups()
     {
         return _backups;
+    }
+
+    // ------------------------------------------------------------------------
+    // Scheduled actions functions
+    // ------------------------------------------------------------------------
+    ObjectCollection& sched_actions()
+    {
+        return _sched_actions;
+    }
+
+    const ObjectCollection& sched_actions() const
+    {
+        return _sched_actions;
     }
 
 private:
@@ -1876,6 +1856,11 @@ private:
      */
     Backups _backups;
 
+    /**
+     * Associated scheduled action for this VM
+     */
+    ObjectCollection _sched_actions;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
@@ -1957,9 +1942,10 @@ private:
      *      0: none
      *      1: the last one
      *      2: all
+     *  @param sa include scheduled action information
      *  @return a reference to the generated string
      */
-    std::string& to_xml_extended(std::string& xml, int n_history) const;
+    std::string& to_xml_extended(std::string& xml, int n_history, bool sa) const;
 
     std::string& to_json(std::string& json) const;
 
@@ -2216,13 +2202,6 @@ private:
      * Same as above but specifies the attribute name to handle old versions
      */
     int parse_public_clouds(const char *name, std::string& error);
-
-    /**
-     *  This method removes sched_action DONE/MESSAGE attributes
-     *    @param error_str with error description
-     *    @return -1 in case of error 0 otherwise
-     */
-    int parse_sched_action(std::string& error_str);
 
     /**
      *  Encrypt all secret attributes

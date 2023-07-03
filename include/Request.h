@@ -75,6 +75,22 @@ public:
         , success(false)
     {}
 
+    RequestAttributes(AuthRequest::Operation api_auth_op,
+                      int _uid,
+                      int _gid,
+                      PoolObjectSQL::ObjectType object_type)
+        : uid(_uid)
+        , gid(_gid)
+        , req_id(-1)
+        , umask(0)
+        , retval(nullptr)
+        , resp_obj(object_type)
+        , resp_id(-1)
+        , replication_idx(UINT64_MAX)
+        , auth_op(api_auth_op)
+        , success(false)
+    {}
+
     RequestAttributes(const RequestAttributes& ra) = default;
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -249,6 +265,53 @@ public:
         format_str = log_format;
     }
 
+    /**
+     *  Performs a basic quota check for this request using the uid/gid
+     *  from the request. Usage counters are updated for the user/group.
+     *  On case of error, the failure_response return values is not set, instead
+     *  the error reason is returned in error_str
+     *
+     *    @param tmpl describing the object
+     *    @param object type of the object
+     *    @param att the specific request attributes
+     *
+     *    @param error_str Error reason, if any
+     *    @return true if the user is authorized.
+     */
+    static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
+        const RequestAttributes& att, std::string& error_str);
+
+    /**
+     *  Performs rollback on usage counters for a previous  quota check operation
+     *  for the request.
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
+        const RequestAttributes& att);
+
+    static std::string failure_message(ErrorCode ec, RequestAttributes& att,
+        const std::string& method_name,
+        PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::NONE);
+
+    /**
+     *  Performs a basic authorization for this request using the uid/gid
+     *  from the request. The function gets the object from the pool to get
+     *  the public attribute and its owner. The authorization is based on
+     *  object and type of operation for the request.
+     *    @param pool object pool
+     *    @param oid of the object, can be -1 for objects to be created, or
+     *    pools.
+     *    @param att the specific request attributes
+     *
+     *    @return SUCCESS if the user is authorized.
+     */
+    static ErrorCode basic_authorization(
+            PoolSQL*                pool,
+            int                     oid,
+            PoolObjectSQL::ObjectType auth_object,
+            RequestAttributes&      att);
+
 protected:
     /* ---------------------------------------------------------------------- */
     /* Global configuration attributes por API calls                          */
@@ -410,24 +473,6 @@ protected:
     bool basic_authorization(int oid, RequestAttributes& att);
 
     /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param pool object pool
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param att the specific request attributes
-     *
-     *    @return SUCCESS if the user is authorized.
-     */
-    static ErrorCode basic_authorization(
-            PoolSQL*                pool,
-            int                     oid,
-            PoolObjectSQL::ObjectType auth_object,
-            RequestAttributes&      att);
-
-    /**
      *  Performs a basic quota check for this request using the uid/gid
      *  from the request. Usage counters are updated for the user/group.
      *  On case of error, the failure_response return values are set
@@ -440,31 +485,6 @@ protected:
      */
     bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
         RequestAttributes&  att);
-
-    /**
-     *  Performs a basic quota check for this request using the uid/gid
-     *  from the request. Usage counters are updated for the user/group.
-     *  On case of error, the failure_response return values is not set, instead
-     *  the error reason is returned in error_str
-     *
-     *    @param tmpl describing the object
-     *    @param object type of the object
-     *    @param att the specific request attributes
-     *
-     *    @param error_str Error reason, if any
-     *    @return true if the user is authorized.
-     */
-    static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        const RequestAttributes& att, std::string& error_str);
-
-    /**
-     *  Performs rollback on usage counters for a previous  quota check operation
-     *  for the request.
-     *    @param tmpl describing the object
-     *    @param att the specific request attributes
-     */
-    static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
-        const RequestAttributes& att);
 
     /**
      *    @param tmpl describing the object

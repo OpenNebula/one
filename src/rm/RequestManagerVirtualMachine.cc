@@ -32,7 +32,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::vm_authorization(
+Request::ErrorCode RequestManagerVirtualMachine::vm_authorization_no_response(
         int                     oid,
         ImageTemplate *         tmpl,
         VirtualMachineTemplate* vtmpl,
@@ -50,9 +50,8 @@ bool RequestManagerVirtualMachine::vm_authorization(
     else
     {
         att.resp_id = oid;
-        failure_response(NO_EXISTS, att);
 
-        return false;
+        return NO_EXISTS;
     }
 
     AuthRequest ar(att.uid, att.group_ids);
@@ -90,8 +89,30 @@ bool RequestManagerVirtualMachine::vm_authorization(
     if (UserPool::authorize(ar) == -1)
     {
         att.resp_msg = ar.message;
-        failure_response(AUTHORIZATION, att);
 
+        return AUTHORIZATION;
+    }
+
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool RequestManagerVirtualMachine::vm_authorization(
+        int                     oid,
+        ImageTemplate *         tmpl,
+        VirtualMachineTemplate* vtmpl,
+        RequestAttributes&      att,
+        PoolObjectAuth *        host_perm,
+        PoolObjectAuth *        ds_perm,
+        PoolObjectAuth *        img_perm)
+{
+    auto ec = vm_authorization_no_response(oid, tmpl, vtmpl, att,
+                                           host_perm, ds_perm, img_perm);
+    if (ec != SUCCESS)
+    {
+        failure_response(ec, att);
         return false;
     }
 
@@ -430,18 +451,13 @@ int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
-                                           RequestAttributes& att)
+Request::ErrorCode VirtualMachineAction::request_execute(RequestAttributes& att,
+                                                         const std::string& action_str,
+                                                         int vid)
 {
-    string action_st = xmlrpc_c::value_string(paramList.getString(1));
-    int    id        = xmlrpc_c::value_int(paramList.getInt(2));
-
     int    rc;
 
     std::string memory, cpu;
-
-    Nebula& nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
 
     ostringstream oss;
     string error;
@@ -451,52 +467,54 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     VirtualMachineTemplate quota_tmpl;
     RequestAttributes& att_aux(att);
 
-    VMActions::action_from_str(action_st, action);
+    VMActions::action_from_str(action_str, action);
 
     // Update the authorization level for the action
     att.set_auth_op(action);
 
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+    if (auth != SUCCESS)
     {
-        return;
+        return auth;
     }
 
-    auto vm = get_vm_ro(id, att);
+    auto vm = pool->get_ro<VirtualMachine>(vid);
 
     if (vm == nullptr)
     {
-        return;
+        att.resp_id = vid;
+        return NO_EXISTS;
     }
 
     // Check if the action is supported for imported VMs
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
-        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
+        att.resp_msg = "Action \"" + action_str + "\" is not supported for "
             "imported VMs";
-        failure_response(ACTION, att);
 
-        return;
+        return ACTION;
     }
 
     switch (action)
     {
         case VMActions::TERMINATE_ACTION:
-            rc = dm->terminate(id, false, att, error);
+            rc = dm->terminate(vid, false, att, error);
             break;
         case VMActions::TERMINATE_HARD_ACTION:
-            rc = dm->terminate(id, true, att, error);
+            rc = dm->terminate(vid, true, att, error);
             break;
         case VMActions::HOLD_ACTION:
-            rc = dm->hold(id, att, error);
+            rc = dm->hold(vid, att, error);
             break;
         case VMActions::RELEASE_ACTION:
-            rc = dm->release(id, att, error);
+            rc = dm->release(vid, att, error);
             break;
         case VMActions::STOP_ACTION:
-            rc = dm->stop(id, att, error);
+            rc = dm->stop(vid, att, error);
             break;
         case VMActions::SUSPEND_ACTION:
-            rc = dm->suspend(id, att, error);
+            rc = dm->suspend(vid, att, error);
             break;
         case VMActions::RESUME_ACTION:
             // Generate quota information for resume action
@@ -517,11 +535,10 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
             if (!quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
             {
-                failure_response(ACTION, att);
-                return;
+                return ACTION;
             }
 
-            rc = dm->resume(id, att, error);
+            rc = dm->resume(vid, att, error);
 
             if (rc < 0)
             {
@@ -530,28 +547,28 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
             break;
         case VMActions::REBOOT_ACTION:
-            rc = dm->reboot(id, false, att, error);
+            rc = dm->reboot(vid, false, att, error);
             break;
         case VMActions::REBOOT_HARD_ACTION:
-            rc = dm->reboot(id, true, att, error);
+            rc = dm->reboot(vid, true, att, error);
             break;
         case VMActions::RESCHED_ACTION:
-            rc = dm->resched(id, true, att, error);
+            rc = dm->resched(vid, true, att, error);
             break;
         case VMActions::UNRESCHED_ACTION:
-            rc = dm->resched(id, false, att, error);
+            rc = dm->resched(vid, false, att, error);
             break;
         case VMActions::POWEROFF_ACTION:
-            rc = dm->poweroff(id, false, att, error);
+            rc = dm->poweroff(vid, false, att, error);
             break;
         case VMActions::POWEROFF_HARD_ACTION:
-            rc = dm->poweroff(id, true, att, error);
+            rc = dm->poweroff(vid, true, att, error);
             break;
         case VMActions::UNDEPLOY_ACTION:
-            rc = dm->undeploy(id, false, att, error);
+            rc = dm->undeploy(vid, false, att, error);
             break;
         case VMActions::UNDEPLOY_HARD_ACTION:
-            rc = dm->undeploy(id, true, att, error);
+            rc = dm->undeploy(vid, true, att, error);
             break;
         default:
             rc = -3;
@@ -561,34 +578,49 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (rc)
     {
         case 0:
-            success_response(id, att);
-            break;
+            return SUCCESS;
 
         case -1:
-            att.resp_id = id;
-            failure_response(NO_EXISTS, att);
-            break;
+            att.resp_id = vid;
+            return NO_EXISTS;
 
         case -2:
-            oss << "Error performing action \"" << action_st << "\": " << error;
+            oss << "Error performing action \"" << action_str << "\": " << error;
 
             att.resp_msg = oss.str();
-            failure_response(ACTION, att);
-            break;
+            return ACTION;
 
         case -3:
-            oss << "Action \"" << action_st << "\" is not supported";
+            oss << "Action \"" << action_str << "\" is not supported";
 
             att.resp_msg = oss.str();
-            failure_response(ACTION, att);
-            break;
+            return ACTION;
 
         default:
             att.resp_msg = "Internal error. Action result not defined";
-            failure_response(INTERNAL, att);
+            return INTERNAL;
     }
+}
 
-    return;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
+                                           RequestAttributes& att)
+{
+    string action_str = paramList.getString(1);
+    int    vid        = paramList.getInt(2);
+
+    auto ec = request_execute(att, action_str, vid);
+
+    if ( ec == Request::SUCCESS)
+    {
+        success_response(vid, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -730,7 +762,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                                            RequestAttributes& att)
 {
     Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
     DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachineTemplate  tmpl;
@@ -1035,7 +1066,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 {
     Nebula& nd = Nebula::instance();
 
-    DispatchManager *   dm = nd.get_dm();
     DatastorePool * dspool = nd.get_dspool();
 
     string hostname;
@@ -1791,7 +1821,6 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
         VirtualMachineTemplate& tmpl, RequestAttributes& att)
 {
     Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
     VirtualMachinePool * vmpool = nd.get_vmpool();
 
     PoolObjectAuth         vm_perms;
@@ -1889,9 +1918,6 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
                                             RequestAttributes& att)
 {
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
-
     int rc;
 
     int     id      = xmlrpc_c::value_int(paramList.getInt(1));
@@ -2263,42 +2289,37 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineSnapshotCreate::request_execute(
-        xmlrpc_c::paramList const&  paramList,
-        RequestAttributes&          att)
+Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttributes& att,
+                                                                 int vid,
+                                                                 string& name)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     PoolObjectAuth   vm_perms;
 
     int     rc;
     int     snap_id;
-
-    int     id   = xmlrpc_c::value_int(paramList.getInt(1));
-    string  name = xmlrpc_c::value_string(paramList.getString(2));
 
     VectorAttribute* snap = nullptr;
 
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+    if (auth != SUCCESS)
     {
-        return;
+        return auth;
     }
 
     // Check if the action is supported for imported VMs
-    if ( auto vm = get_vm_ro(id, att) )
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
         if (vm->is_imported() &&
             !vm->is_imported_action_supported(VMActions::SNAPSHOT_CREATE_ACTION))
         {
             att.resp_msg = "Action \"snapshot-create\" is not supported for "
                 "imported VMs";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
         auto vm_bck = vm->backups();
@@ -2307,9 +2328,8 @@ void VirtualMachineSnapshotCreate::request_execute(
         {
             att.resp_msg = "Action \"snapshot-create\" is not compatible with "
                 "incremental backups";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
         // get quota deltas
@@ -2320,7 +2340,8 @@ void VirtualMachineSnapshotCreate::request_execute(
     }
     else
     {
-        return;
+        att.resp_id = vid;
+        return NO_EXISTS;
     }
 
     Template quota_tmpl;
@@ -2332,25 +2353,93 @@ void VirtualMachineSnapshotCreate::request_execute(
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg) )
+    if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att.resp_msg) )
     {
-        failure_response(AUTHORIZATION, att_quota);
-        return;
+        // todo Double check the return code, should we copy vm_perms.uid and vm_perms.gid to response
+        return AUTHORIZATION;
     }
 
-    rc = dm->snapshot_create(id, name, snap_id, att, att.resp_msg);
+    rc = dm->snapshot_create(vid, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
         quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
-        failure_response(ACTION, att);
+        return ACTION;
+    }
+
+    att.resp_id = snap_id;
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineSnapshotCreate::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int     vid  = paramList.getInt(1);
+    string  name = paramList.getString(2);
+
+    auto rc = request_execute(att, vid, name);
+
+    if (rc == Request::SUCCESS)
+    {
+        success_response(att.resp_id, att);
     }
     else
     {
-        success_response(snap_id, att);
+        failure_response(rc, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineSnapshotRevert::request_execute(
+        RequestAttributes& att,
+        int vid,
+        int snap_id)
+{
+    int rc;
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation
+    // -------------------------------------------------------------------------
+    auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+    if (auth != SUCCESS)
+    {
+        return auth;
     }
 
-    return;
+    // Check if the action is supported for imported VMs
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
+    {
+        // Check if the action is supported for imported VMs
+        if (vm->is_imported() &&
+            !vm->is_imported_action_supported(VMActions::SNAPSHOT_REVERT_ACTION))
+        {
+            att.resp_msg = "Action \"snapshot-revert\" is not supported for "
+                "imported VMs";
+
+            return ACTION;
+        }
+    }
+    else
+    {
+        att.resp_id = vid;
+        return NO_EXISTS;
+    }
+
+    rc = dm->snapshot_revert(vid, snap_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        return ACTION;
+    }
+
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2360,52 +2449,67 @@ void VirtualMachineSnapshotRevert::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
+    int vid     = paramList.getInt(1);
+    int snap_id = paramList.getInt(2);
 
-    int    rc;
+    auto rc = request_execute(att, vid, snap_id);
 
-    int id      = xmlrpc_c::value_int(paramList.getInt(1));
-    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+    if (rc == Request::SUCCESS)
+    {
+        success_response(att.resp_id, att);
+    }
+    else
+    {
+        failure_response(rc, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineSnapshotDelete::request_execute(
+        RequestAttributes& att,
+        int vid,
+        int snap_id)
+{
+    int rc;
 
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+    if (auth != SUCCESS)
     {
-        return;
+        return auth;
     }
 
-    if ( auto vm = get_vm_ro(id, att) )
+    // Check if the action is supported for imported VMs
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
-        // Check if the action is supported for imported VMs
         if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::SNAPSHOT_REVERT_ACTION))
+            !vm->is_imported_action_supported(VMActions::SNAPSHOT_DELETE_ACTION))
         {
-            att.resp_msg = "Action \"snapshot-revert\" is not supported for "
+            att.resp_msg = "Action \"snapshot-delete\" is not supported for "
                 "imported VMs";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
     }
     else
     {
-        return;
+        att.resp_id = vid;
+        return NO_EXISTS;
     }
 
-    rc = dm->snapshot_revert(id, snap_id, att, att.resp_msg);
+    rc = dm->snapshot_delete(vid, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION, att);
-    }
-    else
-    {
-        success_response(id, att);
+        return ACTION;
     }
 
-    return;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2415,52 +2519,19 @@ void VirtualMachineSnapshotDelete::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
+    int vid     = paramList.getInt(1);
+    int snap_id = paramList.getInt(2);
 
-    int    rc;
+    auto rc = request_execute(att, vid, snap_id);
 
-    int id      = xmlrpc_c::value_int(paramList.getInt(1));
-    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
-
-    // -------------------------------------------------------------------------
-    // Authorize the operation
-    // -------------------------------------------------------------------------
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    if (rc == Request::SUCCESS)
     {
-        return;
-    }
-
-    // Check if the action is supported for imported VMs
-    if ( auto vm = get_vm_ro(id, att) )
-    {
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::SNAPSHOT_DELETE_ACTION))
-        {
-            att.resp_msg = "Action \"snapshot-delete\" is not supported for "
-                "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
+        success_response(att.resp_id, att);
     }
     else
     {
-        return;
+        failure_response(rc, att);
     }
-
-    rc = dm->snapshot_delete(id, snap_id, att, att.resp_msg);
-
-    if ( rc != 0 )
-    {
-        failure_response(ACTION, att);
-    }
-    else
-    {
-        success_response(id, att);
-    }
-
-    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2541,7 +2612,6 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     Nebula& nd = Nebula::instance();
 
     HostPool * hpool    = nd.get_hpool();
-    DispatchManager* dm = nd.get_dm();
 
     VirtualMachinePool* vmpool = nd.get_vmpool();
 
@@ -2731,7 +2801,6 @@ Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
         RequestAttributes& att)
 {
     Nebula&             nd      = Nebula::instance();
-    DispatchManager *   dm      = nd.get_dm();
     VirtualMachinePool* vmpool  = nd.get_vmpool();
 
     PoolObjectAuth      vm_perms;
@@ -2892,8 +2961,6 @@ void VirtualMachineUpdateNic::request_execute(
     // -------------------------------------------------------------------------
     // Perform the update
     // -------------------------------------------------------------------------
-    DispatchManager *dm = Nebula::instance().get_dm();
-
     rc = dm->update_nic(id, nic_id, &tmpl, append, att, att.resp_msg);
 
     if ( rc != 0 )
@@ -2917,8 +2984,6 @@ void VirtualMachineRecover::request_execute(
     int    rc;
     string error;
 
-    Nebula& nd           = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
     VMActions::Action action;
 
     switch (op)
@@ -3051,13 +3116,12 @@ void VirtualMachinePoolCalculateShowback::request_execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDiskSnapshotCreate::request_execute(
-        xmlrpc_c::paramList const&  paramList,
-        RequestAttributes&          att)
+Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
+        RequestAttributes& att,
+        int vid,
+        int disk_id,
+        const std::string& name)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     PoolObjectAuth   vm_perms;
 
     VirtualMachineDisk * disk;
@@ -3068,10 +3132,6 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     int    rc;
     int    snap_id;
 
-    int    id   = xmlrpc_c::value_int(paramList.getInt(1));
-    int    did  = xmlrpc_c::value_int(paramList.getInt(2));
-    string name = xmlrpc_c::value_string(paramList.getString(3));
-
     // ------------------------------------------------------------------------
     // Check request consistency (VM & disk exists, no volatile)
     // ------------------------------------------------------------------------
@@ -3079,7 +3139,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     bool is_volatile;
     int img_id = -1;
 
-    if ( auto vm = get_vm(id, att) )
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
         // Check if the action is supported for imported VMs
         if (vm->is_imported() &&
@@ -3087,9 +3147,8 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         {
             att.resp_msg = "Action \"disk-snapshot-create\" is not supported for "
                 "imported VMs";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
         auto vm_bck = vm->backups();
@@ -3098,19 +3157,17 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         {
             att.resp_msg = "Action \"disk-snapshot-create\" is not compatible with "
                 "incremental backups";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
-        disk = vm->get_disk(did);
+        disk = vm->get_disk(disk_id);
 
         if (disk == nullptr)
         {
             att.resp_msg = "VM disk does not exist";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
         /* ---------------------------------------------------------------------- */
@@ -3131,14 +3188,14 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
     else
     {
-        return;
+        att.resp_id = vid;
+        return NO_EXISTS;
     }
 
     if (is_volatile)
     {
         att.resp_msg = "Cannot make snapshots on volatile disks";
-        failure_response(ACTION, att);
-        return;
+        return ACTION;
     }
 
     /* ---------- Attributes for quota update requests ---------------------- */
@@ -3154,20 +3211,25 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         {
             att.resp_obj = PoolObjectSQL::IMAGE;
             att.resp_id  = img_id;
-            failure_response(NO_EXISTS, att);
 
-            return;
+            return NO_EXISTS;
         }
 
-        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms) == false)
+        auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, &img_perms);
+
+        if (auth != SUCCESS)
         {
-            return;
+            return auth;
         }
-
     }
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    else
     {
-        return;
+        auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+        if (auth != SUCCESS)
+        {
+            return auth;
+        }
     }
 
     RequestAttributes vm_att_quota  = RequestAttributes(vm_perms.uid,
@@ -3178,21 +3240,21 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     /* ---------------------------------------------------------------------- */
     /*  Check quotas for the new size in image/system datastoress             */
     /* ---------------------------------------------------------------------- */
-    if ( img_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                img_att_quota) )
+    if ( img_ds_quota &&
+         !quota_authorization(&ds_deltas, Quotas::DATASTORE, img_att_quota, att.resp_msg) )
     {
-        return;
+        return AUTHORIZATION;
     }
 
-    if ( vm_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                vm_att_quota) )
+    if ( vm_ds_quota &&
+         !quota_authorization(&ds_deltas, Quotas::DATASTORE, vm_att_quota, att.resp_msg) )
     {
         if ( img_ds_quota )
         {
             quota_rollback(&ds_deltas, Quotas::DATASTORE, img_att_quota);
         }
 
-        return;
+        return AUTHORIZATION;
     }
 
     if ( !vm_deltas.empty() )
@@ -3209,15 +3271,15 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, vm_att_quota);
             }
 
-            failure_response(AUTHORIZATION, vm_att_quota);
-            return;
+            att.resp_msg = vm_att_quota.resp_msg;
+            return AUTHORIZATION;
         }
     }
 
     // ------------------------------------------------------------------------
     // Do the snapshot
     // ------------------------------------------------------------------------
-    rc = dm->disk_snapshot_create(id, did, name, snap_id, att, att.resp_msg);
+    rc = dm->disk_snapshot_create(vid, disk_id, name, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -3236,14 +3298,81 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
             quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
         }
 
-        failure_response(ACTION, att);
+        return ACTION;
+    }
+
+    att.resp_id = snap_id;
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDiskSnapshotCreate::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int    vid  = paramList.getInt(1);
+    int    did  = paramList.getInt(2);
+    string name = paramList.getString(3);
+
+    auto rc = request_execute(att, vid, did, name);
+
+    if (rc == Request::SUCCESS)
+    {
+        success_response(att.resp_id, att);
     }
     else
     {
-        success_response(snap_id, att);
+        failure_response(rc, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineDiskSnapshotRevert::request_execute(
+        RequestAttributes& att,
+        int vid,
+        int disk_id,
+        int snap_id)
+{
+    int    rc;
+
+    auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+    if (auth != SUCCESS)
+    {
+        return auth;
     }
 
-    return;
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
+    {
+        // Check if the action is supported for imported VMs
+        if (vm->is_imported() &&
+            !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_REVERT_ACTION))
+        {
+            att.resp_msg = "Action \"disk-snapshot-revert\" is not supported for "
+                "imported VMs";
+
+            return ACTION;
+        }
+    }
+    else
+    {
+        att.resp_id = vid;
+        return NO_EXISTS;
+    }
+
+    rc = dm->disk_snapshot_revert(vid, disk_id, snap_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        return ACTION;
+    }
+
+    att.resp_id = vid;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3253,74 +3382,39 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
+    int vid     = paramList.getInt(1);
+    int disk_id = paramList.getInt(2);
+    int snap_id = paramList.getInt(3);
 
-    int    rc;
+    auto rc = request_execute(att, vid, disk_id, snap_id);
 
-    int id      = xmlrpc_c::value_int(paramList.getInt(1));
-    int did     = xmlrpc_c::value_int(paramList.getInt(2));
-    int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
-
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    if (rc == Request::SUCCESS)
     {
-        return;
-    }
-
-    if ( auto vm = get_vm_ro(id, att) )
-    {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_REVERT_ACTION))
-        {
-            att.resp_msg = "Action \"disk-snapshot-revert\" is not supported for "
-                "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
+        success_response(att.resp_id, att);
     }
     else
     {
-        return;
+        failure_response(rc, att);
     }
-
-    rc = dm->disk_snapshot_revert(id, did, snap_id, att, att.resp_msg);
-
-    if ( rc != 0 )
-    {
-        failure_response(ACTION, att);
-    }
-    else
-    {
-        success_response(id, att);
-    }
-
-    return;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDiskSnapshotDelete::request_execute(
-        xmlrpc_c::paramList const&  paramList,
-        RequestAttributes&          att)
+Request::ErrorCode VirtualMachineDiskSnapshotDelete::request_execute(
+        RequestAttributes& att,
+        int vid,
+        int disk_id,
+        int snap_id)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     const VirtualMachineDisk * disk;
 
     int rc;
 
-    int id      = xmlrpc_c::value_int(paramList.getInt(1));
-    int did     = xmlrpc_c::value_int(paramList.getInt(2));
-    int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
-
     bool persistent;
     int img_id = -1;
 
-    if ( auto vm = get_vm(id, att) )
+    if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
         // Check if the action is supported for imported VMs
         if (vm->is_imported() &&
@@ -3328,19 +3422,17 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         {
             att.resp_msg = "Action \"disk-snapshot-delete\" is not supported for "
                 "imported VMs";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
-        disk = vm->get_disk(did);
+        disk = vm->get_disk(disk_id);
 
         if (disk == nullptr)
         {
             att.resp_msg = "VM disk does not exist";
-            failure_response(ACTION, att);
 
-            return;
+            return ACTION;
         }
 
         persistent = disk->is_persistent();
@@ -3349,7 +3441,8 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     }
     else
     {
-        return;
+        att.resp_id = vid;
+        return NO_EXISTS;
     }
 
     if (persistent)
@@ -3362,35 +3455,61 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
         {
             att.resp_obj = PoolObjectSQL::IMAGE;
             att.resp_id  = img_id;
-            failure_response(NO_EXISTS, att);
 
-            return;
+            return NO_EXISTS;
         }
 
         img->get_permissions(img_perms);
 
-        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms) == false)
+        auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, &img_perms);
+
+        if (auth != SUCCESS)
         {
-            return;
+            return auth;
         }
-    }
-    else if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
-    {
-        return;
-    }
-
-    rc = dm->disk_snapshot_delete(id, did, snap_id, att, att.resp_msg);
-
-    if ( rc != 0 )
-    {
-        failure_response(ACTION, att);
     }
     else
     {
-        success_response(id, att);
+        auto auth = vm_authorization_no_response(vid, 0, 0, att, 0, 0, 0);
+
+        if (auth != SUCCESS)
+        {
+            return auth;
+        }
     }
 
-    return;
+    rc = dm->disk_snapshot_delete(vid, disk_id, snap_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        return ACTION;
+    }
+
+    att.resp_id = vid;
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineDiskSnapshotDelete::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int vid     = paramList.getInt(1);
+    int disk_id = paramList.getInt(2);
+    int snap_id = paramList.getInt(3);
+
+    auto rc = request_execute(att, vid, disk_id, snap_id);
+
+    if (rc == Request::SUCCESS)
+    {
+        success_response(att.resp_id, att);
+    }
+    else
+    {
+        failure_response(rc, att);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3609,9 +3728,6 @@ void VirtualMachineUpdateConf::request_execute(
 void VirtualMachineDiskResize::request_execute(
     xmlrpc_c::paramList const&  paramList, RequestAttributes& att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     Template ds_deltas;
     Template vm_deltas;
 
@@ -3823,9 +3939,6 @@ void VirtualMachineAttachSG::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
 {
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
     int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
@@ -3895,9 +4008,6 @@ void VirtualMachineAttachSG::request_execute(
 void VirtualMachineDetachSG::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    auto& nd    = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     int vm_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int nic_id = xmlrpc_c::value_int(paramList.getInt(2));
     int sg_id  = xmlrpc_c::value_int(paramList.getInt(3));
@@ -3925,21 +4035,6 @@ void VirtualMachineDetachSG::request_execute(
 void VirtualMachineBackup::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-
-    Nebula&            nd = Nebula::instance();
-    DispatchManager *  dm = nd.get_dm();
-
-    DatastorePool *      dspool = nd.get_dspool();
-    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
-
-    PoolObjectAuth vm_perms;
-    PoolObjectAuth ds_perms;
-    Template       quota_tmpl;
-
-    Backups::Mode mode;
-    int li_id;
-    int bk_id = -1;
-
     // ------------------------------------------------------------------------
     // Get request parameters
     // ------------------------------------------------------------------------
@@ -3957,10 +4052,41 @@ void VirtualMachineBackup::request_execute(
         reset = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
+    auto ec = request_execute(att, vm_id, backup_ds_id, reset);
+
+    if ( ec == Request::SUCCESS)
+    {
+        success_response(vm_id, att);
+    }
+    else
+    {
+        failure_response(ec, att);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Request::ErrorCode VirtualMachineBackup::request_execute(RequestAttributes& att,
+                                                         int vm_id,
+                                                         int backup_ds_id,
+                                                         bool reset)
+{
+    Nebula&            nd = Nebula::instance();
+    DatastorePool *    dspool = nd.get_dspool();
+
+    PoolObjectAuth vm_perms;
+    PoolObjectAuth ds_perms;
+    Template       quota_tmpl;
+
+    Backups::Mode mode;
+    int li_id;
+    int bk_id = -1;
+
     // ------------------------------------------------------------------------
     // Get VM & Backup Information
     // ------------------------------------------------------------------------
-    if ( auto vm = vmpool->get(vm_id) )
+    if ( auto vm = pool->get<VirtualMachine>(vm_id) )
     {
         vm->get_permissions(vm_perms);
 
@@ -3975,8 +4101,7 @@ void VirtualMachineBackup::request_execute(
     {
         att.resp_id  = vm_id;
 
-        failure_response(NO_EXISTS, att);
-        return;
+        return NO_EXISTS;
     }
 
     // Incremental backups use the current datastore if not resetting the chain
@@ -3993,8 +4118,7 @@ void VirtualMachineBackup::request_execute(
             att.resp_obj = PoolObjectSQL::IMAGE;
             att.resp_id  = bk_id;
 
-            failure_response(NO_EXISTS, att);
-            return;
+            return NO_EXISTS;
         }
     }
 
@@ -4004,8 +4128,7 @@ void VirtualMachineBackup::request_execute(
         {
             att.resp_msg = "Datastore needs to be of type BACKUP";
 
-            failure_response(ACTION, att);
-            return;
+            return ACTION;
         }
 
         ds->get_permissions(ds_perms);
@@ -4015,18 +4138,17 @@ void VirtualMachineBackup::request_execute(
         att.resp_obj = PoolObjectSQL::DATASTORE;
         att.resp_id  = backup_ds_id;
 
-        failure_response(NO_EXISTS, att);
-        return;
+        return NO_EXISTS;
     }
 
     // ------------------------------------------------------------------------
     // Authorize request (VM and Datastore access)
     // ------------------------------------------------------------------------
-    bool auth = vm_authorization(vm_id, 0, 0, att, 0, &ds_perms, 0);
+    auto auth = vm_authorization_no_response(vm_id, 0, 0, att, 0, &ds_perms, 0);
 
-    if (auth == false)
+    if (auth != SUCCESS)
     {
-        return;
+        return auth;
     }
 
     // -------------------------------------------------------------------------
@@ -4051,8 +4173,9 @@ void VirtualMachineBackup::request_execute(
 
     if ( !quota_authorization(&quota_tmpl, Quotas::DATASTORE, att_quota, att_quota.resp_msg) )
     {
-        failure_response(AUTHORIZATION, att_quota);
-        return;
+        att.resp_msg = att_quota.resp_msg;
+
+        return AUTHORIZATION;
     }
 
     // ------------------------------------------------------------------------
@@ -4062,13 +4185,10 @@ void VirtualMachineBackup::request_execute(
     {
         quota_rollback(&quota_tmpl, Quotas::DATASTORE, att_quota);
 
-        failure_response(INTERNAL, att);
-        return;
+        return INTERNAL;
     }
 
-    success_response(vm_id, att);
-
-    return;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4077,9 +4197,6 @@ void VirtualMachineBackup::request_execute(
 void VirtualMachineBackupCancel::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    Nebula&            nd = Nebula::instance();
-    DispatchManager *  dm = nd.get_dm();
-
     // Get request parameters
     int vm_id = xmlrpc_c::value_int(paramList.getInt(1));
 

@@ -148,6 +148,36 @@ _oneacl() {
     fi
 }
 
+_onebackupjob() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete list show lock unlock chgrp chown chmod rename
+            update execute cancel sched-delete sched-update"
+    cmd=onebackupjob
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|show|lock|unlock|chgrp|chown|chmod|rename| \
+        update|execute|cancel|sched-update|sched-delete)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
 _onecluster() {
     local cur prev opts cmd
     COMPREPLY=()
@@ -875,6 +905,7 @@ _onezone() {
 }
 
 complete -F _oneacl oneacl
+complete -F _onebackupjob onebackupjob
 complete -F _onecluster onecluster
 complete -F _onedatastore onedatastore
 complete -F _onedb onedb

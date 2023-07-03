@@ -71,6 +71,7 @@ env.Prepend(LIBS=[
     'nebula_ipamm',
     'nebula_vmgroup',
     'nebula_protocol',
+    'nebula_sam',
     'crypto',
     'xml2'
 ])

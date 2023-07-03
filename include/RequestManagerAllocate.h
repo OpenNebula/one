@@ -26,6 +26,7 @@
 #include "DatastoreTemplate.h"
 #include "MarketPlaceTemplate.h"
 
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -785,6 +786,38 @@ public:
     {
         return std::make_unique<Template>();
     };
+
+    Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      std::unique_ptr<Template> tmpl,
+                      int& id,
+                      RequestAttributes& att) override;
+
+
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobAllocate : public RequestManagerAllocate
+{
+public:
+    BackupJobAllocate():
+        RequestManagerAllocate("one.backupjob.allocate",
+                               "Allocates a new Backup Job",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
+
+    /* --------------------------------------------------------------------- */
+
+    std::unique_ptr<Template> get_object_template() const override
+    {
+        return std::make_unique<Template>();
+    }
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
                       std::unique_ptr<Template> tmpl,

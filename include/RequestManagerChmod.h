@@ -20,6 +20,7 @@
 #include "Request.h"
 #include "Nebula.h"
 
+#include "BackupJobPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
 #include "ImagePool.h"
@@ -308,6 +309,22 @@ public:
     };
 
     ~VMGroupChmod(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobChmod: public RequestManagerChmod
+{
+public:
+    BackupJobChmod():
+        RequestManagerChmod("one.backupjob.chmod",
+                            "Changes permission bits of a Backup Job")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
 };
 
 #endif

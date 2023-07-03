@@ -1,0 +1,49 @@
+---
+:ID:
+  :desc: ONE identifier for Backup Job
+  :size: 4
+  :adjust: true
+
+:USER:
+  :desc: Username of the Backup Job owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the Backup Job
+  :size: 8
+  :left: true
+
+:PRIO:
+  :desc: Priority of the Backup Job
+  :size: 4
+  :left: true
+
+:NAME:
+  :desc: Name of the Backup Job
+  :size: 15
+  :left: true
+  :expand: true
+
+:LAST:
+  :desc: Date for the last backup operation
+  :size: 15
+  :left: true
+  :expand: true
+
+:VMS:
+  :desc: VM IDs part of this backup job
+  :size: 15
+  :left: true
+  :expand: true
+
+# todo Add more columns
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :PRIO
+- :NAME
+- :LAST
+- :VMS

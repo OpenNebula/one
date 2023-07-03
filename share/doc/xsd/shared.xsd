@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:complexType name="LOCK">
+    <xs:sequence>
+      <xs:element name="LOCKED" type="xs:integer"/>
+      <xs:element name="OWNER" type="xs:integer"/>
+      <xs:element name="TIME" type="xs:integer"/>
+      <xs:element name="REQ_ID" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PERMISSIONS">
+    <xs:sequence>
+      <xs:element name="OWNER_U" type="xs:integer"/>
+      <xs:element name="OWNER_M" type="xs:integer"/>
+      <xs:element name="OWNER_A" type="xs:integer"/>
+      <xs:element name="GROUP_U" type="xs:integer"/>
+      <xs:element name="GROUP_M" type="xs:integer"/>
+      <xs:element name="GROUP_A" type="xs:integer"/>
+      <xs:element name="OTHER_U" type="xs:integer"/>
+      <xs:element name="OTHER_M" type="xs:integer"/>
+      <xs:element name="OTHER_A" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IDS">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SCHED_ACTION">
+    <xs:sequence>
+      <xs:element name="ID" type="xs:integer"/>
+      <xs:element name="PARENT_ID" type="xs:integer"/>
+      <xs:element name="TYPE" type="xs:string"/>
+      <xs:element name="ACTION" type="xs:string"/>
+      <xs:element name="ARGS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="TIME" type="xs:string"/>
+      <xs:element name="REPEAT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="DAYS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="END_TYPE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="END_VALUE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="DONE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="MESSAGE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

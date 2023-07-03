@@ -19,6 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -514,6 +515,26 @@ public:
     };
 
     ~HookRename() = default;
+
+    int exist(const std::string& name, int uid) override
+    {
+        return pool->exist(name, uid);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class BackupJobRename: public RequestManagerRename
+{
+public:
+    BackupJobRename():
+        RequestManagerRename("one.backupjob.rename", "Renames a Backup Job")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_bjpool();
+        auth_object = PoolObjectSQL::BACKUPJOB;
+    }
 
     int exist(const std::string& name, int uid) override
     {

@@ -18,6 +18,7 @@
 #include "HookLog.h"
 #include "Nebula.h"
 #include "AuthManager.h"
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -1129,4 +1130,17 @@ void HookLogInfo::request_execute(xmlrpc_c::paramList const& _paramList,
     success_response(dump_xml, att);
 
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+BackupJobPoolInfo::BackupJobPoolInfo()
+    : RequestManagerPoolInfoFilter("one.backupjobpool.info",
+                                   "Returns the Backup Job pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_bjpool();
+    auth_object = PoolObjectSQL::BACKUPJOB;
 }

@@ -24,6 +24,7 @@
 #include "LogDB.h"
 #include "SystemDB.h"
 
+#include "BackupJobPool.h"
 #include "ClusterPool.h"
 #include "DatastorePool.h"
 #include "DocumentPool.h"
@@ -33,6 +34,7 @@
 #include "ImagePool.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "ScheduledActionPool.h"
 #include "SecurityGroupPool.h"
 #include "UserPool.h"
 #include "VdcPool.h"
@@ -57,6 +59,7 @@
 #include "MarketPlaceManager.h"
 #include "RaftManager.h"
 #include "RequestManager.h"
+#include "ScheduledActionManager.h"
 #include "TransferManager.h"
 #include "VirtualMachineManager.h"
 
@@ -116,11 +119,14 @@ Nebula::~Nebula()
     delete ipamm;
     delete raftm;
     delete frm;
+    delete sam;
     delete logdb;
     delete fed_logdb;
     delete system_db;
     delete vntpool;
     delete hkpool;
+    delete bjpool;
+    delete sapool;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -520,6 +526,8 @@ void Nebula::start(bool bootstrap_only)
             rc += VNTemplatePool::bootstrap(logdb);
             rc += HookPool::bootstrap(logdb);
             rc += HookLog::bootstrap(logdb);
+            rc += BackupJobPool::bootstrap(logdb);
+            rc += ScheduledActionPool::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -797,6 +805,10 @@ void Nebula::start(bool bootstrap_only)
 
         hkpool = new HookPool(logdb);
 
+        bjpool = new BackupJobPool(logdb);
+
+        sapool = new ScheduledActionPool(logdb);
+
         default_user_quota.select();
         default_group_quota.select();
 
@@ -1010,9 +1022,9 @@ void Nebula::start(bool bootstrap_only)
         }
     }
 
-    // ---- Image Manager ----
     if (!cache)
     {
+        // ---- Image Manager ----
         vector<const VectorAttribute *> image_mads;
 
         nebula_configuration->get("DATASTORE_MAD", image_mads);
@@ -1083,6 +1095,18 @@ void Nebula::start(bool bootstrap_only)
         {
            throw runtime_error("Could not start the IPAM Manager");
         }
+    }
+
+    // ---- Scheduled Action Manager ----
+    if (!cache)
+    {
+        int max_backups;
+        int max_backups_host;
+        nebula_configuration->get("MAX_BACKUPS", max_backups);
+        nebula_configuration->get("MAX_BACKUPS_HOST", max_backups_host);
+
+        // todo Read settings from Scheduler config file
+        sam = new ScheduledActionManager(timer_period, max_backups, max_backups_host);
     }
 
     // -----------------------------------------------------------
@@ -1185,6 +1209,8 @@ void Nebula::start(bool bootstrap_only)
 
     if (!cache)
     {
+        sam->finalize();
+
         vmm->finalize();
         lcm->finalize();
 

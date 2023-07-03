@@ -34,7 +34,6 @@
 #include "NebulaLog.h"
 #include "PoolObjectAuth.h"
 #include "NebulaUtil.h"
-#include "ScheduledActionXML.h"
 
 #include "VirtualMachine.h"
 
@@ -328,8 +327,6 @@ void Scheduler::start()
     vnetpool = new VirtualNetworkPoolXML(client);
 
     vmgpool = new VMGroupPoolXML(client);
-
-    vmapool = new VirtualMachineActionsPoolXML(client, machines_limit);
 
     // -----------------------------------------------------------
     // Load scheduler policies
@@ -1691,44 +1688,6 @@ void Scheduler::dispatch()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Scheduler::do_scheduled_actions()
-{
-    BackupActions backups(max_backups, max_backups_host);
-
-    const map<int, ObjectXML*> vms = vmapool->get_objects();
-
-    for (auto vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
-    {
-        VirtualMachineXML* vm = static_cast<VirtualMachineXML *>(vm_it->second);
-
-        /* -------------- Check VM scheduled actions ------------------------ */
-
-        SchedActionsXML sactions(vm->get_template());
-
-        sactions.do_actions(vm->get_oid(), vm->get_stime());
-
-        /* ---------------- Get VM scheduled backups ------------------------ */
-
-        int state  = static_cast<VirtualMachine::VmState>(vm->get_state());
-        int lstate = static_cast<VirtualMachine::LcmState>(vm->get_lcm_state());
-
-        if ((state != VirtualMachine::ACTIVE || lstate != VirtualMachine::RUNNING)
-            && (state != VirtualMachine::POWEROFF))
-        {
-            continue;
-        }
-
-        backups.add(vm->get_oid(), vm->get_hid(), vm->get_stime(), sactions);
-    }
-
-    backups.dispatch(vmapool);
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void Scheduler::do_vm_groups()
 {
     const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
@@ -1815,17 +1774,6 @@ void Scheduler::timer_action()
 
         NebulaLog::log("SCHED", Log::ERROR, ess);
         return;
-    }
-
-    profile(true);
-    rc = vmapool->set_up();
-    profile(false,"Getting scheduled actions information.");
-
-    if ( rc == 0 )
-    {
-        profile(true);
-        do_scheduled_actions();
-        profile(false,"Executing scheduled actions.");
     }
 
     profile(true);

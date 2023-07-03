@@ -54,6 +54,7 @@
 #include "RequestManagerHook.h"
 #include "RequestManagerMarketPlace.h"
 #include "RequestManagerSchedAction.h"
+#include "RequestManagerBackupJob.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -379,6 +380,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmg_update(new VMGroupUpdateTemplate());
     xmlrpc_c::methodPtr vntemplate_update(new VirtualNetworkTemplateUpdateTemplate());
     xmlrpc_c::methodPtr hook_update(new HookUpdateTemplate());
+    xmlrpc_c::methodPtr backupjob_update(new BackupJobUpdateTemplate());
 
     // Allocate Methods
     xmlrpc_c::methodPtr vm_allocate(new VirtualMachineAllocate());
@@ -394,6 +396,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmg_allocate(new VMGroupAllocate());
     xmlrpc_c::methodPtr vntemplate_allocate(new VirtualNetworkTemplateAllocate());
     xmlrpc_c::methodPtr hook_allocate(new HookAllocate());
+    xmlrpc_c::methodPtr backupjob_allocate(new BackupJobAllocate());
 
     // Clone Methods
     xmlrpc_c::methodPtr template_clone(new VMTemplateClone());
@@ -414,6 +417,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmg_delete(new VMGroupDelete());
     xmlrpc_c::methodPtr vntemplate_delete(new VirtualNetworkTemplateDelete());
     xmlrpc_c::methodPtr hook_delete(new HookDelete());
+    xmlrpc_c::methodPtr backupjob_delete(new BackupJobDelete());
 
     // Info Methods
     xmlrpc_c::methodPtr vm_info(new VirtualMachineInfo());
@@ -429,6 +433,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_info(new VirtualRouterInfo());
     xmlrpc_c::methodPtr vmg_info(new VMGroupInfo());
     xmlrpc_c::methodPtr hook_info(new HookInfo());
+    xmlrpc_c::methodPtr backupjob_info(new BackupJobInfo());
 
     // Lock Methods
     xmlrpc_c::methodPtr doc_lock(new DocumentLock());
@@ -449,6 +454,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vntemplate_unlock(new VNTemplateUnlock());
     xmlrpc_c::methodPtr hook_lock(new HookLock());
     xmlrpc_c::methodPtr hook_unlock(new HookUnlock());
+    xmlrpc_c::methodPtr backupjob_lock(new BackupJobLock());
+    xmlrpc_c::methodPtr backupjob_unlock(new BackupJobUnlock());
 
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
@@ -466,6 +473,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmgpool_info(new VMGroupPoolInfo());
     xmlrpc_c::methodPtr vrouter_pool_info(new VirtualRouterPoolInfo());
     xmlrpc_c::methodPtr hookpool_info(new HookPoolInfo());
+    xmlrpc_c::methodPtr backupjobpool_info(new BackupJobPoolInfo());
 
     // Host Methods
     xmlrpc_c::methodPtr host_status(new HostStatus());
@@ -496,6 +504,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_chown(new VirtualRouterChown());
     xmlrpc_c::methodPtr vmg_chown(new VMGroupChown());
     xmlrpc_c::methodPtr vntemplate_chown(new VirtualNetworkTemplateChown());
+    xmlrpc_c::methodPtr backupjob_chown(new BackupJobChown());
 
     // Chmod Methods
     xmlrpc_c::methodPtr vm_chmod(new VirtualMachineChmod());
@@ -508,6 +517,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vrouter_chmod(new VirtualRouterChmod());
     xmlrpc_c::methodPtr vmg_chmod(new VMGroupChmod());
     xmlrpc_c::methodPtr vntemplate_chmod(new VirtualNetworkTemplateChmod());
+    xmlrpc_c::methodPtr backupjob_chmod(new BackupJobChmod());
 
     // Cluster Methods
     xmlrpc_c::methodPtr cluster_addhost(new ClusterAddHost());
@@ -537,6 +547,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vmg_rename(new VMGroupRename());
     xmlrpc_c::methodPtr vntemplate_rename(new VirtualNetworkTemplateRename());
     xmlrpc_c::methodPtr hook_rename(new HookRename());
+    xmlrpc_c::methodPtr backupjob_rename(new BackupJobRename());
 
     // Virtual Router Methods
     xmlrpc_c::methodPtr vrouter_instantiate(new VirtualRouterInstantiate());
@@ -549,8 +560,17 @@ void RequestManager::register_xml_methods()
     // Hook methods
     xmlrpc_c::methodPtr hook_retry(new HookRetry());
 
-    //HookLog methods
+    // HookLog methods
     xmlrpc_c::methodPtr hooklog_info(new HookLogInfo());
+
+    // Backup Job methods
+    xmlrpc_c::methodPtr backupjob_backup(new BackupJobBackup());
+    xmlrpc_c::methodPtr backupjob_cancel(new BackupJobCancel());
+    xmlrpc_c::methodPtr backupjob_retry(new BackupJobRetry());
+    xmlrpc_c::methodPtr backupjob_priority(new BackupJobPriority());
+    xmlrpc_c::methodPtr backupjob_schedadd(new BackupJobSchedAdd());
+    xmlrpc_c::methodPtr backupjob_scheddelete(new BackupJobSchedDelete());
+    xmlrpc_c::methodPtr backupjob_schedupdate(new BackupJobSchedUpdate());
 
     /* VM related methods  */
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
@@ -1219,6 +1239,25 @@ void RequestManager::register_xml_methods()
 
     /* Hook Log related methods */
     RequestManagerRegistry.addMethod("one.hooklog.info", hooklog_info);
+
+    /* Backup Job related methods */
+    RequestManagerRegistry.addMethod("one.backupjob.allocate", backupjob_allocate);
+    RequestManagerRegistry.addMethod("one.backupjob.delete", backupjob_delete);
+    RequestManagerRegistry.addMethod("one.backupjob.update", backupjob_update);
+    RequestManagerRegistry.addMethod("one.backupjob.rename", backupjob_rename);
+    RequestManagerRegistry.addMethod("one.backupjob.info", backupjob_info);
+    RequestManagerRegistry.addMethod("one.backupjob.chown", backupjob_chown);
+    RequestManagerRegistry.addMethod("one.backupjob.chmod", backupjob_chmod);
+    RequestManagerRegistry.addMethod("one.backupjob.lock", backupjob_lock);
+    RequestManagerRegistry.addMethod("one.backupjob.unlock", backupjob_unlock);
+    RequestManagerRegistry.addMethod("one.backupjob.backup", backupjob_backup);
+    RequestManagerRegistry.addMethod("one.backupjob.cancel", backupjob_cancel);
+    RequestManagerRegistry.addMethod("one.backupjob.retry", backupjob_retry);
+    RequestManagerRegistry.addMethod("one.backupjob.priority", backupjob_priority);
+    RequestManagerRegistry.addMethod("one.backupjob.schedadd", backupjob_schedadd);
+    RequestManagerRegistry.addMethod("one.backupjob.scheddelete", backupjob_scheddelete);
+    RequestManagerRegistry.addMethod("one.backupjob.schedupdate", backupjob_schedupdate);
+    RequestManagerRegistry.addMethod("one.backupjobpool.info", backupjobpool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

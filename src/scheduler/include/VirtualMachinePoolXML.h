@@ -144,58 +144,6 @@ private:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class VirtualMachineActionsPoolXML : public VirtualMachinePoolXML
-{
-public:
-
-    VirtualMachineActionsPoolXML(Client*       client,
-                                 unsigned int  machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false, 0){};
-
-    virtual ~VirtualMachineActionsPoolXML(){};
-
-    /**
-     * Retrieves the VMs with pending actions
-     *
-     * @return   0 on success
-     *          -1 on error
-     *          -2 if no VMs with pending actions
-     */
-    int set_up() override;
-
-    int active_backups() const
-    {
-        return _active_backups;
-    }
-
-    int host_backups(int host_id) const
-    {
-        return backups_host[host_id];
-    }
-
-    void add_backup(int host_id)
-    {
-        backups_host[host_id]++;
-        _active_backups++;
-    }
-
-protected:
-    /**
-     * Total backup operations in progress
-     */
-    mutable int _active_backups = 0;
-
-    /**
-     * Backup operations per host
-     */
-    mutable std::map<int, int> backups_host;
-
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override;
-};
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 class VirtualMachineRolePoolXML : public VirtualMachinePoolXML
 {
 public:

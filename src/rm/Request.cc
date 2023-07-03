@@ -768,6 +768,14 @@ void Request::failure_response(ErrorCode ec, const string& str_val,
 
 string Request::failure_message(ErrorCode ec, RequestAttributes& att)
 {
+    return failure_message(ec, att, method_name, auth_object);
+}
+
+/* -------------------------------------------------------------------------- */
+
+string Request::failure_message(ErrorCode ec, RequestAttributes& att,
+    const std::string& method_name, PoolObjectSQL::ObjectType auth_object)
+{
     std::ostringstream oss;
     std::string        obname;
 

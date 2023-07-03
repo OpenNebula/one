@@ -167,4 +167,5 @@ const (
 	EndType  SchedAction = "END_TYPE"
 	EndValue SchedAction = "END_VALUE"
 	ActionID SchedAction = "ID"
+	ParentID SchedAction = "PARENT_ID"
 )

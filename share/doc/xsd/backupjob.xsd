@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
+  <xs:element name="BACKUPJOB">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="UID" type="xs:integer"/>
+        <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="UNAME" type="xs:string"/>
+        <xs:element name="GNAME" type="xs:string"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="LOCK" type="LOCK" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="PERMISSIONS" type="PERMISSIONS"/>
+        <xs:element name="PRIORITY" type="xs:integer"/>
+        <xs:element name="LAST_BACKUP_TIME" type="xs:integer"/>
+        <xs:element name="LAST_BACKUP_DURATION" type="xs:integer"/>
+        <xs:element name="SCHED_ACTIONS" type="IDS"/>
+        <xs:element name="UPDATED_VMS" type="IDS"/>
+        <xs:element name="OUTDATED_VMS" type="IDS"/>
+        <xs:element name="BACKING_UP_VMS" type="IDS"/>
+        <xs:element name="ERROR_VMS" type="IDS"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="BACKUP_VMS" type="xs:string"/>
+              <xs:element name="BACKUP_VOLATILE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DATASTORE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="EXECUTION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="KEEP_LAST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SCHED_ACTION" type="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

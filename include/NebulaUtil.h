@@ -248,7 +248,7 @@ namespace one_util
      * @return the joined strings
      */
     template <class T>
-    std::string join(const std::set<T>& values, char delim)
+    std::string join(const T& values, char delim)
     {
         return join(values.begin(), values.end(), delim);
     }
@@ -360,6 +360,9 @@ namespace one_util
 
         return true;
     }
+
+    template <>
+    bool str_cast(const std::string& str, std::string& value);
 
 } // namespace one_util
 

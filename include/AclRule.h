@@ -255,16 +255,12 @@ private:
     /**
      *  Array of PoolObjectSQL types to iterate over all types
      */
-    static const int num_pool_objects;
-
-    static const PoolObjectSQL::ObjectType pool_objects[];
+    static const std::array<PoolObjectSQL::ObjectType, 19> pool_objects;
 
     /**
      *  Array of Auth operation types to iterate over all types
      */
-    static const int num_auth_operations;
-
-    static const AuthRequest::Operation auth_operations[];
+    static const std::array<AuthRequest::Operation, 4> auth_operations;
 
     /**
      *  Objects that cannot be used with the CLUSTER(%) selector

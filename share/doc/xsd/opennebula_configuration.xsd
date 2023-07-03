@@ -244,6 +244,8 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="MAX_BACKUPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MAX_BACKUPS_HOST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MAX_CONN" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MAX_CONN_BACKLOG" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MESSAGE_SIZE" type="xs:integer" minOccurs="0" maxOccurs="1"/>

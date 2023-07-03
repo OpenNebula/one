@@ -29,6 +29,7 @@ class LogDB;
 class FedLogDB;
 class User;
 
+class BackupJobPool;
 class ClusterPool;
 class DatastorePool;
 class DocumentPool;
@@ -38,6 +39,7 @@ class HostPool;
 class ImagePool;
 class MarketPlacePool;
 class MarketPlaceAppPool;
+class ScheduledActionPool;
 class SecurityGroupPool;
 class VdcPool;
 class VMGroupPool;
@@ -61,6 +63,7 @@ class LifeCycleManager;
 class MarketPlaceManager;
 class RaftManager;
 class RequestManager;
+class ScheduledActionManager;
 class TransferManager;
 class VirtualMachineManager;
 
@@ -180,6 +183,17 @@ public:
     {
         return hkpool;
     }
+
+    BackupJobPool * get_bjpool() const
+    {
+        return bjpool;
+    }
+
+    ScheduledActionPool * get_sapool() const
+    {
+        return sapool;
+    }
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -258,6 +272,11 @@ public:
     {
         return rm;
     };
+
+    ScheduledActionManager * get_sam() const
+    {
+        return sam;
+    }
 
     // --------------------------------------------------------------
     // Environment & Configuration
@@ -617,8 +636,10 @@ public:
         , vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0)
         , dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0)
         , vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0)
-        , vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0)
+        , vntpool(0), hkpool(0), bjpool(0), sapool(0)
+        , lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0)
         , hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
+        , sam(0)
     {
     };
 
@@ -690,6 +711,9 @@ private:
     VMGroupPool        * vmgrouppool;
     VNTemplatePool     * vntpool;
     HookPool           * hkpool;
+    BackupJobPool      * bjpool;
+    ScheduledActionPool* sapool;
+
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------
@@ -709,6 +733,7 @@ private:
     IPAMManager *           ipamm;
     RaftManager *           raftm;
     FedReplicaManager *     frm;
+    ScheduledActionManager *sam;
 
     // ---------------------------------------------------------------
     // Implementation functions

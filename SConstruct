@@ -111,7 +111,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/market',
     cwd+'/src/ipamm',
     cwd+'/src/data_model',
-    cwd+'/src/protocol'
+    cwd+'/src/protocol',
+    cwd+'/src/sam'
 ])
 
 # Compile flags
@@ -351,6 +352,7 @@ build_scripts = [
     'src/monitor/SConstruct',
     'src/onedb/SConstruct',
     'src/protocol/SConstruct',
+    'src/sam/SConstruct',
     svncterm_path,
     'share/context/SConstruct'
 ]

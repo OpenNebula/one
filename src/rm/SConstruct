@@ -54,6 +54,7 @@ source_files=[
     'RequestManagerSecurityGroup.cc',
     'RequestManagerVNTemplate.cc',
     'RequestManagerHook.cc',
+    'RequestManagerBackupJob.cc',
     'RequestManagerSchedAction.cc'
 ]
 

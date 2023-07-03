@@ -18,6 +18,7 @@
 #define OBJECT_COLLECTION_H_
 
 #include <set>
+#include <vector>
 #include <string>
 #include <libxml/tree.h>
 
@@ -36,6 +37,17 @@ public:
     ObjectCollection(const std::string& cname, const std::set<int>& cset)
         :collection_name(cname), collection_set(cset){};
 
+    template <typename T>
+    ObjectCollection(const std::string& cname, const std::vector<T>& cvector)
+        :collection_name(cname)
+    {
+        for (const auto& i: cvector)
+        {
+            collection_set.insert(static_cast<int>(i));
+        }
+
+    }
+
     ~ObjectCollection(){};
 
     /**
@@ -46,6 +58,15 @@ public:
      */
     int add(int id);
 
+    template <typename T>
+    void add(const T& collection)
+    {
+        for (const auto& i: collection)
+        {
+            collection_set.insert(static_cast<int>(i));
+        }
+    }
+
     /**
      *  Deletes an ID from the set.
      *    @param id The id
@@ -53,6 +74,14 @@ public:
      *    @return 0 on success, -1 if the ID was not in the set
      */
     int del(int id);
+
+    /**
+     *  Deletes IDs not present in the base collection
+     *    @param base the reference collection
+     *
+     *    @return number of elements deleted
+     */
+    int del_not_present(const ObjectCollection& base);
 
     /**
      *  Deletes all IDs from the set.

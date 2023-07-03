@@ -96,7 +96,8 @@ AclManager::AclManager(
                     PoolObjectSQL::TEMPLATE |
                     PoolObjectSQL::DOCUMENT |
                     PoolObjectSQL::SECGROUP |
-                    PoolObjectSQL::VMGROUP,
+                    PoolObjectSQL::VMGROUP |
+                    PoolObjectSQL::BACKUPJOB,
                  AuthRequest::CREATE,
                  AclRule::ALL_ID,
                  error_str);

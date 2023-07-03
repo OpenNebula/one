@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
   <xs:element name="VM">
     <xs:complexType>
       <xs:sequence>
@@ -10,21 +11,7 @@
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
-        <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="OWNER_U" type="xs:integer"/>
-              <xs:element name="OWNER_M" type="xs:integer"/>
-              <xs:element name="OWNER_A" type="xs:integer"/>
-              <xs:element name="GROUP_U" type="xs:integer"/>
-              <xs:element name="GROUP_M" type="xs:integer"/>
-              <xs:element name="GROUP_A" type="xs:integer"/>
-              <xs:element name="OTHER_U" type="xs:integer"/>
-              <xs:element name="OTHER_M" type="xs:integer"/>
-              <xs:element name="OTHER_A" type="xs:integer"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="PERMISSIONS" type="PERMISSIONS"/>
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
         <!-- STATE and LCM_STATE values,
@@ -38,16 +25,7 @@
         <xs:element name="STIME" type="xs:integer"/>
         <xs:element name="ETIME" type="xs:integer"/>
         <xs:element name="DEPLOY_ID" type="xs:string"/>
-        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="LOCKED" type="xs:integer"/>
-              <xs:element name="OWNER" type="xs:integer"/>
-              <xs:element name="TIME" type="xs:integer"/>
-              <xs:element name="REQ_ID" type="xs:integer"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="LOCK" type="LOCK" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MONITORING">
           <xs:complexType>
             <xs:sequence>
@@ -91,6 +69,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="SCHED_ACTIONS" type="IDS"/>
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
@@ -152,21 +131,6 @@
               <xs:element name="OS" minOccurs="0" maxOccurs="1"/>
               <xs:element name="PCI" minOccurs="0" maxOccurs="1"/>
               <xs:element name="RAW" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ACTION" type="xs:string"/>
-                    <xs:element name="ARGS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="DAYS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="END_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="END_VALUE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="ID" type="xs:string"/>
-                    <xs:element name="REPEAT" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="TIME" type="xs:string"/>
-                    <xs:element name="WARNING" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
               <xs:element name="SECURITY_GROUP_RULE" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
@@ -193,6 +157,7 @@
               <xs:element name="VROUTER_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_KEEPALIVED_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_KEEPALIVED_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SCHED_ACTION" type="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -331,13 +296,7 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element name="BACKUP_IDS" minOccurs="1" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
+              <xs:element name="BACKUP_IDS" type="IDS"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

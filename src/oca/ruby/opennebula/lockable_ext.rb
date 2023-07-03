@@ -125,6 +125,7 @@ module OpenNebula::LockableExt
     def self.lockable?(obj)
         # Lockable classes
         lockable = [
+            OpenNebula::BackupJob,
             OpenNebula::Document,
             OpenNebula::Hook,
             OpenNebula::Image,

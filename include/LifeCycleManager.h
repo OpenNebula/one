@@ -25,6 +25,7 @@ class TransferManager;
 class DispatchManager;
 class VirtualMachineManager;
 class ImageManager;
+class BackupJobPool;
 class ClusterPool;
 class HostPool;
 class ImagePool;
@@ -216,6 +217,11 @@ private:
      *  Pointer to the SecurityGroup Pool
      */
     SecurityGroupPool *     sgpool = nullptr;
+
+    /**
+     *  Pointer to the SecurityGroup Pool
+     */
+    BackupJobPool *         bjpool = nullptr;
 
     /**
      *  Pointer to the Cluster Pool
