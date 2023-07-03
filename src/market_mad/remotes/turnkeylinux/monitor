@@ -67,12 +67,16 @@ class TurnkeyLinux
     # Default Configuration parameters for the Driver
     #---------------------------------------------------------------------------
     DEFAULTS = {
-        :url      => 'http://mirror.turnkeylinux.org',
-        :platform => '/turnkeylinux/images/proxmox/',
-        :sizemb   => 5120,
-        :fs       => 'ext4',
-        :format   => 'raw',
-        :agent    => 'OpenNebula'
+        :url        => 'http://mirror.turnkeylinux.org',
+        :platform   => '/turnkeylinux/images/proxmox/',
+        :sizemb     => 5120,
+        :fs         => 'ext4',
+        :format     => 'raw',
+        :agent      => 'OpenNebula',
+        :memory     => '768',
+        :cpu        => 1,
+        :vcpu       => 2,
+        :privileged => true
     }
 
     #---------------------------------------------------------------------------
@@ -182,7 +186,7 @@ class TurnkeyLinux
             print_var(tmpl64, 'DRIVER', 'raw')
 
             data = { 'APPTEMPLATE64' => tmpl64,
-                     'VMTEMPLATE64' => LXDMarket.template }
+                     'VMTEMPLATE64' => LXDMarket.template(@options) }
             data.each do |key, val|
                 print_var(tmpl, key, Base64.strict_encode64(val))
             end
@@ -226,10 +230,20 @@ begin
 
     doc = REXML::Document.new(drv_message).root
 
-    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/ENDPOINT')
-    set_option(options, doc, :sizemb, 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB')
-    set_option(options, doc, :fs, 'MARKETPLACE/TEMPLATE/FILESYSTEM')
-    set_option(options, doc, :format, 'MARKETPLACE/TEMPLATE/FORMAT')
+    pre = 'MARKETPLACE/TEMPLATE'
+
+    data = {
+        :url           => "#{pre}/ENDPOINT",
+        :sizemb        => "#{pre}/IMAGE_SIZE_MB",
+        :fs            => "#{pre}/FILESYSTEM",
+        :format        => "#{pre}/FORMAT",
+        :memory        => "#{pre}/MEMORY",
+        :cpu           => "#{pre}/CPU",
+        :vcpu          => "#{pre}/VCPU",
+        :privileged    => "#{pre}/PRIVILEGED"
+    }
+
+    data.each {|key, value| set_option(options, doc, key, value) }
 
     rc, str = TurnkeyLinux.new(options).appliances
 
