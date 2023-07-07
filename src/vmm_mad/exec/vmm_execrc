@@ -1,6 +1,6 @@
 # Space separated list of VMM-TM pairs that support live disk snapshots. VMM
 # and TM must be separated by '-'
-LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh"
+LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-shared kvm-ceph kvm-ssh qemu-qcow2 qemu-shared qemu-ceph qemu-ssh"
 
 # Space separated list VNM_MAD-ACTION pairs that run locally
 VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"
