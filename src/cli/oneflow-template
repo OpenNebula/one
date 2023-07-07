@@ -178,12 +178,24 @@ CommandParser::CmdParser.new(ARGV) do
     ###
 
     create_desc = <<-EOT.unindent
-        Create a new Service Template
+        Create a new Service Template from a json service definition
+
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
-    command :create, create_desc, :file, :options => Service::JSON_FORMAT do
-        client   = helper.client(options)
-        response = client.post(RESOURCE_PATH, File.read(args[0]))
+    command :create, create_desc, [:file, nil], :options => Service::JSON_FORMAT do
+        client = helper.client(options)
+
+        template = nil
+        template = File.read(args[0]) if args[0]
+        template = STDIN.read if STDIN.wait_readable(0)
+
+        if template.nil?
+            STDERR.puts 'A template must be provided'
+            exit(-1)
+        end
+
+        response = client.post(RESOURCE_PATH, template)
 
         if CloudClient.is_error?(response)
             [response.code.to_i, response.to_s]
@@ -233,6 +245,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     instantiate_desc = <<-EOT.unindent
         Instantiate a Service Template
+        Optionally append modifications with a json service definition
+
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
@@ -243,8 +258,11 @@ CommandParser::CmdParser.new(ARGV) do
         client = helper.client(options)
 
         number.times do
-            params['merge_template'] = nil
-            params['merge_template'] = JSON.parse(File.read(args[1])) if args[1]
+            template = nil
+            template = File.read(args[1]) if args[1]
+            template = STDIN.read if STDIN.wait_readable(0)
+
+            params['merge_template'] = JSON.parse(template) if template
 
             unless params['merge_template']
                 response = client.get("#{RESOURCE_PATH}/#{args[0]}")

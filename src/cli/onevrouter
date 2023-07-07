@@ -134,13 +134,14 @@ CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Creates a new Virtual Router from the given description
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, [:file, nil] do
         helper.create_resource(options) do |obj|
             begin
-                template = File.read(args[0])
-
+                template = File.read(args[0]) if args[0]
+                template = STDIN.read if STDIN.wait_readable(0)
                 obj.allocate(template)
             rescue StandardError => e
                 STDERR.puts e.message
@@ -152,6 +153,8 @@ CommandParser::CmdParser.new(ARGV) do
     instantiate_desc = <<-EOT.unindent
         Creates a new VM instance from the given Template. This VM can be
         managed with the 'onevm' command.
+
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
 
         The NIC elements defined in the Virtual Router will be used. The
         source Template can be modified adding or replacing attributes with
@@ -168,9 +171,10 @@ CommandParser::CmdParser.new(ARGV) do
             :vrouterid, :templateid, [:file, nil],
             :options => instantiate_options +
                         OpenNebulaHelper::TEMPLATE_OPTIONS do
-        if args[2] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts 'You cannot use both template file and template' \
-                        ' creation options.'
+        if (args[2] || STDIN.wait_readable(0)) &&
+            OpenNebulaHelper.create_template_options_used?(options)
+
+            STDERR.puts 'You cannot use both template and template creation options.'
             exit(-1)
         end
 
@@ -194,6 +198,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             if args[2]
                 extra_template = File.read(args[2])
+            elsif STDIN.wait_readable(0)
+                extra_template = STDIN.read
             else
                 res = OpenNebulaHelper.create_template(options, t)
 
@@ -292,20 +298,15 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"nic-attach", nic_attach_desc, :vrouterid,
-            :options => [OneVMHelper::FILE,
+            :options => [OpenNebulaHelper::FILE,
                          OneVMHelper::NETWORK,
                          OneVMHelper::IP,
                          OneVirtualRouterHelper::FLOAT] do
-        if options[:file].nil? && options[:network].nil?
-            STDERR.puts 'Provide a template file or a network:'
-            STDERR.puts "\t--file    <file>"
-            STDERR.puts "\t--network <network>"
-            exit(-1)
-        end
-
         if options[:file]
             template = File.read(options[:file])
-        else
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
+        elsif options[:network]
             network_id = options[:network]
             ip         = options[:ip]
             float      = options[:float]
@@ -321,6 +322,11 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             template += ' ]'
+        else
+            STDERR.puts 'Provide a template or a network:'
+            STDERR.puts "\t--file    <file>"
+            STDERR.puts "\t--network <network>"
+            exit(-1)
         end
 
         helper.perform_action(args[0], options, 'Attach NIC') do |vr|

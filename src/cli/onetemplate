@@ -149,6 +149,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             onetemplate create vm_description.tmpl
 
+            #{OpenNebulaHelper::TEMPLATE_INPUT}
+
           - new VM Template named "arch vm" with a disk and a nic:
 
             onetemplate create --name "arch vm" --memory 128 --cpu 1 \\
@@ -164,9 +166,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil], :options =>
             [OneTemplateHelper::VM_NAME] + OpenNebulaHelper::TEMPLATE_OPTIONS +
             [OpenNebulaHelper::DRY] do
-        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts 'You can not use both template file and template' \
-                        ' creation options.'
+        if (args[0] || STDIN.wait_readable(0)) &&
+            OpenNebulaHelper.create_template_options_used?(options)
+
+            STDERR.puts 'You can not use both template file and template creation options.'
             next -1
         end
 
@@ -174,6 +177,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
                 else
                     res = OpenNebulaHelper.create_template(options)
 
@@ -248,13 +253,13 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
-            :options => instantiate_options +
-                        OpenNebulaHelper::TEMPLATE_OPTIONS do
+            :options => instantiate_options + OpenNebulaHelper::TEMPLATE_OPTIONS do
         exit_code = 0
 
-        if args[1] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts 'You cannot use both template file and template' \
-                        ' creation options.'
+        if (args[1] || STDIN.wait_readable(0)) &&
+            OpenNebulaHelper.create_template_options_used?(options)
+
+            STDERR.puts 'You cannot use both template and template creation options.'
             next -1
         end
 
@@ -300,6 +305,8 @@ CommandParser::CmdParser.new(ARGV) do
 
                 if args[1]
                     extra_template = File.read(args[1])
+                elsif STDIN.wait_readable(0)
+                    extra_template = STDIN.read
                 else
                     res = OpenNebulaHelper.create_template(options, t)
 

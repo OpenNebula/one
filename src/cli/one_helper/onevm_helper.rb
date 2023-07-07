@@ -362,7 +362,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         tmp_str = OpenNebulaHelper.schedule_action_tmpl(options, action, warning)
 
-        perform_actions( ids, options, message) do |vm|
+        perform_actions(ids, options, message) do |vm|
             rc = vm.sched_action_add(tmp_str)
 
             if OpenNebula.is_error?(rc)

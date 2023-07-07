@@ -349,7 +349,9 @@ CommandParser::CmdParser.new(ARGV) do
         number    = options[:multiple] || 1
         exit_code = nil
 
-        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
+        if (args[0] || STDIN.wait_readable(0)) &&
+            OpenNebulaHelper.create_template_options_used?(options)
+
             STDERR.puts 'You can not use both template file and template'\
                         ' creation options.'
             exit(-1)
@@ -358,6 +360,8 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             if args[0]
                 template = File.read(args[0])
+            elsif STDIN.wait_readable(0)
+                template = STDIN.read
             else
                 res = OpenNebulaHelper.create_template(options)
 
@@ -590,6 +594,8 @@ CommandParser::CmdParser.new(ARGV) do
         deployment, in a standard installation the Scheduler is in charge
         of this decision
 
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
+
         States: PENDING, HOLD, STOPPED, UNDEPLOYED
     EOT
 
@@ -598,7 +604,7 @@ CommandParser::CmdParser.new(ARGV) do
             [:range, :vmid_list],
             :hostid,
             [:datastoreid, nil],
-            :options => [ENFORCE, OneVMHelper::FILE] do
+            :options => [ENFORCE, OpenNebulaHelper::FILE] do
         host_id = args[1]
         verbose = "deploying in host #{host_id}"
 
@@ -609,6 +615,8 @@ CommandParser::CmdParser.new(ARGV) do
 
         if options[:file]
             extra_template = File.read(options[:file])
+        elsif STDIN.wait_readable(0)
+            extra_template = STDIN.read
         end
 
         helper.perform_actions(args[0], options, verbose) do |vm|
@@ -754,25 +762,21 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     disk_attach_desc = <<-EOT.unindent
-        Attaches a disk to a running VM. When using --file add only one
-        DISK instance.
+        Attaches a disk to a running VM.
+
+        #{OneVMHelper.template_input_help('DISK')}
 
         States: RUNNING, POWEROFF
     EOT
 
     command :"disk-attach", disk_attach_desc, :vmid,
-            :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
+            :options => [OpenNebulaHelper::FILE, OneVMHelper::IMAGE,
                          TARGET, CACHE, DISCARD, PREFIX] do
-        if options[:file].nil? && options[:image].nil?
-            STDERR.puts 'Provide a template file or an image:'
-            STDERR.puts '\t--file  <file>'
-            STDERR.puts '\t--image <image>'
-            exit(-1)
-        end
-
         if options[:file]
             template = File.read(options[:file])
-        else
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
+        elsif options[:image]
             image_id = options[:image]
             target   = options[:target]
             prefix   = options[:prefix]
@@ -794,6 +798,11 @@ CommandParser::CmdParser.new(ARGV) do
             end
 
             template << ' ]'
+        else
+            STDERR.puts 'Provide a template or an image:'
+            STDERR.puts '\t--file  <file>'
+            STDERR.puts '\t--image <image>'
+            exit(-1)
         end
 
         helper.perform_action(args[0], options, 'Attaching disk') do |vm|
@@ -816,37 +825,35 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     nic_attach_desc = <<-EOT.unindent
-        Attaches a NIC to a VM. When using --file add only one NIC instance.
+        Attaches a NIC to a VM.
+
+        To attach a nic alias
+        #{OneVMHelper.template_input_help('NIC')}
 
         To hotplug a PCI device and use it as a NIC interface in the VM select
         it with --pci (short_address) or --pci_device (device ID),
         --pci_class (class ID) and/or --pci_vendor (vendor ID).
 
-        To attach a nic alias, use --file or --alias option.
-
         States: RUNNING, POWEROFF
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
-            :options => [OneVMHelper::FILE,
-                         OneVMHelper::NETWORK,
-                         OneVMHelper::IP,
-                         OneVMHelper::ALIAS,
-                         OneVMHelper::NIC_NAME,
-                         PCI,
-                         PCI_CLASS,
-                         PCI_VENDOR,
-                         PCI_DEVICE] do
-        if options[:file].nil? && options[:network].nil?
-            STDERR.puts 'Provide a template file or a network:'
-            STDERR.puts "\t--file    <file>"
-            STDERR.puts "\t--network <network>"
-            exit(-1)
-        end
-
+            :options => [
+                OpenNebulaHelper::FILE,
+                OneVMHelper::NETWORK,
+                OneVMHelper::IP,
+                OneVMHelper::ALIAS,
+                OneVMHelper::NIC_NAME,
+                PCI,
+                PCI_CLASS,
+                PCI_VENDOR,
+                PCI_DEVICE
+            ] do
         if options[:file]
             template = File.read(options[:file])
-        else
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
+        elsif options[:network]
             network_id = options[:network]
             ip         = options[:ip]
             nic_alias  = options[:alias]
@@ -878,6 +885,11 @@ CommandParser::CmdParser.new(ARGV) do
             template << ", IP   = #{ip}" if ip
             template << ", NAME = #{nic_name}" if nic_name
             template << ']'
+        else
+            STDERR.puts 'Provide a network or a template:'
+            STDERR.puts "\t--file    <file>"
+            STDERR.puts "\t--network <network>"
+            exit(-1)
         end
 
         helper.perform_action(args[0], options, 'Attaching NIC') do |vm|
@@ -1258,13 +1270,15 @@ CommandParser::CmdParser.new(ARGV) do
         Resizes the capacity of a Virtual Machine (offline, the VM cannot be
         RUNNING)
 
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
     command :resize, resize_desc, :vmid,
-            :options => OpenNebulaHelper::CAPACITY_OPTIONS_VM +
-                        [ENFORCE, OneVMHelper::FILE] do
+            :options => OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE, OpenNebulaHelper::FILE] do
         if options[:file]
             template = File.read(options[:file])
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
         else
             template = ''
 
@@ -1317,8 +1331,10 @@ CommandParser::CmdParser.new(ARGV) do
         In running state only changes in CONTEXT and BACKUP_CONFIG take effect
         immediately, other values may need a VM restart.
 
-        This command accepts a template file or opens an editor, the full list of
-        configuration attributes are:
+        This command accepts a template or opens an editor.
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
+
+        The full list of configuration attributes are:
 
         OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "UUID"]
         FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "IOTHREADS"]
@@ -1336,6 +1352,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         begin
             template = File.read(args[1]) if args[1]
+            template = STDIN.read if STDIN.wait_readable(0)
         rescue StandardError => e
             STDERR.puts "Error reading template: #{e.message}."
             exit(-1)

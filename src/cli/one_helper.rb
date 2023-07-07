@@ -18,6 +18,7 @@ require 'cli_helper'
 require 'open3'
 require 'io/console'
 require 'time'
+require 'io/wait'
 
 begin
     require 'opennebula'
@@ -48,6 +49,8 @@ module OpenNebulaHelper
     end
 
     EDITOR_PATH='/usr/bin/vi'
+
+    TEMPLATE_INPUT = 'A template can be passed as a file with or the content via STDIN'
 
     ########################################################################
     # Options
@@ -101,6 +104,22 @@ module OpenNebulaHelper
         :short => '-a',
         :large => '--append',
         :description => 'Append new attributes to the current template'
+    }
+
+    FILE = {
+        :name => 'file',
+        :short => '-f file',
+        :large => '--file file',
+        :description => 'Selects the template file',
+        :format => String,
+        :proc => lambda {|o, options|
+            if File.file?(o)
+                options[:file] = o
+            else
+                STDERR.puts "File `#{options[:file]}` doesn't exist"
+                exit(-1)
+            end
+        }
     }
 
     # Command line VM template options
@@ -612,6 +631,10 @@ module OpenNebulaHelper
 
         def self.list_layout_help
             "The default columns and their layout can be configured in #{conf_file}"
+        end
+
+        def self.template_input_help(object_name)
+            "#{TEMPLATE_INPUT}\nWhen using a template add only one #{object_name} instance."
         end
 
         def initialize(_secret = nil, _endpoint = nil)

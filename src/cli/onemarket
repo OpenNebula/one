@@ -98,13 +98,15 @@ CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Marketplace from the given template file
+        Creates a new Marketplace from the given template
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, [:file, nil] do
         helper.create_resource(options) do |marketplace|
             begin
-                template = File.read(args[0])
+                template = File.read(args[0]) if args[0]
+                template = STDIN.read if STDIN.wait_readable(0)
                 marketplace.allocate(template)
             rescue StandardError => e
                 STDERR.puts e.message

@@ -178,6 +178,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Creates a new marketplace app in the given marketplace
+
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
     command :create, create_desc, [:file, nil],
@@ -189,7 +191,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        if args[0] &&
+        if (args[0] || STDIN.wait_readable(0)) &&
            OneMarketPlaceAppHelper.create_template_options_used?(options)
             STDERR.puts 'You can not use both template file and template'\
                         ' creation options.'
@@ -200,6 +202,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
                 else
                     res = OneMarketPlaceAppHelper
                           .create_datastore_template(options)

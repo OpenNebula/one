@@ -102,16 +102,19 @@ CommandParser::CmdParser.new(ARGV) do
     ########################################################################
 
     create_desc = <<-EOT.unindent
-        Creates a new Datastore from the given template file
+        Creates a new Datastore from the given template
+
+        #{OpenNebulaHelper::TEMPLATE_INPUT}
     EOT
 
-    command :create, create_desc, :file,
+    command :create, create_desc, [:file, nil],
             :options => [OneClusterHelper::CLUSTER] do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
 
         helper.create_resource(options) do |datastore|
             begin
-                template = File.read(args[0])
+                template = File.read(args[0]) if args[0]
+                template = STDIN.read if STDIN.wait_readable(0)
                 datastore.allocate(template, cid)
             rescue StandardError => e
                 STDERR.puts e.message

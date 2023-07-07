@@ -180,6 +180,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             oneimage create -d default centOS.tmpl
 
+            #{OpenNebulaHelper::TEMPLATE_INPUT}
+
           - new image "arch" using a path:
 
             oneimage create -d default --name arch --path /tmp/arch.img
@@ -213,9 +215,10 @@ CommandParser::CmdParser.new(ARGV) do
             check_capacity = true
         end
 
-        if args[0] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts 'You can not use both template file and template' \
-                        ' creation options.'
+        if (args[0] || STDIN.wait_readable(0)) &&
+            OpenNebulaHelper.create_template_options_used?(options)
+
+            STDERR.puts 'You cannot use both template and template creation options.'
             next -1
         end
 
@@ -232,6 +235,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
                 else
                     res = OneImageHelper.create_image_template(options)
 
