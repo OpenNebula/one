@@ -50,7 +50,8 @@ module OpenNebulaHelper
 
     EDITOR_PATH='/usr/bin/vi'
 
-    TEMPLATE_INPUT = 'A template can be passed as a file with or the content via STDIN'
+    TEMPLATE_INPUT = 'A template can be passed as a file with or the content via STDIN
+Bash symbols must be escaped on STDIN passing'
 
     ########################################################################
     # Options
