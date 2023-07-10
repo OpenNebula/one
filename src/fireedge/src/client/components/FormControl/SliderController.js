@@ -34,6 +34,7 @@ const SliderController = memo(
     dependencies,
     fieldProps = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const watch = useWatch({
       name: dependencies,
@@ -66,6 +67,18 @@ const SliderController = memo(
     const sliderId = `${cy}-slider`
     const inputId = `${cy}-input`
 
+    const handleChange = useCallback(
+      (_, newValue) => {
+        if (!readOnly) {
+          onChange(newValue)
+          if (typeof onConditionChange === 'function') {
+            onConditionChange(newValue)
+          }
+        }
+      },
+      [onChange, onConditionChange, readOnly]
+    )
+
     return (
       <>
         <Stack
@@ -82,7 +95,7 @@ const SliderController = memo(
             valueLabelDisplay="auto"
             disabled={readOnly}
             data-cy={sliderId}
-            onChange={(_, val) => onChange(val)}
+            onChange={handleChange}
             {...fieldProps}
           />
           <TextField
@@ -134,6 +147,7 @@ SliderController.propTypes = {
   ]),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 SliderController.displayName = 'SliderController'

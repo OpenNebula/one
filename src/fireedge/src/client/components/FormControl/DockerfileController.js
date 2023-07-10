@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 import { ErrorHelper } from 'client/components/FormControl'
@@ -22,7 +22,12 @@ import { generateKey } from 'client/utils'
 import InputCode from 'client/components/FormControl/InputCode'
 
 const DockerfileController = memo(
-  ({ control, cy = `input-${generateKey()}`, name = '' }) => {
+  ({
+    control,
+    cy = `input-${generateKey()}`,
+    name = '',
+    onConditionChange,
+  }) => {
     const {
       getValues,
       setValue,
@@ -38,15 +43,23 @@ const DockerfileController = memo(
       setInternalError(messageError)
     }, [messageError])
 
+    const handleChange = useCallback(
+      (value) => {
+        setValue(name, value)
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(value)
+        }
+      },
+      [setValue, onConditionChange, name]
+    )
+
     return (
       <div data-cy={cy}>
         <InputCode
           mode="dockerfile"
           height="600px"
           value={getValues(name)}
-          onChange={(value) => {
-            setValue(name, value)
-          }}
+          onChange={handleChange}
           onFocus={(e) => {
             setInternalError()
           }}
@@ -62,6 +75,7 @@ DockerfileController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
+  onConditionChange: PropTypes.func,
 }
 
 DockerfileController.displayName = 'DockerfileController'

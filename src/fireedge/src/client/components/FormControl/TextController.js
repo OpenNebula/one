@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
@@ -36,6 +36,7 @@ const TextController = memo(
     dependencies,
     fieldProps = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const watch = useWatch({
       name: dependencies,
@@ -55,13 +56,24 @@ const TextController = memo(
       watcherValue !== undefined && onChange(watcherValue)
     }, [watch, watcher, dependencies])
 
+    const handleChange = useCallback(
+      (e) => {
+        const condition = e.target.value
+        onChange(condition)
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(condition)
+        }
+      },
+      [onChange, onConditionChange]
+    )
+
     return (
       <TextField
         {...inputProps}
         fullWidth
         inputRef={ref}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         multiline={multiline}
         rows={3}
         type={type}
@@ -111,6 +123,7 @@ TextController.propTypes = {
   ]),
   fieldProps: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 TextController.displayName = 'TextController'

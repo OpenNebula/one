@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useEffect } from 'react'
+import { memo, useMemo, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
@@ -37,6 +37,7 @@ const SelectController = memo(
     dependencies,
     fieldProps = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const watch = useWatch({
       name: dependencies,
@@ -85,27 +86,38 @@ const SelectController = memo(
       onChange(ensuredWatcherValue ?? defaultValue)
     }, [watch, watcher, dependencies])
 
+    const handleChange = useCallback(
+      (evt) => {
+        if (!multiple) {
+          onChange(evt)
+          if (typeof onConditionChange === 'function') {
+            onConditionChange(evt)
+          }
+        } else {
+          const {
+            target: { options },
+          } = evt
+          const newValue = []
+
+          for (const option of options) {
+            option.selected && newValue.push(option.value)
+          }
+
+          onChange(newValue)
+          if (typeof onConditionChange === 'function') {
+            onConditionChange(newValue)
+          }
+        }
+      },
+      [onChange, onConditionChange, multiple]
+    )
+
     return (
       <TextField
         {...inputProps}
         inputRef={ref}
         value={optionSelected}
-        onChange={
-          !multiple
-            ? onChange
-            : (evt) => {
-                const {
-                  target: { options },
-                } = evt
-                const newValue = []
-
-                for (const option of options) {
-                  option.selected && newValue.push(option.value)
-                }
-
-                onChange(newValue)
-              }
-        }
+        onChange={handleChange}
         select
         fullWidth
         disabled={readOnly}
@@ -157,6 +169,7 @@ SelectController.propTypes = {
   ]),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 SelectController.displayName = 'SelectController'
