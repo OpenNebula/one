@@ -19,7 +19,7 @@ import BasicConfiguration, {
 import AdvancedOptions, {
   STEP_ID as ADVANCED_ID,
 } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
-import { mapUserInputs, createSteps } from 'client/utils'
+import { mapUserInputs, createSteps, convertToMB } from 'client/utils'
 
 const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
   transformInitialValue: (disk = {}, schema) => ({
@@ -34,6 +34,10 @@ const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration = {}, [ADVANCED_ID]: advanced = {} } =
       formData ?? {}
+
+    // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
+    configuration.SIZE = convertToMB(configuration.SIZE, configuration.SIZEUNIT)
+    delete configuration.SIZEUNIT
 
     return { ...mapUserInputs(advanced), ...mapUserInputs(configuration) }
   },

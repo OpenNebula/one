@@ -28,6 +28,7 @@ import {
   MEMORY_RESIZE_OPTIONS,
   T,
   VmTemplateFeatures,
+  UNITS,
 } from 'client/constants'
 import { formatNumberByCurrency } from 'client/models/Helper'
 import { Field, arrayToOptions } from 'client/utils'
@@ -45,14 +46,34 @@ const { vcenter, lxc, firecracker } = HYPERVISORS
 /** @type {Field} Memory field */
 export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
-  label: [T.MemoryWithUnit, '(MB)'],
-  tooltip: T.MemoryConcept,
+  label: T.Memory,
+  tooltip: T.MemoryConceptWithoutUnit,
   validation: commonValidation
     .integer()
     .required()
     .when('HYPERVISOR', (hypervisor, schema) =>
       hypervisor === vcenter ? schema.isDivisibleBy(4) : schema
     ),
+})
+
+/**
+ * @type {Field} size field
+ * ISSUE#6136: Add unit size. Use only MB, GB, and TB (other values do not apply to create image).
+ */
+export const MEMORYUNIT = () => ({
+  name: 'MEMORYUNIT',
+  label: T.MemoryUnit,
+  tooltip: T.MemoryConceptUnit,
+  type: INPUT_TYPES.SELECT,
+  grid: { md: 3 },
+  values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
+    addEmpty: false,
+    getText: (type) => type,
+    getValue: (type) => type,
+  }),
+  validation: string()
+    .trim()
+    .default(() => UNITS.MB),
 })
 
 /** @type {Field[]} Hot resize on memory field */
@@ -69,7 +90,12 @@ export const HR_MEMORY_FIELDS = generateHotResizeInputs(
 export const MOD_MEMORY_FIELDS = generateModificationInputs(MEMORY.name)
 
 /** @type {Field[]} List of memory fields */
-export const MEMORY_FIELDS = [MEMORY, ...HR_MEMORY_FIELDS, ...MOD_MEMORY_FIELDS]
+export const MEMORY_FIELDS = [
+  MEMORY,
+  MEMORYUNIT,
+  ...HR_MEMORY_FIELDS,
+  ...MOD_MEMORY_FIELDS,
+]
 
 // --------------------------------------------------------
 // CPU fields

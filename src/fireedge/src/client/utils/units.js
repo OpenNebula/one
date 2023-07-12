@@ -13,16 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export * from 'client/utils/environments'
-export * from 'client/utils/helpers'
-export * from 'client/utils/ip'
-export * from 'client/utils/merge'
-export * from 'client/utils/parser'
-export * from 'client/utils/request'
-export * from 'client/utils/rest'
-export * from 'client/utils/schema'
-export * from 'client/utils/storage'
-export * from 'client/utils/string'
-export * from 'client/utils/number'
-export * from 'client/utils/translation'
-export * from 'client/utils/units'
+
+/**
+ * File to define functions that do something about units
+ */
+
+import { UNITS } from 'client/constants'
+
+/**
+ * Converts some MB, GB or TB to MB.
+ *
+ * @param {number} value - Numeric value
+ * @param {string} unit - Type of unit (MB, GB or TB)
+ * @returns {number} Value in MB
+ */
+export const convertToMB = (value, unit) => {
+  switch (unit) {
+    case UNITS.MB:
+      return value
+    case UNITS.GB:
+      return value * 1024
+    case UNITS.TB:
+      return value * 1024 * 1024
+    default:
+      return value
+  }
+}

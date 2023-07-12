@@ -404,6 +404,7 @@ module.exports = {
   Upload: 'Upload',
   EmptyDisk: 'Empty disk image',
   ImageSize: 'Image size, in Megabytes',
+  ImageSizeUnit: 'Image size',
   Vd: 'Virtio',
   Sd: 'SCSI/SATA',
   Hd: 'Parallel ATA (IDE)',
@@ -567,6 +568,8 @@ module.exports = {
   Name: 'Name',
   State: 'State',
   Size: 'Size',
+  SizeUnit: 'Unit size',
+  SizeUnitTooltip: 'Choose unit of size',
   SizeOnUnits: 'Size on %s',
   Description: 'Description',
   RegistrationTime: 'Registration time',
@@ -656,6 +659,7 @@ module.exports = {
   Sockets: 'Sockets',
   Memory: 'Memory',
   MemoryWithUnit: 'Memory %s',
+  MemoryUnit: 'Unit memory',
   Cost: 'Cost',
   CostEachMonth: '%s / month',
   CostCpu: 'Cost / CPU',
@@ -796,6 +800,8 @@ module.exports = {
   AllowUsersToModifyMemory:
     "Allow users to modify this template's default memory on instantiate",
   MemoryConcept: 'Amount of RAM required for the VM, in Megabytes',
+  MemoryConceptWithoutUnit: 'Amount of RAM required for the VM',
+  MemoryConceptUnit: 'Choose unit of memory',
   CpuConcept: `
     Percentage of CPU divided by 100 required for the
     Virtual Machine. Half a processor is written 0.5`,
