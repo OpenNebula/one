@@ -29,12 +29,14 @@ import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMediaQuery } from '@mui/material'
 
-import { useGeneral } from 'client/features/General'
+import { useGeneral, updateDisabledSteps } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
 import { groupBy, Step, StepsForm } from 'client/utils'
 import { T } from 'client/constants'
+import get from 'lodash.get'
+import { useSelector, useDispatch } from 'react-redux'
 
 const FIRST_STEP = 0
 
@@ -109,6 +111,33 @@ const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
   const { isLoading } = useGeneral()
   const [steps, setSteps] = useState(initialSteps)
   const [disabledSteps, setDisabledSteps] = useState({})
+  const dispatch = useDispatch()
+
+  const currentState = useSelector((state) => state)
+
+  // Used to control the default visibility of a step
+  useEffect(() => {
+    const newState = initialSteps.reduce(
+      (accSteps, { id, defaultDisabled }) => {
+        const result =
+          defaultDisabled &&
+          Array.isArray(defaultDisabled.statePaths) &&
+          typeof defaultDisabled.condition === 'function'
+            ? defaultDisabled.condition(
+                ...defaultDisabled.statePaths.map((path) =>
+                  get(currentState, path)
+                )
+              )
+            : false
+
+        return { ...accSteps, [id]: result }
+      },
+      {}
+    )
+    // Set the initial state of the steps accessible from redux
+    dispatch(updateDisabledSteps(newState))
+    setDisabledSteps(newState)
+  }, [])
 
   const disableStep = useCallback((stepIds, shouldDisable) => {
     const ids = Array.isArray(stepIds) ? stepIds : [stepIds]

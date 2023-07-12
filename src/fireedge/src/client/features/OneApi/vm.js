@@ -77,7 +77,7 @@ const vmApi = oneApi.injectEndpoints({
        * @returns {VmType[]} List of VMs
        * @throws Fails when response isn't code 200
        */
-      query: ({ extended = false, ...params } = {}) => {
+      query: ({ extended = true, ...params } = {}) => {
         const name = extended
           ? Actions.VM_POOL_INFO_EXTENDED
           : Actions.VM_POOL_INFO

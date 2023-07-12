@@ -33,6 +33,9 @@ import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
 import { Field } from 'client/utils'
 
+import get from 'lodash.get'
+import { useSelector } from 'react-redux'
+
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
   'transform',
@@ -151,6 +154,8 @@ const FieldComponent = memo(
     const formContext = useFormContext()
     const disableSteps = useDisableStep()
 
+    const currentState = useSelector((state) => state)
+
     const addIdToName = useCallback(
       (n) => {
         // removes character '$' and returns
@@ -178,15 +183,17 @@ const FieldComponent = memo(
 
     const handleConditionChange = useCallback(
       (value) => {
-        if (stepControl?.condition) {
-          if (stepControl.condition(value)) {
-            disableSteps && disableSteps(stepControl.steps, true)
-          } else {
-            disableSteps && disableSteps(stepControl.steps, false)
-          }
-        }
+        // eslint-disable-next-line no-shadow
+        const { condition, statePaths, steps } = stepControl || {}
+
+        if (!condition) return
+
+        const stateValues =
+          statePaths?.map((path) => get(currentState, path)) || []
+        const conditionResult = condition(value, ...stateValues)
+        disableSteps && disableSteps(steps, conditionResult)
       },
-      [stepControl, disableSteps]
+      [stepControl, disableSteps, currentState]
     )
 
     const { name, type, htmlType, grid, condition, ...fieldProps } =
@@ -250,6 +257,7 @@ FieldComponent.propTypes = {
   stepControl: PropTypes.shape({
     condition: PropTypes.func,
     steps: PropTypes.arrayOf(PropTypes.string),
+    statePaths: PropTypes.arrayOf(PropTypes.string),
   }),
 }
 

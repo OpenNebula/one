@@ -18,7 +18,7 @@ import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
+import { ReactElement, memo, useState, useEffect } from 'react'
 import { Row } from 'react-table'
 
 import { SubmitButton } from 'client/components/FormControl'
@@ -33,6 +33,8 @@ import {
   useLazyGetVmQuery,
   useUpdateUserTemplateMutation,
 } from 'client/features/OneApi/vm'
+import { setSelectedIds } from 'client/features/General'
+import { useDispatch } from 'react-redux'
 
 /**
  * Displays a list of VMs with a split pane between the list and selected row(s).
@@ -40,11 +42,17 @@ import {
  * @returns {ReactElement} VMs list and selected row(s)
  */
 function VirtualMachines() {
+  const dispatch = useDispatch()
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = VmActions(selectedRows)
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
+
+  useEffect(() => {
+    const selectedIds = selectedRows.map((row) => row.original.ID)
+    dispatch(setSelectedIds(selectedIds))
+  }, [selectedRows, dispatch])
 
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">

@@ -60,6 +60,22 @@ const DatastoreStep = (app) => ({
   id: STEP_ID,
   label: T.SelectDatastoreImage,
   resolver: SCHEMA,
+  defaultDisabled: {
+    statePaths: [
+      'oneApi.queries.getVms(undefined).data',
+      'general.selectedIds',
+    ],
+    condition: (vmsData, selectedIds) =>
+      selectedIds
+        .map((id) => vmsData?.find((vmData) => vmData.ID === id))
+        .filter(Boolean)
+        .every((vm) => {
+          const { BACKUPS } = vm
+          const { LAST_INCREMENT_ID, MODE } = BACKUPS?.BACKUP_CONFIG || {}
+
+          return LAST_INCREMENT_ID !== '-1' && MODE === 'INCREMENT'
+        }),
+  },
   content: (props) => Content({ ...props, app }),
 })
 

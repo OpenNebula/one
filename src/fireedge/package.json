@@ -99,6 +99,7 @@
     "jsonwebtoken": "8.5.1",
     "jwt-simple": "0.5.6",
     "lockfile": "1.0.4",
+    "lodash.get": "^4.4.2",
     "luxon": "2.1.1",
     "marked": "4.0.10",
     "morgan": "1.10.0",

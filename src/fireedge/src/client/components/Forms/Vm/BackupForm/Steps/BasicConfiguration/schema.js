@@ -23,6 +23,12 @@ const RESET = {
   type: INPUT_TYPES.SWITCH,
   validation: boolean(),
   grid: { xs: 12, md: 6 },
+  stepControl: {
+    statePaths: ['general.disabledSteps.datastore'],
+    condition: (value, disabledByDefault) =>
+      value !== true && disabledByDefault,
+    steps: ['datastore'],
+  },
 }
 
 /**
