@@ -21,6 +21,7 @@
 
 AllCops:
   Exclude:
+    - /**/*.schema
     - src/sunstone/public/node_modules/**/*
     - src/vnm_mad/remotes/vcenter/vnet_create
     - src/vnm_mad/remotes/vcenter/vnet_delete
