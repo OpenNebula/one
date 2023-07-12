@@ -35,6 +35,8 @@ const ClustersTable = (props) => {
     searchProps = {},
     useQuery = useGetClustersQuery,
     datastoreId,
+    vdcClusters,
+    zoneId,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -45,18 +47,23 @@ const ClustersTable = (props) => {
     data = [],
     isFetching,
     refetch,
-  } = useQuery(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data: result?.data?.filter((cluster) => {
-        if (datastoreId) {
-          return cluster?.DATASTORES?.ID?.includes(datastoreId)
-        }
+  } = useQuery(
+    { zone: zoneId },
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data: result?.data?.filter((cluster) => {
+          if (datastoreId) {
+            return cluster?.DATASTORES?.ID?.includes(datastoreId)
+          } else if (vdcClusters) {
+            return vdcClusters.includes(cluster.ID)
+          }
 
-        return true
+          return true
+        }),
       }),
-    }),
-  })
+    }
+  )
 
   const columns = useMemo(
     () =>

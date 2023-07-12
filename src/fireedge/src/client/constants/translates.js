@@ -32,7 +32,8 @@ module.exports = {
   NoLabels: 'NoLabels',
   All: 'All',
   On: 'On',
-  ToggleAllCurrentPageRowsSelected: 'Toggle all current page rows selected',
+  ToggleAllSelectedCardsCurrentPage:
+    'Toggle all selected cards in current page',
   NumberOfResourcesSelected: 'All %s resources are selected',
   SelectAllResources: 'Select all %s resources',
   ClearSelection: 'Clear selection',
@@ -81,6 +82,8 @@ module.exports = {
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
+  CreateVDC: 'Create VDC',
+  UpdateVDC: 'Update VDC',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -154,13 +157,17 @@ module.exports = {
   Search: 'Search',
   Select: 'Select',
   SelectCluster: 'Select Cluster',
+  SelectClusters: 'Select Clusters',
   SelectDatastore: 'Select a Datastore to store the resource',
   SelectDatastoreImage: 'Select a Datastore',
+  SelectDatastores: 'Select Datastores',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
+  SelectHosts: 'Select hosts',
   SelectMarketplace: 'Select Marketplace',
   SelectNetwork: 'Select a network',
+  SelectVirtualNetworks: 'Select virtual networks',
   SelectNewCluster: 'Select a new Cluster',
   SelectRequest: 'Select request',
   SelectTheNewDatastore: 'Select the new datastore',
@@ -382,6 +389,10 @@ module.exports = {
   NoNetworksInMonitoring:
     'There is currently no network monitoring information associated with this VM',
 
+  /* sections - vdc */
+  Resources: 'Resources',
+  SelectAllResourcesFromZone: 'Select all %s resources from %s zone (Zone #%s)',
+
   /* sections - storage */
   Backups: 'Backups',
   BackupDatastore: 'Backup Datastore',
@@ -530,6 +541,13 @@ module.exports = {
   StandaloneQcow2Clone: 'Standalone qcow2 clone',
   StandaloneQcow2CloneConcept:
     'Clone qcow2 without a backing chain and no dependencies with Image datastore files',
+
+  /* VDC */
+  AllClustersAreIncludedInThisVDC: 'All clusters are included in this VDC',
+  AllHostsAreIncludedInThisVDC: 'All hosts are included in this VDC',
+  AllDatastoresAreIncludedInThisVDC: 'All datastores are included in this VDC',
+  AllVNetworksAreIncludedInThisVDC:
+    'All virtual networks are included in this VDC',
 
   /* sections - templates & instances */
   Instances: 'Instances',

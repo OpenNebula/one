@@ -149,7 +149,12 @@ module.exports = {
     [HOST_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {},
+      params: {
+        zone: {
+          from: query,
+          default: 0,
+        },
+      },
     },
     [HOST_POOL_MONITORING]: {
       // inspected

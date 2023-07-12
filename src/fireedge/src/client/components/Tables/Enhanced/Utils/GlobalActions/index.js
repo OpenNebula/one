@@ -76,7 +76,7 @@ const GlobalActions = ({
       {!singleSelect && !disableRowSelect && (
         <Checkbox
           {...getToggleAllPageRowsSelectedProps()}
-          title={Tr(T.ToggleAllCurrentPageRowsSelected)}
+          title={Tr(T.ToggleAllSelectedCardsCurrentPage)}
           indeterminate={getToggleAllRowsSelectedProps().indeterminate}
           color="secondary"
         />

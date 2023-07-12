@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useFormContext, useController } from 'react-hook-form'
+import { memo, useCallback, useEffect, useState } from 'react'
+import { useController, useFormContext } from 'react-hook-form'
 
-import Legend from 'client/components/Forms/Legend'
 import { ErrorHelper } from 'client/components/FormControl'
+import Legend from 'client/components/Forms/Legend'
+import { sortStateTables } from 'client/components/Tables/Enhanced/Utils/DataTableUtils'
 import { generateKey } from 'client/utils'
 
 const defaultGetRowId = (item) =>
@@ -44,7 +45,9 @@ const TableController = memo(
     getRowId = defaultGetRowId,
     readOnly = false,
     onConditionChange,
-    fieldProps: { initialState, ...fieldProps } = {},
+    zoneId,
+    dependOf,
+    fieldProps: { initialState, preserveState, ...fieldProps } = {},
   }) => {
     const { clearErrors } = useFormContext()
 
@@ -57,9 +60,15 @@ const TableController = memo(
       getSelectedRowIds(value)
     )
 
+    const reSelectRows = (newValues = []) => {
+      const sortedNewValues = sortStateTables(newValues)
+      onChange(sortedNewValues)
+      setInitialRows(getSelectedRowIds(sortedNewValues))
+    }
+
     useEffect(() => {
-      onChange(singleSelect ? undefined : [])
-      setInitialRows({})
+      onChange(singleSelect ? undefined : preserveState ? value : [])
+      setInitialRows(preserveState ? initialRows : {})
     }, [Table])
 
     const handleSelectedRowsChange = useCallback(
@@ -99,8 +108,12 @@ const TableController = memo(
           disableRowSelect={readOnly}
           singleSelect={singleSelect}
           getRowId={getRowId}
+          zoneId={zoneId}
+          dependOf={dependOf}
           initialState={{ ...initialState, selectedRowIds: initialRows }}
           onSelectedRowsChange={handleSelectedRowsChange}
+          value={value ?? []}
+          reSelectRows={reSelectRows}
           {...fieldProps}
         />
       </>
@@ -116,6 +129,7 @@ TableController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   type: PropTypes.string,
+  zoneId: PropTypes.string,
   singleSelect: PropTypes.bool,
   Table: PropTypes.any,
   getRowId: PropTypes.func,
@@ -124,7 +138,6 @@ TableController.propTypes = {
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
-  onConditionChange: PropTypes.func,
 }
 
 TableController.displayName = 'TableController'

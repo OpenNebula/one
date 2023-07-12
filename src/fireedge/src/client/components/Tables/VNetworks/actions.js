@@ -222,7 +222,6 @@ const Actions = () => {
                 form: RecoverForm,
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
-                  console.log(`RECOVER ${ids}`, formData)
                   await Promise.all(
                     ids.map((id) => recover({ id, ...formData }))
                   )

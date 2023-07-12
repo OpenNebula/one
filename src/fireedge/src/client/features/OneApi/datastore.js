@@ -38,14 +38,16 @@ const datastoreApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for all or part of the datastores in the pool.
        *
+       * @param {object} params - Request params
+       * @param {string} [params.zone] - Zone from where to get the resources
        * @returns {Datastore[]} List of datastores
        * @throws Fails when response isn't code 200
        */
-      query: () => {
+      query: (params) => {
         const name = Actions.DATASTORE_POOL_INFO
         const command = { name, ...Commands[name] }
 
-        return { command }
+        return { command, params }
       },
       transformResponse: (data) =>
         [data?.DATASTORE_POOL?.DATASTORE ?? []].flat(),

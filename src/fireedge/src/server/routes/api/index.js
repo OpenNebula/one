@@ -49,6 +49,7 @@ const routes = [
   'sunstone',
   'system',
   'support',
+  'vdc',
 ]
 
 const serverRoutes = []

@@ -16,27 +16,27 @@
 import { Actions, Commands } from 'server/utils/constants/commands/vn'
 
 import {
-  oneApi,
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
-} from 'client/features/OneApi'
-import {
-  updateResourceOnPool,
-  removeResourceOnPool,
-  updateNameOnResource,
-  updateLockLevelOnResource,
-  removeLockLevelOnResource,
-  updatePermissionOnResource,
-  updateOwnershipOnResource,
-  updateTemplateOnResource,
-} from 'client/features/OneApi/common'
-import { UpdateFromSocket } from 'client/features/OneApi/socket'
-import {
-  LockLevel,
   FilterFlag,
+  LockLevel,
   Permission,
   VirtualNetwork,
 } from 'client/constants'
+import {
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+  oneApi,
+} from 'client/features/OneApi'
+import {
+  removeLockLevelOnResource,
+  removeResourceOnPool,
+  updateLockLevelOnResource,
+  updateNameOnResource,
+  updateOwnershipOnResource,
+  updatePermissionOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+import { UpdateFromSocket } from 'client/features/OneApi/socket'
 
 const { VNET } = ONE_RESOURCES
 const { VNET_POOL } = ONE_RESOURCES_POOL
@@ -51,6 +51,7 @@ const vNetworkApi = oneApi.injectEndpoints({
        * @param {FilterFlag} [params.filter] - Filter flag
        * @param {number} [params.start] - Range start ID
        * @param {number} [params.end] - Range end ID
+       * @param {string} [params.zone] - Zone from where to get the resources
        * @returns {VirtualNetwork[]} List of virtual networks
        * @throws Fails when response isn't code 200
        */
@@ -58,7 +59,7 @@ const vNetworkApi = oneApi.injectEndpoints({
         const name = Actions.VN_POOL_INFO
         const command = { name, ...Commands[name] }
 
-        return { params, command }
+        return { command, params }
       },
       transformResponse: (data) => [data?.VNET_POOL?.VNET ?? []].flat(),
       providesTags: (networks) =>

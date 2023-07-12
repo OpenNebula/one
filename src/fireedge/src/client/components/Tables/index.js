@@ -38,6 +38,7 @@ import VNetworksTable from 'client/components/Tables/VNetworks'
 import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 import VRoutersTable from 'client/components/Tables/VRouters'
 import ZonesTable from 'client/components/Tables/Zones'
+import VDCsTable from 'client/components/Tables/VirtualDataCenters'
 
 export * from 'client/components/Tables/Enhanced/Utils'
 
@@ -61,6 +62,7 @@ export {
   ServicesTable,
   ServiceTemplatesTable,
   UsersTable,
+  VDCsTable,
   VmsTable,
   VmTemplatesTable,
   VNetworksTable,

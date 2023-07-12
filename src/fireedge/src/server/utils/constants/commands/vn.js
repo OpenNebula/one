@@ -348,6 +348,10 @@ module.exports = {
           from: query,
           default: -1,
         },
+        zone: {
+          from: query,
+          default: 0,
+        },
       },
     },
   },

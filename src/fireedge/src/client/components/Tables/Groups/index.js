@@ -30,12 +30,27 @@ const DEFAULT_DATA_CY = 'groups'
  * @returns {ReactElement} Groups table
  */
 const GroupsTable = (props) => {
-  const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const { rootProps = {}, searchProps = {}, vdcGroups, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetGroupsQuery()
+  const {
+    data = [],
+    isFetching,
+    refetch,
+  } = useGetGroupsQuery(undefined, {
+    selectFromResult: (result) => ({
+      ...result,
+      data: result?.data?.filter((group) => {
+        if (vdcGroups) {
+          return vdcGroups.includes(group.ID)
+        }
+
+        return true
+      }),
+    }),
+  })
 
   const columns = useMemo(
     () =>

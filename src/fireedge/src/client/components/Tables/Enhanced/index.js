@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Alert, Box, Chip, Grid } from '@mui/material'
 import clsx from 'clsx'
@@ -74,6 +74,7 @@ const EnhancedTable = ({
   searchProps = {},
   noDataMessage,
   messages = [],
+  dataDepend,
 }) => {
   const styles = EnhancedTableStyles()
 
@@ -93,6 +94,20 @@ const EnhancedTable = ({
     }),
     []
   )
+  const stateReducer = (newState, action, prevState) => {
+    switch (action.type) {
+      case 'RELOAD_STATE': {
+        const updatedState = {
+          ...prevState,
+          selectedRowIds: action.value,
+        }
+
+        return updatedState
+      }
+      default:
+        return newState
+    }
+  }
 
   const useTableProps = useTable(
     {
@@ -115,6 +130,7 @@ const EnhancedTable = ({
       autoResetGlobalFilter: false,
       // -------------------------------------
       initialState: { pageSize, ...initialState },
+      stateReducer,
     },
     useGlobalFilter,
     useFilters,
@@ -137,7 +153,10 @@ const EnhancedTable = ({
     setSortBy,
     setGlobalFilter,
     state,
+    toggleRowSelected: propsToggleRow,
   } = useTableProps
+
+  const [stateData, setStateData] = useState(data)
 
   const gotoRowPage = async (row) => {
     const pageIdx = Math.floor(row.index / pageSize)
@@ -157,6 +176,25 @@ const EnhancedTable = ({
       .map((id) => preGlobalFilteredRowsById[id])
       .filter(Boolean)
   }, [state.selectedRowIds])
+
+  useEffect(() => {
+    if (
+      dataDepend &&
+      page.length &&
+      initialState?.selectedRowIds &&
+      JSON.stringify(data) !== JSON.stringify(stateData)
+    ) {
+      const initialKeys = Object.keys(initialState.selectedRowIds)
+      page.forEach((row) => {
+        if (!initialKeys.includes(row?.id) && row?.isSelected) {
+          propsToggleRow(row?.id, false)
+        } else if (row?.isSelected) {
+          propsToggleRow(row?.id, false)
+        }
+      })
+      setStateData(data)
+    }
+  }, [dataDepend])
 
   useMountedLayoutEffect(() => {
     onSelectedRowsChange?.(
@@ -387,6 +425,7 @@ EnhancedTable.propTypes = {
     PropTypes.bool,
   ]),
   messages: PropTypes.array,
+  dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

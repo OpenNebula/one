@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
+import { JSXElementConstructor } from 'react'
 
-import { TableProps, Row } from 'react-table'
-import { styled, Chip, Alert, Button, alertClasses } from '@mui/material'
+import { Alert, Button, Chip, alertClasses, styled } from '@mui/material'
+import { Row, TableProps } from 'react-table'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -53,7 +53,6 @@ const GlobalSelectedRows = ({
     toggleAllRowsSelected,
     state: { selectedRowIds },
   } = useTableProps
-
   const selectedRows = preFilteredRows.filter((row) => !!selectedRowIds[row.id])
   const numberOfRowSelected = selectedRows.length
   const allSelected = numberOfRowSelected === preFilteredRows.length
@@ -88,6 +87,7 @@ const GlobalSelectedRows = ({
           key={row.id}
           label={row.original?.NAME ?? row.id}
           onDelete={() => row.toggleRowSelected(false)}
+          data-cy="itemSelected"
           {...(gotoRowPage && { onClick: () => gotoRowPage(row) })}
         />
       ))}

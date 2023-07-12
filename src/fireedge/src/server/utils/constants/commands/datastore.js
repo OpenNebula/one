@@ -195,7 +195,12 @@ module.exports = {
     [DATASTORE_POOL_INFO]: {
       // inspected
       httpMethod: GET,
-      params: {},
+      params: {
+        zone: {
+          from: query,
+          default: 0,
+        },
+      },
     },
   },
 }

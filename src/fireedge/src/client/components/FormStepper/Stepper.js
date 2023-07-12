@@ -17,19 +17,19 @@
 import PropTypes from 'prop-types'
 
 import { Box, Button, Typography } from '@mui/material'
-import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
-import StepLabel from '@mui/material/StepLabel'
 import StepButton from '@mui/material/StepButton'
-import StepIcon, { stepIconClasses } from '@mui/material/StepIcon'
 import StepConnector, {
   stepConnectorClasses,
 } from '@mui/material/StepConnector'
+import StepIcon, { stepIconClasses } from '@mui/material/StepIcon'
+import StepLabel from '@mui/material/StepLabel'
+import Stepper from '@mui/material/Stepper'
 import { styled } from '@mui/styles'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
-import { T, SCHEMES } from 'client/constants'
+import { SCHEMES, T } from 'client/constants'
 
 const StepperStyled = styled(Stepper)(({ theme }) => ({
   backdropFilter: 'blur(3px)',

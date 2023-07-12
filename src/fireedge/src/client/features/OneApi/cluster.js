@@ -35,14 +35,16 @@ const clusterApi = oneApi.injectEndpoints({
       /**
        * Retrieves information for all the clusters in the pool.
        *
+       * @param {object} params - Request params
+       * @param {string} [params.zone] - Zone from where to get the resources
        * @returns {Cluster[]} List of clusters
        * @throws Fails when response isn't code 200
        */
-      query: () => {
+      query: (params) => {
         const name = Actions.CLUSTER_POOL_INFO
         const command = { name, ...Commands[name] }
 
-        return { command }
+        return { command, params }
       },
       transformResponse: (data) => [data?.CLUSTER_POOL?.CLUSTER ?? []].flat(),
       providesTags: (clusters) =>

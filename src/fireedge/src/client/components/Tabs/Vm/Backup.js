@@ -33,7 +33,6 @@ const VmBackupTab = ({ id }) => {
   const history = useHistory()
 
   const handleRowClick = (rowId) => {
-    console.log('going to: ', generatePath(path, { id: String(rowId) }))
     history.push(generatePath(path, { id: String(rowId) }))
   }
 

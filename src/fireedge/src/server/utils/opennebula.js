@@ -127,7 +127,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
         fillHookResource = true,
         parseXML = true,
       }) => {
-        if (action && parameters && Array.isArray(parameters) && callback) {
+        if (action && Array.isArray(parameters) && callback) {
           // user config
           const appConfig = getFireedgeConfig()
           const namespace = appConfig.namespace || defaultNamespace
@@ -142,7 +142,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                 callback(undefined, data)
               }
 
-              if (err && err.body) {
+              if (err?.body) {
                 parseXML
                   ? xml2json(err.body, (error, result) => {
                       if (error) {
@@ -173,7 +173,7 @@ const opennebulaConnect = (username = '', password = '', zoneURL = '') => {
                   : success(err.body)
 
                 return
-              } else if (value && value[0] && value[1]) {
+              } else if (value?.[0] && value?.[1]) {
                 let messageCall
                 if (Array.isArray(value)) {
                   messageCall = value[1]

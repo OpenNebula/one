@@ -1,0 +1,56 @@
+---
+# This file describes the information and actions available in the VIRTUAL DATA CENTER tab
+
+# Resource
+
+resource_name: "VIRTUAL-DATA-CENTER"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  update_dialog: true
+  delete: true
+  edit_labels: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+
+  groups:
+    enabled: true
+  clusters:
+    enabled: true
+  datastores:
+    enabled: true
+  hosts:
+    enabled: true
+  vnets:
+    enabled: true
+  
+
+# Dialogs
+dialogs:
+  create_dialog:
+    clusters: true
+    datastores: true
+    hosts: true
+    vnets: true

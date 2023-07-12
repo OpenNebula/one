@@ -28,10 +28,10 @@ import { Accordion, AccordionSummary, FormControl, Grid } from '@mui/material'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 import * as FC from 'client/components/FormControl'
+import { useDisableStep } from 'client/components/FormStepper'
 import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
 import { Field } from 'client/utils'
-import { useDisableStep } from 'client/components/FormStepper'
 
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
@@ -230,6 +230,7 @@ const FieldComponent = memo(
             dependencies: nameOfDependField,
             name: inputName,
             type: htmlType === false ? undefined : htmlType,
+            dependOf,
             onConditionChange: handleConditionChange,
             ...fieldProps,
           })}

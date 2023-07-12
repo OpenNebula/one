@@ -171,6 +171,7 @@ export const RESOURCE_NAMES = {
   MARKETPLACE: 'marketplace',
   SEC_GROUP: 'security-group',
   USER: 'user',
+  VDC: 'virtual-data-center',
   VROUTER: 'virtual-router',
   VM_TEMPLATE: 'vm-template',
   VM: 'vm',
@@ -202,6 +203,7 @@ export * from 'client/constants/scheduler'
 export * from 'client/constants/securityGroup'
 export * from 'client/constants/user'
 export * from 'client/constants/userInput'
+export * from 'client/constants/vdc'
 export * from 'client/constants/vm'
 export * from 'client/constants/vmTemplate'
 export * from 'client/constants/zone'

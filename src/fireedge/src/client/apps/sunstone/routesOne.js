@@ -36,6 +36,7 @@ import {
   EmptyPage as TemplateIcon,
   Archive as TemplatesIcon,
   User as UserIcon,
+  List as VDCIcon,
   Shuffle as VRoutersIcons,
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
@@ -102,6 +103,10 @@ const CreateDatastores = loadable(
   {
     ssr: false,
   }
+)
+const DatastoreDetail = loadable(
+  () => import('client/containers/Datastores/Detail'),
+  { ssr: false }
 )
 
 const Images = loadable(() => import('client/containers/Images'), {
@@ -199,7 +204,17 @@ const Groups = loadable(() => import('client/containers/Groups'), {
 const GroupDetail = loadable(() => import('client/containers/Groups/Detail'), {
   ssr: false,
 })
-// const VDCs = loadable(() => import('client/containers/VDCs'), { ssr: false })
+
+const VDCs = loadable(() => import('client/containers/VDCs'), { ssr: false })
+
+const VDCDetail = loadable(() => import('client/containers/VDCs/Detail'), {
+  ssr: false,
+})
+
+const VDCCreate = loadable(() => import('client/containers/VDCs/Create'), {
+  ssr: false,
+})
+
 // const ACLs = loadable(() => import('client/containers/ACLs'), { ssr: false })
 
 export const PATH = {
@@ -300,6 +315,11 @@ export const PATH = {
     GROUPS: {
       LIST: `/${RESOURCE_NAMES.GROUP}`,
       DETAIL: `/${RESOURCE_NAMES.GROUP}/:id`,
+    },
+    VDCS: {
+      LIST: `/${RESOURCE_NAMES.VDC}`,
+      DETAIL: `/${RESOURCE_NAMES.VDC}/:id`,
+      CREATE: `/${RESOURCE_NAMES.VDC}/create`,
     },
   },
 }
@@ -423,6 +443,12 @@ const ENDPOINTS = [
         title: T.CreateDatastore,
         path: PATH.STORAGE.DATASTORES.CREATE,
         Component: CreateDatastores,
+      },
+      {
+        title: T.Datastore,
+        description: (params) => `#${params?.id}`,
+        path: PATH.STORAGE.DATASTORES.DETAIL,
+        Component: DatastoreDetail,
       },
       {
         title: T.Images,
@@ -609,6 +635,31 @@ const ENDPOINTS = [
         path: PATH.SYSTEM.GROUPS.DETAIL,
         Component: GroupDetail,
       },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined ? T.UpdateVDC : T.CreateVDC,
+        path: PATH.SYSTEM.VDCS.CREATE,
+        Component: VDCCreate,
+      },
+      {
+        title: T.VDCs,
+        path: PATH.SYSTEM.VDCS.LIST,
+        sidebar: true,
+        icon: VDCIcon,
+        Component: VDCs,
+      },
+      {
+        title: T.VDC,
+        description: (params) => `#${params?.id}`,
+        path: PATH.SYSTEM.VDCS.DETAIL,
+        Component: VDCDetail,
+      },
+      // {
+      //   title: T.Group,
+      //   description: (params) => `#${params?.id}`,
+      //   path: PATH.SYSTEM.GROUPS.DETAIL,
+      //   Component: GroupDetail,
+      // },
     ],
   },
 ]

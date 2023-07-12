@@ -16,9 +16,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import { enqueueSnackbar } from 'client/features/General/actions'
-import { httpCodes } from 'server/utils/constants'
-import { requestConfig, generateKey } from 'client/utils'
+import { generateKey, requestConfig } from 'client/utils'
 import http from 'client/utils/rest'
+import { httpCodes } from 'server/utils/constants'
 
 const ONE_RESOURCES = {
   ACL: 'ACL',
@@ -82,13 +82,15 @@ const oneApi = createApi({
     { params = {}, command, needStateInMeta = false },
     { getState, dispatch, signal }
   ) => {
+    const paramsExtensible = { ...params }
+
     try {
       // set filter flag if filter is present in command params
       if (command?.params?.filter) {
-        params.filter = getState().auth?.filterPool
+        paramsExtensible.filter = getState().auth?.filterPool
       }
 
-      const config = requestConfig(params, command)
+      const config = requestConfig(paramsExtensible, command)
       const response = await http.request({ ...config, signal })
       const state = needStateInMeta ? getState() : {}
 
@@ -124,11 +126,11 @@ const oneApi = createApi({
 })
 
 export {
-  oneApi,
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
   DOCUMENT,
   DOCUMENT_POOL,
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
   PROVISION_CONFIG,
   PROVISION_RESOURCES,
+  oneApi,
 }

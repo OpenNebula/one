@@ -66,10 +66,6 @@ module.exports = {
           from: postBody,
           default: '',
         },
-        cluster: {
-          from: postBody,
-          default: -1,
-        },
       },
     },
     [VDC_DELETE]: {
