@@ -106,6 +106,8 @@ TableController.propTypes = {
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
+  dependOf: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
 }
 
 TableController.displayName = 'TableController'
