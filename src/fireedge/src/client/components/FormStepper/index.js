@@ -13,7 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, useMemo, useCallback, useEffect, ReactElement } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  ReactElement,
+} from 'react'
 import PropTypes from 'prop-types'
 
 import { BaseSchema } from 'yup'
@@ -70,6 +78,18 @@ DefaultFormStepper.propTypes = {
   resolver: PropTypes.func,
 }
 
+const DisableStepContext = createContext(() => {})
+
+/**
+ * Hook that can be used to enable/disable steps in the stepper dialog.
+ *
+ * @returns {Function} A function that is currently provided by the DisableStepContext.
+ * The function takes a stepId or an array of stepIds and a condition to disable or enable the steps.
+ * @example
+ * const disableStep = useDisableStep();
+ * disableStep('step1', true); // This will disable 'step1'
+ */
+export const useDisableStep = () => useContext(DisableStepContext)
 /**
  * Represents a form with one or more steps.
  * Finally, it submit the result.
@@ -80,7 +100,7 @@ DefaultFormStepper.propTypes = {
  * @param {Function} props.onSubmit - Submit function
  * @returns {ReactElement} Stepper form component
  */
-const FormStepper = ({ steps = [], schema, onSubmit }) => {
+const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
   const {
     watch,
@@ -237,45 +257,49 @@ const FormStepper = ({ steps = [], schema, onSubmit }) => {
   )
 
   const { id: stepId, content: Content } = useMemo(
-    () => steps[activeStep],
+    () => steps[activeStep] || { id: null, content: null },
     [formData, activeStep]
   )
 
   return (
-    <>
-      {/* STEPPER */}
-      {useMemo(
-        () =>
-          isMobile ? (
-            <CustomMobileStepper
-              steps={steps}
-              totalSteps={totalSteps}
-              activeStep={activeStep}
-              lastStep={lastStep}
-              disabledBack={disabledBack}
-              isSubmitting={isLoading}
-              handleNext={handleNext}
-              handleBack={handleBack}
-              errors={errors}
-            />
-          ) : (
-            <CustomStepper
-              steps={steps}
-              activeStep={activeStep}
-              lastStep={lastStep}
-              disabledBack={disabledBack}
-              isSubmitting={isLoading}
-              handleStep={handleStep}
-              handleNext={handleNext}
-              handleBack={handleBack}
-              errors={errors}
-            />
-          ),
-        [isLoading, isMobile, activeStep, errors[stepId]]
-      )}
-      {/* FORM CONTENT */}
-      {Content && <Content data={formData[stepId]} setFormData={setFormData} />}
-    </>
+    <DisableStepContext.Provider value={disableStep}>
+      <>
+        {/* STEPPER */}
+        {useMemo(
+          () =>
+            isMobile ? (
+              <CustomMobileStepper
+                steps={steps}
+                totalSteps={totalSteps}
+                activeStep={activeStep}
+                lastStep={lastStep}
+                disabledBack={disabledBack}
+                isSubmitting={isLoading}
+                handleNext={handleNext}
+                handleBack={handleBack}
+                errors={errors}
+              />
+            ) : (
+              <CustomStepper
+                steps={steps}
+                activeStep={activeStep}
+                lastStep={lastStep}
+                disabledBack={disabledBack}
+                isSubmitting={isLoading}
+                handleStep={handleStep}
+                handleNext={handleNext}
+                handleBack={handleBack}
+                errors={errors}
+              />
+            ),
+          [isLoading, isMobile, activeStep, errors[stepId], steps]
+        )}
+        {/* FORM CONTENT */}
+        {Content && (
+          <Content data={formData[stepId]} setFormData={setFormData} />
+        )}
+      </>
+    </DisableStepContext.Provider>
   )
 }
 

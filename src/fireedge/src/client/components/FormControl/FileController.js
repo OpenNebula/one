@@ -50,6 +50,7 @@ const FileController = memo(
     transform,
     fieldProps = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const { setValue, setError, clearErrors, watch } = useFormContext()
 
@@ -108,6 +109,10 @@ const FileController = memo(
         const parsedValue = transform ? await transform(file) : file
         setValue(name, parsedValue)
         handleDelayState()
+
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(parsedValue)
+        }
       } catch (err) {
         setValue(name, undefined)
         handleDelayState(err?.message ?? err)
@@ -165,6 +170,7 @@ FileController.propTypes = {
   transform: PropTypes.func,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 FileController.displayName = 'FileController'

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField, Chip, Autocomplete } from '@mui/material'
@@ -34,6 +34,7 @@ const AutocompleteController = memo(
     values = [],
     fieldProps: { separators, ...fieldProps } = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
@@ -44,22 +45,30 @@ const AutocompleteController = memo(
       ? renderValue ?? []
       : values.find(({ value }) => value === renderValue) ?? null
 
+    const handleChange = useCallback(
+      (_, newValue) => {
+        const newValueToChange = multiple
+          ? newValue?.map((value) =>
+              ['string', 'number'].includes(typeof value)
+                ? value
+                : { text: value, value }
+            )
+          : newValue?.value
+
+        onChange(newValueToChange ?? '')
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(newValueToChange ?? '')
+        }
+      },
+      [onChange, onConditionChange, multiple]
+    )
+
     return (
       <Autocomplete
         fullWidth
         color="secondary"
         onBlur={onBlur}
-        onChange={(_, newValue) => {
-          const newValueToChange = multiple
-            ? newValue?.map((value) =>
-                ['string', 'number'].includes(typeof value)
-                  ? value
-                  : { text: value, value }
-              )
-            : newValue?.value
-
-          return onChange(newValueToChange ?? '')
-        }}
+        onChange={handleChange}
         options={values}
         value={selected}
         multiple={multiple}
@@ -126,6 +135,7 @@ AutocompleteController.propTypes = {
   values: PropTypes.arrayOf(PropTypes.object),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

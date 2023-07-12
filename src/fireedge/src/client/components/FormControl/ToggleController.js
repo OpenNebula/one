@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -50,6 +50,7 @@ const ToggleController = memo(
     fieldProps = {},
     notNull = false,
     readOnly = false,
+    onConditionChange,
   }) => {
     const {
       field: { ref, value: optionSelected, onChange },
@@ -62,6 +63,17 @@ const ToggleController = memo(
         !exists && onChange()
       }
     }, [])
+    const handleChange = useCallback(
+      (_, newValues) => {
+        if (!readOnly && (!notNull || newValues)) {
+          onChange(newValues)
+          if (typeof onConditionChange === 'function') {
+            onConditionChange(newValues)
+          }
+        }
+      },
+      [onChange, onConditionChange, readOnly, notNull]
+    )
 
     return (
       <FormControl fullWidth margin="dense">
@@ -75,9 +87,7 @@ const ToggleController = memo(
           fullWidth
           ref={ref}
           id={cy}
-          onChange={(_, newValues) =>
-            !readOnly && (!notNull || newValues) && onChange(newValues)
-          }
+          onChange={handleChange}
           value={optionSelected}
           exclusive={!multiple}
           data-cy={cy}
@@ -115,6 +125,7 @@ ToggleController.propTypes = {
   fieldProps: PropTypes.object,
   notNull: PropTypes.bool,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 ToggleController.displayName = 'ToggleController'

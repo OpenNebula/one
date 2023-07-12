@@ -31,6 +31,7 @@ import * as FC from 'client/components/FormControl'
 import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
 import { Field } from 'client/utils'
+import { useDisableStep } from 'client/components/FormStepper'
 
 import get from 'lodash.get'
 import { useSelector } from 'react-redux'
@@ -148,8 +149,10 @@ FormWithSchema.propTypes = {
   rootProps: PropTypes.object,
 }
 
-const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
-  const formContext = useFormContext()
+const FieldComponent = memo(
+  ({ id, cy, dependOf, stepControl, ...attributes }) => {
+    const formContext = useFormContext()
+    const disableSteps = useDisableStep()
 
     const currentState = useSelector((state) => state)
 
@@ -158,73 +161,11 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
         // removes character '$' and returns
         if (n.startsWith('$')) return n.slice(1)
 
-      // concat form ID if exists
-      return id ? `${id}.${n}` : n
-    },
-    [id]
-  )
-
-  const nameOfDependField = useMemo(() => {
-    if (!dependOf) return null
-
-    return Array.isArray(dependOf)
-      ? dependOf.map(addIdToName)
-      : addIdToName(dependOf)
-  }, [dependOf, addIdToName])
-
-  const valueOfDependField = useWatch({
-    name: nameOfDependField,
-    disabled: dependOf === undefined,
-    defaultValue: Array.isArray(dependOf) ? [] : undefined,
-  })
-
-  const { name, type, htmlType, grid, ...fieldProps } = Object.entries(
-    attributes
-  ).reduce((field, attribute) => {
-    const [attrKey, value] = attribute
-    const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(attrKey)
-
-    const finalValue =
-      typeof value === 'function' &&
-      !isNotDependAttribute &&
-      !isValidElement(value())
-        ? value(valueOfDependField, formContext)
-        : value
-
-    return { ...field, [attrKey]: finalValue }
-  }, {})
-
-  const dataCy = useMemo(() => `${cy}-${name ?? ''}`.replaceAll('.', '-'), [cy])
-  const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
-  const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
-  const key = useMemo(
-    () =>
-      fieldProps?.values
-        ? `${name}-${JSON.stringify(fieldProps.values)}`
-        : undefined,
-    [fieldProps]
-  )
-
-  if (isHidden) return null
-
-  return (
-    INPUT_CONTROLLER[type] && (
-      <Grid item xs={12} md={6} {...grid}>
-        {createElement(INPUT_CONTROLLER[type], {
-          key,
-          control: formContext.control,
-          cy: dataCy,
-          dependencies: nameOfDependField,
-          name: inputName,
-          type: htmlType === false ? undefined : htmlType,
-          ...fieldProps,
-        })}
-      </Grid>
+        // concat form ID if exists
+        return id ? `${id}.${n}` : n
+      },
+      [id]
     )
-<<<<<<< HEAD
-  )
-})
-=======
 
     const nameOfDependField = useMemo(() => {
       if (!dependOf) return null
@@ -272,8 +213,9 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
 
     const dataCy = useMemo(
       () => `${cy}-${name ?? ''}`.replaceAll('.', '-'),
-      [cy]
+      [cy, name]
     )
+
     const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
     const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
     const key = useMemo(
@@ -281,7 +223,7 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
         fieldProps?.values
           ? `${name}-${JSON.stringify(fieldProps.values)}`
           : undefined,
-      [fieldProps]
+      [fieldProps, name]
     )
 
     if (isHidden) return null
@@ -305,7 +247,6 @@ const FieldComponent = memo(({ id, cy, dependOf, ...attributes }) => {
     )
   }
 )
->>>>>>> f4cb72f24b (F OpenNebula/one#6146: Conditionally render backup (#2668))
 
 FieldComponent.propTypes = {
   id: PropTypes.string,
@@ -314,14 +255,11 @@ FieldComponent.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-<<<<<<< HEAD
-=======
   stepControl: PropTypes.shape({
     condition: PropTypes.func,
     steps: PropTypes.arrayOf(PropTypes.string),
     statePaths: PropTypes.arrayOf(PropTypes.string),
   }),
->>>>>>> f4cb72f24b (F OpenNebula/one#6146: Conditionally render backup (#2668))
 }
 
 FieldComponent.displayName = 'FieldComponent'

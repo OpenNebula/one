@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useFormContext, useController } from 'react-hook-form'
 
@@ -43,6 +43,7 @@ const TableController = memo(
     singleSelect = true,
     getRowId = defaultGetRowId,
     readOnly = false,
+    onConditionChange,
     fieldProps: { initialState, ...fieldProps } = {},
   }) => {
     const { clearErrors } = useFormContext()
@@ -61,6 +62,30 @@ const TableController = memo(
       setInitialRows({})
     }, [Table])
 
+    const handleSelectedRowsChange = useCallback(
+      (rows) => {
+        if (readOnly) return
+
+        const rowValues = rows?.map(({ original }) => getRowId(original))
+
+        onChange(singleSelect ? rowValues?.[0] : rowValues)
+        clearErrors(name)
+
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(singleSelect ? rowValues?.[0] : rowValues)
+        }
+      },
+      [
+        onChange,
+        clearErrors,
+        name,
+        onConditionChange,
+        readOnly,
+        getRowId,
+        singleSelect,
+      ]
+    )
+
     return (
       <>
         <Legend title={label} tooltip={tooltip} />
@@ -75,14 +100,7 @@ const TableController = memo(
           singleSelect={singleSelect}
           getRowId={getRowId}
           initialState={{ ...initialState, selectedRowIds: initialRows }}
-          onSelectedRowsChange={(rows) => {
-            if (readOnly) return
-
-            const rowValues = rows?.map(({ original }) => getRowId(original))
-
-            onChange(singleSelect ? rowValues?.[0] : rowValues)
-            clearErrors(name)
-          }}
+          onSelectedRowsChange={handleSelectedRowsChange}
           {...fieldProps}
         />
       </>

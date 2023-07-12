@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -44,11 +44,23 @@ const SwitchController = memo(
     tooltip,
     fieldProps = {},
     readOnly = false,
+    onConditionChange,
   }) => {
     const {
       field: { value = false, onChange },
       fieldState: { error },
     } = useController({ name, control })
+
+    const handleChange = useCallback(
+      (e) => {
+        const condition = e.target.checked
+        onChange(condition)
+        if (typeof onConditionChange === 'function') {
+          onConditionChange(condition)
+        }
+      },
+      [onChange, onConditionChange]
+    )
 
     return (
       <FormControl error={Boolean(error)} margin="dense">
@@ -56,7 +68,7 @@ const SwitchController = memo(
           control={
             <Switch
               readOnly={readOnly}
-              onChange={(e) => onChange(e.target.checked)}
+              onChange={handleChange}
               name={name}
               checked={Boolean(value)}
               color="secondary"
@@ -90,6 +102,7 @@ SwitchController.propTypes = {
   tooltip: PropTypes.any,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  onConditionChange: PropTypes.func,
 }
 
 SwitchController.displayName = 'SwitchController'
