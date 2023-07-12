@@ -29,6 +29,8 @@ const initial = {
   isFixMenu: false,
   upload: 0,
   notifications: [],
+  selectedIds: [],
+  disabledSteps: [],
 }
 
 const slice = createSlice({
@@ -65,6 +67,12 @@ const slice = createSlice({
         ...state,
         zone: payload,
       }))
+      .addCase(actions.setSelectedIds, (state, { payload }) => {
+        state.selectedIds = payload
+      })
+      .addCase(actions.updateDisabledSteps, (state, { payload }) => {
+        state.disabledSteps = payload
+      })
       /* UPLOAD NOTIFICATION */
       .addCase(actions.setUploadSnackbar, (state, { payload }) => ({
         ...state,
