@@ -21,20 +21,46 @@ import {
   filterFieldsByHypervisor,
   arrayToOptions,
 } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS, SERVER_CONFIG } from 'client/constants'
+import {
+  T,
+  INPUT_TYPES,
+  HYPERVISORS,
+  SERVER_CONFIG,
+  UNITS,
+} from 'client/constants'
 
 const { vcenter } = HYPERVISORS
 
 /** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
-  label: [T.SizeOnUnits, 'MB'],
-  tooltip: T.SizeConcept,
+  label: [T.Size, 'MB'],
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: number()
     .required()
     .default(() => undefined),
+  grid: { xs: 12, md: 3 },
+}
+
+/**
+ * @type {Field} size field
+ * ISSUE#6136: Add unit size. Use only MB, GB, and TB (other values do not apply to create image).
+ */
+export const SIZEUNIT = {
+  name: 'SIZEUNIT',
+  label: T.SizeUnit,
+  type: INPUT_TYPES.SELECT,
+  tooltip: T.SizeUnitTooltip,
+  values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
+    addEmpty: false,
+    getText: (type) => type,
+    getValue: (type) => type,
+  }),
+  validation: string()
+    .trim()
+    .default(() => UNITS.MB),
+  grid: { xs: 12, md: 3 },
 }
 
 /**
@@ -97,7 +123,10 @@ const FILESYSTEM = {
  * @returns {Field[]} List of fields
  */
 export const FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor([SIZE, TYPE, FORMAT, FILESYSTEM], hypervisor)
+  filterFieldsByHypervisor(
+    [SIZE, SIZEUNIT, TYPE, FORMAT, FILESYSTEM],
+    hypervisor
+  )
 
 /**
  * @param {HYPERVISORS} hypervisor - hypervisor

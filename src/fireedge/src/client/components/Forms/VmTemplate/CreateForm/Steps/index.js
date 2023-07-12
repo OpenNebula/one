@@ -31,6 +31,7 @@ import {
   isBase64,
   encodeBase64,
   getUnknownAttributes,
+  convertToMB,
 } from 'client/utils'
 import { T, MEMORY_RESIZE_OPTIONS } from 'client/constants'
 
@@ -129,6 +130,10 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     ) {
       delete general.MEMORY_SLOTS
     }
+
+    // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
+    general.MEMORY = convertToMB(general.MEMORY, general.MEMORYUNIT)
+    delete general.MEMORYUNIT
 
     return jsonToXml({
       ...customVariables,
