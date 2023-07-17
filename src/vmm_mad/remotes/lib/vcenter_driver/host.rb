@@ -352,7 +352,7 @@ module VCenterDriver
             str_info << 'USEDMEMORY='  << (total_mem - free_mem).to_s << "\n"
 
             # DRS enabled
-            str_info << 'VCENTER_DRS='  << drs_enabled.to_s << "\n"
+            str_info << 'VCENTER_DRS=' << drs_enabled.to_s << "\n"
 
             # HA enabled
             str_info << 'VCENTER_HA=' << ha_enabled.to_s << "\n"

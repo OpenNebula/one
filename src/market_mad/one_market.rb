@@ -345,7 +345,7 @@ end
 opts = GetoptLong.new(
     ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
     ['--market-types', '-m', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--timeout',  '-w', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT],
     ['--proxy', '-p', GetoptLong::OPTIONAL_ARGUMENT]
 )
 

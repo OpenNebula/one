@@ -116,7 +116,7 @@ module VirtualMachineManagerKVM
                 dev = '<interface type="bridge">'
 
                 if @xml["#{@xpath_prefix}BRIDGE_TYPE"] =~ /openvswitch/
-                    dev  << '<virtualport type="openvswitch"/>'
+                    dev << '<virtualport type="openvswitch"/>'
                 end
 
                 dev << xputs('<source bridge=%s/>', 'BRIDGE')
