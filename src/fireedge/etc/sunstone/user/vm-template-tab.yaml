@@ -15,7 +15,7 @@ features:
   # An integer value would be used as a multiplier as follows:
   #     CPU = cpu_factor * VCPU
   # Set it to 1 to tie CPU and vCPU.
-  cpu_factor: false
+  cpu_factor: 1
 
 # Actions - Which buttons are visible to operate over the resources
 
