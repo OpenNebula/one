@@ -75,7 +75,8 @@ const hostApi = oneApi.injectEndpoints({
         if (!data?.HOST) return {}
 
         const monitoring = data?.HOST?.MONITORING
-        const hostShare = data?.HOST_SHARE?.NUMA_NODES
+
+        const hostShare = data?.HOST?.HOST_SHARE?.NUMA_NODES
 
         if (!monitoring || !hostShare) return data.HOST
 
