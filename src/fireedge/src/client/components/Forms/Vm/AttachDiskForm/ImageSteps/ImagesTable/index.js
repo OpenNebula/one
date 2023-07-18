@@ -34,7 +34,11 @@ const Content = ({ data, setFormData }) => {
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
-    original.ID !== undefined ? handleSelect(original) : handleClear()
+    // #6129 #6154. To create an image we only need IMAGE and IMAGE_UNAME attributes. Also, we add datastore and type to show on disk card
+    const { NAME, UNAME, DATASTORE, DATASTORE_ID, TYPE } = original
+    const selectedImage = { NAME, UNAME, DATASTORE, DATASTORE_ID, TYPE }
+
+    original.ID !== undefined ? handleSelect(selectedImage) : handleClear()
   }
 
   return (
