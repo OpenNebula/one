@@ -1960,7 +1960,6 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
-                case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
                     vm->revert_disk_snapshot(disk_id, snap_id, true);
                     break;
@@ -2045,7 +2044,6 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                 break;
 
             case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-            case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                 dm->trigger_suspend_success(vid);
                 break;
@@ -2116,7 +2114,6 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
-                case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
                     vm->log("LCM", Log::ERROR, "VM disk snapshot operation failed.");
                     break;
 
@@ -2190,7 +2187,6 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
                 break;
 
             case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-            case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                 dm->trigger_suspend_success(vid);
                 break;

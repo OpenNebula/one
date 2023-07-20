@@ -601,7 +601,7 @@ int ImageManager::delete_image(int iid, string& error_str)
 
         int uid = img->get_uid();
         int gid = img->get_gid();
-        long long size = img->get_size() + img->get_snapshots().get_total_size();
+        long long size = img->get_size() + img->get_snapshots().total_size();
 
         img.reset();
 
@@ -1200,7 +1200,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     const Snapshots& snaps = img->get_snapshots();
 
-    if (!snaps.test_delete(sid, error))
+    if (!snaps.test_delete_image(sid, error))
     {
         return -1;
     }

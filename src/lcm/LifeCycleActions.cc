@@ -1135,7 +1135,6 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
             vm->clear_snapshot_disk();
@@ -1509,7 +1508,6 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -1747,7 +1745,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -1867,7 +1864,6 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-                        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
                         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:

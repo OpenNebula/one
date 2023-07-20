@@ -69,15 +69,23 @@ else
 fi
 
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${SNAP_ID}"
 
 if [ "$FORMAT" = "qcow2" ]; then
     SNAP_CMD=$(cat <<EOF
         set -e -o pipefail
 
+        if [ -f "${SNAP_PATH}.current" ]; then
+            CURRENT_PATH=\$(cat "${SNAP_PATH}.current")
+            CURRENT_ID="\${CURRENT_PATH##*/}"
+
+            SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/\${CURRENT_ID}"
+        else
+            SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${SNAP_ID}"
+        fi
+
         cd "${SNAP_DIR}"
         qemu-img create -f qcow2 -o backing_fmt=qcow2 \
-            -b "${SNAP_PATH_SHORT}" "\$(readlink -f ${DISK_PATH})"
+            -b "\${SNAP_PATH_SHORT}" "\$(readlink -f ${DISK_PATH})"
 EOF
 )
 else

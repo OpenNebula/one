@@ -232,7 +232,7 @@ def test_config(kind, config)
     name=gen_test_file(kind)
     exit_code=compile(name, args)
     #File.delete(name)
-    File.delete(name+".out") if File.exists?(name+".out")
+    File.delete(name+".out") if File.exist?(name+".out")
     
     return nil if !exit_code
     

@@ -104,7 +104,6 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
             case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-            case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE:
                 lcm->trigger_disk_snapshot_success(id);
@@ -175,7 +174,6 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
             case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-            case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             case VirtualMachine::DISK_SNAPSHOT_DELETE:
                 lcm->trigger_disk_snapshot_failure(id);

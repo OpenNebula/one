@@ -284,7 +284,7 @@ int VirtualMachineDisk::create_snapshot(const string& name, string& error)
     else
     {
         snap_id   = snapshots->create_snapshot(name, size_mb);
-        snap_size = snapshots->get_total_size();
+        snap_size = snapshots->total_size();
     }
 
     if (snap_id != -1)
@@ -334,20 +334,13 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
         return;
     }
 
-    long long ssize = snapshots->get_snapshot_size(snap_id);
+    long long ssize = snapshots->snapshot_size(snap_id);
 
     snapshots->delete_snapshot(snap_id);
 
-    long long snap_size = snapshots->get_total_size();
+    long long snap_size = snapshots->total_size();
 
     replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
-
-    if (snapshots->size() == 0)
-    {
-        delete snapshots;
-
-        snapshots = 0;
-    }
 
     string tm_target = get_tm_target();
 
