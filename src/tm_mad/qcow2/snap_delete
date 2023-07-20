@@ -103,9 +103,11 @@ do_live() {
 
     bs=$(virsh -c "${luri}" dumpxml "${domid}" | \
           xmllint --xpath '//backingStore/source/@file' - | \
-          awk -F '=' '{ gsub("\"", "", $2); print $2 }')
+          sed -e 's/file=/\n/g' | tr -d '"')
 
     while IFS= read -r f; do
+        f=$(echo ${f} | sed 's/[[:space:]]*$//')
+
         id="${f##*/}"
         dbs+=("${id}")
 

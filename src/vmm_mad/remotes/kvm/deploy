@@ -29,13 +29,14 @@ cat > $DEP_FILE
 # Resolve disk.<disk_id> links for file-based disks
 #-------------------------------------------------------------------------------
 FILES=$(xmllint  --xpath '//disk[@type="file" and @device="disk"]/source/@file' \
-         "${DEP_FILE}" | awk -F '=' '{ gsub("\"", "", $2); print $2 }')
+         "${DEP_FILE}" | sed -e 's/file=/\n/g' | tr -d '"')
 
 SED_SCRIPT=""
-DISK_PATTERN=".*/disk\.[0-9]+$"
 
 while IFS= read -r f; do
-    if ! [[ "${f}" =~ ${DISK_PATTERN} ]]; then
+    f=$(echo ${f} | sed 's/[[:space:]]*$//')
+
+    if ! [[ "${f}" =~ .*/disk\.[0-9]+$ ]]; then
         continue
     fi
 
