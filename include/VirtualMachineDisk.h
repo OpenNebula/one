@@ -210,7 +210,7 @@ public:
             return 0;
         }
 
-        return snapshots->get_total_size();
+        return snapshots->total_size();
     }
 
     /**
@@ -225,7 +225,7 @@ public:
             return 0;
         }
 
-        return snapshots->get_snapshot_size(snap_id);
+        return snapshots->snapshot_size(snap_id);
     }
 
     /**

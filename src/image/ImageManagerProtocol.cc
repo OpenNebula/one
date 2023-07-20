@@ -480,7 +480,7 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
         gid    = image->get_gid();
         source = image->get_source();
         size   = image->get_size();
-        snap_size = (image->get_snapshots()).get_total_size();
+        snap_size = (image->get_snapshots()).total_size();
 
         if ( image->get_type() == Image::BACKUP )
         {
@@ -680,7 +680,7 @@ void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
         ds_id     = image->get_ds_id();
         uid       = image->get_uid();
         gid       = image->get_gid();
-        snap_size = (image->get_snapshots()).get_snapshot_size(snap_id);
+        snap_size = (image->get_snapshots()).snapshot_size(snap_id);
 
         image->delete_snapshot(snap_id);
     }
@@ -795,7 +795,7 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
         ds_id     = image->get_ds_id();
         uid       = image->get_uid();
         gid       = image->get_gid();
-        snap_size = (image->get_snapshots()).get_total_size();
+        snap_size = (image->get_snapshots()).total_size();
 
         image->clear_snapshots();
     }

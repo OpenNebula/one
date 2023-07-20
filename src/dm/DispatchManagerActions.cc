@@ -2202,8 +2202,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
     VirtualMachine::VmState  state  = vm->get_state();
     VirtualMachine::LcmState lstate = vm->get_lcm_state();
 
-    if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
-        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT))
+    if (state != VirtualMachine::POWEROFF || lstate != VirtualMachine::LCM_INIT)
     {
         oss << "Could not revert to disk snapshot for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -2236,20 +2235,8 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 
     close_cp_history(vmpool, vm.get(), VMActions::DISK_SNAPSHOT_REVERT_ACTION, ra);
 
-    switch (state)
-    {
-        case VirtualMachine::POWEROFF:
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
-            break;
-
-        case VirtualMachine::SUSPENDED:
-            vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED);
-            break;
-
-        default: break;
-    }
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
 
     vmpool->update(vm.get());
 
@@ -2305,7 +2292,14 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
         return -1;
     }
 
-    if (!snaps->test_delete(snap_id, error_str))
+    const VirtualMachineDisk * disk = vm->get_disk(did);
+
+    if (disk == nullptr)
+    {
+        return -1;
+    }
+
+    if (!snaps->test_delete(snap_id, disk->is_persistent(), error_str))
     {
         return -1;
     }

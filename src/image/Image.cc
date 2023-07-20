@@ -607,7 +607,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         disk->replace("SIZE", size_mb);
     }
 
-    snap_size = snapshots.get_total_size();
+    snap_size = snapshots.total_size();
     disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
     // Force FORMAT and DRIVER from image

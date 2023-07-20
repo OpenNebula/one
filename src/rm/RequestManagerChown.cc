@@ -94,7 +94,7 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
         auto tmpl = make_unique<Template>();
 
         tmpl->add("DATASTORE", img->get_ds_id());
-        tmpl->add("SIZE",img->get_size()+img->get_snapshots().get_total_size());
+        tmpl->add("SIZE",img->get_size()+img->get_snapshots().total_size());
 
         quota_map.insert(make_pair(Quotas::DATASTORE, move(tmpl)));
     }

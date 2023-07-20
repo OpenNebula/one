@@ -30,10 +30,224 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
-. $TMCOMMON
+source $TMCOMMON
+source ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
 
 SRC_PATH=$(arg_path $SRC)
 SRC_HOST=$(arg_host $SRC)
+
+# ------------------------------------------------------------------------------
+# Backing File managment functions:
+#   - scan_backing_files creates an associative map with snap_id -> backing file
+#   - is_parent returns the child (if any) of a given snapshot (uses the map)
+#   - do_live checks if virsh or qemu-img should be use (a running VM can delete
+#       snapshots outside of current backingstore, e.g. because a revert)
+#   - delete removes the snapshot from the backing chain using qemu-img rebase
+#     virsh blockcommit or blockpull as needed.
+# ------------------------------------------------------------------------------
+scan_backing_files() {
+    local -n bfs=$1
+    local snap_dir=$2
+
+    for i in $(ls "${snap_dir}"); do
+        f=$(realpath -s "${snap_dir}/${i}")
+
+        [ ! -f ${f} ] && continue
+        [[ "${f}" =~ \.current ]] && continue
+
+        bf=$(qemu-img info -U --output json "${f}" | jq -r '."backing-filename"')
+        ky="${f##*/}"
+
+        if [ "${bf:0:1}" = "/" ] ; then
+            bfs["${ky}"]="${bf}"
+        elif [ "${bf}" = "null" ]; then
+            bfs["${ky}"]="null"
+        else
+            bfs["${ky}"]="${snap_dir}/${bf##*/}"
+        fi
+    done
+}
+
+is_parent() {
+    local -n bfs=$1
+    local snap=$(echo "$2/$3" | tr -s '/')
+
+    local child=""
+
+    for file in "${!bfs[@]}"; do
+        bfile=$(echo "${bfs[$file]}" | tr -s '/')
+
+        if [ "${snap}" = "${bfile}" -o "${snap}" = $(realpath ${bfile}) ]; then
+            child="${file}"
+            break
+        fi
+    done
+
+    echo "${child}"
+}
+
+do_live() {
+    local domid=$1
+    local state=$2
+
+    local snap_id=$3
+    local luri=$4
+
+    local found=""
+    local dbs=()
+
+    if [ "${state}" != "59" ]; then
+        echo "${found}"
+        return 0
+    fi
+
+    bs=$(virsh -c "${luri}" dumpxml "${domid}" | \
+          xmllint --xpath '//backingStore/source/@file' - | \
+          sed -e 's/file=/\n/g' | tr -d '"')
+
+    while IFS= read -r f; do
+        f=$(echo ${f} | sed 's/[[:space:]]*$//')
+
+        id="${f##*/}"
+        dbs+=("${id}")
+
+        if [ "${id}" = "${snap_id}" ]; then
+            found="${snap_id}"
+        fi
+    done <<< "${bs}"
+
+    echo "${found}"
+}
+
+get_current_path() {
+    local snap_dir=$1
+    local snap_id=$2
+
+    local current=""
+
+    for i in $(ls ${snap_dir}/*.current); do
+        current=$(cat "${i}")
+
+        #This snapshot represent another one (is in a .current file)
+        if [ "${current##*/}" = "${snap_id}" ]; then
+            echo "${i}"
+            return 0
+        fi
+    done
+
+    echo "${snap_dir}/${snap_id}.current"
+}
+
+delete_snapshot() {
+    declare -gA backing_files
+
+    local dpath=$1
+    local target=$2
+    local snap_dir=$3
+    local snap_id=$4
+    local vm_id=$5
+    local vm_st=$6
+    local active=$7
+    local luri=$8
+    local qemu=$9
+
+    scan_backing_files backing_files "${snap_dir}"
+
+    # --------------------------------------------------------------------------
+    # Re-define snap_id if current exists and set snap_path
+    # --------------------------------------------------------------------------
+    local current=""
+    local cmd=""
+    local rm_current=""
+
+    if [ -f "${snap_dir}/${snap_id}.current" ]; then
+        rm_current="rm ${snap_dir}/${snap_id}.current"
+
+        current=$(cat "${snap_dir}/${snap_id}.current")
+        snap_id="${current##*/}"
+    fi
+
+    local snap_path="${snap_dir}/${snap_id}"
+
+    # --------------------------------------------------------------------------
+    # Set base snapshot for the delete operation
+    # --------------------------------------------------------------------------
+    local base="${backing_files[$snap_id]}"
+
+    local vbase=""
+    local qbase=""
+
+    if [ "${base}" = "null" ]; then
+        vbase=""
+        qbase='-b ""'
+    else
+        vbase="--base ${base}"
+        qbase="-b ${base}"
+    fi
+
+    # --------------------------------------------------------------------------
+    # Set child snapshot & live mode for the delete operation
+    # --------------------------------------------------------------------------
+    local child=$(is_parent backing_files "${snap_dir}" "${snap_id}")
+
+    local live=$(do_live "${vm_id}" "${vm_st}" "${snap_id}" "${luri}")
+
+    if [ "${active}" = "YES" ]; then
+        # ----------------------------------------------------------------------
+        # Active snapshot (last known by OpenNebula). Example, delete n:
+        #   n-1 <-- n <-- next
+        #   n-1 <-- next
+        #
+        #   next = next + n. Remove n
+        # ----------------------------------------------------------------------
+        if [ -n "${live}" ]; then
+            cmd="virsh -c ${luri} blockpull ${vm_id} ${target} ${vbase} --wait"
+        else
+            cmd="${qemu} rebase -q -U -F qcow2 ${qbase} ${dpath}"
+        fi
+
+        cmd="${cmd}; rm ${snap_path}"
+    elif [ -n "${child}" ]; then
+        # ----------------------------------------------------------------------
+        # Snapshot in the middle of a chain. Example, delete n:
+        #   n-1 <-- n <-- n+1
+        #   (live: commit n+1 into n) n-1 <-- n'
+        #   (poff: rebase n+1 to n-1) n-1 <-- n+1
+        #
+        #   (live) n' = n + (n+1). (n+1).current = n. Remove n+1
+        #   (poff) Remove n
+        # ----------------------------------------------------------------------
+        if [ -n "${live}" ]; then
+            local current_path=$(get_current_path ${snap_dir} ${child})
+
+            cmd="virsh -c ${luri} blockcommit ${vm_id} ${target} --top ${child} \
+                   --base ${snap_path} --wait"
+            cmd="${cmd}; echo "${snap_path}" > ${current_path}"
+            cmd="${cmd}; rm ${snap_dir}/${child}"
+        else
+            cmd="${qemu} rebase -q -U -F qcow2 ${qbase} ${snap_dir}/${child}"
+            cmd="${cmd}; rm ${snap_path}"
+        fi
+    else
+        # ----------------------------------------------------------------------
+        # Snapshot has no children and not active. Example, delete n+1:
+        #   n-1 <-- n <-- n+1
+        #           \_ n+2 <-- next
+        #
+        #  Remove n+1
+        # ----------------------------------------------------------------------
+        if [ -f "${snap_path}.current" ]; then
+            cmd="rm ${current}"
+        else
+            cmd="rm ${snap_path}"
+        fi
+    fi
+
+    # Remove current pointer if exists
+    cmd="${cmd}; ${rm_current}"
+
+    echo "${cmd}"
+}
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -49,14 +263,24 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SOURCE \
-                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CLONE)
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CLONE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/TARGET \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT \
+                    /VM/SNAPSHOTS/SNAPSHOT\[ID=$SNAP_ID\]/ACTIVE \
+                    /VM/DEPLOY_ID \
+                    /VM/LCM_STATE)
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
+TARGET="${XPATH_ELEMENTS[j++]}"
+FORMAT="${XPATH_ELEMENTS[j++]}"
+ACTIVE="${XPATH_ELEMENTS[j++]}"
+DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+LCM_STATE="${XPATH_ELEMENTS[j++]}"
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
-if [ "$CLONE" = "YES" ]; then
+if [ "$CLONE" = "YES" -o ${0: -4} = ".ssh" ]; then
     DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
 else
     DISK_PATH=$DISK_SRC
@@ -65,6 +289,38 @@ fi
 SNAP_DIR="${DISK_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
-ssh_exec_and_log "${SRC_HOST}" "rm ${SNAP_PATH}" \
+DELETE_CMD=$(cat <<EOT
+    set -e -o pipefail
+
+    $(type scan_backing_files | grep -v 'is a function')
+
+    $(type is_parent | grep -v 'is a function')
+
+    $(type do_live | grep -v 'is a function')
+
+    $(type get_current_path | grep -v 'is a function')
+
+    $(type delete_snapshot | grep -v 'is a function')
+
+    # DISK_RDLN is the path of the active file
+    DISK_RDLN="\$(readlink ${SYSTEM_DS_PATH}/disk.${DISK_ID})"
+
+    if [ "\${DISK_RDLN:0:1}" != "/" ] ; then
+        DISK_RDLN="${SYSTEM_DS_PATH}/\${DISK_RDLN}"
+    fi
+
+    cmd=\$(delete_snapshot "\${DISK_RDLN}" "${TARGET}" "${SNAP_DIR}" "${SNAP_ID}" \
+            "${DEPLOY_ID}" "${LCM_STATE}" "${ACTIVE}" "${LIBVIRT_URI}" "${QEMU_IMG}")
+
+    eval "\${cmd}"
+EOT
+)
+
+# For disks using raw format just remove the snaphost file
+if [ "$FORMAT" = "raw" ]; then
+    DELETE_CMD="rm \"${SNAP_PATH}\""
+fi
+
+ssh_exec_and_log "${SRC_HOST}" "${DELETE_CMD}" \
                  "Error deleting snapshot ${SNAP_PATH}"
 

@@ -139,12 +139,16 @@ public:
     int create_snapshot(const std::string& name, long long size_mb);
 
     /**
-     *  Check if an snapshot can be deleted (no children, no active)
+     *  Check if an snapshot can be deleted, for the snap_delete operation on
+     *  VMs
      *    @param id of the snapshot
      *    @param error if any
      *    @return true if can be deleted, false otherwise
      */
-    bool test_delete(int id, std::string& error) const;
+    bool test_delete(int id, bool persistent, std::string& error) const;
+
+    // Version for the snap_delete operation on images
+    bool test_delete_image(int id, std::string& error) const;
 
     /**
      *  Removes the snapshot from the list
@@ -173,8 +177,8 @@ public:
      */
     void clear()
     {
-        active        = -1;
-        disk_id       = -1;
+        active   = -1;
+        _disk_id = -1;
 
         snapshot_template.clear();
         snapshot_pool.clear();
@@ -183,15 +187,25 @@ public:
     /**
      *  Return the disk_id of the snapshot list
      */
-    int get_disk_id() const
+    int disk_id() const
     {
-        return disk_id;
+        return _disk_id;
     }
+
+    /**
+     *  Sets the disk id for this snapshot list
+     *    @param did the id
+     */
+    void set_disk_id(int did)
+    {
+        _disk_id = did;
+        snapshot_template.replace("DISK_ID", did);
+    };
 
     /**
      *  Return the active snapshot id
      */
-    int get_active_id() const
+    int active_id() const
     {
         return active;
     }
@@ -201,18 +215,8 @@ public:
      */
     void clear_disk_id()
     {
-        disk_id = -1;
+        _disk_id = -1;
         snapshot_template.erase("DISK_ID");
-    };
-
-    /**
-     *  Sets the disk id for this snapshot list
-     *    @param did the id
-     */
-    void set_disk_id(int did)
-    {
-        disk_id = did;
-        snapshot_template.replace("DISK_ID", did);
     };
 
     /**
@@ -222,6 +226,11 @@ public:
     {
         return snapshot_pool.size();
     };
+
+    unsigned int next() const
+    {
+        return next_snapshot;
+    }
 
     /**
      *  @return true if snapshot_pool is empty
@@ -246,14 +255,25 @@ public:
     /**
      *  @return total snapshot size (virtual) in mb
      */
-    long long get_total_size() const;
+    long long total_size() const;
 
     /**
      *  Get the size (virtual) in mb of the given snapshot
      *    @param id of the snapshot
      *    @return size or 0 if not found
      */
-    long long get_snapshot_size(int id) const;
+    long long snapshot_size(int id) const;
+
+    /**
+     * Return Snapshot children
+     *   @param if of the snapshot
+     *   @param children the attribute string
+     *   @return the number of children
+     *     -1 No snapshot
+     *      0 CHILDREN not defined
+     *      N number of children in "0,2,3,5" ---> 4
+     */
+    int children(int id, std::string& children) const;
 
     /**
      *  Get Attribute from the given snapshot
@@ -262,7 +282,7 @@ public:
      *
      *    @return value or empty if not found
      */
-    std::string get_snapshot_attribute(int id, const char* name) const;
+    std::string snapshot_attribute(int id, const char* name) const;
 
 private:
 
@@ -317,7 +337,7 @@ private:
     /**
      * Id of the disk associated with this snapshot list
      */
-    int disk_id;
+    int _disk_id;
 
     /**
      * Allow to remove parent snapshots and active one

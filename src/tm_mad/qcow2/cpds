@@ -98,7 +98,7 @@ if [ "${LCM_STATE}" = '26' ] && [ "${VM_MAD}" != "kvm" ]; then
 fi
 
 if [ "$FORMAT" = "qcow2" ]; then
-    CP_CMD="$QEMU_IMG convert $SRC_PATH -O qcow2 $DST_PATH"
+    CP_CMD="$QEMU_IMG convert \${SRC_PATH} -O qcow2 $DST_PATH"
 else
     CP_CMD="cp -f $SRC_PATH $DST_PATH"
 fi
@@ -131,10 +131,16 @@ fi
 CPDS_CMD=$(cat <<EOF
 set -e -o pipefail
 
-SRC_READLN=\$($READLINK -f $SRC_PATH)
+if [ -f "${SRC_PATH}.current" ]; then
+    SRC_PATH=\$(cat ${SRC_PATH}.current)
+else
+    SRC_PATH="${SRC_PATH}"
+fi
+
+SRC_READLN=\$($READLINK -f \${SRC_PATH})
 DST_READLN=\$($READLINK -f $DST_PATH)
 
-if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
+if [ \( -L \${SRC_PATH} \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
     echo "Not moving files to image repo, they are the same"
 else
     ${FREEZE_CP_CMD}

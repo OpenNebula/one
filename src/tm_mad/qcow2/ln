@@ -77,7 +77,7 @@ mkdir -p "${SNAP_DIR}"
 
 if [ ! -L "${SNAP_DIR}/${SNAP_NAME}" ]; then
     # backing file traversar link
-    ln -s . "${SNAP_DIR}/${SNAP_NAME}" # backing file traversar link
+    ln -s . "${SNAP_DIR}/${SNAP_NAME}"
 fi
 
 SNAP="\$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"

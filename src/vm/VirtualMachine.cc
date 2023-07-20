@@ -271,8 +271,6 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = DISK_SNAPSHOT_DELETE_POWEROFF;
     } else if ( st == "DISK_SNAPSHOT_SUSPENDED" ) {
         state = DISK_SNAPSHOT_SUSPENDED;
-    } else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED" ) {
-        state = DISK_SNAPSHOT_REVERT_SUSPENDED;
     } else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED" ) {
         state = DISK_SNAPSHOT_DELETE_SUSPENDED;
     } else if ( st == "DISK_SNAPSHOT" ) {
@@ -420,8 +418,6 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
         case DISK_SNAPSHOT_SUSPENDED:
             st = "DISK_SNAPSHOT_SUSPENDED"; break;
-        case DISK_SNAPSHOT_REVERT_SUSPENDED:
-            st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
         case DISK_SNAPSHOT_DELETE_SUSPENDED:
             st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
         case DISK_SNAPSHOT:
@@ -2734,7 +2730,7 @@ int VirtualMachine::from_xml(const string &xml_str)
             break;
         }
 
-        disks.set_snapshots(snap->get_disk_id(), snap);
+        disks.set_snapshots(snap->disk_id(), snap);
     }
 
     if (!content.empty())
@@ -3934,7 +3930,6 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
           lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
           lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
           lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED &&
           lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
           lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
           lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&

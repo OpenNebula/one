@@ -13,6 +13,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+#include <algorithm>
 
 #include "Snapshots.h"
 #include "NebulaUtil.h"
@@ -22,17 +23,17 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Snapshots::Snapshots(int _disk_id, AllowOrphansMode _orphans):
+Snapshots::Snapshots(int __disk_id, AllowOrphansMode _orphans):
     snapshot_template(false,'=',"SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
-    disk_id(_disk_id),
+    _disk_id(__disk_id),
     orphans(_orphans),
     current_base(-1)
 {
-    if (_disk_id != -1)
+    if (__disk_id != -1)
     {
-        snapshot_template.add("DISK_ID", _disk_id);
+        snapshot_template.add("DISK_ID", __disk_id);
     }
 
     snapshot_template.add("ALLOW_ORPHANS", allow_orphans_mode_to_str(_orphans));
@@ -46,7 +47,7 @@ Snapshots::Snapshots(const Snapshots& s):
     snapshot_template(s.snapshot_template),
     next_snapshot(0),
     active(-1),
-    disk_id(-1),
+    _disk_id(-1),
     orphans(DENY),
     current_base(-1)
 {
@@ -59,7 +60,7 @@ Snapshots& Snapshots::operator= (const Snapshots& s)
     {
         next_snapshot = s.next_snapshot;
         active        = s.active;
-        disk_id       = s.disk_id;
+        _disk_id      = s._disk_id;
         orphans       = s.orphans;
         current_base  = s.current_base;
 
@@ -119,7 +120,7 @@ void Snapshots::init()
 
     if (snapshot_template.get("DISK_ID", did))
     {
-        disk_id = did;
+        _disk_id = did;
     }
 
     snapshot_template.get("NEXT_SNAPSHOT", next_snapshot);
@@ -255,8 +256,6 @@ int Snapshots::add_child_deny(VectorAttribute *snapshot)
 
 void Snapshots::delete_snapshot(int id)
 {
-    int parent_id;
-
     VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == nullptr)
@@ -264,37 +263,92 @@ void Snapshots::delete_snapshot(int id)
         return;
     }
 
-    if (orphans == DENY || orphans == MIXED)
+    switch(orphans)
     {
-        snapshot->vector_value("PARENT", parent_id);
-
-        //Remove this snapshot from parent's children
-        if (parent_id != -1)
+        case DENY:
+        case MIXED:
         {
-            set<int> child_set;
+            int parent_id;
+
+            // -----------------------------------------------------------------
+            // Remove this snapshot from parent's children
+            // -----------------------------------------------------------------
+            snapshot->vector_value("PARENT", parent_id);
+
+            if (parent_id == -1)
+            {
+                break;
+            }
 
             VectorAttribute * parent = get_snapshot(parent_id);
 
-            if (parent != nullptr)
+            if (parent == nullptr)
             {
-                string children = parent->vector_value("CHILDREN");
+                break;
+            }
 
-                one_util::split_unique(children, ',', child_set);
+            string children = parent->vector_value("CHILDREN");
 
-                child_set.erase(id);
+            set<int> child_set;
 
-                children = one_util::join(child_set.begin(), child_set.end(), ',');
+            one_util::split_unique(children, ',', child_set);
 
-                if (children.empty())
+            child_set.erase(id);
+
+            // -----------------------------------------------------------------
+            // Add snapshot child to parent's children
+            //
+            // Only DENY for in-line chain removal of snapshots (1 child)
+            // -----------------------------------------------------------------
+            string my_children = snapshot->vector_value("CHILDREN");
+
+            set<int> my_child_set;
+
+            one_util::split_unique(my_children, ',', my_child_set);
+
+            if ( my_child_set.size() == 1 )
+            {
+                int child_id = *my_child_set.begin();
+
+                child_set.insert(child_id);
+
+                VectorAttribute * child = get_snapshot(child_id);
+
+                if ( child != nullptr )
                 {
-                    parent->remove("CHILDREN");
-                }
-                else
-                {
-                    parent->replace("CHILDREN", children);
+                    child->replace("PARENT", parent_id);
                 }
             }
+
+            children = one_util::join(child_set.begin(), child_set.end(), ',');
+
+            if (children.empty())
+            {
+                parent->remove("CHILDREN");
+            }
+            else
+            {
+                parent->replace("CHILDREN", children);
+            }
+
+            // -----------------------------------------------------------------
+            // Set parent to ACTIVE if this snapshot id the active one
+            //
+            // Only DENY when deleting the active snapshot
+            // -----------------------------------------------------------------
+            if (active == id)
+            {
+                active = parent_id;
+
+                parent->replace("ACTIVE", true);
+            }
+
+            break;
         }
+
+        case ALLOW:
+        case FORMAT: //At this point allow orpahn should be mapped to DENY/ALLOW
+            break;
     }
 
     snapshot_template.remove(snapshot);
@@ -382,7 +436,7 @@ const VectorAttribute * Snapshots::get_snapshot(int id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Snapshots::get_snapshot_attribute(int id, const char * name) const
+string Snapshots::snapshot_attribute(int id, const char * name) const
 {
     const VectorAttribute * snapshot = get_snapshot(id);
 
@@ -396,7 +450,7 @@ string Snapshots::get_snapshot_attribute(int id, const char * name) const
 
 /* -------------------------------------------------------------------------- */
 
-long long Snapshots::get_snapshot_size(int id) const
+long long Snapshots::snapshot_size(int id) const
 {
     long long snap_size = 0;
 
@@ -411,9 +465,38 @@ long long Snapshots::get_snapshot_size(int id) const
 }
 
 /* -------------------------------------------------------------------------- */
+
+static int children_count(const VectorAttribute *snap, std::string& children)
+{
+    if (snap == nullptr)
+    {
+        return -1;
+    }
+
+    children.clear();
+
+    if (snap->vector_value("CHILDREN", children) == -1 || children.empty())
+    {
+        return 0;
+    }
+
+    return std::count(children.begin(), children.end(), ',') + 1;
+}
+
+int Snapshots::children(int id, std::string& children) const
+{
+    if (id <= -1)
+    {
+        return -1;
+    }
+
+    return children_count(get_snapshot(id), children);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Snapshots::test_delete(int id, string& error) const
+bool Snapshots::test_delete_image(int id, string& error) const
 {
     bool   current;
     string children;
@@ -448,11 +531,111 @@ bool Snapshots::test_delete(int id, string& error) const
     return true;
 }
 
+/* -------------------------------------------------------------------------- */
+
+bool Snapshots::test_delete(int id, bool persistent, string& error) const
+{
+    string childs;
+    int    ccount, p_ccount, c_ccount, p_id, c_id;
+
+    const VectorAttribute * snapshot = get_snapshot(id);
+
+    if (snapshot == nullptr)
+    {
+        error = "Snapshot does not exist";
+        return false;
+    }
+
+    switch(orphans)
+    {
+        case DENY:
+            if ( persistent && id == 0 )
+            {
+                error = "Cannot delete snapshot 0 for persistent disk images";
+                return false;
+            }
+
+            ccount = children_count(snapshot, childs);
+
+            if ( ccount > 1 )
+            {
+                error = "Cannot delete snapshot with more than one children";
+                return false;
+            }
+            else if ( ccount == 0 )
+            {
+                return true;
+            }
+            else if ( ccount == 1 && active == id)
+            {
+                error = "Cannot delete the active snapshot with children";
+                return false;
+            }
+
+            // -------------------------------------------------------------
+            // Check the child (ccount == 1)
+            // -------------------------------------------------------------
+            if (snapshot->vector_value("CHILDREN", c_id) == 0)
+            {
+                c_ccount = children(c_id, childs);
+
+                if ( c_ccount > 1 || ( c_ccount == 1 && active == c_id ) )
+                {
+                    error = "Cannot delete snapshot if child has children";
+                    return false;
+                }
+            }
+
+            // -----------------------------------------------------------------
+            // Check the parent
+            // -----------------------------------------------------------------
+            if ( snapshot->vector_value("PARENT", p_id) == 0 && p_id != -1)
+            {
+                p_ccount = children(p_id, childs);
+
+                if ( p_ccount > 1 )
+                {
+                    error = "Cannot delete snapshot if parent has more than one child";
+                    return false;
+                }
+            }
+
+            break;
+
+        case MIXED:
+            if (id == active)
+            {
+                error = "Cannot delete the active snapshot";
+                return false;
+            }
+
+            ccount = children_count(snapshot, childs);
+
+            if (ccount != 0)
+            {
+                error = "Cannot delete snapshot with children";
+                return false;
+            }
+
+            break;
+
+        case ALLOW:
+            break;
+
+        case FORMAT:
+            //At this point allow orpahn should be mapped to DENY/ALLOW
+            error = "Inconsistent snapshot orphan mode";
+            return false;
+    }
+
+    return true;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long Snapshots::get_total_size() const
+long long Snapshots::total_size() const
 {
     long long size_mb, total_mb = 0;
 
