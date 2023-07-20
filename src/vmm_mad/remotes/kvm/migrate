@@ -76,9 +76,10 @@ create_target_disk_img() {
     local DEST_HOST=$1
     local QEMU_IMG_PATH="$2"
     local SIZE="$3"
+    local DISK_DIR=$(dirname $QEMU_IMG_PATH)
 
     ssh_monitor_and_log "$DEST_HOST" \
-        "qemu-img create -f qcow2 '$QEMU_IMG_PATH' '$SIZE'" \
+        "mkdir -p $DISK_DIR && qemu-img create -f qcow2 '$QEMU_IMG_PATH' '$SIZE'" \
         "Failed to create new qcow image for $QEMU_IMG_PATH"
 }
 
