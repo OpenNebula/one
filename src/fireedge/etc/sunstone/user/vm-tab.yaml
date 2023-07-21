@@ -10,7 +10,7 @@ resource_name: "VM"
 actions:
   create_dialog: true
   create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
-  deploy: true
+  deploy: false
   migrate: true
   migrate_live: true
   hold: true
@@ -39,6 +39,7 @@ actions:
   ssh: true
   rdp: true
   edit_labels: false
+  backup: true  
 
 # Filters - List of criteria to filter the resources
 
