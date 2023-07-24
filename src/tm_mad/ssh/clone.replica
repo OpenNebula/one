@@ -180,6 +180,13 @@ EOF
     else
         # when recovery running create only ". -> disk.X.snap" symlink
         MAKE_SNAP_CMD="cd $DST_PATH.snap; ln -s . $DST_FILE.snap"
+        MAKE_SNAP_CMD=$(cat <<EOF
+            if [ -d $DST_PATH.snap ]; then
+                cd $DST_PATH.snap
+                ln -s . $DST_FILE.snap ||:
+            fi
+EOF
+)
     fi
 fi
 
