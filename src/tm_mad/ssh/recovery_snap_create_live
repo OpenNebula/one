@@ -32,6 +32,7 @@ source ${DRIVER_PATH}/../../scripts_common.sh
 mkdir -p "${DISK_PATH}.snap"
 SNAP_PATH="${DISK_PATH}.snap/rs_tmp"
 DISK_NAME="$(basename $DISK_PATH)"
+REAL_DISK="$(dirname $DISK_PATH)/$(readlink $DISK_PATH)"
 
 if [ -f $SNAP_PATH ]; then
     SNAP_OLD=$(stat -c "%Y" $SNAP_PATH)
@@ -40,7 +41,18 @@ if [ -f $SNAP_PATH ]; then
         echo "$SNAP_OLD"
         exit 0
     else
-        rm $SNAP_PATH
+        # if rs_tmp is found in domain block devices -> last time
+        # the blockcommit failed, try again now and exit
+        if virsh -c ${LIBVIRT_URI} domblklist one-${VMID} | grep "snap/rs_tmp" ; then
+            virsh -c ${LIBVIRT_URI} blockcommit one-${VMID} $SNAP_PATH \
+                --base $REAL_DISK \
+                --top $SNAP_PATH \
+                --active --pivot --wait >/dev/null
+
+            exit 1
+        else
+            rm $SNAP_PATH
+        fi
     fi
 fi
 
@@ -59,7 +71,7 @@ fi
 DISKS=$(virsh -c ${LIBVIRT_URI} domblklist one-${VMID} | grep disk | awk '{print $2}')
 OTHER_DISK_STR=""
 for DISK in $DISKS; do
-    [ "$DISK" = "$DISK_PATH" ] && continue
+    [ "$DISK" = "$REAL_DISK" ] && continue
 
     OTHER_DISK_STR+="--diskspec $DISK,snapshot=no "
 done
@@ -69,7 +81,7 @@ done
 touch $SNAP_PATH
 SNAP_CMD=$(cat <<EOF
     virsh -c ${LIBVIRT_URI} snapshot-create-as one-${VMID} recovery_snap \
-    --diskspec $DISK_PATH,file=$SNAP_PATH \
+    --diskspec $REAL_DISK,file=$SNAP_PATH \
     $OTHER_DISK_STR \
     --disk-only --atomic --no-metadata
 EOF
@@ -78,17 +90,18 @@ EOF
 # try with quiesce first (needs guest agent)
 $SNAP_CMD --quiesce >/dev/null || $SNAP_CMD >/dev/null
 
-# copy base.1 to the replica
-ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap"
-rsync -q $DISK_PATH.snap/base.1 \
-     $REPLICA_HOST:$REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap/ > /dev/null
-
+# Once recovery_snap is created, always do blockcommit before end -> use trap
 # reduce the backing-chain using blockcommit
 # base <- base.1 <- rs_tmp is reduced to base <- base.1
 # outdated rs_tmp is deleted next cycle
-virsh -c ${LIBVIRT_URI} blockcommit one-${VMID} $SNAP_PATH \
-    --base $DISK_PATH.snap/base.1 \
+trap "virsh -c ${LIBVIRT_URI} blockcommit one-${VMID} $SNAP_PATH \
+    --base $REAL_DISK \
     --top $SNAP_PATH \
-    --active --pivot --wait >/dev/null
+    --active --pivot --wait >/dev/null" EXIT
+
+# copy base.1 to the replica
+ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap"
+rsync -q $REAL_DISK \
+     $REPLICA_HOST:$REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap/ > /dev/null
 
 stat -c "%Y" $SNAP_PATH

@@ -177,6 +177,9 @@ EOF
             create_base "$DST_PATH" "$DST_PATH" "mv"
 EOF
 )
+    else
+        # when recovery running create only ". -> disk.X.snap" symlink
+        MAKE_SNAP_CMD="cd $DST_PATH.snap; ln -s . $DST_FILE.snap"
     fi
 fi
 

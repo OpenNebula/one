@@ -73,8 +73,10 @@ $(type retry_if_no_error| grep -v 'is a function')
 mkdir -p "${SNAP_DIR}"
 touch $SNAP_PATH
 
+REAL_DISK="\$(dirname $SRC_PATH)/\$(readlink $SRC_PATH)"
+
 retry_if_no_error "active block job" 3 5  virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
-    --path ${SRC_PATH} --dest $SNAP_PATH --wait --finish
+    --path \${REAL_DISK} --dest $SNAP_PATH --wait --finish
 
 if [ -n "$REPLICA_HOST" ]; then
     ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
