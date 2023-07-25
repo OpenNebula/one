@@ -34,6 +34,11 @@ SNAP_PATH="${DISK_PATH}.snap/rs_tmp"
 DISK_NAME="$(basename $DISK_PATH)"
 REAL_DISK="$(dirname $DISK_PATH)/$(readlink $DISK_PATH)"
 
+if ! virsh -c ${LIBVIRT_URI} domblkinfo one-${VMID} "$REAL_DISK" &>/dev/null; then
+    # not a real disk in domain blockdevice -> upgrade to 6.6.3 or higher detected
+    REAL_DISK="$DISK_PATH"
+fi
+
 if [ -f $SNAP_PATH ]; then
     SNAP_OLD=$(stat -c "%Y" $SNAP_PATH)
 
