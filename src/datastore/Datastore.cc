@@ -500,6 +500,13 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
             replace_template_attribute("DRIVER", st);
         }
 
+        st = vatt->vector_value("DISK_TYPE");
+
+        if (!st.empty())
+        {
+            replace_template_attribute("DISK_TYPE", st);
+        }
+
         remove_template_attribute("SHARED");
     }
 
