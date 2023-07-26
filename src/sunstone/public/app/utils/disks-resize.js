@@ -231,6 +231,9 @@ define(function(require){
             OPENNEBULA_MANAGED: disk.OPENNEBULA_MANAGED,
             RECOVERY_SNAPSHOT_FREQ: disk.RECOVERY_SNAPSHOT_FREQ
           }
+          if(disk.DEV_PREFIX){
+            newDisk["DEV_PREFIX"] = disk.DEV_PREFIX
+          }
           newDisk["SIZE"] = fields.SIZE // Always send the value of the size, as the default form has the value of the template
           disks.push(newDisk)
         } else {
