@@ -129,7 +129,7 @@ CommandParser::CmdParser.new(ARGV) do
         Examples:
           - using a template description file:
 
-            onebackupjob create centOS.tmpl
+            onebackupjob create weekly_backup.tmpl
     EOT
 
     command :create,
@@ -243,7 +243,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     list_desc = <<-EOT.unindent
-        Lists Backup Jobs in the pool
+        Lists Backup Jobs in the pool. #{OneBackupJobHelper.list_layout_help}
     EOT
 
     command :list, list_desc, [:filterflag, nil], :options => list_options do
@@ -260,7 +260,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     lock_desc = <<-EOT.unindent
-        Locks an Backup Job to prevent certain actions defined by different levels.
+        Locks a Backup Job to prevent certain actions defined by different levels.
         The show action will never be locked.
         Levels:
         [Use]: locks Admin, Manage and Use actions.
@@ -312,7 +312,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     cancel_desc = <<-EOT.unindent
-        Cancel pending Backup Job, removing Virtual Machines from the waiting list
+        Cancel pending Backup Job, remove Virtual Machines from the outdated list,
+        call cancel action on all ongoing VM backup operations.
     EOT
 
     command :cancel, cancel_desc, [:range, :backupjobid_list] do
@@ -322,7 +323,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     retry_desc = <<-EOT.unindent
-        Retry failed Backup Job. Trigger backup on Virtual Machines from error list.
+        Retry failed Backup Job. Trigger backup for Virtual Machines from error list.
     EOT
 
     command :retry, retry_desc, [:range, :backupjobid_list] do
@@ -343,7 +344,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     sched_delete_desc = <<-EOT.unindent
-        Remove Scheduled Action from Backup Job.
+        Remove a Scheduled Action from the Backup Job.
     EOT
 
     command :"sched-delete", sched_delete_desc, :bjid, :schedid do
@@ -355,7 +356,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     sched_update_desc = <<-EOT.unindent
-        Start the Backup Job execution.
+        Update a Scheduled Action for the Backup Job.
     EOT
 
     command :"sched-update", sched_update_desc, :bjid, :schedid,
