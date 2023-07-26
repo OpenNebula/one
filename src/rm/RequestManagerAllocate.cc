@@ -328,7 +328,7 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Create ScheduleAction and associate to the BackupJob                   */
+    /* Create ScheduleAction and associate to the VM                          */
     /* ---------------------------------------------------------------------- */
     for (const auto& sa : sas)
     {
@@ -354,7 +354,7 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Associate SCHED_ACTIONS to the BackupJob                               */
+    /* Associate SCHED_ACTIONS to the VM                                      */
     /* ---------------------------------------------------------------------- */
     if ( auto vm = vmpool->get(id) )
     {
@@ -1493,8 +1493,10 @@ Request::ErrorCode BackupJobAllocate::pool_allocate(
 
     bool sa_error = false;
 
-    for (const auto& sa : sas)
+    for (auto& sa : sas)
     {
+        sa->remove("ARGS");  // ARGS not used for Backup Job Scheduled Action
+
         int sa_id = sapool->allocate(PoolObjectSQL::BACKUPJOB, id, 0, sa.get(),
                 att.resp_msg);
 

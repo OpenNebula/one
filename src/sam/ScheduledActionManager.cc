@@ -647,6 +647,11 @@ int ScheduledActionManager::vm_action_call(int vmid, int sa_id, string& error)
         int dsid = -1;
         bool reset = false;
 
+        if (args.size() == 1)
+        {
+            args.push("0"); // For backward compatibility set reset = false
+        }
+
         if (!parse_args(args, dsid, reset))
         {
             error = "Missing or malformed ARGS for: backup."

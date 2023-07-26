@@ -226,7 +226,7 @@ void BackupJobSchedAdd::request_execute(xmlrpc_c::paramList const& _paramList,
         return;
     }
 
-    const VectorAttribute * va = tmpl->get("SCHED_ACTION");
+    VectorAttribute * va = tmpl->get("SCHED_ACTION");
 
     if ( va == nullptr )
     {
@@ -235,6 +235,8 @@ void BackupJobSchedAdd::request_execute(xmlrpc_c::paramList const& _paramList,
         failure_response(ACTION, att);
         return;
     }
+
+    va->remove("ARGS"); // ARGS not used for Backup Job Scheduled Action
 
     auto sa_id = sapool->allocate(PoolObjectSQL::BACKUPJOB, bj_id, time(0), va, att.resp_msg);
 
