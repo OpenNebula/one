@@ -1077,19 +1077,15 @@ function get_disk_information {
                       </auth>"
             fi
             ;;
+        BLOCK)
+            TYPE_SOURCE="dev"
+            TYPE_XML="block"
+            DEVICE="disk"
+            ;;
         *)
-            case "$DISK_TM_MAD" in
-            fs_lvm)
-                TYPE_SOURCE="dev"
-                TYPE_XML="block"
-                DEVICE="disk"
-                ;;
-            *)
-                TYPE_SOURCE="file"
-                TYPE_XML="file"
-                DEVICE="disk"
-                ;;
-            esac
+            TYPE_SOURCE="file"
+            TYPE_XML="file"
+            DEVICE="disk"
             ;;
 
         esac
