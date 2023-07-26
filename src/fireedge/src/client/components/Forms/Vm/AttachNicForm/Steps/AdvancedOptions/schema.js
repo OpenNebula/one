@@ -438,7 +438,16 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
     type: INPUT_TYPES.SELECT,
     values: () => {
       const { data: hosts = [] } = useGetHostsQuery()
-      const pciDevices = hosts.map(getPciDevices).flat()
+      const pciDevices = hosts
+        .map(getPciDevices)
+        .flat()
+        .reduce(
+          (currentPCIS, newDevice) =>
+            currentPCIS.some((pci) => pci.ADDRESS === newDevice.ADDRESS) // Filter out devices with the same address
+              ? currentPCIS
+              : [...currentPCIS, newDevice],
+          []
+        )
 
       return arrayToOptions(pciDevices, {
         getText: ({ DEVICE_NAME } = {}) => DEVICE_NAME,
