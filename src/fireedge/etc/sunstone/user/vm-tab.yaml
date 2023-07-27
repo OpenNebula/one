@@ -138,6 +138,9 @@ info-tabs:
       snapshot_revert: true
       snapshot_delete: true
 
+  backup:
+    enabled: true
+
   history:
     enabled: true
 
