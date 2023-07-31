@@ -476,7 +476,10 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
         "INBOUND_PEAK_KB",
         "OUTBOUND_AVG_BW",
         "OUTBOUND_PEAK_BW",
-        "OUTBOUND_PEAK_KB"
+        "OUTBOUND_PEAK_KB",
+        //SRIOV
+        "SPOOFCHK",
+        "TRUST"
     };
 
     // Adds list of updated values to "VNET_UPDATE" attribute in the

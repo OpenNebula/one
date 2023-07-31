@@ -31,8 +31,8 @@ begin
     ovs = OpenvSwitchVLAN.from_base64(template64, xpath_filter, deploy_id)
     ovs.update(vn_id)
 
-    # TODO: Implement update for vf
-    # filter_driver.activate_vf(filter_driver.vm)
+    # VF - Related changes
+    ovs.update_vf(ovs.vm, vn_id)
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)

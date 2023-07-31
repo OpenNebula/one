@@ -21,9 +21,10 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'vnmmad'
 
-template64 = STDIN.read
+template64   = STDIN.read
+xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
-hm = VNMMAD::VNMDriver.from_base64(template64)
+hm = VNMMAD::VNMDriver.from_base64(template64, xpath_filter)
 
 hm.activate_vf(hm.vm)
 

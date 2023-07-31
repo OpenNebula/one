@@ -24,15 +24,15 @@ require 'vnmmad'
 template64   = STDIN.read
 deploy_id    = ARGV[0]
 vn_id        = Integer(ARGV[1])
-xpath_filter = "TEMPLATE/NIC[VN_MAD='fw']"
+xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
 begin
     # PRE - Related changes
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.update(vn_id)
 
-    # TODO: Implement update for vf
-    # filter_driver.activate_vf(filter_driver.vm)
+    #VF - Related changes
+    hm.update_vf(hm.vm, vn_id)
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
