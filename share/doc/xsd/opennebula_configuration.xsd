@@ -295,6 +295,7 @@
               <xs:element name="CLONE_TARGET" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="CLONE_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="CLONE_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DISK_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DISK_TYPE_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DISK_TYPE_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DRIVER" type="xs:string" minOccurs="0" maxOccurs="1"/>
