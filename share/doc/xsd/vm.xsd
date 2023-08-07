@@ -284,6 +284,7 @@
               <xs:element name="BACKUP_CONFIG" minOccurs="1" maxOccurs="1">
                 <xs:complexType>
                   <xs:sequence>
+                    <xs:element name="BACKUP_JOB_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="BACKUP_VOLATILE" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="INCREMENTAL_BACKUP_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>

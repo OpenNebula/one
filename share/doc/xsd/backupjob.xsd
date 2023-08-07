@@ -31,6 +31,7 @@
               <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="KEEP_LAST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="RESET" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SCHED_ACTION" type="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
           </xs:complexType>
