@@ -1938,16 +1938,17 @@ int LibVirtDriver::deployment_description_kvm(
                 << "/>\n";
             file << "\t\t\t</source>\n";
 
-            if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
-                    !vm_func.empty() )
-            {
-                file << "\t\t\t\t<address type='pci'"
-                        << " domain="   << one_util::escape_xml_attr(vm_domain)
-                        << " bus="      << one_util::escape_xml_attr(vm_bus)
-                        << " slot="     << one_util::escape_xml_attr(vm_slot)
-                        << " function=" << one_util::escape_xml_attr(vm_func)
-                    << "/>\n";
-            }
+        }
+
+        if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
+                !vm_func.empty() )
+        {
+            file << "\t\t\t\t<address type='pci'"
+                    << " domain="   << one_util::escape_xml_attr(vm_domain)
+                    << " bus="      << one_util::escape_xml_attr(vm_bus)
+                    << " slot="     << one_util::escape_xml_attr(vm_slot)
+                    << " function=" << one_util::escape_xml_attr(vm_func)
+                << "/>\n";
         }
 
         file << "\t\t</hostdev>" << endl;
