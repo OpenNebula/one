@@ -19,6 +19,7 @@
 # Module to use as mixin for configuring VFs
 ###########################################################################
 module VNMMAD::VirtualFunction
+
     # Attributes that can be updated on update_nic action
     SUPPORTED_UPDATE = [
         :vlan_id,
@@ -169,12 +170,13 @@ module VNMMAD::VirtualFunction
 
         pf_dev.strip!
 
-        return pf_dev, m[1]
+        [pf_dev, m[1]]
     end
 
     # Generate ip link attributes for the VF
+    # rubocop:disable Naming/AccessorMethodName
     def set_ip_links(pci)
-        cmd = ""
+        cmd = ''
 
         # if no vlan id is set use 0 to reset it
         vlan_id = if pci[:vlan_id]
@@ -190,6 +192,7 @@ module VNMMAD::VirtualFunction
 
         cmd
     end
+    # rubocop:enable Naming/AccessorMethodName
 
 end
 # rubocop:enable Style/ClassAndModuleChildren
