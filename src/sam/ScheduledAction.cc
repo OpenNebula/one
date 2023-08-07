@@ -155,7 +155,7 @@ int ScheduledAction::parse(const VectorAttribute * va, time_t origin, string& er
         }
         else
         {
-            error_str = "Wrong REPEAT value: " + tmp_int;
+            error_str = "Wrong REPEAT value: " + to_string(tmp_int);
             return -1;
         }
     }
@@ -185,7 +185,7 @@ int ScheduledAction::parse(const VectorAttribute * va, time_t origin, string& er
         }
         else
         {
-            error_str = "Wrong END_TYPE value: " + tmp_int;
+            error_str = "Wrong END_TYPE value: " + to_string(tmp_int);
             return -1;
         }
     }
@@ -489,7 +489,11 @@ time_t ScheduledAction::parse_time(std::string str_time, time_t origin)
 
     std::istringstream iss;
 
-    if ( str_time[0] == '+' )
+    if ( origin == 0 && str_time[0] == '+')
+    {
+        return -1;
+    }
+    else if ( str_time[0] == '+' )
     {
         str_time.erase(0, 1);
     }

@@ -232,6 +232,17 @@ public:
         return _sched_actions;
     }
 
+    /**
+     *  Append new attributes to the *user template*.
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int append_template(const std::string& tmpl_str, bool keep_restricted,
+            std::string& error) override;
+
     friend class BackupJobPool;
     friend class PoolSQL;
 
@@ -244,9 +255,7 @@ protected:
      */
     int post_update_template(std::string& error) override
     {
-        parse();
-
-        return 0;
+        return parse(error);
     }
 
     // *************************************************************************
@@ -348,7 +357,7 @@ private:
      * This method also updates the VMs collections removing those VMs no longer
      * present in BACKUP_VMS
      */
-    void parse();
+    int parse(std::string& error);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -357,6 +366,29 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int from_xml(const std::string &xml_str) override;
+
+    /**
+     * Check if the VM belongs only to one Backup Job.
+     * Assign Backup Job ID to added Virtual Machines, remove ID for removed VMs.
+     *   @param vms_new_str New value of BACKUP_VMS attribute
+     *   @param vms_old_str Old value of BACKUP_VMS attribute
+     *   @param error string describing the error if any
+     *   @return 0 on success, -1 otherwise
+     */
+    int process_backup_vms(const std::string& vms_new_str,
+                           const std::string& vms_old_str,
+                                 std::string& error);
+
+    /**
+     * Remove Backup Job ID from Virtual Machines listed in BACKUP_VMS attribute
+     */
+    void remove_id_from_vms();
+
+    /**
+     * Remove Backup Job ID from Virtual Machines
+     *   @param vms Virtual Machine IDs to remove the Backup Job ID
+     */
+    void remove_id_from_vms(const std::set<unsigned int>& vms);
 };
 
 #endif /*BACKUP_JOB_H_*/

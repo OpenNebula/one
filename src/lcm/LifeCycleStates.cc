@@ -2713,6 +2713,11 @@ static int create_backup_image(VirtualMachine * vm, string& msg)
     itmp->add("VM_ID",  vm->get_oid());
     itmp->add("TYPE",   Image::type_to_str(Image::BACKUP));
 
+    if (backups.backup_job_id() != -1)
+    {
+        itmp->add("BACKUP_JOB_ID", backups.backup_job_id());
+    }
+
     int rc = ipool->allocate(vm->get_uid(),
                              vm->get_gid(),
                              vm->get_uname(),

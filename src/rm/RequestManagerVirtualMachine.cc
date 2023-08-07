@@ -4052,6 +4052,27 @@ void VirtualMachineBackup::request_execute(
         reset = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
+    if ( auto vm = pool->get_ro<VirtualMachine>(vm_id) )
+    {
+        int bj_id = vm->backups().backup_job_id();
+
+        if ( bj_id != -1)
+        {
+            att.resp_msg = "Unable to start an individual backup for the Virtual Machine"
+                ", it is part of Backup Job ID " + to_string(bj_id);
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+    else
+    {
+        att.resp_id  = vm_id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
     auto ec = request_execute(att, vm_id, backup_ds_id, reset);
 
     if ( ec == Request::SUCCESS)

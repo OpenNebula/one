@@ -283,8 +283,6 @@ public:
 
         config.erase("LAST_BACKUP_ID");
         config.erase("LAST_BACKUP_SIZE");
-
-        config.erase("BACKUP_JOB_ID");
     }
 
     /**
@@ -311,6 +309,11 @@ public:
         {
             riids.insert(*it);
         }
+    }
+
+    void remove_backup_job_id()
+    {
+        config.erase("BACKUP_JOB_ID");
     }
 
     /**

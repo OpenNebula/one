@@ -75,6 +75,15 @@ public:
         return bj->update(db);
     }
 
+    int drop(PoolObjectSQL * objsql, std::string& error_msg) override
+    {
+        BackupJob *bj = static_cast<BackupJob*>(objsql);
+
+        bj->remove_id_from_vms();
+
+        return PoolSQL::drop(objsql, error_msg);
+    }
+
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database). The object is locked, other threads can't access the same
@@ -96,33 +105,6 @@ public:
     std::unique_ptr<BackupJob> get_ro(int oid)
     {
         return PoolSQL::get_ro<BackupJob>(oid);
-    }
-
-    /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database). The object is locked, other threads can't access the same
-     *  object. The lock is released by destructor.
-     *   @param name of the object
-     *   @param uid id of owner
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    std::unique_ptr<BackupJob> get(const std::string& name, int uid)
-    {
-        return PoolSQL::get<BackupJob>(name,uid);
-    }
-
-    /**
-     *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database). No object lock, other threads may work with the same object.
-     *   @param name of the object
-     *   @param uid id of owner
-     *
-     *   @return a pointer to the object, 0 in case of failure
-     */
-    std::unique_ptr<BackupJob> get_ro(const std::string& name, int uid)
-    {
-        return PoolSQL::get_ro<BackupJob>(name, uid);
     }
 
     /**

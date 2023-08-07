@@ -17,9 +17,9 @@
 #include "BackupJob.h"
 #include "OneDB.h"
 #include "NebulaUtil.h"
-#include "NebulaLog.h"
 #include "Nebula.h"
 #include "ScheduledActionPool.h"
+#include "VirtualMachinePool.h"
 
 using namespace std;
 
@@ -87,7 +87,10 @@ int BackupJob::insert(SqlDB *db, std::string& error_str)
 {
     erase_template_attribute("NAME", name);
 
-    parse();
+    if (parse(error_str) != 0)
+    {
+        return -1;
+    }
 
     return insert_replace(db, false, error_str);
 }
@@ -250,7 +253,6 @@ int BackupJob::from_xml(const std::string &xml_str)
 
     if (content.empty())
     {
-        NebulaLog::info("BCK", "BackupJob TEMPLATE does not exists");
         return -1;
     }
 
@@ -464,7 +466,33 @@ void BackupJob::get_backup_config(Template &tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void BackupJob::parse()
+int BackupJob::append_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
+{
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+    string new_str, backup_vms;
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        return -1;
+    }
+
+    // Store old BACKUP_VMS value, to detect changes in post_update_template
+    get_template_attribute("BACKUP_VMS", backup_vms);
+
+    new_tmpl->replace("BACKUP_VMS_OLD", backup_vms);
+
+    new_tmpl->to_xml(new_str);
+
+    return PoolObjectSQL::append_template(new_str, keep_restricted, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int BackupJob::parse(string& error)
 {
     string sattr;
     int    iattr;
@@ -537,8 +565,10 @@ void BackupJob::parse()
     // -------------------------------------------------------------------------
     std::vector<unsigned int> vms;
 
-    if ( erase_template_attribute("BACKUP_VMS", sattr) != 0 && !sattr.empty() )
+    if ( erase_template_attribute("BACKUP_VMS", sattr) != 0 )
     {
+        string sattr_old;
+
         one_util::split(sattr, ',', vms);
 
         auto last = std::unique(vms.begin(), vms.end());
@@ -546,6 +576,13 @@ void BackupJob::parse()
         vms.erase(last, vms.end());
 
         sattr = one_util::join(vms, ',');
+
+        erase_template_attribute("BACKUP_VMS_OLD", sattr_old);
+
+        if (process_backup_vms(sattr, sattr_old, error) != 0)
+        {
+            return -1;
+        }
     }
     else
     {
@@ -556,8 +593,13 @@ void BackupJob::parse()
 
     if (sattr.empty())
     {
-        return;
+        return 0;
     }
+
+    // -------------------------------------------------------------------------
+    // Remove SCHED_ACTION, it can be updated only by Scheduled Actions API
+    // -------------------------------------------------------------------------
+    remove_template_attribute("SCHED_ACTION");
 
     // -------------------------------------------------------------------------
     // Update collections if VMs are no longer in BACKUP_VM
@@ -572,4 +614,137 @@ void BackupJob::parse()
     _backing_up.del_not_present(base);
 
     _error.del_not_present(base);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int BackupJob::process_backup_vms(const std::string& vms_new_str,
+                                  const std::string& vms_old_str,
+                                        std::string& error)
+{
+    set<unsigned int> vms_old;
+    set<unsigned int> vms_new;
+    set<unsigned int> vms_added;
+    set<unsigned int> vms_deleted;
+
+    auto bjid     = get_oid();
+    bool is_error = false;
+
+    auto vmpool = Nebula::instance().get_vmpool();
+
+    one_util::split_unique(vms_new_str, ',', vms_new);
+    one_util::split_unique(vms_old_str, ',', vms_old);
+
+    set_difference(vms_new.begin(), vms_new.end(),
+                   vms_old.begin(), vms_old.end(),
+                   inserter(vms_added, vms_added.begin()));
+    set_difference(vms_old.begin(), vms_old.end(),
+                   vms_new.begin(), vms_new.end(),
+                   inserter(vms_deleted, vms_deleted.begin()));
+
+    // Add Backup Job ID to added VMs
+    for (auto vmid : vms_added)
+    {
+        auto vm = vmpool->get(vmid);
+
+        if (!vm)
+        {
+            continue;
+        }
+
+        auto& backups = vm->backups();
+
+        if (backups.backup_job_id() != -1 &&
+            backups.backup_job_id() != bjid)
+        {
+            ostringstream oss;
+
+            is_error = true;
+
+            oss << "Unable to add VM " << vmid << " to Backup Job "
+                << bjid << ". It's already in Backup Job " << backups.backup_job_id();
+
+            error = oss.str();
+
+            break;
+        }
+
+        backups.backup_job_id(bjid);
+
+        vmpool->update(vm.get());
+    }
+
+    if (is_error)
+    {
+        // Revert Backup Job ID from added VMs
+        for (auto vmid : vms_added)
+        {
+            auto vm = vmpool->get(vmid);
+
+            if (!vm || vm->backups().backup_job_id() != bjid)
+            {
+                continue;
+            }
+
+            vm->backups().remove_backup_job_id();
+
+            vmpool->update(vm.get());
+        }
+
+        return -1;
+    }
+
+    // Remove Backup Job ID from removed VMs
+    remove_id_from_vms(vms_deleted);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void BackupJob::remove_id_from_vms()
+{
+    string sattr;
+    set<unsigned int> vms;
+
+    get_template_attribute("BACKUP_VMS", sattr);
+    one_util::split_unique(sattr, ',', vms);
+
+    remove_id_from_vms(vms);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void BackupJob::remove_id_from_vms(const set<unsigned int>& vms)
+{
+    auto vmpool = Nebula::instance().get_vmpool();
+
+    auto bjid = get_oid();
+
+    // Remove Backup Job ID from VMs
+    for (auto vmid : vms)
+    {
+        auto vm = vmpool->get(vmid);
+
+        if (!vm || vm->backups().backup_job_id() != bjid)
+        {
+            continue;
+        }
+
+        auto& backups = vm->backups();
+        backups.remove_backup_job_id();
+
+        if (backups.mode() == Backups::INCREMENT)
+        {
+            backups.incremental_backup_id(-1);
+            backups.last_increment_id(-1);
+        }
+
+        vmpool->update(vm.get());
+    }
 }
