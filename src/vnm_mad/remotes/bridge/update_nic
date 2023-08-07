@@ -31,7 +31,7 @@ begin
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.update(vn_id)
 
-    #VF - Related changes
+    # VF - Related changes
     hm.update_vf(hm.vm, vn_id)
 rescue StandardError => e
     OpenNebula.log_error(e.message)
