@@ -233,6 +233,12 @@ define(function(require){
           if(disk.DEV_PREFIX){
             newDisk["DEV_PREFIX"] = disk.DEV_PREFIX
           }
+          if(disk.CACHE){
+            newDisk["CACHE"] = disk.CACHE
+          }
+          if(disk.DISCARD){
+            newDisk["DISCARD"] = disk.DISCARD
+          }
           newDisk["SIZE"] = fields.SIZE // Always send the value of the size, as the default form has the value of the template
           disks.push(newDisk)
         } else {
