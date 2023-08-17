@@ -244,16 +244,29 @@ define(function(require) {
       if(
         user &&
         user.DATASTORE_QUOTA &&
-        user.DATASTORE_QUOTA.DATASTORE &&
-        user.DATASTORE_QUOTA.DATASTORE.SIZE &&
-        user.DATASTORE_QUOTA.DATASTORE.SIZE_USED
+        user.DATASTORE_QUOTA.DATASTORE
       ){
-        var datastore = QuotaWidgets.quotaInfo(
-          user.DATASTORE_QUOTA.DATASTORE.SIZE_USED,
-          user.DATASTORE_QUOTA.DATASTORE.SIZE);
-        $("#provision_dashboard_datastore_percentage").html(datastore["percentage"]);
-        $("#provision_dashboard_datastore_str").html(datastore["str"]);
-        $("#provision_dashboard_datastore_meter").val(datastore["percentage"]);
+        var used = 0;
+        var size = 0;
+        var datastores = user.DATASTORE_QUOTA.DATASTORE;
+        if(Array.isArray(datastores)){
+          datastores.map(function(datastore){
+            if(datastore.SIZE_USED){
+              used = used + parseInt(datastore.SIZE_USED,10);
+            }
+            if(datastore.SIZE){
+              var sizeValue = parseInt(datastore.SIZE, 10)
+              size = size + (sizeValue > 0 ?  sizeValue : 0)
+            }
+          });
+        }else{
+          used = parseInt(datastores.SIZE_USED,10);
+          size = parseInt(datastores.SIZE,10);
+        }
+        var ds = QuotaWidgets.quotaInfo(used, size);
+        $("#provision_dashboard_datastore_percentage").html(ds["percentage"]);
+        $("#provision_dashboard_datastore_str").html(ds["str"]);
+        $("#provision_dashboard_datastore_meter").val(ds["percentage"]);
       }
     }
 
