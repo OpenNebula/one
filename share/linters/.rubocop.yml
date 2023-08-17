@@ -796,6 +796,9 @@ Style/RedundantFilterChain:
 Style/ReturnNilInPredicateMethodDefinition:
   Enabled: false
 
+Style/RedundantReturn:
+  Enabled: false
+
 ######
 # LINT
 ######
