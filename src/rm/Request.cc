@@ -460,9 +460,12 @@ void Request::execute(
 
     std::string event = HookAPI::format_message(method_name, pl, att);
 
-    if (!event.empty())
+    if (!nd.is_cache())
     {
-        hm->trigger_send_event(event);
+        if (!event.empty())
+        {
+            hm->trigger_send_event(event);
+        }
     }
 
     if ( log_method_call )
