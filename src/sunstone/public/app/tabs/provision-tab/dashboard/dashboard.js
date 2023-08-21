@@ -263,7 +263,7 @@ define(function(require) {
           used = parseInt(datastores.SIZE_USED,10);
           size = parseInt(datastores.SIZE,10);
         }
-        var ds = QuotaWidgets.quotaInfo(used, size);
+        var ds = QuotaWidgets.quotaMBInfo(used, size);
         $("#provision_dashboard_datastore_percentage").html(ds["percentage"]);
         $("#provision_dashboard_datastore_str").html(ds["str"]);
         $("#provision_dashboard_datastore_meter").val(ds["percentage"]);
