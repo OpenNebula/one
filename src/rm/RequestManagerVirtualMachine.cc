@@ -2905,14 +2905,6 @@ void VirtualMachineUpdateNic::request_execute(
 
             return;
         }
-
-        if (nic->is_pci())
-        {
-            att.resp_msg = "Action not supported for PCI NIC";
-            failure_response(ACTION, att);
-
-            return;
-        }
     }
     else
     {
