@@ -13,9 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CircleChart from 'client/components/Charts/CircleChart'
-import SingleBar from 'client/components/Charts/SingleBar'
-import Chartist from 'client/components/Charts/Chartist'
-import MultiChart from 'client/components/Charts/MultiChart/index'
+import Papa from 'papaparse'
 
-export { CircleChart, SingleBar, Chartist, MultiChart }
+/**
+ * Exports the provided data as a CSV file.
+ *
+ * @function
+ * @param {Array<object>} data - An array of datasets containing data to be exported.
+ * @returns {Error} - Returns the error to the Exporter component to enqueue it.
+ */
+export const exportDataToCSV = (data) => {
+  try {
+    const csvData = data.flatMap((item) => item.data)
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.setAttribute('hidden', '')
+    a.setAttribute('href', url)
+    a.setAttribute(
+      'download',
+      data[0]?.label
+        ? `${data[0].label.replace(/ /g, '')}_report.csv`
+        : 'one_report.csv'
+    )
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  } catch (error) {
+    return error
+  }
+}

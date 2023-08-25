@@ -36,6 +36,19 @@ const css = {
   use: ['style-loader', 'css-loader'],
 }
 
+const images = {
+  test: /\.(png|jpe?g|gif)$/i,
+  use: [
+    {
+      loader: 'file-loader',
+      options: {
+        name: '[path][name].[ext]',
+        outputPath: 'assets/images/',
+      },
+    },
+  ],
+}
+
 /**
  * Bundle app.
  *
@@ -90,7 +103,7 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
       minimizer: [new TerserPlugin({ extractComments: false })],
     },
     module: {
-      rules: [js, css],
+      rules: [js, css, images],
     },
   }
 }

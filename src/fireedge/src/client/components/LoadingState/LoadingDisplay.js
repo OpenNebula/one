@@ -13,9 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CircleChart from 'client/components/Charts/CircleChart'
-import SingleBar from 'client/components/Charts/SingleBar'
-import Chartist from 'client/components/Charts/Chartist'
-import MultiChart from 'client/components/Charts/MultiChart/index'
+import PropTypes from 'prop-types'
+import React from 'react'
+import { Box, Typography } from '@mui/material'
+import { InfoEmpty, CloudError } from 'iconoir-react'
 
-export { CircleChart, SingleBar, Chartist, MultiChart }
+/**
+ * Renders a display message based on the presence of an error.
+ *
+ * @param {object} props - The properties for the component.
+ * @param {boolean} props.error - Indicates if there was an error fetching data.
+ * @returns {React.Component} The rendered loading display component.
+ */
+export const LoadingDisplay = ({ error }) => {
+  const displayMessage = error ? 'Error fetching data' : 'No data available'
+  const DisplayIcon = error ? CloudError : InfoEmpty
+
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      height="500px"
+      borderRadius={4}
+      boxShadow={2}
+      padding={3}
+    >
+      <DisplayIcon style={{ fontSize: 40 }} />
+      <Typography variant="h6" color="textSecondary" marginTop={2}>
+        {displayMessage}
+      </Typography>
+    </Box>
+  )
+}
+
+LoadingDisplay.propTypes = {
+  error: PropTypes.bool,
+}

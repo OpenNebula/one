@@ -13,9 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CircleChart from 'client/components/Charts/CircleChart'
-import SingleBar from 'client/components/Charts/SingleBar'
-import Chartist from 'client/components/Charts/Chartist'
-import MultiChart from 'client/components/Charts/MultiChart/index'
+import {
+  processDataForChart,
+  transformApiResponseToDataset,
+  filterDataset,
+} from 'client/components/Charts/MultiChart/helpers/scripts/dataProcessing'
+import {
+  generateColorByMetric,
+  GetChartDefs,
+} from 'client/components/Charts/MultiChart/helpers/scripts/chartDefs'
+import { exportDataToPDF } from 'client/components/Charts/MultiChart/helpers/scripts/exportPDF'
+import { exportDataToCSV } from 'client/components/Charts/MultiChart/helpers/scripts/exportCSV'
 
-export { CircleChart, SingleBar, Chartist, MultiChart }
+export {
+  processDataForChart,
+  transformApiResponseToDataset,
+  filterDataset,
+  generateColorByMetric,
+  GetChartDefs,
+  exportDataToPDF,
+  exportDataToCSV,
+}
