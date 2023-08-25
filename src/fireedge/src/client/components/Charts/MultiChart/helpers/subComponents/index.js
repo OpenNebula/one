@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import CircleChart from 'client/components/Charts/CircleChart'
-import SingleBar from 'client/components/Charts/SingleBar'
-import Chartist from 'client/components/Charts/Chartist'
-import MultiChart from 'client/components/Charts/MultiChart/index'
+import { ChartRenderer } from 'client/components/Charts/MultiChart/helpers/subComponents/ChartRenderer'
+import { NavigationController } from 'client/components/Charts/MultiChart/helpers/subComponents/NavigationController'
+import { ExportButton } from 'client/components/Charts/MultiChart/helpers/subComponents/Exporter'
 
-export { CircleChart, SingleBar, Chartist, MultiChart }
+export { ChartRenderer, NavigationController, ExportButton }

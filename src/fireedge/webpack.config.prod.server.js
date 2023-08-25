@@ -41,6 +41,19 @@ const css = {
   ],
 }
 
+const images = {
+  test: /\.(png|jpe?g|gif)$/i,
+  use: [
+    {
+      loader: 'file-loader',
+      options: {
+        name: '[path][name].[ext]',
+        outputPath: 'assets/images/',
+      },
+    },
+  ],
+}
+
 const worker = {
   test: /\.worker\.js$/,
   loader: 'worker-loader',
@@ -79,6 +92,6 @@ module.exports = {
     minimizer: [new TerserPlugin({ extractComments: false })],
   },
   module: {
-    rules: [js, worker, css],
+    rules: [js, worker, css, images],
   },
 }
