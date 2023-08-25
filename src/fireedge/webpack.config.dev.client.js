@@ -52,6 +52,10 @@ const getDevConfiguration = () => {
         path: path.resolve(__dirname, 'dist'),
         publicPath: `${appName}/client`,
       },
+      watchOptions: {
+        poll: 1000,
+        ignored: /node_modules/,
+      },
       module: {
         rules: [
           {
@@ -70,6 +74,18 @@ const getDevConfiguration = () => {
           {
             test: /\.css$/i,
             use: ['style-loader', 'css-loader'],
+          },
+          {
+            test: /\.(png|jpe?g|gif)$/i,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  name: '[path][name].[ext]',
+                  outputPath: 'assets/images/',
+                },
+              },
+            ],
           },
         ],
       },
