@@ -14,30 +14,23 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <stdexcept>
-#include <stdlib.h>
-
-#include <signal.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <pwd.h>
-
-#include <pthread.h>
-
-#include <cmath>
-#include <iomanip>
-
 #include "Scheduler.h"
 #include "SchedulerTemplate.h"
 #include "RankPolicy.h"
 #include "NebulaLog.h"
-#include "PoolObjectAuth.h"
-#include "NebulaUtil.h"
 
-#include "VirtualMachine.h"
+#include <nlohmann/json.hpp>
+
+#include <stdexcept>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <iomanip>
 
 using namespace std;
+using json = nlohmann::json;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -187,6 +180,37 @@ void Scheduler::start()
     catch(runtime_error &)
     {
         throw;
+    }
+
+    // Setup External Scheduler
+    {
+        VectorAttribute *ext_sched_va;
+        ext_sched_va = conf.get("EXTERNAL_SCHEDULER");
+
+        if (ext_sched_va)
+        {
+            string url, proxy;
+            long timeout;
+
+            if (ext_sched_va->vector_value("SERVER", url) == 0)
+            {
+                ext_scheduler.set_server(url);
+            }
+
+            if (ext_sched_va->vector_value("PROXY", proxy) == 0)
+            {
+                ext_scheduler.set_proxy(proxy);
+            }
+
+            if (ext_sched_va->vector_value("TIMEOUT", timeout) == 0)
+            {
+                ext_scheduler.set_timeout(timeout);
+            }
+
+            NebulaLog::info("SCHED", "External Scheduler configured (server = '" + url +
+                "', timeout = " + to_string(timeout) +
+                ", proxy = '" + proxy + "').");
+        }
     }
 
     oss.str("");
@@ -1720,6 +1744,71 @@ void Scheduler::do_vm_groups()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Scheduler::external_scheduler()
+{
+    if (!ext_scheduler.is_initialized())
+    {
+        return;
+    }
+
+    try {
+        // Serialize pending VMs to JSON
+        const map<int, ObjectXML*>& pending_vms = vmpool->get_objects();
+
+        json pending_json;
+
+        for (auto vm_it : pending_vms)
+        {
+            auto vm = static_cast<VirtualMachineXML*>(vm_it.second);
+
+            json vm_json;
+
+            vm->to_json(vm_json);
+
+            pending_json["VMS"] += vm_json;
+        }
+
+        // Call Http Request
+        string response;
+
+        if (ext_scheduler.post_json(pending_json.dump(), response) != 0)
+        {
+            NebulaLog::error("SCH", "Error connecting to External Scheduler: " + response);
+
+            return;
+        }
+
+        // Parse the result, update VM matched hosts by values from Orchestrator
+        auto resp     = json::parse(response);
+        auto vms_json = resp["VMS"];
+
+        NebulaLog::info("SCHED", "External Scheduler: Received scheduling for "
+                        + to_string(vms_json.size()) + " VMs");
+
+        for (auto vm_json : vms_json)
+        {
+            // Note: We use only valid answers for VMs, ignoring others
+            auto vm = static_cast<VirtualMachineXML*>(pending_vms.at(vm_json["ID"]));
+
+            int host_id = vm_json["HOST_ID"];
+            auto host   = hpool->get(host_id);
+
+            if (vm && host)
+            {
+                vm->clear_match_hosts();
+                vm->add_match_host(host_id);
+            }
+        }
+    }
+    catch(const exception &e)
+    {
+        NebulaLog::error("SCHED", e.what());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Scheduler::timer_action()
 {
     int rc;
@@ -1789,7 +1878,13 @@ void Scheduler::timer_action()
     do_vm_groups();
     profile(false,"Setting VM groups placement constraints.");
 
+    profile(true);
     match_schedule();
+    profile(false,"Match scheduled resources, sort by priorities.");
+
+    profile(true);
+    external_scheduler();
+    profile(false,"Call external Scheduler.");
 
     profile(true);
     dispatch();

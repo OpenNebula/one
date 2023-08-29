@@ -24,6 +24,7 @@ lib_name='nebula_common'
 source_files=[
     'Attribute.cc',
     'ExtendedAttribute.cc',
+    'HttpRequest.cc',
     'NebulaService.cc',
     'NebulaUtil.cc',
     'SSLUtil.cc'

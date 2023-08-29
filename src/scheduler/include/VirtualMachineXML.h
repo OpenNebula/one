@@ -20,6 +20,8 @@
 
 #include <sstream>
 
+#include <nlohmann/json.hpp>
+
 #include "ObjectXML.h"
 #include "HostPoolXML.h"
 #include "Resource.h"
@@ -129,6 +131,8 @@ public:
     //--------------------------------------------------------------------------
     int get_state() const { return state; };
 
+    std::string get_state_str() const;
+
     int get_lcm_state() const { return lcm_state; };
 
     int get_oid() const { return oid; };
@@ -154,6 +158,8 @@ public:
     bool is_only_public_cloud() const { return only_public_cloud; }
 
     void set_only_public_cloud() { only_public_cloud = true; }
+
+    void to_json(nlohmann::json &vm_json);
 
     //--------------------------------------------------------------------------
     // Scheduling requirements and rank
@@ -402,6 +408,11 @@ public:
     VirtualMachineTemplate * get_template()
     {
         return vm_template.get();
+    }
+
+    VirtualMachineTemplate * get_user_template()
+    {
+        return user_template.get();
     }
 
     /**

@@ -19,10 +19,12 @@ import os
 
 # This is the absolute path where the project is located
 cwd=os.getcwd()
+workspace_dir=GetLaunchDir()
 
 # Include dirs
 env.Append(CPPPATH=[
     cwd + '/include/',
+    workspace_dir + '/share/vendor/',
 ])
 
 # Library dirs

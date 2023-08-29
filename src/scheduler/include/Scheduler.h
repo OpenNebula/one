@@ -17,7 +17,6 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include "Log.h"
 #include "HostPoolXML.h"
 #include "VMGroupPoolXML.h"
 #include "UserPoolXML.h"
@@ -29,6 +28,7 @@
 #include "Listener.h"
 #include "AclXML.h"
 #include "MonitorXML.h"
+#include "HttpRequest.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -174,6 +174,8 @@ protected:
 
     virtual void do_vm_groups();
 
+    void external_scheduler();
+
 private:
     Scheduler(Scheduler const&) = delete;
 
@@ -240,6 +242,11 @@ private:
      * oned runtime configuration values
      */
     Template oned_conf;
+
+    /**
+     * External Scheduler - sends and receives HTTP requests
+     */
+    HttpRequest ext_scheduler;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs

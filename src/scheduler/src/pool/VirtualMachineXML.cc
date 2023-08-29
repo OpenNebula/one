@@ -22,8 +22,11 @@
 #include "NebulaUtil.h"
 #include "History.h"
 #include "RankScheduler.h"
+#include "VirtualMachine.h"
 
 using namespace std;
+
+using json = nlohmann::json;
 
 /******************************************************************************/
 /******************************************************************************/
@@ -218,7 +221,7 @@ void VirtualMachineXML::init_attributes()
 
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
-        user_template = make_unique<VirtualMachineTemplate>();
+        user_template = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
 
         user_template->from_xml_node(nodes[0]);
 
@@ -349,6 +352,8 @@ void VirtualMachineXML::init_storage_usage()
         delete disks[i];
     }
 }
+
+/* -------------------------------------------------------------------------- */
 
 /******************************************************************************/
 /******************************************************************************/
@@ -674,6 +679,92 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 
     return 0;
 };
+
+// We have to duplicate method from VirtualMachine.h, otherwise we get into linking hell
+static string state_to_str(VirtualMachine::VmState state)
+{
+    string st;
+
+    switch (state)
+    {
+        case VirtualMachine::INIT:
+            st = "INIT"; break;
+        case VirtualMachine::PENDING:
+            st = "PENDING"; break;
+        case VirtualMachine::HOLD:
+            st = "HOLD"; break;
+        case VirtualMachine::ACTIVE:
+            st = "ACTIVE"; break;
+        case VirtualMachine::STOPPED:
+            st = "STOPPED"; break;
+        case VirtualMachine::SUSPENDED:
+            st = "SUSPENDED"; break;
+        case VirtualMachine::DONE:
+            st = "DONE"; break;
+        case VirtualMachine::POWEROFF:
+            st = "POWEROFF"; break;
+        case VirtualMachine::UNDEPLOYED:
+            st = "UNDEPLOYED"; break;
+        case VirtualMachine::CLONING:
+            st = "CLONING"; break;
+        case VirtualMachine::CLONING_FAILURE:
+            st = "CLONING_FAILURE"; break;
+    }
+
+    return st;
+}
+
+void VirtualMachineXML::to_json(json &vm_json)
+{
+    vm_json["ID"]  = oid;
+    vm_json["STATE"] = state_to_str(static_cast<VirtualMachine::VmState>(state));
+
+    // -------------------------------------------------------------------------
+    // Add matching Hosts
+    // -------------------------------------------------------------------------
+    const vector<Resource *>& hosts = match_hosts.get_resources();
+
+    json hosts_json = json::array();
+
+    for (const auto& h : hosts)
+    {
+        hosts_json += h->oid;
+    }
+
+    vm_json["HOST_IDS"] = hosts_json;
+
+    // -------------------------------------------------------------------------
+    // Add Template and UserTemplate
+    // -------------------------------------------------------------------------
+    string templ_str, user_templ_str;
+
+    vm_template->to_json(templ_str);
+
+    templ_str = "{" + templ_str + "}";
+
+    auto templ_json = json::parse(templ_str);
+
+    vm_json["TEMPLATE"] = templ_json["TEMPLATE"];
+
+    user_template->to_json(user_templ_str);
+
+    user_templ_str = "{" + user_templ_str + "}";
+
+    auto user_templ_json = json::parse(user_templ_str);
+
+    vm_json["USER_TEMPLATE"] = user_templ_json["USER_TEMPLATE"];
+
+    // -------------------------------------------------------------------------
+    // Add requirements
+    // -------------------------------------------------------------------------
+    json req;
+
+    req["CPU"]      = cpu;
+    req["MEMORY"]    = memory * 1024;
+    req["DISK_SIZE"] = system_ds_usage;
+
+    vm_json["CAPACITY"] = req;
+}
 
 //******************************************************************************
 // Updates to oned
