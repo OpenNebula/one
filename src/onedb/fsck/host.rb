@@ -86,7 +86,7 @@ module OneDBFsck
 
         # DATA: FIX: Calculate the host's xml and write them to host_pool_new
         @db[:host_pool].each do |row|
-            host_doc      = nokogiri_doc(row[:body])
+            host_doc      = nokogiri_doc(row[:body], 'host_pool')
             hid           = row[:oid]
             counters_host = counters[:host][hid]
 

@@ -503,7 +503,6 @@ AllCops:
     - src/onedb/local/5.10.0_to_5.12.0.rb
     - src/onedb/onedb_live.rb
     - src/onedb/onedb_backend.rb
-    - src/onedb/sqlite2mysql.rb
     - src/market_mad/one_market.rb
     - src/tm_mad/one_tm.rb
     - src/oca/ruby/opennebula/flow/grammar.rb

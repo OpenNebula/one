@@ -164,7 +164,7 @@ class OneDBBacKEnd
         return @db
     end
 
-    def nokogiri_doc(body, table = nil)
+    def nokogiri_doc(body, table)
         nk_enconding = NOKOGIRI_ENCODING
 
         unless table.nil?

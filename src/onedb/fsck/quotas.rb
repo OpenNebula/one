@@ -201,7 +201,7 @@ module OneDBFsck
         img_usage = {}
 
         @db.fetch(query) do |vm_row|
-            vmdoc = nokogiri_doc(vm_row[:body])
+            vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
             vmdoc.root.xpath('TEMPLATE/DISK/IMAGE_ID').each do |e|
                 img_usage[e.text] = 0 if img_usage[e.text].nil?
@@ -259,7 +259,7 @@ module OneDBFsck
         datastore_usage = {}
 
         @db.fetch(query) do |vm_row|
-            vmdoc = nokogiri_doc(vm_row[:body])
+            vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
             vmdoc.root.xpath('TEMPLATE/DISK').each do |e|
                 type = ''
@@ -352,7 +352,7 @@ module OneDBFsck
         vms = resources[:vms]
 
         @db.fetch(query) do |vm_row|
-            vmdoc = nokogiri_doc(vm_row[:body])
+            vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
             vmdoc.root.xpath('TEMPLATE/CPU').each do |e|
                 # truncate to 2 decimals
@@ -438,7 +438,7 @@ module OneDBFsck
         vnet_usage = {}
 
         @db.fetch(queries[0]) do |vm_row|
-            vmdoc = nokogiri_doc(vm_row[:body])
+            vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
             vmdoc.root.xpath('TEMPLATE/NIC/NETWORK_ID').each do |e|
                 next if e.text.empty?
@@ -473,7 +473,7 @@ module OneDBFsck
 
         # Calculate quotas for reserved networks
         @db.fetch(queries[2]) do |vnet_row|
-            vnet_doc = nokogiri_doc(vnet_row[:body])
+            vnet_doc = nokogiri_doc(vnet_row[:body], 'network_pool')
 
             parent_id = vnet_doc.root.xpath('PARENT_NETWORK_ID')
             parent_id = parent_id.text unless parent_id.nil?
