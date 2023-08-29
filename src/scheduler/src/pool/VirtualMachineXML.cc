@@ -734,17 +734,9 @@ void VirtualMachineXML::to_json(json &vm_json)
     vm_json["HOST_IDS"] = hosts_json;
 
     // -------------------------------------------------------------------------
-    // Add Template and UserTemplate
+    // Add UserTemplate
     // -------------------------------------------------------------------------
-    string templ_str, user_templ_str;
-
-    vm_template->to_json(templ_str);
-
-    templ_str = "{" + templ_str + "}";
-
-    auto templ_json = json::parse(templ_str);
-
-    vm_json["TEMPLATE"] = templ_json["TEMPLATE"];
+    string user_templ_str;
 
     user_template->to_json(user_templ_str);
 
