@@ -8,7 +8,7 @@ module OneDBFsck
         @fixes_host_cluster = {}
 
         @db.fetch('SELECT oid,body FROM network_pool') do |row|
-            doc = nokogiri_doc(row[:body])
+            doc = nokogiri_doc(row[:body], 'network_pool')
 
             doc.root.xpath('CLUSTERS/ID').each do |e|
                 cluster_id    = e.text.to_i
@@ -33,7 +33,7 @@ module OneDBFsck
         @fixes_network = {}
 
         @db[:network_pool].each do |row|
-            doc = nokogiri_doc(row[:body])
+            doc = nokogiri_doc(row[:body], 'network_pool')
             oid = row[:oid]
 
             check_ugid(doc)
@@ -78,7 +78,7 @@ module OneDBFsck
 
                 @db.fetch('SELECT cid FROM cluster_network_relation where ' \
                           "oid=#{id}") do |row|
-                    doc      = nokogiri_doc(body)
+                    doc      = nokogiri_doc(body, 'cluster_network_relation')
                     clusters = doc.root.at_xpath('CLUSTERS').children
 
                     if clusters.find {|n| n.text == row[:cid].to_s }.nil?
@@ -110,7 +110,7 @@ module OneDBFsck
     # Init vnet counters
     def init_network_counters
         @db.fetch('SELECT oid,body FROM network_pool') do |row|
-            doc = nokogiri_doc(row[:body])
+            doc = nokogiri_doc(row[:body], 'network_pool')
 
             ar_leases = {}
 
@@ -130,7 +130,7 @@ module OneDBFsck
         query = 'SELECT oid,body,pid FROM network_pool WHERE pid<>-1'
 
         @db.fetch(query) do |row|
-            doc = nokogiri_doc(row[:body])
+            doc = nokogiri_doc(row[:body], 'network_pool')
 
             parent_vnet = doc.root.at_xpath('PARENT_NETWORK_ID').text.to_i
 

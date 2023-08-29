@@ -61,11 +61,11 @@ module OneDBFsck
             query = "SELECT body FROM vm_pool WHERE oid=#{row[:vid]}"
 
             @db.fetch(query) do |vm_row|
-                vm_doc = nokogiri_doc(vm_row[:body])
+                vm_doc = nokogiri_doc(vm_row[:body], 'vm_pool')
                 etime  = vm_doc.root.at_xpath('ETIME').text.to_i
             end
 
-            history_doc = nokogiri_doc(row[:body])
+            history_doc = nokogiri_doc(row[:body], 'history')
 
             ['RETIME', 'ESTIME', 'EETIME', 'ETIME'].each do |att|
                 elem = history_doc.root.at_xpath(att)
@@ -91,7 +91,7 @@ module OneDBFsck
         @db.fetch('SELECT * ' \
                   'FROM history ' \
                   'WHERE etime > 0') do |row|
-            history_doc = nokogiri_doc(row[:body])
+            history_doc = nokogiri_doc(row[:body], 'history')
             retime  = history_doc.root.at_xpath('RETIME')
             estime  = history_doc.root.at_xpath('ESTIME').text.to_i
 
@@ -123,7 +123,7 @@ module OneDBFsck
                   '(SELECT oid FROM vm_pool WHERE state=3) AND ' \
                   'seq = (SELECT MAX(seq) FROM history AS subhistory ' \
                   'WHERE history.vid=subhistory.vid))') do |row|
-            history_doc = nokogiri_doc(row[:body])
+            history_doc = nokogiri_doc(row[:body], 'history')
             retime = history_doc.root.at_xpath('RETIME')
 
             if retime.text.to_i != 0

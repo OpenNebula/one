@@ -5,7 +5,7 @@ module OneDBFsck
 
         # DATA: Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vrouter_pool") do |row|
-            vrouter_doc = nokogiri_doc(row[:body])
+            vrouter_doc = nokogiri_doc(row[:body], 'vrouter_pool')
 
             check_ugid(vrouter_doc)
 

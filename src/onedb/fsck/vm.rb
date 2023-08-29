@@ -11,7 +11,7 @@ module OneDBFsck
 
         # DATA: Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
-            vm_doc = nokogiri_doc(row[:body])
+            vm_doc = nokogiri_doc(row[:body], 'vm_pool')
 
             check_ugid(vm_doc)
 
@@ -201,7 +201,7 @@ module OneDBFsck
             # DATA: search history for VMMMAD and TMMAD to translate
             @db.fetch("SELECT * FROM history WHERE vid=#{row[:oid]}") do |hrow|
                 # hdoc = Nokogiri::XML(hrow[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
-                hdoc = nokogiri_doc(hrow[:body])
+                hdoc = nokogiri_doc(hrow[:body], 'history')
 
                 found = false
 
