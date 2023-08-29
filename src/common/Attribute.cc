@@ -88,14 +88,13 @@ void VectorAttribute::to_json(std::ostringstream& s) const
         return;
     }
 
-    auto it = attribute_value.begin();
     bool is_first = true;
 
     s << "{";
 
-    for (++it; it!=attribute_value.end(); it++)
+    for (const auto& it : attribute_value)
     {
-        if ( it->first.empty() )
+        if ( it.first.empty() )
         {
             continue;
         }
@@ -109,8 +108,8 @@ void VectorAttribute::to_json(std::ostringstream& s) const
             is_first = false;
         }
 
-        s << "\"" << it->first << "\": ";
-        one_util::escape_json(it->second, s);
+        s << "\"" << it.first << "\": ";
+        one_util::escape_json(it.second, s);
     }
 
     s << "}";
