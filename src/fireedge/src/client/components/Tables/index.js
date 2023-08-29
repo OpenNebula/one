@@ -17,7 +17,6 @@ import AllImagesTable from 'client/components/Tables/AllImages'
 import BackupsTable from 'client/components/Tables/Backups'
 import ClustersTable from 'client/components/Tables/Clusters'
 import DatastoresTable from 'client/components/Tables/Datastores'
-import DataGridTable from 'client/components/Tables/DataGrid'
 import DockerHubTagsTable from 'client/components/Tables/DockerHubTags'
 import EnhancedTable from 'client/components/Tables/Enhanced'
 import GroupsTable from 'client/components/Tables/Groups'
@@ -53,7 +52,6 @@ export {
   ClustersTable,
   DatastoresTable,
   DockerHubTagsTable,
-  DataGridTable,
   GroupsTable,
   HostsTable,
   ImagesTable,
