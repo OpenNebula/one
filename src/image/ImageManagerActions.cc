@@ -994,7 +994,16 @@ int ImageManager::stat_image(Template*     img_tmpl,
             {
                 img_data << "<IMAGE><PATH>"
                          << one_util::xml_escape(res)
-                         << "</PATH></IMAGE>";
+                         << "</PATH>";
+
+                img_tmpl->get("BACKUP_JOB_ID", res);
+
+                if (!res.empty())
+                {
+                    img_data << "<BACKUP_JOB_ID>" << res << "</BACKUP_JOB_ID>";
+                }
+
+                img_data << "</IMAGE>";
             }
             break;
     }

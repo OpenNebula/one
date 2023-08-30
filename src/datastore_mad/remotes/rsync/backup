@@ -58,15 +58,16 @@ require 'securerandom'
 require_relative '../../tm/lib/datastore'
 require_relative '../../tm/lib/tm_action'
 
-# BACKUP host:remote_dir DISK_ID:..:DISK_ID vm_uuid vm_id ds_id
+# BACKUP host:remote_dir DISK_ID:..:DISK_ID vm_uuid bj_id vm_id ds_id
 
 ds_xml = STDIN.read
 
 dir      = ARGV[0].split(':')
 _disks   = ARGV[1].split(':')
 _vm_uuid = ARGV[2]
-vm_id    = ARGV[3]
-_ds_id   = ARGV[4]
+_bj_id   = ARGV[3]
+vm_id    = ARGV[4]
+_ds_id   = ARGV[5]
 
 vm_host = dir[0]
 

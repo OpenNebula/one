@@ -23,7 +23,7 @@ module TransferManager
     # This class includes methods manage backup images
     class BackupImage
 
-        attr_reader :vm_id, :keep_last
+        attr_reader :vm_id, :keep_last, :bj_id
 
         # Given a sorted list of qcow2 files,
         # return a shell recipe that reconstructs the backing chain in-place.
@@ -110,6 +110,8 @@ module TransferManager
             # NOTE: In the case of backup images, there should always
             # be just a single ID in the VMS array.
             @vm_id = @action.elements["#{prefix}/VMS/ID"].text.to_i
+
+            @bj_id = @action.elements["#{prefix}/TEMPLATE/BACKUP_JOB_ID"]&.text
 
             @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
 
@@ -238,6 +240,8 @@ module TransferManager
 
             @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{chain}"
 
+            @bj_id = opts[:bimage].bj_id
+
             return unless no_ip
 
             NIC_LIST << ['IP', 'IP6', 'IP6_ULA', 'IP6_GLOBAL', 'MAC']
@@ -283,6 +287,8 @@ module TransferManager
                     PATH = "#{@base_url}/#{f}"
                     FROM_BACKUP_DS = "#{@ds_id}"
                 EOS
+
+                tmpl << "BACKUP_JOB_ID = \"#{@bj_id}\"" if @bj_id
 
                 bck_disks[disk_id] = { :template => tmpl, :name => name }
             end

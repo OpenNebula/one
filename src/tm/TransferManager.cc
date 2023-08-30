@@ -2262,7 +2262,10 @@ int TransferManager::backup_transfer_commands(
         tm_mad_system = "." + tsys;
     }*/
 
-    bool do_volatile = vm->backups().do_volatile();
+    Backups& backups = vm->backups();
+
+    bool do_volatile = backups.do_volatile();
+    int  job_id      = backups.backup_job_id();
 
     // -------------------------------------------------------------------------
     // Image Transfer Commands
@@ -2283,13 +2286,23 @@ int TransferManager::backup_transfer_commands(
         disk_str << disk->get_disk_id() << ":";
     }
 
-    //BACKUP(.tm_mad_system) tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+    //BACKUP(.tm_mad_system) tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bj_id vmid dsid
     xfr << "BACKUP" << tm_mad_system
         << " " << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_system_dir() << " "
         << disk_str.str() << " "
-        << vm->get_deploy_id() << " "
-        << vm->get_oid() << " "
+        << vm->get_deploy_id() << " ";
+
+    if ( job_id == -1 )
+    {
+        xfr << "- ";
+    }
+    else
+    {
+        xfr << job_id << " ";
+    }
+
+    xfr << vm->get_oid() << " "
         << vm->get_ds_id()
         << endl;
 
