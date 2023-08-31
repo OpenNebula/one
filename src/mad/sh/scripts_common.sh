@@ -45,7 +45,7 @@ RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
-SED=${SED:-sed}
+SED=${SED:-sed -r}
 SSH=${SSH:-ssh}
 SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
 SUDO=${SUDO:-sudo -n}
@@ -58,12 +58,6 @@ TR=${TR:-tr}
 VGDISPLAY=${VGDISPLAY:-vgdisplay}
 VMKFSTOOLS=${VMKFSTOOLS:-vmkfstools}
 WGET=${WGET:-wget}
-
-if [ "x$(uname -s)" = "xLinux" ]; then
-    SED="$SED -r"
-else
-    SED="/usr/bin/sed -E"
-fi
 
 # Used for log messages
 SCRIPT_NAME=`basename -- $0`
