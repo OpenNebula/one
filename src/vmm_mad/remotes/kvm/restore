@@ -57,6 +57,20 @@ DS_LOCATION=$(dirname $(dirname $(dirname $FILE)))
 DS_LOCATION_NON_DOUBLE_SLASH=$(echo "$DS_LOCATION" | sed 's|//|/|g')
 VM_DIR=$(dirname $FILE)
 
+# Check if the domain is just Power Management suspended
+VIRSH_STATE=$(virsh --connect $LIBVIRT_URI --readonly dominfo one-$VM_ID | 
+                  grep State | tr -d ' ' | cut -d ':' -f 2)
+
+if [ "$VIRSH_STATE" = "pmsuspended" ]; then
+    exec_and_log "virsh --connect $LIBVIRT_URI dompmwakeup one-$VM_ID" \
+        "Could not wake up VM from suspended state"
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    exit 0
+fi
+
 RECALCULATE_CMD=$(cat <<EOF
 set -e -o pipefail
 
