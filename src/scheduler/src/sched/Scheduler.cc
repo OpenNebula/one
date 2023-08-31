@@ -1790,14 +1790,35 @@ void Scheduler::external_scheduler()
             // Note: We use only valid answers for VMs, ignoring others
             auto vm = static_cast<VirtualMachineXML*>(pending_vms.at(vm_json["ID"]));
 
-            int host_id = vm_json["HOST_ID"];
+            auto host_json = vm_json["HOST_ID"];
+            if (!host_json.is_number_integer())
+            {
+                ostringstream oss;
+                oss << "VM " << vm_json["ID"]
+                    << ": Received value is not a valid host ID: " << host_json;
+
+                NebulaLog::warn("SCHED", oss.str());
+
+                continue;
+            }
+
+            int host_id = host_json;
             auto host   = hpool->get(host_id);
 
-            if (vm && host)
+            if (!vm || !host)
             {
-                vm->clear_match_hosts();
-                vm->add_match_host(host_id);
+                ostringstream oss;
+                oss << "VM " << vm_json["ID"] << ", Host " << host_json
+                    << ": Unable to use external scheduler values, "
+                    << "using OpenNebula Scheduler to deploy VM";
+
+                NebulaLog::warn("SCHED", oss.str());
+
+                continue;
             }
+
+            vm->clear_match_hosts();
+            vm->add_match_host(host_id);
         }
     }
     catch(const exception &e)
