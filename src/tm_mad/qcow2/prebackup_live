@@ -61,15 +61,16 @@ require_relative '../lib/datastore'
 include TransferManager::KVM
 
 #-------------------------------------------------------------------------------
-# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid bjid dsid
 #-------------------------------------------------------------------------------
 vm_xml = STDIN.read
 
 dir        = ARGV[0].split ':'
 disks      = ARGV[1]
 _deploy_id = ARGV[2]
-_vmid      = ARGV[3]
-_dsid      = ARGV[4]
+_bjid      = ARGV[3]
+_vmid      = ARGV[4]
+_dsid      = ARGV[5]
 
 rhost     = dir[0]
 rdir      = dir[1]

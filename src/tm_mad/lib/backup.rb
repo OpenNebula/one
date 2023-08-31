@@ -238,9 +238,9 @@ module TransferManager
                 opts[:bimage].chain
             end
 
-            @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{chain}"
-
             @bj_id = opts[:bimage].bj_id
+
+            @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{@bj_id}/#{chain}"
 
             return unless no_ip
 
@@ -270,6 +270,8 @@ module TransferManager
                 m = f.match(/disk\.([0-9]+)/)
                 next unless m
 
+                f.prepend('/') if f[0] != '/'
+
                 disk_id = m[1]
 
                 type = if disk_id == '0'
@@ -284,7 +286,7 @@ module TransferManager
                     NAME = "#{name}"
                     TYPE = "#{type}"
 
-                    PATH = "#{@base_url}/#{f}"
+                    PATH = "#{@base_url}#{f}"
                     FROM_BACKUP_DS = "#{@ds_id}"
                 EOS
 

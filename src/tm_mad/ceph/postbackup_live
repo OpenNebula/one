@@ -55,15 +55,17 @@ require 'rexml/document'
 
 require_relative '../lib/tm_action'
 
-# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
-
+#-------------------------------------------------------------------------------
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
+#-------------------------------------------------------------------------------
 _vm_xml = STDIN.read
 
 dir       = ARGV[0].split ':'
 _disks    = ARGV[1].split ':'
 _deployid = ARGV[2]
-_vmid     = ARGV[3]
-_dsid     = ARGV[4]
+_bjid     = ARGV[3]
+_vmid     = ARGV[4]
+_dsid     = ARGV[5]
 
 rhost     = dir[0]
 rdir      = dir[1]

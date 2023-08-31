@@ -62,34 +62,43 @@ SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
 
 # Parse input data.
 
-# restic://<datastore_id>/<id>:<snapshot_id>,.../<file_name>
+# restic://<datastore_id>/<bj_id>/<id>:<snapshot_id>,.../<file_name>
 restic_url = ARGV[0]
 tokens     = restic_url.delete_prefix('restic://').split('/')
 ds_id      = tokens[0].to_i
-snaps      = tokens[1].split(',').map {|s| s.split(':')[1] }
-disk_path  = tokens[2..-1].join('/')
+bj_id      = tokens[1]
+snaps      = tokens[2].split(',').map {|s| s.split(':')[1] }
+disk_path  = tokens[3..-1].join('/')
 disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match('/(\d+)/backup/[^/]+$')[1].to_i
 
 begin
+    #---------------------------------------------------------------------------
     # Do a sanity check if Restic is available/enabled.
-
+    #---------------------------------------------------------------------------
     raise StandardError, 'Restic unavailable, please use OpenNebula EE.' \
         unless File.exist?("#{VAR_LOCATION}/remotes/datastore/restic/")
 
     require "#{VAR_LOCATION}/remotes/datastore/restic/restic"
 
-    # Fetch datastore XML payload directly from the API.
-
+    #---------------------------------------------------------------------------
+    # Fetch datastore and VM XML payload directly from the API.
+    #---------------------------------------------------------------------------
     backup_ds = OpenNebula::Datastore.new_with_id ds_id, OpenNebula::Client.new
 
     rc = backup_ds.info(true)
 
-    raise StandardError, rc.message if OpenNebula.is_error?(backup_ds)
+    raise StandardError, rc.message if OpenNebula.is_error?(rc)
 
+    repo_id = if !bj_id.empty?
+                  Restic.mk_repo_id(bj_id)
+              else
+                  vm_id
+              end
+    #---------------------------------------------------------------------------
     # Pull from Restic, then post-process qcow2 disks.
-
-    rds = Restic.new backup_ds.to_xml, :vm_id     => vm_id,
+    #---------------------------------------------------------------------------
+    rds = Restic.new backup_ds.to_xml, :repo_id   => repo_id,
                                        :repo_type => :local,
                                        :host_type => :hypervisor
 rescue StandardError => e

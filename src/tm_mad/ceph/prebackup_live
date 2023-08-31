@@ -71,15 +71,16 @@ rescue StandardError
 end
 
 #-------------------------------------------------------------------------------
-# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid dsid
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
 #-------------------------------------------------------------------------------
 vm_xml = STDIN.read
 
 dir       = ARGV[0].split ':'
 disks     = ARGV[1].split ':'
 deploy_id = ARGV[2]
-vmid      = ARGV[3]
-_dsid     = ARGV[4]
+_bjid     = ARGV[3]
+vmid      = ARGV[4]
+_dsid     = ARGV[5]
 
 rhost     = dir[0]
 rdir      = dir[1]

@@ -61,9 +61,10 @@ daction64 = STDIN.read
 _ds_id    = ARGV[0]
 
 # Image path in the form:
-#   rsync://100/0:6da1c7,1:06132a,2:03fc2a//var/lib/one//datastores/100/13/6da1c7/disk.0.0
+#   rsync://100/4/0:6da1c7,1:06132a,2:03fc2a/var/lib/one//datastores/100/13/6da1c7/disk.0.0
 #
 #   datastore_id = 100
+#   backupjob id = 4 (can be empty)
 #   last snap    = 03fc2a
 #   base path    = /var/lib/one//datastores/100/13
 
@@ -78,14 +79,14 @@ begin
     parts  = img.split('/')
     diskid = parts[-1].match(/disk\.([0-9]+)/)
 
-    base_path = "/#{parts[2..-3].join('/')}/"
+    base_path = "/#{parts[3..-3].join('/')}/"
 
     if !diskid
-        STDERR.puts "Wrong format for disk filename #{parts[2]}"
+        STDERR.puts "Wrong format for disk filename #{base_path}"
         exit(-1)
     end
 
-    last_snap = parts[1].split(',')[-1].split(':')[-1]
+    last_snap = parts[2].split(',')[-1].split(':')[-1]
 
     cmd = "cat #{base_path}#{last_snap}/vm.xml"
 rescue StandardError => e
