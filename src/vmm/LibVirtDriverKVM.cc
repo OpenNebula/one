@@ -400,6 +400,27 @@ static string get_disk_bus(const std::string &machine,
     return "ide";
 }
 
+static void set_queues(string& queue, const string& vcpu)
+{
+    one_util::tolower(queue);
+
+    if ( queue == "auto" )
+    {
+        queue = vcpu;
+    }
+    else if (!queue.empty())
+    {
+        char * end_ptr;
+
+        strtol(queue.c_str(), &end_ptr, 10);
+
+        if ( *end_ptr != '\0' )
+        {
+            queue.clear();
+        }
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -495,122 +516,124 @@ int LibVirtDriver::deployment_description_kvm(
     int     memory;
     int     memory_max;
 
-    string  emulator_path = "";
+    string  emulator_path;
 
-    string  kernel     = "";
-    string  initrd     = "";
-    string  root       = "";
-    string  kernel_cmd = "";
-    string  bootloader = "";
-    string  arch       = "";
-    string  machine    = "";
+    string  kernel;
+    string  initrd;
+    string  root;
+    string  kernel_cmd;
+    string  bootloader;
+    string  arch;
+    string  machine;
 
     vector<string> boots;
 
-    string  cpu_model   = "";
-    string  cpu_feature = "";
-    string  cpu_mode    = "";
+    string  cpu_model;
+    string  cpu_feature;
+    string  cpu_mode;
 
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
 
-    string  type            = "";
-    string  disk_type       = "";
-    string  target          = "";
-    string  bus             = "";
-    string  ro              = "";
-    string  driver          = "";
-    string  cache           = "";
-    string  disk_io         = "";
-    string  discard         = "";
-    string  source          = "";
-    string  clone           = "";
-    string  shareable       = "";
-    string  ceph_host       = "";
-    string  ceph_secret     = "";
-    string  ceph_user       = "";
-    string  iscsi_host      = "";
-    string  iscsi_user      = "";
-    string  iscsi_usage     = "";
-    string  iscsi_iqn       = "";
-    string  pool_name       = "";
-    string  sheepdog_host   = "";
-    string  gluster_host    = "";
-    string  gluster_volume  = "";
-    string  luks_secret     = "";
+    string type;
+    string disk_type;
+    string target;
+    string bus;
+    string ro;
+    string driver;
+    string cache;
+    string disk_io;
+    string discard;
+    string source;
+    string clone;
+    string blk_queues;
+    string shareable;
+    string ceph_host;
+    string ceph_secret;
+    string ceph_user;
+    string iscsi_host;
+    string iscsi_user;
+    string iscsi_usage;
+    string iscsi_iqn;
+    string pool_name;
+    string sheepdog_host;
+    string gluster_host;
+    string gluster_volume;
+    string luks_secret;
 
-    string  total_bytes_sec            = "";
-    string  total_bytes_sec_max_length = "";
-    string  total_bytes_sec_max        = "";
-    string  read_bytes_sec             = "";
-    string  read_bytes_sec_max_length  = "";
-    string  read_bytes_sec_max         = "";
-    string  write_bytes_sec            = "";
-    string  write_bytes_sec_max_length = "";
-    string  write_bytes_sec_max        = "";
-    string  total_iops_sec             = "";
-    string  total_iops_sec_max_length  = "";
-    string  total_iops_sec_max         = "";
-    string  read_iops_sec              = "";
-    string  read_iops_sec_max_length   = "";
-    string  read_iops_sec_max          = "";
-    string  write_iops_sec             = "";
-    string  write_iops_sec_max_length  = "";
-    string  write_iops_sec_max         = "";
-    string  size_iops_sec;
-    string  iothreadid;
+    string total_bytes_sec;
+    string total_bytes_sec_max_length;
+    string total_bytes_sec_max;
+    string read_bytes_sec;
+    string read_bytes_sec_max_length;
+    string read_bytes_sec_max;
+    string write_bytes_sec;
+    string write_bytes_sec_max_length;
+    string write_bytes_sec_max;
+    string total_iops_sec;
+    string total_iops_sec_max_length;
+    string total_iops_sec_max;
+    string read_iops_sec;
+    string read_iops_sec_max_length;
+    string read_iops_sec_max;
+    string write_iops_sec;
+    string write_iops_sec_max_length;
+    string write_iops_sec_max;
+    string size_iops_sec;
+    string iothreadid;
 
-    string  default_total_bytes_sec            = "";
-    string  default_total_bytes_sec_max_length = "";
-    string  default_total_bytes_sec_max        = "";
-    string  default_read_bytes_sec             = "";
-    string  default_read_bytes_sec_max_length  = "";
-    string  default_read_bytes_sec_max         = "";
-    string  default_write_bytes_sec            = "";
-    string  default_write_bytes_sec_max_length = "";
-    string  default_write_bytes_sec_max        = "";
-    string  default_total_iops_sec             = "";
-    string  default_total_iops_sec_max_length  = "";
-    string  default_total_iops_sec_max         = "";
-    string  default_read_iops_sec              = "";
-    string  default_read_iops_sec_max_length   = "";
-    string  default_read_iops_sec_max          = "";
-    string  default_write_iops_sec             = "";
-    string  default_write_iops_sec_max_length  = "";
-    string  default_write_iops_sec_max         = "";
-    string  default_size_iops_sec;
+    string default_total_bytes_sec;
+    string default_total_bytes_sec_max_length;
+    string default_total_bytes_sec_max;
+    string default_read_bytes_sec;
+    string default_read_bytes_sec_max_length;
+    string default_read_bytes_sec_max;
+    string default_write_bytes_sec;
+    string default_write_bytes_sec_max_length;
+    string default_write_bytes_sec_max;
+    string default_total_iops_sec;
+    string default_total_iops_sec_max_length;
+    string default_total_iops_sec_max;
+    string default_read_iops_sec;
+    string default_read_iops_sec_max_length;
+    string default_read_iops_sec_max;
+    string default_write_iops_sec;
+    string default_write_iops_sec_max_length;
+    string default_write_iops_sec_max;
+    string default_size_iops_sec;
 
-    int     disk_id;
-    int     order;
-    string  default_driver          = "";
-    string  default_driver_cache    = "";
-    string  default_driver_disk_io  = "";
-    string  default_driver_discard  = "";
-    bool    readonly;
+    int    disk_id;
+    int    order;
+    string default_driver;
+    string default_driver_cache;
+    string default_driver_disk_io;
+    string default_driver_discard;
+    string default_blk_queues;
+    bool   readonly;
 
     vector<const VectorAttribute *> nic;
 
-    string  mac    = "";
-    string  bridge = "";
-    string  vn_mad = "";
-    string  script = "";
-    string  model  = "";
-    string  ip     = "";
-    string  vrouter_ip = "";
-    string  filter = "";
-    string  virtio_queues = "";
-    string  bridge_type = "";
-    string  nic_id = "";
+    string mac;
+    string bridge;
+    string vn_mad;
+    string script;
+    string model;
+    string ip;
+    string vrouter_ip;
+    string filter;
+    string virtio_queues;
+    string bridge_type;
+    string nic_id;
 
-    string  i_avg_bw = "";
-    string  i_peak_bw = "";
-    string  i_peak_kb = "";
-    string  o_avg_bw = "";
-    string  o_peak_bw = "";
-    string  o_peak_kb = "";
+    string i_avg_bw;
+    string i_peak_bw;
+    string i_peak_kb;
+    string o_avg_bw;
+    string o_peak_bw;
+    string o_peak_kb;
 
-    string  default_filter = "";
-    string  default_model  = "";
+    string default_filter;
+    string default_model ;
 
     const VectorAttribute * graphics;
 
@@ -618,38 +641,39 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<const VectorAttribute *> pci;
 
-    string  domain   = "";
+    string domain;
     /* bus is already defined for disks */
-    string  slot     = "";
-    string  func     = "";
+    string slot;
+    string func;
 
-    string vm_domain = "";
-    string vm_bus    = "";
-    string vm_slot   = "";
-    string vm_func   = "";
+    string vm_domain;
+    string vm_bus;
+    string vm_slot;
+    string vm_func;
 
-    bool pae                = false;
-    bool acpi               = false;
-    bool apic               = false;
-    bool hyperv             = false;
-    bool localtime          = false;
-    bool guest_agent        = false;
-    int  virtio_scsi_queues = 0;
-    int  scsi_targets_num   = 0;
-    int  iothreads          = 0;
-    int  iothread_actual    = 1;
+    bool pae         = false;
+    bool acpi        = false;
+    bool apic        = false;
+    bool hyperv      = false;
+    bool localtime   = false;
+    bool guest_agent = false;
 
-    string hyperv_options = "";
+    int  scsi_targets_num = 0;
+    int  iothreads        = 0;
+    int  iothread_actual  = 1;
+
+    string virtio_scsi_queues;
+    string hyperv_options;
 
     vector<const VectorAttribute *> raw;
-    string default_raw = "";
-    string data        = "";
+    string default_raw;
+    string data;
 
     const VectorAttribute * topology;
     vector<const VectorAttribute *> nodes;
 
-    std::string numa_tune = "";
-    std::string mbacking  = "";
+    std::string numa_tune;
+    std::string mbacking;
 
     std::string sd_bus;
     std::string disk_bus;
@@ -1029,6 +1053,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(nullptr, host, cluster, "DISK", "IO", default_driver_disk_io);
     get_attribute(nullptr, host, cluster, "DISK", "DISCARD", default_driver_discard);
+    get_attribute(nullptr, host, cluster, "DISK", "QUEUES", default_blk_queues);
 
     get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
     get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
@@ -1072,6 +1097,7 @@ int LibVirtDriver::deployment_description_kvm(
         discard   = disk[i]->vector_value("DISCARD");
         source    = disk[i]->vector_value("SOURCE");
         clone     = disk[i]->vector_value("CLONE");
+        blk_queues= disk[i]->vector_value("QUEUES");
         shareable = disk[i]->vector_value("SHAREABLE");
 
         ceph_host   = disk[i]->vector_value("CEPH_HOST");
@@ -1456,6 +1482,22 @@ int LibVirtDriver::deployment_description_kvm(
 
                 iothread_actual = (iothread_actual % iothreads) + 1;
             }
+        }
+
+        if (!blk_queues.empty())
+        {
+            set_queues(blk_queues, vcpu);
+        }
+        else if (!default_blk_queues.empty())
+        {
+            set_queues(default_blk_queues, vcpu);
+
+            blk_queues = default_blk_queues;
+        }
+
+        if (!blk_queues.empty())
+        {
+            file << " queues=" << one_util::escape_xml_attr(blk_queues);
         }
 
         file << "/>" << endl;
@@ -2058,7 +2100,9 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t</devices>" << endl;
     }
 
-    if ( virtio_scsi_queues > 0 || scsi_targets_num > 1)
+    set_queues(virtio_scsi_queues, vcpu);
+
+    if ( !virtio_scsi_queues.empty() || scsi_targets_num > 1)
     {
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
@@ -2066,7 +2110,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<driver";
 
-        if ( virtio_scsi_queues > 0 )
+        if ( !virtio_scsi_queues.empty() )
         {
             file << " queues=" << one_util::escape_xml_attr(virtio_scsi_queues);
         }
