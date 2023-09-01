@@ -1599,6 +1599,9 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         return -1;
     }
 
+    // -------------------------------------------------------------------------
+    // Set automatic Host requirements
+    // -------------------------------------------------------------------------
     if ( !cluster_ids.empty() )
     {
         auto i = cluster_ids.begin();
@@ -1644,11 +1647,28 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         oss << "))";
     }
 
+    const VectorAttribute * cpu_model = obj_template->get("CPU_MODEL");
+
+    if ( cpu_model != nullptr )
+    {
+        vector<string> features_v;
+        const string&  features_s = cpu_model->vector_value("FEATURES");
+
+        one_util::split(features_s, ',', features_v);
+
+        for (const auto& feature: features_v)
+        {
+            oss << " & (KVM_CPU_FEATURES = \"*" << feature << "*\")";
+        }
+    }
+
     obj_template->add("AUTOMATIC_REQUIREMENTS", oss.str());
 
     oss.str("");
 
+    // -------------------------------------------------------------------------
     // Set automatic System DS requirements
+    // -------------------------------------------------------------------------
 
     if ( !cluster_ids.empty() || !datastore_ids.empty() )
     {

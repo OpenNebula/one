@@ -507,8 +507,9 @@ int LibVirtDriver::deployment_description_kvm(
 
     vector<string> boots;
 
-    string  cpu_model = "";
-    string  cpu_mode  = "";
+    string  cpu_model   = "";
+    string  cpu_feature = "";
+    string  cpu_mode    = "";
 
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
@@ -917,6 +918,7 @@ int LibVirtDriver::deployment_description_kvm(
     // CPU SECTION
     // ------------------------------------------------------------------------
     get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
+    get_attribute(vm, nullptr, nullptr, "CPU_MODEL", "FEATURES", cpu_feature);
 
     if (cpu_model == "host-passthrough")
     {
@@ -944,6 +946,19 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << ">\n";
+        }
+
+        if ( !cpu_feature.empty() && !cpu_model.empty() )
+        {
+            vector<string> features;
+
+            one_util::split(cpu_feature, ',', features);
+
+            for (const auto& feature: features)
+            {
+                file << "\t\t<feature policy='require'"
+                    << " name=" << one_util::escape_xml_attr(feature) << "/>\n";
+            }
         }
 
         if (nodes.empty() && memory_hotplug)

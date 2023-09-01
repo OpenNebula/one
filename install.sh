@@ -1477,6 +1477,7 @@ IM_PROBES_KVM_HOST_MONITOR_FILES="\
 IM_PROBES_KVM_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/kvm-probes.d/host/system/architecture.sh \
      src/im_mad/remotes/kvm-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/cpu_features.sh \
      src/im_mad/remotes/kvm-probes.d/host/system/linux_host.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/machines_models.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/monitor_ds.rb \
