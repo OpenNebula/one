@@ -2102,7 +2102,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     set_queues(virtio_scsi_queues, vcpu);
 
-    if ( !virtio_scsi_queues.empty() || scsi_targets_num > 1)
+    if ( scsi_targets_num > 0 )
     {
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
@@ -2113,6 +2113,10 @@ int LibVirtDriver::deployment_description_kvm(
         if ( !virtio_scsi_queues.empty() )
         {
             file << " queues=" << one_util::escape_xml_attr(virtio_scsi_queues);
+        }
+        else
+        {
+            file << " queues='1'";
         }
 
         if ( iothreads > 0 )
