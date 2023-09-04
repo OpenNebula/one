@@ -77,6 +77,11 @@ WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
 WRITE_IOPS_SEC_MAX_LENGTH=${WRITE_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH}}
 WRITE_IOPS_SEC_MAX=${WRITE_IOPS_SEC_MAX:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX}}
 SIZE_IOPS_SEC=${SIZE_IOPS_SEC:-${DEFAULT_ATTACH_SIZE_IOPS_SEC}}
+VIRTIO_BLK_QUEUES=${VIRTIO_BLK_QUEUES:-${DEFAULT_VIRTIO_BLK_QUEUES}}
+
+if [ "${VIRTIO_BLK_QUEUES}" = "auto" ]; then
+    VIRTIO_BLK_QUEUES="$VCPU"
+fi
 
 # disk XML
 XML=''
@@ -88,6 +93,7 @@ XML+="<driver name='qemu' type='$(xml_esc "${DRIVER}")'"
 [ -n "${DISK_IO}" ] && XML+=" io='$(xml_esc "${DISK_IO}")'"
 [ -n "${DISCARD}" ] && XML+=" discard='$(xml_esc "${DISCARD}")'"
 [ -n "${IOTHREAD}" ] && XML+=" iothread='$(xml_esc "${IOTHREAD}")'"
+[ -n "${VIRTIO_BLK_QUEUES}" ] && XML+=" queues='$(xml_esc "${VIRTIO_BLK_QUEUES}")'"
 XML+="/>"
 
 XML+="<source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"

@@ -49,6 +49,9 @@ DEFAULT_ATTACH_DISCARD=unmap
 # The default DISK I/O policy for new attached disks.
 #DEFAULT_ATTACH_IO=
 
+# The default number of queues for virtio-blk driver.
+#DEFAULT_ATTACH_VIRTIO_BLK_QUEUES=
+
 # These parameters set the default DISK I/O throttling attributes
 # for the new attached disk in case they aren't set.
 #DEFAULT_ATTACH_TOTAL_BYTES_SEC=
