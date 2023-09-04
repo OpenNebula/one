@@ -658,7 +658,6 @@ int LibVirtDriver::deployment_description_kvm(
     bool localtime   = false;
     bool guest_agent = false;
 
-    int  scsi_targets_num = 0;
     int  iothreads        = 0;
     int  iothread_actual  = 1;
 
@@ -1053,7 +1052,6 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(nullptr, host, cluster, "DISK", "IO", default_driver_disk_io);
     get_attribute(nullptr, host, cluster, "DISK", "DISCARD", default_driver_discard);
-    get_attribute(nullptr, host, cluster, "DISK", "QUEUES", default_blk_queues);
 
     get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
     get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
@@ -1081,7 +1079,9 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(nullptr, host, cluster, "DISK", "SIZE_IOPS_SEC", default_size_iops_sec);
 
-    // ------------------------------------------------------------------------
+    get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_BLK_QUEUES", default_blk_queues);
+
+    // -------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK", disk);
 
@@ -1097,7 +1097,7 @@ int LibVirtDriver::deployment_description_kvm(
         discard   = disk[i]->vector_value("DISCARD");
         source    = disk[i]->vector_value("SOURCE");
         clone     = disk[i]->vector_value("CLONE");
-        blk_queues= disk[i]->vector_value("QUEUES");
+        blk_queues= disk[i]->vector_value("VIRTIO_BLK_QUEUES");
         shareable = disk[i]->vector_value("SHAREABLE");
 
         ceph_host   = disk[i]->vector_value("CEPH_HOST");
@@ -1569,7 +1569,6 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
                      "target='" << target_number << "' unit='0'/>" << endl;
-                scsi_targets_num++;
             }
         }
 
@@ -1638,6 +1637,34 @@ int LibVirtDriver::deployment_description_kvm(
                 " attach context, will continue without it.");
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Controllers:
+    //   - virtio-scsi, for non SCSI disk domains allows hotplug of new disks
+    // -------------------------------------------------------------------------
+    get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
+
+    set_queues(virtio_scsi_queues, vcpu);
+
+    file << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>" << endl
+         << "\t\t\t<driver";
+
+    if ( !virtio_scsi_queues.empty() )
+    {
+        file << " queues=" << one_util::escape_xml_attr(virtio_scsi_queues);
+    }
+    else
+    {
+        file << " queues='1'";
+    }
+
+    if ( iothreads > 0 )
+    {
+        file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
+    }
+
+    file << "/>" << endl
+         << "\t\t</controller>" << endl;
 
     // ------------------------------------------------------------------------
     // Network interfaces
@@ -2047,7 +2074,6 @@ int LibVirtDriver::deployment_description_kvm(
     get_attribute(vm, host, cluster, "FEATURES", "HYPERV", hyperv);
     get_attribute(vm, host, cluster, "FEATURES", "LOCALTIME", localtime);
     get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
-    get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
 
     if ( acpi || pae || apic || hyperv || boot_secure)
     {
@@ -2097,36 +2123,6 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t\t\t<source mode='bind'/>"
              << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
              << "\t\t</channel>" << endl
-             << "\t</devices>" << endl;
-    }
-
-    set_queues(virtio_scsi_queues, vcpu);
-
-    if ( scsi_targets_num > 0 )
-    {
-        file << "\t<devices>" << endl
-             << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
-             << endl;
-
-        file << "\t\t\t<driver";
-
-        if ( !virtio_scsi_queues.empty() )
-        {
-            file << " queues=" << one_util::escape_xml_attr(virtio_scsi_queues);
-        }
-        else
-        {
-            file << " queues='1'";
-        }
-
-        if ( iothreads > 0 )
-        {
-            file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
-        }
-
-        file << "/>" << endl;
-
-        file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
     }
 
