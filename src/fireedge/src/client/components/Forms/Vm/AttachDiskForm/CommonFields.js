@@ -82,6 +82,7 @@ export const GENERAL_FIELDS = [
       { text: '', value: '' },
       { text: 'Threads', value: 'threads' },
       { text: 'Native', value: 'native' },
+      { text: 'io_uring', value: 'io_uring' },
     ],
     validation: string().trim().notRequired().default(undefined),
   },
