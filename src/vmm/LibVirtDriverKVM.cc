@@ -1025,9 +1025,10 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<devices>" << endl;
 
     get_attribute(vm, host, cluster, "EMULATOR", emulator_path);
+
     if (emulator_path.empty())
     {
-        emulator_path = "/usr/bin/kvm";
+        emulator_path = "/usr/bin/qemu-kvm-one";
     }
 
     file << "\t\t<emulator>" << one_util::escape_xml(emulator_path)
