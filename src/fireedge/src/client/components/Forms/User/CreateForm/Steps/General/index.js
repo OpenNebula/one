@@ -13,16 +13,48 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import PropTypes from 'prop-types'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { T } from 'client/constants'
+import {
+  SCHEMA,
+  USERNAME_FIELD,
+  AUTH_TYPE_FIELD,
+  PASSWORD_FIELD,
+  CONFIRM_PASSWORD_FIELD,
+} from './schema'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
+export const STEP_ID = 'general'
+
+const Content = () => (
+  <FormWithSchema
+    id={STEP_ID}
+    cy={`${STEP_ID}`}
+    fields={[
+      USERNAME_FIELD,
+      AUTH_TYPE_FIELD,
+      PASSWORD_FIELD,
+      CONFIRM_PASSWORD_FIELD,
+    ]}
+  />
+)
+
+/**
+ * General User configuration.
+ *
+ * @returns {object} General configuration step
+ */
+const General = () => ({
+  id: STEP_ID,
+  label: T.General,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content,
+})
+
+General.propTypes = {
+  data: PropTypes.object,
+  setFormData: PropTypes.func,
 }
+
+export default General

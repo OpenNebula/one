@@ -35,7 +35,8 @@ import {
  * @param {Array} props.xAxisLabels - Array of unique names for the X-axis.
  * @param {string} props.chartType - Type of chart to render ('bar', 'line', etc.).
  * @param {object} props.selectedMetrics - Object containing selected metrics (e.g., "cpuHours").
- * @param {string} [props.error] - Error message, if any.
+ * @param {string} props.error - Error message, if any.
+ * @param {boolean} props.isLoading - Indicator whether data is still being fetched or not.
  * @param {string} props.groupBy - Key to group X values by.
  * @param {number} props.ItemsPerPage - Number of items to display per page.
  * @param {Array} props.tableColumns - Array of table column configurations.
@@ -51,6 +52,7 @@ const MultiChart = ({
   chartType,
   selectedMetrics: passedSelectedMetrics,
   error,
+  isLoading,
   ItemsPerPage,
   tableColumns,
   customChartDefs,
@@ -115,14 +117,35 @@ const MultiChart = ({
   }, [datasets, passedMetricHues])
 
   const visibleDatasetIDs = useMemo(() => {
-    if (visibleDatasets && visibleDatasets.length > 0) {
+    if (visibleDatasets !== undefined) {
       return visibleDatasets
     }
 
     return datasets.map((dataset) => dataset.id)
   }, [datasets, visibleDatasets])
 
-  const noDataAvailable = visibleDatasetIDs.length === 0
+  const noDataAvailable = useMemo(() => {
+    if (visibleDatasetIDs.length === 0) {
+      return true
+    }
+
+    const allEmpty = visibleDatasetIDs.every((id) => {
+      // eslint-disable-next-line no-shadow
+      const dataset = datasets.find((dataset) => dataset.id === id)
+
+      return (
+        !dataset ||
+        dataset.data.length === 0 ||
+        dataset.data.every((item) =>
+          Object.values(item).every(
+            (value) => value === null || value === undefined || value === ''
+          )
+        )
+      )
+    })
+
+    return allEmpty
+  }, [datasets, visibleDatasetIDs])
 
   const mergedDataForXAxis = processDataForChart(
     xAxisLabels,
@@ -138,8 +161,8 @@ const MultiChart = ({
   }, [xAxisLabels])
 
   useEffect(() => {
-    setIsFilterDisabled(visibleDatasetIDs.length === 0)
-  }, [visibleDatasetIDs])
+    setIsFilterDisabled(noDataAvailable || visibleDatasetIDs.length === 0)
+  }, [noDataAvailable, visibleDatasetIDs])
 
   useEffect(() => {
     setIsPaginationDisabled(
@@ -159,7 +182,7 @@ const MultiChart = ({
 
   return (
     <Box width="100%" height="100%" display="flex" flexDirection="column">
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" justifyContent="space-between" minHeight="40px">
         {chartType !== 'table' && (
           <Box flex={1}>
             <NavigationController
@@ -191,8 +214,8 @@ const MultiChart = ({
       </Box>
 
       <Box flex={1} mt={-1}>
-        {error || noDataAvailable ? (
-          <LoadingDisplay error={error} />
+        {isLoading || error || noDataAvailable ? (
+          <LoadingDisplay isLoading={isLoading} error={error} />
         ) : (
           <ChartRenderer
             chartType={chartType}
@@ -226,21 +249,21 @@ MultiChart.propTypes = {
       label: PropTypes.string.isRequired,
     })
   ).isRequired,
-  visibleDatasets: PropTypes.arrayOf(PropTypes.number).isRequired,
+  visibleDatasets: PropTypes.arrayOf(PropTypes.number),
   xAxisLabels: PropTypes.arrayOf(PropTypes.string),
-  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table']).isRequired,
+  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table']),
   selectedMetrics: PropTypes.object,
   error: PropTypes.string,
+  isLoading: PropTypes.bool,
   groupBy: PropTypes.string,
   ItemsPerPage: PropTypes.number.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.object),
   customChartDefs: PropTypes.func.isRequired,
   metricNames: PropTypes.object,
-  metricHues: PropTypes.objectOf(PropTypes.number).isRequired,
+  metricHues: PropTypes.objectOf(PropTypes.number),
 }
 
 MultiChart.defaultProps = {
-  visibleDatasets: [],
   chartType: 'bar',
   ItemsPerPage: 10,
   groupBy: 'ID',

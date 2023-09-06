@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
   { Header: 'Name', accessor: 'NAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Enabled', accessor: 'ENABLED' },
   { Header: 'Auth driver', accessor: 'AUTH_DRIVER' },
+  { Header: 'VM quota', accessor: 'VM_QUOTA' },
+  { Header: 'Datastore quota', accessor: 'DATASTORE_QUOTA' },
+  { Header: 'Network quota', accessor: 'NETWORK_QUOTA' },
+  { Header: 'Image quota', accessor: 'IMAGE_QUOTA' },
 ]

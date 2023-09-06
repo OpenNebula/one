@@ -13,44 +13,62 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
-
+import { useMemo, Component } from 'react'
+import { Chip, Box, Grid } from '@mui/material'
 import { useViews } from 'client/features/Auth'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
-
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
 
 const DEFAULT_DATA_CY = 'groups'
 
 /**
- * @param {object} props - Props
- * @returns {ReactElement} Groups table
+ * `GroupsTable` component displays a table of groups with their respective primary and secondary labels.
+ *
+ * @param {object} props - Component properties.
+ * @param {object} [props.rootProps={}] - Root properties for the table.
+ * @param {object} [props.searchProps={}] - Search properties for the table.
+ * @param {Array} props.vdcGroups - Array of VDC groups.
+ * @param {string|number} props.primaryGroup - ID of the primary group.
+ * @param {Array<string|number>} [props.secondaryGroups=[]] - Array of IDs of the secondary groups.
+ * @param {object} props.rest - Rest of the properties.
+ * @returns {Component} Rendered component.
  */
 const GroupsTable = (props) => {
-  const { rootProps = {}, searchProps = {}, vdcGroups, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    vdcGroups,
+    primaryGroup,
+    secondaryGroups = [],
+    singleSelect = false,
+    ...rest
+  } = props ?? {}
+
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const {
-    data = [],
-    isFetching,
-    refetch,
-  } = useGetGroupsQuery(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data: result?.data?.filter((group) => {
-        if (vdcGroups) {
-          return vdcGroups.includes(group.ID)
-        }
+  const { data = [], isFetching, refetch } = useGetGroupsQuery()
 
-        return true
-      }),
-    }),
-  })
+  const primaryGroupName = useMemo(() => {
+    const primary = data.find(
+      (group) =>
+        group.ID === primaryGroup || String(group.ID) === String(primaryGroup)
+    )
+
+    return primary?.NAME
+  }, [data, primaryGroup])
+
+  const secondaryGroupNames = useMemo(() => {
+    const foundGroups = data.filter((group) =>
+      secondaryGroups.includes(String(group.ID))
+    )
+
+    return foundGroups.map((group) => group.NAME)
+  }, [data, secondaryGroups])
 
   const columns = useMemo(
     () =>
@@ -62,21 +80,38 @@ const GroupsTable = (props) => {
   )
 
   return (
-    <EnhancedTable
-      columns={columns}
-      data={useMemo(() => data, [data])}
-      rootProps={rootProps}
-      searchProps={searchProps}
-      refetch={refetch}
-      isLoading={isFetching}
-      getRowId={(row) => String(row.ID)}
-      RowComponent={GroupRow}
-      {...rest}
-    />
+    <div>
+      <Grid container spacing={2} alignItems="center">
+        {primaryGroupName && (
+          <Grid item>
+            <Chip label={`${T.Primary}: ${primaryGroupName}`} color="primary" />
+          </Grid>
+        )}
+
+        {secondaryGroupNames.length > 0 &&
+          secondaryGroupNames.map((name, index) => (
+            <Grid item key={index}>
+              <Chip label={`${T.Secondary}: ${name}`} color="secondary" />
+            </Grid>
+          ))}
+      </Grid>
+
+      <Box mt={2}>
+        <EnhancedTable
+          columns={columns}
+          data={data}
+          rootProps={rootProps}
+          searchProps={searchProps}
+          refetch={refetch}
+          isLoading={isFetching}
+          getRowId={(row) => String(row.ID)}
+          RowComponent={GroupRow}
+          singleSelect={singleSelect}
+          {...rest}
+        />
+      </Box>
+    </div>
   )
 }
-
-GroupsTable.propTypes = { ...EnhancedTable.propTypes }
-GroupsTable.displayName = 'GroupsTable'
 
 export default GroupsTable

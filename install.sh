@@ -2973,6 +2973,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vdc-tab.yaml \
+				src/fireedge/etc/sunstone/admin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \

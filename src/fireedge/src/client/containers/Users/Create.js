@@ -13,16 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import { ReactElement } from 'react'
+import { useHistory } from 'react-router'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
+import { useGeneralApi } from 'client/features/General'
+import { useAllocateUserMutation } from 'client/features/OneApi/user'
+
+import {
+  DefaultFormStepper,
+  SkeletonStepsForm,
+} from 'client/components/FormStepper'
+import { CreateForm } from 'client/components/Forms/User'
+import { PATH } from 'client/apps/sunstone/routesOne'
+
+/**
+ * Displays the creation form for a User.
+ *
+ * @returns {ReactElement} User form
+ */
+function CreateUser() {
+  const history = useHistory()
+  const { enqueueSuccess } = useGeneralApi()
+  const [createUser] = useAllocateUserMutation()
+
+  const onSubmit = async (props) => {
+    try {
+      const newUserId = await createUser(props).unwrap()
+      history.push(PATH.SYSTEM.USERS.LIST)
+      enqueueSuccess(`User created - #${newUserId}`)
+    } catch {}
+  }
+
+  return (
+    <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
+      {(config) => <DefaultFormStepper {...config} />}
+    </CreateForm>
+  )
 }
+
+export default CreateUser

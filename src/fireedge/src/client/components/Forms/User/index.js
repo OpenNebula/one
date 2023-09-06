@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
-}
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'User/CreateForm' }, configProps)
+
+export { CreateForm }

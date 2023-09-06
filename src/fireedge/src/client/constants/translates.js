@@ -80,6 +80,8 @@ module.exports = {
   CreateProvision: 'Create Provision',
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
+  CreateUser: 'Create User',
+  UpdateUser: 'Update User',
   CreateVirtualNetwork: 'Create Virtual Network',
   CreateVmTemplate: 'Create VM Template',
   CreateVDC: 'Create VDC',
@@ -270,6 +272,8 @@ module.exports = {
   /* login */
   Username: 'Username',
   Password: 'Password',
+  ConfirmPassword: 'Confirm Password',
+  PasswordsMustMatch: 'Passwords must match',
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
   Credentials: 'Credentials',
@@ -345,6 +349,7 @@ module.exports = {
   DisableDashboardAnimations: 'Disable dashboard animations',
   ConfigurationUI: 'Configuration UI',
   Authentication: 'Authentication',
+  AuthType: 'Authentication Type',
   SshPrivateKey: 'SSH private key',
   AddUserSshPrivateKey: 'Add user SSH private key',
   SshPassphraseKey: 'SSH private key passphrase',
@@ -361,6 +366,8 @@ module.exports = {
   Users: 'Users',
   Group: 'Group',
   Groups: 'Groups',
+  PrimaryGroup: 'Primary Group',
+  SecondaryGroups: 'Secondary Groups',
   VDC: 'VDC',
   VDCs: 'VDCs',
   ACL: 'ACL',
@@ -493,6 +500,10 @@ module.exports = {
   CPUQuota: 'CPU quota',
   CPUQuotaConcept:
     'Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs',
+  DatastoreQuota: 'Datastore quotas',
+  NetworkQuota: 'Network quotas',
+  ImageQuota: 'Image quotas',
+  VmQuota: 'VM quotas',
   CompressionLevel: 'Compression level',
   CompressionLevelConcept:
     'Compress backups in the datastore, it needs a Restic repository with format version 2',
@@ -1329,6 +1340,9 @@ module.exports = {
   ProvisionId: 'Provision ID',
 
   /* User inputs */
+  AuthDriver: 'Auth Driver',
+  PasswordHash: 'Password Hash',
+  TokenPasswordHash: 'Token Password Hash',
   UserInputs: 'User Inputs',
   UserInputsConcept: `
     These attributes must be provided by the user when a new VM is instantiated.

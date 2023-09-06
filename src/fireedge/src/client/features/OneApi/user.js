@@ -49,15 +49,48 @@ const userApi = oneApi.injectEndpoints({
 
         return { command }
       },
-      transformResponse: (data) => [data?.USER_POOL?.USER ?? []].flat(),
-      providesTags: (users) =>
-        users
-          ? [
-              ...users.map(({ ID }) => ({ type: USER_POOL, id: `${ID}` })),
-              USER_POOL,
-            ]
-          : [USER_POOL],
+      transformResponse: (data) => {
+        const usersArray = data?.USER_POOL?.USER ?? []
+        const quotasLookup = new Map(
+          data?.USER_POOL?.QUOTAS?.map((quota) => [quota.ID, quota]) || []
+        )
+        const defaultQuotas = data?.USER_POOL?.DEFAULT_USER_QUOTAS || {}
+
+        const getStrippedQuotaValue = (quota) => {
+          if (typeof quota === 'object' && quota !== null) {
+            return Object.values(quota)[0] || ''
+          }
+
+          return quota || ''
+        }
+
+        return usersArray.map((user) => {
+          const userQuotas = quotasLookup.get(user.ID) || {}
+
+          return {
+            ...user,
+            ...Object.fromEntries(
+              Object.entries(userQuotas).map(([key, value]) => [
+                key,
+                getStrippedQuotaValue(value) ||
+                  getStrippedQuotaValue(defaultQuotas[key]),
+              ])
+            ),
+          }
+        })
+      },
+      providesTags: (users) => {
+        if (users) {
+          return [
+            ...users.map(({ ID }) => ({ type: USER_POOL, id: `${ID}` })),
+            USER_POOL,
+          ]
+        } else {
+          return [USER_POOL]
+        }
+      },
     }),
+
     getUser: builder.query({
       /**
        * Retrieves information for the user.
@@ -73,7 +106,26 @@ const userApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      transformResponse: (data) => data?.USER ?? {},
+      transformResponse: (data) => {
+        const user = data?.USER ?? {}
+
+        const getStrippedQuotaValue = (quota) => {
+          if (typeof quota === 'object' && quota !== null) {
+            return Object.values(quota)[0] || ''
+          }
+
+          return quota || ''
+        }
+
+        Object.entries(user).forEach(([key, value]) => {
+          if (key.endsWith('_QUOTA')) {
+            user[key] = getStrippedQuotaValue(value)
+          }
+        })
+
+        return user
+      },
+
       providesTags: (_, __, { id }) => [{ type: USER, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
@@ -386,7 +438,7 @@ const userApi = oneApi.injectEndpoints({
         const name = Actions.USER_ENABLE
         const command = { name, ...Commands[name] }
 
-        return { params: { id, enable: false }, command }
+        return { params: { id, enable: true }, command }
       },
       invalidatesTags: (_, __, id) => [{ type: USER, id }, USER_POOL],
     }),
@@ -419,6 +471,16 @@ const userApi = oneApi.injectEndpoints({
 
         return { command }
       },
+    }),
+    getUserQuotas: builder.query({
+      query: () => {
+        const name = Actions.USER_QUOTA_INFO
+        const command = { name, ...Commands[name] }
+
+        return { command }
+      },
+      transformResponse: (data) =>
+        [data?.USER_QUOTA_POOL?.USER_QUOTA ?? []].flat(),
     }),
     updateUserQuota: builder.mutation({
       /**

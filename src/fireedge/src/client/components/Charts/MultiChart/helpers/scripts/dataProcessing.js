@@ -57,10 +57,17 @@ export const processDataForChart = (
  * Used with all pool-like API requests to find the data array dynamically.
  *
  * @param {object} obj - The object to search within.
- * @returns {Array|null} - The found array or null if not found.
+ * @returns {Array} - The found array or empty if not found.
  */
 const findFirstArray = (obj) => {
-  for (const [, value] of Object.entries(obj)) {
+  for (const value of Object.values(obj)) {
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      for (const innerValue of Object.values(value)) {
+        if (typeof innerValue === 'object' && !Array.isArray(innerValue)) {
+          return [innerValue]
+        }
+      }
+    }
     if (
       Array.isArray(value) &&
       value.length > 0 &&
@@ -74,7 +81,7 @@ const findFirstArray = (obj) => {
     }
   }
 
-  return null
+  return []
 }
 
 /**
@@ -92,12 +99,35 @@ export const transformApiResponseToDataset = (
   metricKeys,
   labelingFunction
 ) => {
-  const dataArray = findFirstArray(apiResponse)
+  const dataArray = findFirstArray(apiResponse.data || apiResponse)
+
+  const flattenObject = (obj, prefix = '') =>
+    Object.keys(obj).reduce((acc, k) => {
+      const pre = prefix.length ? prefix + '.' : ''
+      if (typeof obj[k] === 'object' && obj[k] !== null) {
+        if (Array.isArray(obj[k])) {
+          if (obj[k].length > 0 && typeof obj[k][0] === 'object') {
+            obj[k].forEach((item, _index) => {
+              Object.assign(acc, flattenObject(item, pre + k))
+            })
+          } else {
+            acc[pre + k] = obj[k]
+          }
+        } else {
+          Object.assign(acc, flattenObject(obj[k], pre + k))
+        }
+      } else {
+        acc[pre + k] = obj[k]
+      }
+
+      return acc
+    }, {})
 
   const transformedRecords = dataArray.map((record) => {
+    const flattenedRecord = flattenObject(record)
     const transformedRecord = {}
     Object.keys(keyMap).forEach((key) => {
-      transformedRecord[keyMap[key]] = record[key]
+      transformedRecord[keyMap[key]] = flattenedRecord[key]
     })
 
     return transformedRecord
@@ -113,14 +143,19 @@ export const transformApiResponseToDataset = (
   })
 
   let label = 'N/A'
-  if (labelingFunction) {
+  let error = null
+  const isEmpty = transformedRecords?.length === 0
+
+  if (!isEmpty && labelingFunction) {
     try {
       label = labelingFunction(transformedRecords[0])
-    } catch (error) {
-      // Handle this sometime
+    } catch (err) {
+      error = `Error applying label to dataset: ${err.message}`
     }
+  }
 
-    return {
+  return {
+    dataset: {
       id: generateDatasetId({
         data: transformedRecords,
         metrics: metrics,
@@ -129,7 +164,9 @@ export const transformApiResponseToDataset = (
       data: transformedRecords,
       metrics: metrics,
       label: label,
-    }
+    },
+    error: error,
+    isEmpty: isEmpty,
   }
 }
 
@@ -156,23 +193,28 @@ export const filterDataset = (dataset, filterFn, labelingFunction) => {
   })
 
   let label = 'N/A'
-  if (labelingFunction && filteredData.length > 0) {
-    try {
-      label = labelingFunction(filteredData[0])
-    } catch (error) {
-      // Handle this sometime
-    }
+  let error = null
 
-    return {
+  if (labelingFunction) {
+    try {
+      label = labelingFunction(filteredData[0] || {})
+    } catch (err) {
+      error = `Error applying label to dataset: ${err.message}`
+    }
+  }
+
+  return {
+    dataset: {
       id: generateDatasetId({
         data: filteredData,
-        metrics: metrics,
+        metrics: filteredMetrics,
         label: label,
       }),
       data: filteredData,
       metrics: filteredMetrics,
       label: label,
-    }
+    },
+    error: error,
   }
 }
 

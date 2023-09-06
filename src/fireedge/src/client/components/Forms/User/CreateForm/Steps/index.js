@@ -13,16 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import General, {
+  STEP_ID as GENERAL_ID,
+} from 'client/components/Forms/User/CreateForm/Steps/General'
+import SecondaryGroups, {
+  STEP_ID as SECONDARY_GROUPS_ID,
+} from 'client/components/Forms/User/CreateForm/Steps/SecondaryGroups'
+import PrimaryGroup, {
+  STEP_ID as PRIMARY_GROUP_ID,
+} from 'client/components/Forms/User/CreateForm/Steps/PrimaryGroup'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
-}
+import { createSteps } from 'client/utils'
+const Steps = createSteps([General, PrimaryGroup, SecondaryGroups], {
+  transformBeforeSubmit: (formData) => {
+    const {
+      [GENERAL_ID]: generalData,
+      [PRIMARY_GROUP_ID]: primaryGroupsData,
+      [SECONDARY_GROUPS_ID]: secondaryGroupsData,
+    } = formData
+
+    return {
+      username: generalData.username,
+      password: generalData.password,
+      driver: generalData.authType,
+      primaryGroup: primaryGroupsData.primaryGroup,
+      secondaryGroups: secondaryGroupsData.secondaryGroups,
+    }
+  },
+})
+
+export default Steps

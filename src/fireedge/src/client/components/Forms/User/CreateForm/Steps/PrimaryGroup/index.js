@@ -13,16 +13,46 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import PropTypes from 'prop-types'
+import { useFormContext } from 'react-hook-form'
+import { GroupsTable } from 'client/components/Tables'
+import { T } from 'client/constants'
+import { string } from 'yup'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
+export const STEP_ID = 'primaryGroup'
+
+const Content = () => {
+  const { setValue } = useFormContext()
+
+  const handleSelectedRow = (row) => {
+    setValue(STEP_ID, row?.ID)
+  }
+
+  return (
+    <GroupsTable
+      singleSelect={true}
+      onRowClick={handleSelectedRow}
+      disableGlobalSort
+      pageSize={5}
+    />
+  )
 }
+
+/**
+ * User primary group configuration.
+ *
+ * @returns {object} Primary group configuration step
+ */
+const PrimaryGroupStep = () => ({
+  id: STEP_ID,
+  label: T.PrimaryGroup,
+  resolver: string().trim().required(),
+  content: Content,
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+}
+
+export default PrimaryGroupStep

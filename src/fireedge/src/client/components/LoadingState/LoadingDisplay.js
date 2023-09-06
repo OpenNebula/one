@@ -14,20 +14,53 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Component, useEffect } from 'react'
+import { Box, Typography, CircularProgress } from '@mui/material'
 import { InfoEmpty, CloudError } from 'iconoir-react'
+import { useGeneralApi } from 'client/features/General'
 
 /**
  * Renders a display message based on the presence of an error.
  *
  * @param {object} props - The properties for the component.
  * @param {boolean} props.error - Indicates if there was an error fetching data.
- * @returns {React.Component} The rendered loading display component.
+ * @param {boolean} props.isLoading - Indicates if data is still being fetched.
+ * @param {boolean} props.isEmpty - Flag set when transformed data was empty.
+ * @returns {Component} The rendered loading display component.
  */
-export const LoadingDisplay = ({ error }) => {
-  const displayMessage = error ? 'Error fetching data' : 'No data available'
-  const DisplayIcon = error ? CloudError : InfoEmpty
+export const LoadingDisplay = ({ isLoading, error, isEmpty }) => {
+  const { enqueueError } = useGeneralApi()
+
+  useEffect(() => {
+    if (error && error.length > 0) {
+      enqueueError(error)
+    }
+  }, [error])
+
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        width="100%"
+        height="100%"
+      >
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  let displayMessage = 'No data available'
+  let DisplayIcon = InfoEmpty
+
+  if (error && error.length > 0) {
+    displayMessage = error
+    DisplayIcon = CloudError
+  } else if (isEmpty) {
+    displayMessage = 'No data available'
+    DisplayIcon = InfoEmpty
+  }
 
   return (
     <Box
@@ -35,7 +68,8 @@ export const LoadingDisplay = ({ error }) => {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      height="500px"
+      width="100%"
+      height="100%"
       borderRadius={4}
       boxShadow={2}
       padding={3}
@@ -49,5 +83,13 @@ export const LoadingDisplay = ({ error }) => {
 }
 
 LoadingDisplay.propTypes = {
-  error: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  error: PropTypes.string,
+  isEmpty: PropTypes.bool,
+}
+
+LoadingDisplay.propTypes = {
+  isLoading: PropTypes.bool,
+  error: PropTypes.string,
+  isEmpty: PropTypes.bool,
 }

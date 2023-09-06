@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE },
 } = require('../defaults')
-
 const VM_ALLOCATE = 'vm.allocate'
 const VM_DEPLOY = 'vm.deploy'
 const VM_ACTION = 'vm.action'
@@ -60,7 +58,6 @@ const VM_POOL_MONITORING = 'vmpool.monitoring'
 const VM_POOL_ACCOUNTING = 'vmpool.accounting'
 const VM_POOL_SHOWBACK = 'vmpool.showback'
 const VM_POOL_CALCULATE_SHOWBACK = 'vmpool.calculateshowback'
-
 const Actions = {
   VM_ALLOCATE,
   VM_DEPLOY,
@@ -104,7 +101,6 @@ const Actions = {
   VM_POOL_SHOWBACK,
   VM_POOL_CALCULATE_SHOWBACK,
 }
-
 module.exports = {
   Actions,
   Commands: {
@@ -811,19 +807,19 @@ module.exports = {
           default: -2,
         },
         startMonth: {
-          filter: query,
+          from: query,
           default: -1,
         },
         startYear: {
-          filter: query,
+          from: query,
           default: -1,
         },
         endMonth: {
-          filter: query,
+          from: query,
           default: -1,
         },
         endYear: {
-          filter: query,
+          from: query,
           default: -1,
         },
       },
@@ -833,19 +829,19 @@ module.exports = {
       httpMethod: GET,
       params: {
         startMonth: {
-          filter: query,
+          from: query,
           default: -1,
         },
         startYear: {
-          filter: query,
+          from: query,
           default: -1,
         },
         endMonth: {
-          filter: query,
+          from: query,
           default: -1,
         },
         endYear: {
-          filter: query,
+          from: query,
           default: -1,
         },
       },

@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import { DateTime } from 'luxon'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
+/**
+ * Get the default date range: today and seven days ago.
+ *
+ * @returns {{startDate: DateTime, endDate: DateTime}} Object containing the start and end dates.
+ */
+export const getDefaultDateRange = () => {
+  const today = DateTime.now()
+  const sevenDaysAgo = DateTime.now().minus({ days: 7 })
+
+  return {
+    startDate: sevenDaysAgo,
+    endDate: today,
+  }
 }

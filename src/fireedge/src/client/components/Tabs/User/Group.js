@@ -13,41 +13,55 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { Group } from 'iconoir-react'
-import { Typography } from '@mui/material'
-import { rowStyles } from 'client/components/Tables/styles'
+import { useHistory, generatePath } from 'react-router-dom'
 
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, TOTAL_USERS } = value
+import { PATH } from 'client/apps/sunstone/routesOne'
+
+import { GroupsTable } from 'client/components/Tables'
+import { useGetUserQuery } from 'client/features/OneApi/user'
+
+/**
+ * Renders mainly information tab.
+ *
+ * @param {object} props - Props
+ * @param {string} props.id - Datastore id
+ * @returns {ReactElement} Information tab
+ */
+const GroupsInfoTab = ({ id }) => {
+  const path = PATH.SYSTEM.GROUPS.DETAIL
+  const history = useHistory()
+  const { data: user } = useGetUserQuery({ id })
+  const { GID, GROUPS } = user
+
+  const handleRowClick = (rowId) => {
+    history.push(generatePath(path, { id: String(rowId) }))
+  }
+
+  const primaryGroup = GID
+  const secondaryGroups = Array.isArray(GROUPS)
+    ? GROUPS.map((group) => group.ID)
+    : GROUPS
+    ? [GROUPS.ID]
+    : []
 
   return (
-    <div {...props} data-cy={`group-${ID}`}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Total Users: ${TOTAL_USERS}`}>
-            <Group />
-            <span>{` ${TOTAL_USERS}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
+    <GroupsTable
+      disableRowSelect
+      disableGlobalSort
+      primaryGroup={primaryGroup}
+      secondaryGroups={secondaryGroups}
+      onRowClick={(row) => handleRowClick(row.ID)}
+    />
   )
 }
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+GroupsInfoTab.propTypes = {
+  tabProps: PropTypes.object,
+  id: PropTypes.string,
 }
 
-export default Row
+GroupsInfoTab.displayName = 'GroupsInfoTab'
+
+export default GroupsInfoTab

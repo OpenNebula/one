@@ -16,6 +16,8 @@
 // eslint-disable-next-line prettier/prettier, no-unused-vars
 import { VmQuota, NetworkQuota, DatastoreQuota, ImageQuota } from 'client/constants/quota'
 import * as ACTIONS from 'client/constants/actions'
+import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
 /**
  * @typedef LoginToken
@@ -48,6 +50,19 @@ import * as ACTIONS from 'client/constants/actions'
  * IMAGE: ImageQuota|ImageQuota[]
  * }} [DEFAULT_USER_QUOTAS] - Default quotas
  */
+
+export const USER_STATES = [
+  {
+    name: STATES.DISABLED,
+    shortName: 'off',
+    color: COLOR.error.dark,
+  },
+  {
+    name: STATES.ENABLED,
+    shortName: 'on',
+    color: COLOR.success.main,
+  },
+]
 
 export const USER_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',

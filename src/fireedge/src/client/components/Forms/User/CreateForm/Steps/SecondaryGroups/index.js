@@ -13,16 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import StatusBadge from 'client/components/Status/Badge'
-import StatusChip from 'client/components/Status/Chip'
-import StatusCircle from 'client/components/Status/Circle'
-import LinearProgressWithLabel from 'client/components/Status/LinearProgressWithLabel'
-import LinearProgressWithTooltip from 'client/components/Status/LinearProgressWithTooltip'
+import PropTypes from 'prop-types'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { GroupsTable } from 'client/components/Tables'
+import { T } from 'client/constants'
+import { array, string } from 'yup'
 
-export {
-  StatusBadge,
-  StatusChip,
-  StatusCircle,
-  LinearProgressWithLabel,
-  LinearProgressWithTooltip,
+export const STEP_ID = 'secondaryGroups'
+
+const Content = () => {
+  const { setValue } = useFormContext()
+  const secondaryGroups = useWatch({ name: STEP_ID })
+
+  const handleSelectedRows = (rows) => {
+    const newValue = rows?.map((row) => row?.ID) || []
+    setValue(STEP_ID, newValue)
+  }
+
+  return (
+    <GroupsTable
+      onSelectedRowsChange={handleSelectedRows}
+      disableGlobalSort
+      pageSize={5}
+      initialState={{
+        selectedRowIds: secondaryGroups?.reduce(
+          (res, id) => ({ ...res, [id]: true }),
+          {}
+        ),
+      }}
+    />
+  )
 }
+
+/**
+ * User secondary groups configuration.
+ *
+ * @returns {object} Secondary groups configuration step
+ */
+const SecondaryGroupsStep = () => ({
+  id: STEP_ID,
+  label: T.SecondaryGroups,
+  resolver: array(string().trim()).default(() => []),
+  content: Content,
+})
+
+Content.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+}
+
+export default SecondaryGroupsStep

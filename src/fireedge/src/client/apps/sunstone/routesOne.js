@@ -198,6 +198,10 @@ const Users = loadable(() => import('client/containers/Users'), { ssr: false })
 const UserDetail = loadable(() => import('client/containers/Users/Detail'), {
   ssr: false,
 })
+const CreateUser = loadable(() => import('client/containers/Users/Create'), {
+  ssr: false,
+})
+
 const Groups = loadable(() => import('client/containers/Groups'), {
   ssr: false,
 })
@@ -311,6 +315,7 @@ export const PATH = {
     USERS: {
       LIST: `/${RESOURCE_NAMES.USER}`,
       DETAIL: `/${RESOURCE_NAMES.USER}/:id`,
+      CREATE: `/${RESOURCE_NAMES.USER}/create`,
     },
     GROUPS: {
       LIST: `/${RESOURCE_NAMES.GROUP}`,
@@ -609,6 +614,11 @@ const ENDPOINTS = [
     title: T.System,
     icon: SystemIcon,
     routes: [
+      {
+        title: T.CreateUser,
+        path: PATH.SYSTEM.USERS.CREATE,
+        Component: CreateUser,
+      },
       {
         title: T.Users,
         path: PATH.SYSTEM.USERS.LIST,

@@ -27,6 +27,7 @@ import {
 } from 'client/features/OneApi/user'
 import { UsersTable } from 'client/components/Tables'
 import UserTabs from 'client/components/Tabs/User'
+import UserActions from 'client/components/Tables/Users/actions'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
 import { SubmitButton } from 'client/components/FormControl'
@@ -40,6 +41,7 @@ import { T, User } from 'client/constants'
  */
 function Users() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const actions = UserActions()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -50,6 +52,7 @@ function Users() {
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
           <UsersTable
             onSelectedRowsChange={onSelectedRowsChange}
+            globalActions={actions}
             useUpdateMutation={useUpdateUserMutation}
           />
 
