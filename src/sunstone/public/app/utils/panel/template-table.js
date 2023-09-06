@@ -42,15 +42,17 @@ define(function(require) {
    * @param {Object} templateJSON Resource template (e.g: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
    * @param {String} resourceType Resource type (e.g: Zone, Host, Image...)
    * @param {String} tableName Header of the table (e.g: Locale.tr("Attributes"))
+   * @param {String} tableName Header of the table (e.g: Locale.tr("Attributes"))
    * @returns {String} HTML table
    */
-  function _html(templateJSON, resourceType, tableName) {
+  function _html(templateJSON, resourceType, tableName, blockModify) {
     // Start - TEMPLATE TABLE
+    const modify = blockModify? false : true
     var html = '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
       <thead>\
         <tr><th colspan="3">' + tableName + '</th></tr>\
       </thead>' +
-      fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, true);
+      fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, modify);
 
     // Row with form to create new attribute
     html += '<tr>\

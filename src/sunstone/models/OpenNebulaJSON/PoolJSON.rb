@@ -35,4 +35,5 @@ module OpenNebulaJSON
     class VirtualRouterPoolJSON < OpenNebula::VirtualRouterPool; include JSONUtils; end
     class MarketPlacePoolJSON < OpenNebula::MarketPlacePool; include JSONUtils; end
     class MarketPlaceAppPoolJSON < OpenNebula::MarketPlaceAppPool; include JSONUtils; end
+    class BackupJobPoolJSON < OpenNebula::BackupJobPool; include JSONUtils; end
 end

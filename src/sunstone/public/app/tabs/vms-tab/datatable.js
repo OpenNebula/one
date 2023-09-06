@@ -47,13 +47,14 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function Table(dataTableId, conf) {
+  function Table(dataTableId, conf, selectOptions) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
     this.xmlRoot = XML_ROOT;
     this.labelsColumn = LABELS_COLUMN;
+    var optionsForSelect = selectOptions || {}
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -73,14 +74,16 @@ define(function(require) {
 
     this.columns = VMsTableUtils.columns;
 
-    this.selectOptions = {
+    var defaultSelectOptions = {
       "id_index": 1,
       "name_index": 4,
       "select_resource": Locale.tr("Please select a VM from the list"),
       "you_selected": Locale.tr("You selected the following VM:"),
       "select_resource_multiple": Locale.tr("Please select one or more VMs from the list"),
       "you_selected_multiple": Locale.tr("You selected the following VMs:")
-    };
+    }
+
+    this.selectOptions = Object.assign(defaultSelectOptions, optionsForSelect);
 
     this.totalVms = 0;
     this.activeVms = 0;

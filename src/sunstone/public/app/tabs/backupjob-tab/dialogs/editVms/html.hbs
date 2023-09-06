@@ -14,37 +14,31 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<style>
-	.title_label{
-		font-weight: bold;
-		color:#555;
-	}
-</style>
-
-<table id="sched_{{res}}_actions_table" class="info_table dataTable">
-  <thead>
-      <tr>
-        <th> {{tr "ID"}}</th>
-        <th> {{tr "Action"}} </th>
-        <th> {{tr "Time"}} </th>
-        <th> {{tr "Rep"}} </th>
-        <th> {{tr "Ends"}} </th>
-        <th> {{tr "Done" }} </th>
-        {{#if isVM}} <th> {{tr "Message" }} </th> {{/if}}
-        <th colspan=""> </th>
-        {{#if canAdd}}
-          <th>
-            <button id="add_sched_{{res}}_action" class="button small success right radius"> {{tr "Add action"}} </button>
-          </th>
-        {{/if}}
-        {{#if leases}}
-          <th>
-            <button id="leases_btn" class="small button leases right radius" type="button"><i class="fa fa-clock"></i></button>
-          </th>
-        {{/if}}
-      </tr>
-  </thead>
-	<tbody id="sched_{{res}}_actions_body" class="sched_place">
-    {{#if body}} {{{body}}} {{/if}}
-  </tbody>
-</table>
+<div id="{{dialogId}}" class="reveal large" data-reveal>
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader" id="">{{tr "Select VMs"}}</h3>
+    </div>
+  </div>
+  <div class="confirm-resources-header"></div>
+  <div class="reveal-body">
+    <form id="{{dialogId}}Form" action="">
+      {{{vmsTabHTML}}}
+      <label for="vmsOrdered" >
+        {{tr "VM List (ordered)"}}
+        <span class="tip">
+          {{tr "The order of this list is crucial as it determines the sequence of backup operations."}}
+        </span>
+      </label>
+      <input type="text" name="vmsOrdered" id="vmsOrdered", value="{{vms}}"/>
+      <div class="reveal-footer">
+        <div class="form_buttons">
+          <button class="button radius right success" id="attach_disk_button" type="submit">{{tr "Edit"}}</button>
+        </div>
+      </div>
+      <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </form>
+  </div>
+</div>

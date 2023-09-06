@@ -66,6 +66,7 @@ class SunstoneServer < CloudServer
             when "vrouter"          then VirtualRouterPoolJSON.new(client, user_flag)
             when "marketplace"      then MarketPlacePoolJSON.new(client)
             when "marketplaceapp"   then MarketPlaceAppPoolJSON.new(client, user_flag)
+            when "backupjob"        then BackupJobPoolJSON.new(client, user_flag)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -132,6 +133,7 @@ class SunstoneServer < CloudServer
             when "vrouter"          then VirtualRouterJSON.new(VirtualRouter.build_xml, @client)
             when "marketplace"      then MarketPlaceJSON.new(MarketPlace.build_xml, @client)
             when "marketplaceapp"   then MarketPlaceAppJSON.new(MarketPlaceApp.build_xml, @client)
+            when "backupjob"        then BackupJobJSON.new(BackupJob.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -619,6 +621,7 @@ class SunstoneServer < CloudServer
             when "vrouter"          then VirtualRouterJSON.new_with_id(id, @client)
             when "marketplace"      then MarketPlaceJSON.new_with_id(id, @client)
             when "marketplaceapp"   then MarketPlaceAppJSON.new_with_id(id, @client)
+            when "backupjob"        then BackupJobJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

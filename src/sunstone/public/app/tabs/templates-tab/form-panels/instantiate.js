@@ -496,7 +496,7 @@ define(function(require) {
                 groupDatatable: that.groupTable.dataTableHTML,
                 table_sched_actions: ScheduleActions.htmlTable(
                   resource = RESOURCE,
-                  leases = true,
+                  leases = false,
                   body = ScheduleActions.getScheduleActionTableContent(
                     template_json.VMTEMPLATE.TEMPLATE.SCHED_ACTION
                   ),

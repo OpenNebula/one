@@ -56,6 +56,8 @@ define(function (require) {
   newDate.setTime(currentDate.getTime() + (hours*60*60*1000));
   var defaultHour = newDate.getHours() + ":" + newDate.getMinutes();
 
+  var resourcesWithoutActions = ['BackupJobs', 'create_backupjob']
+
   var defaultActions = [
     "terminate",
     "terminate-hard",
@@ -314,18 +316,24 @@ define(function (require) {
     $("tr.periodic.create, tr#no_relative_time_form").remove();
     this.res = res;
     var options = "";
+    
+    if(!resourcesWithoutActions.includes(res)){
+      $.each(actions, function (key, action) {
+        var actionAux = action.replace(/\-/g, "_");
+        if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)) {
+          options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
+        }
+      });
+    }
 
-    $.each(actions, function (key, action) {
-      var actionAux = action.replace(/\-/g, "_");
-      if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)) {
-        options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
-      }
-    });
-
-    var schedule = $("#sched_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
+    const attrFormNewScheduleActions = {
       "actions": options,
-      "res": this.res
-    }));
+      "resource": this.res,
+    }
+    if(!resourcesWithoutActions.includes(this.res)){
+      attrFormNewScheduleActions.relative = true
+    }
+    var schedule = $("#sched_" + this.res + "_actions_table tbody", context).append(TemplateHTML(attrFormNewScheduleActions));
 
     addPickers(schedule,context);
 
@@ -519,7 +527,7 @@ define(function (require) {
         if(dataJSON.ACTION){
           $("#select_new_action").val(dataJSON.ACTION).change();
 
-          if(dataJSON.ARGS){
+          if(dataJSON.ARGS && typeof dataJSON.ARGS === 'string'){
             var args = dataJSON.ARGS.split(",");
             var disk_id = $("#diskid",context);
             var snap_id = $("#snapid",context);
@@ -630,7 +638,11 @@ define(function (require) {
                   var dataDays = dataJSON.DAYS.split(",");
                   dataDays.forEach(function(dataValue){
                     if(days[dataValue]){
-                      $(days[dataValue]).prop("checked", true);
+                      if (dataValue > 0){
+                        $(days[dataValue - 1]).prop("checked", true);
+                      } else if (dataValue == 0){
+                        $(days[6]).prop("checked", true);
+                      }
                     }
                   });
                 }
@@ -723,14 +735,17 @@ define(function (require) {
     $("#time_input").val(defaultHour);
   }
 
-  function _retrieve(context, isService=false) {
-    $("#sched_" + this.res + "_actions_table .create", context).remove();
+  function _retrieve(context, isService=false, resource) {
+    var res = resource || this.res
+  
+    $("#sched_" + res + "_actions_table .create", context).remove();
     var actionsJSON = [];
 
-    $("#sched_" + this.res + "_actions_table tbody tr", context).each(function (index) {
+    $("#sched_" + res + "_actions_table tbody tr", context).each(function (index) {
       var first = $(this).children("td")[0];
       if (!$("select", first).html()) { //table header
         var actionJSON = {};
+        
         if ($(this).attr("data")) {
           actionJSON = JSON.parse($(this).attr("data"));
           actionJSON.ID = String(index);
@@ -748,7 +763,7 @@ define(function (require) {
     return actionsJSON;
   }
 
-  function _retrieveNewAction(context) {
+  function _retrieveNewAction(context, resource) {
     var relative_time = $("#relative_time", context).prop("checked");
     var new_action = $("#select_new_action", context).val();
     var sched_action = {};
@@ -871,6 +886,11 @@ define(function (require) {
       var rawData = [disk_id_val,snap_id_val,snap_name_val,ds_id_val];
       sched_action.ARGS = rawData.filter(function (e) {return e;}).join();
     }
+    
+    if(resourcesWithoutActions.includes(resource)) {
+      sched_action.ACTION = 'backup'
+    }
+
     $("#sched_" + this.res + "_actions_table .create", context).remove();
     $("#sched_" + this.res + "_actions_table #relative_time_form", context).remove();
     $("#sched_" + this.res + "_actions_table #no_relative_time_form", context).remove();
@@ -1040,8 +1060,11 @@ define(function (require) {
 
       var time = String(schedule_action.TIME);
       sched_obj.time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
-      sched_obj.done_str   = schedule_action.DONE ? (Humanize.prettyTime(schedule_action.DONE)) : "";
-      sched_obj.message_str = schedule_action.MESSAGE ? schedule_action.MESSAGE : "";
+      sched_obj.done_str   = schedule_action.DONE ? 
+      schedule_action.DONE === '-1' ? Locale.tr("Never") :
+      (Humanize.prettyTime(schedule_action.DONE)) : 
+      "";
+      sched_obj.message_str = schedule_action.MESSAGE && typeof schedule_action.MESSAGE === "string" ? schedule_action.MESSAGE : "";
       sched_obj.action = JSON.stringify(schedule_action);
       sched_obj.name = schedule_action.ACTION;
       sched_obj.canEdit = canEdit && sched_obj.id;
@@ -1169,7 +1192,11 @@ define(function (require) {
     scheduleActionsArray = [];
     var CREATE = true;
 
-    function clear(){
+    function deleteInputsEdit(context){
+      context.find("tr.create,tr#schedule_base,tr#input_sched_action_form,tr#relative_time_form,tr#no_relative_time_form").remove();
+    }
+
+    function clear(context){
       CREATE = true;
     }
 
@@ -1195,7 +1222,7 @@ define(function (require) {
     context.off("click", "#add_"+resource+"_action_json");
     context.on("click" , "#add_"+resource+"_action_json", function(e) {
       e.preventDefault();
-      var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
+      var sched_action = { SCHED_ACTION: _retrieveNewAction(context, resource) };
 
       if (sched_action["SCHED_ACTION"] == false) {
         return false;
@@ -1206,9 +1233,13 @@ define(function (require) {
         case "vms":
           Sunstone.runAction("VM.sched_action_add", that.element.ID, sched_template);
           break;
+        case "BackupJobs":
+          Sunstone.runAction("BackupJob.sched_action_add", that.element.ID, sched_template);
+          break;
         case "inst":
         case "inst_flow":
         case "service_create":
+        case "create_backupjob":
         case "temp":
           validateAndInitVariables(resource);
           scheduleActionsArray.push(sched_action["SCHED_ACTION"]);
@@ -1253,7 +1284,7 @@ define(function (require) {
       var id = $(this).attr("data_id");
       if(id && id.length){
         $(".wickedpicker").hide();
-        var sched_action = { SCHED_ACTION: _retrieveNewAction(context) };
+        var sched_action = { SCHED_ACTION: _retrieveNewAction(context, resource) };
         if (sched_action["SCHED_ACTION"] != false) {
           sched_action.SCHED_ACTION.ID = id;
           var obj = {
@@ -1267,6 +1298,7 @@ define(function (require) {
             case "inst":
             case "inst_flow":
             case "service_create":
+            case "create_backupjob":
             case "temp":
               validateAndInitVariables(resource);
               delete sched_action.SCHED_ACTION.ID;
@@ -1286,9 +1318,13 @@ define(function (require) {
               };
               sendSchedActionToServiceRoles(roles, "VM.sched_action_update", obj, extraParams);
               break;
+            case "BackupJobs":
+              Sunstone.runAction("BackupJob.sched_action_update", that.element.ID, obj);
+              break;
             default:
               break;
           }
+          deleteInputsEdit(context)
         }
         clear();
       }
@@ -1307,6 +1343,7 @@ define(function (require) {
         case "inst":
         case "inst_flow":
         case "service_create":
+        case "create_backupjob":
         case "temp":
           validateAndInitVariables(resource);
           scheduleActionsArray.splice(id, 1);
@@ -1325,6 +1362,9 @@ define(function (require) {
             }
           };
           sendSchedActionToServiceRoles(roles, "VM.sched_action_delete", null, extraParams);
+          break;
+        case "BackupJobs":
+          Sunstone.runAction("BackupJob.sched_action_delete", that.element.ID, id);
           break;
         default:
           break;

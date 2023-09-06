@@ -20,27 +20,35 @@
 	</td>
 </tr>
 <tr id="tr_schedule_base" class="create">
-	<td>
-		<select style="width: 80%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
-	</td>
-	<td colspan="2">
-    <input type="checkbox" id="relative_time"/>
-    <label for="relative_time">{{tr "Relative Time"}}</label>
-  </td>
+	{{#if actions}}
+		<td>
+			<select style="width: 80%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
+		</td>
+	{{/if}}
+	{{#if relative}}
+		<td colspan="2">
+    		<input type="checkbox" id="relative_time"/>
+    		<label for="relative_time">{{tr "Relative Time"}}</label>
+  		</td>
+	{{/if}}
 </tr>
-<tr id="input_sched_action_form">
-  <td></td>
-  <td colspan="6">
-    <div style="display: flex;">
-      <input type="number" class="hide" id="diskid" placeholder="{{tr 'Disk Id'}}" style="width: 100%">
-      <input type="number" class="hide" id="snapid" placeholder="{{tr 'Snap Id'}}" style="width: 100%">
-	  <input type="number" class="hide" id="dsid" placeholder="{{tr 'Backup Datastore Id'}}" style="width: 100%">
-      <input type="string" id="snapname" class="hide" placeholder="{{tr 'Snap Name'}}" style="width: 100%">
-    </div>
-  </td>
-</tr>
+{{#if actions}}
+	<tr id="input_sched_action_form">
+		<td></td>
+	  	<td colspan="6">
+	  	  <div style="display: flex;">
+	  	    <input type="number" class="hide" id="diskid" placeholder="{{tr 'Disk Id'}}" style="width: 100%">
+	  	    <input type="number" class="hide" id="snapid" placeholder="{{tr 'Snap Id'}}" style="width: 100%">
+			<input type="number" class="hide" id="dsid" placeholder="{{tr 'Backup Datastore Id'}}" style="width: 100%">
+	  	    <input type="string" id="snapname" class="hide" placeholder="{{tr 'Snap Name'}}" style="width: 100%">
+	  	  </div>
+	  	</td>
+	</tr>
+{{/if}}
 <tr id="relative_time_form" class="hide">
-  <td></td>
+  {{#if actions}}
+	<td></td>
+  {{/if}}
   <td>
     <input type="number" id="time_number" placeholder="{{tr 'Time'}}" style="width: 80%">
   </td>
@@ -57,7 +65,9 @@
   <td></td>
 </tr>
 <tr id="no_relative_time_form">
-  <td></td>
+  {{#if actions}}
+	<td></td>
+  {{/if}}
   <td>
 		<input style="width: 80%" id="date_input" type="text" />
 	</td>
@@ -136,7 +146,7 @@
 <br>
 <tr class="create">
 	<td>
-		<button style="margin-top: 15px;" id="add_{{res}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
-    	<button style="margin-top: 15px;" id="edit_{{res}}_action_json" class="button small success radius">{{tr "Update"}}</button>
+		<button style="margin-top: 15px;" id="add_{{resource}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
+    	<button style="margin-top: 15px;" id="edit_{{resource}}_action_json" class="button small success radius">{{tr "Update"}}</button>
 	</td>
 </tr>

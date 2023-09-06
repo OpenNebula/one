@@ -33,7 +33,7 @@ define(function(require) {
     TEMPLATES
    */
 
- var TemplateEmptyTable = require("hbs!./tab-datatable/empty-table");
+  var TemplateEmptyTable = require("hbs!./tab-datatable/empty-table");
   var TemplateDataTableHTML = require("hbs!./tab-datatable/table");
   var TemplateSearchInputHTML = require("hbs!./tab-datatable/search-input");
 
@@ -42,6 +42,7 @@ define(function(require) {
    */
 
   var SPINNER = "<img src=\"images/ajax-loader.gif\" alt=\"retrieving\" class=\"loading_img\"/>";
+  var externalFnClickElement
 
   /*
     GLOBAL INITIALIZATION
@@ -175,14 +176,15 @@ define(function(require) {
 
   return TabDatatable;
 
-  /*
-    FUNCTION DEFINITIONS
-   */
 
   function _initialize(opts) {
     var that = this;
 
     if (this.conf.select) {
+      if (opts && typeof opts.externalClick === "function") {
+        externalFnClickElement = opts.externalClick
+      }
+
       if (opts && opts.selectOptions) {
         $.extend(this.selectOptions, opts.selectOptions);
       }
@@ -899,7 +901,14 @@ define(function(require) {
           }
 
           var attr = {row_id:row_id, class:"radius label"};
-          var span = $("<span/>",attr).text(row_name);
+          var contentHTML = $(row_name)
+          if (contentHTML.length > 0) {
+            var span = $("<span/>", attr).append(contentHTML);
+            var textHTML = row_name.substring(contentHTML[0].outerHTML.length);
+            span.append(textHTML);
+          } else {
+            var span = $("<span/>", attr).text(row_name);
+          }
           $("#selected_ids_row_" + that.dataTableId, section).append(span);
           if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
             span.attr("title",Locale.tr("just click if you want to delete the resource"));
@@ -917,7 +926,9 @@ define(function(require) {
           $("#selected_resource_multiple_" + that.dataTableId, section).show();
           $("#select_resource_multiple_" + that.dataTableId, section).hide();
         }
-
+        if(typeof externalFnClickElement === "function"){
+          externalFnClickElement()
+        }
         return true;
       };
 

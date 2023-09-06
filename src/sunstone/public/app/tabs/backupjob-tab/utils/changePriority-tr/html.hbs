@@ -14,37 +14,14 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<style>
-	.title_label{
-		font-weight: bold;
-		color:#555;
-	}
-</style>
-
-<table id="sched_{{res}}_actions_table" class="info_table dataTable">
-  <thead>
-      <tr>
-        <th> {{tr "ID"}}</th>
-        <th> {{tr "Action"}} </th>
-        <th> {{tr "Time"}} </th>
-        <th> {{tr "Rep"}} </th>
-        <th> {{tr "Ends"}} </th>
-        <th> {{tr "Done" }} </th>
-        {{#if isVM}} <th> {{tr "Message" }} </th> {{/if}}
-        <th colspan=""> </th>
-        {{#if canAdd}}
-          <th>
-            <button id="add_sched_{{res}}_action" class="button small success right radius"> {{tr "Add action"}} </button>
-          </th>
-        {{/if}}
-        {{#if leases}}
-          <th>
-            <button id="leases_btn" class="small button leases right radius" type="button"><i class="fa fa-clock"></i></button>
-          </th>
-        {{/if}}
-      </tr>
-  </thead>
-	<tbody id="sched_{{res}}_actions_body" class="sched_place">
-    {{#if body}} {{{body}}} {{/if}}
-  </tbody>
-</table>
+<tr class="{{resourceType}}_priority">
+  <td class="key_td">{{tr "Priority"}}</td>
+  <td class="value_td_priority">{{resourceName}}</td>
+  <td>
+    {{#isTabActionEnabled tabName action}}
+    <div id="div_edit_priority">
+      <a id="div_edit_priority_link" class="edit_e" href="#"> <i class="fas fa-edit right"/></a>
+    </div>
+    {{/isTabActionEnabled}}
+  </td>
+</tr>

@@ -57,6 +57,7 @@ define(function(require) {
     "images-tab",
     "files-tab",
     "backups-tab",
+    "backupjob-tab",
     "marketplaces-tab",
     "marketplaceapps-tab",
     "network-top-tab",

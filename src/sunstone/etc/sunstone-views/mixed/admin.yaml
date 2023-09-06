@@ -20,6 +20,7 @@ enabled_tabs:
   - images-tab
   - files-tab
   - backups-tab
+  - backupjob-tab
   - marketplaces-tab
   - marketplaceapps-tab
   - network-top-tab
@@ -766,6 +767,35 @@ tabs:
       Backup.menu_labels: true
       Backup.restore: true
       Backup.restore_dialog: true
+  backupjob-tab:
+    panel_tabs:
+      backupjob_info_tab: true
+      backupjob_vms_tab: true
+      backupjob_actions_tab: true
+    table_columns:
+      - 0 # Checkbox
+      - 1 # ID
+      - 2 # Name
+      - 3 # Owner
+      - 4 # Group
+      - 5 # Status
+      - 6 # Priority
+      - 7 # Last Backup
+      # - 8 # Search Data
+    actions:
+      BackupJob.refresh: true
+      BackupJob.rename: true
+      BackupJob.priority: true
+      BackupJob.create_dialog: true
+      BackupJob.start: true
+      BackupJob.cancel: true
+      BackupJob.chown: true
+      BackupJob.chgrp: true
+      BackupJob.chmod: true
+      BackupJob.delete: true
+      BackupJob.edit_labels: true
+      BackupJob.lockU: true
+      BackupJob.unlock: true
   marketplaces-tab:
     panel_tabs:
       marketplace_info_tab: true

@@ -37,6 +37,7 @@ require 'OpenNebulaJSON/VdcJSON'
 require 'OpenNebulaJSON/VirtualRouterJSON'
 require 'OpenNebulaJSON/MarketPlaceJSON'
 require 'OpenNebulaJSON/MarketPlaceAppJSON'
+require 'OpenNebulaJSON/BackupJobJSON'
 
 module OpenNebula
     class Error

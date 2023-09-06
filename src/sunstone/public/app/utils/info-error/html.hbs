@@ -28,7 +28,11 @@
                 <div class='columns large-2'>
                     {{#if canDismiss}}
                     <a id='{{dismissId}}' data-close>
-                        <u>Dismiss</u>
+                        {{#if textDismiss}}
+                            <u>{{textDismiss}}</u>
+                        {{else}}
+                            <u>{{tr "Dismiss"}}</u>
+                        {{/if}}
                     </a>
                     {{/if}}
                 </div>

@@ -199,7 +199,7 @@ define(function(require) {
         sched_action.END_VALUE &&
         parseInt(sched_action.END_VALUE, 10) > lastEnd
       ){
-        lastErrorAndId.error = sched_action.MESSAGE;
+        lastErrorAndId.error = typeof sched_action.MESSAGE === "string"? sched_action.MESSAGE : "";
         lastErrorAndId.id = parseInt(sched_action.ID, 10);
         lastEnd = parseInt(sched_action.END_VALUE, 10);
       }

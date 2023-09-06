@@ -23,6 +23,7 @@ define(function(require) {
       Error  = require("./opennebula/error"),
 
       Acl             = require("./opennebula/acl"),
+      BackupJob       = require("./opennebula/backupjob"),
       Cluster         = require("./opennebula/cluster"),
       Datastore       = require("./opennebula/datastore"),
       Group           = require("./opennebula/group"),
@@ -74,6 +75,7 @@ define(function(require) {
     "Image": Image,
     "File": Image,
     "Backup": Image,
+    "BackupJob": BackupJob,
     "Network": Network,
     "VNTemplate": VNTemplate,
     "Role": Role,

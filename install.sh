@@ -2769,6 +2769,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VdcJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualRouterJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/BackupJobJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/MarketPlaceJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/MarketPlaceAppJSON.rb"
 

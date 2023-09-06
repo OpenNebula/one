@@ -1,0 +1,80 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="medium-6 columns">
+      <label for="name" >{{tr "Name"}}</label>
+      <input required type="text" name="name" id="name"/>
+    </div>
+    <div class="medium-6 columns">
+      <label for="priority" >
+        {{tr "Priority"}}
+        <span class="tip">
+          {{tr "The number of concurrent backup operations are controlled globally."}}
+        </span>
+      </label>
+      <input required type="number" value="50" name="priority" id="priority" min="0" max="99" onkeyup="var value = this.value; var number = parseInt(value, 10); if (isNaN(number) || number < 0 || number > 99) { this.value = '50'; }">
+    </div>
+    <div class="medium-6 columns">
+      <label for="fsFreeze" >{{tr "FS Freeze"}}</label>
+      <select id="fsFreeze" name="fsFreeze">
+        <option value="NONE">{{tr "None"}}</option>
+        <option value="AGENT">{{tr "Agent"}}</option>
+        <option value="SUSPEND">{{tr "Suspend"}}</option>
+      </select>
+    </div>
+    <div class="medium-6 columns">
+      <label for="mode" >{{tr "Mode"}}</label>
+      <select id="mode" name="mode">
+        <option value="FULL">{{tr "Full"}}</option>
+        <option value="INCREMENT">{{tr "Increment"}}</option>
+      </select>
+    </div>
+    <div class="medium-6 columns">
+      <label for="keepLast" >{{tr "Keep Last"}}</label>
+      <input type="number" name="keepLast" id="keepLast"/>
+    </div>
+    <div class="medium-6 columns">
+      <label for="backupVolatile" >{{tr "Backup Volatile"}}</label>
+      <select id="backupVolatile" name="backupVolatile">
+        <option value="YES">{{tr "Yes"}}</option>
+        <option value="NO">{{tr "No"}}</option>
+      </select>
+    </div>
+  </div>
+  <fieldset id="vmsTableHTML">
+    <legend>{{tr "Select Vms"}}</legend>
+    {{{vmsTableHTML}}}
+    <div>
+      <label for="vmsOrdered" >
+        {{tr "VM List (ordered)"}}
+        <span class="tip">
+          {{tr "The order of this list is crucial as it determines the sequence of backup operations."}}
+        </span>
+      </label>
+      <input type="text" name="vmsOrdered" id="vmsOrdered"/>
+    </div>
+  </fieldset>
+  <fieldset id="datastoresTableHTML">
+    <legend>{{tr "Select the Datastore"}}</legend>
+    {{{datastoresTableHTML}}}
+  </fieldset>
+  <fieldset id="schedActionsHTML">
+    <legend>{{tr "Schedule Actions"}}</legend>
+    {{{tableSchedActions}}}
+  </fieldset>
+</form>
