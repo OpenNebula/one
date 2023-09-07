@@ -466,6 +466,32 @@ void BackupJob::get_backup_config(Template &tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int BackupJob::replace_template(
+        const string&   tmpl_str,
+        bool            keep_restricted,
+        string&         error)
+{
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+    string new_str, backup_vms;
+
+    if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
+    {
+        return -1;
+    }
+
+    // Store old BACKUP_VMS value, to detect changes in post_update_template
+    get_template_attribute("BACKUP_VMS", backup_vms);
+
+    new_tmpl->replace("BACKUP_VMS_OLD", backup_vms);
+
+    new_tmpl->to_xml(new_str);
+
+    return PoolObjectSQL::replace_template(new_str, keep_restricted, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int BackupJob::append_template(
         const string&   tmpl_str,
         bool            keep_restricted,
@@ -505,6 +531,7 @@ int BackupJob::parse(string& error)
     //  - FSFREEZE
     //  - MODE
     //  - EXECUTION
+    //  - PRIORITY
     // -------------------------------------------------------------------------
     if ( erase_template_attribute("KEEP_LAST", iattr) == 0 || iattr < 0 )
     {
@@ -558,7 +585,11 @@ int BackupJob::parse(string& error)
 
     add_template_attribute("EXECUTION", execution_to_str(exec));
 
-    erase_template_attribute("PRIORITY", iattr);
+    if ( erase_template_attribute("PRIORITY", iattr) > 0 &&
+         iattr >= MIN_PRIO && iattr <= MAX_PRIO )
+    {
+        _priority = iattr;
+    }
 
     // -------------------------------------------------------------------------
     // VMs part of this backup job. Order represents backup order.
@@ -567,8 +598,6 @@ int BackupJob::parse(string& error)
 
     if ( erase_template_attribute("BACKUP_VMS", sattr) != 0 )
     {
-        string sattr_old;
-
         one_util::split(sattr, ',', vms);
 
         auto last = std::unique(vms.begin(), vms.end());
@@ -576,13 +605,6 @@ int BackupJob::parse(string& error)
         vms.erase(last, vms.end());
 
         sattr = one_util::join(vms, ',');
-
-        erase_template_attribute("BACKUP_VMS_OLD", sattr_old);
-
-        if (process_backup_vms(sattr, sattr_old, error) != 0)
-        {
-            return -1;
-        }
     }
     else
     {
@@ -591,15 +613,14 @@ int BackupJob::parse(string& error)
 
     add_template_attribute("BACKUP_VMS", sattr);
 
-    if (sattr.empty())
-    {
-        return 0;
-    }
+    string sattr_old;
 
-    // -------------------------------------------------------------------------
-    // Remove SCHED_ACTION, it can be updated only by Scheduled Actions API
-    // -------------------------------------------------------------------------
-    remove_template_attribute("SCHED_ACTION");
+    erase_template_attribute("BACKUP_VMS_OLD", sattr_old);
+
+    if (process_backup_vms(sattr, sattr_old, error) != 0)
+    {
+        return -1;
+    }
 
     // -------------------------------------------------------------------------
     // Update collections if VMs are no longer in BACKUP_VM

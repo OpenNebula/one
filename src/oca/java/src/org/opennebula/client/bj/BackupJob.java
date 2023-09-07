@@ -114,11 +114,12 @@ public class BackupJob extends PoolElement
      * @param client XML-RPC Client.
      * @param id The Backkup Job ID we want to modify.
      * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
      * @return If successful the message contains the Backup Job ID.
      */
-    public static OneResponse update(Client client, int id, String new_template)
+    public static OneResponse update(Client client, int id, String new_template, boolean append)
     {
-        return client.call(UPDATE, id, new_template);
+        return client.call(UPDATE, id, new_template, append ? 1 : 0);
     }
 
     /**
@@ -348,11 +349,12 @@ public class BackupJob extends PoolElement
      * Replaces the template contents.
      *
      * @param new_template New template contents
+     * @param append True to append new attributes instead of replace the whole template
      * @return If successful the message contains the Backup Job ID.
      */
-    public OneResponse update(String new_template)
+    public OneResponse update(String new_template, boolean append)
     {
-        return update(client, id, new_template);
+        return update(client, id, new_template, append);
     }
 
     /**

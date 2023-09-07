@@ -19,6 +19,7 @@ package goca
 import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/backupjob/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	. "gopkg.in/check.v1"
 )
 
@@ -66,7 +67,7 @@ func (s *BJSuite) TestGetByNameAndID(c *C) {
 
 func (s *BJSuite) TestUpdate(c *C) {
 	bjC := testCtrl.BackupJob(s.bjID)
-	err := bjC.Update(`BACKUP_VMS = "1,2,3,4"`)
+	err := bjC.Update(`BACKUP_VMS = "1,2,3,4"`, parameters.Merge)
 
 	c.Assert(err, IsNil)
 

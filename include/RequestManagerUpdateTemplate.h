@@ -488,15 +488,6 @@ public:
         pool        = nd.get_bjpool();
         auth_object = PoolObjectSQL::BACKUPJOB;
     }
-
-    //Always append to BackupJob templates (not duplicated attributes)
-    int replace_template(PoolObjectSQL * object,
-                                 const std::string & tmpl,
-                                 const RequestAttributes &att,
-                                 std::string &error_str) override
-    {
-        return RequestManagerUpdateTemplate::append_template(object, tmpl, att, error_str);
-    }
 };
 
 #endif

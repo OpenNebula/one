@@ -121,8 +121,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template)
-            super(BACKUPJOB_METHODS[:update], new_template)
+        def update(new_template, append = false)
+            super(BACKUPJOB_METHODS[:update], new_template, append ? 1 : 0)
         end
 
         # Changes the owner/group

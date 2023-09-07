@@ -22,6 +22,7 @@ import (
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/backupjob"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 )
 
 // BackupJobsController is a controller for Backup Jobs
@@ -116,8 +117,8 @@ func (bjc *BackupJobsController) Create(template string) (int, error) {
 
 // Update adds Backup Job content.
 // * tpl: The new Backup Job content. Syntax can be the usual attribute=value or XML.
-func (bjc *BackupJobController) Update(tpl string) error {
-	_, err := bjc.c.Client.Call("one.backupjob.update", bjc.ID, tpl)
+func (bjc *BackupJobController) Update(tpl string, uType parameters.UpdateType) error {
+	_, err := bjc.c.Client.Call("one.backupjob.update", bjc.ID, tpl, uType)
 	return err
 }
 

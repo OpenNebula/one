@@ -328,11 +328,10 @@ void ScheduledActionManager::backup_jobs()
             continue;
         }
 
-        // Copy (not reference) of outdated and backing_up vms (modified in loop)
         auto vms = bj->backup_vms();
 
-        auto outdated   = bj->outdated();
-        auto backing_up = bj->backing_up();
+        auto& outdated   = bj->outdated();
+        auto& backing_up = bj->backing_up();
 
         auto mode  = bj->exec_mode();
         auto ds_id = bj->ds_id();
@@ -464,6 +463,9 @@ void ScheduledActionManager::backup_jobs()
                                  UserPool::ONEADMIN_ID,
                                  GroupPool::ONEADMIN_ID,
                                  PoolObjectSQL::VM);
+
+            NebulaLog::info("SCH", "Backup Job " + to_string(bj_id) +
+                                   " executing backup for VM " + to_string(vm_id) );
 
             auto ec = vm_backup.request_execute(ra, vm_id, ds_id, reset);
 

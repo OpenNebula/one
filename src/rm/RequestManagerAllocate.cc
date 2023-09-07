@@ -1466,6 +1466,21 @@ Request::ErrorCode BackupJobAllocate::pool_allocate(
 
     tmpl->remove("SCHED_ACTION", sas);
 
+    int priority;
+    if (tmpl->get("PRIORITY", priority))
+    {
+        if (priority < BackupJob::MIN_PRIO || priority > BackupJob::MAX_PRIO)
+        {
+            att.resp_msg = "Wrong priority value";
+            return Request::INTERNAL;
+        }
+
+        if (!att.is_admin() && priority > 50)
+        {
+            return Request::AUTHORIZATION;
+        }
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Create BackupJob object                                                */
     /* ---------------------------------------------------------------------- */

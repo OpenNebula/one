@@ -233,6 +233,19 @@ public:
     }
 
     /**
+     *  Replace template for this object. Object should be updated
+     *  after calling this method
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int replace_template(const std::string& tmpl_str,
+                                 bool keep_restricted,
+                                 std::string& error) override;
+
+    /**
      *  Append new attributes to the *user template*.
      *    @param tmpl_str new contents
      *    @param keep_restricted If true, the restricted attributes of the
@@ -255,6 +268,10 @@ protected:
      */
     int post_update_template(std::string& error) override
     {
+        remove_template_attribute("NAME");
+        remove_template_attribute("PRIORITY");
+        remove_template_attribute("SCHED_ACTION");
+
         return parse(error);
     }
 

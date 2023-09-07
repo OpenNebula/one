@@ -177,10 +177,13 @@ CommandParser::CmdParser.new(ARGV) do
         be launched to modify the current content.
     EOT
 
-    command :update, update_desc, :backupjobid, [:file, nil] do
+    command :update, update_desc, :backupjobid, [:file, nil],
+            :options => OpenNebulaHelper::APPEND do
         helper.perform_action(args[0], options, 'modified') do |obj|
             if args[1]
                 str = File.read(args[1])
+            elsif options[:append]
+                OpenNebulaHelper.editor_input
             else
                 rc = obj.info
 
@@ -194,7 +197,7 @@ CommandParser::CmdParser.new(ARGV) do
                 str = OpenNebulaHelper.editor_input(obj.template_like_str('TEMPLATE'))
             end
 
-            obj.update(str)
+            obj.update(str, options[:append])
         end
     end
 
