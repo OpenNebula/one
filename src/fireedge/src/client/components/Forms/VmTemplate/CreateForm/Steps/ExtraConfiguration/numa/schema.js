@@ -34,7 +34,7 @@ import {
   sentenceCase,
 } from 'client/utils'
 
-const { kvm, vcenter, firecracker } = HYPERVISORS
+const { kvm, vcenter, firecracker, dummy } = HYPERVISORS
 const numaPinPolicies = Object.keys(NUMA_PIN_POLICIES)
 
 const ENABLE_NUMA = {
@@ -250,7 +250,7 @@ const NUMA_SCHEMA = (hypervisor) =>
       const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
       const hyperv = context?.general?.HYPERVISOR
 
-      if ([vcenter, kvm].includes(hyperv) && isEnabled) {
+      if ([vcenter, kvm, dummy].includes(hyperv) && isEnabled) {
         if (
           restOfTopology?.NODE_AFFINITY &&
           restOfTopology.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY
