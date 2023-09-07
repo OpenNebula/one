@@ -52,7 +52,7 @@ type MarketPlaceApp struct {
 	AppTemplate64 string              `xml:"APPTEMPLATE64,omitempty"`
 	MarketPlaceID *int                `xml:"MARKETPLACE_ID,omitempty"`
 	MarketPlace   string              `xml:"MARKETPLACE,omitempty"`
-	State         int                 `xml:"STATE,omitempty"`
+	StateRaw      int                 `xml:"STATE,omitempty"`
 	Type          int                 `xml:"TYPE,omitempty"`
 	Template      dyn.Template        `xml:"TEMPLATE"`
 }
