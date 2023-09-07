@@ -1648,6 +1648,8 @@ Bash symbols must be escaped on STDIN passing'
     def self.update_template_helper(append, _id, resource, path, xpath, update = true)
         if path
             File.read(path)
+        elsif STDIN.wait_readable(0)
+            STDIN.read
         elsif append
             editor_input
         else
