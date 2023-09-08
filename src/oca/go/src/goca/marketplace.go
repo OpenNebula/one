@@ -123,10 +123,17 @@ func (mc *MarketPlaceController) Delete() error {
 	return err
 }
 
+// Enable enables or disables a marketplace.
+// * enable: True for enabling, False for disabling
+func (mc *MarketPlaceController) Enable(enable bool) error {
+	_, err := mc.c.Client.Call("one.market.enable", mc.ID, enable)
+	return err
+}
+
 // Update adds marketplace content.
-// * tpl: The new marketplace contents. Syntax can be the usual attribute=value or XML.
-// * uType: Update type: Replace: Replace the whole template.
-//   Merge: Merge new template with the existing one.
+//   - tpl: The new marketplace contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (mc *MarketPlaceController) Update(tpl string, uType parameters.UpdateType) error {
 	_, err := mc.c.Client.Call("one.market.update", mc.ID, tpl, uType)
 	return err
