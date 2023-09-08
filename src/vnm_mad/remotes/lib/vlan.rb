@@ -92,6 +92,9 @@ module VNMMAD
 
         # Deactivate the driver and delete bridges and tags devices as needed.
         def deactivate
+            # NIC_ALIAS are  not processed, skip
+            return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
             lock
 
             @bridges = list_bridges

@@ -20,21 +20,27 @@ module VNMMAD
     # OpenNebula Firewall with Security Groups Based on IPTables (KVM)
     ############################################################################
     class SGDriver < VNMDriver
-        DRIVER       = "sg"
+
+        DRIVER       = 'sg'
         XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='fw']"
 
         # Rules that simulate an empty list of Security Groups (allow everything)
-        EMPTY_RULES =   {"0"=> [
-                          {:protocol => "ALL",
-                            :rule_type => "OUTBOUND",
-                            :security_group_id => "0",
-                            :security_group_name => "default"},
-
-                           {:protocol => "ALL",
-                            :rule_type => "INBOUND",
-                            :security_group_id => "0",
-                            :security_group_name => "default"}
-                        ]}
+        EMPTY_RULES = {
+            '0'=> [
+                {
+                    :protocol  => 'ALL',
+                    :rule_type => 'OUTBOUND',
+                    :security_group_id   => '0',
+                    :security_group_name => 'default'
+                },
+                {
+                    :protocol  => 'ALL',
+                    :rule_type => 'INBOUND',
+                    :security_group_id   => '0',
+                    :security_group_name => 'default'
+                }
+            ]
+        }
 
         # Attributes that can be updated on update_nic action
         SUPPORTED_UPDATE = [
@@ -51,12 +57,12 @@ module VNMMAD
         # @param [String] hypervisor ID for the VM
         # @param [String] hypervisor (e.g. 'kvm' ...)
         # @param [String] Xpath for the NICs using the SG driver
-        def initialize(vm_64, xpath_filter = nil, deploy_id = nil, bridged=true)
+        def initialize(vm_64, xpath_filter = nil, deploy_id = nil, bridged = true)
             @locking = true
 
             @bridged = bridged
 
-            vm = Base64::decode64(vm_64)
+            vm = Base64.decode64(vm_64)
 
             xpath_filter ||= XPATH_FILTER
             super(vm, xpath_filter, deploy_id)
@@ -83,7 +89,7 @@ module VNMMAD
 
         # Activate the rules, bootstrap iptables chains and set filter rules for
         # each VM NIC
-        def activate(do_all=false)
+        def activate(do_all = false)
             deactivate(do_all)
             lock
 
@@ -91,8 +97,8 @@ module VNMMAD
             SGIPTables.global_bootstrap(@bridged)
 
             unless do_all
-               attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-               attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
             end
 
             # Process the rules for each NIC
@@ -101,24 +107,23 @@ module VNMMAD
 
                 # SG not supported for NIC_ALIAS
                 if nic[:security_groups].nil?
-                    nic[:security_groups] = "0"
+                    nic[:security_groups] = '0'
                     @security_group_rules = EMPTY_RULES
                 end
 
                 SGIPTables.nic_pre(@bridged, @vm, nic)
 
-                sg_ids = nic[:security_groups].split(",")
+                sg_ids = nic[:security_groups].split(',')
 
                 sg_ids.each do |sg_id|
                     rules = @security_group_rules[sg_id]
 
-                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id,
-                        rules)
+                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, rules)
 
                     begin
                         sg.process_rules
                         sg.run!
-                    rescue Exception => e
+                    rescue StandardError => e
                         unlock
                         deactivate(do_all)
                         raise e
@@ -141,13 +146,13 @@ module VNMMAD
         end
 
         # Clean iptables rules and chains
-        def deactivate(do_all=false)
+        def deactivate(do_all = false)
             lock
 
             begin
                 unless do_all
-                   attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-                   attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                    attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                    attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
                 end
 
                 process_alias do |nic|
@@ -161,9 +166,6 @@ module VNMMAD
 
                     SGIPTables.nic_deactivate(@vm, nic)
                 end
-
-            rescue Exception => e
-                raise e
             ensure
                 unlock
             end
@@ -190,8 +192,6 @@ module VNMMAD
 
                     nic.set_qos(deploy_id)
                 end
-            rescue StandardError => e
-                raise e
             ensure
                 unlock
             end

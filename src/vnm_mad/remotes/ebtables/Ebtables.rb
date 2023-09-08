@@ -16,9 +16,10 @@
 
 require 'vnmmad'
 
+# Class to implement VLANs using ebtables
 class EbtablesVLAN < VNMMAD::NoVLANDriver
 
-    DRIVER = "ebtables"
+    DRIVER = 'ebtables'
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
 
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
@@ -67,6 +68,9 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
     end
 
     def deactivate
+        # NIC_ALIAS are  not processed, skip
+        return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
         lock
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
@@ -79,11 +83,11 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
             mac = nic[:mac]
 
             # remove 0-padding
-            mac = mac.split(":").collect{|e| e.hex.to_s(16)}.join(":")
+            mac = mac.split(':').collect {|e| e.hex.to_s(16) }.join(':')
 
-            tap = ""
+            tap = ''
             rules.each do |rule|
-                if m = rule.match(/#{mac} -i (\w+)/)
+                if (m = rule.match(/#{mac} -i (\w+)/))
                     tap = m[1]
                     break
                 end
@@ -113,4 +117,5 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
     def remove_rule(rule)
         OpenNebula.exec_and_log("#{command(:ebtables)} -D FORWARD #{rule}")
     end
+
 end

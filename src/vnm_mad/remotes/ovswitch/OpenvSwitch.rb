@@ -142,6 +142,9 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def deactivate
+        # NIC_ALIAS are  not processed, skip
+        return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
         lock
 
         @bridges = list_bridges
@@ -445,8 +448,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     def del_flow(filter)
         filter.gsub!(/priority=(\d+)/, '')
-        run "#{command(:ovs_ofctl)} del-flows " <<
-            "#{@nic[:bridge]} #{filter}"
+        run "#{command(:ovs_ofctl)} del-flows #{@nic[:bridge]} #{filter}"
     end
 
     def run(cmd)
