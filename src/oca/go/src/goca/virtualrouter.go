@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -43,9 +44,14 @@ func (c *Controller) VirtualRouter(id int) *VirtualRouterController {
 
 // VirtualRouterByName returns a VirtualRouter By name
 func (c *Controller) VirtualRouterByName(name string, args ...int) (int, error) {
-	var id int
+	return c.VirtualRouterByNameContext(context.Background(), name, args...)
+}
 
-	vrouterPool, err := (&VirtualRoutersController{c}).Info(args...)
+// VirtualRouterByNameContext returns a VirtualRouter By name
+func (c *Controller) VirtualRouterByNameContext(ctx context.Context, name string, args ...int) (int, error) {
+
+	vrouterPool, err := (&VirtualRoutersController{c}).InfoContext(ctx, args...)
+	var id int
 	if err != nil {
 		return -1, err
 	}
@@ -70,6 +76,12 @@ func (c *Controller) VirtualRouterByName(name string, args ...int) (int, error) 
 // Info returns a virtual router pool. A connection to OpenNebula is
 // performed.
 func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
+	return vc.InfoContext(context.Background(), args...)
+}
+
+// InfoContext returns a virtual router pool. A connection to OpenNebula is
+// performed.
+func (vc *VirtualRoutersController) InfoContext(ctx context.Context, args ...int) (*vr.Pool, error) {
 	var who, start, end int
 
 	switch len(args) {
@@ -85,7 +97,7 @@ func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 		return nil, errors.New("Wrong number of arguments")
 	}
 
-	response, err := vc.c.Client.Call("one.vrouterpool.info", who, start, end)
+	response, err := vc.c.Client.CallContext(ctx, "one.vrouterpool.info", who, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +114,12 @@ func (vc *VirtualRoutersController) Info(args ...int) (*vr.Pool, error) {
 
 // Info connects to OpenNebula and fetches the information of the VirtualRouter
 func (vc *VirtualRouterController) Info(decrypt bool) (*vr.VirtualRouter, error) {
-	response, err := vc.c.Client.Call("one.vrouter.info", vc.ID, decrypt)
+	return vc.InfoContext(context.Background(), decrypt)
+}
+
+// InfoContext connects to OpenNebula and fetches the information of the VirtualRouter
+func (vc *VirtualRouterController) InfoContext(ctx context.Context, decrypt bool) (*vr.VirtualRouter, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vrouter.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +135,14 @@ func (vc *VirtualRouterController) Info(decrypt bool) (*vr.VirtualRouter, error)
 // Create allocates a new virtual router. It returns the new Virtual Router ID
 // * tpl: template of the marketplace
 func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
-	response, err := vc.c.Client.Call("one.vrouter.allocate", tpl)
+	return vc.CreateContext(context.Background(), tpl)
+}
+
+// CreateContext allocates a new virtual router. It returns the new Virtual Router ID
+// * ctx: context for cancelation
+// * tpl: template of the marketplace
+func (vc *VirtualRoutersController) CreateContext(ctx context.Context, tpl string) (int, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vrouter.allocate", tpl)
 	if err != nil {
 		return -1, err
 	}
@@ -127,39 +151,70 @@ func (vc *VirtualRoutersController) Create(tpl string) (int, error) {
 }
 
 // Update adds virtual router content.
-// * tpl: The new virtual router contents. Syntax can be the usual attribute=value or XML.
-// * uType: Update type: Replace: Replace the whole template.
-//   Merge: Merge new template with the existing one.
+//   - tpl: The new virtual router contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
 func (vc *VirtualRouterController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.Call("one.vrouter.update", vc.ID, tpl, uType)
+	return vc.UpdateContext(context.Background(), tpl, uType)
+}
+
+// UpdateContext adds virtual router content.
+//   - ctx: context for cancelation
+//   - tpl: The new virtual router contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
+func (vc *VirtualRouterController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.update", vc.ID, tpl, uType)
 	return err
 }
 
 // Chown changes the owner/group of a virtual router. If uid or gid is -1 it will not
 // change
 func (vc *VirtualRouterController) Chown(uid, gid int) error {
-	_, err := vc.c.Client.Call("one.vrouter.chown", vc.ID, uid, gid)
+	return vc.ChownContext(context.Background(), uid, gid)
+}
+
+// ChownContext changes the owner/group of a virtual router. If uid or gid is -1 it will not
+// change
+func (vc *VirtualRouterController) ChownContext(ctx context.Context, uid, gid int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.chown", vc.ID, uid, gid)
 	return err
 }
 
 // Chmod changes the permissions of a virtual router. If any perm is -1 it will not
 // change
 func (vc *VirtualRouterController) Chmod(perm shared.Permissions) error {
+	return vc.ChmodContext(context.Background(), perm)
+}
+
+// ChmodContext changes the permissions of a virtual router. If any perm is -1 it will not
+// change
+func (vc *VirtualRouterController) ChmodContext(ctx context.Context, perm shared.Permissions) error {
 	args := append([]interface{}{vc.ID}, perm.ToArgs()...)
 
-	_, err := vc.c.Client.Call("one.vrouter.chmod", args...)
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.chmod", args...)
 	return err
 }
 
 // Rename changes the name of virtual router
 func (vc *VirtualRouterController) Rename(newName string) error {
-	_, err := vc.c.Client.Call("one.vrouter.rename", vc.ID, newName)
+	return vc.RenameContext(context.Background(), newName)
+}
+
+// RenameContext changes the name of virtual router
+func (vc *VirtualRouterController) RenameContext(ctx context.Context, newName string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.rename", vc.ID, newName)
 	return err
 }
 
 // Delete will remove the virtual router from OpenNebula.
 func (vc *VirtualRouterController) Delete() error {
-	_, err := vc.c.Client.Call("one.vrouter.delete", vc.ID)
+	return vc.DeleteContext(context.Background())
+}
+
+// DeleteContext will remove the virtual router from OpenNebula.
+func (vc *VirtualRouterController) DeleteContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.delete", vc.ID)
 	return err
 }
 
@@ -170,7 +225,18 @@ func (vc *VirtualRouterController) Delete() error {
 // * hold: False to create the VM on pending (default), True to create it on hold.
 // * extra: A string containing an extra template to be merged with the one being instantiated. It can be empty. Syntax can be the usual attribute=value or XML.
 func (vc *VirtualRouterController) Instantiate(number, tplid int, name string, hold bool, extra string) (int, error) {
-	response, err := vc.c.Client.Call("one.vrouter.instantiate", vc.ID, number, tplid, name, hold, extra)
+	return vc.InstantiateContext(context.Background(), number, tplid, name, hold, extra)
+}
+
+// InstantiateContext will instantiate the virtual router. It returns the ID of the new VM
+// * ctx: context for cancelation
+// * number: Number of VMs to instantiate.
+// * tplid: VM Template id to instantiate.
+// * name: Name for the VM instances. If it is an empty string OpenNebula will set a default name. Wildcard %i can be used.
+// * hold: False to create the VM on pending (default), True to create it on hold.
+// * extra: A string containing an extra template to be merged with the one being instantiated. It can be empty. Syntax can be the usual attribute=value or XML.
+func (vc *VirtualRouterController) InstantiateContext(ctx context.Context, number, tplid int, name string, hold bool, extra string) (int, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vrouter.instantiate", vc.ID, number, tplid, name, hold, extra)
 
 	if err != nil {
 		return -1, err
@@ -182,25 +248,49 @@ func (vc *VirtualRouterController) Instantiate(number, tplid int, name string, h
 // AttachNic attaches a new network interface to the virtual router and the virtual machines.
 // * tpl: NIC template string
 func (vc *VirtualRouterController) AttachNic(tpl string) error {
-	_, err := vc.c.Client.Call("one.vrouter.attachnic", vc.ID, tpl)
+	return vc.AttachNicContext(context.Background(), tpl)
+}
+
+// AttachNicContext attaches a new network interface to the virtual router and the virtual machines.
+// * ctx: context for cancelation
+// * tpl: NIC template string
+func (vc *VirtualRouterController) AttachNicContext(ctx context.Context, tpl string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.attachnic", vc.ID, tpl)
 	return err
 }
 
 // DetachNic detaches a network interface from the virtual router and the virtual machines
 // * nicid: NIC ID to detach
 func (vc *VirtualRouterController) DetachNic(nicid int) error {
-	_, err := vc.c.Client.Call("one.vrouter.detachnic", vc.ID, nicid)
+	return vc.DetachNicContext(context.Background(), nicid)
+}
+
+// DetachNicContext detaches a network interface from the virtual router and the virtual machines
+// * ctx: context for cancelation
+// * nicid: NIC ID to detach
+func (vc *VirtualRouterController) DetachNicContext(ctx context.Context, nicid int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.detachnic", vc.ID, nicid)
 	return err
 }
 
 // Lock locks the virtual router depending on blocking level. See levels in locks.go.
 func (vc *VirtualRouterController) Lock(level shared.LockLevel) error {
-	_, err := vc.c.Client.Call("one.vrouter.lock", vc.ID, level)
+	return vc.LockContext(context.Background(), level)
+}
+
+// LockContext locks the virtual router depending on blocking level. See levels in locks.go.
+func (vc *VirtualRouterController) LockContext(ctx context.Context, level shared.LockLevel) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.lock", vc.ID, level)
 	return err
 }
 
 // Unlock unlocks the virtual router.
 func (vc *VirtualRouterController) Unlock() error {
-	_, err := vc.c.Client.Call("one.vrouter.unlock", vc.ID)
+	return vc.UnlockContext(context.Background())
+}
+
+// UnlockContext unlocks the virtual router.
+func (vc *VirtualRouterController) UnlockContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vrouter.unlock", vc.ID)
 	return err
 }

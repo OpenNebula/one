@@ -16,9 +16,11 @@
 
 package goca
 
+import "context"
+
 // RPCCaller is the interface to satisfy in order to be usable by the controller
 type RPCCaller interface {
-	Call(method string, args ...interface{}) (*Response, error)
+	CallContext(ctx context.Context, method string, args ...interface{}) (*Response, error)
 }
 
 // HTTPCaller is the analogous to RPCCaller but for http endpoints
@@ -78,7 +80,12 @@ func NewGenericController(cone RPCCaller, cflow HTTPCaller) *Controller {
 
 // SystemVersion returns the current OpenNebula Version
 func (c *Controller) SystemVersion() (string, error) {
-	response, err := c.Client.Call("one.system.version")
+	return c.SystemVersionContext(context.Background())
+}
+
+// SystemVersionContext returns the current OpenNebula Version
+func (c *Controller) SystemVersionContext(ctx context.Context) (string, error) {
+	response, err := c.Client.CallContext(ctx, "one.system.version")
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +95,12 @@ func (c *Controller) SystemVersion() (string, error) {
 
 // SystemConfig returns the current OpenNebula config
 func (c *Controller) SystemConfig() (string, error) {
-	response, err := c.Client.Call("one.system.config")
+	return c.SystemConfigContext(context.Background())
+}
+
+// SystemConfigContext returns the current OpenNebula config
+func (c *Controller) SystemConfigContext(ctx context.Context) (string, error) {
+	response, err := c.Client.CallContext(ctx, "one.system.config")
 	if err != nil {
 		return "", err
 	}
