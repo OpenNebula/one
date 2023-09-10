@@ -115,11 +115,6 @@ func NewClient(conf OneConfig, httpClient *http.Client) *Client {
 	}
 }
 
-// Call is an XML-RPC wrapper. It returns a pointer to response and an error.
-func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
-	return c.CallContext(context.Background(), method, args)
-}
-
 // CallContext is an XML-RPC wrapper. It returns a pointer to response and an error and can be canceled through the passed context
 func (c *Client) CallContext(ctx context.Context, method string, args ...interface{}) (*Response, error) {
 	var (

@@ -20,7 +20,6 @@ import "context"
 
 // RPCCaller is the interface to satisfy in order to be usable by the controller
 type RPCCaller interface {
-	Call(method string, args ...interface{}) (*Response, error)
 	CallContext(ctx context.Context, method string, args ...interface{}) (*Response, error)
 }
 
