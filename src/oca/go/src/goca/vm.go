@@ -1003,12 +1003,22 @@ func (vc *VMController) DetachSGContext(ctx context.Context, nicID int, sgID int
 
 // Backup Virtual Machine
 func (vc *VMController) Backup(dsID int, reset bool) error {
-	_, err := vc.c.Client.Call("one.vm.backup", vc.ID, dsID, reset)
+	return vc.BackupContext(context.Background(), dsID, reset)
+}
+
+// Backup Virtual Machine
+func (vc *VMController) BackupContext(ctx context.Context, dsID int, reset bool) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.backup", vc.ID, dsID, reset)
 	return err
 }
 
 // Cancel ongoing backup operation
 func (vc *VMController) BackupCancel() error {
-	_, err := vc.c.Client.Call("one.vm.backupcancel", vc.ID)
+	return vc.BackupCancelContext(context.Background())
+}
+
+// Cancel ongoing backup operation
+func (vc *VMController) BackupCancelContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.backupcancel", vc.ID)
 	return err
 }
