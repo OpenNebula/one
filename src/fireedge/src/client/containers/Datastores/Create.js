@@ -38,10 +38,11 @@ function CreateDatastore() {
   const [allocate] = useAllocateDatastoreMutation()
   const { enqueueSuccess } = useGeneralApi()
 
-  const onSubmit = async ({ template }) => {
+  const onSubmit = async ({ template, cluster }) => {
     try {
       const newTemplateId = await allocate({
         template: jsonToXml(template),
+        cluster,
       }).unwrap()
       history.push(PATH.STORAGE.DATASTORES.LIST)
       enqueueSuccess(`Datastore created - #${newTemplateId}`)
