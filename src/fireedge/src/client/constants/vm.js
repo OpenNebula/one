@@ -738,9 +738,9 @@ export const VM_ACTIONS = {
   MIGRATE_POFF_HARD: 'migrate_poff_hard',
   MIGRATE_POFF: 'migrate_poff',
   MIGRATE: 'migrate',
-  POWEROFF_HARD: 'poweroff_hard',
+  POWEROFF_HARD: 'poweroff-hard',
   POWEROFF: 'poweroff',
-  REBOOT_HARD: 'reboot_hard',
+  REBOOT_HARD: 'reboot-hard',
   REBOOT: 'reboot',
   RECOVER: 'recover',
   RELEASE: 'release',
@@ -751,7 +751,7 @@ export const VM_ACTIONS = {
   SUSPEND: 'suspend',
   TERMINATE_HARD: 'terminate-hard',
   TERMINATE: 'terminate',
-  UNDEPLOY_HARD: 'undeploy_hard',
+  UNDEPLOY_HARD: 'undeploy-hard',
   UNDEPLOY: 'undeploy',
   UNLOCK: 'unlock',
   UNRESCHED: 'unresched',
@@ -777,10 +777,10 @@ export const VM_ACTIONS = {
   // STORAGE
   ATTACH_DISK: 'attach_disk',
   DETACH_DISK: 'detach_disk',
-  SNAPSHOT_DISK_CREATE: 'snapshot_disk_create',
-  SNAPSHOT_DISK_RENAME: 'snapshot_disk_rename',
-  SNAPSHOT_DISK_REVERT: 'snapshot_disk_revert',
-  SNAPSHOT_DISK_DELETE: 'snapshot_disk_delete',
+  SNAPSHOT_DISK_CREATE: 'disk-snapshot-create',
+  SNAPSHOT_DISK_RENAME: 'disk-snapshot-rename',
+  SNAPSHOT_DISK_REVERT: 'disk-snapshot-revert',
+  SNAPSHOT_DISK_DELETE: 'disk-snapshot-delete',
   RESIZE_DISK: 'resize_disk',
   DISK_SAVEAS: 'disk_saveas',
 
@@ -792,9 +792,9 @@ export const VM_ACTIONS = {
   DETACH_SEC_GROUP: 'detach_secgroup',
 
   // SNAPSHOT
-  SNAPSHOT_CREATE: 'snapshot_create',
-  SNAPSHOT_REVERT: 'snapshot_revert',
-  SNAPSHOT_DELETE: 'snapshot_delete',
+  SNAPSHOT_CREATE: 'snapshot-create',
+  SNAPSHOT_REVERT: 'snapshot-revert',
+  SNAPSHOT_DELETE: 'snapshot-delete',
 
   // SCHEDULING ACTION
   SCHED_ACTION_CREATE: 'sched_action_create',
