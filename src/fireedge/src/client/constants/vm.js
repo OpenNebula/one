@@ -749,7 +749,7 @@ export const VM_ACTIONS = {
   SAVE_AS_TEMPLATE: 'save_as_template',
   STOP: 'stop',
   SUSPEND: 'suspend',
-  TERMINATE_HARD: 'terminate_hard',
+  TERMINATE_HARD: 'terminate-hard',
   TERMINATE: 'terminate',
   UNDEPLOY_HARD: 'undeploy_hard',
   UNDEPLOY: 'undeploy',
