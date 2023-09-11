@@ -19,7 +19,6 @@ package marketplaceapp
 import (
 	"encoding/xml"
 
-	dyn "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 )
 
@@ -54,5 +53,5 @@ type MarketPlaceApp struct {
 	MarketPlace   string              `xml:"MARKETPLACE,omitempty"`
 	StateRaw      int                 `xml:"STATE,omitempty"`
 	Type          int                 `xml:"TYPE,omitempty"`
-	Template      dyn.Template        `xml:"TEMPLATE"`
+	Template      Template            `xml:"TEMPLATE"`
 }
