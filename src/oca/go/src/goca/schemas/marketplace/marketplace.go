@@ -44,5 +44,6 @@ type MarketPlace struct {
 	UsedMB             int                 `xml:"USED_MB,omitempty"`
 	MarketPlaceAppsIDs shared.EntitiesID   `xml:"MARKETPLACEAPPS,omitempty"`
 	Permissions        *shared.Permissions `xml:"PERMISSIONS,omitempty"`
+	StateRaw           int                 `xml:"STATE,omitempty"`
 	Template           Template            `xml:"TEMPLATE"`
 }

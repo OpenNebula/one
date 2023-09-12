@@ -17,142 +17,142 @@
 package goca
 
 import (
-	"testing"
-
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/marketplace/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
+	. "gopkg.in/check.v1"
 )
 
-func TestMarketplace(t *testing.T) {
-	var mkt_name string = "marketplace_test_go"
+type MarketPlaceSuite struct {
+	marketName string
+	marketID   int
+}
 
-	var market *marketplace.MarketPlace
+var _ = Suite(&MarketPlaceSuite{})
+
+func (s *MarketPlaceSuite) SetUpTest(c *C) {
+	// Create Marketpkace
+	s.marketName = "marketplace_test_go"
 
 	tpl := marketplace.NewTemplate()
-	tpl.Add(keys.Name, mkt_name)
+	tpl.Add(keys.Name, s.marketName)
 	tpl.Add(keys.MarketMAD, "http")
 	tpl.Add(keys.BaseUrl, "http://url/")
-	tpl.Add(keys.PublicDir, "/var/loca/market-http")
+	tpl.Add(keys.PublicDir, "/var/local/market-http")
 
-	//Create Marketpkace
-	market_id, err := testCtrl.MarketPlaces().Create(tpl.String())
-	if err != nil {
-		t.Fatalf("Test failed:\n" + err.Error())
-	}
+	id, err := testCtrl.MarketPlaces().Create(tpl.String())
+	c.Assert(err, IsNil)
+	s.marketID = id
+}
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+func (s *MarketPlaceSuite) TearDownTest(c *C) {
+	// Delete Marketpkace
+	marketC := testCtrl.MarketPlace(s.marketID)
+	err := marketC.Delete()
 
-	marketCtrl := testCtrl.MarketPlace(market_id)
-	market, err = marketCtrl.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+}
 
-	actual := market.Name
+func (s *MarketPlaceSuite) TestGetByNameAndID(c *C) {
+	// Get MarketPlace by ID
+	market, err := testCtrl.MarketPlace(s.marketID).Info(false)
 
-	if actual != mkt_name {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", mkt_name, actual)
-	}
+	c.Assert(err, IsNil)
+	c.Assert(market.ID, Equals, s.marketID)
+	c.Assert(market.Name, Equals, s.marketName)
+	c.Assert(market.MarketMad, Equals, "http")
 
-	tmpl := "ATT1 = \"VAL1\""
+	state, err := market.State()
+	c.Assert(err, IsNil)
+	c.Assert(state, Equals, marketplace.Enabled);
 
-	//Update Marketpkace
-	err = marketCtrl.Update(tmpl, 1)
+	// Test value from MarketPlace template
+	baseUrl, err := market.Template.Get(keys.BaseUrl)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+	c.Assert(baseUrl, Equals, "http://url/")
 
-	market, err = marketCtrl.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	// Get Backup Job by Name
+	id, err := testCtrl.MarketPlaces().ByName(s.marketName)
+	c.Assert(err, IsNil)
+	c.Assert(id, Equals, s.marketID)
+}
 
-	actual_mm := market.MarketMad
-	actual_1, err := market.Template.GetStr("ATT1")
-	if err != nil {
-		t.Errorf("Test failed, can't retrieve '%s', error: %s", "ATT1", err.Error())
-	} else {
-		if actual_1 != "VAL1" {
-			t.Errorf("Test failed, expected: '%s', got:  '%s'", "VAL1", actual_1)
-		}
-	}
+func (s *MarketPlaceSuite) TestUpdate(c *C) {
+	marketC := testCtrl.MarketPlace(s.marketID)
+	err := marketC.Update(`ATT1 = "VAL1"`, parameters.Merge)
 
-	if actual_mm != "http" {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", "http", actual_mm)
-	}
+	c.Assert(err, IsNil)
 
-	//Change permissions for Marketpkace
-	err = marketCtrl.Chmod(shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1})
+	market, err := testCtrl.MarketPlace(s.marketID).Info(false)
+	c.Assert(err, IsNil)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	att, err := market.Template.Get("ATT1")
 
-	market, err = marketCtrl.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+	c.Assert(att, Equals, "VAL1")
+	c.Assert(market.MarketMad, Equals, "http")
+}
 
-	expected_perm := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
-	actual_perm := *market.Permissions
+func (s *MarketPlaceSuite) TestRename(c *C) {
+	marketC := testCtrl.MarketPlace(s.marketID)
+	marketC.Rename("new_name")
 
-	if actual_perm != expected_perm {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", expected_perm.String(), actual_perm.String())
-	}
+	market, err := testCtrl.MarketPlace(s.marketID).Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(market.Name, Equals, "new_name");
+}
 
-	//Change owner of Marketpkace
-	err = marketCtrl.Chown(1, 1)
+func (s *MarketPlaceSuite) TestChown(c *C) {
+	// Test only if the call exists, no real change
+	marketC := testCtrl.MarketPlace(s.marketID)
+	err := marketC.Chown(1, 1)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
 
-	market, err = marketCtrl.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	market, err := testCtrl.MarketPlace(s.marketID).Info(false)
+	c.Assert(err, IsNil)
+	c.Assert(market.UID, Equals, 1);
+	c.Assert(market.GID, Equals, 1);
+}
 
-	expected_usr := 1
-	expected_grp := 1
-	actual_usr := market.UID
-	actual_grp := market.GID
+func (s *MarketPlaceSuite) TestChmod(c *C) {
+	new_permissions := shared.Permissions{1, 1, 1, 1, 1, 1, 1, 1, 1}
 
-	if actual_usr != expected_usr {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_usr, actual_usr)
-	}
+	marketC := testCtrl.MarketPlace(s.marketID)
 
-	if actual_grp != expected_grp {
-		t.Errorf("Test failed, expected: '%d', got:  '%d'", expected_grp, actual_grp)
-	}
+	err := marketC.Chmod(new_permissions)
 
-	rename := mkt_name + "-renamed"
+	c.Assert(err, IsNil)
 
-	//Rename Marketpkace
-	err = marketCtrl.Rename(rename)
+	market, err := marketC.Info(false)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	c.Assert(err, IsNil)
+	c.Assert(*market.Permissions, Equals, new_permissions);
+}
 
-	market, err = marketCtrl.Info(false)
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+func (s *MarketPlaceSuite) TestEnable(c *C) {
+	// Disable
+	marketC := testCtrl.MarketPlace(s.marketID)
+	err := marketC.Enable(false)
+	c.Assert(err, IsNil)
 
-	actual = market.Name
+	market, err := marketC.Info(false)
+	c.Assert(err, IsNil)
 
-	if actual != rename {
-		t.Errorf("Test failed, expected: '%s', got:  '%s'", rename, actual)
-	}
+	state, err := market.State()
+	c.Assert(err, IsNil)
+	c.Assert(state, Equals, marketplace.Disabled);
 
-	//Delete Marketpkace
-	err = marketCtrl.Delete()
+	// Enable
+	err = marketC.Enable(true)
+	c.Assert(err, IsNil)
 
-	if err != nil {
-		t.Errorf("Test failed:\n" + err.Error())
-	}
+	market, err = marketC.Info(false)
+	c.Assert(err, IsNil)
+
+	state, err = market.State()
+	c.Assert(err, IsNil)
+	c.Assert(state, Equals, marketplace.Enabled);
 }
