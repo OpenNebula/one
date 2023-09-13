@@ -182,6 +182,7 @@ export const filterDataset = (dataset, filterFn, labelingFunction) => {
   const { data, metrics } = dataset
 
   const filteredData = data.filter(filterFn)
+  const isEmpty = filteredData.length === 0
 
   const filteredMetrics = metrics.map((metric) => {
     const total = filteredData.reduce(
@@ -195,9 +196,9 @@ export const filterDataset = (dataset, filterFn, labelingFunction) => {
   let label = 'N/A'
   let error = null
 
-  if (labelingFunction) {
+  if (labelingFunction && !isEmpty) {
     try {
-      label = labelingFunction(filteredData[0] || {})
+      label = labelingFunction(filteredData[0])
     } catch (err) {
       error = `Error applying label to dataset: ${err.message}`
     }
@@ -215,6 +216,7 @@ export const filterDataset = (dataset, filterFn, labelingFunction) => {
       label: label,
     },
     error: error,
+    isEmpty: isEmpty,
   }
 }
 

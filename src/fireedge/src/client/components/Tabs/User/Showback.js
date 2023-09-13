@@ -16,10 +16,19 @@
 import PropTypes from 'prop-types'
 import { LoadingDisplay } from 'client/components/LoadingState'
 import { MultiChart } from 'client/components/Charts'
-import { transformApiResponseToDataset } from 'client/components/Charts/MultiChart/helpers/scripts'
-import { useGetShowbackPoolQuery } from 'client/features/OneApi/vm'
-import { Box } from '@mui/material'
-import { Component } from 'react'
+import {
+  transformApiResponseToDataset,
+  filterDataset,
+} from 'client/components/Charts/MultiChart/helpers/scripts'
+import { DateRangeFilter } from 'client/components/Date'
+import {
+  useGetShowbackPoolQuery,
+  useLazyCalculateShowbackQuery,
+} from 'client/features/OneApi/vm'
+import { Box, Button } from '@mui/material'
+import { Component, useState } from 'react'
+import { DateTime } from 'luxon'
+import { useGeneralApi } from 'client/features/General'
 
 const keyMap = {
   VMID: 'OID',
@@ -79,7 +88,10 @@ const labelingFunc = (record) => `${record.YEAR}-${record.MONTH}`
  * @returns {Component} Rendered component.
  */
 const ShowbackInfoTab = ({ id }) => {
-  const filter = id
+  const [calculateShowback] = useLazyCalculateShowbackQuery()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
+
+  const filter = Number(id)
   const startMonth = -1
   const startYear = -1
   const endMonth = -1
@@ -93,34 +105,53 @@ const ShowbackInfoTab = ({ id }) => {
     endYear,
   })
 
+  const [dateRange, setDateRange] = useState({
+    startDate: DateTime.now().minus({ months: 1 }),
+    endDate: DateTime.now(),
+  })
+
+  const dateFilterFn = (record) => {
+    const recordDate = DateTime.fromObject({
+      year: parseInt(record.YEAR, 10),
+      month: parseInt(record.MONTH, 10),
+    })
+
+    return recordDate >= dateRange.startDate && recordDate <= dateRange.endDate
+  }
+
+  const handleDateChange = (newDateRange) => {
+    setDateRange(newDateRange)
+  }
+
+  const handleCalculateClick = async () => {
+    const params = {
+      startMonth,
+      startYear,
+      endMonth,
+      endYear,
+    }
+
+    try {
+      await calculateShowback(params)
+      enqueueSuccess('Showback calculated')
+    } catch (error) {
+      enqueueError(`Error calculating showback: ${error.message}`)
+    }
+  }
+
   const isLoading = queryData.isLoading
-  let transformedResult
-  let processedApiData
   let error
 
-  if (!isLoading && queryData.isSuccess) {
-    transformedResult = transformApiResponseToDataset(
-      queryData,
-      keyMap,
-      metricKeys,
-      labelingFunc
-    )
-    processedApiData = transformedResult.dataset
-    error = transformedResult.error
-  }
+  const aggregateTotalCostByMonth = (datasetWrapper) => {
+    const dataset = datasetWrapper.dataset
 
-  if (
-    isLoading ||
-    error ||
-    !processedApiData ||
-    (processedApiData &&
-      processedApiData.data.length === 1 &&
-      !Object.keys(processedApiData.data[0]).length)
-  ) {
-    return <LoadingDisplay isLoading={isLoading} error={error} />
-  }
+    if (!dataset.data || dataset.data.length === 0) {
+      return {
+        ...dataset,
+        isEmpty: datasetWrapper.isEmpty,
+      }
+    }
 
-  const aggregateTotalCostByMonth = (dataset) => {
     const aggregated = dataset.data.reduce((acc, record) => {
       if (
         record.MONTH &&
@@ -137,14 +168,61 @@ const ShowbackInfoTab = ({ id }) => {
     }, {})
 
     return {
-      ...dataset,
+      id: dataset.id,
       data: Object.values(aggregated),
+      metrics: dataset.metrics,
+      label: dataset.label,
+      isEmpty: datasetWrapper.isEmpty,
     }
   }
-  const topChartsData = [processedApiData].map(aggregateTotalCostByMonth)
+
+  let filteredResult
+  let topChartsData
+
+  if (!isLoading && queryData.isSuccess) {
+    const transformedResult = transformApiResponseToDataset(
+      queryData,
+      keyMap,
+      metricKeys,
+      labelingFunc
+    )
+    error = transformedResult.error
+
+    filteredResult = filterDataset(
+      transformedResult.dataset,
+      dateFilterFn,
+      labelingFunc
+    )
+
+    topChartsData = [filteredResult].map(aggregateTotalCostByMonth)
+  }
+
+  if (isLoading || error) {
+    return <LoadingDisplay isLoading={isLoading} error={error} />
+  }
 
   return (
     <Box padding={2} display="flex" flexDirection="column" height="100%">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <DateRangeFilter
+          initialStartDate={dateRange.startDate}
+          initialEndDate={dateRange.endDate}
+          onDateChange={handleDateChange}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={handleCalculateClick}
+        >
+          Calculate Data
+        </Button>
+      </Box>
       <Box
         display="flex"
         flexDirection="row"
@@ -175,7 +253,9 @@ const ShowbackInfoTab = ({ id }) => {
 
       <Box flexGrow={1} minHeight="400px" {...commonStyles}>
         <MultiChart
-          datasets={[processedApiData]}
+          datasets={[
+            { ...filteredResult.dataset, isEmpty: filteredResult.isEmpty },
+          ]}
           chartType={'table'}
           ItemsPerPage={7}
           tableColumns={DataGridColumns}

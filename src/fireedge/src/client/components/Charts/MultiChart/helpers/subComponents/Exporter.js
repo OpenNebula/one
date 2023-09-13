@@ -56,15 +56,7 @@ export const ExportButton = ({ data, exportOptions, exportHandlers }) => {
     handleMenuClose()
   }
 
-  const noData = data.every(
-    (item) =>
-      item.data.length === 0 ||
-      item.data.every(
-        (subItem) =>
-          !Object.keys(subItem).length ||
-          Object.values(subItem).every((value) => value === undefined)
-      )
-  )
+  const noData = data.every((item) => item.isEmpty)
 
   return (
     <Box>

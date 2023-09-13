@@ -21,7 +21,7 @@ const { resolve } = require('path')
 const { httpResponse } = require('server/utils/server')
 const { defaults, httpCodes } = require('server/utils/constants')
 
-const { internalServerError, ok, notFound } = httpCodes
+const { internalServerError, ok, noContent, notFound } = httpCodes
 const { defaultWebpackMode } = defaults
 
 /**
@@ -53,7 +53,10 @@ const parseReturnWorker = (value) => {
       try {
         rtn = httpResponse(ok, JSON.parse(value))
       } catch (error) {
-        rtn = httpResponse(notFound, value)
+        rtn = httpResponse(
+          value === null || value === '' ? noContent : notFound,
+          value
+        )
       }
       break
     case 'object':

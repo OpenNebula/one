@@ -13,44 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
-const httpCodes = {
-  badRequest: {
-    id: 400,
-    message: 'Bad Request',
-  },
-  unauthorized: {
-    id: 401,
-    message: 'Unauthorized',
-  },
-  notFound: {
-    id: 404,
-    message: 'Not Found',
-  },
-  methodNotAllowed: {
-    id: 405,
-    message: 'Method not Allowed',
-  },
-  internalServerError: {
-    id: 500,
-    message: 'Internal Server Error',
-  },
-  serviceUnavailable: {
-    id: 503,
-    message: 'Service Unavailable',
-  },
-  noContent: {
-    id: 204,
-    message: 'No content',
-  },
-  accepted: {
-    id: 202,
-    message: 'Accepted',
-  },
-  ok: {
-    id: 200,
-    message: 'OK',
-  },
-}
-
-module.exports = httpCodes
+export { DateRangeFilter } from 'client/components/Date/DateRangeFilter'

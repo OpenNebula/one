@@ -27,10 +27,10 @@ import {
   Tooltip,
 } from '@mui/material'
 import {
-  DateRangeFilter,
   MetricSelector,
   CustomizedChart,
 } from 'client/components/Tabs/User/Accounting/components'
+import { DateRangeFilter } from 'client/components/Date'
 import AdapterLuxon from '@mui/lab/AdapterLuxon'
 import { DateTime } from 'luxon'
 import { LocalizationProvider } from '@mui/lab'
@@ -94,7 +94,6 @@ const AccountingInfoTab = ({ id }) => {
     )
 
     const filteredDataset = result.dataset
-
     let filteredData =
       filteredDataset && filteredDataset.data ? filteredDataset.data : []
 
@@ -125,6 +124,7 @@ const AccountingInfoTab = ({ id }) => {
       data: filteredData,
       metrics: metrics,
       label: label,
+      isEmpty: result.isEmpty,
     }
   }
 

@@ -13,6 +13,5 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export { DateRangeFilter } from 'client/components/Tabs/User/Accounting/components/DateRangeFilter'
 export { MetricSelector } from 'client/components/Tabs/User/Accounting/components/MetricSelector'
 export { CustomizedChart } from 'client/components/Tabs/User/Accounting/components/CustomizedChart'

@@ -100,7 +100,11 @@ const oneApi = createApi({
       const { message: messageFromServer, data: errorFromOned } = data
 
       const error = message ?? errorFromOned ?? messageFromServer ?? statusText
+      if (status === 204) {
+        const state = needStateInMeta ? getState() : {}
 
+        return { data: {}, meta: { state } } // 204 returns no data so we need to explicitly mark this as a success
+      }
       status !== httpCodes.unauthorized.id &&
         dispatch(
           enqueueSnackbar({

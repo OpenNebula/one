@@ -72,7 +72,9 @@ const MultiChart = ({
 
     return [
       ...new Set(
-        datasets.flatMap((dataset) => dataset.data.map((item) => item[groupBy]))
+        datasets
+          .filter((dataset) => !dataset.isEmpty)
+          .flatMap((dataset) => dataset.data.map((item) => item[groupBy]))
       ),
     ]
   }, [datasets, groupBy, passedxAxisLabels])
@@ -86,9 +88,11 @@ const MultiChart = ({
     }
 
     return datasets.reduce((acc, dataset) => {
-      dataset.metrics.forEach((metric) => {
-        acc[metric.key] = true
-      })
+      if (!dataset.isEmpty && dataset.metrics) {
+        dataset.metrics.forEach((metric) => {
+          acc[metric.key] = true
+        })
+      }
 
       return acc
     }, {})
@@ -102,7 +106,9 @@ const MultiChart = ({
     const allMetrics = [
       ...new Set(
         datasets.flatMap((dataset) =>
-          dataset.metrics.map((metric) => metric.key)
+          dataset.isEmpty || !dataset.metrics
+            ? []
+            : dataset.metrics.map((metric) => metric.key)
         )
       ),
     ]
@@ -133,15 +139,7 @@ const MultiChart = ({
       // eslint-disable-next-line no-shadow
       const dataset = datasets.find((dataset) => dataset.id === id)
 
-      return (
-        !dataset ||
-        dataset.data.length === 0 ||
-        dataset.data.every((item) =>
-          Object.values(item).every(
-            (value) => value === null || value === undefined || value === ''
-          )
-        )
-      )
+      return dataset.isEmpty
     })
 
     return allEmpty
