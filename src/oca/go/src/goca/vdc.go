@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 
@@ -42,9 +43,14 @@ func (c *Controller) VDC(id int) *VDCController {
 
 // ByName returns a Vdc ID from name
 func (c *VDCsController) ByName(name string) (int, error) {
+	return c.ByNameContext(context.Background(), name)
+}
+
+// ByNameContext returns a Vdc ID from name
+func (c *VDCsController) ByNameContext(ctx context.Context, name string) (int, error) {
 	var id int
 
-	vdcPool, err := c.Info()
+	vdcPool, err := c.InfoContext(ctx)
 	if err != nil {
 		return -1, err
 	}
@@ -70,7 +76,13 @@ func (c *VDCsController) ByName(name string) (int, error) {
 // Info returns a vdc pool. A connection to OpenNebula is
 // performed.
 func (vc *VDCsController) Info() (*vdc.Pool, error) {
-	response, err := vc.c.Client.Call("one.vdcpool.info")
+	return vc.InfoContext(context.Background())
+}
+
+// InfoContext returns a vdc pool. A connection to OpenNebula is
+// performed.
+func (vc *VDCsController) InfoContext(ctx context.Context) (*vdc.Pool, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vdcpool.info")
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +98,12 @@ func (vc *VDCsController) Info() (*vdc.Pool, error) {
 
 // Info retrieves information for the VDC.
 func (vc *VDCController) Info(decrypt bool) (*vdc.VDC, error) {
-	response, err := vc.c.Client.Call("one.vdc.info", vc.ID, decrypt)
+	return vc.InfoContext(context.Background(), decrypt)
+}
+
+// InfoContext retrieves information for the VDC.
+func (vc *VDCController) InfoContext(ctx context.Context, decrypt bool) (*vdc.VDC, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vdc.info", vc.ID, decrypt)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +122,17 @@ func (vc *VDCController) Info(decrypt bool) (*vdc.VDC, error) {
 // * clusterID: The cluster ID. If it is -1, this virtual network won’t be added
 //     to any cluster
 func (vc *VDCsController) Create(tpl string, clusterID int) (int, error) {
-	response, err := vc.c.Client.Call("one.vdc.allocate", tpl, clusterID)
+	return vc.CreateContext(context.Background(), tpl, clusterID)
+}
+
+// CreateContext allocates a new vdc. It returns the new vdc ID.
+//   - ctx: context for cancelation
+//   - tpl:	A string containing the template of the VDC. Syntax can be the usual
+//     attribute=value or XML.
+//   - clusterID: The cluster ID. If it is -1, this virtual network won’t be added
+//     to any cluster
+func (vc *VDCsController) CreateContext(ctx context.Context, tpl string, clusterID int) (int, error) {
+	response, err := vc.c.Client.CallContext(ctx, "one.vdc.allocate", tpl, clusterID)
 	if err != nil {
 		return -1, err
 	}
@@ -115,7 +142,12 @@ func (vc *VDCsController) Create(tpl string, clusterID int) (int, error) {
 
 // Delete deletes the given VDC from the pool.
 func (vc *VDCController) Delete() error {
-	_, err := vc.c.Client.Call("one.vdc.delete", vc.ID)
+	return vc.DeleteContext(context.Background())
+}
+
+// DeleteContext deletes the given VDC from the pool.
+func (vc *VDCController) DeleteContext(ctx context.Context) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delete", vc.ID)
 	return err
 }
 
@@ -124,28 +156,58 @@ func (vc *VDCController) Delete() error {
 // * uType: Update type: Replace: Replace the whole template.
 //   Merge: Merge new template with the existing one.
 func (vc *VDCController) Update(tpl string, uType parameters.UpdateType) error {
-	_, err := vc.c.Client.Call("one.vdc.update", vc.ID, tpl, uType)
+	return vc.UpdateContext(context.Background(), tpl, uType)
+}
+
+// UpdateContext adds vdc content.
+//   - ctx: context for cancelation
+//   - tpl: The new vdc contents. Syntax can be the usual attribute=value or XML.
+//   - uType: Update type: Replace: Replace the whole template.
+//     Merge: Merge new template with the existing one.
+func (vc *VDCController) UpdateContext(ctx context.Context, tpl string, uType parameters.UpdateType) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.update", vc.ID, tpl, uType)
 	return err
 }
 
 // Rename renames a VDC.
 // * newName: The new name.
 func (vc *VDCController) Rename(newName string) error {
-	_, err := vc.c.Client.Call("one.vdc.rename", vc.ID, newName)
+	return vc.RenameContext(context.Background(), newName)
+}
+
+// RenameContext renames a VDC.
+// * ctx: context for cancelation
+// * newName: The new name.
+func (vc *VDCController) RenameContext(ctx context.Context, newName string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.rename", vc.ID, newName)
 	return err
 }
 
 // AddGroup adds a group to the VDC
 // * groupID: The group ID.
 func (vc *VDCController) AddGroup(groupID int) error {
-	_, err := vc.c.Client.Call("one.vdc.addgroup", vc.ID, int(groupID))
+	return vc.AddGroupContext(context.Background(), groupID)
+}
+
+// AddGroupContext adds a group to the VDC
+// * ctx: context for cancelation
+// * groupID: The group ID.
+func (vc *VDCController) AddGroupContext(ctx context.Context, groupID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addgroup", vc.ID, int(groupID))
 	return err
 }
 
 // DelGroup deletes a group from the VDC
 // * groupID: The group ID.
 func (vc *VDCController) DelGroup(groupID int) error {
-	_, err := vc.c.Client.Call("one.vdc.delgroup", vc.ID, int(groupID))
+	return vc.DelGroupContext(context.Background(), groupID)
+}
+
+// DelGroupContext deletes a group from the VDC
+// * ctx: context for cancelation
+// * groupID: The group ID.
+func (vc *VDCController) DelGroupContext(ctx context.Context, groupID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delgroup", vc.ID, int(groupID))
 	return err
 }
 
@@ -153,7 +215,15 @@ func (vc *VDCController) DelGroup(groupID int) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vc *VDCController) AddCluster(zoneID, clusterID int) error {
-	_, err := vc.c.Client.Call("one.vdc.addcluster", vc.ID, int(zoneID), int(clusterID))
+	return vc.AddClusterContext(context.Background(), zoneID, clusterID)
+}
+
+// AddClusterContext adds a cluster to the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * clusterID: The Cluster ID.
+func (vc *VDCController) AddClusterContext(ctx context.Context, zoneID, clusterID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addcluster", vc.ID, int(zoneID), int(clusterID))
 	return err
 }
 
@@ -161,7 +231,15 @@ func (vc *VDCController) AddCluster(zoneID, clusterID int) error {
 // * zoneID: The Zone ID.
 // * clusterID: The Cluster ID.
 func (vc *VDCController) DelCluster(zoneID, clusterID int) error {
-	_, err := vc.c.Client.Call("one.vdc.delcluster", vc.ID, int(zoneID), int(clusterID))
+	return vc.DelClusterContext(context.Background(), zoneID, clusterID)
+}
+
+// DelClusterContext deletes a cluster from the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * clusterID: The Cluster ID.
+func (vc *VDCController) DelClusterContext(ctx context.Context, zoneID, clusterID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delcluster", vc.ID, int(zoneID), int(clusterID))
 	return err
 }
 
@@ -169,7 +247,15 @@ func (vc *VDCController) DelCluster(zoneID, clusterID int) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vc *VDCController) AddHost(zoneID, hostID int) error {
-	_, err := vc.c.Client.Call("one.vdc.addhost", vc.ID, int(zoneID), int(hostID))
+	return vc.AddHostContext(context.Background(), zoneID, hostID)
+}
+
+// AddHostContext adds a host to the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * hostID: The Host ID.
+func (vc *VDCController) AddHostContext(ctx context.Context, zoneID, hostID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addhost", vc.ID, int(zoneID), int(hostID))
 	return err
 }
 
@@ -177,7 +263,15 @@ func (vc *VDCController) AddHost(zoneID, hostID int) error {
 // * zoneID: The Zone ID.
 // * hostID: The Host ID.
 func (vc *VDCController) DelHost(zoneID, hostID int) error {
-	_, err := vc.c.Client.Call("one.vdc.delhost", vc.ID, int(zoneID), int(hostID))
+	return vc.DelHostContext(context.Background(), zoneID, hostID)
+}
+
+// DelHostContext deletes a host from the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * hostID: The Host ID.
+func (vc *VDCController) DelHostContext(ctx context.Context, zoneID, hostID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delhost", vc.ID, int(zoneID), int(hostID))
 	return err
 }
 
@@ -185,7 +279,15 @@ func (vc *VDCController) DelHost(zoneID, hostID int) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vc *VDCController) AddDatastore(zoneID, dsID int) error {
-	_, err := vc.c.Client.Call("one.vdc.adddatastore", vc.ID, int(zoneID), int(dsID))
+	return vc.AddDatastoreContext(context.Background(), zoneID, dsID)
+}
+
+// AddDatastoreContext adds a datastore to the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * dsID: The Datastore ID.
+func (vc *VDCController) AddDatastoreContext(ctx context.Context, zoneID, dsID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.adddatastore", vc.ID, int(zoneID), int(dsID))
 	return err
 }
 
@@ -193,7 +295,15 @@ func (vc *VDCController) AddDatastore(zoneID, dsID int) error {
 // * zoneID: The Zone ID.
 // * dsID: The Datastore ID.
 func (vc *VDCController) DelDatastore(zoneID, dsID int) error {
-	_, err := vc.c.Client.Call("one.vdc.deldatastore", vc.ID, int(zoneID), int(dsID))
+	return vc.DelDatastoreContext(context.Background(), zoneID, dsID)
+}
+
+// DelDatastoreContext deletes a datastore from the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * dsID: The Datastore ID.
+func (vc *VDCController) DelDatastoreContext(ctx context.Context, zoneID, dsID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.deldatastore", vc.ID, int(zoneID), int(dsID))
 	return err
 }
 
@@ -201,7 +311,15 @@ func (vc *VDCController) DelDatastore(zoneID, dsID int) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vc *VDCController) AddVnet(zoneID, vnetID int) error {
-	_, err := vc.c.Client.Call("one.vdc.addvnet", vc.ID, int(zoneID), int(vnetID))
+	return vc.AddVnetContext(context.Background(), zoneID, vnetID)
+}
+
+// AddVnetContext adds a vnet to the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * vnetID: The Vnet ID.
+func (vc *VDCController) AddVnetContext(ctx context.Context, zoneID, vnetID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.addvnet", vc.ID, int(zoneID), int(vnetID))
 	return err
 }
 
@@ -209,6 +327,14 @@ func (vc *VDCController) AddVnet(zoneID, vnetID int) error {
 // * zoneID: The Zone ID.
 // * vnetID: The Vnet ID.
 func (vc *VDCController) DelVnet(zoneID, vnetID int) error {
-	_, err := vc.c.Client.Call("one.vdc.delvnet", vc.ID, int(zoneID), int(vnetID))
+	return vc.DelVnetContext(context.Background(), zoneID, vnetID)
+}
+
+// DelVnetContext deletes a vnet from the VDC
+// * ctx: context for cancelation
+// * zoneID: The Zone ID.
+// * vnetID: The Vnet ID.
+func (vc *VDCController) DelVnetContext(ctx context.Context, zoneID, vnetID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vdc.delvnet", vc.ID, int(zoneID), int(vnetID))
 	return err
 }

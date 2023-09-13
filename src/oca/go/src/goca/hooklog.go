@@ -17,6 +17,7 @@
 package goca
 
 import (
+	"context"
 	"encoding/xml"
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
@@ -36,7 +37,17 @@ func (c *Controller) HookLog() *HookLogController {
 // * hookId: Hook ID to filer for.
 // * rc: return code of the hook execution to filer for. (-1 error, 0 all, 1 success)
 func (hc *HookLogController) Info(minTs, maxTs, hookId, hook_rc int) (*hook.HookLog, error) {
-	response, err := hc.c.Client.Call("one.hooklog.info", minTs, maxTs, hookId, hook_rc)
+	return hc.InfoContext(context.Background(), minTs, maxTs, hookId, hook_rc)
+}
+
+// InfoContext retrieves information for the hook from ID
+// * ctx: context for cancelation
+// * minTs: Min timestamp to filter for.
+// * maxTs: Max timestamp to filter for
+// * hookId: Hook ID to filer for.
+// * rc: return code of the hook execution to filer for. (-1 error, 0 all, 1 success)
+func (hc *HookLogController) InfoContext(ctx context.Context, minTs, maxTs, hookId, hook_rc int) (*hook.HookLog, error) {
+	response, err := hc.c.Client.CallContext(ctx, "one.hooklog.info", minTs, maxTs, hookId, hook_rc)
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,7 @@ package goca
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -114,8 +115,8 @@ func NewClient(conf OneConfig, httpClient *http.Client) *Client {
 	}
 }
 
-// Call is an XML-RPC wrapper. It returns a pointer to response and an error.
-func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
+// CallContext is an XML-RPC wrapper. It returns a pointer to response and an error and can be canceled through the passed context
+func (c *Client) CallContext(ctx context.Context, method string, args ...interface{}) (*Response, error) {
 	var (
 		ok bool
 
@@ -136,7 +137,7 @@ func (c *Client) Call(method string, args ...interface{}) (*Response, error) {
 			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "xmlrpc request encoding", Err: err}
 	}
 
-	req, err := http.NewRequest("POST", c.url, bytes.NewBuffer(buf))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.url, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil,
 			&errs.ClientError{Code: errs.ClientReqBuild, Msg: "http request build", Err: err}
