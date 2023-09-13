@@ -11,6 +11,7 @@
 - name: Add frr GPG key
   ansible.builtin.apt_key:
     url: https://deb.frrouting.org/frr/keys.asc
+    validate_certs: false  # sometimes broken cert
     state: present
 
 - name: Add frr repository
