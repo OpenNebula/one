@@ -155,14 +155,13 @@ func (mc *MarketPlaceController) DeleteContext(ctx context.Context) error {
 // Enable enables or disables a marketplace.
 // * enable: True for enabling, False for disabling
 func (mc *MarketPlaceController) Enable(enable bool) error {
-	_, err := mc.c.Client.Call("one.market.enable", mc.ID, enable)
-	return err
+	return mc.EnableContext(context.Background(), enable)
 }
 
 // Enable enables or disables a marketplace.
 // * enable: True for enabling, False for disabling
-func (mc *MarketPlaceController) Enable(enable bool) error {
-	_, err := mc.c.Client.Call("one.market.enable", mc.ID, enable)
+func (mc *MarketPlaceController) EnableContext(ctx context.Context, enable bool) error {
+	_, err := mc.c.Client.CallContext(ctx, "one.market.enable", mc.ID, enable)
 	return err
 }
 
