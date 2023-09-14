@@ -182,6 +182,17 @@ void Scheduler::start()
         throw;
     }
 
+    oss.str("");
+
+    oss << "Starting Scheduler Daemon" << endl;
+    oss << "----------------------------------------\n";
+    oss << "     Scheduler Configuration File       \n";
+    oss << "----------------------------------------\n";
+    oss << conf;
+    oss << "----------------------------------------";
+
+    NebulaLog::log("SCHED", Log::INFO, oss);
+
     // Setup External Scheduler
     {
         VectorAttribute *ext_sched_va;
@@ -210,19 +221,15 @@ void Scheduler::start()
             NebulaLog::info("SCHED", "External Scheduler configured (server = '" + url +
                 "', timeout = " + to_string(timeout) +
                 ", proxy = '" + proxy + "').");
+
+            // Load attributes serialized to External Scheduler
+            vector<const SingleAttribute *> external_vm_attrs;
+
+            conf.get("EXTERNAL_VM_ATTR", external_vm_attrs);
+
+            VirtualMachineXML::init_external_attrs(external_vm_attrs);
         }
     }
-
-    oss.str("");
-
-    oss << "Starting Scheduler Daemon" << endl;
-    oss << "----------------------------------------\n";
-    oss << "     Scheduler Configuration File       \n";
-    oss << "----------------------------------------\n";
-    oss << conf;
-    oss << "----------------------------------------";
-
-    NebulaLog::log("SCHED", Log::INFO, oss);
 
     // -----------------------------------------------------------
     // XML-RPC Client

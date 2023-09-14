@@ -28,6 +28,8 @@ using namespace std;
 
 using json = nlohmann::json;
 
+std::map<std::string, std::string> VirtualMachineXML::external_attributes;
+
 /******************************************************************************/
 /******************************************************************************/
 /*  INITIALIZE VM object attributes from its XML representation               */
@@ -680,6 +682,38 @@ int VirtualMachineXML::parse_action_name(string& action_st)
     return 0;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineXML::init_external_attrs(const vector<const SingleAttribute *>& attrs)
+{
+    for (const auto &sa : attrs)
+    {
+        auto ext_atr = one_util::split(sa->value(), ':', true);
+
+        if (ext_atr.size() != 2)
+        {
+            ext_atr = one_util::split(sa->value(), '/', true);
+
+            if (ext_atr.empty())
+            {
+                NebulaLog::warn("SCHED", "Wrong format for external attribute: "
+                    + sa->value());
+                continue;
+            }
+
+            external_attributes.insert(make_pair(sa->value(), *ext_atr.rbegin()));
+        }
+        else
+        {
+            external_attributes.insert(make_pair(ext_atr[0], ext_atr[1]));
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 // We have to duplicate method from VirtualMachine.h, otherwise we get into linking hell
 static string state_to_str(VirtualMachine::VmState state)
 {
@@ -714,6 +748,9 @@ static string state_to_str(VirtualMachine::VmState state)
     return st;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineXML::to_json(json &vm_json)
 {
     vm_json["ID"]  = oid;
@@ -734,19 +771,6 @@ void VirtualMachineXML::to_json(json &vm_json)
     vm_json["HOST_IDS"] = hosts_json;
 
     // -------------------------------------------------------------------------
-    // Add UserTemplate
-    // -------------------------------------------------------------------------
-    string user_templ_str;
-
-    user_template->to_json(user_templ_str);
-
-    user_templ_str = "{" + user_templ_str + "}";
-
-    auto user_templ_json = json::parse(user_templ_str);
-
-    vm_json["USER_TEMPLATE"] = user_templ_json["USER_TEMPLATE"];
-
-    // -------------------------------------------------------------------------
     // Add requirements
     // -------------------------------------------------------------------------
     json req;
@@ -756,6 +780,27 @@ void VirtualMachineXML::to_json(json &vm_json)
     req["DISK_SIZE"] = system_ds_usage;
 
     vm_json["CAPACITY"] = req;
+
+    // -------------------------------------------------------------------------
+    // Add custom attributes
+    // -------------------------------------------------------------------------
+
+    map<string, string> custom_attributes;
+
+    for (const auto& attr : external_attributes)
+    {
+        string value;
+        xpath(value, attr.first.c_str(), "");
+
+        if (value.empty())
+        {
+            continue;
+        }
+
+        custom_attributes.insert(make_pair(attr.second, value));
+    }
+
+    vm_json["ATTRIBUTES"] = custom_attributes;
 }
 
 //******************************************************************************

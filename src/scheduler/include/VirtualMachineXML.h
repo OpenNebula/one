@@ -434,6 +434,17 @@ public:
      */
     static int parse_action_name(std::string& action_st);
 
+    /**
+     *  Init list of attributes serialized to External Scheduler
+     *    @param attrs List of strings with format 'path:name', where
+     *          path could be
+     *              absolute '/VM/TEMPLATE/CPU'
+     *              relative '//CPU` - first attribute with name CPU
+     *          name - name of the attribute visible in External Scheduler
+     *          Examples '/VM/TEMPLATE/MEMORY:MEM', '//ROLE:VMGROUP_ROLE'
+     */
+    static void init_external_attrs(const std::vector<const SingleAttribute *>& attrs);
+
     //--------------------------------------------------------------------------
     // Logging
     //--------------------------------------------------------------------------
@@ -516,6 +527,8 @@ protected:
 
     std::unique_ptr<VirtualMachineTemplate> vm_template;   /**< The VM template */
     std::unique_ptr<VirtualMachineTemplate> user_template; /**< The VM user template */
+
+    static std::map<std::string, std::string> external_attributes;
 };
 
 #endif /* VM_XML_H_ */
