@@ -81,6 +81,21 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    def retrieve_role_id(vmg_id, id)
+        return [0, id.to_i] if id =~ /\A\d+\z/
+
+        puts vmg_id
+        vmg = retrieve_resource(vmg_id)
+        vmg.info
+
+        ids = vmg.retrieve_elements("ROLES/ROLE[NAME='#{id}']/ID")
+
+        return [-1, "#{id} not found or duplicated"] \
+                if ids.nil? || ids.size > 1
+
+        [0, ids[0].to_i]
+    end
+
     private
 
     def factory(id=nil)

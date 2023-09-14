@@ -88,7 +88,7 @@ public:
      */
     int add_vm(const std::string& role_name, int vmid)
     {
-        return roles.add_vm(role_name, vmid);
+        return _roles.add_vm(role_name, vmid);
     }
 
     /**
@@ -100,8 +100,43 @@ public:
      */
     int del_vm(const std::string& role_name, int vmid)
     {
-        return roles.del_vm(role_name, vmid);
+        return _roles.del_vm(role_name, vmid);
     }
+
+    VMGroupRoles& roles()
+    {
+        return _roles;
+    }
+
+    /**
+     *  Adds a new role to the set
+     *    @param vrole VectorAttribute of the role
+     *    @param error string if any
+     *
+     *    @return 0 on success
+     */
+    int add_role(VectorAttribute * vrole, std::string& error);
+
+    /**
+     *  Delete role from the set
+     *    @param id ID of the role
+     *    @param error string if any
+     *
+     *    @return 0 on success
+     */
+    int del_role(int id, std::string& error);
+
+    /**
+     *  Update existing role
+     *    @param id ID of the role to update
+     *    @param vrole VectorAttribute of the role
+     *    @param error string if any
+     *
+     *    @return 0 on success
+     */
+    int update_role(int id, VectorAttribute * vrole, std::string& error);
+
+    int check_consistency(std::string& error_str);
 
 private:
     // -------------------------------------------------------------------------
@@ -199,7 +234,7 @@ private:
 	/**
 	 *  The role set
 	 */
-	VMGroupRoles roles;
+	VMGroupRoles _roles;
 };
 
 #endif /*VMGROUP_H_*/

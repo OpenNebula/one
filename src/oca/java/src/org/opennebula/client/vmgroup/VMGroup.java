@@ -37,6 +37,9 @@ public class VMGroup extends PoolElement{
     private static final String RENAME          = METHOD_PREFIX + "rename";
     private static final String LOCK            = METHOD_PREFIX + "lock";
     private static final String UNLOCK          = METHOD_PREFIX + "unlock";
+    private static final String ROLEADD         = METHOD_PREFIX + "roleadd";
+    private static final String ROLEDELETE      = METHOD_PREFIX + "roledelete";
+    private static final String ROLEUPDATE      = METHOD_PREFIX + "roleupdate";
 
     /**
      * Creates a new vmgroup representation.
@@ -238,6 +241,46 @@ public class VMGroup extends PoolElement{
         return client.call(UNLOCK, id);
     }
 
+    /**
+     * Add VM Group role
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target VM Group.
+     * @param roleTemplate New template content.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse roleAdd(Client client, int id, String roleTemplate)
+    {
+        return client.call(ROLEADD, id, roleTemplate);
+    }
+
+    /**
+     * Delete VM Group role
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target VM Group.
+     * @param roleID The id of the target role.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse roleDelete(Client client, int id, int roleID)
+    {
+        return client.call(ROLEDELETE, id, roleID);
+    }
+
+    /**
+     * Unlock this vmgroup
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target VM Group.
+     * @param roleID The id of the target role.
+     * @param roleTemplate Updated template content.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse roleUpdate(Client client, int id, int roleID, String roleTemplate)
+    {
+        return client.call(ROLEUPDATE, id, roleID, roleTemplate);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -398,6 +441,40 @@ public class VMGroup extends PoolElement{
     public OneResponse unlock()
     {
         return unlock(client, id);
+    }
+
+    /**
+     * Add VM Group role
+     *
+     * @param roleTemplate Updated template content.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse roleAdd(String roleTemplate)
+    {
+        return roleAdd(client, id, roleTemplate);
+    }
+
+    /**
+     * Delete VM Group role
+     *
+     * @param roleID The id of the target role.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse roleDelete(int roleID)
+    {
+        return roleDelete(client, id, roleID);
+    }
+
+    /**
+     * Update VM Group role
+     *
+     * @param roleID The id of the target role.
+     * @param roleTemplate Updated template content.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse roleUpdate(int roleID, String roleTemplate)
+    {
+        return roleUpdate(client, id, roleID, roleTemplate);
     }
 
     // =================================

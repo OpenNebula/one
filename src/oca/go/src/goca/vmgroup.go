@@ -137,20 +137,6 @@ func (vc *VMGroupsController) CreateContext(ctx context.Context, tpl string) (in
 	return response.BodyInt(), nil
 }
 
-// Clone clones an existing vmGroup.
-// * newName: Name for the new vmGroup.
-func (vc *VMGroupController) Clone(newName string) error {
-	return vc.CloneContext(context.Background(), newName)
-}
-
-// CloneContext clones an existing vmGroup.
-// * ctx: context for cancelation
-// * newName: Name for the new vmGroup.
-func (vc *VMGroupController) CloneContext(ctx context.Context, newName string) error {
-	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.clone", vc.ID, newName)
-	return err
-}
-
 // Delete deletes the given vmGroup from the pool.
 func (vc *VMGroupController) Delete() error {
 	return vc.DeleteContext(context.Background())
@@ -226,6 +212,7 @@ func (vc *VMGroupController) Lock(level shared.LockLevel) error {
 }
 
 // LockContext locks the vmGroup following lock level. See levels in locks.go.
+// * ctx: context for cancelation
 func (vc *VMGroupController) LockContext(ctx context.Context, level shared.LockLevel) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.lock", vc.ID, level)
 	return err
@@ -237,7 +224,51 @@ func (vc *VMGroupController) Unlock() error {
 }
 
 // UnlockContext unlocks the vmGroup.
+// * ctx: context for cancelation
 func (vc *VMGroupController) UnlockContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.unlock", vc.ID)
+	return err
+}
+
+// RolaAdd adds role to VM Group
+// * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
+func (vc *VMGroupController) RoleAdd(roleTemplate string) error {
+	return vc.RoleAddContext(context.Background(), roleTemplate)
+}
+
+// RoleAddContext adds role to VM Group
+// * ctx: context for cancelation
+// * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
+func (vc *VMGroupController) RoleAddContext(ctx context.Context, roleTemplate string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roleadd", vc.ID, roleTemplate)
+	return err
+}
+
+// RoleDelete deletes role from VM Group
+// * roleID: ID of the role to delete
+func (vc *VMGroupController) RoleDelete(roleID int) error {
+	return vc.RoleDeleteContext(context.Background(), roleID)
+}
+
+// RoleDeleteContext deletes role from VM Group
+// * roleID: ID of the role to delete
+func (vc *VMGroupController) RoleDeleteContext(ctx context.Context, roleID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roledelete", vc.ID, roleID)
+	return err
+}
+
+// RoleUpdate updates VM Group role
+// * ctx: context for cancelation
+// * roleID: ID of the role to update
+// * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
+func (vc *VMGroupController) RoleUpdate(roleID int, roleTemplate string) error {
+	return vc.RoleUpdateContext(context.Background(), roleID, roleTemplate)
+}
+
+// RoleUpdateContext update VM Group role
+// * roleID: ID of the role to update
+// * roleTemplate: The new role content. Syntax can be the usual attribute=value or XML.
+func (vc *VMGroupController) RoleUpdateContext(ctx context.Context, roleID int, roleTemplate string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vmgroup.roleupdate", vc.ID, roleID, roleTemplate)
 	return err
 }

@@ -63,6 +63,24 @@ VMGroupPolicy VMGroupRole::policy()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VMGroupRole::to_xml(ostringstream &oss) const
+{
+    va->to_xml(oss);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VMGroupRole::update(VectorAttribute* va_update)
+{
+    va_update->remove("VMS"); // Do not allow to update VMS, it's system attribute
+
+    va->merge(va_update, true);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VMGroupRole::add_vm(int vm_id)
 {
     auto rc = vms.insert(vm_id);
@@ -75,6 +93,9 @@ void VMGroupRole::add_vm(int vm_id)
     set_vms();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VMGroupRole::del_vm(int vm_id)
 {
     size_t rc = vms.erase(vm_id);
@@ -86,6 +107,9 @@ void VMGroupRole::del_vm(int vm_id)
 
     set_vms();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void VMGroupRole::set_vms()
 {
@@ -223,16 +247,36 @@ void VMGroupRole::antiaffined_host_requirements(std::string& reqs)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& VMGroupRoles::to_xml(std::string& xml_str) const
+{
+    ostringstream oss;
+
+    oss << "<" << "ROLES" << ">";
+
+    for ( auto it : by_id )
+    {
+        it.second->to_xml(oss);
+    }
+
+    oss << "</" << "ROLES" << ">";
+
+    xml_str = oss.str();
+
+    return xml_str;
+}
+
 int VMGroupRoles::from_xml_node(const xmlNodePtr node)
 {
     std::vector<VectorAttribute *> roles;
 
-    if ( roles_template.from_xml_node(node) == -1 )
+    Template templ;
+
+    if ( templ.from_xml_node(node) == -1 )
     {
         return -1;
     }
 
-    roles_template.get("ROLE", roles);
+    templ.get("ROLE", roles);
 
     for (auto vattr : roles)
     {
@@ -246,26 +290,20 @@ int VMGroupRoles::from_xml_node(const xmlNodePtr node)
             return -1;
         }
 
+        if (by_id.find(rid) != by_id.end() || by_name.find(rname) != by_name.end())
+        {
+            return -1;
+        }
+
         if ( rid >= next_role )
         {
             next_role = rid + 1;
         }
 
-        VMGroupRole * role = new VMGroupRole(vattr);
+        VMGroupRole * role = new VMGroupRole(vattr->clone());
 
-        if ( by_id.insert(rid, role) == false )
-        {
-            delete role;
-            return -1;
-        }
-
-        if ( by_name.insert(rname, role) == false )
-        {
-            by_id.erase(rid);
-
-            delete role;
-            return -1;
-        }
+        by_id.insert(make_pair(rid, role));
+        by_name.insert(make_pair(rname, role));
     }
 
     return 0;
@@ -289,29 +327,55 @@ int VMGroupRoles::add_role(VectorAttribute * vrole, string& error)
 
     vrole->remove("VMS");
 
-    VMGroupRole * role = new VMGroupRole(vrole);
-
-    if ( by_id.insert(next_role, role) == false )
+    if (by_id.find(next_role) != by_id.end() || by_name.find(rname) != by_name.end())
     {
-        delete role;
+        error = "Role already exists";
 
-        error = "Role ID already exists";
         return -1;
     }
 
-    if ( by_name.insert(rname, role) == false )
-    {
-        by_id.erase(next_role);
+    VMGroupRole * role = new VMGroupRole(vrole->clone());
 
-        delete role;
-
-        error = "Role NAME already exists";
-        return -1;
-    }
+    by_id.insert(make_pair(next_role, role));
+    by_name.insert(make_pair(rname, role));
 
     next_role += 1;
 
-    roles_template.set(vrole);
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VMGroupRoles::del_role(int id)
+{
+    auto role = get(id);
+
+    if ( !role )
+    {
+        return;
+    }
+
+    by_name.erase(role->name());
+    by_id.erase(id);
+
+    delete role;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroupRoles::rename_role(VMGroupRole* role, const std::string& new_name)
+{
+    if (by_name.find(new_name) != by_name.end())
+    {
+        return -1;
+    }
+
+    by_name.erase(role->name());
+    by_name[new_name] = role;
+
+    role->name(new_name);
 
     return 0;
 }
@@ -321,11 +385,9 @@ int VMGroupRoles::add_role(VectorAttribute * vrole, string& error)
 
 int VMGroupRoles::add_vm(const std::string& role_name, int vmid)
 {
-    VMGroupRole * role;
+    VMGroupRole * role = get(role_name);
 
-    role = by_name.get(role_name);
-
-    if ( role == 0 )
+    if ( !role )
     {
         return -1;
     }
@@ -340,11 +402,9 @@ int VMGroupRoles::add_vm(const std::string& role_name, int vmid)
 
 int VMGroupRoles::del_vm(const std::string& role_name, int vmid)
 {
-    VMGroupRole * role;
+    VMGroupRole * role = get(role_name);
 
-    role = by_name.get(role_name);
-
-    if ( role == 0 )
+    if ( !role )
     {
         return -1;
     }
@@ -361,9 +421,9 @@ int VMGroupRoles::vm_size()
 {
     int total = 0;
 
-    for ( auto it = begin(); it != end() ; ++it )
+    for ( auto it : by_id )
     {
-        total += (*it)->get_vms().size();
+        total += it.second->get_vms().size();
     }
 
     return total;
@@ -385,9 +445,9 @@ int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
 
     for ( const auto& name : key_set )
     {
-        VMGroupRole *r = by_name.get(name);
+        VMGroupRole *r = get(name);
 
-        if ( r == 0 )
+        if ( !r )
         {
             keyi.clear();
             return -1;

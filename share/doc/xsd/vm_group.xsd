@@ -46,6 +46,7 @@
                       <xs:element name="ID" type="xs:integer"/>
                       <xs:element name="NAME" type="xs:string"/>
                       <xs:element name="POLICY" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                      <xs:element name="VMS" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>

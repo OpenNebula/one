@@ -197,7 +197,7 @@ void VectorAttribute::replace(const map<string,string>& attr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
+void VectorAttribute::merge(const VectorAttribute* vattr, bool replace)
 {
     const map<string,string>& source_values = vattr->value();
 

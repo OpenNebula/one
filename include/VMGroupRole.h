@@ -40,8 +40,6 @@ class VMGroupRole
 public:
     VMGroupRole(VectorAttribute *_va);
 
-    virtual ~VMGroupRole(){};
-
     /**
      *  @return the role id
      */
@@ -63,6 +61,14 @@ public:
     }
 
     /**
+     *  Set role name
+     */
+    void name(const std::string& new_name)
+    {
+        va->replace("NAME", new_name);
+    }
+
+    /**
      *  @return the set of VMs in a string in a comma separated list
      */
     std::string vms_s() const
@@ -79,6 +85,14 @@ public:
     {
         return va->vector_value("POLICY");
     };
+
+    /**
+     * Function to print the VMGroupRole into a string stream in XML format
+     *   @param xml Output string stream
+     */
+    void to_xml(std::ostringstream &oss) const;
+
+    void update(VectorAttribute* va_update);
 
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
@@ -161,31 +175,30 @@ private:
 class VMGroupRoles
 {
 public:
-    VMGroupRoles():roles_template(false,'=',"ROLES"), next_role(0){};
+    VMGroupRoles() = default;
+
+    // Disable copy constructor
+    VMGroupRoles(const VMGroupRoles&) = delete;
+
+    // Disable copy assignment
+    VMGroupRoles& operator=(const VMGroupRoles&) = delete;
 
     ~VMGroupRoles()
     {
-        by_id.delete_roles();
-    };
+        delete_roles();
+    }
 
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
     /**
      * Max number of roles in a VMGroup
      */
     const static int MAX_ROLES = 32;
 
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
     /**
      * Function to print the VMGroupRoles into a string in XML format
      *   @param xml the resulting XML string
      *   @return a reference to the generated string
      */
-    std::string& to_xml(std::string& xml_str) const
-    {
-        return roles_template.to_xml(xml_str);
-    }
+    std::string& to_xml(std::string& xml_str) const;
 
     /**
      *  Builds the object from an xml node
@@ -202,6 +215,14 @@ public:
      *    @return 0 on success
      */
     int add_role(VectorAttribute * vrole, std::string& error);
+
+    /**
+     *  Delete role from the set
+     *    @param id ID of the role
+     */
+    void del_role(int id);
+
+    int rename_role(VMGroupRole* role, const std::string& new_name);
 
     /**
      *  Generates the ids corresponding to a set of role names
@@ -241,7 +262,14 @@ public:
      */
     VMGroupRole * get(const std::string& rname)
     {
-        return by_name.get(rname);
+        auto it = by_name.find(rname);
+
+        if (it == by_name.end())
+        {
+            return nullptr;
+        }
+
+        return it->second;
     }
 
     /**
@@ -250,7 +278,14 @@ public:
      */
     VMGroupRole * get(int id)
     {
-        return by_id.get(id);
+        auto it = by_id.find(id);
+
+        if (it == by_id.end())
+        {
+            return nullptr;
+        }
+
+        return it->second;
     }
 
     /* ---------------------------------------------------------------------- */
@@ -310,104 +345,33 @@ public:
 
 private:
     /**
-     *  A role map indexed by different key types
-     */
-    template<class T>
-    class RoleMap
-    {
-    public:
-        /**
-         *  Inserts a new role in the map
-         *    @param k the key
-         *    @param r pointer to yhe VMGroupRole
-         *    @return true if the role was successfully inserted
-         */
-        bool insert(const T& k, VMGroupRole * r)
-        {
-            std::pair<T, VMGroupRole *> rpair(k, r);
-            std::pair<roles_it, bool> rc;
-
-            rc = roles.insert(rpair);
-
-            return rc.second;
-        }
-
-        /**
-         *  Frees the memory associated to the map and clears it
-         */
-        void delete_roles()
-        {
-            for (roles_it it = roles.begin() ; it != roles.end() ; ++it )
-            {
-                delete it->second;
-            }
-
-            clear();
-        }
-
-        VMGroupRole * get(const T& k)
-        {
-            auto it = roles.find(k);
-
-            if ( it == roles.end() )
-            {
-                return nullptr;
-            }
-
-            return it->second;
-        }
-
-        /**
-         *  Clears the contents of the map
-         */
-        void clear()
-        {
-            roles.clear();
-        }
-
-        size_t erase(const T& k)
-        {
-            return roles.erase(k);
-        }
-
-        /**
-         *  Iterators for the map
-         */
-        typedef typename std::map<T, VMGroupRole *>::iterator roles_it;
-
-        roles_it begin()
-        {
-            return roles.begin();
-        }
-
-        roles_it end()
-        {
-            return roles.end();
-        }
-
-    private:
-        std::map<T, VMGroupRole *> roles;
-    };
-
-    /**
-     *  The role template to store the VMGroupRole
-     */
-	Template roles_template;
-
-    /**
      *  The next role id
      */
-    int next_role;
+    int next_role = 0;
 
     /**
      *  Map to access the roles by their name
      */
-    RoleMap<std::string> by_name;
+    std::map<std::string, VMGroupRole *> by_name;
 
     /**
      *  Map to access the roles by their id
      */
-    RoleMap<int> by_id;
+    std::map<int, VMGroupRole *> by_id;
+
+    /**
+     *  Frees the memory associated with the roles
+     */
+    void delete_roles()
+    {
+        for (auto it : by_id)
+        {
+            delete it.second;
+        }
+
+        by_id.clear();
+        by_name.clear();
+    }
 };
 
 #endif /*VMGROUP_ROLE_H*/

@@ -73,9 +73,7 @@ public:
     virtual std::string marshall(const char * _sep = 0) const = 0;
 
     /**
-     *  Write the attribute using a simple XML format. The string MUST be freed
-     *  by the calling function.
-     *    @return a string (allocated in the heap) holding the attribute value.
+     *  Write the attribute using a simple XML format.
      */
     virtual void to_xml(std::ostringstream& s) const = 0;
 
@@ -424,9 +422,6 @@ public:
      *    ...
      *    <val_name_n>val_value_n</val_name_n>
      *  </attribute_name>
-     *
-     *  The string MUST be freed by the calling function.
-     *    @return a string (allocated in the heap) holding the attribute value.
      */
     void to_xml(std::ostringstream& s) const override;
 
@@ -451,7 +446,7 @@ public:
      * @param replace True to replace existing values, false to copy values
      * only if they don't exist in this vector attribute
      */
-    void merge(VectorAttribute* vattr, bool replace);
+    void merge(const VectorAttribute* vattr, bool replace);
 
     /**
      *  Replace the value of the given vector attribute

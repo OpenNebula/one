@@ -52,6 +52,7 @@ source_files=[
     'RequestManagerMarketPlaceApp.cc',
     'RequestManagerVirtualRouter.cc',
     'RequestManagerSecurityGroup.cc',
+    'RequestManagerVMGroup.cc',
     'RequestManagerVNTemplate.cc',
     'RequestManagerHook.cc',
     'RequestManagerBackupJob.cc',

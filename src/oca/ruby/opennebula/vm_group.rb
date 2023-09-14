@@ -31,7 +31,10 @@ module OpenNebula
             :chmod       => "vmgroup.chmod",
             :rename      => "vmgroup.rename",
             :lock        => "vmgroup.lock",
-            :unlock        => "vmgroup.unlock"
+            :unlock      => "vmgroup.unlock",
+            :roleadd     => "vmgroup.roleadd",
+            :roledelete  => "vmgroup.roledelete",
+            :roleupdate  => "vmgroup.roleupdate"
         }
 
         # Creates a VMGroup description with just its identifier
@@ -132,6 +135,37 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VMGROUP_METHODS[:rename], @pe_id, name)
+        end
+
+        # Add role to VM Group
+        #
+        # @param template [String] String template for the new role
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def role_add(template)
+            return call(VMGROUP_METHODS[:roleadd], @pe_id, template)
+        end
+
+        # Delete role from VM Group
+        #
+        # @param roleid [Integer] ID of the role to remove
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def role_delete(roleid)
+            return call(VMGROUP_METHODS[:roledelete], @pe_id, roleid)
+        end
+
+        # Update VM Group role
+        #
+        # @param roleid [Integer] ID of the role to remove
+        # @param template [String] String template with updated values
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def role_update(roleid, template)
+            return call(VMGROUP_METHODS[:roleupdate], @pe_id, roleid, template)
         end
 
         #######################################################################

@@ -50,6 +50,7 @@
 #include "RequestManagerMarketPlaceApp.h"
 #include "RequestManagerVirtualRouter.h"
 #include "RequestManagerSecurityGroup.h"
+#include "RequestManagerVMGroup.h"
 #include "RequestManagerVNTemplate.h"
 #include "RequestManagerHook.h"
 #include "RequestManagerMarketPlace.h"
@@ -557,6 +558,11 @@ void RequestManager::register_xml_methods()
     // Security Group methods
     xmlrpc_c::methodPtr secg_commit(new SecurityGroupCommit());
 
+    // VMGroup methods
+    xmlrpc_c::methodPtr vmg_addrole(new VMGroupAddRole());
+    xmlrpc_c::methodPtr vmg_delrole(new VMGroupDelRole());
+    xmlrpc_c::methodPtr vmg_updaterole(new VMGroupUpdateRole());
+
     // Hook methods
     xmlrpc_c::methodPtr hook_retry(new HookRetry());
 
@@ -980,6 +986,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmgroup.update",   vmg_update);
     RequestManagerRegistry.addMethod("one.vmgroup.lock",     vmg_lock);
     RequestManagerRegistry.addMethod("one.vmgroup.unlock",   vmg_unlock);
+    RequestManagerRegistry.addMethod("one.vmgroup.roleadd",  vmg_addrole);
+    RequestManagerRegistry.addMethod("one.vmgroup.roledelete", vmg_delrole);
+    RequestManagerRegistry.addMethod("one.vmgroup.roleupdate", vmg_updaterole);
 
     RequestManagerRegistry.addMethod("one.vmgrouppool.info", vmgpool_info);
 

@@ -108,7 +108,9 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :vmgroupid, OneVMGroupHelper.to_id_desc do |arg|
-        helper.to_id(arg)
+        tmp = helper.to_id(arg)
+        @current_vmg = tmp[1]
+        tmp
     end
 
     set :format, :vmgroupid_list, OneVMGroupHelper.list_to_id_desc do |arg|
@@ -117,6 +119,10 @@ CommandParser::CmdParser.new(ARGV) do
 
     set :format, :filterflag, OneVMGroupHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
+    end
+
+    format :roleid, 'Role identifier' do |arg|
+        helper.retrieve_role_id(@current_vmg, arg)
     end
 
     ########################################################################
@@ -268,6 +274,63 @@ CommandParser::CmdParser.new(ARGV) do
     command :unlock, unlock_desc, [:range, :vmgroupid_list] do
         helper.perform_actions(args[0], options, 'VMGroup unlocked') do |vmg|
             vmg.unlock
+        end
+    end
+
+    role_add_desc = <<-EOT.unindent
+        Add role to VM Group.
+    EOT
+
+    command :"role-add", role_add_desc, :vmgroupid, [:file, nil] do
+        begin
+            template = File.read(args[1]) if args[1]
+            template = STDIN.read if STDIN.wait_readable(0)
+        rescue StandardError => e
+            STDERR.puts "Error reading template: #{e.message}."
+            exit(-1)
+        end
+
+        # Ensure the template attributes are in ROLE section
+        unless template.gsub(' ', '').match(/ROLE=\[/)
+            template = "ROLE=[\n#{template.split("\n").join(",\n")}]"
+        end
+
+        helper.perform_action(args[0], options, 'Role added') do |vmg|
+            vmg.role_add(template)
+        end
+    end
+
+    role_delete_desc = <<-EOT.unindent
+        Deletes role from VM Group.
+    EOT
+
+    command :"role-delete", role_delete_desc, :vmgroupid, :roleid do
+        roleid = args[1].to_i
+
+        helper.perform_action(args[0], options, 'Role removed') do |vmg|
+            vmg.role_delete(roleid)
+        end
+    end
+
+    role_update_desc = <<-EOT.unindent
+        Update VM Group role
+    EOT
+
+    command :"role-update", role_update_desc, :vmgroupid, :roleid, [:file, nil] do
+        vmg_id = args[0].to_i
+        role_id = args[1].to_i
+        file = args[2]
+
+        helper.perform_action(vmg_id, options, 'Role updated') do |vmg|
+            str = OpenNebulaHelper.update_template(vmg_id, vmg, file,
+                                                   "ROLES/ROLE[ID=#{role_id}]")
+
+            # Ensure the updated attributes are in ROLE section
+            unless str.gsub(' ', '').match(/ROLE=\[/)
+                str = "ROLE=[\n#{str.split("\n").join(",\n")}]"
+            end
+
+            vmg.role_update(role_id, str)
         end
     end
 end

@@ -64,7 +64,7 @@ string& VMGroup::to_xml(string& xml) const
         "<NAME>"    << name     << "</NAME>"   <<
         perms_to_xml(perms_xml)                <<
         lock_db_to_xml(lock_str)               <<
-        roles.to_xml(roles_xml)                <<
+        _roles.to_xml(roles_xml)               <<
         obj_template->to_xml(template_xml)     <<
     "</VM_GROUP>";
 
@@ -114,7 +114,7 @@ int VMGroup::from_xml(const string &xml_str)
 
     if (!content.empty())
     {
-        rc += roles.from_xml_node(content[0]);
+        rc += _roles.from_xml_node(content[0]);
     }
 
     ObjectXML::free_nodes(content);
@@ -241,7 +241,7 @@ int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
     {
         std::set<int> id_set;
 
-        if ( roles.names_to_ids(sattr->value(), id_set) != 0 )
+        if ( _roles.names_to_ids(sattr->value(), id_set) != 0 )
         {
             oss.str("");
 
@@ -276,7 +276,7 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
     {
         std::set<int> id_set;
 
-        roles.names_to_ids(sattr->value(), id_set);
+        _roles.names_to_ids(sattr->value(), id_set);
 
         VMGroupRule rule(policy, id_set);
 
@@ -293,6 +293,125 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
 
             return -1;
         }
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::add_role(VectorAttribute * vrole, std::string& error)
+{
+    if (_roles.add_role(vrole, error) != 0)
+    {
+        return -1;
+    }
+
+    return check_consistency(error);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::del_role(int role_id, std::string& error)
+{
+    auto role = _roles.get(role_id);
+
+    if ( !role )
+    {
+        ostringstream oss;
+        oss << "Unable to delete role " << role_id << ", the role doesn't exists";
+
+        error = oss.str();
+
+        return -1;
+    }
+
+    if (role->size_vms() > 0)
+    {
+        ostringstream oss;
+        oss << "Unable to delete role " << role_id << ", the role has assigned VMs ";
+
+        error = oss.str();
+
+        return -1;
+    }
+
+    _roles.del_role(role_id);
+
+    return check_consistency(error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::update_role(int role_id, VectorAttribute * vrole, std::string& error)
+{
+    // Create method VMGroup::role_update and do all checks there
+    auto role = _roles.get(role_id);
+
+    if (!role)
+    {
+        ostringstream oss;
+        oss << "VMGroup " << oid << " doesn't have role " << role_id;
+
+        error = oss.str();
+
+        return -1;
+    }
+
+    if (role->size_vms() > 0)
+    {
+        ostringstream oss;
+        oss << "VMGroup " << oid << " Role " << role_id
+            << " has VMs, unable to update";
+
+        error = oss.str();
+
+        return -1;
+    }
+
+    string new_name = vrole->vector_value("NAME");
+    if (!new_name.empty() && new_name != role->name())
+    {
+        if (_roles.rename_role(role, new_name) != 0)
+        {
+            ostringstream oss;
+            oss << "VMGroup " << oid << " Role " << role_id
+                << " can not update name, role with name " << new_name
+                << " already exists";
+
+            error = oss.str();
+
+            return -1;
+        }
+    }
+
+    role->update(vrole);
+
+    return check_consistency(error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VMGroup::check_consistency(std::string& error_str)
+{
+    if ( check_rule_names(VMGroupPolicy::AFFINED, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    if ( check_rule_consistency(error_str) == -1 )
+    {
+        return -1;
     }
 
     return 0;
@@ -320,7 +439,7 @@ int VMGroup::check_rule_consistency(std::string& error)
         {
             if ( rs[i] == 1 )
             {
-                VMGroupRole * role = roles.get(i);
+                VMGroupRole * role = _roles.get(i);
 
                 if ( role != 0 && role->policy() == VMGroupPolicy::ANTI_AFFINED )
                 {
@@ -349,7 +468,7 @@ int VMGroup::check_rule_consistency(std::string& error)
         {
             if ( rs[i] == 1 )
             {
-                VMGroupRole * role = roles.get(i);
+                VMGroupRole * role = _roles.get(i);
 
                 if ( role != 0 )
                 {
@@ -404,7 +523,7 @@ int VMGroup::insert(SqlDB *db, string& error_str)
             continue;
         }
 
-        if ( roles.add_role(vatt, error_str) == -1 )
+        if ( _roles.add_role(vatt, error_str) == -1 )
         {
             delete attr;
             error = true;
@@ -416,17 +535,7 @@ int VMGroup::insert(SqlDB *db, string& error_str)
         return -1;
     }
 
-    if ( check_rule_names(VMGroupPolicy::AFFINED, error_str) == -1 )
-    {
-        return -1;
-    }
-
-    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error_str) == -1 )
-    {
-        return -1;
-    }
-
-    if ( check_rule_consistency(error_str) == -1 )
+    if ( check_consistency(error_str) != 0)
     {
         return -1;
     }
@@ -444,7 +553,7 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
 int VMGroup::post_update_template(string& error)
 {
-    int vms = roles.vm_size();
+    int vms = _roles.vm_size();
 
     if ( vms > 0 )
     {
@@ -458,17 +567,7 @@ int VMGroup::post_update_template(string& error)
 
     obj_template->erase("ROLE");
 
-    if ( check_rule_names(VMGroupPolicy::AFFINED, error) == -1 )
-    {
-        return -1;
-    }
-
-    if ( check_rule_names(VMGroupPolicy::ANTI_AFFINED, error) == -1 )
-    {
-        return -1;
-    }
-
-    if ( check_rule_consistency(error) == -1 )
+    if ( check_consistency(error) != 0 )
     {
         return -1;
     }
