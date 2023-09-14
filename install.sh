@@ -263,6 +263,7 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
+            $SHARE_LOCATION/examples/external_scheduler \
             $SHARE_LOCATION/examples/host_hooks \
             $SHARE_LOCATION/examples/network_hooks \
             $SHARE_LOCATION/websockify \
@@ -770,6 +771,7 @@ INSTALL_FILES=(
     NETWORK_NODEPORT_FILES:$VAR_LOCATION/remotes/vnm/nodeport
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
+    EXAMPLE_EXTERNAL_SCHED_FILES:$SHARE_LOCATION/examples/external_scheduler
     LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
@@ -2368,6 +2370,11 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
+
+#-------------------------------------------------------------------------------
+# Sample files, to be installed under $SHARE_LOCATION/examples/external_scheduler
+#-------------------------------------------------------------------------------
+EXAMPLE_EXTERNAL_SCHED_FILES="share/examples/external_scheduler/external_scheduler_server.rb"
 
 #-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples/host_hooks
