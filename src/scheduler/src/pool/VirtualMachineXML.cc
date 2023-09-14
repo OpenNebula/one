@@ -800,7 +800,7 @@ void VirtualMachineXML::to_json(json &vm_json)
         custom_attributes.insert(make_pair(attr.second, value));
     }
 
-    vm_json["ATTRIBUTES"] = custom_attributes;
+    vm_json["VM_ATTRIBUTES"] = custom_attributes;
 }
 
 //******************************************************************************

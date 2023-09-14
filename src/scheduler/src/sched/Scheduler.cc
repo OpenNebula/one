@@ -225,7 +225,7 @@ void Scheduler::start()
             // Load attributes serialized to External Scheduler
             vector<const SingleAttribute *> external_vm_attrs;
 
-            conf.get("EXTERNAL_VM_ATTR", external_vm_attrs);
+            conf.get("VM_ATTRIBUTE", external_vm_attrs);
 
             VirtualMachineXML::init_external_attrs(external_vm_attrs);
         }
