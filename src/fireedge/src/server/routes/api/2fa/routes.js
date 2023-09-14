@@ -35,7 +35,7 @@ module.exports = {
   Actions,
   Commands: {
     [TFA_SETUP]: {
-      path: `${basepath}/`,
+      path: `${basepath}`,
       httpMethod: POST,
       auth: true,
       params: {
@@ -45,12 +45,12 @@ module.exports = {
       },
     },
     [TFA_QR]: {
-      path: `${basepath}/`,
+      path: `${basepath}`,
       httpMethod: GET,
       auth: true,
     },
     [TFA_DELETE]: {
-      path: `${basepath}/`,
+      path: `${basepath}`,
       httpMethod: DELETE,
       auth: true,
     },
