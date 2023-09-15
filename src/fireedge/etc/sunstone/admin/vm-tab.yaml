@@ -20,13 +20,13 @@ actions:
   stop: true
   recover: true
   reboot: true
-  reboot_hard: true
+  reboot-hard: true
   poweroff: true
-  poweroff_hard: true
+  poweroff-hard: true
   undeploy: true
-  undeploy_hard: true
+  undeploy-hard: true
   terminate: true
-  terminate_hard: true
+  terminate-hard: true
   resched: true
   unresched: true
   save_as_template: true
