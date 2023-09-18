@@ -78,7 +78,7 @@ class VultrProvider
         if VultrError.error?(rc)
             return 0 if rc.message == 'IP is already attached to a server'
 
-            OpenNebula.log_error("Error assiging #{rc.message}")
+            OpenNebula.log_error("Error assigning #{rc.message}")
             return 1
         end
 
@@ -94,7 +94,7 @@ class VultrProvider
         rc = @client.detach_nic(@deploy_id, opts[:vultr_id])
 
         if VultrError.error?(rc)
-            OpenNebula.log_error("Error unassiging #{rc.message}")
+            OpenNebula.log_error("Error unassigning #{rc.message}")
             return 1
         end
 

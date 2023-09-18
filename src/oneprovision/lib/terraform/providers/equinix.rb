@@ -26,12 +26,10 @@ module OneProvision
 
         # OpenNebula - Terraform equivalence
         TYPES = {
-            :datastore => 'packet_volume',
-            :host      => 'packet_device',
-            :network   => 'packet_reserved_ip_block'
+            :host      => 'equinix_metal_device'
         }
 
-        KEYS = ['project', 'token', 'facility']
+        KEYS = ['project', 'token', 'metro']
 
         # Class constructor
         #

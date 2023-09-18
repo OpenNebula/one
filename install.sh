@@ -1061,6 +1061,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/equinix/equinix_driver.rb \
                 src/vnm_mad/remotes/elastic/aws_vnm.rb \
                 src/vnm_mad/remotes/elastic/equinix_vnm.rb \
+                src/vnm_mad/remotes/elastic/equinix.rb \
                 src/vnm_mad/remotes/elastic/vultr_vnm.rb"
 
 #-------------------------------------------------------------------------------
