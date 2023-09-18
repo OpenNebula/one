@@ -230,7 +230,11 @@ class LXCVM < OpenNebulaVM
     end
 
     def privileged?
-        @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp('NO').zero?
+        ['NO', 'false'].each do |val|
+            return true if @xml['/VM/USER_TEMPLATE/LXC_UNPRIVILEGED'].casecmp(val).zero?
+        end
+
+        false
     end
 
     private
