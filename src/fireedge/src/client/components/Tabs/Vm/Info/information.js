@@ -15,11 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { Stack } from '@mui/material'
 import PropTypes from 'prop-types'
-import { ReactElement, useMemo } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { useViews } from 'client/features/Auth'
-import { useGetClusterAdminQuery } from 'client/features/OneApi/cluster'
+import { useLazyGetClusterAdminQuery } from 'client/features/OneApi/cluster'
 import { useRenameVmMutation } from 'client/features/OneApi/vm'
 
 import { Translate } from 'client/components/HOC'
@@ -52,6 +52,7 @@ const { CLUSTER, HOST } = RESOURCE_NAMES
  * @returns {ReactElement} Information tab
  */
 const InformationPanel = ({ vm = {}, actions }) => {
+  const [getCluster, { data: cluster }] = useLazyGetClusterAdminQuery()
   const [renameVm] = useRenameVmMutation()
 
   const { view, hasAccessToResource } = useViews()
@@ -75,8 +76,10 @@ const InformationPanel = ({ vm = {}, actions }) => {
     CID: clusterId,
   } = getLastHistory(vm)
 
-  const { data: cluster } =
-    clusterId !== undefined ? useGetClusterAdminQuery({ id: clusterId }) : {}
+  useEffect(() => {
+    getCluster({ id: clusterId })
+  }, [clusterId])
+
   const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
 
   const handleRename = async (_, newName) => {
