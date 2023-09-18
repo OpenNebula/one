@@ -37,6 +37,7 @@ require_relative 'kvm'
 #
 #   BDRV_MAX_REQUEST is the limit for the sieze of qemu-io operations
 #-------------------------------------------------------------------------------
+CMD_ARGV     = [$PROGRAM_NAME] + ARGV
 LOG_FILE     = nil
 QEMU_IO_OPEN = '-t none -i native -o driver=qcow2'
 IO_ASYNC     = false
@@ -96,6 +97,69 @@ module Command
         end
 
         opt
+    end
+
+end
+
+#---------------------------------------------------------------------------
+# Helper module to kill running processes
+#---------------------------------------------------------------------------
+module Cancel
+
+    extend Command
+
+    def self.find_task(select = /#{$PROGRAM_NAME}/)
+        out = cmd('ps', '--no-headers -o pid,cmd -C ruby')
+
+        pids = out.lines.each_with_object([]) do |line, acc|
+            line.strip!
+            next if line.empty?
+
+            pid, command = line.split(' ', 2)
+            next unless command.match?(select)
+
+            acc << pid.to_i
+        end - [Process.pid]
+
+        raise StandardError, 'Too many tasks found, ambiguous result' if pids.size > 1
+
+        pids.first
+    end
+
+    def self.find_subtasks(ppid, reject = / (blockcommit|snapshot-delete) /)
+        begin
+            out = cmd('ps', "--no-headers -o pid,cmd --ppid '#{ppid}'")
+        rescue StandardError
+            return []
+        end
+
+        out.lines.each_with_object([]) do |line, acc|
+            line.strip!
+            next if line.empty?
+
+            pid, command = line.split(' ', 2)
+            next if command.match?(reject)
+
+            acc << pid.to_i
+        end - [Process.pid]
+    end
+
+    def self.running?(vxml)
+        ppid = find_task(/#{$PROGRAM_NAME}.*#{vxml}/)
+        !ppid.nil?
+    end
+
+    def self.killall(vxml, signal = :TERM)
+        ppid = find_task(/#{$PROGRAM_NAME}.*#{vxml}/)
+
+        raise StandardError, 'Parent task not running' if ppid.nil?
+
+        pids = find_subtasks(ppid)
+
+        pids.each do |pid|
+            log("[KIL]: sending #{signal} to pid=#{pid}")
+            Process.kill(signal, pid)
+        end
     end
 
 end
@@ -339,7 +403,7 @@ class KVMDomain
     include TransferManager::KVM
     include Command
 
-    attr_reader :parent_id, :backup_id, :checkpoint
+    attr_reader :parent_id, :backup_id, :checkpoint, :tmp_dir, :bck_dir
 
     #---------------------------------------------------------------------------
     # @param vm[REXML::Document] OpenNebula XML VM information
@@ -383,7 +447,6 @@ class KVMDomain
         @socket  = "#{opts[:vm_dir]}/backup.socket"
 
         # State variables for domain operations
-        @ongoing = false
         @frozen  = nil
     end
 
@@ -835,19 +898,25 @@ class KVMDomain
         opts[:checkpointxml] = check_path if checkpoint
 
         cmd("#{virsh} backup-begin", @dom, opts)
-
-        @ongoing = true
     end
 
     #---------------------------------------------------------------------------
     # Stop an ongoing Backup operation on the domain
     #---------------------------------------------------------------------------
     def stop_backup
-        return unless @ongoing
+        out = cmd("#{virsh} domjobinfo", @dom, {})
+
+        # Parse domjobinfo's output.
+        job = out.lines.each_with_object({}) do |item, acc|
+            key, value = item.split(':', 2)
+            acc[key.strip] = value.strip unless value.nil?
+        end
+
+        # Check if there is an ongoing backup operation.
+        return unless job.key?('Job type') && job['Job type'] != 'None'
+        return unless job['Operation'] == 'Backup'
 
         cmd("#{virsh} domjobabort", @dom, {})
-    ensure
-        @ongoing = false
     end
 
 end
@@ -888,6 +957,27 @@ begin
     if stop
         vm.stop_backup_full_live(disk) if vm.parent_id == -1 && live
         exit(0)
+    end
+
+    #---------------------------------------------------------------------------
+    #  Cancel logic. When SIGTERM is received it kills all subtasks and
+    #  terminates current backup operation
+    #---------------------------------------------------------------------------
+    pipe_r, pipe_w = IO.pipe
+
+    Thread.new do
+        loop do
+            rs, _ws, _es = IO.select([pipe_r])
+            break if rs[0] == pipe_r
+        end
+
+        Cancel.killall(vxml) if Cancel.running?(vxml)
+
+        exit(-1)
+    end
+
+    Signal.trap(:TERM) do
+        pipe_w.write 'W'
     end
 
     #---------------------------------------------------------------------------

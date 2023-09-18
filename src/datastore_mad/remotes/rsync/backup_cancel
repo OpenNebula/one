@@ -64,12 +64,11 @@ vm_host = dir[0]
 vm_dir  = Pathname.new(dir[1]).cleanpath.to_s
 
 begin
-    # Kill the backup script.
+    # Kill the pre/backup/_live scripts.
     script = <<~EOS
         set -x -e -o pipefail; shopt -qs failglob
         (ps --no-headers -o pid,cmd -C ruby \
-        | awk '$0 !~ "prebackup(_live)? .*#{vm_uuid} " { print }' \
-        | awk '$0 ~ "backup .*#{vm_uuid} " { print $1 } END { print "\\0" }' || :) \\
+        | awk '$0 ~ "(pre)?backup(_live)? .*#{vm_uuid} " { print $1 } END { print "\\0" }' || :) \\
         | (read -d '' PIDS
            [[ -n "$PIDS" ]] || exit 0                           # empty
            [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
@@ -78,7 +77,7 @@ begin
 
     rc = LocalCommand.run '/bin/bash -s', nil, script
 
-    raise StandardError, "Unable to stop rsync backup action: #{rc.stderr}" \
+    raise StandardError, "Unable to stop rsync backup actions: #{rc.stderr}" \
         if rc.code != 0
 
     # Kill the rsync process. This step is a failsafe in case the TERM signal handler

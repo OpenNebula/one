@@ -1335,31 +1335,7 @@ class ExecDriver < VirtualMachineDriver
 
         vm_xml = xml_data.elements['/VMM_DRIVER_ACTION_DATA/VM']
 
-        # Backup operation steps
-        # TODO: failover steps
-        steps = [
-            # Generate backup files for VM disks
-            {
-                :driver     => :tm,
-                :action     => pre_name,
-                :parameters => pre_tm,
-                :stdin      => vm_xml
-            },
-            # Upload backup files to repo
-            {
-                :driver     => :ds,
-                :action     => :backup,
-                :parameters => ds_command,
-                :stdin      => xml_data.elements['DATASTORE'].to_s,
-                :fail_actions => [
-                    {
-                        :driver     => :tm,
-                        :action     => post_name,
-                        :parameters => post_tm,
-                        :stdin      => vm_xml
-                    }
-                ]
-            },
+        cleanup_steps = [
             # Cleanup backup and tmp files
             {
                 :driver     => :tm,
@@ -1368,6 +1344,27 @@ class ExecDriver < VirtualMachineDriver
                 :stdin      => vm_xml
             }
         ]
+
+        # Backup operation steps
+        # TODO: failover steps
+        steps = [
+            # Generate backup files for VM disks
+            {
+                :driver       => :tm,
+                :action       => pre_name,
+                :parameters   => pre_tm,
+                :stdin        => vm_xml,
+                :fail_actions => cleanup_steps
+            },
+            # Upload backup files to repo
+            {
+                :driver       => :ds,
+                :action       => :backup,
+                :parameters   => ds_command,
+                :stdin        => xml_data.elements['DATASTORE'].to_s,
+                :fail_actions => cleanup_steps
+            }
+        ] + cleanup_steps
 
         action.run(steps)
     end

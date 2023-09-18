@@ -81,6 +81,42 @@ bck_dir = "#{rdir}/backup"
 qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
 qcow2_cmd  = "#{qcow2_util} -l -d \"#{disks}\" -x #{bck_dir}/vm.xml -p #{rdir}"
 
+pipe_r, pipe_w = IO.pipe
+
+Thread.new do
+    loop do
+        rs, _ws, _es = IO.select([pipe_r])
+        break if rs[0] == pipe_r
+    end
+
+    script = <<~EOS
+        set -x -e -o pipefail; shopt -qs failglob
+        (ps --no-headers -o pid,cmd -C ruby \
+        | awk '$0 ~ "#{qcow2_util} .* -p #{rdir}" { print $1 } END { print "\\0" }' || :) \\
+        | (read -d '' PIDS
+           [[ -n "$PIDS" ]] || exit 0                           # empty
+           [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
+           kill -s TERM $PIDS)
+    EOS
+
+    TransferManager::Action.ssh 'prebackup_live_cancel',
+                                :host     => rhost,
+                                :cmds     => script,
+                                :nostdout => true,
+                                :nostderr => false
+
+    STDERR.puts "Live prebackup cancelled: #{bck_dir}"
+    STDERR.flush
+
+    # Suppress "`read': stream closed in another thread (IOError)".
+    STDOUT.reopen IO::NULL
+    STDERR.reopen IO::NULL
+end
+
+Signal.trap(:TERM) do
+    pipe_w.write 'W'
+end
+
 ds  = TransferManager::Datastore.new(:vm_xml => vm_xml)
 cmd = ds.cmd_confinement(qcow2_cmd, rdir)
 
