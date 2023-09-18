@@ -1224,9 +1224,9 @@ public:
      *    @param ra the restricted attribute found to be different
      *    @return true if a different restricted is found
      */
-    bool check_restricted(std::string& ra, VirtualMachineTemplate * tgt) const
+    bool check_restricted(std::string& ra, VirtualMachineTemplate * tgt, bool append) const
     {
-        return tgt->check_restricted(ra, obj_template.get());
+        return tgt->check_restricted(ra, obj_template.get(), append);
     }
 
     // -------------------------------------------------------------------------

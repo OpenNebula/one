@@ -208,7 +208,7 @@ Request::ErrorCode VNTemplateInstantiate::merge(
 
     if (!att.is_admin())
     {
-        if (uattrs.check_restricted(aname, tmpl))
+        if (uattrs.check_restricted(aname, tmpl, true))
         {
             att.resp_msg ="User Template includes a restricted attribute " + aname;
 

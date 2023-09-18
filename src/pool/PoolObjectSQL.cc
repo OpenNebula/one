@@ -278,7 +278,7 @@ int PoolObjectSQL::replace_template(
     if (obj_template)
     {
         if ( keep_restricted &&
-             new_tmpl->check_restricted(ra, obj_template.get()) )
+             new_tmpl->check_restricted(ra, obj_template.get(), false) )
         {
             error = "Tried to change restricted attribute: " + ra;
 
@@ -339,11 +339,12 @@ int PoolObjectSQL::append_template(
     if ( obj_template )
     {
         if (keep_restricted &&
-            new_tmpl->check_restricted(rname, obj_template.get()))
+            new_tmpl->check_restricted(rname, obj_template.get(), true))
         {
             error ="User Template includes a restricted attribute " + rname;
             return -1;
         }
+        old_tmpl = std::make_unique<Template>(*obj_template);
         obj_template->merge(new_tmpl.get());
     }
     else

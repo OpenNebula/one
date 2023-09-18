@@ -32,9 +32,9 @@ public:
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    bool check_restricted(std::string& rs_attr, const Template* base) override
+    bool check_restricted(std::string& rs_attr, const Template* base, bool append) override
     {
-        return Template::check_restricted(rs_attr, base, restricted);
+        return Template::check_restricted(rs_attr, base, restricted, append);
     }
 
     bool check_restricted(std::string& rs_attr) override

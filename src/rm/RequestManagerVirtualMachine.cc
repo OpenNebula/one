@@ -3646,7 +3646,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        if ( vm->check_restricted(aname, uc_tmpl.get()) )
+        if ( vm->check_restricted(aname, uc_tmpl.get(), update_type == 1) )
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);

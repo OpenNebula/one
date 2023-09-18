@@ -2807,7 +2807,7 @@ int VirtualMachine::replace_template(
     if (user_obj_template)
     {
         if (keep_restricted &&
-            new_tmpl->check_restricted(ra, user_obj_template.get()))
+            new_tmpl->check_restricted(ra, user_obj_template.get(), false))
         {
             error = "Tried to change restricted attribute: " + ra;
 
@@ -2860,7 +2860,7 @@ int VirtualMachine::append_template(
     auto old_user_tmpl = make_unique<VirtualMachineTemplate>(*user_obj_template);
 
     if (keep_restricted &&
-        new_tmpl->check_restricted(rname, user_obj_template.get()))
+        new_tmpl->check_restricted(rname, user_obj_template.get(), true))
     {
         error ="User Template includes a restricted attribute " + rname;
 

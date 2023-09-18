@@ -787,17 +787,18 @@ static bool restricted_values(const string& vname, const set<string>& vsubs,
 }
 
 bool Template::check_restricted(string& ra, const Template* base,
-        const std::map<std::string, std::set<std::string> >& ras)
+        const std::map<std::string, std::set<std::string> >& ras, bool append)
 {
     for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
         if (!(rit->second).empty())
         {
             vector<string> rvalues, rvalues_base;
-            bool has_restricted;
 
-            has_restricted = restricted_values(rit->first, rit->second, this, rvalues);
-            restricted_values(rit->first, rit->second, base, rvalues_base);
+            bool new_restricted  = restricted_values(rit->first, rit->second, this, rvalues);
+            bool base_restricted = restricted_values(rit->first, rit->second, base, rvalues_base);
+            
+            bool has_restricted = new_restricted || (!append && base_restricted);
 
             if ( rvalues != rvalues_base && has_restricted)
             {
