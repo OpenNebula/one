@@ -26,7 +26,7 @@ const Content = () => {
   const secondaryGroups = useWatch({ name: STEP_ID })
 
   const handleSelectedRows = (rows) => {
-    const newValue = rows?.map((row) => row?.ID) || []
+    const newValue = rows?.map((row) => row?.id) || []
     setValue(STEP_ID, newValue)
   }
 

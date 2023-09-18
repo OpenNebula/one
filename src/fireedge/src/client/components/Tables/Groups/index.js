@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useMemo, Component } from 'react'
-import { Chip, Box, Grid } from '@mui/material'
+import { Chip, Box, Grid, Typography } from '@mui/material'
 import { useViews } from 'client/features/Auth'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -82,16 +82,40 @@ const GroupsTable = (props) => {
   return (
     <div>
       <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12}>
+          <Typography variant="h7">{T.Primary}</Typography>
+        </Grid>
+
         {primaryGroupName && (
           <Grid item>
-            <Chip label={`${T.Primary}: ${primaryGroupName}`} color="primary" />
+            <Chip
+              label={
+                <Typography variant="subtitle2" component="span">
+                  {primaryGroupName}
+                </Typography>
+              }
+              color="primary"
+            />
+          </Grid>
+        )}
+
+        {secondaryGroupNames.length > 0 && (
+          <Grid item xs={12}>
+            <Typography variant="body2">{T.Secondary}</Typography>
           </Grid>
         )}
 
         {secondaryGroupNames.length > 0 &&
           secondaryGroupNames.map((name, index) => (
             <Grid item key={index}>
-              <Chip label={`${T.Secondary}: ${name}`} color="secondary" />
+              <Chip
+                label={
+                  <Typography variant="body2" component="span">
+                    {name}
+                  </Typography>
+                }
+                color="secondary"
+              />
             </Grid>
           ))}
       </Grid>

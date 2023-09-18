@@ -33,9 +33,9 @@ const InformationPanel = ({ user = {} }) => {
   const isEnabled = stringToBoolean(ENABLED)
 
   const info = [
-    { name: T.ID, value: ID },
-    { name: T.Name, value: NAME },
-    { name: T.State, value: booleanToString(isEnabled) },
+    { name: T.ID, value: ID, dataCy: 'id' },
+    { name: T.Name, value: NAME, dataCy: 'name' },
+    { name: T.Enabled, value: booleanToString(isEnabled), dataCy: 'state' },
   ]
 
   return <List title={T.Information} list={info} />

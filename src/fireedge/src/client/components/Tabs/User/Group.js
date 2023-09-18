@@ -33,18 +33,14 @@ const GroupsInfoTab = ({ id }) => {
   const path = PATH.SYSTEM.GROUPS.DETAIL
   const history = useHistory()
   const { data: user } = useGetUserQuery({ id })
-  const { GID, GROUPS } = user
+  const { GROUPS } = user
 
   const handleRowClick = (rowId) => {
     history.push(generatePath(path, { id: String(rowId) }))
   }
 
-  const primaryGroup = GID
-  const secondaryGroups = Array.isArray(GROUPS)
-    ? GROUPS.map((group) => group.ID)
-    : GROUPS
-    ? [GROUPS.ID]
-    : []
+  const primaryGroup = GROUPS.ID[0]
+  const secondaryGroups = GROUPS.ID.slice(1)
 
   return (
     <GroupsTable

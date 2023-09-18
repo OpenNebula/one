@@ -36,8 +36,7 @@ const Steps = createSteps([General, PrimaryGroup, SecondaryGroups], {
       username: generalData.username,
       password: generalData.password,
       driver: generalData.authType,
-      primaryGroup: primaryGroupsData.primaryGroup,
-      secondaryGroups: secondaryGroupsData.secondaryGroups,
+      group: [primaryGroupsData, ...secondaryGroupsData],
     }
   },
 })

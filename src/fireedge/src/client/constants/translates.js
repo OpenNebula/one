@@ -112,6 +112,7 @@ module.exports = {
   Edit: 'Edit',
   EditSomething: 'Edit: %s',
   Enable: 'Enable',
+  Enabled: 'Enabled',
   Failure: 'Failure',
   Finish: 'Finish',
   Flatten: 'Flatten',
