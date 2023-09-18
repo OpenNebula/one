@@ -60,10 +60,7 @@ require 'equinix'
 class EquinixProvider
 
     def initialize(provider, host)
-        @eq_token    = provider.body['connection']['token']
-        @eq_project  = provider.body['connection']['project']
-        @eq_endpoint = ENDPOINT
-
+        @eq_token  = provider.body['connection']['token']
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
     end
 
