@@ -40,7 +40,7 @@ module VNMMAD
 
         # Adjust :ip[6]tables commands to work with legacy versions
         begin
-            stdout = Open3.capture3('sudo iptables --version')[0]
+            stdout = Open3.capture3('iptables --version')[0]
             regex  = /.*v(?<version>\d+.\d+.\d+)/
 
             iptables_version = Gem::Version.new(stdout.match(regex)[:version])
