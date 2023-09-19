@@ -36,8 +36,19 @@ import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 import { jsonToXml } from 'client/models/Helper'
 
+import { hasRestrictedAttributes } from 'client/utils'
+
 const AttachAction = memo(
-  ({ vmId, hypervisor, nic, currentNics, onSubmit, sx }) => {
+  ({
+    vmId,
+    hypervisor,
+    nic,
+    currentNics,
+    onSubmit,
+    sx,
+    oneConfig,
+    adminGroup,
+  }) => {
     const [attachNic] = useAttachNicMutation()
 
     const handleAttachNic = async (formData) => {
@@ -76,7 +87,13 @@ const AttachAction = memo(
             dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
             form: () =>
               AttachNicForm({
-                stepProps: { hypervisor, nics: currentNics, defaultData: nic },
+                stepProps: {
+                  hypervisor,
+                  nics: currentNics,
+                  defaultData: nic,
+                  oneConfig,
+                  adminGroup,
+                },
                 initialValues: nic,
               }),
             onSubmit: handleAttachNic,
@@ -87,42 +104,50 @@ const AttachAction = memo(
   }
 )
 
-const DetachAction = memo(({ vmId, nic, onSubmit, sx }) => {
-  const [detachNic] = useDetachNicMutation()
-  const { NIC_ID, PARENT } = nic
-  const isAlias = !!PARENT?.length
+const DetachAction = memo(
+  ({ vmId, nic, onSubmit, sx, oneConfig, adminGroup }) => {
+    const [detachNic] = useDetachNicMutation()
+    const { NIC_ID, PARENT } = nic
+    const isAlias = !!PARENT?.length
 
-  const handleDetach = async () => {
-    const handleDetachNic = onSubmit ?? detachNic
-    await handleDetachNic({ id: vmId, nic: NIC_ID })
-  }
+    const handleDetach = async () => {
+      const handleDetachNic = onSubmit ?? detachNic
+      await handleDetachNic({ id: vmId, nic: NIC_ID })
+    }
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `detach-nic-${NIC_ID}`,
-        icon: <Trash />,
-        tooltip: Tr(T.Detach),
-        sx,
-      }}
-      options={[
-        {
-          isConfirmDialog: true,
-          dialogProps: {
-            title: (
-              <Translate
-                word={T.DetachSomething}
-                values={`${isAlias ? T.Alias : T.NIC} #${NIC_ID}`}
-              />
-            ),
-            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+    // Disable action if the nic has a restricted attribute on the template
+    const disabledAction =
+      !adminGroup &&
+      hasRestrictedAttributes(nic, 'NIC', oneConfig?.VM_RESTRICTED_ATTR)
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `detach-nic-${NIC_ID}`,
+          icon: <Trash />,
+          tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
+          sx,
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.DetachSomething}
+                  values={`${isAlias ? T.Alias : T.NIC} #${NIC_ID}`}
+                />
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit: handleDetach,
           },
-          onSubmit: handleDetach,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 const UpdateAction = memo(({ vmId, nic, sx }) => {
   const { enqueueSuccess } = useGeneralApi()
@@ -246,6 +271,8 @@ const ActionPropTypes = {
   securityGroupId: PropTypes.string,
   onSubmit: PropTypes.func,
   sx: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 AttachAction.propTypes = ActionPropTypes

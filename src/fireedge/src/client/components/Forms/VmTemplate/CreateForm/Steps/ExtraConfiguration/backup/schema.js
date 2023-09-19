@@ -20,6 +20,7 @@ import {
   Section,
   arrayToOptions,
   getObjectSchemaFromFields,
+  disableFields,
 } from 'client/utils'
 import {
   T,
@@ -80,15 +81,15 @@ const MODE_FIELD = {
 }
 
 /** @type {Section[]} Sections */
-export const SECTIONS = [
+export const SECTIONS = (oneConfig, adminGroup) => [
   {
     id: 'backup-configuration',
-    fields: [
-      BACKUP_VOLATILE_FIELD,
-      FS_FREEZE_FIELD,
-      KEEP_LAST_FIELD,
-      MODE_FIELD,
-    ],
+    fields: disableFields(
+      [BACKUP_VOLATILE_FIELD, FS_FREEZE_FIELD, KEEP_LAST_FIELD, MODE_FIELD],
+      'BACKUP_CONFIG',
+      oneConfig,
+      adminGroup
+    ),
   },
 ]
 

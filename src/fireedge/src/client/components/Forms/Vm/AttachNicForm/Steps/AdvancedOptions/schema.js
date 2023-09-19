@@ -22,6 +22,7 @@ import {
   filterFieldsByDriver,
   getObjectSchemaFromFields,
   arrayToOptions,
+  disableFields,
 } from 'client/utils'
 import {
   T,
@@ -39,8 +40,6 @@ import {
   getPciAttributes,
   transformPciToString,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/pciDevicesSchema'
-
-import { useDisableInputByUserAndConfig } from 'client/features/Auth'
 
 const { vcenter, firecracker, lxc } = HYPERVISORS
 const PCI_TYPE_NAME = 'PCI_TYPE'
@@ -283,7 +282,6 @@ const OVERRIDE_IPV4_FIELDS = [
     label: T.MAC,
     tooltip: T.MACConcept,
     type: INPUT_TYPES.TEXT,
-    fieldProps: () => useDisableInputByUserAndConfig('NIC/MAC'),
     validation: string()
       .trim()
       .notRequired()
@@ -589,6 +587,8 @@ const GUEST_FIELDS = [
  * @param {VN_DRIVERS} [data.driver] - Virtual network driver
  * @param {HYPERVISORS} [data.hypervisor] - VM Hypervisor
  * @param {object} data.defaultData - VM or VM Template data
+ * @param {object} data.oneConfig - Config of oned.conf
+ * @param {boolean} data.adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
 const SECTIONS = ({
@@ -596,6 +596,8 @@ const SECTIONS = ({
   driver,
   hypervisor = HYPERVISORS.kvm,
   defaultData,
+  oneConfig,
+  adminGroup,
 } = {}) => {
   const filters = { driver, hypervisor }
 
@@ -606,7 +608,12 @@ const SECTIONS = ({
       {
         id: 'general',
         legend: T.General,
-        fields: filterByHypAndDriver(GENERAL_FIELDS({ nics }), filters),
+        fields: disableFields(
+          filterByHypAndDriver(GENERAL_FIELDS({ nics }), filters),
+          'NIC',
+          oneConfig,
+          adminGroup
+        ),
       },
     ]
   }
@@ -615,27 +622,52 @@ const SECTIONS = ({
     {
       id: 'guacamole-connections',
       legend: T.GuacamoleConnections,
-      fields: filterByHypAndDriver(GUACAMOLE_CONNECTIONS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(GUACAMOLE_CONNECTIONS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'override-ipv4',
       legend: T.OverrideNetworkValuesIPv4,
-      fields: filterByHypAndDriver(OVERRIDE_IPV4_FIELDS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(OVERRIDE_IPV4_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'override-ipv6',
       legend: T.OverrideNetworkValuesIPv6,
-      fields: filterByHypAndDriver(OVERRIDE_IPV6_FIELDS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(OVERRIDE_IPV6_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'hardware',
       legend: T.Hardware,
-      fields: filterByHypAndDriver(HARDWARE_FIELDS(defaultData), filters),
+      fields: disableFields(
+        filterByHypAndDriver(HARDWARE_FIELDS(defaultData), filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'guest',
       legend: T.GuestOptions,
-      fields: filterByHypAndDriver(GUEST_FIELDS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(GUEST_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
   ])
 }

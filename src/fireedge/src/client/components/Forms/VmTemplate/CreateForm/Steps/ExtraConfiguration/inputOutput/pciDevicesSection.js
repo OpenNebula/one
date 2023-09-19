@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, FormControl, Divider, Button, IconButton } from '@mui/material'
+import { Stack, FormControl, Divider, Button } from '@mui/material'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -25,7 +25,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { FormWithSchema, Legend } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 import { getPciDevices } from 'client/models/Host'
 
 import {
@@ -34,16 +34,21 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
 import { T, HYPERVISORS } from 'client/constants'
 
+import { hasRestrictedAttributes } from 'client/utils'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
+
 export const SECTION_ID = 'PCI'
 
 /**
  * @param {object} props - Props
  * @param {string} [props.stepId] - ID of the step the section belongs to
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {ReactElement} - Inputs section
  */
-const PciDevicesSection = ({ stepId, hypervisor }) => {
-  const fields = useMemo(() => PCI_FIELDS(hypervisor))
+const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
+  const fields = useMemo(() => PCI_FIELDS(hypervisor, oneConfig, adminGroup))
 
   const { data: hosts = [] } = useGetHostsQuery()
   const pciDevicesAvailable = useMemo(
@@ -121,13 +126,26 @@ const PciDevicesSection = ({ stepId, hypervisor }) => {
               secondaryFields.push(`${T.Profile}: ${PROFILE}`)
             }
 
+            // Disable action if the nic has a restricted attribute on the template
+            const disabledAction =
+              !adminGroup &&
+              hasRestrictedAttributes(
+                { id, DEVICE, VENDOR, CLASS, PROFILE, ...rest },
+                'PCI',
+                oneConfig?.VM_RESTRICTED_ATTR
+              )
+            const tooltip = !disabledAction ? null : Tr(T.DetachRestricted)
+
             return (
               <ListItem
                 key={id}
                 secondaryAction={
-                  <IconButton onClick={() => remove(index)}>
-                    <DeleteCircledOutline />
-                  </IconButton>
+                  <SubmitButton
+                    onClick={() => remove(index)}
+                    icon=<DeleteCircledOutline />
+                    disabled={disabledAction}
+                    tooltip={tooltip}
+                  />
                 }
                 sx={{ '&:hover': { bgcolor: 'action.hover' } }}
               >
@@ -148,6 +166,8 @@ const PciDevicesSection = ({ stepId, hypervisor }) => {
 PciDevicesSection.propTypes = {
   stepId: PropTypes.string,
   hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 PciDevicesSection.displayName = 'PciDevicesSection'

@@ -102,6 +102,8 @@ module.exports = {
   Deploy: 'Deploy',
   DeployServiceTemplate: 'Deploy Service Template',
   Detach: 'Detach',
+  DetachRestricted:
+    'You cannot delete this resource because it has restricted attributes on this template. Please, contact with your administrator.',
   DetachSomething: 'Detach: %s',
   Disable: 'Disable',
   Dismiss: 'Dismiss',

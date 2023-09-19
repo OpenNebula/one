@@ -32,7 +32,7 @@ let generalFeatures
 
 export const STEP_ID = 'configuration'
 
-const Content = ({ vmTemplate }) => {
+const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const { getValues, setValue } = useFormContext()
@@ -47,7 +47,7 @@ const Content = ({ vmTemplate }) => {
 
     generalFeatures = features
 
-    return SECTIONS(vmTemplate, features).filter(
+    return SECTIONS(vmTemplate, features, oneConfig, adminGroup).filter(
       ({ id, required }) => required || sectionsAvailable.includes(id)
     )
   }, [view])
@@ -84,6 +84,8 @@ const Content = ({ vmTemplate }) => {
 
 Content.propTypes = {
   vmTemplate: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /**
@@ -92,12 +94,12 @@ Content.propTypes = {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Basic configuration step
  */
-const BasicConfiguration = (vmTemplate) => ({
+const BasicConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => ({
   id: STEP_ID,
   label: T.Configuration,
   resolver: () => SCHEMA(vmTemplate, generalFeatures),
   optionsValidate: { abortEarly: false },
-  content: (props) => Content({ ...props, vmTemplate }),
+  content: (props) => Content({ ...props, vmTemplate, oneConfig, adminGroup }),
 })
 
 export default BasicConfiguration

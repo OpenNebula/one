@@ -28,7 +28,7 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
 
-const Placement = () => (
+const Placement = ({ oneConfig, adminGroup }) => (
   // TODO - Host requirements: add button to select HOST in list => ID="<id>"
   // TODO - Host policy options: Packing|Stripping|Load-aware
 
@@ -36,7 +36,7 @@ const Placement = () => (
   // TODO - DS policy options: Packing|Stripping
 
   <>
-    {SECTIONS.map(({ id, ...section }) => (
+    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
         id={EXTRA_ID}
@@ -50,6 +50,8 @@ const Placement = () => (
 Placement.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 Placement.displayName = 'Placement'

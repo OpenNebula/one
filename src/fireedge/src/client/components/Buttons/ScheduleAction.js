@@ -33,7 +33,7 @@ import {
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
 } from 'client/constants'
-import { sentenceCase } from 'client/utils'
+import { sentenceCase, hasRestrictedAttributes } from 'client/utils'
 
 /**
  * Returns a button to trigger form to create a scheduled action.
@@ -44,30 +44,36 @@ import { sentenceCase } from 'client/utils'
  * @param {function():Promise} props.onSubmit - Submit function
  * @returns {ReactElement} Button
  */
-const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
-  <ButtonToTriggerForm
-    buttonProps={{
-      color: 'secondary',
-      'data-cy': VM_ACTIONS.SCHED_ACTION_CREATE,
-      label: T.AddAction,
-      variant: 'outlined',
-    }}
-    options={[
-      {
-        name: T.PunctualAction,
-        dialogProps: {
-          title: T.ScheduleAction,
-          dataCy: 'modal-sched-actions',
+const CreateSchedButton = memo(
+  ({ vm, relative, onSubmit, oneConfig, adminGroup }) => (
+    <ButtonToTriggerForm
+      buttonProps={{
+        color: 'secondary',
+        'data-cy': VM_ACTIONS.SCHED_ACTION_CREATE,
+        label: T.AddAction,
+        variant: 'outlined',
+      }}
+      options={[
+        {
+          name: T.PunctualAction,
+          dialogProps: {
+            title: T.ScheduleAction,
+            dataCy: 'modal-sched-actions',
+          },
+          form: () =>
+            relative
+              ? CreateRelativeSchedActionForm({
+                  stepProps: { vm, oneConfig, adminGroup },
+                })
+              : CreateSchedActionForm({
+                  stepProps: { vm, oneConfig, adminGroup },
+                }),
+          onSubmit,
         },
-        form: () =>
-          relative
-            ? CreateRelativeSchedActionForm({ stepProps: vm })
-            : CreateSchedActionForm({ stepProps: vm }),
-        onSubmit,
-      },
-    ]}
-  />
-))
+      ]}
+    />
+  )
+)
 
 /**
  * Returns a button to trigger form to update a scheduled action.
@@ -79,36 +85,44 @@ const CreateSchedButton = memo(({ vm, relative, onSubmit }) => (
  * @param {function():Promise} props.onSubmit - Submit function
  * @returns {ReactElement} Button
  */
-const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
-  const { ID, ACTION } = schedule
-  const titleAction = `#${ID} ${sentenceCase(ACTION)}`
-  const formConfig = { stepProps: vm, initialValues: schedule }
+const UpdateSchedButton = memo(
+  ({ vm, schedule, relative, onSubmit, oneConfig, adminGroup }) => {
+    const { ID, ACTION } = schedule
+    const titleAction = `#${ID} ${sentenceCase(ACTION)}`
+    const formConfig = {
+      stepProps: { vm, oneConfig, adminGroup },
+      initialValues: schedule,
+    }
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`,
-        icon: <Edit />,
-        tooltip: <Translate word={T.Edit} />,
-      }}
-      options={[
-        {
-          dialogProps: {
-            title: (
-              <Translate word={T.UpdateScheduleAction} values={[titleAction]} />
-            ),
-            dataCy: 'modal-sched-actions',
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VM_ACTIONS.SCHED_ACTION_UPDATE}-${ID}`,
+          icon: <Edit />,
+          tooltip: <Translate word={T.Edit} />,
+        }}
+        options={[
+          {
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.UpdateScheduleAction}
+                  values={[titleAction]}
+                />
+              ),
+              dataCy: 'modal-sched-actions',
+            },
+            form: () =>
+              relative
+                ? CreateRelativeSchedActionForm(formConfig)
+                : CreateSchedActionForm(formConfig),
+            onSubmit,
           },
-          form: () =>
-            relative
-              ? CreateRelativeSchedActionForm(formConfig)
-              : CreateSchedActionForm(formConfig),
-          onSubmit,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 /**
  * Returns a button to trigger modal to delete a scheduled action.
@@ -118,32 +132,47 @@ const UpdateSchedButton = memo(({ vm, schedule, relative, onSubmit }) => {
  * @param {function():Promise} props.onSubmit - Submit function
  * @returns {ReactElement} Button
  */
-const DeleteSchedButton = memo(({ onSubmit, schedule }) => {
-  const { ID, ACTION } = schedule
-  const titleAction = `#${ID} ${sentenceCase(ACTION)}`
+const DeleteSchedButton = memo(
+  ({ onSubmit, schedule, oneConfig, adminGroup }) => {
+    const { ID, ACTION } = schedule
+    const titleAction = `#${ID} ${sentenceCase(ACTION)}`
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
-        icon: <Trash />,
-        tooltip: <Translate word={T.Delete} />,
-      }}
-      options={[
-        {
-          isConfirmDialog: true,
-          dialogProps: {
-            title: (
-              <Translate word={T.DeleteScheduleAction} values={[titleAction]} />
-            ),
-            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+    // Disable action if the nic has a restricted attribute on the template
+    const disabledAction =
+      !adminGroup &&
+      hasRestrictedAttributes(
+        schedule,
+        'SCHED_ACTION',
+        oneConfig?.VM_RESTRICTED_ATTR
+      )
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VM_ACTIONS.SCHED_ACTION_DELETE}-${ID}`,
+          icon: <Trash />,
+          tooltip: !disabledAction ? Tr(T.Delete) : Tr(T.DetachRestricted),
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.DeleteScheduleAction}
+                  values={[titleAction]}
+                />
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit,
           },
-          onSubmit,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 /**
  * Returns a button to trigger form to create a charter.
@@ -195,6 +224,8 @@ const ButtonPropTypes = {
   relative: PropTypes.bool,
   onSubmit: PropTypes.func,
   schedule: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 CreateSchedButton.propTypes = ButtonPropTypes

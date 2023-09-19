@@ -32,11 +32,13 @@ import {
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { T } from 'client/constants'
 
+import PropTypes from 'prop-types'
+
 export const TAB_ID = 'SCHED_ACTION'
 
 const mapNameFunction = mapNameByIndex('SCHED_ACTION')
 
-const ScheduleAction = () => {
+const ScheduleAction = ({ oneConfig, adminGroup }) => {
   const {
     fields: scheduleActions,
     remove,
@@ -70,7 +72,12 @@ const ScheduleAction = () => {
   return (
     <>
       <Stack flexDirection="row" gap="1em">
-        <CreateSchedButton relative onSubmit={handleCreateAction} />
+        <CreateSchedButton
+          relative
+          onSubmit={handleCreateAction}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
         <CharterButton relative onSubmit={handleCreateCharter} />
       </Stack>
 
@@ -96,10 +103,14 @@ const ScheduleAction = () => {
                     vm={{}}
                     schedule={fakeValues}
                     onSubmit={(newAction) => handleUpdate(newAction, index)}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
                   />
                   <DeleteSchedButton
                     schedule={fakeValues}
                     onSubmit={() => handleRemove(index)}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
                   />
                 </>
               }
@@ -109,6 +120,13 @@ const ScheduleAction = () => {
       </Stack>
     </>
   )
+}
+
+ScheduleAction.propTypes = {
+  data: PropTypes.any,
+  setFormData: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

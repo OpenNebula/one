@@ -29,45 +29,73 @@ import {
   getObjectSchemaFromFields,
   Field,
   Section,
+  disableFields,
 } from 'client/utils'
 import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
  * @param {VmTemplateFeatures} [features] - Features
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
-const SECTIONS = (vmTemplate, features) => {
+const SECTIONS = (vmTemplate, features, oneConfig, adminGroup) => {
   const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return [
     {
       id: 'information',
       legend: T.Information,
-      fields: filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(INFORMATION_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'capacity',
       legend: T.Capacity,
-      fields: filterFieldsByHypervisor(
-        CAPACITY_FIELDS(vmTemplate, features),
-        hypervisor
+      fields: disableFields(
+        filterFieldsByHypervisor(
+          CAPACITY_FIELDS(vmTemplate, features),
+          hypervisor
+        ),
+        '',
+        oneConfig,
+        adminGroup
       ),
     },
     {
       id: 'ownership',
       legend: T.Ownership,
-      fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'vm_group',
       legend: T.VMGroup,
-      fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'vcenter',
       legend: T.vCenterDeployment,
-      fields: filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
   ]
 }

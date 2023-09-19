@@ -30,7 +30,7 @@ import { T } from 'client/constants'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID]
 
-const InputOutput = ({ hypervisor }) => (
+const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
   <Stack
     display="grid"
     gap="1em"
@@ -38,12 +38,22 @@ const InputOutput = ({ hypervisor }) => (
   >
     <FormWithSchema
       cy={`${EXTRA_ID}-io-graphics`}
-      fields={GRAPHICS_FIELDS(hypervisor)}
+      fields={GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup)}
       legend={T.Graphics}
       id={EXTRA_ID}
     />
-    <InputsSection stepId={EXTRA_ID} hypervisor={hypervisor} />
-    <PciDevicesSection stepId={EXTRA_ID} hypervisor={hypervisor} />
+    <InputsSection
+      stepId={EXTRA_ID}
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+    <PciDevicesSection
+      stepId={EXTRA_ID}
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
   </Stack>
 )
 
@@ -52,6 +62,8 @@ InputOutput.propTypes = {
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 InputOutput.displayName = 'InputOutput'

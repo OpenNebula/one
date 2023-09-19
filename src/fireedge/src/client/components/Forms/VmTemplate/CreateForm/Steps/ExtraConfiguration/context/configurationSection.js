@@ -22,6 +22,8 @@ import { FormWithSchema, Legend } from 'client/components/Forms'
 import { SSH_PUBLIC_KEY, SCRIPT_FIELDS, OTHER_FIELDS } from './schema'
 import { T } from 'client/constants'
 
+import { disableFields } from 'client/utils'
+
 const SSH_KEY_USER = '$USER[SSH_PUBLIC_KEY]'
 
 /**
@@ -29,9 +31,11 @@ const SSH_KEY_USER = '$USER[SSH_PUBLIC_KEY]'
  *
  * @param {object} props - Props passed to the component
  * @param {string} [props.stepId] - ID of the step the section belongs to
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {ReactElement} - Configuration section
  */
-const ConfigurationSection = ({ stepId }) => {
+const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
   const { setValue, getValues } = useFormContext()
   const SSH_PUBLIC_KEY_PATH = useMemo(
     () => [stepId, SSH_PUBLIC_KEY.name].filter(Boolean).join('.'),
@@ -66,13 +70,18 @@ const ConfigurationSection = ({ stepId }) => {
         <FormWithSchema
           id={stepId}
           cy={getCyPath('context-configuration-others')}
-          fields={OTHER_FIELDS}
+          fields={disableFields(OTHER_FIELDS, 'CONTEXT', oneConfig, adminGroup)}
         />
         <section>
           <FormWithSchema
             id={stepId}
             cy={getCyPath('context-ssh-public-key')}
-            fields={[SSH_PUBLIC_KEY]}
+            fields={disableFields(
+              [SSH_PUBLIC_KEY],
+              'CONTEXT',
+              oneConfig,
+              adminGroup
+            )}
           />
           <Stack direction="row" gap="1em">
             <Button
@@ -95,7 +104,12 @@ const ConfigurationSection = ({ stepId }) => {
         <FormWithSchema
           id={stepId}
           cy={getCyPath('context-script')}
-          fields={SCRIPT_FIELDS}
+          fields={disableFields(
+            SCRIPT_FIELDS,
+            'CONTEXT',
+            oneConfig,
+            adminGroup
+          )}
           rootProps={{ sx: { width: '100%', gridColumn: '1 / -1' } }}
         />
       </Stack>
@@ -106,6 +120,8 @@ const ConfigurationSection = ({ stepId }) => {
 ConfigurationSection.propTypes = {
   stepId: PropTypes.string,
   hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default ConfigurationSection

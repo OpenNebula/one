@@ -22,15 +22,20 @@ import AdvancedOptions, {
 import { mapUserInputs, createSteps, convertToMB } from 'client/utils'
 
 const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
-  transformInitialValue: (disk = {}, schema) => ({
-    ...schema.cast(
+  transformInitialValue: (disk = {}, schema) => {
+    const schemaCast = schema.cast(
       {
         [BASIC_ID]: disk,
         [ADVANCED_ID]: disk,
       },
       { stripUnknown: true }
-    ),
-  }),
+    )
+
+    // #6154: Add temp id to propagate it
+    schemaCast[ADVANCED_ID].TEMP_ID = disk.TEMP_ID
+
+    return schemaCast
+  },
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration = {}, [ADVANCED_ID]: advanced = {} } =
       formData ?? {}

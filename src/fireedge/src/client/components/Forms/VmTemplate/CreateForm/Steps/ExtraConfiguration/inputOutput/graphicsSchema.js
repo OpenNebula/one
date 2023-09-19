@@ -20,6 +20,7 @@ import {
   arrayToOptions,
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
+  disableFields,
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
@@ -213,12 +214,28 @@ export const COMMAND = {
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Field[]} List of Graphics fields
  */
-export const GRAPHICS_FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor(
-    [TYPE, LISTEN, PORT, KEYMAP, CUSTOM_KEYMAP, PASSWD, RANDOM_PASSWD, COMMAND],
-    hypervisor
+export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup) =>
+  disableFields(
+    filterFieldsByHypervisor(
+      [
+        TYPE,
+        LISTEN,
+        PORT,
+        KEYMAP,
+        CUSTOM_KEYMAP,
+        PASSWD,
+        RANDOM_PASSWD,
+        COMMAND,
+      ],
+      hypervisor
+    ),
+    'GRAPHICS',
+    oneConfig,
+    adminGroup
   )
 
 /** @type {ObjectSchema} Graphics schema */

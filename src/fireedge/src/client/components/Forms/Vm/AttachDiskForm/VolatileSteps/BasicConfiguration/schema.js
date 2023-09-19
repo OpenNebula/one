@@ -20,6 +20,7 @@ import {
   getValidationFromFields,
   filterFieldsByHypervisor,
   arrayToOptions,
+  disableFields,
 } from 'client/utils'
 import {
   T,
@@ -120,12 +121,19 @@ const FILESYSTEM = {
 
 /**
  * @param {HYPERVISORS} hypervisor - hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Field[]} List of fields
  */
-export const FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor(
-    [SIZE, SIZEUNIT, TYPE, FORMAT, FILESYSTEM],
-    hypervisor
+export const FIELDS = (hypervisor, oneConfig, adminGroup) =>
+  disableFields(
+    filterFieldsByHypervisor(
+      [SIZE, SIZEUNIT, TYPE, FORMAT, FILESYSTEM],
+      hypervisor
+    ),
+    'DISK',
+    oneConfig,
+    adminGroup
   )
 
 /**

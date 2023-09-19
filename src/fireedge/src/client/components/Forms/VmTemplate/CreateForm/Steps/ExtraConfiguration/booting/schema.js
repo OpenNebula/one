@@ -27,39 +27,67 @@ import {
   Section,
   getObjectSchemaFromFields,
   filterFieldsByHypervisor,
+  disableFields,
 } from 'client/utils'
 import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
-const SECTIONS = (hypervisor) => [
+const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
   {
     id: 'os-boot',
     legend: T.Boot,
-    fields: filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-features',
     legend: T.Features,
-    fields: filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-kernel',
     legend: T.Kernel,
-    fields: filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-ramdisk',
     legend: T.Ramdisk,
-    fields: filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-raw',
     legend: T.RawData,
     legendTooltip: T.RawDataConcept,
-    fields: filterFieldsByHypervisor(RAW_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(RAW_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
 ]
 

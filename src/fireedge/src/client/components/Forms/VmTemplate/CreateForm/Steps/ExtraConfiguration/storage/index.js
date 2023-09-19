@@ -42,7 +42,7 @@ export const TAB_ID = 'DISK'
 
 const mapNameFunction = mapNameByIndex('DISK')
 
-const Storage = ({ hypervisor }) => {
+const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
   const { getValues, setValue } = useFormContext()
   const {
     fields: disks,
@@ -76,6 +76,8 @@ const Storage = ({ hypervisor }) => {
     <div>
       <AttachAction
         hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
         onSubmit={(image) => append(mapNameFunction(image, disks.length))}
       />
       <Stack
@@ -102,11 +104,15 @@ const Storage = ({ hypervisor }) => {
                   <DetachAction
                     disk={item}
                     name={getDiskName(item)}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
                     onSubmit={() => removeAndReorder(item?.NAME)}
                   />
                   <AttachAction
                     disk={item}
                     hypervisor={hypervisor}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
                     onSubmit={(updatedDisk) => handleUpdate(updatedDisk, index)}
                   />
                 </>
@@ -130,6 +136,8 @@ Storage.propTypes = {
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

@@ -35,6 +35,7 @@ import {
   Section,
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
+  disableFields,
 } from 'client/utils'
 import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
 
@@ -42,60 +43,112 @@ import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @param {boolean} [isUpdate] - If `true`, the form is being updated
  * @param {VmTemplateFeatures} [features] - Features
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Section[]} Fields
  */
-const SECTIONS = (hypervisor, isUpdate, features) =>
+const SECTIONS = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
   [
     {
       id: 'information',
       legend: T.Information,
       required: true,
-      fields: INFORMATION_FIELDS(isUpdate),
+      fields: disableFields(
+        INFORMATION_FIELDS(isUpdate),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'hypervisor',
       legend: T.Hypervisor,
       required: true,
-      fields: [HYPERVISOR_FIELD, VROUTER_FIELD],
+      fields: disableFields(
+        [HYPERVISOR_FIELD, VROUTER_FIELD],
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'capacity',
       legend: T.Memory,
-      fields: filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(MEMORY_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'capacity',
-      fields: filterFieldsByHypervisor(MEMORY_RESIZE_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(MEMORY_RESIZE_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     !features?.hide_cpu && {
       id: 'capacity',
       legend: T.PhysicalCpu,
-      fields: filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(CPU_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'capacity',
       legend: T.VirtualCpu,
-      fields: filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(VCPU_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'showback',
       legend: T.Cost,
-      fields: filterFieldsByHypervisor(SHOWBACK_FIELDS(features), hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(SHOWBACK_FIELDS(features), hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'ownership',
       legend: T.Ownership,
-      fields: filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(OWNERSHIP_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'vm_group',
       legend: T.VMGroup,
-      fields: filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'vcenter',
       legend: T.vCenterDeployment,
-      fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+      fields: disableFields(
+        filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+        '',
+        oneConfig,
+        adminGroup
+      ),
     },
   ].filter(Boolean)
 
@@ -103,9 +156,11 @@ const SECTIONS = (hypervisor, isUpdate, features) =>
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
  * @param {boolean} [isUpdate] - If `true`, the form is being updated
  * @param {VmTemplateFeatures} [features] - Features
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (hypervisor, isUpdate, features) =>
+const SCHEMA = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
   getObjectSchemaFromFields(
     SECTIONS(hypervisor, isUpdate, features)
       .map(({ fields }) => fields)

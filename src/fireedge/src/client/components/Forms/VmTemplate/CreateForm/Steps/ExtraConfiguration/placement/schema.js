@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { Field, Section } from 'client/utils'
+import { Field, Section, disableFields } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 
 /** @type {Field} Host requirement field */
@@ -55,16 +55,26 @@ const DS_RANK_FIELD = {
 }
 
 /** @type {Section[]} Sections */
-const SECTIONS = [
+const SECTIONS = (oneConfig, adminGroup) => [
   {
     id: 'placement-host',
     legend: T.Host,
-    fields: [HOST_REQ_FIELD, HOST_RANK_FIELD],
+    fields: disableFields(
+      [HOST_REQ_FIELD, HOST_RANK_FIELD],
+      '',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'placement-ds',
     legend: T.Datastore,
-    fields: [DS_REQ_FIELD, DS_RANK_FIELD],
+    fields: disableFields(
+      [DS_REQ_FIELD, DS_RANK_FIELD],
+      '',
+      oneConfig,
+      adminGroup
+    ),
   },
 ]
 

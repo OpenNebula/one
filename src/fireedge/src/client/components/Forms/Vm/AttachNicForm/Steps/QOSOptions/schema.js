@@ -21,6 +21,7 @@ import {
   filterFieldsByHypervisor,
   filterFieldsByDriver,
   getObjectSchemaFromFields,
+  disableFields,
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS, VN_DRIVERS } from 'client/constants'
 
@@ -112,21 +113,38 @@ const OVERRIDE_OUT_QOS_FIELDS = [
  * @param {object} data - VM or VM Template data
  * @param {VN_DRIVERS} [data.driver] - Virtual network driver
  * @param {HYPERVISORS} [data.hypervisor] - VM Hypervisor
+ * @param {object} data.oneConfig - Config of oned.conf
+ * @param {boolean} data.adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
-const SECTIONS = ({ driver, hypervisor = HYPERVISORS.kvm } = {}) => {
+const SECTIONS = ({
+  driver,
+  hypervisor = HYPERVISORS.kvm,
+  oneConfig,
+  adminGroup,
+} = {}) => {
   const filters = { driver, hypervisor }
 
   return [
     {
       id: 'override-in-qos',
       legend: T.OverrideNetworkInboundTrafficQos,
-      fields: filterByHypAndDriver(OVERRIDE_IN_QOS_FIELDS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(OVERRIDE_IN_QOS_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
     {
       id: 'override-out-qos',
       legend: T.OverrideNetworkOutboundTrafficQos,
-      fields: filterByHypAndDriver(OVERRIDE_OUT_QOS_FIELDS, filters),
+      fields: disableFields(
+        filterByHypAndDriver(OVERRIDE_OUT_QOS_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
     },
   ]
 }

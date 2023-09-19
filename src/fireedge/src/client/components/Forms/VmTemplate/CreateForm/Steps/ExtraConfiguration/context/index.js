@@ -33,10 +33,10 @@ export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
 
 const Context = (props) => (
   <>
-    <ConfigurationSection stepId={EXTRA_ID} />
-    <UserInputsSection />
+    <ConfigurationSection stepId={EXTRA_ID} {...props} />
+    <UserInputsSection {...props} />
     <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} {...props} />
+    <ContextVarsSection stepId={EXTRA_ID} />
   </>
 )
 

@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useCallback, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, FormControl, Divider, Button, IconButton } from '@mui/material'
+import { Stack, FormControl, Divider, Button } from '@mui/material'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -24,7 +24,7 @@ import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import { FormWithSchema, Legend } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
 
 import {
   INPUTS_FIELDS,
@@ -33,7 +33,9 @@ import {
   busTypeIcons,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
 import { T, HYPERVISORS } from 'client/constants'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 
+import { hasRestrictedAttributes } from 'client/utils'
 export const SECTION_ID = 'INPUT'
 
 const InputsSection = memo(
@@ -41,10 +43,15 @@ const InputsSection = memo(
    * @param {object} props - Props
    * @param {string} [props.stepId] - ID of the step the section belongs to
    * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+   * @param {object} props.oneConfig - Config of oned.conf
+   * @param {boolean} props.adminGroup - User is admin or not
    * @returns {ReactElement} - Inputs section
    */
-  ({ stepId, hypervisor }) => {
-    const fields = useMemo(() => INPUTS_FIELDS(hypervisor), [hypervisor])
+  ({ stepId, hypervisor, oneConfig, adminGroup }) => {
+    const fields = useMemo(
+      () => INPUTS_FIELDS(hypervisor, oneConfig, adminGroup),
+      [hypervisor]
+    )
 
     const {
       fields: inputs,
@@ -112,13 +119,26 @@ const InputsSection = memo(
             const busIcon = busTypeIcons[BUS]
             const busInfo = `${BUS}`
 
+            // Disable action if the nic has a restricted attribute on the template
+            const disabledAction =
+              !adminGroup &&
+              hasRestrictedAttributes(
+                { id, TYPE, BUS },
+                'INPUT',
+                oneConfig?.VM_RESTRICTED_ATTR
+              )
+            const tooltip = !disabledAction ? null : Tr(T.DetachRestricted)
+
             return (
               <ListItem
                 key={id}
                 secondaryAction={
-                  <IconButton onClick={() => remove(index)}>
-                    <DeleteCircledOutline />
-                  </IconButton>
+                  <SubmitButton
+                    onClick={() => remove(index)}
+                    icon=<DeleteCircledOutline />
+                    disabled={disabledAction}
+                    tooltip={tooltip}
+                  />
                 }
                 sx={{ '&:hover': { bgcolor: 'action.hover' } }}
               >
@@ -151,6 +171,8 @@ const InputsSection = memo(
 InputsSection.propTypes = {
   stepId: PropTypes.string,
   hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 InputsSection.displayName = 'InputsSection'

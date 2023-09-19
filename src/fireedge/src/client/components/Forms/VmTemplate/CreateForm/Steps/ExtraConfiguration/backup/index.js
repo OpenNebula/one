@@ -28,9 +28,9 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
 import { T } from 'client/constants'
 
-const Backup = () => (
+const Backup = ({ oneConfig, adminGroup }) => (
   <>
-    {SECTIONS.map(({ id, ...section }) => (
+    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
         id={EXTRA_ID}
@@ -44,6 +44,8 @@ const Backup = () => (
 Backup.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 Backup.displayName = 'Backup'

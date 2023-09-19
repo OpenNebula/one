@@ -58,7 +58,6 @@ const Steps = createSteps([ImagesTable, AdvancedOptions], {
       IMAGE_UID: UID,
       IMAGE_UNAME: UNAME,
       IMAGE_STATE: STATE,
-      ORIGINAL_SIZE: SIZE,
     }
   },
 })

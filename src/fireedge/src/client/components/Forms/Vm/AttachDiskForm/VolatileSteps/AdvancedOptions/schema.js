@@ -28,37 +28,65 @@ import {
   Section,
   getObjectSchemaFromFields,
   filterFieldsByHypervisor,
+  disableFields,
 } from 'client/utils'
 
 /**
  * @param {HYPERVISORS} hypervisor - Hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
-const SECTIONS = (hypervisor) => [
+const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
   {
     id: 'general',
     legend: T.General,
-    fields: filterFieldsByHypervisor(GENERAL_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(GENERAL_FIELDS, hypervisor),
+      'DISK',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'vcenter',
     legend: 'vCenter',
-    fields: filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
+      'DISK',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'throttling-bytes',
     legend: T.ThrottlingBytes,
-    fields: filterFieldsByHypervisor(THROTTLING_BYTES_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(THROTTLING_BYTES_FIELDS, hypervisor),
+      'DISK',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'throttling-iops',
     legend: T.ThrottlingIOPS,
-    fields: filterFieldsByHypervisor(THROTTLING_IOPS_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(THROTTLING_IOPS_FIELDS, hypervisor),
+      'DISK',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'edge-cluster',
     legend: T.EdgeCluster,
-    fields: filterFieldsByHypervisor(EDGE_CLUSTER_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(EDGE_CLUSTER_FIELDS, hypervisor),
+      'DISK',
+      oneConfig,
+      adminGroup
+    ),
   },
 ]
 

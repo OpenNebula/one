@@ -46,115 +46,134 @@ import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-const AttachAction = memo(({ vmId, disk, hypervisor, onSubmit, sx }) => {
-  const [attachDisk] = useAttachDiskMutation()
-  const formConfig = { stepProps: { hypervisor }, initialValues: disk }
+import { hasRestrictedAttributes } from 'client/utils'
 
-  const handleAttachDisk = async (formData) => {
-    if (onSubmit && typeof onSubmit === 'function') {
-      return await onSubmit(formData)
+const AttachAction = memo(
+  ({ vmId, disk, hypervisor, onSubmit, sx, oneConfig, adminGroup }) => {
+    const [attachDisk] = useAttachDiskMutation()
+    const formConfig = {
+      stepProps: { hypervisor, oneConfig, adminGroup },
+      initialValues: disk,
     }
 
-    const template = jsonToXml({ DISK: formData })
-    await attachDisk({ id: vmId, template })
-  }
-
-  return (
-    <ButtonToTriggerForm
-      buttonProps={
-        disk
-          ? {
-              'data-cy': `edit-${disk.DISK_ID}`,
-              icon: <Edit />,
-              tooltip: Tr(T.Edit),
-              sx,
-            }
-          : {
-              color: 'secondary',
-              'data-cy': 'add-disk',
-              label: T.AttachDisk,
-              variant: 'outlined',
-              sx,
-            }
+    const handleAttachDisk = async (formData) => {
+      if (onSubmit && typeof onSubmit === 'function') {
+        return await onSubmit(formData)
       }
-      options={
-        disk
-          ? [
-              {
-                dialogProps: {
-                  title: (
-                    <Translate word={T.EditSomething} values={[disk?.NAME]} />
-                  ),
-                },
-                form: () =>
-                  !disk?.IMAGE && !disk?.IMAGE_ID // is volatile
-                    ? VolatileSteps(formConfig)
-                    : ImageSteps(formConfig),
-                onSubmit: handleAttachDisk,
-              },
-            ]
-          : [
-              {
-                cy: 'attach-image',
-                name: T.Image,
-                dialogProps: {
-                  title: T.AttachImage,
-                  dataCy: 'modal-attach-image',
-                },
-                form: () => ImageSteps(formConfig),
-                onSubmit: handleAttachDisk,
-              },
-              {
-                cy: 'attach-volatile',
-                name: T.Volatile,
-                dialogProps: {
-                  title: T.AttachVolatile,
-                  dataCy: 'modal-attach-volatile',
-                },
-                form: () => VolatileSteps(formConfig),
-                onSubmit: handleAttachDisk,
-              },
-            ]
-      }
-    />
-  )
-})
 
-const DetachAction = memo(({ vmId, disk, name: imageName, onSubmit, sx }) => {
-  const [detachDisk] = useDetachDiskMutation()
-  const { DISK_ID } = disk
+      const template = jsonToXml({ DISK: formData })
+      await attachDisk({ id: vmId, template })
+    }
 
-  const handleDetach = async () => {
-    const handleDetachDisk = onSubmit ?? detachDisk
-    await handleDetachDisk({ id: vmId, disk: DISK_ID })
+    return (
+      <ButtonToTriggerForm
+        buttonProps={
+          disk
+            ? {
+                'data-cy': `edit-${disk.DISK_ID}`,
+                icon: <Edit />,
+                tooltip: Tr(T.Edit),
+                sx,
+              }
+            : {
+                color: 'secondary',
+                'data-cy': 'add-disk',
+                label: T.AttachDisk,
+                variant: 'outlined',
+                sx,
+              }
+        }
+        options={
+          disk
+            ? [
+                {
+                  dialogProps: {
+                    title: (
+                      <Translate word={T.EditSomething} values={[disk?.NAME]} />
+                    ),
+                  },
+                  form: () =>
+                    !disk?.IMAGE && !disk?.IMAGE_ID // is volatile
+                      ? VolatileSteps(formConfig)
+                      : ImageSteps(formConfig),
+                  onSubmit: handleAttachDisk,
+                },
+              ]
+            : [
+                {
+                  cy: 'attach-image',
+                  name: T.Image,
+                  dialogProps: {
+                    title: T.AttachImage,
+                    dataCy: 'modal-attach-image',
+                  },
+                  form: () => ImageSteps(formConfig),
+                  onSubmit: handleAttachDisk,
+                },
+                {
+                  cy: 'attach-volatile',
+                  name: T.Volatile,
+                  dialogProps: {
+                    title: T.AttachVolatile,
+                    dataCy: 'modal-attach-volatile',
+                  },
+                  form: () => VolatileSteps(formConfig),
+                  onSubmit: handleAttachDisk,
+                },
+              ]
+        }
+      />
+    )
   }
+)
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
-        icon: <Trash />,
-        tooltip: Tr(T.Detach),
-        sx,
-      }}
-      options={[
-        {
-          isConfirmDialog: true,
-          dialogProps: {
-            title: (
-              <Translate
-                word={T.DetachSomething}
-                values={`#${DISK_ID} - ${imageName}`}
-              />
-            ),
-            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+const DetachAction = memo(
+  ({ vmId, disk, name: imageName, onSubmit, sx, oneConfig, adminGroup }) => {
+    const [detachDisk] = useDetachDiskMutation()
+    const { DISK_ID } = disk
+
+    const handleDetach = async () => {
+      const handleDetachDisk = onSubmit ?? detachDisk
+      await handleDetachDisk({ id: vmId, disk: DISK_ID })
+    }
+
+    // Disable action if the disk has a restricted attribute on the template
+    const disabledAction =
+      !adminGroup &&
+      hasRestrictedAttributes(
+        disk.ORIGINAL,
+        'DISK',
+        oneConfig?.VM_RESTRICTED_ATTR
+      )
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VM_ACTIONS.DETACH_DISK}-${DISK_ID}`,
+          icon: <Trash />,
+          tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
+          sx,
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.DetachSomething}
+                  values={`#${DISK_ID} - ${imageName}`}
+                />
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit: handleDetach,
           },
-          onSubmit: handleDetach,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName, sx }) => {
   const [saveAsDisk] = useSaveAsDiskMutation()
@@ -382,6 +401,8 @@ const ActionPropTypes = {
   name: PropTypes.string,
   onSubmit: PropTypes.func,
   sx: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 AttachAction.propTypes = ActionPropTypes

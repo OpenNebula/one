@@ -21,15 +21,19 @@ import { FormWithSchema } from 'client/components/Forms'
 import { FILES_FIELDS } from './schema'
 import { T } from 'client/constants'
 
+import { disableFields } from 'client/utils'
+
 export const SECTION_ID = 'CONTEXT'
 
 /**
  * @param {object} props - Props
  * @param {string} [props.stepId] - ID of the step the section belongs to
  * @param {string} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {ReactElement} - Files section
  */
-const FilesSection = ({ stepId, hypervisor }) => (
+const FilesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => (
   <FormWithSchema
     accordion
     legend={T.Files}
@@ -38,13 +42,24 @@ const FilesSection = ({ stepId, hypervisor }) => (
       () => [stepId, 'context-files'].filter(Boolean).join('-'),
       [stepId]
     )}
-    fields={useMemo(() => FILES_FIELDS(hypervisor), [hypervisor])}
+    fields={useMemo(
+      () =>
+        disableFields(
+          FILES_FIELDS(hypervisor),
+          'CONTEXT',
+          oneConfig,
+          adminGroup
+        ),
+      [hypervisor]
+    )}
   />
 )
 
 FilesSection.propTypes = {
   stepId: PropTypes.string,
   hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default FilesSection

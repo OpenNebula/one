@@ -57,6 +57,8 @@ import { USER_INPUT_SCHEMA, USER_INPUT_FIELDS } from './schema'
 import { getUserInputString } from 'client/models/Helper'
 import { T } from 'client/constants'
 
+import { disableFields } from 'client/utils'
+
 export const SECTION_ID = 'USER_INPUTS'
 
 const UserItemDraggable = styled(ListItem)(({ theme }) => ({
@@ -112,8 +114,13 @@ UserInputItem.propTypes = {
 
 UserInputItem.displayName = 'UserInputItem'
 
-/** @returns {JSXElementConstructor} - User Inputs section */
-const UserInputsSection = () => {
+/**
+ * @param {object} props - Props
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
+ * @returns {JSXElementConstructor} - User Inputs section
+ */
+const UserInputsSection = ({ oneConfig, adminGroup }) => {
   const {
     formState: { errors },
   } = useFormContext()
@@ -158,7 +165,12 @@ const UserInputsSection = () => {
         >
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
-            fields={USER_INPUT_FIELDS}
+            fields={disableFields(
+              USER_INPUT_FIELDS,
+              'USER_INPUTS',
+              oneConfig,
+              adminGroup
+            )}
             rootProps={{ sx: { m: 0 } }}
           />
           <Button
@@ -204,6 +216,11 @@ const UserInputsSection = () => {
       </DragDropContext>
     </FormControl>
   )
+}
+
+UserInputsSection.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default UserInputsSection

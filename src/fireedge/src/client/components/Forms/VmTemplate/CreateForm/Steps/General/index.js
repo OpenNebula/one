@@ -33,7 +33,7 @@ let generalFeatures
 
 export const STEP_ID = 'general'
 
-const Content = ({ isUpdate }) => {
+const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
@@ -47,7 +47,7 @@ const Content = ({ isUpdate }) => {
     generalFeatures = features
 
     return (
-      SECTIONS(hypervisor, isUpdate, features)
+      SECTIONS(hypervisor, isUpdate, features, oneConfig, adminGroup)
         .filter(
           ({ id, required }) => required || sectionsAvailable.includes(id)
         )
@@ -77,7 +77,7 @@ const Content = ({ isUpdate }) => {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} General configuration step
  */
-const General = (vmTemplate) => {
+const General = ({ data: vmTemplate, oneConfig, adminGroup }) => {
   const isUpdate = vmTemplate?.NAME
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
@@ -90,12 +90,14 @@ const General = (vmTemplate) => {
       return SCHEMA(hypervisor, isUpdate, generalFeatures)
     },
     optionsValidate: { abortEarly: false },
-    content: () => Content({ isUpdate }),
+    content: () => Content({ isUpdate, oneConfig, adminGroup }),
   }
 }
 
 Content.propTypes = {
   isUpdate: PropTypes.bool,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default General

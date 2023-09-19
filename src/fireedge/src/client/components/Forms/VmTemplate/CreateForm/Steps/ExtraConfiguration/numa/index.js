@@ -30,27 +30,34 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { T } from 'client/constants'
 
+import { disableFields } from 'client/utils'
+
 export const TAB_ID = 'NUMA'
 
-const Numa = ({ hypervisor }) => {
+const Numa = ({ hypervisor, oneConfig, adminGroup }) => {
   const enableNuma = useWatch({ name: `${EXTRA_ID}.${ENABLE_NUMA.name}` })
 
   return (
     <>
       <FormWithSchema
         cy={`${EXTRA_ID}-vcpu`}
-        fields={[VCPU_FIELD]}
+        fields={disableFields([VCPU_FIELD], 'TOPOLOGY', oneConfig, adminGroup)}
         id={GENERAL_ID}
       />
       <FormWithSchema
         cy={`${EXTRA_ID}-numa-enable`}
-        fields={[ENABLE_NUMA]}
+        fields={disableFields([ENABLE_NUMA], 'TOPOLOGY', oneConfig, adminGroup)}
         id={EXTRA_ID}
       />
       {enableNuma && (
         <FormWithSchema
           cy={`${EXTRA_ID}-numa`}
-          fields={NUMA_FIELDS(hypervisor)}
+          fields={disableFields(
+            NUMA_FIELDS(hypervisor),
+            'TOPOLOGY',
+            oneConfig,
+            adminGroup
+          )}
           id={EXTRA_ID}
         />
       )}
@@ -63,6 +70,8 @@ Numa.propTypes = {
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

@@ -43,7 +43,7 @@ const mapNicNameFunction = mapNameByIndex(TAB_ID[0])
 const mapAliasNameFunction = mapNameByIndex(TAB_ID[1])
 const mapPCINameFunction = mapNameByIndex(TAB_ID[2])
 
-const Networking = ({ hypervisor }) => {
+const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
   const { setValue, getValues } = useFormContext()
 
   const {
@@ -170,6 +170,8 @@ const Networking = ({ hypervisor }) => {
       <AttachAction
         currentNics={nics}
         hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
         onSubmit={handleAppend}
       />
       <Stack
@@ -201,11 +203,15 @@ const Networking = ({ hypervisor }) => {
                       <DetachAction
                         nic={item}
                         onSubmit={() => removeAndReorder(item)}
+                        oneConfig={oneConfig}
+                        adminGroup={adminGroup}
                       />
                     )}
                     <AttachAction
                       nic={item}
                       hypervisor={hypervisor}
+                      oneConfig={oneConfig}
+                      adminGroup={adminGroup}
                       currentNics={nics}
                       onSubmit={(updatedNic) =>
                         handleUpdate(updatedNic, id, item)
@@ -234,6 +240,8 @@ Networking.propTypes = {
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

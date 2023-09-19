@@ -26,8 +26,11 @@ import { T, HYPERVISORS } from 'client/constants'
 
 export const STEP_ID = 'configuration'
 
-const Content = ({ hypervisor }) => {
-  const memoFields = useMemo(() => FIELDS(hypervisor), [])
+const Content = ({ hypervisor, oneConfig, adminGroup }) => {
+  const memoFields = useMemo(
+    () => FIELDS(hypervisor, oneConfig, adminGroup),
+    []
+  )
 
   return <FormWithSchema cy="attach-disk" fields={memoFields} id={STEP_ID} />
 }
@@ -37,20 +40,24 @@ const Content = ({ hypervisor }) => {
  *
  * @param {object} props - Props
  * @param {HYPERVISORS} props.hypervisor - Hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {Step} Basic configuration step
  */
-const BasicConfiguration = ({ hypervisor } = {}) => ({
+const BasicConfiguration = ({ hypervisor, oneConfig, adminGroup } = {}) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: SCHEMA(hypervisor),
+  resolver: SCHEMA(hypervisor, oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },
-  content: () => Content({ hypervisor }),
+  content: () => Content({ hypervisor, oneConfig, adminGroup }),
 })
 
 Content.propTypes = {
   hypervisor: PropTypes.any,
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default BasicConfiguration

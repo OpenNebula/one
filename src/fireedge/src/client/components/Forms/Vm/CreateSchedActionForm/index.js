@@ -49,10 +49,15 @@ const commonTransformInitialValue = (scheduledAction, schema, typeForm) => {
     }
   }
 
-  return schema.cast(dataToCast, {
+  const castSchema = schema.cast(dataToCast, {
     context: scheduledAction,
     stripUnknown: true,
   })
+
+  // #6154: Add temportal id for restricted attributes
+  castSchema.TEMP_ID = scheduledAction.TEMP_ID
+
+  return castSchema
 }
 
 const commonTransformBeforeSubmit = (formData) => {

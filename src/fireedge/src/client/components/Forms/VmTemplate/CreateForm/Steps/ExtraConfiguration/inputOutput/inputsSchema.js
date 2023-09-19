@@ -21,6 +21,7 @@ import {
   arrayToOptions,
   filterFieldsByHypervisor,
   getValidationFromFields,
+  disableFields,
 } from 'client/utils'
 import {
   T,
@@ -72,10 +73,17 @@ const BUS = {
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Field[]} List of Graphic inputs fields
  */
-export const INPUTS_FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor([TYPE, BUS], hypervisor)
+export const INPUTS_FIELDS = (hypervisor, oneConfig, adminGroup) =>
+  disableFields(
+    filterFieldsByHypervisor([TYPE, BUS], hypervisor),
+    'INPUT',
+    oneConfig,
+    adminGroup
+  )
 
 /** @type {ObjectSchema} Graphic input object schema */
 export const INPUT_SCHEMA = object(getValidationFromFields([TYPE, BUS]))

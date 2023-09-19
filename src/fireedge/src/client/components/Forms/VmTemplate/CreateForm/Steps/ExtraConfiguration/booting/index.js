@@ -37,8 +37,11 @@ import { T } from 'client/constants'
 
 export const TAB_ID = 'OS'
 
-const Booting = ({ hypervisor, ...props }) => {
-  const sections = useMemo(() => SECTIONS(hypervisor), [hypervisor])
+const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
+  const sections = useMemo(
+    () => SECTIONS(hypervisor, oneConfig, adminGroup),
+    [hypervisor]
+  )
 
   return (
     <Stack
@@ -74,6 +77,8 @@ Booting.propTypes = {
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
   control: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

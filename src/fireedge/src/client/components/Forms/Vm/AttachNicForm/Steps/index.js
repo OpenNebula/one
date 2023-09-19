@@ -60,6 +60,9 @@ const Steps = createSteps([NetworksTable, AdvancedOptions, QOSOptions], {
       { stripUnknown: true }
     )
 
+    // #6154: Add temp id to propagate it
+    if (rest.TEMP_ID) castedValue[ADVANCED_ID].TEMP_ID = rest.TEMP_ID
+
     return {
       [NETWORK_ID]: [
         {

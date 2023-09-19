@@ -23,7 +23,7 @@ import UserInputs, {
   STEP_ID as USER_INPUTS_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
-import { createSteps, deleteObjectKeys } from 'client/utils'
+import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
   (vmTemplate) => {
@@ -55,25 +55,6 @@ const Steps = createSteps(
         [USER_INPUTS_ID]: userInputs,
         [EXTRA_ID]: extraTemplate = {},
       } = formData ?? {}
-
-      if (!adminGroup) {
-        const vmRestrictedAttributes = oneConfig?.VM_RESTRICTED_ATTR ?? []
-        vmRestrictedAttributes.forEach((restrictedAttr) => {
-          const splitedAttr = restrictedAttr.split('/')
-
-          /**
-           * For now, we will delete only the DISK attributes as we have to
-           * investigate the core behavior related to each of them (i.e.:
-           * Disk restricted attributes expect to be deleted, but NIC ones
-           * must be kept unchanged).
-           *
-           * TODO: Review each VM_RESTRICTED_ATTR behavior to implement
-           * the corresponding logic for them
-           */
-          if (splitedAttr[0] !== 'DISK') return
-          deleteObjectKeys(splitedAttr, extraTemplate)
-        })
-      }
 
       vmTemplate?.TEMPLATE?.OS &&
         extraTemplate?.OS &&

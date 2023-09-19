@@ -22,6 +22,7 @@ import {
   arrayToOptions,
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
+  disableFields,
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
@@ -153,12 +154,19 @@ const TYPE_FIELD = { ...commonHiddenFieldProps('TYPE') }
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
  * @returns {Field[]} List of Graphic inputs fields
  */
-export const PCI_FIELDS = (hypervisor) =>
-  filterFieldsByHypervisor(
-    [NAME_FIELD, PROFILE_FIELD, DEVICE_FIELD, VENDOR_FIELD, CLASS_FIELD],
-    hypervisor
+export const PCI_FIELDS = (hypervisor, oneConfig, adminGroup) =>
+  disableFields(
+    filterFieldsByHypervisor(
+      [NAME_FIELD, PROFILE_FIELD, DEVICE_FIELD, VENDOR_FIELD, CLASS_FIELD],
+      hypervisor
+    ),
+    'PCI',
+    oneConfig,
+    adminGroup
   )
 
 /** @type {ObjectSchema} PCI devices object schema */

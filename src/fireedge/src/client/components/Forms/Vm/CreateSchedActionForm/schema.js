@@ -23,7 +23,7 @@ import {
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
 import { ARGS_TYPES } from 'client/constants'
 import { getRequiredArgsByAction } from 'client/models/Scheduler'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { Field, getObjectSchemaFromFields, disableFields } from 'client/utils'
 
 const ARG_SCHEMA = string()
   .trim()
@@ -66,16 +66,25 @@ const COMMON_SCHEMA = object({
 })
 
 /**
- * @param {object} vm - Vm resource
+ * @param {object} props - Props
+ * @param {object} props.vm - Vm resource
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {Field[]} Fields
  */
-export const VM_SCHED_FIELDS = (vm) => [
-  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
-  ...COMMON_FIELDS(vm, true),
-  PUNCTUAL_FIELDS.TIME_FIELD,
-  PUNCTUAL_FIELDS.END_TYPE_FIELD,
-  PUNCTUAL_FIELDS.END_VALUE_FIELD,
-]
+export const VM_SCHED_FIELDS = ({ vm, oneConfig, adminGroup }) =>
+  disableFields(
+    [
+      PUNCTUAL_FIELDS.ACTION_FIELD(vm),
+      ...COMMON_FIELDS(vm, true),
+      PUNCTUAL_FIELDS.TIME_FIELD,
+      PUNCTUAL_FIELDS.END_TYPE_FIELD,
+      PUNCTUAL_FIELDS.END_VALUE_FIELD,
+    ],
+    'SCHED_ACTION',
+    oneConfig,
+    adminGroup
+  )
 
 /** @type {ObjectSchema} Schema */
 export const VM_SCHED_SCHEMA = COMMON_SCHEMA.concat(
@@ -94,15 +103,21 @@ export const VM_SCHED_SCHEMA = COMMON_SCHEMA.concat(
 )
 
 /** @type {Field[]} Fields for relative actions */
-export const TEMPLATE_SCHED_FIELDS = (vm) => [
-  PUNCTUAL_FIELDS.ACTION_FIELD(vm),
-  ...COMMON_FIELDS(vm),
-  PUNCTUAL_FIELDS.TIME_FIELD,
-  RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
-  RELATIVE_FIELDS.PERIOD_FIELD,
-  RELATIVE_FIELDS.END_TYPE_FIELD_WITHOUT_DATE,
-  PUNCTUAL_FIELDS.END_VALUE_FIELD,
-]
+export const TEMPLATE_SCHED_FIELDS = ({ vm, oneConfig, adminGroup }) =>
+  disableFields(
+    [
+      PUNCTUAL_FIELDS.ACTION_FIELD(vm),
+      ...COMMON_FIELDS(vm),
+      PUNCTUAL_FIELDS.TIME_FIELD,
+      RELATIVE_FIELDS.RELATIVE_TIME_FIELD,
+      RELATIVE_FIELDS.PERIOD_FIELD,
+      RELATIVE_FIELDS.END_TYPE_FIELD_WITHOUT_DATE,
+      PUNCTUAL_FIELDS.END_VALUE_FIELD,
+    ],
+    'SCHED_ACTION',
+    oneConfig,
+    adminGroup
+  )
 
 /** @type {ObjectSchema} Relative Schema */
 export const TEMPLATE_SCHED_SCHEMA = COMMON_SCHEMA.concat(

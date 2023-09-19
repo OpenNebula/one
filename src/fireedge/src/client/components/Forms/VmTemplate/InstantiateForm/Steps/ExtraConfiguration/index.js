@@ -50,7 +50,7 @@ export const TABS = [
   },
 ]
 
-const Content = ({ data, setFormData, hypervisor }) => {
+const Content = ({ data, setFormData, hypervisor, oneConfig, adminGroup }) => {
   const {
     formState: { errors },
     control,
@@ -74,7 +74,16 @@ const Content = ({ data, setFormData, hypervisor }) => {
           name,
           label: <Translate word={name} />,
           renderContent: () => (
-            <TabContent {...{ data, setFormData, hypervisor, control }} />
+            <TabContent
+              {...{
+                data,
+                setFormData,
+                hypervisor,
+                control,
+                oneConfig,
+                adminGroup,
+              }}
+            />
           ),
           error: getError?.(errors[STEP_ID]),
         })
@@ -91,7 +100,7 @@ const Content = ({ data, setFormData, hypervisor }) => {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Optional configuration step
  */
-const ExtraConfiguration = (vmTemplate) => {
+const ExtraConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => {
   const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
@@ -99,7 +108,8 @@ const ExtraConfiguration = (vmTemplate) => {
     label: T.AdvancedOptions,
     resolver: SCHEMA,
     optionsValidate: { abortEarly: false },
-    content: (props) => Content({ ...props, hypervisor }),
+    content: (props) =>
+      Content({ ...props, hypervisor, oneConfig, adminGroup }),
   }
 }
 
@@ -107,6 +117,8 @@ Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default ExtraConfiguration

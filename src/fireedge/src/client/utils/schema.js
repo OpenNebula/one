@@ -526,3 +526,46 @@ export const createForm =
       ...ensuredExtraParams,
     }
   }
+
+/**
+ * Disable fields that are restricted attributes in oned.conf.
+ *
+ * @param {Array} fields - Fields of the form
+ * @param {string} nameParentAttribute - Parent name of the form
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - It he user is an admin
+ * @returns {Array} - New array of fields
+ */
+export const disableFields = (
+  fields = {},
+  nameParentAttribute,
+  oneConfig = {},
+  adminGroup = true
+) => {
+  // Disable fields only if it is a non admin user
+  if (adminGroup) return fields
+
+  // Get restricted attributes
+  const restrictedAttributes = oneConfig?.VM_RESTRICTED_ATTR?.filter((item) =>
+    nameParentAttribute !== ''
+      ? item.startsWith(nameParentAttribute)
+      : !item.includes('/')
+  ).map((item) => item.split('/')[1] ?? item)
+
+  // Iterate over each field and add disabled attribute if it's a restricted attribute (almost all forms has attributes with name like "ATTR" but some of them like "PARENT.ATTR")
+  return fields.map((field) => {
+    if (
+      restrictedAttributes.some(
+        (item) =>
+          item === field.name || nameParentAttribute + '.' + item === field.name
+      )
+    ) {
+      field.fieldProps = {
+        ...field.fieldProps,
+        disabled: true,
+      }
+    }
+
+    return field
+  })
+}

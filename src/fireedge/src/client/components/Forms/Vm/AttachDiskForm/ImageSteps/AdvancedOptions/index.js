@@ -27,8 +27,11 @@ import { T, HYPERVISORS } from 'client/constants'
 
 export const STEP_ID = 'advanced'
 
-const Content = ({ hypervisor }) => {
-  const sections = useMemo(() => SECTIONS(hypervisor), [])
+const Content = ({ hypervisor, oneConfig, adminGroup }) => {
+  const sections = useMemo(
+    () => SECTIONS(hypervisor, oneConfig, adminGroup),
+    []
+  )
 
   return (
     <Box
@@ -55,20 +58,24 @@ const Content = ({ hypervisor }) => {
  *
  * @param {object} props - Props
  * @param {HYPERVISORS} props.hypervisor - Hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {Step} Advance options step
  */
-const AdvancedOptions = ({ hypervisor } = {}) => ({
+const AdvancedOptions = ({ hypervisor, oneConfig, adminGroup } = {}) => ({
   id: STEP_ID,
   label: T.AdvancedOptions,
-  resolver: SCHEMA(hypervisor),
+  resolver: SCHEMA(hypervisor, oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },
-  content: () => Content({ hypervisor }),
+  content: () => Content({ hypervisor, oneConfig, adminGroup }),
 })
 
 Content.propTypes = {
   hypervisor: PropTypes.any,
   data: PropTypes.any,
   setFormData: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default AdvancedOptions
