@@ -756,7 +756,8 @@ module OpenNebula
         #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
         #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
         #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT},
-        #  and GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP}
+        #  GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP},
+        #  and VIDEO/{TYPE, IOMMU, ATS, VRAM, RESOLUTION}
         # @param append, append template, do not delete empty attributes
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise

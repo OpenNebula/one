@@ -637,6 +637,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * graphics;
 
+    const VectorAttribute * video;
+
     const VectorAttribute * input;
 
     vector<const VectorAttribute *> pci;
@@ -1948,6 +1950,71 @@ int LibVirtDriver::deployment_description_kvm(
             vm->log("VMM", Log::WARNING,
                     "Graphics not supported or undefined, ignored.");
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Video
+    // ------------------------------------------------------------------------
+
+    video = vm->get_template_attribute("VIDEO");
+
+    if ( video != 0 )
+    {
+        bool iommu;
+        bool ats;
+        int  vram;
+
+        string resolution;
+
+        get_attribute(vm, host, cluster, "VIDEO", "IOMMU", iommu);
+        get_attribute(vm, host, cluster, "VIDEO", "ATS",   ats);
+        get_attribute(vm, host, cluster, "VIDEO", "TYPE",  type);
+        get_attribute(vm, host, cluster, "VIDEO", "VRAM",  vram);
+        get_attribute(vm, host, cluster, "VIDEO", "RESOLUTION", resolution);
+
+        file << "\t\t<video>\n";
+
+        if ( type == "virtio"  && ( iommu || ats ) )
+        {
+            file << "\t\t\t<driver";
+
+            if ( iommu ) {
+                file << " iommu='on'";
+            }
+
+            if ( ats ) {
+                file << " ats='on'";
+            }
+
+            file << "/>\n";
+        }
+
+        one_util::tolower(type);
+
+        file << "\t\t\t<model type=" << one_util::escape_xml_attr(type);
+
+        if ( vram )
+        {
+            file << " vram=" << one_util::escape_xml_attr(vram);
+        }
+
+        file << ">\n";
+
+        if ( !resolution.empty() )
+        {
+            vector<string> res_dims;
+
+            res_dims = one_util::split(resolution, 'x');
+
+            file << "\t\t\t\t<resolution"
+                    << " x=" << one_util::escape_xml_attr(res_dims[0])
+                    << " y=" << one_util::escape_xml_attr(res_dims[1])
+                    << "/>\n";
+        }
+
+        file << "\t\t\t</model>\n";
+
+        file << "\t\t</video>\n";
     }
 
     // ------------------------------------------------------------------------

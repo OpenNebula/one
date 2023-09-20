@@ -396,16 +396,14 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 
 int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 {
-    VectorAttribute * user_graphics = tmpl->get("GRAPHICS");
+    vector<unique_ptr<VectorAttribute>> vgraphics;
 
-    if ( user_graphics == 0 )
+    if (tmpl->remove("GRAPHICS", vgraphics) == 0)
     {
         return 0;
     }
 
-    VectorAttribute * graphics = new VectorAttribute(user_graphics);
-
-    tmpl->erase("GRAPHICS");
+    VectorAttribute * graphics = (*vgraphics.begin()).release();
 
     obj_template->erase("GRAPHICS");
     obj_template->set(graphics);
@@ -425,6 +423,7 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 
     bool random_passwd;
     graphics->vector_value("RANDOM_PASSWD", random_passwd);
+
     string password = graphics->vector_value("PASSWD");
 
     if ( random_passwd && password.empty() )
@@ -446,6 +445,78 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
     {
         // Vnc password must be 8 characters maximum
         graphics->replace("PASSWD", password.substr(0, MAX_VNC_PASSWD_LENGTH));
+    }
+
+    return 0;
+}
+
+int VirtualMachine::parse_video(string& error_str, Template * tmpl)
+{
+    vector<unique_ptr<VectorAttribute>> vvideo;
+
+    if (tmpl->remove("VIDEO", vvideo) == 0)
+    {
+        return 0;
+    }
+
+    VectorAttribute* video = (*vvideo.begin()).release();
+
+    obj_template->erase("VIDEO");
+
+    obj_template->set(video);
+
+    string vtype = video->vector_value("TYPE");
+
+    if ( vtype.empty() )
+    {
+        error_str = "Video TYPE is required";
+        return -1;
+    }
+
+    one_util::tolower(vtype);
+
+    if ( vtype != "vga" && vtype != "cirrus" && vtype != "none" && vtype != "virtio" )
+    {
+        error_str = "Invalid video TYPE, should be either: none, vga, cirrus, or virtio";
+        return -1;
+    }
+
+    video->replace("TYPE", vtype);
+
+    bool iommu = false;
+    bool ats   = false;
+
+    video->vector_value("IOMMU", iommu);
+    video->vector_value("ATS", ats);
+
+    if ((iommu || ats) && ( vtype != "virtio" ))
+    {
+        error_str = "IOMMU and ATS are only available for virtio TYPE";
+        return -1;
+    }
+
+    const string& vram_s = video->vector_value("VRAM");
+
+    if ( !vram_s.empty() )
+    {
+        unsigned int vram;
+
+        int rc = video->vector_value("VRAM", vram);
+
+        if ( vram < 1024 || rc == -1 )
+        {
+            error_str = "Invalid VRAM value in VIDEO attribute, must be >= 1024";
+            return -1;
+        }
+    }
+
+    string resolution = video->vector_value("RESOLUTION");
+
+    if ( !resolution.empty() &&
+            one_util::regex_match("^[0-9]+x[0-9]+$", resolution.c_str()) != 0)
+    {
+        error_str = "Invalid RESOLUTION string format";
+        return -1;
     }
 
     return 0;
@@ -534,6 +605,7 @@ void VirtualMachine::parse_well_known_attributes()
      * CONTEXT
      * OS
      * GRAPHICS
+     * VIDEO
      *
      * INPUT
      * FEATURES

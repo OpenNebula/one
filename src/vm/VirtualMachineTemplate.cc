@@ -232,6 +232,13 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
           "KEYMAP",
           "COMMAND"}
     },
+    {"VIDEO",
+        { "IOMMU",
+          "ATS",
+          "TYPE",
+          "VRAM",
+          "RESOLUTION"}
+    },
     {"RAW",
         { "TYPE",
           "DATA",
@@ -300,6 +307,8 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
     copy_vector_values(this, conf_tmpl.get(), "INPUT");
 
     copy_vector_values(this, conf_tmpl.get(), "GRAPHICS");
+
+    copy_vector_values(this, conf_tmpl.get(), "VIDEO");
 
     copy_vector_values(this, conf_tmpl.get(), "RAW");
 

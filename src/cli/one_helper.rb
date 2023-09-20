@@ -439,6 +439,59 @@ Bash symbols must be escaped on STDIN passing'
                 options[:user_inputs] = o.join("\n")
             end
         },
+        {
+            :name   => 'video',
+            :large  => '--video type',
+            :format => String,
+            :description => 'Add a custom video device (none, vga, cirrus, virtio)'
+        },
+        {
+            :name   => 'video_iommu',
+            :large  => '--video-iommu',
+            :description => 'Enable IOMMU (I/O Memory Management Unit) for the video device'
+        },
+        {
+            :name   => 'video_ats',
+            :large  => '--video-ats',
+            :description => 'Enable ATS (Address Translation Services) for the video device'
+        },
+        {
+            :name   => 'video_vram',
+            :large  => '--video-vram vram',
+            :description => 'VRAM allocated to the video device. By default the ' +
+                "unit is megabytes. To use gigabytes add a 'g', floats " +
+                'can be used: 8g=8192, 0.5g=512',
+            :format => String,
+            :proc   => lambda do |o, _options|
+                m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+
+                if !m
+                    [-1, 'VRAM value malformed']
+                else
+                    multiplier=case m[2]
+                               when /(g|gb)/i
+                                   1048576 # = 1024 * 1024
+                               else
+                                   1024
+                               end
+
+                    value=m[1].to_f*multiplier
+
+                    [0, value.floor]
+                end
+            end
+        },
+        {
+            :name   => 'video_resolution',
+            :large  => '--video-resolution resolution',
+            :format => String,
+            :description => 'Video resolution, in format like: 1280x720 or 1920x1080',
+            :proc   => lambda do |_o, _options|
+                if !m.match?(/\d{3,4}x\d{3,4}/)
+                    [-1, 'Video Resolution value malformed']
+                end
+            end
+        },
         AS_GROUP,
         AS_USER
     ]
@@ -1923,6 +1976,15 @@ Bash symbols must be escaped on STDIN passing'
             if options[:spice_keymap]
                 template << ", KEYMAP=\"#{options[:spice_keymap]}\""
             end
+            template<<' ]' << "\n"
+        end
+
+        if options[:video]
+            template<<"VIDEO=[ TYPE=\"#{options[:video]}\""
+            template<<', IOMMU="YES"' if options[:video_iommu]
+            template<<', ATS="YES"' if options[:video_ats]
+            template<<", VRAM=\"#{options[:video_vram]}\"" if options[:video_vram]
+            template<<", RESOLUTION=\"#{options[:video_resolution]}\""
             template<<' ]' << "\n"
         end
 

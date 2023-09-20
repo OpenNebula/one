@@ -95,6 +95,17 @@
               <xs:element name="FEATURES" minOccurs="0" maxOccurs="1"/>
               <xs:element name="HYPERV_OPTIONS" minOccurs="0" maxOccurs="1"/>
               <xs:element name="GRAPHICS" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VIDEO" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="IOMMU" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ATS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VRAM" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="RESOLUTION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="IMPORTED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="INPUT" minOccurs="0" maxOccurs="1"/>
               <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>

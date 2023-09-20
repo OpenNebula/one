@@ -1340,6 +1340,7 @@ CommandParser::CmdParser.new(ARGV) do
         FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "IOTHREADS"]
         INPUT     = ["TYPE", "BUS"]
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
+        VIDEO     = ["TYPE", "IOMMU", "ATS", "VRAM", "RESOLUTION"]
         RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
         BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE"]
@@ -1372,8 +1373,8 @@ CommandParser::CmdParser.new(ARGV) do
                                                 'BACKUP_CONFIG')
                 template = vm.template_like_str('TEMPLATE', true,
                                                 'OS | FEATURES | INPUT | '\
-                                                'GRAPHICS | RAW | CONTEXT | '\
-                                                'CPU_MODEL')
+                                                'GRAPHICS | VIDEO | RAW | '\
+                                                'CONTEXT | CPU_MODEL')
 
                 template << "\n" << backup
 

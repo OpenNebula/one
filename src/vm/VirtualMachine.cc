@@ -1073,6 +1073,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_graphics;
     }
 
+    if ( parse_video(error_str, user_obj_template.get()) != 0 )
+    {
+        goto error_video;
+    }
+
     // -------------------------------------------------------------------------
     // Get and set DEPLOY_ID for imported VMs
     // -------------------------------------------------------------------------
@@ -1130,6 +1135,7 @@ error_boot_order:
 error_context:
 error_requirements:
 error_graphics:
+error_video:
 error_backup:
 error_rollback:
     release_disk_images(quotas, true);
@@ -3062,7 +3068,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     }
 
     // -------------------------------------------------------------------------
-    // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
+    // Update OS, FEATURES, INPUT, GRAPHICS, VIDEO, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
     replace_vector_values(obj_template.get(), tmpl, "OS", append);
 
@@ -3076,6 +3082,8 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     replace_vector_values(obj_template.get(), tmpl, "INPUT", append);
 
     replace_vector_values(obj_template.get(), tmpl, "GRAPHICS", append);
+
+    replace_vector_values(obj_template.get(), tmpl, "VIDEO", append);
 
     replace_vector_values(obj_template.get(), tmpl, "RAW", append);
 
@@ -3179,9 +3187,15 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     }
 
     // -------------------------------------------------------------------------
-    // Parse graphics attribute
+    // Parse graphics & video attribute
     // -------------------------------------------------------------------------
     if ( parse_graphics(err, obj_template.get()) != 0 )
+    {
+        NebulaLog::log("ONE",Log::ERROR, err);
+        return -1;
+    }
+
+    if ( parse_video(err, obj_template.get()) != 0 )
     {
         NebulaLog::log("ONE",Log::ERROR, err);
         return -1;

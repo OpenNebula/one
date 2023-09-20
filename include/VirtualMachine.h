@@ -2055,6 +2055,12 @@ private:
     int parse_graphics(std::string& error_str, Template * tmpl);
 
     /**
+     *  Parse the "VIDEO" attribute to verify the TYPE exists, and that the VRAM
+     *  and RESOLUTION values are a good format
+    */
+    int parse_video(std::string& error_str, Template * tmpl);
+
+    /**
      * Searches the meaningful attributes and moves them from the user template
      * to the internal template
      */
