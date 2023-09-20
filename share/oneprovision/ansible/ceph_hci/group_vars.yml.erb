@@ -7,7 +7,10 @@ ceph_stable_release: quincy
 ceph_stable_release_num: 17
 dashboard_enabled: false
 configure_firewall: false
-ceph_stable_openstack_release_uca: zed
+ceph_stable_mapping:
+  '20': yoga
+  '22': bobcat
+ceph_stable_openstack_release_uca: "{{ ceph_stable_mapping[ansible_distribution_major_version] }}"
 
 # ceph overrides (applying in ceph.conf)
 ceph_conf_overrides:
