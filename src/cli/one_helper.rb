@@ -1263,6 +1263,7 @@ EOT
         #
         # @return [Hash] XSD in hash format, nil if not found
         def read_xsd(ename)
+            require 'active_support'
             require 'active_support/core_ext/hash/conversions'
 
             # Try GEM directory
