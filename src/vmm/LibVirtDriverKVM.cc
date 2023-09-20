@@ -2112,9 +2112,29 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t</features>" << endl;
     }
 
-    if ( localtime )
+    if ( localtime || hyperv )
     {
-        file << "\t<clock offset='localtime'/>" << endl;
+        string htimers;
+
+        get_attribute(vm, host, cluster, "HYPERV_TIMERS", htimers);
+
+        file << "\t<clock";
+
+        if ( localtime )
+        {
+            file << " offset='localtime'>" << endl;
+        }
+        else //UTC is set as the clock offset by default
+        {
+            file << " offset='utc'>" << endl;
+        }
+
+        if (!htimers.empty())
+        {
+            file << htimers << endl;
+        }
+
+        file << "\t</clock>" << endl;
     }
 
     if ( guest_agent )
