@@ -128,19 +128,19 @@
   mode: '0640'
   src: src/fireedge/etc/provision/provision-server.conf
 
-- name: /etc/one/fireedge/provision/providers.d/*.yml
+- name: /etc/one/fireedge/provision/providers.d/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
   src: src/fireedge/etc/provision/providers.d/*.yaml
 
-- name: /etc/one/fireedge/provision/providers.d-extra/*.yml
+- name: /etc/one/fireedge/provision/providers.d-extra/*.yaml
   class: Yaml
   owner: root
   group: oneadmin
   mode: '0640'
-  src: share/oneprovision/edge-clusters-extra/*/providers/*/*.yml
+  src: share/oneprovision/edge-clusters-extra/*/providers/*/*.yaml
 
 - name: /etc/one/fireedge/sunstone/sunstone-server.conf
   class: Yaml
