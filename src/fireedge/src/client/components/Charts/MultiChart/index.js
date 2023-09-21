@@ -43,6 +43,8 @@ import {
  * @param {Function} props.customChartDefs - Function to generate custom chart definitions.
  * @param {object} [props.metricNames={}] - Object mapping metric keys to human-readable names.
  * @param {object} props.metricHues - Object containing hue values for different metrics.
+ * @param {boolean} props.disableExport - Enable/Disable export button.
+ * @param {boolean} props.disableLegend - Disables the legend underneath the charts.
  * @returns {React.Component} MultiChart component.
  */
 const MultiChart = ({
@@ -58,6 +60,8 @@ const MultiChart = ({
   customChartDefs,
   metricNames,
   groupBy,
+  disableExport,
+  disableLegend,
   metricHues: passedMetricHues,
 }) => {
   const [currentPage, setCurrentPage] = useState(0)
@@ -206,9 +210,11 @@ const MultiChart = ({
             />
           </Box>
         )}
-        <Box flex={1} display="flex" justifyContent="flex-end">
-          <ExportButton data={datasets} />
-        </Box>
+        {!disableExport && (
+          <Box flex={1} display="flex" justifyContent="flex-end">
+            <ExportButton data={datasets} />
+          </Box>
+        )}
       </Box>
 
       <Box flex={1} mt={-1}>
@@ -225,6 +231,7 @@ const MultiChart = ({
             humanReadableMetric={humanReadableMetric}
             groupBy={groupBy}
             metricHues={metricHues}
+            disableLegend={disableLegend}
           />
         )}
       </Box>
@@ -249,11 +256,13 @@ MultiChart.propTypes = {
   ).isRequired,
   visibleDatasets: PropTypes.arrayOf(PropTypes.number),
   xAxisLabels: PropTypes.arrayOf(PropTypes.string),
-  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table']),
+  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table', 'stackedBar']),
   selectedMetrics: PropTypes.object,
   error: PropTypes.string,
   isLoading: PropTypes.bool,
   groupBy: PropTypes.string,
+  disableExport: PropTypes.bool,
+  disableLegend: PropTypes.bool,
   ItemsPerPage: PropTypes.number.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.object),
   customChartDefs: PropTypes.func.isRequired,
@@ -268,6 +277,8 @@ MultiChart.defaultProps = {
   customChartDefs: GetChartDefs,
   metricNames: {},
   metricHues: {},
+  disableExport: false,
+  disableLegend: false,
 }
 
 export default MultiChart

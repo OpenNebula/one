@@ -89,6 +89,7 @@ const GroupsTable = (props) => {
         {primaryGroupName && (
           <Grid item>
             <Chip
+              data-cy="primary-group"
               label={
                 <Typography variant="subtitle2" component="span">
                   {primaryGroupName}
@@ -109,6 +110,7 @@ const GroupsTable = (props) => {
           secondaryGroupNames.map((name, index) => (
             <Grid item key={index}>
               <Chip
+                data-cy={`secondary-group-${+index}`}
                 label={
                   <Typography variant="body2" component="span">
                     {name}

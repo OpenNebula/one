@@ -39,10 +39,12 @@ const CHART_TYPES = {
   LINE: 'line',
   AREA: 'area',
   TABLE: 'table',
+  STACKED_BAR: 'stackedBar',
 }
 
 const ChartComponents = {
   [CHART_TYPES.BAR]: BarChart,
+  [CHART_TYPES.STACKED_BAR]: BarChart,
   [CHART_TYPES.LINE]: LineChart,
   [CHART_TYPES.AREA]: AreaChart,
   [CHART_TYPES.TABLE]: DataGridTable,
@@ -50,6 +52,7 @@ const ChartComponents = {
 
 const ChartElements = {
   [CHART_TYPES.BAR]: Bar,
+  [CHART_TYPES.STACKED_BAR]: Bar,
   [CHART_TYPES.LINE]: Line,
   [CHART_TYPES.AREA]: Area,
 }
@@ -67,6 +70,7 @@ const ChartElements = {
  * @param {Function} props.humanReadableMetric - Function to convert metric keys to human-readable format.
  * @param {string} props.groupBy - The variable to group data under.
  * @param {object} props.metricHues - Object containing hue values for different metrics.
+ * @param {boolean} props.disableLegend - Disables the legend underneath the charts.
  * @returns {React.Component} The rendered chart component.
  */
 export const ChartRenderer = ({
@@ -79,6 +83,7 @@ export const ChartRenderer = ({
   humanReadableMetric,
   groupBy,
   metricHues,
+  disableLegend,
 }) => {
   const ChartComponent = ChartComponents[chartType]
   const ChartElement = ChartElements[chartType]
@@ -118,30 +123,32 @@ export const ChartRenderer = ({
             }
             cursor="pointer"
           />
-          <Legend
-            formatter={(value) => {
-              const [metric, datasetId] = value.split('-')
-              const currentDataset = datasets.find(
-                (ds) => ds.id === parseInt(datasetId, 10)
-              )
+          {!disableLegend && (
+            <Legend
+              formatter={(value) => {
+                const [metric, datasetId] = value.split('-')
+                const currentDataset = datasets.find(
+                  (ds) => ds.id === parseInt(datasetId, 10)
+                )
 
-              const datasetLabel = currentDataset.label
+                const datasetLabel = currentDataset.label
 
-              const lastSelectedMetric = [...currentDataset.metrics]
-                .reverse()
-                .find((m) => selectedMetrics[m.key])
+                const lastSelectedMetric = [...currentDataset.metrics]
+                  .reverse()
+                  .find((m) => selectedMetrics[m.key])
 
-              if (lastSelectedMetric && metric === lastSelectedMetric.key) {
-                return `${humanReadableMetric(metric)} (${datasetLabel})`
-              }
+                if (lastSelectedMetric && metric === lastSelectedMetric.key) {
+                  return `${humanReadableMetric(metric)} (${datasetLabel})`
+                }
 
-              return humanReadableMetric(metric)
-            }}
-            wrapperStyle={{
-              wordWrap: 'break-word',
-              maxWidth: '100%',
-            }}
-          />
+                return humanReadableMetric(metric)
+              }}
+              wrapperStyle={{
+                wordWrap: 'break-word',
+                maxWidth: '100%',
+              }}
+            />
+          )}
 
           {datasets.map((dataset) =>
             dataset.metrics.map((metric) =>
@@ -153,6 +160,9 @@ export const ChartRenderer = ({
                   fill={`url(#color${metric.key}-${dataset.id})`}
                   name={metric.name}
                   animationDuration={500}
+                  stackId={
+                    chartType === CHART_TYPES.STACKED_BAR ? 'a' : undefined
+                  }
                   {...(chartType === 'area' && {
                     fillOpacity: 0.5,
                     stroke: 'transparent',
@@ -178,7 +188,8 @@ export const ChartRenderer = ({
 }
 
 ChartRenderer.propTypes = {
-  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table']).isRequired,
+  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table', 'stackedBar'])
+    .isRequired,
   datasets: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedMetrics: PropTypes.object.isRequired,
   customChartDefs: PropTypes.func.isRequired,
@@ -187,8 +198,10 @@ ChartRenderer.propTypes = {
   humanReadableMetric: PropTypes.func.isRequired,
   groupBy: PropTypes.string.isRequired,
   metricHues: PropTypes.objectOf(PropTypes.number).isRequired,
+  disableLegend: PropTypes.bool,
 }
 
 ChartRenderer.defaultProps = {
   groupBy: 'NAME',
+  disableLegend: false,
 }

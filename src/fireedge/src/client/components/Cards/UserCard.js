@@ -114,7 +114,11 @@ const UserCard = ({ user, rootProps }) => {
             <Tooltip title={`Auth Driver: ${AUTH_DRIVER}`}>
               <Box display="flex" alignItems="center">
                 <LockKey />
-                <Typography variant="caption" ml={1}>
+                <Typography
+                  variant="caption"
+                  ml={1}
+                  data-cy={`auth-driver-${ID}`}
+                >
                   {AUTH_DRIVER}
                 </Typography>
               </Box>
@@ -166,10 +170,22 @@ UserCard.propTypes = {
     ENABLED: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
       .isRequired,
     AUTH_DRIVER: PropTypes.string.isRequired,
-    VM_QUOTA: PropTypes.string.isRequired,
-    DATASTORE_QUOTA: PropTypes.string.isRequired,
-    NETWORK_QUOTA: PropTypes.string.isRequired,
-    IMAGE_QUOTA: PropTypes.string.isRequired,
+    VM_QUOTA: PropTypes.oneOfType([
+      PropTypes.any,
+      PropTypes.arrayOf(PropTypes.any),
+    ]),
+    DATASTORE_QUOTA: PropTypes.oneOfType([
+      PropTypes.any,
+      PropTypes.arrayOf(PropTypes.any),
+    ]),
+    NETWORK_QUOTA: PropTypes.oneOfType([
+      PropTypes.any,
+      PropTypes.arrayOf(PropTypes.any),
+    ]),
+    IMAGE_QUOTA: PropTypes.oneOfType([
+      PropTypes.any,
+      PropTypes.arrayOf(PropTypes.any),
+    ]),
   }).isRequired,
   rootProps: PropTypes.shape({
     className: PropTypes.string,

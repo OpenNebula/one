@@ -202,6 +202,7 @@ const AuthenticationInfo = ({ id }) => {
               SelectProps={{
                 native: false,
               }}
+              data-cy={'auth-driver-selector'}
             >
               {[
                 'core',
@@ -213,7 +214,14 @@ const AuthenticationInfo = ({ id }) => {
                 'server_x509',
                 'custom',
               ].map((option) => (
-                <MenuItem key={option} value={option}>
+                <MenuItem
+                  key={option}
+                  value={option}
+                  data-cy={`auth-driver-selector-${option
+                    .toLowerCase()
+                    .split(' ')
+                    .join('')}`}
+                >
                   {option}
                 </MenuItem>
               ))}
@@ -240,6 +248,11 @@ const AuthenticationInfo = ({ id }) => {
               onChange={(e) => handleFieldChange('password', e.target.value)}
               fullWidth
               variant="outlined"
+              InputProps={{
+                inputProps: {
+                  'data-cy': 'auth-password-input',
+                },
+              }}
             />
           </Grid>
           {/* Not implemented yet */}
@@ -281,6 +294,7 @@ const AuthenticationInfo = ({ id }) => {
               variant="contained"
               color="primary"
               onClick={handleUpdateAuthDriver}
+              data-cy={'auth-save'}
             >
               Save Changes
             </Button>

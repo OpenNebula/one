@@ -28,6 +28,7 @@ module.exports = {
   First: 'First',
   Last: 'Last',
   ApplyLabels: 'Apply labels',
+  Apply: 'Apply',
   Label: 'Label',
   NoLabels: 'NoLabels',
   All: 'All',
