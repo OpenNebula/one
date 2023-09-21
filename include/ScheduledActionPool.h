@@ -112,6 +112,8 @@ public:
      * Return list of due actions <sched_id, resource_id> for specific object type
     */
     std::vector<std::pair<int, int>> get_is_due_actions(PoolObjectSQL::ObjectType ot);
+
+    int drop_sched_actions(const std::vector<int>& sa_ids);
 };
 
 #endif

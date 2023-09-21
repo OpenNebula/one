@@ -265,22 +265,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-static int drop_sched_actions(ScheduledActionPool *pool, std::vector<int> sa_ids)
-{
-    std::string error;
-    int i = 0;
-
-    for (const auto& id : sa_ids)
-    {
-        if (auto sa = pool->get(id))
-        {
-            pool->drop(sa.get(), error);
-            i++;
-        }
-    }
-
-    return i;
-}
 
 Request::ErrorCode VirtualMachineAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
@@ -348,7 +332,7 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     /* ---------------------------------------------------------------------- */
     if (sa_error)
     {
-        drop_sched_actions(sapool, sa_ids);
+        sapool->drop_sched_actions(sa_ids);
 
         goto error_drop_vm;
     }
@@ -369,7 +353,7 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     {
         att.resp_msg = "VM deleted while setting up SCHED_ACTION";
 
-        drop_sched_actions(sapool, sa_ids);
+        sapool->drop_sched_actions(sa_ids);
 
         return Request::INTERNAL;
     }
@@ -1531,7 +1515,7 @@ Request::ErrorCode BackupJobAllocate::pool_allocate(
     /* ---------------------------------------------------------------------- */
     if (sa_error)
     {
-        drop_sched_actions(sapool, sa_ids);
+        sapool->drop_sched_actions(sa_ids);
 
         if ( auto bj = bjpool->get(id) )
         {
@@ -1558,7 +1542,7 @@ Request::ErrorCode BackupJobAllocate::pool_allocate(
     else
     {
         // BackupJob no longer exits, delete SchedActions
-        drop_sched_actions(sapool, sa_ids);
+        sapool->drop_sched_actions(sa_ids);
 
         att.resp_msg = "BACKUPJOB deleted while setting up SCHED_ACTION";
 

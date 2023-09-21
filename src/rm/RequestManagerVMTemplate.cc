@@ -18,6 +18,7 @@
 #include "VirtualMachine.h"
 #include "VirtualMachineDisk.h"
 #include "VirtualMachinePool.h"
+#include "ScheduledActionPool.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
 #include "RequestManagerClone.h"
@@ -276,6 +277,13 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
         return AUTHORIZATION;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Save SCHED_ACTION attributes for allocation                            */
+    /* ---------------------------------------------------------------------- */
+    std::vector<unique_ptr<VectorAttribute>> sas;
+
+    tmpl->remove("SCHED_ACTION", sas);
+
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             move(tmpl), &vid, att.resp_msg, on_hold);
 
@@ -289,6 +297,70 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
         }
 
         return ALLOCATE;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Create ScheduleAction and associate to the VM                          */
+    /* ---------------------------------------------------------------------- */
+    auto sapool = Nebula::instance().get_sapool();
+
+    time_t stime  = time(0);
+    bool sa_error = false;
+
+    std::vector<int> sa_ids;
+
+    for (const auto& sa : sas)
+    {
+        int sa_id = sapool->allocate(PoolObjectSQL::VM, vid, stime, sa.get(), att.resp_msg);
+
+        if (sa_id < 0)
+        {
+            sa_error = true;
+            break;
+        }
+
+        sa_ids.push_back(sa_id);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Error creating a SCHED_ACTION rollback created objects                 */
+    /* ---------------------------------------------------------------------- */
+    if (sa_error)
+    {
+        // Consistency check, the VM template should not have parsing errors
+        // of Scheduled Actions at this point.
+        sapool->drop_sched_actions(sa_ids);
+
+        // Test the rollback quota, not sure if it's correct
+        quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
+
+        for ( auto& ds : applied )
+        {
+            quota_rollback(ds.get(), Quotas::DATASTORE, att);
+        }
+
+        return Request::INTERNAL;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Associate SCHED_ACTIONS to the VM                                      */
+    /* ---------------------------------------------------------------------- */
+    if ( auto vm = vmpool->get(vid) )
+    {
+        for (const auto sa_id: sa_ids)
+        {
+            vm->sched_actions().add(sa_id);
+        }
+
+        vmpool->update(vm.get());
+    }
+    else
+    {
+        att.resp_msg = "VM deleted while setting up SCHED_ACTION";
+
+        sapool->drop_sched_actions(sa_ids);
+
+        return Request::INTERNAL;
     }
 
     return SUCCESS;

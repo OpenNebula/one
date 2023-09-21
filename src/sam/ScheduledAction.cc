@@ -489,7 +489,7 @@ time_t ScheduledAction::parse_time(std::string str_time, time_t origin)
 
     std::istringstream iss;
 
-    if ( origin == 0 && str_time[0] == '+')
+    if ( _type == BACKUPJOB && str_time[0] == '+' )
     {
         return -1;
     }

@@ -141,3 +141,23 @@ std::vector<std::pair<int, int>> ScheduledActionPool::get_is_due_actions(PoolObj
 
     return actions;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ScheduledActionPool::drop_sched_actions(const std::vector<int>& sa_ids)
+{
+    std::string error;
+    int i = 0;
+
+    for (const auto& id : sa_ids)
+    {
+        if (auto sa = get(id))
+        {
+            drop(sa.get(), error);
+            i++;
+        }
+    }
+
+    return i;
+}
