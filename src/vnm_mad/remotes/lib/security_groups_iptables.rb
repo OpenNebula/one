@@ -616,7 +616,7 @@ module SGIPTables
         remove_chains_6.each {|c| commands.add :ip6tables, "-X #{c}" }
 
         # delay to allow kernel to clean up
-        commands.add 'sleep', '0.1'
+        commands.add 'sleep', '0.5'
 
         ipset_list.lines.each do |line|
             if line.match(/^#{chain}(-|$)/)
