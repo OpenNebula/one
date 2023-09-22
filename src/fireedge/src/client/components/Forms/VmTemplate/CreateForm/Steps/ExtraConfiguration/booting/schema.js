@@ -17,19 +17,20 @@
 import { BaseSchema, string } from 'yup'
 
 import { BOOT_FIELDS } from './bootSchema'
+import { CPU_MODEL_FIELDS } from './cpuModelSchema'
+import { FEATURES_FIELDS } from './featuresSchema'
 import { KERNEL_FIELDS } from './kernelSchema'
 import { RAMDISK_FIELDS } from './ramdiskSchema'
-import { FEATURES_FIELDS } from './featuresSchema'
 import { RAW_FIELDS } from './rawSchema'
 
+import { HYPERVISORS, T } from 'client/constants'
 import {
   Field,
   Section,
-  getObjectSchemaFromFields,
-  filterFieldsByHypervisor,
   disableFields,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
 } from 'client/utils'
-import { T, HYPERVISORS } from 'client/constants'
 
 /**
  * @param {HYPERVISORS} [hypervisor] - Template hypervisor
@@ -39,10 +40,10 @@ import { T, HYPERVISORS } from 'client/constants'
  */
 const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
   {
-    id: 'os-boot',
-    legend: T.Boot,
+    id: 'os-cpu-model',
+    legend: T.CpuModel,
     fields: disableFields(
-      filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
+      filterFieldsByHypervisor(CPU_MODEL_FIELDS, hypervisor),
       'OS',
       oneConfig,
       adminGroup
@@ -73,6 +74,16 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
     legend: T.Ramdisk,
     fields: disableFields(
       filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
+  },
+  {
+    id: 'os-boot',
+    legend: T.Boot,
+    fields: disableFields(
+      filterFieldsByHypervisor(BOOT_FIELDS, hypervisor),
       'OS',
       oneConfig,
       adminGroup
@@ -117,9 +128,10 @@ const FIELDS = (hypervisor) => [
  */
 const SCHEMA = (hypervisor) => getObjectSchemaFromFields(FIELDS(hypervisor))
 
-export { SECTIONS, FIELDS, BOOT_ORDER_FIELD, SCHEMA }
 export * from './bootSchema'
+export * from './cpuModelSchema'
+export * from './featuresSchema'
 export * from './kernelSchema'
 export * from './ramdiskSchema'
-export * from './featuresSchema'
 export * from './rawSchema'
+export { BOOT_ORDER_FIELD, FIELDS, SCHEMA, SECTIONS }

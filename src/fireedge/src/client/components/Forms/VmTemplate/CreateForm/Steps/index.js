@@ -15,25 +15,25 @@
  * ------------------------------------------------------------------------- */
 import { reach } from 'yup'
 
-import General, {
-  STEP_ID as GENERAL_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
-import ExtraConfiguration, {
-  STEP_ID as EXTRA_ID,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import CustomVariables, {
   STEP_ID as CUSTOM_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/CustomVariables'
+import ExtraConfiguration, {
+  STEP_ID as EXTRA_ID,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import General, {
+  STEP_ID as GENERAL_ID,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 
+import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
 import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import {
+  convertToMB,
   createSteps,
-  isBase64,
   encodeBase64,
   getUnknownAttributes,
-  convertToMB,
+  isBase64,
 } from 'client/utils'
-import { T, MEMORY_RESIZE_OPTIONS } from 'client/constants'
 
 /**
  * Encodes the start script value to base64 if it is not already encoded.
@@ -65,16 +65,26 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
     })
 
-    const knownTemplate = schema.cast(
-      {
-        [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
-        [EXTRA_ID]: { ...vmTemplate?.TEMPLATE, USER_INPUTS: userInputs },
+    const objectSchema = {
+      [GENERAL_ID]: { ...vmTemplate, ...vmTemplate?.TEMPLATE },
+      [EXTRA_ID]: {
+        ...vmTemplate?.TEMPLATE,
+        USER_INPUTS: userInputs,
       },
-      {
-        stripUnknown: true,
-        context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
+    }
+
+    // cast CPU_MODEL/FEATURES
+    if (vmTemplate?.TEMPLATE?.CPU_MODEL?.FEATURES) {
+      objectSchema[EXTRA_ID].CPU_MODEL = {
+        ...vmTemplate?.TEMPLATE?.CPU_MODEL,
+        FEATURES: (vmTemplate?.TEMPLATE?.CPU_MODEL?.FEATURES ?? '').split(','),
       }
-    )
+    }
+
+    const knownTemplate = schema.cast(objectSchema, {
+      stripUnknown: true,
+      context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
+    })
 
     const knownAttributes = {
       ...knownTemplate[GENERAL_ID],
@@ -134,6 +144,12 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
     general.MEMORY = convertToMB(general.MEMORY, general.MEMORYUNIT)
     delete general.MEMORYUNIT
+
+    // cast CPU_MODEL/FEATURES
+    if (Array.isArray(extraTemplate?.CPU_MODEL?.FEATURES)) {
+      extraTemplate.CPU_MODEL.FEATURES =
+        extraTemplate.CPU_MODEL.FEATURES.join(', ')
+    }
 
     return jsonToXml({
       ...customVariables,

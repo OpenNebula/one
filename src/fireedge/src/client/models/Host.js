@@ -131,6 +131,22 @@ export const getKvmCpuModels = (hosts = []) => {
 }
 
 /**
+ * Returns list of KVM CPU Features available from the host pool.
+ *
+ * @param {Host[]} hosts - Hosts
+ * @returns {Array} List of KVM Machines from the pool
+ */
+export const getKvmCpuFeatures = (hosts = []) => {
+  const machineTypes = hosts
+    .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
+    .map((host) => host.TEMPLATE?.KVM_CPU_FEATURES.split(','))
+    .flat()
+
+  // Removes the repeated
+  return [...new Set(machineTypes)]
+}
+
+/**
  * Returns list of KVM Machines available from the host pool.
  *
  * @param {Host[]} hosts - Hosts

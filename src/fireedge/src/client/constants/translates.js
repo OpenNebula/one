@@ -920,6 +920,7 @@ module.exports = {
     'This attribute allows to define the type of firmware used to boot the VM',
   FirmwareSecure: 'Firmware secure',
   CpuModel: 'CPU Model',
+  CpuFeature: 'CPU Features',
   CustomPath: 'Customize with path',
   /* VM Template schema - OS & CPU - kernel */
   Kernel: 'Kernel',

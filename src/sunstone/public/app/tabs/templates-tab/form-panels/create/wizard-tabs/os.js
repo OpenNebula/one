@@ -295,7 +295,48 @@ define(function(require) {
     });
 
     fillMachineTypesAndCPUModel(context);
+    fillCPUFeatures(context);
+  }
 
+  function fillCPUFeatures (context, cpuModel){
+    OpenNebulaHost.list({
+      data : {},
+      timeout: true,
+      success: function (request, infoHosts){
+        var cpuFeatures = []
+        infoHosts.forEach((host)=> {
+          if(host && host.HOST && host.HOST.IM_MAD === 'kvm' && host.HOST.TEMPLATE && host.HOST.TEMPLATE.KVM_CPU_FEATURES){
+            var arrayFeatures = host.HOST.TEMPLATE.KVM_CPU_FEATURES.split(",")
+            for (var i = 0; i < arrayFeatures.length; i++) {
+              var currentValue = arrayFeatures[i];
+              if (cpuFeatures.indexOf(currentValue) === -1) {
+                cpuFeatures.push(currentValue);
+              }
+            }
+          }
+        })
+
+        var idSelector = 'feature-cpu'
+        var html = '<select id="'+idSelector+'" wizard_field="FEATURES" multiple>';
+        $.each(cpuFeatures, function(i, cpuFeature){
+          html += '<option value="' + cpuFeature + '">' + cpuFeature + '</option>';
+        });
+        html += '</select>';
+        var inputFeatures = $('#cpu-features', context)
+        inputFeatures.find("#"+idSelector).remove()
+        $('#cpu-features', context).append(html);
+        if (cpuModel && cpuModel.FEATURES){ 
+          var values = cpuModel.FEATURES.split(",")
+          $('#'+idSelector+' option').each(function(){
+            var option = $(this);
+            var value = option.val();
+            if ($.inArray(value, values) !== -1) {
+              option.prop("selected", true);
+          }
+          })
+        }
+      }
+    })
   }
 
   function fillMachineTypesAndCPUModel(context, cpuModel, machineType){
@@ -404,7 +445,6 @@ define(function(require) {
     var osJSON = templateJSON["OS"];
     var modelJSON = templateJSON["CPU_MODEL"];
     if (osJSON) {
-
       if (osJSON["KERNEL_DS"] === undefined && osJSON["KERNEL"] !== undefined){
         $("input[value=\"kernel_path\"]", context).click();
       }
@@ -445,7 +485,8 @@ define(function(require) {
     }
 
     fillMachineTypesAndCPUModel(context, modelJSON, osJSON);
-
+    fillCPUFeatures(context, modelJSON)
+    
     delete templateJSON["OS"];
     delete templateJSON["CPU_MODEL"];
   }
