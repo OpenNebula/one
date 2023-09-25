@@ -229,6 +229,8 @@ const Actions = () => {
             selected: true,
             color: 'secondary',
             dataCy: 'marketapp-ownership',
+            disabled: (rows) =>
+              rows.some(({ original }) => original?.MARKETPLACE_ID === '0'),
             options: [
               {
                 accessor: MARKETPLACE_APP_ACTIONS.CHANGE_OWNER,

@@ -61,7 +61,8 @@ const MarketplaceAppInfoTab = ({ tabProps = {}, id }) => {
   const [changePermissions] = useChangeAppPermissionsMutation()
   const [updateTemplate] = useUpdateAppMutation()
   const { data: app = {} } = useGetMarketplaceAppQuery({ id })
-  const { UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = app
+  const { UNAME, UID, GNAME, GID, PERMISSIONS, MARKETPLACE_ID, TEMPLATE } = app
+  const isPublic = (MARKETID) => MARKETID === 0
 
   const handleChangeOwnership = async (newOwnership) => {
     await changeOwnership({ id, ...newOwnership })
@@ -116,7 +117,7 @@ const MarketplaceAppInfoTab = ({ tabProps = {}, id }) => {
           handleEdit={handleChangePermission}
         />
       )}
-      {ownershipPanel?.enabled && (
+      {ownershipPanel?.enabled && !isPublic(MARKETPLACE_ID) && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
           userId={UID}
