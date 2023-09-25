@@ -363,6 +363,25 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         {
             vms = static_cast<VirtualRouter *>(object.get())->get_vms();
         }
+        else if (auth_object == PoolObjectSQL::MARKETPLACEAPP)
+        {
+            auto app = static_cast<MarketPlaceApp*>(object.get());
+
+            auto market_id = app->get_market_id();
+
+            auto mpool = Nebula::instance().get_marketpool();
+
+            auto market = mpool->get_ro(market_id);
+
+            if (market && market->is_public())
+            {
+                att.resp_msg = "App " + to_string(oid) +
+                    ": Changing the ownership for an App from the public Marketplace is not permitted";
+                failure_response(INTERNAL, att);
+
+                return;
+            }
+        }
     }
 
     if ( object == nullptr )
