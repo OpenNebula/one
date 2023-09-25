@@ -67,6 +67,7 @@ int HttpRequest::post_json(const std::string& url, const std::string& data, std:
     {
         response = curl_easy_strerror(ec);
 
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         return -1;
@@ -74,6 +75,7 @@ int HttpRequest::post_json(const std::string& url, const std::string& data, std:
 
     auto rc = check_http_code(curl, response);
 
+    curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
 
     return rc;
@@ -112,6 +114,7 @@ int HttpRequest::get_json(const std::string& url, std::string& response)
     {
         response = curl_easy_strerror(ec);
 
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         return -1;
@@ -119,6 +122,7 @@ int HttpRequest::get_json(const std::string& url, std::string& response)
 
     auto rc = check_http_code(curl, response);
 
+    curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
 
     return rc;
