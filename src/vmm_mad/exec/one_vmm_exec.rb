@@ -817,18 +817,27 @@ class ExecDriver < VirtualMachineDriver
     def snapshot_revert(id, drv_message)
         xml_data = decode(drv_message)
 
-        host      = xml_data.elements['HOST'].text
-        deploy_id = xml_data.elements['DEPLOY_ID'].text
-
         snap_id_xpath = "VM/TEMPLATE/SNAPSHOT[ACTIVE='YES']/HYPERVISOR_ID"
         snapshot_name = xml_data.elements[snap_id_xpath].text
 
-        do_action("#{deploy_id} #{snapshot_name}",
-                  id,
-                  host,
-                  ACTION[:snapshot_revert],
-                  :script_name => 'snapshot_revert',
-                  :stdin => xml_data.to_s)
+        action = VmmAction.new(self, id, :snapshot_revert, drv_message)
+
+        steps = [
+            # Run the snapshot_revert action script
+            {
+                :driver       => :vmm,
+                :action       => :snapshot_revert,
+                :parameters   => [:deploy_id, snapshot_name]
+            },
+            # Execute post-boot networking setup
+            {
+                :driver       => :vnm,
+                :action       => :post,
+                :parameters   => [:deploy_id, :host]
+            }
+        ]
+
+        action.run(steps)
     end
 
     #
