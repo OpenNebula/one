@@ -833,6 +833,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :post,
+                :skip         => ['elastic'],
                 :parameters   => [:deploy_id, :host]
             }
         ]

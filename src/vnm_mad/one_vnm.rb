@@ -49,7 +49,8 @@ class VirtualNetworkDriver
     def do_action(id, aname, ops = {})
         options={
             :stdin      => nil,
-            :parameters => nil
+            :parameters => nil,
+            :skip       => nil
         }.merge(ops)
 
         cmd_params =  ''
@@ -59,6 +60,8 @@ class VirtualNetworkDriver
         infos  = ''
 
         @vnm_drivers.each do |subdirectory|
+            next if options[:skip] && options[:skip].include?(subdirectory)
+
             cmd = action_command_line(aname, cmd_params, nil, subdirectory)
 
             if action_is_local?(aname, subdirectory)
