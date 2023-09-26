@@ -35,9 +35,11 @@ import { T, HYPERVISORS } from 'client/constants'
 /**
  * @param {object} props - Component props
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Form content component
  */
-const Content = ({ hypervisor }) => {
+const Content = ({ hypervisor, oneConfig, adminGroup }) => {
   const {
     formState: { errors },
   } = useFormContext()
@@ -48,28 +50,48 @@ const Content = ({ hypervisor }) => {
         id: 'booting',
         icon: OsIcon,
         label: <Translate word={T.OSAndCpu} />,
-        renderContent: () => <Booting hypervisor={hypervisor} />,
+        renderContent: () => (
+          <Booting
+            hypervisor={hypervisor}
+            oneConfig={oneConfig}
+            adminGroup={adminGroup}
+          />
+        ),
         error: !!errors?.OS,
       },
       {
         id: 'input_output',
         icon: IOIcon,
         label: <Translate word={T.InputOrOutput} />,
-        renderContent: () => <InputOutput hypervisor={hypervisor} />,
+        renderContent: () => (
+          <InputOutput
+            hypervisor={hypervisor}
+            oneConfig={oneConfig}
+            adminGroup={adminGroup}
+          />
+        ),
         error: ['GRAPHICS', 'INPUT'].some((id) => errors?.[id]),
       },
       {
         id: 'context',
         icon: ContextIcon,
         label: <Translate word={T.Context} />,
-        renderContent: () => <Context hypervisor={hypervisor} />,
+        renderContent: () => (
+          <Context
+            hypervisor={hypervisor}
+            oneConfig={oneConfig}
+            adminGroup={adminGroup}
+          />
+        ),
         error: !!errors?.CONTEXT,
       },
       {
         id: 'backup_config',
         icon: BackupIcon,
         label: <Translate word={T.Backup} />,
-        renderContent: () => <Backup />,
+        renderContent: () => (
+          <Backup oneConfig={oneConfig} adminGroup={adminGroup} />
+        ),
         error: ['BACKUP_VOLATILE', 'FS_FREEZE', 'KEEP_LAST', 'MODE'].some(
           (id) => errors?.[`BACKUP_CONFIG.${id}`]
         ),
@@ -78,9 +100,13 @@ const Content = ({ hypervisor }) => {
     [errors, hypervisor]
   )
 
-  return <Tabs tabs={tabs} />
+  return <Tabs tabs={tabs} oneConfig={oneConfig} adminGroup={adminGroup} />
 }
 
-Content.propTypes = { hypervisor: PropTypes.string }
+Content.propTypes = {
+  hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 export default Content

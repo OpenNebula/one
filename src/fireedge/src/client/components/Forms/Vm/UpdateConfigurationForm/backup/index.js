@@ -20,17 +20,21 @@ import { FormWithSchema } from 'client/components/Forms'
 
 import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
 import { T } from 'client/constants'
+import PropTypes from 'prop-types'
 
 /**
+ * @param {object} props - Component props
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} IO section component
  */
-const Backup = () => (
+const Backup = ({ oneConfig, adminGroup }) => (
   <Stack
     display="grid"
     gap="1em"
     sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
   >
-    {SECTIONS.map(({ id, ...section }) => (
+    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
         cy="backups-conf"
@@ -42,5 +46,10 @@ const Backup = () => (
 )
 
 Backup.displayName = 'Backup'
+
+Backup.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 export default Backup

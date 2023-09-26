@@ -21,7 +21,7 @@ import { memo, useMemo } from 'react'
 
 import { Translate } from 'client/components/HOC'
 import { RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useViews, useSystemData } from 'client/features/Auth'
 import {
   useGetVmQuery,
   useUpdateUserTemplateMutation,
@@ -79,6 +79,8 @@ const VmTabs = memo(({ id }) => {
 
   const { USER_TEMPLATE, ID } = vm
 
+  const { adminGroup, oneConfig } = useSystemData()
+
   const handleDismissError = async () => {
     const { ERROR, SCHED_MESSAGE, ...templateWithoutError } = USER_TEMPLATE
     const xml = jsonToXml({ ...templateWithoutError })
@@ -92,7 +94,13 @@ const VmTabs = memo(({ id }) => {
     const resource = RESOURCE_NAMES.VM
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
+    return getAvailableInfoTabs(
+      infoTabs,
+      getTabComponent,
+      id,
+      oneConfig,
+      adminGroup
+    )
   }, [view, id])
 
   if (isError) {

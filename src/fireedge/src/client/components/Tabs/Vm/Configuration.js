@@ -38,9 +38,16 @@ const { UPDATE_CONF } = VM_ACTIONS
  * @param {object|boolean} props.tabProps - Tab properties
  * @param {object} [props.tabProps.actions] - Actions from tab view yaml
  * @param {string} props.id - Virtual machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Configuration tab
  */
-const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
+const VmConfigurationTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const [updateConf] = useUpdateConfigurationMutation()
   const { data: vm = {}, isFetching } = useGetVmQuery({ id })
   const { TEMPLATE, BACKUPS } = vm
@@ -128,7 +135,7 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
               },
               form: () =>
                 UpdateConfigurationForm({
-                  stepProps: { hypervisor },
+                  stepProps: { hypervisor, oneConfig, adminGroup },
                   initialValues: vm,
                 }),
               onSubmit: handleUpdateConf,
@@ -181,6 +188,8 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
 VmConfigurationTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmConfigurationTab.displayName = 'VmConfigurationTab'

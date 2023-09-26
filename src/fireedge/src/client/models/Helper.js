@@ -308,13 +308,21 @@ export const getActionsAvailable = (actions = {}, hypervisor = '') =>
  * @param {object} infoTabs - Info tabs from view yaml
  * @param {Function} getTabComponent - Function to get tab component
  * @param {string} id - Resource id
+ * @param {object} oneConfig - OpenNEbula configuration
+ * @param {boolean} adminGroup - If the user is admin
  * @returns {{
  * id: string,
  * name: string,
  * renderContent: Function
  * }[]} - List of available info tabs for the resource
  */
-export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
+export const getAvailableInfoTabs = (
+  infoTabs = {},
+  getTabComponent,
+  id,
+  oneConfig,
+  adminGroup
+) =>
   Object.entries(infoTabs)
     ?.filter(([_, { enabled } = {}]) => !!enabled)
     ?.map(([tabName, tabProps]) => {
@@ -324,7 +332,14 @@ export const getAvailableInfoTabs = (infoTabs = {}, getTabComponent, id) =>
         TabContent && {
           label: TabContent?.label ?? sentenceCase(tabName),
           id: tabName,
-          renderContent: () => <TabContent tabProps={tabProps} id={id} />,
+          renderContent: () => (
+            <TabContent
+              tabProps={tabProps}
+              id={id}
+              oneConfig={oneConfig}
+              adminGroup={adminGroup}
+            />
+          ),
         }
       )
     })

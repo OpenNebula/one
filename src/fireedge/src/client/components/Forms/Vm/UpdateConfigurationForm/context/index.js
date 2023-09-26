@@ -25,16 +25,34 @@ import { HYPERVISORS } from 'client/constants'
 /**
  * @param {object} props - Component props
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Context section component
  */
-const ContextSection = ({ hypervisor }) => (
+const ContextSection = ({ hypervisor, oneConfig, adminGroup }) => (
   <>
-    <ConfigurationSection hypervisor={hypervisor} />
-    <FilesSection hypervisor={hypervisor} />
-    <ContextVarsSection hypervisor={hypervisor} />
+    <ConfigurationSection
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+    <FilesSection
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+    <ContextVarsSection
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
   </>
 )
 
-ContextSection.propTypes = { hypervisor: PropTypes.string }
+ContextSection.propTypes = {
+  hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 export default ContextSection

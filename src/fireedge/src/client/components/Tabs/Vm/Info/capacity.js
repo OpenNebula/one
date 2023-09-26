@@ -36,9 +36,11 @@ import { T, VM, VM_ACTIONS } from 'client/constants'
  * @param {object} props - Props
  * @param {VM} props.vm - Virtual machine
  * @param {string[]} props.actions - Available actions to capacity tab
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Capacity tab
  */
-const CapacityPanel = ({ vm = {}, actions }) => {
+const CapacityPanel = ({ vm = {}, actions, oneConfig, adminGroup }) => {
   const {
     CPU,
     VCPU = '-',
@@ -101,7 +103,19 @@ const CapacityPanel = ({ vm = {}, actions }) => {
     },
   ].filter(Boolean)
 
-  return <List title={<PanelHeader vm={vm} actions={actions} />} list={info} />
+  return (
+    <List
+      title={
+        <PanelHeader
+          vm={vm}
+          actions={actions}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
+      }
+      list={info}
+    />
+  )
 }
 
 CapacityPanel.propTypes = {
@@ -117,13 +131,24 @@ CapacityPanel.displayName = 'CapacityPanel'
  * @param {object} props - Props
  * @param {VM} props.vm - Virtual machine
  * @param {string[]} props.actions - Available actions to capacity tab
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Capacity panel header
  */
-const PanelHeader = ({ vm = {}, actions = [] }) => {
+const PanelHeader = ({ vm = {}, actions = [], oneConfig, adminGroup }) => {
   const [resizeCapacity] = useResizeMutation()
 
   const handleResizeCapacity = async (formData) => {
     const { enforce, ...restOfData } = formData
+
+    // #6154: If a restricted attribute is send to the core in resize operation, it will fail. So delete every restricted attribute for resize operation.
+    const restrictedAttributes = oneConfig?.VM_RESTRICTED_ATTR
+    Object.keys(restOfData).forEach((key) => {
+      if (restrictedAttributes.find((attribute) => attribute === key)) {
+        delete restOfData[key]
+      }
+    })
+
     const template = jsonToXml(restOfData)
 
     await resizeCapacity({ id: vm.ID, enforce, template })
@@ -160,7 +185,11 @@ const PanelHeader = ({ vm = {}, actions = [] }) => {
                 title: T.ResizeCapacity,
                 dataCy: 'modal-resize-capacity',
               },
-              form: () => ResizeCapacityForm({ initialValues: vm.TEMPLATE }),
+              form: () =>
+                ResizeCapacityForm({
+                  initialValues: vm.TEMPLATE,
+                  stepProps: { oneConfig, adminGroup, nameParentAttribute: '' },
+                }),
               onSubmit: handleResizeCapacity,
             },
           ]}

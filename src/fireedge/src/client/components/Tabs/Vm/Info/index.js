@@ -54,9 +54,11 @@ const HIDDEN_MONITORING_REG =
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Virtual machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Information tab
  */
-const VmInfoTab = ({ tabProps = {}, id }) => {
+const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
   const {
     information_panel: informationPanel,
     capacity_panel: capacityPanel,
@@ -157,7 +159,12 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
       )}
       {capacityPanel?.enabled && (
         <>
-          <Capacity actions={getActions(capacityPanel?.actions)} vm={vm} />
+          <Capacity
+            actions={getActions(capacityPanel?.actions)}
+            vm={vm}
+            oneConfig={oneConfig}
+            adminGroup={adminGroup}
+          />
           <Graphs id={id} />
         </>
       )}
@@ -203,6 +210,8 @@ const VmInfoTab = ({ tabProps = {}, id }) => {
 VmInfoTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmInfoTab.displayName = 'VmInfoTab'

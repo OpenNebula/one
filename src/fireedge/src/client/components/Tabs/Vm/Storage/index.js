@@ -58,9 +58,16 @@ const {
  * @param {object} props.tabProps - Tab information
  * @param {string[]} props.tabProps.actions - Actions tab
  * @param {string} props.id - Virtual Machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Storage tab
  */
-const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
+const VmStorageTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const { data: vm = {} } = useGetVmQuery({ id })
 
   const [disks, hypervisor, actionsAvailable] = useMemo(() => {
@@ -76,7 +83,12 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
   return (
     <div>
       {actionsAvailable?.includes?.(ATTACH_DISK) && (
-        <AttachAction vmId={id} hypervisor={hypervisor} />
+        <AttachAction
+          vmId={id}
+          hypervisor={hypervisor}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
       )}
 
       <Stack gap="1em" py="0.8em">
@@ -143,6 +155,8 @@ const VmStorageTab = ({ tabProps: { actions } = {}, id }) => {
 VmStorageTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmStorageTab.displayName = 'VmStorageTab'

@@ -494,7 +494,28 @@ export const createForm =
   (schema, fields, extraParams = {}) =>
   (props = {}, initialValues) => {
     const schemaCallback = typeof schema === 'function' ? schema(props) : schema
-    const fieldsCallback = typeof fields === 'function' ? fields(props) : fields
+
+    const disable =
+      props?.oneConfig &&
+      props?.adminGroup === false &&
+      typeof props?.nameParentAttribute === 'string'
+    const fieldsCallback = disable
+      ? typeof fields === 'function'
+        ? disableFields(
+            fields(props),
+            props.nameParentAttribute,
+            props.oneConfig,
+            props.adminGroup
+          )
+        : disableFields(
+            fields,
+            props.nameParentAttribute,
+            props.oneConfig,
+            props.adminGroup
+          )
+      : typeof fields === 'function'
+      ? fields(props)
+      : fields
 
     const defaultTransformInitialValue = (values) =>
       schemaCallback.cast(values, { stripUnknown: true })

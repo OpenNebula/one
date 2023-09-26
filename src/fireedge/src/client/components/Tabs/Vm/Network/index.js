@@ -50,9 +50,16 @@ const {
  * @param {object} props.tabProps - Tab information
  * @param {string[]} props.tabProps.actions - Actions tab
  * @param {string} props.id - Virtual Machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Networks tab
  */
-const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
+const VmNetworkTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const { data: vm } = useGetVmQuery({ id })
 
   const [nics, hypervisor, actionsAvailable] = useMemo(() => {
@@ -72,7 +79,13 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
   return (
     <div>
       {actionsAvailable?.includes?.(ATTACH_NIC) && (
-        <AttachAction vmId={id} currentNics={nics} hypervisor={hypervisor} />
+        <AttachAction
+          vmId={id}
+          currentNics={nics}
+          hypervisor={hypervisor}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
       )}
 
       <Stack gap="1em" py="0.8em">
@@ -123,6 +136,8 @@ const VmNetworkTab = ({ tabProps: { actions } = {}, id }) => {
 VmNetworkTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmNetworkTab.displayName = 'VmNetworkTab'
