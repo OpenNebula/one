@@ -226,22 +226,17 @@ define(function(require){
         disk = $(this).data("template_disk");
         var fields = WizardFields.retrieve(this);
         if (disk.IMAGE_ID){
-          var newDisk = {
-            IMAGE_ID: disk.IMAGE_ID,
-            OPENNEBULA_MANAGED: disk.OPENNEBULA_MANAGED,
-            RECOVERY_SNAPSHOT_FREQ: disk.RECOVERY_SNAPSHOT_FREQ
-          }
-          if(disk.DEV_PREFIX){
-            newDisk["DEV_PREFIX"] = disk.DEV_PREFIX
-          }
-          if(disk.CACHE){
-            newDisk["CACHE"] = disk.CACHE
-          }
-          if(disk.DISCARD){
-            newDisk["DISCARD"] = disk.DISCARD
-          }
-          newDisk["SIZE"] = fields.SIZE // Always send the value of the size, as the default form has the value of the template
-          disks.push(newDisk)
+
+          // #6167: Core delete the disk attributes of the template is they are not send in the request. So we need to send all the atributes of the disk template
+          var diskAux = $.extend(true, {}, disk);
+          
+          diskAux["SIZE"] = fields.SIZE // Always send the value of the size, as the default form has the value of the template
+
+          // #6167: Delete original size because it's a restricted attribute
+          delete diskAux["ORIGINAL_SIZE"];
+          
+          // Send data
+          disks.push(diskAux)
         } else {
           var diskAux = $.extend(true, {}, disk);
           diskAux["SIZE"] = fields["SIZE"];
