@@ -145,6 +145,9 @@ define(function(require) {
     return self.indexOf(value)===index;
   };
 
+  var VCPU = ''
+  var cache = {}
+
   /*
     CONSTRUCTOR
    */
@@ -199,11 +202,52 @@ define(function(require) {
   }
 
   function _onShow(context, panelForm) {
+    //fill Virtio Queues inputs
+    getValueVPU(context)
+  }
+
+  function getValueVPU(context, defaultValues){
+    var inputVcpu = $('#VCPU')
+
+    if(defaultValues){
+      cache = Object.assign({}, defaultValues)
+    }
+
+    fillInputsVirtioQueues(context, inputVcpu, defaultValues)
+  
+    inputVcpu.off("input").on("input", function(){
+      fillInputsVirtioQueues(context, inputVcpu, defaultValues)
+    })
+  }
+
+  function fillInputsVirtioQueues(context, vpu, defaultValues){
+    var value = parseInt(vpu.val(), 10) * 2 || 4
+    var scsi = $('[wizard_field="VIRTIO_SCSI_QUEUES"]', context)
+    var blk = $('[wizard_field="VIRTIO_BLK_QUEUES"]', context)
+    var defValueBlk = (defaultValues && defaultValues.VIRTIO_BLK_QUEUES) || (cache && cache.VIRTIO_BLK_QUEUES) || ""
+    var defValueScsi = (defaultValues && defaultValues.VIRTIO_SCSI_QUEUES) || (cache && cache.VIRTIO_SCSI_QUEUES) || ""
+    var optionEmpty = '<option value> - </option>'
+    var optionAuto = '<option value="auto">Auto</option>'
+    var restOptions = '';
+
+    for(var i = 1; i <= value; i++){
+      restOptions += '<option value="'+i+'">'+i+'</option>';
+    }
+
+    scsi.empty().append(optionEmpty+optionAuto+restOptions)
+    scsi.val(defValueScsi)
+
+    blk.empty().append(optionEmpty+optionAuto+restOptions)
+    blk.val(defValueBlk)
+
   }
 
   function _setup(context) {
     var that = this;
     Foundation.reflow(context, "tabs");
+
+    //fill Virtio Queues inputs
+    getValueVPU(context)
 
     context.on("click", "button.boot-order-up", function(){
       var tr = $(this).closest("tr");
@@ -442,8 +486,10 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
+    var featuresJSON = templateJSON["FEATURES"];
     var osJSON = templateJSON["OS"];
     var modelJSON = templateJSON["CPU_MODEL"];
+
     if (osJSON) {
       if (osJSON["KERNEL_DS"] === undefined && osJSON["KERNEL"] !== undefined){
         $("input[value=\"kernel_path\"]", context).click();
@@ -478,9 +524,10 @@ define(function(require) {
       }
     }
 
-    var featuresJSON = templateJSON["FEATURES"];
     if (featuresJSON) {
+      getValueVPU(context, featuresJSON);
       WizardFields.fill(context, featuresJSON);
+      
       delete templateJSON["FEATURES"];
     }
 

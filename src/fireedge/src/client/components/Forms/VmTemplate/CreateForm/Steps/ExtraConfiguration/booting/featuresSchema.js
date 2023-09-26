@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, number } from 'yup'
+import { number, string } from 'yup'
 
-import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { HYPERVISORS, INPUT_TYPES, T } from 'client/constants'
+import { Field, OPTION_SORTERS, arrayToOptions } from 'client/utils'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
 
@@ -28,6 +28,14 @@ const commonValidation = string()
   .trim()
   .notRequired()
   .default(() => undefined)
+
+const optionsInputsVirtio = (vcpu) => {
+  const limit = vcpu ? 2 * vcpu : 4
+  const options = Array.from({ length: limit }, (_, i) => i + 1)
+  options.unshift('auto')
+
+  return arrayToOptions(options, { sorter: OPTION_SORTERS.unsort })
+}
 
 /** @type {Field} ACPI field  */
 export const ACPI = {
@@ -98,14 +106,24 @@ export const GUEST_AGENT = {
 /** @type {Field} Virtio-SCSI queues field  */
 export const VIRTIO_SCSI_QUEUES = {
   name: 'FEATURES.VIRTIO_SCSI_QUEUES',
+  dependOf: '$general.VCPU',
   label: T.VirtioQueues,
   tooltip: T.VirtioQueuesConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(
-    Array.from({ length: 16 }, (_, i) => i + 1),
-    OPTION_SORTERS.numeric
-  ),
+  values: optionsInputsVirtio,
+  validation: commonValidation,
+}
+
+/** @type {Field} Virtio-BLK queues field  */
+export const VIRTIO_BLK_QUEUES = {
+  name: 'FEATURES.VIRTIO_BLK_QUEUES',
+  dependOf: '$general.VCPU',
+  label: T.VirtioBlkQueues,
+  tooltip: T.VirtioBlkQueuesConcept,
+  notOnHypervisors: [vcenter, lxc, firecracker],
+  type: INPUT_TYPES.SELECT,
+  values: optionsInputsVirtio,
   validation: commonValidation,
 }
 
@@ -131,5 +149,6 @@ export const FEATURES_FIELDS = [
   LOCALTIME,
   GUEST_AGENT,
   VIRTIO_SCSI_QUEUES,
+  VIRTIO_BLK_QUEUES,
   IO_THREADS,
 ]

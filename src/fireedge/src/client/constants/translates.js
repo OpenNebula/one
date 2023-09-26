@@ -950,6 +950,9 @@ module.exports = {
   VirtioQueues: 'Virtio-scsi Queues',
   VirtioQueuesConcept: `Number of vCPU queues to use in the virtio-scsi controller.
     Leave blank to use the default value`,
+  VirtioBlkQueues: 'Virtio-blk Queues',
+  VirtioBlkQueuesConcept: `Number of vCPU queues to use in the virtio-blk controller.
+    Leave blank to use the default value`,
   IoThreads: 'Iothreads',
   IoThreadsConcept: `
     Number of iothreads for virtio disks.
