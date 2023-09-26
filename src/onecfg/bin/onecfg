@@ -28,6 +28,9 @@ else
     GEMS_LOCATION     = '/usr/share/one/gems'
 end
 
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
 # %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
