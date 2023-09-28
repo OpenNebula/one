@@ -50,10 +50,17 @@ const userApi = oneApi.injectEndpoints({
         return { command }
       },
       transformResponse: (data) => {
-        const usersArray = data?.USER_POOL?.USER ?? []
+        const usersArray = Array.isArray(data?.USER_POOL?.USER)
+          ? data?.USER_POOL?.USER
+          : [data?.USER_POOL?.USER].filter(Boolean)
+
+        const quotasArray = Array.isArray(data?.USER_POOL?.QUOTAS)
+          ? data?.USER_POOL?.QUOTAS
+          : [data?.USER_POOL?.QUOTAS].filter(Boolean)
         const quotasLookup = new Map(
-          data?.USER_POOL?.QUOTAS?.map((quota) => [quota.ID, quota]) || []
+          quotasArray.map((quota) => [quota.ID, quota])
         )
+
         const defaultQuotas = data?.USER_POOL?.DEFAULT_USER_QUOTAS || {}
 
         const getStrippedQuotaValue = (quota) => {
@@ -90,7 +97,6 @@ const userApi = oneApi.injectEndpoints({
         }
       },
     }),
-
     getUser: builder.query({
       /**
        * Retrieves information for the user.
