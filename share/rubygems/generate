@@ -19,7 +19,7 @@
 require 'fileutils'
 require 'tmpdir'
 
-VERSION = '6.7.80'
+VERSION = '6.7.90'
 
 def version
     v = VERSION
