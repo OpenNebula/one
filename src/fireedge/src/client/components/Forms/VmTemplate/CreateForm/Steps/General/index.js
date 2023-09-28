@@ -77,7 +77,11 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} General configuration step
  */
-const General = ({ data: vmTemplate, oneConfig, adminGroup }) => {
+const General = ({
+  dataTemplateExtended: vmTemplate,
+  oneConfig,
+  adminGroup,
+}) => {
   const isUpdate = vmTemplate?.NAME
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 

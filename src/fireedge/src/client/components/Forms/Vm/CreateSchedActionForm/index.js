@@ -99,16 +99,16 @@ const commonTransformBeforeSubmit = (formData) => {
       scheduleAction.REPEAT = REPEAT
       switch (REPEAT) {
         case REPEAT_VALUES.WEEKLY:
-          scheduleAction.WEEKLY = WEEKLY
+          scheduleAction.DAYS = WEEKLY
           break
         case REPEAT_VALUES.MONTHLY:
-          scheduleAction.MONTHLY = MONTHLY
+          scheduleAction.DAYS = MONTHLY
           break
         case REPEAT_VALUES.YEARLY:
-          scheduleAction.YEARLY = YEARLY
+          scheduleAction.DAYS = YEARLY
           break
         default:
-          scheduleAction.HOURLY = HOURLY
+          scheduleAction.DAYS = HOURLY
           break
       }
     }

@@ -115,7 +115,11 @@ const Content = ({ data, setFormData, oneConfig, adminGroup }) => {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Optional configuration step
  */
-const ExtraConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => {
+const ExtraConfiguration = ({
+  dataTemplateExtended: vmTemplate,
+  oneConfig,
+  adminGroup,
+}) => {
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
