@@ -133,9 +133,9 @@ info-tabs:
   snapshot:
     enabled: true
     actions:
-      snapshot_create: true
-      snapshot_revert: true
-      snapshot_delete: true
+      snapshot-create: true
+      snapshot-revert: true
+      snapshot-delete: true
 
   backup:
     enabled: true
