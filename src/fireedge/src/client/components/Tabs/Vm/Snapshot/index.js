@@ -16,7 +16,15 @@
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import HintIcon from 'iconoir-react/dist/QuestionMarkCircle'
-import { Stack, Tooltip } from '@mui/material'
+import {
+  Stack,
+  Tooltip,
+  Typography,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material'
 
 import { useGetVmQuery } from 'client/features/OneApi/vm'
 import {
@@ -59,31 +67,105 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
     return [getSnapshotList(vm), actionsByState]
   }, [vm])
 
-  return (
-    <div>
-      <Stack direction="row" gap="1em" alignItems="center">
-        {actionsAvailable?.includes(SNAPSHOT_CREATE) && (
-          <CreateAction vmId={id} />
-        )}
-        <Tooltip arrow title={Tr(T.VmSnapshotHint)}>
-          <HintIcon />
-        </Tooltip>
-      </Stack>
+  const isSnapshotSupported = !actionsAvailable?.includes(SNAPSHOT_CREATE)
 
-      <Stack gap="1em" py="0.8em" data-cy="snapshots">
-        {snapshots.map((snapshot) => (
-          <SnapshotCard
-            snapshot={snapshot}
-            key={snapshot.SNAPSHOT_ID}
-            extraActionProps={{ vmId: id }}
-            actions={[
-              actionsAvailable?.includes(SNAPSHOT_REVERT) && RevertAction,
-              actionsAvailable?.includes(SNAPSHOT_DELETE) && DeleteAction,
-            ].filter(Boolean)}
-          />
-        ))}
-      </Stack>
-    </div>
+  return (
+    <Box>
+      {isSnapshotSupported ? (
+        <Stack direction="row" gap="1em" alignItems="center">
+          {snapshots.length >= 0 && (
+            <Tooltip arrow title={Tr(T.VmSnapshotHint)}>
+              <HintIcon />
+            </Tooltip>
+          )}
+          <CreateAction vmId={id} />
+        </Stack>
+      ) : (
+        <Box
+          position="relative"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Stack direction="row" gap="1em" alignItems="center">
+            <Box sx={{ textAlign: 'center', zIndex: 1, opacity: 0.7 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  opacity: 0.8,
+                }}
+              >
+                Taking snapshots is not available.
+              </Typography>
+              <List>
+                <ListItem>
+                  <ListItemText
+                    primary="Make sure VM is in the correct state"
+                    primaryTypographyProps={{ align: 'center' }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Check the hypervisor support"
+                    primaryTypographyProps={{ align: 'center' }}
+                  />
+                </ListItem>
+              </List>
+              <Typography
+                variant="body2"
+                sx={{
+                  opacity: 0.6,
+                  textAlign: 'center',
+                  marginTop: '1em',
+                }}
+              >
+                If none of the above worked, please refer to the VM monitoring
+                logs.
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
+      )}
+      {snapshots.length <= 0 ? (
+        <Box
+          position="relative"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          mt={10}
+          sx={{
+            height: '100%',
+            opacity: 0.7,
+          }}
+        >
+          <Box
+            sx={{ display: 'inline-block', width: '70%', textAlign: 'center' }}
+          >
+            <Typography variant="h6" sx={{ opacity: 0.8 }}>
+              {Tr(T.VmSnapshotHint)}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <Box ml={4}>
+          <Stack gap="1em" py="0.8em" data-cy="snapshots">
+            {snapshots.map((snapshot) => (
+              <SnapshotCard
+                snapshot={snapshot}
+                key={snapshot.SNAPSHOT_ID}
+                extraActionProps={{ vmId: id }}
+                actions={[
+                  actionsAvailable?.includes(SNAPSHOT_REVERT) && RevertAction,
+                  actionsAvailable?.includes(SNAPSHOT_DELETE) && DeleteAction,
+                ].filter(Boolean)}
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
+    </Box>
   )
 }
 
