@@ -116,7 +116,7 @@ function InstantiateVmTemplate() {
     return <Redirect to={PATH.TEMPLATE.VMS.LIST} />
   }
 
-  return !dataTemplateExtended || !dataTemplate ? (
+  return !dataTemplateExtended || !dataTemplate || _.isEmpty(oneConfig) ? (
     <SkeletonStepsForm />
   ) : (
     <InstantiateForm

@@ -142,7 +142,8 @@ function CreateVmTemplate() {
     } catch {}
   }
 
-  return templateId && (!dataTemplateExtended || !dataTemplate) ? (
+  return templateId &&
+    (!dataTemplateExtended || !dataTemplate || _.isEmpty(oneConfig)) ? (
     <SkeletonStepsForm />
   ) : (
     <CreateForm
