@@ -67,13 +67,13 @@ const VmSnapshotTab = ({ tabProps: { actions } = {}, id }) => {
     return [getSnapshotList(vm), actionsByState]
   }, [vm])
 
-  const isSnapshotSupported = !actionsAvailable?.includes(SNAPSHOT_CREATE)
+  const isSnapshotSupported = actionsAvailable?.includes(SNAPSHOT_CREATE)
 
   return (
     <Box>
       {isSnapshotSupported ? (
         <Stack direction="row" gap="1em" alignItems="center">
-          {snapshots.length >= 0 && (
+          {snapshots.length > 0 && (
             <Tooltip arrow title={Tr(T.VmSnapshotHint)}>
               <HintIcon />
             </Tooltip>
