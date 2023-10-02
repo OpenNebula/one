@@ -1993,14 +1993,14 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "\t\t\t<model type=" << one_util::escape_xml_attr(type);
 
-        if ( vram )
+        if ( vram >= 1024 && type != "none" )
         {
             file << " vram=" << one_util::escape_xml_attr(vram);
         }
 
         file << ">\n";
 
-        if ( !resolution.empty() )
+        if ( !resolution.empty() && type != "none" && type != "cirrus" )
         {
             vector<string> res_dims;
 
