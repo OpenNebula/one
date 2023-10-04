@@ -20,6 +20,7 @@ import { Stack } from '@mui/material'
 import { FormWithSchema } from 'client/components/Forms'
 
 import InputsSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/inputsSection'
+import VideoSection from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/videoSection'
 import { GRAPHICS_FIELDS } from 'client/components/Forms/Vm/UpdateConfigurationForm/inputOutput/schema'
 import { T, HYPERVISORS } from 'client/constants'
 
@@ -40,6 +41,7 @@ const InputOutput = ({ hypervisor }) => (
       legend={T.Graphics}
     />
     <InputsSection hypervisor={hypervisor} />
+    <VideoSection hypervisor={hypervisor} />
   </Stack>
 )
 

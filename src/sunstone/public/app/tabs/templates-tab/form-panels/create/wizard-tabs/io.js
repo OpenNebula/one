@@ -74,6 +74,7 @@ define(function(require) {
 
   function _setup(context) {
     $("input[name='graphics_type']", context).change(function() {
+
       if ($(this).attr("value") !== '') {
         if($('input[wizard_field="LISTEN"]', context).val() == ""){
           $('input[wizard_field="LISTEN"]', context).val("0.0.0.0");
@@ -125,11 +126,96 @@ define(function(require) {
     });
 
     CreateUtils.setupPCIRows($(".pci_devices", context));
+
+    // Hide video section if the hypervisor it's kvm (Done here because there is a bug if we used the css classes)
+    $("input[name='hypervisor']").change(function() {
+      if (this.value === "kvm") {
+        $(".video").show()
+      }
+      else {
+        $(".video").hide()
+      }
+    })
+
+    // Event on change video type attribute
+    $("input[name='video_type']", context).change(function() {
+
+      /**
+       * - Only if the hypervisor it's kvm.
+       * - If the user select VIDEO_TYPE auto, the rest of the fields will be hidden and the request has not any VIDEO section.
+       * - If the user select VIDEO_TYPE none, the rest of the fields will be hidden and the request has VIDEO section but only with type=none.
+       * - If the user select VIDEO_TYPE cirrus, ATS, IOMMU and resolution will be hidden.
+       * - If the user select VIDEO_TYPE vga, ATS and IOMMU will be hidden.
+       * - If the user select VIDEO_TYPE virtio, all attributes will be show to the user.
+       * - Resolution will be one of the values of the COMMON_RESOLUTIONS or a custom resolution.
+       */
+      if ($(this).attr("value") === 'auto' || $(this).attr("value") === 'none') {
+
+        $('.video-settings', context).css('display', 'none');
+      } 
+      else if ($(this).attr("value") === 'cirrus') {
+
+        $('.video-settings', context).css('display', '');
+        $('.video-settings-iommu', context).css('display', 'none');
+        $('.video-settings-iommu-label', context).css('display', 'none');
+        $('.video-settings-ats', context).css('display', 'none');
+        $('.video-settings-ats-label', context).css('display', 'none');
+        $('.video-settings-vram', context).css('display', '');
+        $('.video-settings-resolution', context).css('display', 'none');
+        $('.video-settings-resolution-label', context).css('display', 'none');
+        $('.video-settings-resolution-width', context).css('display', 'none');
+        $('.video-settings-resolution-height', context).css('display', 'none');
+      }
+      else if ($(this).attr("value") === 'vga') {
+
+        $('.video-settings', context).css('display', '');
+        $('.video-settings-iommu', context).css('display', 'none');
+        $('.video-settings-iommu-label', context).css('display', 'none');
+        $('.video-settings-ats', context).css('display', 'none');
+        $('.video-settings-ats-label', context).css('display', 'none');
+        $('.video-settings-vram', context).css('display', '');
+        $('.video-settings-resolution', context).css('display', '');
+        $('.video-settings-resolution-label', context).css('display', '');
+        $('.video-settings-resolution-width', context).css('display', '');
+        $('.video-settings-resolution-height', context).css('display', '');
+        $("select[name='resolution']", context).change()
+      }
+      else if ($(this).attr("value") === 'virtio') {
+
+        $('.video-settings', context).css('display', '');
+        $('.video-settings-iommu', context).css('display', '');
+        $('.video-settings-iommu-label', context).css('display', '');
+        $('.video-settings-ats', context).css('display', '');
+        $('.video-settings-ats-label', context).css('display', '');
+        $('.video-settings-vram', context).css('display', '');
+        $('.video-settings-resolution', context).css('display', '');
+        $('.video-settings-resolution-label', context).css('display', '');
+        $('.video-settings-resolution-width', context).css('display', '');
+        $('.video-settings-resolution-height', context).css('display', '');
+        $("select[name='resolution']", context).change()
+      }
+    });
+
+    // Manage custom resolution
+    $("select[name='resolution']", context).change(function() {
+
+      if ($(this).val() === "custom") {
+
+        $('.video-settings-resolution-width', context).css('display', '');
+        $('.video-settings-resolution-height', context).css('display', '');
+      }
+      else {
+        $('.video-settings-resolution-width', context).css('display', 'none');
+        $('.video-settings-resolution-height', context).css('display', 'none');
+      }
+
+    })
+
   }
 
   function _retrieve(context) {
     var templateJSON = {};
-    var graphicsJSON = WizardFields.retrieve(context);
+    var graphicsJSON = WizardFields.retrieve(context.find("div.graphics"));
 
     if (!$.isEmptyObject(graphicsJSON) && $(".RANDOM_PASSWD:checked", context).length > 0) {
       graphicsJSON["RANDOM_PASSWD"] = "YES";
@@ -160,6 +246,43 @@ define(function(require) {
         templateJSON['PCI'].push(pci);
       }
     });
+
+    // Add video section to the request
+    // - If video type is auto, don't send any video section
+    // - If video type is none, send only video type
+    // - Checkbox attributes will be YES/NO
+    var videoJSON = WizardFields.retrieve(context.find("div.video"));
+
+    videoJSON.TYPE = videoJSON.VIDEO_TYPE
+    delete videoJSON.VIDEO_TYPE
+
+    if (videoJSON.TYPE === "auto") {
+      videoJSON = {}
+    }
+
+    if (videoJSON.TYPE === "none") {
+      videoJSON = {
+        "TYPE": "none"
+      }
+    }
+
+    if (!$.isEmptyObject(videoJSON) && $(".video-settings-iommu:checked", context).length > 0) {
+      videoJSON["IOMMU"] = "YES";
+    }
+
+    if (!$.isEmptyObject(videoJSON) && $(".video-settings-ats:checked", context).length > 0) {
+      videoJSON["ATS"] = "YES";
+    }
+
+    if (!$.isEmptyObject(videoJSON) && videoJSON.RESOLUTION == "custom") {
+      videoJSON.RESOLUTION = videoJSON.RESOLUTION_WIDTH + "x" + videoJSON.RESOLUTION_HEIGHT
+    }
+
+    delete videoJSON.RESOLUTION_WIDTH
+    delete videoJSON.RESOLUTION_HEIGHT
+
+
+    if (!$.isEmptyObject(videoJSON)) { templateJSON['VIDEO'] = videoJSON; };
 
     return templateJSON;
   }
@@ -236,5 +359,49 @@ define(function(require) {
     });
 
     delete templateJSON.PCI;
+
+    // Video section
+    var videoJSON = templateJSON['VIDEO'];
+
+    if (videoJSON) {
+
+      var type = videoJSON.TYPE;
+      if (type) {
+        $(".video input[wizard_field='VIDEO_TYPE'][value='" + type + "']", context).click();
+      } else {
+        $(".video input[wizard_field='VIDEO_TYPE'][value='']", context).click();
+      }
+
+      videoJSON.VIDEO_TYPE = type
+      delete videoJSON.TYPE
+
+      if (videoJSON["IOMMU"] == "YES") {
+        $(".video-settings-iommu", context).attr("checked", "checked");
+        delete videoJSON["IOMMU"]
+      }
+  
+      if (videoJSON["ATS"] == "YES") {
+        $(".video-settings-ats", context).attr("checked", "checked");
+        delete videoJSON["ATS"]
+      }
+
+      // Manage resolution if it's a custom value
+      let resolutions = $("select[name='resolution'] option").map(function() { return this.value; }).get();
+      let resolution = videoJSON.RESOLUTION
+      if (resolutions && resolution && (resolution!== "") && !resolutions.includes(resolution)) {
+        let storeResolutions = resolution.split("x")
+        videoJSON.RESOLUTION_WIDTH = storeResolutions[0]
+        videoJSON.RESOLUTION_HEIGHT = storeResolutions[1]
+        videoJSON.RESOLUTION = "custom"
+      }
+
+      WizardFields.fill(context, videoJSON);
+
+      delete templateJSON['VIDEO']
+
+    } else {
+      $(".video input[wizard_field='TYPE'][value='']", context).click();
+    }
+
   }
 });

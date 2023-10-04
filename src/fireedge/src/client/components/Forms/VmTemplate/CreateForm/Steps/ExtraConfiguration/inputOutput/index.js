@@ -25,10 +25,11 @@ import {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
 import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
+import VideoSection, { SECTION_ID as VIDEO_ID } from './videoSection'
 import { GRAPHICS_FIELDS } from './schema'
 import { T } from 'client/constants'
 
-export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID]
+export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID, VIDEO_ID]
 
 const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
   <Stack
@@ -49,6 +50,12 @@ const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
       adminGroup={adminGroup}
     />
     <PciDevicesSection
+      stepId={EXTRA_ID}
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+    <VideoSection
       stepId={EXTRA_ID}
       hypervisor={hypervisor}
       oneConfig={oneConfig}

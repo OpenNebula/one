@@ -81,6 +81,21 @@ export const SD_DISK_BUSES = ['scsi', 'sata']
 
 export const DEVICE_TYPES = { mouse: 'mouse', tablet: 'tablet' }
 export const DEVICE_BUS_TYPES = { usb: 'usb', ps2: 'ps2' }
+export const VIDEO_TYPES = {
+  auto: 'auto',
+  none: 'none',
+  vga: 'vga',
+  cirrus: 'cirrus',
+  virtio: 'virtio',
+}
+export const COMMON_RESOLUTIONS = {
+  '1920x1080': '1920x1080',
+  '1366x768': '1366x768',
+  '1536x864': '1536x864',
+  '1440x900': '1440x900',
+  '1280x720': '1280x720',
+  custom: 'custom',
+}
 
 export const FIRMWARE_TYPES = ['BIOS']
 

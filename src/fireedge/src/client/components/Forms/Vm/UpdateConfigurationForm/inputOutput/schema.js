@@ -17,6 +17,8 @@ import { object, ObjectSchema } from 'yup'
 
 import * as ioSchema from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
 
+import { VIDEO_SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/videoSchema'
+
 import {
   Field,
   filterFieldsByHypervisor,
@@ -55,3 +57,4 @@ export const SCHEMA = ({ hypervisor }) =>
   object()
     .concat(ioSchema.INPUTS_SCHEMA)
     .concat(GRAPHICS_SCHEMA({ hypervisor }))
+    .concat(VIDEO_SCHEMA(hypervisor))
