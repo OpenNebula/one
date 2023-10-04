@@ -73,10 +73,18 @@ type Share struct {
 }
 
 type Datastores struct {
-	DiskUsage int `xml:"DISK_USAGE,omitempty"`
-	FreeDisk  int `xml:"FREE_DISK,omitempty"`
-	MaxDisk   int `xml:"MAX_DISK,omitempty"`
-	UsedDisk  int `xml:"USED_DISK,omitempty"`
+	DiskUsage  int         `xml:"DISK_USAGE,omitempty"`
+	FreeDisk   int         `xml:"FREE_DISK,omitempty"`
+	MaxDisk    int         `xml:"MAX_DISK,omitempty"`
+	UsedDisk   int         `xml:"USED_DISK,omitempty"`
+	Datastores []Datastore `xml:"DS,omitempty"`
+}
+
+type Datastore struct {
+	ID      int `xml:"ID,omitempty"`
+	TotalMB int `xml:"TOTAL_MB,omitempty"`
+	FreeMB  int `xml:"FREE_MB,omitempty"`
+	UsedMB  int `xml:"USED_MB,omitempty"`
 }
 
 type PCIDevices struct {
