@@ -73,11 +73,11 @@ type Share struct {
 }
 
 type Datastores struct {
-	DiskUsage int       `xml:"DISK_USAGE,omitempty"`
-	FreeDisk  int       `xml:"FREE_DISK,omitempty"`
-	MaxDisk   int       `xml:"MAX_DISK,omitempty"`
-	UsedDisk  int       `xml:"USED_DISK,omitempty"`
-	Datastore Datastore `xml:"DS,omitempty"`
+	DiskUsage  int         `xml:"DISK_USAGE,omitempty"`
+	FreeDisk   int         `xml:"FREE_DISK,omitempty"`
+	MaxDisk    int         `xml:"MAX_DISK,omitempty"`
+	UsedDisk   int         `xml:"USED_DISK,omitempty"`
+	Datastores []Datastore `xml:"DS,omitempty"`
 }
 
 type Datastore struct {
