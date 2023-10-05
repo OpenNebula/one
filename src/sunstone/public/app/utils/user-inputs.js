@@ -737,6 +737,9 @@ define(function(require) {
 
     $("div.mb_input", context).on("change", "input.visor, select", function(e){
       var element = $(this);
+      var step = '1'
+      var baseCal = 1;
+      var unit = "MB";
       var min = parseInt(element.attr("data-min"),10);
       var max = parseInt(element.attr("data-max"),10);
       var value = element.val();
@@ -745,15 +748,13 @@ define(function(require) {
       switch (mb_input_unit_val) {
         case "TB":
           baseCal = base*base;
+          step = '0.001'
           unit = "TB";
         break;
         case "GB":
           baseCal = base;
+          step = '0.01'
           unit = "GB";
-        break;
-        default:
-          baseCal = 1;
-          unit = "MB";
         break;
       }
       if (value >= 0) {
@@ -761,10 +762,10 @@ define(function(require) {
         if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
           valueInMB = min;
         }
-        $("input, select", contextElement).val(valueInMB);
+        $("input, select", contextElement).val(Math.ceil(valueInMB));
         valueInUnit = valueInMB / baseCal;
       }
-      $("input.visor", contextElement).val(valueInUnit);
+      $("input.visor", contextElement).attr('step', step).val(valueInUnit);
       var contextUnit = contextElement.siblings(".input-group-button");
       $(".mb_input_unit", contextUnit).val(unit);
     });

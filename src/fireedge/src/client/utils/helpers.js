@@ -133,12 +133,14 @@ export const prettyBytes = (value, unit = UNITS.KB, fractionDigits = 0) => {
 
   let idxUnit = units.indexOf(unit)
 
-  while (ensuredValue > 1024) {
+  while (ensuredValue >= 1024) {
     ensuredValue /= 1024
     idxUnit += 1
   }
 
-  return `${ensuredValue.toFixed(fractionDigits)} ${units[idxUnit]}`
+  const decimals = fractionDigits && ensuredValue % 1 !== 0 ? fractionDigits : 0
+
+  return `${ensuredValue.toFixed(decimals)} ${units[idxUnit]}`
 }
 
 /**

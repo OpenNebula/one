@@ -80,7 +80,7 @@ const CapacityPanel = ({ vm = {}, actions, oneConfig, adminGroup }) => {
     {
       icon: <MemoryIcon />,
       name: T.Memory,
-      value: prettyBytes(+MEMORY, 'MB'),
+      value: prettyBytes(+MEMORY, 'MB', 2),
       dataCy: 'memory',
     },
     ![CORES, SOCKETS].includes(undefined) && {

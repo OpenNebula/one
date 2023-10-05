@@ -121,7 +121,7 @@ const VirtualMachineCard = memo(
 
     const error = useMemo(() => getErrorMessage(vm), [vm])
     const ips = useMemo(() => getIps(vm), [vm])
-    const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB'), [MEMORY])
+    const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB', 2), [MEMORY])
 
     const labels = useMemo(
       () =>
