@@ -308,7 +308,7 @@ const getCreatedTokenOpennebula = (username = '') => {
       const tokenExpirationTime = parseInt(curr.time, 10)
 
       // this delete expired tokens of global.users[username]
-      if (tokenExpirationTime < nowUnix) {
+      if (tokenExpirationTime <= nowUnix) {
         delete global.users[username].tokens[index]
       }
 
@@ -316,8 +316,8 @@ const getCreatedTokenOpennebula = (username = '') => {
       if (
         DateTime.fromSeconds(tokenExpirationTime).minus({
           minutes: limitExpirationReuseToken,
-        }) >= now &&
-        tokenExpirationTime >= acc.time
+        }) > now &&
+        tokenExpirationTime > acc.time
       ) {
         acc = { token: curr.token, time: curr.time }
       }
@@ -445,12 +445,6 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
     }
 
     if (tokenWithServerAdmin) {
-      genJWT(tokenWithServerAdmin, {
-        NAME: JWTusername,
-        ID: userData.ID,
-        TEMPLATE: userData.TEMPLATE,
-      })
-
       // set global state
       if (setGlobalNewToken) {
         if (!global.users) {
@@ -459,11 +453,19 @@ const wrapUserWithServerAdmin = (serverAdminData = {}, userData = {}) => {
         if (!global.users[JWTusername]) {
           global.users[JWTusername] = { tokens: [] }
         }
-        global.users[JWTusername].tokens.push({
-          token: tokenWithServerAdmin.token,
-          time: parseInt(expireTime, 10),
-        })
+        !validToken &&
+          global.users[JWTusername].tokens.push({
+            token: tokenWithServerAdmin.token,
+            time: parseInt(expireTime, 10),
+          })
       }
+
+      genJWT(tokenWithServerAdmin, {
+        NAME: JWTusername,
+        ID: userData.ID,
+        TEMPLATE: userData.TEMPLATE,
+      })
+
       next()
     }
   } else {

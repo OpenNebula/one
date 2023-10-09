@@ -25,6 +25,7 @@ const {
 } = defaults
 const { validateAuth } = require('server/utils/jwt')
 const { getDataZone } = require('server/utils/server')
+const { writeInLogger } = require('server/utils/logger')
 
 let idUserOpennebula = ''
 let userOpennebula = ''
@@ -101,11 +102,11 @@ const validateSession = ({
       idUserOpennebula = iss
       userOpennebula = aud
       passOpennebula = jti
+      const now = DateTime.local()
       if (env?.NODE_ENV === defaultWebpackMode) {
         const appConfig = getFireedgeConfig()
         const expirationSession =
           appConfig.session_expiration || defaultSessionExpiration
-        const now = DateTime.local()
 
         /** Create global state for user when the enviroment is development */
         if (global && !global.users) {
@@ -126,6 +127,16 @@ const validateSession = ({
         next()
 
         return
+      } else {
+        const logData = JSON.stringify({
+          header: req?.headers?.authorization,
+          now: now.toSeconds(),
+          users: global.users,
+        })
+        writeInLogger(logData, {
+          format: 'Error Login: %s',
+          level: 2,
+        })
       }
     }
   } else {
