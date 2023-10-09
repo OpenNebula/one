@@ -33,17 +33,27 @@ _complete() {
 }
 
 _one_list() {
+    cmd=$1
     if [ -z "$2" ]; then
-        col="$COL_NAME"
+        column="$COL_NAME"
     else
-        col=$2
+        column=$2
     fi
+    filter=$3
 
-    if [ -n "$3" ]; then
-        $1 list --no-header --csv -f "$3" -l "$col"
-    else
-        $1 list --no-header --csv -l "$col"
-    fi
+    case "$cmd" in
+        oneflow|oneflow-server|oneflow-template)
+            # everything under 4th column, NAME by default
+            $cmd list | awk 'NR > 1 {print $4}' # TODO: Implement --csv option for oneflow CLI
+            ;;
+        *)
+            if [ -n "$filter" ]; then
+                $cmd list --no-header --csv -f "$filter" -l "$column"
+            else
+                $cmd list --no-header --csv -l "$column"
+            fi
+            ;;
+    esac
 }
 
 _one_simple() {
