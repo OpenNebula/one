@@ -296,7 +296,12 @@ define(function (require) {
       //input hour picker
       schedule.find("#time_input",context).off("click").on("click",function(e){
         e.stopPropagation();
-      }).wickedpicker(options_hour_picker);
+      }).wickedpicker(options_hour_picker).removeAttr("onkeypress").on('keypress', function(e) {
+        var key = String.fromCharCode(e.which);
+        if (!/[\d:]/.test(key) && e.which !== 8) {
+          e.preventDefault();
+        }
+      });
 
       schedule.find("#relative_time", context).off("click").on("click", function (e) {
         $("#schedule_type", context).prop("checked", false);

@@ -40,10 +40,13 @@ define(function(require) {
         return lastBackup === '0'? "Not started yet" : "Completed"
       }
 
-      if(haveValues(outdatedVms) || haveValues(backinUpVms)){
+      if(haveValues(outdatedVms)){
         return "Completed"
       }
 
+      if(haveValues(backinUpVms)){
+        return "On Going"
+      }
     }
   
     return {
