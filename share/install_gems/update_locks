@@ -31,6 +31,8 @@ SYNOPSIS
 
   IMPORTANT: Requires working Docker or Podman (with podman-docker wrapper)!
 
+  IMPORTANT: Requires following vars to be exported: RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID
+
 EXAMPLES
   $(basename "$0")                       - updates all distributions
   $(basename "$0") CentOS8 Ubuntu2004    - updates only specified ones
