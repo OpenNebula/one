@@ -58,7 +58,9 @@ for DIR in $DIRS; do
 
     # guess container image and tag
     DOCKER_IMAGE=${TARGET%%[0-9]*}
+    [[ -e "$DIR/IMAGE" ]] && DOCKER_IMAGE=$(cat "$DIR/IMAGE")
     DOCKER_TAG=${TARGET##${DOCKER_IMAGE}}
+    [[ -e "$DIR/TAG" ]] && DOCKER_TAG=$(cat "$DIR/TAG")
 
     case "${DOCKER_IMAGE}" in
         ubuntu)
@@ -80,9 +82,14 @@ if command -v dpkg >/dev/null; then
     dpkg -r ruby-bundler
 
 elif command -v rpm >/dev/null; then
-    if grep -m1 '^CentOS[^0-9]*8' /etc/centos-release; then
-        sed -i 's/mirrorlist/#mirrorlist/g'                                            /etc/yum.repos.d/CentOS-* ||:
-        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* ||:
+    if grep -m1 '^Red Hat' /etc/redhat-release; then
+      export SMDEV_CONTAINER_OFF=1
+      subscription-manager register --username ${RHEL_USER} \
+                                    --password ${RHEL_PASSWORD} \
+                                    --force
+      subscription-manager attach --pool=${RHEL_POOL_ID}
+      subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms ||:
+      subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms ||:
     fi
 
     if command -v dnf >/dev/null; then
@@ -119,6 +126,10 @@ fi
 
 mkdir -p /git/share/install_gems/${DIR}/
 \\cp -f /usr/share/one/Gemfile.lock /git/share/install_gems/${DIR}/
+
+# unsubscribe
+subscription-manager remove --all ||:
+
 exit 0
 EOF
 
