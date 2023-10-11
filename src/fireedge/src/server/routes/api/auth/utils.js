@@ -193,7 +193,7 @@ const setDates = () => {
     ? appConfig.session_remember_expiration || defaultRememberSessionExpiration
     : appConfig.session_expiration || defaultSessionExpiration
   const limitExpirationReuseToken =
-    parseInt(appConfig.minimun_opennebula_expiration, 10) ||
+    parseInt(appConfig.minimum_opennebula_expiration, 10) ||
     defaultSessionLimitExpiration
   const now = DateTime.local()
   const expireTime = now.plus({ minutes: limitToken })
