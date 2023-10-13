@@ -15,7 +15,7 @@ msgstr ""
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
 "Last-Translator: Hsi En Yu <yun@narlabs.org.tw>, 2013-2015\n"
-"Language-Team: Chinese (Taiwan) (http://www.transifex.com/opennebula/one/language/zh_TW/)\n"
+"Language-Team: Chinese (Taiwan) (http://app.transifex.com/opennebula/one/language/zh_TW/)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6985,9 +6985,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "記憶體使用量 (GBx時數)"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7206,8 +7205,9 @@ msgid "Private"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "虛擬網路已建立"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"

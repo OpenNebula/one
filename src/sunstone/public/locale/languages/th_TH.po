@@ -11,7 +11,7 @@ msgstr ""
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
 "Last-Translator: Montri Ungwijitamphai, 2018\n"
-"Language-Team: Thai (Thailand) (http://www.transifex.com/opennebula/one/language/th_TH/)\n"
+"Language-Team: Thai (Thailand) (http://app.transifex.com/opennebula/one/language/th_TH/)\n"
 "Language: th_TH\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6981,9 +6981,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Memory GB hours"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7202,8 +7201,9 @@ msgid "Private"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "สร้าง Virtual Router แล้ว"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9594,9 +9594,3 @@ msgstr ""
 "ค่าจะถูกเขียนทับค่าการตรวจสอบในรอบการติดตามผลครั้งถัดไป\n"
 "\n"
 "The values will overwrite the monitoring values in the next motorization cycle "
-
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables VLAN"
-
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged & ebtables VLAN จำกัด การเข้าถึงเครือข่ายผ่านกฎของ ebtables ใช้กฎของ Security Group"

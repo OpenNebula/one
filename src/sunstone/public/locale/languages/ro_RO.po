@@ -4,7 +4,7 @@
 #
 # Translators:
 # codertux <coder.tux@gmail.com>, 2014
-# Stefaniu Criste, 2017-2019
+# Stefaniu Criste, 2017-2019,2023
 # Valentin Bud <valentin@databus.pro>, 2014
 msgid ""
 msgstr ""
@@ -12,8 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Stefaniu Criste, 2017-2019\n"
-"Language-Team: Romanian (Romania) (http://www.transifex.com/opennebula/one/language/ro_RO/)\n"
+"Last-Translator: Stefaniu Criste, 2017-2019,2023\n"
+"Language-Team: Romanian (Romania) (http://app.transifex.com/opennebula/one/language/ro_RO/)\n"
 "Language: ro_RO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -57,7 +57,7 @@ msgstr "TOTAL"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:54
 msgid "Create Virtual Machine Group"
-msgstr ""
+msgstr "Creează grupul de mașini virtuale"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:55
 #: ../app/tabs/vnets-tab/form-panels/create.js:65
@@ -100,7 +100,7 @@ msgstr "Creează"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:59
 msgid "Update Virtual Machine Group"
-msgstr ""
+msgstr "Modifică grupul de mașini virtuale"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:60
 #: ../app/tabs/vmgroup-tab/buttons.js:35
@@ -137,7 +137,7 @@ msgstr "Actualizare"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:282
 msgid "The new role name contains invalid characters."
-msgstr ""
+msgstr "Noul nume de rol conține caractere nepermise"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:291
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:640
@@ -152,11 +152,11 @@ msgstr "Grupuri VM"
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:66
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:83
 msgid "You have to choose at least two roles."
-msgstr ""
+msgstr "Trebuie să alegi cel puțin două roluri"
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:190
 msgid "Already exists a group role with these values."
-msgstr ""
+msgstr "Există deja un rol de grup cu aceste valori"
 
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:65
 #: ../app/tabs/vmgroup-tab/datatable.js:67
@@ -332,7 +332,7 @@ msgstr "Alegeți un host din listă"
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:76
 #: ../app/tabs/hosts-tab/datatable.js:108
 msgid "You selected the following Host:"
-msgstr "Ați ales următorul host:"
+msgstr "Ai ales următorul host:"
 
 #: ../app/tabs/vmgroup-tab/utils/datatable.js:77
 #: ../app/tabs/hosts-tab/datatable.js:109
@@ -612,24 +612,24 @@ msgstr "Etichete"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:79
 msgid "Please select a vm group from the list"
-msgstr ""
+msgstr "Alege un grup de mașini virtuale din listă"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:80
 msgid "You selected the following vm group:"
-msgstr ""
+msgstr "Ai ales următorul grup vm"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:81
 msgid "Please select one or more vm groups from the list"
-msgstr ""
+msgstr "Alege unul sau mai multe grupuri vm din listă"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:82
 msgid "You selected the following vm groups:"
-msgstr ""
+msgstr "Ai ales următoarele grupuri vm:"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
 msgid "MarketPlaces"
-msgstr ""
+msgstr "Piețe"
 
 #: ../app/tabs/marketplaces-tab.js:53
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:32
@@ -638,7 +638,7 @@ msgstr "Piața"
 
 #: ../app/tabs/vnets-tab/form-panels/import.js:53
 msgid "Import vCenter Networks"
-msgstr ""
+msgstr "Importă rețele vCenter"
 
 #: ../app/tabs/vnets-tab/form-panels/import.js:54
 #: ../app/tabs/vnets-tab/buttons.js:36
@@ -654,49 +654,49 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:200
 #: ../app/tabs/images-tab/form-panels/import/html.hbs:27
 msgid "Import"
-msgstr "Import"
+msgstr "Importă"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:64
 msgid "Create Virtual Network"
-msgstr ""
+msgstr "Creează rețeaua virtuală"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:69
 msgid "Update Virtual Network"
-msgstr ""
+msgstr "Modifică rețeaua virtuală"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:325
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:314
 msgid "AR"
-msgstr ""
+msgstr "AR"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:495
 #: ../app/tabs/vnets-tab/form-panels/create.js:566
 msgid "Replication Mode"
-msgstr ""
+msgstr "Mod de replicare"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:513
 msgid "Universal Synchronization"
-msgstr ""
+msgstr "Sincronizare universală"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:520
 msgid "IP Discovery"
-msgstr ""
+msgstr "Descoperire IP"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:527
 msgid "MAC Learning"
-msgstr ""
+msgstr "Memorare MAC"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:555
 msgid "Admin Status"
-msgstr ""
+msgstr "Stare admin"
 
 #: ../app/tabs/vnets-tab/form-panels/instantiate.js:43
 msgid "Instantiate Virtual Network"
-msgstr ""
+msgstr "Instanțiază rețeaua virtuală"
 
 #: ../app/tabs/vnets-tab/actions.js:41
 msgid "Virtual Network created"
-msgstr "Rețeaua virtuală a fost definită"
+msgstr "Rețeaua virtuală a fost creată"
 
 #: ../app/tabs/vnets-tab/panels/secgroups.js:45
 #: ../app/tabs/vnets-templates-tab/panels/secgroups.js:39
@@ -707,11 +707,11 @@ msgstr "Securitate"
 
 #: ../app/tabs/vnets-tab/panels/secgroups.js:144
 msgid "This will remove the security group"
-msgstr ""
+msgstr "Asta va șterge grupul de securitate"
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
-msgstr ""
+msgstr "Routere virtuale"
 
 #: ../app/tabs/vnets-tab/panels/clusters.js:39
 #: ../app/tabs/vnets-tab/buttons.js:59
@@ -729,19 +729,19 @@ msgstr "Clustere"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:40
 msgid "HOLD"
-msgstr ""
+msgstr "HOLD"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:41
 msgid "UPDATED"
-msgstr ""
+msgstr "ACTUALIZAT"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 msgid "OUTDATED"
-msgstr ""
+msgstr "DEPĂȘIT"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:43
 msgid "UPDATING"
-msgstr ""
+msgstr "ÎN ACTUALIZARE"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:44
 #: ../app/tabs/provision-tab/vms/list.js:978
@@ -764,7 +764,7 @@ msgstr "NECUNOSCUT"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:46
 msgid "RESERVED"
-msgstr ""
+msgstr "REZERVAT"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:55
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -772,7 +772,7 @@ msgstr ""
 #: ../app/utils/quotas/quota-widgets.js:735
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:48
 msgid "Leases"
-msgstr ""
+msgstr "Rezervări"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:136
 msgid "VM:"
@@ -1010,11 +1010,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:69
 msgid "Please select an Address Range from the list"
-msgstr ""
+msgstr "Alege un interval de adrese din listă"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:70
 msgid "You selected the following Address Range:"
-msgstr ""
+msgstr "Ai ales următorul interval de adrese:"
 
 #: ../app/tabs/vnets-tab/datatable.js:75
 msgid "Reservation"
@@ -1034,7 +1034,7 @@ msgstr "ID VLAN"
 
 #: ../app/tabs/vnets-tab/datatable.js:88
 msgid "Please select a network from the list"
-msgstr ""
+msgstr "Alege o rețea din listă"
 
 #: ../app/tabs/vnets-tab/datatable.js:89
 msgid "You selected the following network:"
@@ -1042,11 +1042,11 @@ msgstr "Ai ales următoarea rețea:"
 
 #: ../app/tabs/vnets-tab/datatable.js:90
 msgid "Please select one or more networks from the list"
-msgstr ""
+msgstr "Alege una sau mai multe rețele din listă"
 
 #: ../app/tabs/vnets-tab/datatable.js:91
 msgid "You selected the following networks:"
-msgstr ""
+msgstr "Ai ales următoarele rețele:"
 
 #: ../app/tabs/vnets-tab/datatable.js:160
 #: ../app/tabs/users-tab/panels/info-common.js:78
@@ -1307,11 +1307,11 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:171
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:174
 msgid "SSL connection"
-msgstr ""
+msgstr "Conexiune SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:188
 msgid "Create MarketPlace"
@@ -1328,11 +1328,11 @@ msgstr "Piața a fost creată"
 #: ../app/tabs/marketplaces-tab/panels/info.js:46
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Enabled"
-msgstr ""
+msgstr "Activat"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:47
 msgid "Disabled"
-msgstr ""
+msgstr "Dezactivat"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:90
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
@@ -1399,7 +1399,7 @@ msgstr ""
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:39
 msgid "Backup"
-msgstr ""
+msgstr "Backup"
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -1440,7 +1440,7 @@ msgstr "Nu mă pot conecta la serverul OneFlow"
 #: ../app/tabs/vdcs-tab.js:45 ../app/tabs/acls-tab/datatable.js:183
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:117
 msgid "VDCs"
-msgstr ""
+msgstr "VDC-uri"
 
 #: ../app/tabs/vdcs-tab.js:49
 msgid "Virtual Data Centers"
@@ -1558,7 +1558,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:63
 msgid "NUMA"
-msgstr ""
+msgstr "NUMA"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:56
 #: ../app/tabs/vms-tab/panels/network.js:77
@@ -1802,15 +1802,15 @@ msgstr "CPU utilizat"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 msgid "Free CPU"
-msgstr ""
+msgstr "CPU disponibil"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Used MEMORY"
-msgstr ""
+msgstr "MEMORIE utilizată"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Free MEMORY"
-msgstr ""
+msgstr "MEMORIE disponibilă"
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
@@ -1860,7 +1860,7 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/numa.js:51
 msgid "Numa"
-msgstr ""
+msgstr "Numa"
 
 #: ../app/tabs/hosts-tab/panels/pool.js:42
 msgid "POOL"
@@ -1925,7 +1925,7 @@ msgstr "Zone"
 #: ../app/tabs/support-tab.js:95 ../app/tabs/support-tab.js:107
 #: ../app/tabs/support-tab/title.hbs:56
 msgid "Sign in"
-msgstr ""
+msgstr "Autentificare"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:55
 msgid "Create Service Template"
@@ -2105,7 +2105,7 @@ msgstr "Adrese IP"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:99
 msgid "All Roles"
-msgstr ""
+msgstr "Toate rolurile"
 
 #: ../app/tabs/oneflow-services-tab/panels/log.js:39
 #: ../app/tabs/vms-tab/panels/log.js:42
@@ -2122,7 +2122,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:202
 msgid "Dismiss"
-msgstr ""
+msgstr "Renunță"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
@@ -2175,7 +2175,7 @@ msgstr "Distruge"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "Șterge rolul"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:64
 #: ../app/tabs/vms-tab/buttons.js:157 ../app/tabs/vms-tab/buttons.js:165
@@ -2227,7 +2227,7 @@ msgstr "Stare"
 #: ../app/tabs/vms-tab/panels/info/html.hbs:81
 #: ../app/utils/accounting/html.hbs:19
 msgid "Start time"
-msgstr ""
+msgstr "Momentul de start"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:77
 msgid "Charters"
@@ -2252,7 +2252,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/datatable.js:127
 #: ../app/tabs/vms-tab/utils/datatable-common.js:133
 msgid "will run in"
-msgstr ""
+msgstr "va rula în"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
@@ -2509,7 +2509,7 @@ msgstr "Descarcă"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:60
 msgid "Last updated"
-msgstr ""
+msgstr "Ultima actualizare"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:66
 msgid "Please select a dockerhub tag from the list (default latest)"
@@ -2548,11 +2548,11 @@ msgstr "Ok"
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:34
 msgid "Import into Datastore"
-msgstr ""
+msgstr "Importă în Datastore"
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
 msgid "Download to your desktop"
-msgstr ""
+msgstr "Descarcă pe desktop"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:95
 #: ../app/tabs/marketplaceapps-tab/panels/info/html.hbs:61
@@ -2632,7 +2632,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/utils/datatable-common.js:45
 msgid "Charter"
-msgstr ""
+msgstr "Charter"
 
 #: ../app/tabs/vms-tab/panels/placement.js:43
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:20
@@ -2683,7 +2683,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/placement.js:75
 msgid "Total time"
-msgstr ""
+msgstr "Durata totală"
 
 #: ../app/tabs/vms-tab/panels/placement.js:76
 msgid "Prolog time"
@@ -2731,7 +2731,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/capacity.js:186
 msgid "CPU usage"
-msgstr ""
+msgstr "Utilizare CPU"
 
 #: ../app/tabs/vms-tab/panels/info.js:97
 #: ../app/tabs/images-tab/panels/info-common.js:66
@@ -2790,7 +2790,7 @@ msgstr "Moment"
 #: ../app/tabs/vms-tab/dialogs/snapshot/html.hbs:33
 #: ../app/tabs/vms-tab/dialogs/disk-snapshot/html.hbs:39
 msgid "Take snapshot"
-msgstr ""
+msgstr "Salvează snapshot"
 
 #: ../app/tabs/vms-tab/panels/snapshots.js:105
 msgid "No snapshots to show"
@@ -2805,7 +2805,7 @@ msgstr ""
 #: ../app/tabs/vms-tab/dialogs/revert/html.hbs:20
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:27
 msgid "Revert"
-msgstr ""
+msgstr "Revenire"
 
 #: ../app/tabs/vms-tab/panels/network.js:107
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:38
@@ -2904,17 +2904,17 @@ msgstr "Viteză de transmisie"
 #: ../app/tabs/vms-tab/panels/storage.js:112
 #: ../app/tabs/vms-tab/panels/storage.js:785
 msgid "Disk read bytes"
-msgstr ""
+msgstr "Bytes - citire disc"
 
 #: ../app/tabs/vms-tab/panels/storage.js:128
 #: ../app/tabs/vms-tab/panels/storage.js:793
 msgid "Disk write bytes"
-msgstr ""
+msgstr "Bytes - scriere disc"
 
 #: ../app/tabs/vms-tab/panels/storage.js:144
 #: ../app/tabs/vms-tab/panels/storage.js:801
 msgid "Disk read IOPS"
-msgstr ""
+msgstr "IOPS citire disc"
 
 #: ../app/tabs/vms-tab/panels/storage.js:160
 #: ../app/tabs/vms-tab/panels/storage.js:810
@@ -3015,7 +3015,7 @@ msgstr "VNC"
 
 #: ../app/tabs/vms-tab/buttons.js:211
 msgid "VMRC"
-msgstr ""
+msgstr "VMRC"
 
 #: ../app/tabs/vms-tab/buttons.js:217
 msgid "SPICE"
@@ -3557,7 +3557,7 @@ msgstr "CONTEXT"
 
 #: ../app/tabs/images-tab/panels/snapshots.js:131
 msgid "This will delete all the other image snapshots"
-msgstr ""
+msgstr "Asta va  șterge toate celelalte snapshot-uri"
 
 #: ../app/tabs/images-tab/panels/snapshots.js:164
 msgid "This will delete the image snapshot "
@@ -4563,7 +4563,7 @@ msgstr "Modifică"
 #: ../app/utils/quotas/quota-widgets.js:888
 #: ../app/tabs/groups-tab/panels/users/html.hbs:25
 msgid "Cancel"
-msgstr ""
+msgstr "Renunță"
 
 #: ../app/utils/quotas/quota-widgets.js:891
 #: ../app/tabs/groups-tab/panels/users/html.hbs:28
@@ -5092,7 +5092,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:294
 msgid "Address Ranges need to be managed in the individual Virtual Network panel"
-msgstr ""
+msgstr "Intervalele de adrese trebuie gestionate în panoul de rețele virtuale individuale"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:304
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:127
@@ -6699,7 +6699,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:4
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:191
 msgid "Target device"
-msgstr ""
+msgstr "Dispozitiv destinație"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:5
 msgid "Device to map image disk. If set, it will overwrite the default device mapping."
@@ -6900,7 +6900,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:217
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:23
 msgid "Virtual CPU"
-msgstr ""
+msgstr "CPU virtual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:218
@@ -6983,9 +6983,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Ore de GB memorie"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7157,7 +7156,7 @@ msgstr "core"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:42
 msgid "Sockets"
-msgstr ""
+msgstr "Procesoare"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:43
 msgid "Number of sockets or NUMA nodes"
@@ -7165,7 +7164,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:49
 msgid "Cores"
-msgstr ""
+msgstr "Nuclee"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:50
 msgid "Number of cores per node"
@@ -7204,8 +7203,9 @@ msgid "Private"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "CPU virtual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -7420,7 +7420,7 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:184
 #: ../app/tabs/hosts-tab/panels/esx/html.hbs:22
 msgid "Hostname"
-msgstr ""
+msgstr "Hostname"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:49
 msgid "Virtualization"
@@ -7852,7 +7852,7 @@ msgstr ""
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:41
 #: ../app/tabs/oneflow-services-tab/panels/roles/roleInfo.hbs:28
 msgid "Shutdown action"
-msgstr ""
+msgstr "Acțiune shutdown"
 
 #: ../app/tabs/oneflow-templates-tab/panels/info/html.hbs:51
 #: ../app/tabs/oneflow-services-tab/panels/info/html.hbs:51
@@ -8001,7 +8001,7 @@ msgstr "Atașează NIC"
 
 #: ../app/tabs/vrouters-tab/panels/info/html.hbs:79
 msgid "Detach"
-msgstr ""
+msgstr "Detașează"
 
 #: ../app/tabs/vrouters-tab/dialogs/attach-nic/html.hbs:20
 #: ../app/tabs/vms-tab/dialogs/attach-nic/html.hbs:20
@@ -8579,11 +8579,11 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/dashboard/html/group-vms.hbs:94
 msgid "Memory GB"
-msgstr ""
+msgstr "Memorie GB"
 
 #: ../app/tabs/provision-tab/dashboard/html/group-vms.hbs:106
 msgid "Disk MB"
-msgstr ""
+msgstr "Disc MB"
 
 #: ../app/tabs/provision-tab/vms/html/confirm_undeploy.hbs:5
 msgid "This action will power off this Virtual Machine and will be undeployed from the physical machine"
@@ -8743,11 +8743,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
-msgstr ""
+msgstr "Intervale de adrese"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Network name"
-msgstr ""
+msgstr "Nume rețea"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -8793,7 +8793,7 @@ msgstr "Imagine disc goală"
 
 #: ../app/tabs/images-tab/panels/snapshots/html.hbs:22
 msgid "Flatten"
-msgstr ""
+msgstr "Nivelează"
 
 #: ../app/tabs/images-tab/panels/info/html.hbs:64
 msgid "Filesystem type"
@@ -8843,7 +8843,7 @@ msgstr "Utilizare"
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:187
 #: ../app/utils/panel/permissions-table/permissions.hbs:21
 msgid "Manage"
-msgstr ""
+msgstr "Gestionează"
 
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:191
 msgid "Administrate"
@@ -8901,7 +8901,7 @@ msgstr "Grupuri secundare"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:37
 msgid "Is enabled?"
-msgstr ""
+msgstr "Este activat?"
 
 #: ../app/tabs/users-tab/panels/info/html.hbs:42
 msgid "Table Order"
@@ -8921,7 +8921,7 @@ msgstr "Driver autentificare"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:38
 msgid "Two factor authentication"
-msgstr ""
+msgstr "Autentificare cu doi factori"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:62
 msgid "Login token"
@@ -8942,7 +8942,7 @@ msgstr "Poți salva o cheie SSH pentru acest utilizator apăsând butonul de edi
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:107
 msgid "Private SSH Key"
-msgstr ""
+msgstr "Cheie privată SSH"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:122
 msgid "You can provide a Private SSH Key for this User clicking on the edit button"
@@ -8967,20 +8967,20 @@ msgstr "Grup secundar"
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:237
 msgid "Two Factor Authentication"
-msgstr ""
+msgstr "Autentificare cu doi factori"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:29
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:242
 msgid "Two factor authentication can be enabled for logging into Sunstone UI."
-msgstr ""
+msgstr "Autentificarea cu doi factori poate fi activată pentru accesul în interfața Sunstone."
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:39
 msgid "Authenticator Type"
-msgstr ""
+msgstr "Tipul autentificatorului"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:40
 msgid "Authenticator Name"
-msgstr ""
+msgstr "Numele autentificatorului"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:47
 msgid "TYPE"
@@ -9000,15 +9000,15 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:76
 msgid "Authy"
-msgstr ""
+msgstr "Authy"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:79
 msgid "Google Authenticator"
-msgstr ""
+msgstr "Google Authenticator"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:82
 msgid "Microsoft Authenticator"
-msgstr ""
+msgstr "Microsoft Authenticator"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:86
 msgid "Scan this Barcode."
@@ -9020,7 +9020,7 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:101
 msgid "Nickname for this security key"
-msgstr ""
+msgstr "Numele acestei chei de securitate"
 
 #: ../app/tabs/users-tab/dialogs/login-token/html.hbs:20
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:203
@@ -9141,7 +9141,7 @@ msgstr "Orice rețea"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:110
 msgid "Manual network"
-msgstr ""
+msgstr "Rețea manuală"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:111
 msgid "OpenNebula Virtual Network"
@@ -9543,5 +9543,8 @@ msgstr "Memorie rezervată în KB"
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
 
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & VLAN ebtables"
+#~ msgid "BackupsJobs"
+#~ msgstr "Sarcini de backup"
+
+#~ msgid "Schedule Actions"
+#~ msgstr "Programează acțiuni"

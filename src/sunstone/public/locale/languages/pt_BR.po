@@ -28,7 +28,7 @@ msgstr ""
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.io>, 2021\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/opennebula/one/language/pt_BR/)\n"
+"Language-Team: Portuguese (Brazil) (http://app.transifex.com/opennebula/one/language/pt_BR/)\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6998,9 +6998,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Horas de GB de Memória"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7219,8 +7218,9 @@ msgid "Private"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "CPU Virtual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9557,9 +9557,3 @@ msgstr "Memória Reservada em KB"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Estes valores substituirão os valores de monitoramento no próximo ciclo de monitoramento."
-
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables Segurança"
-
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged & VLAN ebtables, restringe o acesso à rede através de regras ebtables. As regras do Grupo de Segurança serão aplicadas."

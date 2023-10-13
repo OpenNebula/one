@@ -30,7 +30,7 @@
 # Zabo Vulko, 2019
 # Антон Зубков <anton.zubkoff@gmail.com>, 2016
 # Артем Салпагаров <artem.salpagarov@gmail.com>, 2013
-# Волков Станислав, 2021
+# Волков Станислав, 2021,2023
 # Роман Бычков <bychkovry@gmail.com>, 2016
 msgid ""
 msgstr ""
@@ -38,8 +38,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Alex Gluck <alexgluck@bk.ru>, 2022\n"
-"Language-Team: Russian (Russia) (http://www.transifex.com/opennebula/one/language/ru_RU/)\n"
+"Last-Translator: Волков Станислав, 2021,2023\n"
+"Language-Team: Russian (Russia) (http://app.transifex.com/opennebula/one/language/ru_RU/)\n"
 "Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -759,15 +759,15 @@ msgstr "Разм. приост."
 
 #: ../app/tabs/vnets-tab/panels/leases.js:41
 msgid "UPDATED"
-msgstr ""
+msgstr "ОБНОВЛЕН"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 msgid "OUTDATED"
-msgstr ""
+msgstr "УСТАРЕЛ"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:43
 msgid "UPDATING"
-msgstr ""
+msgstr "ОБНОВЛЕНИЕ"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:44
 #: ../app/tabs/provision-tab/vms/list.js:978
@@ -790,7 +790,7 @@ msgstr "НЕИЗВЕСТНО"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:46
 msgid "RESERVED"
-msgstr ""
+msgstr "ЗАРЕЗЕРВИРОВАН"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:55
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -1425,7 +1425,7 @@ msgstr "Резервные копии"
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:39
 msgid "Backup"
-msgstr ""
+msgstr "Резервная копия"
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -2459,40 +2459,40 @@ msgstr "Инф. панель"
 
 #: ../app/tabs/backups-tab/actions.js:32
 msgid "Backup created"
-msgstr ""
+msgstr "Бэкап создан"
 
 #: ../app/tabs/backups-tab/actions.js:57
 msgid "Restored Template"
-msgstr ""
+msgstr "Восстановленный Шаблон"
 
 #: ../app/tabs/backups-tab/actions.js:61
 msgid "Restored Disk"
-msgstr ""
+msgstr "Восстановленный Диск"
 
 #: ../app/tabs/backups-tab/panels/increments.js:35
 msgid "Increments"
-msgstr ""
+msgstr "добавляет"
 
 #: ../app/tabs/backups-tab/buttons.js:30
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:46
 msgid "Restore"
-msgstr ""
+msgstr "Восстановить"
 
 #: ../app/tabs/backups-tab/datatable.js:43
 msgid "Please select a backup from the list"
-msgstr ""
+msgstr "Пожалуйста выберите бэкап из списка"
 
 #: ../app/tabs/backups-tab/datatable.js:44
 msgid "You selected the following backup:"
-msgstr ""
+msgstr "Вы выбрали следующий бэкап:"
 
 #: ../app/tabs/backups-tab/datatable.js:45
 msgid "Please select one or more backups from the list"
-msgstr ""
+msgstr "Пожалуйста выберите еще один или несколько бэкапов из списка"
 
 #: ../app/tabs/backups-tab/datatable.js:46
 msgid "You selected the following backups:"
-msgstr ""
+msgstr "Вы выбрали следующий бэкап:"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:59
 msgid "Create MarketPlace App"
@@ -3545,11 +3545,11 @@ msgstr ". Для этого DS_MAD драйвером хранилища экс�
 
 #: ../app/tabs/images-tab/actions.js:148
 msgid "Template restored"
-msgstr ""
+msgstr "Шаблон восстановлен"
 
 #: ../app/tabs/images-tab/actions.js:152
 msgid "Disk restored"
-msgstr ""
+msgstr "Диск восстановлен"
 
 #: ../app/tabs/images-tab/panels/info-common.js:96
 #: ../app/opennebula/image.js:37
@@ -3618,15 +3618,15 @@ msgstr "Цель"
 #: ../app/opennebula/datastore.js:32 ../app/opennebula/image.js:43
 #: ../app/opennebula/vm.js:369 ../app/opennebula/vm.js:370
 msgid "BACKUP"
-msgstr ""
+msgstr "БЭКАП"
 
 #: ../app/tabs/images-tab/datatable-common.js:112
 msgid "INCREMENTAL"
-msgstr ""
+msgstr "ИНКРЕМЕНТАЛЬНЫЙ"
 
 #: ../app/tabs/images-tab/datatable-common.js:115
 msgid "FULL"
-msgstr ""
+msgstr "ПОЛНЫЙ"
 
 #: ../app/tabs/images-tab/datatable.js:45
 msgid "Please select an image from the list"
@@ -5513,7 +5513,7 @@ msgstr ""
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
 msgid "Backup - RSync"
-msgstr ""
+msgstr "Бэкап - RSync"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:49
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:44
@@ -5709,7 +5709,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:275
 msgid "Backup I/O Priority"
-msgstr ""
+msgstr "I/O приоритет бэкапа"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:277
 msgid "Run restic operations under a given ionice priority using the best-effort I/O scheduler"
@@ -5725,7 +5725,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:295
 msgid "Bandwidth Limit"
-msgstr ""
+msgstr "Ограничение полосы"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:297
 msgid "limit download and upload to a  maximum rate in KiB/s"
@@ -5733,7 +5733,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:305
 msgid "Compression level"
-msgstr ""
+msgstr "Уровень сжатия"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:307
 msgid "Compress backups in the datastore, it needs a Restic repository with format version 2"
@@ -5766,11 +5766,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:331
 msgid "RSync host"
-msgstr ""
+msgstr "RSync хост"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:338
 msgid "RSync user"
-msgstr ""
+msgstr "RSync пользователь"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:348
 msgid "Staging directory for Image registration"
@@ -6644,11 +6644,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:287
 msgid "PCI passthrough - Automatic"
-msgstr ""
+msgstr "Проброс PCI - автоматически"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:288
 msgid "PCI passthrough - Manual"
-msgstr ""
+msgstr "Проброс PCI - вручную"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:295
 msgid "Hardware model to emulate"
@@ -6684,7 +6684,7 @@ msgstr "Класс"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:327
 msgid "Short address"
-msgstr ""
+msgstr "Короткий адрес"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:338
 msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
@@ -7009,9 +7009,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Память в Гб"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7230,8 +7229,9 @@ msgid "Private"
 msgstr "Частный"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr "Выбранные виртуальные процессоры"
+msgstr "Виртуальный процессор"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -7295,7 +7295,7 @@ msgstr "PCI passthrough для сетевых адаптеров настраи�
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:20
 msgid "To enable periodic backups please refer to \"Actions\" tab"
-msgstr ""
+msgstr "Для создания периодических бэкапов, пожалуйста воспользуйтесь закладкой \"Действия\""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:28
 msgid "Backup volatile disks?"
@@ -7311,15 +7311,15 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:39
 msgid "QEMU Agent"
-msgstr ""
+msgstr "QEMU Агент"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:45
 msgid "How many backups do you want to keep?"
-msgstr ""
+msgstr "Сколько бэкапов вы хотите сохранить?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:51
 msgid "Mode"
-msgstr ""
+msgstr "Режим"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:55
 msgid "Full"
@@ -7327,7 +7327,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:56
 msgid "Increment"
-msgstr ""
+msgstr "Инкремент"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
 msgid "Policy"
@@ -8177,24 +8177,24 @@ msgstr "Применить изменения"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:19
 msgid "Restore Backup"
-msgstr ""
+msgstr "Восстановить бэкап"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:25
 msgid "Attributes to restore"
-msgstr ""
+msgstr "Аттрибуты для восстановления"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:28
 msgid "Do not restore NIC attributes"
-msgstr ""
+msgstr "Не восстанавливать NIC аттрибуты"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:32
 msgid "Do not restore IP attributes"
-msgstr ""
+msgstr "Не восстанавливать IP аттрибуты"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:39
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:30
 msgid "Datastore to restore"
-msgstr ""
+msgstr "Хранилище для восстановления"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:40
 msgid "Import images"
@@ -9568,9 +9568,3 @@ msgstr "Зарезервировано памяти, в Кб"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "В следующий цикл наблюдения, значения будут перезаписывать существующие значения мониторинга"
-
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables VLAN"
-
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged & ebtables VLAN, разделение сетевого доступа на основе правил ebtables. Используются Группы безопасности."

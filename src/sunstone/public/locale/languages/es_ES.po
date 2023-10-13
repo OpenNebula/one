@@ -8,6 +8,7 @@
 # adriagm <adria@fsfe.org>, 2015
 # Adrián Menéndez <amenendez@asac.as>, 2017-2018
 # Alejandro Huertas Herrero <ahuertas@opennebula.io>, 2020
+# Alejandro Huertas Herrero, 2023
 # Carlos Albornoz <carlos@albornoz.rocks>, 2020
 # Daniel Molina <dmolina@opennebula.org>, 2012-2013,2015
 # Diego Hernan Marciano <diego.h.marciano@hotmail.com>, 2014
@@ -23,6 +24,7 @@
 # Jaime Montaña <jaime@etsii.upm.es>, 2013-2014
 # j.melis <j.melis@gmail.com>, 2014
 # j.melis <j.melis@gmail.com>, 2014
+# Jorge Lobo <jlobo@opennebula.io>, 2023
 # Jorge Lobo <jlobo@opennebula.io>, 2019,2021
 # skymix <skymix.es@gmail.com>, 2014-2015
 # skymix <skymix.es@gmail.com>, 2015-2016
@@ -47,8 +49,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Jorge Lobo <jlobo@opennebula.io>, 2019,2021\n"
-"Language-Team: Spanish (Spain) (http://www.transifex.com/opennebula/one/language/es_ES/)\n"
+"Last-Translator: Jorge Lobo <jlobo@opennebula.io>, 2023\n"
+"Language-Team: Spanish (Spain) (http://app.transifex.com/opennebula/one/language/es_ES/)\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -768,7 +770,7 @@ msgstr "MANTENER"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:41
 msgid "UPDATED"
-msgstr ""
+msgstr "ACTUALIZADO"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 msgid "OUTDATED"
@@ -776,7 +778,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/leases.js:43
 msgid "UPDATING"
-msgstr ""
+msgstr "ACTUALIZANDO"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:44
 #: ../app/tabs/provision-tab/vms/list.js:978
@@ -799,7 +801,7 @@ msgstr "UNKNOWN"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:46
 msgid "RESERVED"
-msgstr ""
+msgstr "RESERVADO"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:55
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -1342,11 +1344,11 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:171
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:174
 msgid "SSL connection"
-msgstr ""
+msgstr "Coneccion SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:188
 msgid "Create MarketPlace"
@@ -1363,11 +1365,11 @@ msgstr "Tienda de Aplicaciones creada"
 #: ../app/tabs/marketplaces-tab/panels/info.js:46
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Enabled"
-msgstr ""
+msgstr "Habilitado"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:47
 msgid "Disabled"
-msgstr ""
+msgstr "Deshabilitado"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:90
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
@@ -1434,7 +1436,7 @@ msgstr "Backups"
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:39
 msgid "Backup"
-msgstr ""
+msgstr "Copia de seguridad"
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -1878,7 +1880,7 @@ msgstr "No se puede conectar con el servidor: está ejecutándose y disponible?"
 
 #: ../app/tabs/hosts-tab/panels/info.js:236
 msgid "it must not be a negative number"
-msgstr ""
+msgstr "No puede ser un número negativo"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:54
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
@@ -1993,11 +1995,11 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
 msgid "Delete Images and VM Templates"
-msgstr ""
+msgstr "Borrar imágenes  y plantillas de VM"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:58
 msgid "Delete VM Templates"
-msgstr ""
+msgstr "Borra plantilla de VM"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:127
 #: ../app/tabs/oneflow-services-tab/actions.js:38
@@ -2149,7 +2151,7 @@ msgstr "Registro"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:193
 msgid "VM: "
-msgstr ""
+msgstr "VM:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:195
 msgid "has error: "
@@ -2210,7 +2212,7 @@ msgstr "Finalizar"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "Remover Rol"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:64
 #: ../app/tabs/vms-tab/buttons.js:157 ../app/tabs/vms-tab/buttons.js:165
@@ -2468,24 +2470,24 @@ msgstr "Panel principal"
 
 #: ../app/tabs/backups-tab/actions.js:32
 msgid "Backup created"
-msgstr ""
+msgstr "Backup Creado"
 
 #: ../app/tabs/backups-tab/actions.js:57
 msgid "Restored Template"
-msgstr ""
+msgstr "Plantilla restaurada"
 
 #: ../app/tabs/backups-tab/actions.js:61
 msgid "Restored Disk"
-msgstr ""
+msgstr "Disco Restaurado"
 
 #: ../app/tabs/backups-tab/panels/increments.js:35
 msgid "Increments"
-msgstr ""
+msgstr "Incrementos"
 
 #: ../app/tabs/backups-tab/buttons.js:30
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:46
 msgid "Restore"
-msgstr ""
+msgstr "Restaurar"
 
 #: ../app/tabs/backups-tab/datatable.js:43
 msgid "Please select a backup from the list"
@@ -3554,11 +3556,11 @@ msgstr ". La accion exportar no esta soportada para el driver DS_MAD del Datasto
 
 #: ../app/tabs/images-tab/actions.js:148
 msgid "Template restored"
-msgstr ""
+msgstr "Plantilla Restaurada"
 
 #: ../app/tabs/images-tab/actions.js:152
 msgid "Disk restored"
-msgstr ""
+msgstr "Disco Restaurado"
 
 #: ../app/tabs/images-tab/panels/info-common.js:96
 #: ../app/opennebula/image.js:37
@@ -3627,11 +3629,11 @@ msgstr "Destino"
 #: ../app/opennebula/datastore.js:32 ../app/opennebula/image.js:43
 #: ../app/opennebula/vm.js:369 ../app/opennebula/vm.js:370
 msgid "BACKUP"
-msgstr ""
+msgstr "Copia de seguridad"
 
 #: ../app/tabs/images-tab/datatable-common.js:112
 msgid "INCREMENTAL"
-msgstr ""
+msgstr "Incremental"
 
 #: ../app/tabs/images-tab/datatable-common.js:115
 msgid "FULL"
@@ -7018,9 +7020,8 @@ msgid "Hotplug"
 msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Horas Memoria GB"
+msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7239,8 +7240,9 @@ msgid "Private"
 msgstr "Privado"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr ""
+msgstr "CPU Virtual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -8987,11 +8989,11 @@ msgstr ""
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:133
 msgid "Private SSH Key Passphrase"
-msgstr ""
+msgstr "Contraseña de la clave privada SSH"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:148
 msgid "You can provide a Private SSH Key Passphrase for this User clicking on the edit button"
-msgstr ""
+msgstr "Puede proporcionar la contraseña de la clave privada SSH usando el botón editar en este usuario"
 
 #: ../app/tabs/users-tab/panels/groups/html.hbs:28
 msgid "Primary Group"
@@ -9345,7 +9347,7 @@ msgstr "Selecciona una fila para obtener información detallada del mes"
 
 #: ../app/utils/showback/html.hbs:90
 msgid "Running"
-msgstr ""
+msgstr "Ejecutando "
 
 #: ../app/utils/vmgroup-section/html.hbs:5
 msgid "Clear"
@@ -9436,7 +9438,7 @@ msgstr "El protocolo RDP va a ser habilitada en esta red"
 
 #: ../app/utils/nics-section/dd.hbs:96
 msgid "SSH will be enabled in this network"
-msgstr ""
+msgstr "Las conexiones SSH estarán habilitadas en esta red"
 
 #: ../app/utils/nics-section/dd.hbs:162
 msgid "Force IPv4:"
@@ -9518,7 +9520,7 @@ msgstr "Nombre de Snap"
 
 #: ../app/utils/schedule_action/perform-action.hbs:40
 msgid "Perform"
-msgstr ""
+msgstr "Ejecutar"
 
 #: ../app/utils/schedule_action/html.hbs:19
 msgid "New scheduled action"
@@ -9580,8 +9582,8 @@ msgstr "Reservado de memoria en KB"
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Los valores sobreescribirán los valores monitorizados en el siguiente ciclo de monitorización"
 
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables VLAN"
+#~ msgid "Priority"
+#~ msgstr "Prioridad"
 
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged y VLAN ebtables, red restringida para su acceso a traves de reglas ebtables. Las reglas del Grupo de Seguridad se aplicaran."
+#~ msgid "Last Backup"
+#~ msgstr "Último Backup"

@@ -3,9 +3,10 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# Jan Benadik <jan.benadik@atos.net>, 2013
+# Jan Benadik <jan.benadik@eviden.com>, 2013
 # Ján Beňadik <>, 2012
-# Jan Benadik <jan.benadik@atos.net>, 2013-2022
+# Jan Benadik <jan.benadik@eviden.com>, 2013-2022
+# Jan Benadik <jan.benadik@eviden.com>, 2023
 # Martin Martin <spam@profihost.sk>, 2019
 # micromanc3r <micromanc3r@gmail.com>, 2012
 msgid ""
@@ -14,8 +15,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Jan Benadik <jan.benadik@atos.net>, 2013-2022\n"
-"Language-Team: Slovak (Slovakia) (http://www.transifex.com/opennebula/one/language/sk_SK/)\n"
+"Last-Translator: Jan Benadik <jan.benadik@eviden.com>, 2023\n"
+"Language-Team: Slovak (Slovakia) (http://app.transifex.com/opennebula/one/language/sk_SK/)\n"
 "Language: sk_SK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6976,20 +6977,19 @@ msgstr "Minimálne"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:140
 msgid "Memory Resize Mode"
-msgstr ""
+msgstr "Režim zmeny veľkosti pamäte"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:145
 msgid "Ballooning"
-msgstr ""
+msgstr "ballooning"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:146
 msgid "Hotplug"
-msgstr ""
+msgstr "Hotplug"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Pamäť GB"
+msgstr "Pamäťové sloty"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7208,8 +7208,9 @@ msgid "Private"
 msgstr "Privátna"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr "Virtuálne CPU vybraté"
+msgstr "Virtuálny CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9551,8 +9552,128 @@ msgstr "Rezervovaná RAM v kB"
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Hodnoty prepíšu hodnoty z monitoringu v ďalšom monitovacom cykle"
 
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables VLAN"
+#~ msgid "BackupsJobs"
+#~ msgstr "Zálohovacie joby"
 
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged & ebtables VLAN, obmedzený sieťový prístup prostredníctvom pravidiel ebtables. Skupinové security pravidlá sú aplikované. "
+#~ msgid "Create BackupJob"
+#~ msgstr "Vytvor zálohovací job"
+
+#~ msgid "BackupJob created"
+#~ msgstr "Zálohovací job vytvorený"
+
+#~ msgid "BackupJob Error"
+#~ msgstr "Chyba zálohovacieho jobu"
+
+#~ msgid "Priority"
+#~ msgstr "Priorita"
+
+#~ msgid "Last Backup"
+#~ msgstr "Posledná záloha"
+
+#~ msgid "Please select a Backup job from the list"
+#~ msgstr "Vyber zálohovací job zo zoznamu"
+
+#~ msgid "You selected the following backupsjobs:"
+#~ msgstr "Vybral si tieto zálohovacie joby:"
+
+#~ msgid "Please select one or more backupjobs from the list"
+#~ msgstr "Vyber jeden alebo viac zálohovacích jobov zo zoznamu"
+
+#~ msgid "Max Read IOPS"
+#~ msgstr "Maximálne IOPS pri čítaní"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of read iops"
+#~ msgstr "Spusti zálohy v segmente systemd s obmedzením maximálneho počtu IOPS pre čítanie"
+
+#~ msgid "Max Write IOPS"
+#~ msgstr "Maximálne IOPS pri zápise"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of write iops"
+#~ msgstr "Spusti zálohy v segmente systemd s obmedzením maximálneho počtu IOPS pre zápis"
+
+#~ msgid "CPU Quota"
+#~ msgstr "CPU kvóta"
+
+#~ msgid "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"
+#~ msgstr "Spusti zálohy v segmente systemd s obmedzením na CPU kvótu (percentuálne). Použi >100 pre použitie viac CPU"
+
+#~ msgid "virtio-blk Queues"
+#~ msgstr "virtio-blk fronty"
+
+#~ msgid "Number of vCPU queues to use in the virtio-blk controller. Leave blank to use the default value."
+#~ msgstr "Počet vCPU front pre tento virtio-blk ovládač. Ponechaj prázdne pre použitie default hodnoty"
+
+#~ msgid "CPU Features"
+#~ msgstr "CPU fičúrie"
+
+#~ msgid "Skip network contextualizacion"
+#~ msgstr "Preskoč sieťovú kontextualizáciu"
+
+#~ msgid "A virtual router can be configured to route SDNAT traffic for this NIC IP address"
+#~ msgstr "Virtuálny router je konfigurovaný na smerovanie SDNAT premávky na túto IP adresu "
+
+#~ msgid "node affinity"
+#~ msgstr "Príbuznosť nódov"
+
+#~ msgid "Node Number"
+#~ msgstr "Číslo nódu"
+
+#~ msgid "Number of NUMA nodes (node affinity)"
+#~ msgstr "Počet NUMA nódov (príbuznosť nódov)"
+
+#~ msgid "Increment ID"
+#~ msgstr "ID prírastku"
+
+#~ msgid "Skip network contextualization"
+#~ msgstr "Preskoč sieťovú kontextualizáciu"
+
+#~ msgid "The number of concurrent backup operations are controlled globally."
+#~ msgstr "Počet operácií paralelných záloh je riadený globálne"
+
+#~ msgid "Agent"
+#~ msgstr "Agent"
+
+#~ msgid "Keep Last"
+#~ msgstr "Podrž posledný"
+
+#~ msgid "Backup Volatile"
+#~ msgstr "Volatilná záloha"
+
+#~ msgid "Select Vms"
+#~ msgstr "Vyber virtuálne stroje"
+
+#~ msgid "VM List (ordered)"
+#~ msgstr "Zoznam VS (objednaný)"
+
+#~ msgid "The order of this list is crucial as it determines the sequence of backup operations."
+#~ msgstr "Rozhodujúce je poradie v tomto zozname, pretože určuje postupnosť operácií zálohovania."
+
+#~ msgid "Select the Datastore"
+#~ msgstr "Vyber úložisko"
+
+#~ msgid "Schedule Actions"
+#~ msgstr "Naplánuj udalosť"
+
+#~ msgid "Last Backup Duration"
+#~ msgstr "Trvanie posledného backupu"
+
+#~ msgid "VMs in BackupJob"
+#~ msgstr "VS v zálohovacom jobe"
+
+#~ msgid "Edit VMs"
+#~ msgstr "Edituj VS"
+
+#~ msgid "VMs Error"
+#~ msgstr "Chyba VS"
+
+#~ msgid "VMs Backing Up"
+#~ msgstr "Zálohované VS"
+
+#~ msgid "VMs Outdated"
+#~ msgstr "VS zastaraný"
+
+#~ msgid "VMs Updated"
+#~ msgstr "VS aktualizovaný"
+
+#~ msgid "Select VMs"
+#~ msgstr "Vyber virtuálne stroje"

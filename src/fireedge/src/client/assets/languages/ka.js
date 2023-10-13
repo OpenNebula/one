@@ -1,0 +1,1 @@
+lang="ka"locale={  "":"",  "IP":"IP",  "Toggle all selected cards in current page":"",  "ID":"ID",  "Net RX":"NET RX",  "Net TX":"NET TX",  "Ready status gate":"",  "Guacamole State":"",  "VMRC":"VMRC",  "Charter":"",  "ensuredTitle":"",  "ensuredDescription":"",  "Hugepage":"Hugepage",  "Prolog":"",  "Sign In":"",}

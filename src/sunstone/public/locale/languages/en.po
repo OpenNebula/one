@@ -10,7 +10,7 @@ msgstr ""
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: English (http://www.transifex.com/opennebula/one/language/en/)\n"
+"Language-Team: English (http://app.transifex.com/opennebula/one/language/en/)\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6969,20 +6969,19 @@ msgstr "Min"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:140
 msgid "Memory Resize Mode"
-msgstr ""
+msgstr "Memory Resize Mode"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:145
 msgid "Ballooning"
-msgstr ""
+msgstr "Ballooning"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:146
 msgid "Hotplug"
-msgstr ""
+msgstr "Hotplug"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
-#, fuzzy
 msgid "Memory Slots"
-msgstr "Memory GB"
+msgstr "Memory Slots"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7201,8 +7200,9 @@ msgid "Private"
 msgstr "Private"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
+#, fuzzy
 msgid "Virtual CPU selected"
-msgstr "Virtual CPU selected"
+msgstr "Virtual CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9548,8 +9548,128 @@ msgstr "Reserved Memory in KB"
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "The values will overwrite the monitoring values in the next monitorization cycle"
 
-#~ msgid "Bridged & ebtables VLAN"
-#~ msgstr "Bridged & ebtables VLAN"
+#~ msgid "BackupsJobs"
+#~ msgstr "BackupsJobs"
 
-#~ msgid "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
-#~ msgstr "Bridged & ebtables VLAN, restrict network access through ebtables rules. Security Group rules are applied."
+#~ msgid "Create BackupJob"
+#~ msgstr "Create BackupJob"
+
+#~ msgid "BackupJob created"
+#~ msgstr "BackupJob created"
+
+#~ msgid "BackupJob Error"
+#~ msgstr "BackupJob Error"
+
+#~ msgid "Priority"
+#~ msgstr "Priority"
+
+#~ msgid "Last Backup"
+#~ msgstr "Last Backup"
+
+#~ msgid "Please select a Backup job from the list"
+#~ msgstr "Please select a Backup job from the list"
+
+#~ msgid "You selected the following backupsjobs:"
+#~ msgstr "You selected the following backupsjobs:"
+
+#~ msgid "Please select one or more backupjobs from the list"
+#~ msgstr "Please select one or more backupjobs from the list"
+
+#~ msgid "Max Read IOPS"
+#~ msgstr "Max Read IOPS"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of read iops"
+#~ msgstr "Run backups in a systemd slice, limiting the max number of read iops"
+
+#~ msgid "Max Write IOPS"
+#~ msgstr "Max Write IOPS"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of write iops"
+#~ msgstr "Run backups in a systemd slice, limiting the max number of write iops"
+
+#~ msgid "CPU Quota"
+#~ msgstr "CPU Quota"
+
+#~ msgid "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"
+#~ msgstr "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"
+
+#~ msgid "virtio-blk Queues"
+#~ msgstr "virtio-blk Queues"
+
+#~ msgid "Number of vCPU queues to use in the virtio-blk controller. Leave blank to use the default value."
+#~ msgstr "Number of vCPU queues to use in the virtio-blk controller. Leave blank to use the default value."
+
+#~ msgid "CPU Features"
+#~ msgstr "CPU Features"
+
+#~ msgid "Skip network contextualizacion"
+#~ msgstr "Skip network contextualizacion"
+
+#~ msgid "A virtual router can be configured to route SDNAT traffic for this NIC IP address"
+#~ msgstr "A virtual router can be configured to route SDNAT traffic for this NIC IP address"
+
+#~ msgid "node affinity"
+#~ msgstr "node affinity"
+
+#~ msgid "Node Number"
+#~ msgstr "Node Number"
+
+#~ msgid "Number of NUMA nodes (node affinity)"
+#~ msgstr "Number of NUMA nodes (node affinity)"
+
+#~ msgid "Increment ID"
+#~ msgstr "Increment ID"
+
+#~ msgid "Skip network contextualization"
+#~ msgstr "Skip network contextualization"
+
+#~ msgid "The number of concurrent backup operations are controlled globally."
+#~ msgstr "The number of concurrent backup operations are controlled globally."
+
+#~ msgid "Agent"
+#~ msgstr "Agent"
+
+#~ msgid "Keep Last"
+#~ msgstr "Keep Last"
+
+#~ msgid "Backup Volatile"
+#~ msgstr "Backup Volatile"
+
+#~ msgid "Select Vms"
+#~ msgstr "Select Vms"
+
+#~ msgid "VM List (ordered)"
+#~ msgstr "VM List (ordered)"
+
+#~ msgid "The order of this list is crucial as it determines the sequence of backup operations."
+#~ msgstr "The order of this list is crucial as it determines the sequence of backup operations."
+
+#~ msgid "Select the Datastore"
+#~ msgstr "Select the Datastore"
+
+#~ msgid "Schedule Actions"
+#~ msgstr "Schedule Actions"
+
+#~ msgid "Last Backup Duration"
+#~ msgstr "Last Backup Duration"
+
+#~ msgid "VMs in BackupJob"
+#~ msgstr "VMs in BackupJob"
+
+#~ msgid "Edit VMs"
+#~ msgstr "Edit VMs"
+
+#~ msgid "VMs Error"
+#~ msgstr "VMs Error"
+
+#~ msgid "VMs Backing Up"
+#~ msgstr "VMs Backing Up"
+
+#~ msgid "VMs Outdated"
+#~ msgstr "VMs Outdated"
+
+#~ msgid "VMs Updated"
+#~ msgstr "VMs Updated"
+
+#~ msgid "Select VMs"
+#~ msgstr "Select VMs"
