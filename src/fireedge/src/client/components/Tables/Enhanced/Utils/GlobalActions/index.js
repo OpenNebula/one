@@ -40,6 +40,7 @@ import { T } from 'client/constants'
  * @param {GlobalAction[]} props.globalActions - Possible bulk actions
  * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @param {object[]} props.selectedRows - Selected Rows
+ * @param {Function} props.onSelectedRowsChange - Sets the state of the containers selected rows
  * @returns {ReactElement} Component JSX with all actions
  */
 const GlobalActions = ({
@@ -50,6 +51,7 @@ const GlobalActions = ({
   disableRowSelect = false,
   globalActions = [],
   selectedRows,
+  onSelectedRowsChange,
   useTableProps = {},
 }) => {
   /** @type {UseRowSelectInstanceProps} */
@@ -86,7 +88,14 @@ const GlobalActions = ({
 
         const key = item.accessor ?? item.label ?? item.tooltip ?? idx
 
-        return <Action key={key} item={item} selectedRows={selectedRows} />
+        return (
+          <Action
+            key={key}
+            item={item}
+            selectedRows={selectedRows}
+            onSelectedRowsChange={onSelectedRowsChange}
+          />
+        )
       })}
     </Stack>
   )
@@ -101,6 +110,7 @@ GlobalActions.propTypes = {
   globalActions: PropTypes.array,
   useTableProps: PropTypes.object,
   selectedRows: PropTypes.array,
+  onSelectedRowsChange: PropTypes.func,
 }
 
 export default GlobalActions
