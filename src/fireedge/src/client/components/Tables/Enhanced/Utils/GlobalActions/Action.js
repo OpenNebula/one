@@ -54,7 +54,7 @@ import { CreateFormCallback, CreateStepsCallback } from 'client/utils'
  * @property {function(Row[]):object} [useQuery] - Function to get rtk query result
  */
 
-const ActionItem = memo(({ item, selectedRows }) => {
+const ActionItem = memo(({ item, selectedRows, onSelectedRowsChange }) => {
   /** @type {GlobalAction} */
   const {
     accessor,
@@ -116,6 +116,8 @@ const ActionItem = memo(({ item, selectedRows }) => {
   ) : (
     <ButtonToTriggerForm
       buttonProps={buttonProps}
+      actionAccessor={accessor}
+      onSelectedRowsChange={onSelectedRowsChange}
       options={options?.map((option) => {
         const {
           form,
@@ -138,6 +140,7 @@ const ActionItem = memo(({ item, selectedRows }) => {
 ActionItem.propTypes = {
   item: PropTypes.object,
   selectedRows: PropTypes.array,
+  onSelectedRowsChange: PropTypes.func,
 }
 
 ActionItem.displayName = 'ActionItem'

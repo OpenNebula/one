@@ -32,7 +32,12 @@ import FormStepper from 'client/components/FormStepper'
 import { Translate } from 'client/components/HOC'
 import { isDevelopment } from 'client/utils'
 
-const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
+const ButtonToTriggerForm = ({
+  buttonProps = {},
+  options = [],
+  actionAccessor = '',
+  onSelectedRowsChange = () => {},
+}) => {
   const buttonId = buttonProps['data-cy'] ?? 'main-button'
   const moreThanOneOption = options.length > 1
 
@@ -60,6 +65,7 @@ const ButtonToTriggerForm = ({ buttonProps = {}, options = [] }) => {
   const handleTriggerSubmit = async (formData) => {
     try {
       await handleSubmit?.(formData)
+      actionAccessor === 'delete' && onSelectedRowsChange([]) // dereference the deleted rows from the container view
     } catch (error) {
       isDevelopment() && console.error(error)
     } finally {
@@ -174,6 +180,8 @@ export const ButtonToTriggerFormPropTypes = {
       onSubmit: PropTypes.func,
     })
   ),
+  actionAccessor: PropTypes.string,
+  onSelectedRowsChange: PropTypes.func,
 }
 
 ButtonToTriggerForm.propTypes = ButtonToTriggerFormPropTypes
