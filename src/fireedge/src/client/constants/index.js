@@ -174,6 +174,7 @@ export const RESOURCE_NAMES = {
   VDC: 'virtual-data-center',
   VROUTER: 'virtual-router',
   VM_TEMPLATE: 'vm-template',
+  VM_GROUP: 'vm-group',
   VM: 'vm',
   VN_TEMPLATE: 'network-template',
   VNET: 'virtual-network',
@@ -206,4 +207,5 @@ export * from 'client/constants/userInput'
 export * from 'client/constants/vdc'
 export * from 'client/constants/vm'
 export * from 'client/constants/vmTemplate'
+export * from 'client/constants/vmGroup'
 export * from 'client/constants/zone'

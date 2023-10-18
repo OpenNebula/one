@@ -860,6 +860,15 @@ module.exports = {
   MemoryResizeMode: 'Memory resize mode',
   MemorySlots: 'Memory slots',
   /* VM Template schema - VM Group */
+  UpdateVmGroup: 'Update VM Group',
+  CreateVmGroup: 'Create VM group',
+  HostAffined: 'Host Affined',
+  HostAntiAffined: 'Host Anti-Affined',
+  Affined: 'Affined',
+  AntiAffined: 'Anti-Affined',
+  Policy: 'Policy',
+  VmAffinity: 'VM Affinity',
+  RolesAffinity: 'Roles Affinity',
   AssociateToVMGroup: 'Associate VM to a VM Group',
   /* VM Template schema - vCenter */
   vCenterTemplateRef: 'vCenter Template reference',

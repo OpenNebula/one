@@ -13,22 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
-import RolesVmGroupsTable from 'client/components/Tabs/Common/Roles'
-import RolesAffinityVmGroupsTable from 'client/components/Tabs/Common/RolesAffinity'
+import * as ACTIONS from 'client/constants/actions'
+import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
-export * from 'client/components/Tabs/Common/Attribute'
+/**
+ * @typedef VMGROUP
+ * @property {string|number} ID - Id
+ * @property {string} NAME - Name
+ * @property {object} TEMPLATE - Template information
+ */
 
-export {
-  AttributePanel,
-  List,
-  Ownership,
-  Permissions,
-  RulesSecGroupsTable,
-  RolesVmGroupsTable,
-  RolesAffinityVmGroupsTable,
+export const VMGROUP_STATES = [
+  {
+    name: STATES.ENABLED,
+    shortName: 'on',
+    color: COLOR.success.main,
+  },
+  {
+    name: STATES.DISABLED,
+    shortName: 'off',
+    color: COLOR.error.dark,
+  },
+]
+
+export const VMGROUP_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  UPDATE_DIALOG: 'update_dialog',
+  DELETE: 'delete',
+  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
+  ENABLE: 'enable',
+  DISABLE: 'disable',
+  RENAME: ACTIONS.RENAME,
 }

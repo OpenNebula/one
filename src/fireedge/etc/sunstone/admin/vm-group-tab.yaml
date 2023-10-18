@@ -1,0 +1,51 @@
+---
+# This file describe the information add actions available in the VM GROUP TEMPLATES tab
+
+# Resource
+
+resource_name: "VM-GROUP"
+
+# Actions - Which buttons are visible to operate over the resource
+
+actions: 
+  create_dialog: true
+  update_dialog: true
+  enable: true
+  disable: true
+  chgrp: true
+  chown: true
+  delete: true
+
+# Filters -  List of criteria to filter the resource
+
+filters: 
+  label: true
+  state: true
+
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        cgrp: true
+    roles_panel:
+      enabled: true
+    roles-affinity_panel:
+      enabled: true
+  vms:
+    enabled: true
+

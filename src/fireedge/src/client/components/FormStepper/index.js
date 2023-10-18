@@ -108,27 +108,27 @@ const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
     formState: { errors },
     setError,
   } = useFormContext()
-  const { isLoading } = useGeneral()
-  const [steps, setSteps] = useState(initialSteps)
-  const [disabledSteps, setDisabledSteps] = useState({})
-  const dispatch = useDispatch()
-
-  const currentState = useSelector((state) => state)
 
   // Used to control the default visibility of a step
   useEffect(() => {
     const newState = initialSteps.reduce(
       (accSteps, { id, defaultDisabled }) => {
+        if (
+          !defaultDisabled ||
+          typeof defaultDisabled.condition !== 'function'
+        ) {
+          return { ...accSteps, [id]: false }
+        }
+
         const result =
-          defaultDisabled &&
           Array.isArray(defaultDisabled.statePaths) &&
-          typeof defaultDisabled.condition === 'function'
+          defaultDisabled.statePaths.length > 0
             ? defaultDisabled.condition(
                 ...defaultDisabled.statePaths.map((path) =>
                   get(currentState, path)
                 )
               )
-            : false
+            : defaultDisabled.condition()
 
         return { ...accSteps, [id]: result }
       },
@@ -138,6 +138,13 @@ const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
     dispatch(updateDisabledSteps(newState))
     setDisabledSteps(newState)
   }, [])
+
+  const { isLoading } = useGeneral()
+  const [steps, setSteps] = useState(initialSteps)
+  const [disabledSteps, setDisabledSteps] = useState({})
+  const dispatch = useDispatch()
+
+  const currentState = useSelector((state) => state)
 
   const disableStep = useCallback((stepIds, shouldDisable) => {
     const ids = Array.isArray(stepIds) ? stepIds : [stepIds]
