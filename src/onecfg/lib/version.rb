@@ -16,6 +16,6 @@
 
 module OneCfg
 
-    VERSION = '6.8.0'
+    VERSION = '6.8.1'
 
 end
