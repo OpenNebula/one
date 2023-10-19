@@ -53,6 +53,10 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
             key={text}
             clipboard={clipboard}
             forceWhiteColor={isHidden}
+            sx={{
+              paddingTop: '2.5px',
+              paddingBottom: '2.5px',
+            }}
             {...(typeof tag === 'string' ? { text } : tag)}
           />
         )

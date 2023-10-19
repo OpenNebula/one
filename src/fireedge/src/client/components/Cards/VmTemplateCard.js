@@ -91,24 +91,51 @@ const VmTemplateCard = memo(
     )
 
     return (
-      <div {...rootProps} data-cy={`template-${ID}`}>
-        <div className={classes.figure}>
+      <div
+        {...rootProps}
+        data-cy={`template-${ID}`}
+        style={{
+          position: 'relative',
+          padding: 'calc(1vh - 0.3vw)',
+          minHeight: '110px',
+          minWidth: '400px',
+        }}
+      >
+        <div
+          className="label-container"
+          style={{
+            position: 'absolute',
+            top: '-9px',
+            right: '-7px',
+            padding: '8px',
+          }}
+        >
+          <MultipleTags tags={labels} />
+        </div>
+        <div
+          className={classes.figure}
+          style={{ flexBasis: '10%', aspectRatio: '1.33/1' }}
+        >
           <Image
             alt="logo"
             src={logoSource}
-            imgProps={{ className: classes.image }}
+            imgProps={{
+              className: classes.image,
+            }}
           />
         </div>
-        <div className={classes.main}>
+        <div
+          className={classes.main}
+          style={{ paddingTop: labels && labels.length > 0 ? '20px' : '0' }}
+        >
           <div className={classes.title}>
-            <Typography noWrap component="span">
+            <Typography noWrap component="span" title={NAME}>
               {NAME}
             </Typography>
             <span className={classes.labels}>
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock />}
               {isVR && <StatusChip text={'VROUTER'} />}
-              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>
