@@ -72,7 +72,7 @@ const topMetricNames = {
 }
 
 const commonStyles = {
-  minHeight: '250px',
+  minHeight: '350px',
   width: '100%',
   position: 'relative',
   marginTop: 2,
@@ -251,7 +251,7 @@ const ShowbackInfoTab = ({ id }) => {
         </Box>
       </Box>
 
-      <Box flexGrow={1} minHeight="400px" {...commonStyles}>
+      <Box flexGrow={1} {...commonStyles} minHeight="500px">
         <MultiChart
           datasets={[
             { ...filteredResult.dataset, isEmpty: filteredResult.isEmpty },

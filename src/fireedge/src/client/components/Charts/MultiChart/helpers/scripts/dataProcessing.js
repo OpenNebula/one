@@ -57,17 +57,16 @@ export const processDataForChart = (
  * Used with all pool-like API requests to find the data array dynamically.
  *
  * @param {object} obj - The object to search within.
+ * @param {number} depth - The current depth of recursion.
+ * @param {number} maxDepth - The maximum depth to recurse to.
  * @returns {Array} - The found array or empty if not found.
  */
-const findFirstArray = (obj) => {
+const findFirstArray = (obj, depth = 0, maxDepth = Infinity) => {
+  if (depth >= maxDepth) {
+    return []
+  }
+
   for (const value of Object.values(obj)) {
-    if (typeof value === 'object' && !Array.isArray(value)) {
-      for (const innerValue of Object.values(value)) {
-        if (typeof innerValue === 'object' && !Array.isArray(innerValue)) {
-          return [innerValue]
-        }
-      }
-    }
     if (
       Array.isArray(value) &&
       value.length > 0 &&
@@ -75,9 +74,12 @@ const findFirstArray = (obj) => {
     ) {
       return value
     }
+
     if (typeof value === 'object') {
-      const result = findFirstArray(value)
-      if (result) return result
+      const result = findFirstArray(value, depth + 1, maxDepth)
+      if (result.length > 0) {
+        return result
+      }
     }
   }
 
@@ -91,15 +93,17 @@ const findFirstArray = (obj) => {
  * @param {object} keyMap - An object that maps the keys in the API response to the desired output keys.
  * @param {Array} metricKeys - An array of keys to aggregate for the metrics.
  * @param {Function} labelingFunction - A function to generate the label for the dataset.
+ * @param {number} depth - Depth of recursion when finding data array.
  * @returns {object} - The transformed dataset.
  */
 export const transformApiResponseToDataset = (
   apiResponse,
   keyMap,
   metricKeys,
-  labelingFunction
+  labelingFunction,
+  depth = 0
 ) => {
-  const dataArray = findFirstArray(apiResponse.data || apiResponse)
+  const dataArray = findFirstArray(apiResponse, depth)
 
   const flattenObject = (obj, prefix = '') =>
     Object.keys(obj).reduce((acc, k) => {

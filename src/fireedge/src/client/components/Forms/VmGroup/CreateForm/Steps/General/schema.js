@@ -13,22 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
-import RolesVmGroupsTable from 'client/components/Tabs/Common/Roles'
-import RolesAffinityVmGroupsTable from 'client/components/Tabs/Common/RolesAffinity'
+import { INPUT_TYPES, T } from 'client/constants'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { string } from 'yup'
 
-export * from 'client/components/Tabs/Common/Attribute'
-
-export {
-  AttributePanel,
-  List,
-  Ownership,
-  Permissions,
-  RulesSecGroupsTable,
-  RolesVmGroupsTable,
-  RolesAffinityVmGroupsTable,
+/** @type {Field} Name field */
+const NAME_FIELD = {
+  name: 'NAME',
+  label: T.Name,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .min(3, 'Template name less than 3 characters')
+    .max(128, 'Template name over 128 characters')
+    .required('Name cannot be empty')
+    .default(() => undefined),
+  grid: { md: 12 },
 }
+
+/** @type {Field} Description field */
+const DESCRIPTION_FIELD = {
+  name: 'DESCRIPTION',
+  label: T.Description,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .max(128, 'Description over 128 characters')
+    .default(() => undefined),
+  grid: { md: 12 },
+}
+
+const SCHEMA = getObjectSchemaFromFields([NAME_FIELD, DESCRIPTION_FIELD])
+
+export { SCHEMA, NAME_FIELD, DESCRIPTION_FIELD }

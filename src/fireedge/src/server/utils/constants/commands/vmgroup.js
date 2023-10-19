@@ -20,6 +20,9 @@ const {
 } = require('../defaults')
 
 const VM_GROUP_ALLOCATE = 'vmgroup.allocate'
+const VM_GROUP_ROLEADD = 'vmgroup.roleadd'
+const VM_GROUP_ROLEDELETE = 'vmgroup.roledelete'
+const VM_GROUP_ROLEUPDATE = 'vmgroup.roleupdate'
 const VM_GROUP_DELETE = 'vmgroup.delete'
 const VM_GROUP_UPDATE = 'vmgroup.update'
 const VM_GROUP_CHMOD = 'vmgroup.chmod'
@@ -32,6 +35,9 @@ const VM_GROUP_POOL_INFO = 'vmgrouppool.info'
 
 const Actions = {
   VM_GROUP_ALLOCATE,
+  VM_GROUP_ROLEADD,
+  VM_GROUP_ROLEDELETE,
+  VM_GROUP_ROLEUPDATE,
   VM_GROUP_DELETE,
   VM_GROUP_UPDATE,
   VM_GROUP_CHMOD,
@@ -50,6 +56,51 @@ module.exports = {
       // inspected
       httpMethod: POST,
       params: {
+        template: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    // inspected
+    [VM_GROUP_ROLEADD]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        template: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    // inspected
+    [VM_GROUP_ROLEDELETE]: {
+      httpMethod: DELETE,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        roleId: {
+          from: postBody,
+          default: -1,
+        },
+      },
+    }, // inspected
+    [VM_GROUP_ROLEUPDATE]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: 0,
+        },
+        roleId: {
+          from: postBody,
+          default: -1,
+        },
         template: {
           from: postBody,
           default: '',
@@ -157,8 +208,8 @@ module.exports = {
           default: 0,
         },
         name: {
-          from: postBody,
-          defaul: '',
+          from: query,
+          default: '',
         },
       },
     },

@@ -13,22 +13,46 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
-import RolesVmGroupsTable from 'client/components/Tabs/Common/Roles'
-import RolesAffinityVmGroupsTable from 'client/components/Tabs/Common/RolesAffinity'
+import PropTypes from 'prop-types'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { T } from 'client/constants'
+import { SCHEMA, NAME_FIELD, DESCRIPTION_FIELD } from './schema'
 
-export * from 'client/components/Tabs/Common/Attribute'
+export const STEP_ID = 'general'
 
-export {
-  AttributePanel,
-  List,
-  Ownership,
-  Permissions,
-  RulesSecGroupsTable,
-  RolesVmGroupsTable,
-  RolesAffinityVmGroupsTable,
+const Content = ({ isUpdate }) => (
+  <FormWithSchema
+    id={STEP_ID}
+    cy={`${STEP_ID}`}
+    fields={[
+      { ...NAME_FIELD, fieldProps: { disabled: !!isUpdate } },
+      DESCRIPTION_FIELD,
+    ]}
+  />
+)
+
+/**
+ * General VmGroup configuration.
+ *
+ * @param {object} data - VmGroup data
+ * @returns {object} General configuration step
+ */
+const General = (data) => {
+  const isUpdate = data?.ID
+
+  return {
+    id: STEP_ID,
+    label: T.General,
+    resolver: SCHEMA,
+    optionsValidate: { abortEarly: false },
+    content: () => Content({ isUpdate }),
+  }
 }
+
+General.propTypes = {
+  data: PropTypes.object,
+  setFormData: PropTypes.func,
+}
+
+Content.propTypes = { isUpdate: PropTypes.bool }
+export default General

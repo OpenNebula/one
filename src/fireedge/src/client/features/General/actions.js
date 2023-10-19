@@ -20,6 +20,7 @@ export const changeZone = createAction('Change zone')
 export const changeLoading = createAction('Change loading')
 export const changeAppTitle = createAction('Change App title')
 export const setSelectedIds = createAction('Set selected IDs')
+export const setUpdateDialog = createAction('Set update dialog')
 
 export const updateDisabledSteps = createAction('Set disabled steps')
 export const dismissSnackbar = createAction('Dismiss snackbar')

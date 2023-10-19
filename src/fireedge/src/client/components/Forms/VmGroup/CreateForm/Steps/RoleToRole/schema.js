@@ -13,22 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import AttributePanel from 'client/components/Tabs/Common/AttributePanel'
-import List from 'client/components/Tabs/Common/List'
-import Ownership from 'client/components/Tabs/Common/Ownership'
-import Permissions from 'client/components/Tabs/Common/Permissions'
-import RulesSecGroupsTable from 'client/components/Tabs/Common/RulesSecGroups'
-import RolesVmGroupsTable from 'client/components/Tabs/Common/Roles'
-import RolesAffinityVmGroupsTable from 'client/components/Tabs/Common/RolesAffinity'
+import { object, array, string } from 'yup'
 
-export * from 'client/components/Tabs/Common/Attribute'
+/** @type {object} Role Group schema */
+const ROLE_GROUP_SCHEMA = object().shape({
+  AFFINED_GROUPS: array()
+    .of(
+      array().of(
+        string().test(
+          'is-string',
+          'Malformed affined group(s) definition',
+          (value) => typeof value === 'string'
+        )
+      )
+    )
+    .notRequired()
+    .default(() => []),
+  ANTI_AFFINED_GROUPS: array()
+    .of(
+      array().of(
+        string().test(
+          'is-string',
+          'Malformed anti-affined group(s) definition',
+          (value) => typeof value === 'string'
+        )
+      )
+    )
+    .notRequired()
+    .default(() => []),
+})
 
-export {
-  AttributePanel,
-  List,
-  Ownership,
-  Permissions,
-  RulesSecGroupsTable,
-  RolesVmGroupsTable,
-  RolesAffinityVmGroupsTable,
-}
+/** @type {object} Roles schema for the step */
+export const SCHEMA = ROLE_GROUP_SCHEMA

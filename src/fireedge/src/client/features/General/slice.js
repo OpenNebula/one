@@ -27,6 +27,7 @@ const initial = {
   withGroupSwitcher: false,
   isLoading: false,
   isFixMenu: false,
+  isUpdateDialog: false,
   upload: 0,
   notifications: [],
   selectedIds: [],
@@ -73,6 +74,10 @@ const slice = createSlice({
       .addCase(actions.updateDisabledSteps, (state, { payload }) => {
         state.disabledSteps = payload
       })
+      .addCase(actions.setUpdateDialog, (state, { payload }) => {
+        state.isUpdateDialog = !!payload
+      })
+
       /* UPLOAD NOTIFICATION */
       .addCase(actions.setUploadSnackbar, (state, { payload }) => ({
         ...state,

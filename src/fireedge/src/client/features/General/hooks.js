@@ -31,8 +31,9 @@ export const useGeneralApi = () => {
     changeLoading: (isLoading) => dispatch(actions.changeLoading(isLoading)),
     changeAppTitle: (appTitle) => dispatch(actions.changeAppTitle(appTitle)),
     changeZone: (zone) => dispatch(actions.changeZone(zone)),
-
     uploadSnackbar: (percent) => dispatch(actions.setUploadSnackbar(percent)),
+    setUpdateDialog: (updateDialog) =>
+      dispatch(actions.setUpdateDialog(updateDialog)),
 
     // dismiss all if no key has been defined
     dismissSnackbar: (key) =>

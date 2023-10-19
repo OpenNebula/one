@@ -17,7 +17,8 @@ import {
   RefreshDouble as BackupIcon,
   Server as ClusterIcon,
   Db as DatastoreIcon,
-  Folder as FileIcon,
+  Archive as FileIcon,
+  Folder as VmGroupIcon,
   Group as GroupIcon,
   HardDrive as HostIcon,
   BoxIso as ImageIcon,
@@ -69,6 +70,7 @@ const ServiceDetail = loadable(
 const VmTemplates = loadable(() => import('client/containers/VmTemplates'), {
   ssr: false,
 })
+
 const InstantiateVmTemplate = loadable(
   () => import('client/containers/VmTemplates/Instantiate'),
   { ssr: false }
@@ -82,7 +84,19 @@ const VMTemplateDetail = loadable(
   { ssr: false }
 )
 // const VrTemplates = loadable(() => import('client/containers/VrTemplates'), { ssr: false })
-// const VmGroups = loadable(() => import('client/containers/VmGroups'), { ssr: false })
+const VmGroups = loadable(() => import('client/containers/VmGroups'), {
+  ssr: false,
+})
+
+const CreateVmGroup = loadable(
+  () => import('client/containers/VmGroups/Create'),
+  { ssr: false }
+)
+
+// const VmGroupDetail = loadable(
+//   () => import('client/containers/VmGroups/Detail'),
+//   { ssr: false }
+// )
 
 const ServiceTemplates = loadable(
   () => import('client/containers/ServiceTemplates'),
@@ -241,6 +255,12 @@ export const PATH = {
       INSTANTIATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/instantiate`,
       CREATE: `/${RESOURCE_NAMES.VM_TEMPLATE}/create`,
       DETAIL: `/${RESOURCE_NAMES.VM_TEMPLATE}/:id`,
+    },
+    VMGROUP: {
+      LIST: `/${RESOURCE_NAMES.VM_GROUP}`,
+      INSTANTIATE: `/${RESOURCE_NAMES.VM_GROUP}/instantiate`,
+      CREATE: `/${RESOURCE_NAMES.VM_GROUP}/create`,
+      DETAIL: `/${RESOURCE_NAMES.VM_GROUP}/:id`,
     },
     SERVICES: {
       LIST: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}`,
@@ -431,6 +451,28 @@ const ENDPOINTS = [
         path: PATH.TEMPLATE.SERVICES.DETAIL,
         Component: ServiceTemplateDetail,
       },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined ? T.UpdateVmGroup : T.CreateVmGroup,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.VMGROUP.CREATE,
+        Component: CreateVmGroup,
+      },
+      {
+        title: T.VMGroups,
+        path: PATH.TEMPLATE.VMGROUP.LIST,
+        description: (params) => `#${params?.id}`,
+        icon: VmGroupIcon,
+        sidebar: true,
+        Component: VmGroups,
+      },
+      // {
+      //   title: T.VMGroup,
+      //   description: (params) => `#${params?.id}`,
+      //   path: PATH.TEMPLATE.VMGROUP.DETAIL,
+      //   Component: VmGroupDetail,
+      // },
     ],
   },
   {
