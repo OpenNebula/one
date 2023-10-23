@@ -1352,8 +1352,11 @@ CommandParser::CmdParser.new(ARGV) do
         template = ''
 
         begin
-            template = File.read(args[1]) if args[1]
-            template = STDIN.read if STDIN.wait_readable(0)
+            if args[1]
+                template = File.read(args[1])
+            elsif STDIN.wait_readable(0)
+                template = STDIN.read
+            end
         rescue StandardError => e
             STDERR.puts "Error reading template: #{e.message}."
             exit(-1)

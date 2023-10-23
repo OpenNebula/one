@@ -397,6 +397,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             # Get user information
             if file
                 str = File.read(file)
+            elsif STDIN.wait_readable(0)
+                str = STDIN.read
             else
                 str = OpenNebulaHelper.update_template(vm_id, vm, nil, xpath)
             end

@@ -130,6 +130,10 @@ CommandParser::CmdParser.new(ARGV) do
           - using a template description file:
 
             onebackupjob create weekly_backup.tmpl
+
+            - using a template description via stdin:
+
+            cat $bj_template | onebackupjob create
     EOT
 
     command :create,
@@ -143,6 +147,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
+                elsif STDIN.wait_readable?(0)
+                    template = STDIN.read
                 else
                     template = OneBackupJobHelper.create_backupjob_template(options)
                 end

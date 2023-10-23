@@ -186,11 +186,13 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil], :options => Service::JSON_FORMAT do
         client = helper.client(options)
 
-        template = nil
-        template = File.read(args[0]) if args[0]
-        template = STDIN.read if STDIN.wait_readable(0)
+        if args[0]
+            template = File.read(args[0])
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
+        end
 
-        if template.nil?
+        if !template
             STDERR.puts 'A template must be provided'
             exit(-1)
         end
@@ -257,38 +259,40 @@ CommandParser::CmdParser.new(ARGV) do
         rc     = 0
         client = helper.client(options)
 
-        number.times do
-            template = nil
-            template = File.read(args[1]) if args[1]
-            template = STDIN.read if STDIN.wait_readable(0)
+        if args[1]
+            template = File.read(args[1])
+        elsif STDIN.wait_readable(0)
+            template = STDIN.read
+        end
+        params['merge_template'] = JSON.parse(template) if template
 
-            params['merge_template'] = JSON.parse(template) if template
+        unless params['merge_template']
+            response = client.get("#{RESOURCE_PATH}/#{args[0]}")
 
-            unless params['merge_template']
-                response = client.get("#{RESOURCE_PATH}/#{args[0]}")
-
-                if CloudClient.is_error?(response)
-                    rc = [response.code.to_i, response.to_s]
-                    break
-                end
-
-                params['merge_template'] = {}
-                body = JSON.parse(response.body)['DOCUMENT']['TEMPLATE']['BODY']
-
-                # Check global custom attributes
-                custom_attrs = helper.custom_attrs(body['custom_attrs'])
-                params['merge_template'].merge!(custom_attrs) unless custom_attrs.nil?
-
-                # Check role level custom attributes
-                custom_role_attrs = helper.custom_role_attrs(body['roles'])
-                params['merge_template'].merge!(custom_role_attrs) unless custom_role_attrs.nil?
-
-                # Check vnets attributes
-                vnets = helper.networks(body['networks'])
-                params['merge_template'].merge!(vnets) unless vnets.nil?
+            if CloudClient.is_error?(response)
+                rc = [response.code.to_i, response.to_s]
+                break
             end
 
-            json     = Service.build_json_action('instantiate', params)
+            params['merge_template'] = {}
+            body = JSON.parse(response.body)['DOCUMENT']['TEMPLATE']['BODY']
+
+            # Check global custom attributes
+            custom_attrs = helper.custom_attrs(body['custom_attrs'])
+            params['merge_template'].merge!(custom_attrs) unless custom_attrs.nil?
+
+            # Check role level custom attributes
+            custom_role_attrs = helper.custom_role_attrs(body['roles'])
+            params['merge_template'].merge!(custom_role_attrs) unless custom_role_attrs.nil?
+
+            # Check vnets attributes
+            vnets = helper.networks(body['networks'])
+            params['merge_template'].merge!(vnets) unless vnets.nil?
+        end
+
+        json = Service.build_json_action('instantiate', params)
+
+        number.times do
             response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json)
 
             if CloudClient.is_error?(response)

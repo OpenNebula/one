@@ -110,7 +110,14 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, :file do
         helper.create_resource(options) do |obj|
             begin
-                template = File.read(args[0])
+                if args[0]
+                    template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
+                else
+                    STDERR.puts 'No Security Group description provided'
+                    exit(-1)
+                end
 
                 obj.allocate(template)
             rescue StandardError => e
