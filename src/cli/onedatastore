@@ -113,8 +113,11 @@ CommandParser::CmdParser.new(ARGV) do
 
         helper.create_resource(options) do |datastore|
             begin
-                template = File.read(args[0]) if args[0]
-                template = STDIN.read if STDIN.wait_readable(0)
+                if args[0]
+                    template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
+                end
                 datastore.allocate(template, cid)
             rescue StandardError => e
                 STDERR.puts e.message

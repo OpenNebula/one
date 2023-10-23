@@ -140,8 +140,11 @@ CommandParser::CmdParser.new(ARGV) do
     command :create, create_desc, [:file, nil] do
         helper.create_resource(options) do |obj|
             begin
-                template = File.read(args[0]) if args[0]
-                template = STDIN.read if STDIN.wait_readable(0)
+                if args[0]
+                    template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
+                end
                 obj.allocate(template)
             rescue StandardError => e
                 STDERR.puts e.message

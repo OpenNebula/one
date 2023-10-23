@@ -164,6 +164,10 @@ CommandParser::CmdParser.new(ARGV) do
 
             onehook create hook.tmpl
 
+            - using a Hook description file via stdin:
+
+            cat $hook_template | onehook create
+
     EOT
 
     command :create, create_desc, :file, :options =>
@@ -172,6 +176,11 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
+                elsif STDIN.wait_readable(0)
+                    template = STDIN.read
+                else
+                    STDERR.puts 'No hook template provided'
+                    exit(-1)
                 end
 
                 if options[:dry]
