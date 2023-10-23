@@ -79,7 +79,7 @@ CommandParser::CmdParser.new(ARGV) do
     DELETE = {
         :name => 'delete',
         :large => '--delete',
-        :description => 'Force flow necover delete'
+        :description => 'Force flow recover delete'
     }
 
     APPEND = {
@@ -162,6 +162,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     delete_desc = <<-EOT.unindent
         Delete a given service
+        To force service removal please use 'oneflow recover --delete <service_id>' command
     EOT
 
     command :delete, delete_desc, [:range, :service_id_list] do
