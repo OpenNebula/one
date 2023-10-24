@@ -57,10 +57,10 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
           <TextField
             label="Role Name"
             name="NAME"
-            data-cy={`role-name-${selectedRoleIndex}`}
             value={roles?.[selectedRoleIndex]?.NAME ?? ''}
             onChange={handleInputChange}
             disabled={!roles?.[selectedRoleIndex]}
+            inputProps={{ 'data-cy': `role-name-${selectedRoleIndex}` }}
             fullWidth
           />
         </Box>
@@ -71,13 +71,26 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
             <Select
               label="VM-VM Affinity"
               name="POLICY"
+              data-cy="policy-selector"
               value={roles?.[selectedRoleIndex]?.POLICY ?? 'None'}
               disabled={!roles?.[selectedRoleIndex]}
               onChange={handleInputChange}
             >
-              <MenuItem value="None">None</MenuItem>
-              <MenuItem value="AFFINED">Affined</MenuItem>
-              <MenuItem value="ANTI_AFFINED">Anti-Affined</MenuItem>
+              <MenuItem data-cy="policy-selector-policy-None" value="None">
+                None
+              </MenuItem>
+              <MenuItem
+                data-cy="policy-selector-policy-AFFINED"
+                value="AFFINED"
+              >
+                Affined
+              </MenuItem>
+              <MenuItem
+                data-cy="policy-selector-policy-ANTI_AFFINED"
+                value="ANTI_AFFINED"
+              >
+                Anti-Affined
+              </MenuItem>
             </Select>
           </FormControl>
         </Box>

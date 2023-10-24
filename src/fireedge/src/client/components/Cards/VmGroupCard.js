@@ -43,7 +43,11 @@ const VmGroupCard = ({ vmgroup, rootProps }) => {
   const { color: stateColor, name: stateName } = getState(LOCK)
 
   return (
-    <Box {...rootProps} sx={{ display: 'flex', p: 2, gap: 2 }}>
+    <Box
+      {...rootProps}
+      sx={{ display: 'flex', p: 2, gap: 2 }}
+      data-cy={`vmgroup-${ID}`}
+    >
       <Box
         display="flex"
         sx={{
