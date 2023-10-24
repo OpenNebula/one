@@ -162,8 +162,12 @@ const RoleAffinityPanel = ({
               onChange={handleAffinityTypeChange}
               fullWidth
             >
-              <ToggleButton value="AFFINED">Affined</ToggleButton>
-              <ToggleButton value="ANTI_AFFINED">Anti-Affined</ToggleButton>
+              <ToggleButton data-cy="policy-AFFINED" value="AFFINED">
+                Affined
+              </ToggleButton>
+              <ToggleButton data-cy="policy-ANTI_AFFINED" value="ANTI_AFFINED">
+                Anti-Affined
+              </ToggleButton>
             </ToggleButtonGroup>
             <List
               dense
@@ -180,7 +184,8 @@ const RoleAffinityPanel = ({
                 <ListItem
                   key={role.id || index}
                   button
-                  onClick={() => handleRoleSelect(role.NAME)}
+                  onClick={() => handleRoleSelect(role?.NAME)}
+                  data-cy={`role-${role?.NAME}`}
                   sx={{
                     py: 1,
                     my: 0.5,
@@ -209,6 +214,7 @@ const RoleAffinityPanel = ({
               color="primary"
               startIcon={<Group />}
               disabled={selectedRoles.length < 2}
+              data-cy="add-group"
               onClick={handleAddGroup}
               size="large"
               fullWidth
