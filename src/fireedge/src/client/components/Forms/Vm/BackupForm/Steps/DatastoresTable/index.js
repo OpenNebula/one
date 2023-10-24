@@ -41,6 +41,7 @@ const Content = ({ data, app }) => {
       displaySelectedRows
       pageSize={5}
       getRowId={(row) => String(row.NAME)}
+      filter={(DATA) => DATA.filter((ds) => ds.TYPE === '3')}
       initialState={{
         selectedRowIds: { [NAME]: true },
         filters: [{ id: 'TYPE', value: 'BACKUP_DS' }],
