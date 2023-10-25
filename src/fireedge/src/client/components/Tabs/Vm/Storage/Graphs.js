@@ -65,6 +65,7 @@ const Graphs = ({ id }) => {
           data={monitoring}
           y="DISKRDIOPS"
           x="TIMESTAMP"
+          derivative={true}
           interpolationY={interpolationY}
         />
       </Grid>
@@ -75,6 +76,7 @@ const Graphs = ({ id }) => {
           data={monitoring}
           y="DISKWRIOPS"
           x="TIMESTAMP"
+          derivative={true}
           interpolationY={interpolationY}
         />
       </Grid>

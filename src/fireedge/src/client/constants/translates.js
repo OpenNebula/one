@@ -1084,7 +1084,7 @@ module.exports = {
   DiskReadBytes: 'Disk read bytes',
   DiskWriteBytes: 'Disk write bytes',
   DiskReadIOPS: 'Disk read IOPS',
-  DiskWriteIOPS: 'Disk write bytes',
+  DiskWriteIOPS: 'Disk write IOPS',
   NetRX: 'Net RX',
   NetTX: 'Net TX',
   NetDownloadSpeed: 'Net download speed',
