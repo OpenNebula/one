@@ -68,6 +68,7 @@ const Graphs = ({ id }) => {
           data={monitoring}
           y="NETRX"
           x="TIMESTAMP"
+          derivative={true}
           interpolationY={interpolationBytesSeg}
         />
       </Grid>
@@ -78,6 +79,7 @@ const Graphs = ({ id }) => {
           data={monitoring}
           y="NETTX"
           x="TIMESTAMP"
+          derivative={true}
           interpolationY={interpolationBytesSeg}
         />
       </Grid>

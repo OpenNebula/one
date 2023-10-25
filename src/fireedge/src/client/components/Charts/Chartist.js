@@ -55,6 +55,21 @@ const useStyles = makeStyles(({ palette, typography }) => ({
   },
 }))
 
+const calculateDerivative = (data) =>
+  data
+    .map((point, i, array) => {
+      if (i === array.length - 1) {
+        return null
+      }
+      const nextPoint = array[i + 1]
+
+      return {
+        x: point.x,
+        y: (nextPoint.y - point.y) / ((nextPoint.x - point.x) / 1000),
+      }
+    })
+    .filter((point) => point)
+
 /**
  * Represents a Chartist Graph.
  *
@@ -65,6 +80,7 @@ const useStyles = makeStyles(({ palette, typography }) => ({
  * @param {string} props.x - Chartist X
  * @param {string} props.y - Chartist X
  * @param {Function} props.interpolationY - Chartist interpolation Y
+ * @param {boolean} props.derivative - Display delta values
  * @returns {JSXElementConstructor} Chartist component
  */
 const Chartist = ({
@@ -74,6 +90,7 @@ const Chartist = ({
   x = '',
   y = '',
   interpolationY = (value) => value,
+  derivative = false,
 }) => {
   const classes = useStyles()
 
@@ -93,6 +110,8 @@ const Chartist = ({
       )
     : []
 
+  const processedData = derivative ? calculateDerivative(dataChart) : dataChart
+
   return (
     <Paper variant="outlined" sx={{ height: 'fit-content' }}>
       <List className={classes.box}>
@@ -106,7 +125,7 @@ const Chartist = ({
             </Stack>
           ) : (
             <Chart
-              data={dataChart}
+              data={processedData}
               height={300}
               width={500}
               className={classes.graphStyle}
@@ -132,6 +151,7 @@ Chartist.propTypes = {
   x: PropTypes.string,
   y: PropTypes.string,
   interpolationY: PropTypes.func,
+  derivative: PropTypes.bool,
 }
 
 Chartist.displayName = 'Chartist'
