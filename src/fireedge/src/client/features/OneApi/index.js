@@ -86,7 +86,7 @@ const oneApi = createApi({
 
     try {
       // set filter flag if filter is present in command params
-      if (command?.params?.filter) {
+      if (!paramsExtensible?.filter && command?.params?.filter) {
         paramsExtensible.filter = getState().auth?.filterPool
       }
 
