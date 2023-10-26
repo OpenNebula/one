@@ -42,7 +42,7 @@ const COLUMNS = [
     accessor: (row) => {
       const labels = row?.USER_TEMPLATE?.LABELS?.split(',') ?? []
 
-      return labels.map((label) => label?.trim()?.toUpperCase()).join(',')
+      return labels.map((label) => label?.trim()).join(',')
     },
     filter: 'includesSome',
   },
