@@ -55,7 +55,7 @@ const DATASETS_LIMIT = 4
  */
 const AccountingInfoTab = ({ id }) => {
   const [dateRange, setDateRange] = useState(getDefaultDateRange()) // LAST 7 DAYS
-  const { data, isLoading, error } = useAccountingData(id)
+  const { data, isLoading, error } = useAccountingData({ id })
   const [datasets, setDatasets] = useState([])
   const [visibleDatasets, setVisibleDatasets] = useState([])
   const [chartType, setChartType] = useState('line')

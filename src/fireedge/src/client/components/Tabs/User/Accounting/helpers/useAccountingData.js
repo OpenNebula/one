@@ -40,7 +40,9 @@ const TIMEOUT = 8000 // 8 seconds
  * @returns {object} - Returns an object containing the processed data, loading state, and any error.
  */
 export const useAccountingData = ({ id }) => {
-  const { data: fetchedData } = useGetAccountingPoolQuery({ filter: id })
+  const { data: fetchedData } = useGetAccountingPoolQuery({
+    filter: id,
+  })
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
