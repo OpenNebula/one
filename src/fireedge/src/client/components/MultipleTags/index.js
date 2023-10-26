@@ -56,6 +56,7 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
             sx={{
               paddingTop: '2.5px',
               paddingBottom: '2.5px',
+              textTransform: 'none',
             }}
             {...(typeof tag === 'string' ? { text } : tag)}
           />

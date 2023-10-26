@@ -115,6 +115,7 @@ const StatusChip = memo(
         ownerState={ownerState}
         onClick={callAll(handleClick, clipboard && handleCopy)}
         data-cy={dataCy}
+        sx={{ textTransform: 'none' }}
         {...props}
       >
         {text}

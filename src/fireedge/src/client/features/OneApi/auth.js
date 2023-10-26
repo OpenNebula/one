@@ -132,13 +132,11 @@ const authApi = oneApi.injectEndpoints({
 
           const authUser = getState().auth.user
           const currentLabels = authUser?.TEMPLATE?.LABELS?.split(',') ?? []
-          const upperCaseLabels = currentLabels.map((l) => l.toUpperCase())
-          const upperCaseNewLabel = newLabel.toUpperCase()
 
-          const exists = upperCaseLabels.some((l) => l === upperCaseNewLabel)
-          if (exists) return { data: upperCaseNewLabel }
+          const exists = currentLabels.some((l) => l === newLabel)
+          if (exists) return { data: newLabel }
 
-          const newLabels = currentLabels.concat(upperCaseNewLabel).join()
+          const newLabels = currentLabels.concat(newLabel).join(',')
           const template = jsonToXml({ LABELS: newLabels })
           const queryData = { id: authUser.ID, template, replace: 1 }
 
@@ -146,7 +144,7 @@ const authApi = oneApi.injectEndpoints({
             userApi.endpoints.updateUser.initiate(queryData)
           ).unwrap()
 
-          return { data: upperCaseNewLabel }
+          return { data: newLabel }
         } catch (error) {
           return { error }
         }

@@ -67,7 +67,6 @@ export const useAuth = () => {
 
     return labels
       .filter(Boolean)
-      .map((label) => label.toUpperCase())
       .sort(areStringEqual({ numeric: true, ignorePunctuation: true }))
   }, [user?.TEMPLATE?.LABELS])
 

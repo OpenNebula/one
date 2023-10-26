@@ -31,7 +31,7 @@ import { areStringEqual, jsonToXml } from 'client/models/Helper'
 
 export const LABEL_COLUMN_ID = 'label'
 
-const toUpperCase = (label) => label?.trim()?.toUpperCase()
+const toUpperCase = (label) => label?.trim()
 
 const getLabelFromRows = (rows, flatting = true) => {
   const labels = rows
@@ -141,7 +141,7 @@ const GlobalLabel = ({
         const template = USER_TEMPLATE ?? TEMPLATE
         const currentLabels = template?.LABELS?.split(',') ?? []
         const newLabels = currentLabels
-          .map((l) => l?.trim()?.toUpperCase())
+          .map((l) => l?.trim())
           .filter((l) => labelsToRemove.indexOf(l) === -1)
           .concat(labelsToAdd)
 
