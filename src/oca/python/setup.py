@@ -28,7 +28,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 install_requires = [
     'lxml',
-    'dicttoxml',
+    'dict2xml',
     'xmltodict',
     'six',
     'aenum',
