@@ -514,7 +514,8 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
                 string new_value;
 
                 if ( UPDATE_ATTRIBUTES.count(sa->name()) == 1
-                    && !new_tmpl->get(sa->name(), new_value) )
+                    && !new_tmpl->get(sa->name(), new_value)
+                    && !sa->value().empty())
                 {
                     update_attr->replace(sa->name(), sa->value());
                 }

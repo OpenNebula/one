@@ -114,7 +114,7 @@ module VNMMAD
             begin
                 changes = @vm.changes.select {|k, _| SUPPORTED_UPDATE.include?(k) }
 
-                return 0 if changes[:phydev].nil?
+                return 0 if changes[:phydev].nil? || changes[:phydev].empty?
 
                 @bridges = list_bridges
 
