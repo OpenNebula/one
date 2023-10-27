@@ -62,6 +62,9 @@ const Steps = createSteps(
           ...vmTemplate?.TEMPLATE?.OS,
           ...extraTemplate?.OS,
         })
+      ;['NIC', 'NIC_ALIAS'].forEach((nicKey) =>
+        extraTemplate?.[nicKey]?.forEach((NIC) => delete NIC?.NAME)
+      )
 
       // merge with template disks to get TYPE attribute
       const templateXML = jsonToXml({
