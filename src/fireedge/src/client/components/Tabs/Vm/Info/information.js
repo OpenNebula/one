@@ -77,7 +77,7 @@ const InformationPanel = ({ vm = {}, actions }) => {
   } = getLastHistory(vm)
 
   useEffect(() => {
-    getCluster({ id: clusterId })
+    if (clusterId) getCluster({ id: clusterId })
   }, [clusterId])
 
   const clusterName = +clusterId === -1 ? 'default' : cluster?.NAME ?? '--'
