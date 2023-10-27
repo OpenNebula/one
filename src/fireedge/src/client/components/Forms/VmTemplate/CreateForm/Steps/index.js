@@ -151,6 +151,10 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
         extraTemplate.CPU_MODEL.FEATURES.join(', ')
     }
 
+    ;['NIC', 'NIC_ALIAS'].forEach((nicKey) =>
+      extraTemplate?.[nicKey]?.forEach((NIC) => delete NIC?.NAME)
+    )
+
     return jsonToXml({
       ...customVariables,
       ...extraTemplate,
