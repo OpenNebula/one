@@ -1039,6 +1039,8 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
+    bool need_sata_controller = 0;
+
     get_attribute(nullptr, host, cluster, "DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
@@ -1570,12 +1572,27 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( target_number >= 0 && target_number < 256 )
             {
-                file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
-                     "target='" << target_number << "' unit='0'/>" << endl;
+                if ( sd_bus.compare((std::string)("sata")) == 0 )
+                {
+                    need_sata_controller = machine.find("q35");
+                    if (need_sata_controller)
+                        file << "\t\t\t<address type='drive' controller='1' bus='0' " <<
+                            "target='0' unit='" << target_number << "'/>" << endl;
+                    else
+                        file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
+                            "target='" << target_number << "' unit='0'/>" << endl;
+                }
+
+                else
+                {
+                    file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
+                         "target='" << target_number << "' unit='0'/>" << endl;
+                }
             }
         }
 
         file << "\t\t</disk>" << endl;
+
     }
 
     // ------------------------------------------------------------------------
@@ -1668,6 +1685,9 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "/>" << endl
          << "\t\t</controller>" << endl;
+
+    if (need_sata_controller) 
+        file << "\t\t<controller type='sata' index='1'/>" << endl;
 
     // ------------------------------------------------------------------------
     // Network interfaces
