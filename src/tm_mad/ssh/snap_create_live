@@ -73,7 +73,11 @@ $(type retry_if_no_error| grep -v 'is a function')
 mkdir -p "${SNAP_DIR}"
 touch $SNAP_PATH
 
-REAL_DISK="\$(dirname $SRC_PATH)/\$(readlink $SRC_PATH)"
+if [ -L "${SRC_PATH}" ]; then
+    REAL_DISK="\$(dirname $SRC_PATH)/\$(readlink $SRC_PATH)"
+else
+    REAL_DISK="${SRC_PATH}"
+fi
 
 retry_if_no_error "active block job" 3 5  virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
     --path \${REAL_DISK} --dest $SNAP_PATH --wait --finish
