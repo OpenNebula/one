@@ -450,9 +450,7 @@ module OpenNebula::MarketPlaceAppExt
                 ds = OpenNebula::Datastore.new_with_id(dsid, @client)
                 rc = ds.info
 
-                is_vcenter =
-                    !OpenNebula.is_error?(rc) &&
-                        (ds['TEMPLATE/DRIVER'] == 'vcenter')
+                is_vcenter = !OpenNebula.is_error?(rc) && ds['TEMPLATE/DRIVER'] == 'vcenter'
 
                 if is_vcenter
                     if options[:template].nil?
@@ -592,7 +590,7 @@ module OpenNebula::MarketPlaceAppExt
                 pool = OpenNebula::MarketPlaceAppPool.new(@client)
                 rc   = pool.info_all
 
-                return rc if OpenNebula.is_error?(rc)
+                return [rc, [], []] if OpenNebula.is_error?(rc)
 
                 # Apps that have been already exported
                 #
@@ -676,9 +674,7 @@ module OpenNebula::MarketPlaceAppExt
                 end
 
                 if OpenNebula.is_error?(rc)
-                    rc_rbck = rollback_export(exported, xpath != '//DISK')
-
-                    return rc_rbck if OpenNebula.is_error?(rc_rbck)
+                    rollback_export(exported, xpath != '//DISK')
                 end
 
                 [rc, images, templates]
