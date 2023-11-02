@@ -1,0 +1,69 @@
+---
+# This file describes the information and actions available in the Backup Jobs tab
+
+# Resource
+
+resource_name: "BACKUPJOBS"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  update_dialog: true
+  delete: true
+  chown: true
+  chgrp: true
+  lock: true
+  unlock: true
+  start: true
+  cancel: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+        priority: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+
+  vms:
+    enabled: true
+  sched_actions:
+    enabled: true
+    actions:
+      sched_action_create: true
+      sched_action_update: true
+      sched_action_delete: true
+  
+
+# Dialogs
+dialogs:
+  create_dialog:
+    general: true
+    vms: true
+    datastores: true
+    sched_actions: true

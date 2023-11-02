@@ -87,6 +87,7 @@ module.exports = {
   CreateVmTemplate: 'Create VM Template',
   CreateVDC: 'Create VDC',
   UpdateVDC: 'Update VDC',
+  CreateBackupJob: 'Create BackupJob',
   CurrentGroup: 'Current group: %s',
   CurrentOwner: 'Current owner: %s',
   Delete: 'Delete',
@@ -180,6 +181,7 @@ module.exports = {
   SelectTheNewGroup: 'Select the new group',
   SelectTheNewOwner: 'Select the new owner',
   SelectTheNewSecurityGroup: 'Select the new security group',
+  SelectVms: 'Select VMs',
   SelectVmTemplate: 'Select a VM Template',
   SelectYourActiveGroup: 'Select your active group',
   Share: 'Share',
@@ -280,6 +282,7 @@ module.exports = {
   PasswordsMustMatch: 'Passwords must match',
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
+  KeepLast: 'Keep Last',
   Credentials: 'Credentials',
   SwitchView: 'Switch view',
   SwitchGroup: 'Switch group',
@@ -408,6 +411,8 @@ module.exports = {
   Backups: 'Backups',
   BackupDatastore: 'Backup Datastore',
   BackupRestored: 'Backup restored',
+  BackupJobRefresh:
+    'There are machines in outdated, you can refresh to see if the backups are already done',
   Datastore: 'Datastore',
   Datastores: 'Datastores',
   Image: 'Image',
@@ -444,6 +449,8 @@ module.exports = {
   ResetBackup: 'Reset',
   IncrementId: 'Increment ID',
   RestoreBackup: 'Restore backup',
+  BackupJobs: 'BackupJobs',
+  BackupJob: 'BackupJob',
 
   /* storage backends */
   StorageBackend: 'Storage backend',
@@ -484,6 +491,7 @@ module.exports = {
   ResticPassword: 'Restic password',
   ResticSFTPUser: 'Restic SFTP user',
   ResticSFTPServer: 'Restic SFTP server',
+  Priority: 'Priority',
   BackupIOPriority: 'Backup I/O priority',
   BackupIOPriorityConcept:
     'Run restic operations under a given ionice priority using the best-effort I/O scheduler',
@@ -569,6 +577,13 @@ module.exports = {
   Instances: 'Instances',
   VM: 'VM',
   VMs: 'VMs',
+  VMsBackupJob: 'VMs in BackupJob',
+  VMsBackupJobError: 'VMs in error',
+  VMsBackupJobBackingUp: 'VMs Backing Up',
+  VMsBackupJobOutdated: 'VMs Outdated',
+  VMsBackupJobBackingUpState: 'Backing Up',
+  VMsBackupJobOutdatedState: 'Outdated',
+  VMsBackupJobOrder: 'VM List (ordered)',
   VirtualRouter: 'Virtual Router',
   VirtualRouters: 'Virtual Routers',
   VMGroup: 'VM Group',
@@ -611,6 +626,8 @@ module.exports = {
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
   Started: 'Started',
+  NotStartedYet: 'Not started yet',
+  OnGoing: 'On Going',
   StartedOnTime: 'Started on %s',
   Total: 'Total',
   Prolog: 'Prolog',
@@ -1198,6 +1215,7 @@ module.exports = {
   UsedLeases: 'Used leases',
   TotalLeases: 'Total leases',
   TotalClusters: 'Total clusters',
+  Completed: 'Completed',
   RecoverNetworkDescription: `
     Recovers a Virtual Network in ERROR state or waiting for a driver operation to complete.
     The recovery may be done by failing, succeeding or retrying the current operation.
@@ -1307,6 +1325,9 @@ module.exports = {
   /* Marketplace App schema */
   /* Marketplace App - general */
   RegisteredAt: 'Registered %s',
+  LastBackupTime: 'Last Backup Time: %s',
+  LastBackupTimeInfo: 'Last Backup Time',
+  LastBackupDuration: 'Last Backup Duration',
   Version: 'Version',
   AppTemplate: 'App Template',
   TemplatesForTheApp: 'Templates for the App',

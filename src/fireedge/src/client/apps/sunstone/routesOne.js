@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import {
   RefreshDouble as BackupIcon,
+  ClockOutline as BackupJobsIcon,
   Server as ClusterIcon,
   Db as DatastoreIcon,
   Archive as FileIcon,
@@ -233,6 +234,24 @@ const VDCCreate = loadable(() => import('client/containers/VDCs/Create'), {
   ssr: false,
 })
 
+const BackupJobs = loadable(() => import('client/containers/BackupJobs'), {
+  ssr: false,
+})
+
+const BackupJobsDetail = loadable(
+  () => import('client/containers/BackupJobs/Detail'),
+  {
+    ssr: false,
+  }
+)
+
+const BackupJobsCreate = loadable(
+  () => import('client/containers/BackupJobs/Create'),
+  {
+    ssr: false,
+  }
+)
+
 // const ACLs = loadable(() => import('client/containers/ACLs'), { ssr: false })
 
 export const PATH = {
@@ -298,6 +317,11 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.APP}`,
       DETAIL: `/${RESOURCE_NAMES.APP}/:id`,
       CREATE: `/${RESOURCE_NAMES.APP}/create`,
+    },
+    BACKUPJOBS: {
+      LIST: `/${RESOURCE_NAMES.BACKUPJOBS}`,
+      DETAIL: `/${RESOURCE_NAMES.BACKUPJOBS}/:id`,
+      CREATE: `/${RESOURCE_NAMES.BACKUPJOBS}/create`,
     },
   },
   NETWORK: {
@@ -557,6 +581,24 @@ const ENDPOINTS = [
         title: T.CreateMarketApp,
         path: PATH.STORAGE.MARKETPLACE_APPS.CREATE,
         Component: CreateMarketplaceApp,
+      },
+      {
+        title: T.CreateBackupJob,
+        path: PATH.STORAGE.BACKUPJOBS.CREATE,
+        Component: BackupJobsCreate,
+      },
+      {
+        title: T.BackupJobs,
+        path: PATH.STORAGE.BACKUPJOBS.LIST,
+        sidebar: true,
+        icon: BackupJobsIcon,
+        Component: BackupJobs,
+      },
+      {
+        title: T.BackupJob,
+        description: (params) => `#${params?.id}`,
+        path: PATH.STORAGE.BACKUPJOBS.DETAIL,
+        Component: BackupJobsDetail,
       },
     ],
   },

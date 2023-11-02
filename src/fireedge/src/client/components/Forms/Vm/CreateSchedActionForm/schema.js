@@ -23,7 +23,7 @@ import {
 } from 'client/components/Forms/Vm/CreateSchedActionForm/fields'
 import { ARGS_TYPES } from 'client/constants'
 import { getRequiredArgsByAction } from 'client/models/Scheduler'
-import { Field, getObjectSchemaFromFields, disableFields } from 'client/utils'
+import { Field, disableFields, getObjectSchemaFromFields } from 'client/utils'
 
 const ARG_SCHEMA = string()
   .trim()
@@ -136,3 +136,29 @@ export const TEMPLATE_SCHED_SCHEMA = COMMON_SCHEMA.concat(
     PUNCTUAL_FIELDS.END_VALUE_FIELD,
   ])
 )
+
+/**
+ * @param {object} props - Props
+ * @param {object} props.vm - Vm resource
+ * @returns {Field[]} Fields
+ */
+export const BACKUPJOB_SCHED_FIELDS = ({ vm }) => [
+  ...COMMON_FIELDS(vm, true),
+  PUNCTUAL_FIELDS.TIME_FIELD,
+  PUNCTUAL_FIELDS.END_TYPE_FIELD,
+  PUNCTUAL_FIELDS.END_VALUE_FIELD,
+]
+
+/** @type {ObjectSchema} Schema */
+export const BACKUPJOB_SCHED_SCHEMA = getObjectSchemaFromFields([
+  PUNCTUAL_FIELDS.TIME_FIELD,
+  PUNCTUAL_FIELDS.PERIODIC_FIELD(true),
+  PUNCTUAL_FIELDS.REPEAT_FIELD,
+  PUNCTUAL_FIELDS.WEEKLY_FIELD,
+  PUNCTUAL_FIELDS.MONTHLY_FIELD,
+  PUNCTUAL_FIELDS.YEARLY_FIELD,
+  PUNCTUAL_FIELDS.HOURLY_FIELD,
+  PUNCTUAL_FIELDS.DAYS_FIELD,
+  PUNCTUAL_FIELDS.END_TYPE_FIELD,
+  PUNCTUAL_FIELDS.END_VALUE_FIELD,
+])

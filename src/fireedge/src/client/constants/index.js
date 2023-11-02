@@ -181,11 +181,14 @@ export const RESOURCE_NAMES = {
   SERVICE: 'service',
   SERVICE_TEMPLATE: 'service-template',
   ZONE: 'zone',
+  BACKUPJOBS: 'backupjobs',
 }
-
 export * as T from 'client/constants/translates'
+
 export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'
+
+export * from 'client/constants/backupjob'
 export * from 'client/constants/cluster'
 export * from 'client/constants/common'
 export * from 'client/constants/datastore'

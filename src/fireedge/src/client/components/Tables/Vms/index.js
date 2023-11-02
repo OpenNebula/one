@@ -35,6 +35,8 @@ const VmsTable = (props) => {
     searchProps = {},
     initialState = {},
     host,
+    backupjobs,
+    backupjobsState,
     ...rest
   } = props ?? {}
 
@@ -53,6 +55,7 @@ const VmsTable = (props) => {
       data:
         result?.data
           ?.filter((vm) => {
+            // this filters data for host
             if (host?.ID) {
               if (
                 host?.ERROR_VMS?.ID ||
@@ -71,6 +74,24 @@ const VmsTable = (props) => {
               return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
             }
 
+            // this filters data for backupjobs
+            if (backupjobs?.ID) {
+              if (backupjobsState) {
+                return [backupjobs?.[backupjobsState]?.ID ?? []]
+                  .flat()
+                  .includes(vm.ID)
+              } else {
+                return [
+                  (backupjobs?.TEMPLATE?.BACKUP_VMS &&
+                    backupjobs?.TEMPLATE?.BACKUP_VMS.split(',')) ??
+                    [],
+                ]
+                  .flat()
+                  .includes(vm.ID)
+              }
+            }
+
+            // This is for return data without filters
             return true
           })
           ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
