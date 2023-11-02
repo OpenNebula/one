@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 const { Commands: acl } = require('./acl')
+const { Commands: backupjobs } = require('./backupjobs')
 const { Commands: cluster } = require('./cluster')
 const { Commands: datastore } = require('./datastore')
 const { Commands: document } = require('./document')
@@ -38,6 +39,7 @@ const { Commands: zone } = require('./zone')
 
 module.exports = {
   ...acl,
+  ...backupjobs,
   ...cluster,
   ...datastore,
   ...document,

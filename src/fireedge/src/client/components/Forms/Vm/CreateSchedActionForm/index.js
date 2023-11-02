@@ -24,6 +24,8 @@ import { DateTime } from 'luxon'
 import { createForm } from 'client/utils'
 
 import {
+  BACKUPJOB_SCHED_FIELDS,
+  BACKUPJOB_SCHED_SCHEMA,
   TEMPLATE_SCHED_FIELDS,
   TEMPLATE_SCHED_SCHEMA,
   VM_SCHED_FIELDS,
@@ -127,6 +129,15 @@ const RelativeForm = createForm(TEMPLATE_SCHED_SCHEMA, TEMPLATE_SCHED_FIELDS, {
   transformBeforeSubmit: commonTransformBeforeSubmit,
 })
 
-export { RelativeForm }
+const BackupJobForm = createForm(
+  BACKUPJOB_SCHED_SCHEMA,
+  BACKUPJOB_SCHED_FIELDS,
+  {
+    transformInitialValue: commonTransformInitialValue,
+    transformBeforeSubmit: commonTransformBeforeSubmit,
+  }
+)
+
+export { BackupJobForm, RelativeForm }
 
 export default CreateSchedActionForm

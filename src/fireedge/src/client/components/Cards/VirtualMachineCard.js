@@ -19,9 +19,11 @@ import { ReactElement, memo, useMemo } from 'react'
 import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import {
   Cpu,
+  Group,
   HardDrive,
   Lock,
   Network,
+  User,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
 
@@ -75,6 +77,8 @@ const VirtualMachineCard = memo(
       ETIME,
       LOCK,
       USER_TEMPLATE: { LABELS } = {},
+      GNAME,
+      UNAME,
       TEMPLATE: { VCPU = '-', MEMORY } = {},
     } = vm
 
@@ -181,6 +185,18 @@ const VirtualMachineCard = memo(
               <HardDrive />
               <span data-cy="hostname">{HOSTNAME}</span>
             </span>
+            {!!UNAME && (
+              <span title={`${Tr(T.Owner)}: ${UNAME}`}>
+                <User />
+                <span>{` ${UNAME}`}</span>
+              </span>
+            )}
+            {!!GNAME && (
+              <span title={`${Tr(T.Group)}: ${GNAME}`}>
+                <Group />
+                <span>{` ${GNAME}`}</span>
+              </span>
+            )}
             {!!ips?.length && (
               <span title={`${Tr(T.IP)}`}>
                 <Network />

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
 import { CreateFormCallback, CreateStepsCallback } from 'client/utils/schema'
+import { ReactElement } from 'react'
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
@@ -143,6 +143,16 @@ const CreateRelativeSchedActionForm = (configProps) =>
  * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
  */
+const CreateBackupJobSchedActionForm = (configProps) =>
+  AsyncLoadForm(
+    { formPath: 'Vm/CreateSchedActionForm', componentToLoad: 'BackupJobForm' },
+    configProps
+  )
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
 const CreateCharterForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Vm/CreateCharterForm' }, configProps)
 
@@ -176,6 +186,7 @@ export {
   BackupForm,
   ChangeGroupForm,
   ChangeUserForm,
+  CreateBackupJobSchedActionForm,
   CreateCharterForm,
   CreateDiskSnapshotForm,
   CreateRelativeCharterForm,

@@ -17,6 +17,7 @@ import AddressRangeCard from 'client/components/Cards/AddressRangeCard'
 import ApplicationCard from 'client/components/Cards/ApplicationCard'
 import ApplicationNetworkCard from 'client/components/Cards/ApplicationNetworkCard'
 import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplateCard'
+import BackupJobCard from 'client/components/Cards/BackupJobCard'
 import ClusterCard from 'client/components/Cards/ClusterCard'
 import DatastoreCard from 'client/components/Cards/DatastoreCard'
 import DiskCard from 'client/components/Cards/DiskCard'
@@ -51,6 +52,7 @@ export {
   ApplicationCard,
   ApplicationNetworkCard,
   ApplicationTemplateCard,
+  BackupJobCard,
   ClusterCard,
   DatastoreCard,
   DiskCard,

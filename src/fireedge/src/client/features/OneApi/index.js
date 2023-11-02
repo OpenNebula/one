@@ -23,6 +23,7 @@ import { httpCodes } from 'server/utils/constants'
 const ONE_RESOURCES = {
   ACL: 'ACL',
   APP: 'APP',
+  BACKUPJOB: 'BACKUPJOB',
   CLUSTER: 'CLUSTER',
   DATASTORE: 'DATASTORE',
   FILE: 'FILE',

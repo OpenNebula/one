@@ -14,22 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useState } from 'react'
 
-import { Grow, Menu, MenuItem, Typography, ListItemIcon } from '@mui/material'
+import { Grow, ListItemIcon, Menu, MenuItem, Typography } from '@mui/material'
 import { NavArrowDown } from 'iconoir-react'
 
-import { useDialog } from 'client/hooks'
 import {
   DialogConfirmation,
   DialogForm,
   DialogPropTypes,
 } from 'client/components/Dialogs'
-import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import FormStepper from 'client/components/FormStepper'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Translate } from 'client/components/HOC'
+import { useDialog } from 'client/hooks'
 import { isDevelopment } from 'client/utils'
 
 const ButtonToTriggerForm = ({

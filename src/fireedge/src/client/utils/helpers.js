@@ -494,3 +494,19 @@ export const getUnknownAttributes = (obj = {}, knownAttributes) => {
 
   return unknown
 }
+
+/**
+ * Extract the Ids for values selected in datatables.
+ *
+ * @param {any} arr - Data for Datatables.
+ * @returns {string} Returns string with ids.
+ */
+export const extractIDValues = (arr = []) => {
+  const dataArray = Array.isArray(arr) ? arr : [arr]
+  const idValues = dataArray
+    // eslint-disable-next-line no-prototype-builtins
+    .filter((obj) => obj.hasOwnProperty('ID'))
+    .map((obj) => obj.ID)
+
+  return idValues.join(',')
+}

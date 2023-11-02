@@ -19,10 +19,11 @@ import { ReactElement, memo, useMemo } from 'react'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
+  CreateBackupJobSchedActionForm,
   CreateCharterForm,
   CreateRelativeCharterForm,
-  CreateSchedActionForm,
   CreateRelativeSchedActionForm,
+  CreateSchedActionForm,
 } from 'client/components/Forms/Vm'
 
 import { Tr, Translate } from 'client/components/HOC'
@@ -33,7 +34,7 @@ import {
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
 } from 'client/constants'
-import { sentenceCase, hasRestrictedAttributes } from 'client/utils'
+import { hasRestrictedAttributes, sentenceCase } from 'client/utils'
 
 /**
  * Returns a button to trigger form to create a scheduled action.
@@ -45,34 +46,38 @@ import { sentenceCase, hasRestrictedAttributes } from 'client/utils'
  * @returns {ReactElement} Button
  */
 const CreateSchedButton = memo(
-  ({ vm, relative, onSubmit, oneConfig, adminGroup }) => (
-    <ButtonToTriggerForm
-      buttonProps={{
-        color: 'secondary',
-        'data-cy': VM_ACTIONS.SCHED_ACTION_CREATE,
-        label: T.AddAction,
-        variant: 'outlined',
-      }}
-      options={[
-        {
-          name: T.PunctualAction,
-          dialogProps: {
-            title: T.ScheduleAction,
-            dataCy: 'modal-sched-actions',
+  ({ vm, relative, onSubmit, oneConfig, adminGroup, backupjobs }) => {
+    const formConfig = {
+      stepProps: { vm, oneConfig, adminGroup },
+    }
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          color: 'secondary',
+          'data-cy': VM_ACTIONS.SCHED_ACTION_CREATE,
+          label: T.AddAction,
+          variant: 'outlined',
+        }}
+        options={[
+          {
+            name: T.PunctualAction,
+            dialogProps: {
+              title: T.ScheduleAction,
+              dataCy: 'modal-sched-actions',
+            },
+            form: () =>
+              relative
+                ? CreateRelativeSchedActionForm(formConfig)
+                : backupjobs
+                ? CreateBackupJobSchedActionForm(formConfig)
+                : CreateSchedActionForm(formConfig),
+            onSubmit,
           },
-          form: () =>
-            relative
-              ? CreateRelativeSchedActionForm({
-                  stepProps: { vm, oneConfig, adminGroup },
-                })
-              : CreateSchedActionForm({
-                  stepProps: { vm, oneConfig, adminGroup },
-                }),
-          onSubmit,
-        },
-      ]}
-    />
-  )
+        ]}
+      />
+    )
+  }
 )
 
 /**
@@ -86,7 +91,7 @@ const CreateSchedButton = memo(
  * @returns {ReactElement} Button
  */
 const UpdateSchedButton = memo(
-  ({ vm, schedule, relative, onSubmit, oneConfig, adminGroup }) => {
+  ({ vm, schedule, relative, onSubmit, oneConfig, adminGroup, backupjobs }) => {
     const { ID, ACTION } = schedule
     const titleAction = `#${ID} ${sentenceCase(ACTION)}`
     const formConfig = {
@@ -115,6 +120,8 @@ const UpdateSchedButton = memo(
             form: () =>
               relative
                 ? CreateRelativeSchedActionForm(formConfig)
+                : backupjobs
+                ? CreateBackupJobSchedActionForm(formConfig)
                 : CreateSchedActionForm(formConfig),
             onSubmit,
           },
@@ -226,6 +233,7 @@ const ButtonPropTypes = {
   schedule: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  backupjobs: PropTypes.bool,
 }
 
 CreateSchedButton.propTypes = ButtonPropTypes
