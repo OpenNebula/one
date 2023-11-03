@@ -826,7 +826,7 @@ class ExecDriver < VirtualMachineDriver
             # Run the snapshot_revert action script
             {
                 :driver       => :vmm,
-                :action       => :snapshot_revert,
+                :action       => ACTION[:snapshot_revert],
                 :parameters   => [:deploy_id, snapshot_name]
             },
             # Execute post-boot networking setup
