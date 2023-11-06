@@ -480,7 +480,7 @@ _onemarket() {
     if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
         pprev="${COMP_WORDS[COMP_CWORD-2]}"
     fi
-    opts="create delete chgrp chown chmod list show update rename"
+    opts="create delete chgrp chown chmod list show update rename enable disable"
     cmd=onemarket
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
