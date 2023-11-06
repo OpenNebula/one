@@ -28,16 +28,16 @@ define(function (require) {
   var LABELS_ATTR = "LABELS";
 
   return {
-    "labelsStr": _labelsStr,
-    "deserializeLabels": _deserializeLabels,
-    "makeTree": _makeTree,
-    "insertLabelsMenu": _insertLabelsMenu,
-    "insertLabelsDropdown": _insertLabelsDropdown,
-    "clearLabelsFilter": _clearLabelsFilter,
-    "setLabelsFilter": _setLabelsFilter,
-    "getLabelsFilter": _getLabelsFilter,
-    "getLabels": _getLabels,
-    "getLabel": _getLabel
+    labelsStr: _labelsStr,
+    deserializeLabels: _deserializeLabels,
+    makeTree: _makeTree,
+    insertLabelsMenu: _insertLabelsMenu,
+    insertLabelsDropdown: _insertLabelsDropdown,
+    clearLabelsFilter: _clearLabelsFilter,
+    setLabelsFilter: _setLabelsFilter,
+    getLabelsFilter: _getLabelsFilter,
+    getLabels: _getLabels,
+    getLabel: _getLabel,
   };
 
   /* FUNCTION DEFINITIONS */
@@ -60,8 +60,10 @@ define(function (require) {
    */
   function _insertLabelsMenu(opts) {
     var context = opts.context || $("#li_" + opts.tabName);
-    var dataTable = opts.dataTable || Sunstone.getDataTable(opts.tabName).dataTable;
-    var labelsColumn = opts.labelsColumn || Sunstone.getDataTable(opts.tabName).labelsColumn;
+    var dataTable =
+      opts.dataTable || Sunstone.getDataTable(opts.tabName).dataTable;
+    var labelsColumn =
+      opts.labelsColumn || Sunstone.getDataTable(opts.tabName).labelsColumn;
     var labelsPath = opts.labelsPath;
     var labels = _getLabels(dataTable, labelsColumn, labelsPath);
 
@@ -77,13 +79,19 @@ define(function (require) {
 
       Tree.setup($(".labels-tree", context));
 
-      var currentLabel = $("span[one-label-full-name=\"" + _getLabelsFilter(dataTable) + "\"]", context);
+      var currentLabel = $(
+        "span[one-label-full-name=\"" + _getLabelsFilter(dataTable) + "\"]",
+        context
+      );
 
       if (currentLabel.length == 0) {
         _clearLabelsFilter(dataTable, labelsColumn);
       } else {
         currentLabel.parent(".labeltree-line").click();
-        currentLabel.parentsUntil(".labels-tree", "li").children(".tree-toggle").click();
+        currentLabel
+          .parentsUntil(".labels-tree", "li")
+          .children(".tree-toggle")
+          .click();
       }
     }
 
@@ -120,7 +128,7 @@ define(function (require) {
 
     OpenNebulaUser.show({
       data: {
-        id: config["user_id"]
+        id: config["user_id"],
       },
       success: function (request, user_json) {
         var labels_persis = "";
@@ -154,30 +162,41 @@ define(function (require) {
         $.extend(labels, labels_persis);
         var html_yaml = "";
         if (!$.isEmptyObject(labels_yaml)) {
-          html_yaml = "<h6>" + Locale.tr("System Labels") + "</h6>" +
+          html_yaml =
+            "<h6>" +
+            Locale.tr("System Labels") +
+            "</h6>" +
             "<div class=\"labeltree-container\">" +
             Tree.html(_makeTree(labels_yaml), false) +
             "</div>";
         }
         labelsDropdown.html(
           "<div>" +
-          "<h6>" + Locale.tr("Edit Labels") + "</h6>" +
-          "<div class=\"labeltree-container\">" +
-          Tree.html(_makeTree(labels), false) +
-          "</div>" +
-          html_yaml +
-          "<div class=\"input-container\">" +
-          "<input type=\"text\" class=\"newLabelInput\" placeholder=\"" + Locale.tr("Add Label") + "\"/>" +
-          "</div>" +
-          "</div>");
+            "<h6>" +
+            Locale.tr("Edit Labels") +
+            "</h6>" +
+            "<div class=\"labeltree-container\">" +
+            Tree.html(_makeTree(labels), false) +
+            "</div>" +
+            html_yaml +
+            "<div class=\"input-container\">" +
+            "<input type=\"text\" class=\"newLabelInput\" placeholder=\"" +
+            Locale.tr("Add Label") +
+            "\"/>" +
+            "</div>" +
+            "</div>"
+        );
 
         Tree.setup(labelsDropdown);
         recountLabels();
         $("[data-toggle=\"" + tabName + "LabelsDropdown\"]").off("click");
-        $("[data-toggle=\"" + tabName + "LabelsDropdown\"]").on("click", function () {
-          recountLabels();
-        });
-      }
+        $("[data-toggle=\"" + tabName + "LabelsDropdown\"]").on(
+          "click",
+          function () {
+            recountLabels();
+          }
+        );
+      },
     });
     /*
       Update Dropdown with selected items
@@ -187,7 +206,8 @@ define(function (require) {
      */
     function recountLabels() {
       // Generate Hash with labels and number of items
-      var labelsStr, labelsIndexed = {};
+      var labelsStr,
+        labelsIndexed = {};
 
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function (index, resourceId) {
@@ -213,8 +233,13 @@ define(function (require) {
 
       var labelsCheckbox;
       $.each(labelsIndexed, function (labelName, numberOfItems) {
-        labelsCheckbox = $(".labelsCheckbox",
-          $("[one-label-full-name=\"" + labelName + "\"]", labelsDropdown).closest("li"));
+        labelsCheckbox = $(
+          ".labelsCheckbox",
+          $(
+            "[one-label-full-name=\"" + labelName + "\"]",
+            labelsDropdown
+          ).closest("li")
+        );
         if (labelsCheckbox.length > 0) {
           if (numberOfItems == selectedItems.length) {
             $(labelsCheckbox[0])
@@ -244,11 +269,13 @@ define(function (require) {
         $(that).removeClass("fa-square").addClass("fa-check-square");
       } else {
         action = "remove";
-        $(that).removeClass("fa-check-square fa-minus-square").addClass("fa-square");
+        $(that)
+          .removeClass("fa-check-square fa-minus-square")
+          .addClass("fa-square");
       }
       OpenNebulaUser.show({
         data: {
-          id: config["user_id"]
+          id: config["user_id"],
         },
         success: function (request, user_json) {
           var labels_persis = "";
@@ -257,7 +284,9 @@ define(function (require) {
               labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
             }
           }
-          var labelName = $(".one-label", $(that).closest("li")).attr("one-label-full-name");
+          var labelName = $(".one-label", $(that).closest("li")).attr(
+            "one-label-full-name"
+          );
           var labelsArray, labelsArray_persis, labelIndex;
           var selectedItems = tabTable.elements();
           if (labels_persis != "") {
@@ -277,14 +306,20 @@ define(function (require) {
               labelsArray.push(labelName);
               _updateResouceLabels(tabName, resourceId, labelsArray);
             } else if (action == "remove" && labelIndex != -1) {
-              if ((!labelsArray_persis || (labelsArray_persis && $.inArray(labelName, labelsArray_persis) == -1)) ||
-                (!config["all_labels"] || (config["all_labels"] && $.inArray(labelName, config["all_labels"]) == -1))) {
+              if (
+                !labelsArray_persis ||
+                (labelsArray_persis &&
+                  $.inArray(labelName, labelsArray_persis) == -1) ||
+                !config["all_labels"] ||
+                (config["all_labels"] &&
+                  $.inArray(labelName, config["all_labels"]) == -1)
+              ) {
                 labelsArray.splice(labelIndex, 1);
                 _updateResouceLabels(tabName, resourceId, labelsArray);
               }
             }
           });
-        }
+        },
       });
     });
 
@@ -299,7 +334,6 @@ define(function (require) {
 
       if (key == 13 && !ev.altKey && labelName !== "") {
         var labelsArray;
-        var labelClean = transformLabelToCleanFormat(labelName);
         var selectedItems = tabTable.elements();
 
         $.each(selectedItems, function (_, resourceId) {
@@ -310,10 +344,8 @@ define(function (require) {
             labelsArray = [];
           }
 
-          if (!existInArrInsensitive(labelClean, labelsArray)) {
-            labelsArray.push(labelClean);
-            _updateResouceLabels(tabName, resourceId, labelsArray);
-          }
+          labelsArray.push(labelName);
+          _updateResouceLabels(tabName, resourceId, labelsArray);
         });
 
         ev.preventDefault();
@@ -321,23 +353,13 @@ define(function (require) {
     });
   }
 
-  function existInArrInsensitive(val, arr) {
-    if (arr.length) {
-      for (var i = 0; arr.length > i; i++) {
-        if (val.toLowerCase() == arr[i].toLowerCase()) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   function _updateResouceLabels(tabName, resourceId, labelsArray) {
     var resource = Sunstone.getResource(tabName);
     var tabTable = Sunstone.getDataTable(tabName);
 
     if (resource == "ServiceTemplate" || resource == "Service") {
-      var templateStr = "{\"" + LABELS_ATTR.toLowerCase() + "\":\"" + labelsArray.join(",") + "\"}";
+      var templateStr =
+        "{\"" + LABELS_ATTR.toLowerCase() + "\":\"" + labelsArray.join(",") + "\"}";
     } else {
       var templateStr = LABELS_ATTR + "=\"" + labelsArray.join(",") + "\"";
     }
@@ -346,13 +368,13 @@ define(function (require) {
       timeout: true,
       data: {
         id: resourceId,
-        extra_param: templateStr
+        extra_param: templateStr,
       },
       success: function (request) {
         OpenNebula[resource].show({
           timeout: true,
           data: {
-            id: resourceId
+            id: resourceId,
           },
           success: function (request, response) {
             tabTable.updateElement(request, response);
@@ -360,25 +382,31 @@ define(function (require) {
               Sunstone.insertPanels(tabName, response);
             }
 
-
-            _insertLabelsMenu({ "tabName": tabName });
+            _insertLabelsMenu({ tabName: tabName });
             _insertLabelsDropdown(tabName);
           },
-          error: Notifier.onError
+          error: Notifier.onError,
         });
       },
-      error: Notifier.onError
+      error: Notifier.onError,
     });
   }
 
   function _labelsStr(elementTemplate) {
-    if (elementTemplate &&
-        elementTemplate.BODY &&
+    if (
+      elementTemplate &&
+      elementTemplate.BODY &&
+      elementTemplate.BODY[LABELS_ATTR.toLowerCase()]
+    ) {
+      return TemplateUtils.htmlEncode(
         elementTemplate.BODY[LABELS_ATTR.toLowerCase()]
-      ) {
-      return TemplateUtils.htmlEncode(elementTemplate.BODY[LABELS_ATTR.toLowerCase()]);
+      );
     } else {
-      return TemplateUtils.htmlEncode(elementTemplate && elementTemplate[LABELS_ATTR]? elementTemplate[LABELS_ATTR] : "");
+      return TemplateUtils.htmlEncode(
+        elementTemplate && elementTemplate[LABELS_ATTR]
+          ? elementTemplate[LABELS_ATTR]
+          : ""
+      );
     }
   }
 
@@ -404,7 +432,7 @@ define(function (require) {
   function _makeTree(indexedLabels, currentLabel) {
     var treeRoot = {
       htmlStr: "",
-      subTree: []
+      subTree: [],
     };
 
     var keys = Object.keys(indexedLabels).sort();
@@ -431,8 +459,7 @@ define(function (require) {
       });
       folderName = folderName.slice(0, -1);
       persis = true;
-    }
-    else if (name_split.indexOf("YAML") > -1) {
+    } else if (name_split.indexOf("YAML") > -1) {
       folderName = "";
       $.each(name_split, function (value) {
         if (name_split[value] != "YAML") {
@@ -445,32 +472,51 @@ define(function (require) {
     var fullName = parentName + folderName;
     if (persis) {
       var htmlStr =
-        "<span class=\"secondary one-label\" persis=\"true\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" persis=\"true\" alt=\"" +
+        fullName +
+        "\" title=\"" +
+        fullName +
+        "\" one-label-full-name=\"" +
+        fullName +
+        "\">" +
         folderName +
         "</span>";
     } else if (yaml) {
       var htmlStr =
-        "<span class=\"secondary one-label\" yaml=\"true\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" yaml=\"true\" alt=\"" +
+        fullName +
+        "\" title=\"" +
+        fullName +
+        "\" one-label-full-name=\"" +
+        fullName +
+        "\">" +
         folderName +
         "</span>";
     } else {
       var htmlStr =
-        "<span class=\"secondary one-label\" alt=\"" + fullName + "\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
+        "<span class=\"secondary one-label\" alt=\"" +
+        fullName +
+        "\" title=\"" +
+        fullName +
+        "\" one-label-full-name=\"" +
+        fullName +
+        "\">" +
         folderName +
         "</span>";
     }
 
-
     var tree = {
       htmlStr: htmlStr,
-      subTree: []
+      subTree: [],
     };
 
     var keys = Object.keys(childs).sort();
     for (var i = 0; i < keys.length; i++) {
       var subFolderName = keys[i];
       var subChilds = childs[subFolderName];
-      tree.subTree.push(_makeSubTree(fullName + "/", subFolderName, subChilds, currentLabel));
+      tree.subTree.push(
+        _makeSubTree(fullName + "/", subFolderName, subChilds, currentLabel)
+      );
     }
 
     return tree;
@@ -481,15 +527,23 @@ define(function (require) {
    */
 
   function _setLabelsFilter(dataTable, labelsColumn, label) {
-
     // Make the label safe, it may contain regexp special characters. Source:
     // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions
     var escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    var regExp = "^" + escapedLabel + "$|" +
-      "," + escapedLabel + "$|" +
-      "^" + escapedLabel + ",|" +
-      "," + escapedLabel + ",";
+    var regExp =
+      "^" +
+      escapedLabel +
+      "$|" +
+      "," +
+      escapedLabel +
+      "$|" +
+      "^" +
+      escapedLabel +
+      ",|" +
+      "," +
+      escapedLabel +
+      ",";
 
     dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
@@ -551,7 +605,9 @@ define(function (require) {
       }
     } else {
       var nodes = dataTable.fnGetNodes();
-      var tr = $(".check_item[value=\"" + resourceId + "\"]", nodes).closest("tr");
+      var tr = $(".check_item[value=\"" + resourceId + "\"]", nodes).closest(
+        "tr"
+      );
       var aData = dataTable.fnGetData(tr);
       return aData[labelsColumn];
     }
@@ -566,7 +622,7 @@ define(function (require) {
   function transformLabelToCleanFormat(label) {
     let SEPARATOR_SUB_TREE = "/";
 
-    return $.map(label.split(SEPARATOR_SUB_TREE), function(tree) {
+    return $.map(label.split(SEPARATOR_SUB_TREE), function (tree) {
       return firstLetterToUppercase(tree);
     }).join(SEPARATOR_SUB_TREE);
   }
@@ -578,7 +634,7 @@ define(function (require) {
   function firstLetterToUppercase(phrase) {
     let words = splitPhraseWithSpaces(phrase);
 
-    return $.map(words, function(word) {
+    return $.map(words, function (word) {
       return capitalize(word.toLowerCase());
     }).join(" ");
   }
