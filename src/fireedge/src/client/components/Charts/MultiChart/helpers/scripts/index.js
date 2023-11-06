@@ -21,6 +21,8 @@ import {
 import {
   generateColorByMetric,
   GetChartDefs,
+  GetChartConfig,
+  GetChartElementConfig,
 } from 'client/components/Charts/MultiChart/helpers/scripts/chartDefs'
 import { exportDataToPDF } from 'client/components/Charts/MultiChart/helpers/scripts/exportPDF'
 import { exportDataToCSV } from 'client/components/Charts/MultiChart/helpers/scripts/exportCSV'
@@ -31,6 +33,8 @@ export {
   filterDataset,
   generateColorByMetric,
   GetChartDefs,
+  GetChartConfig,
+  GetChartElementConfig,
   exportDataToPDF,
   exportDataToCSV,
 }

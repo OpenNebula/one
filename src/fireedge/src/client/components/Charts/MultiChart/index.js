@@ -14,18 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Box } from '@mui/material'
 
 import {
   ChartRenderer,
-  NavigationController,
   ExportButton,
+  NavigationController,
 } from 'client/components/Charts/MultiChart/helpers/subComponents'
 import { LoadingDisplay } from 'client/components/LoadingState'
 import {
-  processDataForChart,
   GetChartDefs,
+  processDataForChart,
 } from 'client/components/Charts/MultiChart/helpers/scripts'
 
 /**
@@ -45,6 +45,9 @@ import {
  * @param {object} props.metricHues - Object containing hue values for different metrics.
  * @param {boolean} props.disableExport - Enable/Disable export button.
  * @param {boolean} props.disableLegend - Disables the legend underneath the charts.
+ * @param {string} props.coordinateType - Cartesian or polar coordinate system.
+ * @param {boolean} props.disableNavController - Disable navigation controls.
+ * @param {Function} props.onElementClick - OnClick callback function for the clicked element.
  * @returns {React.Component} MultiChart component.
  */
 const MultiChart = ({
@@ -59,9 +62,12 @@ const MultiChart = ({
   tableColumns,
   customChartDefs,
   metricNames,
+  coordinateType,
   groupBy,
   disableExport,
+  disableNavController,
   disableLegend,
+  onElementClick,
   metricHues: passedMetricHues,
 }) => {
   const [currentPage, setCurrentPage] = useState(0)
@@ -185,31 +191,32 @@ const MultiChart = ({
   return (
     <Box width="100%" height="100%" display="flex" flexDirection="column">
       <Box display="flex" justifyContent="space-between" minHeight="40px">
-        {chartType !== 'table' && (
-          <Box flex={1}>
-            <NavigationController
-              onPrev={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-              onNext={() =>
-                setCurrentPage((prev) =>
-                  Math.min(
-                    prev + 1,
-                    Math.ceil(selectedXValues.length / ItemsPerPage) - 1
+        {chartType !== 'table' &&
+          (!disableNavController ? (
+            <Box flex={1}>
+              <NavigationController
+                onPrev={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+                onNext={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(
+                      prev + 1,
+                      Math.ceil(selectedXValues.length / ItemsPerPage) - 1
+                    )
                   )
-                )
-              }
-              isPrevDisabled={currentPage === 0}
-              isNextDisabled={
-                currentPage ===
-                Math.ceil(selectedXValues.length / ItemsPerPage) - 1
-              }
-              selectedItems={selectedXValues}
-              items={xAxisLabels}
-              setSelectedItems={setSelectedXValues}
-              isFilterDisabled={isFilterDisabled}
-              isPaginationDisabled={isPaginationDisabled}
-            />
-          </Box>
-        )}
+                }
+                isPrevDisabled={currentPage === 0}
+                isNextDisabled={
+                  currentPage ===
+                  Math.ceil(selectedXValues.length / ItemsPerPage) - 1
+                }
+                selectedItems={selectedXValues}
+                items={xAxisLabels}
+                setSelectedItems={setSelectedXValues}
+                isFilterDisabled={isFilterDisabled}
+                isPaginationDisabled={isPaginationDisabled}
+              />
+            </Box>
+          ) : null)}
         {!disableExport && (
           <Box flex={1} display="flex" justifyContent="flex-end">
             <ExportButton data={datasets} />
@@ -229,9 +236,11 @@ const MultiChart = ({
             tableColumns={tableColumns}
             paginatedData={paginatedData}
             humanReadableMetric={humanReadableMetric}
+            coordinateType={coordinateType}
             groupBy={groupBy}
             metricHues={metricHues}
             disableLegend={disableLegend}
+            onElementClick={onElementClick}
           />
         )}
       </Box>
@@ -256,13 +265,23 @@ MultiChart.propTypes = {
   ).isRequired,
   visibleDatasets: PropTypes.arrayOf(PropTypes.number),
   xAxisLabels: PropTypes.arrayOf(PropTypes.string),
-  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table', 'stackedBar']),
+  chartType: PropTypes.oneOf([
+    'bar',
+    'line',
+    'area',
+    'table',
+    'stackedBar',
+    'radialBar',
+  ]),
   selectedMetrics: PropTypes.object,
   error: PropTypes.string,
   isLoading: PropTypes.bool,
   groupBy: PropTypes.string,
+  coordinateType: PropTypes.string,
   disableExport: PropTypes.bool,
+  disableNavController: PropTypes.bool,
   disableLegend: PropTypes.bool,
+  onElementClick: PropTypes.func,
   ItemsPerPage: PropTypes.number.isRequired,
   tableColumns: PropTypes.arrayOf(PropTypes.object),
   customChartDefs: PropTypes.func.isRequired,
@@ -274,11 +293,14 @@ MultiChart.defaultProps = {
   chartType: 'bar',
   ItemsPerPage: 10,
   groupBy: 'ID',
+  coordinateType: 'CARTESIAN',
   customChartDefs: GetChartDefs,
   metricNames: {},
   metricHues: {},
   disableExport: false,
   disableLegend: false,
+  onElementClick: () => {},
+  disableNavController: false,
 }
 
 export default MultiChart

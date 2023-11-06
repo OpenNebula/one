@@ -14,13 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { Component, useState } from 'react'
-import { Box, Grid, Card, CardContent, Typography } from '@mui/material'
+import { Component, useState, useMemo } from 'react'
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 import { MultiChart } from 'client/components/Charts'
 import { transformApiResponseToDataset } from 'client/components/Charts/MultiChart/helpers/scripts'
 import { QuotaControls } from 'client/components/Tabs/User/Quota/Components'
+import { nameMapper } from 'client/components/Tabs/User/Quota/Components/helpers/scripts'
 import { useGetUserQuery } from 'client/features/OneApi/user'
-
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+import { useGetImagesQuery } from 'client/features/OneApi/image'
 /**
  * QuotasInfoTab component.
  *
@@ -29,9 +32,38 @@ import { useGetUserQuery } from 'client/features/OneApi/user'
  * @returns {Component} Rendered component.
  */
 const QuotasInfoTab = ({ id }) => {
+  const datastoresResponse = useGetDatastoresQuery()
+  const networksResponse = useGetVNetworksQuery()
+  const imagesResponse = useGetImagesQuery()
+  const [dsNameMap, setDsNameMap] = useState({})
+  const [imgNameMap, setImgNameMap] = useState({})
+  const [netNameMap, setNetNameMap] = useState({})
   const [selectedType, setSelectedType] = useState('VM')
+  const [clickedElement, setClickedElement] = useState(null)
   const queryInfo = useGetUserQuery({ id })
   const apiData = queryInfo?.data || {}
+
+  useMemo(() => {
+    if (datastoresResponse.isSuccess && datastoresResponse.data) {
+      setDsNameMap(nameMapper(datastoresResponse))
+    }
+    if (networksResponse.isSuccess && networksResponse.data) {
+      setNetNameMap(nameMapper(networksResponse))
+    }
+    if (imagesResponse.isSuccess && imagesResponse.data) {
+      setImgNameMap(nameMapper(imagesResponse))
+    }
+  }, [datastoresResponse, networksResponse, imagesResponse])
+
+  const nameMaps = {
+    DATASTORE: dsNameMap,
+    NETWORK: netNameMap,
+    IMAGE: imgNameMap,
+  }
+
+  const handleChartElementClick = (data) => {
+    setClickedElement(data)
+  }
 
   const generateKeyMap = (data) => {
     const keyMap = {}
@@ -77,6 +109,30 @@ const QuotasInfoTab = ({ id }) => {
     })
 
     return metricNames
+  }
+
+  const processDataset = (dataset) => {
+    if (!dataset || !dataset.data) return { ...dataset }
+
+    const newData = dataset.data.map((item) => {
+      const newItem = { ...item }
+      if (newItem.ID && nameMaps?.[selectedType]?.[newItem.ID]) {
+        newItem.ID = nameMaps?.[selectedType]?.[newItem.ID]
+      }
+      Object.keys(newItem).forEach((key) => {
+        const value = parseFloat(newItem[key])
+        if (value < 0) {
+          newItem[key] = '0'
+        }
+      })
+
+      return newItem
+    })
+
+    return {
+      ...dataset,
+      data: newData,
+    }
   }
 
   const quotaTypesConfig = [
@@ -135,6 +191,8 @@ const QuotasInfoTab = ({ id }) => {
     (_datasetObj, index) => quotaTypesConfig[index].type === selectedType
   )
 
+  const processedDataset = processDataset(selectedDataset?.dataset)
+
   return (
     <Grid
       container
@@ -144,7 +202,7 @@ const QuotasInfoTab = ({ id }) => {
         flexDirection: 'column',
         height: '100%',
         minWidth: '300px',
-        minHeight: '300px',
+        minHeight: '600px',
       }}
     >
       <Grid
@@ -173,8 +231,8 @@ const QuotasInfoTab = ({ id }) => {
             height: '100%',
           }}
         >
-          <Card variant={'outlined'} sx={{ height: '100%' }}>
-            <CardContent sx={{ flex: 1 }}>
+          <Card variant={'outlined'} sx={{ height: '100%', overflow: 'auto' }}>
+            <CardContent sx={{ flex: 1, overflow: 'auto' }}>
               <Typography
                 variant="h6"
                 gutterBottom
@@ -183,12 +241,20 @@ const QuotasInfoTab = ({ id }) => {
               >
                 Quota Controls
               </Typography>
-              <QuotaControls
-                quotaTypes={quotaTypesConfig}
-                userId={id}
-                selectedType={selectedType}
-                setSelectedType={setSelectedType}
-              />
+              <Box overflow={'auto'}>
+                <QuotaControls
+                  quotaTypes={quotaTypesConfig}
+                  userId={id}
+                  selectedType={selectedType}
+                  setSelectedType={setSelectedType}
+                  existingData={processedDataset?.data}
+                  existingResourceIDs={processedDataset?.data?.map(
+                    ({ ID }) => ID
+                  )}
+                  clickedElement={clickedElement}
+                  nameMaps={nameMaps}
+                />
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -206,8 +272,8 @@ const QuotasInfoTab = ({ id }) => {
         >
           <Box sx={{ flex: 1, position: 'relative', mt: 4 }}>
             <MultiChart
-              datasets={[selectedDataset?.dataset]}
-              chartType={'stackedBar'}
+              datasets={[processedDataset]}
+              chartType={selectedType === 'VM' ? 'radialBar' : 'stackedBar'}
               ItemsPerPage={10}
               isLoading={queryInfo.isFetching}
               error={
@@ -215,9 +281,11 @@ const QuotasInfoTab = ({ id }) => {
                   ? 'Error fetching data'
                   : ''
               }
-              groupBy={'ID'}
               disableExport={true}
+              coordinateType={selectedType === 'VM' ? 'POLAR' : 'CARTESIAN'}
+              disableNavController={selectedType === 'VM'}
               metricNames={dynamicMetricNames}
+              onElementClick={handleChartElementClick}
             />
           </Box>
         </Grid>

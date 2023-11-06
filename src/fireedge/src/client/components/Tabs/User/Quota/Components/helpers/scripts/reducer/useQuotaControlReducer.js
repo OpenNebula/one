@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ChartRenderer } from 'client/components/Charts/MultiChart/helpers/subComponents/ChartRenderer'
-import { NavigationController } from 'client/components/Charts/MultiChart/helpers/subComponents/NavigationController'
-import { ExportButton } from 'client/components/Charts/MultiChart/helpers/subComponents/Exporter'
-import {
-  FormatPolarDataset,
-  PolarTooltip,
-} from 'client/components/Charts/MultiChart/helpers/subComponents/PolarChart'
+import { useReducer } from 'react'
+import * as actionCreators from './actions'
+import { reducer, initialState } from './definitions'
 
-export {
-  ChartRenderer,
-  ExportButton,
-  FormatPolarDataset,
-  NavigationController,
-  PolarTooltip,
+/**
+ *@returns {Array} - Array containing state and an actions object.
+ */
+export const useQuotaControlReducer = () => {
+  const [state, dispatch] = useReducer(reducer, initialState)
+
+  const boundActionCreators = Object.keys(actionCreators).reduce((acc, key) => {
+    acc[key] = (...args) => dispatch(actionCreators[key](...args))
+
+    return acc
+  }, {})
+
+  return [state, boundActionCreators]
 }
