@@ -16,7 +16,7 @@
 
 import PropTypes from 'prop-types'
 import React, { useMemo } from 'react'
-import { Paper, Typography, Box } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 
 export const CustomTooltip = React.memo(
   ({ active, payload, labels, generateColor, formatMetric, metricHues }) => {

@@ -13,26 +13,37 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import {
-  BarChart,
-  LineChart,
+  Area,
   AreaChart,
-  XAxis,
-  YAxis,
-  Tooltip,
   Bar,
+  BarChart,
   Legend,
   Line,
-  Area,
+  LineChart,
+  RadialBar,
+  RadialBarChart,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts'
 
 import { DataGridTable } from 'client/components/Tables'
+import { useTheme } from '@mui/material'
 import { CustomTooltip } from 'client/components/Tooltip'
 
-import { generateColorByMetric } from 'client/components/Charts/MultiChart/helpers/scripts'
+import {
+  generateColorByMetric,
+  GetChartConfig,
+  GetChartElementConfig,
+} from 'client/components/Charts/MultiChart/helpers/scripts'
+import {
+  FormatPolarDataset,
+  PolarTooltip,
+} from 'client/components/Charts/MultiChart/helpers/subComponents'
 
 const CHART_TYPES = {
   BAR: 'bar',
@@ -40,21 +51,32 @@ const CHART_TYPES = {
   AREA: 'area',
   TABLE: 'table',
   STACKED_BAR: 'stackedBar',
+  RADIAL_BAR: 'radialBar',
 }
 
 const ChartComponents = {
-  [CHART_TYPES.BAR]: BarChart,
-  [CHART_TYPES.STACKED_BAR]: BarChart,
-  [CHART_TYPES.LINE]: LineChart,
-  [CHART_TYPES.AREA]: AreaChart,
-  [CHART_TYPES.TABLE]: DataGridTable,
+  CARTESIAN: {
+    [CHART_TYPES.BAR]: BarChart,
+    [CHART_TYPES.STACKED_BAR]: BarChart,
+    [CHART_TYPES.LINE]: LineChart,
+    [CHART_TYPES.AREA]: AreaChart,
+    [CHART_TYPES.TABLE]: DataGridTable,
+  },
+  POLAR: {
+    [CHART_TYPES.RADIAL_BAR]: RadialBarChart,
+  },
 }
 
 const ChartElements = {
-  [CHART_TYPES.BAR]: Bar,
-  [CHART_TYPES.STACKED_BAR]: Bar,
-  [CHART_TYPES.LINE]: Line,
-  [CHART_TYPES.AREA]: Area,
+  CARTESIAN: {
+    [CHART_TYPES.BAR]: Bar,
+    [CHART_TYPES.STACKED_BAR]: Bar,
+    [CHART_TYPES.LINE]: Line,
+    [CHART_TYPES.AREA]: Area,
+  },
+  POLAR: {
+    [CHART_TYPES.RADIAL_BAR]: RadialBar,
+  },
 }
 
 /**
@@ -71,6 +93,8 @@ const ChartElements = {
  * @param {string} props.groupBy - The variable to group data under.
  * @param {object} props.metricHues - Object containing hue values for different metrics.
  * @param {boolean} props.disableLegend - Disables the legend underneath the charts.
+ * @param {string} props.coordinateType - Cartesian or Polar coordinate system.
+ * @param {Function} props.onElementClick - Callback to handle element click event.
  * @returns {React.Component} The rendered chart component.
  */
 export const ChartRenderer = ({
@@ -82,11 +106,31 @@ export const ChartRenderer = ({
   tableColumns,
   humanReadableMetric,
   groupBy,
+  coordinateType,
   metricHues,
   disableLegend,
+  onElementClick,
 }) => {
-  const ChartComponent = ChartComponents[chartType]
-  const ChartElement = ChartElements[chartType]
+  const ChartComponent = ChartComponents[coordinateType][chartType]
+  const ChartElement = ChartElements[coordinateType][chartType]
+  const theme = useTheme()
+
+  const polarDataset = useMemo(
+    () => (coordinateType === 'POLAR' ? FormatPolarDataset(datasets) : null),
+    [coordinateType, datasets]
+  )
+  console.log('polarDataset: ', polarDataset)
+
+  const chartConfig = useMemo(
+    () =>
+      GetChartConfig(
+        coordinateType,
+        chartType,
+        coordinateType === 'CARTESIAN' ? datasets : polarDataset,
+        paginatedData
+      ),
+    [coordinateType, chartType, datasets, polarDataset, paginatedData]
+  )
 
   return (
     <ResponsiveContainer height="100%" width="100%">
@@ -97,89 +141,125 @@ export const ChartRenderer = ({
           selectedItems={selectedMetrics}
         />
       ) : (
-        <ChartComponent
-          data={paginatedData}
-          barCategoryGap={20}
-          style={!datasets.length ? { pointerEvents: 'none' } : {}}
-          padding={{ top: 0, right: 60, bottom: 0, left: 60 }}
-        >
-          {datasets.map((dataset) =>
-            customChartDefs(
-              dataset.metrics.map((m) => m.key),
-              dataset.id,
-              metricHues
-            )
+        <ChartComponent {...chartConfig}>
+          {coordinateType === 'CARTESIAN'
+            ? datasets.map((dataset) =>
+                customChartDefs(
+                  dataset.metrics.map((m) => m.key),
+                  dataset.id,
+                  metricHues,
+                  coordinateType,
+                  groupBy
+                )
+              )
+            : customChartDefs(
+                polarDataset.map((entry) => entry.name),
+                datasets[0].id,
+                metricHues,
+                coordinateType,
+                groupBy
+              )}
+
+          {coordinateType === 'CARTESIAN' && (
+            <>
+              <XAxis interval={0} dataKey={groupBy} />
+              <YAxis />
+            </>
           )}
-          <XAxis interval={0} dataKey={groupBy} />
-          <YAxis />
+
           <Tooltip
             content={
-              <CustomTooltip
-                labels={datasets.map((ds) => ds.label)}
-                generateColor={generateColorByMetric}
-                formatMetric={humanReadableMetric}
-                metricHues={metricHues}
-              />
-            }
-            cursor="pointer"
-          />
-          {!disableLegend && (
-            <Legend
-              formatter={(value) => {
-                const [metric, datasetId] = value.split('-')
-                const currentDataset = datasets.find(
-                  (ds) => ds.id === parseInt(datasetId, 10)
-                )
-
-                const datasetLabel = currentDataset.label
-
-                const lastSelectedMetric = [...currentDataset.metrics]
-                  .reverse()
-                  .find((m) => selectedMetrics[m.key])
-
-                if (lastSelectedMetric && metric === lastSelectedMetric.key) {
-                  return `${humanReadableMetric(metric)} (${datasetLabel})`
-                }
-
-                return humanReadableMetric(metric)
-              }}
-              wrapperStyle={{
-                wordWrap: 'break-word',
-                maxWidth: '100%',
-              }}
-            />
-          )}
-
-          {datasets.map((dataset) =>
-            dataset.metrics.map((metric) =>
-              selectedMetrics[metric.key] ? (
-                <ChartElement
-                  key={`${metric.key}-${dataset.id}`}
-                  type="monotone"
-                  dataKey={`${metric.key}-${dataset.id}`}
-                  fill={`url(#color${metric.key}-${dataset.id})`}
-                  name={metric.name}
-                  animationDuration={500}
-                  stackId={
-                    chartType === CHART_TYPES.STACKED_BAR ? 'a' : undefined
-                  }
-                  {...(chartType === 'area' && {
-                    fillOpacity: 0.5,
-                    stroke: 'transparent',
-                  })}
-                  {...(chartType === 'line' && {
-                    strokeWidth: 3,
-                    activeDot: {
-                      r: 8,
-                      fill: `url(#color${metric.key}-${dataset.id})`,
-                      stroke: 'white',
-                      strokeWidth: 2,
-                    },
-                    stroke: `url(#color${metric.key}-${dataset.id})`,
-                  })}
+              coordinateType === 'CARTESIAN' ? (
+                <CustomTooltip
+                  labels={datasets.map((ds) => ds.label)}
+                  generateColor={generateColorByMetric}
+                  formatMetric={humanReadableMetric}
+                  metricHues={metricHues}
                 />
-              ) : null
+              ) : (
+                <PolarTooltip />
+              )
+            }
+            cursor={coordinateType === 'CARTESIAN' ? 'pointer' : false}
+          />
+
+          {!disableLegend &&
+            (coordinateType === 'CARTESIAN' ? (
+              <Legend
+                formatter={(value) => {
+                  const [metric, datasetId] = value.split('-')
+                  const currentDataset = datasets.find(
+                    (ds) => ds.id === parseInt(datasetId, 10)
+                  )
+
+                  const datasetLabel = currentDataset.label
+
+                  const lastSelectedMetric = [...currentDataset.metrics]
+                    .reverse()
+                    .find((m) => selectedMetrics[m.key])
+
+                  if (lastSelectedMetric && metric === lastSelectedMetric.key) {
+                    return `${humanReadableMetric(metric)} (${datasetLabel})`
+                  }
+
+                  return humanReadableMetric(metric)
+                }}
+                wrapperStyle={{
+                  wordWrap: 'break-word',
+                  maxWidth: '100%',
+                }}
+              />
+            ) : (
+              <Legend
+                formatter={(value) =>
+                  value
+                    .split('_')
+                    .map(
+                      (word) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLowerCase()
+                    )
+                    .join(' ')
+                }
+                iconSize={12}
+                layout="vertical"
+                verticalAlign="middle"
+                wrapperStyle={{
+                  top: -60,
+                  left: 0,
+                  lineHeight: '30px',
+                }}
+              />
+            ))}
+          {coordinateType === 'CARTESIAN' ? (
+            datasets.map((dataset) =>
+              dataset.metrics.map((metric) =>
+                selectedMetrics[metric.key] ? (
+                  <ChartElement
+                    {...GetChartElementConfig(
+                      chartType,
+                      metric,
+                      dataset,
+                      coordinateType,
+                      theme
+                    )}
+                    onClick={onElementClick}
+                  />
+                ) : null
+              )
             )
+          ) : (
+            <ChartElement
+              {...GetChartElementConfig(
+                chartType,
+                polarDataset?.[0]?.name, // Can always use the first datasets ID for polar charts
+                polarDataset,
+                coordinateType,
+                theme,
+                datasets?.[0]?.id
+              )}
+              onClick={onElementClick}
+            />
           )}
         </ChartComponent>
       )}
@@ -188,8 +268,14 @@ export const ChartRenderer = ({
 }
 
 ChartRenderer.propTypes = {
-  chartType: PropTypes.oneOf(['bar', 'line', 'area', 'table', 'stackedBar'])
-    .isRequired,
+  chartType: PropTypes.oneOf([
+    'bar',
+    'line',
+    'area',
+    'table',
+    'stackedBar',
+    'radialBar',
+  ]).isRequired,
   datasets: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedMetrics: PropTypes.object.isRequired,
   customChartDefs: PropTypes.func.isRequired,
@@ -197,11 +283,14 @@ ChartRenderer.propTypes = {
   tableColumns: PropTypes.arrayOf(PropTypes.object),
   humanReadableMetric: PropTypes.func.isRequired,
   groupBy: PropTypes.string.isRequired,
+  coordinateType: PropTypes.string,
   metricHues: PropTypes.objectOf(PropTypes.number).isRequired,
   disableLegend: PropTypes.bool,
+  onElementClick: PropTypes.func,
 }
 
 ChartRenderer.defaultProps = {
-  groupBy: 'NAME',
+  groupBy: 'pct',
   disableLegend: false,
+  coordinateType: 'CARTESIAN',
 }
