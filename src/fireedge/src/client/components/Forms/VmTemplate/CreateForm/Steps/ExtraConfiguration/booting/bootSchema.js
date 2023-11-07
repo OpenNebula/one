@@ -16,7 +16,7 @@
 import { string, boolean } from 'yup'
 
 import { useGetHostsQuery } from 'client/features/OneApi/host'
-import { getKvmMachines, getKvmCpuModels } from 'client/models/Host'
+import { getKvmMachines } from 'client/models/Host'
 import { Field, arrayToOptions } from 'client/utils'
 import {
   T,
@@ -75,23 +75,23 @@ export const MACHINE_TYPES = {
     .default(() => undefined),
 }
 
-/** @type {Field} CPU Model field */
-export const CPU_MODEL = {
-  name: 'OS.MODEL',
-  label: T.CpuModel,
-  notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
-  values: () => {
-    const { data: hosts = [] } = useGetHostsQuery()
-    const kvmCpuModels = getKvmCpuModels(hosts)
+// /** @type {Field} CPU Model field */
+// export const CPU_MODEL = {
+//   name: 'OS.MODEL',
+//   label: T.CpuModel,
+//   notOnHypervisors: [vcenter, firecracker, lxc],
+//   type: INPUT_TYPES.SELECT,
+//   values: () => {
+//     const { data: hosts = [] } = useGetHostsQuery()
+//     const kvmCpuModels = getKvmCpuModels(hosts)
 
-    return arrayToOptions(kvmCpuModels)
-  },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-}
+//     return arrayToOptions(kvmCpuModels)
+//   },
+//   validation: string()
+//     .trim()
+//     .notRequired()
+//     .default(() => undefined),
+// }
 
 /** @type {Field} Root device field */
 export const ROOT_DEVICE = {
@@ -198,7 +198,6 @@ export const BOOT_FIELDS = [
   ARCH,
   SD_DISK_BUS,
   MACHINE_TYPES,
-  CPU_MODEL,
   ROOT_DEVICE,
   KERNEL_CMD,
   BOOTLOADER,
