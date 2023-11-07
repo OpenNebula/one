@@ -480,6 +480,33 @@ helpers do
         session[:remember]     = params[:remember]
         session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
+        begin
+            http_authorization_header = request.env['HTTP_AUTHORIZATION']
+        rescue StandardError => e
+            logger.error { 'Authorization header not received' }
+        else
+            begin
+                if RUBY_VERSION > '2.0.0'
+                    auth = http_authorization_header.match(/(?<basic>\w+) (?<pass>(\w|\W)+)/)
+                    type, pass = auth[:basic], auth[:pass]
+                else
+                    type, pass = http_authorization_header.split(' ')
+                end
+            rescue StandardError => e
+                logger.error { 'Invalid authorization header format' }
+            else
+                if type && type.downcase == 'basic'
+                    session[:auth] = pass
+                else
+                    logger.info { 'Unauthorized login attempt or invalid authorization header' }
+                    return [401, '']
+                end
+            end
+        end
+
+        #get firedge JWT
+        session[:fireedge_token] = get_fireedge_token(two_factor_auth_token)
+
         csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
         session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
 
@@ -563,33 +590,6 @@ helpers do
         session[:zone_id]   = zone.id
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
-
-        begin
-            http_authorization_header = request.env['HTTP_AUTHORIZATION']
-        rescue StandardError => e
-            logger.error { 'Authorization header not received' }
-        else
-            begin
-                if RUBY_VERSION > '2.0.0'
-                    auth = http_authorization_header.match(/(?<basic>\w+) (?<pass>(\w|\W)+)/)
-                    type, pass = auth[:basic], auth[:pass]
-                else
-                    type, pass = http_authorization_header.split(' ')
-                end
-            rescue StandardError => e
-                logger.error { 'Invalid authorization header format' }
-            else
-                if type && type.downcase == 'basic'
-                    session[:auth] = pass
-                else
-                    logger.info { 'Unauthorized login attempt or invalid authorization header' }
-                    return [401, '']
-                end
-            end
-        end
-
-        #get firedge JWT
-        session[:fireedge_token] = get_fireedge_token(two_factor_auth_token)
 
         [204, ""]
     end
