@@ -21,6 +21,7 @@ import { T } from 'client/constants'
 const COLUMNS = [
   { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
   { Header: T.Name, id: 'name', accessor: 'NAME' },
+  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
 ]
 
 COLUMNS.noFilterIds = ['id', 'name']
