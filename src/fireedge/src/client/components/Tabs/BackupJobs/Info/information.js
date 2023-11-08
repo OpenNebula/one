@@ -24,7 +24,7 @@ import {
 
 import { BACKUPJOB_ACTIONS, T } from 'client/constants'
 
-import { timeFromMilliseconds } from 'client/models/Helper'
+import { levelLockToString, timeFromMilliseconds } from 'client/models/Helper'
 
 /**
  * Renders mainly information tab.
@@ -38,7 +38,7 @@ const InformationPanel = ({ backupjob = {}, actions }) => {
   const [rename] = useRenameBackupJobMutation()
   const [setPriority] = useUpdatePriorityBackupJobMutation()
 
-  const { ID, NAME, PRIORITY, LAST_BACKUP_TIME, LAST_BACKUP_DURATION } =
+  const { ID, NAME, PRIORITY, LAST_BACKUP_TIME, LAST_BACKUP_DURATION, LOCK } =
     backupjob
 
   const time = useMemo(() => {
@@ -84,6 +84,11 @@ const InformationPanel = ({ backupjob = {}, actions }) => {
       name: T.LastBackupDuration,
       value: LAST_BACKUP_DURATION,
       dataCy: 'lastDurationTime',
+    },
+    {
+      name: T.Locked,
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
     },
   ].filter(Boolean)
 
