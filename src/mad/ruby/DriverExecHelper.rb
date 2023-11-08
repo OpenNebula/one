@@ -207,7 +207,7 @@ module DriverExecHelper
                     config[name]=value
                 end
             end
-        rescue StandardException => e
+        rescue StandardError => e
             STDERR.puts "Error reading config: #{e.inspect}"
             STDERR.flush
         end
