@@ -137,7 +137,7 @@ public:
     {
         if ( hint != 0 )
         {
-            if ( bs->test(hint) == false && reserved_bit.count(hint) == 0 )
+            if ( !bs->test(hint) && !reserved_bit.test(hint) )
             {
                 bs->set(hint);
 
@@ -150,7 +150,7 @@ public:
         {
             try
             {
-                if ( bs->test(bit) == false && reserved_bit.count(bit) == 0)
+                if ( !bs->test(bit) && !reserved_bit.test(bit) )
                 {
                     bs->set(bit);
                     return 0;
@@ -217,7 +217,7 @@ private:
 
     unsigned int start_bit;
 
-    std::set<unsigned int> reserved_bit;
+    std::bitset<N> reserved_bit;
 
     std::bitset<N> * bs;
 
@@ -365,9 +365,9 @@ private:
                 continue;
             }
 
-            for (bit = bit_start; bit <= bit_end; bit++)
+            for (bit = bit_start; bit <= bit_end && bit < N; bit++)
             {
-                reserved_bit.insert(bit);
+                reserved_bit.set(bit);
             }
         }
 
