@@ -80,9 +80,7 @@ protected:
         host_dispatch_limit(0),
         zone_id(0),
         mem_ds_scale(0),
-        diff_vnets(false),
-        max_backups(5),
-        max_backups_host(2)
+        diff_vnets(false)
     {
     }
 
@@ -227,16 +225,6 @@ private:
      *  Boolean to dispatch the VM inside different vnets
      */
     bool diff_vnets;
-
-    /**
-     * Max number of active backups
-     */
-    int max_backups;
-
-    /**
-     * Max number of active backups per host
-     */
-    int max_backups_host;
 
     /**
      * oned runtime configuration values

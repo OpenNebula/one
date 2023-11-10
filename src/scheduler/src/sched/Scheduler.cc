@@ -129,10 +129,6 @@ void Scheduler::start()
 
     conf.get("DIFFERENT_VNETS", diff_vnets);
 
-    conf.get("MAX_BACKUPS", max_backups);
-
-    conf.get("MAX_BACKUPS_HOST", max_backups_host);
-
     // -----------------------------------------------------------
     // Log system & Configuration File
     // -----------------------------------------------------------
