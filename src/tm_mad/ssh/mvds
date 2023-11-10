@@ -58,14 +58,18 @@ SRC_DIR="$(dirname $SRC_PATH)"
 # and delete base + base.1, snap link and snap dir (if empty)
 #-------------------------------------------------------------------------------
 CONVERT_CMD=$(cat <<EOF
-   if [ -L "$SRC_PATH" ] && readlink "$SRC_PATH" | grep -q base.1; then
+   if [ -L "$SRC_PATH" ]; then
        $QEMU_IMG convert -O qcow2 $SRC_PATH $SRC_PATH.full
-       rm -f $SRC_PATH $SRC_PATH_SNAP/base $SRC_PATH_SNAP/base.1 $SRC_PATH_SNAP/rs_tmp
 
-       if [ "\$(ls $SRC_PATH_SNAP)" = "${SRC_FILE}.snap" ]; then
-           rm -f $SRC_PATH_SNAP/${SRC_FILE}.snap
+       rm -f $SRC_PATH
+
+       if [ -e $SRC_PATH_SNAP/base ]; then
+           rm -f $SRC_PATH_SNAP/base $SRC_PATH_SNAP/base.1 $SRC_PATH_SNAP/rs_tmp
            rmdir $SRC_PATH_SNAP
+       elif [ -d $SRC_PATH_SNAP ]; then
+           rm -rf $SRC_PATH_SNAP
        fi
+
        mv $SRC_PATH.full $SRC_PATH
    fi
 EOF

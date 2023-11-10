@@ -25,7 +25,7 @@ module VXLAN
     ############################################################################
     def create_vlan_dev
         vxlan_mode = conf_attribute(@nic, :vxlan_mode, 'multicast')
-        group = ""
+        group = ''
 
         if vxlan_mode.downcase == 'evpn'
             vxlan_tep = conf_attribute(@nic, :vxlan_tep, 'dev')
@@ -37,9 +37,9 @@ module VXLAN
             end
         else
             begin
-              ipaddr = IPAddr.new conf_attribute(@nic, :vxlan_mc, '239.0.0.0')
-            rescue
-              ipaddr = IPAddr.new '239.0.0.0'
+                ipaddr = IPAddr.new conf_attribute(@nic, :vxlan_mc, '239.0.0.0')
+            rescue StandardError
+                ipaddr = IPAddr.new '239.0.0.0'
             end
 
             mc  = ipaddr.to_i + @nic[@attr_vlan_id].to_i
@@ -50,16 +50,16 @@ module VXLAN
         end
 
         mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{@nic[:conf][:vxlan_mtu]}"
-        ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ""
+        ttl = @nic[:conf][:vxlan_ttl] ? "ttl #{@nic[:conf][:vxlan_ttl]}" : ''
 
-        ip_link_conf = ""
+        ip_link_conf = ''
 
         @nic[:ip_link_conf].each do |option, value|
             case value
             when true
-                value = "on"
+                value = 'on'
             when false
-                value = "off"
+                value = 'off'
             end
 
             ip_link_conf << "#{option} #{value} "

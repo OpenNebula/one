@@ -305,6 +305,7 @@
                     <xs:element name="LAST_DATASTORE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="LAST_INCREMENT_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="INCREMENT_MODE" type="xs:string" minOccurs="0" maxOccurs="1"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
