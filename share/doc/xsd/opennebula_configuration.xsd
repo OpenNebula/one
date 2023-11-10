@@ -250,7 +250,6 @@
         <xs:element name="MAX_CONN_BACKLOG" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MESSAGE_SIZE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MONITORING_INTERVAL_DATASTORE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="MONITORING_INTERVAL_DB_UPDATE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MONITORING_INTERVAL_HOST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MONITORING_INTERVAL_MARKET" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MONITORING_INTERVAL_VM" type="xs:integer" minOccurs="0" maxOccurs="1"/>
