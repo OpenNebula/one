@@ -199,6 +199,8 @@ int Backups::parse(Template *tmpl, bool can_increment,
         config.replace("LAST_INCREMENT_ID", -1);
 
         config.replace("MODE", mode_to_str(FULL));
+
+        config.erase("INCREMENT_MODE");
     }
     else
     {
@@ -216,6 +218,24 @@ int Backups::parse(Template *tmpl, bool can_increment,
             }
 
             config.replace("MODE", mode_to_str(new_mode));
+
+            sattr = cfg->vector_value("INCREMENT_MODE");
+
+            one_util::toupper(sattr);
+
+            if ( !sattr.empty() )
+            {
+                if ((sattr != "CBT") && (sattr != "SNAPSHOT"))
+                {
+                    sattr = "CBT";
+                }
+
+                config.replace("INCREMENT_MODE", sattr);
+            }
+            else if (!append)
+            {
+                config.replace("INCREMENT_MODE", "CBT");
+            }
         }
     }
 

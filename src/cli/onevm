@@ -1343,7 +1343,7 @@ CommandParser::CmdParser.new(ARGV) do
         VIDEO     = ["TYPE", "IOMMU", "ATS", "VRAM", "RESOLUTION"]
         RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
-        BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE"]
+        BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE"]
         CONTEXT (any value, **variable substitution will be made**)
     EOT
 

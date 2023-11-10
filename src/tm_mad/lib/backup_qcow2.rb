@@ -21,6 +21,7 @@ require 'open3'
 require 'rexml/document'
 require 'base64'
 require 'getoptlong'
+require 'fileutils'
 
 require_relative 'kvm'
 
@@ -206,22 +207,67 @@ end
 # ------------------------------------------------------------------------------
 # This class abstracts the information and several methods to operate over
 # disk images files
-# ------------------------------------------------------------------------------
+#
+# +--------+---------------+---------------------------------------------------+
+# | Driver |      PType    |                      Layout                       |
+# +========+===============+===================================================+
+# | NFS    | persistent    | disk.0 -> /var/lib/one/datastores/1/ab24b7.snap/0 |
+# |        | no persistent | disk.0 -> disk.0.snap/0                           |
+# +----------------------------------------------------------------------------+
+# | SSH    | persistent    | disk.0                                            |
+# |        | no persistent | (no link regular file)                            |
+# +--------+---------------+---------------------------------------------------+
+#
+# NOTE: A persistent SSH disk may be a link to a pevious snapshot
+#
+# @name of the file supporting the disk
+# @snap path for the snapshot folder (absolute)
+# @path real path (links resolved of the file)
+# @slink path to symlink disk.i file (= @snap for persistent)
 class QemuImg
 
     include Command
 
-    def initialize(path)
-        @path  = path
+    attr_reader :path, :name, :snap, :slink
+
+    def initialize(path, opts = {})
         @_info = nil
 
-        @path  = File.realpath(path) if File.exist?(path)
+        read_paths(path, opts)
+    end
+
+    def read_paths(path, opts = {})
+        # Default locations
+        @path = path
+        @name = File.basename(path)
+        @snap = "#{opts[:vm_dir]}/disk.#{opts[:disk_id]}.snap"
+
+        return if opts.empty? || !File.exist?(path)
+
+        @path  = File.realpath(path)
+
+        rl = begin
+            File.readlink(path)
+        rescue StandardError
+            nil
+        end
+
+        return unless rl
+
+        @name  = File.basename(rl)
+        @slink = File.dirname(rl)
+
+        @snap = if opts[:shared] && opts[:persistent]
+                    @slink
+                else
+                    File.dirname("#{opts[:vm_dir]}/#{rl}")
+                end
     end
 
     #---------------------------------------------------------------------------
     # qemu-img command methods
     #---------------------------------------------------------------------------
-    QEMU_IMG_COMMANDS = ['convert', 'create', 'rebase', 'info', 'bitmap']
+    QEMU_IMG_COMMANDS = ['convert', 'create', 'rebase', 'info', 'bitmap', 'commit']
 
     QEMU_IMG_COMMANDS.each do |command|
         define_method(command.to_sym) do |args = '', opts|
@@ -403,7 +449,7 @@ class KVMDomain
     include TransferManager::KVM
     include Command
 
-    attr_reader :parent_id, :backup_id, :checkpoint, :tmp_dir, :bck_dir
+    attr_reader :parent_id, :backup_id, :checkpoint, :tmp_dir, :bck_dir, :inc_mode
 
     #---------------------------------------------------------------------------
     # @param vm[REXML::Document] OpenNebula XML VM information
@@ -419,8 +465,6 @@ class KVMDomain
         @backup_id = 0
         @parent_id = -1
 
-        @checkpoint = false
-
         mode = @vm.elements['BACKUPS/BACKUP_CONFIG/MODE']
 
         if mode
@@ -429,14 +473,19 @@ class KVMDomain
                 @backup_id = 0
                 @parent_id = -1
 
-                @checkpoint = false
+                @inc_mode  = :none
             when 'INCREMENT'
                 li = @vm.elements['BACKUPS/BACKUP_CONFIG/LAST_INCREMENT_ID'].text.to_i
+                im = @vm.elements['BACKUPS/BACKUP_CONFIG/INCREMENT_MODE']
+
+                if im && 'snapshot'.casecmp(im.text) == 0
+                    @inc_mode = :snapshot
+                else
+                    @inc_mode = :cbt
+                end
 
                 @backup_id = li + 1
                 @parent_id = li
-
-                @checkpoint = true
             end
         end
 
@@ -595,7 +644,7 @@ class KVMDomain
     # the backup operation in case it fails
     #---------------------------------------------------------------------------
     def clean_checkpoints(disks_s, all = false)
-        return unless @checkpoint
+        return if @inc_mode != :cbt
 
         # Get a list of dirty checkpoints
         check_ids = checkpoints
@@ -640,7 +689,7 @@ class KVMDomain
 
         fsfreeze
 
-        start_backup(disks, @backup_id, @parent_id, @checkpoint)
+        start_backup(disks, @backup_id, @parent_id, @inc_mode == :cbt)
 
         fsthaw
 
@@ -668,6 +717,77 @@ class KVMDomain
         stop_backup
     end
 
+    def backup_snapshot_live(disks_s)
+        init   = Time.now
+        disks  = disks_s.split ':'
+        dspec  = []
+        qdisks = []
+
+        @vm.elements.each 'TEMPLATE/DISK' do |d|
+            did = d.elements['DISK_ID'].text
+            tgt = d.elements['TARGET'].text
+            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+
+            next unless disks.include? did
+
+            disk = QemuImg.new("#{@vm_dir}/disk.#{did}",
+                               :vm_dir     => @vm_dir,
+                               :disk_id    => did,
+                               :persistent => per,
+                               :shared     => !ssh)
+
+            qdisks << { :did => did, :tgt => tgt, :disk => disk }
+
+            bfile = disk['full-backing-filename']
+
+            next_path = "#{disk.snap}/#{@backup_id.to_i + 1}"
+            next_disk = QemuImg.new(next_path)
+
+            next_disk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2', :b => bfile)
+
+            dspec << "#{tgt},file=#{next_path}"
+        end
+
+        opts = {
+            :disk_only      => '',
+            :atomic         => '',
+            :reuse_external => '',
+            :no_metadata    => '',
+            :diskspec       => dspec
+        }
+
+        fsfreeze
+
+        cmd("#{virsh} snapshot-create-as", @dom, opts)
+
+        fsthaw
+
+        qdisks.each do |qdisk|
+            did  = qdisk[:did]
+            tgt  = qdisk[:tgt]
+            disk = qdisk[:disk]
+
+            back_path = "#{@bck_dir}/disk.#{did}.#{@backup_id}"
+
+            FileUtils.cp(disk.path, back_path)
+
+            back_img = QemuImg.new back_path
+            back_img.rebase(:U => '', :u => '', :F => 'qcow2', :q => '', :b => '""')
+
+            cmd("#{virsh} blockcommit", "#{@dom} #{tgt}",
+                :wait => '',
+                :top  => disk.path,
+                :base => "#{disk.snap}/0")
+
+            FileUtils.rm(disk.path, :force => true)
+
+            symlink("#{disk.slink}/#{@backup_id.to_i + 1}", "#{@vm_dir}/disk.#{did}")
+        end
+
+        log("[BCK]: Incremental backup done in #{Time.now - init}s")
+    end
+
     def backup_full_live(disks_s)
         init  = Time.now
         disks = disks_s.split ':'
@@ -679,18 +799,54 @@ class KVMDomain
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
             tgt = d.elements['TARGET'].text
+            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
             next unless disks.include? did
 
-            overlay = "#{@tmp_dir}/overlay_#{did}.qcow2"
+            disk_path = "#{@vm_dir}/disk.#{did}"
+            disk_opts = {
+                :vm_dir     => @vm_dir,
+                :disk_id    => did,
+                :persistent => per,
+                :shared     => !ssh
+            }
 
-            File.open(overlay, 'w') {}
+            qdisk[did] = QemuImg.new(disk_path, disk_opts)
+
+            if @inc_mode == :snapshot
+                base = "#{qdisk[did].slink}/0"
+
+                if snap_folder(did, true)
+                    qdisk[did].read_paths(disk_path, disk_opts)
+                elsif qdisk[did].name != '0'
+                    cmd("#{virsh} blockcommit", "#{@dom} #{tgt}",
+                        :active => '',
+                        :pivot  => '',
+                        :wait   => '',
+                        :top  => qdisk[did].path,
+                        :base => base)
+
+                    FileUtils.rm(qdisk[did].path, :force => true)
+
+                    symlink(base, "#{@vm_dir}/disk.#{did}")
+
+                    qdisk[did].read_paths(disk_path, disk_opts)
+                end
+
+                overlay = "#{qdisk[did].snap}/1"
+                odisk   = QemuImg.new(overlay)
+
+                odisk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2', :b => base)
+            else
+                overlay = "#{@tmp_dir}/overlay_#{did}.qcow2"
+
+                File.open(overlay, 'w') {}
+            end
 
             dspec << "#{tgt},file=#{overlay}"
 
             disk_xml << "<disk name='#{tgt}'/>"
-
-            qdisk[did] = QemuImg.new("#{@vm_dir}/disk.#{did}")
         end
 
         disk_xml << '</disks>'
@@ -701,6 +857,8 @@ class KVMDomain
             :atomic    => '',
             :diskspec  => dspec
         }
+
+        opts.merge!({ :no_metadata =>'', :reuse_external => '' }) if @inc_mode == :snapshot
 
         checkpoint_xml = <<~EOS
             <domaincheckpoint>
@@ -717,12 +875,18 @@ class KVMDomain
 
         cmd("#{virsh} snapshot-create-as", @dom, opts)
 
-        cmd("#{virsh} checkpoint-create", @dom, :xmlfile => cpath) if @checkpoint
+        if @inc_mode == :cbt
+            cmd("#{virsh} checkpoint-create", @dom, :xmlfile => cpath)
+        end
 
         fsthaw
 
         qdisk.each do |did, disk|
             disk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2', :U => '')
+
+            next unless @inc_mode == :snapshot
+
+            symlink("#{disk.slink}/1", "#{@vm_dir}/disk.#{did}")
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
@@ -756,7 +920,62 @@ class KVMDomain
 
     #---------------------------------------------------------------------------
     #  Make a backup for the VM. (see make_backup_live)
+    #
+    #  First Backup                            Nth Backup
+    #  @parent_id = -1                         @parent_id = n
+    #  @backup_id = 0                          @backup_id = n+1
+    #  snapshot = 1                            snapshot   = n+2
+    #
+    #  ├── backup                              ├── backup
+    #  │   ├── disk.0.0                        │   ├── disk.0.n+1
+    #  │   └── vm.xml                          │   └── vm.xml
+    #  ├── disk.0 -> disk.0.snap/1             ├── disk.0 -> disk.0.snap/n+2
+    #  └── disk.0.snap                         └── disk.0.snap
+    #      ├── 0 (backingfile --> image)           ├── 0 (backingfile --> image)
+    #      ├── 1 (backingfile --> 0)               ├── n+1 (commit to 0)
+    #      └── disk.0.snap -> .                    ├── n+2 (backingfile --> 0)
+    #                                              └── disk.0.snap -> .
     #---------------------------------------------------------------------------
+    def backup_snapshot(disks_s)
+        init  = Time.now
+        disks = disks_s.split ':'
+
+        @vm.elements.each 'TEMPLATE/DISK' do |d|
+            did = d.elements['DISK_ID'].text
+            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+
+            next unless disks.include? did
+
+            disk_path = "#{@vm_dir}/disk.#{did}"
+            disk_opts = {
+                :vm_dir     => @vm_dir,
+                :disk_id    => did,
+                :persistent => per,
+                :shared     => !ssh
+            }
+
+            disk = QemuImg.new(disk_path, disk_opts)
+
+            FileUtils.cp(disk.path, "#{@bck_dir}/disk.#{did}.#{@backup_id}")
+
+            back_disk = QemuImg.new("#{@bck_dir}/disk.#{did}.#{@backup_id}")
+            back_disk.rebase(:U => '', :u => '', :F => 'qcow2', :q => '', :b => '""')
+
+            bfile = disk['full-backing-filename']
+            disk.commit(:q => '')
+
+            next_disk = QemuImg.new("#{disk.snap}/#{@backup_id.to_i + 1}")
+            next_disk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2', :b => bfile)
+
+            FileUtils.rm(disk.path, :force => true)
+
+            symlink("#{disk.slink}/#{@backup_id.to_i + 1}", disk_path)
+        end
+
+        log("[BCK]: Snapshot incremental backup done in #{Time.now - init}s")
+    end
+
     def backup_nbd(disks_s)
         init  = Time.now
         disks = disks_s.split ':'
@@ -787,6 +1006,7 @@ class KVMDomain
             Nbd.stop_nbd
         end
 
+        # rubocop:disable Style/CombinableLoops
         dids.each do |d|
             idisk = QemuImg.new("#{@vm_dir}/disk.#{d}")
 
@@ -797,9 +1017,10 @@ class KVMDomain
             end
 
             idisk.bitmap("one-#{@vid}-#{@backup_id}", :add => '')
-        end if @checkpoint
+        end
+        # rubocop:enable Style/CombinableLoops
 
-        log("[BCK]: Incremental backup done in #{Time.now - init}s")
+        log("[BCK]: CBT incremental backup done in #{Time.now - init}s")
     end
 
     def backup_full(disks_s)
@@ -808,20 +1029,50 @@ class KVMDomain
 
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
+            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
             next unless disks.include? did
 
-            sdisk = QemuImg.new("#{@vm_dir}/disk.#{did}")
-            ddisk = "#{@bck_dir}/disk.#{did}.0"
+            disk_path = "#{@vm_dir}/disk.#{did}"
+            disk_opts = {
+                :vm_dir     => @vm_dir,
+                :disk_id    => did,
+                :persistent => per,
+                :shared     => !ssh
+            }
 
-            sdisk.convert(ddisk, :m => '4', :O => 'qcow2', :U => '')
+            sdisk = QemuImg.new(disk_path, disk_opts)
 
-            next unless @checkpoint
+            sdisk.convert("#{@bck_dir}/disk.#{did}.0", :m => '4', :O => 'qcow2', :U => '')
 
-            bms = sdisk.bitmaps
-            bms.each {|bm| sdisk.bitmap(bm['name'], :remove => '') } unless bms.nil?
+            case @inc_mode
+            when :cbt
+                bms = sdisk.bitmaps
+                bms.each {|bm| sdisk.bitmap(bm['name'], :remove => '') } unless bms.nil?
 
-            sdisk.bitmap("one-#{@vid}-0", :add => '')
+                sdisk.bitmap("one-#{@vid}-0", :add => '')
+            when :snapshot
+                if snap_folder(did, false)
+                    sdisk.read_paths("#{@vm_dir}/disk.#{did}", disk_opts)
+
+                    base = sdisk.path
+                elsif sdisk.name != '0'
+                    base = sdisk['full-backing-filename']
+
+                    sdisk.commit(:q => '')
+
+                    FileUtils.rm(sdisk.path, :force => true)
+                else
+                    base = sdisk.path
+                end
+
+                ndisk = QemuImg.new("#{sdisk.snap}/1")
+
+                ndisk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2', :b => base)
+
+                symlink("#{sdisk.slink}/1", "#{@vm_dir}/disk.#{did}")
+            end
         end
 
         log("[BCK]: Full backup done in #{Time.now - init}s")
@@ -832,6 +1083,42 @@ class KVMDomain
     # Generate nbd URI to query block bitmaps for a device
     def mkuri(target)
         "nbd+unix:///#{target}?socket=#{@socket}"
+    end
+
+    # Symlink files (make it succeed by removing the new_path first)
+    def symlink(exist_path, new_path)
+        FileUtils.rm(new_path, :force => true)
+
+        File.symlink(exist_path, new_path)
+    end
+
+    # Create the snap folder structure in the first backup (SSH driver)
+    def snap_folder(disk_id, live)
+        snap_dir  = "#{@vm_dir}/disk.#{disk_id}.snap"
+        disk_path = "#{@vm_dir}/disk.#{disk_id}"
+
+        return false if File.ftype(disk_path) == 'link'
+
+        FileUtils.mkdir(snap_dir)
+
+        if live
+            opts = {
+                :path   => disk_path,
+                :dest   => "#{snap_dir}/0",
+                :pivot  => '',
+                :format => 'qcow2'
+            }
+
+            FileUtils.touch "#{snap_dir}/0"
+
+            cmd("#{virsh} blockcopy", @dom.to_s, opts)
+        else
+            FileUtils.mv(disk_path, "#{snap_dir}/0")
+        end
+
+        symlink("disk.#{disk_id}.snap/0", disk_path)
+
+        return true
     end
 
     #---------------------------------------------------------------------------
@@ -955,7 +1242,10 @@ begin
     #  changes and cleans snapshot.
     #---------------------------------------------------------------------------
     if stop
-        vm.stop_backup_full_live(disk) if vm.parent_id == -1 && live
+        if vm.parent_id == -1 && live && @inc_mode != :snapshot
+            vm.stop_backup_full_live(disk)
+        end
+
         exit(0)
     end
 
@@ -995,18 +1285,22 @@ begin
             vm.clean_checkpoints(disk, true)
 
             vm.backup_full_live(disk)
-        else
+        elsif vm.inc_mode == :cbt
             vm.define_parent(disk)
 
             vm.backup_nbd_live(disk)
 
             vm.clean_checkpoints(disk)
+        else # vm.inc_mode == :snapshot
+            vm.backup_snapshot_live(disk)
         end
     else
         if vm.parent_id == -1
             vm.backup_full(disk)
-        else
+        elsif vm.inc_mode == :cbt
             vm.backup_nbd(disk)
+        else # vm.inc_mode == :snapshot
+            vm.backup_snapshot(disk)
         end
     end
 rescue StandardError => e
