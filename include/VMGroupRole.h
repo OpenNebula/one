@@ -161,7 +161,7 @@ private:
     /**
      *  The associated vector attribute
      */
-    VectorAttribute * va;
+    std::unique_ptr<VectorAttribute> va;
 
     /**
      *  Set the VMS attribute for the role (list of VM IDs)
