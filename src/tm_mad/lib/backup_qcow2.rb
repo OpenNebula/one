@@ -815,7 +815,7 @@ class KVMDomain
             qdisk[did] = QemuImg.new(disk_path, disk_opts)
 
             if @inc_mode == :snapshot
-                base = "#{qdisk[did].slink}/0"
+                base = "#{qdisk[did].snap}/0"
 
                 if snap_folder(did, true)
                     qdisk[did].read_paths(disk_path, disk_opts)
