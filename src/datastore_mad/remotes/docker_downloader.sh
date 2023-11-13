@@ -52,23 +52,51 @@ DOCKERFILE="$SHARE_LOCATION/dockerhub"
 #Docker image name for deletion
 image_name=$(echo "$MARKET_URL" | cut -d "/" -f3 | cut -d "?" -f1)
 
+image_has_cmd() {
+    image=$1
+    [ "$(docker inspect "$image" | jq -r '.[0].Config.Cmd')" != "null" ]
+}
+
+#-------------------------------------------------------------------------------
+# Docker CLI helpers
+#-------------------------------------------------------------------------------
+
+get_image_cmd() {
+    image=$1
+    docker inspect "$image" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd'
+}
+
+get_image_entrypoint() {
+    image=$1
+    docker inspect "$image" | jq -r '.[0].Config.Entrypoint'
+}
+
+get_image_env() {
+    image=$1
+    docker inspect "$image" | jq -r '.[0].Config.Env'
+}
+
+image_build() {
+    sid=$1
+    dockerfile=$2
+    dockerdir=$3
+    docker build -t one"$sid" -f "$dockerfile" "$dockerdir" 1>&2 || exit 1
+}
+
 #-------------------------------------------------------------------------------
 # This function takes care of removing all temporary directories in case
 # something fails
 #-------------------------------------------------------------------------------
 function clean {
-    docker rm -f "$container_id" > /dev/null 2>&1 || true
-
+    docker rm -f "$container_id" >/dev/null 2>&1
     if [ -n "${image_name}" ]; then
-        docker rmi -f "${image_name}"
+        docker rmi -f "${image_name}" >/dev/null 2>&1
+    else
+        docker rmi -f "$app"
     fi
-
-    docker image rm -f one"$sid" > /dev/null 2>&1
-
+    docker image rm -f one"$sid" >/dev/null 2>&1
     rm -rf "$dockerdir"
 }
-
-set -e -o pipefail
 
 id=$(echo "$RANDOM-$RANDOM-$RANDOM-$RANDOM-$RANDOM")
 sid=$(echo "$id" | cut -d '-' -f 1)
@@ -103,12 +131,14 @@ else
 fi
 
 arguments=$(echo "$url" | cut -d '?' -f 2)
+app=$(echo "$url" | cut -d '?' -f 1)
 
 #Create a shell variable for every argument (size=5219, format=raw...)
 for p in ${arguments//&/ }; do
-    kvp=( ${p/=/ } );
-    k=${kvp[0]};v=${kvp[1]};
-    [ -n "$k" -a -n "$v" ] && eval "$k"="$v";
+    kvp=(${p/=/ })
+    k=${kvp[0]}
+    v=${kvp[1]}
+    [ -n "$k" -a -n "$v" ] && eval "$k"="$v"
 done
 
 if [ -z "$tag" ]; then
@@ -121,8 +151,8 @@ tarball="$dockerdir/fs.tar"
 img_raw="$dockerdir/img.raw"
 img_qcow="$dockerdir/img.qcow"
 
-# Trap for cleaning temporary directories
-trap clean EXIT && trap clean ERR
+# Perform image cleanup when exit signal is sent
+trap clean EXIT
 
 mkdir -p "$dockerdir"
 mkdir -p "$dockerdir/mnt"
@@ -130,12 +160,12 @@ mkdir -p "$dockerdir/mnt"
 cp -rL "$CONTEXT_PATH" "$dockerdir"
 
 if [ $export_from == "dockerhub" ]; then
-    docker_hub=$(echo "$url" | cut -d '?' -f 1):"$tag"
+    docker_hub="$app:$tag"
     extra=''
 else
     if [ -z "$fileb64" ]; then
         # Dockerfile is a path in the server
-        d_file=$(echo "$url" | cut -d '?' -f 1)
+        d_file=$app
 
         if [ -f "$d_file" ]; then
             extra=$(cat "$d_file")
@@ -162,6 +192,24 @@ fi
 
 # Check distro
 if [ -z "$distro" ]; then
+    # check if image can be downloaded
+    download_app=$(docker pull "$docker_hub" 2>&1 >/dev/null)
+
+    if [[ -n "$download_app" ]]; then
+        no_tag_msg="manifest for ${docker_hub} not found"
+
+        case "$download_app" in
+        *"$no_tag_msg"*)
+            echo "Appliance $app does not have the tag ${tag}" 1>&2
+            exit 1
+            ;;
+        *)
+            echo "$download_app" 1>&2
+            exit 1
+            ;;
+        esac
+    fi
+
     os_info=$(docker run --rm --entrypoint cat \
         -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
         "$docker_hub" /etc/os-release)
@@ -180,7 +228,7 @@ fi
 #---------------------------------------------------------------------------
 
 case "$distro" in
-debian|ubuntu)
+debian | ubuntu)
     commands=$(cat "$DOCKERFILES/debian")
     ;;
 centos)
@@ -193,8 +241,7 @@ centos)
 alpine)
     commands=$(cat "$DOCKERFILES/alpine")
     ;;
-*)
-    ;;
+*) ;;
 esac
 
 #Replace variables _docker_hub and _commands
@@ -227,26 +274,23 @@ dockerfile_template=${dockerfile_template/\%EXTRA\%/$extra}
 #-------------------------------------------------------------------------------
 
 if [ $export_from == "dockerhub" ]; then
-    cmd=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd')
-    entrypoint=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Entrypoint')
-    env=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Env')
+    entrypoint=$(get_image_entrypoint "$docker_hub")
+    env=$(get_image_env "$docker_hub")
 else
     tmp_dockerfile_template=$dockerfile_template
     tmp_dockerfile_template=${tmp_dockerfile_template/\%ONE_ENTRYPOINT\%/''}
 
-    echo "$tmp_dockerfile_template" > "$dockerfile"
+    echo "$tmp_dockerfile_template" >"$dockerfile"
 
-    # Build the image with user Dockerfile to be able to inspect it
-    docker build -t one"$sid" -f "$dockerfile" "$dockerdir" > /dev/null 2>&1
+    image_build "$sid" "$dockerfile" "$dockerdir"
 
     image_id=$(docker images -q one"$sid")
 
-    cmd=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd')
-    entrypoint=$(docker inspect "$image_id" | jq -r '.[0].Config.Entrypoint')
-    env=$(docker inspect "$image_id" | jq -r '.[0].Config.Env')
+    entrypoint=$(get_image_entrypoint "$image_id")
+    env=$(get_image_env "$image_id")
 
     # Delete this image as it will need to be build after
-    docker image rm -f one"$sid" > /dev/null 2>&1
+    docker image rm -f one"$sid" >/dev/null 2>&1
 fi
 
 #-------------------------------------------------------------------------------
@@ -269,6 +313,7 @@ if [ -n "$entrypoint" ] && ! [ "$entrypoint" == "null" ]; then
     entrypoint=$(echo "$entrypoint" | jq -r '. | join(" ")')
 fi
 
+image_has_cmd "$docker_hub" && cmd=$(get_image_cmd "$docker_hub")
 if [ -n "$cmd" ] && ! [ "$cmd" == "null" ]; then
     cmd=$(echo "$cmd" | jq -r '. | join(" ")')
 fi
@@ -301,9 +346,9 @@ else
     dockerfile_template=${dockerfile_template/\%ONE_ENTRYPOINT\%/''}
 fi
 
-echo "$dockerfile_template" > "$dockerfile"
+echo "$dockerfile_template" >"$dockerfile"
 
-docker build -t one"$sid" -f "$dockerfile" "$dockerdir" > /dev/null 2>&1
+image_build "$sid" "$dockerfile" "$dockerdir"
 
 image_id=$(docker images -q one"$sid")
 
@@ -313,7 +358,7 @@ image_id=$(docker images -q one"$sid")
 # rm -f /.dockerenv to avoid external tools to autodetect as docker images
 container_id=$(docker run -d "$image_id" rm -f /.dockerenv)
 
-docker export -o "$tarball" "$container_id" > /dev/null 2>&1
+docker export -o "$tarball" "$container_id" >/dev/null 2>&1
 
 #-------------------------------------------------------------------------------
 # Dump container FS and create image
@@ -328,24 +373,24 @@ if [ "$tar_size" -ge "$size" ]; then
     exit 1
 fi
 
-qemu-img create -f raw "$img_raw" "$size"M  > /dev/null 2>&1
+qemu-img create -f raw "$img_raw" "$size"M >/dev/null 2>&1
 
 case "$filesystem" in
-    "ext4")
-        mkfs.ext4 -F "$img_raw" > /dev/null 2>&1
-        ;;
-    "ext3")
-        mkfs.ext3 -F "$img_raw" > /dev/null 2>&1
-        ;;
-    "ext2")
-        mkfs.ext2 -F "$img_raw" > /dev/null 2>&1
-        ;;
-    "xfs")
-        mkfs.xfs -f "$img_raw" > /dev/null 2>&1
-        ;;
-    *)
-        mkfs.ext4 -F "$img_raw" > /dev/null 2>&1
-        ;;
+"ext4")
+    mkfs.ext4 -F "$img_raw" >/dev/null 2>&1
+    ;;
+"ext3")
+    mkfs.ext3 -F "$img_raw" >/dev/null 2>&1
+    ;;
+"ext2")
+    mkfs.ext2 -F "$img_raw" >/dev/null 2>&1
+    ;;
+"xfs")
+    mkfs.xfs -f "$img_raw" >/dev/null 2>&1
+    ;;
+*)
+    mkfs.ext4 -F "$img_raw" >/dev/null 2>&1
+    ;;
 esac
 
 #-------------------------------------------------------------------------------
@@ -355,7 +400,7 @@ esac
 sudo -n "$MK_DOCKER" -d "$dockerdir" -i "$img_raw" -t "$tarball"
 
 if [ "$format" == "qcow2" ]; then
-    qemu-img convert -f raw -O qcow2 "$img_raw" "$img_qcow" > /dev/null 2>&1
+    qemu-img convert -f raw -O qcow2 "$img_raw" "$img_qcow" >/dev/null 2>&1
     cat "$img_qcow"
 else
     cat "$img_raw"
