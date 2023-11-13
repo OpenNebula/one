@@ -65,6 +65,11 @@ CONVERT_CMD=$(cat <<EOF
 
        if [ -e $SRC_PATH_SNAP/base ]; then
            rm -f $SRC_PATH_SNAP/base $SRC_PATH_SNAP/base.1 $SRC_PATH_SNAP/rs_tmp
+
+           if [ "\$(ls $SRC_PATH_SNAP)" = "${SRC_FILE}.snap" ]; then
+               rm -f $SRC_PATH_SNAP/${SRC_FILE}.snap
+           fi
+
            rmdir $SRC_PATH_SNAP
        elif [ -d $SRC_PATH_SNAP ]; then
            rm -rf $SRC_PATH_SNAP

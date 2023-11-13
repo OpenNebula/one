@@ -41,15 +41,12 @@ get_size_and_format_of_disk_img() {
     local QEMU_IMG_PATH="$1"
     local PARAM="$2"
 
-    if [ -L "$QEMU_IMG_PATH" ]; then
-        TARGET=$(readlink "$QEMU_IMG_PATH")A
-        # symlink to disk.X.snap/base.1
-        if [[ "$TARGET" =~ disk.[0-9]*.snap/base.1  ]]; then
-            echo unknown qcow2-symlink
-            return
-        fi
-
-        # symlink, assume network disk
+    if [[ "$TARGET" =~ disk.[0-9]*.snap/ ]]; then
+        #Disk lives in snap dir it is a link (includes replica)
+        echo unknown qcow2-symlink
+        return
+    elif [ -L "$QEMU_IMG_PATH" ]; then
+        #Disk is a synlink, assume network-disk
         echo unknown network-disk
         return
     fi
@@ -175,10 +172,17 @@ else
 
         # recreate symlinks
         if [ -L "$DISK_PATH" ]; then
-            LINK_TARGET=$(readlink $DISK_PATH)
-            ssh_exec_and_log "$DEST_HOST" "[ -L \"$DISK_PATH\" ] || ln -s \"$LINK_TARGET\" \"$DISK_PATH\""
-                "Failed to create symlink $DISK_PATH -> $LINK_TARGET on $DEST_HOST"
+            TARGET=$(readlink $DISK_PATH)
+            LNAME=$DISK_PATH
+        elif [[ "$DISK_PATH" =~ (disk.([0-9]*).snap/[0-9]*) ]]; then
+            TARGET=${BASH_REMATCH[1]}
+            LNAME="disk.${BASH_REMATCH[2]}"
+        else
+            continue
         fi
+
+        ssh_exec_and_log "$DEST_HOST" "[ -L \"$LNAME\" ] || ln -s \"$TARGET\" \"$LNAME\""
+            "Failed to create symlink $TARGET -> $LNAME on $DEST_HOST"
     done
 
     # copy vm.xml and ds.xml from the $VM_DIR
