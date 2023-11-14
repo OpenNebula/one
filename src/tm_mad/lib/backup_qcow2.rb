@@ -739,12 +739,11 @@ class KVMDomain
 
             qdisks << { :did => did, :tgt => tgt, :disk => disk }
 
-            bfile = disk['full-backing-filename']
-
             next_path = "#{disk.snap}/#{@backup_id.to_i + 1}"
             next_disk = QemuImg.new(next_path)
 
-            next_disk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2', :b => bfile)
+            next_disk.create(:f => 'qcow2', :o => 'backing_fmt=qcow2',
+                             :b => "#{disk.snap}/#{disk.name}")
 
             dspec << "#{tgt},file=#{next_path}"
         end
@@ -777,7 +776,7 @@ class KVMDomain
 
             cmd("#{virsh} blockcommit", "#{@dom} #{tgt}",
                 :wait => '',
-                :top  => disk.path,
+                :top  => "#{disk.snap}/#{disk.name}",
                 :base => "#{disk.snap}/0")
 
             FileUtils.rm(disk.path, :force => true)
