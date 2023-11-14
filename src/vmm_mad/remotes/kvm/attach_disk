@@ -96,6 +96,22 @@ XML+="<driver name='qemu' type='$(xml_esc "${DRIVER}")'"
 [ -n "${VIRTIO_BLK_QUEUES}" ] && XML+=" queues='$(xml_esc "${VIRTIO_BLK_QUEUES}")'"
 XML+="/>"
 
+if [ "${TYPE_SOURCE}" == "file" ]; then
+    f=$(echo ${SOURCE} | sed 's/[[:space:]]*$//')
+
+    if [[ "${f}" =~ .*/disk\.[0-9]+$ && -L "${f}" ]]; then
+        rl=$(readlink ${f})
+
+        if [ "${rl:0:1}" != "/" ]; then
+            rl="$(dirname ${f})/${rl}"
+        fi
+
+        if [ -e "${rl}" ]; then
+            SOURCE="${rl}"
+        fi
+    fi
+fi
+
 XML+="<source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
 XML+="${SOURCE_HOST}"
 XML+="</source>"
