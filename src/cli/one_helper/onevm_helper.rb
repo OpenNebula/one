@@ -1451,7 +1451,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         vm_snapshots.each do |disk|
             disk_id = disk['DISK_ID']
 
-            sshots = [disk['SNAPSHOT']].flatten
+            sshots = [disk['SNAPSHOT'] || []].flatten
             sshots.each do |snapshot|
                 data = snapshot.merge('DISK_ID' => disk_id)
                 snapshots << data
