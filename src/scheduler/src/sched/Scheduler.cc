@@ -1876,6 +1876,16 @@ void Scheduler::timer_action()
         else
         {
             NebulaLog::log("SCHED", Log::ERROR, "Cannot contact oned: " + msg);
+
+            int errcode = xmlrpc_c::value_int(values[2]);
+
+            if (errcode == 0x00100) // Authentication error
+            {
+                NebulaLog::log("SCHED", Log::INFO, "Trying to reinit the authentication");
+
+                Client::client()->refresh_authentication();
+            }
+
             return;
         }
     }

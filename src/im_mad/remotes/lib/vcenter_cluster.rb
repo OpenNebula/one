@@ -828,8 +828,17 @@ class ClusterSet
     def monitor(conf)
         @mutex.synchronize do
             # Get current server raft status, to skip monitor being FOLLOWER
+            rc = @client.call('zone.raftstatus')
+
+            if OpenNebula.is_error?(rc)
+                # Try to reinit the authentication, in case of authentication error
+                @client = OpenNebula::Client.new if rc.errno == OpenNebula::Error::EAUTHENTICATION
+
+                next
+            end
+
             xml_e = OpenNebula::XMLElement.build_xml(
-                @client.call('zone.raftstatus'),
+                rc,
                 'RAFT'
             )
 
