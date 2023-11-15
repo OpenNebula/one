@@ -298,3 +298,15 @@ int Client::call(const std::string& endpoint, const std::string& method,
     return xml_rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Client::refresh_authentication()
+{
+    string err;
+
+    if (read_oneauth(one_auth, err) != 0 )
+    {
+        NebulaLog::log("XMLRPC", Log::ERROR, err);
+    }
+}

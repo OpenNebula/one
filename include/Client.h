@@ -104,6 +104,8 @@ public:
     void call(const std::string &method, const std::string &format,
 		xmlrpc_c::value * const result, ...);
 
+    void refresh_authentication();
+
 private:
     /**
      * Creates a new xml-rpc client with specified options.
