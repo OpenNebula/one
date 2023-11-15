@@ -123,13 +123,20 @@ export const downloadFile = (file) => {
  * @param {'KB'|'MB'|'GB'|'TB'|'PB'|'EB'|'ZB'|'YB'} unit - The unit of value. Defaults in KB
  * @param {number} fractionDigits
  * - Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
+ * @param {boolean} json - return a json with data
  * @returns {string} Returns an string displaying sizes for humans.
  */
-export const prettyBytes = (value, unit = UNITS.KB, fractionDigits = 0) => {
+export const prettyBytes = (
+  value,
+  unit = UNITS.KB,
+  fractionDigits = 0,
+  json = false
+) => {
   const units = Object.values(UNITS)
   let ensuredValue = +value
 
-  if (Math.abs(ensuredValue) === 0) return `${value} ${units[0]}`
+  if (Math.abs(ensuredValue) === 0)
+    return json ? { value, units: unit } : `${value} ${units[0]}`
 
   let idxUnit = units.indexOf(unit)
 
@@ -140,7 +147,9 @@ export const prettyBytes = (value, unit = UNITS.KB, fractionDigits = 0) => {
 
   const decimals = fractionDigits && ensuredValue % 1 !== 0 ? fractionDigits : 0
 
-  return `${ensuredValue.toFixed(decimals)} ${units[idxUnit]}`
+  return json
+    ? { value: ensuredValue.toFixed(decimals), units: units[idxUnit] }
+    : `${ensuredValue.toFixed(decimals)} ${units[idxUnit]}`
 }
 
 /**

@@ -140,6 +140,7 @@ export const INPUT_TYPES = {
   TABLE: 'table',
   TOGGLE: 'toggle',
   DOCKERFILE: 'dockerfile',
+  UNITS: 'units',
 }
 
 export const DEBUG_LEVEL = {
@@ -209,6 +210,6 @@ export * from 'client/constants/user'
 export * from 'client/constants/userInput'
 export * from 'client/constants/vdc'
 export * from 'client/constants/vm'
-export * from 'client/constants/vmTemplate'
 export * from 'client/constants/vmGroup'
+export * from 'client/constants/vmTemplate'
 export * from 'client/constants/zone'

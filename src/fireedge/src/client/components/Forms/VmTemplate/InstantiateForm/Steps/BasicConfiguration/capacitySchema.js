@@ -17,6 +17,7 @@ import { NumberSchema } from 'yup'
 
 import {
   HYPERVISORS,
+  INPUT_TYPES,
   T,
   USER_INPUT_TYPES,
   VmTemplate,
@@ -36,7 +37,7 @@ const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
 const TRANSLATES = {
   MEMORY: {
     name: 'MEMORY',
-    label: [T.MemoryWithUnit, '(MB)'],
+    label: T.Memory,
     tooltip: T.MemoryConcept,
   },
   CPU: { name: 'CPU', label: T.PhysicalCpuWithPercent, tooltip: T.CpuConcept },
@@ -98,9 +99,12 @@ export const FIELDS = (
     // add positive number validator
     isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
 
-    if (isMemory && isRange) {
-      // add label format on pretty bytes
-      schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
+    if (isMemory) {
+      schemaUi.type = INPUT_TYPES.UNITS
+      if (isRange) {
+        // add label format on pretty bytes
+        schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
+      }
     }
 
     if (isNumber && divisibleBy4) {

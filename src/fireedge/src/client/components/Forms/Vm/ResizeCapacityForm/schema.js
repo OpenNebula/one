@@ -28,9 +28,9 @@ const ENFORCE = {
 
 const MEMORY = {
   name: 'MEMORY',
-  label: [T.MemoryWithUnit, '(MB)'],
+  label: T.Memory,
   tooltip: T.MemoryConcept,
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.UNITS,
   htmlType: 'number',
   validation: number()
     .required()
