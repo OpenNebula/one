@@ -16,6 +16,7 @@
 import AutocompleteController from 'client/components/FormControl/AutocompleteController'
 import CheckboxController from 'client/components/FormControl/CheckboxController'
 import FileController from 'client/components/FormControl/FileController'
+import InformationUnitController from 'client/components/FormControl/InformationUnitController'
 import PasswordController from 'client/components/FormControl/PasswordController'
 import SelectController from 'client/components/FormControl/SelectController'
 import SliderController from 'client/components/FormControl/SliderController'
@@ -25,30 +26,31 @@ import TextController from 'client/components/FormControl/TextController'
 import TimeController from 'client/components/FormControl/TimeController'
 import ToggleController from 'client/components/FormControl/ToggleController'
 
+import DockerfileController from 'client/components/FormControl/DockerfileController'
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import InputCode from 'client/components/FormControl/InputCode'
 import SubmitButton, {
   SubmitButtonPropTypes,
 } from 'client/components/FormControl/SubmitButton'
-import InputCode from 'client/components/FormControl/InputCode'
-import DockerfileController from 'client/components/FormControl/DockerfileController'
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import Tooltip from 'client/components/FormControl/Tooltip'
 
 export {
   AutocompleteController,
   CheckboxController,
+  DockerfileController,
+  ErrorHelper,
   FileController,
+  InformationUnitController,
+  InputCode,
   PasswordController,
   SelectController,
   SliderController,
+  SubmitButton,
+  SubmitButtonPropTypes,
   SwitchController,
   TableController,
   TextController,
   TimeController,
   ToggleController,
-  SubmitButton,
-  SubmitButtonPropTypes,
-  InputCode,
-  DockerfileController,
-  ErrorHelper,
   Tooltip,
 }

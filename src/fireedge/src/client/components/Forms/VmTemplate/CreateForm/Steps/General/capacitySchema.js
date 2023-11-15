@@ -47,7 +47,7 @@ const { vcenter, lxc, firecracker } = HYPERVISORS
 export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
   label: T.Memory,
-  tooltip: T.MemoryConceptWithoutUnit,
+  tooltip: T.MemoryConcept,
   validation: commonValidation
     .integer()
     .required()

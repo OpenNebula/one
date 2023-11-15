@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, object } from 'yup'
+import { INPUT_TYPES, T } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { number, object } from 'yup'
 
 const SIZE = {
   name: 'SIZE',
-  label: [T.SizeOnUnits, 'MB'],
-  type: INPUT_TYPES.TEXT,
+  label: T.Size,
+  type: INPUT_TYPES.UNITS,
   htmlType: 'number',
+  grid: { md: 12 },
   validation: number()
     .required()
     .positive()

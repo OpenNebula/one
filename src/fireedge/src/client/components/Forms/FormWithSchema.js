@@ -56,6 +56,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TABLE]: FC.TableController,
   [INPUT_TYPES.TOGGLE]: FC.ToggleController,
   [INPUT_TYPES.DOCKERFILE]: FC.DockerfileController,
+  [INPUT_TYPES.UNITS]: FC.InformationUnitController,
 }
 
 /**
