@@ -59,7 +59,7 @@ start()
   touch $FLOW_LOCK_FILE
 
   # Start the oneflow-server daemon
-  ruby $FLOW_SERVER >$FLOW_LOG 2>$FLOW_LOG_ERROR &
+  ruby $FLOW_SERVER >>$FLOW_LOG 2>>$FLOW_LOG_ERROR &
 
   LASTRC=$?
   LASTPID=$!

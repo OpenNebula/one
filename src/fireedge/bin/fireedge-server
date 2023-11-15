@@ -76,7 +76,7 @@ start()
   touch $FIREEDGE_LOCK_FILE
 
   # Start the fireedge-server daemon
-  node $FIREEDGE_SERVER >$FIREEDGE_LOG &
+  node $FIREEDGE_SERVER >>$FIREEDGE_LOG &
 
   LASTRC=$?
   LASTPID=$!

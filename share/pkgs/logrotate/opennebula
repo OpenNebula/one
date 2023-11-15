@@ -1,9 +1,6 @@
 /var/log/one/one_xmlrpc.log /var/log/one/oned.log /var/log/one/monitor.log /var/log/one/vcenter_monitor.log {
-    delaycompress
     dateext
     dateformat -%Y%m%d-%s
-    compress
-    maxsize 100M
     weekly
     rotate 52
     missingok

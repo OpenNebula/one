@@ -223,7 +223,7 @@ void Nebula::start(bool bootstrap_only)
             NebulaLog::init_log_system(log_system,
                                        clevel,
                                        log_fname.c_str(),
-                                       ios_base::trunc,
+                                       ios_base::ate,
                                        "oned");
         }
         else

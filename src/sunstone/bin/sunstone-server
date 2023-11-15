@@ -92,7 +92,7 @@ start()
     exit 1
   fi
 
-  ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
+  ruby $SUNSTONE_SERVER >> $SUNSTONE_LOG 2>>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
 
   if [ $? -ne 0 ]; then
