@@ -1498,7 +1498,7 @@ int LibVirtDriver::deployment_description_kvm(
             blk_queues = default_blk_queues;
         }
 
-        if (!blk_queues.empty())
+        if (!blk_queues.empty() && disk_bus == "virtio")
         {
             file << " queues=" << one_util::escape_xml_attr(blk_queues);
         }
