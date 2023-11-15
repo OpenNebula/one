@@ -41,7 +41,7 @@ CONFIG_DEFAULTS = {
 }
 
 # Ansible params
-ANSIBLE_VERSION     = [Gem::Version.new('2.8'), Gem::Version.new('2.10')]
+ANSIBLE_VERSION     = [Gem::Version.new('2.12'), Gem::Version.new('2.13')]
 ANSIBLE_ARGS        = "--ssh-common-args='-o UserKnownHostsFile=/dev/null'"
 ANSIBLE_INVENTORY_DEFAULT = 'default'
 CEPH_ANSIBLE_URL    = 'https://github.com/ceph/ceph-ansible.git'
@@ -76,10 +76,9 @@ module OneProvision
                 version = version.match(/\d+[.]\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
-                if (version < ANSIBLE_VERSION[0]) ||
-                   (version >= ANSIBLE_VERSION[1])
-                    Utils.fail("Unsupported Ansible ver. #{version}, " \
-                         "must be >= #{ansible_min} and < #{ansible_max}")
+                if (version < ANSIBLE_VERSION[0]) || (version >= ANSIBLE_VERSION[1])
+                    Utils.fail("Unsupported Ansible version #{version}, " \
+                             "must be >= #{ANSIBLE_VERSION[0]} and < #{ANSIBLE_VERSION[1]}")
                 end
 
                 return if provision.nil? || !provision.hci?

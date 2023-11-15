@@ -25,11 +25,9 @@ import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { UpdateConfigurationForm } from 'client/components/Forms/Vm'
 import { List } from 'client/components/Tabs/Common'
 
-import { getHypervisor, isAvailableAction } from 'client/models/VirtualMachine'
-import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
-import { T, VM_ACTIONS, ATTR_CONF_CAN_BE_UPDATED } from 'client/constants'
-
-const { UPDATE_CONF } = VM_ACTIONS
+import { getHypervisor } from 'client/models/VirtualMachine'
+import { jsonToXml } from 'client/models/Helper'
+import { T, ATTR_CONF_CAN_BE_UPDATED } from 'client/constants'
 
 /**
  * Renders configuration tab.
@@ -46,15 +44,6 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
   const { TEMPLATE } = vm
 
   const hypervisor = useMemo(() => getHypervisor(vm), [vm])
-
-  const isUpdateConfEnabled = useMemo(() => {
-    const actionsByHypervisor = getActionsAvailable(actions, hypervisor)
-    const actionsByState = actionsByHypervisor.filter((action) =>
-      isAvailableAction(action, vm)
-    )
-
-    return actionsByState.includes?.(UPDATE_CONF)
-  }, [vm])
 
   const sections = useMemo(() => {
     const filterSection = (section) => {
@@ -110,31 +99,29 @@ const VmConfigurationTab = ({ tabProps: { actions } = {}, id }) => {
 
   return (
     <Box padding={{ sm: '0.8em' }}>
-      {isUpdateConfEnabled && (
-        <ButtonToTriggerForm
-          buttonProps={{
-            color: 'secondary',
-            'data-cy': 'update-conf',
-            label: T.UpdateVmConfiguration,
-            variant: 'outlined',
-            disabled: isFetching,
-          }}
-          options={[
-            {
-              dialogProps: {
-                title: T.UpdateVmConfiguration,
-                dataCy: 'modal-update-conf',
-              },
-              form: () =>
-                UpdateConfigurationForm({
-                  stepProps: { hypervisor },
-                  initialValues: vm,
-                }),
-              onSubmit: handleUpdateConf,
+      <ButtonToTriggerForm
+        buttonProps={{
+          color: 'secondary',
+          'data-cy': 'update-conf',
+          label: T.UpdateVmConfiguration,
+          variant: 'outlined',
+          disabled: isFetching,
+        }}
+        options={[
+          {
+            dialogProps: {
+              title: T.UpdateVmConfiguration,
+              dataCy: 'modal-update-conf',
             },
-          ]}
-        />
-      )}
+            form: () =>
+              UpdateConfigurationForm({
+                stepProps: { hypervisor },
+                initialValues: vm,
+              }),
+            onSubmit: handleUpdateConf,
+          },
+        ]}
+      />
 
       <Stack
         display="grid"
