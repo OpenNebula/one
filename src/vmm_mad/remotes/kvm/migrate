@@ -41,7 +41,7 @@ get_size_and_format_of_disk_img() {
     local QEMU_IMG_PATH="$1"
     local PARAM="$2"
 
-    if [[ "$TARGET" =~ disk.[0-9]*.snap/ ]]; then
+    if [[ "$QEMU_IMG_PATH" =~ disk.[0-9]*.snap/ ]]; then
         #Disk lives in snap dir it is a link (includes replica)
         echo unknown qcow2-symlink
         return
@@ -165,16 +165,22 @@ else
         fi
 
         # copy disk snapshots
-        if [ -d "${DISK_PATH}.snap" ] || [ -L "${DISK_PATH}.snap" ]; then
-            multiline_exec_and_log "$TAR -cSf - $DISK_PATH.snap | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
-                "Failed to rsync disk snapshot ${DISK_PATH}.snap to $DEST_HOST"
+        if [[ "$DISK_PATH" =~ (disk\.[0-9]*\.snap)/. ]]; then
+            SNAP_DIR="$VM_DIR/${BASH_REMATCH[1]}"
+        elif [ -d "${DISK_PATH}.snap" ]; then  #it should be included in the clause above
+            SNAP_DIR="${DISK_PATH}.snap"
+        fi
+
+        if [ -n "${SNAP_DIR}" ]; then
+            multiline_exec_and_log "$TAR -cSf - ${SNAP_DIR} | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
+                "Failed to rsync disk snapshot ${SNAP_DIR} to $DEST_HOST"
         fi
 
         # recreate symlinks
         if [ -L "$DISK_PATH" ]; then
             TARGET=$(readlink $DISK_PATH)
             LNAME=$DISK_PATH
-        elif [[ "$DISK_PATH" =~ (disk.([0-9]*).snap/[0-9]*) ]]; then
+        elif [[ "$DISK_PATH" =~ (disk\.([0-9]*)\.snap/.*) ]]; then
             TARGET=${BASH_REMATCH[1]}
             LNAME="disk.${BASH_REMATCH[2]}"
         else
