@@ -187,7 +187,7 @@ else
             continue
         fi
 
-        ssh_exec_and_log "$DEST_HOST" "[ -L \"$LNAME\" ] || ln -s \"$TARGET\" \"$LNAME\""
+        ssh_exec_and_log "$DEST_HOST" "cd ${VM_DIR}; [ -L \"$LNAME\" ] || ln -s \"$TARGET\" \"$LNAME\""
             "Failed to create symlink $TARGET -> $LNAME on $DEST_HOST"
     done
 
