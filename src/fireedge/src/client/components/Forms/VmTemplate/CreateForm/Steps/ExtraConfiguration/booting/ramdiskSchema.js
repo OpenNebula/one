@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean } from 'yup'
+import { boolean, string } from 'yup'
 
-import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { HYPERVISORS, IMAGE_TYPES_STR, INPUT_TYPES, T } from 'client/constants'
+import { useGetAllImagesQuery } from 'client/features/OneApi/image'
 import { getType } from 'client/models/Image'
 import { Field, clearNames } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS, IMAGE_TYPES_STR } from 'client/constants'
+import { KERNEL_DS_NAME, KERNEL_NAME } from './kernelSchema'
 
-const { vcenter, lxc, firecracker } = HYPERVISORS
+const { vcenter, lxc } = HYPERVISORS
+
+export const RAMDISK_PATH_ENABLED_NAME = 'OS.RAMDISK_PATH_ENABLED'
+export const RAMDISK_DS_NAME = 'OS.INITRD_DS'
+export const RAMDISK_NAME = 'OS.INITRD'
 
 const ramdiskValidation = string()
   .trim()
@@ -29,10 +34,22 @@ const ramdiskValidation = string()
 
 /** @type {Field} Ramdisk path field  */
 export const RAMDISK_PATH_ENABLED = {
-  name: 'OS.RAMDISK_PATH_ENABLED',
+  name: RAMDISK_PATH_ENABLED_NAME,
   label: T.CustomPath,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.SWITCH,
+  dependOf: [`$extra.${KERNEL_DS_NAME}`, `$extra.${KERNEL_NAME}`],
+  fieldProps: (_, form) => {
+    const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
+    const path = form?.getValues(`extra.${KERNEL_NAME}`)
+    const ramdisk = form?.getValues(`extra.${RAMDISK_NAME}`)
+    const options = {}
+
+    !(ds || path) && (options.disabled = true)
+    ramdisk && form?.setValue(`extra.${RAMDISK_PATH_ENABLED_NAME}`, true)
+
+    return options
+  },
   validation: boolean()
     .strip()
     .default(() => false),
@@ -40,14 +57,30 @@ export const RAMDISK_PATH_ENABLED = {
 
 /** @type {Field} Ramdisk DS field  */
 export const RAMDISK_DS = {
-  name: 'OS.INITRD_DS',
+  name: RAMDISK_DS_NAME,
   label: T.Ramdisk,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
-  dependOf: RAMDISK_PATH_ENABLED.name,
-  htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
+  dependOf: [
+    RAMDISK_PATH_ENABLED.name,
+    `$extra.${KERNEL_DS_NAME}`,
+    `$extra${KERNEL_NAME}`,
+  ],
+  htmlType: ([enabled = false] = []) => enabled && INPUT_TYPES.HIDDEN,
+  fieldProps: (_, form) => {
+    const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
+    const path = form?.getValues(`extra.${KERNEL_NAME}`)
+    const ramdisk = form?.getValues(`extra.${RAMDISK_PATH_ENABLED_NAME}`)
+
+    const options = {}
+
+    !(ds || path) && (options.disabled = true)
+    ramdisk && (options.value = null)
+
+    return options
+  },
   values: () => {
-    const { data: images = [] } = useGetImagesQuery()
+    const { data: images = [] } = useGetAllImagesQuery()
 
     return images
       ?.filter((image) => getType(image) === IMAGE_TYPES_STR.RAMDISK)
@@ -65,20 +98,45 @@ export const RAMDISK_DS = {
     clearNames(RAMDISK_PATH_ENABLED.name),
     (enabled, schema) => (enabled ? schema.strip() : schema)
   ),
+  value: (_, form) => {
+    if (
+      form?.getValues(`extra.${RAMDISK_PATH_ENABLED_NAME}`) &&
+      form?.setValue
+    ) {
+      form?.setValue(`extra.${RAMDISK_DS_NAME}`, undefined)
+    }
+  },
 }
 
 /** @type {Field} Ramdisk path field  */
 export const RAMDISK = {
-  name: 'OS.INITRD',
+  name: RAMDISK_NAME,
   label: T.RamdiskPath,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.TEXT,
-  dependOf: RAMDISK_PATH_ENABLED.name,
-  htmlType: (enabled) => !enabled && INPUT_TYPES.HIDDEN,
-  validation: ramdiskValidation.when(
-    clearNames(RAMDISK_PATH_ENABLED.name),
-    (enabled, schema) => (enabled ? schema : schema.strip())
-  ),
+  dependOf: [
+    RAMDISK_PATH_ENABLED.name,
+    `$extra.${KERNEL_DS_NAME}`,
+    `$extra${KERNEL_NAME}`,
+  ],
+  fieldProps: (_, form) => {
+    const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
+    const path = form?.getValues(`extra.${KERNEL_NAME}`)
+    const ramdisk = form?.getValues(`extra.${RAMDISK_PATH_ENABLED_NAME}`)
+    const currentValue = form?.getValues(`extra.${RAMDISK_NAME}`)
+
+    if (
+      (ramdisk === false || !(ds || path)) &&
+      currentValue &&
+      form?.setValue
+    ) {
+      form?.setValue(`extra.${RAMDISK_NAME}`)
+    }
+
+    return ds || path ? {} : { disabled: true }
+  },
+  htmlType: ([enabled = false] = []) => !enabled && INPUT_TYPES.HIDDEN,
+  validation: ramdiskValidation,
 }
 
 /** @type {Field[]} List of Ramdisk fields */
