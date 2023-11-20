@@ -198,7 +198,7 @@ const Settings = () => {
   return (
     <Paper
       variant="outlined"
-      sx={{ overflow: 'auto', py: '1.5em', gridColumn: { md: 'span 2' } }}
+      sx={{ overflow: 'auto', py: '1.5em', gridColumn: { md: 'span 1' } }}
     >
       <FormProvider {...methods}>
         <Stack gap="1em">

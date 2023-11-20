@@ -296,7 +296,9 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge/provision/providers.d-extra \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/admin \
-          $ETC_LOCATION/fireedge/sunstone/user"
+          $ETC_LOCATION/fireedge/sunstone/user \
+          $ETC_LOCATION/fireedge/sunstone/groupadmin \
+          $ETC_LOCATION/fireedge/sunstone/cloud"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
@@ -925,6 +927,8 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
+  FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD:$ETC_LOCATION/fireedge/sunstone/cloud
+  FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN:$ETC_LOCATION/fireedge/sunstone/groupadmin
  )
 
 INSTALL_FIREEDGE_DEV_DIRS=(
@@ -2984,7 +2988,8 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vdc-tab.yaml \
 				                src/fireedge/etc/sunstone/admin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backupjobs-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/host-tab.yaml"
+                                src/fireedge/etc/sunstone/admin/host-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/group-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vm-template-tab.yaml \
@@ -2994,6 +2999,20 @@ FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/user/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/user/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/user/vnet-tab.yaml"
+
+FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/image-tab.yaml\
+                                src/fireedge/etc/sunstone/groupadmin/file-tab.yaml\
+                                src/fireedge/etc/sunstone/groupadmin/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/sec-group-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vnet-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/group-tab.yaml"
+                                
+FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml"                                
 
 #-----------------------------------------------------------------------------
 # OneGate files

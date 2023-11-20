@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory, generatePath } from 'react-router-dom'
 
@@ -21,6 +21,11 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { GroupsTable } from 'client/components/Tables'
 import { useGetUserQuery } from 'client/features/OneApi/user'
+import { useGetGroupsQuery } from 'client/features/OneApi/group'
+
+import { Chip, Box, Grid, Typography } from '@mui/material'
+
+import { T } from 'client/constants'
 
 /**
  * Renders mainly information tab.
@@ -32,6 +37,7 @@ import { useGetUserQuery } from 'client/features/OneApi/user'
 const GroupsInfoTab = ({ id }) => {
   const path = PATH.SYSTEM.GROUPS.DETAIL
   const history = useHistory()
+  const { data = [] } = useGetGroupsQuery()
   const { data: user } = useGetUserQuery({ id })
   const { GROUPS } = user
 
@@ -42,14 +48,76 @@ const GroupsInfoTab = ({ id }) => {
   const primaryGroup = GROUPS.ID[0]
   const secondaryGroups = GROUPS.ID.slice(1)
 
+  const primaryGroupName = useMemo(() => {
+    const primary = data.find(
+      (group) =>
+        group.ID === primaryGroup || String(group.ID) === String(primaryGroup)
+    )
+
+    return primary?.NAME
+  }, [data, primaryGroup])
+
+  const secondaryGroupNames = useMemo(() => {
+    const foundGroups = data.filter((group) =>
+      secondaryGroups.includes(String(group.ID))
+    )
+
+    return foundGroups.map((group) => group.NAME)
+  }, [data, secondaryGroups])
+
   return (
-    <GroupsTable
-      disableRowSelect
-      disableGlobalSort
-      primaryGroup={primaryGroup}
-      secondaryGroups={secondaryGroups}
-      onRowClick={(row) => handleRowClick(row.ID)}
-    />
+    <div>
+      <Grid container spacing={2} alignItems="center">
+        {primaryGroupName && (
+          <Grid item xs={12}>
+            <Typography variant="h7">{T.Primary}</Typography>
+          </Grid>
+        )}
+
+        {primaryGroupName && (
+          <Grid item>
+            <Chip
+              data-cy="primary-group"
+              label={
+                <Typography variant="subtitle2" component="span">
+                  {primaryGroupName}
+                </Typography>
+              }
+              color="primary"
+            />
+          </Grid>
+        )}
+
+        {secondaryGroupNames.length > 0 && (
+          <Grid item xs={12}>
+            <Typography variant="body2">{T.Secondary}</Typography>
+          </Grid>
+        )}
+
+        {secondaryGroupNames.length > 0 &&
+          secondaryGroupNames.map((name, index) => (
+            <Grid item key={index}>
+              <Chip
+                data-cy={`secondary-group-${+index}`}
+                label={
+                  <Typography variant="body2" component="span">
+                    {name}
+                  </Typography>
+                }
+                color="secondary"
+              />
+            </Grid>
+          ))}
+      </Grid>
+
+      <Box mt={2}>
+        <GroupsTable
+          disableRowSelect
+          disableGlobalSort
+          onRowClick={(row) => handleRowClick(row.ID)}
+        />
+      </Box>
+    </div>
   )
 }
 

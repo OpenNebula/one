@@ -1,0 +1,161 @@
+---
+# This file describes the information and actions available in the VM tab
+
+# Resource
+
+resource_name: "VM"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
+  deploy: false
+  migrate: true
+  migrate_live: true
+  hold: true
+  release: true
+  suspend: true
+  resume: true
+  stop: true
+  recover: true
+  reboot: true
+  reboot-hard: true
+  poweroff: true
+  poweroff-hard: true
+  undeploy: true
+  undeploy-hard: true
+  terminate: true
+  terminate-hard: true
+  resched: true
+  unresched: true
+  save_as_template: false
+  chown: false
+  chgrp: false
+  lock: true
+  unlock: true
+  vmrc: true
+  vnc: true
+  ssh: true
+  rdp: true
+  edit_labels: false
+  backup: true  
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  state: true
+  owner: true
+  group: true
+  type: true
+  locked: true
+  ips: true
+  hostname: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: false
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: false
+        chgrp: false
+    capacity_panel:
+      enabled: true
+      actions:
+        resize_capacity: true
+    vcenter_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: false
+        edit: false
+        delete: false
+    lxc_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: false
+        edit: false
+        delete: false
+    monitoring_panel:
+      enabled: true
+      actions:
+        copy: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: false
+        delete: false
+
+  storage:
+    enabled: true
+    actions:
+      attach_disk:
+        enabled: true
+        not_on:
+          - firecracker
+      detach_disk: true
+      snapshot_disk_create: true
+      snapshot_disk_rename: true
+      snapshot_disk_revert: true
+      snapshot_disk_delete: true
+      resize_disk: true
+      disk_saveas:
+        enabled: true
+        not_on:
+          - vcenter
+          - firecracker
+
+  network:
+    enabled: true
+    actions:
+      attach_nic: true
+      detach_nic: true
+      update_nic: true
+      attach_secgroup: true
+      detach_secgroup: true
+
+  snapshot:
+    enabled: true
+    actions:
+      snapshot-create: true
+      snapshot-revert: true
+      snapshot-delete: true
+
+  backup:
+    enabled: true
+
+  history:
+    enabled: true
+
+  sched_actions:
+    enabled: true
+    actions:
+      sched_action_create: true
+      sched_action_update: true
+      sched_action_delete: true
+      charter_create: true
+
+  configuration:
+    enabled: true
+    actions:
+      update_configuration: true
+
+  template:
+    enabled: true

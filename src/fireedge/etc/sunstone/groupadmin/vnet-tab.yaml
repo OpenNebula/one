@@ -1,0 +1,84 @@
+---
+# This file describes the information and actions available in the VIRTUAL NETWORK tab
+
+# Resource
+
+resource_name: "VIRTUAL-NETWORK"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: false
+  import_dialog: false
+  instantiate_dialog: true
+  reserve_dialog: true
+  update_dialog: true
+  change_cluster: false
+  chown: false
+  chgrp: false
+  lock: true
+  unlock: true
+  delete: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  state: true
+  owner: true
+  group: true
+  locked: true
+  vn_mad: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: false
+        chgrp: false
+    qos_panel:
+      enabled: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+
+  address:
+    enabled: true
+    actions:
+      add_ar: false
+      update_ar: true
+      delete_ar: true
+
+  lease:
+    enabled: true
+    actions:
+      hold_lease: true
+      release_lease: true
+
+  security:
+    enabled: true
+    actions:
+      add_secgroup: true
+      delete_secgroup: true
+
+  virtual_router:
+    enabled: true
+
+  cluster:
+    enabled: true

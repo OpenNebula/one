@@ -26,12 +26,14 @@ import { DateTime } from 'luxon'
  * @param {string} props.initialStartDate - The initial start date value.
  * @param {string} props.initialEndDate - The initial end date value.
  * @param {Function} props.onDateChange - Callback function when date changes.
+ * @param {object} props.views - Views to format in component
  * @returns {Component} DateRangeFilter component.
  */
 export const DateRangeFilter = ({
   initialStartDate,
   initialEndDate,
   onDateChange,
+  views,
 }) => {
   const [dateRange, setDateRange] = useState({
     startDate: initialStartDate,
@@ -62,6 +64,7 @@ export const DateRangeFilter = ({
         renderInput={(params) => (
           <TextField {...params} variant="outlined" margin="dense" />
         )}
+        views={views}
       />
       <Box marginLeft={2}>
         <DatePicker
@@ -72,6 +75,7 @@ export const DateRangeFilter = ({
           renderInput={(params) => (
             <TextField {...params} variant="outlined" margin="dense" />
           )}
+          views={views}
         />
       </Box>
     </Box>
@@ -82,4 +86,5 @@ DateRangeFilter.propTypes = {
   initialStartDate: PropTypes.instanceOf(DateTime).isRequired,
   initialEndDate: PropTypes.instanceOf(DateTime).isRequired,
   onDateChange: PropTypes.func.isRequired,
+  views: PropTypes.array,
 }

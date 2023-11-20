@@ -22,27 +22,35 @@ import { T } from 'client/constants'
 import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
 import AuthenticationSection from 'client/containers/Settings/Authentication'
 import LabelsSection from 'client/containers/Settings/LabelsSection'
+import ShowbackSection from 'client/containers/Settings/Showback'
+
+import { useSystemData } from 'client/features/Auth'
 
 /** @returns {ReactElement} Settings container */
-const Settings = () => (
-  <>
-    <Typography variant="h5">
-      <Translate word={T.Settings} />
-    </Typography>
+const Settings = () => {
+  const { adminGroup } = useSystemData()
 
-    <Divider sx={{ my: '1em' }} />
+  return (
+    <>
+      <Typography variant="h5">
+        <Translate word={T.Settings} />
+      </Typography>
 
-    <Box
-      display="grid"
-      gridTemplateColumns={{ sm: '1fr', md: 'repeat(2, minmax(49%, 1fr))' }}
-      gridTemplateRows="minmax(0, 18em)"
-      gap="1em"
-    >
-      <ConfigurationUISection />
-      <LabelsSection />
-      <AuthenticationSection />
-    </Box>
-  </>
-)
+      <Divider sx={{ my: '1em' }} />
+
+      <Box
+        display="grid"
+        gridTemplateColumns={{ sm: '1fr', md: 'repeat(2, minmax(49%, 1fr))' }}
+        gridTemplateRows="minmax(0, 18em)"
+        gap="1em"
+      >
+        <ConfigurationUISection />
+        <LabelsSection />
+        <AuthenticationSection />
+        {adminGroup ? <ShowbackSection /> : null}
+      </Box>
+    </>
+  )
+}
 
 export default Settings

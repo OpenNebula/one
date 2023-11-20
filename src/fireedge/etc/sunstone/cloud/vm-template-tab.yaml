@@ -1,0 +1,111 @@
+---
+# This file describes the information and actions available in the VM Template tab
+
+# Resource
+
+resource_name: "VM-TEMPLATE"
+
+# Features
+
+features:
+  # True to hide the CPU setting in the dialogs
+  hide_cpu: true
+
+  # False to not scale the CPU.
+  # An integer value would be used as a multiplier as follows:
+  #     CPU = cpu_factor * VCPU
+  # Set it to 1 to tie CPU and vCPU.
+  cpu_factor: 1
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: false
+  import_dialog: false
+  update_dialog: false
+  instantiate_dialog: true
+  create_app_dialog: false # reference to create_dialog in marketplace-app-tab.yaml
+  clone: false
+  delete: false
+  chown: false
+  chgrp: false
+  lock: false
+  unlock: false
+  share: false
+  unshare: false
+  edit_labels: false
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  owner: true
+  group: true
+  locked: true
+  vrouter: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: false
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: false
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: false
+        chgrp: false
+
+  template:
+    enabled: true
+
+# Dialogs
+
+dialogs:
+  instantiate_dialog:
+    information: true
+    ownership: true
+    capacity: true
+    vm_group: true
+    vcenter:
+      enabled: true
+      not_on:
+        - kvm
+        - lxc
+        - firecracker
+    network: true
+    storage: true
+    placement: true
+    sched_action: true
+    booting: true
+  create_dialog:
+    ownership: true
+    capacity: true
+    showback: true
+    vm_group: true
+    vcenter:
+      enabled: true
+      not_on:
+        - kvm
+        - lxc
+        - firecracker
+    network: true
+    storage: true
+    placement: true
+    input_output: true
+    sched_action: true
+    context: true
+    booting: true
+    numa:
+      enabled: true
+      not_on:
+        - lxc
+    backup: true

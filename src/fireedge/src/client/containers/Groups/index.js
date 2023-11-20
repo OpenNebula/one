@@ -33,6 +33,8 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T, Group } from 'client/constants'
 
+import GroupActions from 'client/components/Tables/Groups/actions'
+
 /**
  * Displays a list of Groups with a split pane between the list and selected row(s).
  *
@@ -44,6 +46,8 @@ function Groups() {
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
 
+  const actions = GroupActions()
+
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
@@ -51,6 +55,7 @@ function Groups() {
           <GroupsTable
             onSelectedRowsChange={onSelectedRowsChange}
             useUpdateMutation={useUpdateGroupMutation}
+            globalActions={actions}
           />
 
           {hasSelectedRows && (

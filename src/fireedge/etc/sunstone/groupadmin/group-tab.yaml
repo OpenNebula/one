@@ -1,0 +1,55 @@
+---
+# This file describes the information and actions available in the GROUP tab
+
+# Resource
+
+resource_name: "GROUP"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  update_dialog: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+
+  user:
+    enabled: true
+    actions:
+      edit_admins: true
+
+  quota:
+    enabled: true
+    actions:
+      quotas_dialog: false
+
+  accounting:
+    enabled: true
+    actions:
+      get_accounting: true
+
+  showback:
+    enabled: true
+    actions:
+      get_showback: true

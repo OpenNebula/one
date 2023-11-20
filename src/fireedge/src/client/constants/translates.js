@@ -1323,6 +1323,7 @@ module.exports = {
 
   /* Marketplace App schema */
   /* Marketplace App - general */
+  MarketplaceApp: 'Marketplace app',
   RegisteredAt: 'Registered %s',
   LastBackupTime: 'Last Backup Time: %s',
   LastBackupTimeInfo: 'Last Backup Time',
@@ -1486,4 +1487,69 @@ module.exports = {
   'validation.array.min': 'Must have at least %s item(s) to act as a default',
   'validation.array.max': 'Must have less than or equal to %s item(s)',
   'validation.array.length': 'Must have %s item(s)',
+
+  /* system - groups */
+  'groups.users.total': 'Total users: %1$s',
+  'groups.name': 'Group name',
+  'groups.adminUser.title': 'Create an administrator user',
+  'groups.views.title': 'Views',
+  'groups.general.info':
+    'New groups are automatically added to the default VDC',
+  'groups.system.defaultImagePersistentNew.title':
+    'Make new images persistent by default',
+  'groups.system.defaultImagePersistentNew.tooltip':
+    'Control the default value for the PERSISTENT attribute on image creation (oneimage create).',
+  'groups.system.defaultImagePersistent.title':
+    'Make save-as and clone images persistent by default',
+  'groups.system.defaultImagePersistent.tooltip':
+    'Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm disk-saveas). If blank images will inherit the persistent attribute from the base image.',
+  'groups.permissions.resources': 'More resources',
+  'groups.permissions.view.section': 'Permissions - View',
+  'groups.permissions.view.section.concept':
+    "This will create new ACL Rules to define which virtual resources this group's users will be able to view.",
+  'groups.permissions.view.check':
+    'Allow users to view the VMs and Services of other users in the same group',
+  'groups.permissions.view.check.concept':
+    'An ACL Rule will be created to give users in this group access to all the resources in the same group.',
+  'groups.permissions.create.section': 'Permissions - Create',
+  'groups.permissions.create.section.concept':
+    "This will create new ACL Rules to define which virtual resources this group's users will be able to create.",
+  'groups.permissions.create.documents': 'Documents',
+  'groups.permissions.create.documents.concept':
+    'Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.',
+  'groups.permissions.help.title': 'Permissions of a group',
+  'groups.permissions.help.paragraph.1':
+    'Select the permissions that the users who belong to the group will have.',
+  'groups.permissions.help.paragraph.2':
+    'On "Permissions - Create" select if the users could or not create the resources that are select.',
+  'groups.permissions.help.paragraph.3':
+    'On "Permissions - View" select if the users could or not view resources that other users of the group have created.',
+  'groups.permissions.help.paragraph.link':
+    'See Open Nebula documentation to get more details about groups and permissions.',
+  'groups.views.group.section': 'Views - Groups',
+  'groups.views.group.tooltip':
+    'Select the default view and the views that any user on the group could use',
+  'groups.views.admin.section': 'Views - Admin',
+  'groups.views.admin.tooltip':
+    'Select the default view and the views that only the admin users of the group could use',
+  'groups.views.default': 'Default view',
+  'groups.views.help.title': 'Views of a group',
+  'groups.views.help.paragraph.1':
+    'Select the views that the users who belong to the group will have.',
+  'groups.views.help.paragraph.2':
+    'On "Views - Groups" select the views and the default view for a regular user of the group.',
+  'groups.views.help.paragraph.3':
+    'On "Views - Admin" select the views and the default view for an admin user of the group.',
+  'groups.views.help.paragraph.link':
+    'See Open Nebula documentation to get more details about views on Fireedge Sunstone.',
+  'groups.actions.edit.admins': 'Edit administrators',
+  'groups.actions.edit.admins.form': 'Select the administrators',
+  'groups.actions.edit.admins.success': 'Administrators updated',
+
+  /* Showback */
+  'showback.title': 'Showback',
+  'showback.button.getShowback': 'Get showback',
+  'showback.button.calculateShowback': 'Calculate showback',
+  'showback.button.help.paragraph.1':
+    'Generate showback data to the interval selected in start and end date. After generate the showback data, you can access to the reports on the user or group Showback details. ',
 }

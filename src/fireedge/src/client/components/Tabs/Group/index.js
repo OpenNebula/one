@@ -24,10 +24,18 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Group/Info'
+import Users from 'client/components/Tabs/Group/Users'
+import generateQuotasInfoTab from 'client/components/Tabs//Quota'
+import generateAccountingInfoTab from 'client/components/Tabs/Accounting'
+import generateShowbackInfoTab from 'client/components/Tabs/Showback'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    user: Users,
+    quota: generateQuotasInfoTab({ groups: true }),
+    accounting: generateAccountingInfoTab({ groups: true }),
+    showback: generateShowbackInfoTab({ groups: true }),
   }[tabName])
 
 const GroupTabs = memo(({ id }) => {

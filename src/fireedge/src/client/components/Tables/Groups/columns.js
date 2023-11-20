@@ -26,4 +26,8 @@ export default [
     accessor: (row) => getTotalOfResources(row?.USERS),
     sortType: 'number',
   },
+  { Header: 'VM quota', accessor: 'VM_QUOTA' },
+  { Header: 'Datastore quota', accessor: 'DATASTORE_QUOTA' },
+  { Header: 'Network quota', accessor: 'NETWORK_QUOTA' },
+  { Header: 'Image quota', accessor: 'IMAGE_QUOTA' },
 ]

@@ -15,33 +15,11 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { Group } from 'iconoir-react'
-import { Typography } from '@mui/material'
-import { rowStyles } from 'client/components/Tables/styles'
+import { GroupCard } from 'client/components/Cards'
 
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, TOTAL_USERS } = value
-
-  return (
-    <div {...props} data-cy={`group-${ID}`}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Total Users: ${TOTAL_USERS}`}>
-            <Group />
-            <span>{` ${TOTAL_USERS}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
+const Row = ({ original, value, ...props }) => (
+  <GroupCard rootProps={props} group={value} />
+)
 
 Row.propTypes = {
   original: PropTypes.object,

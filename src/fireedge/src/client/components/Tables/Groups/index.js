@@ -14,13 +14,12 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useMemo, Component } from 'react'
-import { Chip, Box, Grid, Typography } from '@mui/material'
 import { useViews } from 'client/features/Auth'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
-import { RESOURCE_NAMES, T } from 'client/constants'
+import { RESOURCE_NAMES } from 'client/constants'
 
 const DEFAULT_DATA_CY = 'groups'
 
@@ -31,7 +30,6 @@ const DEFAULT_DATA_CY = 'groups'
  * @param {object} [props.rootProps={}] - Root properties for the table.
  * @param {object} [props.searchProps={}] - Search properties for the table.
  * @param {Array} props.vdcGroups - Array of VDC groups.
- * @param {string|number} props.primaryGroup - ID of the primary group.
  * @param {Array<string|number>} [props.secondaryGroups=[]] - Array of IDs of the secondary groups.
  * @param {object} props.rest - Rest of the properties.
  * @returns {Component} Rendered component.
@@ -41,8 +39,6 @@ const GroupsTable = (props) => {
     rootProps = {},
     searchProps = {},
     vdcGroups,
-    primaryGroup,
-    secondaryGroups = [],
     singleSelect = false,
     ...rest
   } = props ?? {}
@@ -52,23 +48,6 @@ const GroupsTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useGetGroupsQuery()
-
-  const primaryGroupName = useMemo(() => {
-    const primary = data.find(
-      (group) =>
-        group.ID === primaryGroup || String(group.ID) === String(primaryGroup)
-    )
-
-    return primary?.NAME
-  }, [data, primaryGroup])
-
-  const secondaryGroupNames = useMemo(() => {
-    const foundGroups = data.filter((group) =>
-      secondaryGroups.includes(String(group.ID))
-    )
-
-    return foundGroups.map((group) => group.NAME)
-  }, [data, secondaryGroups])
 
   const columns = useMemo(
     () =>
@@ -80,63 +59,18 @@ const GroupsTable = (props) => {
   )
 
   return (
-    <div>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12}>
-          <Typography variant="h7">{T.Primary}</Typography>
-        </Grid>
-
-        {primaryGroupName && (
-          <Grid item>
-            <Chip
-              data-cy="primary-group"
-              label={
-                <Typography variant="subtitle2" component="span">
-                  {primaryGroupName}
-                </Typography>
-              }
-              color="primary"
-            />
-          </Grid>
-        )}
-
-        {secondaryGroupNames.length > 0 && (
-          <Grid item xs={12}>
-            <Typography variant="body2">{T.Secondary}</Typography>
-          </Grid>
-        )}
-
-        {secondaryGroupNames.length > 0 &&
-          secondaryGroupNames.map((name, index) => (
-            <Grid item key={index}>
-              <Chip
-                data-cy={`secondary-group-${+index}`}
-                label={
-                  <Typography variant="body2" component="span">
-                    {name}
-                  </Typography>
-                }
-                color="secondary"
-              />
-            </Grid>
-          ))}
-      </Grid>
-
-      <Box mt={2}>
-        <EnhancedTable
-          columns={columns}
-          data={data}
-          rootProps={rootProps}
-          searchProps={searchProps}
-          refetch={refetch}
-          isLoading={isFetching}
-          getRowId={(row) => String(row.ID)}
-          RowComponent={GroupRow}
-          singleSelect={singleSelect}
-          {...rest}
-        />
-      </Box>
-    </div>
+    <EnhancedTable
+      columns={columns}
+      data={data}
+      rootProps={rootProps}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.ID)}
+      RowComponent={GroupRow}
+      singleSelect={singleSelect}
+      {...rest}
+    />
   )
 }
 

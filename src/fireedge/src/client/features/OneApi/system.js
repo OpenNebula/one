@@ -72,10 +72,14 @@ const systemApi = oneApi.injectEndpoints({
       },
       async onQueryStarted(_, { dispatch, getState, queryFulfilled }) {
         try {
-          const { data: views = {} } = await queryFulfilled
+          const { data: { defaultView, views = {} } = {} } =
+            await queryFulfilled
 
           const currentView = getState().auth?.view
-          !currentView && dispatch(actions.changeView(Object.keys(views)[0]))
+
+          // Set to default view if exists
+          !currentView &&
+            dispatch(actions.changeView(defaultView || Object.keys(views)[0]))
         } catch {}
       },
       providesTags: [{ type: SYSTEM, id: 'sunstone-views' }],
@@ -97,6 +101,22 @@ const systemApi = oneApi.injectEndpoints({
       providesTags: [{ type: SYSTEM, id: 'sunstone-config' }],
       keepUnusedDataFor: 600,
     }),
+    getSunstoneAvalaibleViews: builder.query({
+      /**
+       * Returns the Sunstone avalaible views.
+       *
+       * @returns {object} The avalaible views
+       * @throws Fails when response isn't code 200
+       */
+      query: () => {
+        const name = SunstoneActions.SUNSTONE_AVAILABLE_VIEWS
+        const command = { name, ...SunstoneCommands[name] }
+
+        return { command }
+      },
+      providesTags: [{ type: SYSTEM, id: 'sunstone-avalaibles-views' }],
+      keepUnusedDataFor: 600,
+    }),
   }),
 })
 
@@ -110,6 +130,7 @@ export const {
   useLazyGetSunstoneConfigQuery,
   useGetSunstoneViewsQuery,
   useLazyGetSunstoneViewsQuery,
+  useGetSunstoneAvalaibleViewsQuery,
 } = systemApi
 
 export default systemApi

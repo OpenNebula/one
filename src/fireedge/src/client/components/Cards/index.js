@@ -41,6 +41,7 @@ import ServiceTemplateCard from 'client/components/Cards/ServiceTemplateCard'
 import SnapshotCard from 'client/components/Cards/SnapshotCard'
 import TierCard from 'client/components/Cards/TierCard'
 import UserCard from 'client/components/Cards/UserCard'
+import GroupCard from 'client/components/Cards/GroupCard'
 import VirtualDataCenterCard from 'client/components/Cards/VirtualDataCenterCard'
 import VmGroupCard from 'client/components/Cards/VmGroupCard'
 import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
@@ -76,6 +77,7 @@ export {
   SnapshotCard,
   TierCard,
   UserCard,
+  GroupCard,
   VirtualDataCenterCard,
   VmGroupCard,
   VirtualMachineCard,

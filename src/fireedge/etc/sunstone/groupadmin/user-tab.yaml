@@ -1,0 +1,70 @@
+---
+# This file describes the information and actions available in the USER tab
+
+# Resource
+
+resource_name: "USER"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  chgrp: true
+  delete: true
+  enable: true
+  disable: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  state: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+
+  group:
+    enabled: true
+    actions:
+      chgrp: true
+
+  quota:
+    enabled: true
+    actions:
+      quotas_dialog: true
+
+  accounting:
+    enabled: true
+    actions:
+      get_accounting: true
+
+  showback:
+    enabled: true
+    actions:
+      get_showback: true
+
+  authentication:
+    enabled: true
+    actions:
+      change_authentication: true
+      update_password: true
+      login_token: true
+      two_factor_auth: true
+      public_ssh_key: true
+      private_ssh_key: true
+      private_ssh_key_passphrase: true
