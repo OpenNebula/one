@@ -41,6 +41,7 @@ define(function(require) {
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
   var RESOURCE = "create_backupjob";
+  var INCREMENT = 'INCREMENT'
 
   /*
     CONSTRUCTOR
@@ -111,12 +112,23 @@ define(function(require) {
 
     this.vmsTable.refreshResourceTableSelect();
     this.datastoresTable.refreshResourceTableSelect();
+
+    dialog.on('change', '#mode', function(e) {
+      var value = $(this).val()
+      var parent = $("#increment_mode").parent().closest('div')
+      if(value === INCREMENT && parent.hasClass("hide")){
+        parent.removeClass("hide")
+      }else{
+        parent.addClass("hide")
+      }
+    });
   }
 
   // Set up the create datastore dialog
   function _setup(context) {
     var that = this;
     Tips.setup(context);
+
     that.vmsTable.initialize({
       externalClick: function(){
         var itemsSelected = that.vmsTable.retrieveResourceTableSelect()
@@ -144,6 +156,7 @@ define(function(require) {
       var fsFreeze = $("#fsFreeze", context).val();
       var keepLast = $("#keepLast",context).val();
       var mode = $("#mode",context).val()
+      var increment_mode = $("#increment_mode", context).val()
       var backupVolatile = $("#backupVolatile",context).val()
       var selectedVmsList = $("#vmsOrdered", context).val();
       var selectedDatastoresList = that.datastoresTable.retrieveResourceTableSelect();
@@ -162,6 +175,11 @@ define(function(require) {
           SCHED_ACTION: schedule
         }
       }
+
+      if(mode === INCREMENT && increment_mode){
+        backupJob.backupjob.INCREMENT_MODE = increment_mode
+      }
+
       Sunstone.runAction("BackupJob.create", backupJob);
     }
     return false;

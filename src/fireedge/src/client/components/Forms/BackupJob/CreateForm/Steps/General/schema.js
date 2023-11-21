@@ -14,11 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
+  BACKUP_INCREMENT_MODE_OPTIONS,
   BACKUP_MODE_OPTIONS,
+  EXECUTION_OPTIONS,
   FS_FREEZE_OPTIONS,
   INPUT_TYPES,
   T,
 } from 'client/constants'
+import { useSystemData } from 'client/features/Auth'
 
 import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
 import { ObjectSchema, boolean, number, object, string } from 'yup'
@@ -34,12 +37,32 @@ const NAME = {
 const PRIORITY = {
   name: 'PRIORITY',
   label: T.Priority,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
+  type: INPUT_TYPES.SLIDER,
+  fieldProps: () => {
+    const { adminGroup } = useSystemData()
+
+    const defaultFieldProps = { min: 1, max: 50 }
+    adminGroup && (defaultFieldProps.max = 100)
+
+    return defaultFieldProps
+  },
+  grid: { xs: 12, md: 6 },
   validation: number()
     .positive()
     .required()
     .default(() => 1),
+}
+
+const EXECUTION = {
+  name: 'EXECUTION',
+  label: T.Execution,
+  type: INPUT_TYPES.SELECT,
+  values: arrayToOptions(Object.keys(EXECUTION_OPTIONS), {
+    getText: (type) => type,
+    getValue: (type) => EXECUTION_OPTIONS[type],
+  }),
+  validation: string().trim(),
+  grid: { xs: 12, md: 6 },
 }
 
 const FS_FREEZE = {
@@ -67,11 +90,28 @@ const MODE = {
   grid: { xs: 12, md: 6 },
 }
 
+const INCREMENT_MODE = {
+  name: 'INCREMENT_MODE',
+  label: T.IncrementMode,
+  type: INPUT_TYPES.SELECT,
+  dependOf: MODE.name,
+  htmlType: (mode) =>
+    mode !== BACKUP_MODE_OPTIONS[T.Increment] && INPUT_TYPES.HIDDEN,
+  values: arrayToOptions(Object.keys(BACKUP_INCREMENT_MODE_OPTIONS), {
+    addEmpty: true,
+    getText: (type) => type,
+    getValue: (type) => BACKUP_INCREMENT_MODE_OPTIONS[type],
+  }),
+  validation: string().trim(),
+  grid: { xs: 12, md: 6 },
+}
+
 const KEEP_LAST = {
   name: 'KEEP_LAST',
   label: T.KeepLast,
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
+  fieldProps: { min: 1 },
   validation: number()
     .positive()
     .required()
@@ -81,7 +121,7 @@ const KEEP_LAST = {
 /** @type {Field} Persistent field */
 export const BACKUP_VOLATILE = {
   name: 'BACKUP_VOLATILE',
-  label: T.MakePersistent,
+  label: T.BackupVolatile,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
   grid: { xs: 12, md: 6 },
@@ -93,8 +133,10 @@ export const BACKUP_VOLATILE = {
 export const FIELDS = [
   NAME,
   PRIORITY,
+  EXECUTION,
   FS_FREEZE,
   MODE,
+  INCREMENT_MODE,
   KEEP_LAST,
   BACKUP_VOLATILE,
 ]

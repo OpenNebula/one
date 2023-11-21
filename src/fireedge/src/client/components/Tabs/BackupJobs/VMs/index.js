@@ -40,7 +40,6 @@ import { T } from 'client/constants'
 import {
   useGetBackupJobQuery,
   useLazyGetBackupJobQuery,
-  useRetryBackupJobMutation,
 } from 'client/features/OneApi/backupjobs'
 import PropTypes from 'prop-types'
 
@@ -110,39 +109,12 @@ const states = {
   },
 }
 
-const AlertVmsErrors = ({
-  vmsErrors,
-  message = '',
-  id,
-  vmsOutdated,
-  state,
-}) => {
+const AlertVmsErrors = ({ id, vmsOutdated, state }) => {
   const [get, { isFetching }] = useLazyGetBackupJobQuery()
-  const [retry] = useRetryBackupJobMutation()
   const classes = useStyles()
-
-  const handleRetry = () => retry({ id })
 
   return (
     <>
-      <Fade in={!!vmsErrors?.ID && state === stateError} unmountOnExit>
-        <Alert
-          variant="outlined"
-          severity="error"
-          sx={{ gridColumn: 'span 2' }}
-          className={classes.alert}
-          action={
-            <SubmitButton
-              className={classes.submit}
-              onClick={handleRetry}
-              icon={<Translate word={T.Retry} />}
-              tooltip={<Translate word={T.Retry} />}
-            />
-          }
-        >
-          {message}
-        </Alert>
-      </Fade>
       <Fade in={!!vmsOutdated?.ID && state === stateError} unmountOnExit>
         <Alert
           variant="outlined"
@@ -186,7 +158,7 @@ const VmsInfoTab = ({ id }) => {
   }
 
   const { data: backupJobData } = useGetBackupJobQuery({ id })
-  const { TEMPLATE, ERROR_VMS, OUTDATED_VMS, ID } = backupJobData
+  const { TEMPLATE, OUTDATED_VMS = {}, ID } = backupJobData
 
   const handleChangeState = (evt) => setState(evt.target.value)
 
@@ -239,13 +211,7 @@ const VmsInfoTab = ({ id }) => {
             <AttachVms id={ID} template={TEMPLATE} />
           </ListItem>
           <ListItem className={classes.stretch}>
-            <AlertVmsErrors
-              vmsErrors={ERROR_VMS}
-              vmsOutdated={OUTDATED_VMS}
-              message={TEMPLATE?.ERROR}
-              id={ID}
-              state={state}
-            />
+            <AlertVmsErrors vmsOutdated={OUTDATED_VMS} id={ID} state={state} />
             <VmsTable
               disableRowSelect
               disableGlobalSort
@@ -264,7 +230,7 @@ AlertVmsErrors.propTypes = {
   vmsErrors: PropTypes.object,
   message: PropTypes.string,
   id: PropTypes.string,
-  vmsOutdated: PropTypes.object,
+  vmsOutdated: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   state: PropTypes.string,
 }
 

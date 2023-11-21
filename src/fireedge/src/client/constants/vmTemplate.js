@@ -137,10 +137,22 @@ export const FS_FREEZE_OPTIONS = {
   [T.Suspend]: 'SUSPEND',
 }
 
+/** @enum {string} Excution options type */
+export const EXECUTION_OPTIONS = {
+  [T.Sequential]: 'SEQUENTIAL',
+  [T.Parallel]: 'PARALLEL',
+}
+
 /** @enum {string} Backup mode options type */
 export const BACKUP_MODE_OPTIONS = {
   [T.Full]: 'FULL',
   [T.Increment]: 'INCREMENT',
+}
+
+/** @enum {string} Backup increment mode options type */
+export const BACKUP_INCREMENT_MODE_OPTIONS = {
+  [T.Cbt]: 'CBT',
+  [T.Snapshot]: 'SNAPSHOT',
 }
 
 /** @enum {string} NIC Hardware options */

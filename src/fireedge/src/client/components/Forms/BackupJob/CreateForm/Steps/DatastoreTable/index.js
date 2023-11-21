@@ -19,7 +19,7 @@ import { useFormContext } from 'react-hook-form'
 import { SCHEMA } from 'client/components/Forms/BackupJob/CreateForm/Steps/DatastoreTable/schema'
 import { DatastoresTable } from 'client/components/Tables'
 
-import { T } from 'client/constants'
+import { DATASTORE_TYPES, T } from 'client/constants'
 import { Step } from 'client/utils'
 
 export const STEP_ID = 'datastores'
@@ -43,6 +43,12 @@ const Content = ({ data }) => {
       initialState={{
         selectedRowIds: { [NAME]: true },
       }}
+      filter={(dataToFilter) =>
+        dataToFilter.filter(
+          (datastore) =>
+            datastore?.TEMPLATE?.TYPE === DATASTORE_TYPES.BACKUP.value
+        )
+      }
       onSelectedRowsChange={handleSelectedRows}
     />
   )

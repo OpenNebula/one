@@ -78,7 +78,7 @@ export const BACKUP_VMS = {
 }
 
 /** @type {Field[]} List of fields */
-export const FIELDS = [VMS, BACKUP_VMS]
+export const FIELDS = [BACKUP_VMS, VMS]
 
 /** @type {ObjectSchema} Schema */
 export const SCHEMA = object(getValidationFromFields(FIELDS))

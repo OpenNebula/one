@@ -44,9 +44,17 @@
         <option value="INCREMENT">{{tr "Increment"}}</option>
       </select>
     </div>
+    <div class="medium-12 columns hide">
+      <label for="increment_mode" >{{tr "Increment Mode"}}</label>
+      <select id="increment_mode" name="increment_mode">
+        <option value="">{{tr "-"}}</option>
+        <option value="CBT">{{tr "CBT"}}</option>
+        <option value="SNAPSHOT">{{tr "Snapshot"}}</option>
+      </select>
+    </div>
     <div class="medium-6 columns">
       <label for="keepLast" >{{tr "Keep Last"}}</label>
-      <input type="number" name="keepLast" id="keepLast"/>
+      <input type="number" name="keepLast" id="keepLast" min="0"/>
     </div>
     <div class="medium-6 columns">
       <label for="backupVolatile" >{{tr "Backup Volatile"}}</label>

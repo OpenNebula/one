@@ -450,7 +450,10 @@ const END_TYPE_FIELD = {
 /** @type {Field} End value field */
 const END_VALUE_FIELD = {
   name: 'END_VALUE',
-  label: T.WhenYouWantThatTheActionFinishes,
+  label: ([_, endType] = []) =>
+    endType === END_TYPE_VALUES.REPETITION
+      ? T.NumberOfRepetitions
+      : T.WhenDoYouWantThisActionToStop,
   dependOf: [PERIODIC_FIELD_NAME, END_TYPE_FIELD.name],
   type: ([typeAction, endType] = []) =>
     typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
