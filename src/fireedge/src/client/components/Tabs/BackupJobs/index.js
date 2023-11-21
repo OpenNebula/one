@@ -13,19 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, LinearProgress } from '@mui/material'
+import { Alert, Fade, LinearProgress } from '@mui/material'
+import { SubmitButton } from 'client/components/FormControl'
+import { Translate } from 'client/components/HOC'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import {
+  useGetBackupJobQuery,
+  useRetryBackupJobMutation,
+} from 'client/features/OneApi/backupjobs'
+import { getAvailableInfoTabs } from 'client/models/Helper'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
-import { RESOURCE_NAMES } from 'client/constants'
-import { useViews } from 'client/features/Auth'
-import { useGetBackupJobQuery } from 'client/features/OneApi/backupjobs'
-import { getAvailableInfoTabs } from 'client/models/Helper'
-
+import makeStyles from '@mui/styles/makeStyles'
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/BackupJobs/Info'
 import SchedActions from 'client/components/Tabs/BackupJobs/SchedActions'
 import VMs from 'client/components/Tabs/BackupJobs/VMs'
+
+const useStyles = makeStyles(({ palette, typography }) => ({
+  alert: {
+    '&': {
+      margin: '15px 0',
+      backgroundColor: palette.background.paper,
+    },
+  },
+  submit: {
+    fontSize: '1em',
+  },
+}))
 
 const getTabComponent = (tabName) =>
   ({
@@ -35,8 +52,14 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const BackupJobTabs = memo(({ id }) => {
+  const classes = useStyles()
   const { view, getResourceView } = useViews()
-  const { isError, error, status, data } = useGetBackupJobQuery({ id })
+  const { isError, error, status, data = {} } = useGetBackupJobQuery({ id })
+  const { TEMPLATE, ERROR_VMS = {} } = data
+
+  const [retry] = useRetryBackupJobMutation()
+
+  const handleRetry = () => retry({ id })
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.BACKUPJOBS
@@ -54,7 +77,29 @@ const BackupJobTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
-    return <Tabs addBorder tabs={tabsAvailable ?? []} />
+    return (
+      <>
+        <Fade in={!!ERROR_VMS?.ID} unmountOnExit>
+          <Alert
+            variant="outlined"
+            severity="error"
+            className={classes.alert}
+            sx={{ gridColumn: 'span 2' }}
+            action={
+              <SubmitButton
+                className={classes.submit}
+                onClick={handleRetry}
+                icon={<Translate word={T.Retry} />}
+                tooltip={<Translate word={T.Retry} />}
+              />
+            }
+          >
+            {TEMPLATE?.ERROR || ''}
+          </Alert>
+        </Fade>
+        <Tabs addBorder tabs={tabsAvailable ?? []} />
+      </>
+    )
   }
 
   return <LinearProgress color="secondary" sx={{ width: '100%' }} />

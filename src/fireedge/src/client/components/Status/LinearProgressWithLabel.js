@@ -29,7 +29,8 @@ import {
 
 import { StatusCircle } from 'client/components/Status'
 
-import { SCHEMES } from 'client/constants'
+import { Tr } from 'client/components/HOC'
+import { SCHEMES, T } from 'client/constants'
 
 const getRangeColor = ({ value, high, low, palette }) => {
   if (low > value) return palette.success.main
@@ -96,21 +97,21 @@ const LinearProgressWithLabel = memo(
               <StyledChip
                 colorSvg="success"
                 icon={<StatusCircle />}
-                label={`< ${low}%`}
+                label={Tr(T.Low)}
               />
             </Grid>
             <Grid item xs={12}>
               <StyledChip
                 colorSvg="warning"
                 icon={<StatusCircle />}
-                label={`> ${low}% and < ${high}%`}
+                label={Tr(T.Medium)}
               />
             </Grid>
             <Grid item xs={12}>
               <StyledChip
                 colorSvg="error"
                 icon={<StatusCircle />}
-                label={`> ${high}%`}
+                label={Tr(T.High)}
               />
             </Grid>
           </Grid>

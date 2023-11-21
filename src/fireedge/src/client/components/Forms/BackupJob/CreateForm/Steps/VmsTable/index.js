@@ -13,57 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
-
-import { SCHEMA } from 'client/components/Forms/BackupJob/CreateForm/Steps/VmsTable/schema'
-import { VmsTable } from 'client/components/Tables'
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
 import { T } from 'client/constants'
-import { Step } from 'client/utils'
+import { FIELDS, SCHEMA } from '../../../AddVmsForm/schema'
 
 export const STEP_ID = 'vms'
 
-const Content = ({ data }) => {
-  const { NAME } = data?.[0] ?? {}
-  const { setValue } = useFormContext()
-
-  const handleSelectedRows = (rows) => {
-    const dataRows = rows?.map?.(({ original }) => original)
-    setValue(STEP_ID, dataRows)
-  }
-
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      pageSize={5}
-      getRowId={(row) => String(row.NAME)}
-      initialState={{
-        selectedRowIds: { [NAME]: true },
-      }}
-      onSelectedRowsChange={handleSelectedRows}
-    />
-  )
-}
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
 
 /**
- * Step to select the Vms.
+ * General configuration about VM Template.
  *
- * @param {object} app - BackupJob App resource
- * @returns {Step} Vms step
+ * @returns {object} General configuration step
  */
-const VmsStep = (app) => ({
+const VmsStep = () => ({
   id: STEP_ID,
   label: T.SelectVms,
   resolver: SCHEMA,
-  content: (props) => Content({ ...props, app }),
+  optionsValidate: { abortEarly: false },
+  content: Content,
 })
-
-Content.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  app: PropTypes.object,
-}
 
 export default VmsStep

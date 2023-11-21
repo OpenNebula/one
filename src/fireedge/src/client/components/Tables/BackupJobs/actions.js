@@ -27,7 +27,13 @@ import {
   useStartBackupJobMutation,
   useUnlockBackupJobMutation,
 } from 'client/features/OneApi/backupjobs'
-import { AddCircledOutline, Group, Lock, Trash } from 'iconoir-react'
+import {
+  AddCircledOutline,
+  Group,
+  Lock,
+  PlayOutline,
+  Trash,
+} from 'iconoir-react'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
 import {
@@ -102,15 +108,15 @@ const Actions = () => {
           },
           {
             accessor: BACKUPJOB_ACTIONS.START,
-            label: T.Start,
+            dataCy: `backupjob_${BACKUPJOB_ACTIONS.START}`,
             tooltip: T.Start,
             selected: true,
-            color: 'secondary',
+            icon: PlayOutline,
             options: [
               {
                 isConfirmDialog: true,
                 dialogProps: {
-                  title: T.Lock,
+                  title: T.Start,
                   dataCy: `modal-${BACKUPJOB_ACTIONS.START}`,
                   children: MessageToConfirmAction,
                 },

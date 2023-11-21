@@ -266,7 +266,8 @@ module.exports = {
   DaysBetween1_31: 'Days should be between 1 and 31',
   DaysBetween0_365: 'Days should be between 0 and 365',
   HoursBetween0_168: 'Hours should be between 0 and 168',
-  WhenYouWantThatTheActionFinishes: 'When you want that the action finishes',
+  WhenDoYouWantThisActionToStop: 'When do you want this action to stop?',
+  NumberOfRepetitions: 'Number of Repetitions',
 
   /* footer */
   MadeWith: 'Made with',
@@ -289,6 +290,9 @@ module.exports = {
   TakeMeToTheAppGui: 'Take me to the %s GUI',
 
   /* errors */
+  Low: 'Low',
+  Medium: 'Medium',
+  High: 'High',
   Error: 'Error',
   Outdated: 'Outdated',
   Updated: 'Updated',
@@ -447,6 +451,7 @@ module.exports = {
   Incremental: 'Incremental',
   Mode: 'Mode',
   ResetBackup: 'Reset',
+  IncrementMode: 'Increment Mode',
   IncrementId: 'Increment ID',
   RestoreBackup: 'Restore backup',
   BackupJobs: 'BackupJobs',
@@ -917,9 +922,13 @@ module.exports = {
     sort the suitable datastores for this VM`,
   /* VM Template schema - Backup */
   BackupVolatileDisksQuestion: 'Backup volatile disks?',
+  BackupVolatile: 'Backup volatile',
   FSFreeze: 'FS Freeze',
+  Execution: 'Execution',
   HowManyBackupsQuestion: 'How many backups do you want to keep?',
   QEMUAgent: 'QEMU Agent',
+  Sequential: 'Sequential',
+  Parallel: 'Parallel',
   FSFreezeConcept: `
     How the FS is freeze for running VMs. When
     possible backups are crash consistent`,
@@ -1385,6 +1394,7 @@ module.exports = {
   WriteValue: 'Write value',
   WriteMaximum: 'Write maximum',
   WriteMaximumLength: 'Write maximum length',
+  Cbt: 'CBT',
   SnapshotFrequency: 'Snapshot Frequency in seconds',
   IoThreadId: 'IOTHREAD id',
   IoThreadIdConcept: `

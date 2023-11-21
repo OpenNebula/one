@@ -24,14 +24,14 @@ const Steps = createSteps([General, Vms, Datastore, ScheduleActions], {
   transformBeforeSubmit: (formData) => {
     const {
       [GENERAL_ID]: general = {},
-      [VMS_ID]: vms = [],
+      [VMS_ID]: { BACKUP_VMS } = {},
       [DATASTORE_ID]: datastores = [],
       [SCHEDULE_ID]: scheduleactions = [],
     } = formData ?? {}
 
     const jsonTemplate = {
       ...general,
-      BACKUP_VMS: extractIDValues(vms),
+      BACKUP_VMS,
       DATASTORE_ID: extractIDValues(datastores),
     }
 
