@@ -69,7 +69,10 @@ $LOAD_PATH << EQUINIX_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'packet'
+require 'net/http'
+require 'uri'
+require 'json'
+require 'equinix'
 require 'base64'
 require 'nokogiri'
 require 'opennebula'
@@ -99,13 +102,12 @@ begin
 
     provider = provision.provider
     connect  = provider.body['connection']
-    pk_token = connect['token']
+
+    eq_token = connect['token']
 
     # --------------------------------------------------------------------------
     # Connect to Equinix and delete the IP
     # --------------------------------------------------------------------------
-    equinix            = Packet::Client.new
-    equinix.auth_token = pk_token
 
     equinix_id = data.xpath('//AR/EQUINIX_IP_ID').text.to_s
 
@@ -114,7 +116,13 @@ begin
         exit(-1)
     end
 
-    equinix.delete_ip(equinix_id)
+    eq = Equinix.new(eq_token)
+    resp = eq.api_call("/ips/#{equinix_id}", Net::HTTP::Delete)
+
+    unless resp.code == '204'
+        STDERR.puts "Equinix API failure, HTTP #{resp.code}, #{resp.message}, #{resp.body}"
+        exit(-1)
+    end
 rescue StandardError => e
     STDERR.puts e.to_s
     exit(-1)

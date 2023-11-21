@@ -110,7 +110,7 @@ class AWSProvider
 
         0
     rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{ip}:#{e.message}")
+        OpenNebula.log_error("Error assigning #{ip}:#{e.message}")
         1
     end
 
@@ -133,7 +133,7 @@ class AWSProvider
               :private_ip_addresses => [aws_ip.private_ip_address] }
         )
     rescue StandardError
-        OpenNebula.log_error("Error unassiging #{ip}:#{e.message}")
+        OpenNebula.log_error("Error unassigning #{ip}:#{e.message}")
     end
 
 end

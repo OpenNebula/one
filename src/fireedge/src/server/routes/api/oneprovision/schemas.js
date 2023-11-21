@@ -38,7 +38,7 @@ const provision = {
             packet_project: {
               type: 'string',
             },
-            facility: {
+            metro: {
               type: 'string',
             },
             plan: {
@@ -66,12 +66,12 @@ const provision = {
           },
           im_mad: {
             type: 'string',
-            enum: ['kvm', 'firecraker'],
+            enum: ['kvm', 'firecracker'],
             required: true,
           },
           vm_mad: {
             type: 'string',
-            enum: ['kvm', 'firecraker'],
+            enum: ['kvm', 'firecracker'],
             required: true,
           },
           provision: {

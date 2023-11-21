@@ -1,6 +1,6 @@
-name: 'equinix-silicon-valley'
+name: 'equinix-amsterdam'
 
-description: 'Provision cluster in Equinix, USA, CA'
+description: 'Provision cluster in Equinix Amsterdam'
 provider: 'equinix'
 
 plain:
@@ -9,7 +9,7 @@ plain:
 connection:
   token: 'Equinix token'
   project: 'Equinix project'
-  facility: 'sv15'
+  metro: 'am'
 
 inputs:
    - name: 'equinix_os'
@@ -22,7 +22,6 @@ inputs:
      default: 'c3.small'
      options:
        - 'c3.small'
-       - 'c2.medium'
        - 'c3.medium'
        - 's3.xlarge'
        - 'm2.xlarge'

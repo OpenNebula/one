@@ -51,46 +51,81 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << EQUINIX_LOCATION
 
-require 'packet'
+require 'net/http'
+require 'uri'
+require 'json'
+require 'equinix'
 
 # Class covering Equinix functionality for Elastic driver
 class EquinixProvider
 
     def initialize(provider, host)
-        connect = provider.body['connection']
-
-        @client = Packet::Client.new(connect['token'])
+        @eq_token  = provider.body['connection']['token']
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
     end
 
     def assign(_ip, external, _opts = {})
-        @client.assign_cidr_device("#{external}/32", @deploy_id)
-        0
-    rescue Packet::Error => e
-        # potential VM poweroff(itself) + resume
-        if e.message == '{"errors"=>["Address has already been taken"]}'
-            return 0
+        ip_req = { :manageable => true,
+                   :address => external }
+
+        eq = Equinix.new(@eq_token)
+
+        resp = eq.api_call("/devices/#{@deploy_id}/ips",
+                           Net::HTTP::Post,
+                           ip_req)
+
+        # HTTP 422 is returned if IP already assigned to the device
+        # e.g. VM poweroff from inside + onevm resume
+        unless resp.code == '201' || resp.code == '422'
+            STDERR.puts "Error assigning #{external}:#{resp.message}"
+            return 1
         end
 
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
-        1
+        return 0
     rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
+        OpenNebula.log_error("Error assigning #{external}:#{e.message}")
         1
     end
 
     def unassign(_ip, external, _opts = {})
-        dev = @client.get_device(@deploy_id)
+        eq = Equinix.new(@eq_token)
 
-        ip = dev.ip_addresses.select do |i|
-            i['address'] == external &&
-            i['cidr'] == 32 &&
-            i['address_family'] == 4
+        # find assignment id for external in device
+        resp = eq.api_call("/devices/#{@deploy_id}/ips")
+
+        unless resp.code == '200'
+            STDERR.puts "Error unassigning #{external}:#{resp.message}"
+            return 1
         end
 
-        @client.delete_ip(ip[0]['id'])
+        assignment_id = nil
+        JSON.parse(resp.body)['ip_addresses'].each do |ip|
+            if ip['address'] == external
+                assignment_id = ip['id']
+                break
+            end
+        end
+
+        unless assignment_id
+            STDERR.puts "Error unassigning #{external}:Can not find " <<
+                        "{external} ip in device #{@deploy_id}"
+            # although unexpected still harmless, consider OK
+            return 0
+        end
+
+        # unassign external ip
+        resp = eq.api_call("/ips/#{assignment_id}", Net::HTTP::Delete)
+
+        unless resp.code == '204'
+            STDERR.puts "Equinix API failure, HTTP #{resp.code}, " <<
+                        "#{resp.message}, #{resp.body}"
+            return 1
+        end
+
+        return 0
     rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
+        OpenNebula.log_error("Error unassigning #{external}:#{e.message}")
+        1
     end
 
     def activate(cmds, nic)

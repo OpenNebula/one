@@ -102,7 +102,10 @@ $LOAD_PATH << EQUINIX_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'packet'
+require 'net/http'
+require 'uri'
+require 'json'
+require 'equinix'
 require 'base64'
 require 'nokogiri'
 require 'opennebula'
@@ -168,9 +171,9 @@ begin
     provider = provision.provider
     connect  = provider.body['connection']
 
-    pk_token    = connect['token']
-    pk_project  = connect['project']
-    pk_facility = connect['facility']
+    eq_token    = connect['token']
+    eq_project  = connect['project']
+    eq_metro    = connect['metro']
 
     # --------------------------------------------------------------------------
     # Connect to Equinix and allocate a new IP
@@ -184,31 +187,36 @@ begin
     cidr = IPAddr.new(private_cidr)
     mask = 0x0FFFFFFFF >> cidr.prefix
 
-    equinix            = Packet::Client.new
-    equinix.auth_token = pk_token
+    ip_req = { 'type'     => data.xpath('//AR/EQUINIX_IP_TYPE').text,
+               'quantity' => data.xpath('//AR/SIZE').text.to_i,
+               'metro'    => eq_metro,
+               'fail_on_approval_required' =>  true }
 
-    ip = Packet::Ip.new
-    ip.project_id = pk_project
-    ip.facility   = pk_facility
-    ip.type       = data.xpath('//AR/EQUINIX_IP_TYPE').text
-    ip.quantity   = data.xpath('//AR/SIZE').text.to_i
-
-    if ip.quantity != 1
+    if ip_req['quantity'] != 1
         STDERR.puts 'Only address ranges of size 1 are supported'
         exit(-1)
     end
 
-    if ip.type.empty?
-        ip.type = IP_TYPE[0]
-    elsif !IP_TYPE.include?(ip.type)
-        STDERR.puts "Type #{ip.type} not supported. " \
+    if ip_req['type'].empty?
+        ip_req['type'] = IP_TYPE[0]
+    elsif !IP_TYPE.include?(ip_req['type'])
+        STDERR.puts "Type #{ip_req['type']} not supported. " \
                     "Must be: #{IP_TYPE.join(', ')}"
         exit(-1)
     end
 
-    equinix.create_ip(ip)
+    eq = Equinix.new(eq_token)
 
-    ipmd5 = Digest::MD5.hexdigest(ip.address.to_s).to_i(16) & mask
+    resp = eq.api_call("/projects/#{eq_project}/ips", Net::HTTP::Post, ip_req)
+
+    unless resp.code == '201'
+        STDERR.puts "Equinix API failure, HTTP #{resp.code}, #{resp.message}, #{resp.body}"
+        exit(-1)
+    end
+
+    addr, id = JSON.parse(resp.body).fetch_values('address', 'id')
+
+    ipmd5 = Digest::MD5.hexdigest(addr).to_i(16) & mask
     eip   = IPAddr.new(ipmd5, Socket::AF_INET)
 
     ipvm = (eip & mask) | cidr
@@ -218,12 +226,12 @@ begin
         AR = [
             TYPE     = "IP4",
             IP       = "#{ipvm}",
-            SIZE     = "#{ip.quantity}",
+            SIZE     = "#{ip_req['quantity']}",
             IPAM_MAD = "equinix",
             GATEWAY  = "#{ipgw}",
-            EXTERNAL_IP  = "#{ip.address}",
+            EXTERNAL_IP  = "#{addr}",
             NETWORK_MASK = "255.255.255.254",
-            EQUINIX_IP_ID = "#{ip.id}",
+            EQUINIX_IP_ID = "#{id}",
             PROVISION_ID = "#{provision_id}"
         ]
     EOF

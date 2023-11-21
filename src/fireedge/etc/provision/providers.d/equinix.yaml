@@ -1,5 +1,5 @@
 name: 'Equinix'
 image: 'EQUINIX'
 provision_type: 'metal'
-location_key: 'facility'
+location_key: 'metro'
 color: '#364562'

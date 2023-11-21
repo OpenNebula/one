@@ -1,7 +1,7 @@
-resource "packet_device" "device_<%= obj['ID'] %>" {
+resource "equinix_metal_device" "device_<%= obj['ID'] %>" {
     hostname         = "<%= provision['HOSTNAME'] %>"
     plan             = "<%= provision['PLAN'] %>"
-    facilities       = ["<%= provision['FACILITY'] %>"]
+    metro            = "<%= provision['METRO'] %>"
     operating_system = "<%= provision['OS'] %>"
     project_id       = "<%= provision['PROJECT']%>"
     billing_cycle    = "hourly"
@@ -10,10 +10,10 @@ resource "packet_device" "device_<%= obj['ID'] %>" {
 }
 
 output "device_<%= obj['ID'] %>_ip" {
-  value = packet_device.device_<%= obj['ID'] %>.network[0].address
+  value = equinix_metal_device.device_<%= obj['ID'] %>.network[0].address
 }
 
 output "device_<%= obj['ID'] %>_id" {
-  value = packet_device.device_<%= obj['ID'] %>.id
+  value = equinix_metal_device.device_<%= obj['ID'] %>.id
 }
 

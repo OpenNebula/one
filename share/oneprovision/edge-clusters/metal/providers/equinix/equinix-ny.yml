@@ -1,6 +1,6 @@
-name: 'equinix-amsterdam'
+name: 'equinix-new-york'
 
-description: 'Provision cluster in Equinix Amsterdam'
+description: 'Provision cluster in Equinix New York'
 provider: 'equinix'
 
 plain:
@@ -9,7 +9,7 @@ plain:
 connection:
   token: 'Equinix token'
   project: 'Equinix project'
-  facility: 'am6'
+  metro: 'ny'
 
 inputs:
    - name: 'equinix_os'
@@ -22,6 +22,7 @@ inputs:
      default: 'c3.small'
      options:
        - 'c3.small'
+       - 'c2.medium'
        - 'c3.medium'
        - 's3.xlarge'
        - 'm2.xlarge'
