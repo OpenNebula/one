@@ -15,7 +15,9 @@ User=oneadmin
 Environment="PATH=/usr/lib/one/sh/override:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 EnvironmentFile=-/var/run/one/ssh-agent.env
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula -s /var/lib/one/.logrotate.status
-ExecStartPre=-sh 'gzip -9 /var/log/one/oned.log-* /var/log/one/monitor.log-* /var/log/one/vcenter_monitor.log-* &'
+ExecStartPre=-/bin/sh -c 'for file in /var/log/one/oned*.log; do if [ ! -f "$file.gz" ]; then gzip -9 "$file"; fi; done'
+ExecStartPre=-/bin/sh -c 'for file in /var/log/one/monitor*.log; do if [ ! -f "$file.gz" ]; then gzip -9 "$file"; fi; done'
+ExecStartPre=-/bin/sh -c 'for file in /var/log/one/vcenter_monitor*.log; do if [ ! -f "$file.gz" ]; then gzip -9 "$file"; fi; done'
 ExecStartPre=/usr/share/one/pre_cleanup
 ExecStart=/usr/bin/oned -f
 ExecStopPost=/usr/share/one/follower_cleanup
