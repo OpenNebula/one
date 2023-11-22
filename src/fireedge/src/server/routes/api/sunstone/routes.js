@@ -21,10 +21,12 @@ const basepath = '/sunstone'
 
 const SUNSTONE_VIEWS = 'sunstone.views'
 const SUNSTONE_CONFIG = 'sunstone.config'
+const SUNSTONE_AVAILABLE_VIEWS = 'sunstone.availableViews'
 
 const Actions = {
   SUNSTONE_VIEWS,
   SUNSTONE_CONFIG,
+  SUNSTONE_AVAILABLE_VIEWS,
 }
 
 module.exports = {
@@ -37,6 +39,11 @@ module.exports = {
     },
     [SUNSTONE_CONFIG]: {
       path: `${basepath}/config`,
+      httpMethod: GET,
+      auth: true,
+    },
+    [SUNSTONE_AVAILABLE_VIEWS]: {
+      path: `${basepath}/views/available`,
       httpMethod: GET,
       auth: true,
     },

@@ -13,5 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export { MetricSelector } from 'client/components/Tabs/User/Accounting/components/MetricSelector'
-export { CustomizedChart } from 'client/components/Tabs/User/Accounting/components/CustomizedChart'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Group/CreateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const UpdateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Group/UpdateForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const EditAdminsForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Group/EditAdminsForm' }, configProps)
+
+export { CreateForm, UpdateForm, EditAdminsForm }

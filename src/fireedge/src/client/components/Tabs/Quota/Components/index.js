@@ -13,9 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export { getDefaultDateRange } from 'client/components/Tabs/User/Accounting/helpers/dateUtils'
-export {
-  transformWithComputedMetrics,
-  calculateDisplayMetrics,
-} from 'client/components/Tabs/User/Accounting/helpers/metrics'
-export { useAccountingData } from 'client/components/Tabs/User/Accounting/helpers/useAccountingData'
+export { QuotaControls } from 'client/components/Tabs/Quota/Components/QuotaControls'

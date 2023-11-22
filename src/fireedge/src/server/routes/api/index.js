@@ -44,6 +44,7 @@ const routes = [
   'oneflow',
   'vcenter',
   'vm',
+  'vmpool',
   'zendesk',
   'oneprovision',
   'sunstone',

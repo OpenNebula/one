@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -23,7 +23,7 @@ import {
   FormHelperText,
   Switch,
 } from '@mui/material'
-import { useController } from 'react-hook-form'
+import { useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
@@ -45,6 +45,8 @@ const SwitchController = memo(
     fieldProps = {},
     readOnly = false,
     onConditionChange,
+    watcher,
+    dependencies,
   }) => {
     const {
       field: { value = false, onChange },
@@ -61,6 +63,21 @@ const SwitchController = memo(
       },
       [onChange, onConditionChange]
     )
+
+    // Add watcher to know if the dependencies fields have changes
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
+
+    // Execute watcher function define on the field when dependenices fields have changes
+    useEffect(() => {
+      if (!watcher || !dependencies || !watch) return
+
+      const watcherValue = watcher(watch, name)
+      watcherValue !== undefined && onChange(watcherValue)
+    }, [watch, watcher, dependencies])
 
     return (
       <FormControl error={Boolean(error)} margin="dense">
@@ -103,6 +120,11 @@ SwitchController.propTypes = {
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
 }
 
 SwitchController.displayName = 'SwitchController'

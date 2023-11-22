@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { HYPERVISORS, UNITS, VN_DRIVERS } from 'client/constants'
+import {
+  HYPERVISORS,
+  UNITS,
+  VN_DRIVERS,
+  DOCS_BASE_PATH,
+} from 'client/constants'
 import { isMergeableObject } from 'client/utils/merge'
 import { Field } from 'client/utils/schema'
 import DOMPurify from 'dompurify'
@@ -518,4 +523,28 @@ export const extractIDValues = (arr = []) => {
     .map((obj) => obj.ID)
 
   return idValues.join(',')
+}
+
+/**
+ * Generate a link to the Open Nebula documentation using the first two digits of the version (e.g., 6.99.0 => 6.99).
+ *
+ * @param {string} version - Version of ONE
+ * @param {string} path - Path to documentation
+ * @returns {string} - Link to doc
+ */
+export const generateDocLink = (version, path) => {
+  // Split version
+  const splitVersion = version?.split('.')
+
+  // Version has to be something
+  if (!splitVersion || splitVersion.length === 0) return
+
+  // Create version with two first digits
+  const versionDoc =
+    splitVersion.length === 1
+      ? splitVersion[0]
+      : splitVersion[0] + '.' + splitVersion[1]
+
+  // Return link
+  return DOCS_BASE_PATH + '/' + versionDoc + '/' + path
 }

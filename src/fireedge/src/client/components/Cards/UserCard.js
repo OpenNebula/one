@@ -23,6 +23,7 @@ import {
   HardDrive,
   Network,
   BoxIso,
+  Wrench,
 } from 'iconoir-react'
 import { Typography, Grid, Box, Tooltip } from '@mui/material'
 
@@ -31,6 +32,9 @@ import {
   StatusCircle,
 } from 'client/components/Status'
 import { getState, getQuotaUsage } from 'client/models/User'
+
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * UserCard component to display user details and quota usage.
@@ -45,6 +49,7 @@ const UserCard = ({ user, rootProps }) => {
     ID,
     NAME,
     GNAME,
+    IS_ADMIN_GROUP,
     ENABLED,
     AUTH_DRIVER,
     VM_QUOTA,
@@ -89,6 +94,11 @@ const UserCard = ({ user, rootProps }) => {
           <Typography noWrap ml={1}>
             {NAME}
           </Typography>
+          {IS_ADMIN_GROUP && (
+            <Tooltip title={Tr(T.Admin)}>
+              <Wrench ml={1} />
+            </Tooltip>
+          )}
           {!+ENABLED && (
             <Tooltip title="Locked">
               <Lock ml={1} />
@@ -167,6 +177,7 @@ UserCard.propTypes = {
     ID: PropTypes.string.isRequired,
     NAME: PropTypes.string.isRequired,
     GNAME: PropTypes.string.isRequired,
+    IS_ADMIN_GROUP: PropTypes.bool,
     ENABLED: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
       .isRequired,
     AUTH_DRIVER: PropTypes.string.isRequired,

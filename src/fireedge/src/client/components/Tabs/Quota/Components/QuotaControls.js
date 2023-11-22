@@ -32,6 +32,11 @@ import {
   useUpdateUserQuotaMutation,
 } from 'client/features/OneApi/user'
 
+import {
+  useGetGroupQuery,
+  useUpdateGroupQuotaMutation,
+} from 'client/features/OneApi/group'
+
 import { useGeneralApi } from 'client/features/General'
 import { T } from 'client/constants'
 import {
@@ -42,12 +47,12 @@ import {
   getExistingValue,
   quotaIdentifiers,
   handleApplyGlobalQuotas,
-} from 'client/components/Tabs/User/Quota/Components/helpers/scripts'
+} from 'client/components/Tabs/Quota/Components/helpers/scripts'
 
 import {
   HybridInputField,
   ResourceIDAutocomplete,
-} from 'client/components/Tabs/User/Quota/Components/helpers/subcomponents'
+} from 'client/components/Tabs/Quota/Components/helpers/subcomponents'
 
 /**
  * QuotaControls Component
@@ -70,13 +75,18 @@ export const QuotaControls = memo(
     existingData,
     clickedElement,
     nameMaps,
+    groups,
   }) => {
     const [state, actions] = useQuotaControlReducer()
 
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null)
     const [touchedFields, setTouchedFields] = useState({})
     const { enqueueError, enqueueSuccess } = useGeneralApi()
-    const [updateUserQuota] = useUpdateUserQuotaMutation()
+
+    const [updateQuota] = groups
+      ? useUpdateGroupQuotaMutation()
+      : useUpdateUserQuotaMutation()
+
     const { palette } = useTheme()
 
     useEffect(() => {
@@ -183,7 +193,9 @@ export const QuotaControls = memo(
       }
     }, [state.globalIds, state.values])
 
-    const existingTemplate = useGetUserQuery({ id: userId })
+    const existingTemplate = groups
+      ? useGetGroupQuery({ id: userId })
+      : useGetUserQuery({ id: userId })
 
     const filteredResourceIDs = useMemo(
       () =>
@@ -303,7 +315,7 @@ export const QuotaControls = memo(
                   selectedType,
                   actions,
                   userId,
-                  updateUserQuota,
+                  updateQuota,
                   enqueueError,
                   enqueueSuccess,
                   nameMaps
@@ -373,6 +385,7 @@ QuotaControls.propTypes = {
   existingData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   clickedElement: PropTypes.object,
   nameMaps: PropTypes.object,
+  groups: PropTypes.bool,
 }
 
 QuotaControls.defaultProps = {

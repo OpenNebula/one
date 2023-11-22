@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
 export default [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
   { Header: 'Name', accessor: 'NAME' },
   { Header: 'Group', accessor: 'GNAME' },
+  { Header: 'GroupAdmin', accessor: 'IS_ADMIN_GROUP' },
   { Header: 'Enabled', accessor: 'ENABLED' },
   { Header: 'Auth driver', accessor: 'AUTH_DRIVER' },
   { Header: 'VM quota', accessor: 'VM_QUOTA' },

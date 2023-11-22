@@ -14,8 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useState, useEffect } from 'react'
-import { useGetAccountingPoolQuery } from 'client/features/OneApi/vm'
-import { transformWithComputedMetrics } from 'client/components/Tabs/User/Accounting/helpers'
+import { useLazyGetAccountingPoolFilteredQuery } from 'client/features/OneApi/vm'
+import { transformWithComputedMetrics } from 'client/components/Tabs/Accounting/helpers'
 
 const keyMap = {
   'VM.ID': 'ID',
@@ -39,10 +39,11 @@ const TIMEOUT = 8000 // 8 seconds
  * @param {number|string} id - The ID for which accounting data is to be fetched.
  * @returns {object} - Returns an object containing the processed data, loading state, and any error.
  */
-export const useAccountingData = ({ id }) => {
-  const { data: fetchedData } = useGetAccountingPoolQuery({
-    filter: id,
-  })
+export const useAccountingData = ({ user, group, id, start, end }) => {
+  // Create the hook to fetch data
+  const [refetch, { data: fetchedData }] =
+    useLazyGetAccountingPoolFilteredQuery()
+
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -82,5 +83,5 @@ export const useAccountingData = ({ id }) => {
     }
   }, [fetchedData])
 
-  return { data, isLoading, error }
+  return { data, isLoading, setIsLoading, error, refetch }
 }

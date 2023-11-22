@@ -223,6 +223,9 @@ const Groups = loadable(() => import('client/containers/Groups'), {
 const GroupDetail = loadable(() => import('client/containers/Groups/Detail'), {
   ssr: false,
 })
+const CreateGroup = loadable(() => import('client/containers/Groups/Create'), {
+  ssr: false,
+})
 
 const VDCs = loadable(() => import('client/containers/VDCs'), { ssr: false })
 
@@ -364,6 +367,7 @@ export const PATH = {
     GROUPS: {
       LIST: `/${RESOURCE_NAMES.GROUP}`,
       DETAIL: `/${RESOURCE_NAMES.GROUP}/:id`,
+      CREATE: `/${RESOURCE_NAMES.GROUP}/create`,
     },
     VDCS: {
       LIST: `/${RESOURCE_NAMES.VDC}`,
@@ -718,6 +722,11 @@ const ENDPOINTS = [
       },
       {
         title: T.Groups,
+        path: PATH.SYSTEM.GROUPS.CREATE,
+        Component: CreateGroup,
+      },
+      {
+        title: T.Groups,
         path: PATH.SYSTEM.GROUPS.LIST,
         sidebar: true,
         icon: GroupIcon,
@@ -748,12 +757,6 @@ const ENDPOINTS = [
         path: PATH.SYSTEM.VDCS.DETAIL,
         Component: VDCDetail,
       },
-      // {
-      //   title: T.Group,
-      //   description: (params) => `#${params?.id}`,
-      //   path: PATH.SYSTEM.GROUPS.DETAIL,
-      //   Component: GroupDetail,
-      // },
     ],
   },
 ]

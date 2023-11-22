@@ -13,19 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { DateTime } from 'luxon'
+import { array, string, object } from 'yup'
+
+import { UsersTable } from 'client/components/Tables'
+import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
+
+const ADMINS = (props) => ({
+  name: 'admins',
+  label: T['groups.actions.edit.admins.form'],
+  type: INPUT_TYPES.TABLE,
+  Table: () => UsersTable,
+  fieldProps: {
+    filterData: props.filterData,
+    preserveState: true,
+  },
+  singleSelect: false,
+  validation: array(string())
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
+})
 
 /**
- * Get the default date range: today and seven days ago.
+ * Fields of the form.
  *
- * @returns {{startDate: DateTime, endDate: DateTime}} Object containing the start and end dates.
+ * @param {object} props - Object to get filterData function
+ * @returns {object} Fields
  */
-export const getDefaultDateRange = () => {
-  const today = DateTime.now()
-  const sevenDaysAgo = DateTime.now().minus({ days: 7 })
+export const FIELDS = (props) => [ADMINS(props)]
 
-  return {
-    startDate: sevenDaysAgo,
-    endDate: today,
-  }
-}
+/**
+ * Schema of the form.
+ *
+ * @param {object} props - Object to get filterData function
+ * @returns {object} Schema
+ */
+export const SCHEMA = (props) => object(getValidationFromFields(FIELDS(props)))

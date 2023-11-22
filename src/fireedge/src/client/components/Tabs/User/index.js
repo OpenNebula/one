@@ -25,18 +25,18 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/User/Info'
 import Group from 'client/components/Tabs/User//Group'
-import Quota from 'client/components/Tabs/User//Quota'
-import Accounting from 'client/components/Tabs/User//Accounting'
-import Showback from 'client/components/Tabs/User//Showback'
+import generateQuotasInfoTab from 'client/components/Tabs//Quota'
+import generateAccountingInfoTab from 'client/components/Tabs/Accounting'
+import generateShowbackInfoTab from 'client/components/Tabs/Showback'
 import Authentication from 'client/components/Tabs/User//Authentication'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
     group: Group,
-    quota: Quota,
-    accounting: Accounting,
-    showback: Showback,
+    quota: generateQuotasInfoTab({ groups: false }),
+    accounting: generateAccountingInfoTab({ groups: false }),
+    showback: generateShowbackInfoTab({ groups: false }),
     authentication: Authentication,
   }[tabName])
 

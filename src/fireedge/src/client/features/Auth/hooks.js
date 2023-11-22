@@ -135,10 +135,10 @@ export const useAuthApi = () => {
 export const useViews = () => {
   const { jwt, view } = useSelector((state) => state[authSlice], shallowEqual)
 
-  const { data: views } = systemApi.endpoints.getSunstoneViews.useQueryState(
-    undefined,
-    { skip: !jwt }
-  )
+  const { data: { views = {} } = {} } =
+    systemApi.endpoints.getSunstoneViews.useQueryState(undefined, {
+      skip: !jwt,
+    })
 
   /**
    * Looking for resource view of user authenticated.

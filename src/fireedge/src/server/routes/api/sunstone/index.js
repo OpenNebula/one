@@ -15,9 +15,13 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/sunstone/routes')
-const { getConfig, getViews } = require('server/routes/api/sunstone/functions')
+const {
+  getConfig,
+  getViews,
+  getAvailableViews,
+} = require('server/routes/api/sunstone/functions')
 
-const { SUNSTONE_VIEWS, SUNSTONE_CONFIG } = Actions
+const { SUNSTONE_VIEWS, SUNSTONE_CONFIG, SUNSTONE_AVAILABLE_VIEWS } = Actions
 
 module.exports = [
   {
@@ -27,5 +31,9 @@ module.exports = [
   {
     ...Commands[SUNSTONE_CONFIG],
     action: getConfig,
+  },
+  {
+    ...Commands[SUNSTONE_AVAILABLE_VIEWS],
+    action: getAvailableViews,
   },
 ]

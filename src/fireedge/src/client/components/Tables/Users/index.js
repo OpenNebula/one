@@ -35,7 +35,13 @@ const UsersTable = (props) => {
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetUsersQuery()
+  const { data: users = [], isFetching, refetch } = useGetUsersQuery()
+
+  // Filter data if there is filter function
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(users)
+      : users
 
   const columns = useMemo(
     () =>

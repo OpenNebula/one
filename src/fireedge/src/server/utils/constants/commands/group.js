@@ -135,7 +135,7 @@ module.exports = {
           default: 0,
         },
         template: {
-          from: resource,
+          from: postBody,
           default: '',
         },
       },

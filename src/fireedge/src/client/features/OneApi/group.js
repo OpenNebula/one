@@ -21,6 +21,13 @@ import {
 } from 'client/features/OneApi'
 import { Group } from 'client/constants'
 
+import {
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+
 const { GROUP } = ONE_RESOURCES
 const { GROUP_POOL } = ONE_RESOURCES_POOL
 
@@ -39,7 +46,44 @@ const groupApi = oneApi.injectEndpoints({
 
         return { command }
       },
-      transformResponse: (data) => [data?.GROUP_POOL?.GROUP ?? []].flat(),
+      transformResponse: (data) => {
+        const groupsArray = Array.isArray(data?.GROUP_POOL?.GROUP)
+          ? data?.GROUP_POOL?.GROUP
+          : [data?.GROUP_POOL?.GROUP].filter(Boolean)
+
+        const quotasArray = Array.isArray(data?.GROUP_POOL?.QUOTAS)
+          ? data?.GROUP_POOL?.QUOTAS
+          : [data?.GROUP_POOL?.QUOTAS].filter(Boolean)
+
+        const quotasLookup = new Map(
+          quotasArray.map((quota) => [quota.ID, quota])
+        )
+
+        const defaultQuotas = data?.GROUP_POOL?.DEFAULT_GROUP_QUOTAS || {}
+
+        const getStrippedQuotaValue = (quota) => {
+          if (typeof quota === 'object' && quota !== null) {
+            return Object.values(quota)[0] || ''
+          }
+
+          return quota || ''
+        }
+
+        return groupsArray.map((group) => {
+          const groupQuotas = quotasLookup.get(group.ID) || {}
+
+          return {
+            ...group,
+            ...Object.fromEntries(
+              Object.entries(groupQuotas).map(([key, value]) => [
+                key,
+                getStrippedQuotaValue(value) ||
+                  getStrippedQuotaValue(defaultQuotas[key]),
+              ])
+            ),
+          }
+        })
+      },
       providesTags: (groups) =>
         groups
           ? [
@@ -63,8 +107,48 @@ const groupApi = oneApi.injectEndpoints({
 
         return { params: { id }, command }
       },
-      transformResponse: (data) => data?.GROUP ?? {},
-      invalidatesTags: (_, __, { id }) => [{ type: GROUP, id }],
+      transformResponse: (data) => {
+        const group = data?.GROUP ?? {}
+
+        const getStrippedQuotaValue = (quota) => {
+          if (typeof quota === 'object' && quota !== null) {
+            return Object.values(quota)[0] || ''
+          }
+
+          return quota || ''
+        }
+
+        Object.entries(group).forEach(([key, value]) => {
+          if (key.endsWith('_QUOTA')) {
+            group[key] = getStrippedQuotaValue(value)
+          }
+        })
+
+        return group
+      },
+      providesTags: (_, __, { id }) => [{ type: GROUP, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            groupApi.util.updateQueryData(
+              'getGroups',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            groupApi.util.updateQueryData(
+              'getGroups',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     allocateGroup: builder.mutation({
       /**
@@ -104,6 +188,30 @@ const groupApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: GROUP, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchGroup = dispatch(
+            groupApi.util.updateQueryData(
+              'getGroup',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchGroups = dispatch(
+            groupApi.util.updateQueryData(
+              'getGroups',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchGroup.undo()
+            patchGroups.undo()
+          })
+        } catch {}
+      },
     }),
     removeGroup: builder.mutation({
       /**
@@ -121,6 +229,30 @@ const groupApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: [GROUP_POOL],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchGroup = dispatch(
+            groupApi.util.updateQueryData(
+              'getGroup',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchGroups = dispatch(
+            groupApi.util.updateQueryData(
+              'getGroups',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchGroup.undo()
+            patchGroups.undo()
+          })
+        } catch {}
+      },
     }),
     addAdminToGroup: builder.mutation({
       /**

@@ -20,6 +20,11 @@ import {
 } from 'server/routes/api/vm/routes'
 
 import {
+  Actions as ExtraActionsPool,
+  Commands as ExtraCommandsPool,
+} from 'server/routes/api/vmpool/routes'
+
+import {
   oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
@@ -214,6 +219,25 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
     }),
+    getAccountingPoolFiltered: builder.query({
+      /**
+       * Returns the virtual machine history records filtered by user or group.
+       *
+       * @param {object} params - Request parameters
+       * @param {number} [params.user] - User id
+       * @param {number} [params.group] - Group id
+       * @param {number} [params.start] - Range start date
+       * @param {number} [params.end] - Range end date
+       * @returns {string} The information string
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActionsPool.VM_POOL_ACCOUNTING_FILTER
+        const command = { name, ...ExtraCommandsPool[name] }
+
+        return { params, command }
+      },
+    }),
     getShowbackPool: builder.query({
       /**
        * Returns the virtual machine showback records.
@@ -230,6 +254,27 @@ const vmApi = oneApi.injectEndpoints({
       query: (params) => {
         const name = Actions.VM_POOL_SHOWBACK
         const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+    getShowbackPoolFiltered: builder.query({
+      /**
+       * Returns the virtual machine showback records filtered by user or group.
+       *
+       * @param {object} params - Request parameters
+       * @param {number} [params.user] - User id
+       * @param {number} [params.group] - Group id
+       * @param {number} [params.startMonth] - First month for the time interval
+       * @param {number} [params.startYear] - First year for the time interval
+       * @param {number} [params.endMonth] - Last month for the time interval
+       * @param {number} [params.endYear] - Last year for the time interval
+       * @returns {string} The information string
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActionsPool.VM_POOL_SHOWBACK_FILTER
+        const command = { name, ...ExtraCommandsPool[name] }
 
         return { params, command }
       },
@@ -1070,8 +1115,12 @@ export const {
   useLazyGetMonitoringPoolQuery,
   useGetAccountingPoolQuery,
   useLazyGetAccountingPoolQuery,
+  useGetAccountingPoolFilteredQuery,
+  useLazyGetAccountingPoolFilteredQuery,
   useGetShowbackPoolQuery,
   useLazyGetShowbackPoolQuery,
+  useGetShowbackPoolFilteredQuery,
+  useLazyGetShowbackPoolFilteredQuery,
   useCalculateShowbackQuery,
   useLazyCalculateShowbackQuery,
 
