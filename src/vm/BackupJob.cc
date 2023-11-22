@@ -445,9 +445,10 @@ void BackupJob::get_backup_config(Template &tmpl)
     /*  - BACKUP_VOLATILE                                                     */
     /*  - FS_FREEZE                                                           */
     /*  - MODE                                                                */
+    /*  - INCREMENT_MODE                                                      */
     /* ---------------------------------------------------------------------- */
     static vector<string> CONFIG_ATTRIBUTES = { "KEEP_LAST", "BACKUP_VOLATILE",
-        "FS_FREEZE", "MODE"};
+        "FS_FREEZE", "MODE", "INCREMENT_MODE"};
 
     string tmp_str;
     VectorAttribute* va = new VectorAttribute("BACKUP_CONFIG");
@@ -578,6 +579,25 @@ int BackupJob::parse(string& error)
     }
 
     add_template_attribute("MODE", sattr);
+
+    if ( sattr == "INCREMENT" )
+    {
+        if ( erase_template_attribute("INCREMENT_MODE", sattr) == 0 || sattr.empty() )
+        {
+            sattr = "CBT";
+        }
+        else
+        {
+            one_util::toupper(sattr);
+
+            if ((sattr != "CBT") && (sattr != "SNAPSHOT"))
+            {
+                sattr = "CBT";
+            }
+        }
+
+        add_template_attribute("INCREMENT_MODE", sattr);
+    }
 
     erase_template_attribute("EXECUTION", sattr);
 
