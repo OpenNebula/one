@@ -78,7 +78,7 @@ set -e -o pipefail
 
 virsh --connect $LIBVIRT_URI save-image-dumpxml $FILE > $FILE_XML
 
-# Eeplace all occurrences of the DS_LOCATION/<DS_ID>/<VM_ID> with the specific
+# Replace all occurrences of the DS_LOCATION/<DS_ID>/<VM_ID> with the specific
 # DS_ID where the checkpoint is placed. This is done in case there was a
 # system DS migration
 
