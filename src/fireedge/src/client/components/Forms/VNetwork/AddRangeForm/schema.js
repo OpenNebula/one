@@ -23,8 +23,9 @@ import {
   REG_V4,
   REG_V6,
   REG_MAC,
+  disableFields,
 } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE } from 'client/constants'
 
 const AR_TYPES = {
   IP4: 'IP4',
@@ -183,25 +184,50 @@ const ULA_PREFIX_FIELD = {
 }
 
 /** @type {Field[]} Fields */
-const FIELDS = [
-  TYPE_FIELD,
-  IP_FIELD,
-  MAC_FIELD,
-  IP6_FIELD,
-  SIZE_FIELD,
-  GLOBAL_PREFIX_FIELD,
-  PREFIX_LENGTH_FIELD,
-  ULA_PREFIX_FIELD,
-]
+const FIELDS = (oneConfig, adminGroup) =>
+  disableFields(
+    [
+      TYPE_FIELD,
+      IP_FIELD,
+      MAC_FIELD,
+      IP6_FIELD,
+      SIZE_FIELD,
+      GLOBAL_PREFIX_FIELD,
+      PREFIX_LENGTH_FIELD,
+      ULA_PREFIX_FIELD,
+    ],
+    'AR',
+    oneConfig,
+    adminGroup,
+    RESTRICTED_ATTRIBUTES_TYPE.VNET
+  )
 
-const MUTABLE_FIELDS = [SIZE_FIELD]
+/**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
+ * @returns {Array} - Mutable fields
+ */
+const MUTABLE_FIELDS = (oneConfig, adminGroup) =>
+  disableFields(
+    [SIZE_FIELD],
+    'AR',
+    oneConfig,
+    adminGroup,
+    RESTRICTED_ATTRIBUTES_TYPE.VNET
+  )
 
 /**
  * @param {object} stepProps - Step props
  * @param {boolean} stepProps.isUpdate - If true the form is to update the AR
+ * @param {object} stepProps.oneConfig - Open Nebula configuration
+ * @param {boolean} stepProps.adminGroup - If the user belongs to oneadmin group
  * @returns {BaseSchema} Schema
  */
-const SCHEMA = ({ isUpdate }) =>
-  getObjectSchemaFromFields([...(isUpdate ? MUTABLE_FIELDS : FIELDS)])
+const SCHEMA = ({ isUpdate, oneConfig, adminGroup }) =>
+  getObjectSchemaFromFields([
+    ...(isUpdate
+      ? MUTABLE_FIELDS(oneConfig, adminGroup)
+      : FIELDS(oneConfig, adminGroup)),
+  ])
 
 export { FIELDS, MUTABLE_FIELDS, SCHEMA }

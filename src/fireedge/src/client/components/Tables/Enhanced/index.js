@@ -75,8 +75,11 @@ const EnhancedTable = ({
   noDataMessage,
   messages = [],
   dataDepend,
+  readOnly = false,
 }) => {
-  const styles = EnhancedTableStyles()
+  const styles = EnhancedTableStyles({
+    readOnly: readOnly,
+  })
 
   const isUninitialized = useMemo(
     () => isLoading && data === undefined,
@@ -258,7 +261,7 @@ const EnhancedTable = ({
           refetch={refetch}
           isLoading={isLoading}
           singleSelect={singleSelect}
-          disableRowSelect={disableRowSelect}
+          disableRowSelect={disableRowSelect || readOnly}
           globalActions={globalActions}
           selectedRows={selectedRows}
           onSelectedRowsChange={onSelectedRowsChange}
@@ -294,7 +297,7 @@ const EnhancedTable = ({
           {!disableGlobalSort && <GlobalSort {...useTableProps} />}
         </div>
         {/* SELECTED ROWS */}
-        {displaySelectedRows && (
+        {displaySelectedRows && !readOnly && (
           <div>
             <GlobalSelectedRows
               useTableProps={useTableProps}
@@ -369,7 +372,7 @@ const EnhancedTable = ({
               onClick={(e) => {
                 typeof onRowClick === 'function' && onRowClick(original)
 
-                if (!disableRowSelect) {
+                if (!disableRowSelect && !readOnly) {
                   if (
                     singleSelect ||
                     (!singleSelect && !(e.ctrlKey || e.metaKey))
@@ -427,6 +430,7 @@ EnhancedTable.propTypes = {
   ]),
   messages: PropTypes.array,
   dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
+  readOnly: PropTypes.bool,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

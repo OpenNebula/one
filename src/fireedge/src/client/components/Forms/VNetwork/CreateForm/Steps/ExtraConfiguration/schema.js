@@ -40,12 +40,14 @@ const AR_SCHEMA = object({
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {ObjectSchema} Extra configuration schema
  */
-export const SCHEMA = (isUpdate) => {
+export const SCHEMA = (isUpdate, oneConfig, adminGroup) => {
   const schema = object({ SECURITY_GROUPS: array().ensure() })
-    .concat(CONTEXT_SCHEMA)
-    .concat(QOS_SCHEMA)
+    .concat(CONTEXT_SCHEMA(oneConfig, adminGroup))
+    .concat(QOS_SCHEMA(oneConfig, adminGroup))
 
   !isUpdate && schema.concat(AR_SCHEMA)
 

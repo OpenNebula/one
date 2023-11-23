@@ -14,8 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { string, object, ObjectSchema } from 'yup'
-import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import {
+  Field,
+  arrayToOptions,
+  getValidationFromFields,
+  disableFields,
+} from 'client/utils'
+import { T, INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE } from 'client/constants'
 import {
   IMAGE_LOCATION_TYPES,
   IMAGE_LOCATION_FIELD,
@@ -156,18 +161,23 @@ export const FS = {
 }
 
 /**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Field[]} Fields
  */
-export const FIELDS = [
-  DEV_PREFIX,
-  DEVICE,
-  CUSTOM_DEV_PREFIX,
-  FORMAT_FIELD,
-  FS,
-  CUSTOM_FORMAT,
-]
+export const FIELDS = (oneConfig, adminGroup) =>
+  disableFields(
+    [DEV_PREFIX, DEVICE, CUSTOM_DEV_PREFIX, FORMAT_FIELD, FS, CUSTOM_FORMAT],
+    '',
+    oneConfig,
+    adminGroup,
+    RESTRICTED_ATTRIBUTES_TYPE.IMAGE
+  )
 
 /**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {ObjectSchema} Schema
  */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const SCHEMA = (oneConfig, adminGroup) =>
+  object(getValidationFromFields(FIELDS(oneConfig, adminGroup)))

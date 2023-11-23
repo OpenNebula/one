@@ -34,17 +34,21 @@ const DRIVER_PATH = `${STEP_ID}.VN_MAD`
 const IP_CONF_PATH = `${STEP_ID}.${IP_LINK_CONF_FIELD.name}`
 
 /**
- * @param {object} props - Props
- * @param {boolean} [props.isUpdate] - Is `true` the form will be filter immutable attributes
+ * @param {boolean} isUpdate - True if it is an update operation
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Form content component
  */
-const Content = ({ isUpdate }) => {
+const Content = (isUpdate, oneConfig, adminGroup) => {
   const { setValue } = useFormContext()
 
   const driver = useWatch({ name: DRIVER_PATH })
   const ipConf = useWatch({ name: IP_CONF_PATH }) || {}
 
-  const sections = useMemo(() => SECTIONS(driver, isUpdate), [driver])
+  const sections = useMemo(
+    () => SECTIONS(driver, isUpdate, oneConfig, adminGroup),
+    [driver]
+  )
 
   const handleChangeAttribute = (path, newValue) => {
     const newConf = cloneObject(ipConf)
@@ -89,12 +93,12 @@ const Content = ({ isUpdate }) => {
 /**
  * General configuration about Virtual network.
  *
- * @param {VirtualNetwork} vnet - Virtual network
+ * @param {VirtualNetwork} data - Virtual network
  * @returns {object} General configuration step
  */
-const General = (vnet) => {
-  const isUpdate = vnet?.NAME !== undefined
-  const initialDriver = vnet?.VN_MAD
+const General = ({ data, oneConfig, adminGroup }) => {
+  const isUpdate = data?.NAME !== undefined
+  const initialDriver = data?.VN_MAD
 
   return {
     id: STEP_ID,
@@ -102,7 +106,7 @@ const General = (vnet) => {
     resolver: (formData) =>
       SCHEMA(formData?.[STEP_ID]?.VN_MAD ?? initialDriver, isUpdate),
     optionsValidate: { abortEarly: false },
-    content: () => Content({ isUpdate }),
+    content: () => Content(isUpdate, oneConfig, adminGroup),
   }
 }
 

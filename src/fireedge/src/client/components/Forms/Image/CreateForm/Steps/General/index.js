@@ -24,21 +24,28 @@ import { T } from 'client/constants'
 
 export const STEP_ID = 'general'
 
-const Content = () => (
-  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+const Content = (oneConfig, adminGroup) => (
+  <FormWithSchema
+    id={STEP_ID}
+    fields={FIELDS(oneConfig, adminGroup)}
+    cy={`${STEP_ID}`}
+  />
 )
 
 /**
  * General configuration about VM Template.
  *
+ * @param {object} props - Step properties
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {object} General configuration step
  */
-const General = () => ({
+const General = ({ oneConfig, adminGroup }) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: SCHEMA,
+  resolver: SCHEMA(oneConfig, adminGroup),
   optionsValidate: { abortEarly: false },
-  content: Content,
+  content: () => Content(oneConfig, adminGroup),
 })
 
 export default General

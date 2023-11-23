@@ -30,6 +30,10 @@ import {
 import { CreateForm } from 'client/components/Forms/VNetwork'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
+import { useSystemData } from 'client/features/Auth'
+
+const _ = require('lodash')
+
 /**
  * Displays the creation or modification form to a Virtual Network.
  *
@@ -42,6 +46,7 @@ function CreateVirtualNetwork() {
   const { enqueueSuccess } = useGeneralApi()
   const [update] = useUpdateVNetMutation()
   const [allocate] = useAllocateVnetMutation()
+  const { adminGroup, oneConfig } = useSystemData()
 
   const { data } = useGetVNetworkQuery(
     { id: vnetId, extended: true },
@@ -62,17 +67,21 @@ function CreateVirtualNetwork() {
     } catch {}
   }
 
-  return vnetId && !data ? (
-    <SkeletonStepsForm />
-  ) : (
+  return !_.isEmpty(oneConfig) && ((vnetId && data) || !vnetId) ? (
     <CreateForm
       initialValues={data}
-      stepProps={data}
+      stepProps={{
+        data,
+        oneConfig,
+        adminGroup,
+      }}
       onSubmit={onSubmit}
       fallback={<SkeletonStepsForm />}
     >
       {(config) => <DefaultFormStepper {...config} />}
     </CreateForm>
+  ) : (
+    <SkeletonStepsForm />
   )
 }
 

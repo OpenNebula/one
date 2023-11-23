@@ -15,3 +15,9 @@
  * ------------------------------------------------------------------------- */
 /** @enum {string} Base path for Open Nebula documentation */
 export const DOCS_BASE_PATH = 'https://docs.opennebula.io'
+
+export const RESTRICTED_ATTRIBUTES_TYPE = {
+  VM: 'VM_RESTRICTED_ATTR',
+  IMAGE: 'IMAGE_RESTRICTED_ATTR',
+  VNET: 'VNET_RESTRICTED_ATTR',
+}

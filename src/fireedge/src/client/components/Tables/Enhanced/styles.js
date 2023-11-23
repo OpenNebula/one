@@ -65,7 +65,12 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
       padding: '0.8em',
       cursor: 'pointer',
       color: palette.text.primary,
-      backgroundColor: palette.background.paper,
+      /**
+       * @param {object} props - Properties of the styles
+       * @returns {object} - Background color
+       */
+      backgroundColor: (props) =>
+        props.readOnly ? palette.action.hover : palette.background.paper,
       fontWeight: typography.fontWeightRegular,
       fontSize: '1em',
       border: `1px solid ${palette.divider}`,
