@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, number, ObjectSchema } from 'yup'
+import { ObjectSchema, boolean, number, string } from 'yup'
 
+import {
+  BACKUP_INCREMENT_MODE_OPTIONS,
+  BACKUP_MODE_OPTIONS,
+  FS_FREEZE_OPTIONS,
+  INPUT_TYPES,
+  T,
+} from 'client/constants'
 import {
   Field,
   Section,
   arrayToOptions,
-  getObjectSchemaFromFields,
   disableFields,
+  getObjectSchemaFromFields,
 } from 'client/utils'
-import {
-  T,
-  INPUT_TYPES,
-  FS_FREEZE_OPTIONS,
-  BACKUP_MODE_OPTIONS,
-} from 'client/constants'
 
 const BACKUP_VOLATILE_FIELD = {
   name: 'BACKUP_CONFIG.BACKUP_VOLATILE',
@@ -80,12 +81,36 @@ const MODE_FIELD = {
   grid: { xs: 12, md: 6 },
 }
 
+const INCREMENT_MODE = {
+  name: 'BACKUP_CONFIG.INCREMENT_MODE',
+  label: T.IncrementMode,
+  type: INPUT_TYPES.SELECT,
+  dependOf: MODE_FIELD.name,
+  htmlType: (mode) =>
+    mode !== BACKUP_MODE_OPTIONS[T.Increment] && INPUT_TYPES.HIDDEN,
+  values: arrayToOptions(Object.keys(BACKUP_INCREMENT_MODE_OPTIONS), {
+    addEmpty: true,
+    getText: (type) => type,
+    getValue: (type) => BACKUP_INCREMENT_MODE_OPTIONS[type],
+  }),
+  validation: string()
+    .trim()
+    .default(() => undefined),
+  grid: { xs: 12, md: 6 },
+}
+
 /** @type {Section[]} Sections */
 export const SECTIONS = (oneConfig, adminGroup) => [
   {
     id: 'backup-configuration',
     fields: disableFields(
-      [BACKUP_VOLATILE_FIELD, FS_FREEZE_FIELD, KEEP_LAST_FIELD, MODE_FIELD],
+      [
+        BACKUP_VOLATILE_FIELD,
+        FS_FREEZE_FIELD,
+        KEEP_LAST_FIELD,
+        MODE_FIELD,
+        INCREMENT_MODE,
+      ],
       'BACKUP_CONFIG',
       oneConfig,
       adminGroup
@@ -99,7 +124,10 @@ export const FIELDS = [
   FS_FREEZE_FIELD,
   KEEP_LAST_FIELD,
   MODE_FIELD,
+  INCREMENT_MODE,
 ]
+
+console.log({ FIELDS })
 
 /** @type {ObjectSchema} Graphics schema */
 export const BACKUP_SCHEMA = getObjectSchemaFromFields(FIELDS)
