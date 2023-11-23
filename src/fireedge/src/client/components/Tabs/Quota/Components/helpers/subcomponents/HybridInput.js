@@ -163,6 +163,7 @@ export const HybridInputField = ({
                       : state.values[id] || ''
                   }
                   disabled={state.markedForDeletion.includes(id)}
+                  data-cy={`qc-value-input-${index ?? 0}`}
                   onChange={(e) => {
                     const value = e.target.value
                     if (validateValue(value)) {
