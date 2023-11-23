@@ -468,8 +468,7 @@ module OpenNebula
                 @body['last_vmname'] += 1
 
                 Log.debug LOG_COMP,
-                          "Role #{name} : Trying to instantiate " \
-                          "template #{template_id}, with name #{vm_name}",
+                          "Role #{name} : Instantiate template #{template_id}, name #{vm_name}",
                           @service.id
 
                 vm_id = template.instantiate(vm_name, on_hold?, extra_template)
@@ -481,32 +480,51 @@ module OpenNebula
                           "#{template_id}; #{vm_id.message}"
 
                     Log.error LOG_COMP, msg, @service.id
+
                     @service.log_error(msg)
 
-                    return [false, 'Error trying to instantiate the VM ' \
-                                   "Template #{template_id} in Role " \
+                    return [false, "Error instantiating VM Template #{template_id} in Role " \
                                    "#{name}: #{vm_id.message}"]
                 end
 
-                Log.debug LOG_COMP, "Role #{name} : Instantiate success," \
-                                    " VM ID #{vm_id}", @service.id
-                node = {
-                    'deploy_id' => vm_id
-                }
+                Log.debug LOG_COMP,
+                          "Role #{name} : Instantiate success, VM ID #{vm_id}",
+                          @service.id
 
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id,
-                                                            @service.client)
-                rc = vm.info
+                node = { 'deploy_id' => vm_id }
+                vm   = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
 
-                if OpenNebula.is_error?(rc)
-                    node['vm_info'] = nil
-                else
-                    hash_vm       = vm.to_hash['VM']
-                    vm_info       = {}
-                    vm_info['VM'] = hash_vm.select {|v| VM_INFO.include?(v) }
+                tries = 0
+                loop do
+                    break if tries == 3
 
-                    node['vm_info'] = vm_info
+                    tries += 1
+
+                    rc = vm.info
+
+                    break unless OpenNebula.is_error?(rc)
+
+                    sleep(tries * 0.5)
                 end
+
+                if tries == 3
+                    node['vm_info'] = nil
+
+                    msg = "Role #{name} : Cannot get info for VM #{vm_id}"
+
+                    Log.error LOG_COMP, msg, @service.id
+
+                    @service.log_error(msg)
+
+                    return [false,
+                            "Error getting VM #{vm_id} info in Role #{name}: #{vm_id.message}"]
+                end
+
+                hash_vm       = vm.to_hash['VM']
+                vm_info       = {}
+                vm_info['VM'] = hash_vm.select {|v| VM_INFO.include?(v) }
+
+                node['vm_info'] = vm_info
 
                 @body['nodes'] << node
             end
