@@ -39,7 +39,8 @@ define(function(require) {
     backup_volatile: "#backup-volatile",
     fs_freeze: "#fs-freeze",
     keep_last: "#keep-last",
-    mode: "#mode"
+    mode: "#mode",
+    increment_mode: "#increment-mode"
   }
 
   /*
@@ -72,7 +73,17 @@ define(function(require) {
     return TemplateHTML();
   }
 
-  function _onShow(context) {
+  function _onShow(dialog) {
+    dialog.off("change", idsElements.mode)
+    dialog.on('change', idsElements.mode, function() {
+      var value = $(this).val()
+      var parent = $(idsElements.increment_mode, dialog).parent().closest('div')
+      if(value === "INCREMENT" && parent.hasClass("hide")){
+        parent.removeClass("hide")
+      }else{
+        parent.addClass("hide")
+      }
+    });
   }
 
   function _setup(context) {
@@ -86,6 +97,7 @@ define(function(require) {
     var fsFreeze = _getValue(idsElements.fs_freeze, context);
     var keepLast = _getValue(idsElements.keep_last, context);
     var mode = _getValue(idsElements.mode, context);
+    var increment_mode = _getValue(idsElements.increment_mode, context);
 
     if (backupVolatile){
       backupConfigJSON['BACKUP_VOLATILE'] = 'YES'
@@ -101,6 +113,10 @@ define(function(require) {
 
     if (mode !== '-'){
       backupConfigJSON['MODE'] = mode
+    }
+
+    if (increment_mode !== ''){
+      backupConfigJSON['INCREMENT_MODE'] = increment_mode
     }
 
     return { 'BACKUP_CONFIG' : backupConfigJSON}
@@ -119,6 +135,7 @@ define(function(require) {
   function _fill(context, templateJSON) {
     if(templateJSON && templateJSON.BACKUP_CONFIG){
       var configs = templateJSON.BACKUP_CONFIG
+      console.log("dsadas", configs)
       if(configs && configs.BACKUP_VOLATILE && configs.BACKUP_VOLATILE === 'YES'){
         $(idsElements.backup_volatile, context).click();
       }
@@ -130,6 +147,13 @@ define(function(require) {
       }
       if(configs && configs.MODE){
         _fillBootValue(idsElements.mode, context, configs.MODE);
+        if(configs.MODE==="INCREMENT"){
+          var parent = $(idsElements.increment_mode, context).parent().closest('div')
+          parent.hasClass("hide") && parent.removeClass("hide")
+          if(configs && configs.INCREMENT_MODE){
+            _fillBootValue(idsElements.increment_mode, context, configs.INCREMENT_MODE);
+          }
+        }
       }
     }
   }

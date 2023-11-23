@@ -44,7 +44,7 @@
         <label for="keep-last">
           {{tr "How many backups do you want to keep?"}}
         </label>
-        <input type="number" id="keep-last" class="disabled_firecracker">
+        <input type="number" id="keep-last" min="0" class="disabled_firecracker">
       </div>
       <div class="small-12 columns">
         <label for="mode">
@@ -54,6 +54,16 @@
           <option value="-" selected>-</option>
           <option value="FULL">{{tr "Full"}}</option>
           <option value="INCREMENT">{{tr "Increment"}}</option>
+        </select>
+      </div>
+      <div class="small-12 columns hide">
+        <label for="increment-mode" >
+          {{tr "Increment Mode"}}
+        </label>
+        <select id="increment-mode">
+          <option value="">{{tr "-"}}</option>
+          <option value="CBT">{{tr "CBT"}}</option>
+          <option value="SNAPSHOT">{{tr "Snapshot"}}</option>
         </select>
       </div>
     </div>
