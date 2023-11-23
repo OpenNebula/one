@@ -29,123 +29,155 @@ import { AddRangeForm } from 'client/components/Forms/VNetwork'
 
 import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
-import { T, VN_ACTIONS } from 'client/constants'
+import { T, VN_ACTIONS, RESTRICTED_ATTRIBUTES_TYPE } from 'client/constants'
 
-const AddAddressRangeAction = memo(({ vnetId, onSubmit }) => {
-  const [addAR] = useAddRangeToVNetMutation()
+import { hasRestrictedAttributes } from 'client/utils'
 
-  const handleAdd = async (formData) => {
-    if (onSubmit && typeof onSubmit === 'function') {
-      return await onSubmit(formData)
+const AddAddressRangeAction = memo(
+  ({ vnetId, onSubmit, oneConfig, adminGroup }) => {
+    const [addAR] = useAddRangeToVNetMutation()
+
+    const handleAdd = async (formData) => {
+      if (onSubmit && typeof onSubmit === 'function') {
+        return await onSubmit(formData)
+      }
+
+      const template = jsonToXml({ AR: formData })
+      await addAR({ id: vnetId, template }).unwrap()
     }
 
-    const template = jsonToXml({ AR: formData })
-    await addAR({ id: vnetId, template }).unwrap()
-  }
-
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        color: 'secondary',
-        'data-cy': 'add-ar',
-        startIcon: <AddIcon />,
-        label: T.AddressRange,
-        variant: 'outlined',
-      }}
-      options={[
-        {
-          dialogProps: {
-            title: T.AddressRange,
-            dataCy: 'modal-add-ar',
-          },
-          form: AddRangeForm,
-          onSubmit: handleAdd,
-        },
-      ]}
-    />
-  )
-})
-
-const UpdateAddressRangeAction = memo(({ vnetId, ar, onSubmit }) => {
-  const [updateAR] = useUpdateVNetRangeMutation()
-  const { AR_ID } = ar
-
-  const handleUpdate = async (formData) => {
-    if (onSubmit && typeof onSubmit === 'function') {
-      return await onSubmit(formData)
+    const formConfig = {
+      stepProps: {
+        vnetId,
+        oneConfig,
+        adminGroup,
+        restrictedAttributesType: RESTRICTED_ATTRIBUTES_TYPE.VNET,
+        nameParentAttribute: 'AR',
+      },
     }
 
-    const template = jsonToXml({ AR: formData })
-    await updateAR({ id: vnetId, template })
-  }
-
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VN_ACTIONS.UPDATE_AR}-${AR_ID}`,
-        icon: <EditIcon />,
-        tooltip: T.Edit,
-      }}
-      options={[
-        {
-          dialogProps: {
-            title: `${Tr(T.AddressRange)}: #${AR_ID}`,
-            dataCy: 'modal-update-ar',
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          color: 'secondary',
+          'data-cy': 'add-ar',
+          startIcon: <AddIcon />,
+          label: T.AddressRange,
+          variant: 'outlined',
+        }}
+        options={[
+          {
+            dialogProps: {
+              title: T.AddressRange,
+              dataCy: 'modal-add-ar',
+            },
+            form: () => AddRangeForm(formConfig),
+            onSubmit: handleAdd,
           },
-          form: () =>
-            AddRangeForm({
-              initialValues: ar,
-              stepProps: { isUpdate: !onSubmit && AR_ID !== undefined },
-            }),
-          onSubmit: handleUpdate,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
-const DeleteAddressRangeAction = memo(({ vnetId, ar, onSubmit }) => {
-  const [removeAR] = useRemoveRangeFromVNetMutation()
-  const { AR_ID } = ar
+const UpdateAddressRangeAction = memo(
+  ({ vnetId, ar, onSubmit, oneConfig, adminGroup }) => {
+    const [updateAR] = useUpdateVNetRangeMutation()
+    const { AR_ID } = ar
 
-  const handleRemove = async () => {
-    if (onSubmit && typeof onSubmit === 'function') {
-      return await onSubmit(AR_ID)
+    const handleUpdate = async (formData) => {
+      if (onSubmit && typeof onSubmit === 'function') {
+        return await onSubmit(formData)
+      }
+
+      const template = jsonToXml({ AR: formData })
+      await updateAR({ id: vnetId, template })
     }
 
-    await removeAR({ id: vnetId, address: AR_ID })
-  }
-
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VN_ACTIONS.DELETE_AR}-${AR_ID}`,
-        icon: <TrashIcon />,
-        tooltip: T.Delete,
-      }}
-      options={[
-        {
-          isConfirmDialog: true,
-          dialogProps: {
-            title: (
-              <>
-                <Translate word={T.DeleteAddressRange} />
-                {`: #${AR_ID}`}
-              </>
-            ),
-            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VN_ACTIONS.UPDATE_AR}-${AR_ID}`,
+          icon: <EditIcon />,
+          tooltip: T.Edit,
+        }}
+        options={[
+          {
+            dialogProps: {
+              title: `${Tr(T.AddressRange)}: #${AR_ID}`,
+              dataCy: 'modal-update-ar',
+            },
+            form: () =>
+              AddRangeForm({
+                initialValues: ar,
+                stepProps: {
+                  isUpdate: !onSubmit && AR_ID !== undefined,
+                  oneConfig,
+                  adminGroup,
+                  restrictedAttributesType: RESTRICTED_ATTRIBUTES_TYPE.VNET,
+                  nameParentAttribute: 'AR',
+                },
+              }),
+            onSubmit: handleUpdate,
           },
-          onSubmit: handleRemove,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
+
+const DeleteAddressRangeAction = memo(
+  ({ vnetId, ar, onSubmit, oneConfig, adminGroup }) => {
+    const [removeAR] = useRemoveRangeFromVNetMutation()
+    const { AR_ID } = ar
+
+    const handleRemove = async () => {
+      if (onSubmit && typeof onSubmit === 'function') {
+        return await onSubmit(AR_ID)
+      }
+
+      await removeAR({ id: vnetId, address: AR_ID })
+    }
+
+    // Disable action if the disk has a restricted attribute on the template
+    const disabledAction =
+      !adminGroup &&
+      hasRestrictedAttributes(ar, 'AR', oneConfig?.VNET_RESTRICTED_ATTR)
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VN_ACTIONS.DELETE_AR}-${AR_ID}`,
+          icon: <TrashIcon />,
+          tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <>
+                  <Translate word={T.DeleteAddressRange} />
+                  {`: #${AR_ID}`}
+                </>
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit: handleRemove,
+          },
+        ]}
+      />
+    )
+  }
+)
 
 const ActionPropTypes = {
   vnetId: PropTypes.string,
   ar: PropTypes.object,
   onSubmit: PropTypes.func,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 AddAddressRangeAction.propTypes = ActionPropTypes

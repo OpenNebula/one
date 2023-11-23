@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import ContextIcon from 'iconoir-react/dist/Folder'
-
+import PropTypes from 'prop-types'
 import {
   TabType,
   STEP_ID as EXTRA_ID,
@@ -25,12 +25,21 @@ import CustomAttributes from 'client/components/Forms/VNetwork/CreateForm/Steps/
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
-const ContextContent = () => (
+const ContextContent = ({ oneConfig, adminGroup }) => (
   <>
-    <FormWithSchema id={EXTRA_ID} cy="context" fields={FIELDS} />
+    <FormWithSchema
+      id={EXTRA_ID}
+      cy="context"
+      fields={FIELDS(oneConfig, adminGroup)}
+    />
     <CustomAttributes />
   </>
 )
+
+ContextContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 /** @type {TabType} */
 const TAB = {
@@ -38,7 +47,7 @@ const TAB = {
   name: T.Context,
   icon: ContextIcon,
   Content: ContextContent,
-  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
+  getError: (error) => FIELDS().some(({ name }) => error?.[name]),
 }
 
 export default TAB

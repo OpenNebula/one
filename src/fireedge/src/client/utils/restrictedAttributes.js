@@ -328,3 +328,28 @@ export const hasRestrictedAttributes = (
 
   return !!restricteAttribute
 }
+
+/**
+ * Find if an attribute is a restricted attribute.
+ *
+ * @param {object} attribute - The attribute
+ * @param {string} section - Section of the attribute
+ * @param {Array} restrictedAttributes - List of restricted attributes
+ * @returns {boolean} - True if it is restricted attribute
+ */
+export const isRestrictedAttributes = (
+  attribute,
+  section = 'PARENT',
+  restrictedAttributes = []
+) => {
+  // Create map with restricted attributes
+  const mapRestrictedAttributes =
+    mapRestrictedAttributesFunction(restrictedAttributes)
+
+  // Find if there is a restricted attribute in the item
+  const restricteAttribute = mapRestrictedAttributes[section]?.find(
+    (restAttr) => restAttr === attribute
+  )
+
+  return !!restricteAttribute
+}

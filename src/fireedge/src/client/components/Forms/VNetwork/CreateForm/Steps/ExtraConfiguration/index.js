@@ -45,7 +45,7 @@ export const STEP_ID = 'extra'
 /** @type {TabType[]} */
 export const TABS = [Addresses, Security, QoS, Context]
 
-const Content = ({ isUpdate }) => {
+const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   const {
     watch,
     formState: { errors },
@@ -61,7 +61,14 @@ const Content = ({ isUpdate }) => {
         ...section,
         name,
         label: <Translate word={name} />,
-        renderContent: () => <TabContent isUpdate={isUpdate} driver={driver} />,
+        renderContent: () => (
+          <TabContent
+            isUpdate={isUpdate}
+            driver={driver}
+            oneConfig={oneConfig}
+            adminGroup={adminGroup}
+          />
+        ),
         error: getError?.(errors[STEP_ID]),
       })),
     [totalErrors, driver]
@@ -73,18 +80,19 @@ const Content = ({ isUpdate }) => {
 /**
  * Optional configuration about Virtual network.
  *
- * @param {VirtualNetwork} vnet - Virtual network
+ * @param {VirtualNetwork} data - Virtual network
  * @returns {object} Optional configuration step
  */
-const ExtraConfiguration = (vnet) => {
-  const isUpdate = vnet?.NAME !== undefined
+const ExtraConfiguration = ({ data, oneConfig, adminGroup }) => {
+  const isUpdate = data?.NAME !== undefined
 
   return {
     id: STEP_ID,
     label: T.AdvancedOptions,
-    resolver: SCHEMA(isUpdate),
+    resolver: SCHEMA(isUpdate, oneConfig, adminGroup),
     optionsValidate: { abortEarly: false },
-    content: (formProps) => Content({ ...formProps, isUpdate }),
+    content: (formProps) =>
+      Content({ ...formProps, isUpdate, oneConfig, adminGroup }),
   }
 }
 
@@ -92,6 +100,8 @@ Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   isUpdate: PropTypes.bool,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default ExtraConfiguration

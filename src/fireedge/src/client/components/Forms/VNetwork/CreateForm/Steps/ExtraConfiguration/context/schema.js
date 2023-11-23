@@ -15,8 +15,19 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { Field, arrayToOptions, getObjectSchemaFromFields } from 'client/utils'
-import { T, INPUT_TYPES, VNET_METHODS, VNET_METHODS6 } from 'client/constants'
+import {
+  Field,
+  arrayToOptions,
+  getObjectSchemaFromFields,
+  disableFields,
+} from 'client/utils'
+import {
+  T,
+  INPUT_TYPES,
+  VNET_METHODS,
+  VNET_METHODS6,
+  RESTRICTED_ATTRIBUTES_TYPE,
+} from 'client/constants'
 
 /** @type {Field} Network address field */
 const NETWORK_ADDRESS_FIELD = {
@@ -96,15 +107,33 @@ const IP6_METHOD_FIELD = {
   validation: string().trim().notRequired(),
 }
 
-export const FIELDS = [
-  NETWORK_ADDRESS_FIELD,
-  NETWORK_MASK_FIELD,
-  GATEWAY_FIELD,
-  GATEWAY6_FIELD,
-  DNS_FIELD,
-  GUEST_MTU_FIELD,
-  METHOD_FIELD,
-  IP6_METHOD_FIELD,
-]
+/**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
+ * @returns {Array} Fields
+ */
+export const FIELDS = (oneConfig, adminGroup) =>
+  disableFields(
+    [
+      NETWORK_ADDRESS_FIELD,
+      NETWORK_MASK_FIELD,
+      GATEWAY_FIELD,
+      GATEWAY6_FIELD,
+      DNS_FIELD,
+      GUEST_MTU_FIELD,
+      METHOD_FIELD,
+      IP6_METHOD_FIELD,
+    ],
+    '',
+    oneConfig,
+    adminGroup,
+    RESTRICTED_ATTRIBUTES_TYPE.VNET
+  )
 
-export const SCHEMA = getObjectSchemaFromFields(FIELDS)
+/**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
+ * @returns {object} Schema
+ */
+export const SCHEMA = (oneConfig, adminGroup) =>
+  getObjectSchemaFromFields(FIELDS(oneConfig, adminGroup))

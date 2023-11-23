@@ -31,6 +31,10 @@ import {
 import { CreateForm } from 'client/components/Forms/Image'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
+import { useSystemData } from 'client/features/Auth'
+
+const _ = require('lodash')
+
 /**
  * Displays the creation or modification form to a VM Template.
  *
@@ -41,6 +45,7 @@ function CreateImage() {
   const [allocate] = useAllocateImageMutation()
   const [upload] = useUploadImageMutation()
   const { enqueueSuccess, uploadSnackbar } = useGeneralApi()
+  const { adminGroup, oneConfig } = useSystemData()
   useGetDatastoresQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async ({ template, datastore, file }) => {
@@ -71,10 +76,19 @@ function CreateImage() {
     } catch {}
   }
 
-  return (
-    <CreateForm onSubmit={onSubmit} fallback={<SkeletonStepsForm />}>
+  return !_.isEmpty(oneConfig) ? (
+    <CreateForm
+      onSubmit={onSubmit}
+      stepProps={{
+        oneConfig,
+        adminGroup,
+      }}
+      fallback={<SkeletonStepsForm />}
+    >
       {(config) => <DefaultFormStepper {...config} />}
     </CreateForm>
+  ) : (
+    <SkeletonStepsForm />
   )
 }
 

@@ -30,6 +30,8 @@ import { SecurityGroupsTable, GlobalAction } from 'client/components/Tables'
 import { T, VN_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
+import { isRestrictedAttributes } from 'client/utils'
+
 const { SEC_GROUP } = RESOURCE_NAMES
 const { ADD_SECGROUP } = VN_ACTIONS
 
@@ -40,9 +42,16 @@ const { ADD_SECGROUP } = VN_ACTIONS
  * @param {object} props.tabProps - Tab information
  * @param {string[]} props.tabProps.actions - Actions tab
  * @param {string} props.id - Virtual Network id
+ * @param {object} props.oneConfig - OpenNebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to the oneadmin group
  * @returns {ReactElement} Security Groups tab
  */
-const SecurityTab = ({ tabProps: { actions } = {}, id }) => {
+const SecurityTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const { push: redirectTo } = useHistory()
   const { data: vnet } = useGetVNetworkQuery({ id })
 
@@ -65,23 +74,31 @@ const SecurityTab = ({ tabProps: { actions } = {}, id }) => {
     })
 
   /** @type {GlobalAction[]} */
-  const globalActions = [
-    actions[ADD_SECGROUP] && {
-      accessor: VN_ACTIONS.ADD_SECGROUP,
-      dataCy: VN_ACTIONS.ADD_SECGROUP,
-      tooltip: T.SecurityGroup,
-      icon: AddIcon,
-      options: [
-        {
-          dialogProps: { title: T.SecurityGroup },
-          form: undefined,
-          onSubmit: () => async (formData) => {
-            console.log({ formData })
+  const globalActions =
+    adminGroup ||
+    !isRestrictedAttributes(
+      'SECURITY_GROUPS',
+      undefined,
+      oneConfig?.VNET_RESTRICTED_ATTR
+    )
+      ? [
+          actions[ADD_SECGROUP] && {
+            accessor: VN_ACTIONS.ADD_SECGROUP,
+            dataCy: VN_ACTIONS.ADD_SECGROUP,
+            tooltip: T.SecurityGroup,
+            icon: AddIcon,
+            options: [
+              {
+                dialogProps: { title: T.SecurityGroup },
+                form: undefined,
+                onSubmit: () => async (formData) => {
+                  console.log({ formData })
+                },
+              },
+            ],
           },
-        },
-      ],
-    },
-  ].filter(Boolean)
+        ].filter(Boolean)
+      : undefined
 
   return (
     <Box padding={{ sm: '0.8em', overflow: 'auto' }}>
@@ -100,6 +117,8 @@ const SecurityTab = ({ tabProps: { actions } = {}, id }) => {
 SecurityTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 SecurityTab.displayName = 'SecurityTab'

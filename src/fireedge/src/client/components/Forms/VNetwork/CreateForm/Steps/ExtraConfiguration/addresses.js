@@ -37,7 +37,7 @@ export const TAB_ID = 'AR'
 
 const mapNameFunction = mapNameByIndex('AR')
 
-const AddressesContent = () => {
+const AddressesContent = ({ oneConfig, adminGroup }) => {
   const {
     fields: addresses,
     remove,
@@ -63,7 +63,11 @@ const AddressesContent = () => {
   return (
     <>
       <Stack flexDirection="row" gap="1em">
-        <AddAddressRangeAction onSubmit={handleCreateAction} />
+        <AddAddressRangeAction
+          onSubmit={handleCreateAction}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
       </Stack>
 
       <Stack
@@ -87,6 +91,8 @@ const AddressesContent = () => {
                     vm={{}}
                     ar={fakeValues}
                     onSubmit={(updatedAr) => handleUpdate(updatedAr, index)}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
                   />
                   <DeleteAddressRangeAction
                     ar={fakeValues}
@@ -102,16 +108,25 @@ const AddressesContent = () => {
   )
 }
 
-const Content = ({ isUpdate }) =>
+AddressesContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
+
+const Content = ({ isUpdate, oneConfig, adminGroup }) =>
   isUpdate ? (
     <Typography variant="subtitle2">
       <Translate word={T.DisabledAddressRangeInForm} />
     </Typography>
   ) : (
-    <AddressesContent />
+    <AddressesContent oneConfig={oneConfig} adminGroup={adminGroup} />
   )
 
-Content.propTypes = { isUpdate: PropTypes.bool }
+Content.propTypes = {
+  isUpdate: PropTypes.bool,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 /** @type {TabType} */
 const TAB = {

@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
 import { RESOURCE_NAMES } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useViews, useSystemData } from 'client/features/Auth'
 import { useGetVNetworkQuery } from 'client/features/OneApi/network'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
@@ -46,11 +46,19 @@ const VNetworkTabs = memo(({ id }) => {
     id,
   })
 
+  const { adminGroup, oneConfig } = useSystemData()
+
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.VNET
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
+    return getAvailableInfoTabs(
+      infoTabs,
+      getTabComponent,
+      id,
+      oneConfig,
+      adminGroup
+    )
   }, [view, id])
 
   if (isError) {

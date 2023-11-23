@@ -19,6 +19,7 @@ import {
   arrayToOptions,
   getValidationFromFields,
   upperCaseFirst,
+  disableFields,
 } from 'client/utils'
 import {
   T,
@@ -26,6 +27,7 @@ import {
   IMAGE_TYPES_STR,
   IMAGE_TYPES_FOR_IMAGES,
   UNITS,
+  RESTRICTED_ATTRIBUTES_TYPE,
 } from 'client/constants'
 
 export const IMAGE_LOCATION_TYPES = {
@@ -193,22 +195,33 @@ export const SIZEUNIT = {
 }
 
 /**
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {Field[]} Fields
  */
-export const FIELDS = [
-  NAME,
-  DESCRIPTION,
-  TYPE,
-  PERSISTENT,
-  IMAGE_LOCATION_FIELD,
-  PATH_FIELD,
-  UPLOAD_FIELD,
-  SIZE,
-  SIZEUNIT,
-]
+export const FIELDS = (oneConfig, adminGroup) =>
+  disableFields(
+    [
+      NAME,
+      DESCRIPTION,
+      TYPE,
+      PERSISTENT,
+      IMAGE_LOCATION_FIELD,
+      PATH_FIELD,
+      UPLOAD_FIELD,
+      SIZE,
+      SIZEUNIT,
+    ],
+    '',
+    oneConfig,
+    adminGroup,
+    RESTRICTED_ATTRIBUTES_TYPE.IMAGE
+  )
 
 /**
- * @param {object} [stepProps] - Step props
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
  * @returns {ObjectSchema} Schema
  */
-export const SCHEMA = object(getValidationFromFields(FIELDS))
+export const SCHEMA = (oneConfig, adminGroup) =>
+  object(getValidationFromFields(FIELDS(oneConfig, adminGroup)))

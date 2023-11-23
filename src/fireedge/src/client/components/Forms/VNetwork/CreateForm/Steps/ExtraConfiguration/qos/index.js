@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import QoSIcon from 'iconoir-react/dist/DataTransferBoth'
+import PropTypes from 'prop-types'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -27,9 +28,9 @@ import {
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
-const QoSContent = () => (
+const QoSContent = ({ oneConfig, adminGroup }) => (
   <>
-    {SECTIONS.map(({ id, ...section }) => (
+    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
         id={EXTRA_ID}
@@ -40,13 +41,18 @@ const QoSContent = () => (
   </>
 )
 
+QoSContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
+
 /** @type {TabType} */
 const TAB = {
   id: 'qos',
   name: T.QoS,
   icon: QoSIcon,
   Content: QoSContent,
-  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
+  getError: (error) => FIELDS().some(({ name }) => error?.[name]),
 }
 
 export default TAB

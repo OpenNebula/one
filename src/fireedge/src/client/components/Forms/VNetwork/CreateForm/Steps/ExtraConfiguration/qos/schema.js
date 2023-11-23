@@ -15,8 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { ObjectSchema, string } from 'yup'
 
-import { Field, Section, getObjectSchemaFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import {
+  Field,
+  Section,
+  getObjectSchemaFromFields,
+  disableFields,
+} from 'client/utils'
+import { T, INPUT_TYPES, RESTRICTED_ATTRIBUTES_TYPE } from 'client/constants'
 
 const commonFieldProps = {
   type: INPUT_TYPES.TEXT,
@@ -73,31 +78,39 @@ const OUTBOUND_PEAK_KB_FIELD = {
 }
 
 /** @type {Section[]} Sections */
-const SECTIONS = [
+const SECTIONS = (oneConfig, adminGroup) => [
   {
     id: 'qos-inbound',
     legend: T.InboundTraffic,
-    fields: [
-      INBOUND_AVG_BW_FIELD,
-      INBOUND_PEAK_BW_FIELD,
-      INBOUND_PEAK_KB_FIELD,
-    ],
+    fields: disableFields(
+      [INBOUND_AVG_BW_FIELD, INBOUND_PEAK_BW_FIELD, INBOUND_PEAK_KB_FIELD],
+      '',
+      oneConfig,
+      adminGroup,
+      RESTRICTED_ATTRIBUTES_TYPE.VNET
+    ),
   },
   {
     id: 'qos-outbound',
     legend: T.OutboundTraffic,
-    fields: [
-      OUTBOUND_AVG_BW_FIELD,
-      OUTBOUND_PEAK_BW_FIELD,
-      OUTBOUND_PEAK_KB_FIELD,
-    ],
+    fields: disableFields(
+      [OUTBOUND_AVG_BW_FIELD, OUTBOUND_PEAK_BW_FIELD, OUTBOUND_PEAK_KB_FIELD],
+      '',
+      oneConfig,
+      adminGroup,
+      RESTRICTED_ATTRIBUTES_TYPE.VNET
+    ),
   },
 ]
 
 /** @type {Field[]} List of QoS fields */
-const FIELDS = SECTIONS.map(({ fields }) => fields).flat()
+const FIELDS = (oneConfig, adminGroup) =>
+  SECTIONS(oneConfig, adminGroup)
+    .map(({ fields }) => fields)
+    .flat()
 
 /** @type {ObjectSchema} QoS schema */
-const SCHEMA = getObjectSchemaFromFields(FIELDS)
+const SCHEMA = (oneConfig, adminGroup) =>
+  getObjectSchemaFromFields(FIELDS(oneConfig, adminGroup))
 
 export { SCHEMA, SECTIONS, FIELDS }

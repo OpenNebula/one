@@ -41,6 +41,7 @@ import {
   VN_DRIVERS,
   INPUT_TYPES,
   USER_INPUT_TYPES,
+  RESTRICTED_ATTRIBUTES_TYPE,
 } from 'client/constants'
 import { stringToBoolean } from 'client/models/Helper'
 
@@ -505,13 +506,19 @@ export const createForm =
             fields(props),
             props.nameParentAttribute,
             props.oneConfig,
-            props.adminGroup
+            props.adminGroup,
+            props && props.restrictedAttributesType
+              ? props.restrictedAttributesType
+              : RESTRICTED_ATTRIBUTES_TYPE.VM
           )
         : disableFields(
             fields,
             props.nameParentAttribute,
             props.oneConfig,
-            props.adminGroup
+            props.adminGroup,
+            props && props.restrictedAttributesType
+              ? props.restrictedAttributesType
+              : RESTRICTED_ATTRIBUTES_TYPE.VM
           )
       : typeof fields === 'function'
       ? fields(props)
@@ -555,23 +562,28 @@ export const createForm =
  * @param {string} nameParentAttribute - Parent name of the form
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - It he user is an admin
+ * @param {string} type - The type of restricted attributes use to filter
  * @returns {Array} - New array of fields
  */
 export const disableFields = (
-  fields = {},
+  fields = [],
   nameParentAttribute,
   oneConfig = {},
-  adminGroup = true
+  adminGroup = true,
+  type = RESTRICTED_ATTRIBUTES_TYPE.VM
 ) => {
   // Disable fields only if it is a non admin user
   if (adminGroup) return fields
 
   // Get restricted attributes
-  const restrictedAttributes = oneConfig?.VM_RESTRICTED_ATTR?.filter((item) =>
-    nameParentAttribute !== ''
-      ? item.startsWith(nameParentAttribute)
-      : !item.includes('/')
-  ).map((item) => item.split('/')[1] ?? item)
+  const listRestrictedAttributes = oneConfig[type]
+  const restrictedAttributes = listRestrictedAttributes
+    .filter((item) =>
+      nameParentAttribute !== ''
+        ? item.startsWith(nameParentAttribute)
+        : !item.includes('/')
+    )
+    .map((item) => item.split('/')[1] ?? item)
 
   // Iterate over each field and add disabled attribute if it's a restricted attribute (almost all forms has attributes with name like "ATTR" but some of them like "PARENT.ATTR")
   return fields.map((field) => {

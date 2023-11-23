@@ -25,9 +25,13 @@ import {
 } from 'client/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration'
 import { T } from 'client/constants'
 
+import PropTypes from 'prop-types'
+
+import { isRestrictedAttributes } from 'client/utils'
+
 export const TAB_ID = 'SECURITY_GROUPS'
 
-const SecurityContent = () => {
+const SecurityContent = ({ oneConfig, adminGroup }) => {
   const TAB_PATH = `${EXTRA_ID}.${TAB_ID}`
 
   const { setValue } = useFormContext()
@@ -43,6 +47,14 @@ const SecurityContent = () => {
     setValue(TAB_PATH, newValue)
   }
 
+  const readOnly =
+    !adminGroup &&
+    isRestrictedAttributes(
+      'SECURITY_GROUPS',
+      undefined,
+      oneConfig?.VNET_RESTRICTED_ATTR
+    )
+
   return (
     <SecurityGroupsTable
       disableGlobalSort
@@ -50,8 +62,14 @@ const SecurityContent = () => {
       pageSize={5}
       initialState={{ selectedRowIds }}
       onSelectedRowsChange={handleSelectedRows}
+      readOnly={readOnly}
     />
   )
+}
+
+SecurityContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /** @type {TabType} */

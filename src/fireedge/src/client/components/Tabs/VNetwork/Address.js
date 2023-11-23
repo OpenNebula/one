@@ -37,9 +37,16 @@ const { ADD_AR, UPDATE_AR, DELETE_AR } = VN_ACTIONS
  * @param {object} props.tabProps - Tab information
  * @param {string[]} props.tabProps.actions - Actions tab
  * @param {string} props.id - Virtual Network id
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} AR tab
  */
-const AddressTab = ({ tabProps: { actions } = {}, id }) => {
+const AddressTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const { data: vnet } = useGetVNetworkQuery({ id })
 
   /** @type {AddressRange[]} */
@@ -47,7 +54,13 @@ const AddressTab = ({ tabProps: { actions } = {}, id }) => {
 
   return (
     <Box padding={{ sm: '0.8em' }}>
-      {actions[ADD_AR] === true && <AddAddressRangeAction vnetId={id} />}
+      {actions[ADD_AR] === true && (
+        <AddAddressRangeAction
+          vnetId={id}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
+      )}
 
       <Stack gap="1em" py="0.8em">
         {addressRanges.map((ar) => (
@@ -58,10 +71,20 @@ const AddressTab = ({ tabProps: { actions } = {}, id }) => {
             actions={
               <>
                 {actions[UPDATE_AR] === true && (
-                  <UpdateAddressRangeAction vnetId={id} ar={ar} />
+                  <UpdateAddressRangeAction
+                    vnetId={id}
+                    ar={ar}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
+                  />
                 )}
                 {actions[DELETE_AR] === true && (
-                  <DeleteAddressRangeAction vnetId={id} ar={ar} />
+                  <DeleteAddressRangeAction
+                    vnetId={id}
+                    ar={ar}
+                    oneConfig={oneConfig}
+                    adminGroup={adminGroup}
+                  />
                 )}
               </>
             }
@@ -75,6 +98,8 @@ const AddressTab = ({ tabProps: { actions } = {}, id }) => {
 AddressTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 AddressTab.displayName = 'AddressTab'
