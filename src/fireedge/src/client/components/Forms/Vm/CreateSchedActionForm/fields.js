@@ -488,7 +488,9 @@ const END_VALUE_FIELD = {
     }
   ),
   fieldProps: ([_, endType] = []) =>
-    endType === END_TYPE_VALUES.DATE && { defaultValue: getNextWeek() },
+    endType === END_TYPE_VALUES.DATE
+      ? { defaultValue: getNextWeek() }
+      : { min: 1 },
 }
 
 // --------------------------------------------------------

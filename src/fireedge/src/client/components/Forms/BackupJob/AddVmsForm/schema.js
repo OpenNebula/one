@@ -28,6 +28,7 @@ const VMS = {
   type: INPUT_TYPES.TABLE,
   Table: () => VmsTable,
   singleSelect: false,
+  displaySelectedRows: false,
   validation: array(string().trim())
     .required()
     .default(() => undefined),

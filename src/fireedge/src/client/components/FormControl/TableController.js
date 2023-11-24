@@ -42,6 +42,7 @@ const TableController = memo(
     tooltip,
     Table,
     singleSelect = true,
+    displaySelectedRows = true,
     getRowId = defaultGetRowId,
     readOnly = false,
     onConditionChange,
@@ -104,7 +105,7 @@ const TableController = memo(
         <Table
           pageSize={5}
           disableGlobalSort
-          displaySelectedRows
+          displaySelectedRows={displaySelectedRows}
           disableRowSelect={readOnly}
           singleSelect={singleSelect}
           getRowId={getRowId}
@@ -131,6 +132,7 @@ TableController.propTypes = {
   type: PropTypes.string,
   zoneId: PropTypes.string,
   singleSelect: PropTypes.bool,
+  displaySelectedRows: PropTypes.bool,
   Table: PropTypes.any,
   getRowId: PropTypes.func,
   name: PropTypes.string.isRequired,

@@ -56,7 +56,8 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
   const time = timeIsRelative ? getPeriodicityByTimeInSeconds(TIME) : TIME
   const formatTime =
     !timeIsRelative && timeFromMilliseconds(+TIME).toFormat('ff')
-  const formatDoneTime = DONE && timeFromMilliseconds(+DONE).toFormat('ff')
+  const formatDoneTime =
+    DONE && timeFromMilliseconds(DONE === '-1' ? +TIME : +DONE).toFormat('ff')
 
   const { repeat, end } = getRepeatInformation(schedule)
 
@@ -91,7 +92,10 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
           {end && <StyledTypography variant="caption">{end}</StyledTypography>}
           {DONE && (
             <StyledTypography variant="caption" title={formatDoneTime}>
-              <Timer initial={DONE} translateWord={T.DoneAgo} />
+              <Timer
+                initial={DONE === '-1' ? +TIME : +DONE}
+                translateWord={T.DoneAgo}
+              />
             </StyledTypography>
           )}
           {!noMore && (
