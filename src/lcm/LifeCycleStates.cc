@@ -1995,6 +1995,10 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             is_persistent = disk->is_persistent();
             target        = disk->get_tm_target();
 
+            vm->set_vm_info();
+
+            vmpool->update_history(vm.get());
+
             vmpool->update(vm.get());
         }
         else
@@ -2137,6 +2141,11 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
 
             is_persistent = disk->is_persistent();
             target        = disk->get_tm_target();
+
+            // Update the history record
+            vm->set_vm_info();
+
+            vmpool->update_history(vm.get());
 
             vmpool->update(vm.get());
         }
@@ -2406,12 +2415,12 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
                     [[fallthrough]];
                 case VirtualMachine::DISK_RESIZE_POWEROFF:
                 case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
-                    vm->log("LCM", Log::INFO, "VM disk resize operation completed.");
+                    vm->log("LCM", Log::INFO, "VM disk resize operation failed.");
 
                     break;
 
                 default:
-                    vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
+                    vm->log("LCM",Log::ERROR,"disk_resize_failure, VM in a wrong state");
                     return;
             }
 
@@ -2423,6 +2432,10 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
             disk->resize_quotas(size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
 
             disk->clear_resize(true);
+
+            vm->set_vm_info();
+
+            vmpool->update_history(vm.get());
 
             vmpool->update(vm.get());
         }
