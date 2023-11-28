@@ -49,13 +49,21 @@ const ensuredScriptValue = (value) =>
 
 const router = Router()
 
+const defaultConfig = {
+  currentTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+}
+
 router.get('*', async (req, res) => {
   const remoteJWT = {}
 
   const APP_CONFIG = {
-    [defaultApps.provision.name]: getProvisionConfig() || {},
+    [defaultApps.provision.name]:
+      { ...defaultConfig, ...getProvisionConfig() } || defaultConfig,
     [defaultApps.sunstone.name]:
-      getSunstoneConfig({ includeProtectedConfig: false }) || {},
+      {
+        ...defaultConfig,
+        ...getSunstoneConfig({ includeProtectedConfig: false }),
+      } || defaultConfig,
   }
 
   const appConfig = getFireedgeConfig()
