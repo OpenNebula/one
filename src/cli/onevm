@@ -1325,6 +1325,26 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    backupmode_set_desc = <<-EOT.unindent
+        Updates the backup mode of a VM. Can be #{OpenNebulaHelper::BACKUP_MODES.join('|')}
+    EOT
+
+    command :backupmode, backupmode_set_desc, :vmid, :mode do
+        vm_ref = args[0]
+        backup_mode = args[1]
+
+        if !helper.backup_mode_valid?(backup_mode)
+            err_msg = "Invalid backup mode: #{backup_mode}\n"
+            err_msg << "Valid backup modes are: #{OpenNebulaHelper::BACKUP_MODES.join(',')}"
+
+            STDERR.puts err_msg
+            exit(-1)
+        end
+
+        # TODO: Ensure other BACKUP_CONFIG is not overwritten
+        helper.set_backup_mode(vm_ref, backup_mode)
+    end
+
     updateconf_desc = <<-EOT.unindent
         Updates the configuration of a VM. Valid states are: running, pending,
         failure, poweroff, undeploy, hold or cloning.
@@ -1362,8 +1382,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        helper.perform_action(args[0], options,
-                              'Updating VM configuration') do |vm|
+        helper.perform_action(args[0], options, 'Updating VM configuration') do |vm|
             if template.empty?
                 rc = vm.info
 

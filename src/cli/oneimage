@@ -130,6 +130,7 @@ CommandParser::CmdParser.new(ARGV) do
     list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
+    list_options << OneImageHelper::FILTERS
 
     CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE,
                       OneImageHelper::IMAGE,
@@ -487,6 +488,16 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :list, list_desc, [:filterflag, nil], :options => list_options do
+        if options.key?(:backup)
+            filter = 'TYPE=BK'
+
+            if options[:filter]
+                options[:filter] << filter
+            else
+                options[:filter] = [filter]
+            end
+            options.delete(:backup)
+        end
         helper.list_pool(options, false, args[0])
     end
 

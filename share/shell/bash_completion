@@ -445,7 +445,7 @@ _oneimage() {
     fi
     opts="create clone delete persistent nonpersistent update enable chtype
             disable chgrp chown chmod rename snapshot-delete snapshot-revert
-            snapshot-flatten list show top lock unlock orphans dockerfile"
+            snapshot-flatten list show top lock unlock orphans dockerfile restore"
     cmd=oneimage
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -461,6 +461,9 @@ _oneimage() {
         ;;
         disable)
             _complete $cmd $COL_NAME "stat=rdy"
+        ;;
+        restore)
+            _complete $cmd $COL_NAME "type=BK"
         ;;
         create)
             COMPREPLY=( $(compgen -A file -- "${cur}") )
@@ -740,7 +743,7 @@ _onevm() {
             rename snapshot-create snapshot-revert snapshot-delete disk-snapshot-create
             disk-snapshot-revert disk-snapshot-delete disk-snapshot-rename disk-resize
             list show top resize save updateconf lock unlock create-chart
-            delete-chart update-chart backup restore ssh port-forward"
+            delete-chart update-chart backup restore ssh port-forward backupmode"
     cmd=onevm
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -752,7 +755,7 @@ _onevm() {
         unresched|rename|snapshot-create|snapshot-revert|snapshot-delete| \
         disk-snapshot-create|disk-snapshot-delete|disk-snapshot-revert| \
         disk-snapshot-rename|disk-resize|save|updateconf|lock|unlock|create-chart| \
-        delete-chart|update-chart|backup|restore|ssh|port-forward)
+        delete-chart|update-chart|backup|restore|ssh|port-forward|backupmode)
             _complete $cmd
         ;;
         undeploy|poweroff|reboot|shutdown|suspend|stop|migrate)

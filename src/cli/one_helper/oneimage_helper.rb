@@ -173,6 +173,15 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         :format => String
     }
 
+    FILTERS = [
+        {
+            :name => 'backup',
+            :large => '--backup',
+            :description => 'Show only backup type images',
+            :format => String
+        }
+    ]
+
     def self.rname
         'IMAGE'
     end
@@ -263,13 +272,13 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         tmpl_pool.info
 
         pool.each do |img|
+            next if img['TYPE'].to_i == 6 # skip backup images
+
             attrs = { :id    => img['ID'],
                       :name  => img['NAME'],
                       :uname => img['UNAME'] }
 
-            orphans << img['ID'] if check_orphan(tmpl_pool,
-                                                 xpath,
-                                                 'IMAGE', attrs)
+            orphans << img['ID'] if check_orphan(tmpl_pool, xpath, 'IMAGE', attrs)
         end
 
         orphans
