@@ -639,6 +639,21 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         # rubocop:enable Style/SpecialGlobalVars
     end
 
+    def get_backup_mode(vm_id)
+        vm = retrieve_resource(vm_id)
+
+        if vm.has_elements?('/VM/BACKUPS/BACKUP_CONFIG')
+            vm.template_like_str('BACKUPS/BACKUP_CONFIG/MODE')
+        else
+            nil
+        end
+    end
+
+    def set_backup_mode(vm_ref, backup_mode)
+        vm = retrieve_resource(vm_ref)
+        vm.updateconf("BACKUP_CONFIG = [\"MODE\"=\"#{backup_mode}\"]")
+    end
+
     private
 
     def factory(id = nil)

@@ -593,6 +593,8 @@ Bash symbols must be escaped on STDIN passing'
 
     OPTIONS = FORMAT, EXTENDED, NUMERIC, KILOBYTES
 
+    BACKUP_MODES = %w[FULL INCREMENT]
+
     class OneHelper
 
         attr_accessor :client
@@ -715,6 +717,14 @@ Bash symbols must be escaped on STDIN passing'
                 puts "ID: #{resource.id}"
                 0
             end
+        end
+
+        def backup_mode_valid?(sus_backup_mode)
+            BACKUP_MODES.each do |backup_mode|
+                return true if backup_mode.casecmp?(sus_backup_mode)
+            end
+
+            false
         end
 
         #-----------------------------------------------------------------------
