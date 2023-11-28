@@ -26,10 +26,13 @@ import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  (vmTemplate) => {
-    const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
-      order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,
-    })
+  (stepProps) => {
+    const userInputs = userInputsToArray(
+      stepProps?.dataTemplateExtended?.TEMPLATE?.USER_INPUTS,
+      {
+        order: stepProps?.dataTemplateExtended?.TEMPLATE?.INPUTS_ORDER,
+      }
+    )
 
     return [
       BasicConfiguration,
