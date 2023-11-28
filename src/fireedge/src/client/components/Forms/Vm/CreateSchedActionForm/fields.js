@@ -23,6 +23,7 @@ import {
   PERIOD_TYPES,
   REPEAT_VALUES,
   SCHEDULE_TYPE,
+  SERVER_CONFIG,
   T,
   TEMPLATE_SCHEDULE_TYPE_STRING,
   VM_ACTIONS_IN_CHARTER,
@@ -67,12 +68,12 @@ const DAYS_OF_WEEK = [
   T.Saturday,
 ]
 
-const getNow = () => DateTime.now()
+const getNow = () =>
+  SERVER_CONFIG?.currentTimeZone
+    ? DateTime.now().setZone(SERVER_CONFIG.currentTimeZone)
+    : DateTime.now()
 
 const getTomorrow = () => getNow().plus({ days: 1 })
-
-const getTomorrowAtMidnight = () =>
-  getTomorrow().set({ hour: 12, minute: 0, second: 0 })
 
 const getNextWeek = () => getNow().plus({ weeks: 1 })
 
@@ -239,7 +240,7 @@ const TIME_FIELD = {
       typeAction !== SCHEDULE_TYPE.RELATIVE ? schema.required() : schema
     ),
   fieldProps: {
-    defaultValue: getTomorrowAtMidnight(),
+    defaultValue: getTomorrow(),
     minDateTime: getNow(),
   },
 }
