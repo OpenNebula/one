@@ -127,7 +127,5 @@ export const FIELDS = [
   INCREMENT_MODE,
 ]
 
-console.log({ FIELDS })
-
 /** @type {ObjectSchema} Graphics schema */
 export const BACKUP_SCHEMA = getObjectSchemaFromFields(FIELDS)

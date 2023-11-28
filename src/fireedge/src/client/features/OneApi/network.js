@@ -304,7 +304,10 @@ const vNetworkApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VNET, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VNET, id },
+        { type: VNET_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVNet = dispatch(

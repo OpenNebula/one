@@ -158,7 +158,10 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: DATASTORE, id },
+        { type: DATASTORE_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchDatastore = dispatch(

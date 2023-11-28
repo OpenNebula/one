@@ -24,6 +24,12 @@ const COLUMNS = [
   { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
   { Header: T.Group, id: 'group', accessor: 'GNAME' },
   { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
   { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
   { Header: T.Logo, id: 'logo', accessor: 'TEMPLATE.LOGO' },
   { Header: T.VirtualRouter, id: 'vrouter', accessor: 'TEMPLATE.VROUTER' },

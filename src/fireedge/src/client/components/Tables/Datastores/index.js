@@ -138,7 +138,7 @@ const DatastoresTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={useMemo(() => data, [data, data?.TEMPLATE?.LABELS])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

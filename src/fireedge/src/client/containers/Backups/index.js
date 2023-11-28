@@ -29,7 +29,10 @@ import { BackupsTable } from 'client/components/Tables'
 import BackupActions from 'client/components/Tables/Backups/actions'
 import BackupTabs from 'client/components/Tabs/Backup'
 import { Image, T } from 'client/constants'
-import { useLazyGetImageQuery } from 'client/features/OneApi/image'
+import {
+  useLazyGetImageQuery,
+  useUpdateImageMutation,
+} from 'client/features/OneApi/image'
 
 /**
  * Displays a list of Backups with a split pane between the list and selected row(s).
@@ -50,6 +53,7 @@ function Backups() {
           <BackupsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
+            useUpdateMutation={useUpdateImageMutation}
           />
 
           {hasSelectedRows && (

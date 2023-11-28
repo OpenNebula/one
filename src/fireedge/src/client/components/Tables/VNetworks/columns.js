@@ -28,6 +28,12 @@ const COLUMNS = [
   { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
   { Header: T.Driver, id: 'vn_mad', accessor: getVNManager },
   {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
+  {
     Header: T.UsedLeases,
     id: 'used_leases',
     accessor: 'USED_LEASES',

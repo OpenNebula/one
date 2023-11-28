@@ -119,8 +119,6 @@ export const ChartRenderer = ({
     () => (coordinateType === 'POLAR' ? FormatPolarDataset(datasets) : null),
     [coordinateType, datasets]
   )
-  console.log('polarDataset: ', polarDataset)
-
   const chartConfig = useMemo(
     () =>
       GetChartConfig(

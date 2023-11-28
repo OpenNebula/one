@@ -17,7 +17,7 @@
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
+const COLUMNS = [
   { Header: 'ID', accessor: 'ID', sortType: 'number' },
   { Header: 'Name', accessor: 'NAME' },
   {
@@ -31,3 +31,5 @@ export default [
   { Header: 'Network quota', accessor: 'NETWORK_QUOTA' },
   { Header: 'Image quota', accessor: 'IMAGE_QUOTA' },
 ]
+
+export default COLUMNS

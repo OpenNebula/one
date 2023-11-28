@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { useMemo, useCallback } from 'react'
 
 import {
   Lock,
@@ -26,19 +27,27 @@ import {
   Archive as DiskTypeIcon,
 } from 'iconoir-react'
 import { Typography } from '@mui/material'
+import MultipleTags from 'client/components/MultipleTags'
+import imageApi, { useUpdateImageMutation } from 'client/features/OneApi/image'
 
 import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import { T } from 'client/constants'
+import {
+  jsonToXml,
+  getUniqueLabels,
+  getColorFromString,
+} from 'client/models/Helper'
 
 import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, onClickLabel, ...props }) => {
+  const [update] = useUpdateImageMutation()
   const classes = rowStyles()
   const {
-    ID,
+    id: ID,
     NAME,
     UNAME,
     GNAME,
@@ -50,13 +59,44 @@ const Row = ({ original, value, ...props }) => {
     DATASTORE,
     TOTAL_VMS,
     RUNNING_VMS,
+    label: LABELS = [],
   } = value
+
+  const state = imageApi.endpoints.getImages.useQueryState(undefined, {
+    selectFromResult: ({ data = [] }) =>
+      data.find((image) => +image.ID === +original.ID),
+  })
+
+  const memoImage = useMemo(() => state ?? original, [state, original])
+
+  const handleDeleteLabel = useCallback(
+    (label) => {
+      const currentLabels = memoImage.TEMPLATE?.LABELS?.split(',')
+      const newLabels = currentLabels.filter((l) => l !== label).join(',')
+      const newImageTemplate = { ...memoImage.TEMPLATE, LABELS: newLabels }
+      const templateXml = jsonToXml(newImageTemplate)
+
+      update({ id: original.ID, template: templateXml, replace: 0 })
+    },
+    [memoImage.TEMPLATE?.LABELS, update]
+  )
 
   const labels = [...new Set([TYPE])].filter(Boolean)
 
   const { color: stateColor, name: stateName } = ImageModel.getState(original)
 
   const time = Helper.timeFromMilliseconds(+REGTIME)
+
+  const multiTagLabels = useMemo(
+    () =>
+      getUniqueLabels(LABELS).map((label) => ({
+        text: label,
+        stateColor: getColorFromString(label),
+        onClick: onClickLabel,
+        onDelete: handleDeleteLabel,
+      })),
+    [LABELS, handleDeleteLabel, onClickLabel]
+  )
 
   return (
     <div {...props} data-cy={`image-${ID}`}>
@@ -71,6 +111,9 @@ const Row = ({ original, value, ...props }) => {
             {labels.map((label) => (
               <StatusChip key={label} text={label} />
             ))}
+          </span>
+          <span className={classes.labels}>
+            <MultipleTags tags={multiTagLabels} />
           </span>
         </div>
         <div className={classes.caption}>
@@ -126,6 +169,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 export default Row

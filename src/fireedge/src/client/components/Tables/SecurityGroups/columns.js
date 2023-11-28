@@ -14,12 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { T } from 'client/constants'
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
+const COLUMNS = [
+  { Header: 'ID', accessor: 'ID', id: 'id', sortType: 'number' },
+  { Header: 'Name', id: 'name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
   {
@@ -27,6 +28,12 @@ export default [
     id: 'UPDATED_VMS',
     accessor: (row) => getTotalOfResources(row?.UPDATED_VMS),
     sortType: 'number',
+  },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
   },
   {
     Header: 'Outdated VMs',
@@ -47,3 +54,6 @@ export default [
     sortType: 'number',
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'label']
+export default COLUMNS

@@ -31,6 +31,11 @@ import {
   IMAGE_TYPES_FOR_BACKUPS,
 } from 'client/constants'
 import { getType } from 'client/models/Image'
+import {
+  updateResourceOnPool,
+  removeResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
 
 const { IMAGE } = ONE_RESOURCES
 const { IMAGE_POOL } = ONE_RESOURCES_POOL
@@ -214,6 +219,28 @@ const imageApi = oneApi.injectEndpoints({
           imageApi.util.updateQueryData('getImages', undefined, updateFn),
         resource: 'IMAGE',
       }),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            imageApi.util.updateQueryData(
+              'getImages',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            imageApi.util.updateQueryData(
+              'getImages',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     allocateImage: builder.mutation({
       /**
@@ -383,7 +410,34 @@ const imageApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: IMAGE, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: IMAGE, id },
+        { type: IMAGE_POOL, id },
+      ],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchImage = dispatch(
+            imageApi.util.updateQueryData(
+              'getImage',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchImages = dispatch(
+            imageApi.util.updateQueryData(
+              'getImages',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchImage.undo()
+            patchImages.undo()
+          })
+        } catch {}
+      },
     }),
     changeImagePermissions: builder.mutation({
       /**
@@ -598,3 +652,5 @@ export const {
   useUploadImageMutation,
   useRestoreBackupMutation,
 } = imageApi
+
+export default imageApi

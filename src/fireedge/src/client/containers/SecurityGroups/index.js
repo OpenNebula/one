@@ -21,7 +21,10 @@ import Cancel from 'iconoir-react/dist/Cancel'
 import { Typography, Box, Stack, Chip } from '@mui/material'
 import { Row } from 'react-table'
 
-import { useLazyGetSecGroupQuery } from 'client/features/OneApi/securityGroup'
+import {
+  useLazyGetSecGroupQuery,
+  useUpdateSecGroupMutation,
+} from 'client/features/OneApi/securityGroup'
 import { SecurityGroupsTable } from 'client/components/Tables'
 import SecurityGroupsActions from 'client/components/Tables/SecurityGroups/actions'
 import SecurityGroupsTabs from 'client/components/Tabs/SecurityGroup'
@@ -50,6 +53,7 @@ function SecurityGroups() {
           <SecurityGroupsTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
+            useUpdateMutation={useUpdateSecGroupMutation}
           />
 
           {hasSelectedRows && (
