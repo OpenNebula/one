@@ -1281,8 +1281,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     resize_desc = <<-EOT.unindent
-        Resizes the capacity of a Virtual Machine (offline, the VM cannot be
-        RUNNING)
+        Resizes the capacity of a Virtual Machine
 
     EOT
 
