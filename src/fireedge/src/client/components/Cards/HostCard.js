@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { memo, ReactElement } from 'react'
+import { memo, ReactElement, useMemo } from 'react'
+import MultipleTags from 'client/components/MultipleTags'
 
 import { Typography } from '@mui/material'
 import { ModernTv, Server } from 'iconoir-react'
@@ -27,6 +28,8 @@ import {
 } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
+
 import { Host, HOST_THRESHOLD, T } from 'client/constants'
 import { getAllocatedInfo, getState } from 'client/models/Host'
 
@@ -36,11 +39,33 @@ const HostCard = memo(
    * @param {Host} props.host - Host resource
    * @param {object} props.rootProps - Props to root component
    * @param {ReactElement} props.actions - Actions
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
+   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ host, rootProps, actions }) => {
+  ({ host, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
-    const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER } = host
+    const {
+      ID,
+      NAME,
+      IM_MAD,
+      VM_MAD,
+      HOST_SHARE,
+      CLUSTER,
+      TEMPLATE: { LABELS } = {},
+    } = host
+
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+          onDelete: onDeleteLabel,
+        })),
+      [LABELS, onClickLabel, onDeleteLabel]
+    )
 
     const {
       percentCpuUsed,
@@ -55,7 +80,7 @@ const HostCard = memo(
     const totalVms = [host?.VMS?.ID ?? []].flat().length || 0
     const { color: stateColor, name: stateName } = getState(host)
 
-    const labels = [...new Set([IM_MAD, VM_MAD])]
+    const statusLabels = [...new Set([IM_MAD, VM_MAD])]
 
     return (
       <div {...rootProps} data-cy={`host-${ID}`}>
@@ -65,10 +90,13 @@ const HostCard = memo(
             <Typography noWrap component="span">
               {NAME}
             </Typography>
-            <span className={classes.labels}>
-              {labels.map((label) => (
+            <span className={classes.statusLabels}>
+              {statusLabels.map((label) => (
                 <StatusChip key={label} text={label} />
               ))}
+            </span>
+            <span className={classes.labels}>
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>
@@ -113,6 +141,8 @@ HostCard.propTypes = {
     className: PropTypes.string,
   }),
   actions: PropTypes.any,
+  onClickLabel: PropTypes.func,
+  onDeleteLabel: PropTypes.func,
 }
 
 HostCard.displayName = 'HostCard'

@@ -30,7 +30,7 @@ module.exports = {
   ApplyLabels: 'Apply labels',
   Apply: 'Apply',
   Label: 'Label',
-  NoLabels: 'NoLabels',
+  NoLabels: 'No labels',
   All: 'All',
   On: 'On',
   ToggleAllSelectedCardsCurrentPage:

@@ -19,8 +19,10 @@ import PropTypes from 'prop-types'
 import { User, Group, PcCheck, PcNoEntry, PcWarning } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
+import MultipleTags from 'client/components/MultipleTags'
 import { rowStyles } from 'client/components/Tables/styles'
 import { SecurityGroup } from 'client/constants'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
@@ -31,13 +33,23 @@ const SecurityGroupCard = memo(
    * @param {SecurityGroup} props.securityGroup - Security Group resource
    * @param {object} props.rootProps - Props to root component
    * @param {ReactElement} [props.actions] - Actions
+   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @returns {ReactElement} - Card
    */
-  ({ securityGroup, rootProps, actions }) => {
+  ({ securityGroup, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
 
-    const { ID, NAME, UNAME, GNAME, UPDATED_VMS, OUTDATED_VMS, ERROR_VMS } =
-      securityGroup
+    const {
+      ID,
+      NAME,
+      UNAME,
+      GNAME,
+      UPDATED_VMS,
+      OUTDATED_VMS,
+      ERROR_VMS,
+      TEMPLATE: { LABELS } = {},
+    } = securityGroup
 
     const [totalUpdatedVms, totalOutdatedVms, totalErrorVms] = useMemo(
       () => [
@@ -48,6 +60,17 @@ const SecurityGroupCard = memo(
       [UPDATED_VMS?.ID, OUTDATED_VMS?.ID, ERROR_VMS?.ID]
     )
 
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+          onDelete: onDeleteLabel,
+        })),
+      [LABELS, onDeleteLabel]
+    )
+
     return (
       <div {...rootProps} data-cy={`secgroup-${ID}`}>
         <div className={classes.main}>
@@ -55,6 +78,8 @@ const SecurityGroupCard = memo(
             <Typography noWrap component="span">
               {NAME}
             </Typography>
+
+            <MultipleTags tags={labels} />
           </div>
           <div className={classes.caption}>
             <span>{`#${ID}`}</span>
@@ -91,6 +116,8 @@ SecurityGroupCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onClickLabel: PropTypes.func,
+  onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
 }
 

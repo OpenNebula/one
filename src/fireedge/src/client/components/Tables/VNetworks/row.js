@@ -13,26 +13,49 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { jsonToXml } from 'client/models/Helper'
 
-import api from 'client/features/OneApi/network'
+import api, { useUpdateVNetMutation } from 'client/features/OneApi/network'
 import { NetworkCard } from 'client/components/Cards'
 
 const Row = memo(
   ({ original, value, onClickLabel, ...props }) => {
-    const state = api.endpoints.getVNetworks.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((network) => +network.ID === +original.ID),
-    })
+    const [update] = useUpdateVNetMutation()
+    const {
+      data: vnetworks,
+      error,
+      isLoading,
+    } = api.endpoints.getVNetworks.useQuery(undefined)
 
-    const memoNetwork = useMemo(() => state ?? original, [state, original])
+    const vnetwork = useMemo(
+      () => vnetworks?.find((vnet) => +vnet.ID === +original.ID) ?? original,
+      [vnetworks, original]
+    )
+
+    const memoNetwork = useMemo(
+      () => vnetwork ?? original,
+      [vnetwork, original, update, isLoading, error, vnetworks]
+    )
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoNetwork.TEMPLATE?.LABELS?.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newVnetTemplate = { ...memoNetwork.TEMPLATE, LABELS: newLabels }
+        const templateXml = jsonToXml(newVnetTemplate)
+
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoNetwork.TEMPLATE?.LABELS, update]
+    )
 
     return (
       <NetworkCard
         network={memoNetwork}
         rootProps={props}
         onClickLabel={onClickLabel}
+        onDeleteLabel={handleDeleteLabel}
       />
     )
   },

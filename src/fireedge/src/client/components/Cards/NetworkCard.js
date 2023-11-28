@@ -60,9 +60,10 @@ const NetworkCard = memo(
    * @param {object} props.rootProps - Props to root component
    * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
+   * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @returns {ReactElement} - Card
    */
-  ({ network, rootProps, actions, onDeleteLabel }) => {
+  ({ network, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
@@ -93,6 +94,7 @@ const NetworkCard = memo(
         getUniqueLabels(LABELS).map((label) => ({
           text: label,
           stateColor: getColorFromString(label),
+          onClick: onClickLabel,
           onDelete: enableEditLabels && onDeleteLabel,
         })),
       [LABELS, enableEditLabels, onDeleteLabel]
@@ -169,6 +171,7 @@ NetworkCard.propTypes = {
   rootProps: PropTypes.shape({
     className: PropTypes.string,
   }),
+  onClickLabel: PropTypes.func,
   onDeleteLabel: PropTypes.func,
   actions: PropTypes.any,
 }

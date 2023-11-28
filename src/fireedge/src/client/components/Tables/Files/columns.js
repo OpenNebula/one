@@ -20,9 +20,9 @@ import * as ImageModel from 'client/models/Image'
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
+const COLUMNS = [
+  { Header: 'ID', id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: 'Name', id: 'name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
@@ -64,3 +64,5 @@ export default [
     sortType: 'number',
   },
 ]
+
+export default COLUMNS

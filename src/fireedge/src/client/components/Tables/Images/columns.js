@@ -16,13 +16,14 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as ImageModel from 'client/models/Image'
+import { T } from 'client/constants'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
+const COLUMNS = [
+  { Header: 'ID', id: 'id', accessor: 'ID', sortType: 'number' },
+  { Header: 'Name', id: 'name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
@@ -38,6 +39,12 @@ export default [
         title: 'State',
       }),
     filter: 'includesValue',
+  },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
   },
   {
     Header: 'Type',
@@ -64,3 +71,6 @@ export default [
     sortType: 'number',
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'type', 'label']
+export default COLUMNS

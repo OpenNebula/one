@@ -532,16 +532,27 @@ export const userInputsToObject = (userInputs) =>
  * @param {string} labels - List of labels separated by comma
  * @returns {string[]} List of unique labels
  */
-export const getUniqueLabels = (labels) =>
-  labels
-    ?.split(',')
-    ?.filter(
-      (label, _, list) =>
-        label !== '' && !list.some((element) => element.startsWith(`${label}/`))
-    )
-    ?.sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, ignorePunctuation: true })
-    ) ?? []
+export const getUniqueLabels = (labels) => {
+  if (labels?.length < 1) {
+    return []
+  }
+
+  return (
+    labels
+      ?.split(',')
+      ?.filter(
+        (label, _, list) =>
+          label !== '' &&
+          !list.some((element) => element.startsWith(`${label}/`))
+      )
+      ?.sort((a, b) =>
+        a.localeCompare(b, undefined, {
+          numeric: true,
+          ignorePunctuation: true,
+        })
+      ) ?? []
+  )
+}
 
 // The number 16,777,215 is the total possible combinations
 // of RGB(255,255,255) which is 32 bit color

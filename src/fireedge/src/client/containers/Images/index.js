@@ -29,7 +29,10 @@ import { ImagesTable } from 'client/components/Tables'
 import ImageActions from 'client/components/Tables/Images/actions'
 import ImageTabs from 'client/components/Tabs/Image'
 import { Image, T } from 'client/constants'
-import { useLazyGetImageQuery } from 'client/features/OneApi/image'
+import {
+  useUpdateImageMutation,
+  useLazyGetImageQuery,
+} from 'client/features/OneApi/image'
 
 /**
  * Displays a list of Images with a split pane between the list and selected row(s).
@@ -50,6 +53,7 @@ function Images() {
           <ImagesTable
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
+            useUpdateMutation={useUpdateImageMutation}
           />
 
           {hasSelectedRows && (

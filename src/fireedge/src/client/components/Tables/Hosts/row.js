@@ -13,21 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import hostApi from 'client/features/OneApi/host'
+import hostApi, { useUpdateHostMutation } from 'client/features/OneApi/host'
 import { HostCard } from 'client/components/Cards'
+import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
-    const state = hostApi.endpoints.getHosts.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((host) => +host?.ID === +original.ID),
-    })
+  ({ original, value, onClickLabel, ...props }) => {
+    const [update] = useUpdateHostMutation()
 
-    const memoHost = useMemo(() => state ?? original, [state, original])
+    const {
+      data: hosts,
+      error,
+      isLoading,
+    } = hostApi.endpoints.getHosts.useQuery(undefined)
 
-    return <HostCard host={memoHost} rootProps={props} />
+    const host = useMemo(
+      () => hosts?.find((h) => +h.ID === +original.ID) ?? original,
+      [hosts, original]
+    )
+
+    const memoHost = useMemo(
+      () => host ?? original,
+      [host, original, update, isLoading, error, hosts]
+    )
+
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoHost?.TEMPLATE?.LABELS.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newHostTemplate = { ...memoHost.TEMPLATE, LABELS: newLabels }
+        const templateXml = jsonToXml(newHostTemplate)
+
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoHost.TEMPLATE?.LABELS, update]
+    )
+
+    return (
+      <HostCard
+        host={memoHost}
+        rootProps={props}
+        onClickLabel={onClickLabel}
+        onDeleteLabel={handleDeleteLabel}
+      />
+    )
   },
   (prev, next) => prev.className === next.className
 )
@@ -38,6 +69,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   handleClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 Row.displayName = 'HostRow'

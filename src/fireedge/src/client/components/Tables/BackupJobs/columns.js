@@ -22,8 +22,14 @@ const COLUMNS = [
   { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
   { Header: T.Name, id: 'name', accessor: 'NAME' },
   { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name']
+COLUMNS.noFilterIds = ['id', 'name', 'label']
 
 export default COLUMNS

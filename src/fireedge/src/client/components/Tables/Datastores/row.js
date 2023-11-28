@@ -16,7 +16,7 @@
 import { memo, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import api, {
+import datastoreApi, {
   useUpdateDatastoreMutation,
 } from 'client/features/OneApi/datastore'
 import { DatastoreCard } from 'client/components/Cards'
@@ -26,12 +26,21 @@ const Row = memo(
   ({ original, onClickLabel, ...props }) => {
     const [update] = useUpdateDatastoreMutation()
 
-    const state = api.endpoints.getDatastores.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((datastore) => +datastore.ID === +original.ID),
-    })
+    const {
+      data: datastores,
+      error,
+      isLoading,
+    } = datastoreApi.endpoints.getDatastores.useQuery(undefined)
 
-    const memoDs = useMemo(() => state ?? original, [state, original])
+    const datastore = useMemo(
+      () => datastores?.find((ds) => +ds.ID === +original.ID) ?? original,
+      [datastores, original]
+    )
+
+    const memoDs = useMemo(
+      () => datastore ?? original,
+      [datastore, original, update, isLoading, error, datastores]
+    )
 
     const handleDeleteLabel = useCallback(
       (label) => {
@@ -47,7 +56,7 @@ const Row = memo(
 
     return (
       <DatastoreCard
-        datastore={state ?? original}
+        datastore={memoDs}
         onClickLabel={onClickLabel}
         onDeleteLabel={handleDeleteLabel}
         rootProps={props}

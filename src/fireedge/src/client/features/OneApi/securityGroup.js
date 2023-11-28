@@ -19,6 +19,10 @@ import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
+import {
+  removeResourceOnPool,
+  updateResourceOnPool,
+} from 'client/features/OneApi/common'
 import { FilterFlag, Permission } from 'client/constants'
 
 const { SECURITYGROUP } = ONE_RESOURCES
@@ -74,6 +78,26 @@ const securityGroupApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.SECURITY_GROUP ?? {},
       providesTags: (_, __, { id }) => [{ type: SECURITYGROUP, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+          dispatch(
+            securityGroupApi.util.updateQueryData(
+              'getSecGroups',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          dispatch(
+            securityGroupApi.util.updateQueryData(
+              'getSecGroups',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     renameSecGroup: builder.mutation({
       /**
@@ -218,7 +242,10 @@ const securityGroupApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: SECURITYGROUP, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: SECURITYGROUP, id },
+        { type: SECURITYGROUP_POOL, id },
+      ],
     }),
     commitSegGroup: builder.mutation({
       /**

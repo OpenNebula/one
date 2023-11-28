@@ -16,13 +16,14 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as ImageModel from 'client/models/Image'
+import { T } from 'client/constants'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
 
-export default [
-  { Header: 'ID', accessor: 'ID', sortType: 'number' },
-  { Header: 'Name', accessor: 'NAME' },
+const COLUMNS = [
+  { Header: 'ID', accessor: 'ID', id: 'id', sortType: 'number' },
+  { Header: 'Name', id: 'name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
@@ -49,6 +50,12 @@ export default [
     id: 'DISK_TYPE',
     accessor: (row) => ImageModel.getDiskType(row),
   },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'includesSome',
+  },
   { Header: 'Registration Time', accessor: 'REGTIME' },
   { Header: 'Datastore', accessor: 'DATASTORE' },
   { Header: 'Persistent', accessor: 'PERSISTENT' },
@@ -64,3 +71,7 @@ export default [
     sortType: 'number',
   },
 ]
+
+COLUMNS.noFilterIds = ['id', 'name', 'label']
+
+export default COLUMNS

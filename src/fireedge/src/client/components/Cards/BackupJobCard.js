@@ -20,13 +20,18 @@ import { Typography } from '@mui/material'
 import { Tr } from 'client/components/HOC'
 import { StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import MultipleTags from 'client/components/MultipleTags'
+import {
+  getColorFromString,
+  getUniqueLabels,
+  timeFromMilliseconds,
+} from 'client/models/Helper'
 
 import Timer from 'client/components/Timer'
 import { T } from 'client/constants'
 import { Group, HighPriority, Lock, User } from 'iconoir-react'
 
 import COLOR from 'client/constants/color'
-import { timeFromMilliseconds } from 'client/models/Helper'
 import PropTypes from 'prop-types'
 
 const haveValues = function (object) {
@@ -56,6 +61,7 @@ const BackupJobCard = memo(
       PRIORITY,
       LAST_BACKUP_TIME,
       LOCK,
+      TEMPLATE: { LABELS } = {},
     } = template
 
     const time = useMemo(() => {
@@ -110,6 +116,18 @@ const BackupJobCard = memo(
       }
     }, [OUTDATED_VMS, BACKING_UP_VMS, ERROR_VMS, LAST_BACKUP_TIME])
 
+    const labels = useMemo(
+      () =>
+        getUniqueLabels(LABELS).map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+          onDelete: onDeleteLabel,
+        })),
+      [LABELS, onClickLabel, onDeleteLabel]
+    )
+
     return (
       <div {...rootProps} data-cy={`backupjob-${ID}`}>
         <div className={classes.main}>
@@ -118,6 +136,7 @@ const BackupJobCard = memo(
             <Typography component="span">{NAME}</Typography>
             <span className={classes.labels}>
               {LOCK && <Lock data-cy="lock" />}
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>

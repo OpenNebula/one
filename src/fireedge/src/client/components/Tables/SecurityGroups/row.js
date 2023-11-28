@@ -13,20 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import secGroupApi from 'client/features/OneApi/securityGroup'
+import secGroupApi, {
+  useUpdateSecGroupMutation,
+} from 'client/features/OneApi/securityGroup'
 import { SecurityGroupCard } from 'client/components/Cards'
+import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
-    const state = secGroupApi.endpoints.getSecGroups.useQueryState(undefined, {
-      selectFromResult: ({ data = [] }) =>
-        data.find((secgroup) => +secgroup.ID === +original.ID),
-    })
+  ({ original, value, onClickLabel, ...props }) => {
+    const [update] = useUpdateSecGroupMutation()
+
+    const {
+      data: secgroups,
+      error,
+      isLoading,
+    } = secGroupApi.endpoints.getSecGroups.useQuery(undefined)
+
+    const secGroup = useMemo(
+      () => secgroups?.find((sg) => +sg.ID === +original.ID) ?? original,
+      [secgroups, original]
+    )
+
+    const memoSecGroup = useMemo(
+      () => secGroup ?? original,
+      [secGroup, original, update, isLoading, error, secgroups]
+    )
+
+    const handleDeleteLabel = useCallback(
+      (label) => {
+        const currentLabels = memoSecGroup.TEMPLATE?.LABELS?.split(',')
+        const newLabels = currentLabels.filter((l) => l !== label).join(',')
+        const newSecGroupTemplate = {
+          ...memoSecGroup.TEMPLATE,
+          LABELS: newLabels,
+        }
+        const templateXml = jsonToXml(newSecGroupTemplate)
+
+        update({ id: original.ID, template: templateXml, replace: 0 })
+      },
+      [memoSecGroup.TEMPLATE?.LABELS, update]
+    )
 
     return (
-      <SecurityGroupCard securityGroup={state ?? original} rootProps={props} />
+      <SecurityGroupCard
+        securityGroup={memoSecGroup}
+        rootProps={props}
+        onClickLabel={onClickLabel}
+        onDeleteLabel={handleDeleteLabel}
+      />
     )
   },
   (prev, next) => prev.className === next.className
@@ -37,6 +73,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
 }
 
 Row.displayName = 'SecurityGroupRow'
