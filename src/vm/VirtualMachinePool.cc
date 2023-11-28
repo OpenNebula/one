@@ -1008,6 +1008,10 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
     gid  = vm->get_gid();
     oid  = vm->get_oid();
 
+    vm->set_vm_info();
+
+    vm->update_history(db);
+
     update(vm.get());
 
     if ( disk == nullptr )
