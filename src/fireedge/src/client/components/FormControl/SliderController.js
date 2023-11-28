@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useEffect } from 'react'
 
-import { TextField, Slider, FormHelperText, Stack } from '@mui/material'
+import { FormHelperText, Slider, Stack, TextField } from '@mui/material'
 import { useController, useWatch } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
@@ -53,6 +53,8 @@ const SliderController = memo(
       (newValue) => {
         if (min && newValue < min) return onChange(min)
         if (max && newValue > max) return onChange(max)
+        if (min && max && newValue <= max && newValue >= min)
+          return onChange(newValue)
       },
       [onChange, min, max]
     )
@@ -118,7 +120,7 @@ const SliderController = memo(
             }}
             onChange={(evt) =>
               handleEnsuredChange(
-                !evt.target.value ? '0' : Number(evt.target.value)
+                !evt.target.value ? 0 : Number(evt.target.value)
               )
             }
             onBlur={() => handleEnsuredChange(value)}
