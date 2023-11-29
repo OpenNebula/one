@@ -283,13 +283,24 @@ const WEEKLY_FIELD = {
     addEmpty: false,
     getValue: (_, index) => String(index),
   }),
+  fieldProps: ([_, repeat] = [], form) => {
+    if (repeat === REPEAT_VALUES.DAILY) {
+      const allDays = Array.from(
+        { length: DAYS_OF_WEEK.length },
+        (__, index) => `${index}`
+      )
+
+      form?.setValue('WEEKLY', allDays)
+    }
+  },
   htmlType: (_, context) => {
     const values = context?.getValues() || {}
 
     return (
       !(
         values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
-        values?.REPEAT === REPEAT_VALUES.WEEKLY
+        (values?.REPEAT === REPEAT_VALUES.WEEKLY ||
+          values?.REPEAT === REPEAT_VALUES.DAILY)
       ) && INPUT_TYPES.HIDDEN
     )
   },
@@ -298,9 +309,10 @@ const WEEKLY_FIELD = {
       .min(1)
       .default(() => context?.[DAYS_FIELD.name]?.split?.(',') ?? [])
       .when(REPEAT_FIELD.name, (repeatType, schema) =>
-        repeatType !== REPEAT_VALUES.WEEKLY
-          ? schema.strip()
-          : schema.required(T.DaysBetween0_6)
+        repeatType === REPEAT_VALUES.WEEKLY ||
+        repeatType === REPEAT_VALUES.DAILY
+          ? schema.required(T.DaysBetween0_6)
+          : schema.strip()
       )
       .afterSubmit((value) => value?.join?.(','))
   ),

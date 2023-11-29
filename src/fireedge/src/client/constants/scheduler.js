@@ -56,6 +56,7 @@ export const END_TYPE_VALUES = {
 
 /** @enum {string} Values to repeat an action */
 export const REPEAT_VALUES = {
+  DAILY: '-1',
   WEEKLY: '0',
   MONTHLY: '1',
   YEARLY: '2',
