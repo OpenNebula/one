@@ -100,6 +100,10 @@ const commonTransformBeforeSubmit = (formData) => {
       scheduleAction.END_VALUE = END_VALUE
       scheduleAction.REPEAT = REPEAT
       switch (REPEAT) {
+        case REPEAT_VALUES.DAILY:
+          scheduleAction.REPEAT = REPEAT_VALUES.WEEKLY
+          scheduleAction.DAYS = WEEKLY
+          break
         case REPEAT_VALUES.WEEKLY:
           scheduleAction.DAYS = WEEKLY
           break
