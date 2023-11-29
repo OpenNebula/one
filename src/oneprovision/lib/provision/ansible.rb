@@ -77,9 +77,9 @@ module OneProvision
 
                 ansible_min, ansible_max = provision.ansible_ver
 
-                if (version < ansible_min) || (version >= ansible_max)
+                if (version < ansible_min) || (version > ansible_max)
                     Utils.fail("Unsupported Ansible ver. #{version}, " \
-                         "must be >= #{ansible_min} and < #{ansible_max}")
+                         "must be >= #{ansible_min} and <= #{ansible_max}")
                 end
 
                 return if provision.nil? || !provision.hci?
