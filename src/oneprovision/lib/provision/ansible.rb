@@ -76,9 +76,9 @@ module OneProvision
                 version = version.match(/\d+[.]\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
-                if (version < ANSIBLE_VERSION[0]) || (version >= ANSIBLE_VERSION[1])
+                if (version < ANSIBLE_VERSION[0]) || (version > ANSIBLE_VERSION[1])
                     Utils.fail("Unsupported Ansible version #{version}, " \
-                             "must be >= #{ANSIBLE_VERSION[0]} and < #{ANSIBLE_VERSION[1]}")
+                             "must be >= #{ANSIBLE_VERSION[0]} and <= #{ANSIBLE_VERSION[1]}")
                 end
 
                 return if provision.nil? || !provision.hci?
