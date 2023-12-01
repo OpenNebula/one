@@ -59,19 +59,28 @@ require 'rexml/document'
 #-------------------------------------------------------------------------------
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id vmid bjid dsid
 #-------------------------------------------------------------------------------
+TransferManager::Datastore.load_env
+
 vm_xml = STDIN.read
 
 dir       = ARGV[0].split ':'
 disks     = ARGV[1]
 _deployid = ARGV[2]
 _bjid     = ARGV[3]
-_vmid     = ARGV[4]
+vmid      = ARGV[4]
 _dsid     = ARGV[5]
 
 rhost     = dir[0]
 rdir      = dir[1]
 
-bck_dir    = "#{rdir}/backup"
+base_path = ENV['BACKUP_BASE_PATH']
+
+bck_dir = if base_path
+              "#{base_path}/#{vmid}/backup"
+          else
+              "#{rdir}/backup"
+          end
+
 qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
 qcow2_cmd  = "#{qcow2_util} -d \"#{disks}\" -x #{bck_dir}/vm.xml -p #{rdir}"
 

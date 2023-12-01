@@ -55,13 +55,22 @@ require 'pathname'
 
 require 'CommandManager'
 
+require_relative '../../tm/lib/datastore'
 require_relative '../../tm/lib/tm_action'
+
+TransferManager::Datastore.load_env
 
 dir     = ARGV[0].split(':')
 vm_uuid = ARGV[1]
 
 vm_host = dir[0]
-vm_dir  = Pathname.new(dir[1]).cleanpath.to_s
+
+dsrdir = ENV['BACKUP_BASE_PATH']
+vm_dir = if dsrdir
+             Pathname.new("#{dsrdir}/#{File.basename(dir[1])}/backup").cleanpath.to_s
+         else
+             Pathname.new(dir[1]).cleanpath.to_s
+         end
 
 begin
     # Kill the pre/backup/_live scripts.

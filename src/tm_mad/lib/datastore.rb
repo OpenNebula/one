@@ -34,6 +34,35 @@ module TransferManager
         # file descriptor for lock
         FD = 13
 
+        # Datastore configuration files (bash syntax)
+        DATASTORECONF = '/var/lib/one/remotes/etc/datastore/datastore.conf'
+
+        @env_loaded = false
+
+        # Loads a bash formatted file to the current environment
+        # Syntax:
+        #   - Lines starting with # are ignored
+        #   - VARIABLE=VALUE
+        #   - export VARIABLE=VALUE
+        #
+        # @param [String] path to load environment from
+        def self.load_env
+            return if @env_loaded
+
+            File.readlines(DATASTORECONF).each do |l|
+                next if l.empty? || l[0] == '#'
+
+                m = l.match(/(export)?[[:blank:]]*([^=]+)="?([^"]+)"?$/)
+
+                next unless m
+
+                ENV[m[2]] = m[3].delete("\n") if m[2] && m[3]
+            end
+
+            @env_loaded = true
+        rescue StandardError
+        end
+
         # Initialize OpenNebula object and get its information
         def initialize(options = {})
             @options={

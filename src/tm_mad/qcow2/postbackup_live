@@ -52,10 +52,12 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
 
 #-------------------------------------------------------------------------------
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
 #-------------------------------------------------------------------------------
+TransferManager::Datastore.load_env
 
 _vm_xml = STDIN.read
 
@@ -63,14 +65,20 @@ dir        = ARGV[0].split ':'
 disks      = ARGV[1]
 _deploy_id = ARGV[2]
 _bjid      = ARGV[3]
-_vmid      = ARGV[4]
+vmid       = ARGV[4]
 _dsid      = ARGV[5]
 
 rhost     = dir[0]
 rdir      = dir[1]
 
+base_path = ENV['BACKUP_BASE_PATH']
+
 tmp_dir = "#{rdir}/tmp"
-bck_dir = "#{rdir}/backup"
+bck_dir = if base_path
+              "#{base_path}/#{vmid}/backup"
+          else
+              "#{rdir}/backup"
+          end
 
 qcow2_util = '/var/tmp/one/tm/lib/backup_qcow2.rb'
 
@@ -88,6 +96,8 @@ post_script = <<~EOS
     rm -rf #{tmp_dir}
     rm -rf #{bck_dir}
 EOS
+
+post_script << "    rm -rf #{base_path}/#{vmid}\n" if base_path
 
 rc = TransferManager::Action.ssh('postbackup_live',
                                  :host => rhost,
