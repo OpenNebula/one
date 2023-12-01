@@ -139,12 +139,17 @@ const InformationUnitController = memo(
               value={unit}
               InputProps={{
                 readOnly,
+                'data-cy': `${cy}-unit`,
               }}
               label={Tr(T.MemoryUnit)}
               onChange={(e) => handleChange('unit', e.target.value)}
             >
               {ARRAY_UNITS.map((option, index) => (
-                <option key={`${option}-${index}`} value={option}>
+                <option
+                  key={`${option}-${index}`}
+                  value={option}
+                  data-cy={`${cy}-unit-${option}`}
+                >
                   {option}
                 </option>
               ))}

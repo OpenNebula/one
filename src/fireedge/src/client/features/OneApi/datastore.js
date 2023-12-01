@@ -35,14 +35,6 @@ const { DATASTORE_POOL } = ONE_RESOURCES_POOL
 const datastoreApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
     getDatastores: builder.query({
-      /**
-       * Retrieves information for all or part of the datastores in the pool.
-       *
-       * @param {object} params - Request params
-       * @param {string} [params.zone] - Zone from where to get the resources
-       * @returns {Datastore[]} List of datastores
-       * @throws Fails when response isn't code 200
-       */
       query: (params) => {
         const name = Actions.DATASTORE_POOL_INFO
         const command = { name, ...Commands[name] }
@@ -51,8 +43,8 @@ const datastoreApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) =>
         [data?.DATASTORE_POOL?.DATASTORE ?? []].flat(),
-      providesTags: (datastores) =>
-        datastores
+      providesTags: (datastores) => {
+        const tags = datastores
           ? [
               ...datastores.map(({ ID }) => ({
                 type: DATASTORE_POOL,
@@ -60,7 +52,10 @@ const datastoreApi = oneApi.injectEndpoints({
               })),
               DATASTORE_POOL,
             ]
-          : [DATASTORE_POOL],
+          : [DATASTORE_POOL]
+
+        return tags
+      },
     }),
     getDatastore: builder.query({
       /**
@@ -158,10 +153,7 @@ const datastoreApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [
-        { type: DATASTORE, id },
-        { type: DATASTORE_POOL, id },
-      ],
+      invalidatesTags: (_, __, { id }) => [{ type: DATASTORE, id }],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchDatastore = dispatch(
