@@ -48,7 +48,7 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
   const classes = rowStyles()
   const {
     id: ID,
-    NAME,
+    name: NAME,
     UNAME,
     GNAME,
     REGTIME,

@@ -26,8 +26,8 @@ import {
 } from 'client/features/OneApi'
 import { Cluster } from 'client/constants'
 
-const { CLUSTER, HOST } = ONE_RESOURCES
-const { CLUSTER_POOL, HOST_POOL } = ONE_RESOURCES_POOL
+const { CLUSTER, HOST, DATASTORE } = ONE_RESOURCES
+const { CLUSTER_POOL, HOST_POOL, DATASTORE_POOL } = ONE_RESOURCES_POOL
 
 const clusterApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -223,7 +223,12 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
+      invalidatesTags: (_, __, { id, datastore }) => [
+        { type: CLUSTER, id },
+        CLUSTER_POOL,
+        DATASTORE_POOL,
+        { type: DATASTORE, id: datastore },
+      ],
     }),
     removeDatastoreFromCluster: builder.mutation({
       /**
@@ -241,7 +246,12 @@ const clusterApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }, CLUSTER_POOL],
+      invalidatesTags: (_, __, { id, datastore }) => [
+        { type: CLUSTER, id },
+        CLUSTER_POOL,
+        DATASTORE_POOL,
+        { type: DATASTORE, id: datastore },
+      ],
     }),
     addNetworkToCluster: builder.mutation({
       /**
