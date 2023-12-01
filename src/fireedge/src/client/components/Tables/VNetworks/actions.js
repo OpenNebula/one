@@ -177,7 +177,7 @@ const Actions = () => {
             color: 'secondary',
             action: (rows) => {
               const vnet = rows?.[0]?.original ?? {}
-              const path = PATH.NETWORK.VNETS.CREATE
+              const path = PATH.NETWORK.VNETS.UPDATE
 
               history.push(path, vnet)
             },
