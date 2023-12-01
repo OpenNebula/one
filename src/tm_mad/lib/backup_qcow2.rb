@@ -491,7 +491,7 @@ class KVMDomain
 
         @vm_dir  = opts[:vm_dir]
         @tmp_dir = "#{opts[:vm_dir]}/tmp"
-        @bck_dir = "#{opts[:vm_dir]}/backup"
+        @bck_dir = opts[:backup_dir]
 
         @socket  = "#{opts[:vm_dir]}/backup.socket"
 
@@ -1234,7 +1234,8 @@ begin
         end
     end
 
-    vm = KVMDomain.new(Base64.decode64(File.read(vxml)), :vm_dir => path)
+    vm = KVMDomain.new(Base64.decode64(File.read(vxml)), :vm_dir => path,
+                       :backup_dir => File.dirname(vxml))
 
     #---------------------------------------------------------------------------
     #  Stop operation. Only for full backups in live mode. It blockcommits

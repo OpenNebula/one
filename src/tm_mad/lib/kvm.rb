@@ -43,7 +43,7 @@ module TransferManager
             File.readlines(path).each do |l|
                 next if l.empty? || l[0] == '#'
 
-                m = l.match(/(export)?[[:blank:]]*([^=]+)=([^[[:blank:]]]+)$/)
+                m = l.match(/(export)?[[:blank:]]*([^=]+)=['"]?([^'"]+)['"]?$/)
 
                 next unless m
 
