@@ -28,7 +28,7 @@ module OneDBFsck
 
                 # resource[0] = u if user, g if group
                 id_field = "#{resource[0]}id"
-                oid      = row["#{resource}_oid".to_sym]
+                oid      = row["#{resource}_oid"]
                 params   = [doc, "#{id_field}=#{oid}", resource.capitalize]
 
                 if type == 'running'
@@ -37,10 +37,10 @@ module OneDBFsck
                     calculate_quotas(*params)
                 end
 
-                object = { "#{resource}_oid".to_sym => oid,
+                object = { "#{resource}_oid" => oid,
                            :body => doc.root.to_s }
 
-                @db["#{resource}_quotas".to_sym].insert(object)
+                @db["#{resource}_quotas"].insert(object)
             end
         end
 
@@ -394,10 +394,10 @@ module OneDBFsck
         vm_elem.xpath("#{cpu}_USED").each do |e|
             cpu_used = (cpu_used / 100.0)
 
-            different = (e.text.to_f != cpu_used ||
-                ![format('%.2f', cpu_used),
-                  format('%.1f', cpu_used),
-                  format('%.0f', cpu_used)].include?(e.text))
+            different = e.text.to_f != cpu_used ||
+                        ![format('%.2f', cpu_used),
+                          format('%.1f', cpu_used),
+                          format('%.0f', cpu_used)].include?(e.text)
 
             cpu_used_str = format('%.2f', cpu_used)
 

@@ -167,8 +167,8 @@ class VmmAction
 
         if DriverExecHelper.failed?(result)
             info << (@data[:failed_info] || '-')
-        elsif !@data["#{@main_action}_info".to_sym].nil?
-            info << @data["#{@main_action}_info".to_sym]
+        elsif !@data["#{@main_action}_info"].nil?
+            info << @data["#{@main_action}_info"]
         end
 
         @vmm.send_message(VirtualMachineDriver::ACTION[@main_action],
@@ -290,7 +290,7 @@ class VmmAction
             end
 
             # Save the step info
-            @data["#{step[:action]}_info".to_sym] = info.strip
+            @data["#{step[:action]}_info"] = info.strip
 
             # Roll back steps, store failed info and break steps
             if DriverExecHelper.failed?(result)
