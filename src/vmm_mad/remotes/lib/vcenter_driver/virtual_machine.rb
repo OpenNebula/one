@@ -2028,7 +2028,7 @@ end
                 :unitNumber  => unumber
             }
             if @vi_client.vim.serviceContent.about.apiVersion.to_f >= 7.0
-                card_spec[:key] = Time.now.utc.strftime('%m%d%M%S%L').to_i
+                card_spec[:key] = -100 - card_num.to_i
             end
 
             if (limit || rsrv) && (limit > 0)
@@ -2175,7 +2175,8 @@ end
                 :addressType => 'generated'
             }
             if @vi_client.vim.serviceContent.about.apiVersion.to_f >= 7.0
-                card_spec[:key] = Time.now.utc.strftime('%m%d%M%S%L').to_i
+                card_spec[:key] = -100 - card_num.to_i
+            end
             end
 
             if (limit || rsrv) && (limit > 0)
