@@ -86,6 +86,8 @@ begin
     rsync_user = ds.elements['TEMPLATE/RSYNC_USER'].text
     rsync_host = ds.elements['TEMPLATE/RSYNC_HOST'].text
 
+    base = ds.elements['BASE_PATH'].text
+
     if ds.elements['TEMPLATE/RSYNC_ARGS'].nil?
         args = '-aS'
     else
