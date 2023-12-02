@@ -77,7 +77,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit(0)
         end
 
-        filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
+        filter_flag = options[:userfilter] || VirtualMachinePool::INFO_ALL
 
         start_month = -1
         start_year  = -1
