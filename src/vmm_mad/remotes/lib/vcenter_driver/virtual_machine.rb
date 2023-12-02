@@ -2177,7 +2177,6 @@ end
             if @vi_client.vim.serviceContent.about.apiVersion.to_f >= 7.0
                 card_spec[:key] = -100 - card_num.to_i
             end
-            end
 
             if (limit || rsrv) && (limit > 0)
                 ra_spec = {}
