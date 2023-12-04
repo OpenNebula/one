@@ -1102,6 +1102,7 @@ module.exports = {
   Slovenian: 'Slovenian',
   SpanishEs: 'Spanish (Spain)',
   SpanishLatam: 'Spanish (Latin American)',
+  SpanishCatalan: 'Spanish (Catalan)',
   Swedish: 'Swedish',
   Thai: 'Thai',
   Turkish: 'Turkish',
