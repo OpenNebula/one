@@ -57,7 +57,7 @@ class MonitorClient
     # :pubkey [:String] public key to encrypt messages
     def initialize(server, port, id, opt = {})
         @opts = {
-            :pubkey => ''
+            :pubkey => nil
         }.merge opt
 
         addr = Socket.getaddrinfo(server, port)[0]
@@ -77,7 +77,7 @@ class MonitorClient
 
     # Formats message payload to send over the wire
     def pack(data)
-        if @pubkey && !@pubkey.empty?
+        if @pubkey
             block_size = @pubkey.n.num_bytes - 11
 
             edata = ''
