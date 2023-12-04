@@ -219,6 +219,7 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
           "HYPERV",
           "GUEST_AGENT",
           "VIRTIO_SCSI_QUEUES",
+          "VIRTIO_BLK_QUEUES",
           "IOTHREADS"}
     },
     { "INPUT",

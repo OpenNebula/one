@@ -755,7 +755,7 @@ module OpenNebula
         #  will replace the existing ones or delete it if empty. Attributes that
         #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
         #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
-        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT},
+        #  FEATURES/{ACPI, APIC, PAE, LOCALTIME, HYPERV, GUEST_AGENT, VIRTIO_SCSI_QUEUES, VIRTIO_BLK_QUEUES, IOTHREADS},
         #  GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP},
         #  and VIDEO/{TYPE, IOMMU, ATS, VRAM, RESOLUTION}
         # @param append, append template, do not delete empty attributes
