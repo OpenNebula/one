@@ -943,6 +943,12 @@ Lint/AmbiguousOperatorPrecedence:
 Lint/NonAtomicFileOperation:
   Enabled: false
 
+Lint/IncompatibleIoSelectWithFiberScheduler:
+  Enabled: false
+
+Lint/SymbolConversion:
+  Enabled: false
+
 #########
 # METRICS
 ########

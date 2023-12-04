@@ -2720,7 +2720,7 @@ end
             img_name = VCenterDriver::FileHelper.unescape_path(img_name_escaped)
 
             vc_disks.each do |d|
-                key_matches  = (unmanaged_key && d[:key] == unmanaged_key.to_i)
+                key_matches  = unmanaged_key && d[:key] == unmanaged_key.to_i
                 path_matches = (d[:path_wo_ds] == img_name)
 
                 if key_matches || path_matches
