@@ -55,7 +55,7 @@ module Storage
                 device_fs = device_fs(device)
             end
 
-            opts_fs = options[:mountopts]["dev_#{device_fs}"]
+            opts_fs = options[:mountopts]["dev_#{device_fs}".to_sym]
             opts_fs ||= ''
 
             # resize and mount operations according to the used filesystem

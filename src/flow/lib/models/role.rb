@@ -655,8 +655,8 @@ module OpenNebula
                 return OpenNebula::Error.new("Role #{name} is in DONE state")
             end
 
-            do_offset = !period.nil? && period.to_i > 0 &&
-                        !vms_per_period.nil? && vms_per_period.to_i > 0
+            do_offset = (!period.nil? && period.to_i > 0 &&
+                !vms_per_period.nil? && vms_per_period.to_i > 0)
 
             nodes.each_with_index do |node, index|
                 vm_id = node['deploy_id']
