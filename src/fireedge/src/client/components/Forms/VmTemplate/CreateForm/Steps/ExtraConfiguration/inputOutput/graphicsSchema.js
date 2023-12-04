@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, boolean, ObjectSchema, lazy } from 'yup'
+import { ObjectSchema, boolean, lazy, string } from 'yup'
 
+import { HYPERVISORS, INPUT_TYPES, T } from 'client/constants'
 import {
   Field,
   arrayToOptions,
+  disableFields,
   filterFieldsByHypervisor,
   getObjectSchemaFromFields,
-  disableFields,
 } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
 const { vcenter, lxc, kvm } = HYPERVISORS
 const CUSTOM_KEYMAP_VALUE = 'custom'
@@ -58,6 +58,7 @@ const KEYMAP_VALUES = {
   ru: T.Russian,
   sl: T.Slovenian,
   es: T.SpanishEs,
+  'ca-es': T.SpanishCatalan,
   sv: T.Swedish,
   th: T.Thai,
   tr: T.Turkish,
