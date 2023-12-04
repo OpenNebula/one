@@ -75,7 +75,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit(0)
         end
 
-        filter_flag = options[:userfilter] || VirtualMachinePool::INFO_ALL
+        filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
         if options[:start_time]
             start_time = options[:start_time].to_i
         else
