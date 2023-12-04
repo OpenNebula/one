@@ -394,10 +394,10 @@ module OneDBFsck
         vm_elem.xpath("#{cpu}_USED").each do |e|
             cpu_used = (cpu_used / 100.0)
 
-            different = (e.text.to_f != cpu_used ||
-                ![format('%.2f', cpu_used),
-                  format('%.1f', cpu_used),
-                  format('%.0f', cpu_used)].include?(e.text))
+            different = e.text.to_f != cpu_used ||
+                        ![format('%.2f', cpu_used),
+                          format('%.1f', cpu_used),
+                          format('%.0f', cpu_used)].include?(e.text)
 
             cpu_used_str = format('%.2f', cpu_used)
 

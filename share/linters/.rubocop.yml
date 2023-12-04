@@ -944,6 +944,9 @@ Lint/NonAtomicFileOperation:
 Lint/IncompatibleIoSelectWithFiberScheduler:
   Enabled: false
 
+Lint/SymbolConversion:
+  Enabled: false
+
 #########
 # METRICS
 ########

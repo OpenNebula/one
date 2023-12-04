@@ -193,7 +193,7 @@ module HEMHook
 
     def as_stdin?
         astdin = self['TEMPLATE/ARGUMENTS_STDIN']
-        astdin &&= (astdin.casecmp('yes') || astdin.casecmp('true'))
+        astdin &&= astdin.casecmp('yes') || astdin.casecmp('true')
 
         return false if astdin.nil?
 
