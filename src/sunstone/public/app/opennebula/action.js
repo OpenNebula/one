@@ -464,7 +464,31 @@ define(function(require) {
 
       return ""+id;
     },
+    "importMarketApp": function(params, resource, method, action_obj) {
+      var callback = params.success;
+      var callbackError = params.error;
+      var id = params.data.id;
+      var action = OpenNebulaHelper.action(method, action_obj);
+      var request = OpenNebulaHelper.request(resource, method, [id, action_obj]);
 
+      var reqPath = resource.toLowerCase();
+      var cache_name = params.cache_name ? params.cache_name : resource;
+      $.ajax({
+        url: reqPath + "/" + id + "/create",
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(action),
+        success: function(response) {
+          _clearCache(cache_name);
+  
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callbackError ?
+              callbackError(request, OpenNebulaError(response)) : null;
+        }
+      });
+    }, 
     "getAppTags": function(params, resource){
       var callback = params.success;
       var callbackError = params.error;

@@ -135,7 +135,6 @@ define(function(require) {
   function _fill(context, templateJSON) {
     if(templateJSON && templateJSON.BACKUP_CONFIG){
       var configs = templateJSON.BACKUP_CONFIG
-      console.log("dsadas", configs)
       if(configs && configs.BACKUP_VOLATILE && configs.BACKUP_VOLATILE === 'YES'){
         $(idsElements.backup_volatile, context).click();
       }
