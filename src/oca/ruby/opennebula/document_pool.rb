@@ -41,7 +41,7 @@ module OpenNebula
         #######################################################################
 
         DOCUMENT_POOL_METHODS = {
-            :info => "documentpool.info"
+            :info => 'documentpool.info'
         }
 
         #######################################################################
@@ -55,10 +55,10 @@ module OpenNebula
         #   http://docs.opennebula.io/stable/integration/system_interfaces/api.html
         #
         # @return [DocumentPool] the new object
-        def initialize(client, user_id=-1)
-            super('DOCUMENT_POOL','DOCUMENT',client)
+        def initialize(client, user_id = -1)
+            super('DOCUMENT_POOL', 'DOCUMENT', client)
 
-            @user_id  = user_id
+            @user_id = user_id
         end
 
         #######################################################################
@@ -99,4 +99,5 @@ module OpenNebula
             self.class::DOCUMENT_TYPE
         end
     end
+
 end
