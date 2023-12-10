@@ -1203,7 +1203,7 @@ public:
      *  Updates the configuration attributes based on a template, the state of
      *  the virtual machine is checked to assure operation consistency
      *    @param tmpl with the new attributes include: OS, RAW, FEAUTRES,
-     *      CONTEXT and GRAPHICS.
+     *      CONTEXT, INPUT, BACKUP_CONFIG, CPU_MODEL and GRAPHICS.
      *    @param err description if any
      *    @param append true append, false replace
      *
