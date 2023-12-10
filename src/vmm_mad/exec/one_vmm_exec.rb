@@ -254,6 +254,7 @@ class VmmAction
                     @id,
                     host,
                     step[:action],
+                    :script_name => step[:script_name],
                     :ssh_stream => ssh,
                     :respond => false,
                     :stdin => stdin,
@@ -827,6 +828,7 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vmm,
                 :action       => ACTION[:snapshot_revert],
+                :script_name  => 'snapshot_revert',
                 :parameters   => [:deploy_id, snapshot_name]
             },
             # Execute post-boot networking setup
