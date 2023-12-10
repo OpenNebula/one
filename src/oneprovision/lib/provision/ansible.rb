@@ -72,7 +72,7 @@ module OneProvision
                 # Get just first line with Ansible version
                 version = `ansible --version`.split("\n")[0]
 
-                version = version.match(/\d+[.]\d+[.]\d+/)
+                version = version.match(/\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
                 ansible_min, ansible_max = provision.ansible_ver
