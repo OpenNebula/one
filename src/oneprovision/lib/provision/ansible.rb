@@ -73,7 +73,7 @@ module OneProvision
                 # Get just first line with Ansible version
                 version = `ansible --version`.split("\n")[0]
 
-                version = version.match(/\d+[.]\d+[.]\d+/)
+                version = version.match(/\d+[.]\d+/)
                 version = Gem::Version.new(version)
 
                 if (version < ANSIBLE_VERSION[0]) || (version > ANSIBLE_VERSION[1])
