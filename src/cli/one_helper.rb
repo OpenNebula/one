@@ -593,7 +593,7 @@ Bash symbols must be escaped on STDIN passing'
 
     OPTIONS = FORMAT, EXTENDED, NUMERIC, KILOBYTES
 
-    BACKUP_MODES = %w[FULL INCREMENT]
+    BACKUP_MODES = ['FULL', 'INCREMENT']
 
     class OneHelper
 
@@ -2323,7 +2323,7 @@ Bash symbols must be escaped on STDIN passing'
                     answer = STDIN.readline.chop
 
                     answer = initial if answer == ''
-                    noanswer = ((answer == '') && optional)
+                    noanswer = (answer == '') && optional
                 end while !noanswer && (answer =~ exp).nil?
 
                 if noanswer
@@ -2389,7 +2389,7 @@ Bash symbols must be escaped on STDIN passing'
                         answer = options[answer.to_i]
                     end
 
-                    noanswer = ((answer == '') && optional)
+                    noanswer = (answer == '') && optional
                 end while !noanswer && !options.include?(answer)
 
                 if noanswer

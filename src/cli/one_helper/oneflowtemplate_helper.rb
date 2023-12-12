@@ -85,8 +85,11 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             elsif options[:yaml]
                 [0, JSON.parse(response.body).to_yaml(:indent => 4)]
             else
+                table = format_service_template_pool
                 documents = JSON.parse(response.body)['DOCUMENT_POOL']
-                format_service_template_pool.show(documents['DOCUMENT'])
+
+                table.show(documents['DOCUMENT'], options)
+                table.describe_columns if options[:describe]
 
                 0
             end
