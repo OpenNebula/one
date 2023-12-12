@@ -27,6 +27,7 @@
               <xs:element name="BACKUP_VMS" type="xs:string"/>
               <xs:element name="BACKUP_VOLATILE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DATASTORE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="ERROR" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="EXECUTION" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="FS_FREEZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="KEEP_LAST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
