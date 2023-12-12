@@ -254,7 +254,6 @@ void VirtualMachine::delete_snapshots(Template& snapshots)
     obj_template->remove("SNAPSHOT", attrs);
 
     snapshots.set(attrs);
-    snapshots.add("VMS", 0);
 }
 
 /* -------------------------------------------------------------------------- */

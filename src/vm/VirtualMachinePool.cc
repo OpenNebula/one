@@ -1018,7 +1018,6 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
     Template tmpl;
 
     tmpl.set(disk->vector_attribute());
-    tmpl.add("VMS", 0);
 
     if (disk->is_volatile())
     {

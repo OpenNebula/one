@@ -76,6 +76,12 @@ public:
     bool update(Template * tmpl, Quotas& default_quotas, std::string& error) override;
 
     /**
+     *  Add usage counters. Use carefully this method does not care about exceeding the quota
+     *    @param tmpl Template with the quota usage
+     */
+    void add(Template* tmpl);
+
+    /**
      *  Decrement usage counters when deallocating image
      *    @param tmpl template for the resource
      */

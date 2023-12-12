@@ -371,7 +371,6 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", ssize);
 
-        (*vm_quotas)->add("VMS", 0);
         (*vm_quotas)->set(delta_disk);
     }
 }
@@ -1514,7 +1513,6 @@ void VirtualMachineDisks::delete_non_persistent_snapshots(Template &vm_quotas,
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", system_disk);
 
-        vm_quotas.add("VMS", 0);
         vm_quotas.set(delta_disk);
     }
 }

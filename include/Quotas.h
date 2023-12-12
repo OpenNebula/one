@@ -50,7 +50,7 @@ public:
 
     /**
      *  Delete usage from quota counters.
-     *    @param tmpl template for the image, with usage
+     *    @param tmpl Template with the quota usage
      */
      void ds_del(Template * tmpl)
      {
@@ -68,6 +68,15 @@ public:
      int ds_get(const std::string& id, VectorAttribute **va)
      {
          return datastore_quota.get_quota(id, va);
+     }
+
+     /**
+      * Add VM quota usage, without checking limits
+      *    @param tmpl Template with the quota usage
+      */
+     void vm_add(Template * tmpl)
+     {
+         vm_quota.add(tmpl);
      }
 
      /**
@@ -158,6 +167,15 @@ public:
     int from_xml(ObjectXML * object_xml);
 
     /**
+     *  Add VM quota usage, without checking the limits
+     *    @param uid of the user
+     *    @param gid of the group
+     *    @param tmpl template with quota usage
+     *    @note Use carefully as this method may exceed quota limits
+     */
+    static void vm_add(int uid, int gid, Template * tmpl);
+
+    /**
      *  Delete VM related usage (network, image and compute) from quota counters.
      *  for the given user and group
      *    @param uid of the user
@@ -224,7 +242,7 @@ public:
      *    @param type the quota to work with
      *    @param uid of the user
      *    @param gid of the group
-     *    @param tmpl template for the image, with usage
+     *    @param tmpl template with quota usage
      */
     static void quota_del(QuotaType type, int uid, int gid, Template * tmpl);
 

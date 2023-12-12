@@ -274,6 +274,40 @@ bool Quota::check_quota(const string& qid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Quota::add_quota(const string& qid, map<string, float>& usage_req)
+{
+    VectorAttribute * q;
+
+    if ( get_quota(qid, &q) == -1)
+    {
+        return;
+    }
+
+    if ( q == 0 )
+    {
+        return;
+    }
+
+    for (int i=0; i < num_metrics; i++)
+    {
+        string metrics_used = metrics[i];
+
+        metrics_used += "_USED";
+
+        auto it = usage_req.find(metrics[i]);
+
+        if (it == usage_req.end())
+        {
+            continue;
+        }
+
+        add_to_quota(q, metrics_used, it->second);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 {
     VectorAttribute * q;
