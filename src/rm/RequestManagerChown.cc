@@ -79,6 +79,8 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
             tmpl->add("RUNNING_VMS", 1);
         }
 
+        tmpl->add("VMS", 1);
+
         VirtualMachineDisks::image_ds_quotas(tmpl.get(), ds_quotas);
 
         quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, move(tmpl)));

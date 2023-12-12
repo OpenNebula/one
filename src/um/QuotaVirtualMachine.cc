@@ -53,60 +53,103 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     float       cpu, running_cpu;
     long long   size;
 
-    if ( tmpl->get("MEMORY", memory) == false  || memory < 0 )
+    if ( tmpl->get("MEMORY", memory)  )
     {
-        error = "MEMORY attribute must be a positive integer value";
-        return false;
+        if ( memory < 0 )
+        {
+            error = "MEMORY attribute must be a positive integer value";
+            return false;
+        }
+
+        vm_request.insert(make_pair("MEMORY", memory));
     }
 
-    if ( tmpl->get("CPU", cpu) == false || cpu < 0 )
+    if ( tmpl->get("CPU", cpu) )
     {
-        error = "CPU attribute must be a positive float or integer value";
-        return false;
+        if ( cpu < 0 )
+        {
+            error = "CPU attribute must be a positive float or integer value";
+            return false;
+        }
+
+        vm_request.insert(make_pair("CPU", cpu));
     }
 
     size = VirtualMachineDisks::system_ds_size(tmpl, true);
 
     size += VirtualMachine::get_snapshots_system_size(tmpl);
 
-    if ( tmpl->get("VMS", vms) == false )
+    vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
+
+    if ( tmpl->get("VMS", vms) )
     {
-        vms = 1;
+        vm_request.insert(make_pair("VMS", vms));
     }
 
     if ( tmpl->get("RUNNING_MEMORY", running_memory) )
     {
         vm_request.insert(make_pair("RUNNING_MEMORY", running_memory));
     }
-    else
-    {
-        vm_request.insert(make_pair("RUNNING_MEMORY", 0));
-    }
 
     if ( tmpl->get("RUNNING_CPU", running_cpu) )
     {
         vm_request.insert(make_pair("RUNNING_CPU", running_cpu));
-    }
-    else
-    {
-        vm_request.insert(make_pair("RUNNING_CPU", 0));
     }
 
     if ( tmpl->get("RUNNING_VMS", running_vms) )
     {
         vm_request.insert(make_pair("RUNNING_VMS", running_vms));
     }
-    else
-    {
-        vm_request.insert(make_pair("RUNNING_VMS", 0));
-    }
-
-    vm_request.insert(make_pair("VMS", vms));
-    vm_request.insert(make_pair("MEMORY", memory));
-    vm_request.insert(make_pair("CPU", cpu));
-    vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
 
     return check_quota("", vm_request, default_quotas, error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void QuotaVirtualMachine::add(Template * tmpl)
+{
+    map<string, float> vm_request;
+
+    float value;
+
+    if ( tmpl->get("MEMORY", value) )
+    {
+        vm_request.insert(make_pair("MEMORY", value));
+    }
+
+    if ( tmpl->get("CPU", value) )
+    {
+        vm_request.insert(make_pair("CPU", value));
+    }
+
+    if ( tmpl->get("VMS", value) )
+    {
+        vm_request.insert(make_pair("VMS", value));
+    }
+
+    if ( tmpl->get("RUNNING_MEMORY", value) )
+    {
+        vm_request.insert(make_pair("RUNNING_MEMORY", value));
+    }
+
+    if ( tmpl->get("RUNNING_CPU", value) )
+    {
+        vm_request.insert(make_pair("RUNNING_CPU", value));
+    }
+
+    if ( tmpl->get("RUNNING_VMS", value) )
+    {
+        vm_request.insert(make_pair("RUNNING_VMS", value));
+    }
+
+    long long size = VirtualMachineDisks::system_ds_size(tmpl, true);
+
+    size += VirtualMachine::get_snapshots_system_size(tmpl);
+
+    vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
+
+    add_quota("", vm_request);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,46 +163,40 @@ void QuotaVirtualMachine::del(Template * tmpl)
     float       cpu, running_cpu;
     long long   size;
 
-    if ( tmpl->get("MEMORY", memory) == false )
+    if ( tmpl->get("MEMORY", memory) )
     {
-        memory = 0;
+        vm_request.insert(make_pair("MEMORY", memory));
     }
 
-    if ( tmpl->get("CPU", cpu) == false )
+    if ( tmpl->get("CPU", cpu) )
     {
-        cpu = 0;
+        vm_request.insert(make_pair("CPU", cpu));
     }
 
-    if ( tmpl->get("VMS", vms) == false )
+    if ( tmpl->get("VMS", vms) )
     {
-        vms = 1;
+        vm_request.insert(make_pair("VMS", vms));
     }
 
-    if ( tmpl->get("RUNNING_MEMORY", running_memory) == false )
+    if ( tmpl->get("RUNNING_MEMORY", running_memory) )
     {
-        running_memory = 0;
+        vm_request.insert(make_pair("RUNNING_MEMORY", running_memory));
     }
 
-    if ( tmpl->get("RUNNING_CPU", running_cpu) == false )
+    if ( tmpl->get("RUNNING_CPU", running_cpu) )
     {
-        running_cpu = 0;
+        vm_request.insert(make_pair("RUNNING_CPU", running_cpu));
     }
 
-    if ( tmpl->get("RUNNING_VMS", running_vms) == false )
+    if ( tmpl->get("RUNNING_VMS", running_vms) )
     {
-        running_vms = 0;
+        vm_request.insert(make_pair("RUNNING_VMS", running_vms));
     }
 
     size = VirtualMachineDisks::system_ds_size(tmpl, true);
 
     size += VirtualMachine::get_snapshots_system_size(tmpl);
 
-    vm_request.insert(make_pair("VMS", vms));
-    vm_request.insert(make_pair("MEMORY", memory));
-    vm_request.insert(make_pair("CPU", cpu));
-    vm_request.insert(make_pair("RUNNING_VMS", running_vms));
-    vm_request.insert(make_pair("RUNNING_MEMORY", running_memory));
-    vm_request.insert(make_pair("RUNNING_CPU", running_cpu));
     vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
 
     del_quota("", vm_request);

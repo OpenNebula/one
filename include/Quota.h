@@ -39,10 +39,11 @@ public:
     virtual bool check(Template* tmpl, Quotas& default_quotas, std::string& error) = 0;
 
     /**
-     *  Decrement usage counters when deallocating image
+     *  Decrement usage counters
      *    @param tmpl template for the resource
      */
     virtual void del(Template* tmpl) = 0;
+
     /**
      *  Set the quotas. If the quota previously exists its limit is updated.
      *    @param quota_str the quota template in ASCII or XML formats
@@ -250,6 +251,14 @@ protected:
                      std::map<std::string, float>& usage_req,
                      Quotas& default_quotas,
                      std::string& error);
+
+    /**
+     *  Add usage for a given quota without checking the limits
+     *    @param qid id that identifies the quota, to be used by get_quota
+     *    @param usage_req usage for each metric
+     */
+    void add_quota(const std::string& qid,
+                   std::map<std::string, float>& usage_req);
 
     /**
      *  Reduce usage from a given quota based on the current consumption

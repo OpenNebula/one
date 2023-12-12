@@ -1601,7 +1601,6 @@ void LifeCycleManager::trigger_snapshot_delete_success(int vid)
             Template quota_tmpl;
 
             quota_tmpl.set(snap);
-            quota_tmpl.replace("VMS", 0);
 
             Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
         }
