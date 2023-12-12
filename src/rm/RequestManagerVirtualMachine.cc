@@ -525,10 +525,6 @@ Request::ErrorCode VirtualMachineAction::request_execute(RequestAttributes& att,
             quota_tmpl.add("RUNNING_CPU", cpu);
             quota_tmpl.add("RUNNING_VMS", 1);
 
-            quota_tmpl.add("VMS", 0);
-            quota_tmpl.add("MEMORY", 0);
-            quota_tmpl.add("CPU", 0);
-
             att_aux.uid = vm->get_uid();
             att_aux.gid = vm->get_gid();
 
@@ -2170,7 +2166,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     deltas.add("MEMORY", dmemory);
     deltas.add("CPU", dcpu);
-    deltas.add("VMS", 0);
 
     if (update_running_quota)
     {
@@ -2347,8 +2342,6 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
     Template quota_tmpl;
 
     quota_tmpl.set(snap);
-    quota_tmpl.add("MEMORY", 0);
-    quota_tmpl.add("CPU", 0);
     quota_tmpl.add("VMS", 0);
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);

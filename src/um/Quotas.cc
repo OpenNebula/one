@@ -141,6 +141,36 @@ int Quotas::from_xml(ObjectXML * object_xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void Quotas::vm_add(int uid, int gid, Template * tmpl)
+{
+    Nebula&     nd    = Nebula::instance();
+    UserPool *  upool = nd.get_upool();
+    GroupPool * gpool = nd.get_gpool();
+
+    if ( uid != UserPool::ONEADMIN_ID )
+    {
+        if ( auto user = upool->get(uid) )
+        {
+            user->quota.vm_add(tmpl);
+
+            upool->update_quotas(user.get());
+        }
+    }
+
+    if ( gid != GroupPool::ONEADMIN_ID )
+    {
+        if ( auto group = gpool->get(gid) )
+        {
+            group->quota.vm_add(tmpl);
+
+            gpool->update_quotas(group.get());
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void Quotas::quota_del(QuotaType type, Template *tmpl)
 {
     switch (type)
@@ -195,7 +225,6 @@ bool Quotas::quota_check(QuotaType  type,
 
         case VM:
             return vm_quota.check(tmpl, default_quotas, error_str);
-
         case VIRTUALMACHINE:
             if ( network_quota.check(tmpl, default_quotas, error_str) == false )
             {
