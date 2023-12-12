@@ -105,7 +105,10 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
             elsif options[:yaml]
                 [0, array_list.to_yaml(:indent => 4)]
             else
-                format_service_pool.show(array_list)
+                table = format_service_pool
+
+                table.show(array_list, options)
+                table.describe_columns if options[:describe]
 
                 0
             end
