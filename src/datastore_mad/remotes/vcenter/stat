@@ -86,6 +86,9 @@ if img_path.start_with? 'vcenter://'
         vi_client.close_connection if vi_client
     end
 else
-    cmd = "#{File.dirname(__FILE__)}/../fs/stat #{drv_action_enc}"
-    system(cmd)
+    cmd = "#{File.dirname(__FILE__)}/../fs/stat"
+    stdin, stdout, = Open3.popen3(cmd)
+    stdin.puts(drv_action_enc)
+    stdin.close
+    puts stdout.read
 end
