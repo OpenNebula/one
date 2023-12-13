@@ -38,16 +38,16 @@ module OpenNebula
         #######################################################################
 
         DOCUMENT_METHODS = {
-            :allocate   => 'document.allocate',
-            :delete     => 'document.delete',
-            :info       => 'document.info',
-            :update     => 'document.update',
-            :chown      => 'document.chown',
-            :chmod      => 'document.chmod',
-            :clone      => 'document.clone',
-            :rename     => 'document.rename',
-            :lock       => 'document.lock',
-            :unlock     => 'document.unlock'
+            :allocate   => "document.allocate",
+            :delete     => "document.delete",
+            :info       => "document.info",
+            :update     => "document.update",
+            :chown      => "document.chown",
+            :chmod      => "document.chmod",
+            :clone      => "document.clone",
+            :rename     => "document.rename",
+            :lock       => "document.lock",
+            :unlock     => "document.unlock"
         }
 
         # Creates a Document Object description with just its identifier
@@ -55,14 +55,14 @@ module OpenNebula
         # @param [Integer] pe_id the id of the object
         #
         # @return [Nokogiri::XML::Node, REXML::Element] the empty xml
-        def self.build_xml(pe_id = nil)
+        def Document.build_xml(pe_id=nil)
             if pe_id
                 obj_xml = "<DOCUMENT><ID>#{pe_id}</ID></DOCUMENT>"
             else
-                obj_xml = '<DOCUMENT></DOCUMENT>'
+                obj_xml = "<DOCUMENT></DOCUMENT>"
             end
 
-            XMLElement.build_xml(obj_xml, 'DOCUMENT')
+            XMLElement.build_xml(obj_xml,'DOCUMENT')
         end
 
         # Class constructor
@@ -78,7 +78,7 @@ module OpenNebula
         def initialize(xml, client)
             LockableExt.make_lockable(self, DOCUMENT_METHODS)
 
-            super(xml, client)
+            super(xml,client)
         end
 
         #######################################################################
@@ -92,14 +92,14 @@ module OpenNebula
         def info(decrypt = false)
             rc = super(DOCUMENT_METHODS[:info], 'DOCUMENT', decrypt)
 
-            if !OpenNebula.is_error?(rc) && document_type != self.class::DOCUMENT_TYPE
+            if !OpenNebula.is_error?(rc) && self['TYPE'].to_i != document_type
                 return OpenNebula::Error.new("[DocumentInfo] Error getting document [#{@pe_id}].")
             end
 
             return rc
         end
 
-        alias info! info
+        alias_method :info!, :info
 
         # Allocates a new Document in OpenNebula
         #
@@ -108,17 +108,17 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def allocate(description)
-            super(DOCUMENT_METHODS[:allocate], description, self.class::DOCUMENT_TYPE)
+            super(DOCUMENT_METHODS[:allocate], description, document_type)
         end
 
-        alias allocate_xml allocate
+        alias_method :allocate_xml, :allocate
 
         # Deletes the Document
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def delete
-            rc = check_type
+        def delete()
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             return call(DOCUMENT_METHODS[:delete], @pe_id)
@@ -132,8 +132,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template, append = false)
-            rc = check_type
+        def update(new_template, append=false)
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             super(DOCUMENT_METHODS[:update], new_template, append ? 1 : 0)
@@ -147,8 +147,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update_raw(template_raw, append = false)
-            rc = check_type
+        def update_raw(template_raw, append=false)
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             return call(DOCUMENT_METHODS[:update], @pe_id, template_raw, append ? 1 : 0)
@@ -162,7 +162,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chown(uid, gid)
-            rc = check_type
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             super(DOCUMENT_METHODS[:chown], uid, gid)
@@ -175,7 +175,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod_octet(octet)
-            rc = check_type
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             super(DOCUMENT_METHODS[:chmod], octet)
@@ -187,8 +187,8 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def chmod(owner_u, owner_m, owner_a, group_u, group_m, group_a, other_u,
-                  other_m, other_a)
-            rc = check_type
+                other_m, other_a)
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
             super(DOCUMENT_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
@@ -202,10 +202,10 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] The new Document ID in case
         #   of success, Error otherwise
         def clone(name)
-            rc = check_type
+            rc = check_type()
             return rc if OpenNebula.is_error?(rc)
 
-            return Error.new('ID not defined') unless @pe_id
+            return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(DOCUMENT_METHODS[:clone], @pe_id, name)
 
@@ -241,7 +241,7 @@ module OpenNebula
         # Returns true if the GROUP_U permission bit is set
         # @return [true, false] true if the GROUP_U permission bit is set
         def public?
-            if self['PERMISSIONS/GROUP_U'] == '1' || self['PERMISSIONS/OTHER_U'] == '1'
+            if self['PERMISSIONS/GROUP_U'] == "1" || self['PERMISSIONS/OTHER_U'] == "1"
                 true
             else
                 false
@@ -249,10 +249,10 @@ module OpenNebula
         end
 
         def document_type
-            self['TYPE'].to_i
+            self.class::DOCUMENT_TYPE
         end
 
-        private
+    private
 
         def set_publish(published)
             group_u = published ? 1 : 0
@@ -260,7 +260,7 @@ module OpenNebula
             chmod(-1, -1, -1, group_u, -1, -1, -1, -1, -1)
         end
 
-        def check_type
+        def check_type()
             type = self['TYPE']
 
             if type.nil? && @pe_id
@@ -274,15 +274,12 @@ module OpenNebula
                 type = xmldoc['TYPE']
             end
 
-            if !type.nil? && document_type != self.class::DOCUMENT_TYPE
+            if !type.nil? && type.to_i != document_type
                 return OpenNebula::Error.new(
-                    "[DocumentInfo] Error getting document [#{@pe_id}]."
-                )
+                    "[DocumentInfo] Error getting document [#{@pe_id}].")
             end
 
-            return
+            return nil
         end
-
     end
-
 end

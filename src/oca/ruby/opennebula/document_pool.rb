@@ -41,7 +41,7 @@ module OpenNebula
         #######################################################################
 
         DOCUMENT_POOL_METHODS = {
-            :info => 'documentpool.info'
+            :info => "documentpool.info"
         }
 
         #######################################################################
@@ -55,10 +55,10 @@ module OpenNebula
         #   http://docs.opennebula.io/stable/integration/system_interfaces/api.html
         #
         # @return [DocumentPool] the new object
-        def initialize(client, user_id = -1)
-            super('DOCUMENT_POOL', 'DOCUMENT', client)
+        def initialize(client, user_id=-1)
+            super('DOCUMENT_POOL','DOCUMENT',client)
 
-            @user_id = user_id
+            @user_id  = user_id
         end
 
         #######################################################################
@@ -71,32 +71,32 @@ module OpenNebula
         #   otherwise
         def info(*args)
             case args.size
-            when 0
-                info_filter(DOCUMENT_POOL_METHODS[:info], @user_id, -1, -1,
-                            self.class::DOCUMENT_TYPE)
-            when 3
-                info_filter(DOCUMENT_POOL_METHODS[:info], args[0], args[1], args[2],
-                            self.class::DOCUMENT_TYPE)
+                when 0
+                    info_filter(DOCUMENT_POOL_METHODS[:info],@user_id,-1,-1, document_type)
+                when 3
+                    info_filter(DOCUMENT_POOL_METHODS[:info],args[0],args[1],args[2], document_type)
             end
         end
 
-        def info_all
-            return super(DOCUMENT_POOL_METHODS[:info], self.class::DOCUMENT_TYPE)
+        def info_all()
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
-        def info_mine
-            return super(DOCUMENT_POOL_METHODS[:info], self.class::DOCUMENT_TYPE)
+        def info_mine()
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
-        def info_group
-            return super(DOCUMENT_POOL_METHODS[:info], self.class::DOCUMENT_TYPE)
+        def info_group()
+            return super(DOCUMENT_POOL_METHODS[:info], document_type)
         end
 
-        alias info! info
-        alias info_all! info_all
-        alias info_mine! info_mine
-        alias info_group! info_group
+        alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
 
+        def document_type
+            self.class::DOCUMENT_TYPE
+        end
     end
-
 end
