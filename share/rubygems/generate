@@ -99,7 +99,7 @@ GEM_DESCRIPTION={
         :dependencies => [
             'nokogiri',
             'json',
-            'rbvmomi',
+            'rbvmomi2',
             'xmlrpc',
             'treetop',    # oneflow
             'ipaddress',  # oneflow

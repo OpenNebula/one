@@ -163,8 +163,6 @@ group :vmware do
 
     if ruby_version >= Gem::Version.new('2.4.1')
         gem 'rbvmomi2', '~> 3.7.0'
-    else
-        gem 'rbvmomi', '~> 2.2.0'
     end
 end
 
