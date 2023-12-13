@@ -8,3 +8,7 @@
 
 - [ ] master
 - [ ] one-X.X
+
+<hr>
+
+- [ ] Check this if this PR should **not** be squashed
