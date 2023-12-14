@@ -1191,6 +1191,13 @@ get '/marketplaceapp/:id/tags' do
 end
 
 ##############################################################################
+# Create a marketPlacetApp
+##############################################################################
+post '/marketplaceapp/:type/create' do
+    @SunstoneServer.createMarketApp(params[:type], @request_body)
+end
+
+##############################################################################
 # Create a new Resource
 ##############################################################################
 post '/:pool' do

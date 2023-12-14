@@ -150,6 +150,26 @@ class SunstoneServer < CloudServer
         end
     end
 
+
+    ############################################################################
+    #
+    ############################################################################
+    def createMarketApp(type, template)
+        action_hash = JSONUtils.parse_json(template, 'action')
+        if OpenNebula.is_error?(action_hash)
+            return [500, image_hash.to_json]
+        end
+        marketplaceapp = MarketPlaceAppJSON.new(MarketPlaceApp.build_xml, @client)
+
+        rc = case type
+            when "service" then marketplaceapp.app_service_import(action_hash['params'])
+            else
+                marketplaceapp.app_vm_import(action_hash['params']) #VM / VM_TEMPLATE
+            end
+
+        return [201, rc.to_json]
+    end
+
     ############################################################################
     #
     ############################################################################
