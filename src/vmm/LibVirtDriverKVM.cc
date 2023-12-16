@@ -152,6 +152,7 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
 
     unsigned int vcpu_id = 0;
     int affinity = -1;
+    unsigned int hpsz = 0;
 
     std::ostringstream oss;
 
@@ -163,9 +164,10 @@ static void pin_cpu(ofstream& file, std::string& emulator_cpus,
         pp   = HostShare::str_to_pin_policy(pp_s);
 
         topology->vector_value("NODE_AFFINITY", affinity);
+        topology->vector_value("HUGEPAGE_SIZE", hpsz);
     }
 
-    if ( pp == HostShare::PP_NONE && affinity == -1)
+    if ( pp == HostShare::PP_NONE && affinity == -1 && hpsz == 0)
     {
         if (!emulator_cpus.empty())
         {
