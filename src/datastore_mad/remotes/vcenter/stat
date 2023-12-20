@@ -54,6 +54,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'open3'
 
 drv_action_enc = STDIN.read
 
