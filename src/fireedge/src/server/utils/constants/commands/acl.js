@@ -47,6 +47,10 @@ module.exports = {
           from: postBody,
           default: '0x1',
         },
+        zone: {
+          from: postBody,
+          default: '0x100000000',
+        },
       },
     },
     [ACL_DELRULE]: {

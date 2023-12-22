@@ -13,49 +13,51 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
+
 import PropTypes from 'prop-types'
-
-import { ShieldCheck } from 'iconoir-react'
-import { Typography } from '@mui/material'
-
-import { StatusCircle } from 'client/components/Status'
+import { Component } from 'react'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import * as ZoneModel from 'client/models/Zone'
+import { translateACL } from 'client/models/ACL'
 
-const Row = ({ original, value, ...props }) => {
+/**
+ * ACLCardReadableRule component to display ACL details.
+ *
+ * @param {object} props - Component props
+ * @param {object} props.acl - ACL details
+ * @param {object} props.rootProps - Additional props for the root element
+ * @returns {Component} UserCard component
+ */
+const ACLCardReadableRule = ({ acl, rootProps }) => {
+  const { ID, STRING } = acl
+
+  // Row styles
   const classes = rowStyles()
-  const { ID, NAME, ENDPOINT } = value
-
-  const { color: stateColor, name: stateName } = ZoneModel.getState(original)
 
   return (
-    <div {...props} data-cy={`zone-${ID}`}>
+    <div {...rootProps} data-cy={`acl-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
+          <span data-cy="acl-card-readable">{translateACL(STRING)}</span>
         </div>
         <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Endpoint: ${ENDPOINT}`}>
-            <ShieldCheck />
-            <span>{` ${ENDPOINT}`}</span>
-          </span>
+          <span data-cy="acl-card-id">{`#${ID}`}</span>
         </div>
       </div>
     </div>
   )
 }
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+ACLCardReadableRule.propTypes = {
+  acl: PropTypes.shape({
+    ID: PropTypes.string.isRequired,
+    STRING: PropTypes.string.isRequired,
+  }).isRequired,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
+  }),
 }
 
-export default Row
+ACLCardReadableRule.displayName = 'ACLCardCLI'
+
+export default ACLCardReadableRule

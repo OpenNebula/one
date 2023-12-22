@@ -36,7 +36,7 @@ import {
 import { CreateForm, UpdateForm } from 'client/components/Forms/Group'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
-import { createStringACL, createAclObjectFromString } from 'client/models/acl'
+import { createStringACL, createAclObjectFromString } from 'client/models/ACL'
 import { ACL_RIGHTS, ACL_TYPE_ID } from 'client/constants'
 
 import systemApi from 'client/features/OneApi/system'
@@ -159,7 +159,7 @@ function CreateGroup() {
       // Go to groups list
       history.push(PATH.SYSTEM.GROUPS.LIST)
     } catch (error) {
-      enqueueError('Error creating group: ' + error.message)
+      enqueueError('Error creating group')
     }
   }
 

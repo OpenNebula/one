@@ -14,7 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-// File with constants about ACLs
+import { T } from 'client/constants'
+
+// ACL actions
+export const ACL_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  CREATE_DIALOG_STRING: 'create_dialog_string',
+  DELETE: 'delete',
+}
 
 // Types of id definition
 export const ACL_TYPE_ID = {
@@ -30,6 +37,13 @@ export const ACL_ID = {
   '@': 0x200000000,
   '*': 0x400000000,
   '%': 0x800000000,
+}
+
+export const ACL_USERS = {
+  INDIVIDUAL: { type: 'INDIVIDUAL', id: '#', value: 0x100000000 },
+  GROUP: { type: 'GROUP', id: '@', value: 0x200000000 },
+  ALL: { type: 'ALL', id: '*', value: 0x400000000 },
+  CLUSTER: { type: 'CLUSTER', id: '%', value: 0x800000000 },
 }
 
 // Hex values for different resource types
@@ -61,4 +75,32 @@ export const ACL_RIGHTS = {
   MANAGE: { name: 'MANAGE', value: 0x2 },
   ADMIN: { name: 'ADMIN', value: 0x4 },
   CREATE: { name: 'CREATE', value: 0x8 },
+}
+
+// type of table views
+export const ACL_TABLE_VIEWS = {
+  ICONS: {
+    type: 'ICONS',
+    name: T['acls.table.types.icons'],
+  },
+  NAMES: {
+    type: 'NAMES',
+    name: T['acls.table.types.names'],
+  },
+  CLI: {
+    type: 'CLI',
+    name: T['acls.table.types.cli'],
+  },
+  RESOURCES: {
+    type: 'RESOURCES',
+    name: T['acls.table.types.resources'],
+  },
+  RULE: {
+    type: 'RULE',
+    name: T['acls.table.types.rule'],
+  },
+  READABLERULE: {
+    type: 'READABLERULE',
+    name: T['acls.table.types.readablerule'],
+  },
 }

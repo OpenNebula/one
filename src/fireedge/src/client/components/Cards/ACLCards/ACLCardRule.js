@@ -13,16 +13,49 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import templateToObject from 'client/utils/parser/templateToObject'
-import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
-import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
-import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
 
-export {
-  templateToObject,
-  parseApplicationToForm,
-  parseFormToApplication,
-  parseFormToDeployApplication,
-  parseAcl,
+import PropTypes from 'prop-types'
+import { Component } from 'react'
+import { rowStyles } from 'client/components/Tables/styles'
+
+/**
+ * ACLCardCLI component to display ACL details.
+ *
+ * @param {object} props - Component props
+ * @param {object} props.acl - ACL details
+ * @param {object} props.rootProps - Additional props for the root element
+ * @returns {Component} UserCard component
+ */
+const ACLCardCLI = ({ acl, rootProps }) => {
+  const { ID, STRING } = acl
+
+  // Row styles
+  const classes = rowStyles()
+
+  return (
+    <div {...rootProps} data-cy={`acl-${ID}`}>
+      <div className={classes.main}>
+        <div className={classes.title}>
+          <span data-cy="acl-card-string">{`${STRING}`}</span>
+        </div>
+        <div className={classes.caption}>
+          <span data-cy="acl-card-id">{`#${ID}`}</span>
+        </div>
+      </div>
+    </div>
+  )
 }
+
+ACLCardCLI.propTypes = {
+  acl: PropTypes.shape({
+    ID: PropTypes.string.isRequired,
+    STRING: PropTypes.string.isRequired,
+  }).isRequired,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
+  }),
+}
+
+ACLCardCLI.displayName = 'ACLCardCLI'
+
+export default ACLCardCLI

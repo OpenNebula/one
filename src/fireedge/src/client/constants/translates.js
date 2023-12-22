@@ -396,8 +396,8 @@ module.exports = {
   /* sections - network */
   Network: 'Network',
   Networks: 'Networks',
-  VirtualNetwork: 'Virtual network',
-  VirtualNetworks: 'Virtual networks',
+  VirtualNetwork: 'Virtual Network',
+  VirtualNetworks: 'Virtual Networks',
   NetworkTemplate: 'Network Template',
   NetworkTemplates: 'Network Templates',
   NetworkTopology: 'Network topology',
@@ -1563,4 +1563,115 @@ module.exports = {
   'showback.button.calculateShowback': 'Calculate showback',
   'showback.button.help.paragraph.1':
     'Generate showback data to the interval selected in start and end date. After generate the showback data, you can access to the reports on the user or group Showback details. ',
+
+  /* system - acls */
+  'acls.table.actions.create.string': 'Create from string',
+
+  'acls.table.types.icons': 'Icons',
+  'acls.table.types.names': 'Names',
+  'acls.table.types.cli': 'CLI',
+  'acls.table.types.resources': 'Resources',
+  'acls.table.types.rule': 'Rule',
+  'acls.table.types.readablerule': 'Readable Rule',
+  'acls.table.types.button': 'Table view',
+  'acls.table.types.title': 'Change to view:',
+
+  'acls.table.card.rule.user.tooltip': 'Rule applies to user: %1$s',
+  'acls.table.card.rule.group.tooltip': 'Rule applies to group: %1$s',
+  'acls.table.card.rule.cluster.tooltip': 'Rule applies to cluster: %1$s',
+  'acls.table.card.rule.all.tooltip': 'Rule applies to all',
+  'acls.table.card.rule.zone.tooltip': 'Rule applies to zone: %1$s',
+  'acls.table.card.rule.zone.tooltip.all': 'Rule applies to all zones',
+  'acls.table.card.resources.individual.tooltip':
+    'Resources with identifier: %1$s',
+  'acls.table.card.resources.group.tooltip': 'Resources owned by group: %1$s',
+  'acls.table.card.resources.cluster.tooltip':
+    'Resources owned by cluster: %1$s',
+  'acls.table.card.resources.all.tooltip': 'Resources owned by all',
+
+  'acls.table.filter.string': 'String rule',
+  'acls.table.filter.resources.user.id': 'Resource identifier id',
+  'acls.table.filter.resources.user.name': 'Resource identifier name',
+  'acls.table.filter.resources.user.type': 'Resource identifier type',
+  'acls.table.filter.user.id': 'User identifier id',
+  'acls.table.filter.user.name': 'User identifier name',
+  'acls.table.filter.user.type': 'User identifier type',
+  'acls.table.filter.zone.id': 'Zone identifier id',
+  'acls.table.filter.zone.name': 'Zone identifier name',
+  'acls.table.filter.zone.type': 'Zone identifier type',
+
+  'acls.form.create.user.title': 'Users',
+  'acls.form.create.user.info':
+    'Select whom the rule will apply. Could be an individual user, a group of users or all users.',
+  'acls.form.create.user.individual': 'Select which user to apply the rule to',
+  'acls.form.create.user.group': 'Select which group to apply the rule to',
+
+  'acls.form.create.resources.title': 'Resources',
+  'acls.form.create.resources.info': 'Select affected resources by the rule.',
+  'acls.form.create.resources.vm': 'Virtual Machine',
+  'acls.form.create.resources.vmtemplate': 'Virtual Machine Template',
+  'acls.form.create.resources.vnettemplate': 'Virtual Network Template',
+
+  'acls.form.create.resourcesUser.title': 'Resource identifier',
+  'acls.form.create.resourcesUser.info':
+    'Select resource owners. Could be an individual user, a group of users, a cluster or all users.',
+  'acls.form.create.resourcesUser.individual':
+    'Enter the number of the identifier',
+  'acls.form.create.resourcesUser.group':
+    'Select which group is the owner of the resources',
+  'acls.form.create.resourcesUser.cluster':
+    'Select which cluster is the owner of the resources',
+  'acls.form.create.resourcesUser.identifier': 'Identifier',
+
+  'acls.form.create.rights.title': 'Rights',
+  'acls.form.create.rights.info':
+    'Select the allowed operations that this rule will enable.',
+
+  'acls.form.create.zone.title': 'Zone',
+  'acls.form.create.zone.info':
+    'Select the zone where the rule will apply. Optional unless OpenNebula is configured in a federation.',
+  'acls.form.create.zone.zone': 'Select which zone the rule will apply.',
+
+  'acls.form.create.summary.title': 'Summary',
+  'acls.form.create.summary.info.rule': 'Rule that will be created: ',
+  'acls.form.create.summary.info.translation': 'That means: ',
+
+  'acls.form.create.stringEditor.title': 'String ACL rule',
+  'acls.form.create.stringEditor.info':
+    'Enter the string rule that will be created. Remember that a rule it is composed by four different components:',
+  'acls.form.create.stringEditor.info.user.title': 'User: ',
+  'acls.form.create.stringEditor.info.user.info':
+    'Composed by an ID definition (#<id> for individual user, @<id> for groups and * for all).',
+  'acls.form.create.stringEditor.info.resource.title': 'Resources: ',
+  'acls.form.create.stringEditor.info.resource.info':
+    "Composed by a list of '+' separated resource types, '/' and an ID definition (#<id> for individual resource, @<id> for groups, %<id> for clusters and * for all).",
+  'acls.form.create.stringEditor.info.rights.title': 'Rights: ',
+  'acls.form.create.stringEditor.info.rights.info':
+    "Is a list of operations (USE, MANAGE, ADMIN and CREATE) separated by the '+' character.",
+  'acls.form.create.stringEditor.info.zone.title': 'Zone: ',
+  'acls.form.create.stringEditor.info.zone.info':
+    'is an ID definition (#<id> for a zone and * for all) of the zones where the rule applies. This last part is optional, and can be ignored unless OpenNebula is configured in a federation.',
+  'acls.form.create.stringEditor.info.more':
+    'See OpenNebula documentation to get more details ',
+  'acls.form.create.stringEditor.info.more.link': 'about ACL rules.',
+
+  'acls.translate.rule': 'Rule',
+  'acls.translate.user.id': 'allow user with id',
+  'acls.translate.user.group': 'allows users in the group',
+  'acls.translate.user.all': 'allows all users',
+  'acls.translate.rights': 'the right to perform',
+  'acls.translate.and': 'and',
+  'acls.translate.operation': 'operation',
+  'acls.translate.operations': 'operations',
+  'acls.translate.over': 'over',
+  'acls.translate.overall': 'over all',
+  'acls.translate.resource.id': 'with identifier',
+  'acls.translate.resource.group': 'in the group',
+  'acls.translate.resource.cluster': 'in the cluster',
+  'acls.translate.zone.id': 'in the zone',
+  'acls.translate.zone.all': 'in all zones',
+  'acls.translate.error': 'ACL rule is NOT valid',
+
+  Identifier: 'Identifier',
+  Rights: 'Rights',
 }
