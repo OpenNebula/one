@@ -1021,7 +1021,11 @@ int VirtualNetwork::nic_attribute(
         return -1;
     }
 
-    if (ip_ne == 1)
+    if (nic->is_floating_only())
+    {
+        rc = AddressRange::allocate_random_addr(nic->vector_attribute());
+    }
+    else if (ip_ne == 1)
     {
         rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic->vector_attribute(),
                 inherit_attrs);

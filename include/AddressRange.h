@@ -179,6 +179,12 @@ public:
     // *************************************************************************
 
     /**
+     * Generate a random L2 lease for a NIC, this address is not actually
+     * allocated in any AR
+     */
+    static int allocate_random_addr(VectorAttribute *nic);
+
+    /**
      *  Returns an unused address, which becomes used and fills a NIC attribute
      *  with the configuration parameters from the address range.
      *    @param ot the type of the object allocating the address

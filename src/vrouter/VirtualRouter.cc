@@ -204,6 +204,15 @@ int VirtualRouter::get_network_leases(string& estr) const
     {
         VirtualMachineNic nic(nics[i], i);
 
+        std::string net_mode = nic.vector_value("NETWORK_MODE");
+        one_util::toupper(net_mode);
+
+        if (net_mode == "AUTO")
+        {
+            estr = "Virtual Router is incompatible with auto mode";
+            return -1;
+        }
+
         if (vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, i, uid, oid,
                 estr) == -1)
         {

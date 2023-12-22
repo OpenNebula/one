@@ -1533,6 +1533,26 @@ void AddressRange::allocate_by_index(unsigned int index,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::allocate_random_addr(VectorAttribute* nic)
+{
+    unsigned int rmac[2];
+
+    rmac[1] = VirtualNetworkPool::mac_prefix();
+    rmac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
+
+    nic->replace("MAC", mac_to_s(rmac));
+
+    nic->remove("IP");
+
+    nic->remove("IP6_LINK");
+    nic->remove("IP6_ULA");
+    nic->remove("IP6_GLOBAL");
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::allocate_addr(
     PoolObjectSQL::ObjectType ot,
     int                       obid,
