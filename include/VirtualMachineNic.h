@@ -129,6 +129,20 @@ public:
         return name() == "PCI";
     }
 
+    /**
+     * Check if NIC is from a Virtual Router and no other IP needs to be allocated
+     */
+    bool is_floating_only() const
+    {
+        bool floating;
+        bool only;
+
+        int rc = vector_value("FLOATING_IP", floating);
+        rc += vector_value("FLOATING_ONLY", only);
+
+        return rc == 0 && floating && only;
+    }
+
     /*
      * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
      */
