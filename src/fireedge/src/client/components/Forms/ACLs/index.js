@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import templateToObject from 'client/utils/parser/templateToObject'
-import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
-import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
-import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
+import { ReactElement } from 'react'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
 
-export {
-  templateToObject,
-  parseApplicationToForm,
-  parseFormToApplication,
-  parseFormToDeployApplication,
-  parseAcl,
-}
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'ACLs/CreateForm' }, configProps)
+
+export { CreateForm }

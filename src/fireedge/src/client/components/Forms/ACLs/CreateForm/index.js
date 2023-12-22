@@ -13,16 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import templateToObject from 'client/utils/parser/templateToObject'
-import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
-import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
-import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
-
-export {
-  templateToObject,
-  parseApplicationToForm,
-  parseFormToApplication,
-  parseFormToDeployApplication,
-  parseAcl,
-}
+export { default } from 'client/components/Forms/ACLs/CreateForm/Steps'

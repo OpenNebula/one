@@ -15,47 +15,47 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import {
+  ACLCardIcons,
+  ACLCardNames,
+  ACLCardCLI,
+  ACLCardResources,
+  ACLCardRule,
+  ACLCardReadableRule,
+} from 'client/components/Cards'
+import { ACL_TABLE_VIEWS } from 'client/constants'
 
-import { ShieldCheck } from 'iconoir-react'
-import { Typography } from '@mui/material'
+const Row = (viewType) => {
+  const aclRow = ({ original, value, ...props }) => {
+    // Check what view show in the table cards
+    if (viewType === ACL_TABLE_VIEWS.NAMES.type) {
+      return <ACLCardNames rootProps={props} acl={value} />
+    } else if (viewType === ACL_TABLE_VIEWS.CLI.type) {
+      return <ACLCardCLI rootProps={props} acl={value} />
+    } else if (viewType === ACL_TABLE_VIEWS.RESOURCES.type) {
+      return <ACLCardResources rootProps={props} acl={value} />
+    } else if (viewType === ACL_TABLE_VIEWS.RULE.type) {
+      return <ACLCardRule rootProps={props} acl={value} />
+    } else if (viewType === ACL_TABLE_VIEWS.READABLERULE.type) {
+      return <ACLCardReadableRule rootProps={props} acl={value} />
+    } else {
+      return <ACLCardIcons rootProps={props} acl={value} />
+    }
+  }
 
-import { StatusCircle } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
+  aclRow.displayName = 'aclRow'
+  aclRow.propTypes = {
+    original: PropTypes.object,
+    value: PropTypes.object,
+  }
 
-import * as ZoneModel from 'client/models/Zone'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, ENDPOINT } = value
-
-  const { color: stateColor, name: stateName } = ZoneModel.getState(original)
-
-  return (
-    <div {...props} data-cy={`zone-${ID}`}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Endpoint: ${ENDPOINT}`}>
-            <ShieldCheck />
-            <span>{` ${ENDPOINT}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  )
+  return aclRow
 }
 
+Row.displayName = 'Row'
+
 Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+  viewType: PropTypes.func,
 }
 
 export default Row

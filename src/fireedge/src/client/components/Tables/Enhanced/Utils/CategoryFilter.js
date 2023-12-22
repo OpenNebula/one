@@ -71,7 +71,12 @@ const CategoryFilter = ({
 
     preFilteredRows?.forEach((row) => {
       const rowValue = row.values[id]
-      rowValue !== undefined && uniqueOptions.add(rowValue)
+
+      // If the row value is an array, we get all the values of the array
+      rowValue !== undefined &&
+        (Array.isArray(rowValue)
+          ? rowValue.forEach((value) => uniqueOptions.add(value))
+          : uniqueOptions.add(rowValue))
     })
 
     return [...uniqueOptions.values()]

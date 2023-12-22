@@ -13,16 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import templateToObject from 'client/utils/parser/templateToObject'
-import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
-import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
-import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
+import { INPUT_TYPES, T } from 'client/constants'
+import { getObjectSchemaFromFields } from 'client/utils'
+import { boolean } from 'yup'
 
-export {
-  templateToObject,
-  parseApplicationToForm,
-  parseFormToApplication,
-  parseFormToDeployApplication,
-  parseAcl,
+const USE = {
+  name: 'USE',
+  label: T.Use,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { md: 3 },
 }
+
+const MANAGE = {
+  name: 'MANAGE',
+  label: T.Manage,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { md: 3 },
+}
+
+const ADMIN = {
+  name: 'ADMIN',
+  label: T.Admin,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { md: 3 },
+}
+
+const CREATE = {
+  name: 'CREATE',
+  label: T.Create,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { md: 3 },
+}
+
+const FIELDS = [USE, MANAGE, ADMIN, CREATE]
+
+const SCHEMA = getObjectSchemaFromFields(FIELDS)
+
+export { SCHEMA, FIELDS }

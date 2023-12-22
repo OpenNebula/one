@@ -1,0 +1,27 @@
+---
+# This file describes the information and actions available in the GROUP tab
+
+# Resource
+
+resource_name: "ACL"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  create_dialog_string: true
+  delete: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  id: true
+  idresourcename: true
+  idresourcetype: true
+  idusername: true
+  idusertype: true
+  zonename: true
+  zonetype: true
+  test: true
+

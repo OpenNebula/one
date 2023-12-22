@@ -40,6 +40,7 @@ import {
   GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
+  ChangeViewTable,
   LABEL_COLUMN_ID,
 } from 'client/components/Tables/Enhanced/Utils'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
@@ -76,6 +77,7 @@ const EnhancedTable = ({
   messages = [],
   dataDepend,
   readOnly = false,
+  tableViews,
 }) => {
   const styles = EnhancedTableStyles({
     readOnly: readOnly,
@@ -295,6 +297,7 @@ const EnhancedTable = ({
           )}
           <GlobalFilter {...useTableProps} />
           {!disableGlobalSort && <GlobalSort {...useTableProps} />}
+          {tableViews && <ChangeViewTable tableViews={tableViews} />}
         </div>
         {/* SELECTED ROWS */}
         {displaySelectedRows && !readOnly && (
@@ -431,6 +434,7 @@ EnhancedTable.propTypes = {
   messages: PropTypes.array,
   dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
   readOnly: PropTypes.bool,
+  tableViews: PropTypes.object,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

@@ -13,16 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import templateToObject from 'client/utils/parser/templateToObject'
-import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
-import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
-import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
+import makeStyles from '@mui/styles/makeStyles'
+import { SCHEMES } from 'client/constants'
 
-export {
-  templateToObject,
-  parseApplicationToForm,
-  parseFormToApplication,
-  parseFormToDeployApplication,
-  parseAcl,
-}
+export const aclStyles = makeStyles(({ palette }) => ({
+  aclApplies: {
+    margin: '0.2em',
+    color: palette.mode === SCHEMES.LIGHT ? 'black' : 'white',
+  },
+  aclNotApplies: {
+    margin: '0.2em',
+    color: 'grey',
+  },
+  centeredContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'left',
+  },
+  rightContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'right',
+  },
+  rigthApplies: {
+    color: palette.mode === SCHEMES.LIGHT ? 'black' : 'white',
+  },
+  rigthNotApplies: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    color: 'grey',
+  },
+}))

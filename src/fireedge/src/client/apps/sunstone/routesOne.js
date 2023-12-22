@@ -42,6 +42,7 @@ import {
   Shuffle as VRoutersIcons,
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
+  KeyAlt as ACLIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -261,7 +262,10 @@ const BackupJobsCreate = loadable(
   }
 )
 
-// const ACLs = loadable(() => import('client/containers/ACLs'), { ssr: false })
+const ACLs = loadable(() => import('client/containers/ACLs'), { ssr: false })
+const CreateACLs = loadable(() => import('client/containers/ACLs/Create'), {
+  ssr: false,
+})
 
 export const PATH = {
   INSTANCE: {
@@ -380,6 +384,10 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.VDC}`,
       DETAIL: `/${RESOURCE_NAMES.VDC}/:id`,
       CREATE: `/${RESOURCE_NAMES.VDC}/create`,
+    },
+    ACLS: {
+      LIST: `/${RESOURCE_NAMES.ACL}`,
+      CREATE: `/${RESOURCE_NAMES.ACL}/create`,
     },
   },
 }
@@ -770,6 +778,18 @@ const ENDPOINTS = [
         description: (params) => `#${params?.id}`,
         path: PATH.SYSTEM.VDCS.DETAIL,
         Component: VDCDetail,
+      },
+      {
+        title: T.ACLs,
+        path: PATH.SYSTEM.ACLS.CREATE,
+        Component: CreateACLs,
+      },
+      {
+        title: T.ACLs,
+        path: PATH.SYSTEM.ACLS.LIST,
+        sidebar: true,
+        icon: ACLIcon,
+        Component: ACLs,
       },
     ],
   },

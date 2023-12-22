@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import ACLsTable from 'client/components/Tables/ACLs'
 import AllImagesTable from 'client/components/Tables/AllImages'
 import BackupJobsTable from 'client/components/Tables/BackupJobs'
 import BackupsTable from 'client/components/Tables/Backups'
@@ -46,6 +47,7 @@ import ZonesTable from 'client/components/Tables/Zones'
 export * from 'client/components/Tables/Enhanced/Utils'
 
 export {
+  ACLsTable,
   AllImagesTable,
   BackupJobsTable,
   BackupsTable,

@@ -141,6 +141,7 @@ export const INPUT_TYPES = {
   TOGGLE: 'toggle',
   DOCKERFILE: 'dockerfile',
   UNITS: 'units',
+  LABEL: 'label',
 }
 
 export const DEBUG_LEVEL = {
@@ -162,6 +163,7 @@ export const SOCKETS = {
 /** @enum {string} Names of resource */
 export const RESOURCE_NAMES = {
   APP: 'marketplace-app',
+  ACL: 'acl',
   BACKUP: 'backup',
   CLUSTER: 'cluster',
   DATASTORE: 'datastore',

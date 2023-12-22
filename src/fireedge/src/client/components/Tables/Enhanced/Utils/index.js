@@ -22,6 +22,7 @@ import GlobalFilter from 'client/components/Tables/Enhanced/Utils/GlobalFilter'
 import GlobalSearch from 'client/components/Tables/Enhanced/Utils/GlobalSearch'
 import GlobalSelectedRows from 'client/components/Tables/Enhanced/Utils/GlobalSelectedRows'
 import GlobalSort from 'client/components/Tables/Enhanced/Utils/GlobalSort'
+import ChangeViewTable from 'client/components/Tables/Enhanced/Utils/ChangeViewTable'
 import TimeFilter from 'client/components/Tables/Enhanced/Utils/TimeFilter'
 
 export * from 'client/components/Tables/Enhanced/Utils/GlobalActions/Action'
@@ -37,6 +38,7 @@ export {
   GlobalSelectedRows,
   GlobalSort,
   TimeFilter,
+  ChangeViewTable,
   // Constants
   LABEL_COLUMN_ID,
 }
