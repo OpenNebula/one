@@ -1672,6 +1672,9 @@ module.exports = {
   'acls.translate.zone.all': 'in all zones',
   'acls.translate.error': 'ACL rule is NOT valid',
 
+  'acls.form.delete.rule': 'Rule with id',
+  'acls.form.delete.means': 'that means',
+
   Identifier: 'Identifier',
   Rights: 'Rights',
 }
