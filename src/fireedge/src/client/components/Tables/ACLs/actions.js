@@ -27,12 +27,15 @@ import {
 } from 'client/components/Tables/Enhanced/Utils'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { RESOURCE_NAMES, T, ACL_ACTIONS } from 'client/constants'
+
+import { translateACL } from 'client/models/ACL'
 
 const ListACLNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
-    const { ID, NAME } = original
+    const { ID, STRING } = original
+    const translatedString = translateACL(STRING)
 
     return (
       <Typography
@@ -41,7 +44,8 @@ const ListACLNames = ({ rows = [] }) =>
         component="span"
         display="block"
       >
-        {`#${ID} ${NAME}`}
+        {Tr(T['acls.form.delete.rule'])} <b>#{ID}</b>{' '}
+        {Tr(T['acls.form.delete.means'])} <b>{translatedString}</b>
       </Typography>
     )
   })
