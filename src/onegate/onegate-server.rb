@@ -855,6 +855,18 @@ def build_vnet_hash(vnet, client, extended)
 
             # Get extended info
             lease['NIC_NAME'] = nic['NAME']
+
+            xpath = "./TEMPLATE/CONTEXT/BACKEND"
+            backend = vm.retrieve_xmlelements(xpath)[0]
+
+            if !backend.nil? && backend.text.downcase == 'yes'
+                lease['BACKEND'] = 'YES'
+
+                xpath = "./USER_TEMPLATE/*[starts-with(local-name(), 'ONEGATE_')]"
+                vm.retrieve_xmlelements(xpath).each do |item|
+                    lease[item.name] = item.text
+                end
+            end
         end
     end
 
