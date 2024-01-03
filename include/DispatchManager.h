@@ -513,6 +513,21 @@ public:
      */
     int backup_cancel(int vid, const RequestAttributes& ra, std::string& error_str);
 
+    /**
+     * Resize cpu and memory
+     *
+     *  @param vid the VM id
+     *  @param cpu new CPU value
+     *  @param vcpu new VCPU value
+     *  @param memory new memory value
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int resize(int vid, float cpu, int vcpu, long memory,
+               const RequestAttributes& ra, std::string& error_str);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------
