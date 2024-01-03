@@ -2319,13 +2319,6 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
 
         if ( auto vm = vmpool->get(vid) )
         {
-            VirtualMachineDisk * disk = vm->get_resize_disk();
-
-            if ( disk == nullptr )
-            {
-                return;
-            }
-
             state = vm->get_lcm_state();
 
             switch (state)
@@ -2343,6 +2336,15 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
                 default:
                     vm->log("LCM",Log::ERROR,"disk_resize_success, VM in a wrong state");
                     return;
+            }
+
+            VirtualMachineDisk * disk = vm->get_resize_disk();
+
+            if ( disk == nullptr )
+            {
+                vm->log("LCM", Log::ERROR,
+                        "disk_resize_success, but the VM doesn't have a disk with resize operation in progress");
+                return;
             }
 
             disk->clear_resize(false);
@@ -2403,8 +2405,6 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
 
         if ( auto vm = vmpool->get(vid) )
         {
-            VirtualMachineDisk * disk = vm->get_resize_disk();
-
             state = vm->get_lcm_state();
 
             switch (state)
@@ -2421,6 +2421,15 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
                 default:
                     vm->log("LCM",Log::ERROR,"disk_resize_failure, VM in a wrong state");
                     return;
+            }
+
+            VirtualMachineDisk * disk = vm->get_resize_disk();
+
+            if ( disk == nullptr )
+            {
+                vm->log("LCM", Log::ERROR,
+                        "disk_resize_failure, but the VM doesn't have a disk with resize operation in progress");
+                return;
             }
 
             vm_uid = vm->get_uid();
