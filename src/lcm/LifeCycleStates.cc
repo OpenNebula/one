@@ -2594,7 +2594,7 @@ void LifeCycleManager::trigger_resize_failure(int vid)
             else
             {
                 vm->log("LCM", Log::ERROR,
-                        "hotplug resize fails, VM in a wrong state");
+                        "hotplug resize fails, VM in a wrong state: " + vm->state_str());
                 return;
             }
 
@@ -2645,6 +2645,10 @@ void LifeCycleManager::trigger_resize_failure(int vid)
             vm->get_capacity(sr_orig);
 
             vm->reset_resize();
+
+            vm->set_vm_info();
+
+            vmpool->update_history(vm.get());
 
             vmpool->update(vm.get());
 

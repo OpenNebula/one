@@ -2852,3 +2852,163 @@ int DispatchManager::backup_cancel(int vid,
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
+        string& error)
+{
+    HostPool * hpool = Nebula::instance().get_hpool();
+
+    int rc;
+
+    if ( vm->get_state() == VirtualMachine::POWEROFF ||
+         (vm->get_state() == VirtualMachine::ACTIVE &&
+          vm->get_lcm_state() == VirtualMachine::RUNNING))
+    {
+        HostShareCapacity sr;
+
+        auto host = hpool->get(vm->get_hid());
+
+        if ( host == nullptr )
+        {
+            error = "Could not update host";
+            return -1;
+        }
+
+        vm->get_capacity(sr);
+
+        host->del_capacity(sr);
+
+        rc = vm->resize(cpu, mem, vcpu, error);
+
+        if ( rc == -1 )
+        {
+            return -1;
+        }
+
+        vm->get_capacity(sr);
+
+        if (!host->test_capacity(sr, error))
+        {
+            return -1;
+        }
+
+        host->add_capacity(sr);
+
+        hpool->update(host.get());
+    }
+    else
+    {
+        rc = vm->resize(cpu, mem, vcpu, error);
+    }
+
+    return rc;
+}
+
+int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
+                            const RequestAttributes& ra, string& error_str)
+{
+    /* ---------------------------------------------------------------------- */
+    /*  Check & update VM & host capacity                                     */
+    /* ---------------------------------------------------------------------- */
+    auto vm = vmpool->get(vid);
+
+    if (vm == nullptr)
+    {
+        error_str = "Virtual machine does not exist";
+
+        return -1;
+    }
+
+    int rc;
+
+    switch (vm->get_state())
+    {
+        case VirtualMachine::POWEROFF: //Only check host capacity in POWEROFF
+        case VirtualMachine::INIT:
+        case VirtualMachine::PENDING:
+        case VirtualMachine::HOLD:
+        case VirtualMachine::UNDEPLOYED:
+        case VirtualMachine::CLONING:
+        case VirtualMachine::CLONING_FAILURE:
+            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, error_str);
+        break;
+
+        case VirtualMachine::ACTIVE:
+        {
+            if (vm->get_lcm_state() != VirtualMachine::RUNNING)
+            {
+                rc = -1;
+                error_str = "Cannot resize a VM in state " + vm->state_str();
+                break;
+            }
+
+            if (vm->is_pinned())
+            {
+                rc = -1;
+                error_str = "Cannot resize a pinned VM";
+                break;
+            }
+
+            auto vmm = Nebula::instance().get_vmm();
+
+            if (!vmm->is_live_resize(vm->get_vmm_mad()))
+            {
+                rc = -1;
+                error_str = "Hotplug resize not supported by driver "
+                    + vm->get_vmm_mad();
+                break;
+            }
+
+            long omemory;
+            float ocpu;
+            int ovcpu;
+
+            vm->get_template_attribute("MEMORY", omemory);
+            vm->get_template_attribute("CPU", ocpu);
+            vm->get_template_attribute("VCPU", ovcpu);
+
+            if (ocpu == cpu && omemory == memory && ovcpu == vcpu)
+            {
+                rc = 0;
+                error_str = "Nothing to resize";
+                break;
+            }
+
+            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, error_str);
+
+            if (rc == 0)
+            {
+                vm->set_state(VirtualMachine::HOTPLUG_RESIZE);
+
+                vm->store_resize(ocpu, omemory, ovcpu);
+
+                vm->set_resched(false);
+
+                vmm->trigger_resize(vid);
+            }
+            break;
+        }
+
+        case VirtualMachine::STOPPED:
+        case VirtualMachine::DONE:
+        case VirtualMachine::SUSPENDED:
+            rc = -1;
+            error_str = "Cannot resize a VM in state " + vm->state_str();
+        break;
+    }
+
+    if (rc == 0)
+    {
+        if (vm->hasHistory())
+        {
+            close_cp_history(vmpool, vm.get(), VMActions::RESIZE_ACTION, ra);
+        }
+
+        vmpool->update(vm.get());
+    }
+
+    return rc;
+}
