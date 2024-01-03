@@ -255,6 +255,9 @@ namespace ssl_util
     int rsa_public_encrypt(const std::string& in, std::string& out)
     {
         static RSA * rsa = nullptr;
+        static std::mutex m;
+
+        std::lock_guard lock(m);
 
         if ( rsa == nullptr) //initialize RSA structure
         {
@@ -297,6 +300,9 @@ namespace ssl_util
     int rsa_private_decrypt(const std::string& in, std::string& out)
     {
         static RSA * rsa = nullptr;
+        static std::mutex m;
+
+        std::lock_guard lock(m);
 
         if ( rsa == nullptr) //initialize RSA structure
         {
