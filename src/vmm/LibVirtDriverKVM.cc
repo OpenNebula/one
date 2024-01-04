@@ -1088,6 +1088,14 @@ int LibVirtDriver::deployment_description_kvm(
 
     num = vm->get_template_attribute("DISK", disk);
 
+    int sata_index = 0;
+    string sata_controllers;
+
+    if (machine.find("q35") != std::string::npos)
+    {
+        sata_index = 1;
+    }
+
     for (int i=0; i < num ;i++)
     {
         type      = disk[i]->vector_value("TYPE");
@@ -1562,20 +1570,42 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t</iotune>" << endl;
         }
 
-        // ---- SCSI target ----
-
+        // ---- Disk target ----
+        // * SATA bus
+        //   - requires a controller per disk as it requires bus=0 and target=0
+        //   - q35 adds ACHI controller in slot 0x1f function 2 (used for context)
+        //   - A controller will be added for each disk starting from 1 if q35
+        // * SCSI bus
+        //   - target is based on dev target to have a predictable order
         if ( target[0] == 's' && target[1] == 'd' )
         {
             int target_number = target[2] - 'a';
 
-            if ( target_number >= 0 && target_number < 256 )
+            if ( disk_bus == "sata" )
             {
-                file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
-                     "target='" << target_number << "' unit='0'/>" << endl;
+                sata_controllers += ("\t\t<controller type='sata' index='" +
+                        to_string(sata_index) + "'/>\n");
+
+                file << "\t\t\t<address type='drive' controller='" << sata_index
+                     << "' bus='0' target='0' unit='0'/>" << endl;
+
+                sata_index++;
+            }
+            else if ( target_number >= 0 && target_number < 256 )
+            {
+                file << "\t\t\t<address type='drive' controller='0' bus='0'"
+                     << " target='" << target_number << "' unit='0'/>"
+                     << endl;
             }
         }
 
         file << "\t\t</disk>" << endl;
+    }
+
+    // Add SATA controllers if needed
+    if (!sata_controllers.empty())
+    {
+        file << sata_controllers;
     }
 
     // ------------------------------------------------------------------------
