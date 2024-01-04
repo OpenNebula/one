@@ -24,7 +24,6 @@ import {
   Db as DatastoreIcon,
   ModernTv,
   Pin as PersistentIcon,
-  Archive as DiskTypeIcon,
 } from 'iconoir-react'
 import { Typography } from '@mui/material'
 import MultipleTags from 'client/components/MultipleTags'
@@ -53,11 +52,9 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
     GNAME,
     REGTIME,
     TYPE,
-    DISK_TYPE,
     PERSISTENT,
     locked,
     DATASTORE,
-    TOTAL_VMS,
     RUNNING_VMS,
     label: LABELS = [],
   } = value
@@ -133,29 +130,13 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
             <DatastoreIcon />
             <span>{` ${DATASTORE}`}</span>
           </span>
-          <span
-            title={
-              PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()
-            }
-          >
+          <span title={+PERSISTENT ? T.Persistent : T.NonPersistent}>
             <PersistentIcon />
-            <span>
-              {PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()}
-            </span>
+            <span>{+PERSISTENT ? T.Persistent : T.NonPersistent}</span>
           </span>
-          <span title={`${T.DiskType}: ${DISK_TYPE.toLowerCase()}`}>
-            <DiskTypeIcon />
-            <span>{` ${DISK_TYPE.toLowerCase()}`}</span>
-          </span>
-          <span
-            title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
-          >
+          <span title={`${T.VMs}: ${RUNNING_VMS}`}>
             <ModernTv />
-            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
+            <span>{`${RUNNING_VMS}`}</span>
           </span>
         </div>
       </div>
