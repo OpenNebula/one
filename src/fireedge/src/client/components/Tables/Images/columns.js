@@ -18,9 +18,6 @@ import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 import * as ImageModel from 'client/models/Image'
 import { T } from 'client/constants'
 
-const getTotalOfResources = (resources) =>
-  [resources?.ID ?? []].flat().length || 0
-
 const COLUMNS = [
   { Header: 'ID', id: 'id', accessor: 'ID', sortType: 'number' },
   { Header: 'Name', id: 'name', accessor: 'NAME' },
@@ -62,12 +59,6 @@ const COLUMNS = [
   {
     Header: 'Running VMs',
     accessor: 'RUNNING_VMS',
-    sortType: 'number',
-  },
-  {
-    Header: 'Total VMs',
-    id: 'TOTAL_VMS',
-    accessor: (row) => getTotalOfResources(row?.VMS),
     sortType: 'number',
   },
 ]
