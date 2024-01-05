@@ -73,22 +73,30 @@ const InformationPanel = ({ host = {}, actions }) => {
     await renameHost({ id: ID, name: newName })
   }
 
-  const handleOvercommitment = async (name, value) => {
+  const handleOvercommitmentCPU = async (name, value) => {
     let valueNumber = +value
-    let newTemplate
-    if (/cpu/i.test(name)) {
-      valueNumber === 0 && (valueNumber = usageCpu)
-      newTemplate = {
-        RESERVED_CPU:
-          value !== totalCpu ? totalCpu - valueNumber : reservedCpu ? 0 : '',
-      }
+
+    valueNumber === 0 && (valueNumber = usageCpu)
+    const newTemplate = {
+      RESERVED_CPU:
+        value !== totalCpu ? totalCpu - valueNumber : reservedCpu ? 0 : '',
     }
-    if (/memory/i.test(name)) {
-      valueNumber === 0 && (valueNumber = usageMem)
-      newTemplate = {
-        RESERVED_MEM:
-          value !== totalMem ? totalMem - valueNumber : reservedMem ? 0 : '',
-      }
+
+    newTemplate &&
+      (await updateHost({
+        id: ID,
+        template: jsonToXml(newTemplate),
+        replace: 1,
+      }))
+  }
+
+  const handleOvercommitmentMemory = async (name, value) => {
+    let valueNumber = +value
+
+    valueNumber === 0 && (valueNumber = usageMem)
+    const newTemplate = {
+      RESERVED_MEM:
+        value !== totalMem ? totalMem - valueNumber : reservedMem ? 0 : '',
     }
 
     newTemplate &&
@@ -129,7 +137,7 @@ const InformationPanel = ({ host = {}, actions }) => {
   const capacity = [
     {
       name: T.AllocatedCpu,
-      handleEdit: handleOvercommitment,
+      handleEdit: handleOvercommitmentCPU,
       canEdit: true,
       value: (
         <LinearProgressWithLabel
@@ -147,7 +155,7 @@ const InformationPanel = ({ host = {}, actions }) => {
     },
     {
       name: T.AllocatedMemory,
-      handleEdit: handleOvercommitment,
+      handleEdit: handleOvercommitmentMemory,
       canEdit: true,
       value: (
         <LinearProgressWithLabel

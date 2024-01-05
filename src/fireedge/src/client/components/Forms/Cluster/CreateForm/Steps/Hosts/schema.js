@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback } from 'client/utils/schema'
+import { INPUT_TYPES, T } from 'client/constants'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { string, array } from 'yup'
+import { HostsTable } from 'client/components/Tables'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ChangeClusterForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/ChangeClusterForm' }, configProps)
+/** @type {Field} HostsTable field */
+const HOSTS = {
+  name: 'ID',
+  label: T.SelectHosts,
+  type: INPUT_TYPES.TABLE,
+  Table: () => HostsTable,
+  singleSelect: false,
+  validation: array(string().trim()).default(() => undefined),
+  grid: { md: 12 },
+  fieldProps: {
+    preserveState: true,
+  },
+}
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/CreateForm' }, configProps)
+const FIELDS = [HOSTS]
 
-export { ChangeClusterForm, CreateForm }
+const SCHEMA = getObjectSchemaFromFields(FIELDS)
+
+export { SCHEMA, FIELDS }

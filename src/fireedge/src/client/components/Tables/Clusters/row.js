@@ -29,23 +29,29 @@ const Row = ({ original, value, ...props }) => {
     <div data-cy={`cluster-${ID}`} {...props}>
       <div className={classes.main}>
         <div className={classes.title}>
-          <Typography noWrap component="span">
+          <Typography noWrap component="span" data-cy="cluster-card-name">
             {NAME}
           </Typography>
         </div>
         <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Total Hosts: ${HOSTS}`}>
+          <span data-cy="cluster-card-id">{`#${ID}`}</span>
+          <span data-cy="cluster-card-hosts" title={`Total Hosts: ${HOSTS}`}>
             <HardDrive />
-            <span>{` ${HOSTS}`}</span>
+            <span>{`${HOSTS}`}</span>
           </span>
-          <span title={`Total Datastores: ${DATASTORES}`}>
-            <Folder />
-            <span>{` ${DATASTORES}`}</span>
-          </span>
-          <span title={`Total Virtual Networks: ${VNETS}`}>
+          <span
+            data-cy="cluster-card-vnets"
+            title={`Total Virtual Networks: ${VNETS}`}
+          >
             <NetworkAlt />
-            <span>{` ${VNETS}`}</span>
+            <span>{`${VNETS}`}</span>
+          </span>
+          <span
+            data-cy="cluster-card-datastores"
+            title={`Total Datastores: ${DATASTORES}`}
+          >
+            <Folder />
+            <span>{`${DATASTORES}`}</span>
           </span>
           {PROVIDER_NAME && (
             <span title={`Provider: ${PROVIDER_NAME}`}>

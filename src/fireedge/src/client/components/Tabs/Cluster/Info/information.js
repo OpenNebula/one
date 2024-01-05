@@ -15,10 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-
-import { useRenameClusterMutation } from 'client/features/OneApi/cluster'
+import {
+  useRenameClusterMutation,
+  useUpdateClusterMutation,
+} from 'client/features/OneApi/cluster'
 import { List } from 'client/components/Tabs/Common'
 import { T, Cluster, CLUSTER_ACTIONS } from 'client/constants'
+import { jsonToXml } from 'client/models/Helper'
 
 /**
  * Renders mainly information tab.
@@ -30,6 +33,7 @@ import { T, Cluster, CLUSTER_ACTIONS } from 'client/constants'
  */
 const InformationPanel = ({ cluster = {}, actions }) => {
   const [renameCluster] = useRenameClusterMutation()
+  const [updateCluster] = useUpdateClusterMutation()
   const { ID, NAME, TEMPLATE } = cluster
   const { RESERVED_MEM, RESERVED_CPU } = TEMPLATE
 
@@ -37,6 +41,7 @@ const InformationPanel = ({ cluster = {}, actions }) => {
     await renameCluster({ id: ID, name: newName })
   }
 
+  // Info section
   const info = [
     { name: T.ID, value: ID, dataCy: 'id' },
     {
@@ -48,9 +53,64 @@ const InformationPanel = ({ cluster = {}, actions }) => {
     },
   ]
 
+  /**
+   * Update reserved CPU on the template cluster.
+   *
+   * @param {string} name - Name of the attribute
+   * @param {number} value - Value of the attribute
+   */
+  const handleOvercommitmentCPU = async (name, value) => {
+    const newTemplate = {
+      RESERVED_CPU: value + '%',
+    }
+
+    await updateCluster({
+      id: ID,
+      template: jsonToXml(newTemplate),
+      replace: 1,
+    })
+  }
+
+  /**
+   * Update reserved memory on the template cluster.
+   *
+   * @param {string} name - Name of the attribute
+   * @param {number} value - Value of the attribute
+   */
+  const handleOvercommitmentMemory = async (name, value) => {
+    const newTemplate = {
+      RESERVED_MEM: value + '%',
+    }
+
+    await updateCluster({
+      id: ID,
+      template: jsonToXml(newTemplate),
+      replace: 1,
+    })
+  }
+
+  // Overcommitment section
   const overcommitment = [
-    { name: T.ReservedMemory, value: RESERVED_MEM },
-    { name: T.ReservedCpu, value: RESERVED_CPU },
+    {
+      name: T.ReservedCpu,
+      handleEdit: handleOvercommitmentCPU,
+      canEdit: true,
+      value: <span>{RESERVED_CPU}</span>,
+      min: '-100',
+      max: '100',
+      currentValue: RESERVED_CPU?.replace(/%/g, ''),
+      dataCy: 'allocated-cpu',
+    },
+    {
+      name: T.ReservedMemory,
+      handleEdit: handleOvercommitmentMemory,
+      canEdit: true,
+      value: <span>{RESERVED_MEM}</span>,
+      min: '-100',
+      max: '100',
+      currentValue: RESERVED_MEM?.replace(/%/g, ''),
+      dataCy: 'allocated-memory',
+    },
   ]
 
   return (
