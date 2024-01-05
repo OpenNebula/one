@@ -167,7 +167,7 @@ module.exports = {
   SelectClusters: 'Select Clusters',
   SelectDatastore: 'Select a Datastore to store the resource',
   SelectDatastoreImage: 'Select a Datastore',
-  SelectDatastores: 'Select Datastores',
+  SelectDatastores: 'Select datastores',
   SelectDockerHubTag: 'Select DockerHub image tag (default latest)',
   SelectGroup: 'Select a group',
   SelectHost: 'Select a host',
@@ -392,6 +392,34 @@ module.exports = {
   Infrastructure: 'Infrastructure',
   Zone: 'Zone',
   Zones: 'Zones',
+  'cluster.form.create.general.help.title': 'Cluster',
+  'cluster.form.create.general.help.paragraph.1.1':
+    'Clusters group together hosts, datastores and virtual networks that are configured to work together. A cluster is used to:',
+  'cluster.form.create.general.help.paragraph.1.2':
+    'Ensure that VMs use resources that are compatible.',
+  'cluster.form.create.general.help.paragraph.1.3':
+    'Assign resources to user groups by creating Virtual Private Clouds.',
+  'cluster.form.create.general.help.paragraph.2':
+    'Please, select a name for the cluster',
+  'cluster.form.create.help.link':
+    'See Open Nebula documentation to get more details about clusters.',
+  'cluster.form.create.hosts.help.title': 'Hosts',
+  'cluster.form.create.hosts.help.paragraph.1':
+    'Please, select one or more hosts in the hosts table. Hosts are not mandatory, so you can skip this step.',
+  'cluster.form.create.hosts.help.paragraph.2':
+    'Remember that hosts can be in only one cluster at a time so if a host it is added to this cluster, it will be removed from any other cluster.',
+  'cluster.form.create.vnets.help.title': 'Virtual Networks',
+  'cluster.form.create.vnets.help.paragraph.1':
+    'Please, select one or more virtual networks in the virtual networks table. Virtual networks are not mandatory, so you can skip this step.',
+  'cluster.form.create.vnets.help.paragraph.2':
+    'Virtual networks can be added to multiple clusters. This means that any host in those clusters is properly configured to use leases from those virtual networks.',
+  'cluster.form.create.datastores.help.title': 'Datastores',
+  'cluster.form.create.datastores.help.paragraph.1':
+    'Please, select one or more datastores in the datastores table. Datastores are not mandatory, so you can skip this step.',
+  'cluster.form.create.datastores.help.paragraph.2':
+    'Datastores can be added to multiple clusters. This means that any host in those clusters is properly configured to run VMs using images from those datastores.',
+  'cluster.form.create.datastores.help.paragraph.3':
+    'Remember that in order to create a complete environment where the scheduler can deploy VMs, your clusters need to have at least one System Datastore.',
 
   /* sections - network */
   Network: 'Network',
@@ -1327,6 +1355,10 @@ module.exports = {
     'Comma separated list of CPU IDs that will be isolated from the NUMA scheduler',
 
   /* Cluster schema */
+  CreateCluster: 'Create Cluster',
+  'cluster.create.name': 'Name',
+  'cluster.create.general.info': 'Cluster info',
+
   /* Cluster schema - capacity */
   ReservedMemory: 'Allocated Memory',
   ReservedCpu: 'Allocated CPU',

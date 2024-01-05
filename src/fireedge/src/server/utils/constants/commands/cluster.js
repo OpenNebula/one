@@ -110,7 +110,7 @@ module.exports = {
           default: 0,
         },
         host: {
-          from: query,
+          from: postBody,
           default: 0,
         },
       },

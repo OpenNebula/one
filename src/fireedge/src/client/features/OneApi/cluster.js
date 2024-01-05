@@ -25,6 +25,12 @@ import {
   ONE_RESOURCES_POOL,
 } from 'client/features/OneApi'
 import { Cluster } from 'client/constants'
+import {
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
 
 const { CLUSTER, HOST, DATASTORE } = ONE_RESOURCES
 const { CLUSTER_POOL, HOST_POOL, DATASTORE_POOL } = ONE_RESOURCES_POOL
@@ -78,19 +84,25 @@ const clusterApi = oneApi.injectEndpoints({
       providesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
-          const { data: queryVm } = await queryFulfilled
+          const { data: resourceFromQuery } = await queryFulfilled
 
+          dispatch(
+            clusterApi.util.updateQueryData(
+              'getGClusters',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
           dispatch(
             clusterApi.util.updateQueryData(
               'getClusters',
               undefined,
-              (draft) => {
-                const index = draft.findIndex(({ ID }) => +ID === +id)
-                index !== -1 && (draft[index] = queryVm)
-              }
+              removeResourceOnPool({ id })
             )
           )
-        } catch {}
+        }
       },
     }),
     getClusterAdmin: builder.query({
@@ -132,17 +144,41 @@ const clusterApi = oneApi.injectEndpoints({
       /**
        * Deletes the given cluster from the pool.
        *
-       * @param {number|string} id - Cluster id
+       * @param {number|string} params - Cluster id
        * @returns {number} Cluster id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.CLUSTER_DELETE
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: [CLUSTER_POOL],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchCluster = dispatch(
+            clusterApi.util.updateQueryData(
+              'getCluster',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchClusters = dispatch(
+            clusterApi.util.updateQueryData(
+              'getClusters',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchCluster.undo()
+            patchClusters.undo()
+          })
+        } catch {}
+      },
     }),
     updateCluster: builder.mutation({
       /**
@@ -165,6 +201,30 @@ const clusterApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchCluster = dispatch(
+            clusterApi.util.updateQueryData(
+              'getCluster',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchClusters = dispatch(
+            clusterApi.util.updateQueryData(
+              'getClusters',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchCluster.undo()
+            patchClusters.undo()
+          })
+        } catch {}
+      },
     }),
     addHostToCluster: builder.mutation({
       /**

@@ -30,6 +30,7 @@ import * as ACTIONS from 'client/constants/actions'
 /** @enum {string} Cluster actions */
 export const CLUSTER_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
+  UPDATE_DIALOG: 'update_dialog',
   DELETE: 'delete',
 
   RENAME: ACTIONS.RENAME,

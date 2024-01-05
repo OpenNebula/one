@@ -207,6 +207,12 @@ const ClusterDetail = loadable(
   () => import('client/containers/Clusters/Detail'),
   { ssr: false }
 )
+const CreateCluster = loadable(
+  () => import('client/containers/Clusters/Create'),
+  {
+    ssr: false,
+  }
+)
 const Hosts = loadable(() => import('client/containers/Hosts'), { ssr: false })
 const HostDetail = loadable(() => import('client/containers/Hosts/Detail'), {
   ssr: false,
@@ -358,6 +364,7 @@ export const PATH = {
     CLUSTERS: {
       LIST: `/${RESOURCE_NAMES.CLUSTER}`,
       DETAIL: `/${RESOURCE_NAMES.CLUSTER}/:id`,
+      CREATE: `/${RESOURCE_NAMES.CLUSTER}/create`,
     },
     HOSTS: {
       LIST: `/${RESOURCE_NAMES.HOST}`,
@@ -686,6 +693,11 @@ const ENDPOINTS = [
         sidebar: true,
         icon: ClusterIcon,
         Component: Clusters,
+      },
+      {
+        title: T.CreateCluster,
+        path: PATH.INFRASTRUCTURE.CLUSTERS.CREATE,
+        Component: CreateCluster,
       },
       {
         title: T.Cluster,

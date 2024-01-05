@@ -13,22 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateFormCallback } from 'client/utils/schema'
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ChangeClusterForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/ChangeClusterForm' }, configProps)
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/CreateForm' }, configProps)
-
-export { ChangeClusterForm, CreateForm }
+export { default } from 'client/components/Forms/Cluster/CreateForm/Steps'

@@ -32,6 +32,7 @@ import MultipleTags from 'client/components/MultipleTags'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T, Cluster } from 'client/constants'
+import ClusterActions from 'client/components/Tables/Clusters/actions'
 
 /**
  * Displays a list of Clusters with a split pane between the list and selected row(s).
@@ -44,6 +45,8 @@ function Clusters() {
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
 
+  const actions = ClusterActions()
+
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
@@ -51,6 +54,7 @@ function Clusters() {
           <ClustersTable
             onSelectedRowsChange={onSelectedRowsChange}
             useUpdateMutation={useUpdateClusterMutation}
+            globalActions={actions}
           />
 
           {hasSelectedRows && (

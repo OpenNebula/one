@@ -24,10 +24,16 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Cluster/Info'
+import Hosts from 'client/components/Tabs/Cluster/Hosts'
+import Vnets from 'client/components/Tabs/Cluster/Vnets'
+import Datastores from 'client/components/Tabs/Cluster/Datastores'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    host: Hosts,
+    vnet: Vnets,
+    datastore: Datastores,
   }[tabName])
 
 const ClusterTabs = memo(({ id }) => {

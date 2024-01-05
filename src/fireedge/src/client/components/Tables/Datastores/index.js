@@ -54,7 +54,7 @@ const DatastoresTable = (props) => {
 
   let values
 
-  if (typeof filter === 'function') {
+  if (typeof filter === 'function' && dependOf) {
     const { watch } = useFormContext()
 
     const getDataForDepend = useCallback(

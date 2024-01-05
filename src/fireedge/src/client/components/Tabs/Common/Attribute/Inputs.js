@@ -150,8 +150,8 @@ const SliderInput = forwardRef(
             value={newValue}
             marks={[
               {
-                value: 0,
-                label: unitParser ? prettyBytes(0) : '0',
+                value: min ?? 0,
+                label: unitParser ? prettyBytes(0) : min ?? '0',
               },
               {
                 value: max,
