@@ -3950,28 +3950,56 @@ void VirtualMachine::decrypt()
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
-        bool only_running)
+bool VirtualMachine::is_running_quota() const
 {
-    if ((state == VirtualMachine::PENDING) ||
-        (state == VirtualMachine::CLONING) ||
-        (state == VirtualMachine::CLONING_FAILURE) ||
-        (state == VirtualMachine::HOLD) ||
-        ((state == VirtualMachine::ACTIVE &&
-         (lcm_state != VirtualMachine::HOTPLUG_SAVEAS_POWEROFF &&
-          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
-          lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
-          lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
-          lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
-          lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
-          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
-          lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED ))))
+    return (state == VirtualMachine::PENDING) ||
+           (state == VirtualMachine::CLONING) ||
+           (state == VirtualMachine::CLONING_FAILURE) ||
+           (state == VirtualMachine::HOLD) ||
+           ((state == VirtualMachine::ACTIVE &&
+                (lcm_state != VirtualMachine::HOTPLUG_SAVEAS_POWEROFF &&
+                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED &&
+                lcm_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+                lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
+                lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
+                lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
+                lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
+                lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
+                lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
+                lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
+                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
+                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED &&
+                lcm_state != VirtualMachine::HOTPLUG_PROLOG_POWEROFF &&
+                lcm_state != VirtualMachine::HOTPLUG_EPILOG_POWEROFF )));
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
+        bool basic_quota, bool running_quota)
+{
+    if (basic_quota)
     {
-        std::string memory, cpu;
+        quota_tmpl.replace("VMS", 1);
+
+        for (const string& metric : QuotaVirtualMachine::generic_metrics())
+        {
+            string value;
+
+            // Use value from user template, if it's not already added from template
+            if (user_obj_template->get(metric, value))
+            {
+                quota_tmpl.replace(metric, value);
+            }
+        }
+
+        quota_tmpl.merge(obj_template.get());
+    }
+
+    if (running_quota)
+    {
+        string memory, cpu;
 
         get_template_attribute("MEMORY", memory);
         get_template_attribute("CPU", cpu);
@@ -3980,11 +4008,17 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
         quota_tmpl.add("RUNNING_CPU", cpu);
         quota_tmpl.add("RUNNING_VMS", 1);
 
-        if (!only_running)
+        for (const string& metric : QuotaVirtualMachine::generic_metrics())
         {
-            quota_tmpl.add("MEMORY", memory);
-            quota_tmpl.add("CPU", cpu);
-            quota_tmpl.add("VMS", 1);
+            string value;
+            if (obj_template->get(metric, value))
+            {
+                quota_tmpl.add("RUNNING_" + metric, value);
+            }
+            else if (user_obj_template->get(metric, value))
+            {
+                quota_tmpl.add("RUNNING_" + metric, value);
+            }
         }
     }
 }

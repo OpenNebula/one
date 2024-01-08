@@ -30,11 +30,12 @@
  *
  *   0 = unlimited, default if missing
  */
-class QuotaNetwork :  public Quota
+class QuotaNetwork : public Quota
 {
 public:
-    QuotaNetwork(bool is_default): Quota("NETWORK_QUOTA", "NETWORK", NET_METRICS,
-        NUM_NET_METRICS, is_default) {};
+    QuotaNetwork(bool is_default)
+        : Quota("NETWORK_QUOTA", "NETWORK", NET_METRICS, is_default)
+    {}
 
     virtual ~QuotaNetwork(){};
 
@@ -75,9 +76,7 @@ protected:
                         Quotas& default_quotas,
                         VectorAttribute **va) override;
 
-    static const char * NET_METRICS[];
-
-    static const int NUM_NET_METRICS;
+    static const std::vector<std::string> NET_METRICS;
 
 private:
     /**

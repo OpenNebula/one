@@ -941,6 +941,15 @@ public:
     }
 
     /**
+     *  Returns a copy of the VirtualMachine User Template
+     *    @return A copy of the VirtualMachine User Template
+     */
+    std::unique_ptr<VirtualMachineTemplate> clone_user_template() const
+    {
+        return std::make_unique<VirtualMachineTemplate>(*user_obj_template);
+    }
+
+    /**
      *  This function replaces the *user template*.
      *    @param tmpl_str new contents
      *    @param keep_restricted If true, the restricted attributes of the
@@ -967,10 +976,10 @@ public:
      *    @param name of the attribute
      *    @param value of the attribute
      */
-    void get_user_template_attribute(const std::string& name,
-                                     std::string& value) const
+    template<typename T>
+    bool get_user_template_attribute(const std::string& name, T& value) const
     {
-        user_obj_template->get(name, value);
+        return user_obj_template->get(name, value);
     }
 
     /**
@@ -1053,11 +1062,17 @@ public:
     bool is_pinned() const;
 
     /**
+     * @return true if Virtual Machine is in state, when running quota applies
+    */
+    bool is_running_quota() const;
+
+    /**
     * Fill a template only with the necessary attributes to update the quotas
     *   @param qtmpl template that will be filled
-    *   @param only_running true to not add CPU, MEMORY and VMS counters
+    *   @param basic_quota true to add basic quota attributes (from Template and User template)
+    *   @param running_quota true to add RUNNING_ quota attributes (for Template and User Template)
     */
-    void get_quota_template(VirtualMachineTemplate& qtmpl, bool only_running);
+    void get_quota_template(VirtualMachineTemplate& quota_tmpl, bool basic_quota, bool running_quota);
 
     // ------------------------------------------------------------------------
     // Virtual Machine Disks

@@ -41,7 +41,7 @@
  *   0 = unlimited, default if missing
  */
 
-class QuotaVirtualMachine :  public Quota
+class QuotaVirtualMachine : public Quota
 {
 public:
 
@@ -49,7 +49,6 @@ public:
         Quota("VM_QUOTA",
               "VM",
               VM_METRICS,
-              NUM_VM_METRICS,
               is_default)
     {};
 
@@ -96,6 +95,27 @@ public:
      */
     int get_quota(const std::string& id, VectorAttribute **va) override;
 
+    /**
+     *  Add generic quota to metrics. It adds also RUNNING_ quota attribute
+     *    @param metric Name of the quota metri
+     *
+     *    @return 0 success, -1 if metric already exists
+     */
+    static int add_metric_generic(const std::string& metric);
+
+    /**
+     * Return vector of generic quota metrics
+    */
+    static const std::vector<std::string>& generic_metrics()
+    {
+        return VM_GENERIC;
+    }
+
+    /*
+     * Add RUNNING_ quotas for generic metrics present in the template
+    */
+    static void add_running_quota_generic(Template& tmpl);
+
 protected:
 
     /**
@@ -130,10 +150,8 @@ protected:
         Quotas& default_quotas,
         VectorAttribute **va) override;
 
-    static const char * VM_METRICS[];
-
-    static const int NUM_VM_METRICS;
-
+    static std::vector<std::string> VM_METRICS;
+    static std::vector<std::string> VM_GENERIC;
 };
 
 #endif /*QUOTA_VIRTUALMACHINE_H_*/

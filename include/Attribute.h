@@ -81,6 +81,9 @@ public:
 
     virtual void to_token(std::ostringstream& s) const = 0;
 
+    virtual void to_xml(std::ostringstream& s,
+        const std::map<std::string, std::set<std::string>> &hidden) const = 0;
+
     /**
      *  Builds a new attribute from a string.
      */
@@ -167,12 +170,32 @@ public:
      *  <attribute_name>attribute_value</attribute_name>
      *
      *  @paran s the stream to write the attribute.
+     *
+     *  NOTE: For Simple attributes hidden are in the form { "PORT". {} }
+     *  A hidden attribute is rendered as ***
      */
     void to_xml(std::ostringstream& s) const override
     {
         s << "<" << attribute_name << ">" << one_util::escape_xml(attribute_value)
           << "</"<< attribute_name << ">";
 
+    }
+
+    void to_xml(std::ostringstream& s,
+        const std::map<std::string, std::set<std::string>> &hidden) const override
+    {
+        s << "<" << attribute_name << ">";
+
+        if (hidden.find(attribute_name) != hidden.end() )
+        {
+             s << "***";
+        }
+        else
+        {
+             s << one_util::escape_xml(attribute_value);
+        }
+
+        s << "</"<< attribute_name << ">";
     }
 
     void to_json(std::ostringstream& s) const override
@@ -422,8 +445,14 @@ public:
      *    ...
      *    <val_name_n>val_value_n</val_name_n>
      *  </attribute_name>
+     *
+     *  NOTE: For Vector attributes hidden are in the form  { "DB", { "USER", "PASSWD"} }
+     *  A hidden attribute is rendered as ***
      */
     void to_xml(std::ostringstream& s) const override;
+
+    void to_xml(std::ostringstream& s,
+        const std::map<std::string, std::set<std::string>> &hidden) const override;
 
     void to_json(std::ostringstream& s) const override;
 

@@ -56,7 +56,9 @@ module OneDBFsck
         # VM quotas
         query = "SELECT body FROM vm_pool WHERE #{filter} AND state<>6"
 
-        resources = { :cpu => 'CPU', :mem => 'MEMORY', :vms => 'VMS' }
+        resources = { :CPU => 'CPU', :MEMORY => 'MEMORY', :VMS => 'VMS' }
+
+        @generic_quotas.each {|q| resources[q] = q }
 
         vm_elem = calculate_vm_quotas(doc, query, resource, resources)
 
@@ -95,9 +97,11 @@ module OneDBFsck
 
         query = "SELECT body FROM vm_pool WHERE #{filter} AND #{running_states}"
 
-        resources = { :cpu => 'RUNNING_CPU',
-                      :mem => 'RUNNING_MEMORY',
-                      :vms => 'RUNNING_VMS' }
+        resources = { :CPU => 'RUNNING_CPU',
+                      :MEMORY => 'RUNNING_MEMORY',
+                      :VMS => 'RUNNING_VMS' }
+
+        @generic_quotas.each {|q| resources[q] = "RUNNING_#{q}" }
 
         calculate_vm_quotas(doc, query, resource, resources)
     end
@@ -344,12 +348,12 @@ module OneDBFsck
         oid = doc.root.at_xpath('ID').text.to_i
 
         cpu_used = 0
-        mem_used = 0
-        vms_used = 0
 
-        cpu = resources[:cpu]
-        mem = resources[:mem]
-        vms = resources[:vms]
+        cpu = resources[:CPU]
+        vms = resources[:VMS]
+
+        quotas = {}
+        resources.each {|_, q| quotas[q] = 0 }
 
         @db.fetch(query) do |vm_row|
             vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
@@ -359,11 +363,17 @@ module OneDBFsck
                 cpu_used += (e.text.to_f * 100).to_i
             end
 
-            vmdoc.root.xpath('TEMPLATE/MEMORY').each do |e|
-                mem_used += e.text.to_i
+            resources.each do |att_name, quota_name|
+                next if [:CPU, :VMS].include?(att_name)
+
+                value = vmdoc.root.at_xpath("TEMPLATE/#{att_name}") ||
+                    vmdoc.root.at_xpath("USER_TEMPLATE/#{att_name}")
+                value = value.text unless value.nil?
+
+                quotas[quota_name] += value.to_i
             end
 
-            vms_used += 1
+            quotas[vms] += 1
         end
 
         vm_elem = nil
@@ -375,14 +385,10 @@ module OneDBFsck
             vm_quota  = doc.root.add_child(doc.create_element('VM_QUOTA'))
             vm_elem   = vm_quota.add_child(doc.create_element('VM'))
 
-            vm_elem.add_child(doc.create_element(cpu)).content           = '-1'
-            vm_elem.add_child(doc.create_element("#{cpu}_USED")).content = '0'
-
-            vm_elem.add_child(doc.create_element(mem)).content           = '-1'
-            vm_elem.add_child(doc.create_element("#{mem}_USED")).content = '0'
-
-            vm_elem.add_child(doc.create_element(vms)).content           = '-1'
-            vm_elem.add_child(doc.create_element("#{vms}_USED")).content = '0'
+            resources.each do |_, quota_name|
+                vm_elem.add_child(doc.create_element(quota_name)).content           = '-1'
+                vm_elem.add_child(doc.create_element("#{quota_name}_USED")).content = '0'
+            end
 
             system_disk_e      = doc.create_element('SYSTEM_DISK_SIZE')
             system_disk_used_e = doc.create_element('SYSTEM_DISK_SIZE_USED')
@@ -408,20 +414,16 @@ module OneDBFsck
             e.content = cpu_used_str
         end
 
-        vm_elem.xpath("#{mem}_USED").each do |e|
-            next if e.text == mem_used.to_s
+        resources.each do |att_name, quota_name|
+            next if att_name == :CPU
 
-            log_error("#{resource} #{oid} quotas: #{mem}_USED has " \
-                      "#{e.text} \tis\t#{mem_used}")
-            e.content = mem_used.to_s
-        end
+            vm_elem.xpath("#{quota_name}_USED").each do |e|
+                next if e.text.to_i == quotas[quota_name].to_i
 
-        vm_elem.xpath("#{vms}_USED").each do |e|
-            next if e.text == vms_used.to_s
-
-            log_error("#{resource} #{oid} quotas: #{vms}_USED has " \
-                      "#{e.text} \tis\t#{vms_used}")
-            e.content = vms_used.to_s
+                log_error("#{resource} #{oid} quotas: #{quota_name}_USED has " \
+                          "#{e.text} \tis\t#{quotas[quota_name]}")
+                e.content = quotas[quota_name].to_s
+            end
         end
 
         vm_elem

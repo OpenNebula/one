@@ -24,10 +24,10 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "RUNNING_VMS", "CPU",
+std::vector<std::string> QuotaVirtualMachine::VM_METRICS = {"VMS", "RUNNING_VMS", "CPU",
     "RUNNING_CPU", "MEMORY", "RUNNING_MEMORY", "SYSTEM_DISK_SIZE"};
 
-const int QuotaVirtualMachine::NUM_VM_METRICS  = 7;
+std::vector<std::string> QuotaVirtualMachine::VM_GENERIC;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -101,6 +101,20 @@ bool QuotaVirtualMachine::check(Template * tmpl,
         vm_request.insert(make_pair("RUNNING_VMS", running_vms));
     }
 
+    for (const auto& metric : VM_GENERIC)
+    {
+        float generic_quota;
+        if ( tmpl->get(metric, generic_quota) )
+        {
+            vm_request.insert(make_pair(metric, generic_quota));
+        }
+
+        if ( tmpl->get("RUNNING_" + metric, generic_quota) )
+        {
+            vm_request.insert(make_pair("RUNNING_" + metric, generic_quota));
+        }
+    }
+
     return check_quota("", vm_request, default_quotas, error);
 }
 
@@ -148,6 +162,20 @@ void QuotaVirtualMachine::add(Template * tmpl)
     size += VirtualMachine::get_snapshots_system_size(tmpl);
 
     vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
+
+    for (const auto& metric : VM_GENERIC)
+    {
+        float generic_quota;
+        if ( tmpl->get(metric, generic_quota) )
+        {
+            vm_request.insert(make_pair(metric, generic_quota));
+        }
+
+        if ( tmpl->get("RUNNING_" + metric, generic_quota) )
+        {
+            vm_request.insert(make_pair("RUNNING_" + metric, generic_quota));
+        }
+    }
 
     add_quota("", vm_request);
 }
@@ -199,7 +227,53 @@ void QuotaVirtualMachine::del(Template * tmpl)
 
     vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
 
+    for (const auto& metric : VM_GENERIC)
+    {
+        float generic_quota;
+        if ( tmpl->get(metric, generic_quota) )
+        {
+            vm_request.insert(make_pair(metric, generic_quota));
+        }
+
+        if ( tmpl->get("RUNNING_" + metric, generic_quota) )
+        {
+            vm_request.insert(make_pair("RUNNING_" + metric, generic_quota));
+        }
+    }
+
     del_quota("", vm_request);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int QuotaVirtualMachine::add_metric_generic(const std::string& metric)
+{
+    if (std::find(VM_METRICS.begin(), VM_METRICS.end(), metric) != VM_METRICS.end())
+    {
+        return -1;
+    }
+
+    VM_METRICS.push_back(metric);
+    VM_METRICS.push_back("RUNNING_" + metric);
+    VM_GENERIC.push_back(metric);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void QuotaVirtualMachine::add_running_quota_generic(Template& tmpl)
+{
+    for (const string& metric : VM_GENERIC)
+    {
+        string value;
+        if (tmpl.get(metric, value))
+        {
+            tmpl.add("RUNNING_" + metric, value);
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -259,6 +333,20 @@ bool QuotaVirtualMachine::update(Template * tmpl,
     if ( delta_size != 0 )
     {
         vm_request.insert(make_pair("SYSTEM_DISK_SIZE", delta_size));
+    }
+
+    for (const auto& metric : VM_GENERIC)
+    {
+        float generic_quota;
+        if ( tmpl->get(metric, generic_quota) )
+        {
+            vm_request.insert(make_pair(metric, generic_quota));
+        }
+
+        if ( tmpl->get("RUNNING_" + metric, generic_quota) )
+        {
+            vm_request.insert(make_pair("RUNNING_" + metric, generic_quota));
+        }
     }
 
     return check_quota("", vm_request, default_quotas, error);

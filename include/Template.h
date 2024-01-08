@@ -182,12 +182,20 @@ public:
      *    ...
      *  </template>
      *  The name of the root element is set when the Template object is created
-     *    @param xml string that hold the xml template representation
-     *    @return a reference to the generated string
+     *
+     *  Hidden attributes are defined as a map, where
+     *    - Simple attributes use an empty set { "PORT", {} }
+     *    - Vector attributes use a set of hidden subattributes { "DB", { "USER", "PASSWD"} }
+     *
+     *  @param xml string that hold the xml template representation
+     *
+     *  @return a reference to the generated string
      */
     std::string& to_xml(std::string& xml) const;
 
     std::string& to_xml(std::string& xml, const std::string& extra) const;
+
+    std::string& to_xml(std::string& xml, const std::map<std::string, std::set<std::string>>& hidden) const;
 
     std::string& to_json(std::string& xml) const;
 

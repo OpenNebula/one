@@ -30,7 +30,7 @@
  *   0 = unlimited, default if missing
  */
 
-class QuotaImage :  public Quota
+class QuotaImage : public Quota
 {
 public:
 
@@ -38,7 +38,6 @@ public:
         Quota("IMAGE_QUOTA",
               "IMAGE",
               IMAGE_METRICS,
-              NUM_IMAGE_METRICS,
               is_default)
     {};
 
@@ -75,9 +74,7 @@ protected:
                         Quotas& default_quotas,
                         VectorAttribute **va) override;
 
-    static const char * IMAGE_METRICS[];
-
-    static const int NUM_IMAGE_METRICS;
+    static const std::vector<std::string> IMAGE_METRICS;
 };
 
 #endif /*QUOTA_IMAGE_H_*/

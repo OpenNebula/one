@@ -175,10 +175,20 @@ public:
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
-    std::string get_configuration_xml() const
+    std::string get_configuration_xml(bool admin) const
     {
         std::string xml;
-        return config->to_xml(xml);
+
+        if (admin)
+        {
+            config->to_xml(xml);
+        }
+        else
+        {
+            config->to_xml_hidden(xml);
+        }
+
+        return xml;
     };
 
 protected:

@@ -202,9 +202,7 @@ void LifeCycleManager::trigger_stop(int vid, const RequestAttributes& ra)
             vm->get_template_attribute("MEMORY", memory);
             vm->get_template_attribute("CPU", cpu);
 
-            quota_tmpl.add("RUNNING_MEMORY", memory);
-            quota_tmpl.add("RUNNING_CPU", cpu);
-            quota_tmpl.add("RUNNING_VMS", 1);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::EPILOG_STOP);
@@ -220,7 +218,7 @@ void LifeCycleManager::trigger_stop(int vid, const RequestAttributes& ra)
             //----------------------------------------------------
 
             tm->trigger_epilog_stop(vm.get());
-            
+
             // Add running quota, it will be removed in DM::stop_success
             vm.reset();
             Quotas::vm_add(quota_uid, quota_gid, &quota_tmpl);
@@ -465,9 +463,7 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
             (vm->get_state() == VirtualMachine::STOPPED) ||
             (vm->get_state() == VirtualMachine::UNDEPLOYED))
         {
-            quota_tmpl.add("RUNNING_MEMORY", memory);
-            quota_tmpl.add("RUNNING_CPU", cpu);
-            quota_tmpl.add("RUNNING_VMS", 1);
+            vm->get_quota_template(quota_tmpl, false, true);
         }
 
         auto lcm_state = vm->get_lcm_state();
@@ -639,9 +635,7 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
             vm->get_template_attribute("MEMORY", memory);
             vm->get_template_attribute("CPU", cpu);
 
-            quota_tmpl.add("RUNNING_MEMORY", memory);
-            quota_tmpl.add("RUNNING_CPU", cpu);
-            quota_tmpl.add("RUNNING_VMS", 1);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);

@@ -238,6 +238,8 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     extended_tmpl.add("RUNNING_VMS", 1);
     extended_tmpl.add("VMS", 1);
 
+    QuotaVirtualMachine::add_running_quota_generic(extended_tmpl);
+
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)
     {

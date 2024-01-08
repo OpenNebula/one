@@ -43,7 +43,7 @@ void DispatchManager::trigger_suspend_success(int vid)
         {
             VirtualMachineTemplate quota_tmpl;
 
-            vm->get_quota_template(quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             vm->set_state(VirtualMachine::SUSPENDED);
 
@@ -96,7 +96,7 @@ void DispatchManager::trigger_stop_success(int vid)
         {
             VirtualMachineTemplate quota_tmpl;
 
-            vm->get_quota_template(quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             vm->set_state(VirtualMachine::STOPPED);
 
@@ -151,7 +151,9 @@ void DispatchManager::trigger_undeploy_success(int vid)
         {
             VirtualMachineTemplate quota_tmpl;
 
-            vm->get_quota_template(quota_tmpl, true);
+            // Bug: From the LCM state we don't know if we undeploy from RUNNING or POWEROFF
+            //      state. In first case we should remove RUNNING_* quotas, in the second not
+            vm->get_quota_template(quota_tmpl, false, vm->is_running_quota());
 
             vm->set_state(VirtualMachine::UNDEPLOYED);
 
@@ -214,7 +216,7 @@ void DispatchManager::trigger_poweroff_success(int vid)
         {
             VirtualMachineTemplate quota_tmpl;
 
-            vm->get_quota_template(quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, false, vm->is_running_quota());
 
             vm->set_state(VirtualMachine::POWEROFF);
 

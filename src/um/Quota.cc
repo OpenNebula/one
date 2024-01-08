@@ -178,13 +178,11 @@ bool Quota::check_quota(const string& qid,
     {
         map<string, string> values;
 
-        for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
         {
-            string metrics_used = metrics[i];
+            string metrics_used = metric + "_USED";
 
-            metrics_used += "_USED";
-
-            values.insert(make_pair(metrics[i], DEFAULT_STR));
+            values.insert(make_pair(metric, DEFAULT_STR));
             values.insert(make_pair(metrics_used, "0"));
         }
 
@@ -201,27 +199,25 @@ bool Quota::check_quota(const string& qid,
     // -------------------------------------------------------------------------
     //  Check the quotas for each usage request
     // -------------------------------------------------------------------------
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric + "_USED";
 
-        metrics_used += "_USED";
-
-        auto it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metric);
 
         if (it == usage_req.end())
         {
             continue;
         }
 
-        q->vector_value(metrics[i],   limit);
+        q->vector_value(metric, limit);
         q->vector_value(metrics_used, usage);
 
         if ( limit == DEFAULT )
         {
             if ( default_q != 0 )
             {
-                default_q->vector_value(metrics[i], limit);
+                default_q->vector_value(metric, limit);
             }
             else
             {
@@ -235,7 +231,7 @@ bool Quota::check_quota(const string& qid,
         {
             ostringstream oss;
 
-            oss << "limit of " << limit << " reached for " << metrics[i]
+            oss << "limit of " << limit << " reached for " << metric
                 << " quota in " << template_name;
 
             if ( !qid.empty() )
@@ -252,13 +248,11 @@ bool Quota::check_quota(const string& qid,
     // -------------------------------------------------------------------------
     //  Add resource usage to quotas
     // -------------------------------------------------------------------------
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric + "_USED";
 
-        metrics_used += "_USED";
-
-        auto it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metric);
 
         if (it == usage_req.end())
         {
@@ -288,13 +282,13 @@ void Quota::add_quota(const string& qid, map<string, float>& usage_req)
         return;
     }
 
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric;
 
         metrics_used += "_USED";
 
-        auto it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metric);
 
         if (it == usage_req.end())
         {
@@ -322,13 +316,11 @@ void Quota::del_quota(const string& qid, map<string, float>& usage_req)
         return;
     }
 
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric + "_USED";
 
-        metrics_used += "_USED";
-
-        auto it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metric);
 
         if (it == usage_req.end())
         {
@@ -370,13 +362,11 @@ void Quota::cleanup_quota(const string& qid)
         implicit_limit = DEFAULT;
     }
 
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric + "_USED";
 
-        metrics_used += "_USED";
-
-        q->vector_value(metrics[i], limit);
+        q->vector_value(metric, limit);
         q->vector_value(metrics_used, usage);
 
         if ( usage != 0 || limit != implicit_limit )
@@ -399,9 +389,9 @@ int Quota::update_limits(
 {
     float   limit_f;
 
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        const string& limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metric, limit_f);
 
         if (limit.empty())
         {
@@ -425,7 +415,7 @@ int Quota::update_limits(
             return -1;
         }
 
-        quota->replace(metrics[i], one_util::float_to_str(limit_f));
+        quota->replace(metric, one_util::float_to_str(limit_f));
     }
 
     return 0;
@@ -440,13 +430,11 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
 
     float  limit_f;
 
-    for (int i=0; i < num_metrics; i++)
+    for (const string& metric : metrics)
     {
-        string metrics_used = metrics[i];
+        string metrics_used = metric + "_USED";
 
-        metrics_used += "_USED";
-
-        const string& limit = va->vector_value_str(metrics[i], limit_f);
+        const string& limit = va->vector_value_str(metric, limit_f);
 
         if (limit.empty())
         {
@@ -469,7 +457,7 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
             return 0;
         }
 
-        limits.insert(make_pair(metrics[i], one_util::float_to_str(limit_f)));
+        limits.insert(make_pair(metric, one_util::float_to_str(limit_f)));
         limits.insert(make_pair(metrics_used, "0"));
     }
 

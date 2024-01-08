@@ -30,7 +30,9 @@ public:
     NebulaTemplate(const std::string& etc_location, const char * _conf_name,
             const char * root_name)
         : Template(false, '=', root_name)
-        , hidden_attributes{ { "DB", { "PASSWD" } } }
+        , hidden_attributes{
+            {"DB", {"BACKEND", "SERVER", "PORT", "USER", "PASSWD", "DB_NAME"}}
+        }
     {
         if (_conf_name[0] == '/')
         {
@@ -51,11 +53,13 @@ public:
 
     std::string& to_str(std::string& str) const override;
 
+    std::string& to_xml_hidden(std::string& str) const;
+
 protected:
     /**
      *  Full path to the configuration file
      */
-    std::string                  conf_file;
+    std::string conf_file;
 
     /**
      *  Defaults for the configuration file
@@ -64,8 +68,8 @@ protected:
 
     /**
      *  Hidden attributes, which shouldn't be displayed to non-admin users
-     *  For Simple attributes use { "PORT". {} }
-     *  For Vector attributes use { "DB", { "USER", "PASSWD"} }
+     *  For Simple attributes use {"PORT", {}}
+     *  For Vector attributes use {"DB", {"USER", "PASSWD"}}
      */
     std::map<std::string, std::set<std::string>> hidden_attributes;
 

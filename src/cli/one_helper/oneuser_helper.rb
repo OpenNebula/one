@@ -613,7 +613,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             default_quotas = elem
         }
 
-        helper = OneQuotaHelper.new
+        helper = OneQuotaHelper.new(@client)
         helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
 

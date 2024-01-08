@@ -615,6 +615,24 @@ void Nebula::start(bool bootstrap_only)
     ssl_util::SSLMutex::initialize();
 
     // -----------------------------------------------------------
+    // Generic Quotas
+    // -----------------------------------------------------------
+    {
+        vector<const SingleAttribute *> qouta_vm_attrs;
+
+        nebula_configuration->get("QUOTA_VM_ATTRIBUTE", qouta_vm_attrs);
+
+        for (const auto* quota : qouta_vm_attrs)
+        {
+            if (QuotaVirtualMachine::add_metric_generic(quota->value()) != 0)
+            {
+                NebulaLog::warn("ONE", "Unable to add QUOTA_VM_ATTRIBUTE " + quota->value()
+                    + ", it already exists");
+            }
+        }
+    }
+
+    // -----------------------------------------------------------
     //Managers
     // -----------------------------------------------------------
 

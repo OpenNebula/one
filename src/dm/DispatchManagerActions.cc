@@ -76,7 +76,7 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
             uid = vm->get_uid();
             gid = vm->get_gid();
 
-            vm->get_quota_template(quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, false, true);
         }
 
         lcm->trigger_deploy(vid);
@@ -152,7 +152,7 @@ int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttribut
         uid = vm->get_uid();
         gid = vm->get_gid();
 
-        vm->get_quota_template(quota_tmpl, true);
+        vm->get_quota_template(quota_tmpl, false, true);
 
         do_quotas = true;
     }
@@ -290,23 +290,9 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     int vrid = -1;
     unsigned int port;
 
-    auto quota_tmpl = vm->clone_template();
+    VirtualMachineTemplate quota_tmpl;
 
-    if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
-         (vm->get_state() == VirtualMachine::PENDING) ||
-         (vm->get_state() == VirtualMachine::HOLD) )
-    {
-        std::string memory, cpu;
-
-        quota_tmpl->get("MEMORY", memory);
-        quota_tmpl->get("CPU", cpu);
-
-        quota_tmpl->add("RUNNING_MEMORY", memory);
-        quota_tmpl->add("RUNNING_CPU", cpu);
-        quota_tmpl->add("RUNNING_VMS", 1);
-    }
-
-    quota_tmpl->add("VMS", 1);
+    vm->get_quota_template(quota_tmpl, true, vm->is_running_quota());
 
     vm->release_network_leases();
 
@@ -370,7 +356,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 
     vm.reset(); //force unlock of vm mutex
 
-    Quotas::vm_del(uid, gid, quota_tmpl.get());
+    Quotas::vm_del(uid, gid, &quota_tmpl);
 
     if ( !ds_quotas.empty() )
     {
@@ -1240,7 +1226,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
             if ( do_quotas )
             {
-                vm->get_quota_template(quota_tmpl, true);
+                vm->get_quota_template(quota_tmpl, false, true);
             }
         break;
 

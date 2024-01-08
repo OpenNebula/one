@@ -60,6 +60,11 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
+    virtual void request_execute(int oid,
+                                 const std::string& templ,
+                                 int update_type,
+                                 RequestAttributes& att);
+
     virtual int replace_template(PoolObjectSQL * object,
                                  const std::string & tmpl,
                                  const RequestAttributes &att,
@@ -77,17 +82,6 @@ protected:
      *    @return 0 on success
      */
     virtual int extra_updates(PoolObjectSQL * obj)
-    {
-        return 0;
-    }
-
-    /**
-     *  Method for extra checks on specific objects
-     *    @param obj to check conditions form update
-     *    @param error return reason of error
-     *    @return 0 on success
-     */
-    virtual int extra_preconditions_check(PoolObjectSQL * obj, std::string& error)
     {
         return 0;
     }
@@ -164,21 +158,10 @@ protected:
         return vmpool->update_search(vm);
     }
 
-    int extra_preconditions_check(PoolObjectSQL * obj, std::string& error) override
-    {
-        auto vm = static_cast<VirtualMachine *>(obj);
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::UPDATE_ACTION))
-        {
-            error = "Action \"update\" is not supported for imported VMs";
-
-            return -1;
-        }
-
-        return 0;
-    }
+    void request_execute(int oid,
+                         const std::string& templ,
+                         int update_type,
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */

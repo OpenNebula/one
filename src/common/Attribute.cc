@@ -80,6 +80,38 @@ void VectorAttribute::to_xml(ostringstream &oss) const
     oss << "</"<< name() << ">";
 }
 
+void VectorAttribute::to_xml(ostringstream &oss,
+        const std::map<std::string, std::set<std::string>> &hidden) const
+{
+    oss << "<" << name() << ">";
+
+    auto hidden_it = hidden.find(name());
+
+    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
+    {
+        if ( it->first.empty())
+        {
+            continue;
+        }
+
+        oss << "<" << it->first << ">";
+
+        if (hidden_it != hidden.end() &&
+                hidden_it->second.find(it->first) != hidden_it->second.end())
+        {
+            oss << "***";
+        }
+        else
+        {
+            oss << one_util::escape_xml(it->second);
+        }
+
+        oss << "</" << it->first << ">";
+    }
+
+    oss << "</"<< name() << ">";
+}
+
 void VectorAttribute::to_json(std::ostringstream& s) const
 {
     if ( attribute_value.empty() )

@@ -1226,7 +1226,7 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
 
             vmpool->update(vm.get());
 
-            vm->get_quota_template(quota_tmpl, true);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             vm.reset();
 
@@ -1512,7 +1512,6 @@ void LifeCycleManager::trigger_snapshot_create_failure(int vid)
             Template quota_tmpl;
 
             quota_tmpl.set(snap);
-            quota_tmpl.replace("VMS", 0);
 
             Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
         }
@@ -2622,7 +2621,7 @@ void LifeCycleManager::trigger_resize_failure(int vid)
 
                 deltas.add("MEMORY", nmem - omem);
                 deltas.add("CPU", ncpu - ocpu);
-                deltas.add("VMS", 0);
+                deltas.add("VCPU", nvcpu - ovcpu);
 
                 auto state = vm->get_state();
 
@@ -2632,6 +2631,7 @@ void LifeCycleManager::trigger_resize_failure(int vid)
                 {
                     deltas.add("RUNNING_MEMORY", nmem - omem);
                     deltas.add("RUNNING_CPU", ncpu - ocpu);
+                    deltas.add("RUNNING_VCPU", nvcpu - ovcpu);
                 }
 
                 vm->resize(ocpu, omem, ovcpu, error);

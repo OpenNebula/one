@@ -328,7 +328,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
             default_quotas = elem
         }
 
-        helper = OneQuotaHelper.new
+        helper = OneQuotaHelper.new(@client)
         helper.format_quota(group_hash['GROUP'], default_quotas, group.id)
     end
 end

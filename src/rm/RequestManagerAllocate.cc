@@ -129,6 +129,8 @@ bool VirtualMachineAllocate::allocate_authorization(
     aux_tmpl.add("RUNNING_VMS", 1);
     aux_tmpl.add("VMS", 1);
 
+    QuotaVirtualMachine::add_running_quota_generic(aux_tmpl);
+
     if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {
         return false;
@@ -371,6 +373,8 @@ error_drop_vm:
     tmpl_back.add("RUNNING_CPU", cpu);
     tmpl_back.add("RUNNING_VMS", 1);
     tmpl_back.add("VMS", 1);
+
+    QuotaVirtualMachine::add_running_quota_generic(tmpl_back);
 
     quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
 

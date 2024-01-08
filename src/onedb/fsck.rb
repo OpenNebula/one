@@ -171,6 +171,51 @@ EOT
         end
     end
 
+    def read_config
+        begin
+            # Suppress augeas require warning message
+            $VERBOSE = nil
+
+            gem 'augeas', '~> 0.6'
+            require 'augeas'
+        rescue Gem::LoadError
+            STDERR.puts(
+                'Augeas gem is not installed, run `gem install ' \
+                'augeas -v \'0.6\'` to install it'
+            )
+            exit(-1)
+        end
+
+        work_file_dir  = File.dirname(ONED_CONF)
+        work_file_name = File.basename(ONED_CONF)
+
+        aug = Augeas.create(:no_modl_autoload => true,
+                            :no_load          => true,
+                            :root             => work_file_dir,
+                            :loadpath         => ONED_CONF)
+
+        aug.clear_transforms
+        aug.transform(:lens => 'Oned.lns', :incl => work_file_name)
+        aug.context = "/files/#{work_file_name}"
+        aug.load
+
+        @generic_quotas = []
+
+        i = 0
+        loop do
+            i += 1
+
+            quota = aug.get("QUOTA_VM_ATTRIBUTE[#{i}]")
+
+            break if quota.nil?
+
+            @generic_quotas << quota.chomp('"').reverse.chomp('"').reverse
+        end
+    rescue StandardError => e
+        STDERR.puts "Unable to parse oned.conf: #{e}"
+        exit(-1)
+    end
+
     ########################################################################
     # Acl
     ########################################################################

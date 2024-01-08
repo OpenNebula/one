@@ -40,7 +40,6 @@ public:
         Quota("DATASTORE_QUOTA",
               "DATASTORE",
               DS_METRICS,
-              NUM_DS_METRICS,
               is_default)
     {};
 
@@ -77,9 +76,7 @@ protected:
                         Quotas& default_quotas,
                         VectorAttribute **va) override;
 
-    static const char * DS_METRICS[];
-
-    static const int NUM_DS_METRICS;
+    static const std::vector<std::string> DS_METRICS;
 };
 
 #endif /*QUOTA_DATASTORE_H_*/

@@ -371,6 +371,24 @@ string& Template::to_xml(string& xml) const
     return xml;
 }
 
+string& Template::to_xml(string& xml, const std::map<std::string, std::set<std::string>> &hidden) const
+{
+    ostringstream oss;
+
+    oss << "<" << xml_root << ">";
+
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        it->second->to_xml(oss, hidden);
+    }
+
+    oss << "</" << xml_root << ">";
+
+    xml = oss.str();
+
+    return xml;
+}
+
 string& Template::to_xml(string& xml, const string& extra) const
 {
     ostringstream oss;

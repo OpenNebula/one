@@ -63,8 +63,6 @@ void RequestManagerUpdateTemplate::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
-    int    rc;
-
     int    oid  = xmlrpc_c::value_int(paramList.getInt(1));
     string tmpl = xmlrpc_c::value_string(paramList.getString(2));
 
@@ -87,6 +85,18 @@ void RequestManagerUpdateTemplate::request_execute(
         return;
     }
 
+    request_execute(oid, tmpl, update_type, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void RequestManagerUpdateTemplate::request_execute(int oid,
+                                                   const std::string& tmpl,
+                                                   int update_type,
+                                                   RequestAttributes& att)
+{
+    int rc;
 
     auto object = pool->get<PoolObjectSQL>(oid);
 
@@ -94,13 +104,6 @@ void RequestManagerUpdateTemplate::request_execute(
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    if (extra_preconditions_check(object.get(), att.resp_msg))
-    {
-        failure_response(ACTION, att);
-
         return;
     }
 
@@ -126,8 +129,129 @@ void RequestManagerUpdateTemplate::request_execute(
     extra_updates(object.get());
 
     success_response(oid, att);
+}
 
-    return;
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachineUpdateTemplate::request_execute(int oid,
+                                                  const std::string& tmpl,
+                                                  int update_type,
+                                                  RequestAttributes& att)
+{
+    int rc;
+
+    auto vm = pool->get<VirtualMachine>(oid);
+
+    if ( vm == nullptr )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    // Check if the action is supported for imported VMs
+    if (vm->is_imported() && !vm->is_imported_action_supported(VMActions::UPDATE_ACTION))
+    {
+        att.resp_msg = "Action \"update\" is not supported for imported VMs";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    // Apply generic quota deltas
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+
+    if ( new_tmpl->parse_str_or_xml(tmpl, att.resp_msg) != 0 )
+    {
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    if ( update_type == 1 ) //append mode
+    {
+        auto user_tmpl = vm->clone_user_template();
+
+        user_tmpl->merge(new_tmpl.get());
+
+        new_tmpl.swap(user_tmpl);
+    }
+
+    // Compute quota deltas (only generic quota may appear in User template)
+    bool do_quotas = false;
+
+    for ( const string& metric : QuotaVirtualMachine::generic_metrics())
+    {
+        float value_new, value_old;
+
+        bool exists_old = vm->get_user_template_attribute(metric, value_old);
+        bool exists_new = new_tmpl->get(metric, value_new);
+
+        if ( exists_old || exists_new )
+        {
+            float delta = value_new - value_old;
+
+            new_tmpl->replace(metric, delta);
+
+            do_quotas |= delta != 0;
+        }
+    }
+
+    if (vm->is_running_quota())
+    {
+        QuotaVirtualMachine::add_running_quota_generic(*new_tmpl);
+    }
+
+    RequestAttributes att_quota(att);
+
+    att_quota.uid = vm->get_uid();
+    att_quota.gid = vm->get_gid();
+
+    vm.reset();
+
+    if ( do_quotas )
+    {
+        if (!quota_authorization(new_tmpl.get(), Quotas::VIRTUALMACHINE, att_quota, att.resp_msg))
+        {
+            failure_response(ACTION, att);
+
+            return;
+        }
+    }
+
+    vm = pool->get<VirtualMachine>(oid);
+
+    if (update_type == 0)
+    {
+        rc = replace_template(vm.get(), tmpl, att, att.resp_msg);
+    }
+    else //if (update_type == 1)
+    {
+        rc = append_template(vm.get(), tmpl, att, att.resp_msg);
+    }
+
+    if ( rc != 0 )
+    {
+        vm.reset();
+
+        if (do_quotas)
+        {
+            quota_rollback(new_tmpl.get(), Quotas::VIRTUALMACHINE, att_quota);
+        }
+
+        att.resp_msg = "Cannot update template. " + att.resp_msg;
+        failure_response(INTERNAL, att);
+
+        return;
+    }
+
+    pool->update(vm.get());
+
+    extra_updates(vm.get());
+
+    success_response(oid, att);
 }
 
 /* ------------------------------------------------------------------------- */

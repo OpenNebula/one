@@ -476,7 +476,6 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", delta_size);
 
-        vm_deltas.add("VMS", 0);
         vm_deltas.set(delta_disk);
     }
 }

@@ -194,13 +194,11 @@ protected:
 
     Quota(const char *  quota_name,
           const char *  _template_name,
-          const char ** _metrics,
-          int           _num_metrics,
+          const std::vector<std::string>& _metrics,
           bool          _is_default)
         : Template(false, '=', quota_name),
           template_name(_template_name),
           metrics(_metrics),
-          num_metrics(_num_metrics),
           is_default(_is_default){};
 
     virtual ~Quota(){};
@@ -225,12 +223,7 @@ protected:
     /**
      *  The name of the quota metrics
      */
-    const char ** metrics;
-
-    /**
-     *  Length
-     */
-    int num_metrics;
+    const std::vector<std::string>& metrics;
 
     /**
      * Whether or not this is a default quota. Default quotas do not have usage,

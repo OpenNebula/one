@@ -62,7 +62,7 @@ public:
 
         msg.type(MonitorDriverMessages::START_MONITOR);
         msg.oid(oid);
-        msg.payload(format_message(host_xml + ns.get_configuration_xml()));
+        msg.payload(format_message(host_xml + ns.get_configuration_xml(true)));
 
         write(msg);
     }
@@ -74,7 +74,7 @@ public:
 
         msg.type(MonitorDriverMessages::STOP_MONITOR);
         msg.oid(oid);
-        msg.payload(format_message(host_xml + ns.get_configuration_xml()));
+        msg.payload(format_message(host_xml + ns.get_configuration_xml(true)));
 
         write(msg);
     }

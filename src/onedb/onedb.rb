@@ -483,6 +483,8 @@ class OneDB
 
                 time0 = Time.now
 
+                @backend.read_config
+
                 result = @backend.fsck
 
                 if !result

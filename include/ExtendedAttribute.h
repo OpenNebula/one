@@ -98,6 +98,12 @@ public:
         return va->to_token(s);
     };
 
+    void to_xml(std::ostringstream& s,
+        const std::map<std::string, std::set<std::string>> &hidden) const override
+    {
+        return va->to_xml(s, hidden);
+    }
+
 protected:
     /**
      *  Creates the attribute with a reference to a VectorAttribute. The object

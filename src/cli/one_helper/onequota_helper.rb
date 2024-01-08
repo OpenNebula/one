@@ -75,6 +75,10 @@ class OneQuotaHelper
         #-----------------------------------------------------------------------
     EOT
 
+    def initialize(client = nil)
+        @client=client
+    end
+
     #  Edits the quota template of a resource
     #  @param [XMLElement] resource to get the current info from
     #  @param [String] path to the new contents. If nil a editor will be
@@ -207,6 +211,8 @@ class OneQuotaHelper
 
         vm_quotas = [qh['VM_QUOTA']['VM']].flatten
 
+        generic_quotas = get_generic_quotas
+
         # This initializes the VM quotas for users/groups that don't have any
         # resource usage yet. It not applied to oneamdin
         if vm_quotas[0].nil? && resource_id.to_i != 0
@@ -228,6 +234,13 @@ class OneQuotaHelper
                 "SYSTEM_DISK_SIZE"      => limit,
                 "SYSTEM_DISK_SIZE_USED" => "0"
             }]
+
+            generic_quotas.each do |q|
+                vm_quotas[0][q] = limit
+                vm_quotas[0]["#{q}_USED"] = "0"
+                vm_quotas[0]["RUNNING_#{q}"] = limit
+                vm_quotas[0]["RUNNING_#{q}_USED"] = "0"
+            end
         end
 
         if !vm_quotas[0].nil?
@@ -378,6 +391,55 @@ class OneQuotaHelper
             puts
         end
 
+        if !generic_quotas.empty? && !vm_quotas[0].nil?
+            CLIHelper.print_header(str_h1 % "VMS GENERIC QUOTAS",false)
+            size = [80 / generic_quotas.length - 1, 18].min
+
+            CLIHelper::ShowTable.new(nil, self) do
+                generic_quotas.each do |elem|
+                    column elem.to_sym, "", :right, :size=>size do |d|
+                        if !d.nil?
+                            limit = d[elem]
+                            limit = helper.get_default_limit(
+                                limit, "VM_QUOTA/VM/#{elem}")
+
+                            if limit == LIMIT_UNLIMITED
+                                "%6s /      -" % [d["#{elem}_USED"]]
+                            else
+                                "%6s / %6s" % [d["#{elem}_USED"], limit]
+                            end
+                        end
+                    end
+                end
+            end.show(vm_quotas, {})
+
+            puts
+
+            CLIHelper.print_header(str_h1 % "VMS GENERIC RUNNING QUOTAS",false)
+            size = [80 / generic_quotas.length - 1, 18].min
+
+            CLIHelper::ShowTable.new(nil, self) do
+                generic_quotas.each do |q|
+                    elem = "RUNNING_#{q}"
+                    column elem.to_sym, "", :right, :size=>size do |d|
+                        if !d.nil?
+                            limit = d[elem]
+                            limit = helper.get_default_limit(
+                                limit, "VM_QUOTA/VM/#{elem}")
+
+                            if limit == LIMIT_UNLIMITED
+                                "%6s /      -" % [d["#{elem}_USED"]]
+                            else
+                                "%6s / %6s" % [d["#{elem}_USED"], limit]
+                            end
+                        end
+                    end
+                end
+            end.show(vm_quotas, {})
+
+            puts
+        end
+
         CLIHelper.print_header(str_h1 % "DATASTORE USAGE & QUOTAS",false)
 
         puts
@@ -503,4 +565,17 @@ class OneQuotaHelper
 
         return limit
     end
+
+    private
+
+    def get_generic_quotas
+        conf = OpenNebula::System.new(@client).get_configuration
+
+        return [] if OpenNebula.is_error?(conf)
+
+        conf.retrieve_elements('/OPENNEBULA_CONFIGURATION/QUOTA_VM_ATTRIBUTE')
+    rescue StandardError
+        []
+    end
+
 end

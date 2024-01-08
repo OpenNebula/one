@@ -87,6 +87,14 @@ void NebulaTemplate::set_conf_single(const std::string& attr,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+std::string& NebulaTemplate::to_xml_hidden(std::string& str) const
+{
+    return Template::to_xml(str, hidden_attributes);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 std::string& NebulaTemplate::to_str(std::string& str) const
 {
     ostringstream os;
@@ -96,6 +104,7 @@ std::string& NebulaTemplate::to_str(std::string& str) const
         string s;
 
         auto hidden_it = hidden_attributes.find(it->first);
+
         if (hidden_it != hidden_attributes.end())
         {
             if (it->second->type() == Attribute::SIMPLE)

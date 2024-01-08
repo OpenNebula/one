@@ -517,17 +517,10 @@ Request::ErrorCode VirtualMachineAction::request_execute(RequestAttributes& att,
             rc = dm->suspend(vid, att, error);
             break;
         case VMActions::RESUME_ACTION:
-            // Generate quota information for resume action
-            vm->get_template_attribute("MEMORY", memory);
-            vm->get_template_attribute("CPU", cpu);
-
-            quota_tmpl.add("RUNNING_MEMORY", memory);
-            quota_tmpl.add("RUNNING_CPU", cpu);
-            quota_tmpl.add("RUNNING_VMS", 1);
+            vm->get_quota_template(quota_tmpl, false, true);
 
             att_aux.uid = vm->get_uid();
             att_aux.gid = vm->get_gid();
-
 
             if (!quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
             {
@@ -1876,8 +1869,6 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
     VirtualMachineTemplate deltas(tmpl);
     VirtualMachineDisks::extended_info(att.uid, &deltas);
 
-    deltas.add("VMS", 0);
-
     if (quota_resize_authorization(&deltas, att_quota, vm_perms) == false)
     {
         att.resp_msg = std::move(att_quota.resp_msg);
@@ -1980,7 +1971,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     float ncpu, ocpu, dcpu;
     long  nmemory, omemory, dmemory;
-    int   nvcpu, ovcpu;
+    int   nvcpu, ovcpu, dvcpu;
     bool  update_running_quota;
 
     Template deltas;
@@ -2109,15 +2100,18 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     dcpu    = ncpu - ocpu;
+    dvcpu   = nvcpu - ovcpu;
     dmemory = nmemory - omemory;
 
     deltas.add("MEMORY", dmemory);
     deltas.add("CPU", dcpu);
+    deltas.add("VCPU", dvcpu);
 
     if (update_running_quota)
     {
         deltas.add("RUNNING_MEMORY", dmemory);
         deltas.add("RUNNING_CPU", dcpu);
+        deltas.add("RUNNING_VCPU", dvcpu);
     }
 
     if (quota_resize_authorization(&deltas, att, vm_perms) == false)
@@ -2203,7 +2197,6 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
     Template quota_tmpl;
 
     quota_tmpl.set(snap);
-    quota_tmpl.add("VMS", 0);
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
