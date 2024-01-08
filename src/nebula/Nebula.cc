@@ -626,9 +626,13 @@ void Nebula::start(bool bootstrap_only)
         {
             if (QuotaVirtualMachine::add_metric_generic(quota->value()) != 0)
             {
-                NebulaLog::warn("ONE", "Unable to add QUOTA_VM_ATTRIBUTE " + quota->value()
-                    + ", it already exists");
+                NebulaLog::warn("ONE",
+                    "Duplicated QUOTA_VM_ATTRIBUTE detected: " + quota->value());
+
+                continue;
             }
+
+            nebula_configuration->add("VM_RESTRICTED_ATTR", quota->value());
         }
     }
 
@@ -691,7 +695,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_ENCRYPTED_ATTR", vm_encrypted_attrs);
 
-        nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
+        nebula_configuration->get("VM_SUBMIT_ON_HOLD", vm_submit_on_hold);
 
         default_cost = nebula_configuration->get("DEFAULT_COST");
 
