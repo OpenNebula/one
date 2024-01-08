@@ -1022,10 +1022,10 @@ module.exports = {
     Disk thread id can be forced by disk IOTHREAD attribute`,
   Raw: 'Raw',
   RawData: 'Raw data',
-  RawDataConcept: 'Raw data to be passed directly to the hypervisor',
+  RawDataConcept:
+    'Raw data is used to pass VM information directly to the underlying hypervisor. Anything placed in the data attribute gets passed straight to the hypervisor. Do not add escape characters.',
   RawValidateConcept: `
-    Disable validation of the RAW data.
-    By default, the data will be checked against the libvirt schema`,
+    Enable or disable validation of the RAW data against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
   SshPublicKey: 'SSH public key',

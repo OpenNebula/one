@@ -27,6 +27,7 @@ const TYPE = {
   label: T.Type,
   type: INPUT_TYPES.TEXT,
   notOnHypervisors: [lxc, vcenter, firecracker],
+  htmlType: INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()

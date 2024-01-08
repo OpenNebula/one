@@ -597,3 +597,21 @@ export const getErrorMessage = (resource) => {
 
   return [ERROR, SCHED_MESSAGE, templateError].filter(Boolean)[0]
 }
+
+/**
+ * Replace < for &lt; and > for &gt;.
+ *
+ * @param {string} xmlString - The string with xml value
+ * @returns {string} - A string with the same value but with the replace characters
+ */
+export const transformXmlString = (xmlString) =>
+  xmlString.replace(/[<>"']/g, function (c) {
+    switch (c) {
+      case '<':
+        return '&lt;'
+      case '>':
+        return '&gt;'
+      default:
+        return c
+    }
+  })
