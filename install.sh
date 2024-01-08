@@ -2986,7 +2986,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vdc-tab.yaml \
-				                        src/fireedge/etc/sunstone/admin/user-tab.yaml \
+				                src/fireedge/etc/sunstone/admin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backupjobs-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/group-tab.yaml \
@@ -3012,9 +3012,9 @@ FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-t
                                 src/fireedge/etc/sunstone/groupadmin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/group-tab.yaml"
-                                
+
 FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml"                                
+                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files
