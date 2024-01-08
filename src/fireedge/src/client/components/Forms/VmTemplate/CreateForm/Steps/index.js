@@ -26,7 +26,11 @@ import General, {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 
 import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
-import { jsonToXml, userInputsToArray } from 'client/models/Helper'
+import {
+  jsonToXml,
+  userInputsToArray,
+  transformXmlString,
+} from 'client/models/Helper'
 import {
   convertToMB,
   createSteps,
@@ -154,6 +158,10 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     ;['NIC', 'NIC_ALIAS'].forEach((nicKey) =>
       extraTemplate?.[nicKey]?.forEach((NIC) => delete NIC?.NAME)
     )
+
+    // ISSUE #6418: Raw data is in XML format, so it needs to be transform before sennding it to the API (otherwise the value of RAW.DATA will be treat as part of the XML template)
+    extraTemplate?.RAW?.DATA &&
+      (extraTemplate.RAW.DATA = transformXmlString(extraTemplate.RAW.DATA))
 
     return jsonToXml({
       ...customVariables,
