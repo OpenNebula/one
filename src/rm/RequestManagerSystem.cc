@@ -38,9 +38,9 @@ void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
 void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
                                  RequestAttributes& att)
 {
-    //bool is_admin = att.gid == GroupPool::ONEADMIN_ID;
-    //Do not send sensitive configuration data over the wire
-    success_response(Nebula::instance().get_configuration_xml(false), att);
+    bool is_admin = att.gid == GroupPool::ONEADMIN_ID;
+
+    success_response(Nebula::instance().get_configuration_xml(is_admin), att);
 
     return;
 }
