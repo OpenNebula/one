@@ -45,6 +45,7 @@ const ButtonGroup = memo(
         disabled={disabled}
         variant={isSelected ? 'contained' : 'outlined'}
         color="secondary"
+        data-cy={`group-${ID}`}
         onClick={handleClick}
         sx={{
           boxShadow: 'none !important',

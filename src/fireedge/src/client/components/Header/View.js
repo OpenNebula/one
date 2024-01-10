@@ -39,6 +39,7 @@ const ButtonView = memo(
         fullWidth
         color="debug"
         variant="outlined"
+        data-cy={`view-${view}`}
         onClick={() => {
           view && !isCurrentView && changeView(view)
           handleClick()
