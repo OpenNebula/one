@@ -13,70 +13,82 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
 
+import { Box } from '@mui/material'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import { Box } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
-import { useGetClustersQuery } from 'client/features/OneApi/cluster'
 import { useGetVNTemplateQuery } from 'client/features/OneApi/networkTemplate'
+import { useGetSecGroupsQuery } from 'client/features/OneApi/securityGroup'
+// import {} from 'client/components/Tabs/VNetwork/Address/Actions'
 
-import { ClustersTable } from 'client/components/Tables'
-import { RESOURCE_NAMES } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { SecurityGroupsTable } from 'client/components/Tables'
+import { RESOURCE_NAMES } from 'client/constants'
 
-const { CLUSTER } = RESOURCE_NAMES
+const { SEC_GROUP } = RESOURCE_NAMES
 
 /**
- * Renders the list of clusters from a Virtual Network.
+ * Renders the list of security groups from a Virtual Network.
  *
  * @param {object} props - Props
+ * @param {object} props.tabProps - Tab information
+ * @param {string[]} props.tabProps.actions - Actions tab
  * @param {string} props.id - Virtual Network id
- * @returns {ReactElement} Clusters tab
+ * @param {object} props.oneConfig - OpenNebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to the oneadmin group
+ * @returns {ReactElement} Security Groups tab
  */
-const ClustersTab = ({ id }) => {
+const SecurityTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const { push: redirectTo } = useHistory()
   const { data: vnet } = useGetVNTemplateQuery({ id })
 
   const { view, hasAccessToResource } = useViews()
-  const detailAccess = useMemo(() => hasAccessToResource(CLUSTER), [view])
+  const detailAccess = useMemo(() => hasAccessToResource(SEC_GROUP), [view])
 
-  const clusters = [vnet?.CLUSTERS?.ID ?? []].flat().map((clId) => +clId)
+  const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
+  const secGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
 
-  const redirectToCluster = (row) => {
-    const clusterPath = PATH.INFRASTRUCTURE.CLUSTERS.DETAIL
-    redirectTo(generatePath(clusterPath, { id: row.ID }))
+  const redirectToSecGroup = (row) => {
+    redirectTo(generatePath(PATH.NETWORK.SEC_GROUPS.DETAIL, { id: row.ID }))
   }
 
   const useQuery = () =>
-    useGetClustersQuery(undefined, {
+    useGetSecGroupsQuery(undefined, {
       selectFromResult: ({ data: result = [], ...rest }) => ({
-        data: result?.filter((cluster) => clusters.includes(+cluster.ID)),
+        data: result?.filter((secgroup) => secGroups.includes(+secgroup.ID)),
         ...rest,
       }),
     })
 
   return (
     <Box padding={{ sm: '0.8em', overflow: 'auto' }}>
-      <ClustersTable
+      <SecurityGroupsTable
         disableGlobalSort
         disableRowSelect
         pageSize={5}
-        onRowClick={detailAccess ? redirectToCluster : undefined}
+        onRowClick={detailAccess ? redirectToSecGroup : undefined}
         useQuery={useQuery}
       />
     </Box>
   )
 }
 
-ClustersTab.propTypes = {
+SecurityTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
-ClustersTab.displayName = 'ClustersTab'
+SecurityTab.displayName = 'SecurityTab'
 
-export default ClustersTab
+export default SecurityTab

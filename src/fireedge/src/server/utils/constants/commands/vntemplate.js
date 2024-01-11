@@ -174,11 +174,11 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        userId: {
+        user: {
           from: postBody,
           default: -1,
         },
-        groupId: {
+        group: {
           from: postBody,
           default: -1,
         },
@@ -220,9 +220,13 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        lock: {
+        level: {
           from: postBody,
           default: 4,
+        },
+        test: {
+          from: postBody,
+          default: false,
         },
       },
     },

@@ -13,37 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as ACTIONS from 'client/constants/actions'
-// eslint-disable-next-line no-unused-vars
-import { LockInfo, Permissions } from 'client/constants/common'
+import {
+  STEP_ID as EXTRA_ID,
+  TabType,
+} from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration'
+import CustomAttributes from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/context/customAttributes'
+import { FIELDS } from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
+import ContextIcon from 'iconoir-react/dist/Folder'
+import PropTypes from 'prop-types'
 
-/**
- * @typedef VNetworkTemplate
- * @property {string} ID - Id
- * @property {string} NAME - Name
- * @property {string} UID - User id
- * @property {string} UNAME - User name
- * @property {string} GID - Group id
- * @property {string} GNAME - Group name
- * @property {string} REGTIME - Registration time
- * @property {Permissions} PERMISSIONS - Permissions
- * @property {LockInfo} [LOCK] - Lock information
- * @property {object} TEMPLATE - Template
- * @property {string} [TEMPLATE.VN_MAD] - Virtual network manager
- */
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { T } from 'client/constants'
 
-/** @enum {string} Virtual network template actions */
-export const VN_TEMPLATE_ACTIONS = {
-  CREATE_DIALOG: 'create_dialog',
-  UPDATE_DIALOG: 'update_dialog',
-  INSTANTIATE_DIALOG: 'instantiate_dialog',
-  CHANGE_CLUSTER: 'change_cluster',
-  LOCK: 'lock',
-  UNLOCK: 'unlock',
-  DELETE: 'delete',
+const ContextContent = ({ oneConfig, adminGroup }) => (
+  <>
+    <FormWithSchema
+      id={EXTRA_ID}
+      cy="context"
+      fields={FIELDS(oneConfig, adminGroup)}
+    />
+    <CustomAttributes />
+  </>
+)
 
-  // INFORMATION
-  RENAME: ACTIONS.RENAME,
-  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+ContextContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
+
+/** @type {TabType} */
+const TAB = {
+  id: 'context',
+  name: T.Context,
+  icon: ContextIcon,
+  Content: ContextContent,
+  getError: (error) => FIELDS().some(({ name }) => error?.[name]),
+}
+
+export default TAB

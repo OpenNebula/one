@@ -13,37 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as ACTIONS from 'client/constants/actions'
-// eslint-disable-next-line no-unused-vars
-import { LockInfo, Permissions } from 'client/constants/common'
+import { array, object, ObjectSchema } from 'yup'
+
+import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VNTemplate/InstantiateForm/Steps/ExtraConfiguration/context/schema'
 
 /**
- * @typedef VNetworkTemplate
- * @property {string} ID - Id
- * @property {string} NAME - Name
- * @property {string} UID - User id
- * @property {string} UNAME - User name
- * @property {string} GID - Group id
- * @property {string} GNAME - Group name
- * @property {string} REGTIME - Registration time
- * @property {Permissions} PERMISSIONS - Permissions
- * @property {LockInfo} [LOCK] - Lock information
- * @property {object} TEMPLATE - Template
- * @property {string} [TEMPLATE.VN_MAD] - Virtual network manager
+ * Map name attribute if not exists.
+ *
+ * @param {string} prefixName - Prefix to add in name
+ * @returns {object[]} Resource object
  */
+const mapNameByIndex = (prefixName) => (resource, idx) => ({
+  ...resource,
+  NAME:
+    resource?.NAME?.startsWith(prefixName) || !resource?.NAME
+      ? `${prefixName}${idx}`
+      : resource?.NAME,
+})
 
-/** @enum {string} Virtual network template actions */
-export const VN_TEMPLATE_ACTIONS = {
-  CREATE_DIALOG: 'create_dialog',
-  UPDATE_DIALOG: 'update_dialog',
-  INSTANTIATE_DIALOG: 'instantiate_dialog',
-  CHANGE_CLUSTER: 'change_cluster',
-  LOCK: 'lock',
-  UNLOCK: 'unlock',
-  DELETE: 'delete',
+const AR_SCHEMA = object({
+  AR: array()
+    .ensure()
+    .transform((actions) => actions.map(mapNameByIndex('AR'))),
+})
 
-  // INFORMATION
-  RENAME: ACTIONS.RENAME,
-  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+/**
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @param {object} oneConfig - Open Nebula configuration
+ * @param {boolean} adminGroup - If the user belongs to oneadmin group
+ * @returns {ObjectSchema} Extra configuration schema
+ */
+export const SCHEMA = (isUpdate, oneConfig, adminGroup) => {
+  const schema = object({ SECURITY_GROUPS: array().ensure() }).concat(
+    CONTEXT_SCHEMA(oneConfig, adminGroup)
+  )
+
+  !isUpdate && schema.concat(AR_SCHEMA)
+
+  return schema
 }
+
+export { AR_SCHEMA, mapNameByIndex }

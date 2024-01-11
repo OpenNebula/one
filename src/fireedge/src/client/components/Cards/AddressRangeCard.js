@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
+import { Box, Link, Typography } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
-import { Typography, Link, Box } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 
-import { rowStyles } from 'client/components/Tables/styles'
 import MultipleTags from 'client/components/MultipleTags'
 import { LinearProgressWithLabel } from 'client/components/Status'
+import { rowStyles } from 'client/components/Tables/styles'
 
-import { getARLeasesInfo } from 'client/models/VirtualNetwork'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { Tr, Translate } from 'client/components/HOC'
 import {
-  T,
-  VirtualNetwork,
   AddressRange,
-  VNET_THRESHOLD,
   RESOURCE_NAMES,
+  T,
+  VNET_THRESHOLD,
+  VirtualNetwork,
 } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { getARLeasesInfo } from 'client/models/VirtualNetwork'
 
 const { VNET } = RESOURCE_NAMES
 
@@ -108,7 +108,7 @@ const AddressRangeCard = memo(
         <div className={classes.main}>
           <div className={classes.title}>
             <Typography noWrap component="span" data-cy="id">
-              {`#${AR_ID}`}
+              {`#${AR_ID || '-'}`}
             </Typography>
             <span className={classes.labels}>
               <MultipleTags tags={labels} limitTags={labels.length} />

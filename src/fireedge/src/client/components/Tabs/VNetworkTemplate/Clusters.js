@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
 
+import { Box } from '@mui/material'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import { Box } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetClustersQuery } from 'client/features/OneApi/cluster'
 import { useGetVNTemplateQuery } from 'client/features/OneApi/networkTemplate'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { ClustersTable } from 'client/components/Tables'
 import { RESOURCE_NAMES } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
 
 const { CLUSTER } = RESOURCE_NAMES
 
@@ -39,12 +39,17 @@ const { CLUSTER } = RESOURCE_NAMES
  */
 const ClustersTab = ({ id }) => {
   const { push: redirectTo } = useHistory()
-  const { data: vnet } = useGetVNTemplateQuery({ id })
+  const { data: vnet } = useGetVNTemplateQuery(
+    { id },
+    { refetchOnMountOrArgChange: true }
+  )
 
   const { view, hasAccessToResource } = useViews()
   const detailAccess = useMemo(() => hasAccessToResource(CLUSTER), [view])
 
-  const clusters = [vnet?.CLUSTERS?.ID ?? []].flat().map((clId) => +clId)
+  const clusters = [vnet?.TEMPLATE?.CLUSTER_IDS?.split(',') ?? []]
+    .flat()
+    .map((clId) => +clId)
 
   const redirectToCluster = (row) => {
     const clusterPath = PATH.INFRASTRUCTURE.CLUSTERS.DETAIL

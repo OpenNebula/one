@@ -2980,6 +2980,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vm-group-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vnet-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vnet-template-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/image-tab.yaml\
                                 src/fireedge/etc/sunstone/admin/file-tab.yaml\
                                 src/fireedge/etc/sunstone/admin/sec-group-tab.yaml\

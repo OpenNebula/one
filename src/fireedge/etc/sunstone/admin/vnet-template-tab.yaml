@@ -57,13 +57,7 @@ info-tabs:
       update_ar: true
       delete_ar: true
 
-  lease:
-    enabled: true
-    actions:
-      hold_lease: true
-      release_lease: true
-
-  sec-group:
+  security:
     enabled: true
 
   cluster:

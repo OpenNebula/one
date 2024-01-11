@@ -17,8 +17,8 @@ import { ReactElement, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { reach } from 'yup'
 
-import { getUnknownVars } from 'client/components/Forms/VNetwork/CreateForm/Steps'
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration'
+import { getUnknownVars } from 'client/components/Forms/VNTemplate/InstantiateForm/Steps'
+import { STEP_ID as EXTRA_ID } from 'client/components/Forms/VNTemplate/InstantiateForm/Steps/ExtraConfiguration'
 import { useGeneralApi } from 'client/features/General'
 
 import { Legend } from 'client/components/Forms'

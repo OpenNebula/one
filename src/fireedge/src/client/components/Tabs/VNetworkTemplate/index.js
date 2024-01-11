@@ -23,11 +23,17 @@ import { useGetVNTemplateQuery } from 'client/features/OneApi/networkTemplate'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
+import Address from 'client/components/Tabs/VNetworkTemplate/Address'
+import Clusters from 'client/components/Tabs/VNetworkTemplate/Clusters'
 import Info from 'client/components/Tabs/VNetworkTemplate/Info'
+import Security from 'client/components/Tabs/VNetworkTemplate/Security'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    address: Address,
+    security: Security,
+    cluster: Clusters,
   }[tabName])
 
 const VNetTemplateTabs = memo(({ id }) => {

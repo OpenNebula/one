@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/vntemplate'
+import { FilterFlag, Permission, VNetworkTemplate } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
-import { FilterFlag, Permission, VNetworkTemplate } from 'client/constants'
+import {
+  updateOwnershipOnResource,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+import { Actions, Commands } from 'server/utils/constants/commands/vntemplate'
 
 const { VNTEMPLATE } = ONE_RESOURCES
 const { VNET_POOL, VNTEMPLATE_POOL } = ONE_RESOURCES_POOL
@@ -168,7 +172,31 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      providesTags: (_, __, { id }) => [{ type: VNTEMPLATE, id }],
+      invalidatesTags: (_, __, { id }) => [{ type: VNTEMPLATE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchVNTemplate = dispatch(
+            vNetworkTemplateApi.util.updateQueryData(
+              'getVNTemplate',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchVNTemplates = dispatch(
+            vNetworkTemplateApi.util.updateQueryData(
+              'getVNTemplates',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchVNTemplate.undo()
+            patchVNTemplates.undo()
+          })
+        } catch {}
+      },
     }),
     changeVNTemplatePermissions: builder.mutation({
       /**
@@ -215,10 +243,20 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [
-        { type: VNTEMPLATE, id },
-        VNTEMPLATE_POOL,
-      ],
+      invalidatesTags: (_, __, { id }) => [{ type: VNTEMPLATE, id }],
+      async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
+        try {
+          const patchVNet = dispatch(
+            vNetworkTemplateApi.util.updateQueryData(
+              'getVNTemplate',
+              { id: params.id },
+              updateOwnershipOnResource(getState(), params)
+            )
+          )
+
+          queryFulfilled.catch(patchVNet.undo)
+        } catch {}
+      },
     }),
     renameVNTemplate: builder.mutation({
       /**
@@ -270,15 +308,15 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
       /**
        * Unlocks a VN Template.
        *
-       * @param {string|number} id - VN Template id
+       * @param {object} params - Request parameters
        * @returns {number} VN Template id
        * @throws Fails when response isn't code 200
        */
-      query: (id) => {
+      query: (params) => {
         const name = Actions.VNTEMPLATE_UNLOCK
         const command = { name, ...Commands[name] }
 
-        return { params: { id }, command }
+        return { params, command }
       },
       invalidatesTags: (_, __, id) => [
         { type: VNTEMPLATE, id },

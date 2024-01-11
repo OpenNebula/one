@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-
-import { useRenameVNTemplateMutation } from 'client/features/OneApi/networkTemplate'
 import { List } from 'client/components/Tabs/Common'
-import { T, VNetworkTemplate, VN_TEMPLATE_ACTIONS } from 'client/constants'
+import { T, VN_TEMPLATE_ACTIONS, VNetworkTemplate } from 'client/constants'
+import { useRenameVNTemplateMutation } from 'client/features/OneApi/networkTemplate'
+import { booleanToString, stringToBoolean } from 'client/models/Helper'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
 /**
  * Renders mainly information tab.
@@ -30,7 +30,7 @@ import { T, VNetworkTemplate, VN_TEMPLATE_ACTIONS } from 'client/constants'
  */
 const InformationPanel = ({ vnetTemplate = {}, actions }) => {
   const [rename] = useRenameVNTemplateMutation()
-  const { ID, NAME } = vnetTemplate
+  const { ID, NAME, VLAN_ID_AUTOMATIC, OUTER_VLAN_ID_AUTOMATIC } = vnetTemplate
 
   const handleRename = async (_, newName) => {
     await rename({ id: ID, name: newName })
@@ -45,16 +45,30 @@ const InformationPanel = ({ vnetTemplate = {}, actions }) => {
       canEdit: actions?.includes?.(VN_TEMPLATE_ACTIONS.RENAME),
       handleEdit: handleRename,
     },
+    {
+      name: T.AutomaticVlanId,
+      value: booleanToString(stringToBoolean(VLAN_ID_AUTOMATIC)),
+      dataCy: 'vlan_id_automatic',
+      handleEdit: handleRename,
+    },
+    {
+      name: T.OuterVlanId,
+      value: OUTER_VLAN_ID_AUTOMATIC || '-',
+      dataCy: 'outer_vlan_id_automatic',
+    },
+    {
+      name: T.AutomaticOuterVlanId,
+      value: booleanToString(stringToBoolean(OUTER_VLAN_ID_AUTOMATIC)),
+      dataCy: 'outer_vlan_automatic',
+    },
   ]
 
   return (
-    <>
-      <List
-        title={T.Information}
-        list={info}
-        containerProps={{ sx: { gridRow: 'span 3' } }}
-      />
-    </>
+    <List
+      title={T.Information}
+      list={info}
+      containerProps={{ sx: { gridRow: 'span 3' } }}
+    />
   )
 }
 
