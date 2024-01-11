@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
+  KeyAlt as ACLIcon,
   RefreshDouble as BackupIcon,
   ClockOutline as BackupJobsIcon,
   Server as ClusterIcon,
@@ -42,7 +43,6 @@ import {
   Folder as VmGroupIcon,
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
-  KeyAlt as ACLIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -653,7 +653,6 @@ const ENDPOINTS = [
         icon: NetworkIcon,
         Component: VirtualNetworks,
       },
-      // JORGE
       {
         title: T.InstantiateVnTemplate,
         description: (_, state) =>

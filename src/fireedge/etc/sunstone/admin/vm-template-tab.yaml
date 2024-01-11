@@ -63,10 +63,6 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
-    qos_panel:
-      enabled: true
-  address:
-    enabled: true
 
   template:
     enabled: true
