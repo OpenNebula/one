@@ -19,7 +19,6 @@ import {
   Server as ClusterIcon,
   Db as DatastoreIcon,
   Archive as FileIcon,
-  Folder as VmGroupIcon,
   Group as GroupIcon,
   HardDrive as HostIcon,
   BoxIso as ImageIcon,
@@ -40,6 +39,7 @@ import {
   User as UserIcon,
   List as VDCIcon,
   Shuffle as VRoutersIcons,
+  Folder as VmGroupIcon,
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
   KeyAlt as ACLIcon,
@@ -198,6 +198,17 @@ const VNetworkTemplates = loadable(
   () => import('client/containers/VNetworkTemplates'),
   { ssr: false }
 )
+
+const InstantiateVirtualNetwork = loadable(
+  () => import('client/containers/VNetworkTemplates/Instantiate'),
+  { ssr: false }
+)
+
+const CreateVirtualNetworkTemplate = loadable(
+  () => import('client/containers/VNetworkTemplates/Create'),
+  { ssr: false }
+)
+
 // const NetworkTopologies = loadable(() => import('client/containers/NetworkTopologies'), { ssr: false })
 
 const Clusters = loadable(() => import('client/containers/Clusters'), {
@@ -352,7 +363,10 @@ export const PATH = {
     },
     VN_TEMPLATES: {
       LIST: `/${RESOURCE_NAMES.VN_TEMPLATE}`,
+      INSTANTIATE: `/${RESOURCE_NAMES.VN_TEMPLATE}/instantiate`,
       DETAIL: `/${RESOURCE_NAMES.VN_TEMPLATE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.VN_TEMPLATE}/create`,
+      UPDATE: `/${RESOURCE_NAMES.VN_TEMPLATE}/update`,
     },
     SEC_GROUPS: {
       LIST: `/${RESOURCE_NAMES.SEC_GROUP}`,
@@ -639,11 +653,19 @@ const ENDPOINTS = [
         icon: NetworkIcon,
         Component: VirtualNetworks,
       },
+      // JORGE
+      {
+        title: T.InstantiateVnTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.NETWORK.VN_TEMPLATES.INSTANTIATE,
+        Component: InstantiateVirtualNetwork,
+      },
       {
         title: (_, state) =>
           state?.ID !== undefined
-            ? T.UpdateVirtualNetwork
-            : T.CreateVirtualNetwork,
+            ? T.UpdateVirtualNetworkTemplate
+            : T.CreateVirtualNetworkTemplate,
         description: (_, state) =>
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.NETWORK.VNETS.CREATE,
@@ -668,6 +690,16 @@ const ENDPOINTS = [
         sidebar: true,
         icon: NetworkTemplateIcon,
         Component: VNetworkTemplates,
+      },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined
+            ? T.UpdateVirtualNetworkTemplate
+            : T.CreateVirtualNetworkTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.NETWORK.VN_TEMPLATES.CREATE,
+        Component: CreateVirtualNetworkTemplate,
       },
       {
         title: T.SecurityGroups,

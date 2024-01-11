@@ -17,18 +17,57 @@ import { Box, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
-import { useGetVNetworkQuery } from 'client/features/OneApi/network'
-
 import {
   AddAddressRangeAction,
   DeleteAddressRangeAction,
   UpdateAddressRangeAction,
 } from 'client/components/Buttons'
 import AddressRangeCard from 'client/components/Cards/AddressRangeCard'
+import {
+  useGetVNTemplateQuery,
+  useUpdateVNTemplateMutation,
+} from 'client/features/OneApi/networkTemplate'
+import { jsonToXml } from 'client/models/Helper'
 
 import { AddressRange, VN_ACTIONS } from 'client/constants'
 
 const { ADD_AR, UPDATE_AR, DELETE_AR } = VN_ACTIONS
+
+const handleAdd = async ({ value, id, update, template }) => {
+  const addressRanges = [template?.AR ?? []].flat()
+  addressRanges.push(value)
+  const templateJson = { ...template, AR: addressRanges }
+
+  const newTemplate = jsonToXml(templateJson)
+  await update({ id, template: newTemplate }).unwrap()
+}
+
+const handleUpdate = async ({ value, id, addressID, update, template }) => {
+  let templateJson = { ...template, AR: value }
+
+  if (Array.isArray(template?.AR)) {
+    const addressRanges = [template.AR ?? []].flat()
+    addressRanges[addressID] = value
+    templateJson = { ...template, AR: addressRanges }
+  }
+
+  const newTemplate = jsonToXml(templateJson)
+  await update({ id, template: newTemplate }).unwrap()
+}
+
+const handleDelete = async ({ id, addressID, update, template }) => {
+  const { AR, ...rest } = template
+  let templateJson = { ...rest }
+
+  if (Array.isArray(template?.AR)) {
+    const addressRanges = [template.AR ?? []].flat()
+    addressRanges.splice(addressID, 1)
+    templateJson = { ...template, AR: addressRanges }
+  }
+
+  const newTemplate = jsonToXml(templateJson)
+  await update({ id, template: newTemplate }).unwrap()
+}
 
 /**
  * Renders the list of address ranges from a Virtual Network.
@@ -47,10 +86,15 @@ const AddressTab = ({
   oneConfig,
   adminGroup,
 }) => {
-  const { data: vnet } = useGetVNetworkQuery({ id })
+  const { data: vnet } = useGetVNTemplateQuery(
+    { id },
+    { refetchOnMountOrArgChange: true }
+  )
+  const [update] = useUpdateVNTemplateMutation()
 
   /** @type {AddressRange[]} */
-  const addressRanges = [vnet?.AR_POOL?.AR ?? []].flat()
+  const addressRanges = [vnet?.TEMPLATE?.AR ?? []].flat()
+  const template = vnet?.TEMPLATE
 
   return (
     <Box padding={{ sm: '0.8em' }}>
@@ -59,13 +103,21 @@ const AddressTab = ({
           vnetId={id}
           oneConfig={oneConfig}
           adminGroup={adminGroup}
+          onSubmit={(value) =>
+            handleAdd({
+              value,
+              id,
+              update,
+              template,
+            })
+          }
         />
       )}
 
       <Stack gap="1em" py="0.8em">
-        {addressRanges.map((ar) => (
+        {addressRanges.map((ar, addressID) => (
           <AddressRangeCard
-            key={ar.AR_ID}
+            key={addressID}
             vnet={vnet}
             ar={ar}
             actions={
@@ -76,6 +128,16 @@ const AddressTab = ({
                     ar={ar}
                     oneConfig={oneConfig}
                     adminGroup={adminGroup}
+                    template={vnet}
+                    onSubmit={(value) =>
+                      handleUpdate({
+                        value,
+                        id,
+                        addressID,
+                        update,
+                        template,
+                      })
+                    }
                   />
                 )}
                 {actions[DELETE_AR] === true && (
@@ -84,6 +146,15 @@ const AddressTab = ({
                     ar={ar}
                     oneConfig={oneConfig}
                     adminGroup={adminGroup}
+                    template={vnet}
+                    onSubmit={() =>
+                      handleDelete({
+                        id,
+                        addressID,
+                        update,
+                        template,
+                      })
+                    }
                   />
                 )}
               </>

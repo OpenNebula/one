@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { makeStyles } from '@mui/styles'
 import {
   AddCircledOutline,
   Group,
@@ -29,37 +28,24 @@ import { useHistory } from 'react-router-dom'
 import { useViews } from 'client/features/Auth'
 import { useAddNetworkToClusterMutation } from 'client/features/OneApi/cluster'
 import {
-  useChangeVNetOwnershipMutation,
-  useLockVNetMutation,
-  useRecoverVNetMutation,
-  useRemoveVNetMutation,
-  useReserveAddressMutation,
-  useUnlockVNetMutation,
-} from 'client/features/OneApi/network'
-import { isAvailableAction } from 'client/models/VirtualNetwork'
+  useChangeVNTemplateOwnershipMutation,
+  useLockVNTemplateMutation,
+  // useRecoverVNetMutation,
+  useRemoveVNTemplateMutation,
+  // useReserveAddressMutation,
+  useUnlockVNTemplateMutation,
+} from 'client/features/OneApi/networkTemplate'
 
 import { ChangeClusterForm } from 'client/components/Forms/Cluster'
-import { RecoverForm, ReserveForm } from 'client/components/Forms/VNetwork'
 import { ChangeGroupForm, ChangeUserForm } from 'client/components/Forms/Vm'
 import { Translate } from 'client/components/HOC'
 import {
   GlobalAction,
   createActions,
 } from 'client/components/Tables/Enhanced/Utils'
-import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { RESOURCE_NAMES, T, VN_ACTIONS } from 'client/constants'
-
-const isDisabled = (action) => (rows) =>
-  !isAvailableAction(
-    action,
-    rows.map(({ original }) => original)
-  )
-
-const useTableStyles = makeStyles({
-  body: { gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' },
-})
+import { RESOURCE_NAMES, T, VN_TEMPLATE_ACTIONS } from 'client/constants'
 
 const ListNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -105,145 +91,57 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
 const Actions = () => {
   const history = useHistory()
   const { view, getResourceView } = useViews()
-  const [reserve] = useReserveAddressMutation()
-  const [recover] = useRecoverVNetMutation()
+  // const [reserve] = useReserveAddressMutation()
+  // const [recover] = useRecoverVNetMutation()
   const [changeCluster] = useAddNetworkToClusterMutation()
-  const [lock] = useLockVNetMutation()
-  const [unlock] = useUnlockVNetMutation()
-  const [changeOwnership] = useChangeVNetOwnershipMutation()
-  const [remove] = useRemoveVNetMutation()
+  const [lock] = useLockVNTemplateMutation()
+  const [unlock] = useUnlockVNTemplateMutation()
+  const [changeOwnership] = useChangeVNTemplateOwnershipMutation()
+  const [remove] = useRemoveVNTemplateMutation()
 
   const actions = useMemo(
     () =>
       createActions({
-        filters: getResourceView(RESOURCE_NAMES.VNET)?.actions,
+        filters: getResourceView(RESOURCE_NAMES.VN_TEMPLATE)?.actions,
         actions: [
           {
-            accessor: VN_ACTIONS.CREATE_DIALOG,
-            dataCy: `vnet-${VN_ACTIONS.CREATE_DIALOG}`,
+            accessor: VN_TEMPLATE_ACTIONS.CREATE_DIALOG,
+            dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
             icon: AddCircledOutline,
-            action: () => history.push(PATH.NETWORK.VNETS.CREATE),
+            action: () => history.push(PATH.NETWORK.VN_TEMPLATES.CREATE),
           },
           {
-            accessor: VN_ACTIONS.INSTANTIATE_DIALOG,
-            dataCy: `vnet-${VN_ACTIONS.INSTANTIATE_DIALOG}`,
+            accessor: VN_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
+            dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG}`,
             tooltip: T.Instantiate,
-            selected: true,
             icon: PlayOutline,
-            options: [
-              {
-                isConfirmDialog: true,
-                dialogProps: {
-                  title: T.Instantiate,
-                  children: () => {
-                    const classes = useTableStyles()
-                    const path = PATH.NETWORK.VN_TEMPLATES.INSTANTIATE
+            selected: { max: 1 },
+            action: (rows) => {
+              const template = rows?.[0]?.original ?? {}
+              const path = PATH.NETWORK.VN_TEMPLATES.INSTANTIATE
 
-                    return (
-                      <VNetworkTemplatesTable
-                        disableGlobalSort
-                        disableRowSelect
-                        classes={classes}
-                        onRowClick={(vnet) => history.push(path, vnet)}
-                      />
-                    )
-                  },
-                  fixedWidth: true,
-                  fixedHeight: true,
-                  handleAccept: undefined,
-                  dataCy: `modal-${VN_ACTIONS.CREATE_DIALOG}`,
-                },
-              },
-            ],
+              history.push(path, template)
+            },
           },
           {
-            accessor: VN_ACTIONS.UPDATE_DIALOG,
-            dataCy: `vnet-${VN_ACTIONS.UPDATE_DIALOG}`,
+            accessor: VN_TEMPLATE_ACTIONS.UPDATE_DIALOG,
+            dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.UPDATE_DIALOG}`,
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
             color: 'secondary',
             action: (rows) => {
               const vnet = rows?.[0]?.original ?? {}
-              const path = PATH.NETWORK.VNETS.UPDATE
+              const path = PATH.NETWORK.VN_TEMPLATES.CREATE
 
               history.push(path, vnet)
             },
           },
           {
-            accessor: VN_ACTIONS.RESERVE_DIALOG,
-            dataCy: `vnet-${VN_ACTIONS.RESERVE_DIALOG}`,
-            label: T.Reserve,
-            selected: { max: 1 },
+            accessor: VN_TEMPLATE_ACTIONS.CHANGE_CLUSTER,
             color: 'secondary',
-            options: [
-              {
-                dialogProps: {
-                  title: T.ReservationFromVirtualNetwork,
-                  dataCy: 'modal-reserve',
-                },
-                form: (rows) => {
-                  const vnet = rows?.[0]?.original || {}
-
-                  return ReserveForm({ stepProps: { vnet } })
-                },
-                onSubmit: (rows) => async (template) => {
-                  const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => reserve({ id, template })))
-                },
-              },
-            ],
-          },
-          {
-            accessor: VN_ACTIONS.RECOVER,
-            disabled: isDisabled(VN_ACTIONS.RECOVER),
-            dataCy: `vnet-${VN_ACTIONS.RECOVER}`,
-            label: T.Recover,
-            selected: { max: 1 },
-            color: 'secondary',
-            options: [
-              {
-                dialogProps: {
-                  title: T.Recover,
-                  dataCy: `modal-${VN_ACTIONS.RECOVER}`,
-                },
-                form: RecoverForm,
-                onSubmit: (rows) => async (formData) => {
-                  const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(
-                    ids.map((id) => recover({ id, ...formData }))
-                  )
-                },
-              },
-            ],
-          },
-          {
-            label: T.Reserve,
-            selected: { max: 1 },
-            color: 'secondary',
-            options: [
-              {
-                dialogProps: {
-                  title: T.ReservationFromVirtualNetwork,
-                  dataCy: 'modal-reserve',
-                },
-                form: (rows) => {
-                  const vnet = rows?.[0]?.original || {}
-
-                  return ReserveForm({ stepProps: { vnet } })
-                },
-                onSubmit: (rows) => async (template) => {
-                  const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(ids.map((id) => reserve({ id, template })))
-                },
-              },
-            ],
-          },
-          {
-            accessor: VN_ACTIONS.CHANGE_CLUSTER,
-            color: 'secondary',
-            dataCy: `vnet-${VN_ACTIONS.CHANGE_CLUSTER}`,
+            dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.CHANGE_CLUSTER}`,
             label: T.SelectCluster,
             tooltip: T.SelectCluster,
             selected: true,
@@ -271,15 +169,15 @@ const Actions = () => {
             icon: Group,
             selected: true,
             color: 'secondary',
-            dataCy: 'vnet-ownership',
+            dataCy: 'vnettemplate-ownership',
             options: [
               {
-                accessor: VN_ACTIONS.CHANGE_OWNER,
+                accessor: VN_TEMPLATE_ACTIONS.CHANGE_OWNER,
                 name: T.ChangeOwner,
                 dialogProps: {
                   title: T.ChangeOwner,
                   subheader: SubHeader,
-                  dataCy: `modal-${VN_ACTIONS.CHANGE_OWNER}`,
+                  dataCy: `modal-${VN_TEMPLATE_ACTIONS.CHANGE_OWNER}`,
                 },
                 form: ChangeUserForm,
                 onSubmit: (rows) => (newOwnership) => {
@@ -289,12 +187,12 @@ const Actions = () => {
                 },
               },
               {
-                accessor: VN_ACTIONS.CHANGE_GROUP,
+                accessor: VN_TEMPLATE_ACTIONS.CHANGE_GROUP,
                 name: T.ChangeGroup,
                 dialogProps: {
                   title: T.ChangeGroup,
                   subheader: SubHeader,
-                  dataCy: `modal-${VN_ACTIONS.CHANGE_GROUP}`,
+                  dataCy: `modal-${VN_TEMPLATE_ACTIONS.CHANGE_GROUP}`,
                 },
                 form: ChangeGroupForm,
                 onSubmit: (rows) => async (newOwnership) => {
@@ -311,15 +209,15 @@ const Actions = () => {
             icon: Lock,
             selected: true,
             color: 'secondary',
-            dataCy: 'vnet-lock',
+            dataCy: 'vnettemplate-lock',
             options: [
               {
-                accessor: VN_ACTIONS.LOCK,
+                accessor: VN_TEMPLATE_ACTIONS.LOCK,
                 name: T.Lock,
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Lock,
-                  dataCy: `modal-${VN_ACTIONS.LOCK}`,
+                  dataCy: `modal-${VN_TEMPLATE_ACTIONS.LOCK}`,
                   children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
@@ -328,12 +226,12 @@ const Actions = () => {
                 },
               },
               {
-                accessor: VN_ACTIONS.UNLOCK,
+                accessor: VN_TEMPLATE_ACTIONS.UNLOCK,
                 name: T.Unlock,
                 isConfirmDialog: true,
                 dialogProps: {
                   title: T.Unlock,
-                  dataCy: `modal-${VN_ACTIONS.UNLOCK}`,
+                  dataCy: `modal-${VN_TEMPLATE_ACTIONS.UNLOCK}`,
                   children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
@@ -344,8 +242,8 @@ const Actions = () => {
             ],
           },
           {
-            accessor: VN_ACTIONS.DELETE,
-            dataCy: `vnet-${VN_ACTIONS.DELETE}`,
+            accessor: VN_TEMPLATE_ACTIONS.DELETE,
+            dataCy: `vnettemplate-${VN_TEMPLATE_ACTIONS.DELETE}`,
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
@@ -356,7 +254,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Delete,
                   children: MessageToConfirmAction,
-                  dataCy: `modal-vnet-${VN_ACTIONS.DELETE}`,
+                  dataCy: `modal-vnet-${VN_TEMPLATE_ACTIONS.DELETE}`,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)

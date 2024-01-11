@@ -84,6 +84,7 @@ module.exports = {
   CreateUser: 'Create User',
   UpdateUser: 'Update User',
   CreateVirtualNetwork: 'Create Virtual Network',
+  CreateVirtualNetworkTemplate: 'Create Virtual Network Template',
   CreateVmTemplate: 'Create VM Template',
   CreateVDC: 'Create VDC',
   UpdateVDC: 'Update VDC',
@@ -126,6 +127,7 @@ module.exports = {
   Info: 'Info',
   Instantiate: 'Instantiate',
   InstantiateVmTemplate: 'Instantiate VM Template',
+  InstantiateVnTemplate: 'Instantiate Network Template',
   LocateOnTable: 'Locate on table',
   Lock: 'Lock',
   Migrate: 'Migrate',
@@ -212,6 +214,7 @@ module.exports = {
   UpdateScheduleAction: 'Update schedule action: %s',
   UpdateServiceTemplate: 'Update Service Template',
   UpdateVirtualNetwork: 'Update Virtual Network',
+  UpdateVirtualNetworkTemplate: 'Update Virtual Network Template',
   UpdateVmConfiguration: 'Update VM Configuration',
   UpdateVmTemplate: 'Update VM Template',
 
@@ -730,6 +733,7 @@ module.exports = {
   Timezone: 'Timezone',
   /* VM schema - info */
   VmName: 'VM name',
+  VNName: 'Virtual Network Name',
   UserTemplate: 'User Template',
   Template: 'Template',
   WhereIsRunning:
@@ -847,6 +851,9 @@ module.exports = {
   Virtualization: 'Virtualization',
   CustomInformation: 'Custom information',
   CustomVirtualization: 'Custom virtualization',
+  VnTemplateNameHelper: `
+    Defaults to 'template name-<vmid>' when empty.
+    When creating several Virtual Network, the wildcard %%idx will be replaced with a number starting from 0`,
   VmTemplateNameHelper: `
     Defaults to 'template name-<vmid>' when empty.
     When creating several VMs, the wildcard %%idx will be
@@ -1321,6 +1328,8 @@ module.exports = {
   AddToExistingReservation: 'Add to an existing Reservation',
   FirstAddress: 'First address',
   IpOrMac: 'IP or MAC',
+  MessageQos:
+    'These values apply to each VM interface individually, they are not global values for the Virtual Network',
 
   /* security group schema */
   Security: 'Security',
@@ -1470,6 +1479,8 @@ module.exports = {
   ManualNetwork: 'Manual Network',
   OpennebulaVirtualNetwork: 'OpenNebula Virtual Network',
   SelectNewNetwork: 'Please select a network from the list',
+  MessageAddSecGroupDefault:
+    'The default Security Group 0 is automatically added to new Virtual Networks',
   NotVmsCurrentySecGroups:
     'There are currently no VMs associated with this Security Group',
   CommitMessageSecGroups: `

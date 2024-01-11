@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
-import PropTypes from 'prop-types'
-import AddIcon from 'iconoir-react/dist/Plus'
 import EditIcon from 'iconoir-react/dist/Edit'
+import AddIcon from 'iconoir-react/dist/Plus'
 import TrashIcon from 'iconoir-react/dist/Trash'
+import PropTypes from 'prop-types'
+import { memo } from 'react'
 
-import {
-  useAddRangeToVNetMutation,
-  useUpdateVNetRangeMutation,
-  useRemoveRangeFromVNetMutation,
-} from 'client/features/OneApi/network'
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { AddRangeForm } from 'client/components/Forms/VNetwork'
+import {
+  useAddRangeToVNetMutation,
+  useRemoveRangeFromVNetMutation,
+  useUpdateVNetRangeMutation,
+} from 'client/features/OneApi/network'
 
+import { Tr } from 'client/components/HOC'
+import { RESTRICTED_ATTRIBUTES_TYPE, T, VN_ACTIONS } from 'client/constants'
 import { jsonToXml } from 'client/models/Helper'
-import { Tr, Translate } from 'client/components/HOC'
-import { T, VN_ACTIONS, RESTRICTED_ATTRIBUTES_TYPE } from 'client/constants'
 
 import { hasRestrictedAttributes } from 'client/utils'
 
@@ -104,7 +104,9 @@ const UpdateAddressRangeAction = memo(
         options={[
           {
             dialogProps: {
-              title: `${Tr(T.AddressRange)}: #${AR_ID}`,
+              title: AR_ID
+                ? `${Tr(T.AddressRange)}: #${AR_ID}`
+                : `${Tr(T.AddressRange)}`,
               dataCy: 'modal-update-ar',
             },
             form: () =>
@@ -156,12 +158,9 @@ const DeleteAddressRangeAction = memo(
           {
             isConfirmDialog: true,
             dialogProps: {
-              title: (
-                <>
-                  <Translate word={T.DeleteAddressRange} />
-                  {`: #${AR_ID}`}
-                </>
-              ),
+              title: AR_ID
+                ? `${Tr(T.DeleteAddressRange)}: #${AR_ID}`
+                : `${Tr(T.DeleteAddressRange)}`,
               children: <p>{Tr(T.DoYouWantProceed)}</p>,
             },
             onSubmit: handleRemove,
@@ -189,6 +188,6 @@ DeleteAddressRangeAction.displayName = 'DeleteAddressRangeAction'
 
 export {
   AddAddressRangeAction,
-  UpdateAddressRangeAction,
   DeleteAddressRangeAction,
+  UpdateAddressRangeAction,
 }

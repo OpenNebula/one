@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
+import { Box, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
+import { ReactElement, useCallback } from 'react'
 
 import {
-  useGetVNTemplateQuery,
+  AttributePanel,
+  Ownership,
+  Permissions,
+} from 'client/components/Tabs/Common'
+import QOS from 'client/components/Tabs/VNetwork/Info/qos'
+import Information from 'client/components/Tabs/VNetworkTemplate/Info/information'
+import {
   useChangeVNTemplateOwnershipMutation,
   useChangeVNTemplatePermissionsMutation,
+  useGetVNTemplateQuery,
   useUpdateVNTemplateMutation,
 } from 'client/features/OneApi/networkTemplate'
-import {
-  Permissions,
-  Ownership,
-  AttributePanel,
-} from 'client/components/Tabs/Common'
-import Information from 'client/components/Tabs/VNetworkTemplate/Info/information'
 
+import makeStyles from '@mui/styles/makeStyles'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 import {
-  getActionsAvailable,
   filterAttributes,
+  getActionsAvailable,
   jsonToXml,
 } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
@@ -43,6 +45,15 @@ const LXC_ATTRIBUTES_REG = /^LXC_/
 const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG =
   /^(AR|CLUSTERS|SECURITY_GROUPS|INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|OUTBOUND_AVG_BW|OUTBOUND_PEAK_BW|OUTBOUND_PEAK_KB)$/
+
+const useStyles = makeStyles({
+  container: {
+    gridColumn: '1 / -1',
+    display: 'grid',
+    gridTemplateColumns: 'auto auto',
+    gap: '1rem',
+  },
+})
 
 /**
  * Renders mainly information tab.
@@ -53,10 +64,13 @@ const HIDDEN_ATTRIBUTES_REG =
  * @returns {ReactElement} Information tab
  */
 const VNetTemplateInfoTab = ({ tabProps = {}, id }) => {
+  const classes = useStyles()
+
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
+    qos_panel: qosPanel,
     attributes_panel: attributesPanel,
     vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
@@ -145,6 +159,11 @@ const VNetTemplateInfoTab = ({ tabProps = {}, id }) => {
           groupId={GID}
           groupName={GNAME}
         />
+      )}
+      {qosPanel?.enabled && (
+        <Box className={classes.container}>
+          <QOS vnet={vnetTemplate} />
+        </Box>
       )}
       {attributesPanel?.enabled && attributes && (
         <AttributePanel

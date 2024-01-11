@@ -13,37 +13,46 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import * as ACTIONS from 'client/constants/actions'
-// eslint-disable-next-line no-unused-vars
-import { LockInfo, Permissions } from 'client/constants/common'
+import { string } from 'yup'
+
+import { INPUT_TYPES, T } from 'client/constants'
+import { Field } from 'client/utils'
 
 /**
- * @typedef VNetworkTemplate
- * @property {string} ID - Id
- * @property {string} NAME - Name
- * @property {string} UID - User id
- * @property {string} UNAME - User name
- * @property {string} GID - Group id
- * @property {string} GNAME - Group name
- * @property {string} REGTIME - Registration time
- * @property {Permissions} PERMISSIONS - Permissions
- * @property {LockInfo} [LOCK] - Lock information
- * @property {object} TEMPLATE - Template
- * @property {string} [TEMPLATE.VN_MAD] - Virtual network manager
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @returns {Field} Name field
  */
+export const NAME_FIELD = (isUpdate = false) => ({
+  name: 'NAME',
+  label: T.Name,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined)
+    // if the form is updating then display the name but not change it
+    .afterSubmit((name) => (isUpdate ? undefined : name)),
+  grid: { md: 12 },
+  fieldProps: { disabled: isUpdate },
+})
 
-/** @enum {string} Virtual network template actions */
-export const VN_TEMPLATE_ACTIONS = {
-  CREATE_DIALOG: 'create_dialog',
-  UPDATE_DIALOG: 'update_dialog',
-  INSTANTIATE_DIALOG: 'instantiate_dialog',
-  CHANGE_CLUSTER: 'change_cluster',
-  LOCK: 'lock',
-  UNLOCK: 'unlock',
-  DELETE: 'delete',
-
-  // INFORMATION
-  RENAME: ACTIONS.RENAME,
-  CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
-  CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+/** @type {Field} Description field */
+export const DESCRIPTION_FIELD = {
+  name: 'DESCRIPTION',
+  label: T.Description,
+  type: INPUT_TYPES.TEXT,
+  multiline: true,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
+    .afterSubmit((description) => description),
+  grid: { md: 12 },
 }
+
+/**
+ * @param {boolean} isUpdate - If `true`, the form is being updated
+ * @returns {Field[]} List of information fields
+ */
+export const FIELDS = (isUpdate) =>
+  [NAME_FIELD(isUpdate), DESCRIPTION_FIELD].filter(Boolean)
