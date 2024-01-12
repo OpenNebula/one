@@ -621,7 +621,7 @@ CommandParser::CmdParser.new(ARGV) do
         Example, request a valid token for a generic driver (e.g. core auth, LDAP...):
           oneuser token-create my_user --time 3600
 
-        Example, request a group spefici token (new resources will be created in that
+        Example, request a group specific token (new resources will be created in that
         group and only resources that belong to that group will be listed):
           oneuser token-create my_user --group <id|group>
 
