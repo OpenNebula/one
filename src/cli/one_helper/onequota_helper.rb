@@ -573,7 +573,7 @@ class OneQuotaHelper
 
         return [] if OpenNebula.is_error?(conf)
 
-        conf.retrieve_elements('/OPENNEBULA_CONFIGURATION/QUOTA_VM_ATTRIBUTE')
+        conf.retrieve_elements('/OPENNEBULA_CONFIGURATION/QUOTA_VM_ATTRIBUTE') || []
     rescue StandardError
         []
     end
