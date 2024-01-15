@@ -261,7 +261,7 @@ CommandParser::CmdParser.new(ARGV) do
         Examples:
            - importing first datastore
 
-             onevcenter list -o templates -h <host_id>
+             onevcenter import -o templates -h <host_id>
 
            - importing 2 concrete templates:
 
