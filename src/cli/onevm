@@ -689,7 +689,7 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     resume_desc = <<-EOT.unindent
-        Resumes the execution of the a saved VM
+        Resumes the execution of a saved VM
 
         States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF, UNKNOWN
     EOT
