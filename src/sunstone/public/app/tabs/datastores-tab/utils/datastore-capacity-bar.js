@@ -27,7 +27,7 @@ define(function(require) {
    */
   var _html = function(info) {
     var total = parseInt(info.TOTAL_MB);
-    var used = total - parseInt(info.FREE_MB);
+    var used = parseInt(info.USED_MB);
 
     if (total > 0) {
       var ratio = Math.round((used / total) * 100);
