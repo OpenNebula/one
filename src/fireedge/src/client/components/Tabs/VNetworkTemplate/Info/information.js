@@ -16,7 +16,7 @@
 import { List } from 'client/components/Tabs/Common'
 import { T, VN_TEMPLATE_ACTIONS, VNetworkTemplate } from 'client/constants'
 import { useRenameVNTemplateMutation } from 'client/features/OneApi/networkTemplate'
-import { booleanToString, stringToBoolean } from 'client/models/Helper'
+import { booleanToString, levelLockToString, stringToBoolean } from 'client/models/Helper'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
@@ -30,7 +30,7 @@ import { ReactElement } from 'react'
  */
 const InformationPanel = ({ vnetTemplate = {}, actions }) => {
   const [rename] = useRenameVNTemplateMutation()
-  const { ID, NAME, VLAN_ID_AUTOMATIC, OUTER_VLAN_ID_AUTOMATIC } = vnetTemplate
+  const { ID, NAME, VLAN_ID_AUTOMATIC, OUTER_VLAN_ID_AUTOMATIC, LOCK } = vnetTemplate
 
   const handleRename = async (_, newName) => {
     await rename({ id: ID, name: newName })
@@ -60,6 +60,11 @@ const InformationPanel = ({ vnetTemplate = {}, actions }) => {
       name: T.AutomaticOuterVlanId,
       value: booleanToString(stringToBoolean(OUTER_VLAN_ID_AUTOMATIC)),
       dataCy: 'outer_vlan_automatic',
+    },
+    {
+      name: T.Locked,
+      value: levelLockToString(LOCK?.LOCKED),
+      dataCy: 'locked',
     },
   ]
 

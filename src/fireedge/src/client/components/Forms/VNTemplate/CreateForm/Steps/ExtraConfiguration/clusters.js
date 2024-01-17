@@ -38,7 +38,10 @@ const ClustersContent = ({ oneConfig, adminGroup }) => {
   const clusters = useWatch({ name: TAB_PATH })
 
   const selectedRowIds =
-    clusters?.reduce((res, id) => ({ ...res, [id]: true }), {}) || {}
+    Array.isArray(clusters) ? 
+      clusters?.reduce((res, id) => ({ ...res, [id]: true }), {}) 
+      :  
+      {[clusters]: true}
 
   const handleSelectedRows = (rows) => {
     const newValue = rows?.map((row) => row.original.ID) || []
