@@ -16,8 +16,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock, Cloud } from 'iconoir-react'
 import { Typography } from '@mui/material'
+import { Cloud, Group, Lock, User } from 'iconoir-react'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -31,7 +31,7 @@ const Row = ({ original, value, ...props }) => {
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`network-template-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography noWrap component="span">

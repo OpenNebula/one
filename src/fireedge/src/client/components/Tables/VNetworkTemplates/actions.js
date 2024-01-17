@@ -254,7 +254,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.Delete,
                   children: MessageToConfirmAction,
-                  dataCy: `modal-vnet-${VN_TEMPLATE_ACTIONS.DELETE}`,
+                  dataCy: `modal-vnettemplate-${VN_TEMPLATE_ACTIONS.DELETE}`,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
