@@ -479,7 +479,7 @@ CommandParser::CmdParser.new(ARGV) do
         States for delete: Any but READY
     EOT
 
-    command :recover, recover_desc, [:range, :vmid_list],
+    command :recover, recover_desc, [:range, :vnetid_list],
             :options => [SUCCESS, FAILURE, DELETE, RETRY] do
         if !options[:success].nil?
             result = 1
