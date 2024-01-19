@@ -433,7 +433,13 @@ define(function(require) {
     });
 
       var tab = $("#"+TAB_ID);
-      ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
+      ProvisionVmsList.generate(
+        $(".provision_vms_list_section"), 
+        {
+          active: true, 
+          create: Config.isFeatureEnabled("cloud_vm_create")
+        }
+      );
 
       //----------------------------------------------------------------------------
       // Boot order
