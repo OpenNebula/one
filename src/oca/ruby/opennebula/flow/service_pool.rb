@@ -102,10 +102,10 @@ module OpenNebula
             @one_pool.to_json
         end
 
-        def each(...)
+        def each(&block)
             return if @one_pool.nil?
 
-            @one_pool.each(...)
+            @one_pool.each(&block)
         end
 
         # Iterates over pool pages

@@ -732,7 +732,7 @@ Style/UnpackFirst:
   Enabled: False
 
 Style/ArgumentsForwarding:
-  Enabled: true
+  Enabled: False
 
 Style/CollectionCompact:
   Enabled: true
