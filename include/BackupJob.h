@@ -92,7 +92,7 @@ public:
         {
             exec = SEQUENTIAL;
         }
-        else if ( str_exec == "PARALELL" )
+        else if ( str_exec == "PARALLEL" )
         {
             exec = PARALLEL;
         }
