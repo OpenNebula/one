@@ -164,6 +164,9 @@ define(function(require) {
 
     function dashboard_quotas_running_vms(default_user_quotas, user){
       if(default_user_quotas.VM_QUOTA.VM.RUNNING_VMS){
+        if(!Config.isFeatureEnabled("cloud_vm_create")){
+          $(".provision_create_vm_button").hide();
+        }
         var vms = QuotaWidgets.quotaInfo(
           user.VM_QUOTA.VM.RUNNING_VMS_USED,
           user.VM_QUOTA.VM.RUNNING_VMS,
