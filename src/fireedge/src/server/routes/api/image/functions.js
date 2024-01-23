@@ -39,13 +39,17 @@ const upload = (
 ) => {
   const { files } = params
   const { user, password } = userData
+
   if (!(files && user && password)) {
     res.locals.httpCode = httpBadRequest
     next()
-  }
 
-  const data = files.map((file) => file.path)
-  res.locals.httpCode = httpResponse(ok, data.length ? data : '')
+    return
+  }
+  try {
+    const data = files.map((file) => file.path)
+    res.locals.httpCode = httpResponse(ok, data?.length ? data : '')
+  } catch {}
   next()
 }
 

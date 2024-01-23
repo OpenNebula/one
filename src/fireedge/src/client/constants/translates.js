@@ -464,6 +464,7 @@ module.exports = {
   Path: 'Path/URL',
   ImagePath: 'Path in OpenNebula server or URL',
   Upload: 'Upload',
+  ErrorUpload: 'Error Upload',
   EmptyDisk: 'Empty disk image',
   ImageSize: 'Image size, in Megabytes',
   ImageSizeUnit: 'Image size',

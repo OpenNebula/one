@@ -16,21 +16,22 @@
 import { ReactElement } from 'react'
 import { useHistory } from 'react-router'
 
-import { jsonToXml } from 'client/models/Helper'
 import { useGeneralApi } from 'client/features/General'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
   useAllocateImageMutation,
   useUploadImageMutation,
 } from 'client/features/OneApi/image'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { jsonToXml } from 'client/models/Helper'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/Image'
-import { PATH } from 'client/apps/sunstone/routesOne'
 
+import { T } from 'client/constants'
 import { useSystemData } from 'client/features/Auth'
 
 const _ = require('lodash')
@@ -44,11 +45,12 @@ function CreateImage() {
   const history = useHistory()
   const [allocate] = useAllocateImageMutation()
   const [upload] = useUploadImageMutation()
-  const { enqueueSuccess, uploadSnackbar } = useGeneralApi()
+  const { enqueueSuccess, enqueueError, uploadSnackbar } = useGeneralApi()
   const { adminGroup, oneConfig } = useSystemData()
   useGetDatastoresQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async ({ template, datastore, file }) => {
+    let fileUploaded
     if (file) {
       const uploadProcess = (progressEvent) => {
         const percentCompleted = Math.round(
@@ -58,21 +60,26 @@ function CreateImage() {
         percentCompleted === 100 && uploadSnackbar(0)
       }
       try {
-        const fileUploaded = await upload({
+        fileUploaded = await upload({
           file,
           uploadProcess,
         }).unwrap()
+
         template.PATH = fileUploaded[0]
       } catch {}
     }
 
     try {
-      const newTemplateId = await allocate({
-        template: jsonToXml(template),
-        datastore,
-      }).unwrap()
-      history.push(PATH.STORAGE.IMAGES.LIST)
-      enqueueSuccess(`Image created - #${newTemplateId}`)
+      if (file && !Array.isArray(fileUploaded)) {
+        enqueueError(T.ErrorUpload)
+      } else {
+        const newTemplateId = await allocate({
+          template: jsonToXml(template),
+          datastore,
+        }).unwrap()
+        history.push(PATH.STORAGE.IMAGES.LIST)
+        enqueueSuccess(`Image created - #${newTemplateId}`)
+      }
     } catch {}
   }
 
