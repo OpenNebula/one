@@ -17,7 +17,11 @@
 const { env } = require('process')
 const multer = require('multer')
 const { messageTerminal } = require('server/utils/general')
-const { getRequestParameters, getRequestFiles } = require('server/utils/server')
+const {
+  genPathResources,
+  getRequestParameters,
+  getRequestFiles,
+} = require('server/utils/server')
 const {
   defaultWebpackMode,
   defaultConfigErrorMessage,
@@ -25,6 +29,8 @@ const {
 } = require('server/utils/constants/defaults')
 const { writeInLogger } = require('server/utils/logger')
 const { getSunstoneConfig } = require('server/utils/yml')
+
+genPathResources()
 
 const appConfig = getSunstoneConfig()
 const optsMulter = { dest: appConfig.tmpdir || defaultTmpPath }
