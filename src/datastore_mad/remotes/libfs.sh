@@ -477,13 +477,12 @@ function check_restricted {
 #-------------------------------------------------------------------------------
 # Filter out hosts which are OFF, ERROR or DISABLED
 #   @param $1 - space separated list of hosts
-#   @return   - space separated list of hosts which are not in OFF, ERROR or
-#               DISABLED sate
+#   @return   - space separated list of hosts which are in ON or UPDATE sate
 #-------------------------------------------------------------------------------
 function remove_off_hosts {
     ALL_HOSTS_ARRAY=($1)
     OFF_HOSTS_STR=$(onehost list --no-pager --csv \
-		--filter="STAT=off,STAT=err,STAT=dsbl" --list=NAME,STAT 2>/dev/null)
+		--filter="STAT!=on,STAT!=update" --list=NAME,STAT 2>/dev/null)
 
     if [ $? -eq 0 ]; then
         OFF_HOSTS_ARRAY=($( echo "$OFF_HOSTS_STR" | awk -F, '{ if (NR>1) print $1 }'))
