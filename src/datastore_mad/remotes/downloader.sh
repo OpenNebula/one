@@ -311,7 +311,7 @@ function curl_retry_args {
     CURL_VER=`curl --version | grep -o 'curl [0-9\.]*' | awk '{print $2}'`
 
     # To retry also on conn-reset-by-peer fresh curl is needed
-    if verlte "7.71.0" "$CURL_VER"; then
+    if verlte "7.71.0" "$CURL_VER" && [ -z ${MAX_SIZE} ] ; then
         RETRY_ARGS+=" --retry-all-errors"
     fi
 
