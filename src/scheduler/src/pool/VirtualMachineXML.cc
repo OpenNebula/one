@@ -781,6 +781,11 @@ void VirtualMachineXML::to_json(json &vm_json)
 
     vm_json["CAPACITY"] = req;
 
+    if (is_resched() || is_active())
+    {
+        vm_json["HOST_ID"] = get_hid();
+    }
+
     // -------------------------------------------------------------------------
     // Add custom attributes
     // -------------------------------------------------------------------------
