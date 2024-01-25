@@ -82,11 +82,13 @@ MONITOR=$(ssh_monitor_and_log "$SRC_HOST" "$MONITOR_CMD" 'Get .monitor')
 ssh_make_path $DST_HOST $DST_DIR
 enable_local_monitoring $DST_HOST $DST_DIR "$MONITOR"
 
-RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
-trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT
-if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
-    log "Not moving $SRC to $DST, they are the same path"
-    exit 0
+if [ "$SRC_DIR" == "$DST_DIR" ]; then
+    RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
+    trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT
+    if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
+        log "Not moving $SRC to $DST, they are the same path"
+        exit 0
+    fi
 fi
 
 log "Moving $SRC to $DST"
