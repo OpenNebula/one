@@ -250,13 +250,14 @@ end
 ################################################################################
 
 begin
-    drv_message = Base64.decode64(ARGV[0])
+    drv_message64 = STDIN.read
+    drv_message   = Base64.decode64(drv_message64)
+
     doc = REXML::Document.new(drv_message).root
-    url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+    url = doc.elements['/MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
 rescue StandardError
     nil
 end
 
-# TODO: get marketplace URL from MARKETPLACE Templace for other markets
 one_market = OneMarket.new(url)
 puts one_market.fetch_appliances
