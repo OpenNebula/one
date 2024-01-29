@@ -120,6 +120,14 @@ module VNMMAD
                 end
             end
 
+            def parent(nic_alias)
+                @nics.each do |the_nic|
+                    return the_nic if the_nic[:nic_id] == nic_alias[:parent_id]
+                end
+
+                nil
+            end
+
             # Access an XML Element of the VM
             #   @param element [String] element name
             #   @return [String] value of the element or nil if not found

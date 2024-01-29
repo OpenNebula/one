@@ -136,6 +136,21 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             ip_spoofing if nic[:filter_ip_spoofing] =~ /yes/i
         end
 
+        # MAC-spoofing & IP-spoofing for NIC ALIAS
+        process_alias do |nalias|
+            nparent = @vm.parent(nalias)
+
+            next unless nparent
+
+            nalias[:port] = nparent[:port]
+
+            @nic = nalias
+
+            mac_spoofing if nalias[:filter_mac_spoofing] =~ /yes/i
+
+            ip_spoofing if nalias[:filter_ip_spoofing] =~ /yes/i
+        end
+
         unlock
 
         0
