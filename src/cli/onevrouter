@@ -142,8 +142,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
-                elsif STDIN.wait_readable(0)
-                    template = STDIN.read
+                elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                    template = stdin
                 end
                 obj.allocate(template)
             rescue StandardError => e
@@ -174,10 +174,12 @@ CommandParser::CmdParser.new(ARGV) do
             :vrouterid, :templateid, [:file, nil],
             :options => instantiate_options +
                         OpenNebulaHelper::TEMPLATE_OPTIONS do
-        if (args[2] || STDIN.wait_readable(0)) &&
-            OpenNebulaHelper.create_template_options_used?(options)
+        conflicting_opts = []
+        if (args[2] || !(stdin = OpenNebulaHelper.read_stdin).empty?) &&
+            OpenNebulaHelper.create_template_options_used?(options, conflicting_opts)
 
-            STDERR.puts 'You cannot use both template and template creation options.'
+            STDERR.puts 'You cannot pass template on STDIN and use template creation options, ' <<
+                        "conflicting options: #{conflicting_opts.join(', ')}."
             exit(-1)
         end
 
@@ -201,8 +203,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             if args[2]
                 extra_template = File.read(args[2])
-            elsif STDIN.wait_readable(0)
-                extra_template = STDIN.read
+            elsif !stdin.empty?
+                extra_template = stdin
             else
                 res = OpenNebulaHelper.create_template(options, t)
 
@@ -307,8 +309,8 @@ CommandParser::CmdParser.new(ARGV) do
                          OneVirtualRouterHelper::FLOAT] do
         if options[:file]
             template = File.read(options[:file])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         elsif options[:network]
             network_id = options[:network]
             ip         = options[:ip]

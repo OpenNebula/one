@@ -349,19 +349,21 @@ CommandParser::CmdParser.new(ARGV) do
         number    = options[:multiple] || 1
         exit_code = nil
 
-        if (args[0] || STDIN.wait_readable(0)) &&
-            OpenNebulaHelper.create_template_options_used?(options)
+        conflicting_opts = []
+        if (args[0] || !(stdin = OpenNebulaHelper.read_stdin).empty?) &&
+            OpenNebulaHelper.create_template_options_used?(options, conflicting_opts)
 
-            STDERR.puts 'You can not use both template file and template'\
-                        ' creation options.'
+            STDERR.puts 'You cannot pass template on STDIN and use template creation options, ' <<
+                        "conflicting options: #{conflicting_opts.join(', ')}."
+
             exit(-1)
         end
 
         begin
             if args[0]
                 template = File.read(args[0])
-            elsif STDIN.wait_readable(0)
-                template = STDIN.read
+            elsif !stdin.empty?
+                template = stdin
             else
                 res = OpenNebulaHelper.create_template(options)
 
@@ -615,8 +617,8 @@ CommandParser::CmdParser.new(ARGV) do
 
         if options[:file]
             extra_template = File.read(options[:file])
-        elsif STDIN.wait_readable(0)
-            extra_template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            extra_template = stdin
         end
 
         helper.perform_actions(args[0], options, verbose) do |vm|
@@ -774,8 +776,8 @@ CommandParser::CmdParser.new(ARGV) do
                          TARGET, CACHE, DISCARD, PREFIX] do
         if options[:file]
             template = File.read(options[:file])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         elsif options[:image]
             image_id = options[:image]
             target   = options[:target]
@@ -851,8 +853,8 @@ CommandParser::CmdParser.new(ARGV) do
             ] do
         if options[:file]
             template = File.read(options[:file])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         elsif options[:network]
             network_id = options[:network]
             ip         = options[:ip]
@@ -1276,8 +1278,8 @@ CommandParser::CmdParser.new(ARGV) do
             :options => OpenNebulaHelper::CAPACITY_OPTIONS_VM + [ENFORCE, OpenNebulaHelper::FILE] do
         if options[:file]
             template = File.read(options[:file])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         else
             template = ''
 
@@ -1373,8 +1375,8 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             if args[1]
                 template = File.read(args[1])
-            elsif STDIN.wait_readable(0)
-                template = STDIN.read
+            elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                template = stdin
             end
         rescue StandardError => e
             STDERR.puts "Error reading template: #{e.message}."

@@ -167,7 +167,7 @@ module OneDBFsck
         if !name_seen[name.downcase]
             name_seen[name.downcase] = [uid, name]
         else
-            log_error("User id:#{uid} has conficting name #{name}, " \
+            log_error("User id:#{uid} has conflicting name #{name}, " \
                       "another user id:#{name_seen[name.downcase][0]} " \
                       "with name #{name_seen[name.downcase][1]} is present",
                       false)

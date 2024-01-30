@@ -173,8 +173,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
-                elsif STDIN.wait_readable(0)
-                    template = STDIN.read
+                elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                    template = stdin
                 end
                 vn.allocate(template, cid)
             rescue StandardError => e
@@ -203,8 +203,8 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options, 'address range added') do |vn|
             if args[1]
                 ar = File.read(args[1])
-            elsif STDIN.wait_readable(0)
-                ar = STDIN.read
+            elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                ar = stdin
             else
                 ar = OpenNebulaHelper.create_ar(options)
             end
