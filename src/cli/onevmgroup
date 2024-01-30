@@ -138,8 +138,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
-                elsif STDIN.wait_readable(0)
-                    template = STDIN.read
+                elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                    template = stdin
                 else
                     STDERR.puts 'No VM Group description provided'
                     exit(-1)
@@ -292,8 +292,8 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             if args[1]
                 template = File.read(args[1])
-            elsif STDIN.wait_readable(0)
-                template = STDIN.read
+            elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                template = stdin
             end
         rescue StandardError => e
             STDERR.puts "Error reading template: #{e.message}."

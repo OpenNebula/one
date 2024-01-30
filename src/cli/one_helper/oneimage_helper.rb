@@ -518,6 +518,18 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             [0, template]
         end
 
+        def create_template_options_used?(options, conflicting_opts)
+            # Get the template options names as symbols, options hash uses symbols
+            template_options=TEMPLATE_OPTIONS.map do |o|
+                o[:name].to_sym
+            end
+
+            # Check if one at least one of the template options is in options hash
+            conflicting_opts.replace(options.keys & template_options)
+
+            !conflicting_opts.empty?
+        end
+
     end
 
 end

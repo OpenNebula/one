@@ -176,8 +176,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
-                elsif STDIN.wait_readable(0)
-                    template = STDIN.read
+                elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+                    template = stdin
                 else
                     STDERR.puts 'No hook template provided'
                     exit(-1)

@@ -189,8 +189,8 @@ CommandParser::CmdParser.new(ARGV) do
 
         if args[0]
             template = File.read(args[0])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         end
 
         if !template
@@ -262,8 +262,8 @@ CommandParser::CmdParser.new(ARGV) do
 
         if args[1]
             template = File.read(args[1])
-        elsif STDIN.wait_readable(0)
-            template = STDIN.read
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         end
         params['merge_template'] = JSON.parse(template) if template
 

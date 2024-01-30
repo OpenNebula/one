@@ -1712,8 +1712,8 @@ Bash symbols must be escaped on STDIN passing'
     def self.update_template_helper(append, _id, resource, path, xpath, update = true)
         if path
             File.read(path)
-        elsif STDIN.wait_readable(0)
-            STDIN.read
+        elsif !(stdin = self.read_stdin).empty?
+            stdin
         elsif append
             editor_input
         else
@@ -2095,16 +2095,17 @@ Bash symbols must be escaped on STDIN passing'
         ar << ']'
     end
 
-    def self.create_template_options_used?(options)
+    def self.create_template_options_used?(options, conflicting_opts)
         # Get the template options names as symbols. options hash
         # uses symbols
         template_options=OpenNebulaHelper::TEMPLATE_OPTIONS.map do |o|
             o[:name].to_sym
         end
 
-        # Check if one at least one of the template options is
-        # in options hash
-        (template_options-options.keys)!=template_options
+        # Check if at least one of the template options is in options hash
+        conflicting_opts.replace(options.keys & template_options)
+
+        !conflicting_opts.empty?
     end
 
     def self.sunstone_url
@@ -2660,4 +2661,11 @@ Bash symbols must be escaped on STDIN passing'
         end
     end
 
+    def self.read_stdin
+        if STDIN.wait_readable(0)
+            STDIN.read()
+        else
+           ''
+        end
+    end
 end

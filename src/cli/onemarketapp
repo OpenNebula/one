@@ -191,10 +191,12 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        if (args[0] || STDIN.wait_readable(0)) &&
-           OneMarketPlaceAppHelper.create_template_options_used?(options)
-            STDERR.puts 'You can not use both template file and template'\
-                        ' creation options.'
+        conflicting_opts = []
+        if (args[0] || !(stdin = OpenNebulaHelper.read_stdin).empty?) &&
+           OneMarketPlaceAppHelper.create_template_options_used?(options, conflicting_opts)
+
+            STDERR.puts 'You cannot pass template on STDIN and use template creation options, ' <<
+            "conflicting options: #{conflicting_opts.join(', ')}."
             next -1
         end
 
@@ -202,8 +204,8 @@ CommandParser::CmdParser.new(ARGV) do
             begin
                 if args[0]
                     template = File.read(args[0])
-                elsif STDIN.wait_readable(0)
-                    template = STDIN.read
+                elsif !stdin.empty?
+                    template = stdin
                 else
                     res = OneMarketPlaceAppHelper
                           .create_datastore_template(options)

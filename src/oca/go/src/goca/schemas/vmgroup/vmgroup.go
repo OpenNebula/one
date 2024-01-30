@@ -32,7 +32,7 @@ type Pool struct {
 // VMGroup represents an OpenNebula VM group
 type VMGroup struct {
 	XMLName     xml.Name            `xml:"VM_GROUP"`
-	ID          int                 `xml:"ID,omitemtpy"`
+	ID          int                 `xml:"ID,omitempty"`
 	UID         int                 `xml:"UID,omitempty"`
 	GID         int                 `xml:"GID,omitempty"`
 	UName       string              `xml:"UNAME,omitempty"`
