@@ -586,7 +586,8 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("VM_MANAGE_OPERATIONS", "undeploy, hold, release, stop, "
             "suspend, resume, reboot, poweroff, disk-attach, nic-attach, "
             "disk-snapshot, terminate, disk-resize, snapshot, updateconf, "
-            "rename, resize, update, disk-saveas");
+            "rename, resize, update, disk-saveas, sched-action, sg-attach, "
+            "pci-attach");
 
     set_conf_single("VM_USE_OPERATIONS", "");
 /*/
