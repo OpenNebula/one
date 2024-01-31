@@ -3795,6 +3795,94 @@ void VirtualMachine::delete_attach_alias(VirtualMachineNic *nic)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
+{
+    std::vector<const VectorAttribute*> pcis;
+
+    int max_pci_id = -1;
+
+    obj_template->get("PCI", pcis);
+
+    for (const auto& pci: pcis)
+    {
+        int pci_id;
+
+        pci->vector_value("PCI_ID", pci_id, -1);
+
+        if (pci_id > max_pci_id)
+        {
+           max_pci_id = pci_id;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Setup PCI attribute & Context
+    // -------------------------------------------------------------------------
+    Nebula& nd = Nebula::instance();
+    std::unique_ptr<VectorAttribute> _new_pci(vpci->clone());
+
+    string bus;
+
+    _new_pci->replace("PCI_ID", max_pci_id + 1);
+
+    nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
+
+    if ( HostSharePCI::set_pci_address(_new_pci.get(), bus, false) != 0 )
+    {
+        err = "Wrong BUS in PCI attribute";
+        return -1;
+    }
+
+    add_pci_context(_new_pci.get());
+
+    // -------------------------------------------------------------------------
+    // Add new nic to template
+    // -------------------------------------------------------------------------
+    obj_template->set(_new_pci.release());
+
+    return max_pci_id + 1;
+}
+
+// -----------------------------------------------------------------------------
+
+VectorAttribute * VirtualMachine::get_pci(int pci_id)
+{
+    std::vector<VectorAttribute*> pcis;
+
+    obj_template->get("PCI", pcis);
+
+    for (auto& pci: pcis)
+    {
+        int id;
+
+        pci->vector_value("PCI_ID", id, -1);
+
+        if (pci_id == id)
+        {
+            return pci;
+        }
+    }
+
+    return nullptr;
+}
+
+// -----------------------------------------------------------------------------
+
+void VirtualMachine::detach_pci(VectorAttribute * pci)
+{
+    // -------------------------------------------------------------------------
+    // Remove from Template & Context
+    // -------------------------------------------------------------------------
+    clear_pci_context(pci);
+
+    obj_template->remove(pci);
+
+    delete pci;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* VirtualMachine VMGroup interface                                           */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

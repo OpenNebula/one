@@ -86,6 +86,8 @@ public:
         SCHED_DELETE_ACTION      = 55,      // "one.vm.scheddelete"
         SG_ATTACH_ACTION         = 56,      // "one.vm.attachsg"
         SG_DETACH_ACTION         = 57,      // "one.vm.detachsg"
+        PCI_ATTACH_ACTION        = 58,      // "one.vm.attachpci"
+        PCI_DETACH_ACTION        = 59       // "one.vm.detachpci"
     };
 
     static std::string action_to_str(Action action);

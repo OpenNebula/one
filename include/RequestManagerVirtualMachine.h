@@ -350,6 +350,48 @@ protected:
             RequestAttributes& ra) override;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualMachineAttachPCI : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineAttachPCI():
+        RequestManagerVirtualMachine("one.vm.attachpci",
+                           "Attaches a new PCI device to the virtual machine",
+                           "A:sis")
+    {
+        vm_action = VMActions::PCI_ATTACH_ACTION;
+    }
+
+    ~VirtualMachineAttachPCI() = default;
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDetachPCI : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDetachPCI():
+        RequestManagerVirtualMachine("one.vm.detachpci",
+                           "Detaches a PCI from a virtual machine",
+                           "A:sii")
+    {
+        vm_action = VMActions::PCI_DETACH_ACTION;
+    }
+
+    ~VirtualMachineDetachPCI() = default;
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

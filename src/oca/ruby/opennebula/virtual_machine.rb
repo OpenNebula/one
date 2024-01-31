@@ -61,7 +61,9 @@ module OpenNebula
             :detachsg       => 'vm.detachsg',
             :backup         => 'vm.backup',
             :updatenic      => 'vm.updatenic',
-            :backupcancel   => 'vm.backupcancel'
+            :backupcancel   => 'vm.backupcancel',
+            :attachpci      => 'vm.attachpci',
+            :detachpci      => 'vm.detachpci'
         }
 
         VM_STATE=['INIT', 'PENDING', 'HOLD', 'ACTIVE', 'STOPPED', 'SUSPENDED', 'DONE', 'FAILED',
@@ -228,8 +230,68 @@ module OpenNebula
             'BACKUP_POWEROFF'   => 'back'
         }
 
-        HISTORY_ACTION=['none', 'migrate', 'live-migrate', 'shutdown', 'shutdown-hard', 'undeploy',
-                        'undeploy-hard', 'hold', 'release', 'stop', 'suspend', 'resume', 'boot', 'delete', 'delete-recreate', 'reboot', 'reboot-hard', 'resched', 'unresched', 'poweroff', 'poweroff-hard', 'disk-attach', 'disk-detach', 'nic-attach', 'nic-detach', 'disk-snapshot-create', 'disk-snapshot-delete', 'terminate', 'terminate-hard', 'disk-resize', 'deploy', 'chown', 'chmod', 'updateconf', 'rename', 'resize', 'update', 'snapshot-resize', 'snapshot-delete', 'snapshot-revert', 'disk-saveas', 'disk-snapshot-revert', 'recover', 'retry', 'monitor', 'disk-snapshot-rename', 'alias-attach', 'alias-detach', 'poweroff-migrate', 'poweroff-hard-migrate', 'backup', 'nic-update']
+        HISTORY_ACTION=[
+          'none',
+          'migrate',
+          'live-migrate',
+          'shutdown',
+          'shutdown-hard',
+          'undeploy',
+          'undeploy-hard',
+          'hold',
+          'release',
+          'stop',
+          'suspend',
+          'resume',
+          'boot',
+          'delete',
+          'delete-recreate',
+          'reboot',
+          'reboot-hard',
+          'resched',
+          'unresched',
+          'poweroff',
+          'poweroff-hard',
+          'disk-attach',
+          'disk-detach',
+          'nic-attach',
+          'nic-detach',
+          'disk-snapshot-create',
+          'disk-snapshot-delete',
+          'terminate',
+          'terminate-hard',
+          'disk-resize',
+          'deploy',
+          'chown',
+          'chmod',
+          'updateconf',
+          'rename',
+          'resize',
+          'update',
+          'snapshot-resize',
+          'snapshot-delete',
+          'snapshot-revert',
+          'disk-saveas',
+          'disk-snapshot-revert',
+          'recover',
+          'retry',
+          'monitor',
+          'disk-snapshot-rename',
+          'alias-attach',
+          'alias-detach',
+          'poweroff-migrate',
+          'poweroff-hard-migrate',
+          'backup',
+          'nic-update',
+          'backup-cancel',
+          'sched-add',
+          'sched-update',
+          'sched-delete',
+          'sg-attach',
+          'sg-detach',
+          'pci-attach',
+          'pci-detach'
+        ]
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -809,6 +871,24 @@ module OpenNebula
         #  otherwise.
         def backup_cancel
             @client.call(VM_METHODS[:backupcancel], @pe_id)
+        end
+
+        # Attaches a PCI to a VM
+        #
+        # @param pci [String] Template containing a PCI element
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def pci_attach(pci)
+            call(VM_METHODS[:attachpci], @pe_id, pci)
+        end
+
+        # Detaches a PCI from a VM
+        #
+        # @param nic_id [Integer] Id of the PCI to be detached
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def pci_detach(pci_id)
+            call(VM_METHODS[:detachpci], @pe_id, pci_id)
         end
 
         ########################################################################

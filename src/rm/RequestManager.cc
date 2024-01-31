@@ -350,6 +350,8 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_detachsg(new VirtualMachineDetachSG());
     xmlrpc_c::methodPtr vm_backup(new VirtualMachineBackup());
     xmlrpc_c::methodPtr vm_backupcancel(new VirtualMachineBackupCancel());
+    xmlrpc_c::methodPtr vm_attachpci(new VirtualMachineAttachPCI());
+    xmlrpc_c::methodPtr vm_detachpci(new VirtualMachineDetachPCI());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -615,6 +617,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.detachsg", vm_detachsg);
     RequestManagerRegistry.addMethod("one.vm.backup", vm_backup);
     RequestManagerRegistry.addMethod("one.vm.backupcancel", vm_backupcancel);
+    RequestManagerRegistry.addMethod("one.vm.attachpci", vm_attachpci);
+    RequestManagerRegistry.addMethod("one.vm.detachpci", vm_detachpci);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);
@@ -1176,23 +1180,23 @@ void RequestManager::register_xml_methods()
 
     if (nebula.is_federation_slave())
     {
-        marketapp_update_pt   = new RequestManagerProxy("one.marketapp.update");
-        marketapp_chmod_pt    = new RequestManagerProxy("one.marketapp.chmod");
-        marketapp_chown_pt    = new RequestManagerProxy("one.marketapp.chown");
-        marketapp_enable_pt   = new RequestManagerProxy("one.marketapp.enable");
-        marketapp_rename_pt   = new RequestManagerProxy("one.marketapp.rename");
+        marketapp_update_pt = new RequestManagerProxy("one.marketapp.update");
+        marketapp_chmod_pt  = new RequestManagerProxy("one.marketapp.chmod");
+        marketapp_chown_pt  = new RequestManagerProxy("one.marketapp.chown");
+        marketapp_enable_pt = new RequestManagerProxy("one.marketapp.enable");
+        marketapp_rename_pt = new RequestManagerProxy("one.marketapp.rename");
         marketapp_lock_pt   = new RequestManagerProxy("one.marketapp.lock");
-        marketapp_unlock_pt   = new RequestManagerProxy("one.marketapp.unlock");
+        marketapp_unlock_pt = new RequestManagerProxy("one.marketapp.unlock");
     }
     else
     {
-        marketapp_update_pt   = new MarketPlaceAppUpdateTemplate();
-        marketapp_chmod_pt    = new MarketPlaceAppChmod();
-        marketapp_chown_pt    = new MarketPlaceAppChown();
-        marketapp_enable_pt   = new MarketPlaceAppEnable();
-        marketapp_rename_pt   = new MarketPlaceAppRename();
+        marketapp_update_pt = new MarketPlaceAppUpdateTemplate();
+        marketapp_chmod_pt  = new MarketPlaceAppChmod();
+        marketapp_chown_pt  = new MarketPlaceAppChown();
+        marketapp_enable_pt = new MarketPlaceAppEnable();
+        marketapp_rename_pt = new MarketPlaceAppRename();
         marketapp_lock_pt   = new MarketPlaceAppLock();
-        marketapp_unlock_pt   = new MarketPlaceAppUnlock();
+        marketapp_unlock_pt = new MarketPlaceAppUnlock();
 
         xmlrpc_c::methodPtr marketapp_updatedb(new MarketPlaceAppUpdateDB());
         xmlrpc_c::methodPtr marketapp_dropdb(new MarketPlaceAppDropDB());

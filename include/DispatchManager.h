@@ -528,6 +528,32 @@ public:
     int resize(int vid, float cpu, int vcpu, long memory,
                const RequestAttributes& ra, std::string& error_str);
 
+    /**
+     * Attach a new PCI device
+     *
+     *  @param vid the VM id
+     *  @param pci attribute with the PCI device info
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int attach_pci(int vid, VectorAttribute * pci, const RequestAttributes& ra, 
+            std::string& err);
+    /**
+     * Detach an existing PCI device
+     *
+     *  @param vid the VM id
+     *  @param pci_id the PCI device ID
+     *  @param pci attribute with the PCI device info
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int detach_pci(int vid, int pci_id, const RequestAttributes& ra, 
+            std::string&  err);
+
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
     //--------------------------------------------------------------------------

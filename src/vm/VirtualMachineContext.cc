@@ -405,7 +405,8 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
                 clear_nic_context(nic_id);
                 continue;
             }
-            else if (get_nic(nic_id)->is_alias()) // If nic was detached and current is alias
+            // If nic was detached and current is alias
+            else if (get_nic(nic_id)->is_alias())
             {
                 int parent_id;
 
@@ -482,7 +483,7 @@ static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
 
     for (const auto& con : cvars)
     {
-		ostringstream cvar;
+        ostringstream cvar;
 
         cvar << "PCI" << pci_id << "_" << con.context_name;
 
@@ -495,7 +496,7 @@ static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
 
         if (!cval.empty())
         {
-			context->replace(cvar.str(), cval);
+            context->replace(cvar.str(), cval);
         }
     }
 }
@@ -517,25 +518,68 @@ bool VirtualMachine::generate_pci_context(VectorAttribute * context)
 
     for(int i=0; i<num_vatts; i++)
     {
-		if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
-		{
-			parse_pci_context_network(NETWORK_CONTEXT, context, vatts[i]);
-			parse_pci_context_network(NETWORK6_CONTEXT, context, vatts[i]);
-		}
+        if ( net_context && vatts[i]->vector_value("TYPE") == "NIC" )
+        {
+            parse_pci_context_network(NETWORK_CONTEXT, context, vatts[i]);
+            parse_pci_context_network(NETWORK6_CONTEXT, context, vatts[i]);
+        }
 
-		ostringstream cvar;
+        ostringstream cvar;
 
-		cvar << "PCI" << vatts[i]->vector_value("PCI_ID") << "_ADDRESS";
+        cvar << "PCI" << vatts[i]->vector_value("PCI_ID") << "_ADDRESS";
 
-		string cval = vatts[i]->vector_value("VM_ADDRESS");
+        string cval = vatts[i]->vector_value("VM_ADDRESS");
 
-		if (!cval.empty())
-		{
-			context->replace(cvar.str(), cval);
-		}
+        if (!cval.empty())
+        {
+            context->replace(cvar.str(), cval);
+        }
     }
 
     return net_context;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::clear_pci_context(VectorAttribute * pci)
+{
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    ostringstream att_name;
+
+    att_name << "PCI" << pci->vector_value("PCI_ID") << "_ADDRESS";
+
+    context->remove(att_name.str());
+}
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::add_pci_context(VectorAttribute * pci)
+{
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if (context == 0)
+    {
+        return;
+    }
+
+    string addr = pci->vector_value("VM_ADDRESS");
+
+    if (addr.empty())
+    {
+        return;
+    }
+
+    ostringstream att_name;
+
+    att_name << "PCI" <<  pci->vector_value("PCI_ID") << "_ADDRESS";
+
+    context->replace(att_name.str(), addr);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -608,7 +652,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
         return -1;
     }
 
-	generate_pci_context(context);
+    generate_pci_context(context);
 
     // -------------------------------------------------------------------------
     // Parse FILE_DS variables

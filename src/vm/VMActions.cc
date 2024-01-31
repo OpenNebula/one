@@ -220,6 +220,11 @@ int VMActions::set_auth_ops(const string& ops_str,
             ops_set.set(SG_ATTACH_ACTION);
             ops_set.set(SG_DETACH_ACTION);
         }
+        else if ( the_op == "pci-attach" )
+        {
+            ops_set.set(PCI_ATTACH_ACTION);
+            ops_set.set(PCI_DETACH_ACTION);
+        }
         else
         {
             error = "Unknown vm operation: " + the_op;
@@ -400,6 +405,12 @@ string VMActions::action_to_str(Action action)
         break;
         case SG_DETACH_ACTION:
             st = "sg-detach";
+        break;
+        case PCI_ATTACH_ACTION:
+            st = "pci-attach";
+        break;
+        case PCI_DETACH_ACTION:
+            st = "pci-detach";
         break;
         case NONE_ACTION:
             st = "none";
@@ -626,6 +637,14 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "sg-detach")
     {
         action = SG_DETACH_ACTION;
+    }
+    else if ( st == "pci-attach")
+    {
+        action = PCI_ATTACH_ACTION;
+    }
+    else if ( st == "pci-detach")
+    {
+        action = PCI_DETACH_ACTION;
     }
     else
     {

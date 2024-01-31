@@ -1429,13 +1429,35 @@ public:
     }
 
     // ------------------------------------------------------------------------
-    // NIC Hotplug related functions
+    // NIC/PCI Hotplug related functions
     // ------------------------------------------------------------------------
 
     /**
      *  Checks the attributes of a PCI device
      */
-    int check_pci_attributes(VectorAttribute * pci, std::string& err);
+    static int check_pci_attributes(VectorAttribute * pci, std::string& err);
+
+    /**
+     *  Get PCI attribute from VM (VectorAttribute form)
+     *
+     *  @param pci_id of the PCI device
+     *
+     *  @return pointer to the PCI Attribute
+     */
+    VectorAttribute * get_pci(int pci_id);
+
+    /**
+     *  Attach/Detach a PCI attribute to the VM it generates the PCI_ID and VM_BUS
+     *  paratmeters.
+     *
+     *  @param vpci attribute wih the PCI information
+     *  @param err string
+     *
+     *  @return 0 on success
+     */
+    int attach_pci(VectorAttribute * vpci, std::string& err);
+
+    void detach_pci(VectorAttribute * vpci);
 
     /**
      * Generate and attach a new NIC attribute to the VM. This method check
@@ -2099,6 +2121,20 @@ private:
      *    @return true if the net context was generated.
      */
     bool generate_pci_context(VectorAttribute * context);
+
+    /**
+     *  Deletes the PCI (non NIC) related CONTEXT section for the given nic, i.e.
+     *  PCI<id>_ADDRESS
+     *    @param pciid the id of the PCI
+     */
+    void clear_pci_context(VectorAttribute * pci);
+
+    /**
+     *  Deletes the PCI (non NIC) related CONTEXT section for the given nic, i.e.
+     *  PCI<id>_ADDRESS
+     *    @param pci device to add context for
+     */
+    void add_pci_context(VectorAttribute * pci);
 
     /**
      *  Generate the ONE_GATE token & url
