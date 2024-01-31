@@ -27,6 +27,7 @@ import { getUserInputParams } from 'client/models/Helper'
 import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 import {
   Field,
+  OPTION_SORTERS,
   isDivisibleBy,
   prettyBytes,
   schemaUserInput,
@@ -85,22 +86,28 @@ export const FIELDS = (
     const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
     const divisibleBy4 = isVCenter && isMemory
     const isRange = [range, rangeFloat].includes(userInput.type)
+    const isUserInputList = userInput?.type === 'list'
 
     // set default type to number
     userInput.type ??= isCPU ? numberFloat : number
-
     const ensuredOptions = divisibleBy4
       ? options?.filter((value) => isDivisibleBy(+value, 4))
       : options
 
-    const schemaUi = schemaUserInput({ options: ensuredOptions, ...userInput })
+    const schemaUserInputConfig = { options: ensuredOptions, ...userInput }
+    isUserInputList &&
+      Object.keys(TRANSLATES).includes(name) &&
+      (schemaUserInputConfig.sorter = OPTION_SORTERS.numeric)
+
+    const schemaUi = schemaUserInput(schemaUserInputConfig)
+
     const isNumber = schemaUi.validation instanceof NumberSchema
 
     // add positive number validator
     isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
 
     if (isMemory) {
-      schemaUi.type = INPUT_TYPES.UNITS
+      !isUserInputList && (schemaUi.type = INPUT_TYPES.UNITS)
       if (isRange) {
         // add label format on pretty bytes
         schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }

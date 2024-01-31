@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useEffect, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useFormContext } from 'react-hook-form'
-import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
 import {
   SCHEMA,
   SECTIONS,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/schema'
+import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration/styles'
+import { RESOURCE_NAMES, T, VmTemplate } from 'client/constants'
+import { useViews } from 'client/features/Auth'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
+import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
+import { useFormContext } from 'react-hook-form'
 
 let generalFeatures
 
@@ -94,7 +94,7 @@ Content.propTypes = {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Basic configuration step
  */
-const BasicConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => ({
+const BasicConfiguration = ({ vmTemplate, oneConfig, adminGroup }) => ({
   id: STEP_ID,
   label: T.Configuration,
   resolver: () => SCHEMA(vmTemplate, generalFeatures),

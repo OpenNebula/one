@@ -501,8 +501,10 @@ export const userInputsToArray = (
 
   if (orderedList.length) {
     list = list.sort((a, b) => {
-      const upperAName = a.name?.toUpperCase?.()
-      const upperBName = b.name?.toUpperCase?.()
+      const valueA = parseInt(a.name, 10)
+      const valueB = parseInt(b.name, 10)
+      const upperAName = isNaN(valueA) ? valueA : a.name?.toUpperCase?.()
+      const upperBName = isNaN(valueB) ? valueB : b.name?.toUpperCase?.()
 
       return orderedList.indexOf(upperAName) - orderedList.indexOf(upperBName)
     })

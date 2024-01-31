@@ -14,30 +14,30 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { useHistory, useLocation, Redirect } from 'react-router'
+import { Redirect, useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
-import {
-  useInstantiateTemplateMutation,
-  useGetTemplateQuery,
-} from 'client/features/OneApi/vmTemplate'
-import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import {
+  useGetTemplateQuery,
+  useInstantiateTemplateMutation,
+} from 'client/features/OneApi/vmTemplate'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
-import { PATH } from 'client/apps/sunstone/routesOne'
 
-import {
-  addTempInfo,
-  deleteTempInfo,
-  deleteRestrictedAttributes,
-} from 'client/utils'
 import { useSystemData } from 'client/features/Auth'
 import { jsonToXml, xmlToJson } from 'client/models/Helper'
+import {
+  addTempInfo,
+  deleteRestrictedAttributes,
+  deleteTempInfo,
+} from 'client/utils'
 
 const _ = require('lodash')
 

@@ -26,31 +26,37 @@ import { jsonToXml, userInputsToArray } from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  (stepProps) => {
+  ({ dataTemplateExtended = {}, ...rest }) => {
     const userInputs = userInputsToArray(
-      stepProps?.dataTemplateExtended?.TEMPLATE?.USER_INPUTS,
+      dataTemplateExtended?.TEMPLATE?.USER_INPUTS,
       {
-        order: stepProps?.dataTemplateExtended?.TEMPLATE?.INPUTS_ORDER,
+        order: dataTemplateExtended?.TEMPLATE?.INPUTS_ORDER,
       }
     )
 
     return [
-      BasicConfiguration,
+      () => BasicConfiguration({ vmTemplate: dataTemplateExtended, ...rest }),
       !!userInputs.length && (() => UserInputs(userInputs)),
       ExtraConfiguration,
     ].filter(Boolean)
   },
   {
     transformInitialValue: (vmTemplate, schema) => {
-      const initialValue = schema.cast(
+      // this delete values that are representated in USER_INPUTS
+      if (vmTemplate?.TEMPLATE?.USER_INPUTS) {
+        ;['MEMORY', 'CPU', 'VPU'].forEach((element) => {
+          vmTemplate?.TEMPLATE?.[element] &&
+            delete vmTemplate?.TEMPLATE?.[element]
+        })
+      }
+
+      return schema.cast(
         {
           [BASIC_ID]: vmTemplate?.TEMPLATE,
           [EXTRA_ID]: vmTemplate?.TEMPLATE,
         },
         { stripUnknown: true }
       )
-
-      return initialValue
     },
     transformBeforeSubmit: (formData, vmTemplate, _, adminGroup, oneConfig) => {
       const {

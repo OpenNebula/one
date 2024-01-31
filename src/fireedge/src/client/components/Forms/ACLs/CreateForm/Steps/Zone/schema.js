@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES, T, FEDERATION_TYPE } from 'client/constants'
-import { Field, getObjectSchemaFromFields, arrayToOptions } from 'client/utils'
-import { string } from 'yup'
 import { ZonesTable } from 'client/components/Tables'
+import { FEDERATION_TYPE, INPUT_TYPES, T } from 'client/constants'
+import { Field, arrayToOptions, getObjectSchemaFromFields } from 'client/utils'
+import { string } from 'yup'
 
 const ACL_TYPE_ZONE_TRANSLATIONS = {
   ALL: { value: 'ALL', text: T.All },
@@ -66,11 +66,7 @@ const ZONE = (oneConfig) => ({
  * @param {object} oneConfig - . ONE config
  * @returns {Array} - The list of fields
  */
-const FIELDS = (oneConfig) => {
-  console.log(oneConfig)
-
-  return [TYPE(oneConfig), ZONE(oneConfig)]
-}
+const FIELDS = (oneConfig) => [TYPE(oneConfig), ZONE(oneConfig)]
 
 /**
  * Return the schema.
@@ -78,10 +74,6 @@ const FIELDS = (oneConfig) => {
  * @param {object} oneConfig - . ONE config
  * @returns {object} - The schema
  */
-const SCHEMA = (oneConfig) => {
-  console.log(oneConfig)
+const SCHEMA = (oneConfig) => getObjectSchemaFromFields(FIELDS(oneConfig))
 
-  return getObjectSchemaFromFields(FIELDS(oneConfig))
-}
-
-export { SCHEMA, FIELDS }
+export { FIELDS, SCHEMA }

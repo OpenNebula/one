@@ -20,28 +20,28 @@ import { ReactElement, SetStateAction } from 'react'
 
 import {
   // eslint-disable-next-line no-unused-vars
-  GridProps,
-  // eslint-disable-next-line no-unused-vars
-  TextFieldProps,
-  // eslint-disable-next-line no-unused-vars
   CheckboxProps,
   // eslint-disable-next-line no-unused-vars
+  GridProps,
+  // eslint-disable-next-line no-unused-vars
   InputBaseComponentProps,
+  // eslint-disable-next-line no-unused-vars
+  TextFieldProps,
 } from '@mui/material'
-import { string, number, boolean, array, object, BaseSchema } from 'yup'
+import { BaseSchema, array, boolean, number, object, string } from 'yup'
 // eslint-disable-next-line no-unused-vars
 import { Row } from 'react-table'
 
 import {
-  UserInputObject,
-  T,
   // eslint-disable-next-line no-unused-vars
   HYPERVISORS,
+  INPUT_TYPES,
+  RESTRICTED_ATTRIBUTES_TYPE,
+  T,
+  USER_INPUT_TYPES,
+  UserInputObject,
   // eslint-disable-next-line no-unused-vars
   VN_DRIVERS,
-  INPUT_TYPES,
-  USER_INPUT_TYPES,
-  RESTRICTED_ATTRIBUTES_TYPE,
 } from 'client/constants'
 import { stringToBoolean } from 'client/models/Helper'
 
@@ -224,8 +224,12 @@ const getRange = (options) => options?.split?.('..').map(parseFloat)
 const getValuesFromArray = (options, separator = SEMICOLON_CHAR) =>
   options?.split(separator)
 
-const getOptionsFromList = (options = []) =>
-  arrayToOptions([...new Set(options)], { addEmpty: false })
+const getOptionsFromList = (options = [], sorter) => {
+  const config = { addEmpty: false }
+  sorter && (config.sorter = sorter)
+
+  return arrayToOptions([...new Set(options)], config)
+}
 
 const parseUserInputValue = (value) => {
   if (value === true) {
@@ -257,6 +261,7 @@ export const schemaUserInput = ({
   max,
   options,
   default: defaultValue,
+  sorter,
 }) => {
   switch (type) {
     case USER_INPUT_TYPES.fixed: {
@@ -328,7 +333,7 @@ export const schemaUserInput = ({
           .yesOrNo(),
       }
     case USER_INPUT_TYPES.list: {
-      const values = getOptionsFromList(options)
+      const values = getOptionsFromList(options, sorter)
       const optionValues = values.map(({ value }) => value).filter(Boolean)
       const firstOption = optionValues[0] ?? undefined
 
