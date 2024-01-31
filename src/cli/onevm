@@ -1610,6 +1610,70 @@ CommandParser::CmdParser.new(ARGV) do
         '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     EOT
 
+    pci_attach_desc = <<-EOT.unindent
+        Attaches a PCI to a VM.
+
+        You can specify the PCI device with --pci (short_address) or
+        --pci_device (device ID), --pci_class (class ID) and/or --pci_vendor (vendor ID).
+
+        States: POWEROFF
+    EOT
+
+    command :"pci-attach", pci_attach_desc, :vmid,
+            :options => [
+                OpenNebulaHelper::FILE,
+                PCI,
+                PCI_CLASS,
+                PCI_VENDOR,
+                PCI_DEVICE
+            ] do
+
+
+        pci_attrs = [:pci, :pci_device, :pci_vendor, :pci_class].any? do |o|
+            !options[o].nil?
+        end
+
+        if options[:file]
+            template = File.read(options[:file])
+        elsif !(stdin = self.read_stdin).empty?
+￼           template = stdin
+        elsif pci_attrs
+            pcia = options[:pci]
+            pcid = options[:pci_device]
+            pcic = options[:pci_class]
+            pciv = options[:pci_vendor]
+
+            pcis = []
+            pcis << "SHORT_ADDRESS = \"#{pcia}\"" if pcia
+            pcis << "DEVICE        = \"#{pcid}\"" if pcid
+            pcis << "CLASS         = \"#{pcic}\"" if pcic
+            pcis << "VENDOR        = \"#{pciv}\"" if pciv
+
+            template = "PCI = [ #{pcis.join(',')} ]"
+        else
+            STDERR.puts 'Provide a PCI description file with --file or the relevant pci options:'
+            exit(-1)
+        end
+
+        helper.perform_action(args[0], options, 'Attaching PCI device') do |vm|
+            vm.pci_attach(template)
+        end
+    end
+
+    pci_detach_desc = <<-EOT.unindent
+        Detaches a PCI device from a VM
+
+        States: POWEROFF
+    EOT
+
+    command :"pci-detach", pci_detach_desc, :vmid, :pciid do
+        pciid = args[1].to_i
+
+        helper.perform_action(args[0], options, 'Detaching PCI') do |vm|
+            vm.pci_detach(pciid)
+        end
+    end
+
     command :ssh,
             ssh_desc,
             :vmid,

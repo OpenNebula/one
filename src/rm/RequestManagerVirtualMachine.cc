@@ -4069,3 +4069,163 @@ void VirtualMachineBackupCancel::request_execute(
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachineAttachPCI::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int    id    = xmlrpc_c::value_int(paramList.getInt(1));
+    string stmpl = xmlrpc_c::value_string(paramList.getString(2));
+
+    // -------------------------------------------------------------------------
+    // Parse PCI template and check PCI attributes
+    // -------------------------------------------------------------------------
+    VirtualMachineTemplate  tmpl;
+
+    int rc = tmpl.parse_str_or_xml(stmpl, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    VectorAttribute * pci = tmpl.get("PCI");
+
+    if ( pci == nullptr )
+    {
+        att.resp_msg = "PCI attribute not found";
+
+        failure_response(ACTION, att);
+        return;
+    }
+    else if ( pci->vector_value("TYPE") == "NIC" )
+    {
+        att.resp_msg = "Use one.vm.attachnic to attach this PCI device";
+
+        failure_response(ACTION, att);
+        return;
+    }
+    else if ( VirtualMachine::check_pci_attributes(pci, att.resp_msg) != 0)
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation, restricted attributes
+    // -------------------------------------------------------------------------
+    PoolObjectAuth vm_perms;
+
+    if (auto vm = Nebula::instance().get_vmpool()->get_ro(id))
+    {
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        att.resp_id  = id;
+        att.resp_obj = PoolObjectSQL::VM;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, vm_perms);
+
+    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if (!att.is_admin())
+    {
+        string aname;
+
+        if (tmpl.check_restricted(aname))
+        {
+            att.resp_msg = "PCI includes a restricted attribute " + aname;
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Perform the attach
+    // -------------------------------------------------------------------------
+    rc = dm->attach_pci(id, pci, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+
+// -----------------------------------------------------------------------------
+
+void VirtualMachineDetachPCI::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int pci_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the operation, restricted attributes
+    // -------------------------------------------------------------------------
+    PoolObjectAuth vm_perms;
+
+    if (auto vm = Nebula::instance().get_vmpool()->get_ro(id))
+    {
+        vm->get_permissions(vm_perms);
+    }
+    else
+    {
+        att.resp_id  = id;
+        att.resp_obj = PoolObjectSQL::VM;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, vm_perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Perform the detach
+    // -------------------------------------------------------------------------
+    int rc = dm->detach_pci(id, pci_id, att, att.resp_msg);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION, att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}

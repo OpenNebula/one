@@ -44,7 +44,7 @@ public:
     };
 
 private:
-    std::string    method;
+    std::string method;
 };
 
 #endif

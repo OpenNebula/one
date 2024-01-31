@@ -2998,3 +2998,158 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
+        const RequestAttributes& ra, string& error_str)
+{
+    ostringstream oss;
+
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str = "Virtual machine does not exist";
+        return -1;
+    }
+
+    if (vm->get_state() != VirtualMachine::POWEROFF ||
+        vm->get_lcm_state() != VirtualMachine::LCM_INIT)
+    {
+        error_str = "VM in wrong state, it has to be in poweroff";
+        return -1;
+    }
+
+    int hid;
+
+    if (vm->hasHistory())
+    {
+        hid = vm->get_hid();
+    }
+    else
+    {
+        error_str = "Could not find host information";
+        return -1;
+    }
+
+    HostShareCapacity sr;
+
+    sr.vmid = vid;
+    sr.pci.push_back(pci);
+
+    auto host = hpool->get(hid);
+
+    if ( host == nullptr )
+    {
+        error_str = "Could not find host information";
+        return -1;
+    }
+
+    if (!host->add_pci(sr))
+    {
+        error_str = "Cannot assign PCI device in host. Check address and free devices";
+        return -1;
+    }
+
+    if ( vm->attach_pci(pci, error_str) == -1 )
+    {
+        return -1;
+    }
+
+    hpool->update(host.get());
+
+    close_cp_history(vmpool, vm.get(), VMActions::PCI_ATTACH_ACTION, ra);
+
+    vm->log("DiM", Log::INFO, "PCI device successfully attached.");
+
+    vmpool->update_search(vm.get());
+
+    time_t the_time = time(0);
+
+    vm->set_running_etime(the_time);
+
+    vmpool->update_history(vm.get());
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra,
+        string&  error_str)
+{
+    ostringstream oss;
+
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str = "Virtual machine does not exist";
+        return -1;
+    }
+
+    if (vm->get_state() != VirtualMachine::POWEROFF ||
+        vm->get_lcm_state() != VirtualMachine::LCM_INIT)
+    {
+        error_str = "VM in wrong state, it has to be in poweroff";
+        return -1;
+    }
+
+    int hid = -1;
+
+    if (vm->hasHistory())
+    {
+        hid = vm->get_hid();
+    }
+
+    VectorAttribute * vpci = vm->get_pci(pci_id);
+
+    if (vpci == nullptr)
+    {
+        error_str = "PCI device not found";
+        return -1;
+    }
+
+    if ( vpci->vector_value("TYPE") == "NIC" )
+    {
+        error_str = "Use one.vm.detachnic to detach this PCI device";
+        return -1;
+    }
+
+    HostShareCapacity sr;
+
+    sr.vmid = vid;
+    sr.pci.push_back(vpci);
+
+    if (auto host = hpool->get(hid))
+    {
+        host->del_pci(sr);
+        hpool->update(host.get());
+    }
+
+    vm->detach_pci(vpci);
+
+    close_cp_history(vmpool, vm.get(), VMActions::PCI_DETACH_ACTION, ra);
+
+    vm->log("DiM", Log::INFO, "PCI device successfully deatached.");
+
+    vmpool->update_search(vm.get());
+
+    time_t the_time = time(0);
+
+    vm->set_running_etime(the_time);
+
+    vmpool->update_history(vm.get());
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
