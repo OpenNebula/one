@@ -15,6 +15,7 @@
 
 # Use full path to ensure virtualenv compatibility
 PYTHON = $(shell which python3)
+PIP = ${shell which pip3}
 GDS = $(shell which generateDS)
 PWD = $(shell pwd)
 
@@ -40,10 +41,10 @@ clean:
 	rm -rf build dist pyone/bindings *.egg-info doc
 
 dist:
-	${PYTHON} setup.py sdist bdist_wheel
+	${PIP} wheel --no-deps -w dist .
 
 install:
-	${PYTHON} setup.py install ${root}
+	${PIP} install --root-user-action=ignore ${PWD}/dist/*.whl
 
 doc:
 	mkdir -p doc
