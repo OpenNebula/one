@@ -250,11 +250,12 @@ end
 ################################################################################
 
 begin
-    drv_message64 = STDIN.read
+    drv_message64 = ARGV[0]
     drv_message   = Base64.decode64(drv_message64)
 
     doc = REXML::Document.new(drv_message).root
-    url = doc.elements['/MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
+
+    url = doc.elements['//MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
 rescue StandardError
     nil
 end
