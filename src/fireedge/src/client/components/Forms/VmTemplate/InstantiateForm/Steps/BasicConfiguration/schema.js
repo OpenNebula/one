@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { BaseSchema } from 'yup'
 
-import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
 import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
+import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
 // import { FIELDS as DISK_FIELDS, SCHEMA as DISK_SCHEMA } from './diskSchema'
 
 // get schemas from VmTemplate/CreateForm
@@ -24,14 +24,14 @@ import { FIELDS as OWNERSHIP_FIELDS } from 'client/components/Forms/VmTemplate/C
 import { VCENTER_FOLDER_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vcenterSchema'
 import { FIELDS as VM_GROUP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vmGroupSchema'
 
+import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
 import {
-  filterFieldsByHypervisor,
-  getObjectSchemaFromFields,
   Field,
   Section,
   disableFields,
+  filterFieldsByHypervisor,
+  getObjectSchemaFromFields,
 } from 'client/utils'
-import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
 
 /**
  * @param {VmTemplate} [vmTemplate] - VM Template
@@ -118,4 +118,4 @@ const FIELDS = (vmTemplate, hideCpu) =>
 const SCHEMA = (vmTemplate, hideCpu) =>
   getObjectSchemaFromFields(FIELDS(vmTemplate, hideCpu))
 
-export { SECTIONS, FIELDS, SCHEMA }
+export { FIELDS, SCHEMA, SECTIONS }

@@ -451,6 +451,26 @@ export const getUserInputString = (userInput) => {
 }
 
 /**
+ * Transform range value to array.
+ *
+ * @param {number} start - start number.
+ * @param {number} end - end number.
+ * @returns {Array} range transformed into array
+ */
+export const parseRangeToArray = (start, end) => {
+  const startNumber = parseInt(start, 10)
+  const endNumber = parseInt(end, 10)
+  if (startNumber === endNumber) return [startNumber]
+
+  const ans = []
+  for (let i = startNumber; i <= endNumber; i++) {
+    ans.push(`${i}`)
+  }
+
+  return ans
+}
+
+/**
  * Get list of user inputs defined in OpenNebula template.
  *
  * @param {object} userInputs - List of user inputs in string format
@@ -501,8 +521,10 @@ export const userInputsToArray = (
 
   if (orderedList.length) {
     list = list.sort((a, b) => {
-      const upperAName = a.name?.toUpperCase?.()
-      const upperBName = b.name?.toUpperCase?.()
+      const valueA = parseInt(a.name, 10)
+      const valueB = parseInt(b.name, 10)
+      const upperAName = isNaN(valueA) ? valueA : a.name?.toUpperCase?.()
+      const upperBName = isNaN(valueB) ? valueB : b.name?.toUpperCase?.()
 
       return orderedList.indexOf(upperAName) - orderedList.indexOf(upperBName)
     })

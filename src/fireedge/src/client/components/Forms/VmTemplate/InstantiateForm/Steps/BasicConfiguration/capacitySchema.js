@@ -27,12 +27,14 @@ import { getUserInputParams } from 'client/models/Helper'
 import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 import {
   Field,
+  OPTION_SORTERS,
   isDivisibleBy,
   prettyBytes,
   schemaUserInput,
 } from 'client/utils'
 
-const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
+const { number, numberFloat, range, rangeFloat, text, text64, password } =
+  USER_INPUT_TYPES
 
 const TRANSLATES = {
   MEMORY: {
@@ -88,20 +90,29 @@ export const FIELDS = (
 
     // set default type to number
     userInput.type ??= isCPU ? numberFloat : number
-
     const ensuredOptions = divisibleBy4
       ? options?.filter((value) => isDivisibleBy(+value, 4))
       : options
 
-    const schemaUi = schemaUserInput({ options: ensuredOptions, ...userInput })
+    const schemaUserInputConfig = { options: ensuredOptions, ...userInput }
+    userInput?.type === 'list' &&
+      (schemaUserInputConfig.sorter = OPTION_SORTERS.numeric)
+
+    const schemaUi = schemaUserInput(schemaUserInputConfig)
+
     const isNumber = schemaUi.validation instanceof NumberSchema
 
     // add positive number validator
     isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
 
     if (isMemory) {
-      schemaUi.type = INPUT_TYPES.UNITS
+      ;[text, number, numberFloat, text64, password].includes(
+        userInput?.type
+      ) && (schemaUi.type = INPUT_TYPES.UNITS)
       if (isRange) {
+        TRANSLATES[
+          name
+        ].tooltip = `${T.MemoryConcept} ${T.MemoryConceptUserInput} `
         // add label format on pretty bytes
         schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
       }

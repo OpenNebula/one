@@ -160,7 +160,7 @@ const FieldComponent = memo(
     const addIdToName = useCallback(
       (n) => {
         // removes character '$' and returns
-        if (n.startsWith('$')) return n.slice(1)
+        if (n?.startsWith('$')) return n.slice(1)
 
         // concat form ID if exists
         return id ? `${id}.${n}` : n
