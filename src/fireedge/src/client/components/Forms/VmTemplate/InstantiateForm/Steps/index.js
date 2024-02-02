@@ -22,7 +22,12 @@ import ExtraConfiguration, {
 import UserInputs, {
   STEP_ID as USER_INPUTS_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
-import { jsonToXml, userInputsToArray } from 'client/models/Helper'
+import {
+  getUserInputParams,
+  jsonToXml,
+  parseRangeToArray,
+  userInputsToArray,
+} from 'client/models/Helper'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
@@ -44,9 +49,27 @@ const Steps = createSteps(
     transformInitialValue: (vmTemplate, schema) => {
       // this delete values that are representated in USER_INPUTS
       if (vmTemplate?.TEMPLATE?.USER_INPUTS) {
-        ;['MEMORY', 'CPU', 'VPU'].forEach((element) => {
-          vmTemplate?.TEMPLATE?.[element] &&
-            delete vmTemplate?.TEMPLATE?.[element]
+        ;['MEMORY', 'CPU', 'VCPU'].forEach((element) => {
+          if (vmTemplate?.TEMPLATE?.USER_INPUTS?.[element]) {
+            const valuesOfUserInput = getUserInputParams(
+              vmTemplate.TEMPLATE.USER_INPUTS[element]
+            )
+            if (valuesOfUserInput?.default) {
+              let options = valuesOfUserInput?.options
+              valuesOfUserInput?.type === 'range' &&
+                (options = parseRangeToArray(options[0], options[1]))
+
+              if (!options.includes(valuesOfUserInput.default)) {
+                delete vmTemplate?.TEMPLATE?.USER_INPUTS?.[element]
+              } else {
+                vmTemplate?.TEMPLATE?.[element] &&
+                  delete vmTemplate?.TEMPLATE?.[element]
+              }
+            } else {
+              vmTemplate?.TEMPLATE?.[element] &&
+                delete vmTemplate?.TEMPLATE?.[element]
+            }
+          }
         })
       }
 

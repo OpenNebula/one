@@ -33,7 +33,8 @@ import {
   schemaUserInput,
 } from 'client/utils'
 
-const { number, numberFloat, range, rangeFloat } = USER_INPUT_TYPES
+const { number, numberFloat, range, rangeFloat, text, text64, password } =
+  USER_INPUT_TYPES
 
 const TRANSLATES = {
   MEMORY: {
@@ -86,7 +87,6 @@ export const FIELDS = (
     const isVCenter = HYPERVISOR === HYPERVISORS.vcenter
     const divisibleBy4 = isVCenter && isMemory
     const isRange = [range, rangeFloat].includes(userInput.type)
-    const isUserInputList = userInput?.type === 'list'
 
     // set default type to number
     userInput.type ??= isCPU ? numberFloat : number
@@ -95,8 +95,7 @@ export const FIELDS = (
       : options
 
     const schemaUserInputConfig = { options: ensuredOptions, ...userInput }
-    isUserInputList &&
-      Object.keys(TRANSLATES).includes(name) &&
+    userInput?.type === 'list' &&
       (schemaUserInputConfig.sorter = OPTION_SORTERS.numeric)
 
     const schemaUi = schemaUserInput(schemaUserInputConfig)
@@ -107,8 +106,13 @@ export const FIELDS = (
     isNumber && (schemaUi.validation &&= schemaUi.validation.positive())
 
     if (isMemory) {
-      !isUserInputList && (schemaUi.type = INPUT_TYPES.UNITS)
+      ;[text, number, numberFloat, text64, password].includes(
+        userInput?.type
+      ) && (schemaUi.type = INPUT_TYPES.UNITS)
       if (isRange) {
+        TRANSLATES[
+          name
+        ].tooltip = `${T.MemoryConcept} ${T.MemoryConceptUserInput} `
         // add label format on pretty bytes
         schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
       }

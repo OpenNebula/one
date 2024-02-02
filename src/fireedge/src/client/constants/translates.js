@@ -895,6 +895,7 @@ module.exports = {
     "Allow users to modify this template's default memory on instantiate",
   MemoryConcept: 'Amount of RAM required for the VM',
   MemoryConceptUnit: 'Choose unit of memory',
+  MemoryConceptUserInput: '(This value is represented in MB)',
   CpuConcept: `
     Percentage of CPU divided by 100 required for the
     Virtual Machine. Half a processor is written 0.5`,

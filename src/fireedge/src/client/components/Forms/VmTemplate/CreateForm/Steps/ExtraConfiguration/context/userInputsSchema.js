@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, array, string, boolean, number, ref, ObjectSchema } from 'yup'
+import { ObjectSchema, array, boolean, number, object, ref, string } from 'yup'
 
-import { userInputsToObject, userInputsToArray } from 'client/models/Helper'
 import {
-  UserInputType,
-  T,
   INPUT_TYPES,
+  T,
   USER_INPUT_TYPES,
+  UserInputType,
 } from 'client/constants'
+import { userInputsToArray, userInputsToObject } from 'client/models/Helper'
 import {
   Field,
   arrayToOptions,
-  sentenceCase,
   getObjectSchemaFromFields,
+  sentenceCase,
 } from 'client/utils'
 
 const {
@@ -45,23 +45,6 @@ const { array: _array, fixed: _fixed, ...userInputTypes } = USER_INPUT_TYPES
 /** @type {UserInputType[]} User inputs types */
 const valuesOfUITypes = Object.values(userInputTypes)
 
-/** @type {Field} Type field */
-const TYPE = {
-  name: 'type',
-  label: T.Type,
-  type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(valuesOfUITypes, {
-    addEmpty: false,
-    getText: (type) => sentenceCase(type),
-  }),
-  validation: string()
-    .trim()
-    .required()
-    .oneOf(valuesOfUITypes)
-    .default(() => valuesOfUITypes[0]),
-  grid: { sm: 6, md: 4 },
-}
-
 /** @type {Field} Name field */
 const NAME = {
   name: 'name',
@@ -71,6 +54,54 @@ const NAME = {
     .trim()
     .required()
     .default(() => undefined),
+  grid: { sm: 6, md: 4 },
+}
+
+/** @type {Field} Type field */
+const TYPE = {
+  name: 'type',
+  label: T.Type,
+  type: INPUT_TYPES.SELECT,
+  dependOf: NAME.name,
+  values: (name) => {
+    let defaultValues = valuesOfUITypes
+    const sanitizedName = name?.trim()?.toLowerCase()
+    switch (sanitizedName) {
+      case 'memory':
+        defaultValues = [
+          userInputTypes.text,
+          userInputTypes.text64,
+          userInputTypes.number,
+          userInputTypes.range,
+          userInputTypes.list,
+        ]
+        break
+      case 'cpu':
+      case 'vcpu':
+        defaultValues = [
+          userInputTypes.text,
+          userInputTypes.text64,
+          userInputTypes.number,
+          userInputTypes.numberFloat,
+          userInputTypes.range,
+          userInputTypes.rangeFloat,
+          userInputTypes.list,
+        ]
+        break
+      default:
+        break
+    }
+
+    return arrayToOptions(defaultValues, {
+      addEmpty: false,
+      getText: (type) => sentenceCase(type),
+    })
+  },
+  validation: string()
+    .trim()
+    .required()
+    .oneOf(valuesOfUITypes)
+    .default(() => valuesOfUITypes[0]),
   grid: { sm: 6, md: 4 },
 }
 
@@ -194,8 +225,8 @@ const MANDATORY = {
 
 /** @type {Field[]} List of User Inputs fields */
 export const USER_INPUT_FIELDS = [
-  TYPE,
   NAME,
+  TYPE,
   DESCRIPTION,
   DEFAULT_VALUE,
   OPTIONS,

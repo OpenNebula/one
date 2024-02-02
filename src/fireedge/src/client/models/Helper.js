@@ -451,6 +451,26 @@ export const getUserInputString = (userInput) => {
 }
 
 /**
+ * Transform range value to array.
+ *
+ * @param {number} start - start number.
+ * @param {number} end - end number.
+ * @returns {Array} range transformed into array
+ */
+export const parseRangeToArray = (start, end) => {
+  const startNumber = parseInt(start, 10)
+  const endNumber = parseInt(end, 10)
+  if (startNumber === endNumber) return [startNumber]
+
+  const ans = []
+  for (let i = startNumber; i <= endNumber; i++) {
+    ans.push(`${i}`)
+  }
+
+  return ans
+}
+
+/**
  * Get list of user inputs defined in OpenNebula template.
  *
  * @param {object} userInputs - List of user inputs in string format
