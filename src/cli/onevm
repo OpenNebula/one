@@ -1627,16 +1627,14 @@ CommandParser::CmdParser.new(ARGV) do
                 PCI_VENDOR,
                 PCI_DEVICE
             ] do
-
-
         pci_attrs = [:pci, :pci_device, :pci_vendor, :pci_class].any? do |o|
             !options[o].nil?
         end
 
         if options[:file]
             template = File.read(options[:file])
-        elsif !(stdin = self.read_stdin).empty?
-￼           template = stdin
+        elsif !(stdin = OpenNebulaHelper.read_stdin).empty?
+            template = stdin
         elsif pci_attrs
             pcia = options[:pci]
             pcid = options[:pci_device]
