@@ -26,6 +26,7 @@ import { ServiceTemplatesTable } from 'client/components/Tables'
 import ServiceTemplateTabs from 'client/components/Tabs/ServiceTemplate'
 import SplitPane from 'client/components/SplitPane'
 import MultipleTags from 'client/components/MultipleTags'
+import ServiceTemplateActions from 'client/components/Tables/ServiceTemplates/actions'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -38,6 +39,7 @@ import { T } from 'client/constants'
  */
 function ServiceTemplates() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const actions = ServiceTemplateActions()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -46,7 +48,10 @@ function ServiceTemplates() {
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
         <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ServiceTemplatesTable onSelectedRowsChange={onSelectedRowsChange} />
+          <ServiceTemplatesTable
+            onSelectedRowsChange={onSelectedRowsChange}
+            globalActions={actions}
+          />
 
           {hasSelectedRows && (
             <>
@@ -56,6 +61,7 @@ function ServiceTemplates() {
               ) : (
                 <InfoTabs
                   id={selectedRows[0]?.original?.ID}
+                  template={selectedRows[0]?.original}
                   gotoPage={selectedRows[0]?.gotoPage}
                   unselect={() => selectedRows[0]?.toggleRowSelected(false)}
                 />

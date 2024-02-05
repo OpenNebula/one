@@ -18,6 +18,11 @@ import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
 import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
 import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
 import { parseAcl } from 'client/utils/parser/parseACL'
+import {
+  parseNetworkString,
+  parseCustomInputString,
+} from 'client/utils/parser/parseServiceTemplate'
+import parseVmTemplateContents from 'client/utils/parser/parseVmTemplateContents'
 
 export {
   templateToObject,
@@ -25,4 +30,7 @@ export {
   parseFormToApplication,
   parseFormToDeployApplication,
   parseAcl,
+  parseNetworkString,
+  parseCustomInputString,
+  parseVmTemplateContents,
 }

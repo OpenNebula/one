@@ -44,6 +44,7 @@ module.exports = {
   Accept: 'Accept',
   Active: 'Active',
   Add: 'Add',
+  AddRole: 'Add role',
   AddAction: 'Add action',
   Append: 'Append',
   Attach: 'Attach',
@@ -81,6 +82,7 @@ module.exports = {
   CreateProvision: 'Create Provision',
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
+  InstantiateServiceTemplate: 'Instantiate Service Template',
   CreateUser: 'Create User',
   UpdateUser: 'Update User',
   CreateVirtualNetwork: 'Create Virtual Network',
@@ -141,6 +143,8 @@ module.exports = {
   RebootHard: 'Reboot hard',
   Recover: 'Recover',
   RecoverSeveralVMs: 'Recover several VMs',
+  RecoverSeveralServices: 'Recover several services',
+  RecoverService: 'Recover service',
   RecoverSomething: 'Recover: %s',
   Recreate: 'Recreate',
   Refresh: 'Refresh',
@@ -226,6 +230,7 @@ module.exports = {
   /* Scheduling */
   Action: 'Action',
   ScheduleAction: 'Schedule action',
+  ScheduledActions: 'Scheduled Actions',
   ScheduleActionType: 'Schedule action type',
   Charter: 'Charter',
   OneTimeAction: 'One time',
@@ -324,6 +329,7 @@ module.exports = {
 
   /* steps form */
   AdvancedOptions: 'Advanced options',
+  AdvancedParams: 'Advanced Parameters',
   /* steps form - flow */
   ApplicationOverview: 'Application overview',
   WhereWillItRun: 'Where will it run?',
@@ -427,8 +433,10 @@ module.exports = {
   /* sections - network */
   Network: 'Network',
   Networks: 'Networks',
-  VirtualNetwork: 'Virtual Network',
-  VirtualNetworks: 'Virtual Networks',
+  VirtualNetwork: 'Virtual network',
+  VirtualNetworks: 'Virtual networks',
+  RoleNetwork: 'Role Network',
+  RoleNetworks: 'Role Networks',
   NetworkTemplate: 'Network Template',
   NetworkTemplates: 'Network Templates',
   NetworkTopology: 'Network topology',
@@ -648,6 +656,7 @@ module.exports = {
   /* tabs */
   Drivers: 'Drivers',
   General: 'General',
+  Extra: 'Extra',
   Information: 'Information',
   Placement: 'Placement',
 
@@ -860,6 +869,7 @@ module.exports = {
     When creating several VMs, the wildcard %%idx will be
     replaced with a number starting from 0`,
   NumberOfInstances: 'Number of instances',
+  NumberOfVms: 'Number of VMs',
   MakeTemplateAvailableForVROnly:
     'Make this template available for Virtual Router machines only',
   VmOnHoldState: 'Start VM on hold state',
@@ -927,6 +937,11 @@ module.exports = {
   Policy: 'Policy',
   VmAffinity: 'VM Affinity',
   RolesAffinity: 'Roles Affinity',
+  RoleElasticity: 'Role Elasticity',
+  ElasticityPolicy: 'Elasticity Policy',
+  ElasticityPolicies: 'Elasticity Policies',
+  ScheduledPolicy: 'Scheduled Policy',
+  ScheduledPolicies: 'Scheduled Policies',
   AssociateToVMGroup: 'Associate VM to a VM Group',
   /* VM Template schema - vCenter */
   vCenterTemplateRef: 'vCenter Template reference',
@@ -1206,6 +1221,9 @@ module.exports = {
     be unshared with the group's users. Permission changed: GROUP USE`,
 
   /* Service Template schema */
+  WaitVmsReport:
+    'Consider VMs as running only when they report READY status via OneGate',
+  ServiceAutoDelete: 'Automatic deletion of service when all VMs terminated',
   /* Service Template schema - general */
   Strategy: 'Strategy',
   ShutdownAction: 'Shutdown action',

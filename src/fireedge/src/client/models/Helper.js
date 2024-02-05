@@ -20,6 +20,7 @@ import {
   X2jOptions,
 } from 'fast-xml-parser'
 import { DateTime, Settings } from 'luxon'
+import { isEmpty } from 'lodash'
 
 import {
   CURRENCY,
@@ -555,7 +556,7 @@ export const userInputsToObject = (userInputs) =>
  * @returns {string[]} List of unique labels
  */
 export const getUniqueLabels = (labels) => {
-  if (labels?.length < 1) {
+  if (labels?.length < 1 || labels === undefined || isEmpty(labels)) {
     return []
   }
 

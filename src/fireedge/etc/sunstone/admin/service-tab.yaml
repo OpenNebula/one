@@ -9,7 +9,6 @@ resource_name: "SERVICE"
 
 actions:
   create_dialog: true # reference to deploy_dialog in service-template-tab.yaml
-  update_dialog: true
   recover: true
   recover_delete: true
   delete: true

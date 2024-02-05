@@ -15,58 +15,34 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-
-import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 import { Typography } from '@mui/material'
-
-import { useViews } from 'client/features/Auth'
-import MultipleTags from 'client/components/MultipleTags'
 import Timer from 'client/components/Timer'
 import { StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import {
-  timeFromMilliseconds,
-  getUniqueLabels,
-  getColorFromString,
-} from 'client/models/Helper'
+import { timeFromMilliseconds } from 'client/models/Helper'
 import { getState } from 'client/models/Service'
-import { T, Service, ACTIONS, RESOURCE_NAMES } from 'client/constants'
+import { T, Service } from 'client/constants'
 
 const ServiceCard = memo(
   /**
    * @param {object} props - Props
    * @param {Service} props.service - Service resource
    * @param {object} props.rootProps - Props to root component
-   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
    * @returns {ReactElement} - Card
    */
-  ({ service, rootProps, actions, onDeleteLabel }) => {
+  ({ service, rootProps, actions }) => {
     const classes = rowStyles()
-    const { [RESOURCE_NAMES.SERVICE]: serviceView } = useViews()
-
-    const enableEditLabels =
-      serviceView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
 
     const {
       ID,
       NAME,
-      TEMPLATE: { BODY: { description, labels, start_time: startTime } = {} },
+      TEMPLATE: { BODY: { description, start_time: startTime } = {} },
     } = service
 
     const { color: stateColor, name: stateName } = getState(service)
     const time = useMemo(() => timeFromMilliseconds(+startTime), [startTime])
-
-    const uniqueLabels = useMemo(
-      () =>
-        getUniqueLabels(labels).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
-      [labels, enableEditLabels, onDeleteLabel]
-    )
 
     return (
       <div {...rootProps} data-cy={`service-template-${ID}`}>
@@ -76,10 +52,6 @@ const ServiceCard = memo(
             <Typography noWrap component="span" title={description}>
               {NAME}
             </Typography>
-            <span className={classes.labels}>
-              <WarningIcon title={description} />
-              <MultipleTags tags={uniqueLabels} />
-            </span>
           </div>
           <div className={classes.caption}>
             <span data-cy="id">{`#${ID}`}</span>

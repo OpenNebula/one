@@ -64,7 +64,7 @@ const error = (next = defaultEmptyFunction, res = {}, data = '') => {
   ) {
     res.locals.httpCode = httpResponse(
       internalServerError,
-      data && data.message
+      data && data?.response?.data
     )
     next()
   }
@@ -159,37 +159,60 @@ const serviceTemplateCreate = (
   params = {},
   userData = {}
 ) => {
-  const { user, password } = userData
-  if (params && params.template && user && password) {
-    const v = new Validator()
-    const template = parsePostData(params.template)
-    v.addSchema(role, '/Role')
-    const valSchema = v.validate(template, service)
-    if (valSchema.valid) {
-      const config = {
-        method: POST,
-        path: '/service_template',
-        user,
-        password,
-        post: template,
+  try {
+    const { user, password } = userData
+
+    if (params && params.template && user && password) {
+      const v = new Validator()
+      const template = parsePostData(params.template)
+
+      v.addSchema(role, '/Role')
+      const valSchema = v.validate(template, service)
+
+      if (valSchema.valid) {
+        try {
+          const config = {
+            method: POST,
+            path: '/service_template',
+            user,
+            password,
+            post: template,
+          }
+          oneFlowConnection(
+            config,
+            (data) => success(next, res, data),
+            (data) => error(next, res, data)
+          )
+        } catch (err) {
+          res.locals.httpCode = httpResponse(
+            internalServerError,
+            'Error in service template creation',
+            `Unexpected error occurred: ${error.message}`
+          )
+        }
+      } else {
+        res.locals.httpCode = httpResponse(
+          internalServerError,
+          'Invalid schema',
+          `Invalid schema: ${returnSchemaError(
+            valSchema.errors
+          )}, Received template: ${JSON.stringify(template)}`
+        )
+        next()
       }
-      oneFlowConnection(
-        config,
-        (data) => success(next, res, data),
-        (data) => error(next, res, data)
-      )
     } else {
       res.locals.httpCode = httpResponse(
-        internalServerError,
-        '',
-        `invalid schema ${returnSchemaError(valSchema.errors)}`
+        methodNotAllowed,
+        'Invalid service json',
+        `Invalid service json: Received params: ${JSON.stringify(params)}`
       )
+      next()
     }
-  } else {
+  } catch (error) {
     res.locals.httpCode = httpResponse(
-      methodNotAllowed,
-      '',
-      'invalid service json'
+      internalServerError,
+      'Error in service template creation',
+      `Unexpected error occurred: ${error.message}`
     )
     next()
   }

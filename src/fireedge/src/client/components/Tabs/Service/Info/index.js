@@ -17,10 +17,14 @@ import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
-import { useGetServiceQuery } from 'client/features/OneApi/service'
+import {
+  useGetServiceQuery,
+  useServiceAddActionMutation,
+} from 'client/features/OneApi/service'
 import { Permissions, Ownership } from 'client/components/Tabs/Common'
 import Information from 'client/components/Tabs/Service/Info/information'
-import { getActionsAvailable } from 'client/models/Helper'
+import { toSnakeCase } from 'client/utils'
+import { getActionsAvailable, permissionsToOctal } from 'client/models/Helper'
 
 /**
  * Renders mainly information tab.
@@ -38,9 +42,48 @@ const ServiceInfoTab = ({ tabProps = {}, id }) => {
   } = tabProps
 
   const { data: service = {} } = useGetServiceQuery({ id })
+  const [addServiceAction] = useServiceAddActionMutation()
+
+  /* eslint-disable no-shadow */
+  const changePermissions = ({ id, octet }) => {
+    addServiceAction({
+      id: id,
+      perform: 'chmod',
+      params: { octet: octet },
+    })
+  }
+  /* eslint-enable no-shadow */
+
+  const changeOwnership = (newOwnership) => {
+    addServiceAction({
+      id: id,
+      perform: 'chown',
+      params: {
+        group_id: newOwnership?.group || '-1',
+        owner_id: newOwnership?.user || '-1',
+      },
+    })
+  }
+
   const { UNAME, UID, GNAME, GID, PERMISSIONS = {} } = service
 
   const getActions = (actions) => getActionsAvailable(actions)
+
+  const handleChangeOwnership = async (newOwnership) => {
+    await changeOwnership({ id, ...newOwnership })
+  }
+
+  const handleChangePermission = async (newPermission) => {
+    const [key, value] = Object.entries(newPermission)[0]
+
+    const [member, permission] = toSnakeCase(key).toUpperCase().split('_')
+    const fullPermissionName = `${member}_${permission[0]}`
+
+    const newPermissions = { ...PERMISSIONS, [fullPermissionName]: value }
+    const octet = permissionsToOctal(newPermissions)
+
+    await changePermissions({ id, octet })
+  }
 
   return (
     <Stack
@@ -58,6 +101,7 @@ const ServiceInfoTab = ({ tabProps = {}, id }) => {
       {permissionsPanel?.enabled && (
         <Permissions
           actions={getActions(permissionsPanel?.actions)}
+          handleEdit={handleChangePermission}
           ownerUse={PERMISSIONS.OWNER_U}
           ownerManage={PERMISSIONS.OWNER_M}
           ownerAdmin={PERMISSIONS.OWNER_A}
@@ -72,6 +116,7 @@ const ServiceInfoTab = ({ tabProps = {}, id }) => {
       {ownershipPanel?.enabled && (
         <Ownership
           actions={getActions(ownershipPanel?.actions)}
+          handleEdit={handleChangeOwnership}
           userId={UID}
           userName={UNAME}
           groupId={GID}

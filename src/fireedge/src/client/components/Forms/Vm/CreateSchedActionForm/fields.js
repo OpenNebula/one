@@ -23,7 +23,6 @@ import {
   PERIOD_TYPES,
   REPEAT_VALUES,
   SCHEDULE_TYPE,
-  SERVER_CONFIG,
   T,
   TEMPLATE_SCHEDULE_TYPE_STRING,
   VM_ACTIONS_IN_CHARTER,
@@ -68,12 +67,12 @@ const DAYS_OF_WEEK = [
   T.Saturday,
 ]
 
-const getNow = () =>
-  SERVER_CONFIG?.currentTimeZone
-    ? DateTime.now().setZone(SERVER_CONFIG.currentTimeZone)
-    : DateTime.now()
+const getNow = () => DateTime.now()
 
 const getTomorrow = () => getNow().plus({ days: 1 })
+
+const getTomorrowAtMidnight = () =>
+  getTomorrow().set({ hour: 12, minute: 0, second: 0 })
 
 const getNextWeek = () => getNow().plus({ weeks: 1 })
 
@@ -240,7 +239,7 @@ const TIME_FIELD = {
       typeAction !== SCHEDULE_TYPE.RELATIVE ? schema.required() : schema
     ),
   fieldProps: {
-    defaultValue: getTomorrow(),
+    defaultValue: getTomorrowAtMidnight(),
     minDateTime: getNow(),
   },
 }
@@ -283,24 +282,13 @@ const WEEKLY_FIELD = {
     addEmpty: false,
     getValue: (_, index) => String(index),
   }),
-  fieldProps: ([_, repeat] = [], form) => {
-    if (repeat === REPEAT_VALUES.DAILY) {
-      const allDays = Array.from(
-        { length: DAYS_OF_WEEK.length },
-        (__, index) => `${index}`
-      )
-
-      form?.setValue('WEEKLY', allDays)
-    }
-  },
   htmlType: (_, context) => {
     const values = context?.getValues() || {}
 
     return (
       !(
         values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
-        (values?.REPEAT === REPEAT_VALUES.WEEKLY ||
-          values?.REPEAT === REPEAT_VALUES.DAILY)
+        values?.REPEAT === REPEAT_VALUES.WEEKLY
       ) && INPUT_TYPES.HIDDEN
     )
   },
@@ -309,10 +297,9 @@ const WEEKLY_FIELD = {
       .min(1)
       .default(() => context?.[DAYS_FIELD.name]?.split?.(',') ?? [])
       .when(REPEAT_FIELD.name, (repeatType, schema) =>
-        repeatType === REPEAT_VALUES.WEEKLY ||
-        repeatType === REPEAT_VALUES.DAILY
-          ? schema.required(T.DaysBetween0_6)
-          : schema.strip()
+        repeatType !== REPEAT_VALUES.WEEKLY
+          ? schema.strip()
+          : schema.required(T.DaysBetween0_6)
       )
       .afterSubmit((value) => value?.join?.(','))
   ),
@@ -418,21 +405,25 @@ const HOURLY_FIELD = {
  */
 const DAYS_FIELD = {
   name: 'DAYS',
-  validation: string().afterSubmit((_, { parent }) => {
-    const isPeriodic = !!parent?.[PERIODIC_FIELD_NAME]
-    const repeatType = parent?.[REPEAT_FIELD.name]
+  validation: mixed()
+    .notRequired()
+    .transform((value, _originalValue, context) => {
+      const isPeriodic = !!context?.parent?.[PERIODIC_FIELD_NAME]
+      const repeatType = context?.parent?.[REPEAT_FIELD.name]
 
-    if (!isPeriodic) return undefined
+      if (!isPeriodic) return undefined
 
-    const { WEEKLY, MONTHLY, YEARLY, HOURLY } = REPEAT_VALUES
+      const { WEEKLY, MONTHLY, YEARLY, HOURLY } = REPEAT_VALUES
 
-    return {
-      [WEEKLY]: parent?.[WEEKLY_FIELD.name],
-      [MONTHLY]: parent?.[MONTHLY_FIELD.name],
-      [YEARLY]: parent?.[YEARLY_FIELD.name],
-      [HOURLY]: parent?.[HOURLY_FIELD.name],
-    }[repeatType]
-  }),
+      const dayValues = {
+        [WEEKLY]: context?.parent?.[WEEKLY_FIELD.name],
+        [MONTHLY]: context?.parent?.[MONTHLY_FIELD.name],
+        [YEARLY]: context?.parent?.[YEARLY_FIELD.name],
+        [HOURLY]: context?.parent?.[HOURLY_FIELD.name],
+      }
+
+      return dayValues[repeatType] ?? value
+    }),
 }
 
 // --------------------------------------------------------
@@ -452,21 +443,13 @@ const END_TYPE_FIELD = {
     getText: (value) => sentenceCase(value),
     getValue: (value) => END_TYPE_VALUES[value],
   }),
-  validation: string()
-    .trim()
-    .default(() => END_TYPE_VALUES.NEVER)
-    .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
-      typeAction === SCHEDULE_TYPE.PERIODIC ? schema.required() : schema
-    ),
+  validation: mixed().notRequired(),
 }
 
 /** @type {Field} End value field */
 const END_VALUE_FIELD = {
   name: 'END_VALUE',
-  label: ([_, endType] = []) =>
-    endType === END_TYPE_VALUES.REPETITION
-      ? T.NumberOfRepetitions
-      : T.WhenDoYouWantThisActionToStop,
+  label: T.WhenYouWantThatTheActionFinishes,
   dependOf: [PERIODIC_FIELD_NAME, END_TYPE_FIELD.name],
   type: ([typeAction, endType] = []) =>
     typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
@@ -501,9 +484,7 @@ const END_VALUE_FIELD = {
     }
   ),
   fieldProps: ([_, endType] = []) =>
-    endType === END_TYPE_VALUES.DATE
-      ? { defaultValue: getNextWeek() }
-      : { min: 1 },
+    endType === END_TYPE_VALUES.DATE && { defaultValue: getNextWeek() },
 }
 
 // --------------------------------------------------------

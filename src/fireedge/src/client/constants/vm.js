@@ -777,10 +777,10 @@ export const VM_ACTIONS = {
   // STORAGE
   ATTACH_DISK: 'attach_disk',
   DETACH_DISK: 'detach_disk',
-  SNAPSHOT_DISK_CREATE: 'disk-snapshot-create',
-  SNAPSHOT_DISK_RENAME: 'disk-snapshot-rename',
-  SNAPSHOT_DISK_REVERT: 'disk-snapshot-revert',
-  SNAPSHOT_DISK_DELETE: 'disk-snapshot-delete',
+  SNAPSHOT_DISK_CREATE: 'snapshot-disk-create',
+  SNAPSHOT_DISK_RENAME: 'snapshot-disk-rename',
+  SNAPSHOT_DISK_REVERT: 'snapshot-disk-revert',
+  SNAPSHOT_DISK_DELETE: 'snapshot-disk-delete',
   RESIZE_DISK: 'resize_disk',
   DISK_SAVEAS: 'disk_saveas',
 

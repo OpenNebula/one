@@ -469,7 +469,8 @@ post '/service/:id/role_action' do
     when 'add_role'
         begin
             # Check that the JSON is valid
-            json_template = JSON.parse(opts['role'])
+            # Use directly if already parsed
+            json_template = opts['role'].is_a?(Hash) ? opts['role'] : JSON.parse(opts['role'])
 
             # Check the schema of the new template
             ServiceTemplate.validate_role(json_template)
