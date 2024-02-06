@@ -4117,32 +4117,8 @@ void VirtualMachineAttachPCI::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes
     // -------------------------------------------------------------------------
-    PoolObjectAuth vm_perms;
-
-    if (auto vm = Nebula::instance().get_vmpool()->get_ro(id))
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
     {
-        vm->get_permissions(vm_perms);
-    }
-    else
-    {
-        att.resp_id  = id;
-        att.resp_obj = PoolObjectSQL::VM;
-
-        failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    AuthRequest ar(att.uid, att.group_ids);
-
-    ar.add_auth(att.auth_op, vm_perms);
-
-    VirtualMachine::set_auth_request(att.uid, ar, &tmpl, true);
-
-    if (UserPool::authorize(ar) == -1)
-    {
-        att.resp_msg = ar.message;
-
-        failure_response(AUTHORIZATION, att);
         return;
     }
 
@@ -4186,30 +4162,8 @@ void VirtualMachineDetachPCI::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation, restricted attributes
     // -------------------------------------------------------------------------
-    PoolObjectAuth vm_perms;
-
-    if (auto vm = Nebula::instance().get_vmpool()->get_ro(id))
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
     {
-        vm->get_permissions(vm_perms);
-    }
-    else
-    {
-        att.resp_id  = id;
-        att.resp_obj = PoolObjectSQL::VM;
-
-        failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    AuthRequest ar(att.uid, att.group_ids);
-
-    ar.add_auth(att.auth_op, vm_perms);
-
-    if (UserPool::authorize(ar) == -1)
-    {
-        att.resp_msg = ar.message;
-
-        failure_response(AUTHORIZATION, att);
         return;
     }
 

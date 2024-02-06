@@ -884,7 +884,7 @@ module OpenNebula
 
         # Detaches a PCI from a VM
         #
-        # @param nic_id [Integer] Id of the PCI to be detached
+        # @param pci_id [Integer] Id of the PCI to be detached
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def pci_detach(pci_id)
