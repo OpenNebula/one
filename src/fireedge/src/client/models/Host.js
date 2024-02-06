@@ -123,7 +123,11 @@ export const getPciDevices = (host) =>
  */
 export const getKvmCpuModels = (hosts = []) => {
   const hostData = hosts
-    .filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm)
+    .filter(
+      (host) =>
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.kvm ||
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
+    )
     .map((host) => host.TEMPLATE?.KVM_CPU_MODELS.split(' '))
     .flat()
 
@@ -140,7 +144,11 @@ export const getKvmCpuModels = (hosts = []) => {
 export const getKvmCpuFeatures = (hosts = []) => {
   const wrapHosts = Array.isArray(hosts) ? hosts : [hosts]
   const machineTypes = wrapHosts
-    ?.filter((host) => host?.TEMPLATE?.HYPERVISOR === HYPERVISORS?.kvm)
+    ?.filter(
+      (host) =>
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS?.kvm ||
+        host?.TEMPLATE?.HYPERVISOR === HYPERVISORS.dummy
+    )
     ?.map((host) => host?.TEMPLATE?.KVM_CPU_FEATURES?.split(',') ?? [])
     ?.flat()
 
