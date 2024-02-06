@@ -174,6 +174,9 @@ class TemplatedType(object):
     '''
     Mixin class for Templated bindings
     '''
+    def _buildAttributes(self, node, attrs, already_processed):
+        vars(self)['custom_attrs'] = dict(attrs)
+
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if not build_template_node(self, nodeName_, child_):
             super(TemplatedType, self)._buildChildren(child_,node,nodeName_,fromsubclass_,gds_collector_)
