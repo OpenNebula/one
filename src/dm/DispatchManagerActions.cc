@@ -2952,8 +2952,6 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
                 break;
             }
 
-            auto vmm = Nebula::instance().get_vmm();
-
             if (!vmm->is_live_resize(vm->get_vmm_mad()))
             {
                 rc = -1;
@@ -3019,8 +3017,6 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
 int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
         const RequestAttributes& ra, string& error_str)
 {
-    ostringstream oss;
-
     auto vm = vmpool->get(vid);
 
     if ( vm == nullptr )
@@ -3097,8 +3093,6 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
 int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra,
         string&  error_str)
 {
-    ostringstream oss;
-
     auto vm = vmpool->get(vid);
 
     if ( vm == nullptr )

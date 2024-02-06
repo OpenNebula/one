@@ -62,6 +62,8 @@ public class VirtualMachine extends PoolElement{
     private static final String UNLOCK              = METHOD_PREFIX + "unlock";
     private static final String ATTACHSG            = METHOD_PREFIX + "attachsg";
     private static final String DETACHSG            = METHOD_PREFIX + "detachsg";
+    private static final String ATTACHPCI           = METHOD_PREFIX + "attachpci";
+    private static final String DETACHPCI           = METHOD_PREFIX + "detachpci";
     private static final String BACKUP              = METHOD_PREFIX + "backup";
     private static final String BACKUPCANCEL        = METHOD_PREFIX + "backupcancel";
 
@@ -780,6 +782,33 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Attaches a PCI to a VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine id (vid) of the target instance.
+     * @param pciTemplate The PCI Template to attach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse pciAttach(Client client, int id,
+            String pciTemplate)
+    {
+        return client.call(ATTACHPCI, id, pciTemplate);
+    }
+
+    /**
+     * Detaches a PCI from a VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual machine id (vid) of the target instance.
+     * @param pciid The PCI id to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse pciDetach(Client client, int id, int pciid)
+    {
+        return client.call(DETACHPCI, id, pciid);
+    }
+
+    /**
      * Backup Virtual Machine
      *
      * @param client XML-RPC Client.
@@ -1374,6 +1403,28 @@ public class VirtualMachine extends PoolElement{
     public OneResponse sgDetach(int nicid, int sgid)
     {
         return sgDetach(client, id, nicid, sgid);
+    }
+
+    /**
+     * Attaches a PCI to a VM
+     *
+     * @param pciTemplate The PCI template to attach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse pciAttach(String pciTemplate)
+    {
+        return pciAttach(client, id, pciTemplate);
+    }
+
+    /**
+     * Detaches a PCI from a VM
+     *
+     * @param pciid The PCI id to detach
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse pciDetach(int pciid)
+    {
+        return pciDetach(client, id, pciid);
     }
 
     /**

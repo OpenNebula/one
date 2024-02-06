@@ -1001,6 +1001,28 @@ func (vc *VMController) DetachSGContext(ctx context.Context, nicID int, sgID int
 	return err
 }
 
+// AttachPCI attaches new PCI to Virtual Machine
+func (vc *VMController) AttachPCI(pciTemplate string) error {
+	return vc.AttachPCIContext(context.Background(), pciTemplate)
+}
+
+// AttachSGContext attaches new Security Group to Virtual Machine NIC
+func (vc *VMController) AttachPCIContext(ctx context.Context, pciTemplate string) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.attachpci", vc.ID, pciTemplate)
+	return err
+}
+
+// DetachPCI detaches a PCI from Virtual Machine
+func (vc *VMController) DetachPCI(pciID int) error {
+	return vc.DetachPCIContext(context.Background(), pciID)
+}
+
+// DetachPCIContext detaches a PCI from Virtual Machine
+func (vc *VMController) DetachPCIContext(ctx context.Context, pciID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.detachpci", vc.ID, pciID)
+	return err
+}
+
 // Backup Virtual Machine
 func (vc *VMController) Backup(dsID int, reset bool) error {
 	return vc.BackupContext(context.Background(), dsID, reset)

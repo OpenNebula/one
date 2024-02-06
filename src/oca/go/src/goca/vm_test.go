@@ -21,6 +21,7 @@ package goca
 import (
 	"testing"
 	"strconv"
+	"regexp"
 
 	ds "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
 	dskeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore/keys"
@@ -316,6 +317,43 @@ func (s *VMSuite) TestVMNicSgAttachDetach(c *C) {
 	err = vmC.DetachNIC(0)
 	c.Assert(err, IsNil)
 	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+}
+
+func (s *VMSuite) TestVMPciAttachDetach(c *C) {
+	// Deploy VM
+	vmC := testCtrl.VM(s.vmID)
+	err := vmC.Deploy(s.hostID, false, -1)
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "ACTIVE", "RUNNING")), Equals, true)
+
+	err = vmC.Poweroff()
+	c.Assert(err, IsNil)
+	c.Assert(WaitResource(VMExpectState(c, s.vmID, "POWEROFF", "")), Equals, true)
+
+	// Attach PCI
+	err = vmC.AttachPCI("PCI = [ DEVICE = 0863 ]")
+	c.Assert(err, IsNil)
+
+	// Check PCI exists
+	vm, err := vmC.Info(false)
+	c.Assert(err, IsNil)
+
+	pci, err := vm.Template.GetVector("PCI")
+	c.Assert(err, IsNil)
+
+	matched, _ := regexp.MatchString("DEVICE=\"0863\"", pci.String())
+	c.Assert(matched, Equals, true)
+
+	// Detach PCI
+	err = vmC.DetachPCI(0)
+	c.Assert(err, IsNil)
+
+	// Check PCI doesn't exist
+	vm, err = vmC.Info(false)
+	c.Assert(err, IsNil)
+
+	_, err = vm.Template.GetVector("PCI")
+	c.Assert(err, NotNil)
 }
 
 func (s *VMSuite) TestVMBackup(c *C) {
