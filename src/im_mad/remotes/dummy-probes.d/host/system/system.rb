@@ -124,6 +124,8 @@ def system
         DS_LOCATION_USED_MB=9720
         DS_LOCATION_TOTAL_MB=20480
         DS_LOCATION_FREE_MB=20480
+        KVM_CPU_MODELS="486 pentium pentium2 pentium3 pentiumpro coreduo n270 core2duo qemu32 kvm32 cpu64-rhel5 cpu64-rhel6 kvm64 Conroe Penryn Nehalem Nehalem-IBRS Westmere Westmere-IBRS SandyBridge SandyBridge-IBRS IvyBridge IvyBridge-IBRS SapphireRapids SapphireRapids-noTSX Opteron_G1"
+        KVM_CPU_FEATURES="vme,ds,acpi,ss,ht,tm,pbe,dtes64,monitor,ds_cpl,vmx,smx,est,tm2,xtpr,pdcm,osxsave,f16c,rdrand,arat,tsc_adjust,clflushopt,clwb,intel-pt,sha-ni,umip,pku,ospke,waitpkg,gfni,vaes,vpclmulqdq,rdpid,movdiri,movdir64b,pks,fsrm,md-clear,serialize,arch-lbr,stibp,arch-capabilities,core-capability,ssbd,avx-vnni,xsaveopt,xsavec,xgetbv1,xsaves,pdpe1gb,abm,invtsc,rdctl-no,ibrs-all,skip-l1dfl-vmentry,mds-no,pschange-mc-no"
     EOS
 end
 
