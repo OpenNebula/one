@@ -174,13 +174,21 @@ const EnhancedTable = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
+  const selectedRowStates = useMemo(
+    () =>
+      data
+        ?.filter((row) => state?.selectedRowIds?.[row?.ID])
+        ?.map((selected) => selected?.STATE),
+    [data]
+  )
+
   const selectedRows = useMemo(() => {
     const selectedIds = Object.keys(state.selectedRowIds ?? {})
 
     return selectedIds
       .map((id) => preGlobalFilteredRowsById[id])
       .filter(Boolean)
-  }, [state.selectedRowIds])
+  }, [state.selectedRowIds, selectedRowStates])
 
   useEffect(() => {
     if (
