@@ -96,7 +96,9 @@ const VmsTable = (props) => {
             // This is for return data without filters
             return true
           })
-        ?.filter(({ID}) => filterData?.length ? filterData?.includes(ID) : filterLoose)
+          ?.filter(({ ID }) =>
+            filterData?.length ? filterData?.includes(ID) : filterLoose
+          )
           ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
     }),
   })
