@@ -86,8 +86,20 @@ function virtualip() {
 # main
 #
 
+if [ -z "${ONE_LOCATION}" ]; then
+    LOCK_LOCATION=/var/lock/one
+else
+    LOCK_LOCATION=$ONE_LOCATION/var/lock
+fi
+
+LOCK_FILE="$LOCK_LOCATION/vip_sh"
+
 ACTION="$1"
 shift
+
+# Start of critical section (opens LOCK_FILE with fd 56)
+exec 56>$LOCK_FILE
+flock -w 60 56
 
 # Process all parameters in the form of interface:IP
 while [[ $# -gt 0 ]]
