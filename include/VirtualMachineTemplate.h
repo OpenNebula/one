@@ -57,18 +57,6 @@ public:
         Template::set_xml_root(_xml_root);
     };
 
-    /**
-     * Replaces the given image from the DISK attribute with a new one
-     *   @param target_id IMAGE_ID the image to be replaced
-     *   @param target_name IMAGE the image to be replaced
-     *   @param target_uname IMAGE_UNAME the image to be replaced
-     *   @param new_name of the new image
-     *   @param new_uname of the owner of the new image
-     */
-    int replace_disk_image(int target_id, const std::string&
-        target_name, const std::string& target_uname,
-        const std::string& new_name, const std::string& new_uname);
-
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
