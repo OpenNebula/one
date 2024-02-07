@@ -54,9 +54,9 @@ const ServiceTemplateCard = memo(
       TEMPLATE: {
         BODY: {
           description,
-          labels,
-          networks,
-          roles,
+          labels = {},
+          networks = {},
+          roles = {},
           registration_time: regTime,
         } = {},
       },

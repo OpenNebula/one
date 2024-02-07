@@ -185,11 +185,12 @@ const serviceAddAction = (
       // validate if "action" is required
       const config = {
         method: POST,
-        path: '/service/{0}/action',
+        path: `/service/{0}/action`,
         user,
         password,
         request: params.id,
-        post: postAction,
+        // the oneflow server parses and looks for the action key
+        post: { action: postAction },
       }
       oneFlowConnection(
         config,
@@ -284,6 +285,64 @@ const serviceAddScale = (
  * @param {string} userData.user - username
  * @param {string} userData.password - user password
  */
+const serviceAddRole = (
+  res = {},
+  next = defaultEmptyFunction,
+  params = {},
+  userData = {}
+) => {
+  const { user, password } = userData
+  const { id, action: serviceAction } = params
+  if (Number.isInteger(parseInt(id, 10)) && serviceAction && user && password) {
+    const v = new Validator()
+    const postAction = parsePostData(serviceAction)
+    const valSchema = v.validate(postAction, action)
+    if (valSchema.valid) {
+      // validate if "action" is required
+      const config = {
+        method: POST,
+        path: '/service/{0}/role_action',
+        user,
+        password,
+        request: id,
+        post: { action: postAction },
+      }
+      oneFlowConnection(
+        config,
+        (data) => success(next, res, data),
+        (data) => error(next, res, data)
+      )
+    } else {
+      res.locals.httpCode = httpResponse(
+        internalServerError,
+        '',
+        `invalid schema ${returnSchemaError(valSchema.errors)}`
+      )
+      next()
+    }
+  } else {
+    res.locals.httpCode = httpResponse(
+      methodNotAllowed,
+      '',
+      'invalid action, id service or role'
+    )
+    next()
+  }
+}
+
+/**
+ * Add service role action.
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params
+ * @param {number} params.id - service ID
+ * @param {string} params.action - service action
+ * @param {string} params.role - service role
+ * @param {object} userData - user data
+ * @param {string} userData.user - username
+ * @param {string} userData.password - user password
+ */
 const serviceAddRoleAction = (
   res = {},
   next = defaultEmptyFunction,
@@ -306,11 +365,11 @@ const serviceAddRoleAction = (
       // validate if "action" is required
       const config = {
         method: POST,
-        path: '/service/{0}/role/{1}',
+        path: '/service/{0}/role/{1}/action',
         user,
         password,
         request: [id, role],
-        post: postAction,
+        post: { action: postAction },
       }
       oneFlowConnection(
         config,
@@ -610,6 +669,7 @@ const serviceApi = {
   serviceDelete,
   serviceAddAction,
   serviceAddScale,
+  serviceAddRole,
   serviceAddRoleAction,
   serviceAddSchedAction,
   serviceUpdateSchedAction,

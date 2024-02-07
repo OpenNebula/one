@@ -35,6 +35,7 @@ const SelectController = memo(
     tooltip,
     watcher,
     dependencies,
+    defaultValueProp,
     fieldProps = {},
     readOnly = false,
     onConditionChange,
@@ -45,8 +46,18 @@ const SelectController = memo(
       defaultValue: Array.isArray(dependencies) ? [] : undefined,
     })
 
-    const firstValue = values?.[0]?.value ?? ''
-    const defaultValue = multiple ? [firstValue] : firstValue
+    const firstValue = defaultValueProp
+      ? values?.find((val) => val.value === defaultValueProp)
+      : values?.[0]?.value ?? ''
+
+    const defaultValue =
+      defaultValueProp !== undefined
+        ? multiple
+          ? [defaultValueProp]
+          : defaultValueProp
+        : multiple
+        ? [firstValue]
+        : firstValue
 
     const {
       field: { ref, value: optionSelected, onChange, ...inputProps },
@@ -55,7 +66,8 @@ const SelectController = memo(
 
     const needShrink = useMemo(
       () =>
-        multiple || values.find((o) => o.value === optionSelected)?.text !== '',
+        multiple ||
+        values?.find((o) => o.value === optionSelected)?.text !== '',
       [optionSelected]
     )
 
@@ -167,6 +179,7 @@ SelectController.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  defaultValueProp: PropTypes.string,
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,

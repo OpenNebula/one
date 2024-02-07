@@ -21,7 +21,8 @@ import { List } from 'client/components/Tabs/Common'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { getState } from 'client/models/Service'
 import { timeToString, booleanToString } from 'client/models/Helper'
-import { T, Service } from 'client/constants'
+import { T, Service, VM_TEMPLATE_ACTIONS } from 'client/constants'
+import { useServiceAddActionMutation } from 'client/features/OneApi/service'
 
 /**
  * Renders mainly information tab.
@@ -32,6 +33,7 @@ import { T, Service } from 'client/constants'
  * @returns {ReactElement} Information tab
  */
 const InformationPanel = ({ service = {}, actions }) => {
+  const [addServiceAction] = useServiceAddActionMutation()
   const {
     ID,
     NAME,
@@ -46,11 +48,29 @@ const InformationPanel = ({ service = {}, actions }) => {
     },
   } = service || {}
 
+  const handleRename = async (_, newName) => {
+    await renameTemplate({ id: ID, name: newName })
+  }
+
+  const renameTemplate = ({ id, name }) => {
+    addServiceAction({
+      id: id,
+      perform: 'rename',
+      params: { name },
+    })
+  }
+
   const { name: stateName, color: stateColor } = getState(service)
 
   const info = [
     { name: T.ID, value: ID, dataCy: 'id' },
-    { name: T.Name, value: NAME, dataCy: 'name' },
+    {
+      name: T.Name,
+      value: NAME,
+      canEdit: actions?.includes(VM_TEMPLATE_ACTIONS.RENAME),
+      dataCy: 'name',
+      handleEdit: handleRename,
+    },
     {
       name: T.State,
       value: (

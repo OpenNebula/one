@@ -68,8 +68,13 @@ const TableController = memo(
     }
 
     useEffect(() => {
-      onChange(singleSelect ? undefined : preserveState ? value : [])
-      setInitialRows(preserveState ? initialRows : {})
+      if (preserveState) {
+        onChange(value)
+        setInitialRows(initialRows)
+      } else {
+        onChange(singleSelect ? undefined : [])
+        setInitialRows({})
+      }
     }, [Table])
 
     const handleSelectedRowsChange = useCallback(

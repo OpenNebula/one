@@ -24,3 +24,11 @@ import { Service, SERVICE_STATES, STATES } from 'client/constants'
  */
 export const getState = ({ TEMPLATE = {} } = {}) =>
   SERVICE_STATES[TEMPLATE?.BODY?.state]
+
+/**
+ * Returns information about Service state.
+ *
+ * @param {number} state - Role state
+ * @returns {STATES.StateInfo} - Service state object
+ */
+export const getRoleState = (state) => SERVICE_STATES?.[state]

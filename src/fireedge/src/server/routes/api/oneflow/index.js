@@ -24,6 +24,7 @@ const {
   serviceAddAction,
   serviceAddScale,
   serviceAddRoleAction,
+  serviceAddRole,
   serviceAddSchedAction,
   serviceUpdateSchedAction,
   serviceDeleteSchedAction,
@@ -45,6 +46,7 @@ const {
   SERVICE_ADD_ACTION,
   SERVICE_ADD_SCALE,
   SERVICE_ADD_ROLEACTION,
+  SERVICE_ADD_ROLE,
   SERVICE_ADD_SCHEDACTION,
   SERVICE_UPDATE_SCHEDACTION,
   SERVICE_DELETE_SCHEDACTION,
@@ -71,6 +73,10 @@ const services = [
   {
     ...CommandsService[SERVICE_ADD_SCALE],
     action: serviceAddScale,
+  },
+  {
+    ...CommandsService[SERVICE_ADD_ROLE],
+    action: serviceAddRole,
   },
   {
     ...CommandsService[SERVICE_ADD_ROLEACTION],

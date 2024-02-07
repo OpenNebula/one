@@ -104,8 +104,17 @@ const ServiceTemplates = loadable(
   () => import('client/containers/ServiceTemplates'),
   { ssr: false }
 )
-// const DeployServiceTemplates = loadable(() => import('client/containers/ServiceTemplates/Instantiate'), { ssr: false })
-// const CreateServiceTemplates = loadable(() => import('client/containers/ServiceTemplates/Create'), { ssr: false })
+
+const InstantiateServiceTemplate = loadable(
+  () => import('client/containers/ServiceTemplates/Instantiate'),
+  { ssr: false }
+)
+
+const CreateServiceTemplates = loadable(
+  () => import('client/containers/ServiceTemplates/Create'),
+  { ssr: false }
+)
+
 const ServiceTemplateDetail = loadable(
   () => import('client/containers/ServiceTemplates/Detail'),
   { ssr: false }
@@ -314,7 +323,7 @@ export const PATH = {
     SERVICES: {
       LIST: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}`,
       DETAIL: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/:id`,
-      DEPLOY: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/deploy/`,
+      INSTANTIATE: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/instantiate/`,
       CREATE: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}/create`,
     },
   },
@@ -486,18 +495,18 @@ const ENDPOINTS = [
         Component: VMTemplateDetail,
       },
       {
+        title: T.InstantiateServiceTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.SERVICES.INSTANTIATE,
+        Component: InstantiateServiceTemplate,
+      },
+      {
         title: T.ServiceTemplates,
         path: PATH.TEMPLATE.SERVICES.LIST,
         sidebar: true,
         icon: ServiceTemplateIcon,
         Component: ServiceTemplates,
-      },
-      /* {
-        title: T.DeployServiceTemplate,
-        description: (_, state) =>
-          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
-        path: PATH.TEMPLATE.SERVICES.DEPLOY,
-        Component: DeployServiceTemplates,
       },
       {
         title: (_, state) =>
@@ -508,7 +517,7 @@ const ENDPOINTS = [
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.TEMPLATE.SERVICES.CREATE,
         Component: CreateServiceTemplates,
-      }, */
+      },
       {
         title: T.ServiceTemplate,
         description: (params) => `#${params?.id}`,

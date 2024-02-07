@@ -135,6 +135,23 @@ const role = {
   },
 }
 
+const action = {
+  id: '/Action',
+  type: 'object',
+  properties: {
+    perform: {
+      type: 'string',
+      required: false,
+    },
+    // Not required for some actions
+    params: {
+      type: 'object',
+      additionalProperties: true,
+      required: false,
+    },
+  },
+}
+
 const service = {
   type: 'object',
   properties: {
@@ -191,6 +208,6 @@ const service = {
   },
 }
 
-const schemas = { role, service }
+const schemas = { role, service, action }
 
 module.exports = schemas

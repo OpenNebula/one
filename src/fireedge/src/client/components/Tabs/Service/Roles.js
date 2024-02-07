@@ -13,18 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
+import { ReactElement, memo, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Link as RouterLink, generatePath } from 'react-router-dom'
-import { Box, Typography, Link, CircularProgress } from '@mui/material'
 
-import { useGetServiceQuery } from 'client/features/OneApi/service'
-import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
-import { Translate } from 'client/components/HOC'
-import { T, ServiceTemplateRole } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { ButtonGenerator } from 'client/components/Tabs/Service/ButtonGenerator'
+import {
+  useGetServiceQuery,
+  useServiceAddRoleMutation,
+  useServiceRoleActionMutation,
+  useServiceScaleRoleMutation,
+} from 'client/features/OneApi/service'
 
-const COLUMNS = [T.Name, T.Cardinality, T.VMTemplate, T.Parents]
+import { VmsTable } from 'client/components/Tables'
+import VmActions from 'client/components/Tables/Vms/actions'
+import { StatusCircle } from 'client/components/Status'
+import { getRoleState } from 'client/models/Service'
+import { Box, Dialog, Typography } from '@mui/material'
+import { Content as RoleAddDialog } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig'
+import { ScaleDialog } from 'client/components/Tabs/Service/ScaleDialog'
+import {
+  Plus,
+  Trash,
+  SystemShut,
+  TransitionRight,
+  NavArrowDown,
+  Refresh,
+  PlayOutline,
+} from 'iconoir-react'
+
+import { useGeneralApi } from 'client/features/General'
+
+// Filters actions based on the data-cy key
+const filterActions = ['vm_resume', 'vm-manage', 'vm-host', 'vm-terminate']
 
 /**
  * Renders template tab.
@@ -34,30 +54,371 @@ const COLUMNS = [T.Name, T.Cardinality, T.VMTemplate, T.Parents]
  * @returns {ReactElement} Roles tab
  */
 const RolesTab = ({ id }) => {
+  const { enqueueError, enqueueSuccess, enqueueInfo } = useGeneralApi()
+  // wrapper
+  const createApiCallback = (apiFunction) => async (params) => {
+    const payload = { id, ...params }
+    const response = await apiFunction(payload)
+
+    return response
+  }
+  // api calls
+  const [addRole] = useServiceAddRoleMutation()
+  const [addRoleAction] = useServiceRoleActionMutation()
+  const [scaleRole] = useServiceScaleRoleMutation()
+  // api handlers
+  const handleAddRole = createApiCallback(addRole)
+
+  const handleAddRoleAction = async (actionType) => {
+    for (const roleIdx of selectedRoles) {
+      const roleName = roles?.[roleIdx]?.name
+
+      try {
+        enqueueInfo(`Starting '${actionType}' action on role: ${roleName}`)
+
+        await createApiCallback(addRoleAction)({
+          perform: actionType,
+          role: roleName,
+        })
+
+        enqueueSuccess(`Action '${actionType}' completed on role: ${roleName}`)
+      } catch (error) {
+        enqueueError(
+          `Action '${actionType}' failed on role: ${roleName}. Error: ${error}`
+        )
+      }
+    }
+  }
+
+  const handleScaleRole = createApiCallback(scaleRole)
+
+  const [activeRole, setActiveRole] = useState({ idx: null, roleName: null })
+
+  const [isAddRoleOpen, setAddRoleOpen] = useState(false)
+  const [isScaleDialogOpen, setScaleDialogOpen] = useState(false)
+
   const { data: template = {} } = useGetServiceQuery({ id })
+  const [selectedRoles, setSelectedRoles] = useState([])
+  const filteredActions = VmActions()?.filter((action) =>
+    filterActions?.includes(action?.dataCy)
+  )
   const roles = template?.TEMPLATE?.BODY?.roles || []
 
+  const roleVms = useMemo(
+    () =>
+      roles?.reduce((acc, role) => {
+        acc[role?.name] = role?.nodes?.map((node) => node?.vm_info?.VM.ID)
+
+        return acc
+      }, {}),
+    [roles]
+  )
+
+  /* eslint-disable react/prop-types */
+  const AddRoleDialog = ({ open, onClose }) => (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <RoleAddDialog
+        standaloneModal
+        standaloneModalCallback={(params) => {
+          handleAddRole(params)
+          onClose()
+        }}
+      />
+    </Dialog>
+  )
+  /* eslint-enable react/prop-types */
+
+  const handleRoleClick = (idx, role, event) => {
+    event.stopPropagation()
+
+    if (event.ctrlKey || event.metaKey) {
+      setSelectedRoles((prevSelectedRoles) =>
+        prevSelectedRoles.includes(idx)
+          ? prevSelectedRoles.filter((roleIdx) => roleIdx !== idx)
+          : [...prevSelectedRoles, idx]
+      )
+    } else {
+      setSelectedRoles((prevSelectedRoles) => {
+        if (prevSelectedRoles.length > 1 || !prevSelectedRoles.includes(idx)) {
+          return [idx]
+        }
+
+        return prevSelectedRoles
+      })
+
+      setActiveRole((prevActiveRole) =>
+        prevActiveRole.idx === idx
+          ? { idx: null, roleName: null }
+          : { idx: idx, roleName: role.name }
+      )
+    }
+  }
+
+  const handleOpenAddRole = () => {
+    setAddRoleOpen(true)
+  }
+
+  const handleCloseAddRole = () => {
+    setAddRoleOpen(false)
+  }
+
+  const handleOpenScale = () => {
+    setScaleDialogOpen(true)
+  }
+
+  const handleCloseScale = () => {
+    setScaleDialogOpen(false)
+  }
+
+  const isSelected = (idx) => selectedRoles.includes(idx)
+
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(4, 1fr)"
-      padding="1em"
-      bgcolor="background.default"
-    >
-      {COLUMNS.map((col) => (
-        <Typography key={col} noWrap variant="subtitle1" padding="0.5em">
-          <Translate word={col} />
-        </Typography>
-      ))}
+    <Box display="flex" flexDirection="column" padding="1em" width="100%">
+      <Box
+        display="flex"
+        flexDirection="row"
+        alignItems="stretch"
+        justifyContent="space-between"
+        width="100%"
+        marginBottom="2em"
+      >
+        <Box display="flex" gap="2em" marginRight="2em">
+          <>
+            <ButtonGenerator
+              items={{
+                name: 'Add Role',
+                onClick: handleOpenAddRole,
+                icon: Plus,
+              }}
+              options={{
+                singleButton: {
+                  sx: {
+                    fontSize: '0.95rem',
+                    padding: '6px 8px',
+                    minWidth: '80px',
+                    minHeight: '30px',
+                    maxHeight: '40px',
+                    whiteSpace: 'nowrap',
+                  },
+                  'data-cy': 'AddRole',
+                },
+              }}
+            />
+            <AddRoleDialog open={isAddRoleOpen} onClose={handleCloseAddRole} />
+          </>
+
+          <ButtonGenerator
+            items={{
+              name: 'Scale',
+              onClick: handleOpenScale,
+              icon: Plus,
+            }}
+            options={{
+              singleButton: {
+                disabled: !selectedRoles?.length > 0,
+                sx: {
+                  fontSize: '0.95rem',
+                  padding: '6px 12px',
+                  minWidth: '80px',
+                  minHeight: '30px',
+                  maxHeight: '40px',
+                },
+              },
+            }}
+          />
+          <ScaleDialog
+            open={isScaleDialogOpen}
+            onClose={handleCloseScale}
+            onScale={handleScaleRole}
+            roleName={roles?.[selectedRoles?.[0]]?.name}
+          />
+        </Box>
+
+        <Box display="flex" gap="1em">
+          <ButtonGenerator
+            items={{
+              onClick: () => handleAddRoleAction('resume'),
+            }}
+            options={{
+              singleButton: {
+                disabled: !selectedRoles?.length > 0,
+                startIcon: <PlayOutline />,
+                sx: {
+                  fontSize: 20,
+                  padding: '0px 8px',
+                },
+                title: null,
+              },
+            }}
+          />
+
+          <ButtonGenerator
+            items={[
+              {
+                name: 'Suspend',
+                onClick: () =>
+                  handleAddRoleAction({
+                    perform: 'suspend',
+                    role: roles?.[selectedRoles?.[0]]?.name,
+                  }),
+              },
+              {
+                name: 'Poweroff',
+
+                onClick: () => handleAddRoleAction('poweroff'),
+              },
+              {
+                name: 'Poweroff Hard',
+
+                onClick: () => handleAddRoleAction('poweroff-hard'),
+              },
+            ]}
+            options={{
+              button: {
+                disabled: !selectedRoles?.length > 0,
+                startIcon: <SystemShut />,
+                endIcon: <NavArrowDown />,
+                sx: {
+                  fontSize: 20,
+                  padding: '8px 16px',
+                },
+                title: null,
+              },
+            }}
+          />
+
+          <ButtonGenerator
+            items={[
+              {
+                name: 'Stop',
+
+                onClick: () => handleAddRoleAction('stop'),
+              },
+              {
+                name: 'Undeploy',
+                onClick: () => handleAddRoleAction('undeploy'),
+              },
+              {
+                name: 'Undeploy Hard',
+                onClick: () => handleAddRoleAction('undeploy-hard'),
+              },
+            ]}
+            options={{
+              button: {
+                disabled: !selectedRoles?.length > 0,
+                startIcon: <TransitionRight />,
+                endIcon: <NavArrowDown />,
+                sx: {
+                  fontSize: 20,
+                  padding: '8px 16px',
+                },
+                title: null,
+              },
+            }}
+          />
+
+          <ButtonGenerator
+            items={[
+              {
+                name: 'Reboot',
+                onClick: () => handleAddRoleAction('reboot'),
+              },
+              {
+                name: 'Reboot Hard',
+                onClick: () => handleAddRoleAction('reboot-hard'),
+              },
+            ]}
+            options={{
+              button: {
+                disabled: !selectedRoles?.length > 0,
+                startIcon: <Refresh />,
+                endIcon: <NavArrowDown />,
+                sx: {
+                  fontSize: 20,
+                  padding: '8px 16px',
+                  marginRight: '1em',
+                },
+                title: null,
+              },
+            }}
+          />
+
+          <ButtonGenerator
+            items={[
+              {
+                name: 'Terminate',
+                onClick: () => handleAddRoleAction('terminate'),
+              },
+              {
+                name: 'Terminate Hard',
+                onClick: () => handleAddRoleAction('terminate-hard'),
+              },
+            ]}
+            options={{
+              button: {
+                disabled: !selectedRoles?.length > 0,
+                startIcon: <Trash />,
+                endIcon: <NavArrowDown />,
+                sx: {
+                  fontSize: 20,
+                  padding: '8px 16px',
+                  marginLeft: '2em',
+                },
+                title: null,
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
       {roles.map((role, idx) => (
         <Box
           key={`role-${role.name ?? idx}`}
-          display="contents"
-          padding="0.5em"
-          // hover except for the circular progress component
-          sx={{ '&:hover > *:not(span)': { bgcolor: 'action.hover' } }}
+          display="flex"
+          flexDirection="column"
+          padding="0.75em"
+          marginY="0.25em"
+          sx={(theme) => ({
+            '&:hover': { bgcolor: 'action.hover', boxShadow: 3 },
+            boxShadow: 1,
+            transition: 'all 0.1s ease-in-out',
+            cursor: 'pointer',
+            width: '100%',
+            borderRadius: '8px',
+            bgcolor: 'background.paper',
+            border: `2px solid ${
+              isSelected(idx)
+                ? theme.palette.grey[600]
+                : theme.palette.grey[400]
+            }`,
+          })}
+          onClick={(event) => handleRoleClick(idx, role, event)}
         >
-          <RoleComponent role={role} />
+          <RoleComponent
+            role={role}
+            selected={isSelected(idx)}
+            status={role?.state}
+          />
+
+          {activeRole.idx === idx && (
+            <Box
+              padding="20px"
+              marginLeft="20px"
+              paddingTop="10px"
+              border="1px solid rgba(0, 0, 0, 0.12)"
+              borderRadius="4px"
+              width="calc(100% - 20px)"
+              height="calc(100% - 20px)"
+              minHeight="500px"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <VmsTable
+                globalActions={filteredActions}
+                filterData={roleVms?.[activeRole?.roleName]}
+                filterLoose={false}
+              />
+            </Box>
+          )}
         </Box>
       ))}
     </Box>
@@ -67,52 +428,49 @@ const RolesTab = ({ id }) => {
 RolesTab.propTypes = { tabProps: PropTypes.object, id: PropTypes.string }
 RolesTab.displayName = 'RolesTab'
 
-const RoleComponent = memo(({ role }) => {
-  /** @type {ServiceTemplateRole} */
-  const { name, cardinality, vm_template: templateId, parents } = role
-
-  const { data: template, isLoading } = useGetTemplatesQuery(undefined, {
-    selectFromResult: ({ data = [], ...restOfQuery }) => ({
-      data: data.find((item) => +item.ID === +templateId),
-      ...restOfQuery,
-    }),
-  })
-
-  const linkToVmTemplate = useMemo(
-    () => generatePath(PATH.TEMPLATE.VMS.DETAIL, { id: templateId }),
-    [templateId]
-  )
-
-  const commonProps = { noWrap: true, variant: 'subtitle2', padding: '0.5em' }
+const RoleComponent = memo(({ role, selected, status }) => {
+  const { name, cardinality, vm_template: templateId } = role
 
   return (
-    <>
-      <Typography {...commonProps} data-cy="name">
-        {name}
-      </Typography>
-      <Typography {...commonProps} data-cy="cardinality">
-        {cardinality}
-      </Typography>
-      {isLoading ? (
-        <CircularProgress color="secondary" size={20} />
-      ) : (
-        <Link
-          {...commonProps}
-          color="secondary"
-          component={RouterLink}
-          to={linkToVmTemplate}
-        >
-          {`#${template?.ID} ${template?.NAME}`}
-        </Link>
-      )}
-      <Typography {...commonProps} data-cy="parents">
-        {parents?.join?.()}
-      </Typography>
-    </>
+    <Box
+      display="flex"
+      flexDirection="row"
+      alignItems="flex-start"
+      padding="0.5em"
+      marginY="0.25em"
+      borderRadius="8px"
+      boxShadow={1}
+      sx={(theme) => ({
+        '&:hover': { boxShadow: 2, transition: 'box-shadow 0.3s' },
+        bgcolor: theme.palette.background,
+        filter: selected ? 'brightness(100%)' : 'brightness(90%)',
+      })}
+    >
+      <Box mr={2} mt={-1} alignSelf="start">
+        <StatusCircle
+          color={getRoleState(status)?.color || 'red'}
+          tooltip={getRoleState(status)?.name}
+        />
+      </Box>
+
+      <Box>
+        <Typography variant="subtitle1" mb={1}>
+          {name}
+        </Typography>
+        <Typography variant="body1" mb={1}>
+          VM Template ID: {templateId}
+        </Typography>
+        <Typography variant="body1">Cardinality: {cardinality}</Typography>
+      </Box>
+    </Box>
   )
 })
 
-RoleComponent.propTypes = { role: PropTypes.object }
+RoleComponent.propTypes = {
+  role: PropTypes.object,
+  selected: PropTypes.bool,
+  status: PropTypes.number,
+}
 RoleComponent.displayName = 'RoleComponent'
 
 export default RolesTab

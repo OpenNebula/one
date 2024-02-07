@@ -27,6 +27,7 @@ const SERVICE_SHOW = 'service.show'
 const SERVICE_ADD_ACTION = 'service.addaction'
 const SERVICE_ADD_SCALE = 'service.addscale'
 const SERVICE_ADD_ROLEACTION = 'service.addroleaction'
+const SERVICE_ADD_ROLE = 'service.addrole'
 const SERVICE_ADD_SCHEDACTION = 'service.addscheaction'
 const SERVICE_UPDATE_SCHEDACTION = 'service.updateschedaction'
 const SERVICE_DELETE_SCHEDACTION = 'service.deleteschedaction'
@@ -36,6 +37,7 @@ const Actions = {
   SERVICE_SHOW,
   SERVICE_ADD_ACTION,
   SERVICE_ADD_SCALE,
+  SERVICE_ADD_ROLE,
   SERVICE_ADD_ROLEACTION,
   SERVICE_ADD_SCHEDACTION,
   SERVICE_UPDATE_SCHEDACTION,
@@ -70,7 +72,7 @@ module.exports = {
       },
     },
     [SERVICE_ADD_SCALE]: {
-      path: `${basepath}/scale/:id`,
+      path: `${basepath}/:id/scale`,
       httpMethod: POST,
       auth: true,
       params: {
@@ -82,8 +84,23 @@ module.exports = {
         },
       },
     },
+
+    [SERVICE_ADD_ROLE]: {
+      path: `${basepath}/:id/role_action`,
+      httpMethod: POST,
+      auth: true,
+      params: {
+        id: {
+          from: resource,
+        },
+        action: {
+          from: postBody,
+        },
+      },
+    },
+
     [SERVICE_ADD_ROLEACTION]: {
-      path: `${basepath}/role_action/:id/:role`,
+      path: `${basepath}/:id/role/:role/action`,
       httpMethod: POST,
       auth: true,
       params: {

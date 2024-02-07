@@ -191,17 +191,11 @@ const serviceTemplateApi = oneApi.injectEndpoints({
        * @returns {number} Service id
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
-        /*
-         data: {
-            action: {
-              perform: 'instantiate',
-              params: { merge_template: data },
-            },
-          },
-          method: PUT,
-          url: `/api/${SERVICE_TEMPLATE}/action/${id}`,
-        */
+      query: ({ template, ...params }) => {
+        params.action = {
+          perform: 'instantiate',
+          params: { merge_template: template },
+        }
         const name = Actions.SERVICE_TEMPLATE_ACTION
         const command = { name, ...Commands[name] }
 

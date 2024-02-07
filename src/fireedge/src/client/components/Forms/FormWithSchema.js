@@ -218,10 +218,15 @@ const FieldComponent = memo(
     )
     const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
     const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
+    // Key is computed in first hand based on it's type, meaning we re-render if type changes.
     const key = useMemo(
       () =>
-        fieldProps?.values
-          ? `${name}-${JSON.stringify(fieldProps.values)}`
+        fieldProps
+          ? `${name}-${JSON.stringify(
+              fieldProps?.type ??
+                fieldProps?.values ??
+                Object.values(fieldProps)
+            )}`
           : undefined,
       [fieldProps]
     )
