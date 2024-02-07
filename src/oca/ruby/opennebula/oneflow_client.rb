@@ -461,6 +461,10 @@ module Service
 
             req['User-Agent'] = @user_agent
 
+            if !@uri.path.nil?
+                req.instance_variable_set(:@path, @uri.path + req.path)
+            end
+
             CloudClient.http_start(@uri, @timeout) do |http|
                 http.request(req)
             end
