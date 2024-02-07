@@ -3025,7 +3025,8 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
         return -1;
     }
 
-    if (vm->get_state() != VirtualMachine::POWEROFF ||
+    if ((vm->get_state() != VirtualMachine::POWEROFF &&
+         vm->get_state() != VirtualMachine::UNDEPLOYED) ||
         vm->get_lcm_state() != VirtualMachine::LCM_INIT)
     {
         error_str = "VM in wrong state, it has to be in poweroff";
@@ -3044,23 +3045,28 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
         return -1;
     }
 
-    HostShareCapacity sr;
+    unique_ptr<Host> host;
 
-    sr.vmid = vid;
-    sr.pci.push_back(pci);
-
-    auto host = hpool->get(hid);
-
-    if ( host == nullptr )
+    if (vm->get_state() ==  VirtualMachine::POWEROFF)
     {
-        error_str = "Could not find host information";
-        return -1;
-    }
+        HostShareCapacity sr;
 
-    if (!host->add_pci(sr))
-    {
-        error_str = "Cannot assign PCI device in host. Check address and free devices";
-        return -1;
+        sr.vmid = vid;
+        sr.pci.push_back(pci);
+
+        host = hpool->get(hid);
+
+        if ( host == nullptr )
+        {
+            error_str = "Could not find host information";
+            return -1;
+        }
+
+        if (!host->add_pci(sr))
+        {
+            error_str = "Cannot assign PCI device in host. Check address and free devices";
+            return -1;
+        }
     }
 
     if ( vm->attach_pci(pci, error_str) == -1 )
@@ -3068,7 +3074,10 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
         return -1;
     }
 
-    hpool->update(host.get());
+    if (host)
+    {
+        hpool->update(host.get());
+    }
 
     close_cp_history(vmpool, vm.get(), VMActions::PCI_ATTACH_ACTION, ra);
 
@@ -3101,7 +3110,8 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
         return -1;
     }
 
-    if (vm->get_state() != VirtualMachine::POWEROFF ||
+    if ((vm->get_state() != VirtualMachine::POWEROFF &&
+         vm->get_state() != VirtualMachine::UNDEPLOYED) ||
         vm->get_lcm_state() != VirtualMachine::LCM_INIT)
     {
         error_str = "VM in wrong state, it has to be in poweroff";
