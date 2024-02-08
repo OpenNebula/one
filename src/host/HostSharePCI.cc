@@ -513,7 +513,7 @@ int HostSharePCI::get_pci_value(const char * name,
 /* ------------------------------------------------------------------------*/
 
 int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
-        const string& dbus, bool clean)
+        const string& dbus, bool bus_index, bool clean)
 {
     string        bus;
     ostringstream oss;
@@ -553,20 +553,27 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
         return -1;
     }
 
-    oss << showbase << internal << setfill('0') << hex << setw(4) << ibus;
-
-    pci_device->replace("VM_BUS", oss.str());
-
     // --------------------- SLOT (PCI_ID +1) -----------------------
-    oss.str("");
-
     pci_device->vector_value("PCI_ID", slot);
 
     slot = slot + 1;
 
+    if ( bus_index )
+    {
+        ibus = slot;
+        slot = 0;
+    }
+
+    // Set PCI attributes
     oss << showbase << internal << setfill('0') << hex << setw(4) << slot;
 
     pci_device->replace("VM_SLOT", oss.str());
+
+    oss.str("");
+
+    oss << showbase << internal << setfill('0') << hex << setw(4) << ibus;
+
+    pci_device->replace("VM_BUS", oss.str());
 
     // ------------------- ADDRESS (BUS:SLOT.0) ---------------------
     oss.str("");

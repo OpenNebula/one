@@ -381,7 +381,8 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
             return -1;
         }
 
-        if ( HostSharePCI::set_pci_address(attr, default_bus, true) != 0 )
+        if ( HostSharePCI::set_pci_address(attr, default_bus,
+                    test_machine_type("q35"), true) != 0 )
         {
             error_str = "Wrong BUS in PCI attribute";
             return -1;

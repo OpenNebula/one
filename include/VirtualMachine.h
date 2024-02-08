@@ -345,7 +345,7 @@ public:
     {
         VectorAttribute * os = obj_template->get("OS");
 
-        if ( os == 0 )
+        if ( os == nullptr )
         {
             return;
         }
@@ -362,13 +362,27 @@ public:
     {
         VectorAttribute * os = obj_template->get("OS");
 
-        if ( os == 0 )
+        if ( os == nullptr )
         {
             return;
         }
 
         os->replace("INITRD", initrd);
     };
+
+    bool test_machine_type(const std::string& machine_type) const
+    {
+        VectorAttribute * os = obj_template->get("OS");
+
+        if ( os == nullptr )
+        {
+            return false;
+        }
+
+        const std::string machine = os->vector_value("MACHINE");
+
+        return machine.find(machine_type) != std::string::npos;
+    }
 
     // ------------------------------------------------------------------------
     // Access to VM locations
