@@ -131,6 +131,11 @@ public:
      *    - VM_FUNCTION: 0
      *    - VM_ADDRESS: BUS:SLOT.0
      *
+     *  When the machine type is q35, SLOT needs to be 0, and devices are attached
+     *  to a different bus. Use param slot_index to select this behavior
+     *    - VM_SLOT: 0
+     *    - VM_BUS: PCI_ID + 1
+     *
      *  Cleans internal attributes:
      *    - NUMA_NODE
      *    - UUID
@@ -139,10 +144,11 @@ public:
      *  @param pci_device to set the address in
      *  @param default_bus if not set in PCI attribute (PCI_PASSTHROUGH_BUS
      *   in oned.conf)
+     *  @param bus_index when true devices uses slot = 0 and bus = pci_id + 1
      *  @return -1 if wrong bus 0 on success
      */
     static int set_pci_address(VectorAttribute * pci_device, const std::string& dbus,
-            bool clean);
+            bool bus_index, bool clean);
 
 private:
     /**

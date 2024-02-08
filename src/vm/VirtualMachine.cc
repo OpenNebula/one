@@ -3678,7 +3678,8 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
         nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
 
-        if ( HostSharePCI::set_pci_address(_new_nic.get(), bus, false) != 0 )
+        if ( HostSharePCI::set_pci_address(_new_nic.get(), bus,
+                    test_machine_type("q35"), false) != 0 )
         {
             err = "Wrong BUS in PCI attribute";
             return -1;
@@ -3828,7 +3829,8 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
 
     nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
 
-    if ( HostSharePCI::set_pci_address(_new_pci.get(), bus, false) != 0 )
+    if ( HostSharePCI::set_pci_address(_new_pci.get(), bus,
+                test_machine_type("q35"), false) != 0 )
     {
         err = "Wrong BUS in PCI attribute";
         return -1;
