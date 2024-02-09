@@ -417,6 +417,7 @@ export const mapUserInputs = (userInputs = {}) =>
 export const arrayToOptions = (list = [], options = {}) => {
   const {
     addEmpty = true,
+    addEmptyValue = '',
     getText = (o) => `${o}`,
     getValue = (o) => `${o}`,
     sorter = OPTION_SORTERS.default,
@@ -431,7 +432,7 @@ export const arrayToOptions = (list = [], options = {}) => {
 
   if (addEmpty) {
     typeof addEmpty === 'string'
-      ? values.unshift({ text: addEmpty, value: '' })
+      ? values.unshift({ text: addEmpty, value: addEmptyValue })
       : values.unshift({ text: '-', value: '' })
   }
 

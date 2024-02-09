@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useHistory } from 'react-router-dom'
 import { Box, CircularProgress, Grid } from '@mui/material'
 import {
-  ModernTv as VmsIcons,
-  EmptyPage as TemplatesIcon,
   BoxIso as ImageIcon,
   NetworkAlt as NetworkIcon,
+  EmptyPage as TemplatesIcon,
+  ModernTv as VmsIcons,
 } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { useAuth, useViews } from 'client/features/Auth'
-import { useGetVmsQuery } from 'client/features/OneApi/vm'
-import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 
-import NumberEasing from 'client/components/NumberEasing'
-import WavesCard from 'client/components/Cards/WavesCard'
-import { stringToBoolean } from 'client/models/Helper'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import WavesCard from 'client/components/Cards/WavesCard'
+import NumberEasing from 'client/components/NumberEasing'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { stringToBoolean } from 'client/models/Helper'
 
 const { VM, VM_TEMPLATE, IMAGE, VNET } = RESOURCE_NAMES
 
 /** @returns {ReactElement} Sunstone dashboard container */
 function SunstoneDashboard() {
-  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { DISABLE_ANIMATIONS } = fireedge
   const { view, hasAccessToResource } = useViews()
   const { push: goTo } = useHistory()
 
@@ -97,7 +98,8 @@ function SunstoneDashboard() {
 }
 
 const ResourceWidget = memo((props) => {
-  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { DISABLE_ANIMATIONS } = fireedge
   const { query, onClick, text, bgColor, icon } = props
   const { data = [], isFetching } = query()
 

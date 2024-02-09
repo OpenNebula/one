@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Settings } from 'luxon'
+import PropTypes from 'prop-types'
 import {
+  Provider,
   ReactElement,
+  createContext,
   memo,
   useContext,
-  useState,
   useEffect,
-  Provider,
-  createContext,
+  useState,
 } from 'react'
-import PropTypes from 'prop-types'
-import root from 'window-or-global'
-import { Settings } from 'luxon'
 import { sprintf } from 'sprintf-js'
+import root from 'window-or-global'
 
+import { LANGUAGES, LANGUAGES_URL } from 'client/constants'
 import { useAuth } from 'client/features/Auth'
 import { isDevelopment } from 'client/utils'
-import { LANGUAGES, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()
 
@@ -88,7 +88,8 @@ const translateString = (word = '', values) => {
  */
 const TranslateProvider = ({ children = [] }) => {
   const [hash, setHash] = useState({})
-  const { settings: { LANG: lang } = {} } = useAuth()
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { LANG: lang } = fireedge
 
   useEffect(() => {
     if (!lang || !LANGUAGES[lang]) return
@@ -162,9 +163,10 @@ Tr.displayName = 'Tr'
 Translate.displayName = 'Translate'
 
 export {
+  Tr,
+  Translate,
   TranslateContext,
   TranslateProvider,
-  Translate,
-  Tr,
-  labelCanBeTranslated,
+  labelCanBeTranslated
 }
+
