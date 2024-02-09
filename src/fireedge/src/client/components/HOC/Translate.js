@@ -167,6 +167,5 @@ export {
   Translate,
   TranslateContext,
   TranslateProvider,
-  labelCanBeTranslated
+  labelCanBeTranslated,
 }
-
