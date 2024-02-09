@@ -17,7 +17,7 @@ digraph OpenNebula {
         fontcolor="white", fontsize= "24.0"];
 
     ANY [ shape="box" ];
-    "ANY \\ {stopped,undeployed,done}" [ shape="box" ];
+    "ANY \\ {poweroff,suspended,done}" [ shape="box" ];
 
     running [ width = 2.5, height = 1 ]
 
@@ -83,7 +83,7 @@ digraph OpenNebula {
         epilog_stop_failure;
         epilog;
         epilog_failure;
-        epilog_undeploy;        
+        epilog_undeploy;
         epilog_undeploy_failure;
         color="white"
     }
@@ -214,7 +214,7 @@ digraph OpenNebula {
     ANY         -> done [label="recover --delete"];
 
 #   recover --recreate
-    "ANY \\ {stopped,undeployed,done}" -> pending [label="recover --recreate"];
+    "ANY \\ {poweroff,suspended,done}" -> pending [label="recover --recreate"];
 
 #   reboot
     running     -> running [label="reboot"];
