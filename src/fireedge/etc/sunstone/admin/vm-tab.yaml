@@ -12,7 +12,7 @@ actions:
   create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: true
   migrate: true
-  migrate_live: true
+  live-migrate: true
   hold: true
   release: true
   suspend: true
@@ -75,7 +75,7 @@ info-tabs:
     capacity_panel:
       enabled: true
       actions:
-        resize_capacity: true
+        resize: true
     vcenter_panel:
       enabled: true
       actions:
@@ -105,17 +105,17 @@ info-tabs:
   storage:
     enabled: true
     actions:
-      attach_disk:
+      disk-attach:
         enabled: true
         not_on:
           - firecracker
       detach_disk: true
-      snapshot_disk_create: true
-      snapshot_disk_rename: true
-      snapshot_disk_revert: true
-      snapshot_disk_delete: true
-      resize_disk: true
-      disk_saveas:
+      disk-snapshot-create: true
+      disk-snapshot-delete: true
+      disk-snapshot-rename: true
+      disk-snapshot-revert: true
+      disk-resize: true
+      disk-saveas:
         enabled: true
         not_on:
           - vcenter
@@ -124,11 +124,11 @@ info-tabs:
   network:
     enabled: true
     actions:
-      attach_nic: true
-      detach_nic: true
-      update_nic: true
-      attach_secgroup: true
-      detach_secgroup: true
+      nic-attach: true
+      nic-detach: true
+      nic-update: true
+      sg-attach: true
+      sg-detach: true
 
   snapshot:
     enabled: true
@@ -146,9 +146,9 @@ info-tabs:
   sched_actions:
     enabled: true
     actions:
-      sched_action_create: true
-      sched_action_update: true
-      sched_action_delete: true
+      sched-create: true
+      sched-update: true
+      sched-delete: true
       charter_create: true
 
   configuration:

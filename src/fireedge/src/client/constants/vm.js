@@ -734,9 +734,9 @@ export const VM_ACTIONS = {
   DEPLOY: 'deploy',
   HOLD: 'hold',
   LOCK: 'lock',
-  MIGRATE_LIVE: 'migrate_live',
-  MIGRATE_POFF_HARD: 'migrate_poff_hard',
-  MIGRATE_POFF: 'migrate_poff',
+  MIGRATE_LIVE: 'live-migrate',
+  MIGRATE_POFF_HARD: 'poweroff-hard-migrate',
+  MIGRATE_POFF: 'poweroff-migrate',
   MIGRATE: 'migrate',
   POWEROFF_HARD: 'poweroff-hard',
   POWEROFF: 'poweroff',
@@ -772,24 +772,24 @@ export const VM_ACTIONS = {
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
 
   // CAPACITY
-  RESIZE_CAPACITY: 'resize_capacity',
+  RESIZE_CAPACITY: 'resize',
 
   // STORAGE
-  ATTACH_DISK: 'attach_disk',
-  DETACH_DISK: 'detach_disk',
-  SNAPSHOT_DISK_CREATE: 'snapshot-disk-create',
-  SNAPSHOT_DISK_RENAME: 'snapshot-disk-rename',
-  SNAPSHOT_DISK_REVERT: 'snapshot-disk-revert',
-  SNAPSHOT_DISK_DELETE: 'snapshot-disk-delete',
-  RESIZE_DISK: 'resize_disk',
-  DISK_SAVEAS: 'disk_saveas',
+  ATTACH_DISK: 'disk-attach',
+  DETACH_DISK: 'disk-detach',
+  SNAPSHOT_DISK_CREATE: 'disk-snapshot-create',
+  SNAPSHOT_DISK_RENAME: 'disk-snapshot-rename',
+  SNAPSHOT_DISK_REVERT: 'disk-snapshot-revert',
+  SNAPSHOT_DISK_DELETE: 'disk-snapshot-delete',
+  RESIZE_DISK: 'disk-resize',
+  DISK_SAVEAS: 'disk-saveas',
 
   // NETWORK
-  ATTACH_NIC: 'attach_nic',
-  DETACH_NIC: 'detach_nic',
-  UPDATE_NIC: 'update_nic',
-  ATTACH_SEC_GROUP: 'attach_secgroup',
-  DETACH_SEC_GROUP: 'detach_secgroup',
+  ATTACH_NIC: 'nic-attach',
+  DETACH_NIC: 'nic-detach',
+  UPDATE_NIC: 'nic-update',
+  ATTACH_SEC_GROUP: 'sg-attach',
+  DETACH_SEC_GROUP: 'sg-detach',
 
   // SNAPSHOT
   SNAPSHOT_CREATE: 'snapshot-create',
@@ -797,9 +797,9 @@ export const VM_ACTIONS = {
   SNAPSHOT_DELETE: 'snapshot-delete',
 
   // SCHEDULING ACTION
-  SCHED_ACTION_CREATE: 'sched_action_create',
-  SCHED_ACTION_UPDATE: 'sched_action_update',
-  SCHED_ACTION_DELETE: 'sched_action_delete',
+  SCHED_ACTION_CREATE: 'sched-add',
+  SCHED_ACTION_UPDATE: 'sched-update',
+  SCHED_ACTION_DELETE: 'sched-delete',
   CHARTER_CREATE: 'charter_create',
 
   // CONFIGURATION
