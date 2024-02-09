@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, string } from 'yup'
-import { arrayToOptions, getObjectSchemaFromFields } from 'client/utils'
 import {
-  T,
-  INPUT_TYPES,
-  SCHEMES,
-  LANGUAGES,
-  DEFAULT_SCHEME,
   DEFAULT_LANGUAGE,
+  DEFAULT_SCHEME,
+  INPUT_TYPES,
+  LANGUAGES,
+  SCHEMES,
+  T,
 } from 'client/constants'
+import { arrayToOptions, getObjectSchemaFromFields } from 'client/utils'
+import { boolean, string } from 'yup'
 
 const SCHEME_FIELD = {
   name: 'SCHEME',
@@ -65,6 +65,68 @@ const DISABLE_ANIMATIONS_FIELD = {
   grid: { md: 12 },
 }
 
-export const FIELDS = [SCHEME_FIELD, LANG_FIELD, DISABLE_ANIMATIONS_FIELD]
+const VIEW_FIELD = ({ views }) => ({
+  name: 'DEFAULT_VIEW',
+  label: T.View,
+  type: INPUT_TYPES.SELECT,
+  values: () =>
+    arrayToOptions(Object.entries(views), {
+      addEmpty: true,
+      getText: ([key]) => key,
+      getValue: ([key]) => key,
+    }),
+  validation: string()
+    .trim()
+    .required()
+    .default(() => ''),
+  grid: { md: 12 },
+})
 
-export const SCHEMA = getObjectSchemaFromFields(FIELDS)
+const ZONE_ENDPOINT_FIELD = ({ zones = [] }) => ({
+  name: 'DEFAULT_ZONE_ENDPOINT',
+  label: T.DefaultZoneEndpoint,
+  type: INPUT_TYPES.SELECT,
+  values: () =>
+    arrayToOptions(
+      zones
+        .map((zone) => ({
+          name: zone.NAME || '',
+          endpoint: zone?.TEMPLATE?.ENDPOINT,
+        }))
+        .filter((zone) => zone.name || zone.endpoint),
+      {
+        addEmpty: true,
+        getText: ({ name }) => name,
+        getValue: ({ endpoint }) => endpoint,
+      }
+    ),
+  validation: string()
+    .trim()
+    .required()
+    .default(() => ''),
+  grid: { md: 12 },
+})
+
+/**
+ * @param {object} props - Props
+ * @param {object} props.views - views.
+ * @param {string} props.userView - default user view.
+ * @param {object[]} props.zones - Redux store.
+ * @returns {object[]} fields
+ */
+export const FIELDS = (props) => [
+  SCHEME_FIELD,
+  LANG_FIELD,
+  VIEW_FIELD(props),
+  ZONE_ENDPOINT_FIELD(props),
+  DISABLE_ANIMATIONS_FIELD,
+]
+
+/**
+ * @param {object} props - Props
+ * @param {object} props.views - views.
+ * @param {string} props.userView - default user view.
+ * @param {object[]} props.zones - Redux store.
+ * @returns {object[]} schema
+ */
+export const SCHEMA = (props) => getObjectSchemaFromFields(FIELDS(props))

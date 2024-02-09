@@ -13,31 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { Box, Grid, CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Grid } from '@mui/material'
 import {
   Server as ClusterIcon,
-  HardDrive as HostIcon,
   Folder as DatastoreIcon,
+  HardDrive as HostIcon,
   NetworkAlt as NetworkIcon,
 } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { memo, ReactElement } from 'react'
 
 import { useAuth } from 'client/features/Auth'
 import { useGetProvisionResourceQuery } from 'client/features/OneApi/provision'
 
+import WavesCard from 'client/components/Cards/WavesCard'
+import NumberEasing from 'client/components/NumberEasing'
 import {
   TotalProviders,
   TotalProvisionsByState,
 } from 'client/components/Widgets'
-import NumberEasing from 'client/components/NumberEasing'
-import WavesCard from 'client/components/Cards/WavesCard'
-import { stringToBoolean } from 'client/models/Helper'
 import { T } from 'client/constants'
+import { stringToBoolean } from 'client/models/Helper'
 
 /** @returns {ReactElement} Provision dashboard container */
 function ProvisionDashboard() {
-  const { settings: { DISABLE_ANIMATIONS } = {} } = useAuth()
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { DISABLE_ANIMATIONS } = fireedge
 
   return (
     <Box

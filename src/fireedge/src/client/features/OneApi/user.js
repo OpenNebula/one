@@ -15,21 +15,21 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/user'
 
+import { actions as authActions } from 'client/features/Auth/slice'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
-import { actions as authActions } from 'client/features/Auth/slice'
 
-import {
-  updateResourceOnPool,
-  removeResourceOnPool,
-  updateUserGroups,
-  updateTemplateOnResource,
-  updateOwnershipOnResource,
-} from 'client/features/OneApi/common'
 import { User } from 'client/constants'
+import {
+  removeResourceOnPool,
+  updateOwnershipOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+  updateUserGroups,
+} from 'client/features/OneApi/common'
 
 const { USER } = ONE_RESOURCES
 const { USER_POOL } = ONE_RESOURCES_POOL
@@ -194,6 +194,59 @@ const userApi = oneApi.injectEndpoints({
        */
       query: (params) => {
         const name = Actions.USER_UPDATE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: USER, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled, getState }) {
+        try {
+          const patchUser = dispatch(
+            userApi.util.updateQueryData(
+              'getUser',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchUsers = dispatch(
+            userApi.util.updateQueryData(
+              'getUsers',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const authUser = getState().auth.user
+
+          if (+authUser?.ID === +params.id) {
+            // optimistic update of the auth user
+            const cloneAuthUser = { ...authUser }
+            updateTemplateOnResource(params)(cloneAuthUser)
+            dispatch(authActions.changeAuthUser({ ...cloneAuthUser }))
+          }
+
+          queryFulfilled.catch(() => {
+            patchUser.undo()
+            patchUsers.undo()
+          })
+        } catch {}
+      },
+    }),
+    loginUser: builder.mutation({
+      /**
+       * Replaces the user template contents.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.user - User name
+       * @param {string} params.token - token
+       * @param {string|number} params.expire - Expire time
+       * @param {number|-1} params.gid - group id
+       * @returns {number} User id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.USER_LOGIN
         const command = { name, ...Commands[name] }
 
         return { params, command }
@@ -537,6 +590,7 @@ export const {
   // Mutations
   useAllocateUserMutation,
   useUpdateUserMutation,
+  useLoginUserMutation,
   useRemoveUserMutation,
   useChangePasswordMutation,
   useChangeAuthDriverMutation,

@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo, useCallback } from 'react'
-import { Paper, debounce } from '@mui/material'
-import { useForm, FormProvider } from 'react-hook-form'
+import { Box, Link, Paper, debounce } from '@mui/material'
+import { ReactElement, useCallback, useEffect, useMemo } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 
-import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useUpdateUserMutation } from 'client/features/OneApi/user'
+import { useAuth, useAuthApi, useViews } from 'client/features/Auth'
+
+import makeStyles from '@mui/styles/makeStyles'
 import { useGeneralApi } from 'client/features/General'
+import { useUpdateUserMutation } from 'client/features/OneApi/user'
+import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
+import { FormWithSchema } from 'client/components/Forms'
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 import {
   FIELDS,
   SCHEMA,
 } from 'client/containers/Settings/ConfigurationUI/schema'
-import { FormWithSchema } from 'client/components/Forms'
 import { jsonToXml } from 'client/models/Helper'
-import { T } from 'client/constants'
+import { Link as RouterLink, generatePath } from 'react-router-dom'
+
+const useStyles = makeStyles((theme) => ({
+  content: {
+    textAlign: 'right',
+  },
+}))
 
 /**
  * Section to change user configuration about UI.
@@ -35,16 +47,23 @@ import { T } from 'client/constants'
  * @returns {ReactElement} Settings configuration UI
  */
 const Settings = () => {
-  const { user, settings } = useAuth()
+  const { user, settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { data: zones = [], isLoading } = useGetZonesQuery()
+
   const { changeAuthUser } = useAuthApi()
   const { enqueueError } = useGeneralApi()
   const [updateUser] = useUpdateUserMutation()
+  const { views, view: userView } = useViews()
 
+  const classes = useStyles()
   const { watch, handleSubmit, ...methods } = useForm({
     reValidateMode: 'onChange',
     defaultValues: useMemo(
-      () => SCHEMA.cast(settings, { stripUnknown: true }),
-      [settings]
+      () =>
+        SCHEMA({ views, userView, zones }).cast(fireedge, {
+          stripUnknown: true,
+        }),
+      [fireedge, zones]
     ),
   })
 
@@ -52,8 +71,7 @@ const Settings = () => {
     debounce(async (formData) => {
       try {
         if (methods?.formState?.isSubmitting) return
-
-        const template = jsonToXml(formData)
+        const template = jsonToXml({ FIREEDGE: formData })
         await updateUser({ id: user.ID, template, replace: 1 })
       } catch {
         enqueueError(T.SomethingWrong)
@@ -81,13 +99,24 @@ const Settings = () => {
       variant="outlined"
       sx={{ p: '1em' }}
     >
-      <FormProvider {...methods}>
-        <FormWithSchema
-          cy={'settings-ui'}
-          fields={FIELDS}
-          legend={T.ConfigurationUI}
-        />
-      </FormProvider>
+      {!isLoading && (
+        <FormProvider {...methods}>
+          <FormWithSchema
+            cy={'settings-ui'}
+            fields={FIELDS({ views, userView, zones })}
+            legend={T.ConfigurationUI}
+          />
+        </FormProvider>
+      )}
+      <Box className={classes.content}>
+        <Link
+          color="secondary"
+          component={RouterLink}
+          to={generatePath(PATH.SYSTEM.USERS.DETAIL, { id: user.ID })}
+        >
+          <Translate word={T.LinkOtherConfigurationsUser} values={user.ID} />
+        </Link>
+      </Box>
     </Paper>
   )
 }

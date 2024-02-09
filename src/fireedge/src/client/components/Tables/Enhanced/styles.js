@@ -22,6 +22,13 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     flexDirection: 'column',
     overflow: 'auto',
   },
+  rootWithoutHeight: {
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    maxHeight: '14rem',
+    marginTop: '1rem',
+  },
   toolbar: {
     ...typography.body1,
     marginBottom: '1em',
@@ -83,6 +90,38 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
       '&.selected': {
         border: `2px solid ${palette.secondary.main}`,
       },
+    },
+  },
+  bodyWithoutGap: {
+    overflow: 'auto',
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    gridAutoRows: 'max-content',
+    '& > [role=row]': {
+      padding: '0.8em',
+      cursor: 'pointer',
+      marginBottom: '1rem',
+      color: palette.text.primary,
+      /**
+       * @param {object} props - Properties of the styles
+       * @returns {object} - Background color
+       */
+      backgroundColor: (props) =>
+        props.readOnly ? palette.action.hover : palette.background.paper,
+      fontWeight: typography.fontWeightRegular,
+      fontSize: '1em',
+      border: `1px solid ${palette.divider}`,
+      borderRadius: '0.5em',
+      display: 'flex',
+      '&:hover': {
+        backgroundColor: palette.action.hover,
+      },
+      '&.selected': {
+        border: `2px solid ${palette.secondary.main}`,
+      },
+    },
+    '& > [role=row] p': {
+      margin: '0rem',
     },
   },
   noDataMessage: {

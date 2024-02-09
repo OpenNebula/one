@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useCallback } from 'react'
-import TrashIcon from 'iconoir-react/dist/Trash'
-import { styled, Paper, Stack, Box, Typography, TextField } from '@mui/material'
+import { Box, Paper, Stack, TextField, Typography, styled } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
+import TrashIcon from 'iconoir-react/dist/Trash'
+import { ReactElement, useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { useAuth } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import {
   useAddLabelMutation,
   useRemoveLabelMutation,
 } from 'client/features/OneApi/auth'
-import { useAuth } from 'client/features/Auth'
-import { useGeneralApi } from 'client/features/General'
 import { useSearch } from 'client/hooks'
 
-import { StatusChip } from 'client/components/Status'
 import { SubmitButton } from 'client/components/FormControl'
-import { getColorFromString } from 'client/models/Helper'
-import { Translate, Tr } from 'client/components/HOC'
+import { Tr, Translate } from 'client/components/HOC'
+import { StatusChip } from 'client/components/Status'
 import { T } from 'client/constants'
+import { getColorFromString } from 'client/models/Helper'
 
 const NEW_LABEL_ID = 'new-label'
 
@@ -120,7 +120,7 @@ const Settings = () => {
           <Translate word={T.Labels} />
         </Typography>
       </Box>
-      <Stack height={1} gap="0.5rem" p="0.5rem" overflow="auto">
+      <Stack gap="0.5rem" p="0.5rem" overflow="auto">
         {labels.length === 0 && (
           <Typography variant="subtitle2">
             <Translate word={T.NoLabelsOnList} />

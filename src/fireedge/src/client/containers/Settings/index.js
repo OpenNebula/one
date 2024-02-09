@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Box, Divider, Typography } from '@mui/material'
 import { ReactElement } from 'react'
-import { Typography, Divider, Box } from '@mui/material'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
 import AuthenticationSection from 'client/containers/Settings/Authentication'
+import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
 import LabelsSection from 'client/containers/Settings/LabelsSection'
+import LoginTokenSection from 'client/containers/Settings/LoginToken'
 import ShowbackSection from 'client/containers/Settings/Showback'
 
 import { useSystemData } from 'client/features/Auth'
@@ -41,13 +42,14 @@ const Settings = () => {
       <Box
         display="grid"
         gridTemplateColumns={{ sm: '1fr', md: 'repeat(2, minmax(49%, 1fr))' }}
-        gridTemplateRows="minmax(0, 18em)"
+        gridTemplateRows="minmax(0, 28em)"
         gap="1em"
       >
         <ConfigurationUISection />
         <LabelsSection />
         <AuthenticationSection />
         {adminGroup ? <ShowbackSection /> : null}
+        <LoginTokenSection />
       </Box>
     </>
   )

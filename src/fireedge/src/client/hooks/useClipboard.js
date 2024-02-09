@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 /** @enum {string} Clipboard state */
 export const CLIPBOARD_STATUS = {
@@ -54,11 +54,22 @@ const useClipboard = ({ tooltipDelay = 2000 } = {}) => {
   const copy = useCallback(
     async (text) => {
       try {
-        // Use the Async Clipboard API when available.
-        // Requires a secure browsing context (i.e. HTTPS)
-        !navigator?.clipboard && setState(ERROR)
+        if (window.isSecureContext) {
+          // Use the Async Clipboard API when available.
+          // Requires a secure browsing context (i.e. HTTPS)
 
-        await navigator.clipboard.writeText(String(text))
+          !navigator?.clipboard && setState(ERROR)
+          await navigator.clipboard.writeText(String(text))
+        } else {
+          const textArea = document.createElement('textarea')
+          textArea.value = String(text)
+          textArea.style.opacity = 0
+          document.body.appendChild(textArea)
+          textArea.focus()
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+        }
 
         setState(COPIED)
 
