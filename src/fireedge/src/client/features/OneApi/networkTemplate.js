@@ -318,7 +318,7 @@ const vNetworkTemplateApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, id) => [
+      invalidatesTags: (_, __, { id }) => [
         { type: VNTEMPLATE, id },
         VNTEMPLATE_POOL,
       ],
