@@ -255,6 +255,7 @@ const LoginToken = () => {
             size="small"
             onClick={handleSubmit(handleCreateLoginToken)}
             className={classes.buttonSubmit}
+            data-cy="addLoginToken"
           >
             {Tr(T.GetNewToken)}
           </Button>
