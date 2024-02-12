@@ -1390,6 +1390,10 @@ module.exports = {
   Overcommitment: 'Overcommitment',
   /* Host schema - template */
   ISOLCPUS: 'Isolated CPUS',
+  FreeCPU: 'Free CPU',
+  UsedCPU: 'Used CPU',
+  FreeMemory: 'Free Memory',
+  UsedMemory: 'Used memory',
   TemplateToIsolateCpus:
     'Comma separated list of CPU IDs that will be isolated from the NUMA scheduler',
 

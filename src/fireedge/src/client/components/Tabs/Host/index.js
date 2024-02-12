@@ -24,6 +24,8 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Host/Info'
+import Graph from 'client/components/Tabs/Host/Graphs'
+import PCI from 'client/components/Tabs/Host/PCI'
 import Numa from 'client/components/Tabs/Host/Numa'
 import Vms from 'client/components/Tabs/Host/Vms'
 import Wilds from 'client/components/Tabs/Host/Wilds'
@@ -32,9 +34,11 @@ import Zombies from 'client/components/Tabs/Host/Zombies'
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    graphs: Graph,
     vms: Vms,
     wild: Wilds,
     numa: Numa,
+    pci: PCI,
     zombies: Zombies,
   }[tabName])
 

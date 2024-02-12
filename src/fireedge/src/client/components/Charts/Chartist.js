@@ -19,6 +19,7 @@ import { JSXElementConstructor, useMemo } from 'react'
 import { ArgumentScale, ValueScale } from '@devexpress/dx-react-chart'
 import {
   ArgumentAxis,
+  Legend,
   Chart,
   LineSeries,
   ValueAxis,
@@ -78,9 +79,12 @@ const calculateDerivative = (data) =>
  * @param {string} props.name - Chartist name
  * @param {string} props.filter - Chartist filter
  * @param {string} props.x - Chartist X
- * @param {string} props.y - Chartist X
+ * @param {Array|string} props.y - Chartist Y
  * @param {Function} props.interpolationY - Chartist interpolation Y
  * @param {boolean} props.derivative - Display delta values
+ * @param {boolean} props.enableLegend - Enable graph legend
+ * @param {Array} props.legendNames - List of legend names
+ * @param {Array} props.lineColors - Array of line colors
  * @returns {JSXElementConstructor} Chartist component
  */
 const Chartist = ({
@@ -91,23 +95,28 @@ const Chartist = ({
   y = '',
   interpolationY = (value) => value,
   derivative = false,
+  enableLegend = false,
+  legendNames = [],
+  lineColors = [],
 }) => {
   const classes = useStyles()
 
   const dataChart = filter?.length
-    ? useMemo(
-        () =>
-          data
-            ?.filter(
-              (point) =>
-                !!Object.keys(point).find((key) => filter.includes(key))
-            )
-            .map((point, i) => ({
-              x: x === 'TIMESTAMP' ? new Date(+point[x] * 1000) : +point[x],
-              y: Math.round(+point[y]),
-            })),
-        [data]
-      )
+    ? useMemo(() => {
+        let filteredData = data
+        if (filter.length) {
+          filteredData = data.filter((point) =>
+            Object.keys(point).some((key) => filter.includes(key))
+          )
+        }
+
+        return filteredData.map((point) => ({
+          x: x === 'TIMESTAMP' ? new Date(+point[x] * 1000) : +point[x],
+          ...(Array.isArray(y)
+            ? Object.fromEntries(y.map((pt) => [pt, Math.round(+point[pt])]))
+            : { y: Math.round(+point[y]) }),
+        }))
+      }, [data])
     : []
 
   const processedData = derivative ? calculateDerivative(dataChart) : dataChart
@@ -134,7 +143,21 @@ const Chartist = ({
               <ArgumentAxis showLine={true} />
               <ValueScale />
               <ValueAxis showLine={true} tickFormat={() => interpolationY} />
-              <LineSeries name={name} valueField="y" argumentField="x" />
+              {Array.isArray(y) ? (
+                y.map((yValue, index) => (
+                  <LineSeries
+                    key={`${yValue}-${index}`}
+                    name={legendNames?.[index] ?? ''}
+                    valueField={yValue}
+                    argumentField="x"
+                    {...(lineColors?.[index] && { color: lineColors?.[index] })}
+                  />
+                ))
+              ) : (
+                <LineSeries name={name} valueField="y" argumentField="x" />
+              )}
+              {enableLegend && <Legend position="bottom" />}
+
               <ZoomAndPan />
             </Chart>
           )}
@@ -149,9 +172,15 @@ Chartist.propTypes = {
   filter: PropTypes.arrayOf(PropTypes.string),
   data: PropTypes.array,
   x: PropTypes.string,
-  y: PropTypes.string,
+  y: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.string,
+  ]),
   interpolationY: PropTypes.func,
   derivative: PropTypes.bool,
+  enableLegend: PropTypes.bool,
+  legendNames: PropTypes.arrayOf(PropTypes.string),
+  lineColors: PropTypes.arrayOf(PropTypes.string),
 }
 
 Chartist.displayName = 'Chartist'

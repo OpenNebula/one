@@ -27,6 +27,15 @@
  * @param {string} groupBy - The attribute by which data should be grouped (e.g., 'NAME', 'OID').
  * @returns {Array<object>} An array of processed data items, each structured with properties for every metric from every dataset.
  */
+import _ from 'lodash'
+
+/**
+ * @param {Array} uniqueGroups - Groups to sort by
+ * @param {Array} datasets - All datasets in pool
+ * @param {Array} visibleDatasetIDs - Dataset ID's to render
+ * @param {string} groupBy - Group data by key
+ * @returns {object} - Processed dataset
+ */
 export const processDataForChart = (
   uniqueGroups,
   datasets,
@@ -94,6 +103,7 @@ const findFirstArray = (obj, depth = 0, maxDepth = Infinity) => {
  * @param {Array} metricKeys - An array of keys to aggregate for the metrics.
  * @param {Function} labelingFunction - A function to generate the label for the dataset.
  * @param {number} depth - Depth of recursion when finding data array.
+ * @param {string} dataArrayPath - Path to data array in API response
  * @returns {object} - The transformed dataset.
  */
 export const transformApiResponseToDataset = (
@@ -101,9 +111,12 @@ export const transformApiResponseToDataset = (
   keyMap,
   metricKeys,
   labelingFunction,
-  depth = 0
+  depth = 0,
+  dataArrayPath
 ) => {
-  const dataArray = findFirstArray(apiResponse, depth)
+  const dataArray = dataArrayPath
+    ? _.get(apiResponse, dataArrayPath)
+    : findFirstArray(apiResponse, depth)
 
   const flattenObject = (obj, prefix = '') =>
     Object.keys(obj).reduce((acc, k) => {
