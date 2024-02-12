@@ -3205,10 +3205,34 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     // Parse backup configuration (if not doing a backup). Uses current value of
     // BACKUP_VOLATILE attribute.
     // -------------------------------------------------------------------------
-    if ( lcm_state != BACKUP && lcm_state != BACKUP_POWEROFF)
+    VectorAttribute * backup_conf = tmpl->get("BACKUP_CONFIG");
+
+    if ( backup_conf != nullptr && lcm_state != BACKUP && lcm_state != BACKUP_POWEROFF)
     {
         bool increment = disks.backup_increment(_backups.do_volatile()) &&
                             !has_snapshots();
+
+        string smode        = backup_conf->vector_value("MODE");
+        Backups::Mode bmode = Backups::str_to_mode(smode);
+
+        if (!smode.empty() && !increment && bmode == Backups::INCREMENT)
+        {
+            err = "VM cannot use backup increment mode";
+
+            if (has_snapshots())
+            {
+                err += ", it has snapshots.";
+            }
+            else
+            {
+                err += ", it has disks snapshots or disks are not qcow2.";
+            }
+
+            NebulaLog::log("ONE", Log::ERROR, err);
+            return -1;
+        }
+
+        backup_conf = nullptr;
 
         if ( _backups.parse(tmpl, increment, append, err) != 0 )
         {
