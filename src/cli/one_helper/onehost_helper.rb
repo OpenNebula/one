@@ -802,6 +802,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         numa_nodes.each do |node|
             mon_node = monitoring.find {|x| x['NODE_ID'] == node['NODE_ID'] }
 
+            next if mon_node.nil?
+
             node['MEMORY']['FREE'] = mon_node['MEMORY']['FREE']
             node['MEMORY']['USED'] = mon_node['MEMORY']['USED']
 
