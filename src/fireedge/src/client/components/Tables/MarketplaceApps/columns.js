@@ -33,7 +33,7 @@ const COLUMNS = [
     accessor: 'TEMPLATE.LABELS',
     filter: 'includesSome',
   },
-  { Header: T.RegistrationTime, id: 'time', accessor: 'REGTIME' },
+  { Header: T.Version, id: 'version', accessor: 'VERSION' },
   { Header: T.Marketplace, id: 'marketplace', accessor: 'MARKETPLACE' },
   { Header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
 ]

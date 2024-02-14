@@ -21,17 +21,12 @@ import { Typography } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
-import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { rowStyles } from 'client/components/Tables/styles'
 
 import { getState, getType } from 'client/models/MarketplaceApp'
-import {
-  timeFromMilliseconds,
-  getUniqueLabels,
-  getColorFromString,
-} from 'client/models/Helper'
+import { getUniqueLabels, getColorFromString } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import {
   T,
@@ -63,7 +58,7 @@ const MarketplaceAppCard = memo(
       UNAME,
       GNAME,
       LOCK,
-      REGTIME,
+      VERSION,
       MARKETPLACE,
       ZONE_ID,
       SIZE,
@@ -73,7 +68,6 @@ const MarketplaceAppCard = memo(
     const state = useMemo(() => getState(app), [app?.STATE])
     const { color: stateColor, name: stateName } = state
 
-    const time = useMemo(() => timeFromMilliseconds(+REGTIME), [REGTIME])
     const type = useMemo(() => getType(app), [app?.TYPE])
 
     const labels = useMemo(
@@ -104,8 +98,10 @@ const MarketplaceAppCard = memo(
           </div>
           <div className={classes.caption}>
             <span data-cy="id">{`#${ID}`}</span>
-            <span title={useMemo(() => time.toFormat('ff'), [REGTIME])}>
-              <Timer translateWord={T.RegisteredAt} initial={time} />
+            <span title={`${Tr(T.Version)}: ${VERSION}`}>
+              <span data-cy="version">
+                {Tr(T.Version)}: {VERSION}
+              </span>
             </span>
             <span title={`${Tr(T.Owner)}: ${UNAME}`}>
               <User />
