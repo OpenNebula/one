@@ -74,7 +74,7 @@ const InformationPanel = ({ app = {}, actions }) => {
         generatePath(PATH.STORAGE.MARKETPLACES.DETAIL, { id: MARKETPLACE_ID }),
     },
     {
-      name: T.StartTime,
+      name: T.RegistrationTime,
       value: timeToString(REGTIME),
     },
     { name: T.Type, value: <StatusChip text={typeName} /> },
