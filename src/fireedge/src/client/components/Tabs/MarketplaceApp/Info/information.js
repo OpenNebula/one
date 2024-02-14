@@ -22,7 +22,7 @@ import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getType, getState } from 'client/models/MarketplaceApp'
-import { timeToString, levelLockToString } from 'client/models/Helper'
+import { levelLockToString } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { T, MARKETPLACE_APP_ACTIONS, MarketplaceApp } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
@@ -38,17 +38,8 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 const InformationPanel = ({ app = {}, actions }) => {
   const [rename] = useRenameAppMutation()
 
-  const {
-    ID,
-    NAME,
-    REGTIME,
-    LOCK,
-    MARKETPLACE,
-    MARKETPLACE_ID,
-    SIZE,
-    FORMAT,
-    VERSION,
-  } = app
+  const { ID, NAME, LOCK, MARKETPLACE, MARKETPLACE_ID, SIZE, FORMAT, VERSION } =
+    app
 
   const typeName = getType(app)
   const { name: stateName, color: stateColor } = getState(app)
@@ -72,10 +63,6 @@ const InformationPanel = ({ app = {}, actions }) => {
       link:
         !Number.isNaN(+MARKETPLACE_ID) &&
         generatePath(PATH.STORAGE.MARKETPLACES.DETAIL, { id: MARKETPLACE_ID }),
-    },
-    {
-      name: T.RegistrationTime,
-      value: timeToString(REGTIME),
     },
     { name: T.Type, value: <StatusChip text={typeName} /> },
     { name: T.Size, value: prettyBytes(SIZE, 'MB') },
