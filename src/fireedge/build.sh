@@ -36,6 +36,10 @@ activate = 1
 EOF
 
     export OPENSSL_CONF="/tmp/openssl.conf"
+
+    if node --help | grep -q openssl-legacy-provider; then
+        export NODE_OPTIONS="--openssl-legacy-provider"
+    fi
 }
 
 dependencies() {
