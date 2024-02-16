@@ -16,6 +16,8 @@
 import { memo, useMemo, useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import {
+  Autocomplete,
+  TextField,
   Grid,
   FormControl,
   InputLabel,
@@ -53,6 +55,7 @@ import {
   HybridInputField,
   ResourceIDAutocomplete,
 } from 'client/components/Tabs/Quota/Components/helpers/subcomponents'
+import { useGetOneConfigQuery } from 'client/features/OneApi/system'
 
 /**
  * QuotaControls Component
@@ -82,6 +85,38 @@ export const QuotaControls = memo(
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null)
     const [touchedFields, setTouchedFields] = useState({})
     const { enqueueError, enqueueSuccess } = useGeneralApi()
+    const { data: { QUOTA_VM_ATTRIBUTE: genericQuotas = [] } = {} } =
+      useGetOneConfigQuery()
+
+    const formatGenericQuotas = (
+      Array.isArray(genericQuotas) ? genericQuotas : [genericQuotas]
+    )?.reduce((acc, quota) => {
+      acc.push(
+        {
+          id: quota,
+          displayName: quota.charAt(0) + quota.slice(1).toLowerCase(),
+        },
+        {
+          id: `RUNNING_${quota?.toUpperCase()}`,
+          displayName: `Running ${
+            quota.charAt(0) + quota.slice(1).toLowerCase()
+          }`,
+        }
+      )
+
+      return acc
+    }, [])
+
+    const extendedQuotaIdentifiers = { ...quotaIdentifiers }
+
+    if (!extendedQuotaIdentifiers.VM) {
+      extendedQuotaIdentifiers.VM = []
+    }
+
+    extendedQuotaIdentifiers.VM = [
+      ...extendedQuotaIdentifiers.VM,
+      ...formatGenericQuotas,
+    ]
 
     const [updateQuota] = groups
       ? useUpdateGroupQuotaMutation()
@@ -258,36 +293,59 @@ export const QuotaControls = memo(
           </Grid>
 
           <Grid item>
-            <FormControl
-              fullWidth
-              variant="outlined"
-              style={{ height: 'auto', maxHeight: '100px', overflow: 'auto' }}
+            <Autocomplete
+              value={
+                extendedQuotaIdentifiers[selectedType]?.find(
+                  (item) => item.id === state.selectedIdentifier
+                ) || null
+              }
+              onChange={(_event, newValue) => {
+                actions.setSelectedIdentifier(newValue ? newValue.id : '')
+              }}
+              options={extendedQuotaIdentifiers[selectedType] || []}
+              getOptionLabel={(option) => option.displayName}
+              style={{ width: '100%', height: '100%' }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Identifier"
+                  variant="outlined"
+                  inputProps={{
+                    ...params.inputProps,
+                    'data-cy': 'qc-identifier-selector-input',
+                  }}
+                  InputProps={{
+                    ...params.InputProps,
+                    style: { height: '56px' },
+                  }}
+                  style={{
+                    height: '56px',
+                    maxHeight: '56px',
+                    overflow: 'auto',
+                  }}
+                />
+              )}
+              ListboxProps={{
+                style: { maxHeight: 200, overflow: 'auto' },
+              }}
+              renderOption={(props, option) => (
+                <MenuItem
+                  {...props}
+                  key={option.id}
+                  value={option.id}
+                  data-cy={`qc-identifier-selector-${option.displayName
+                    .toLowerCase()
+                    .split(' ')
+                    .join('')}`}
+                  style={{
+                    opacity: state.selectedIdentifier === option.id ? 1 : 0.5,
+                  }}
+                >
+                  {option.displayName}
+                </MenuItem>
+              )}
               data-cy="qc-identifier-selector"
-            >
-              <InputLabel>Identifier</InputLabel>
-              <Select
-                value={state.selectedIdentifier || ''}
-                inputProps={{ 'data-cy': 'qc-identifier-selector-input' }}
-                onChange={(e) => actions.setSelectedIdentifier(e.target.value)}
-                label="Identifiers"
-              >
-                {quotaIdentifiers[selectedType]?.map(({ id, displayName }) => (
-                  <MenuItem
-                    key={id}
-                    value={id}
-                    data-cy={`qc-identifier-selector-${displayName
-                      .toLowerCase()
-                      .split(' ')
-                      .join('')}`}
-                    style={{
-                      opacity: state.selectedIdentifier === id ? 1 : 0.5,
-                    }}
-                  >
-                    {displayName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            />
           </Grid>
           <Grid item>
             <HybridInputField

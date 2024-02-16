@@ -119,6 +119,7 @@ export const ChartRenderer = ({
     () => (coordinateType === 'POLAR' ? FormatPolarDataset(datasets) : null),
     [coordinateType, datasets]
   )
+
   const chartConfig = useMemo(
     () =>
       GetChartConfig(
@@ -223,6 +224,10 @@ export const ChartRenderer = ({
                 layout="vertical"
                 verticalAlign="middle"
                 wrapperStyle={{
+                  padding: '0.2rem',
+                  overflow: 'auto',
+                  height: '40%',
+                  width: '20%',
                   top: -60,
                   left: 0,
                   lineHeight: '30px',
