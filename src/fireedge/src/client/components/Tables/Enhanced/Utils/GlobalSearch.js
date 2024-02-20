@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, useCallback } from 'react'
+import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { alpha, debounce, InputBase } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { Search as SearchIcon } from 'iconoir-react'
-import {
-  UseGlobalFiltersInstanceProps,
-  UseGlobalFiltersState,
-} from 'react-table'
+import { UseGlobalFiltersInstanceProps } from 'react-table'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -68,22 +65,26 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
  * @param {string} [props.className] - Class name for the container
  * @param {object} props.searchProps - Props for search input
  * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
+ * @param {string} props.value - Filter value
+ * @param {Function} props.setValue - Set filter value
  * @returns {ReactElement} Component JSX
  */
-const GlobalSearch = ({ className, useTableProps, searchProps }) => {
+const GlobalSearch = ({
+  className,
+  useTableProps,
+  searchProps,
+  value,
+  setValue,
+}) => {
   const classes = useStyles()
-
-  const { setGlobalFilter, state } = useTableProps
-
-  /** @type {UseGlobalFiltersState} */
-  const { globalFilter } = state
-
-  const [value, setValue] = useState(() => globalFilter)
+  const { setGlobalFilter } = useTableProps
 
   const handleChange = useCallback(
-    // Set undefined to remove the filter entirely
-    debounce((newFilter) => setGlobalFilter(newFilter || undefined), 200),
-    [setGlobalFilter]
+    debounce((newFilter) => {
+      setValue(newFilter)
+      setGlobalFilter(newFilter || undefined)
+    }, 200),
+    [setValue, setGlobalFilter]
   )
 
   return (
@@ -110,6 +111,8 @@ GlobalSearch.propTypes = {
   className: PropTypes.string,
   useTableProps: PropTypes.object.isRequired,
   searchProps: PropTypes.object,
+  value: PropTypes.string,
+  setValue: PropTypes.func,
 }
 
 export default GlobalSearch

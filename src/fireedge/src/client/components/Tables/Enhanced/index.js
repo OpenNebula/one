@@ -162,6 +162,7 @@ const EnhancedTable = ({
   } = useTableProps
 
   const [stateData, setStateData] = useState(data)
+  const [filterValue, setFilterValue] = useState(state.globalFilter)
 
   const gotoRowPage = async (row) => {
     const pageIdx = Math.floor(row.index / pageSize)
@@ -173,6 +174,21 @@ const EnhancedTable = ({
       ?.querySelector(`.selected[role='row'][data-cy$='-${row.id}']`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
+
+  // React-table bug => https://github.com/TanStack/table/issues/5176
+  // This safely deselects rows
+  const safeToggleRowSelected =
+    (row) =>
+    (rowSelected = false) => {
+      if (typeof row?.id !== 'undefined') {
+        if (state?.globalFilter !== '') {
+          setFilterValue(undefined)
+          setGlobalFilter(undefined)
+        }
+
+        propsToggleRow(row?.id, rowSelected)
+      }
+    }
 
   const selectedRowStates = useMemo(
     () =>
@@ -188,6 +204,10 @@ const EnhancedTable = ({
     return selectedIds
       .map((id) => preGlobalFilteredRowsById[id])
       .filter(Boolean)
+      .map((row) => ({
+        ...row,
+        toggleRowSelected: safeToggleRowSelected(row),
+      }))
   }, [state.selectedRowIds, selectedRowStates])
 
   useEffect(() => {
@@ -292,6 +312,8 @@ const EnhancedTable = ({
           className={styles.search}
           useTableProps={useTableProps}
           searchProps={searchProps}
+          value={filterValue}
+          setValue={setFilterValue}
         />
 
         {/* FILTERS */}
