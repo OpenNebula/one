@@ -67,7 +67,7 @@ const ImageStorageTab = ({ tabProps: { actions } = {}, id }) => {
             />
           ))
         ) : (
-          <EmptyTab label={T.NotSnapshotCurrenty} />
+          <EmptyTab label={T.NotSnapshotCurrently} />
         )}
       </Stack>
     </div>

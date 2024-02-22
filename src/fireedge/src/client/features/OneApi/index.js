@@ -80,7 +80,7 @@ const PROVISION_RESOURCES = {
 const oneApi = createApi({
   reducerPath: 'oneApi',
   baseQuery: async (
-    { params = {}, command, needStateInMeta = false },
+    { params = {}, command, needStateInMeta = false, showNotification = true },
     { getState, dispatch, signal }
   ) => {
     const paramsExtensible = { ...params }
@@ -106,7 +106,9 @@ const oneApi = createApi({
 
         return { data: {}, meta: { state } } // 204 returns no data so we need to explicitly mark this as a success
       }
+
       status !== httpCodes.unauthorized.id &&
+        showNotification &&
         dispatch(
           enqueueSnackbar({
             key: generateKey(),

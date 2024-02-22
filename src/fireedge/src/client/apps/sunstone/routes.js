@@ -132,7 +132,7 @@ export const getEndpointsByView = (views, endpoints = []) => {
         return !!routes.length && { ...restOfProps, routes }
       }
 
-      return hasRoutePermission(restOfProps)
+      return hasRoutePermission(restOfProps) && { ...restOfProps }
     })
     .filter(Boolean)
 }

@@ -33,6 +33,7 @@ import SecurityGroupsTable from 'client/components/Tables/SecurityGroups'
 import ServiceTemplatesTable from 'client/components/Tables/ServiceTemplates'
 import ServicesTable from 'client/components/Tables/Services'
 import SkeletonTable from 'client/components/Tables/Skeleton'
+import SupportTable from 'client/components/Tables/Support'
 import UsersTable from 'client/components/Tables/Users'
 import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 import VNetworksTable from 'client/components/Tables/VNetworks'
@@ -67,6 +68,7 @@ export {
   ServiceTemplatesTable,
   ServicesTable,
   SkeletonTable,
+  SupportTable,
   UsersTable,
   VDCsTable,
   VNetworkTemplatesTable,

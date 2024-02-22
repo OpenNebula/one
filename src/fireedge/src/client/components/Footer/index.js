@@ -15,12 +15,15 @@
  * ------------------------------------------------------------------------- */
 import { memo } from 'react'
 
-import { styled, Link, Typography } from '@mui/material'
+import { Link, Typography, styled } from '@mui/material'
 
-import { useGetOneVersionQuery } from 'client/features/OneApi/system'
-import { StatusChip } from 'client/components/Status'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { Translate } from 'client/components/HOC'
+import { StatusChip } from 'client/components/Status'
 import { BY, T } from 'client/constants'
+import { useCheckOfficialSupportQuery } from 'client/features/OneApi/support'
+import { useGetOneVersionQuery } from 'client/features/OneApi/system'
+import { Link as RouterLink, generatePath } from 'react-router-dom'
 
 const FooterBox = styled('footer')(({ theme }) => ({
   color: theme.palette.primary.contrastText,
@@ -30,7 +33,7 @@ const FooterBox = styled('footer')(({ theme }) => ({
   left: 'auto',
   bottom: 0,
   right: 0,
-  zIndex: theme.zIndex.appBar,
+  // zIndex: theme.zIndex.appBar,
   textAlign: 'center',
   padding: theme.spacing(0.6),
 }))
@@ -44,6 +47,7 @@ const HeartIcon = styled('span')(({ theme }) => ({
 }))
 
 const Footer = memo(() => {
+  const { isError, isSuccess } = useCheckOfficialSupportQuery()
   const { data: version } = useGetOneVersionQuery()
 
   return (
@@ -59,8 +63,26 @@ const Footer = memo(() => {
             forceWhiteColor
             stateColor="secondary"
             text={version}
-            mx={1}
+            mx={0.5}
           />
+        )}
+        {isError && (
+          <StatusChip
+            forceWhiteColor
+            stateColor="error"
+            text={T.NotOfficiallySupport}
+            mx={0.5}
+          />
+        )}
+        {isSuccess && (
+          <Link component={RouterLink} to={generatePath(PATH.SUPPORT)}>
+            <StatusChip
+              forceWhiteColor
+              stateColor="success"
+              text={T.OfficiallySupport}
+              mx={0.5}
+            />
+          </Link>
         )}
       </Typography>
     </FooterBox>

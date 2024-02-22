@@ -13,47 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
+import { ReactElement, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+import { Stack } from '@mui/material'
+
+import Information from 'client/components/Tabs/Support/Info/InformationPanel'
+
+import { useGetTicketMutation } from 'client/features/OneApi/support'
 
 /**
- * Renders mainly Vms tab.
+ * Renders mainly information tab.
  *
  * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
+ * @param {object} props.tabProps - Tab information
+ * @param {string} props.id - Support ticket ID
+ * @returns {ReactElement} Information tab
  */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+const SupportTicketInfoTab = ({ tabProps = {}, id }) => {
+  const { information_panel: informationPanel } = tabProps
+  const [getTicket, { data = undefined }] = useGetTicketMutation()
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
+  useEffect(() => getTicket(id).unwrap(), [id])
 
   return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
+      padding={{ sm: '0.8em' }}
+    >
+      {informationPanel?.enabled && <Information ticket={data} />}
+    </Stack>
   )
 }
 
-VmsTab.propTypes = {
+SupportTicketInfoTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
 }
 
-VmsTab.displayName = 'VmsTab'
+SupportTicketInfoTab.displayName = 'SupportTicketInfoTab'
 
-export default VmsTab
+export default SupportTicketInfoTab

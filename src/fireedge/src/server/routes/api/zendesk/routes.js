@@ -17,7 +17,7 @@
 const {
   httpMethod,
   from: fromData,
-} = require('server/utils/constants/defaults')
+} = require('../../../utils/constants/defaults')
 
 const { POST, GET, PUT } = httpMethod
 const basepath = '/zendesk'
@@ -102,7 +102,7 @@ module.exports = {
       },
     },
     [ZENDESK_LIST]: {
-      path: `${basepath}/:id`,
+      path: `${basepath}`,
       httpMethod: GET,
       auth: true,
     },

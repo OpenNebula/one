@@ -15,10 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 
+import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 import { logout } from 'client/features/Auth/slice'
 import * as actions from 'client/features/General/actions'
 import { generateKey } from 'client/utils'
-import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 
 const initial = {
   zone: 0,

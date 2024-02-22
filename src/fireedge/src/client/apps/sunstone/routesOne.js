@@ -43,6 +43,7 @@ import {
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
   KeyAlt as ACLIcon,
+  HeadsetHelp as SupportIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -293,6 +294,10 @@ const CreateACLs = loadable(() => import('client/containers/ACLs/Create'), {
   ssr: false,
 })
 
+const Support = loadable(() => import('client/containers/Support'), {
+  ssr: false,
+})
+
 export const PATH = {
   INSTANCE: {
     VMS: {
@@ -420,6 +425,7 @@ export const PATH = {
       CREATE: `/${RESOURCE_NAMES.ACL}/create`,
     },
   },
+  SUPPORT: `/${RESOURCE_NAMES.SUPPORT}`,
 }
 
 const ENDPOINTS = [
@@ -845,6 +851,13 @@ const ENDPOINTS = [
         Component: ACLs,
       },
     ],
+  },
+  {
+    title: T.Support,
+    path: PATH.SUPPORT,
+    sidebar: true,
+    icon: SupportIcon,
+    Component: Support,
   },
 ]
 

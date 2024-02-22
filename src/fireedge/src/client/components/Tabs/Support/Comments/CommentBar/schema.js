@@ -13,47 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
-import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+import { string, object } from 'yup'
+// eslint-disable-next-line no-unused-vars
+import { Field, ObjectSchema, getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
+
+/** @type {Field} Body message field */
+export const BODY = {
+  name: 'BODY',
+  label: `${T.Description} (${T.WeSupportMarkdown})`,
+  type: INPUT_TYPES.TEXT,
+  multiline: true,
+  validation: string().trim().required(),
+  grid: { xs: 12, md: 12 },
+}
 
 /**
- * Renders mainly Vms tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
+ * @returns {Field[]} Fields
  */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+export const FIELDS = [BODY]
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
-  )
-}
-
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmsTab.displayName = 'VmsTab'
-
-export default VmsTab
+/**
+ * @param {object} [stepProps] - Step props
+ * @returns {ObjectSchema} Schema
+ */
+export const SCHEMA = object(getValidationFromFields(FIELDS))

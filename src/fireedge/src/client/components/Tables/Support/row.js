@@ -13,47 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
+import { memo } from 'react'
 import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
 
-/**
- * Renders mainly Vms tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
- */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+import { SupportCard } from 'client/components/Cards'
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
+const Row = memo(
+  ({ original, value, ...props }) => (
+    <SupportCard ticket={original} rootProps={props} />
+  ),
+  (prev, next) => prev.className === next.className
+)
 
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
-  )
+Row.propTypes = {
+  original: PropTypes.object,
+  value: PropTypes.object,
+  isSelected: PropTypes.bool,
+  className: PropTypes.string,
+  onClick: PropTypes.func,
 }
 
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
+Row.displayName = 'SupportRow'
 
-VmsTab.displayName = 'VmsTab'
-
-export default VmsTab
+export default Row

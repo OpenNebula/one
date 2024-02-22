@@ -45,6 +45,7 @@ import SelectCard from 'client/components/Cards/SelectCard'
 import ServiceCard from 'client/components/Cards/ServiceCard'
 import ServiceTemplateCard from 'client/components/Cards/ServiceTemplateCard'
 import SnapshotCard from 'client/components/Cards/SnapshotCard'
+import SupportCard from 'client/components/Cards/SupportCard'
 import TierCard from 'client/components/Cards/TierCard'
 import UserCard from 'client/components/Cards/UserCard'
 import GroupCard from 'client/components/Cards/GroupCard'
@@ -87,6 +88,7 @@ export {
   ServiceCard,
   ServiceTemplateCard,
   SnapshotCard,
+  SupportCard,
   TierCard,
   UserCard,
   GroupCard,

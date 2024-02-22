@@ -125,7 +125,7 @@ export const downloadFile = (file) => {
  * Converts a long string of units into a readable format e.g KB, MB, GB, TB, YB.
  *
  * @param {number|string} value - The quantity of units.
- * @param {'KB'|'MB'|'GB'|'TB'|'PB'|'EB'|'ZB'|'YB'} unit - The unit of value. Defaults in KB
+ * @param {'B'|'KB'|'MB'|'GB'|'TB'|'PB'|'EB'|'ZB'|'YB'} unit - The unit of value. Defaults in KB
  * @param {number} fractionDigits
  * - Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
  * @param {boolean} json - return a json with data
