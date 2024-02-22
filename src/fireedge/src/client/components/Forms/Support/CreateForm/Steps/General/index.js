@@ -13,47 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
+
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+
+import {
+  SCHEMA,
+  FIELDS,
+} from 'client/components/Forms/Support/CreateForm/Steps/General/schema'
 import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
-import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+
+export const STEP_ID = 'support'
+
+const Content = () => (
+  <FormWithSchema id={STEP_ID} fields={FIELDS} cy={`${STEP_ID}`} />
+)
 
 /**
- * Renders mainly Vms tab.
+ * General configuration about VM Template.
  *
- * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
+ * @returns {object} General configuration step
  */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+const General = () => ({
+  id: STEP_ID,
+  label: T.General,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: Content,
+})
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
-  )
-}
-
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmsTab.displayName = 'VmsTab'
-
-export default VmsTab
+export default General

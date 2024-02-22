@@ -13,47 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
-import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+import { string, object } from 'yup'
 
-/**
- * Renders mainly Vms tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
- */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
-  )
+const EMAIL = {
+  name: 'user',
+  label: T.Email,
+  type: INPUT_TYPES.TEXT,
+  validation: string()
+    .trim()
+    .required()
+    .email()
+    .default(() => ''),
+  grid: { md: 12 },
+  fieldProps: {
+    size: 'medium',
+  },
 }
 
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
+const PASSWORD = {
+  name: 'pass',
+  label: T.Password,
+  type: INPUT_TYPES.PASSWORD,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => ''),
+  grid: { md: 12 },
+  fieldProps: {
+    size: 'medium',
+  },
 }
 
-VmsTab.displayName = 'VmsTab'
+const FORM_USER_FIELDS = [EMAIL, PASSWORD].filter(Boolean)
 
-export default VmsTab
+const FORM_USER_SCHEMA = object(getValidationFromFields(FORM_USER_FIELDS))
+
+export { FORM_USER_FIELDS, FORM_USER_SCHEMA }

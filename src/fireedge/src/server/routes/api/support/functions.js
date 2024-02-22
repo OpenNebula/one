@@ -21,12 +21,7 @@ const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse, executeRequest } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
 
-const {
-  defaultEmptyFunction,
-  httpMethod,
-  defaultEnterpriseRepo,
-  defaultComunityRepo,
-} = defaults
+const { defaultEmptyFunction, httpMethod, defaultComunityRepo } = defaults
 const { ok, badRequest } = httpCodes
 const { GET } = httpMethod
 
@@ -74,7 +69,7 @@ const checkSupport = (res = {}, next = defaultEmptyFunction) => {
   executeRequest(
     {
       params: {
-        url: defaultEnterpriseRepo,
+        url: defaultComunityRepo,
         method: GET,
         headers: {
           Authorization: `Basic ${btoa(appConfig.token_remote_support)}`,
@@ -110,7 +105,7 @@ const versionSupport = (res = {}, next = defaultEmptyFunction) => {
 
   if (appConfig && appConfig.token_remote_support) {
     params = {
-      url: defaultEnterpriseRepo,
+      url: defaultComunityRepo,
       headers: {
         Authorization: `Basic ${btoa(appConfig.token_remote_support)}`,
         ...headerUserAgent,

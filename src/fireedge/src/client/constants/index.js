@@ -19,6 +19,9 @@ import { isBackend } from 'client/utils/environments'
 export const JWT_NAME = 'FireedgeToken'
 
 export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
+export const SUPPORT_WEBSITE = 'https://opennebula.io/support/'
+export const COMMUNITY_WEBSITE = 'https://opennebula.io/usec'
+export const DOCUMENTATION_WEBSITE = 'https://docs.opennebula.io/6.3/'
 
 /**
  * Server side constants (not all of them are used in client)
@@ -185,6 +188,7 @@ export const RESOURCE_NAMES = {
   SERVICE_TEMPLATE: 'service-template',
   ZONE: 'zone',
   BACKUPJOBS: 'backupjobs',
+  SUPPORT: 'support',
 }
 export * as T from 'client/constants/translates'
 
@@ -217,4 +221,5 @@ export * from 'client/constants/vm'
 export * from 'client/constants/vmGroup'
 export * from 'client/constants/vmTemplate'
 export * from 'client/constants/serviceTemplate'
+export * from 'client/constants/support'
 export * from 'client/constants/zone'

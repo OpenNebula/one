@@ -279,6 +279,8 @@ module.exports = {
 
   /* footer */
   MadeWith: 'Made with',
+  NotOfficiallySupport: 'Not Officially Supported',
+  OfficiallySupport: 'Officially Supported',
 
   /* dashboard */
   InTotal: 'In Total',
@@ -390,6 +392,62 @@ module.exports = {
   PressToCreateLabel: 'Press enter to create a new label',
   SavesInTheUserTemplate: "Saved in the User's template",
   NoLabelsOnList: 'You have not defined any labels, list is empty',
+
+  /* sections - support */
+  Support: 'Support',
+  CommercialSupport: 'Commercial Support',
+  CommercialSupportRequests: 'Commercial Support Requests',
+  SupportInformation: `
+  The Support Subscription provides expert integration and 
+  production support on supported platforms and include:
+  `,
+  DiagnosisResolutionBugFix: 'Problem diagnosis, resolution and bug fixing',
+  SolveUnexpectedProblems:
+    'Solving unexpected problems when using, installing or configuring the software',
+  GuidanceEnvironment:
+    'Guidance about tuning for optimal and scalable performance in your environment',
+  AnswerHowToQuestions:
+    'Answering “how to” questions related to standard and intended product usage',
+  WorkArounds: 'Offering hints about how to go around missing features',
+  AnswerQuestions:
+    'Answering questions about product adaptation and integration',
+  MoreInformation: 'For more info on support subscriptions, ',
+  ClickHere: 'Click here',
+  AdditionalHelpResources: 'Additional Help Resources',
+  Documentation: 'Documentation',
+  Community: 'Community',
+  Email: 'Email',
+  GetAnAccount: 'Get an account',
+  Or: 'Or',
+  SubmitRequest: 'Submit Request',
+  SupportLogOut: 'Support log out',
+  Created: 'Created',
+  Severity: 'Severity',
+  Category: 'Category',
+  Resolution: 'Resolution',
+  Severity4:
+    'Severity 4. Usage, Design, Configuration, or Integration Question',
+  Severity3:
+    'Severity 3. Product Error: Low impact problem on a running production system',
+  Severity2:
+    'Severity 2. Product Error: High-impact impact problem on a running production system',
+  Severity1:
+    'Severity 1. Product Error: Catastrophic impact problem on a running production system',
+  Subject: 'Subject',
+  Status: 'Status',
+  ProductError: 'Product error',
+  IntegrationAssistance: 'Integration assistance',
+  FeatureEnhancement: 'Feature enhancement',
+  TechnicalAssistance: 'Technical assistance',
+  Duplicate: 'Duplicate',
+  WorksForMe: 'Works for me',
+  LackOfInformation: 'Lack of information',
+  WontFix: "Won't fix",
+  Attachments: 'Attachments',
+  Normal: 'Normal',
+  Urgent: 'Urgent',
+  Comment: 'Comment',
+  WeSupportMarkdown: 'We support markdown',
 
   /* sections - system */
   User: 'User',
@@ -738,7 +796,7 @@ module.exports = {
   GuacamoleState: 'Guacamole State',
   VMRCState: 'VMRC State',
   RdpLayout: 'RDP keyboard layout',
-  RdpRizeMethod: 'RDP rezise method',
+  RdpResizeMethod: 'RDP resize method',
   DisableAudio: 'Disable audio',
   EnableAudioInput: 'Enable audio input',
   EnableWallpaper: 'Render desktop wallpaper',
@@ -1004,7 +1062,7 @@ module.exports = {
   CpuArchitecture: 'CPU Architecture',
   BusForSdDisks: 'Bus for SD disks',
   MachineType: 'Machine type',
-  RootDevice: 'Root devide',
+  RootDevice: 'Root device',
   KernelBootParameters: 'Kernel boot parameters',
   PathBootloader: 'Path to the bootloader executable',
   UniqueIdOfTheVm: 'Unique ID of the VM',
@@ -1113,7 +1171,6 @@ module.exports = {
   VRAM: 'VRAM (KB)',
   VRAMConcept:
     'Define the amount of VRAM to assign to the video device in KB. Must be greater than or equal to 1024',
-  Resolution: 'Resolution',
   ResolutionConcept: 'Set the default resolution for the video device',
   ResolutionWidth: 'Resolution width',
   ResolutionWidthConcept:
@@ -1525,8 +1582,8 @@ module.exports = {
   RecoverCommitMessageSecGroups:
     'If set the commit operation will only operate on outdated and error VMs',
   /** Image */
-  NotVmsCurrentyImage: 'There are currently no VMs associated with this image',
-  NotSnapshotCurrenty:
+  NotVmsCurrently: 'There are currently no VMs associated with this image',
+  NotSnapshotCurrently:
     'There are currently no snapshots associated with this image',
 
   /* Validation */

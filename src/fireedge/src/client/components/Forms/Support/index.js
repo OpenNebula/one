@@ -13,47 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { PATH } from 'client/apps/sunstone/routesOne'
-import { VmsTable } from 'client/components/Tables'
-import EmptyTab from 'client/components/Tabs/EmptyTab'
-import { T } from 'client/constants'
-import { useGetImageQuery } from 'client/features/OneApi/image'
-import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
-import { generatePath, useHistory } from 'react-router-dom'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
 
 /**
- * Renders mainly Vms tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Image id
- * @returns {ReactElement} vms tab
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
  */
-const VmsTab = ({ id }) => {
-  const { data: image = {} } = useGetImageQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
+const CreateForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Support/CreateForm' }, configProps)
 
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <VmsTable
-      disableGlobalSort
-      displaySelectedRows
-      host={image}
-      onRowClick={(row) => handleRowClick(row.ID)}
-      noDataMessage={<EmptyTab label={T.NotVmsCurrently} />}
-    />
-  )
-}
-
-VmsTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmsTab.displayName = 'VmsTab'
-
-export default VmsTab
+export { CreateForm }

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-const { httpMethod } = require('server/utils/constants/defaults')
+const { httpMethod } = require('../../../utils/constants/defaults')
 
 const basepath = '/support'
 const { GET } = httpMethod

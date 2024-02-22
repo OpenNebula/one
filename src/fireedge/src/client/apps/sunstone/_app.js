@@ -13,28 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useMemo, ReactElement } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 
-import Router from 'client/router'
+import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'
 import {
-  ENDPOINTS,
+  ENDPOINTS as ONE_ENDPOINTS,
   PATH,
-  getEndpointsByView,
-} from 'client/apps/sunstone/routes'
-import { ENDPOINTS as ONE_ENDPOINTS } from 'client/apps/sunstone/routesOne'
+} from 'client/apps/sunstone/routesOne'
+import Router from 'client/router'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
-import { useAuth, useViews } from 'client/features/Auth'
-import { useGeneralApi } from 'client/features/General'
-import systemApi from 'client/features/OneApi/system'
-import Sidebar from 'client/components/Sidebar'
+import { AuthLayout } from 'client/components/HOC'
 import Notifier from 'client/components/Notifier'
 import NotifierUpload from 'client/components/Notifier/upload'
-import { AuthLayout } from 'client/components/HOC'
-import { isDevelopment } from 'client/utils'
+import Sidebar from 'client/components/Sidebar'
 import { _APPS } from 'client/constants'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
+import { useCheckOfficialSupportQuery } from 'client/features/OneApi/support'
+import systemApi from 'client/features/OneApi/system'
+import { isDevelopment } from 'client/utils'
 
 export const APP_NAME = _APPS.sunstone
+
+const showSupportTab = (routes = [], find = true) => {
+  if (find === true) return routes
+
+  const supportTab = routes.findIndex((route) => route?.path === PATH.SUPPORT)
+  if (supportTab >= 0) {
+    routes.splice(supportTab, 1)
+  }
+
+  return routes
+}
 
 /**
  * Sunstone App component.
@@ -42,6 +53,7 @@ export const APP_NAME = _APPS.sunstone
  * @returns {ReactElement} App rendered.
  */
 const SunstoneApp = () => {
+  const { isSuccess } = useCheckOfficialSupportQuery()
   const { changeAppTitle } = useGeneralApi()
   const { isLogged } = useAuth()
   const { views, view } = useViews()
@@ -49,7 +61,6 @@ const SunstoneApp = () => {
   useEffect(() => {
     changeAppTitle(APP_NAME)
   }, [])
-
   const endpoints = useMemo(() => {
     const fixedEndpoints = [
       ...ENDPOINTS,
@@ -60,8 +71,8 @@ const SunstoneApp = () => {
 
     const viewEndpoints = getEndpointsByView(views?.[view], ONE_ENDPOINTS)
 
-    return fixedEndpoints.concat(viewEndpoints)
-  }, [view])
+    return showSupportTab(fixedEndpoints.concat(viewEndpoints), isSuccess)
+  }, [view, isSuccess])
 
   return (
     <AuthLayout

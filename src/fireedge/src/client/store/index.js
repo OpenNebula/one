@@ -19,6 +19,7 @@ import { setupListeners } from '@reduxjs/toolkit/query/react'
 import { isDevelopment } from 'client/utils'
 
 import * as Auth from 'client/features/Auth/slice'
+import * as SupportAuth from 'client/features/SupportAuth/slice'
 import * as General from 'client/features/General/slice'
 import * as Guacamole from 'client/features/Guacamole/slice'
 import { oneApi } from 'client/features/OneApi'
@@ -34,6 +35,7 @@ export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
   const store = configureStore({
     reducer: {
       [Auth.name]: Auth.reducer,
+      [SupportAuth.name]: SupportAuth.reducer,
       [General.name]: General.reducer,
       [Guacamole.name]: Guacamole.reducer,
       [oneApi.reducerPath]: oneApi.reducer,

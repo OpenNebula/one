@@ -95,7 +95,6 @@ const defaults = {
     query: 'QUERY',
     postBody: 'POST_BODY',
   },
-  defaultEnterpriseRepo: 'https://enterprise.opennebula.io/repo/',
   defaultComunityRepo: 'https://downloads.opennebula.io/repo/',
   defaultDownloader: 'remotes/datastore/downloader.sh',
   defaultOpennebulaZones: [

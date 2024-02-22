@@ -42,25 +42,22 @@ const formatCreate = ({
   version = '',
   severity = '',
 }) => {
-  let rtn
-  if (subject && body && version && severity) {
-    rtn = {
-      request: {
-        subject,
-        comment: {
-          body,
-        },
-        custom_fields: [
-          { id: 391130, value: version }, // version
-          { id: 391197, value: severity }, // severity
-        ],
-        can_be_solved_by_me: false,
-        tags: [severity],
-      },
-    }
-  }
+  if (!(subject && body && version && severity)) return
 
-  return rtn
+  return {
+    request: {
+      subject,
+      comment: {
+        body,
+      },
+      custom_fields: [
+        { id: 391130, value: version }, // version
+        { id: 391197, value: severity }, // severity
+      ],
+      can_be_solved_by_me: false,
+      tags: [severity],
+    },
+  }
 }
 
 /**
@@ -73,23 +70,19 @@ const formatCreate = ({
  * @returns {object|undefined} format comment
  */
 const formatComment = ({ body = '', solved = '', attachments = [] }) => {
-  let rtn
-  if (body) {
-    rtn = {
-      request: {
-        comment: {
-          body,
-          public: true,
-        },
+  if (!body) return
+
+  const rtn = {
+    request: {
+      comment: {
+        html_body: body,
+        public: true,
       },
-    }
-    if (solved) {
-      rtn.solved = 'true'
-    }
-    if (attachments && Array.isArray(attachments) && attachments.length > 0) {
-      rtn.request.comment.uploads = attachments.filter((att) => att)
-    }
+    },
   }
+  solved && (rtn.solved = 'true')
+  attachments?.length > 0 &&
+    (rtn.request.comment.uploads = attachments.filter((att) => att))
 
   return rtn
 }
@@ -102,17 +95,16 @@ const formatComment = ({ body = '', solved = '', attachments = [] }) => {
  * @returns {string} string error
  */
 const parseBufferError = (err) => {
+  if (!err?.result) return
+
   let rtn = ''
-  let errorJson = {}
-  if (err && err.result) {
-    try {
-      errorJson = JSON.parse(err.result.toString())
-    } catch {}
-    if (errorJson && errorJson.error) {
-      rtn = errorJson.error.title ? `${errorJson.error.title}: ` : ''
-      rtn += errorJson.error.message ? errorJson.error.message : ''
-    }
-  }
+  try {
+    const errorJson = JSON.parse(err.result.toString())
+    if (!errorJson?.error) return
+
+    rtn = errorJson.error.title ? `${errorJson.error.title}: ` : ''
+    rtn += errorJson.error.message ?? ''
+  } catch {}
 
   return rtn
 }
@@ -139,41 +131,50 @@ const login = (
   const remoteUri = sunstoneConfig.support_url || ''
   const { user, password } = userData
   const { user: zendeskUser, pass } = params
-  if (remoteUri && zendeskUser && pass && user && password) {
-    const zendeskData = {
-      username: zendeskUser,
-      password: pass,
-      remoteUri,
-      debug: env.NODE_ENV === defaultWebpackMode,
-    }
-    const session = getSession(userData.user, userData.password)
-    /** ZENDESK AUTH */
-    const zendeskClient = zendesk.createClient(zendeskData)
-    zendeskClient.users.auth((err, res, result) => {
-      let method = ok
-      let data = result
-      if (err) {
-        if (session.zendesk) {
-          delete session.zendesk
-        }
-        method = internalServerError
-        data = parseBufferError(err)
-      }
-      if (result && result.authenticity_token) {
-        const zendeskUserData = {
-          ...zendeskData,
-          id: result.id,
-        }
-        session.zendesk = zendeskUserData
-      }
 
-      response.locals.httpCode = httpResponse(method, data)
-      next()
-    })
-  } else {
+  if (!(remoteUri && zendeskUser && pass && user && password)) {
     response.locals.httpCode = httpBadRequest
     next()
   }
+
+  const zendeskData = {
+    username: zendeskUser,
+    password: pass,
+    remoteUri,
+    debug: env.NODE_ENV === defaultWebpackMode,
+  }
+  const session = getSession(user, password)
+  /** ZENDESK AUTH */
+  const zendeskClient = zendesk.createClient(zendeskData)
+  /**
+   * TODO:
+   *
+   * Analyze if it is possible to have error and result at the same time
+   *
+   * This can be changed in order to perform a return with HTTP 500
+   * instead returning a HTTP 500 with response data.
+   */
+  zendeskClient.users.auth((err, res, result) => {
+    let method = ok
+    let data = result
+    if (err) {
+      if (session.zendesk) {
+        delete session.zendesk
+      }
+      method = internalServerError
+      data = parseBufferError(err)
+    }
+    if (result && result.authenticity_token) {
+      const zendeskUserData = {
+        ...zendeskData,
+        id: result.id,
+      }
+      session.zendesk = zendeskUserData
+    }
+
+    response.locals.httpCode = httpResponse(method, data)
+    next()
+  })
 }
 
 /**
@@ -198,42 +199,35 @@ const list = (
     if (session.zendesk && session.zendesk.id) {
       /** LIST ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      zendeskClient.requests.getRequest(
-        { status: 'open,pending' },
-        (err, req, result) => {
-          let method = ok
-          let data = ''
+      zendeskClient.requests.list((err, _, result) => {
+        let method = ok
+        let data = ''
 
-          if (err) {
-            method = internalServerError
-            data = parseBufferError(err)
-          } else if (result) {
-            let pendings = 0
-            let opens = 0
-            const tickets = Array.isArray(result) ? result : result
-            tickets.forEach((ticket) => {
-              if (ticket && ticket.status) {
-                switch (ticket.status) {
-                  case 'pending':
-                    pendings += 1
-                    break
-                  default:
-                    opens += 1
-                    break
-                }
-              }
-            })
-            data = {
-              tickets: result,
-              pendings,
-              opens,
-            }
+        if (err) {
+          method = internalServerError
+          data = parseBufferError(err)
+        } else if (result) {
+          const ticketCount = {
+            new: 0,
+            open: 0,
+            pending: 0,
+            hold: 0,
+            solved: 0,
+            closed: 0,
           }
-
-          response.locals.httpCode = httpResponse(method, data)
-          next()
+          const tickets = Array.isArray(result) ? result : result
+          tickets.forEach((ticket) => {
+            ticket?.status && (ticketCount[ticket.status] += 1)
+          })
+          data = {
+            tickets: result,
+            ...ticketCount,
+          }
         }
-      )
+
+        response.locals.httpCode = httpResponse(method, data)
+        next()
+      })
     } else {
       response.locals.httpCode = httpResponse(unauthorized)
       next()
@@ -268,7 +262,7 @@ const comments = (
     if (session.zendesk) {
       /** GET COMMENTS ON TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      zendeskClient.requests.listComments(params.id, (err, req, result) => {
+      zendeskClient.requests.listComments(id, (err, _, result) => {
         let method = ok
         let data = ''
 
