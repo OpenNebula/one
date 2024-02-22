@@ -1049,6 +1049,14 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
         if (!disk->is_persistent())
         {
             Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
+
+            vector<unique_ptr<Template>> ds_quotas;
+            VirtualMachineDisks::image_ds_quotas(&tmpl, ds_quotas);
+
+            if (!ds_quotas.empty())
+            {
+                Quotas::quota_del(Quotas::DATASTORE, uid, gid, ds_quotas[0].get());
+            }
         }
 
         const Snapshots * snaps = disk->get_snapshots();
