@@ -145,7 +145,7 @@ private
             conf_txt = File.read(conf_file)
             conf_opt = YAML::load(conf_txt)
 
-            @options.merge!(conf_opt) if conf_opt != false
+            @options.merge!(conf_opt) if conf_opt
         end
     end
 
