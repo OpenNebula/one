@@ -33,7 +33,9 @@ const HostGraphTab = ({ id }) => {
     data: { MONITORING_DATA: { MONITORING: monitoring = [] } = {} } = {},
   } = useGetHostMonitoringQuery(id) || {}
 
-  const cpuMemoryData = monitoring?.map(({ TIMESTAMP, CAPACITY }) => ({
+  const cpuMemoryData = (
+    Array.isArray(monitoring) ? monitoring : [monitoring]
+  ).map(({ TIMESTAMP, CAPACITY }) => ({
     TIMESTAMP,
     ...CAPACITY,
   }))

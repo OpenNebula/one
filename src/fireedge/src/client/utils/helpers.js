@@ -526,6 +526,49 @@ export const extractIDValues = (arr = []) => {
 }
 
 /**
+ * Generates a simple hash from a string.
+ *
+ * @param {string} str - The string to hash.
+ * @returns {number} The hash value.
+ */
+export const simpleHash = (str) => {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash |= 0
+  }
+
+  return hash
+}
+
+/**
+ * Creates a string representation of an object, with a limited depth.
+ *
+ * @param {object} obj - The object to stringify.
+ * @param {number} depth - The maximum depth to traverse.
+ * @returns {string} The string representation of the object.
+ */
+export const deepStringify = (obj, depth = 3) => {
+  if (depth === 0 || obj === null || typeof obj !== 'object') {
+    return String(obj)
+  }
+
+  const objString = Object.entries(obj)
+    .map(
+      ([key, value]) =>
+        `${key?.toString() ?? 'UNDEFINED'}:${
+          typeof value === 'object'
+            ? deepStringify(value, depth - 1)
+            : value?.toString() ?? 'UNDEFINED'
+        }`
+    )
+    .join(',')
+
+  return `{${objString}}`
+}
+
+/**
  * Generate a link to the Open Nebula documentation using the first two digits of the version (e.g., 6.99.0 => 6.99).
  *
  * @param {string} version - Version of ONE

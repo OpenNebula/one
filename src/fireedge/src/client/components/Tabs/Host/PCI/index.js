@@ -58,7 +58,7 @@ const labelingFunc = () => `PCI`
  */
 const HostPciTab = ({ id }) => {
   const [chartType, setChartType] = useState('table')
-  const { data } = useGetHostQuery({ id })
+  const { data = [{}] } = useGetHostQuery({ id })
 
   const pciDevicesPath = 'HOST_SHARE.PCI_DEVICES.PCI'
 
@@ -112,8 +112,8 @@ const HostPciTab = ({ id }) => {
         datasets={[
           {
             ...transformedDataset.dataset,
-            ...transformedDataset.error,
-            ...transformedDataset.isEmpty,
+            error: transformedDataset.error,
+            isEmpty: transformedDataset.isEmpty,
           },
         ]}
         metricNames={metricNames}

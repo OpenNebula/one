@@ -31,7 +31,7 @@ import * as FC from 'client/components/FormControl'
 import { useDisableStep } from 'client/components/FormStepper'
 import Legend from 'client/components/Forms/Legend'
 import { INPUT_TYPES } from 'client/constants'
-import { Field } from 'client/utils'
+import { Field, deepStringify, simpleHash } from 'client/utils'
 
 import get from 'lodash.get'
 import { useSelector } from 'react-redux'
@@ -222,10 +222,13 @@ const FieldComponent = memo(
     const key = useMemo(
       () =>
         fieldProps
-          ? `${name}-${JSON.stringify(
-              fieldProps?.type ??
-                fieldProps?.values ??
-                Object.values(fieldProps)
+          ? `${name}-${simpleHash(
+              deepStringify(
+                fieldProps?.type ??
+                  fieldProps?.values ??
+                  Object.values(fieldProps),
+                3 // Max object depth
+              )
             )}`
           : undefined,
       [fieldProps]
