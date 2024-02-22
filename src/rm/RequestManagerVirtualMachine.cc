@@ -1846,15 +1846,13 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
     VirtualMachineTemplate deltas(tmpl);
     VirtualMachineDisks::extended_info(att.uid, &deltas);
 
-    deltas.add("VMS", 0);
-
     if (quota_resize_authorization(&deltas, att_quota, vm_perms) == false)
     {
         att.resp_msg = std::move(att_quota.resp_msg);
         return AUTHORIZATION;
     }
 
-    if (volatile_disk == false)
+    if (!volatile_disk)
     {
         if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota, att.resp_msg) == false )
         {
@@ -1863,13 +1861,36 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
         }
     }
 
+    // Datastore quotas
+    vector<unique_ptr<Template>> ds_quotas;
+
+    VirtualMachineDisks::image_ds_quotas(&deltas, ds_quotas);
+
+    if ( !ds_quotas.empty() &&
+         !quota_authorization(ds_quotas[0].get(), Quotas::DATASTORE, att_quota, att.resp_msg))
+    {
+        quota_rollback(&deltas, Quotas::VM, att_quota);
+
+        if (!volatile_disk)
+        {
+            quota_rollback(&tmpl, Quotas::IMAGE, att_quota);
+        }
+
+        return AUTHORIZATION;
+    }
+
     if ( dm->attach(id, &tmpl, att, att.resp_msg) != 0 )
     {
         quota_rollback(&deltas, Quotas::VM, att_quota);
 
-        if (volatile_disk == false)
+        if (!volatile_disk)
         {
             quota_rollback(&tmpl, Quotas::IMAGE, att_quota);
+        }
+
+        if (!ds_quotas.empty())
+        {
+            quota_rollback(ds_quotas[0].get(), Quotas::DATASTORE, att_quota);
         }
 
         return ACTION;
