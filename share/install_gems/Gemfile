@@ -82,7 +82,7 @@ group :cli do
     gem 'pg', pg
 
     if ruby_version < Gem::Version.new('3.0.0')
-        gem 'sqlite3', '< 1.7.2'
+        gem 'sqlite3', '<= 1.6.9'
     else
         gem 'sqlite3'
     end
@@ -124,10 +124,7 @@ end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    gem 'sinatra'
-    if ruby_version >= Gem::Version.new('3.1.0')
-	    gem 'rackup'
-    end
+    gem 'sinatra', '< 4.0.0'
 end
 
 group :cloud do
