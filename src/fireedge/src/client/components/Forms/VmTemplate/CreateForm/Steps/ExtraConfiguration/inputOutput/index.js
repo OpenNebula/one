@@ -18,6 +18,7 @@ import { Stack } from '@mui/material'
 import { DataTransferBoth as IOIcon } from 'iconoir-react'
 
 import { FormWithSchema } from 'client/components/Forms'
+import { useEffect } from 'react'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -28,41 +29,50 @@ import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
 import VideoSection, { SECTION_ID as VIDEO_ID } from './videoSection'
 import { GRAPHICS_FIELDS } from './schema'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID, VIDEO_ID]
 
-const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
-  <Stack
-    display="grid"
-    gap="1em"
-    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-  >
-    <FormWithSchema
-      cy={`${EXTRA_ID}-io-graphics`}
-      fields={GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup)}
-      legend={T.Graphics}
-      id={EXTRA_ID}
-    />
-    <InputsSection
-      stepId={EXTRA_ID}
-      hypervisor={hypervisor}
-      oneConfig={oneConfig}
-      adminGroup={adminGroup}
-    />
-    <PciDevicesSection
-      stepId={EXTRA_ID}
-      hypervisor={hypervisor}
-      oneConfig={oneConfig}
-      adminGroup={adminGroup}
-    />
-    <VideoSection
-      stepId={EXTRA_ID}
-      hypervisor={hypervisor}
-      oneConfig={oneConfig}
-      adminGroup={adminGroup}
-    />
-  </Stack>
-)
+const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => {
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.InputOutput`)
+  }, [])
+
+  return (
+    <Stack
+      display="grid"
+      gap="1em"
+      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
+    >
+      <FormWithSchema
+        cy={`${EXTRA_ID}-io-graphics`}
+        fields={GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup)}
+        legend={T.Graphics}
+        id={EXTRA_ID}
+        saveState={true}
+      />
+      <InputsSection
+        stepId={EXTRA_ID}
+        hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
+      />
+      <PciDevicesSection
+        stepId={EXTRA_ID}
+        hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
+      />
+      <VideoSection
+        stepId={EXTRA_ID}
+        hypervisor={hypervisor}
+        oneConfig={oneConfig}
+        adminGroup={adminGroup}
+      />
+    </Stack>
+  )
+}
 
 InputOutput.propTypes = {
   data: PropTypes.any,

@@ -58,7 +58,9 @@ const PIN_POLICY = {
     addEmpty: false,
     getText: sentenceCase,
   }),
-  dependOf: '$general.HYPERVISOR',
+  dependOf: ENABLE_NUMA.name,
+  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
+  notOnHypervisors: [vcenter, firecracker],
   validation: lazy((_, { context }) =>
     string()
       .trim()
@@ -74,9 +76,6 @@ const PIN_POLICY = {
           : NUMA_PIN_POLICIES.NONE
       })
   ),
-  fieldProps: (hypervisor) => ({
-    disabled: [vcenter, firecracker].includes(hypervisor),
-  }),
 }
 
 /** @type {Field} NODE_AFFINITY field */
@@ -84,17 +83,12 @@ const NODE_AFFINITY = {
   name: 'TOPOLOGY.NODE_AFFINITY',
   label: T.NodeAffinity,
   tooltip: T.NodeAffinityConcept,
-  dependOf: ['$general.HYPERVISOR', PIN_POLICY.name],
+  dependOf: [PIN_POLICY.name, ENABLE_NUMA.name],
+  htmlType: ([pinPolicy, enableNuma] = []) =>
+    (!enableNuma || pinPolicy !== NUMA_PIN_POLICIES.NODE_AFFINITY) &&
+    INPUT_TYPES.HIDDEN,
+  notOnHypervisors: [vcenter, firecracker],
   type: INPUT_TYPES.TEXT,
-  htmlType: (_, context) => {
-    const values = context?.getValues() || {}
-    const { general, extra } = values || {}
-
-    return ![vcenter, firecracker].includes(general?.HYPERVISOR) &&
-      extra?.TOPOLOGY?.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY
-      ? 'number'
-      : INPUT_TYPES.HIDDEN
-  },
   validation: lazy((_, { context }) => {
     const { general, extra } = context || {}
 
@@ -110,11 +104,15 @@ const CORES = {
   name: 'TOPOLOGY.CORES',
   label: T.Cores,
   tooltip: T.NumaCoresConcept,
-  dependOf: ['$general.VCPU', '$general.HYPERVISOR'],
+  dependOf: ['$general.VCPU', '$general.HYPERVISOR', ENABLE_NUMA.name],
   type: ([, hypervisor] = []) =>
     hypervisor === vcenter ? INPUT_TYPES.SELECT : INPUT_TYPES.TEXT,
-  htmlType: 'number',
-  values: ([vcpu] = []) => arrayToOptions(getFactorsOfNumber(vcpu ?? 0)),
+  htmlType: ([, , enableNuma] = []) =>
+    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
+  values: ([vcpu, hypervisor] = []) => {
+    if (hypervisor === vcenter)
+      return arrayToOptions(getFactorsOfNumber(vcpu ?? 0))
+  },
   validation: number()
     .notRequired()
     .integer()
@@ -127,15 +125,19 @@ const SOCKETS = {
   label: T.Sockets,
   tooltip: T.NumaSocketsConcept,
   type: INPUT_TYPES.TEXT,
-  htmlType: 'number',
-  dependOf: ['$general.HYPERVISOR', '$general.VCPU', 'TOPOLOGY.CORES'],
+  dependOf: [
+    '$general.HYPERVISOR',
+    '$general.VCPU',
+    'TOPOLOGY.CORES',
+    ENABLE_NUMA.name,
+  ],
+  htmlType: ([, , , enableNuma] = []) =>
+    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
+  notOnHypervisors: [vcenter, firecracker],
   validation: number()
     .notRequired()
     .integer()
     .default(() => 1),
-  fieldProps: (hypervisor) => ({
-    disabled: [vcenter, firecracker].includes(hypervisor),
-  }),
   watcher: ([hypervisor, vcpu, cores] = []) => {
     if (hypervisor === vcenter) return
 
@@ -158,9 +160,10 @@ const THREADS = {
   name: 'TOPOLOGY.THREADS',
   label: T.Threads,
   tooltip: T.ThreadsConcept,
-  htmlType: 'number',
-  dependOf: '$general.HYPERVISOR',
-  type: (hypervisor) =>
+  htmlType: ([, enableNuma] = []) =>
+    !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
+  dependOf: ['$general.HYPERVISOR', ENABLE_NUMA.name],
+  type: ([hypervisor] = []) =>
     [firecracker, vcenter].includes(hypervisor)
       ? INPUT_TYPES.SELECT
       : INPUT_TYPES.TEXT,
@@ -184,6 +187,8 @@ const HUGEPAGES = {
   label: T.HugepagesSize,
   tooltip: T.HugepagesSizeConcept,
   notOnHypervisors: [vcenter, firecracker],
+  dependOf: ENABLE_NUMA.name,
+  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.SELECT,
   values: () => {
     const { data: hosts = [] } = useGetHostsQuery()
@@ -208,6 +213,8 @@ const MEMORY_ACCESS = {
   tooltip: [T.MemoryAccessConcept, NUMA_MEMORY_ACCESS.join(', ')],
   notOnHypervisors: [vcenter, firecracker],
   type: INPUT_TYPES.SELECT,
+  dependOf: ENABLE_NUMA.name,
+  htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(NUMA_MEMORY_ACCESS, { getText: sentenceCase }),
   validation: string()
     .trim()
@@ -222,6 +229,7 @@ const MEMORY_ACCESS = {
 const NUMA_FIELDS = (hypervisor) =>
   filterFieldsByHypervisor(
     [
+      ENABLE_NUMA,
       PIN_POLICY,
       NODE_AFFINITY,
       CORES,
@@ -237,7 +245,7 @@ const NUMA_FIELDS = (hypervisor) =>
  * @param {string} [hypervisor] - VM hypervisor
  * @returns {Field[]} List of NUMA fields
  */
-const SCHEMA_FIELDS = (hypervisor) => [ENABLE_NUMA, ...NUMA_FIELDS(hypervisor)]
+const SCHEMA_FIELDS = (hypervisor) => NUMA_FIELDS(hypervisor)
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
@@ -266,9 +274,4 @@ const NUMA_SCHEMA = (hypervisor) =>
     }
   )
 
-export {
-  ENABLE_NUMA,
-  SCHEMA_FIELDS as FIELDS,
-  NUMA_FIELDS,
-  NUMA_SCHEMA as SCHEMA,
-}
+export { SCHEMA_FIELDS as FIELDS, NUMA_FIELDS, NUMA_SCHEMA as SCHEMA }

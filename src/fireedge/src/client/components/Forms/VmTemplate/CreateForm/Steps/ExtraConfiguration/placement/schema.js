@@ -38,7 +38,7 @@ const HOST_RANK_FIELD = {
 
 /** @type {Field} Datastore requirement field */
 const DS_REQ_FIELD = {
-  name: 'DS_SCHED_REQUIREMENTS',
+  name: 'SCHED_DS_REQUIREMENTS',
   label: T.DatastoreReqExpression,
   tooltip: T.DatastoreReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
@@ -47,7 +47,7 @@ const DS_REQ_FIELD = {
 
 /** @type {Field} Datastore rank requirement field */
 const DS_RANK_FIELD = {
-  name: 'DS_SCHED_RANK',
+  name: 'SCHED_DS_RANK',
   label: T.DatastorePolicyExpression,
   tooltip: T.DatastorePolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,

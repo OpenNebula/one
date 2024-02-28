@@ -25,7 +25,7 @@ import { ACL_ID, ACL_RESOURCES, ACL_RIGHTS } from 'client/constants'
  * @param {string} rule - The ACL rule
  * @returns {number} - The hex value for the four components of a rule (user, resources, rights and zone)
  */
-export const parseAcl = (rule) => {
+const parseAcl = (rule) => {
   // Get each component
   const ruleComponents = rule.split(' ')
 
@@ -140,3 +140,5 @@ const calculateIds = (id) => {
   // Return the integer id value
   return idValue
 }
+
+export { parseAcl }

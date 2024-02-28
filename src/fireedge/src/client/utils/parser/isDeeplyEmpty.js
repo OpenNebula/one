@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, ObjectSchema } from 'yup'
-
-import {
-  CONFIGURATION_SCHEMA,
-  FILES_SCHEMA,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { HYPERVISORS } from 'client/constants'
-
 /**
- * @param {object} [formProps] - Form props
- * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
- * @returns {ObjectSchema} Context schema
+ * @param {object} obj - Deeply nested object
+ * @returns {boolean} - Empty
  */
-export const SCHEMA = ({ hypervisor }) =>
-  object().concat(CONFIGURATION_SCHEMA(true)).concat(FILES_SCHEMA(hypervisor))
+const isDeeplyEmpty = (obj) => {
+  if (obj == null || typeof obj !== 'object') return true
+
+  return Object.entries(obj).every(([_key, value]) => {
+    if (Array.isArray(value)) {
+      return value.every(isDeeplyEmpty)
+    } else if (value !== null && typeof value === 'object') {
+      return isDeeplyEmpty(value)
+    }
+
+    return !value
+  })
+}
+
+export default isDeeplyEmpty

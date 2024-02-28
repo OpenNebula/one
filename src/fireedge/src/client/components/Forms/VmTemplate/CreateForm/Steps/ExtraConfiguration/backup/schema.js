@@ -61,8 +61,7 @@ const KEEP_LAST_FIELD = {
   validation: number()
     .notRequired()
     .nullable(true)
-    .default(() => undefined)
-    .transform((_, val) => (val !== '' ? parseInt(val) : null)),
+    .default(() => undefined),
   grid: { xs: 12, md: 6 },
 }
 

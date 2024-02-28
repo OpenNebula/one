@@ -25,19 +25,15 @@ import General, {
   STEP_ID as GENERAL_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 
-import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
+import { userInputsToArray } from 'client/models/Helper'
 import {
-  jsonToXml,
-  userInputsToArray,
-  transformXmlString,
-} from 'client/models/Helper'
-import {
-  convertToMB,
   createSteps,
   encodeBase64,
   getUnknownAttributes,
   isBase64,
 } from 'client/utils'
+
+import { KVM_FIRMWARE_TYPES, VCENTER_FIRMWARE_TYPES } from 'client/constants'
 
 /**
  * Encodes the start script value to base64 if it is not already encoded.
@@ -85,6 +81,19 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
+    // cast FIRMWARE
+    const firmware = vmTemplate?.TEMPLATE?.OS?.FIRMWARE
+    if (firmware) {
+      const firmwareOption =
+        KVM_FIRMWARE_TYPES.includes(firmware) ||
+        VCENTER_FIRMWARE_TYPES.includes(firmware)
+
+      objectSchema[EXTRA_ID].OS = {
+        ...vmTemplate?.TEMPLATE?.OS,
+        FEATURE_CUSTOM_ENABLED: !firmwareOption ? 'YES' : 'NO',
+      }
+    }
+
     const knownTemplate = schema.cast(objectSchema, {
       stripUnknown: true,
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
@@ -121,54 +130,9 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => {
-    const {
-      [GENERAL_ID]: general = {},
-      [CUSTOM_ID]: customVariables = {},
-      [EXTRA_ID]: extraTemplate = {},
-    } = formData ?? {}
-
-    ensureContextWithScript(extraTemplate)
-
-    // add user inputs to context
-    Object.keys(extraTemplate?.USER_INPUTS ?? {}).forEach((name) => {
-      const isCapacity = ['MEMORY', 'CPU', 'VCPU'].includes(name)
-      const upperName = String(name).toUpperCase()
-
-      !isCapacity && (extraTemplate.CONTEXT[upperName] = `$${upperName}`)
-    })
-
-    if (
-      general?.MEMORY_RESIZE_MODE === MEMORY_RESIZE_OPTIONS[T.Ballooning] &&
-      general?.MEMORY_SLOTS
-    ) {
-      delete general.MEMORY_SLOTS
-    }
-
-    // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
-    general.MEMORY = convertToMB(general.MEMORY, general.MEMORYUNIT)
-    delete general.MEMORYUNIT
-
-    // cast CPU_MODEL/FEATURES
-    if (Array.isArray(extraTemplate?.CPU_MODEL?.FEATURES)) {
-      extraTemplate.CPU_MODEL.FEATURES =
-        extraTemplate.CPU_MODEL.FEATURES.join(', ')
-    }
-
-    ;['NIC', 'NIC_ALIAS'].forEach((nicKey) =>
-      extraTemplate?.[nicKey]?.forEach((NIC) => delete NIC?.NAME)
-    )
-
-    // ISSUE #6418: Raw data is in XML format, so it needs to be transform before sennding it to the API (otherwise the value of RAW.DATA will be treat as part of the XML template)
-    extraTemplate?.RAW?.DATA &&
-      (extraTemplate.RAW.DATA = transformXmlString(extraTemplate.RAW.DATA))
-
-    return jsonToXml({
-      ...customVariables,
-      ...extraTemplate,
-      ...general,
-    })
-  },
+  transformBeforeSubmit: (formData) =>
+    // All formatting and parsing is taken care of in the VmTemplate container
+    formData,
 })
 
 export default Steps

@@ -33,6 +33,8 @@ import {
   NIC_HARDWARE,
   NIC_HARDWARE_STR,
   PCI_TYPES,
+  IPV4_METHODS,
+  IPV6_METHODS,
 } from 'client/constants'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getPciDevices } from 'client/models/Host'
@@ -64,18 +66,22 @@ const fillPCIAtributes =
 /**
  * @param {object} [data] - VM or VM Template data
  * @param {Nic[]} [data.nics] - Current NICs
+ * @param {boolean} [data.hasAlias] - If it's an alias
+ * @param {boolean} [data.isPci] - If it's a PCI
  * @returns {Field[]} List of general fields
  */
-const GENERAL_FIELDS = ({ nics = [] } = {}) =>
+const GENERAL_FIELDS = ({ nics = [], hasAlias = false, isPci = false } = {}) =>
   [
     !!nics?.length && {
       name: 'PARENT',
       label: T.AsAnAlias,
       dependOf: 'NAME',
       type: (name) => {
-        const hasAlias = nics?.some((nic) => nic.PARENT === name)
+        const hasAliasExisting = nics?.some((nic) => nic.PARENT === name)
 
-        return name && hasAlias ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SELECT
+        return name && hasAliasExisting
+          ? INPUT_TYPES.HIDDEN
+          : INPUT_TYPES.SELECT
       },
       values: (name) => [
         { text: '', value: '' },
@@ -91,6 +97,9 @@ const GENERAL_FIELDS = ({ nics = [] } = {}) =>
             return { text, value: NAME }
           }),
       ],
+      fieldProps: {
+        disabled: hasAlias || isPci,
+      },
       validation: string()
         .trim()
         .notRequired()
@@ -150,10 +159,11 @@ const GUACAMOLE_CONNECTIONS = [
     type: INPUT_TYPES.SELECT,
     dependOf: 'RDP',
     values: [
+      { text: '-', value: undefined },
       { text: T.DisplayUpdate, value: 'display-update' },
       { text: T.Reconnect, value: 'reconnect' },
     ],
-    validation: string().trim().notRequired().default('display-update'),
+    validation: string().trim().notRequired().default(undefined),
     htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
     grid: { sm: 6 },
   },
@@ -331,12 +341,12 @@ const OVERRIDE_IPV4_FIELDS = [
     label: T.NetworkMethod,
     tooltip: T.NetworkMethod4Concept,
     type: INPUT_TYPES.SELECT,
-    values: [
-      { text: 'static (Based on context)', value: 'static' },
-      { text: 'dhcp (DHCPv4)', value: 'dhcp' },
-      { text: 'skip (Do not configure IPv4)', value: 'skip' },
-    ],
-    validation: string().trim().notRequired().default('static'),
+    values: arrayToOptions(Object.keys(IPV4_METHODS), {
+      getText: (key) => key,
+      getValue: (key) => IPV4_METHODS[key],
+      addEmpty: true,
+    }),
+    validation: string().trim().notRequired().default(undefined),
   },
 ]
 
@@ -367,19 +377,21 @@ const OVERRIDE_IPV6_FIELDS = [
     label: T.NetworkMethod,
     tooltip: T.NetworkMethod6Concept,
     type: INPUT_TYPES.SELECT,
-    values: [
-      { text: 'static (Based on context)', value: 'static' },
-      { text: 'auto (SLAAC)', value: 'auto' },
-      { text: 'dhcp (SLAAC and DHCPv6)', value: 'dhcp' },
-      { text: 'disable (Do not use IPv6)', value: 'disable' },
-      { text: 'skip (Do not configure IPv4)', value: 'skip' },
-    ],
-    validation: string().trim().notRequired().default('static'),
+    values: arrayToOptions(Object.keys(IPV6_METHODS), {
+      getText: (key) => key,
+      getValue: (key) => IPV6_METHODS[key],
+      addEmpty: true,
+    }),
+    validation: string().trim().notRequired().default(undefined),
   },
 ]
 
 /** @type {Field[]} List of hardware fields */
-const HARDWARE_FIELDS = (defaultData = {}) => [
+const HARDWARE_FIELDS = (
+  defaultData = {},
+  hasAlias = false,
+  isAlias = false
+) => [
   {
     name: PCI_TYPE_NAME,
     label: T.VirtualNicHardwareMode,
@@ -389,6 +401,9 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
       getText: (key) => NIC_HARDWARE_STR[key],
       getValue: (type) => type,
     }),
+    fieldProps: {
+      disabled: hasAlias || isAlias,
+    },
     validation: string()
       .trim()
       .default(() => {
@@ -411,6 +426,9 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
     htmlType: (value) => value !== NIC_HARDWARE.EMULATED && INPUT_TYPES.HIDDEN,
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
+    fieldProps: {
+      disabled: hasAlias || isAlias,
+    },
     validation: string()
       .trim()
       .notRequired()
@@ -422,6 +440,9 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
     tooltip: T.OnlySupportedForVirtioDriver,
     type: INPUT_TYPES.TEXT,
     notOnHypervisors: [firecracker],
+    fieldProps: {
+      disabled: hasAlias || isAlias,
+    },
     dependOf: PCI_TYPE_NAME,
     htmlType: (value) =>
       value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : 'number',
@@ -492,13 +513,19 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
       )
     },
     validation: string()
-      .notRequired()
+      .when('PCI_TYPE', (type, schema) =>
+        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
+          ? schema.required()
+          : schema.notRequired()
+      )
       .default(() => undefined)
       .afterSubmit((value, { context }) =>
         context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
       ),
     grid: { md: 3 },
-    readOnly: true,
+    fieldProps: {
+      disabled: true,
+    },
   },
   {
     name: DEVICE,
@@ -516,13 +543,19 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
       )
     },
     validation: string()
-      .notRequired()
+      .when('PCI_TYPE', (type, schema) =>
+        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
+          ? schema.required()
+          : schema.notRequired()
+      )
       .default(() => undefined)
       .afterSubmit((value, { context }) =>
         context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
       ),
     grid: { md: 3 },
-    readOnly: true,
+    fieldProps: {
+      disabled: true,
+    },
   },
   {
     name: CLASS,
@@ -540,13 +573,19 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
       )
     },
     validation: string()
-      .notRequired()
+      .when('PCI_TYPE', (type, schema) =>
+        type === NIC_HARDWARE.PCI_PASSTHROUGH_AUTOMATIC
+          ? schema.required()
+          : schema.notRequired()
+      )
       .default(() => undefined)
       .afterSubmit((value, { context }) =>
         context?.advanced?.PCI_TYPE === PCI_TYPES.AUTOMATIC ? value : undefined
       ),
     grid: { md: 3 },
-    readOnly: true,
+    fieldProps: {
+      disabled: true,
+    },
   },
   // PCI Passthrough Manual mode fields
   {
@@ -558,7 +597,11 @@ const HARDWARE_FIELDS = (defaultData = {}) => [
     htmlType: (value) =>
       value !== NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL && INPUT_TYPES.HIDDEN,
     validation: string()
-      .notRequired()
+      .when('PCI_TYPE', (type, schema) =>
+        type === NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL
+          ? schema.required()
+          : schema.notRequired()
+      )
       .default(() => defaultData?.SHORT_ADDRESS)
       .afterSubmit((value, { context }) =>
         context?.advanced?.PCI_TYPE === PCI_TYPES.MANUAL ? value : undefined
@@ -589,6 +632,9 @@ const GUEST_FIELDS = [
  * @param {object} data.defaultData - VM or VM Template data
  * @param {object} data.oneConfig - Config of oned.conf
  * @param {boolean} data.adminGroup - User is admin or not
+ * @param {boolean} [data.hasAlias] - If has an alias
+ * @param {boolean} [data.isPci] - If it's a PCI
+ * @param {boolean} [data.isAlias] - If it's an alias
  * @returns {Section[]} Sections
  */
 const SECTIONS = ({
@@ -598,6 +644,9 @@ const SECTIONS = ({
   defaultData,
   oneConfig,
   adminGroup,
+  hasAlias,
+  isPci,
+  isAlias,
 } = {}) => {
   const filters = { driver, hypervisor }
 
@@ -609,7 +658,10 @@ const SECTIONS = ({
         id: 'general',
         legend: T.General,
         fields: disableFields(
-          filterByHypAndDriver(GENERAL_FIELDS({ nics }), filters),
+          filterByHypAndDriver(
+            GENERAL_FIELDS({ nics, hasAlias, isPci }),
+            filters
+          ),
           'NIC',
           oneConfig,
           adminGroup
@@ -653,7 +705,10 @@ const SECTIONS = ({
       id: 'hardware',
       legend: T.Hardware,
       fields: disableFields(
-        filterByHypAndDriver(HARDWARE_FIELDS(defaultData), filters),
+        filterByHypAndDriver(
+          HARDWARE_FIELDS(defaultData, hasAlias, isAlias),
+          filters
+        ),
         'NIC',
         oneConfig,
         adminGroup

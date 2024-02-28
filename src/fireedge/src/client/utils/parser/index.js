@@ -17,12 +17,20 @@ import templateToObject from 'client/utils/parser/templateToObject'
 import parseApplicationToForm from 'client/utils/parser/parseApplicationToForm'
 import parseFormToApplication from 'client/utils/parser/parseFormToApplication'
 import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployApplication'
-import { parseAcl } from 'client/utils/parser/parseACL'
 import {
   parseNetworkString,
   parseCustomInputString,
 } from 'client/utils/parser/parseServiceTemplate'
 import parseVmTemplateContents from 'client/utils/parser/parseVmTemplateContents'
+import { parseAcl } from 'client/utils/parser/parseACL'
+import parseTouchedDirty from 'client/utils/parser/parseTouchedDirty'
+import isDeeplyEmpty from 'client/utils/parser/isDeeplyEmpty'
+import {
+  filterTemplateData,
+  transformActionsCreate,
+  transformActionsInstantiate,
+} from 'client/utils/parser/vmTemplateFilter'
+import parsePayload from 'client/utils/parser/parseTemplatePayload'
 
 export {
   templateToObject,
@@ -33,4 +41,10 @@ export {
   parseNetworkString,
   parseCustomInputString,
   parseVmTemplateContents,
+  parseTouchedDirty,
+  isDeeplyEmpty,
+  filterTemplateData,
+  parsePayload,
+  transformActionsCreate,
+  transformActionsInstantiate,
 }

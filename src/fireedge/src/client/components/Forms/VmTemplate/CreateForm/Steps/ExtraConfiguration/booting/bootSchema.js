@@ -152,8 +152,9 @@ export const FEATURE_CUSTOM_ENABLED = {
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.SWITCH,
   validation: boolean()
-    .strip()
-    .default(() => false),
+    .yesOrNo()
+    .default(() => false)
+    .afterSubmit((value) => undefined),
   grid: { md: 12 },
 }
 
@@ -163,7 +164,11 @@ export const FIRMWARE = {
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
   notOnHypervisors: [firecracker, lxc],
-  type: ([, , custom] = []) => (custom ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT),
+  type: ([, , custom] = [], formContext) => {
+    const enabled = formContext?.getValues('extra.OS.FEATURE_CUSTOM_ENABLED')
+
+    return custom || enabled ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT
+  },
   validation: string()
     .trim()
     .notRequired()

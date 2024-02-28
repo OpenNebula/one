@@ -44,6 +44,7 @@ const Content = (props) => {
           fields={fields}
           legend={legend}
           id={STEP_ID}
+          saveState={true}
         />
       ))}
     </Box>

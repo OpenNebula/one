@@ -37,7 +37,7 @@ const Backup = ({ oneConfig, adminGroup }) => (
     {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
-        cy="backups-conf"
+        cy="backup-configuration"
         legend={T.Backup}
         {...section}
       />

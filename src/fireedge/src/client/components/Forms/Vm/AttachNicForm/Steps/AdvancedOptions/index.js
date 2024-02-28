@@ -45,6 +45,7 @@ const Content = (props) => {
             },
           }}
           cy={id}
+          saveState={true}
           fields={fields}
           legend={legend}
           id={STEP_ID}

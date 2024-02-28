@@ -17,6 +17,7 @@ import { ReactElement, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, FormControl, Button } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
+import { useGeneralApi } from 'client/features/General'
 
 import { FormWithSchema, Legend } from 'client/components/Forms'
 import { SSH_PUBLIC_KEY, SCRIPT_FIELDS, OTHER_FIELDS } from './schema'
@@ -33,12 +34,14 @@ const SSH_KEY_USER = '$USER[SSH_PUBLIC_KEY]'
  * @param {string} [props.stepId] - ID of the step the section belongs to
  * @param {object} props.oneConfig - Config of oned.conf
  * @param {boolean} props.adminGroup - User is admin or not
+ * @param {boolean} props.isUpdate - If it's an update of the form
  * @returns {ReactElement} - Configuration section
  */
-const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
+const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
   const { setValue, getValues } = useFormContext()
+  const { setModifiedFields, setFieldPath } = useGeneralApi()
   const SSH_PUBLIC_KEY_PATH = useMemo(
-    () => [stepId, SSH_PUBLIC_KEY.name].filter(Boolean).join('.'),
+    () => [stepId, SSH_PUBLIC_KEY(isUpdate).name].filter(Boolean).join('.'),
     [stepId]
   )
 
@@ -47,16 +50,35 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
     [stepId]
   )
 
-  const handleClearKey = useCallback(
-    () => setValue(SSH_PUBLIC_KEY_PATH),
-    [setValue, SSH_PUBLIC_KEY_PATH]
-  )
+  const handleClearKey = useCallback(() => {
+    setValue(SSH_PUBLIC_KEY_PATH, '')
+
+    // Set as delete
+    setFieldPath('extra.Context')
+    setModifiedFields({
+      extra: {
+        CONTEXT: {
+          SSH_PUBLIC_KEY: { __delete__: true },
+        },
+      },
+    })
+  }, [setValue, SSH_PUBLIC_KEY_PATH])
 
   const handleAddUserKey = useCallback(() => {
     let currentKey = getValues(SSH_PUBLIC_KEY_PATH)
     currentKey &&= currentKey + '\n'
 
     setValue(SSH_PUBLIC_KEY_PATH, `${currentKey ?? ''}${SSH_KEY_USER}`)
+
+    // Set as update
+    setFieldPath('extra.Context')
+    setModifiedFields({
+      extra: {
+        CONTEXT: {
+          SSH_PUBLIC_KEY: true,
+        },
+      },
+    })
   }, [getValues, setValue, SSH_PUBLIC_KEY_PATH])
 
   return (
@@ -69,15 +91,17 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
       >
         <FormWithSchema
           id={stepId}
+          saveState={true}
           cy={getCyPath('context-configuration-others')}
           fields={disableFields(OTHER_FIELDS, 'CONTEXT', oneConfig, adminGroup)}
         />
         <section>
           <FormWithSchema
             id={stepId}
+            saveState={true}
             cy={getCyPath('context-ssh-public-key')}
             fields={disableFields(
-              [SSH_PUBLIC_KEY],
+              [SSH_PUBLIC_KEY(isUpdate)],
               'CONTEXT',
               oneConfig,
               adminGroup
@@ -96,6 +120,7 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
               onClick={handleClearKey}
               color="secondary"
               variant="outlined"
+              data-cy={getCyPath('delete-context-ssh-public-key')}
             >
               {T.Clear}
             </Button>
@@ -103,6 +128,7 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup }) => {
         </section>
         <FormWithSchema
           id={stepId}
+          saveState={true}
           cy={getCyPath('context-script')}
           fields={disableFields(
             SCRIPT_FIELDS,
@@ -122,6 +148,7 @@ ConfigurationSection.propTypes = {
   hypervisor: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 }
 
 export default ConfigurationSection

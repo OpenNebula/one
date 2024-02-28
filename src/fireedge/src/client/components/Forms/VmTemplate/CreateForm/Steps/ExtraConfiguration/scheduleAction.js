@@ -16,6 +16,7 @@
 import { Stack } from '@mui/material'
 import { Calendar as ActionIcon } from 'iconoir-react'
 import { useFieldArray } from 'react-hook-form'
+import { useEffect, useMemo } from 'react'
 
 import { ScheduleActionCard } from 'client/components/Cards'
 import {
@@ -32,6 +33,7 @@ import {
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { T } from 'client/constants'
 
+import { useGeneralApi } from 'client/features/General'
 import PropTypes from 'prop-types'
 
 export const TAB_ID = 'SCHED_ACTION'
@@ -39,6 +41,12 @@ export const TAB_ID = 'SCHED_ACTION'
 const mapNameFunction = mapNameByIndex('SCHED_ACTION')
 
 const ScheduleAction = ({ oneConfig, adminGroup }) => {
+  const { setModifiedFields, setFieldPath, initModifiedFields } =
+    useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.ScheduleAction`)
+    initModifiedFields([...scheduleActions.map(() => ({}))])
+  }, [])
   const {
     fields: scheduleActions,
     remove,
@@ -49,8 +57,23 @@ const ScheduleAction = ({ oneConfig, adminGroup }) => {
     keyName: 'ID',
   })
 
+  const totalFieldsCount = useMemo(
+    () => scheduleActions?.length,
+    [scheduleActions]
+  )
+
+  // Delay execution until next event loop tick to ensure state updates
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFieldPath(`extra.ScheduleAction.${totalFieldsCount}`)
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [totalFieldsCount])
+
   const handleCreateAction = (action) => {
     append(mapNameFunction(action, scheduleActions.length))
+    setModifiedFields(action)
   }
 
   const handleCreateCharter = (actions) => {
@@ -62,10 +85,12 @@ const ScheduleAction = ({ oneConfig, adminGroup }) => {
   }
 
   const handleUpdate = (action, index) => {
+    setModifiedFields(action)
     update(index, mapNameFunction(action, index))
   }
 
   const handleRemove = (index) => {
+    setModifiedFields({ __flag__: 'DELETE' })
     remove(index)
   }
 

@@ -62,6 +62,7 @@ const VideoSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
       fields={fields}
       legend={T.Video}
       rootProps={{ sx: { gridColumn: '1 / -1' } }}
+      saveState={true}
       id={stepId}
     />
   )

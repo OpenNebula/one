@@ -78,11 +78,17 @@ const UserItemDraggable = styled(ListItem)(({ theme }) => ({
 }))
 
 const UserInputItem = forwardRef(
-  ({ removeAction, error, userInput: { name, ...ui } = {}, ...props }, ref) => (
+  (
+    { removeAction, error, userInput: { name, ...ui } = {}, index, ...props },
+    ref
+  ) => (
     <UserItemDraggable
       ref={ref}
       secondaryAction={
-        <IconButton onClick={removeAction}>
+        <IconButton
+          onClick={removeAction}
+          data-cy={`delete-userInput-${index}`}
+        >
           <DeleteCircledOutline />
         </IconButton>
       }
@@ -110,6 +116,7 @@ UserInputItem.propTypes = {
   removeAction: PropTypes.func,
   error: PropTypes.object,
   userInput: PropTypes.object,
+  index: PropTypes.string,
 }
 
 UserInputItem.displayName = 'UserInputItem'
@@ -143,6 +150,10 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
     methods.reset()
   }
 
+  const onDelete = (index) => {
+    remove(index)
+  }
+
   /** @param {DropResult} result - Drop result */
   const onDragEnd = (result) => {
     const { destination, source } = result ?? {}
@@ -165,6 +176,7 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
         >
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
+            saveState={true}
             fields={disableFields(
               USER_INPUT_FIELDS,
               'USER_INPUTS',
@@ -172,6 +184,7 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
               adminGroup
             )}
             rootProps={{ sx: { m: 0 } }}
+            fieldPath={`${EXTRA_ID}.Context`}
           />
           <Button
             variant="contained"
@@ -199,10 +212,11 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
                   {({ draggableProps, dragHandleProps, innerRef }) => (
                     <UserInputItem
                       key={id}
+                      index={index}
                       ref={innerRef}
                       userInput={userInput}
                       error={get(errors, `${EXTRA_ID}.${SECTION_ID}.${index}`)}
-                      removeAction={() => remove(index)}
+                      removeAction={() => onDelete(index)}
                       {...draggableProps}
                       {...dragHandleProps}
                     />

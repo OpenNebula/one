@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
+import { useStore } from 'react-redux'
 import { Redirect, useHistory, useLocation } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
@@ -32,12 +33,12 @@ import {
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 
 import { useSystemData } from 'client/features/Auth'
-import { jsonToXml, xmlToJson } from 'client/models/Helper'
+import { jsonToXml } from 'client/models/Helper'
 import {
-  addTempInfo,
-  deleteRestrictedAttributes,
-  deleteTempInfo,
-} from 'client/utils'
+  filterTemplateData,
+  transformActionsInstantiate,
+} from 'client/utils/parser'
+import { TAB_FORM_MAP } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -47,10 +48,11 @@ const _ = require('lodash')
  * @returns {ReactElement} Instantiation form
  */
 function InstantiateVmTemplate() {
+  const store = useStore()
   const history = useHistory()
   const { state: { ID: templateId, NAME: templateName } = {} } = useLocation()
 
-  const { enqueueInfo } = useGeneralApi()
+  const { enqueueInfo, resetFieldPath, resetModifiedFields } = useGeneralApi()
   const [instantiate] = useInstantiateTemplateMutation()
 
   const { adminGroup, oneConfig } = useSystemData()
@@ -66,43 +68,41 @@ function InstantiateVmTemplate() {
   )
 
   const dataTemplateExtended = _.cloneDeep(apiTemplateDataExtended)
-  const dataTemplate = _.cloneDeep(apiTemplateData)
-
-  // #6154: Add an unique identifier to compare on submit items that exists at the beginning of the update
-  if (!adminGroup) addTempInfo(dataTemplate, dataTemplateExtended)
 
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async (templates) => {
     try {
+      const currentState = store.getState()
+      const modifiedFields = currentState.general?.modifiedFields
       await Promise.all(
-        templates.map((t) => {
-          // #6154: Consideration about resolving this issue -> Read comment on src/client/containers/VmTemplates/Create.js
-
-          // #6154: Delete restricted attributes (if there are not on the original template)
-          const jsonFinal = adminGroup
-            ? xmlToJson(t.template)
-            : deleteRestrictedAttributes(
-                xmlToJson(t?.template),
-                dataTemplate?.TEMPLATE,
-                oneConfig?.VM_RESTRICTED_ATTR
-              )
-
-          // #6154: Delete unique identifier to compare on submit items that exists at the beginning of the update
-          if (!adminGroup) {
-            deleteTempInfo(jsonFinal)
+        templates.map((rawTemplate) => {
+          const existingTemplate = {
+            ...apiTemplateData?.TEMPLATE,
           }
 
-          // Transform json to xml
-          const xmlFinal = jsonToXml(jsonFinal)
+          const filteredTemplate = filterTemplateData(
+            rawTemplate,
+            modifiedFields,
+            existingTemplate,
+            TAB_FORM_MAP
+          )
+
+          // Every action that is not an human action
+          transformActionsInstantiate(filteredTemplate, apiTemplateData)
+
+          const xmlFinal = jsonToXml(filteredTemplate)
 
           // Modify template
-          t.template = xmlFinal
+          rawTemplate.template = xmlFinal
 
-          return instantiate(t).unwrap()
+          return instantiate(rawTemplate).unwrap()
         })
       )
+
+      resetFieldPath()
+      resetModifiedFields()
 
       history.push(PATH.INSTANCE.VMS.LIST)
 
@@ -116,7 +116,7 @@ function InstantiateVmTemplate() {
     return <Redirect to={PATH.TEMPLATE.VMS.LIST} />
   }
 
-  return !dataTemplateExtended || !dataTemplate || _.isEmpty(oneConfig) ? (
+  return !dataTemplateExtended || !apiTemplateData || _.isEmpty(oneConfig) ? (
     <SkeletonStepsForm />
   ) : (
     <InstantiateForm

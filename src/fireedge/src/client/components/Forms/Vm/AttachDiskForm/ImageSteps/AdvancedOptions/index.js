@@ -47,6 +47,7 @@ const Content = ({ hypervisor, oneConfig, adminGroup }) => {
           fields={fields}
           legend={legend}
           id={STEP_ID}
+          saveState={true}
         />
       ))}
     </Box>

@@ -963,6 +963,14 @@ module.exports = {
     Final users may not be aware of this`,
   DefaultNicModel: 'Default hardware model to emulate for all NICs',
   DefaultNicFilter: 'Default network filtering rule for all NICs',
+  Ipv4Static: 'Static (Based on context)',
+  Ipv4Dhcp: 'DHCP (DHCPv4)',
+  Ipv4Skip: 'Skip (Do not configure IPv4)',
+  Ipv6Static: 'Static (Based on context)',
+  Ipv6Auto: 'Auto (SLAAC)',
+  Ipv6Dhcp: 'DHCP (SLAAC and DHCPv6)',
+  Ipv6Disable: 'Disable (Do not use IPv6)',
+  Ipv6Skip: 'Skip (Do not configure IPv6)',
   /* VM Template schema - capacity */
   MaxMemory: 'Max memory',
   MaxMemoryConcept: `
@@ -1157,8 +1165,14 @@ module.exports = {
   Profile: 'Profile',
   DeviceName: 'Device name',
   Device: 'Device',
+  DeviceTooltip:
+    'Select one device of the Device name list to complete this field please.',
   Vendor: 'Vendor',
+  VendorTooltip:
+    'Select one vendor of the Device name list to complete this field please.',
   Class: 'Class',
+  ClassTooltip:
+    'Select one class of the Device name list to complete this field please.',
   Video: 'Video',
   VideoType: 'Video device type',
   VideoTypeConcept:

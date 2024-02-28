@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, FormControl } from '@mui/material'
 import { SystemShut as OsIcon } from 'iconoir-react'
@@ -34,14 +34,26 @@ import { TAB_ID as NIC_ID } from 'client/components/Forms/VmTemplate/CreateForm/
 import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/schema'
 
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
+
+import { useWatch } from 'react-hook-form'
 
 export const TAB_ID = 'OS'
 
 const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.OsCpu`)
+  }, [])
   const sections = useMemo(
     () => SECTIONS(hypervisor, oneConfig, adminGroup),
     [hypervisor]
   )
+
+  const kernelWatch = useWatch({ name: `${EXTRA_ID}.OS.KERNEL` })
+  const kernelDsWatch = useWatch({ name: `${EXTRA_ID}.OS.KERNEL_DS` })
+
+  useEffect(() => {}, [kernelWatch, kernelDsWatch])
 
   return (
     <Stack
@@ -64,7 +76,9 @@ const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
         <FormWithSchema
           key={id}
           id={EXTRA_ID}
+          saveState={true}
           cy={`${EXTRA_ID}-${id}`}
+          hiddenLegend={id === 'os-ramdisk' && !kernelWatch && !kernelDsWatch}
           {...section}
         />
       ))}

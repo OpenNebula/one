@@ -46,8 +46,6 @@ import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
 
-import { hasRestrictedAttributes } from 'client/utils'
-
 const AttachAction = memo(
   ({ vmId, disk, hypervisor, onSubmit, sx, oneConfig, adminGroup }) => {
     const [attachDisk] = useAttachDiskMutation()
@@ -91,6 +89,7 @@ const AttachAction = memo(
                     title: (
                       <Translate word={T.EditSomething} values={[disk?.NAME]} />
                     ),
+                    dataCy: 'modal-edit-disk',
                   },
                   form: () =>
                     !disk?.IMAGE && !disk?.IMAGE_ID // is volatile
@@ -137,14 +136,7 @@ const DetachAction = memo(
       await handleDetachDisk({ id: vmId, disk: DISK_ID })
     }
 
-    // Disable action if the disk has a restricted attribute on the template
-    const disabledAction =
-      !adminGroup &&
-      hasRestrictedAttributes(
-        disk.ORIGINAL,
-        'DISK',
-        oneConfig?.VM_RESTRICTED_ATTR
-      )
+    const disabledAction = !adminGroup
 
     return (
       <ButtonToTriggerForm

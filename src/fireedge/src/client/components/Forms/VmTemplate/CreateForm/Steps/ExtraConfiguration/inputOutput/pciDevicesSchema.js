@@ -129,13 +129,28 @@ const commonHiddenFieldProps = (name) => ({
 })
 
 /** @type {Field} PCI device field */
-const DEVICE_FIELD = { label: T.Device, ...commonFieldProps('DEVICE') }
+const DEVICE_FIELD = {
+  label: T.Device,
+  fieldProps: { disabled: true },
+  tooltip: T.DeviceTooltip,
+  ...commonFieldProps('DEVICE'),
+}
 
 /** @type {Field} PCI device field */
-const VENDOR_FIELD = { label: T.Vendor, ...commonFieldProps('VENDOR') }
+const VENDOR_FIELD = {
+  label: T.Vendor,
+  fieldProps: { disabled: true },
+  tooltip: T.VendorTooltip,
+  ...commonFieldProps('VENDOR'),
+}
 
 /** @type {Field} PCI device field */
-const CLASS_FIELD = { label: T.Class, ...commonFieldProps('CLASS') }
+const CLASS_FIELD = {
+  label: T.Class,
+  fieldProps: { disabled: true },
+  tooltip: T.ClassTooltip,
+  ...commonFieldProps('CLASS'),
+}
 
 /** @type {Field} PCI device field */
 const SHORT_ADDRESS_FIELD = { ...commonHiddenFieldProps('SHORT_ADDRESS') }
@@ -184,5 +199,5 @@ export const PCI_SCHEMA = getObjectSchemaFromFields([
 
 /** @type {ObjectSchema} PCI devices schema */
 export const PCI_DEVICES_SCHEMA = object({
-  PCI: array(PCI_SCHEMA).ensure(),
+  PCI: array().ensure(),
 })

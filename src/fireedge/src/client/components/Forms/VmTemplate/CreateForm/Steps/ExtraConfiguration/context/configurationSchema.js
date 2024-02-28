@@ -25,22 +25,30 @@ const switchField = {
 }
 
 /** @type {Field} SSH public key field */
-export const SSH_PUBLIC_KEY = {
+export const SSH_PUBLIC_KEY = (isUpdate) => ({
   name: 'CONTEXT.SSH_PUBLIC_KEY',
   label: T.SshPublicKey,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  validation: string().trim().notRequired().ensure(),
+  validation: string()
+    .trim()
+    .notRequired()
+    .ensure()
+    .default(() => (isUpdate ? undefined : '$USER[SSH_PUBLIC_KEY]')),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
-}
+})
 
 /** @type {Field} Network context field */
 const NETWORK = {
   name: 'CONTEXT.NETWORK',
   label: T.AddNetworkContextualization,
   tooltip: T.AddNetworkContextualizationConcept,
-  ...switchField,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean()
+    .yesOrNo()
+    .default(() => true),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Token OneGate token field */
@@ -107,9 +115,10 @@ export const SCRIPT_FIELDS = [START_SCRIPT, ENCODE_START_SCRIPT]
 export const OTHER_FIELDS = [NETWORK, TOKEN, REPORT_READY]
 
 /** @type {ObjectSchema} User context configuration schema */
-export const CONFIGURATION_SCHEMA = getObjectSchemaFromFields([
-  SSH_PUBLIC_KEY,
-  START_SCRIPT_BASE64,
-  ...SCRIPT_FIELDS,
-  ...OTHER_FIELDS,
-])
+export const CONFIGURATION_SCHEMA = (isUpdate) =>
+  getObjectSchemaFromFields([
+    SSH_PUBLIC_KEY(isUpdate),
+    START_SCRIPT_BASE64,
+    ...SCRIPT_FIELDS,
+    ...OTHER_FIELDS,
+  ])

@@ -38,8 +38,9 @@ export const SECTION_ID = 'CONTEXT'
  * @returns {ReactElement} - Context vars section
  */
 const ContextVarsSection = ({ stepId, hypervisor }) => {
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, setModifiedFields, setFieldPath } = useGeneralApi()
   const { setValue } = useFormContext()
+
   const customVars = useWatch({
     name: [stepId, SECTION_ID].filter(Boolean).join('.'),
   })
@@ -68,6 +69,17 @@ const ContextVarsSection = ({ stepId, hypervisor }) => {
         // When the path is not found, it means that
         // the attribute is correct and we can set it
         setValue(formPath, newValue)
+
+        // Set as update if the newValue is not undefined and delete if the newValue is undefined
+        // Set as delete
+        setFieldPath('extra.Context')
+        setModifiedFields({
+          extra: {
+            CONTEXT: {
+              [path]: newValue ? true : { __delete__: true },
+            },
+          },
+        })
       }
     },
     [hypervisor]

@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { RefreshDouble as BackupIcon } from 'iconoir-react'
+import { useEffect } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
@@ -27,19 +28,28 @@ import {
   FIELDS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
-const Backup = ({ oneConfig, adminGroup }) => (
-  <>
-    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
-      <FormWithSchema
-        key={id}
-        id={EXTRA_ID}
-        cy={`${EXTRA_ID}-${id}`}
-        {...section}
-      />
-    ))}
-  </>
-)
+const Backup = ({ oneConfig, adminGroup }) => {
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.Backup`)
+  }, [])
+
+  return (
+    <>
+      {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
+        <FormWithSchema
+          key={id}
+          id={EXTRA_ID}
+          saveState={true}
+          cy={`${EXTRA_ID}-${id}`}
+          {...section}
+        />
+      ))}
+    </>
+  )
+}
 
 Backup.propTypes = {
   data: PropTypes.any,

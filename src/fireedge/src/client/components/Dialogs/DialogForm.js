@@ -46,7 +46,7 @@ const DialogForm = ({
   dialogProps.fixedHeight ??= true
 
   const methods = useForm({
-    mode: 'onBlur',
+    mode: 'onChange',
     reValidateMode: 'onSubmit',
     defaultValues: values,
     resolver: yupResolver(resolver()),

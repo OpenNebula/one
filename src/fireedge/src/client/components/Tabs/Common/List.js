@@ -35,6 +35,7 @@ import {
 } from 'client/components/Tabs/Common/Attribute'
 import AttributeCreateForm from 'client/components/Tabs/Common/AttributeCreateForm'
 import { Tr } from 'client/components/HOC'
+import { camelCase } from 'client/utils'
 
 const Title = styled(ListItem)(({ theme }) => ({
   fontWeight: theme.typography.fontWeightBold,
@@ -92,6 +93,7 @@ const AttributeList = ({
         >
           <Attribute
             path={parentPath || name}
+            dataCy={'attribute-' + camelCase(name)}
             {...attribute}
             {...(isParent && { canEdit: false, value: undefined })}
           />

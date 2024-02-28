@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { ElectronicsChip as NumaIcon } from 'iconoir-react'
-import { useWatch } from 'react-hook-form'
+import { useEffect } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
@@ -24,18 +24,19 @@ import {
   TabType,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { VIRTUAL_CPU as VCPU_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
-import {
-  NUMA_FIELDS,
-  ENABLE_NUMA,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+import { NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 import { disableFields } from 'client/utils'
 
 export const TAB_ID = 'NUMA'
 
 const Numa = ({ hypervisor, oneConfig, adminGroup }) => {
-  const enableNuma = useWatch({ name: `${EXTRA_ID}.${ENABLE_NUMA.name}` })
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.NUMA`)
+  }, [])
 
   return (
     <>
@@ -43,24 +44,19 @@ const Numa = ({ hypervisor, oneConfig, adminGroup }) => {
         cy={`${EXTRA_ID}-vcpu`}
         fields={disableFields([VCPU_FIELD], 'TOPOLOGY', oneConfig, adminGroup)}
         id={GENERAL_ID}
+        saveState={true}
       />
       <FormWithSchema
-        cy={`${EXTRA_ID}-numa-enable`}
-        fields={disableFields([ENABLE_NUMA], 'TOPOLOGY', oneConfig, adminGroup)}
+        cy={`${EXTRA_ID}-numa`}
+        fields={disableFields(
+          NUMA_FIELDS(hypervisor),
+          'TOPOLOGY',
+          oneConfig,
+          adminGroup
+        )}
+        saveState={true}
         id={EXTRA_ID}
       />
-      {enableNuma && (
-        <FormWithSchema
-          cy={`${EXTRA_ID}-numa`}
-          fields={disableFields(
-            NUMA_FIELDS(hypervisor),
-            'TOPOLOGY',
-            oneConfig,
-            adminGroup
-          )}
-          id={EXTRA_ID}
-        />
-      )}
     </>
   )
 }

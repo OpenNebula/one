@@ -25,11 +25,13 @@ import { T } from 'client/constants'
 export const STEP_ID = 'network'
 
 const Content = ({ data, setFormData }) => {
-  const { NAME } = data?.[0] ?? {}
+  const { ID } = data?.[0] ?? {}
 
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
     setList: setFormData,
+    modifiedFields: ['NETWORK', 'NETWORK_UNAME'],
+    fieldKey: 'general',
   })
 
   const handleSelectedRows = (rows) => {
@@ -44,8 +46,8 @@ const Content = ({ data, setFormData }) => {
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      getRowId={(row) => String(row.NAME)}
-      initialState={{ selectedRowIds: { [NAME]: true } }}
+      getRowId={(row) => String(row.ID)}
+      initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
   )

@@ -17,6 +17,7 @@ import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 import { Db as DatastoreIcon } from 'iconoir-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useEffect, useMemo } from 'react'
 
 import { FormWithSchema } from 'client/components/Forms'
 import DiskCard from 'client/components/Cards/DiskCard'
@@ -37,15 +38,24 @@ import {
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
 import { getDiskName } from 'client/models/Image'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 export const TAB_ID = 'DISK'
 
 const mapNameFunction = mapNameByIndex('DISK')
 
 const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
+  const { setModifiedFields, setFieldPath, initModifiedFields } =
+    useGeneralApi()
+
+  useEffect(() => {
+    setFieldPath(`extra.Storage`)
+    initModifiedFields([...disks.map(() => ({}))])
+  }, [])
+
   const { getValues, setValue } = useFormContext()
   const {
-    fields: disks,
+    fields: disks = [],
     append,
     update,
     replace,
@@ -53,23 +63,40 @@ const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
     name: `${EXTRA_ID}.${TAB_ID}`,
   })
 
-  const removeAndReorder = (diskName) => {
+  const totalFieldsCount = useMemo(() => disks?.length, [disks])
+
+  // Delay execution until next event loop tick to ensure state updates
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFieldPath(`extra.Storage.${totalFieldsCount}`)
+    }, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [totalFieldsCount])
+
+  const removeAndReorder = (disk) => {
+    /** MARK FOR DELETION */
+    setFieldPath(`extra.Storage.${disk?.DISK_ID}`)
+    setModifiedFields({ __flag__: 'DELETE' })
     const updatedDisks = disks
-      .filter(({ NAME }) => NAME !== diskName)
+      .filter(({ NAME }) => NAME !== disk?.NAME)
       .map(mapNameFunction)
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
     const updatedBootOrder = reorderBootAfterRemove(
-      diskName,
+      disk?.NAME,
       disks,
       currentBootOrder
     )
 
     replace(updatedDisks)
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
+    setFieldPath(`extra.OsCpu`)
+    setModifiedFields({ OS: { BOOT: true } })
   }
 
   const handleUpdate = (updatedDisk, index) => {
     update(index, mapNameFunction(updatedDisk, index))
+    setFieldPath(`extra.Storage.${totalFieldsCount}`)
   }
 
   return (
@@ -93,7 +120,7 @@ const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
         }}
       >
         {disks?.map(({ id, ...item }, index) => {
-          item.DISK_ID ??= index
+          item.DISK_ID = index
 
           return (
             <DiskCard
@@ -106,7 +133,7 @@ const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
                     name={getDiskName(item)}
                     oneConfig={oneConfig}
                     adminGroup={adminGroup}
-                    onSubmit={() => removeAndReorder(item?.NAME)}
+                    onSubmit={() => removeAndReorder(item)}
                   />
                   <AttachAction
                     disk={item}

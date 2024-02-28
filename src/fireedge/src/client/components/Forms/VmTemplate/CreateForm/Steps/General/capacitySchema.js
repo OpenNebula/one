@@ -235,11 +235,11 @@ export const MEMORY_RESIZE_MODE_FIELD = {
   notOnHypervisors: [lxc, firecracker, vcenter],
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: arrayToOptions(Object.keys(MEMORY_RESIZE_OPTIONS), {
-    addEmpty: false,
+    addEmpty: true,
     getText: (option) => option,
     getValue: (option) => MEMORY_RESIZE_OPTIONS[option],
   }),
-  validation: string().default(() => MEMORY_RESIZE_OPTIONS[T.Ballooning]),
+  validation: string().default(() => undefined),
   grid: { md: 6 },
 }
 

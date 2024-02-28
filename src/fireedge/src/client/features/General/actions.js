@@ -26,6 +26,20 @@ export const updateDisabledSteps = createAction('Set disabled steps')
 export const dismissSnackbar = createAction('Dismiss snackbar')
 export const deleteSnackbar = createAction('Delete snackbar')
 export const setUploadSnackbar = createAction('Change upload snackbar')
+export const setFieldPath = createAction('Set dynamic field path')
+export const resetFieldPath = createAction('Reset field path')
+export const initModifiedFields = createAction('Init modified fields')
+export const changePositionModifiedFields = createAction(
+  'Change position of two array elements in modified fields'
+)
+export const setModifiedFields = createAction(
+  'Set modified fields',
+  (fields, options = {}) => ({
+    payload: fields,
+    meta: { batch: options.batch || false },
+  })
+)
+export const resetModifiedFields = createAction('Reset modified fields')
 
 export const enqueueSnackbar = createAction(
   'Enqueue snackbar',

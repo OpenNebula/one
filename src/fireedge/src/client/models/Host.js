@@ -98,7 +98,9 @@ export const getAllocatedInfo = (host) => {
  */
 export const getHugepageSizes = (host) => {
   const wrapHost = Array.isArray(host) ? host : [host]
-  const numaNodes = [wrapHost?.HOST_SHARE?.NUMA_NODES?.NODE ?? []].flat()
+  const numaNodes = wrapHost
+    ?.map((item) => item?.HOST_SHARE?.NUMA_NODES?.NODE)
+    .flat()
 
   return numaNodes
     .filter((node) => node?.NODE_ID && node?.HUGEPAGE)

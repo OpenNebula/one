@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema, array, boolean, number, object, ref, string } from 'yup'
+import {
+  object,
+  array,
+  string,
+  boolean,
+  number,
+  ref,
+  ObjectSchema,
+  mixed,
+} from 'yup'
 
 import {
   INPUT_TYPES,
@@ -197,15 +206,13 @@ const DEFAULT_VALUE = {
     type === uiBoolean
       ? arrayToOptions(['NO', 'YES'])
       : arrayToOptions(options),
-  validation: string()
-    .trim()
+  validation: mixed()
     .default(() => undefined)
     .when(
       [TYPE.name, OPTIONS.name],
       (type, options = [], schema) =>
         ({
           [uiList]: schema.oneOf(options).notRequired(),
-          [uiListMultiple]: schema.includesInOptions(options),
           [uiRange]: number().min(ref(MIN.name)).max(ref(MAX.name)).integer(),
           [uiRangeFloat]: number().min(ref(MIN.name)).max(ref(MAX.name)),
           [uiPassword]: schema.strip().notRequired(),

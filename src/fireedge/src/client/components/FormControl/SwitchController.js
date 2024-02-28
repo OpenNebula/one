@@ -49,12 +49,13 @@ const SwitchController = memo(
     dependencies,
   }) => {
     const {
-      field: { value = false, onChange },
+      field: { value = false, onChange, onBlur },
       fieldState: { error },
     } = useController({ name, control })
 
     const handleChange = useCallback(
       (e) => {
+        onBlur()
         const condition = e.target.checked
         onChange(condition)
         if (typeof onConditionChange === 'function') {

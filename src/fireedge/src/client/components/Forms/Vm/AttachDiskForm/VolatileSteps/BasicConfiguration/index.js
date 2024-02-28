@@ -32,7 +32,14 @@ const Content = ({ hypervisor, oneConfig, adminGroup }) => {
     []
   )
 
-  return <FormWithSchema cy="attach-disk" fields={memoFields} id={STEP_ID} />
+  return (
+    <FormWithSchema
+      cy="attach-disk"
+      fields={memoFields}
+      id={STEP_ID}
+      saveState={true}
+    />
+  )
 }
 
 /**

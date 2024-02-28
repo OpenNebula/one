@@ -20,6 +20,11 @@ import AdvancedOptions, {
   STEP_ID as ADVANCED_ID,
 } from 'client/components/Forms/Vm/AttachDiskForm/VolatileSteps/AdvancedOptions'
 import { mapUserInputs, createSteps, convertToMB } from 'client/utils'
+import { store } from 'client/sunstone'
+import {
+  setModifiedFields,
+  setFieldPath,
+} from 'client/features/General/actions'
 
 const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
   transformInitialValue: (disk = {}, schema) => {
@@ -31,14 +36,15 @@ const Steps = createSteps([BasicConfiguration, AdvancedOptions], {
       { stripUnknown: true }
     )
 
-    // #6154: Add temp id to propagate it
-    schemaCast[ADVANCED_ID].TEMP_ID = disk.TEMP_ID
+    store.dispatch(setFieldPath(`extra.Storage.${disk?.DISK_ID}`))
 
     return schemaCast
   },
   transformBeforeSubmit: (formData) => {
     const { [BASIC_ID]: configuration = {}, [ADVANCED_ID]: advanced = {} } =
       formData ?? {}
+
+    store.dispatch(setModifiedFields({}, { batch: false }))
 
     // ISSUE#6136: Convert size to MB (because XML API uses only MB) and delete sizeunit field (no needed on XML API)
     configuration.SIZE = convertToMB(configuration.SIZE, configuration.SIZEUNIT)

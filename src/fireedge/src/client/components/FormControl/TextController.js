@@ -45,7 +45,7 @@ const TextController = memo(
     })
 
     const {
-      field: { ref, value = '', onChange, ...inputProps },
+      field: { ref, value = '', onChange, onBlur, ...inputProps },
       fieldState: { error },
     } = useController({ name, control })
 
@@ -58,6 +58,7 @@ const TextController = memo(
 
     const handleChange = useCallback(
       (e) => {
+        onBlur()
         const condition = e.target.value
         onChange(condition)
         if (typeof onConditionChange === 'function') {

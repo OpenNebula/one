@@ -22,7 +22,6 @@ import ListItemText from '@mui/material/ListItemText'
 import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-
 import { FormWithSchema, Legend } from 'client/components/Forms'
 import { Tr, Translate } from 'client/components/HOC'
 
@@ -36,6 +35,7 @@ import { T, HYPERVISORS } from 'client/constants'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
 import { hasRestrictedAttributes } from 'client/utils'
+
 export const SECTION_ID = 'INPUT'
 
 const InputsSection = memo(
@@ -79,6 +79,10 @@ const InputsSection = memo(
       methods.reset()
     }
 
+    const onDelete = (index) => {
+      remove(index)
+    }
+
     if (fields.length === 0) {
       return null
     }
@@ -98,6 +102,8 @@ const InputsSection = memo(
               cy={getCyPath('io-inputs')}
               fields={fields}
               rootProps={{ sx: { m: 0 } }}
+              saveState={true}
+              fieldPath={`${stepId}.InputOutput`}
             />
             <Button
               variant="contained"
@@ -119,7 +125,7 @@ const InputsSection = memo(
             const busIcon = busTypeIcons[BUS]
             const busInfo = `${BUS}`
 
-            // Disable action if the nic has a restricted attribute on the template
+            // Disable action if the input has a restricted attribute on the template
             const disabledAction =
               !adminGroup &&
               hasRestrictedAttributes(
@@ -134,10 +140,11 @@ const InputsSection = memo(
                 key={id}
                 secondaryAction={
                   <SubmitButton
-                    onClick={() => remove(index)}
+                    onClick={() => onDelete(index)}
                     icon=<DeleteCircledOutline />
                     disabled={disabledAction}
                     tooltip={tooltip}
+                    data-cy={`input-delete-${index}`}
                   />
                 }
                 sx={{ '&:hover': { bgcolor: 'action.hover' } }}

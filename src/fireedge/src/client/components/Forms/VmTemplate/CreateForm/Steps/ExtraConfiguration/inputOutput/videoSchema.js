@@ -62,7 +62,7 @@ export const VIDEO_TYPE = {
         !context?.general?.HYPERVISOR
 
       // Not send to the request the value if it's not a valid hypervisor
-      return validHypervisor && value !== VIDEO_TYPES.auto ? value : undefined
+      return validHypervisor && value !== VIDEO_TYPES.auto ? value : ''
     }),
   grid: { sm: 3, md: 3 },
 }

@@ -35,6 +35,18 @@ export const useGeneralApi = () => {
     setUpdateDialog: (updateDialog) =>
       dispatch(actions.setUpdateDialog(updateDialog)),
 
+    // modified fields
+    setFieldPath: (path) => dispatch(actions.setFieldPath(path)),
+    resetFieldPath: () => dispatch(actions.resetFieldPath()),
+    initModifiedFields: (fields) =>
+      dispatch(actions.initModifiedFields(fields)),
+    changePositionModifiedFields: (fields) =>
+      dispatch(actions.changePositionModifiedFields(fields)),
+    setModifiedFields: (fields, options = {}) => {
+      dispatch(actions.setModifiedFields(fields, options))
+    },
+    resetModifiedFields: () => dispatch(actions.resetModifiedFields()),
+
     // dismiss all if no key has been defined
     dismissSnackbar: (key) =>
       dispatch(actions.dismissSnackbar({ key, dismissAll: !key })),

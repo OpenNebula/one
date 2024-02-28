@@ -86,7 +86,7 @@ const Content = ({ hypervisor, oneConfig, adminGroup }) => {
         error: !!errors?.CONTEXT,
       },
       {
-        id: 'backup_config',
+        id: 'backup',
         icon: BackupIcon,
         label: <Translate word={T.Backup} />,
         renderContent: () => (

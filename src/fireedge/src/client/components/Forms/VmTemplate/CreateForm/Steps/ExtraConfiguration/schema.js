@@ -48,14 +48,15 @@ const SCHED_ACTION_SCHEMA = object({
 
 /**
  * @param {HYPERVISORS} hypervisor - VM hypervisor
+ * @param {boolean} isUpdate - If it's an update of the form
  * @returns {ObjectSchema} Extra configuration schema
  */
-export const SCHEMA = (hypervisor) =>
+export const SCHEMA = (hypervisor, isUpdate) =>
   object()
     .concat(SCHED_ACTION_SCHEMA)
     .concat(NETWORK_SCHEMA)
     .concat(STORAGE_SCHEMA)
-    .concat(CONTEXT_SCHEMA(hypervisor))
+    .concat(CONTEXT_SCHEMA(hypervisor, isUpdate))
     .concat(IO_SCHEMA(hypervisor))
     .concat(
       getObjectSchemaFromFields([...PLACEMENT_FIELDS, ...OS_FIELDS(hypervisor)])

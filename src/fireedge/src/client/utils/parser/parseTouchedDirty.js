@@ -13,18 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, ObjectSchema } from 'yup'
-
-import {
-  CONFIGURATION_SCHEMA,
-  FILES_SCHEMA,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { HYPERVISORS } from 'client/constants'
 
 /**
- * @param {object} [formProps] - Form props
- * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
- * @returns {ObjectSchema} Context schema
+ * @param {object} touchedFields - RHF touched fields object.
+ * @param {object} dirtyFields - RHF dirty fields object.
+ * @returns {object} - Touched dirty object.
  */
-export const SCHEMA = ({ hypervisor }) =>
-  object().concat(CONFIGURATION_SCHEMA(true)).concat(FILES_SCHEMA(hypervisor))
+const parseTouchedDirty = (touchedFields, dirtyFields) => {
+  const mergeRecursively = (touched, dirty) =>
+    Object.keys(dirty).reduce((acc, key) => {
+      if (touched?.[key]) {
+        if (
+          typeof dirty[key] === 'object' &&
+          dirty[key] !== null &&
+          typeof touched[key] === 'object' &&
+          touched[key] !== null
+        ) {
+          acc[key] = mergeRecursively(touched[key], dirty[key])
+        } else {
+          acc[key] = dirty[key]
+        }
+      }
+
+      return acc
+    }, {})
+
+  return mergeRecursively(touchedFields, dirtyFields)
+}
+
+export default parseTouchedDirty

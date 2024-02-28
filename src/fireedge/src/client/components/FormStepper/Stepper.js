@@ -116,6 +116,7 @@ const CustomStepper = ({
                 </Typography>
               )
             }
+            data-cy={`step-${id}`}
           >
             <StepLabel
               StepIconComponent={StepIconStyled}

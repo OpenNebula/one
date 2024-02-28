@@ -591,3 +591,83 @@ export const generateDocLink = (version, path) => {
   // Return link
   return DOCS_BASE_PATH + '/' + versionDoc + '/' + path
 }
+
+/**
+ * Extract TAB id from field path.
+ *
+ * @param {string} str - Field path
+ * @returns {string} - Tab ID/NAME
+ */
+export const extractTab = (str) => {
+  const parts = str?.split('.')
+
+  return /^\d+$/.test(parts[parts.length - 1])
+    ? parts[parts.length - 2]
+    : parts.pop()
+}
+
+export const findKeyWithPath = (() => {
+  const cache = new Map()
+
+  /**
+   * @param {object} root0 - Params
+   * @param {object} root0.obj - Object to search
+   * @param {string} root0.keyToFind - Key to find
+   * @param {Array} root0.path - Path to key
+   * @param {boolean} root0.findAll - Return first or all
+   * @returns {object} - Found key(s) + path(s)
+   */
+  const search = ({ obj, keyToFind, path = [], findAll = false }) => {
+    const cacheKey = JSON.stringify({ obj, keyToFind, path, findAll })
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey)
+    }
+
+    if (typeof obj !== 'object' || obj === null) {
+      return { found: false, paths: [] }
+    }
+
+    if (keyToFind in obj) {
+      const newPath = [...path, keyToFind]
+      const searchResult = { found: true, paths: [newPath] }
+      if (!findAll) {
+        cache.set(cacheKey, searchResult)
+
+        return searchResult
+      }
+
+      return searchResult
+    }
+
+    let accumulatedResults = []
+
+    const entries = Array.isArray(obj) ? obj.entries() : Object.entries(obj)
+    for (const [key, value] of entries) {
+      if (typeof value === 'object') {
+        const nextPath = Array.isArray(obj)
+          ? [...path, `[${key}]`]
+          : [...path, key]
+        const subSearchResult = search({
+          obj: value,
+          keyToFind,
+          path: nextPath,
+          findAll,
+        })
+        if (subSearchResult.found) {
+          accumulatedResults = [...accumulatedResults, ...subSearchResult.paths]
+          if (!findAll) {
+            break
+          }
+        }
+      }
+    }
+
+    const found = accumulatedResults.length > 0
+    const finalResult = { found, paths: accumulatedResults }
+    cache.set(cacheKey, finalResult)
+
+    return finalResult
+  }
+
+  return search
+})()

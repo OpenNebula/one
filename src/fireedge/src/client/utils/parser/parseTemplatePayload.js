@@ -13,18 +13,42 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, ObjectSchema } from 'yup'
-
-import {
-  CONFIGURATION_SCHEMA,
-  FILES_SCHEMA,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
-import { HYPERVISORS } from 'client/constants'
+import { get } from 'lodash'
+import { findKeyWithPath, extractTab } from 'client/utils'
+import { TAB_FORM_MAP } from 'client/constants'
 
 /**
- * @param {object} [formProps] - Form props
- * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
- * @returns {ObjectSchema} Context schema
+ * @param {object} payload - Payload.
+ * @param {string} fieldPath - Field path.
+ * @returns {object} - Parsed payload.
  */
-export const SCHEMA = ({ hypervisor }) =>
-  object().concat(CONFIGURATION_SCHEMA(true)).concat(FILES_SCHEMA(hypervisor))
+const parsePayload = (payload, fieldPath) => {
+  const TAB = extractTab(fieldPath)
+
+  if (payload === undefined || !fieldPath?.includes('extra')) {
+    return payload // only parses the extra step
+  }
+  const relevantFields = TAB_FORM_MAP[TAB]
+
+  if (!relevantFields) {
+    return {}
+  }
+
+  return relevantFields.reduce((parsedPayload, key) => {
+    const searchResult = findKeyWithPath({
+      obj: payload,
+      keyToFind: key,
+    })
+
+    if (searchResult.found) {
+      const value = get(payload, searchResult.paths[0].join('.'), {})
+      if (value !== undefined) {
+        parsedPayload[key] = value
+      }
+    }
+
+    return parsedPayload
+  }, {})
+}
+
+export default parsePayload

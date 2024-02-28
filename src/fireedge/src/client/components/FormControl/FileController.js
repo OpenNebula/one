@@ -55,7 +55,7 @@ const FileController = memo(
     const { setValue, setError, clearErrors, watch } = useFormContext()
 
     const {
-      field: { ref, value, onChange, ...inputProps },
+      field: { ref, value, onChange, onBlur, ...inputProps },
       fieldState: { error },
     } = useController({ name, control })
 
@@ -92,6 +92,7 @@ const FileController = memo(
      */
     const handleChange = async (event) => {
       try {
+        onBlur()
         const file = event.target.files?.[0]
 
         if (!file) return

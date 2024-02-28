@@ -44,7 +44,10 @@ const DATA = {
   type: INPUT_TYPES.TEXT,
   multiline: true,
   notOnHypervisors: [lxc, vcenter, firecracker],
-  validation: string().trim().notRequired(),
+  validation: string()
+    .trim()
+    .notRequired()
+    .afterSubmit((value) => (value === '' ? undefined : value)),
   grid: { md: 12 },
 }
 
@@ -55,7 +58,9 @@ const VALIDATE = {
   tooltip: T.RawValidateConcept,
   type: INPUT_TYPES.CHECKBOX,
   notOnHypervisors: [lxc, vcenter, firecracker],
-  validation: boolean().yesOrNo(),
+  dependOf: DATA.name,
+  htmlType: (data) => !data && INPUT_TYPES.HIDDEN,
+  validation: boolean().yesOrNo().default(false),
   grid: { md: 12 },
 }
 

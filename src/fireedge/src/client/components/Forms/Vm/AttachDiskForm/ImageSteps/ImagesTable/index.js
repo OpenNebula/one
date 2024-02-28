@@ -29,6 +29,8 @@ const Content = ({ data, setFormData }) => {
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
     setList: setFormData,
+    modifiedFields: ['IMAGE', 'IMAGE_UNAME'],
+    fieldKey: 'general',
   })
 
   const handleSelectedRows = (rows) => {
@@ -45,6 +47,7 @@ const Content = ({ data, setFormData }) => {
     <ImagesTable
       singleSelect
       disableGlobalSort
+      displaySelectedRows
       pageSize={5}
       initialState={{ selectedRowIds: { [ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}

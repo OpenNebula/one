@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useWatch } from 'react-hook-form'
 
@@ -28,6 +28,7 @@ import {
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { generateKey } from 'client/utils'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 let generalFeatures
 
@@ -37,6 +38,11 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
+
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`general`)
+  }, [])
 
   const sections = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
@@ -64,6 +70,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
           id={STEP_ID}
           cy={`${STEP_ID}-${id}`}
           rootProps={{ className: classes[id] }}
+          saveState={true}
           {...section}
         />
       ))}
@@ -78,11 +85,11 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
  * @returns {object} General configuration step
  */
 const General = ({
-  dataTemplateExtended: vmTemplate,
+  apiTemplateDataExtended: vmTemplate,
   oneConfig,
   adminGroup,
 }) => {
-  const isUpdate = vmTemplate?.NAME
+  const isUpdate = !!vmTemplate?.NAME
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {

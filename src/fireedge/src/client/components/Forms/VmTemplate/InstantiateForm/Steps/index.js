@@ -19,12 +19,9 @@ import BasicConfiguration, {
 import ExtraConfiguration, {
   STEP_ID as EXTRA_ID,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
-import UserInputs, {
-  STEP_ID as USER_INPUTS_ID,
-} from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
+import UserInputs from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import {
   getUserInputParams,
-  jsonToXml,
   parseRangeToArray,
   userInputsToArray,
 } from 'client/models/Helper'
@@ -81,36 +78,17 @@ const Steps = createSteps(
         { stripUnknown: true }
       )
     },
-    transformBeforeSubmit: (formData, vmTemplate, _, adminGroup, oneConfig) => {
-      const {
-        [BASIC_ID]: { name, instances, hold, persistent, ...restOfConfig } = {},
-        [USER_INPUTS_ID]: userInputs,
-        [EXTRA_ID]: extraTemplate = {},
-      } = formData ?? {}
-
-      vmTemplate?.TEMPLATE?.OS &&
-        extraTemplate?.OS &&
-        (extraTemplate.OS = {
-          ...vmTemplate?.TEMPLATE?.OS,
-          ...extraTemplate?.OS,
-        })
-      ;['NIC', 'NIC_ALIAS'].forEach((nicKey) =>
-        extraTemplate?.[nicKey]?.forEach((NIC) => delete NIC?.NAME)
-      )
-
-      // merge with template disks to get TYPE attribute
-      const templateXML = jsonToXml({
-        ...userInputs,
-        ...extraTemplate,
-        ...restOfConfig,
-      })
-
-      const data = { instances, hold, persistent, template: templateXML }
+    transformBeforeSubmit: (formData, vmTemplate) => {
+      const { [BASIC_ID]: { name, instances, hold, persistent } = {} } =
+        formData ?? {}
 
       const templates = [...new Array(instances)].map((__, idx) => ({
         id: vmTemplate.ID,
         name: name?.replace(/%idx/gi, idx),
-        ...data,
+        instances: instances,
+        hold: hold,
+        persistent: persistent,
+        ...formData,
       }))
 
       return templates

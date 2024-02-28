@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { Folder as ContextIcon } from 'iconoir-react'
+import { useEffect } from 'react'
 
 import {
   TabType,
@@ -28,17 +29,25 @@ import FilesSection from './filesSection'
 import ContextVarsSection from './contextVarsSection'
 
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 export const TAB_ID = ['CONTEXT', USER_INPUTS_ID]
 
-const Context = (props) => (
-  <>
-    <ConfigurationSection stepId={EXTRA_ID} {...props} />
-    <UserInputsSection {...props} />
-    <FilesSection stepId={EXTRA_ID} {...props} />
-    <ContextVarsSection stepId={EXTRA_ID} />
-  </>
-)
+const Context = (props) => {
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.Context`)
+  }, [])
+
+  return (
+    <>
+      <ConfigurationSection stepId={EXTRA_ID} {...props} />
+      <UserInputsSection {...props} />
+      <FilesSection stepId={EXTRA_ID} {...props} />
+      <ContextVarsSection stepId={EXTRA_ID} />
+    </>
+  )
+}
 
 Context.propTypes = {
   data: PropTypes.any,

@@ -53,7 +53,7 @@ const ToggleController = memo(
     onConditionChange,
   }) => {
     const {
-      field: { ref, value: optionSelected, onChange },
+      field: { ref, value: optionSelected, onChange, onBlur },
       fieldState: { error: { message } = {} },
     } = useController({ name, control })
 
@@ -65,6 +65,7 @@ const ToggleController = memo(
     }, [])
     const handleChange = useCallback(
       (_, newValues) => {
+        onBlur()
         if (!readOnly && (!notNull || newValues)) {
           onChange(newValues)
           if (typeof onConditionChange === 'function') {

@@ -133,7 +133,7 @@ export const TEMPLATE_LOGOS = {
 /** @enum {string} FS freeze options type */
 export const FS_FREEZE_OPTIONS = {
   [T.None]: 'NONE',
-  [T.QEMUAgent]: 'QEMU-AGENT',
+  [T.QEMUAgent]: 'AGENT',
   [T.Suspend]: 'SUSPEND',
 }
 
@@ -173,4 +173,37 @@ export const NIC_HARDWARE_STR = {
 export const MEMORY_RESIZE_OPTIONS = {
   [T.Ballooning]: 'BALLOONING',
   [T.Hotplug]: 'HOTPLUG',
+}
+
+export const TAB_FORM_MAP = {
+  Storage: ['DISK', 'TM_MAD_SYSTEM'],
+  Network: ['NIC', 'NIC_ALIAS', 'PCI', 'NIC_DEFAULT'],
+  OsCpu: ['OS', 'CPU_MODEL', 'FEATURES', 'RAW'],
+  InputOutput: ['INPUT', 'GRAPHICS', 'VIDEO', 'PCI'],
+  Context: ['CONTEXT', 'USER_INPUTS', 'INPUTS_ORDER'],
+  ScheduleAction: ['SCHED_ACTION'],
+  Placement: [
+    'SCHED_DS_RANK',
+    'SCHED_DS_REQUIREMENTS',
+    'SCHED_RANK',
+    'SCHED_REQUIREMENTS',
+  ],
+  NUMA: ['TOPOLOGY'],
+  Backup: ['BACKUP_CONFIG'],
+}
+
+/** @enum {string} Methods on IP v4 options type */
+export const IPV4_METHODS = {
+  [T.Ipv4Static]: 'static',
+  [T.Ipv4Dhcp]: 'dhcp',
+  [T.Ipv4Skip]: 'skip',
+}
+
+/** @enum {string} Methods on IP v6 options type */
+export const IPV6_METHODS = {
+  [T.Ipv4Static]: 'static',
+  [T.Ipv6Auto]: 'auto',
+  [T.Ipv4Dhcp]: 'dhcp',
+  [T.Ipv6Disable]: 'disable',
+  [T.Ipv4Skip]: 'skip',
 }

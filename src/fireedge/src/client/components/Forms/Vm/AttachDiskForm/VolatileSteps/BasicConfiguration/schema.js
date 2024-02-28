@@ -74,12 +74,16 @@ const TYPE = (hypervisor) => ({
   type: INPUT_TYPES.SELECT,
   values:
     hypervisor === vcenter
-      ? [{ text: 'FS', value: 'fs' }]
+      ? [
+          { text: '-', value: undefined },
+          { text: 'FS', value: 'fs' },
+        ]
       : [
+          { text: '-', value: undefined },
           { text: 'FS', value: 'fs' },
           { text: 'Swap', value: 'swap' },
         ],
-  validation: string().trim().notRequired().default('fs'),
+  validation: string().trim().required().default(undefined),
 })
 
 /**
@@ -94,17 +98,22 @@ const FORMAT = (hypervisor) => ({
   htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
   values:
     hypervisor === vcenter
-      ? [{ text: 'Raw', value: 'raw' }]
+      ? [
+          { text: '-', value: undefined },
+          { text: 'Raw', value: 'raw' },
+        ]
       : [
+          { text: '-', value: undefined },
           { text: 'Raw', value: 'raw' },
           { text: 'qcow2', value: 'qcow2' },
         ],
   validation: string()
     .trim()
     .when('TYPE', (type, schema) =>
-      type === 'swap' ? schema.notRequired() : schema.required()
-    )
-    .default('raw'),
+      type === 'swap'
+        ? schema.notRequired().default(undefined)
+        : schema.required().default(undefined)
+    ),
 })
 
 /** @type {Field} Filesystem field */

@@ -48,7 +48,15 @@ const AttachAction = memo(
     sx,
     oneConfig,
     adminGroup,
+    indexNic,
+    indexAlias,
+    indexPci,
+    hasAlias,
+    isPci,
+    isAlias,
   }) => {
+    const { setFieldPath } = useGeneralApi()
+
     const [attachNic] = useAttachNicMutation()
 
     const handleAttachNic = async (formData) => {
@@ -56,7 +64,6 @@ const AttachAction = memo(
         return await onSubmit(formData)
       }
 
-      const isAlias = !!formData?.PARENT?.length
       const key = isAlias ? 'NIC_ALIAS' : 'NIC'
       const data = { [key]: formData }
 
@@ -85,17 +92,34 @@ const AttachAction = memo(
         options={[
           {
             dialogProps: { title: T.AttachNic, dataCy: 'modal-attach-nic' },
-            form: () =>
-              AttachNicForm({
+            form: () => {
+              // Set field path
+              if (nic) {
+                if (isPci) {
+                  setFieldPath(`extra.InputOutput.PCI.${indexPci}`)
+                } else if (isAlias) {
+                  setFieldPath(`extra.Network.NIC_ALIAS.${indexAlias}`)
+                } else {
+                  setFieldPath(`extra.Network.NIC.${indexNic}`)
+                }
+              } else {
+                setFieldPath(`extra.Network.NIC.${currentNics.length}`)
+              }
+
+              return AttachNicForm({
                 stepProps: {
                   hypervisor,
                   nics: currentNics,
                   defaultData: nic,
                   oneConfig,
                   adminGroup,
+                  hasAlias,
+                  isPci,
+                  isAlias,
                 },
                 initialValues: nic,
-              }),
+              })
+            },
             onSubmit: handleAttachNic,
           },
         ]}
@@ -273,6 +297,12 @@ const ActionPropTypes = {
   sx: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  indexNic: PropTypes.string,
+  indexAlias: PropTypes.string,
+  indexPci: PropTypes.string,
+  hasAlias: PropTypes.bool,
+  isPci: PropTypes.bool,
+  isAlias: PropTypes.bool,
 }
 
 AttachAction.propTypes = ActionPropTypes

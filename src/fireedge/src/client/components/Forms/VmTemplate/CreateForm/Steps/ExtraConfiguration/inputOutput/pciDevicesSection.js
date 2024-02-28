@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, FormControl, Divider, Button } from '@mui/material'
 import List from '@mui/material/List'
@@ -36,6 +36,8 @@ import { T, HYPERVISORS } from 'client/constants'
 
 import { hasRestrictedAttributes } from 'client/utils'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
+
+import { useGeneralApi } from 'client/features/General'
 
 export const SECTION_ID = 'PCI'
 
@@ -64,6 +66,17 @@ const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
     name: [stepId, SECTION_ID].filter(Boolean).join('.'),
   })
 
+  const { setModifiedFields, setFieldPath, initModifiedFields } =
+    useGeneralApi()
+
+  useEffect(() => {
+    // Init pci devices modified fields
+    setFieldPath(`extra.InputOutput.PCI`)
+    initModifiedFields([
+      ...pciDevices.map((element, index) => ({ __aliasPci__: index })),
+    ])
+  }, [])
+
   const methods = useForm({
     defaultValues: PCI_SCHEMA.default(),
     resolver: yupResolver(PCI_SCHEMA),
@@ -71,8 +84,16 @@ const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
 
   const onSubmit = (newInput) => {
     delete newInput.DEVICE_NAME
+
+    setFieldPath(`${stepId}.InputOutput.PCI.${pciDevices.length}`)
     append(newInput)
     methods.reset()
+  }
+
+  const onDelete = (index) => {
+    setFieldPath(`${stepId}.InputOutput.PCI.${index}`)
+    setModifiedFields({ __delete__: true })
+    remove(index)
   }
 
   return (
@@ -93,6 +114,8 @@ const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
             cy={[stepId, 'io-pci-devices'].filter(Boolean).join('.')}
             fields={fields}
             rootProps={{ sx: { m: 0 } }}
+            saveState={true}
+            fieldPath={`${stepId}.InputOutput`}
           />
           <Button
             variant="contained"
@@ -100,6 +123,7 @@ const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
             color="secondary"
             startIcon={<AddCircledOutline />}
             sx={{ mt: '1em' }}
+            data-cy={[stepId, 'add-io-pci-devices'].filter(Boolean).join('-')}
           >
             <Translate word={T.Add} />
           </Button>
@@ -141,10 +165,11 @@ const PciDevicesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => {
                 key={id}
                 secondaryAction={
                   <SubmitButton
-                    onClick={() => remove(index)}
+                    onClick={() => onDelete(index)}
                     icon=<DeleteCircledOutline />
                     disabled={disabledAction}
                     tooltip={tooltip}
+                    data-cy={`pci-delete-${index}`}
                   />
                 }
                 sx={{ '&:hover': { bgcolor: 'action.hover' } }}

@@ -20,6 +20,11 @@ import ImagesTable, {
   STEP_ID as STEP_IMAGE,
 } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable'
 import { createSteps, mapUserInputs } from 'client/utils'
+import { store } from 'client/sunstone'
+import {
+  setModifiedFields,
+  setFieldPath,
+} from 'client/features/General/actions'
 
 const Steps = createSteps([ImagesTable, AdvancedOptions], {
   transformInitialValue: (initialValue) => {
@@ -31,6 +36,8 @@ const Steps = createSteps([ImagesTable, AdvancedOptions], {
       IMAGE_STATE,
       ...diskProps
     } = initialValue ?? {}
+
+    store.dispatch(setFieldPath(`extra.Storage.${diskProps?.DISK_ID}`))
 
     return {
       [STEP_IMAGE]: [
@@ -49,6 +56,9 @@ const Steps = createSteps([ImagesTable, AdvancedOptions], {
   transformBeforeSubmit: (formData) => {
     const { [STEP_IMAGE]: [image] = [], [STEP_ADVANCED]: advanced } = formData
     const { ID, NAME, UID, UNAME, STATE, SIZE, ...imageProps } = image ?? {}
+
+    imageProps?.DATASTORE_ID &&
+      store.dispatch(setModifiedFields({}, { batch: false }))
 
     return {
       ...imageProps,

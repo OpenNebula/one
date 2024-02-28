@@ -19,7 +19,11 @@ import { HYPERVISORS, IMAGE_TYPES_STR, INPUT_TYPES, T } from 'client/constants'
 import { useGetAllImagesQuery } from 'client/features/OneApi/image'
 import { getType } from 'client/models/Image'
 import { Field, clearNames } from 'client/utils'
-import { KERNEL_DS_NAME, KERNEL_NAME } from './kernelSchema'
+import {
+  KERNEL_DS_NAME,
+  KERNEL_NAME,
+  KERNEL_PATH_ENABLED_NAME,
+} from './kernelSchema'
 
 const { vcenter, lxc } = HYPERVISORS
 
@@ -39,6 +43,7 @@ export const RAMDISK_PATH_ENABLED = {
   notOnHypervisors: [vcenter, lxc],
   type: INPUT_TYPES.SWITCH,
   dependOf: [`$extra.${KERNEL_DS_NAME}`, `$extra.${KERNEL_NAME}`],
+  htmlType: ([ds, path] = []) => !(ds || path) && INPUT_TYPES.HIDDEN,
   fieldProps: (_, form) => {
     const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
     const path = form?.getValues(`extra.${KERNEL_NAME}`)
@@ -64,9 +69,11 @@ export const RAMDISK_DS = {
   dependOf: [
     RAMDISK_PATH_ENABLED.name,
     `$extra.${KERNEL_DS_NAME}`,
-    `$extra${KERNEL_NAME}`,
+    `$extra.${KERNEL_NAME}`,
+    `$extra.${KERNEL_PATH_ENABLED_NAME}`,
   ],
-  htmlType: ([enabled = false] = []) => enabled && INPUT_TYPES.HIDDEN,
+  htmlType: ([enabled = false, ds, path] = []) =>
+    (enabled || !(ds || path)) && INPUT_TYPES.HIDDEN,
   fieldProps: (_, form) => {
     const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
     const path = form?.getValues(`extra.${KERNEL_NAME}`)
@@ -117,7 +124,8 @@ export const RAMDISK = {
   dependOf: [
     RAMDISK_PATH_ENABLED.name,
     `$extra.${KERNEL_DS_NAME}`,
-    `$extra${KERNEL_NAME}`,
+    `$extra.${KERNEL_NAME}`,
+    `$extra.${KERNEL_PATH_ENABLED_NAME}`,
   ],
   fieldProps: (_, form) => {
     const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
@@ -135,7 +143,8 @@ export const RAMDISK = {
 
     return ds || path ? {} : { disabled: true }
   },
-  htmlType: ([enabled = false] = []) => !enabled && INPUT_TYPES.HIDDEN,
+  htmlType: ([enabled = false, ds, path] = []) =>
+    (!enabled || !(ds || path)) && INPUT_TYPES.HIDDEN,
   validation: ramdiskValidation,
 }
 

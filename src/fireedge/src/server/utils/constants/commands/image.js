@@ -106,6 +106,10 @@ module.exports = {
           from: resource,
           default: 0,
         },
+        force: {
+          from: postBody,
+          default: false,
+        },
       },
     },
     [IMAGE_ENABLE]: {

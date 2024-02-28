@@ -18,7 +18,7 @@ import { hydrate, render } from 'react-dom'
 import { createStore } from 'client/store'
 import App from 'client/apps/sunstone'
 
-const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
+export const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
 
 delete window.__PRELOADED_STATE__
 

@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { NetworkAlt as PlacementIcon } from 'iconoir-react'
+import { useEffect } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
@@ -27,25 +28,34 @@ import {
   FIELDS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement/schema'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
-const Placement = ({ oneConfig, adminGroup }) => (
-  // TODO - Host requirements: add button to select HOST in list => ID="<id>"
-  // TODO - Host policy options: Packing|Stripping|Load-aware
+const Placement = ({ oneConfig, adminGroup }) => {
+  const { setFieldPath } = useGeneralApi()
+  useEffect(() => {
+    setFieldPath(`extra.Placement`)
+  }, [])
 
-  // TODO - DS requirements: add button to select DATASTORE in list => ID="<id>"
-  // TODO - DS policy options: Packing|Stripping
+  return (
+    // TODO - Host requirements: add button to select HOST in list => ID="<id>"
+    // TODO - Host policy options: Packing|Stripping|Load-aware
 
-  <>
-    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
-      <FormWithSchema
-        key={id}
-        id={EXTRA_ID}
-        cy={`${EXTRA_ID}-${id}`}
-        {...section}
-      />
-    ))}
-  </>
-)
+    // TODO - DS requirements: add button to select DATASTORE in list => ID="<id>"
+    // TODO - DS policy options: Packing|Stripping
+
+    <>
+      {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
+        <FormWithSchema
+          key={id}
+          id={EXTRA_ID}
+          cy={`${EXTRA_ID}-${id}`}
+          saveState={true}
+          {...section}
+        />
+      ))}
+    </>
+  )
+}
 
 Placement.propTypes = {
   data: PropTypes.any,

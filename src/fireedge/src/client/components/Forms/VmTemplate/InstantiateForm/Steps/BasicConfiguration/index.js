@@ -30,7 +30,7 @@ import { useFormContext } from 'react-hook-form'
 
 let generalFeatures
 
-export const STEP_ID = 'configuration'
+export const STEP_ID = 'general'
 
 const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
   const classes = useStyles()
@@ -57,7 +57,7 @@ const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
       const oldValues = {
         ...getValues(),
       }
-      oldValues.configuration.CPU = `${scaleVcpuByCpuFactor(
+      oldValues.general.CPU = `${scaleVcpuByCpuFactor(
         vmTemplate.TEMPLATE.VCPU,
         features.cpu_factor
       )}`
@@ -75,6 +75,7 @@ const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
           rootProps={{ className: classes[id] }}
           fields={fields}
           legend={legend}
+          saveState={true}
           id={STEP_ID}
         />
       ))}

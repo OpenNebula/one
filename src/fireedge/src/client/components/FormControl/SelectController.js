@@ -60,7 +60,7 @@ const SelectController = memo(
         : firstValue
 
     const {
-      field: { ref, value: optionSelected, onChange, ...inputProps },
+      field: { ref, value: optionSelected, onChange, onBlur, ...inputProps },
       fieldState: { error },
     } = useController({ name, control, defaultValue })
 
@@ -100,6 +100,7 @@ const SelectController = memo(
 
     const handleChange = useCallback(
       (evt) => {
+        onBlur()
         if (!multiple) {
           onChange(evt)
           if (typeof onConditionChange === 'function') {

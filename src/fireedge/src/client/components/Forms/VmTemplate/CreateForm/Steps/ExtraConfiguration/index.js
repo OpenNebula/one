@@ -62,7 +62,7 @@ export const TABS = [
   Backup,
 ]
 
-const Content = ({ data, setFormData, oneConfig, adminGroup }) => {
+const Content = ({ data, setFormData, oneConfig, adminGroup, isUpdate }) => {
   const {
     watch,
     formState: { errors },
@@ -97,6 +97,7 @@ const Content = ({ data, setFormData, oneConfig, adminGroup }) => {
                 control,
                 oneConfig,
                 adminGroup,
+                isUpdate,
               }}
             />
           ),
@@ -116,11 +117,12 @@ const Content = ({ data, setFormData, oneConfig, adminGroup }) => {
  * @returns {object} Optional configuration step
  */
 const ExtraConfiguration = ({
-  dataTemplateExtended: vmTemplate,
+  apiTemplateDataExtended: vmTemplate,
   oneConfig,
   adminGroup,
 }) => {
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+  const isUpdate = vmTemplate?.NAME
 
   return {
     id: STEP_ID,
@@ -128,10 +130,10 @@ const ExtraConfiguration = ({
     resolver: (formData) => {
       const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR ?? initialHypervisor
 
-      return SCHEMA(hypervisor)
+      return SCHEMA(hypervisor, isUpdate)
     },
     optionsValidate: { abortEarly: false },
-    content: (props) => Content({ ...props, oneConfig, adminGroup }),
+    content: (props) => Content({ ...props, oneConfig, adminGroup, isUpdate }),
   }
 }
 
@@ -140,6 +142,7 @@ Content.propTypes = {
   setFormData: PropTypes.func,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 }
 
 export default ExtraConfiguration

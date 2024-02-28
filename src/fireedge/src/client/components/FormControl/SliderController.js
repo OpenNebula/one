@@ -45,7 +45,7 @@ const SliderController = memo(
     const { min, max, step } = fieldProps ?? {}
 
     const {
-      field: { value, onChange, ...inputProps },
+      field: { value, onChange, onBlur, ...inputProps },
       fieldState: { error },
     } = useController({ name, control })
 
@@ -71,6 +71,7 @@ const SliderController = memo(
 
     const handleChange = useCallback(
       (_, newValue) => {
+        onBlur()
         if (!readOnly) {
           onChange(newValue)
           if (typeof onConditionChange === 'function') {

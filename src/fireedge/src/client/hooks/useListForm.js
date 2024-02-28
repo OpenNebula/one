@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useCallback, useState, SetStateAction } from 'react'
+import { useCallback, useState, SetStateAction, useRef, useEffect } from 'react'
+import { useGeneralApi } from 'client/features/General'
 import { v4 as uuidv4 } from 'uuid'
 import { set } from 'client/utils'
 
@@ -94,6 +95,8 @@ const defaultAddItemId = (item, id) => ({ ...item, id })
  * @param {object} props.defaultValue - Default value of element
  * @param {function(object, number):string|number} props.getItemId - Function to change how detects unique item
  * @param {function(object, string|number, number):object} props.addItemId - Function to add ID
+ * @param {object} props.modifiedFields - Array of field names to set as modified on select/unselect
+ * @param {string} props.fieldKey - Key under which to save modified fields.
  * @example <caption>Example usage.</caption>
  * // const INITIAL_STATE = { listKey: [{ id: 'item1' }, { id: 'item2' }] }
  * // const [formData, setFormData] = useState(INITIAL_STATE)
@@ -115,7 +118,12 @@ const useListForm = ({
   defaultValue,
   getItemId = defaultGetItemId,
   addItemId = defaultAddItemId,
+  modifiedFields,
+  fieldKey,
 }) => {
+  const { setModifiedFields } = useGeneralApi()
+  const selectedRef = useRef(false)
+
   const [editingData, setEditingData] = useState(() => undefined)
 
   const getIndexById = useCallback(
@@ -135,15 +143,13 @@ const useListForm = ({
     [key, parent, setList]
   )
 
-  const handleSelect = useCallback(
-    (id) => {
-      setList((prevList) => ({
-        ...prevList,
-        [key]: multiple ? [...(prevList[key] ?? []), id] : [id],
-      }))
-    },
-    [key, setList, multiple]
-  )
+  const handleSelect = useCallback((id) => {
+    setList((prevList) => ({
+      ...prevList,
+      [key]: multiple ? [...(prevList[key] ?? []), id] : [id],
+    }))
+    selectedRef.current = true
+  })
 
   const handleUnselect = useCallback(
     (id) => {
@@ -152,6 +158,7 @@ const useListForm = ({
       )
 
       handleSetList(newList)
+      selectedRef.current = false
     },
     [list, setList]
   )
@@ -197,6 +204,24 @@ const useListForm = ({
       setEditingData(openData)
     },
     [list, defaultValue]
+  )
+
+  useEffect(
+    () => () => {
+      if (selectedRef?.current && !!modifiedFields?.length) {
+        const mergedFields = modifiedFields.reduce((acc, field) => {
+          if (fieldKey) {
+            acc[fieldKey] = { ...acc[fieldKey], [field]: true }
+          } else {
+            acc[field] = true
+          }
+
+          return acc
+        }, {})
+        setModifiedFields(mergedFields, { batch: true })
+      }
+    },
+    []
   )
 
   return {

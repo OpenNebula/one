@@ -30,6 +30,7 @@ const Content = ({ userInputs }) => (
     cy="user-inputs"
     id={STEP_ID}
     fields={useMemo(() => FIELDS(userInputs), [])}
+    saveState={true}
   />
 )
 

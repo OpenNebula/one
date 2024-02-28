@@ -608,3 +608,27 @@ export const disableFields = (
     return field
   })
 }
+
+/**
+ * Calculate the index array without objects that have delete attribute.
+ *
+ * @param {Array} list - Array to filter
+ * @param {number} position - Position to look for
+ * @returns {number} - The index in the array
+ */
+export const calculateIndex = (list, position) => {
+  let filteredIndex = -1
+  let acc = 0
+
+  for (let i = 0; i < list.length; i++) {
+    if (!list[i].__delete__) {
+      if (acc === position) {
+        filteredIndex = i
+        break
+      }
+      acc++
+    }
+  }
+
+  return filteredIndex
+}

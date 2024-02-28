@@ -21,11 +21,12 @@ import { FILES_SCHEMA } from './filesSchema'
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
+ * @param {boolean} isUpdate - If it's an update of the form
  * @returns {ObjectSchema} Context schema
  */
-export const SCHEMA = (hypervisor) =>
+export const SCHEMA = (hypervisor, isUpdate) =>
   object()
-    .concat(CONFIGURATION_SCHEMA)
+    .concat(CONFIGURATION_SCHEMA(isUpdate))
     .concat(USER_INPUTS_SCHEMA)
     .concat(FILES_SCHEMA(hypervisor))
 
