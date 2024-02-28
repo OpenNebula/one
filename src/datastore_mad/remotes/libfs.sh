@@ -482,7 +482,7 @@ function check_restricted {
 #-------------------------------------------------------------------------------
 function remove_off_hosts {
     ALL_HOSTS_ARRAY=($1)
-    OFF_HOSTS_STR=$(onehost list --no-pager --csv \
+    OFF_HOSTS_STR=$(onehost list --operator OR --no-pager --csv \
 		--filter="STAT=off,STAT=err,STAT=dsbl" --list=NAME,STAT 2>/dev/null)
 
     if [ $? -eq 0 ]; then
