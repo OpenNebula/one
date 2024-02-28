@@ -294,13 +294,22 @@ module OpenNebula
         def networks(deploy)
             ret = []
 
-            return ret unless @body['networks_values']
+            return ret unless @body['networks_values']  # Return empty array if no virtual networks are provided
 
+            # Iterating over each virtual network
             @body['networks_values'].each do |vnet|
                 vnet.each do |_, net|
-                    next if net.keys.first == 'id' && !deploy
+                    # Skip if network does not need deployment and already has an ID
+                    next if !deploy && net.key?('id')
 
-                    ret << net['id'].to_i
+                    # Iterating over each key in the network
+                    net.each_key do |key|
+                        # Skip if the key is 'id' and not deploying
+                        next if key == 'id' && !deploy
+
+                        # Adding network ID to the array
+                        ret << net['id'].to_i
+                    end
                 end
             end
 
@@ -635,61 +644,61 @@ module OpenNebula
         end
 
         def deploy_networks(deploy = true)
-            if deploy
-                body = JSON.parse(self['TEMPLATE/BODY'])
-            else
-                body = @body
-            end
+            # Unpack template body if provided as JSON string
+            template_body = deploy ? JSON.parse(self['TEMPLATE/BODY']) : @body
 
-            return if body['networks_values'].nil?
+            # Return if no network information found in the template body
+            return if template_body['networks_values'].nil?
 
-            body['networks_values'].each do |vnet|
-                vnet.each do |name, net|
-                    key = net.keys.first
+            # Process each network in the networks_values list
+            template_body['networks_values'].each do |network|
+                network.each do |name, properties|
+                    # Skip iteration if the key is 'id'
+                    next if properties.key?('id')
 
-                    case key
-                    when 'id'
-                        next
-                    when 'template_id'
-                        rc = create_vnet(name, net)
-                    when 'reserve_from'
-                        rc = reserve(name, net)
+                    # Create or reserve the network based on the presence of 'template_id' or 'reserve_from' keys
+                    case
+                    when properties.key?('template_id')
+                        rc = create_vnet(name, properties)
+                    when properties.key?('reserve_from')
+                        rc = reserve(name, properties)
                     end
 
+                    # Return error if something went wrong during network creation or reservation
                     return rc if OpenNebula.is_error?(rc)
 
-                    net['id'] = rc
+                    # Update the 'id' value in the current network
+                    properties['id'] = rc
                 end
             end if deploy
 
-            # Replace $attibute by the corresponding value
-            resolve_networks(body)
+            # Replace variables in the template with corresponding values
+            resolve_networks(template_body)
 
-            # @body = template.to_hash
-
-            update_body(body)
+            # Update the template body
+            update_body(template_body)
         end
 
         def delete_networks
-            vnets        = @body['networks_values']
+            vnets = @body['networks_values']
             vnets_failed = []
 
-            return if vnets.nil?
+            return vnets_failed if vnets.nil?  # Return empty array if no virtual networks are provided
 
+            # Iterating over each virtual network
             vnets.each do |vnet|
                 vnet.each do |_, net|
-                    key = net.keys.first
+                    # Iterating over each key in the network
+                    net.each_key do |key|
+                        # Check if the key is either 'template_id' or 'reserve_from'
+                        next unless ['template_id', 'reserve_from'].include?(key)
 
-                    next unless ['template_id', 'reserve_from'].include?(key)
+                        # Deleting the virtual network using OpenNebula API
+                        rc = OpenNebula::VirtualNetwork.new_with_id(net['id'], @client).delete
 
-                    rc = OpenNebula::VirtualNetwork.new_with_id(
-                        net['id'],
-                        @client
-                    ).delete
-
-                    next unless OpenNebula.is_error?(rc)
-
-                    vnets_failed << net['id']
+                        # Storing ID of the network if deletion fails
+                        vnets_failed << net['id'] if OpenNebula.is_error?(rc)
+                    end
                 end
             end
 
@@ -794,14 +803,14 @@ module OpenNebula
                 # $CUSTOM1_VAR Any word character
                 # (letter, number, underscore)
                 role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
-                    net = template['networks_values'].find {|att| att.key? key[0] }
+                    # Find the network entry corresponding to the variable
+                    net = template['networks_values'].find { |att| att.key?(key[0]) }
 
+                    # Skip to the next variable if the network entry is not found
                     next if net.nil?
 
-                    role['vm_template_contents'].gsub!(
-                        '$'+key[0],
-                        net[net.keys[0]]['id'].to_s
-                    )
+                    # Replace the variable placeholder with the corresponding network ID
+                    role['vm_template_contents'].gsub!("$#{key[0]}", net[key[0]]['id'].to_s)
                 end
             end
         end
