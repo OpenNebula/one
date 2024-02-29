@@ -80,7 +80,12 @@ group :cli do
     gem 'highline', '~> 1.7'
     gem 'mysql2'
     gem 'pg', pg
-    gem 'sqlite3'
+
+    if ruby_version < Gem::Version.new('3.0.0')
+        gem 'sqlite3', '<= 1.6.9'
+    else
+        gem 'sqlite3'
+    end
     gem 'sequel'
 end
 
@@ -119,7 +124,7 @@ end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    gem 'sinatra'
+    gem 'sinatra', '< 4.0.0'
 end
 
 group :cloud do
