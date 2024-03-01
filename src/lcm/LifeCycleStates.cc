@@ -2342,20 +2342,21 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
 
             if ( disk == nullptr )
             {
-                vm->log("LCM", Log::ERROR,
-                        "disk_resize_success, but the VM doesn't have a disk with resize operation in progress");
-                return;
+                disk->clear_resize(false);
+
+                is_persistent = disk->is_persistent();
+                target        = disk->get_tm_target();
+
+                disk->vector_value("IMAGE_ID", img_id);
+                disk->vector_value("SIZE", size);
+
+                vmpool->update(vm.get());
             }
-
-            disk->clear_resize(false);
-
-            is_persistent = disk->is_persistent();
-            target        = disk->get_tm_target();
-
-            disk->vector_value("IMAGE_ID", img_id);
-            disk->vector_value("SIZE", size);
-
-            vmpool->update(vm.get());
+            else
+            {
+                vm->log("LCM", Log::ERROR, "disk_resize_success, "
+                        "VM doesn't have a disk resize operation in progress");
+            }
         }
         else
         {
