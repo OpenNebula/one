@@ -66,6 +66,7 @@ const CommentBar = ({
       body: marked.parse(sanitize`${fields.BODY}`),
       // attachments: fields.ATTACHMENTS,
     }
+    fields.solved && (commentBody.solved = true)
     update(commentBody)
     setComments([
       ...comments,

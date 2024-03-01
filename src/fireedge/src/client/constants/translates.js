@@ -448,6 +448,9 @@ module.exports = {
   Urgent: 'Urgent',
   Comment: 'Comment',
   WeSupportMarkdown: 'We support markdown',
+  ResolutionTicket:
+    'You should just use this. If you want to place the ticket as solved',
+  AddComment: 'Add comment to close the ticket',
 
   /* sections - system */
   User: 'User',

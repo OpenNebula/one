@@ -13,28 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
+import { ReactElement, useMemo } from 'react'
 
 import { List } from 'client/components/Tabs/Common'
 
+import CloseTicket from 'client/components/Tabs/Support/Info/CloseTicket'
+import Timer from 'client/components/Timer'
 import {
-  T,
-  Ticket,
-  TICKET_FIELDS,
-  SEVERITIES,
   CATEGORIES,
-  RESOLUTIONS,
   PRIORITIES,
+  RESOLUTIONS,
+  SEVERITIES,
+  T,
+  TICKET_FIELDS,
+  Ticket,
 } from 'client/constants'
-import { getState } from 'client/models/Support'
-import { StatusCircle, StatusChip } from 'client/components/Status'
 import {
   isoDateToMilliseconds,
   timeFromMilliseconds,
 } from 'client/models/Helper'
-import Timer from 'client/components/Timer'
 
 const FIELDS_VALUES = {
   391197: (value) => SEVERITIES[value],
@@ -55,28 +53,26 @@ const InformationPanel = ({ ticket = undefined, actions }) => {
   if (!ticket) return null
 
   const { priority, fields, created_at: createdAt } = ticket
-  const { name: stateName, color: stateColor } = getState(ticket)
   const [time, timeFormat] = useMemo(() => {
     const fromMill = timeFromMilliseconds(isoDateToMilliseconds(createdAt))
 
     return [fromMill, fromMill.toFormat('ff')]
   }, [createdAt])
 
-  const fieldsData = Object.entries(fields).map(([_, field]) => ({
-    name: TICKET_FIELDS[field.id],
-    value: FIELDS_VALUES[field.id](field.value),
-    dataCy: TICKET_FIELDS[field.id].toLowerCase(),
-  }))
+  const fieldsData = Object.entries(fields).map(([_, field]) => {
+    const values = {
+      name: TICKET_FIELDS[field.id],
+      value: FIELDS_VALUES[field.id](field.value),
+      dataCy: TICKET_FIELDS[field.id].toLowerCase(),
+    }
+
+    return values
+  })
 
   const info = [
     {
       name: T.State,
-      value: (
-        <Stack direction="row" alignItems="center" gap={1}>
-          <StatusCircle color={stateColor} />
-          <StatusChip dataCy="state" text={stateName} stateColor={stateColor} />
-        </Stack>
-      ),
+      value: <CloseTicket ticket={ticket}></CloseTicket>,
     },
     ...fieldsData,
     {

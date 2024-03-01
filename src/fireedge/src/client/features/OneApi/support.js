@@ -20,7 +20,9 @@ import {
 import { Actions, Commands } from 'server/routes/api/zendesk/routes'
 
 import { TicketComment } from 'client/constants'
-import { oneApi } from 'client/features/OneApi'
+import { ONE_RESOURCES_POOL, oneApi } from 'client/features/OneApi'
+
+const { SUPPORT_POOL } = ONE_RESOURCES_POOL
 
 const authSupportApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -45,7 +47,16 @@ const authSupportApi = oneApi.injectEndpoints({
 
         return tickets.flat()
       },
-      providesTags: (tickets) => tickets,
+      providesTags: (tickets) =>
+        tickets
+          ? [
+              ...tickets.map(({ ID }) => ({
+                type: SUPPORT_POOL,
+                id: `${ID}`,
+              })),
+              SUPPORT_POOL,
+            ]
+          : [SUPPORT_POOL],
     }),
     getTicketComments: builder.query({
       /**
@@ -157,6 +168,7 @@ const authSupportApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
+      invalidatesTags: (_, __, { id }) => [{ type: SUPPORT_POOL, id }],
     }),
     createTicket: builder.mutation({
       /**
@@ -176,6 +188,7 @@ const authSupportApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
+      invalidatesTags: [SUPPORT_POOL],
     }),
     checkOfficialSupport: builder.query({
       /**

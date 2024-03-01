@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object } from 'yup'
+import { boolean, object, string } from 'yup'
 // eslint-disable-next-line no-unused-vars
+import { INPUT_TYPES, T } from 'client/constants'
 import { Field, ObjectSchema, getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
 
 /** @type {Field} Body message field */
 export const BODY = {
@@ -28,10 +28,19 @@ export const BODY = {
   grid: { xs: 12, md: 12 },
 }
 
+/** @type {Field} Solved field */
+export const SOLVED = {
+  name: 'SOLVED',
+  label: `${T.Description} (${T.WeSupportMarkdown})`,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().default(() => false),
+  grid: { xs: 12, md: 12 },
+}
+
 /**
  * @returns {Field[]} Fields
  */
-export const FIELDS = [BODY]
+export const FIELDS = [BODY, SOLVED]
 
 /**
  * @param {object} [stepProps] - Step props
