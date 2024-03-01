@@ -373,26 +373,26 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
 
 long long VirtualMachineDisk::system_ds_size(bool include_snapshots) const
 {
-	long long disk_sz, snapshot_sz = 0;
+    long long disk_sz, snapshot_sz = 0;
 
-	if ( vector_value("SIZE", disk_sz) != 0 )
-	{
-		return 0;
-	}
+    if ( vector_value("SIZE", disk_sz) != 0 )
+    {
+        return 0;
+    }
 
-	//Volatile disks don't have snapshots
-	if (include_snapshots &&
+    //Volatile disks don't have snapshots
+    if (include_snapshots &&
         vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0)
-	{
-		disk_sz += snapshot_sz;
-	}
+    {
+        disk_sz += snapshot_sz;
+    }
 
-	if ( is_volatile() || get_tm_target() == "SYSTEM" )
-	{
-		return disk_sz;
-	}
+    if ( is_volatile() || get_tm_target() == "SYSTEM" )
+    {
+        return disk_sz;
+    }
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -400,22 +400,22 @@ long long VirtualMachineDisk::system_ds_size(bool include_snapshots) const
 
 long long VirtualMachineDisk::image_ds_size() const
 {
-	long long disk_sz, snapshot_sz = 0;
+    long long disk_sz, snapshot_sz = 0;
 
     if ( get_tm_target() != "SELF" )
     {
         return 0;
     }
 
-	if ( vector_value("SIZE", disk_sz) != 0 )
-	{
-		return 0;
-	}
+    if ( vector_value("SIZE", disk_sz) != 0 )
+    {
+        return 0;
+    }
 
-	if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0 )
-	{
-		disk_sz += snapshot_sz;
-	}
+    if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_sz) == 0 )
+    {
+        disk_sz += snapshot_sz;
+    }
 
     return disk_sz;
 }
@@ -444,7 +444,7 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
     do_vm_owner = false;
     do_img_owner= false;
 
-	if ( vector_value("SIZE", current_size) != 0 )
+    if ( vector_value("SIZE", current_size) != 0 )
     {
         return;
     }
@@ -486,42 +486,42 @@ void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
 void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
         long long& system_sz) const
 {
-	long long tmp_size, snapshot_size;
+    long long tmp_size, snapshot_size;
 
-	image_sz  = 0;
-	system_sz = 0;
-	ds_id     = -1;
+    image_sz  = 0;
+    system_sz = 0;
+    ds_id     = -1;
 
-	if ( vector_value("SIZE", tmp_size) != 0 )
-	{
-		return;
-	}
+    if ( vector_value("SIZE", tmp_size) != 0 )
+    {
+        return;
+    }
 
-	if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0 )
-	{
-		tmp_size += snapshot_size;
-	}
+    if ( vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0 )
+    {
+        tmp_size += snapshot_size;
+    }
 
-	if ( is_volatile() )
-	{
-		system_sz = tmp_size;
-		return;
-	}
-	else
-	{
-		string target = get_tm_target();
+    if ( is_volatile() )
+    {
+        system_sz = tmp_size;
+        return;
+    }
+    else
+    {
+        string target = get_tm_target();
 
-		if ( target  == "SYSTEM" )
-		{
-			system_sz = tmp_size;
-		}
-		else if ( target == "SELF" )
-		{
+        if ( target  == "SYSTEM" )
+        {
+            system_sz = tmp_size;
+        }
+        else if ( target == "SELF" )
+        {
             vector_value("DATASTORE_ID", ds_id);
 
-			image_sz = tmp_size;
-		}// else if ( target == "NONE" )
-	}
+            image_sz = tmp_size;
+        }// else if ( target == "NONE" )
+    }
 }
 
 /* -------------------------------------------------------------------------- */
