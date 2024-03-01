@@ -80,7 +80,11 @@ const formatComment = ({ body = '', solved = '', attachments = [] }) => {
       },
     },
   }
-  solved && (rtn.solved = 'true')
+
+  if (solved) {
+    rtn.request.solved = 'true'
+  }
+
   attachments?.length > 0 &&
     (rtn.request.comment.uploads = attachments.filter((att) => att))
 
@@ -375,7 +379,7 @@ const update = (
       const sendRequest = (requestParams = {}) => {
         /** UPDATE TICKET ZENDESK */
         const ticket = formatComment(requestParams)
-        zendeskClient.requests.update(id, ticket, (err, req, result) => {
+        zendeskClient.requests.update(id, ticket, (err, _, result) => {
           let method = ok
           let data = ''
 

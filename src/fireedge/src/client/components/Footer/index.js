@@ -71,6 +71,7 @@ const Footer = memo(() => {
             forceWhiteColor
             stateColor="error"
             text={T.NotOfficiallySupport}
+            dataCy="notOfficialSupport"
             mx={0.5}
           />
         )}
@@ -80,6 +81,7 @@ const Footer = memo(() => {
               forceWhiteColor
               stateColor="success"
               text={T.OfficiallySupport}
+              dataCy="officialSupport"
               mx={0.5}
             />
           </Link>
