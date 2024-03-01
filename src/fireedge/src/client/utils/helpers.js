@@ -19,6 +19,7 @@ import {
   VN_DRIVERS,
   DOCS_BASE_PATH,
 } from 'client/constants'
+import _ from 'lodash'
 import { isMergeableObject } from 'client/utils/merge'
 import { Field } from 'client/utils/schema'
 import DOMPurify from 'dompurify'
@@ -410,7 +411,7 @@ export const cloneObject = (obj) => {
  */
 export const cleanEmptyObject = (obj) => {
   const entries = Object.entries(obj)
-    .filter(([_, value]) =>
+    .filter(([_key, value]) =>
       // filter object/array values without attributes
       isMergeableObject(value)
         ? Object.values(value).some((v) => v != null)
@@ -551,7 +552,7 @@ export const simpleHash = (str) => {
  */
 export const deepStringify = (obj, depth = 3) => {
   if (depth === 0 || obj === null || typeof obj !== 'object') {
-    return String(obj)
+    return _.isEmpty(obj) ? 'EMPTYOBJECT' : _.toString(obj)
   }
 
   const objString = Object.entries(obj)

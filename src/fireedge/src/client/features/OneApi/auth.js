@@ -162,11 +162,19 @@ const authApi = oneApi.injectEndpoints({
           if (!label) return { data: '' }
 
           const authUser = getState().auth.user
-          const currentLabels = authUser?.TEMPLATE?.LABELS?.split(',') ?? []
+          const { LABELS, ...userTemplate } = authUser?.TEMPLATE
+          const currentLabels = LABELS?.split(',') ?? []
+          const lastLabel = currentLabels?.length <= 1
 
           const newLabels = currentLabels.filter((l) => l !== label).join()
-          const template = jsonToXml({ LABELS: newLabels })
-          const queryData = { id: authUser.ID, template, replace: 1 }
+          const template = lastLabel
+            ? jsonToXml(userTemplate)
+            : jsonToXml({ LABELS: newLabels })
+          const queryData = {
+            id: authUser.ID,
+            template,
+            replace: lastLabel ? 0 : 1,
+          }
 
           await dispatch(
             userApi.endpoints.updateUser.initiate(queryData)
