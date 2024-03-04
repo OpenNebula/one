@@ -121,6 +121,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Name of the new image'
     }
 
+    DISK_ID = {
+        :name   => 'disk_id',
+        :large  => '--disk-id disk_id',
+        :format => Integer,
+        :description => 'Restore only selected disk ID'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -457,7 +464,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :restore,
             restore_desc,
             :imageid,
-            :options => [OneDatastoreHelper::DATASTORE, NO_NIC, NO_IP, NAME, INCREMENT] do
+            :options => [OneDatastoreHelper::DATASTORE, NO_NIC, NO_IP, NAME, INCREMENT, DISK_ID] do
         helper.perform_action(args[0], options, 'vm backup restored') do |o|
             if options[:datastore].nil?
                 STDERR.puts 'Datastore to restore the backup is mandatory: '
@@ -471,13 +478,14 @@ CommandParser::CmdParser.new(ARGV) do
             restore_opts << "NO_IP=\"YES\"\n" if options[:no_ip]
             restore_opts << "NAME=\"#{options[:name]}\"\n" if options[:name]
             restore_opts << "INCREMENT_ID=\"#{options[:increment]}\"\n" if options[:increment]
+            restore_opts << "DISK_ID=\"#{options[:disk_id]}\"\n" if options[:disk_id]
 
             rc = o.restore(options[:datastore].to_i, restore_opts)
 
             if !OpenNebula.is_error?(rc)
                 ids = rc.split(' ')
 
-                puts "VM Template: #{ids[0]}" if ids[0]
+                puts "VM Template: #{ids[0]}" if ids[0] && ids[0] != '-1'
                 puts "Images: #{ids[1..-1].join(' ')}" if ids.length > 1
             else
                 puts rc.message
