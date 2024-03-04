@@ -156,7 +156,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
             while (!updated)
             {
-                if ( zone = pool->get_ro<Zone>(id) )
+                if ((zone = pool->get_ro<Zone>(id)))
                 {
                     if ( zone->get_server(zs_id) != 0 )
                     {
