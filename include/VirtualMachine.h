@@ -1423,13 +1423,6 @@ public:
     }
 
     /**
-     *  Sets the resize attribute to the given disk
-     *    @param disk_id of the DISK
-     *    @return 0 if the disk_id was found -1 otherwise
-     */
-    int set_resize_disk(int disk_id);
-
-    /**
      *  Prepares a disk to be resized.
      *     @param disk_id of disk
      *     @param size new size for the disk (needs to be greater than current)
