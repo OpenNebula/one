@@ -238,6 +238,12 @@ module TransferManager
                 opts[:bimage].chain
             end
 
+            @disk_id = begin
+                opts[:txml]['TEMPLATE/DISK_ID']
+            rescue StandardError
+                nil
+            end
+
             @bj_id = opts[:bimage].bj_id
 
             @base_url = "#{opts[:proto]}://#{opts[:ds_id]}/#{@bj_id}/#{chain}"
@@ -274,6 +280,8 @@ module TransferManager
 
                 disk_id = m[1]
 
+                next if !@disk_id.nil? && @disk_id != disk_id
+
                 type = if disk_id == '0'
                            'OS'
                        else
@@ -303,8 +311,10 @@ module TransferManager
         # @param [Array] With the restored disks as returned by disk images
         #        it must include the :image_id of the new image
         #
-        # @return [String] to allocate the template
+        # @return [String] to allocate the template or nil
         def vm_template(bck_disks)
+            return unless @disk_id.nil?
+
             vm_h = @vm.to_hash
 
             template  = vm_h['VM']['TEMPLATE']

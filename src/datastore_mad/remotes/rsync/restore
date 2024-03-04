@@ -207,23 +207,29 @@ end
 # Create VM template
 vm_template = restorer.vm_template br_disks
 
-# Fix template name (maybe not necessary any longer)
-# vm_template.gsub!(%r{(NAME= "[0-9]+-)[0-9]+/}, '\1')
+tmpl_id = -1
 
-tmpl = OpenNebula::Template.new OpenNebula::Template.build_xml, one_client
-rc   = tmpl.allocate vm_template
+unless vm_template.nil?
+    # Fix template name (maybe not necessary any longer)
+    # vm_template.gsub!(%r{(NAME= "[0-9]+-)[0-9]+/}, '\1')
 
-if OpenNebula.is_error?(rc)
-    message = "Error creating VM template: #{rc.message}"
+    tmpl = OpenNebula::Template.new OpenNebula::Template.build_xml, one_client
+    rc   = tmpl.allocate vm_template
 
-    if !restored_images.empty?
-        message << " The following images were restored: #{restored_images.join(' ')}"
+    if OpenNebula.is_error?(rc)
+        message = "Error creating VM template: #{rc.message}"
+
+        if !restored_images.empty?
+            message << " The following images were restored: #{restored_images.join(' ')}"
+        end
+
+        STDERR.puts message
+        exit(-1)
     end
 
-    STDERR.puts message
-    exit(-1)
+    tmpl_id = tmpl.id
 end
 
-STDOUT.puts "#{tmpl.id} #{restored_images.join(' ')}"
+STDOUT.puts "#{tmpl_id} #{restored_images.join(' ')}"
 
 exit(0)
