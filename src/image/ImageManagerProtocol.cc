@@ -358,7 +358,7 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         goto error_fmt;
     }
 
-    if (image = ipool->get(msg->oid()))
+    if ((image = ipool->get(msg->oid())))
     {
         image->set_format(format);
 
