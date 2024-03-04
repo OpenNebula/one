@@ -2339,7 +2339,7 @@ void LifeCycleManager::trigger_disk_resize_success(int vid)
 
             VirtualMachineDisk * disk = vm->get_resize_disk();
 
-            if ( disk == nullptr )
+            if ( disk != nullptr )
             {
                 disk->clear_resize(false);
 
