@@ -730,6 +730,7 @@ module.exports = {
   Extra: 'Extra',
   Information: 'Information',
   Placement: 'Placement',
+  ServerPool: 'Server Pool',
 
   /* general schema */
   ID: 'ID',

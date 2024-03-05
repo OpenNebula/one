@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/zone'
+import { Zone } from 'client/constants'
 import {
-  oneApi,
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
-import { Zone } from 'client/constants'
+import {
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+import { Actions, Commands } from 'server/utils/constants/commands/zone'
 
 const { ZONE } = ONE_RESOURCES
 const { ZONE_POOL } = ONE_RESOURCES_POOL
@@ -42,7 +48,10 @@ const zoneApi = oneApi.injectEndpoints({
       transformResponse: (data) => [data?.ZONE_POOL?.ZONE ?? []].flat(),
       providesTags: (zones) =>
         zones
-          ? [...zones.map(({ ID }) => ({ type: ZONE_POOL, ID })), ZONE_POOL]
+          ? [
+              ...zones.map(({ ID }) => ({ type: ZONE_POOL, id: `${ID}` })),
+              ZONE_POOL,
+            ]
           : [ZONE_POOL],
     }),
     getZone: builder.query({
@@ -61,6 +70,28 @@ const zoneApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.ZONE ?? {},
       providesTags: (_, __, { id }) => [{ type: ZONE, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            zoneApi.util.updateQueryData(
+              'getZones',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            zoneApi.util.updateQueryData(
+              'getZones',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     getRaftStatus: builder.query({
       /**
@@ -130,6 +161,30 @@ const zoneApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE_POOL],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchZone = dispatch(
+            zoneApi.util.updateQueryData(
+              'getZone',
+              { id: params.id },
+              updateTemplateOnResource(params)
+            )
+          )
+
+          const patchZones = dispatch(
+            zoneApi.util.updateQueryData(
+              'getZones',
+              undefined,
+              updateTemplateOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchZone.undo()
+            patchZones.undo()
+          })
+        } catch {}
+      },
     }),
     renameZone: builder.mutation({
       /**
@@ -147,7 +202,31 @@ const zoneApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }, ZONE_POOL],
+      invalidatesTags: (_, __, { id }) => [{ type: ZONE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchZone = dispatch(
+            zoneApi.util.updateQueryData(
+              'getZone',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchZones = dispatch(
+            zoneApi.util.updateQueryData(
+              'getZones',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchZone.undo()
+            patchZones.undo()
+          })
+        } catch {}
+      },
     }),
   }),
 })

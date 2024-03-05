@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, useCallback } from 'react'
 
+import { AttributePanel } from 'client/components/Tabs/Common'
+import Information from 'client/components/Tabs/Zone/Info/information'
+import ServerPool from 'client/components/Tabs/Zone/Info/ServerPool'
 import {
   useGetZoneQuery,
   useUpdateZoneMutation,
 } from 'client/features/OneApi/zone'
-import { AttributePanel } from 'client/components/Tabs/Common'
-import Information from 'client/components/Tabs/Zone/Info/information'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import { jsonToXml, getActionsAvailable } from 'client/models/Helper'
+import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
 import { cloneObject, set } from 'client/utils'
 
 /**
@@ -41,10 +42,11 @@ const ZoneInfoTab = ({ tabProps = {}, id }) => {
   const {
     information_panel: informationPanel,
     attributes_panel: attributesPanel,
+    server_pool_panel: serverPoolPanel,
   } = tabProps
 
   const [update] = useUpdateZoneMutation()
-  const { data: zone } = useGetZoneQuery(id)
+  const { data: zone = {} } = useGetZoneQuery({ id })
   const { TEMPLATE } = zone
 
   const handleAttributeInXml = async (path, newValue) => {
@@ -79,12 +81,14 @@ const ZoneInfoTab = ({ tabProps = {}, id }) => {
           actions={getActions(informationPanel?.actions)}
         />
       )}
+      {serverPoolPanel?.enabled && <ServerPool zone={zone} />}
       {attributesPanel?.enabled && (
         <AttributePanel
           {...ATTRIBUTE_FUNCTION}
           attributes={TEMPLATE}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
+          fullWidth={true}
         />
       )}
     </Stack>
