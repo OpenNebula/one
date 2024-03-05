@@ -3,7 +3,7 @@
 
 # Resource
 
-resource_name: "USER"
+resource_name: "ZONE"
 
 # Actions - Which buttons are visible to operate over the resources
 
