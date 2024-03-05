@@ -13,49 +13,50 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
-import { Typography } from '@mui/material'
-import { HomeShield } from 'iconoir-react'
+import { List } from 'client/components/Tabs/Common'
+import { T, Zone } from 'client/constants'
 
-import { StatusCircle } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
+/**
+ * Renders server pool information tab.
+ *
+ * @param {object} props - Props
+ * @param {Zone} props.zone - Zone resource
+ * @returns {ReactElement} Information tab
+ */
+const ServerPoolPanel = ({ zone = {} }) => {
+  const { SERVER_POOL, ID, NAME } = zone
+  let serverPool = []
 
-import * as ZoneModel from 'client/models/Zone'
-
-const Row = ({ original, value, ...props }) => {
-  const classes = rowStyles()
-  const { ID, NAME, ENDPOINT } = value
-
-  const { color: stateColor, name: stateName } = ZoneModel.getState(original)
+  if (SERVER_POOL?.SERVER) {
+    serverPool = SERVER_POOL?.SERVER.map((element) => ({
+      name: element?.ID || '-',
+      value: element?.NAME || '-',
+      dataCy: `server-pool-${element?.ID || ''}`,
+    }))
+  } else {
+    serverPool = [
+      {
+        name: ID || '-',
+        value: NAME || '-',
+        dataCy: `server-pool-${ID || ''}`,
+      },
+    ]
+  }
 
   return (
-    <div {...props} data-cy={`zone-${ID}`}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <StatusCircle color={stateColor} tooltip={stateName} />
-          <Typography noWrap component="span">
-            {NAME}
-          </Typography>
-        </div>
-        <div className={classes.caption}>
-          <span>{`#${ID}`}</span>
-          <span title={`Endpoint: ${ENDPOINT}`}>
-            <HomeShield />
-            <span>{` ${ENDPOINT}`}</span>
-          </span>
-        </div>
-      </div>
-    </div>
+    <>
+      <List title={T.ServerPool} list={serverPool} />
+    </>
   )
 }
 
-Row.propTypes = {
-  original: PropTypes.object,
-  value: PropTypes.object,
-  isSelected: PropTypes.bool,
-  handleClick: PropTypes.func,
+ServerPoolPanel.propTypes = {
+  zone: PropTypes.object,
 }
 
-export default Row
+ServerPoolPanel.displayName = 'ServerPoolPanel'
+
+export default ServerPoolPanel
