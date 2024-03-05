@@ -1058,7 +1058,7 @@ Bash symbols must be escaped on STDIN passing'
         def list_pool(options, top = false, filter_flag = nil)
             # Capture Broken pipe
             Signal.trap('PIPE', 'EXIT')
-
+            
             table = format_pool(options)
 
             if options[:describe]
@@ -1078,12 +1078,12 @@ Bash symbols must be escaped on STDIN passing'
             elsif options[:xml]
                 return list_pool_xml(pool, options, filter_flag)
             elsif options[:json]
-                list_pool_format(pool, options, filter_flag) do |pool|
+                return list_pool_format(pool, options, filter_flag) do |pool|
                     hash = check_resource_xsd(pool, pname)
                     puts ::JSON.pretty_generate(hash)
                 end
             elsif options[:yaml]
-                list_pool_format(pool, options, filter_flag) do |pool|
+                return list_pool_format(pool, options, filter_flag) do |pool|
                     hash = check_resource_xsd(pool, pname)
                     puts hash.to_yaml(:indent => 4)
                 end
