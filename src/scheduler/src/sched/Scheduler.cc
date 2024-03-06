@@ -1771,15 +1771,21 @@ void Scheduler::external_scheduler()
             pending_json["VMS"] += vm_json;
         }
 
+        auto request = pending_json.dump();
+
+        NebulaLog::ddebug("SCHED", "Sending data to External Scheduler: " + request);
+
         // Call Http Request
         string response;
 
-        if (ext_scheduler.post_json(pending_json.dump(), response) != 0)
+        if (ext_scheduler.post_json(request, response) != 0)
         {
-            NebulaLog::error("SCH", "Error connecting to External Scheduler: " + response);
+            NebulaLog::error("SCHED", "Error connecting to External Scheduler: " + response);
 
             return;
         }
+
+        NebulaLog::ddebug("SCHED", "External Scheduler response: " + response);
 
         // Parse the result, update VM matched hosts by values from Orchestrator
         auto resp     = json::parse(response);
@@ -1791,7 +1797,19 @@ void Scheduler::external_scheduler()
         for (auto vm_json : vms_json)
         {
             // Note: We use only valid answers for VMs, ignoring others
-            auto vm = static_cast<VirtualMachineXML*>(pending_vms.at(vm_json["ID"]));
+            int vm_id = vm_json["ID"];
+
+            auto it = pending_vms.find(vm_id);
+
+            if ( it == pending_vms.end())
+            {
+                NebulaLog::warn("SCHED", "External Scheduler: Received scheduling for VM "
+                    + to_string(vm_id) + ", which is not in pending state, ignoring");
+
+                continue;
+            }
+
+            auto vm = static_cast<VirtualMachineXML*>(it->second);
 
             auto host_json = vm_json["HOST_ID"];
             if (!host_json.is_number_integer())
@@ -1826,7 +1844,7 @@ void Scheduler::external_scheduler()
     }
     catch(const exception &e)
     {
-        NebulaLog::error("SCHED", e.what());
+        NebulaLog::error("SCHED", string("Exception procesing External Scheduler response: ") + e.what());
     }
 }
 
