@@ -174,9 +174,17 @@ const CreateDockerfile = loadable(
     ssr: false,
   }
 )
+
+// Marketplace
 const Marketplaces = loadable(() => import('client/containers/Marketplaces'), {
   ssr: false,
 })
+const CreateMarketplace = loadable(
+  () => import('client/containers/Marketplaces/Create'),
+  { ssr: false }
+)
+
+// Marketplace app
 const MarketplaceApps = loadable(
   () => import('client/containers/MarketplaceApps'),
   { ssr: false }
@@ -184,6 +192,12 @@ const MarketplaceApps = loadable(
 const CreateMarketplaceApp = loadable(
   () => import('client/containers/MarketplaceApps/Create'),
   { ssr: false }
+)
+const MarketplaceAppDetail = loadable(
+  () => import('client/containers/MarketplaceApps/Detail'),
+  {
+    ssr: false,
+  }
 )
 
 const VirtualNetworks = loadable(
@@ -356,6 +370,7 @@ export const PATH = {
     MARKETPLACES: {
       LIST: `/${RESOURCE_NAMES.MARKETPLACE}`,
       DETAIL: `/${RESOURCE_NAMES.MARKETPLACE}/:id`,
+      CREATE: `/${RESOURCE_NAMES.MARKETPLACE}/create`,
     },
     MARKETPLACE_APPS: {
       LIST: `/${RESOURCE_NAMES.APP}`,
@@ -626,6 +641,14 @@ const ENDPOINTS = [
         Component: Marketplaces,
       },
       {
+        title: (_, state) =>
+          state?.ID !== undefined ? T.UpdateMarketplace : T.CreateMarketplace,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.STORAGE.MARKETPLACES.CREATE,
+        Component: CreateMarketplace,
+      },
+      {
         title: T.Apps,
         path: PATH.STORAGE.MARKETPLACE_APPS.LIST,
         sidebar: true,
@@ -636,6 +659,12 @@ const ENDPOINTS = [
         title: T.CreateMarketApp,
         path: PATH.STORAGE.MARKETPLACE_APPS.CREATE,
         Component: CreateMarketplaceApp,
+      },
+      {
+        title: T.App,
+        description: (params) => `#${params?.id}`,
+        path: PATH.STORAGE.MARKETPLACE_APPS.DETAIL,
+        Component: MarketplaceAppDetail,
       },
       {
         title: T.CreateBackupJob,

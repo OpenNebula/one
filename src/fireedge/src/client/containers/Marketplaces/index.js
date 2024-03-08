@@ -33,6 +33,8 @@ import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T, Marketplace } from 'client/constants'
 
+import MarketplaceActions from 'client/components/Tables/Marketplaces/actions'
+
 /**
  * Displays a list of Marketplaces with a split pane between the list and selected row(s).
  *
@@ -44,6 +46,8 @@ function Marketplaces() {
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
 
+  const actions = MarketplaceActions()
+
   return (
     <SplitPane gridTemplateRows="1fr auto 1fr">
       {({ getGridProps, GutterComponent }) => (
@@ -51,6 +55,7 @@ function Marketplaces() {
           <MarketplacesTable
             onSelectedRowsChange={onSelectedRowsChange}
             useUpdateMutation={useUpdateMarketplaceMutation}
+            globalActions={actions}
           />
 
           {hasSelectedRows && (

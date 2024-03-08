@@ -77,6 +77,7 @@ module.exports = {
   CreateFile: 'Create File',
   CreateHost: 'Create Host',
   CreateImage: 'Create Image',
+  CreateMarketplace: 'Create Marketplace',
   CreateMarketApp: 'Create Marketplace App',
   CreateProvider: 'Create Provider',
   CreateProvision: 'Create Provision',
@@ -221,6 +222,7 @@ module.exports = {
   UpdateVirtualNetworkTemplate: 'Update Virtual Network Template',
   UpdateVmConfiguration: 'Update VM Configuration',
   UpdateVmTemplate: 'Update VM Template',
+  UpdateMarketplace: 'Update Marketplace',
 
   /* questions */
   Yes: 'Yes',
@@ -1464,6 +1466,107 @@ module.exports = {
   ReservedCpu: 'Allocated CPU',
 
   /* Marketplace App schema */
+  'marketplace.configuration.title': 'Configuration attributes',
+  'marketplace.form.create.general.name': 'Name',
+  'marketplace.form.create.general.description': 'Description',
+  'marketplace.form.create.general.type': 'Storage backend',
+  'marketplace.form.create.help.link':
+    'See Open Nebula documentation to get more details about marketplaces.',
+  'marketplace.general.help.title': 'Marketplace',
+  'marketplace.general.help.paragraph.1':
+    'OpenNebula Marketplaces provide a simple way to integrate your cloud with popular application/image providers. Think of them as external datastores. A Marketplace can be:',
+  'marketplace.general.help.paragraph.2.1':
+    'Public: accessible universally by all OpenNebula installations.',
+  'marketplace.general.help.paragraph.2.2':
+    'Private: local within an organization and specific for a single OpenNebula (a single zone) or shared by a federation (a collection of zones).',
+  'marketplace.general.help.paragraph.3':
+    'Please, select Name, Description and Storage backend of the Marketplace.',
+
+  'marketplace.form.configuration.one.url': 'Endpoint URL for marketplace',
+  'marketplace.form.configuration.one.help.paragraph.1':
+    'The OpenNebula Marketplace is a catalog of virtual appliances ready to run in OpenNebula environments available at ',
+  'marketplace.form.configuration.one.help.paragraph.1.link':
+    'http://marketplace.opennebula.io/appliance',
+  'marketplace.form.configuration.one.help.paragraph.2':
+    'Please, fill the configuration attributes for Markeplace OpenNebula Systems.',
+  'marketplace.form.configuration.one.help.link':
+    'See Open Nebula documentation to get more details about OpenNebula Systems marketplaces.',
+
+  'marketplace.form.configuration.http.url':
+    'Base URL of the Marketplace HTTP endpoint',
+  'marketplace.form.configuration.http.path': 'Marketapp directory path',
+  'marketplace.form.configuration.http.path.tooltip':
+    'Absolute directory path to place images (the HTTP server document root) in the Front-end or in the Hosts pointed at by the Storage bridge list',
+  'marketplace.form.configuration.http.bridge': 'Storage bridge list',
+  'marketplace.form.configuration.http.bridge.tooltip':
+    'Space separated list of servers to access the public directory. If not defined, the public directory will be local to the Front-end',
+  'marketplace.form.configuration.http.help.paragraph.1':
+    'This Marketplace uses a conventional HTTP server to expose the images (Marketplace Appliances) uploaded to the Marketplace. The image will be placed in a specific directory (available on or at least accessible from the Front-end), that must be also served by a dedicated HTTP service.',
+  'marketplace.form.configuration.http.help.paragraph.2':
+    'Please, fill the configuration attributes for HTTP Marketplace.',
+  'marketplace.form.configuration.http.help.link':
+    'See Open Nebula documentation to get more details about HTTP marketplaces.',
+
+  'marketplace.form.configuration.s3.accessKey': 'Access Key Id',
+  'marketplace.form.configuration.s3.accessKey.tooltip':
+    'The access key of the S3 user',
+  'marketplace.form.configuration.s3.secretAccessKey': 'Secret Access Key',
+  'marketplace.form.configuration.s3.secretAccessKey.tooltip':
+    'The secret key of the S3 user',
+  'marketplace.form.configuration.s3.bucket': 'S3 bucket to store marketapps',
+  'marketplace.form.configuration.s3.bucket.tooltip':
+    'The bucket where the files will be stored',
+  'marketplace.form.configuration.s3.region': 'Region',
+  'marketplace.form.configuration.s3.region.tooltip':
+    'The region to connect to. If you are using Ceph-S3 any value here will work',
+  'marketplace.form.configuration.s3.aws': 'Use Amazon AWS S3 Service',
+  'marketplace.form.configuration.s3.aws.toolkit':
+    'Check in case that Amazon AWS S3 Service will be used instead Ceph S3',
+  'marketplace.form.configuration.s3.endpoint': 'Endpoint URL for marketplace',
+  'marketplace.form.configuration.s3.endpoint.tooltip':
+    'This is only required if you are connecting to a service other than Amazon AWS S3. Preferably don’t use an endpoint that includes the bucket as the leading part of the host’s URL',
+  'marketplace.form.configuration.s3.totalMB': 'Total Marketplace size in MB',
+  'marketplace.form.configuration.s3.totalMB.tooltip':
+    'This parameter defines the total size of the Marketplace in MB. It defaults to 1048576 (MB).',
+  'marketplace.form.configuration.s3.readLength': 'Read block length in MB',
+  'marketplace.form.configuration.s3.readLength.tooltip':
+    'Split the file into chunks of this size in MB, never user a value larger than 100. Defaults to 32 (MB).',
+  'marketplace.form.configuration.s3.help.paragraph.1':
+    'This Marketplace uses an S3 API-capable service as the Back-end. This means Marketplace Appliances will be stored in the official AWS S3 service , or in services that implement that API, like Ceph Object Gateway S3.',
+  'marketplace.form.configuration.s3.help.paragraph.2':
+    'Please, fill the configuration attributes for S3 Marketplace.',
+  'marketplace.form.configuration.s3.help.link':
+    'See Open Nebula documentation to get more details about S3 marketplaces.',
+
+  'marketplace.form.configuration.dockerhub.info':
+    'No configuration attributes are needed for Dockerhub.',
+  'marketplace.form.configuration.dockerhub.help.paragraph.1':
+    'The DockerHub Marketplace provide access to DockerHub Official Images. The OpenNebula context packages are installed during the import process so once an image is imported it’s fully prepared to be used.',
+  'marketplace.form.configuration.dockerhub.help.paragraph.2':
+    'Please, fill the configuration attributes for DockerHub Marketplace.',
+  'marketplace.form.configuration.dockerhub.help.link':
+    'See Open Nebula documentation to get more details about DockerHub marketplaces.',
+
+  'marketplace.form.configuration.dockerRegistry.url':
+    'Marketplace Docker registry url',
+  'marketplace.form.configuration.dockerRegistry.url.tooltip':
+    'Base URL of the Marketplace Docker registry endpoint',
+  'marketplace.form.configuration.dockerRegistry.ssl': 'SSL connection',
+  'marketplace.form.configuration.dockerRegistry.ssl.tooltip':
+    'Check if the registry is behind SSL proxy',
+  'marketplace.form.configuration.dockerRegistry.help.paragraph.1':
+    'This Marketplace uses a private Docker registry server to expose the images in it as Marketplace Appliances.',
+  'marketplace.form.configuration.dockerRegistry.help.paragraph.2':
+    'Please, fill the configuration attributes for Docker Registry Marketplace.',
+  'marketplace.form.configuration.dockerRegistry.help.link':
+    'See Open Nebula documentation to get more details about Docker Registry marketplaces.',
+
+  'marketplace.types.one': 'OpenNebula Systems',
+  'marketplace.types.http': 'HTTP',
+  'marketplace.types.s3': 'Amazon S3',
+  'marketplace.types.dockerhub': 'DockerHub',
+  'marketplace.types.dockerRegistry': 'Docker Registry',
+
   /* Marketplace App - general */
   MarketplaceApp: 'Marketplace app',
   RegisteredAt: 'Registered %s',

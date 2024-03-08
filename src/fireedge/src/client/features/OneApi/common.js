@@ -27,7 +27,7 @@ import { xmlToJson } from 'client/models/Helper'
  * @param {string} resourceId - The resource ID
  * @returns {boolean} - True if the parameters are valid, false otherwise
  */
-const isUpdateOnPool = (draft, resourceId) =>
+export const isUpdateOnPool = (draft, resourceId) =>
   Array.isArray(draft) && resourceId !== undefined
 
 /**
