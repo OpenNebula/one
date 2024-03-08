@@ -104,12 +104,13 @@ export const MARKETPLACE_APP_STATES = [
 /** @enum {string} Datastore actions */
 export const MARKETPLACE_ACTIONS = {
   CREATE_DIALOG: 'create_dialog',
+  UPDATE_DIALOG: 'update_dialog',
   DELETE: 'delete',
-
-  // INFORMATION
   RENAME: ACTIONS.RENAME,
   CHANGE_OWNER: ACTIONS.CHANGE_OWNER,
   CHANGE_GROUP: ACTIONS.CHANGE_GROUP,
+  ENABLE: 'enable',
+  DISABLE: 'disable',
 }
 
 /**
@@ -118,4 +119,27 @@ export const MARKETPLACE_ACTIONS = {
  */
 export const MARKET_THRESHOLD = {
   CAPACITY: { high: 66, low: 33 },
+}
+
+export const MARKET_TYPES = {
+  OPENNEBULA: {
+    text: 'marketplace.types.one',
+    value: 'one',
+  },
+  HTTP: {
+    text: 'marketplace.types.http',
+    value: 'http',
+  },
+  S3: {
+    text: 'marketplace.types.s3',
+    value: 's3',
+  },
+  DOCKERHUB: {
+    text: 'marketplace.types.dockerhub',
+    value: 'dockerhub',
+  },
+  DOCKER_REGISTRY: {
+    text: 'marketplace.types.dockerRegistry',
+    value: 'docker_registry',
+  },
 }

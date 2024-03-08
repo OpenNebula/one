@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Draft, ThunkAction } from '@reduxjs/toolkit'
 import { Actions, Commands } from 'server/utils/constants/commands/market'
 import {
   oneApi,
@@ -21,8 +22,53 @@ import {
 } from 'client/features/OneApi'
 import { Permission, Marketplace } from 'client/constants'
 
+import {
+  removeResourceOnPool,
+  updateNameOnResource,
+  updateResourceOnPool,
+  isUpdateOnPool,
+} from 'client/features/OneApi/common'
+
+import { xmlToJson } from 'client/models/Helper'
+
 const { MARKETPLACE } = ONE_RESOURCES
 const { MARKETPLACE_POOL } = ONE_RESOURCES_POOL
+
+/**
+ * Update the resource markteplace in the store.
+ *
+ * @param {object} params - Request params
+ * @param {number|string} params.id -  The id of the resource
+ * @param {string} params.template - The new user template contents on XML format
+ * @param {0|1} params.replace
+ * - Update type:
+ * ``0``: Replace the whole template.
+ * ``1``: Merge new template with the existing one.
+ * @param {string} [templateAttribute] - The attribute name of the resource template. By default is `TEMPLATE`.
+ * @returns {function(Draft):ThunkAction} - Dispatches the action
+ */
+export const updateMarketplaceOnResource =
+  (
+    { id: resourceId, template: xml, replace = 0 },
+    templateAttribute = 'TEMPLATE'
+  ) =>
+  (draft) => {
+    const updatePool = isUpdateOnPool(draft, resourceId)
+    const newTemplateJson = xmlToJson(xml)
+
+    const resource = updatePool
+      ? draft.find(({ ID }) => +ID === +resourceId)
+      : draft
+
+    if (updatePool && !resource) return
+
+    resource[templateAttribute] =
+      +replace === 0
+        ? newTemplateJson
+        : { ...resource[templateAttribute], ...newTemplateJson }
+
+    resource.MARKET_MAD = newTemplateJson?.MARKET_MAD
+  }
 
 const marketplaceApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -70,6 +116,28 @@ const marketplaceApi = oneApi.injectEndpoints({
       },
       transformResponse: (data) => data?.MARKETPLACE ?? {},
       providesTags: (_, __, { id }) => [{ type: MARKETPLACE, id }],
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: resourceFromQuery } = await queryFulfilled
+
+          dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplace',
+              undefined,
+              updateResourceOnPool({ id, resourceFromQuery })
+            )
+          )
+        } catch {
+          // if the query fails, we want to remove the resource from the pool
+          dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplaces',
+              undefined,
+              removeResourceOnPool({ id })
+            )
+          )
+        }
+      },
     }),
     allocateMarketplace: builder.mutation({
       /**
@@ -104,6 +172,30 @@ const marketplaceApi = oneApi.injectEndpoints({
         return { params, command }
       },
       invalidatesTags: [MARKETPLACE_POOL],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchMarketplace = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplace',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchMarketplaces = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplaces',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchMarketplace.undo()
+            patchMarketplaces.undo()
+          })
+        } catch {}
+      },
     }),
     updateMarketplace: builder.mutation({
       /**
@@ -126,6 +218,30 @@ const marketplaceApi = oneApi.injectEndpoints({
         return { params, command }
       },
       providesTags: (_, __, { id }) => [{ type: MARKETPLACE, id }],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchMarketplace = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplace',
+              { id: params.id },
+              updateMarketplaceOnResource(params)
+            )
+          )
+
+          const patchMarketplaces = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplaces',
+              undefined,
+              updateMarketplaceOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchMarketplace.undo()
+            patchMarketplaces.undo()
+          })
+        } catch {}
+      },
     }),
     changeMarketplacePermissions: builder.mutation({
       /**
@@ -193,10 +309,30 @@ const marketplaceApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [
-        { type: MARKETPLACE, id },
-        MARKETPLACE_POOL,
-      ],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const patchMarketplace = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplace',
+              { id: params.id },
+              updateNameOnResource(params)
+            )
+          )
+
+          const patchMarketplaces = dispatch(
+            marketplaceApi.util.updateQueryData(
+              'getMarketplaces',
+              undefined,
+              updateNameOnResource(params)
+            )
+          )
+
+          queryFulfilled.catch(() => {
+            patchMarketplace.undo()
+            patchMarketplaces.undo()
+          })
+        } catch {}
+      },
     }),
     enableMarketplace: builder.mutation({
       /**

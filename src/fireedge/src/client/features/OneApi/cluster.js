@@ -88,7 +88,7 @@ const clusterApi = oneApi.injectEndpoints({
 
           dispatch(
             clusterApi.util.updateQueryData(
-              'getGClusters',
+              'getClusters',
               undefined,
               updateResourceOnPool({ id, resourceFromQuery })
             )

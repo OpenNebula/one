@@ -111,10 +111,7 @@ const Steps = createSteps([General, Hosts, Vnets, Datastores], {
       )
 
       // Check if the name has been changed
-      const changeName =
-        initialValues?.NAME === formData?.general?.NAME
-          ? undefined
-          : formData?.general?.NAME
+      const changeName = initialValues?.NAME === formData?.general?.NAME
 
       return {
         ...formData,

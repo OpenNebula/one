@@ -35,7 +35,17 @@ const MarketplaceAppsTable = (props) => {
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetMarketplaceAppsQuery()
+  const {
+    data: marketplaceApps = [],
+    isFetching,
+    refetch,
+  } = useGetMarketplaceAppsQuery()
+
+  // Filter data if there is filter function
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(marketplaceApps)
+      : marketplaceApps
 
   const columns = useMemo(
     () =>

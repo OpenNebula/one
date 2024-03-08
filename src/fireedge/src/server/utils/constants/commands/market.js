@@ -136,11 +136,11 @@ module.exports = {
           from: resource,
           default: 0,
         },
-        userId: {
+        user: {
           from: postBody,
           default: -1,
         },
-        groupId: {
+        group: {
           from: postBody,
           default: -1,
         },
@@ -166,7 +166,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         enable: {
           from: postBody,

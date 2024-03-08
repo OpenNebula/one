@@ -21,6 +21,7 @@ import {
   Group,
   Server,
   WarningCircledOutline as WarningIcon,
+  MinusPinAlt as ZoneIcon,
 } from 'iconoir-react'
 import { Box, Typography, Tooltip } from '@mui/material'
 
@@ -47,7 +48,8 @@ const MarketplaceCard = memo(
   ({ market, rootProps, actions }) => {
     const classes = rowStyles()
 
-    const { ID, NAME, UNAME, GNAME, MARKET_MAD, MARKETPLACEAPPS } = market
+    const { ID, NAME, UNAME, GNAME, MARKET_MAD, MARKETPLACEAPPS, ZONE_ID } =
+      market
 
     const { color: stateColor, name: stateName } = getState(market)
     const error = useMemo(() => getErrorMessage(market), [market])
@@ -95,6 +97,10 @@ const MarketplaceCard = memo(
             <span title={`${Tr(T.Apps)}: ${apps}`}>
               <Server />
               <span>{` ${apps}`}</span>
+            </span>
+            <span title={`${Tr(T.Zone)}: ${ZONE_ID}`}>
+              <ZoneIcon />
+              <span>{` ${ZONE_ID}`}</span>
             </span>
           </div>
         </div>

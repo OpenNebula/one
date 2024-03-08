@@ -24,10 +24,12 @@ import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/Marketplace/Info'
+import MarketplaceApps from 'client/components/Tabs/Marketplace/MarketplaceApps'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
+    apps: MarketplaceApps,
   }[tabName])
 
 const MarketplaceTabs = memo(({ id }) => {

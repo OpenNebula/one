@@ -13,8 +13,8 @@ actions:
   chown: true
   chgrp: true
   delete: true
-  lock: true
-  unlock: true
+  disable: true
+  enable: true
 
 # Filters - List of criteria to filter the resources
 
@@ -47,5 +47,5 @@ info-tabs:
         edit: true
         delete: true
 
-  app:
+  apps:
     enabled: true
