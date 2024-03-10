@@ -1240,7 +1240,11 @@ CommandParser::CmdParser.new(ARGV) do
 
             if options[:xml]
                 puts pool.to_xml
-            else
+            elsif options[:json]
+		puts JSON.pretty_generate(pool.to_hash)
+	    elsif options[:yaml]
+		puts pool.to_hash.to_yaml
+	    else
                 table.show(pool.to_hash, options)
             end
 

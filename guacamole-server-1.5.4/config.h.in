@@ -1,0 +1,238 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Whether support for the common SSH core is enabled */
+#undef ENABLE_COMMON_SSH
+
+/* Whether support for Ogg Vorbis is enabled */
+#undef ENABLE_OGG
+
+/* Whether PulseAudio support is enabled */
+#undef ENABLE_PULSE
+
+/* Whether agent forwarding support for SSH is enabled */
+#undef ENABLE_SSH_AGENT
+
+/* Whether SSL-related support is enabled */
+#undef ENABLE_SSL
+
+/* Whether support for generic VNC credentials is available. */
+#undef ENABLE_VNC_GENERIC_CREDENTIALS
+
+/* Whether support for listen-mode VNC connections is enabled. */
+#undef ENABLE_VNC_LISTEN
+
+/* Whether support for VNC repeaters is enabled. */
+#undef ENABLE_VNC_REPEATER
+
+/* Whether support for TLS locking within VNC is enabled. */
+#undef ENABLE_VNC_TLS_LOCKING
+
+/* Whether WebP support is enabled */
+#undef ENABLE_WEBP
+
+/* Whether Windows Socket API support is enabled */
+#undef ENABLE_WINSOCK
+
+/* Whether Bitmap_Free() frees the rdpBitmap and its image data */
+#undef FREERDP_BITMAP_FREE_FREES_BITMAP
+
+/* Whether CLIPRDR callbacks require const for the final parameter */
+#undef FREERDP_CLIPRDR_CALLBACKS_REQUIRE_CONST
+
+/* Whether rdpGlyph callbacks accept INT32 integer parameters */
+#undef FREERDP_GLYPH_CALLBACKS_ACCEPT_INT32
+
+/* Whether RAIL callbacks require const for the final parameter */
+#undef FREERDP_RAIL_CALLBACKS_REQUIRE_CONST
+
+/* Whether pVirtualChannelWriteEx() frees the wStream upon completion */
+#undef FREERDP_SVC_CORE_FREES_WSTREAM
+
+/* The full path to the guacd config file */
+#undef GUACD_CONF_FILE
+
+/* Define to 1 if you have the <cairo/cairo.h> header file. */
+#undef HAVE_CAIRO_CAIRO_H
+
+/* Whether cairo_format_stride_for_width() is defined */
+#undef HAVE_CAIRO_FORMAT_STRIDE_FOR_WIDTH
+
+/* Define to 1 if you have the `clock_gettime' function. */
+#undef HAVE_CLOCK_GETTIME
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#undef HAVE_FCNTL_H
+
+/* Whether FreeRDPConvertColor() is defined */
+#undef HAVE_FREERDPCONVERTCOLOR
+
+/* Define to 1 if `VerifyCertificateEx' is a member of `freerdp'. */
+#undef HAVE_FREERDP_VERIFYCERTIFICATEEX
+
+/* Define to 1 if you have the `gettimeofday' function. */
+#undef HAVE_GETTIMEOFDAY
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Whether LCCSCF_USE_SSL is defined */
+#undef HAVE_LCCSCF_USE_SSL
+
+/* Whether libpthread was found */
+#undef HAVE_LIBPTHREAD
+
+/* Whether libuuid is available */
+#undef HAVE_LIBUUID
+
+/* Whether LWS_CALLBACK_CLIENT_CLOSED is defined */
+#undef HAVE_LWS_CALLBACK_CLIENT_CLOSED
+
+/* Whether lws_callback_http_dummy() is defined */
+#undef HAVE_LWS_CALLBACK_HTTP_DUMMY
+
+/* Whether LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT is defined */
+#undef HAVE_LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT
+
+/* Define to 1 if you have the `memmove' function. */
+#undef HAVE_MEMMOVE
+
+/* Define to 1 if you have the `memset' function. */
+#undef HAVE_MEMSET
+
+/* Define to 1 if you have the `nanosleep' function. */
+#undef HAVE_NANOSLEEP
+
+/* Define to 1 if you have the <ossp/uuid.h> header file. */
+#undef HAVE_OSSP_UUID_H
+
+/* Define to 1 if you have the <pngstruct.h> header file. */
+#undef HAVE_PNGSTRUCT_H
+
+/* Whether png_get_io_ptr() is defined */
+#undef HAVE_PNG_GET_IO_PTR
+
+/* Whether poll() is defined */
+#undef HAVE_POLL
+
+/* Define to 1 if `AllowUnanouncedOrdersFromServer' is a member of
+   `rdpSettings'. */
+#undef HAVE_RDPSETTINGS_ALLOWUNANOUNCEDORDERSFROMSERVER
+
+/* Define to 1 if `destHost' is a member of `rfbClient'. */
+#undef HAVE_RFBCLIENT_DESTHOST
+
+/* Define to 1 if `destPort' is a member of `rfbClient'. */
+#undef HAVE_RFBCLIENT_DESTPORT
+
+/* Define to 1 if `GetCredential' is a member of `rfbClient'. */
+#undef HAVE_RFBCLIENT_GETCREDENTIAL
+
+/* Define to 1 if `LockWriteToTLS' is a member of `rfbClient'. */
+#undef HAVE_RFBCLIENT_LOCKWRITETOTLS
+
+/* Define to 1 if `UnlockWriteToTLS' is a member of `rfbClient'. */
+#undef HAVE_RFBCLIENT_UNLOCKWRITETOTLS
+
+/* Define to 1 if you have the `select' function. */
+#undef HAVE_SELECT
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strdup' function. */
+#undef HAVE_STRDUP
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Whether strlcat() is defined */
+#undef HAVE_STRLCAT
+
+/* Whether strlcpy() is defined */
+#undef HAVE_STRLCPY
+
+/* Whether strnstr() is defined */
+#undef HAVE_STRNSTR
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#undef HAVE_SYSLOG_H
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#undef HAVE_SYS_SOCKET_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <time.h> header file. */
+#undef HAVE_TIME_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Whether libssh2 was built against libgcrypt */
+#undef LIBSSH2_USES_GCRYPT
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
+
+/* Whether OpenSSL requires explicit threading callbacks for threadsafety */
+#undef OPENSSL_REQUIRES_THREADING_CALLBACKS
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
+#undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
+
+/* Uses X/Open and POSIX APIs */
+#undef _XOPEN_SOURCE
+
+/* Uses BSD-specific APIs (if available) */
+#undef __BSD_VISIBLE
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef ssize_t
