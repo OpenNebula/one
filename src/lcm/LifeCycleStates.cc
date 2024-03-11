@@ -1915,12 +1915,11 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
         int disk_id, ds_id, snap_id;
         int img_id = -1;
 
-        Template *ds_quotas = nullptr;
-        Template *vm_quotas = nullptr;
+        Template ds_quotas;
+        Template vm_quotas;
 
         bool img_owner, vm_owner;
 
-        const VirtualMachineDisk * disk;
         Snapshots           snaps(-1, Snapshots::DENY);
         const Snapshots*    tmp_snaps;
         string              error_str;
@@ -1932,6 +1931,8 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
 
         bool   is_persistent;
         string target;
+
+        long long disk_size = -1;
 
         if ( auto vm = vmpool->get(vid) )
         {
@@ -1945,6 +1946,8 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
+            auto disk = vm->get_disk(disk_id);
+
             state = vm->get_lcm_state();
 
             switch (state)
@@ -1955,12 +1958,16 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
-                    vm->revert_disk_snapshot(disk_id, snap_id, false);
+                    disk->revert_snapshot(snap_id, false);
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                     vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
-                    vm->revert_disk_snapshot(disk_id, snap_id, true);
+                    disk_size = disk->get_snapshot_size(snap_id);
+
+                    disk->revert_snapshot_quotas(snap_id, ds_quotas, vm_quotas,
+                            img_owner, vm_owner);
+                    disk->revert_snapshot(snap_id, true);
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -1969,7 +1976,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                     vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
-                    vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas,
+                    disk->delete_snapshot(snap_id, ds_quotas, vm_quotas,
                             img_owner, vm_owner);
                     break;
 
@@ -1981,12 +1988,11 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             vm->clear_snapshot_disk();
 
             tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
             if (tmp_snaps != nullptr)
             {
                 snaps = *tmp_snaps;
             }
-
-            disk = vm->get_disk(disk_id);
 
             disk->vector_value("IMAGE_ID", img_id);
 
@@ -2004,7 +2010,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
             return;
         }
 
-        if ( ds_quotas != nullptr )
+        if ( !ds_quotas.empty() )
         {
             if ( img_owner )
             {
@@ -2013,28 +2019,29 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                     int img_uid = img->get_uid();
                     int img_gid = img->get_gid();
 
-                    Quotas::ds_del(img_uid, img_gid, ds_quotas);
+                    Quotas::ds_del(img_uid, img_gid, &ds_quotas);
                 }
             }
 
             if ( vm_owner )
             {
-                Quotas::ds_del(vm_uid, vm_gid, ds_quotas);
+                Quotas::ds_del(vm_uid, vm_gid, &ds_quotas);
             }
-
-            delete ds_quotas;
         }
 
-        if ( vm_quotas != nullptr )
+        if ( !vm_quotas.empty() )
         {
-            Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
-
-            delete vm_quotas;
+            Quotas::vm_del(vm_uid, vm_gid, &vm_quotas);
         }
 
         // Update image if it is persistent and ln mode does not clone it
         if ( img_id != -1 && is_persistent && target == "NONE" )
         {
+            if (disk_size >= 0)
+            {
+                imagem->set_image_size(img_id, disk_size);
+            }
+
             imagem->set_image_snapshots(img_id, snaps);
         }
 
@@ -2067,8 +2074,8 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
         int disk_id, ds_id, snap_id;
         int img_id = -1;
 
-        Template *ds_quotas = nullptr;
-        Template *vm_quotas = nullptr;
+        Template ds_quotas;
+        Template vm_quotas;
 
         const VirtualMachineDisk* disk;
         Snapshots           snaps(-1, Snapshots::DENY);
@@ -2107,8 +2114,8 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
                 case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
                     vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
-                    vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas,
-                            img_owner, vm_owner);
+                    vm->get_disks().delete_snapshot(disk_id, snap_id, ds_quotas,
+                            vm_quotas, img_owner, vm_owner);
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:
@@ -2128,6 +2135,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             vm->clear_snapshot_disk();
 
             tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
             if (tmp_snaps != nullptr)
             {
                 snaps = *tmp_snaps;
@@ -2152,7 +2160,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             return;
         }
 
-        if ( ds_quotas != nullptr )
+        if ( !ds_quotas.empty() )
         {
             if ( img_owner )
             {
@@ -2161,23 +2169,19 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
                     int img_uid = img->get_uid();
                     int img_gid = img->get_gid();
 
-                    Quotas::ds_del(img_uid, img_gid, ds_quotas);
+                    Quotas::ds_del(img_uid, img_gid, &ds_quotas);
                 }
             }
 
             if ( vm_owner)
             {
-                Quotas::ds_del(vm_uid, vm_gid, ds_quotas);
+                Quotas::ds_del(vm_uid, vm_gid, &ds_quotas);
             }
-
-            delete ds_quotas;
         }
 
-        if ( vm_quotas != nullptr )
+        if ( !vm_quotas.empty() )
         {
-            Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
-
-            delete vm_quotas;
+            Quotas::vm_del(vm_uid, vm_gid, &vm_quotas);
         }
 
         // Update image if it is persistent and ln mode does not clone it
@@ -2394,7 +2398,7 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
         Template vm_deltas;
 
         int img_id = -1;
-        long long size_prev;
+        long long size_prev, size;
 
         VirtualMachine::LcmState state;
 
@@ -2436,8 +2440,10 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
             vm_gid = vm->get_gid();
 
             disk->vector_value("IMAGE_ID", img_id);
+            disk->vector_value("SIZE", size);
             disk->vector_value("SIZE_PREV", size_prev);
-            disk->resize_quotas(size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
+
+            disk->resize_quotas(size - size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
 
             disk->clear_resize(true);
 

@@ -291,7 +291,18 @@ public:
      *    @param io delete ds quotas from image owners
      *    @param vo delete ds quotas from vm owners
      */
-    void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota,
+    void revert_snapshot_quotas(int snap_id, Template& ds_quota, Template& vm_quota,
+            bool& io, bool& vo);
+
+    /**
+     *  Deletes the snap_id from the list
+     *    @param snap_id of the snapshot
+     *    @param ds_quotas template with snapshot usage for the DS quotas
+     *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
+     */
+    void delete_snapshot(int snap_id, Template& ds_quota, Template& vm_quota,
             bool& io, bool& vo);
 
     /* ---------------------------------------------------------------------- */
@@ -305,14 +316,14 @@ public:
 
     /**
      *  Calculate the quotas for a resize operation on the disk
-     *    @param new_size of disk
+     *    @param delta_size = new_size - old_size
      *    @param dsdeltas increment in datastore usage
      *    @param vmdelta increment in system datastore usage
      *    @param do_img_owner quotas counter allocated for image uid/gid
      *    @param do_vm_owner quotas counter allocated for vm uid/gid
      *
      */
-   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta,
+   void resize_quotas(long long delta_size, Template& dsdelta, Template& vmdelta,
            bool& do_img_owner, bool& do_vm_owner);
 
     /* ---------------------------------------------------------------------- */
@@ -771,8 +782,8 @@ public:
      *    @param io delete ds quotas from image owners
      *    @param vo delete ds quotas from vm owners
      */
-    void delete_snapshot(int disk_id, int snap_id, Template **ds_quota,
-            Template **vm_quota, bool& io, bool& vo);
+    void delete_snapshot(int disk_id, int snap_id, Template& ds_quota, Template& vm_quota,
+            bool& io, bool& vo);
 
     /**
      *  Renames a given snapshot

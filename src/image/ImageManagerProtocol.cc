@@ -734,7 +734,12 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
         return;
     }
 
+    int uid = image->get_uid();
+    int gid = image->get_gid();
+
     int snap_id = image->get_target_snapshot();
+
+    Template ds_quotas;
 
     image->set_state_unlock();
 
@@ -749,7 +754,7 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        image->revert_snapshot(snap_id);
+        image->revert_snapshot(snap_id, ds_quotas);
     }
     else
     {
@@ -772,6 +777,8 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
     image->clear_target_snapshot();
 
     ipool->update(image.get());
+
+    Quotas::ds_del(uid, gid, &ds_quotas);
 }
 
 /* -------------------------------------------------------------------------- */

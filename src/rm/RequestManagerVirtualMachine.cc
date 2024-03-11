@@ -3038,8 +3038,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
         long long ssize;
         disk->vector_value("SIZE", ssize);
 
-        ssize = 2 * ssize; //Sanpshot accounts as another disk of same size
-
+        // Snapshot accounts as another disk of same size
         disk->resize_quotas(ssize, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
 
         is_volatile = disk->is_volatile();
@@ -3661,7 +3660,7 @@ void VirtualMachineDiskResize::request_execute(
         }
 
         /* ------------- Get information about the disk and image --------------- */
-        disk->resize_quotas(size, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+        disk->resize_quotas(size - current_size, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
 
         disk->vector_value("IMAGE_ID", img_id);
 

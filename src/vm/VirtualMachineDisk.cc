@@ -312,6 +312,33 @@ int VirtualMachineDisk::revert_snapshot(int snap_id, bool revert)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+void VirtualMachineDisk::revert_snapshot_quotas(int snap_id, Template& ds_quota,
+        Template& vm_quota, bool& io, bool& vo)
+{
+    if ( snapshots == 0 )
+    {
+        return;
+    }
+
+    auto snap_size      = snapshots->snapshot_size(snap_id);
+    long long disk_size = 0;
+
+    if ( vector_value("SIZE", disk_size) != 0 )
+    {
+        return;
+    }
+
+    // Update disk SIZE and quotas so the delta size is reversed
+    if ( disk_size != snap_size)
+    {
+        resize_quotas(disk_size - snap_size, ds_quota, vm_quota, io, vo);
+
+        replace("SIZE", snap_size);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 //  +--------+-------------------------------------+
 //  |LN/CLONE|     PERSISTENT    |   NO PERSISTENT |
 //  |        |---------+---------+-----------------+
@@ -323,8 +350,8 @@ int VirtualMachineDisk::revert_snapshot(int snap_id, bool revert)
 //  +----------------------------------------------+
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
-        Template **vm_quotas, bool& img_owner, bool& vm_owner)
+void VirtualMachineDisk::delete_snapshot(int snap_id, Template& ds_quotas,
+        Template& vm_quotas, bool& img_owner, bool& vm_owner)
 {
     vm_owner  = false;
     img_owner = false;
@@ -347,24 +374,21 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template **ds_quotas,
     vm_owner  = tm_target == "SELF";
     img_owner = is_persistent() || tm_target == "NONE";
 
-	if ( img_owner || vm_owner )
-	{
-        *ds_quotas = new Template();
-
-        (*ds_quotas)->add("DATASTORE", vector_value("DATASTORE_ID"));
-        (*ds_quotas)->add("SIZE", ssize);
-        (*ds_quotas)->add("IMAGES",0 );
-	}
+    if ( img_owner || vm_owner )
+    {
+        ds_quotas.add("DATASTORE", vector_value("DATASTORE_ID"));
+        ds_quotas.add("SIZE", ssize);
+        ds_quotas.add("IMAGES",0 );
+    }
 
     if (tm_target == "SYSTEM")
     {
-        *vm_quotas = new Template();
-
         VectorAttribute * delta_disk = new VectorAttribute("DISK");
+
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", ssize);
 
-        (*vm_quotas)->set(delta_disk);
+        vm_quotas.set(delta_disk);
     }
 }
 
@@ -436,26 +460,11 @@ long long VirtualMachineDisk::image_ds_size() const
 //  | NONE   | image   | IMG     | image   | IMG   |
 //  +----------------------------------------------+
 /* -------------------------------------------------------------------------- */
-void VirtualMachineDisk::resize_quotas(long long new_size, Template& ds_deltas,
+void VirtualMachineDisk::resize_quotas(long long delta_size, Template& ds_deltas,
         Template& vm_deltas, bool& do_img_owner, bool& do_vm_owner)
 {
-    long long current_size, delta_size;
-
     do_vm_owner = false;
     do_img_owner= false;
-
-    if ( vector_value("SIZE", current_size) != 0 )
-    {
-        return;
-    }
-
-    delta_size = new_size - current_size;
-
-    //Quotas uses del operation to substract counters, delta needs to be > 0
-    if ( delta_size < 0 )
-    {
-        delta_size = - delta_size;
-    }
 
     string tm       = get_tm_target();
     do_vm_owner     = !is_volatile() && tm == "SELF";
@@ -618,7 +627,7 @@ long long VirtualMachineDisks::system_ds_size(bool include_snapshots)
 
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
-		size += (*disk)->system_ds_size(include_snapshots);
+        size += (*disk)->system_ds_size(include_snapshots);
     }
 
     return size;
@@ -1410,14 +1419,14 @@ int VirtualMachineDisks::revert_snapshot(int id, int snap_id, bool revert)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
-        Template **ds_quota, Template **vm_quota,bool& img_owner, bool& vm_owner)
+        Template& ds_quota, Template& vm_quota, bool& img_owner, bool& vm_owner)
 {
     VirtualMachineDisk * disk =
         static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
-
-    *ds_quota = 0;
-    *vm_quota = 0;
 
     if ( disk == 0 )
     {
