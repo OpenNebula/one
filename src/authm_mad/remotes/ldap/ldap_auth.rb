@@ -147,7 +147,9 @@ class OpenNebula::LdapAuth
 
             [@user.dn,
              @user[@options[:user_field]].first,
-             @user[@options[:user_group_field]]]
+             @user[@options[:user_group_field]],
+             @user['memberof']
+            ]
         else
             result=@ldap.search(:base => name)
 
@@ -155,14 +157,21 @@ class OpenNebula::LdapAuth
                 @user = result.first
                 [name,
                  @user[@options[:user_field]].first,
-                 @user[@options[:user_group_field]]]
+                 @user[@options[:user_group_field]],
+                 @user['memberof']
+                ]
             else
-                [nil, nil, nil]
+                [nil, nil, nil, nil]
             end
         end
     end
 
-    def is_in_group?(user, group)
+    def is_in_group?(user, group, memberof)
+        if @options[:rfc2307bis]
+            # compare case in-sensitive, like LDAP does
+            return memberof.map(&:downcase).include?(group.downcase)
+        end
+
         username = Net::LDAP::Filter.escape(
             user.first.force_encoding(Encoding::UTF_8))
         result=@ldap.search(
