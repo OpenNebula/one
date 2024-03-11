@@ -267,11 +267,11 @@ class Cluster
                 "(DEPLOY_ID = '#{vm_ref.split('_')[0]}')]"
             )
 
-            ids.select do |vm|
+            ids.select! do |vm|
                 hid = vm['HISTORY_RECORDS/HISTORY/HID']
 
                 if hid
-                    hid.to_i == @host_id
+                    hid.to_i == @hid
                 else
                     false
                 end
