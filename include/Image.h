@@ -583,15 +583,17 @@ public:
         snapshots.clear_disk_id();
     };
 
+    /**
+     *  This function reverts the image active snapshot, adjust sizes and quotas
+     *  if needed
+     */
+    void revert_snapshot(int snap_id, Template& ds_quotas);
+
     void delete_snapshot(int snap_id)
     {
         snapshots.delete_snapshot(snap_id);
     };
 
-    void revert_snapshot(int snap_id)
-    {
-        snapshots.active_snapshot(snap_id, true);
-    };
 
     void set_target_snapshot(int snap_id)
     {

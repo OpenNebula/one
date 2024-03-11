@@ -1147,3 +1147,19 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void Image::revert_snapshot(int snap_id, Template& ds_quotas)
+{
+    snapshots.active_snapshot(snap_id, true);
+
+    auto snap_size = snapshots.snapshot_size(snap_id);
+
+    if (snap_size != get_size())
+    {
+        ds_quotas.add("DATASTORE", get_ds_id());
+        ds_quotas.add("SIZE", get_size() - snap_size);
+        ds_quotas.add("IMAGES", 0);
+
+        set_size(snap_size);
+    }
+}

@@ -1543,35 +1543,6 @@ public:
     }
 
     /**
-     *  Sets the snap_id as active, the VM will boot from it next time
-     *    @param disk_id of the disk
-     *    @param snap_id of the snapshot
-     *    @param error if any
-     *    @param revert true if the cause of changing the active snapshot
-     *                  is because a revert
-     *    @return -1 if error
-     */
-    int revert_disk_snapshot(int disk_id, int snap_id, bool revert)
-    {
-        return disks.revert_snapshot(disk_id, snap_id, revert);
-    }
-
-    /**
-     *  Deletes the snap_id from the list
-     *    @param disk_id of the disk
-     *    @param snap_id of the snapshot
-     *    @param ds_quotas template with snapshot usage for the DS quotas
-     *    @param vm_quotas template with snapshot usage for the VM quotas
-     *    @param io delete ds quotas from image owners
-     *    @param vo delete ds quotas from vm owners
-     */
-    void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
-            Template **vm_quotas, bool& io, bool& vo)
-    {
-        disks.delete_snapshot(disk_id, snap_id, ds_quotas, vm_quotas, io, vo);
-    }
-
-    /**
      *  Renames the snap_id from the list
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
