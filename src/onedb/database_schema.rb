@@ -140,8 +140,8 @@ class OneDBBacKEnd
         }
     }
 
-    LATEST_DB_VERSION = '7.0.0'
-    LATEST_LOCAL_DB_VERSION = '7.0.0'
+    LATEST_DB_VERSION = '6.10.0'
+    LATEST_LOCAL_DB_VERSION = '6.10.0'
 
     def get_schema(type, version = nil)
         if !version

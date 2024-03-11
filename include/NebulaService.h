@@ -150,7 +150,7 @@ public:
      */
     static std::string code_version()
     {
-        return "6.99.80"; // bump version
+        return "6.9.80"; // bump version
     }
 
     /**
@@ -159,7 +159,7 @@ public:
      */
     static std::string shared_db_version()
     {
-        return "7.0.0";
+        return "6.10.0";
     }
 
     /**
@@ -168,7 +168,7 @@ public:
      */
     static std::string local_db_version()
     {
-        return "7.0.0";
+        return "6.10.0";
     }
 
     /**
