@@ -120,9 +120,10 @@ const ExtraConfiguration = ({
   apiTemplateDataExtended: vmTemplate,
   oneConfig,
   adminGroup,
+  store,
 }) => {
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
-  const isUpdate = vmTemplate?.NAME
+  const isUpdate = !!vmTemplate?.NAME
 
   return {
     id: STEP_ID,
@@ -130,7 +131,10 @@ const ExtraConfiguration = ({
     resolver: (formData) => {
       const hypervisor = formData?.[GENERAL_ID]?.HYPERVISOR ?? initialHypervisor
 
-      return SCHEMA(hypervisor, isUpdate)
+      const currentState = store.getState()
+      const modifiedFields = currentState.general?.modifiedFields
+
+      return SCHEMA(hypervisor, oneConfig, adminGroup, isUpdate, modifiedFields)
     },
     optionsValidate: { abortEarly: false },
     content: (props) => Content({ ...props, oneConfig, adminGroup, isUpdate }),

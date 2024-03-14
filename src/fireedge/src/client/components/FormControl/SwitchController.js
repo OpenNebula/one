@@ -76,7 +76,7 @@ const SwitchController = memo(
     useEffect(() => {
       if (!watcher || !dependencies || !watch) return
 
-      const watcherValue = watcher(watch, name)
+      const watcherValue = watcher(watch, { name })
       watcherValue !== undefined && onChange(watcherValue)
     }, [watch, watcher, dependencies])
 

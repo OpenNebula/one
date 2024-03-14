@@ -202,8 +202,21 @@ const FormWithSchema = ({
             set(fieldsHiddenMerge, id ? `${id}.${element}` : `${element}`, true)
           })
 
+        const fieldsToMergeinSchema = {}
+
+        // Add only the fields of the FormWithSchema component that is being checking
+        fields.forEach(
+          (field) =>
+            get(fieldsToMerge, `${id}.${field.name}`) &&
+            set(
+              fieldsToMergeinSchema,
+              `${id}.${field.name}`,
+              get(fieldsToMerge, `${id}.${field.name}`)
+            )
+        )
+
         // Set modified fields
-        const mix = merge({}, fieldsToMerge, fieldsHiddenMerge)
+        const mix = merge({}, fieldsToMergeinSchema, fieldsHiddenMerge)
         setModifiedFields(mix)
 
         // If fieldPath exists, set in the store

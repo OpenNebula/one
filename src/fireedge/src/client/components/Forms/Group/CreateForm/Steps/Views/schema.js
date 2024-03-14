@@ -31,7 +31,7 @@ const VIEW = (name, admin) => ({
   label: name,
   type: INPUT_TYPES.SWITCH,
   dependOf: admin ? `GROUP_ADMIN_DEFAULT_VIEW` : `DEFAULT_VIEW`,
-  watcher: (value, nameField) => {
+  watcher: (value, { name: nameField }) => {
     // Check the switch if it is the default view
     const view =
       nameField.split('.').length === 3 ? nameField.split('.')[2] : undefined

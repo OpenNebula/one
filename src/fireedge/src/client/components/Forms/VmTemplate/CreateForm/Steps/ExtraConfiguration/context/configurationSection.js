@@ -93,7 +93,12 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
           id={stepId}
           saveState={true}
           cy={getCyPath('context-configuration-others')}
-          fields={disableFields(OTHER_FIELDS, 'CONTEXT', oneConfig, adminGroup)}
+          fields={disableFields(
+            OTHER_FIELDS(isUpdate),
+            'CONTEXT',
+            oneConfig,
+            adminGroup
+          )}
         />
         <section>
           <FormWithSchema

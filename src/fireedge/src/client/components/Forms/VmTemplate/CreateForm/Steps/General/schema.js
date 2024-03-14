@@ -65,7 +65,7 @@ const SECTIONS = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
       legend: T.Hypervisor,
       required: true,
       fields: disableFields(
-        [HYPERVISOR_FIELD, VROUTER_FIELD],
+        [HYPERVISOR_FIELD(isUpdate), VROUTER_FIELD],
         '',
         oneConfig,
         adminGroup

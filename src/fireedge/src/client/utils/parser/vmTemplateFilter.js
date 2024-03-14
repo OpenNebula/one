@@ -20,9 +20,6 @@ import { transformXmlString } from 'client/models/Helper'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
 const alwaysIncludeAttributes = {
-  general: {
-    HYPERVISOR: true,
-  },
   extra: {
     OsCpu: {
       OS: {
@@ -36,10 +33,9 @@ const alwaysIncludeAttributes = {
     Context: {
       INPUTS_ORDER: true,
       USER_INPUTS: true,
-      CONTEXT: {
-        SSH_PUBLIC_KEY: true,
-        NETWORK: true,
-      },
+    },
+    Placement: {
+      SCHED_REQUIREMENTS: true,
     },
   },
 }
@@ -54,6 +50,31 @@ const alwaysIncludeNic = {
   NAME: true,
 }
 
+const defaultValuesCreate = {
+  general: {
+    HYPERVISOR: true,
+  },
+  extra: {
+    Context: {
+      CONTEXT: {
+        NETWORK: true,
+        SSH_PUBLIC_KEY: true,
+      },
+    },
+    InputOutput: {
+      GRAPHICS: {
+        LISTEN: true,
+        TYPE: true,
+      },
+    },
+    Placement: {
+      SCHED_REQUIREMENTS: true,
+    },
+  },
+}
+
+const defaultValuesUpdate = {}
+
 // Attributes that will be always modify with the value of the form in the Nic alias section
 const alwaysIncludeNicAlias = {
   PARENT: true,
@@ -67,23 +88,31 @@ const alwaysIncludeNicAlias = {
  * @param {object} modifiedFields - Touched/Dirty fields object
  * @param {object} existingTemplate - Existing data
  * @param {object} tabFormMap - Maps formData fields to tabs
+ * @param {boolean} update - If the form is being updated
  * @returns {object} - Filtered template data
  */
 const filterTemplateData = (
   formData,
   modifiedFields,
   existingTemplate,
-  tabFormMap
+  tabFormMap,
+  { update = true, instantiate = false }
 ) => {
   // Generate a form from the original data
   const normalizedTemplate = normalizeTemplate(existingTemplate, tabFormMap)
+
+  const includeAtributes = !instantiate
+    ? update
+      ? merge({}, alwaysIncludeAttributes, defaultValuesUpdate)
+      : merge({}, alwaysIncludeAttributes, defaultValuesCreate)
+    : alwaysIncludeAttributes
 
   // Filter data of formData.general
   const newGeneral = reduceGeneral(
     formData?.general,
     modifiedFields?.general,
     normalizedTemplate?.general,
-    alwaysIncludeAttributes
+    includeAtributes
   )
 
   // Filter data of formData.extra
@@ -92,7 +121,7 @@ const filterTemplateData = (
     modifiedFields,
     normalizedTemplate,
     tabFormMap,
-    alwaysIncludeAttributes
+    includeAtributes
   )
 
   // Add custom variables

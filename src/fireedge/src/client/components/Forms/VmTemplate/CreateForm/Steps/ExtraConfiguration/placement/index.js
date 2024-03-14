@@ -30,8 +30,14 @@ import {
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
-const Placement = ({ oneConfig, adminGroup }) => {
+import { useSelector } from 'react-redux'
+
+const Placement = ({ oneConfig, adminGroup, isUpdate }) => {
   const { setFieldPath } = useGeneralApi()
+
+  // Get modified fields by the user
+  const modifiedFields = useSelector((state) => state.general.modifiedFields)
+
   useEffect(() => {
     setFieldPath(`extra.Placement`)
   }, [])
@@ -44,15 +50,17 @@ const Placement = ({ oneConfig, adminGroup }) => {
     // TODO - DS policy options: Packing|Stripping
 
     <>
-      {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
-        <FormWithSchema
-          key={id}
-          id={EXTRA_ID}
-          cy={`${EXTRA_ID}-${id}`}
-          saveState={true}
-          {...section}
-        />
-      ))}
+      {SECTIONS(oneConfig, adminGroup, isUpdate, modifiedFields).map(
+        ({ id, ...section }) => (
+          <FormWithSchema
+            key={id}
+            id={EXTRA_ID}
+            cy={`${EXTRA_ID}-${id}`}
+            saveState={true}
+            {...section}
+          />
+        )
+      )}
     </>
   )
 }
@@ -62,6 +70,7 @@ Placement.propTypes = {
   setFormData: PropTypes.func,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 }
 
 Placement.displayName = 'Placement'
@@ -72,7 +81,7 @@ const TAB = {
   name: T.Placement,
   icon: PlacementIcon,
   Content: Placement,
-  getError: (error) => FIELDS.some(({ name }) => error?.[name]),
+  getError: (error) => FIELDS({}).some(({ name }) => error?.[name]),
 }
 
 export default TAB

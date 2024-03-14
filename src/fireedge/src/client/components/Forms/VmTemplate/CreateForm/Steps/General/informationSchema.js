@@ -56,7 +56,7 @@ export const DESCRIPTION = {
 }
 
 /** @type {Field} Hypervisor field */
-export const HYPERVISOR_FIELD = {
+export const HYPERVISOR_FIELD = (isUpdate) => ({
   name: 'HYPERVISOR',
   type: INPUT_TYPES.TOGGLE,
   values: arrayToOptions(Object.values(HYPERVISORS), {
@@ -66,9 +66,10 @@ export const HYPERVISOR_FIELD = {
   validation: string()
     .trim()
     .required()
-    .default(() => HYPERVISORS.kvm),
+    .default(() => (isUpdate ? undefined : HYPERVISORS.kvm)),
+
   grid: { md: 12 },
-}
+})
 
 /** @type {Field} Logo field */
 export const LOGO = {

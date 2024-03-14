@@ -48,18 +48,30 @@ const SCHED_ACTION_SCHEMA = object({
 
 /**
  * @param {HYPERVISORS} hypervisor - VM hypervisor
- * @param {boolean} isUpdate - If it's an update of the form
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
+ * @param {boolean} isUpdate - The form is being updated
+ * @param {object} modifiedFields - Map with the fields modified by the user
  * @returns {ObjectSchema} Extra configuration schema
  */
-export const SCHEMA = (hypervisor, isUpdate) =>
+export const SCHEMA = (
+  hypervisor,
+  oneConfig,
+  adminGroup,
+  isUpdate,
+  modifiedFields
+) =>
   object()
     .concat(SCHED_ACTION_SCHEMA)
     .concat(NETWORK_SCHEMA)
     .concat(STORAGE_SCHEMA)
     .concat(CONTEXT_SCHEMA(hypervisor, isUpdate))
-    .concat(IO_SCHEMA(hypervisor))
+    .concat(IO_SCHEMA(hypervisor, oneConfig, adminGroup, isUpdate))
     .concat(
-      getObjectSchemaFromFields([...PLACEMENT_FIELDS, ...OS_FIELDS(hypervisor)])
+      getObjectSchemaFromFields([
+        ...PLACEMENT_FIELDS({ isUpdate, modifiedFields }),
+        ...OS_FIELDS(hypervisor),
+      ])
     )
     .concat(getObjectSchemaFromFields([...BACKUP_FIELDS]))
     .concat(NUMA_SCHEMA(hypervisor))

@@ -625,13 +625,15 @@ export const getErrorMessage = (resource) => {
  * @param {string} xmlString - The string with xml value
  * @returns {string} - A string with the same value but with the replace characters
  */
-export const transformXmlString = (xmlString) =>
-  xmlString.replace(/[<>"']/g, function (c) {
+export const transformXmlString = (xmlString = '') =>
+  xmlString.replace(/[<>&"']/g, function (c) {
     switch (c) {
       case '<':
         return '&lt;'
       case '>':
         return '&gt;'
+      case '&':
+        return '&amp;'
       default:
         return c
     }

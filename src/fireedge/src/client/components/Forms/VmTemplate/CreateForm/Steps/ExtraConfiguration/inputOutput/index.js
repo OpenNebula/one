@@ -33,7 +33,7 @@ import { useGeneralApi } from 'client/features/General'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID, VIDEO_ID]
 
-const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => {
+const InputOutput = ({ hypervisor, oneConfig, adminGroup, isUpdate }) => {
   const { setFieldPath } = useGeneralApi()
   useEffect(() => {
     setFieldPath(`extra.InputOutput`)
@@ -47,7 +47,7 @@ const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => {
     >
       <FormWithSchema
         cy={`${EXTRA_ID}-io-graphics`}
-        fields={GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup)}
+        fields={GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup, isUpdate)}
         legend={T.Graphics}
         id={EXTRA_ID}
         saveState={true}
@@ -81,6 +81,7 @@ InputOutput.propTypes = {
   control: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  isUpdate: PropTypes.bool,
 }
 
 InputOutput.displayName = 'InputOutput'

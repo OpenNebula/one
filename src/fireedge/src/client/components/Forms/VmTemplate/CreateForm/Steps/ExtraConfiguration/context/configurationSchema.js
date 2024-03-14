@@ -40,16 +40,16 @@ export const SSH_PUBLIC_KEY = (isUpdate) => ({
 })
 
 /** @type {Field} Network context field */
-const NETWORK = {
+const NETWORK = (isUpdate) => ({
   name: 'CONTEXT.NETWORK',
   label: T.AddNetworkContextualization,
   tooltip: T.AddNetworkContextualizationConcept,
   type: INPUT_TYPES.SWITCH,
   validation: boolean()
     .yesOrNo()
-    .default(() => true),
+    .default(() => (isUpdate ? undefined : true)),
   grid: { md: 12 },
-}
+})
 
 /** @type {Field} Token OneGate token field */
 const TOKEN = {
@@ -112,7 +112,11 @@ export const START_SCRIPT_BASE64 = {
 export const SCRIPT_FIELDS = [START_SCRIPT, ENCODE_START_SCRIPT]
 
 /** @type {Field[]} List of other fields */
-export const OTHER_FIELDS = [NETWORK, TOKEN, REPORT_READY]
+export const OTHER_FIELDS = (isUpdate) => [
+  NETWORK(isUpdate),
+  TOKEN,
+  REPORT_READY,
+]
 
 /** @type {ObjectSchema} User context configuration schema */
 export const CONFIGURATION_SCHEMA = (isUpdate) =>
@@ -120,5 +124,5 @@ export const CONFIGURATION_SCHEMA = (isUpdate) =>
     SSH_PUBLIC_KEY(isUpdate),
     START_SCRIPT_BASE64,
     ...SCRIPT_FIELDS,
-    ...OTHER_FIELDS,
+    ...OTHER_FIELDS(isUpdate),
   ])

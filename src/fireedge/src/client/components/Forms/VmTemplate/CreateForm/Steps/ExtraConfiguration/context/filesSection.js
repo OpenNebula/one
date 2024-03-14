@@ -52,6 +52,7 @@ const FilesSection = ({ stepId, hypervisor, oneConfig, adminGroup }) => (
         ),
       [hypervisor]
     )}
+    saveState={true}
   />
 )
 

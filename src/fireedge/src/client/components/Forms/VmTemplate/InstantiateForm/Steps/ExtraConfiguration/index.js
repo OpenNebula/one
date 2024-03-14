@@ -109,7 +109,13 @@ const ExtraConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => {
     resolver: SCHEMA,
     optionsValidate: { abortEarly: false },
     content: (props) =>
-      Content({ ...props, hypervisor, oneConfig, adminGroup }),
+      Content({
+        ...props,
+        hypervisor,
+        oneConfig,
+        adminGroup,
+        instantiate: true,
+      }),
   }
 }
 

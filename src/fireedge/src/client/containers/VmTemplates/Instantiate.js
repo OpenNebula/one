@@ -86,7 +86,10 @@ function InstantiateVmTemplate() {
             rawTemplate,
             modifiedFields,
             existingTemplate,
-            TAB_FORM_MAP
+            TAB_FORM_MAP,
+            {
+              instantiate: true,
+            }
           )
 
           // Every action that is not an human action

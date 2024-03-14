@@ -22,13 +22,16 @@ import { VIDEO_SCHEMA } from './videoSchema'
 
 /**
  * @param {string} [hypervisor] - VM hypervisor
+ * @param {object} oneConfig - Config of oned.conf
+ * @param {boolean} adminGroup - User is admin or not
+ * @param {boolean} isUpdate - The form is being updated
  * @returns {ObjectSchema} I/O schema
  */
-export const SCHEMA = (hypervisor) =>
+export const SCHEMA = (hypervisor, oneConfig, adminGroup, isUpdate) =>
   object()
     .concat(INPUTS_SCHEMA)
     .concat(PCI_DEVICES_SCHEMA)
-    .concat(GRAPHICS_SCHEMA(hypervisor))
+    .concat(GRAPHICS_SCHEMA(hypervisor, oneConfig, adminGroup, isUpdate))
     .concat(VIDEO_SCHEMA(hypervisor))
 
 export * from './graphicsSchema'

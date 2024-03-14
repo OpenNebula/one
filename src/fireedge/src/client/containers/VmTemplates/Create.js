@@ -96,7 +96,11 @@ function CreateVmTemplate() {
         rawTemplate,
         modifiedFields,
         existingTemplate,
-        TAB_FORM_MAP
+        TAB_FORM_MAP,
+        {
+          instantiate: false,
+          update: !!templateId,
+        }
       )
 
       // Every action that is not an human action
@@ -131,6 +135,7 @@ function CreateVmTemplate() {
         apiTemplateDataExtended,
         oneConfig,
         adminGroup,
+        store,
       }}
       onSubmit={onSubmit}
       fallback={<SkeletonStepsForm />}

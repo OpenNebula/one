@@ -34,4 +34,9 @@ export const SCHEMA = object()
   .concat(SCHED_ACTION_SCHEMA)
   .concat(NETWORK_SCHEMA)
   .concat(STORAGE_SCHEMA)
-  .concat(getObjectSchemaFromFields([...PLACEMENT_FIELDS, BOOT_ORDER_FIELD]))
+  .concat(
+    getObjectSchemaFromFields([
+      ...PLACEMENT_FIELDS({ instantiate: true }),
+      BOOT_ORDER_FIELD,
+    ])
+  )

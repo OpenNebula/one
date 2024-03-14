@@ -66,7 +66,7 @@ const KEYMAP_VALUES = {
 }
 
 /** @type {Field} Type field */
-export const TYPE = {
+export const TYPE = (isUpdate) => ({
   name: 'GRAPHICS.TYPE',
   type: INPUT_TYPES.TOGGLE,
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
@@ -82,24 +82,24 @@ export const TYPE = {
     .trim()
     .notRequired()
     .uppercase()
-    .default(() => undefined),
+    .default(() => (isUpdate ? undefined : T.Vnc)),
   grid: { md: 12 },
-}
+})
 
 /** @type {Field} Listen field */
-export const LISTEN = {
+export const LISTEN = (isUpdate) => ({
   name: 'GRAPHICS.LISTEN',
   label: T.ListenOnIp,
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
+  dependOf: TYPE().name,
   htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined),
+    .default(() => (isUpdate ? undefined : '0.0.0.0')),
   fieldProps: { placeholder: '0.0.0.0' },
   grid: { md: 12 },
-}
+})
 
 /** @type {Field} Port field */
 export const PORT = {
@@ -107,7 +107,7 @@ export const PORT = {
   label: T.ServerPort,
   tooltip: T.ServerPortConcept,
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
+  dependOf: TYPE().name,
   htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
@@ -120,7 +120,7 @@ export const KEYMAP = {
   name: 'GRAPHICS.KEYMAP',
   label: T.Keymap,
   type: INPUT_TYPES.AUTOCOMPLETE,
-  dependOf: TYPE.name,
+  dependOf: TYPE().name,
   values: arrayToOptions(Object.entries(KEYMAP_VALUES), {
     addEmpty: false,
     getText: ([_, label]) => label,
@@ -177,7 +177,7 @@ export const RANDOM_PASSWD = {
   name: 'GRAPHICS.RANDOM_PASSWD',
   label: T.GenerateRandomPassword,
   type: INPUT_TYPES.CHECKBOX,
-  dependOf: TYPE.name,
+  dependOf: TYPE().name,
   htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
@@ -188,7 +188,7 @@ export const PASSWD = {
   name: 'GRAPHICS.PASSWD',
   label: T.Password,
   type: INPUT_TYPES.PASSWORD,
-  dependOf: [TYPE.name, RANDOM_PASSWD.name],
+  dependOf: [TYPE().name, RANDOM_PASSWD.name],
   htmlType: ([noneType, random] = []) =>
     (!noneType || random) && INPUT_TYPES.HIDDEN,
   validation: string()
@@ -204,7 +204,7 @@ export const COMMAND = {
   label: T.Command,
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
-  dependOf: TYPE.name,
+  dependOf: TYPE().name,
   htmlType: (noneType) => !noneType && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
@@ -217,14 +217,15 @@ export const COMMAND = {
  * @param {string} [hypervisor] - VM hypervisor
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
+ * @param {boolean} isUpdate - The form is being updated
  * @returns {Field[]} List of Graphics fields
  */
-export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup) =>
+export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup, isUpdate) =>
   disableFields(
     filterFieldsByHypervisor(
       [
-        TYPE,
-        LISTEN,
+        TYPE(isUpdate),
+        LISTEN(isUpdate),
         PORT,
         KEYMAP,
         CUSTOM_KEYMAP,
@@ -240,5 +241,7 @@ export const GRAPHICS_FIELDS = (hypervisor, oneConfig, adminGroup) =>
   )
 
 /** @type {ObjectSchema} Graphics schema */
-export const GRAPHICS_SCHEMA = (hypervisor) =>
-  getObjectSchemaFromFields(GRAPHICS_FIELDS(hypervisor))
+export const GRAPHICS_SCHEMA = (hypervisor, oneConfig, adminGroup, isUpdate) =>
+  getObjectSchemaFromFields(
+    GRAPHICS_FIELDS(hypervisor, oneConfig, adminGroup, isUpdate)
+  )

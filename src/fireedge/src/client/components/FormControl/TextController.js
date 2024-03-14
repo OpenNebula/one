@@ -17,7 +17,7 @@ import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField } from '@mui/material'
-import { useController, useWatch } from 'react-hook-form'
+import { useController, useWatch, useFormContext } from 'react-hook-form'
 
 import { ErrorHelper, Tooltip } from 'client/components/FormControl'
 import { Tr, labelCanBeTranslated } from 'client/components/HOC'
@@ -49,10 +49,13 @@ const TextController = memo(
       fieldState: { error },
     } = useController({ name, control })
 
+    const formContext = useFormContext()
+
     useEffect(() => {
       if (!watcher || !dependencies || !watch) return
 
-      const watcherValue = watcher(watch)
+      const watcherValue = watcher(watch, { name, formContext })
+
       watcherValue !== undefined && onChange(watcherValue)
     }, [watch, watcher, dependencies])
 
