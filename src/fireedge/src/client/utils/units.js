@@ -29,6 +29,8 @@ import { UNITS } from 'client/constants'
  */
 export const convertToMB = (value, unit) => {
   switch (unit) {
+    case UNITS.KB:
+      return value * (1 / 1024)
     case UNITS.MB:
       return value
     case UNITS.GB:

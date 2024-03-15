@@ -21,6 +21,7 @@ import {
   NUMA_MEMORY_ACCESS,
   NUMA_PIN_POLICIES,
   T,
+  UNITS,
 } from 'client/constants'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getHugepageSizes } from 'client/models/Host'
@@ -32,10 +33,19 @@ import {
   getObjectSchemaFromFields,
   prettyBytes,
   sentenceCase,
+  convertToMB,
 } from 'client/utils'
+
+import { VIRTUAL_CPU as GENERAL_VIRTUAL_CPU } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
 
 const { kvm, vcenter, firecracker, dummy } = HYPERVISORS
 const numaPinPolicies = Object.keys(NUMA_PIN_POLICIES)
+
+const VIRTUAL_CPU = {
+  ...GENERAL_VIRTUAL_CPU,
+  dependOf: '$general.VCPU',
+  watcher: (vcpu) => vcpu,
+}
 
 const ENABLE_NUMA = {
   name: 'TOPOLOGY.ENABLE_NUMA',
@@ -198,6 +208,7 @@ const HUGEPAGES = {
 
     return arrayToOptions([...new Set(sizes)], {
       getText: (size) => prettyBytes(+size),
+      getValue: (size) => size && convertToMB(size, UNITS.KB),
     })
   },
   validation: string()
@@ -274,4 +285,12 @@ const NUMA_SCHEMA = (hypervisor) =>
     }
   )
 
-export { SCHEMA_FIELDS as FIELDS, NUMA_FIELDS, NUMA_SCHEMA as SCHEMA }
+const VCPU_SCHEMA = getObjectSchemaFromFields([VIRTUAL_CPU])
+
+export {
+  SCHEMA_FIELDS as FIELDS,
+  NUMA_FIELDS,
+  NUMA_SCHEMA as SCHEMA,
+  VCPU_SCHEMA,
+  VIRTUAL_CPU,
+}

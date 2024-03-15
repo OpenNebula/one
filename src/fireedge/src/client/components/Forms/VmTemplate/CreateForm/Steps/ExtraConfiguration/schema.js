@@ -20,7 +20,11 @@ import { getObjectSchemaFromFields } from 'client/utils'
 import { FIELDS as PLACEMENT_FIELDS } from './placement/schema'
 import { FIELDS as BACKUP_FIELDS } from './backup/schema'
 import { FIELDS as OS_FIELDS, BOOT_ORDER_FIELD } from './booting/schema'
-import { SCHEMA as NUMA_SCHEMA, FIELDS as NUMA_FIELDS } from './numa/schema'
+import {
+  SCHEMA as NUMA_SCHEMA,
+  FIELDS as NUMA_FIELDS,
+  VCPU_SCHEMA,
+} from './numa/schema'
 import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
 import { SCHEMA as STORAGE_SCHEMA } from './storage/schema'
@@ -74,6 +78,7 @@ export const SCHEMA = (
       ])
     )
     .concat(getObjectSchemaFromFields([...BACKUP_FIELDS]))
+    .concat(VCPU_SCHEMA)
     .concat(NUMA_SCHEMA(hypervisor))
 
 export {

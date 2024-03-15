@@ -251,7 +251,8 @@ export const generateCapacityInput = ({ validation, ...field }) => ({
   htmlType: 'number',
   validation: validation
     .when(`$general.MODIFICATION.${field.name}.type`, {
-      is: (modificationType) => modificationType === range,
+      is: (modificationType) =>
+        modificationType === range || modificationType === rangeFloat,
       then: (schema) =>
         schema
           .max(ref(`$general.MODIFICATION.${field.name}.max`))
@@ -263,8 +264,11 @@ export const generateCapacityInput = ({ validation, ...field }) => ({
         `$general.MODIFICATION.${field.name}.type`,
         `$general.MODIFICATION.${field.name}.options`,
       ],
-      (modificationType, options = [], schema) =>
-        modificationType === list ? schema.oneOf(options) : schema
+      (modificationType, options = [], schema) => {
+        const optionsNumber = options.map((option) => parseFloat(option))
+
+        return modificationType === list ? schema.oneOf(optionsNumber) : schema
+      }
     ),
   grid: { md: 3 },
   fieldProps: { min: 0 },

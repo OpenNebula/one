@@ -16,34 +16,68 @@
 import PropTypes from 'prop-types'
 import { ElectronicsChip as NumaIcon } from 'iconoir-react'
 import { useEffect } from 'react'
+import { useWatch, useFormContext } from 'react-hook-form'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import {
   STEP_ID as EXTRA_ID,
   TabType,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { VIRTUAL_CPU as VCPU_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
-import { NUMA_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
+
+import {
+  NUMA_FIELDS,
+  VIRTUAL_CPU,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/schema'
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
 import { disableFields } from 'client/utils'
 
+import { set } from 'lodash'
+
 export const TAB_ID = 'NUMA'
 
-const Numa = ({ hypervisor, oneConfig, adminGroup }) => {
-  const { setFieldPath } = useGeneralApi()
+const Numa = ({ hypervisor, oneConfig, adminGroup, setFormData }) => {
+  const { setFieldPath, setModifiedFields } = useGeneralApi()
+
   useEffect(() => {
     setFieldPath(`extra.NUMA`)
   }, [])
+
+  const { getValues, setValue } = useFormContext()
+
+  // Create watch for vcpu
+  const vcpuWatch = useWatch({
+    name: 'extra.VCPU',
+    defaultValue: getValues('general.VCPU'),
+  })
+
+  // Synchronize general.VCPU and extra.VCPU (they're the same field but we need to create two to validate in both steps the vcpu)
+  useEffect(() => {
+    // Set general.VCPU as modified field
+    setFieldPath(`general`)
+    setModifiedFields({
+      general: { VCPU: true },
+      setPath: 'extra.NUMA',
+    })
+
+    // Set value in formContext
+    setValue('general.VCPU', vcpuWatch)
+
+    // Set value in formData (general.VCPU is in another step, so formData won't be updated if we don't force to update) -> components/Forms/VmTemplate/CreateForm/Steps/General/index.js
+    setFormData((prevState) => {
+      set(prevState, 'general.VCPU', vcpuWatch)
+
+      return prevState
+    })
+  }, [vcpuWatch])
 
   return (
     <>
       <FormWithSchema
         cy={`${EXTRA_ID}-vcpu`}
-        fields={disableFields([VCPU_FIELD], 'TOPOLOGY', oneConfig, adminGroup)}
-        id={GENERAL_ID}
+        fields={disableFields([VIRTUAL_CPU], '', oneConfig, adminGroup)}
+        id={EXTRA_ID}
         saveState={true}
       />
       <FormWithSchema
@@ -76,7 +110,7 @@ const TAB = {
   name: T.Numa,
   icon: NumaIcon,
   Content: Numa,
-  getError: (error) => !!error?.[TAB_ID] || !!error?.[VCPU_FIELD.name],
+  getError: (error) => !!error?.[TAB_ID] || !!error?.[VIRTUAL_CPU.name],
 }
 
 export default TAB

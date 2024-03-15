@@ -15,8 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useWatch } from 'react-hook-form'
-
+import { useWatch, useFormContext } from 'react-hook-form'
 import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
@@ -29,12 +28,13 @@ import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helpe
 import { generateKey } from 'client/utils'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
+import { set } from 'lodash'
 
 let generalFeatures
 
 export const STEP_ID = 'general'
 
-const Content = ({ isUpdate, oneConfig, adminGroup }) => {
+const Content = ({ isUpdate, oneConfig, adminGroup, setFormData }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
@@ -43,6 +43,27 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   useEffect(() => {
     setFieldPath(`general`)
   }, [])
+
+  const { getValues, setValue } = useFormContext()
+
+  // Create watch for vcpu
+  const vcpuWatch = useWatch({
+    name: 'general.VCPU',
+    defaultValue: getValues('general.VCPU'),
+  })
+
+  // Synchronize general.VCPU and extra.VCPU (they're the same field but we need to create two to validate in both steps the vcpu)
+  useEffect(() => {
+    // Set value in formContext
+    setValue('extra.VCPU', vcpuWatch)
+
+    // Set value in formData (extra.VCPU is in another step, so formData won't be updated if we don't force to update) -> components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa/index.js
+    setFormData((prevState) => {
+      set(prevState, 'extra.VCPU', vcpuWatch)
+
+      return prevState
+    })
+  }, [vcpuWatch])
 
   const sections = useMemo(() => {
     const resource = RESOURCE_NAMES.VM_TEMPLATE
@@ -101,7 +122,7 @@ const General = ({
       return SCHEMA(hypervisor, isUpdate, generalFeatures)
     },
     optionsValidate: { abortEarly: false },
-    content: () => Content({ isUpdate, oneConfig, adminGroup }),
+    content: (props) => Content({ ...props, isUpdate, oneConfig, adminGroup }),
   }
 }
 
@@ -109,6 +130,7 @@ Content.propTypes = {
   isUpdate: PropTypes.bool,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  setFormData: PropTypes.func,
 }
 
 export default General
