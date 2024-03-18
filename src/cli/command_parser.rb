@@ -41,13 +41,13 @@ module CommandParser
             :short => "-h",
             :large => "--help",
             :description => "Show this message"
-        },
-        VERSION={
-            :name => "version",
-            :short => "-V",
-            :large => "--version",
-            :description => "Show version and copyright information",
-        }
+        }#,
+        #VERSION={
+        #    :name => "version",
+        #    :short => "-V",
+        #    :large => "--version",
+        #    :description => "Show version and copyright information",
+        #}
     ]
 
     class CmdParser
@@ -93,9 +93,9 @@ module CommandParser
 
         # Defines the version the command
         # @param [String] str
-        def version(str)
-            @version = str
-        end
+        #def version(str)
+        #    @version = str
+        #end
 
         # Defines the additional information of the command
         # @param [String] str
@@ -515,9 +515,6 @@ module CommandParser
                         elsif e[:name]=="help"
                             print_help
                             exit 0
-                        elsif e[:name]=="version"
-                            puts @version
-                            exit 0
                         elsif !e[:multiple]
                             @options[e[:name].to_sym]=o
                         else
@@ -650,10 +647,6 @@ module CommandParser
             puts
             print_formatters
             puts
-            if @version
-                puts "## VERSION"
-                puts @version
-            end
         end
 
         def print_command_help(name)
