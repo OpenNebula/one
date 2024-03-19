@@ -243,6 +243,17 @@ void RequestManagerSchedUpdate::request_execute(xmlrpc_c::paramList const& param
 
         sapool->update(sa.get());
     }
+    else
+    {
+        std::ostringstream oss;
+        oss << "Unable to get Scheduled Action id = " << sched_id
+            << ". It doesn't exist or is malformed.";
+
+        att.resp_msg = oss.str();
+
+        failure_response(INTERNAL, att);
+        return;
+    }
 
     att.resp_obj = PoolObjectSQL::SCHEDULEDACTION;
     att.resp_id  = sched_id;
