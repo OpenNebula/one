@@ -51,9 +51,10 @@ const getDataBody = (params) =>
  * @param {string} [command.path] - Path to replace with resources
  * @param {Method} command.httpMethod - Method http
  * @param {object} command.params - Params to map
+ * @param {string} zone - zone
  * @returns {AxiosRequestConfig} Request configuration
  */
-export const requestConfig = (data, command) => {
+export const requestConfig = (data, command, zone) => {
   if (command === undefined) throw new Error('command not exists')
   const { name, path, httpMethod, params = {} } = command
 
@@ -65,6 +66,10 @@ export const requestConfig = (data, command) => {
     }),
     {}
   )
+
+  if (!data?.zone) {
+    mappedParams.zone = { from: fromTypes.query, value: zone }
+  }
 
   const queries = getQueries(mappedParams)
   const body = getDataBody(mappedParams)

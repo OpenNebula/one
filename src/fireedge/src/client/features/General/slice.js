@@ -18,9 +18,9 @@ import { createSlice } from '@reduxjs/toolkit'
 import { APPS_IN_BETA, APPS_WITH_SWITCHER } from 'client/constants'
 import { logout } from 'client/features/Auth/slice'
 import * as actions from 'client/features/General/actions'
-import { generateKey, calculateIndex } from 'client/utils'
-import { merge, cloneDeep, set, get, pullAt, pickBy } from 'lodash'
+import { calculateIndex, generateKey } from 'client/utils'
 import { parsePayload } from 'client/utils/parser'
+import { cloneDeep, get, merge, pickBy, pullAt, set } from 'lodash'
 
 const initial = {
   zone: 0,
@@ -36,6 +36,7 @@ const initial = {
   disabledSteps: [],
   fieldPath: '',
   modifiedFields: {},
+  defaultZone: 0,
 }
 
 const slice = createSlice({
@@ -47,6 +48,8 @@ const slice = createSlice({
       .addCase(logout, (state) => ({
         ...initial,
         // persistent app state
+        zone: state.defaultZone,
+        defaultZone: state.defaultZone,
         appTitle: state.appTitle,
         isBeta: state.isBeta,
         withGroupSwitcher: state.withGroupSwitcher,

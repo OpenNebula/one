@@ -92,7 +92,11 @@ const oneApi = createApi({
         paramsExtensible.filter = getState().auth?.filterPool
       }
 
-      const config = requestConfig(paramsExtensible, command)
+      const config = requestConfig(
+        paramsExtensible,
+        command,
+        getState().general?.zone
+      )
       const response = await http.request({ ...config, signal })
       const state = needStateInMeta ? getState() : {}
 
