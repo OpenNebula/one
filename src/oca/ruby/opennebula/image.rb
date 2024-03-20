@@ -115,11 +115,12 @@ module OpenNebula
         #
         # @param description [String] A string containing the template of the Image.
         # @param ds_id [Integer] the target datastore ID
+        # @param no_check_capacity [Boolean] true to skip capacity check. Only for admins.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(description, ds_id, check_capacity=true)
-            super(IMAGE_METHODS[:allocate],description, ds_id, check_capacity)
+        def allocate(description, ds_id, no_check_capacity=false)
+            super(IMAGE_METHODS[:allocate],description, ds_id, no_check_capacity)
         end
 
         # Replaces the template contents

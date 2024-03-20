@@ -169,8 +169,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         :name => 'no_check_capacity',
         :large => '--no_check_capacity',
         :description =>
-            'Check Datastore capacity. By Default YES',
-        :format => String
+            'Do not check Datastore capacity, only for admins.'
     }
 
     FILTERS = [

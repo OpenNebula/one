@@ -869,8 +869,8 @@ int ImageManager::register_image(int iid,
             image_msg_t msg(ImageManagerMessages::MKFS, "", img->get_oid(), drv_msg);
             imd->write(msg);
 
-            oss << "Creating disk at " << source << " of "<<  img->get_size()
-                << "Mb (format: " <<  img->get_format() << ")";
+            oss << "Creating disk at " << img->get_ds_name() << ", size " <<  img->get_size()
+                << "MB (format: " <<  img->get_format() << ")";
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE
