@@ -217,11 +217,7 @@ CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        if options[:no_check_capacity].nil?
-            check_capacity = false
-        else
-            check_capacity = true
-        end
+        no_check_capacity = !options[:no_check_capacity].nil?
 
         conflicting_opts = []
         if (args[0] || !(stdin = OpenNebulaHelper.read_stdin).empty?) &&
@@ -264,7 +260,7 @@ CommandParser::CmdParser.new(ARGV) do
                     exit 0
                 end
 
-                image.allocate(template, options[:datastore], check_capacity)
+                image.allocate(template, options[:datastore], no_check_capacity)
             rescue StandardError => e
                 STDERR.puts e.message
                 exit(-1)

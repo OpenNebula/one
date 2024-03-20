@@ -451,7 +451,7 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( params.size() > 3 && att.is_admin() )
     {
-        check_capacity = xmlrpc_c::value_boolean(params.getBoolean(3));
+        check_capacity = !params.getBoolean(3);
     }
 
     Nebula&  nd  = Nebula::instance();
