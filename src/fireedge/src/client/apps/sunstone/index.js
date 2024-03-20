@@ -14,17 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import 'core-js'
-import { JSXElementConstructor } from 'react'
 import PropTypes from 'prop-types'
+import { JSXElementConstructor } from 'react'
 
-import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
+import { BrowserRouter, StaticRouter } from 'react-router-dom'
 import { Store } from 'redux'
 
-import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
+import { TranslateProvider } from 'client/components/HOC'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
-import { TranslateProvider } from 'client/components/HOC'
+import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
 
 import App, { APP_NAME as SunstoneAppName } from 'client/apps/sunstone/_app'
 import theme from 'client/apps/sunstone/theme'

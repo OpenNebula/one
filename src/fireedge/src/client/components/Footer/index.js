@@ -17,10 +17,11 @@ import { memo } from 'react'
 
 import { Link, Typography, styled } from '@mui/material'
 
+import makeStyles from '@mui/styles/makeStyles'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { Translate } from 'client/components/HOC'
 import { StatusChip } from 'client/components/Status'
-import { BY, T } from 'client/constants'
+import { BY, SUPPORT_WEBSITE, T } from 'client/constants'
 import { useCheckOfficialSupportQuery } from 'client/features/OneApi/support'
 import { useGetOneVersionQuery } from 'client/features/OneApi/system'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
@@ -46,7 +47,14 @@ const HeartIcon = styled('span')(({ theme }) => ({
   },
 }))
 
+const useStyles = makeStyles(() => ({
+  links: {
+    textDecoration: 'none',
+  },
+}))
+
 const Footer = memo(() => {
+  const classes = useStyles()
   const { isError, isSuccess } = useCheckOfficialSupportQuery()
   const { data: version } = useGetOneVersionQuery()
 
@@ -67,13 +75,20 @@ const Footer = memo(() => {
           />
         )}
         {isError && (
-          <StatusChip
-            forceWhiteColor
-            stateColor="error"
-            text={T.NotOfficiallySupport}
-            dataCy="notOfficialSupport"
-            mx={0.5}
-          />
+          <a
+            href={SUPPORT_WEBSITE}
+            target="_blank"
+            rel="noreferrer"
+            className={classes.links}
+          >
+            <StatusChip
+              forceWhiteColor
+              stateColor="error"
+              text={T.NotOfficiallySupport}
+              dataCy="notOfficialSupport"
+              mx={0.5}
+            />
+          </a>
         )}
         {isSuccess && (
           <Link component={RouterLink} to={generatePath(PATH.SUPPORT)}>

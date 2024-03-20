@@ -15,13 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 
-import { MenuList, MenuItem, LinearProgress } from '@mui/material'
+import { LinearProgress, MenuItem, Select } from '@mui/material'
 import { Language as ZoneIcon } from 'iconoir-react'
 
-import { useGetZonesQuery } from 'client/features/OneApi/zone'
-import HeaderPopover from 'client/components/Header/Popover'
 import { Translate } from 'client/components/HOC'
+import HeaderPopover from 'client/components/Header/Popover'
 import { T } from 'client/constants'
+import { useGeneral, useGeneralApi } from 'client/features/General'
+import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
 /**
  * Menu to select the OpenNebula Zone.
@@ -30,6 +31,8 @@ import { T } from 'client/constants'
  */
 const Zone = () => {
   const { data: zones = [], isLoading } = useGetZonesQuery()
+  const { zone } = useGeneral()
+  const { changeZone } = useGeneralApi()
 
   return (
     <HeaderPopover
@@ -42,19 +45,27 @@ const Zone = () => {
       {({ handleClose }) => (
         <>
           {isLoading && <LinearProgress color="secondary" />}
-          <MenuList>
-            {zones?.length ? (
-              zones?.map(({ ID, NAME }) => (
-                <MenuItem key={`zone-${ID}`} onClick={handleClose}>
+          {zones?.length ? (
+            <Select
+              color="secondary"
+              inputProps={{ 'data-cy': 'select-zone' }}
+              native
+              onChange={(event) => {
+                changeZone(parseInt(event?.target?.value, 10))
+              }}
+              defaultValue={zone}
+            >
+              {zones?.map(({ ID, NAME }) => (
+                <option key={`zone-${ID}`} value={parseInt(ID, 10)}>
                   {NAME}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>
-                <Translate word={T.NotFound} />
-              </MenuItem>
-            )}
-          </MenuList>
+                </option>
+              ))}
+            </Select>
+          ) : (
+            <MenuItem disabled>
+              <Translate word={T.NotFound} />
+            </MenuItem>
+          )}
         </>
       )}
     </HeaderPopover>

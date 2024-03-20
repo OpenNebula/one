@@ -126,6 +126,18 @@ router.get('*', async (req, res) => {
     sheets.collect(<App location={req.url} store={store} />)
   )
 
+  const PRELOAD_STATE = { ...(store.getState() || {}) }
+
+  if (appConfig?.default_zone?.id !== 'undefined' && PRELOAD_STATE?.general) {
+    PRELOAD_STATE.general = {
+      ...PRELOAD_STATE.general,
+      ...{
+        zone: appConfig.default_zone.id,
+        defaultZone: appConfig.default_zone.id,
+      },
+    }
+  }
+
   const config = `
     <script id="preload-server-side">
       window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
@@ -134,7 +146,7 @@ router.get('*', async (req, res) => {
 
   const storeRender = `
     <script id="preloadState">
-      window.__PRELOADED_STATE__ = ${ensuredScriptValue(store.getState())}
+      window.__PRELOADED_STATE__ = ${ensuredScriptValue(PRELOAD_STATE)}
     </script>`
 
   const css = `<style id="jss-server-side">${sheets.toString()}</style>`

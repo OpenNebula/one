@@ -32,6 +32,7 @@ const initial = {
   notifications: [],
   selectedIds: [],
   disabledSteps: [],
+  defaultZone: 0,
 }
 
 const slice = createSlice({
@@ -43,6 +44,8 @@ const slice = createSlice({
       .addCase(logout, (state) => ({
         ...initial,
         // persistent app state
+        zone: state.defaultZone,
+        defaultZone: state.defaultZone,
         appTitle: state.appTitle,
         isBeta: state.isBeta,
         withGroupSwitcher: state.withGroupSwitcher,
