@@ -379,7 +379,7 @@ Bash symbols must be escaped on STDIN passing'
             :name   => 'context',
             :large  => '--context line1,line2,line3',
             :format => Array,
-            :description => 'Lines to add to the context section'
+            :description => 'Replaces the context section with the specified lines'
         },
         {
             :name   => 'boot',
@@ -1058,7 +1058,7 @@ Bash symbols must be escaped on STDIN passing'
         def list_pool(options, top = false, filter_flag = nil)
             # Capture Broken pipe
             Signal.trap('PIPE', 'EXIT')
-            
+
             table = format_pool(options)
 
             if options[:describe]
