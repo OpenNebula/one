@@ -20,6 +20,9 @@ export FORCE_DESTROY=yes
 # currently used in detach-interface, restore
 export VIRSH_RETRIES=3
 
+# Default "virsh" timeout for operations which might block indefinitely
+export VIRSH_TIMEOUT=60
+
 # Compact memory before running the VM
 #CLEANUP_MEMORY_ON_START=yes
 

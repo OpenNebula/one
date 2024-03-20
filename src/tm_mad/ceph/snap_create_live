@@ -107,7 +107,7 @@ fi
 SNAP_CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
 
-    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+    if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
         trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID || true" EXIT
     fi
 

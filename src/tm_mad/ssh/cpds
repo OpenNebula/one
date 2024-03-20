@@ -112,7 +112,7 @@ touch ${SRC_TEMP_PATH}
 if ! retry_if_no_error "active block job" 3 5 virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${SRC_TEMP_PATH} --wait --finish; then
     set -e -o pipefail
 
-    if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
+    if timeout ${VIRSH_TIMEOUT:-60} virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
         trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT
         $CP $SRC_PATH $SRC_TEMP_PATH
     elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then

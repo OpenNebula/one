@@ -199,7 +199,7 @@ else
 
     # freeze/suspend domain and rsync raw disks again
     if [ -n "$RAW_DISKS" ]; then
-        if virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
+        if timeout ${VIRSH_TIMEOUT:-60} virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
             # local domfsthaw for the case migration fails
             trap "virsh --connect $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
             FREEZE="yes"

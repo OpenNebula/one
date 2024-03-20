@@ -157,7 +157,7 @@ CMD=$(cat <<EOT
     set -ex -o pipefail
     mkdir -p "$SNAP_DIR"
 
-    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+    if timeout ${VIRSH_TIMEOUT:-60} virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
         trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
     elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
         trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT
