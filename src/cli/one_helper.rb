@@ -357,7 +357,7 @@ EOT
             :name   => 'context',
             :large  => '--context line1,line2,line3',
             :format => Array,
-            :description => 'Lines to add to the context section'
+            :description => 'Replaces the context section with the specified lines'
         },
         {
             :name   => 'boot',
