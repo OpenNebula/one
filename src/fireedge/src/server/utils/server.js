@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-
+const dns = require('dns')
 const https = require('https')
 const http = require('http')
 const { env } = require('process')
@@ -75,11 +75,27 @@ const {
   defaultDownloader,
   defaultEmptyFunction,
 } = defaults
+
 const { internalServerError } = httpCodes
 const { POST } = httpMethod
 
 let cert = ''
 let key = ''
+
+/**
+ * Sets the default DNS lookup order to prefer IPv4 addresses first
+ * if the Node.js version is 16.0.0 or higher.
+ *
+ * @returns {void}
+ */
+const setDnsResultOrder = () => {
+  const [major] = process.versions.node.split('.').map(Number)
+  if (major >= 16) {
+    dns.setDefaultResultOrder('ipv4first')
+  }
+}
+
+setDnsResultOrder()
 
 /**
  * Validate if server app have certs.
@@ -1051,4 +1067,5 @@ module.exports = {
   subscriber,
   executeRequest,
   rotateBySize,
+  setDnsResultOrder,
 }
