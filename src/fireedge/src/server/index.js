@@ -33,6 +33,7 @@ import {
   getCert,
   getKey,
   validateServerIsSecure,
+  setDnsResultOrder,
 } from './utils/server'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 
@@ -51,6 +52,8 @@ import { readFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import vmrc from './routes/websockets/vmrc'
 import webpack from 'webpack'
+
+setDnsResultOrder()
 
 // set paths
 genPathResources()
