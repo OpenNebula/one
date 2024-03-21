@@ -171,6 +171,9 @@ CommandParser::CmdParser.new(ARGV) do
         Apply changes to configuration files
     EOT
 
+    # Filter the options to exclude VERSION
+    options_without_version = CommandParser::OPTIONS.reject {|opt| opt[:name] == 'version' }
+
     command :patch, patch_desc,
             [:file, nil],
             :options => [UNPRIVILEGED,
@@ -178,7 +181,7 @@ CommandParser::CmdParser.new(ARGV) do
                          PREFIX,
                          PATCH_FORMAT,
                          PATCH_ALL] +
-                         CommandParser::OPTIONS + LOG_MODES \
+                         options_without_version + LOG_MODES \
     do
         OneCfg::LOG.get_logger(options)
         rc = -1
