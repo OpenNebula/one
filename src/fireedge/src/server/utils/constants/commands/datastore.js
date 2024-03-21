@@ -64,7 +64,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
