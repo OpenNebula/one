@@ -68,7 +68,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         images: {
           from: query,
@@ -82,7 +82,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         number: {
           from: postBody,
@@ -112,7 +112,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -126,7 +126,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         nic: {
           from: postBody,
@@ -140,7 +140,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -158,7 +158,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         ownerUse: {
           from: postBody,
@@ -204,7 +204,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         userId: {
           from: postBody,
@@ -222,7 +222,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         name: {
           from: postBody,
@@ -250,7 +250,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         lock: {
           from: postBody,
@@ -264,7 +264,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },

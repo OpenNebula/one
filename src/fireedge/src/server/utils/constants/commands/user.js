@@ -85,7 +85,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -95,7 +95,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         password: {
           from: postBody,
@@ -131,7 +131,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -149,7 +149,7 @@ module.exports = {
       params: {
         id: {
           from: postBody,
-          default: 0,
+          default: -1,
         },
         driver: {
           from: postBody,
@@ -167,7 +167,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -181,7 +181,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         group: {
           from: postBody,
@@ -195,7 +195,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         group: {
           from: postBody,
@@ -209,7 +209,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         group: {
           from: query,
@@ -223,7 +223,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         enable: {
           from: postBody,
