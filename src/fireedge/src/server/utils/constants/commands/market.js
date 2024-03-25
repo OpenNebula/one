@@ -60,7 +60,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -70,7 +70,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -88,7 +88,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         ownerUse: {
           from: postBody,
@@ -134,7 +134,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         userId: {
           from: postBody,
@@ -152,7 +152,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         name: {
           from: postBody,
@@ -166,7 +166,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         enable: {
           from: postBody,

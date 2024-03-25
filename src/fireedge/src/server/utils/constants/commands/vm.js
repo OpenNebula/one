@@ -150,7 +150,7 @@ module.exports = {
         },
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -190,7 +190,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -216,7 +216,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -234,7 +234,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: query,
@@ -252,7 +252,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -270,7 +270,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -292,7 +292,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -306,7 +306,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -320,7 +320,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         disk: {
           from: postBody,
@@ -338,7 +338,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -352,7 +352,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         nic: {
           from: postBody,
@@ -366,7 +366,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         nic: {
           from: postBody,
@@ -384,7 +384,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         nic: {
           from: postBody,
@@ -402,7 +402,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         ownerUse: {
           from: postBody,
@@ -448,7 +448,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         user: {
           from: postBody,
@@ -466,7 +466,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         name: {
           from: postBody,
@@ -480,7 +480,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         name: {
           from: postBody,
@@ -494,7 +494,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         snapshot: {
           from: postBody,
@@ -508,7 +508,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         snapshot: {
           from: postBody,
@@ -522,7 +522,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -540,7 +540,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -558,7 +558,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -572,7 +572,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         operation: {
           from: postBody,
@@ -586,7 +586,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         decrypt: {
           from: query,
@@ -600,7 +600,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -610,7 +610,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         level: {
           from: postBody,
@@ -628,7 +628,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -637,7 +637,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -650,7 +650,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         schedId: {
           from: postBody,
@@ -667,7 +667,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         schedId: {
           from: postBody,

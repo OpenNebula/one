@@ -65,7 +65,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
       },
     },
@@ -75,7 +75,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         template: {
           from: postBody,
@@ -93,7 +93,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         host: {
           from: postBody,
@@ -107,7 +107,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         host: {
           from: query,
@@ -121,7 +121,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         datastore: {
           from: postBody,
@@ -135,7 +135,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         datastore: {
           from: postBody,
@@ -149,7 +149,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         vnet: {
           from: postBody,
@@ -163,7 +163,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         vnet: {
           from: postBody,
@@ -177,7 +177,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         name: {
           from: postBody,
@@ -191,7 +191,7 @@ module.exports = {
       params: {
         id: {
           from: resource,
-          default: 0,
+          default: -1,
         },
         decrypt: {
           from: query,
