@@ -70,7 +70,7 @@ const error = (next = defaultEmptyFunction, res = {}, data = '') => {
   ) {
     res.locals.httpCode = httpResponse(
       internalServerError,
-      data && data.message
+      data && (data?.response?.data ? data.response.data : data?.message)
     )
     next()
   }
