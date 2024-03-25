@@ -36,7 +36,7 @@ import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/Ex
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
-import { useWatch } from 'react-hook-form'
+import { useWatch, useFormContext } from 'react-hook-form'
 
 export const TAB_ID = 'OS'
 
@@ -55,15 +55,18 @@ const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
 
   useEffect(() => {}, [kernelWatch, kernelDsWatch])
 
+  const { getValues } = useFormContext()
+  const disks = getValues(`${EXTRA_ID}.${STORAGE_ID}`)
+  const nics = getValues(`${EXTRA_ID}.${NIC_ID[0]}`)
+  const nicsAlias = getValues(`${EXTRA_ID}.${NIC_ID[1]}`)
+
   return (
     <Stack
       display="grid"
       gap="1em"
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
-      {(!!props.data?.[STORAGE_ID]?.length ||
-        !!props.data?.[NIC_ID[0]]?.length ||
-        !!props.data?.[NIC_ID[1]]?.length) && (
+      {(!!disks?.length || !!nics?.length || !!nicsAlias?.length) && (
         <FormControl
           component="fieldset"
           sx={{ width: '100%', gridColumn: '1 / -1' }}

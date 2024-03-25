@@ -17,8 +17,12 @@ import { reach } from 'yup'
 
 import { SCHEMA } from 'client/components/Forms/Vm/UpdateConfigurationForm/schema'
 import ContentForm from 'client/components/Forms/Vm/UpdateConfigurationForm/content'
-import { ensureContextWithScript } from 'client/components/Forms/VmTemplate/CreateForm/Steps'
-import { createForm, getUnknownAttributes } from 'client/utils'
+import {
+  createForm,
+  getUnknownAttributes,
+  isBase64,
+  decodeBase64,
+} from 'client/utils'
 
 const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
   ContentForm,
@@ -53,6 +57,15 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       ...getUnknownAttributes(context, knownContext),
     }
 
+    // Decode script base 64
+    if (template?.CONTEXT?.START_SCRIPT_BASE64) {
+      knownTemplate.CONTEXT = {
+        ...knownTemplate?.CONTEXT,
+        START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
+        ENCODE_START_SCRIPT: true,
+      }
+    }
+
     // Merge known and unknown context custom vars
     knownTemplate.BACKUP_CONFIG = {
       ...knownBackupConfig,
@@ -61,7 +74,15 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => ensureContextWithScript(formData),
+  transformBeforeSubmit: (formData) => {
+    // Encode script on base 64, if needed, on context section
+    if (isBase64(formData?.CONTEXT?.START_SCRIPT)) {
+      formData.CONTEXT.START_SCRIPT_BASE64 = formData?.CONTEXT?.START_SCRIPT
+      delete formData?.CONTEXT?.START_SCRIPT
+    } else {
+      delete formData?.CONTEXT?.START_SCRIPT_BASE64
+    }
+  },
 })
 
 export default UpdateConfigurationForm

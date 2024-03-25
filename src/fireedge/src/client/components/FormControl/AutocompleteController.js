@@ -35,6 +35,7 @@ const AutocompleteController = memo(
     fieldProps: { separators, ...fieldProps } = {},
     readOnly = false,
     onConditionChange,
+    disableEnter = false,
   }) => {
     const {
       field: { value: renderValue, onBlur, onChange },
@@ -49,9 +50,8 @@ const AutocompleteController = memo(
       (_, newValue) => {
         const newValueToChange = multiple
           ? newValue?.map((value) =>
-              ['string', 'number'].includes(typeof value)
-                ? value
-                : { text: value, value }
+              // In case that is an object, get value attribute
+              ['string', 'number'].includes(typeof value) ? value : value.value
             )
           : newValue?.value
 
@@ -74,22 +74,38 @@ const AutocompleteController = memo(
         multiple={multiple}
         renderTags={(tags, getTagProps) =>
           // render when freesolo prop
-          tags.map((tag, index) => (
-            <Chip
-              key={tag}
-              size="small"
-              variant="outlined"
-              label={tag}
-              {...getTagProps({ index })}
-            />
-          ))
+          tags.map((tag, index) => {
+            // When the component is multiple and has values, map to show the label that corresponds to the value
+            const labelTag =
+              values &&
+              values.length > 0 &&
+              values.find((item) => item.value === tag)
+                ? values.find((item) => item.value === tag).text
+                : tag
+
+            return (
+              <Chip
+                key={labelTag}
+                size="small"
+                variant="outlined"
+                label={labelTag}
+                {...getTagProps({ index })}
+              />
+            )
+          })
         }
         getOptionLabel={(option) => option.text}
         isOptionEqualToValue={(option) => option.value === renderValue}
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField
             label={<Translate word={label} />}
-            inputProps={{ ...inputProps, 'data-cy': cy }}
+            inputProps={{
+              ...inputProps,
+              'data-cy': cy,
+              ...(disableEnter
+                ? { onKeyDown: (e) => e.key === 'Enter' && e.stopPropagation() }
+                : {}),
+            }}
             InputProps={{ readOnly }}
             error={Boolean(error)}
             helperText={
@@ -132,6 +148,7 @@ AutocompleteController.propTypes = {
   label: PropTypes.any,
   tooltip: PropTypes.any,
   multiple: PropTypes.bool,
+  disableEnter: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,

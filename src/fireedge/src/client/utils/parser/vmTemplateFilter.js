@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import _, { cloneDeep, merge, get } from 'lodash'
-import { convertToMB } from 'client/utils'
+import { convertToMB, isBase64 } from 'client/utils'
 import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
 import { transformXmlString } from 'client/models/Helper'
 
@@ -663,6 +663,14 @@ const filterSingleSection = (
  */
 const transformActionsCreate = (template) => {
   transformActionsCommon(template)
+
+  // Encode script on base 64, if needed, on context section
+  if (isBase64(template?.CONTEXT?.START_SCRIPT)) {
+    template.CONTEXT.START_SCRIPT_BASE64 = template?.CONTEXT?.START_SCRIPT
+    delete template?.CONTEXT?.START_SCRIPT
+  } else {
+    delete template?.CONTEXT?.START_SCRIPT_BASE64
+  }
 }
 
 /**

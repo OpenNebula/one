@@ -26,38 +26,9 @@ import General, {
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 
 import { userInputsToArray } from 'client/models/Helper'
-import {
-  createSteps,
-  encodeBase64,
-  getUnknownAttributes,
-  isBase64,
-} from 'client/utils'
+import { createSteps, getUnknownAttributes, decodeBase64 } from 'client/utils'
 
 import { KVM_FIRMWARE_TYPES, VCENTER_FIRMWARE_TYPES } from 'client/constants'
-
-/**
- * Encodes the start script value to base64 if it is not already encoded.
- *
- * @param {object} template - VM template
- * @returns {object} Context with the start script value encoded
- */
-export const ensureContextWithScript = (template = {}) => {
-  template.CONTEXT = ((context = {}) => {
-    const { START_SCRIPT, ENCODE_START_SCRIPT, ...restOfContext } = context
-
-    if (!START_SCRIPT) return { ...restOfContext }
-    if (!ENCODE_START_SCRIPT) return { ...restOfContext, START_SCRIPT }
-
-    // encode the script if it is not already encoded
-    const encodedScript = isBase64(START_SCRIPT)
-      ? START_SCRIPT
-      : encodeBase64(START_SCRIPT)
-
-    return { ...restOfContext, START_SCRIPT_BASE64: encodedScript }
-  })(template.CONTEXT)
-
-  return { ...template }
-}
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   transformInitialValue: (vmTemplate, schema) => {
@@ -94,6 +65,33 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
+    // Decode script base 64
+    if (vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT_BASE64) {
+      objectSchema[EXTRA_ID].CONTEXT = {
+        ...vmTemplate.TEMPLATE.CONTEXT,
+        START_SCRIPT: decodeBase64(
+          vmTemplate?.TEMPLATE?.CONTEXT?.START_SCRIPT_BASE64
+        ),
+        ENCODE_START_SCRIPT: true,
+      }
+    }
+
+    // Transform FILES_DS on CONTEXT
+    if (vmTemplate?.TEMPLATE?.CONTEXT?.FILES_DS) {
+      objectSchema[EXTRA_ID].CONTEXT = {
+        ...objectSchema[EXTRA_ID].CONTEXT,
+        FILES_DS: vmTemplate?.TEMPLATE?.CONTEXT?.FILES_DS.split(' '),
+      }
+    }
+
+    // Transform INIT_SCRIPTS on CONTEXT
+    if (vmTemplate?.TEMPLATE?.CONTEXT?.INIT_SCRIPTS) {
+      objectSchema[EXTRA_ID].CONTEXT = {
+        ...objectSchema[EXTRA_ID].CONTEXT,
+        INIT_SCRIPTS: vmTemplate?.TEMPLATE?.CONTEXT?.INIT_SCRIPTS.split(' '),
+      }
+    }
+
     const knownTemplate = schema.cast(objectSchema, {
       stripUnknown: true,
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
@@ -112,7 +110,7 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     // Get the custom vars from the context
     const knownContext = reach(schema, `${EXTRA_ID}.CONTEXT`).cast(
-      vmTemplate?.TEMPLATE?.CONTEXT,
+      objectSchema[EXTRA_ID].CONTEXT,
       {
         stripUnknown: true,
         context: {

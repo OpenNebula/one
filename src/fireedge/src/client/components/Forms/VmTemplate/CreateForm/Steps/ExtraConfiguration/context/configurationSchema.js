@@ -16,7 +16,7 @@
 import { string, boolean, lazy, ObjectSchema } from 'yup'
 
 import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getObjectSchemaFromFields, decodeBase64 } from 'client/utils'
+import { Field, getObjectSchemaFromFields, encodeBase64 } from 'client/utils'
 
 const switchField = {
   type: INPUT_TYPES.SWITCH,
@@ -73,7 +73,9 @@ export const ENCODE_START_SCRIPT = {
   label: T.EncodeScriptInBase64,
   ...switchField,
   validation: lazy((_, { context }) =>
-    boolean().default(() => !!context?.CONTEXT?.START_SCRIPT_BASE64)
+    boolean()
+      .default(() => !!context?.CONTEXT?.START_SCRIPT_BASE64)
+      .afterSubmit(() => undefined)
   ),
 }
 
@@ -83,22 +85,18 @@ export const START_SCRIPT = {
   label: T.StartScript,
   tooltip: T.StartScriptConcept,
   type: INPUT_TYPES.TEXT,
+  dependOf: ENCODE_START_SCRIPT.name,
   multiline: true,
-  validation: lazy((value, { context }) =>
-    string()
-      .trim()
-      .notRequired()
-      .ensure()
-      .default(() => {
-        try {
-          const base64 = context?.CONTEXT?.START_SCRIPT_BASE64
-
-          return value ?? decodeBase64(base64 ?? '')
-        } catch {
-          return value
-        }
-      })
-  ),
+  validation: string()
+    .trim()
+    .ensure()
+    .notRequired()
+    .afterSubmit((value, { context }) =>
+      context?.extra?.CONTEXT?.ENCODE_START_SCRIPT ||
+      context?.CONTEXT?.ENCODE_START_SCRIPT
+        ? encodeBase64(value)
+        : value
+    ),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
 }

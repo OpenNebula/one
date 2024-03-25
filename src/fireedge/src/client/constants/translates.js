@@ -1153,12 +1153,11 @@ module.exports = {
   shebang in case it is not shell script`,
   EncodeScriptInBase64: 'Encode script in Base64',
   ContextFiles: 'Files Datastores',
-  ContextFilesConcept: 'List of File images to include in context device',
+  ContextFilesConcept:
+    'List of file images to include in context device. Please, search a file image to include in context device.',
   InitScripts: 'Init scripts',
-  InitScriptsConcept: `
-    The contextualization package executes an init.sh file if it exists.
-    If more than one script file is added, this list contains the scripts
-    to run and their order`,
+  InitScriptsConcept:
+    'The contextualization package executes an init.sh file if it exists. If more than one script file is added, this list contains the scripts to run and their order. Please, add the name of a script and press ENTER.',
   ContextCustomVariables: 'Context Custom Variables',
   ContextCustomVariablesConcept:
     'Context information will be send to the VM at boot time',

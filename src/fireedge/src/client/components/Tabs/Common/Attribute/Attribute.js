@@ -222,6 +222,7 @@ const Attribute = memo(
               title={<Translate word={T.DeleteSomething} values={path} />}
               handleAccept={handleDeleteAttribute}
               handleCancel={hide}
+              dataCy={'confirmation-dialog'}
             >
               <p>
                 <Translate word={T.DoYouWantProceed} />
