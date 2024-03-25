@@ -36,7 +36,7 @@ import { Field, deepStringify, simpleHash } from 'client/utils'
 
 import { get, set, merge, startsWith } from 'lodash'
 import { useSelector } from 'react-redux'
-import { parseTouchedDirty, isDeeplyEmpty } from 'client/utils/parser'
+import { isDeeplyEmpty } from 'client/utils/parser'
 import { useGeneralApi } from 'client/features/General'
 
 const NOT_DEPEND_ATTRIBUTES = [
@@ -103,8 +103,8 @@ const FormWithSchema = ({
         // Fields to add to the modifiedFields
         let fieldsToMerge = {}
 
-        // Get the fields that are touched and dirty
-        const touchedDirtyFields = parseTouchedDirty(touchedFields, dirtyFields)
+        // Get the fields that are dirty
+        const touchedDirtyFields = dirtyFields
 
         // Add to the fieldsToMerge
         if (!isDeeplyEmpty(touchedDirtyFields)) {
