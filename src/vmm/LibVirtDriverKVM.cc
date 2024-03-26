@@ -1713,7 +1713,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( type == "spice" )
             {
-                // Spice password must be 60 characters maximum
+                // Spice password must be 59 characters maximum
                 passwd.resize(VirtualMachine::MAX_SPICE_PASSWD_LENGTH);
             }
             else if ( type == "vnc" )
