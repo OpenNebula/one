@@ -158,7 +158,7 @@ const login = (
    * This can be changed in order to perform a return with HTTP 500
    * instead returning a HTTP 500 with response data.
    */
-  zendeskClient.users.auth((err, res, result) => {
+  zendeskClient.users.auth((err, _, result) => {
     let method = ok
     let data = result
     if (err) {
@@ -203,7 +203,7 @@ const list = (
     if (session.zendesk && session.zendesk.id) {
       /** LIST ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      zendeskClient.requests.list((err, _, result) => {
+      zendeskClient.requests.listOpen((err, _, result) => {
         let method = ok
         let data = ''
 
