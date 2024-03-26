@@ -30,6 +30,7 @@
 #include "VirtualNetworkPool.h"
 #include "VirtualRouterPool.h"
 #include "SecurityGroupPool.h"
+#include "ScheduledActionPool.h"
 
 using namespace std;
 
@@ -368,6 +369,8 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
         vrid = vm->get_vrouter_id();
     }
 
+    std::set<int> sa_ids(vm->sched_actions().get_collection());
+
     vm.reset(); //force unlock of vm mutex
 
     Quotas::vm_del(uid, gid, quota_tmpl.get());
@@ -391,6 +394,28 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
             vrouterpool->update(vr.get());
         }
     }
+
+    auto sapool = Nebula::instance().get_sapool();
+
+    int    rc = 0;
+    string error;
+
+    for (const auto& id: sa_ids)
+    {
+        if (auto sa = sapool->get(id))
+        {
+            rc += sapool->drop(sa.get(), error);
+        }
+    }
+
+    if ( rc != 0 )
+    {
+        ostringstream oss;
+
+        oss << "Some schedules for VM " << vmid << " could not be removed";
+        NebulaLog::log("DiM", Log::ERROR, oss);
+    }
+
 }
 
 /* -------------------------------------------------------------------------- */

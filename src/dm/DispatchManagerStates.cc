@@ -19,7 +19,6 @@
 #include "Quotas.h"
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
-#include "ScheduledActionPool.h"
 
 using namespace std;
 
@@ -271,30 +270,7 @@ void DispatchManager::trigger_done(int vid)
             (lcm_state == VirtualMachine::EPILOG ||
             lcm_state == VirtualMachine::CLEANUP_DELETE))
         {
-            string error;
-            int    rc = 0;
-
-            std::set<int> sa_ids(vm->sched_actions().get_collection());
-
             free_vm_resources(std::move(vm), true);
-
-            auto sapool = Nebula::instance().get_sapool();
-
-            for (const auto& id: sa_ids)
-            {
-                if (auto sa = sapool->get(id))
-                {
-                    rc += sapool->drop(sa.get(), error);
-                }
-            }
-
-            if ( rc != 0 )
-            {
-                ostringstream oss;
-
-                oss << "Some schedules for VM " << vid << " could not be removed";
-                NebulaLog::log("DiM", Log::ERROR, oss);
-            }
         }
         else
         {

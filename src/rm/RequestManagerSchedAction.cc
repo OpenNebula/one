@@ -36,6 +36,16 @@ void RequestManagerSchedAdd::request_execute(xmlrpc_c::paramList const& paramLis
     if ( auto vm = pool->get_ro<VirtualMachine>(oid) )
     {
         stime = vm->get_stime();
+
+        if (vm->get_state() == VirtualMachine::DONE)
+        {
+            att.resp_id = oid;
+            att.resp_msg = "Unable to create Scheduled Action for Virtual Machine "
+                + to_string(oid) + ", it's in DONE state";
+
+            failure_response(INTERNAL, att);
+            return;
+        }
     }
     else
     {
@@ -153,6 +163,14 @@ void RequestManagerSchedDelete::request_execute(xmlrpc_c::paramList const& param
             failure_response(ACTION, att);
             return;
         }
+    }
+    else
+    {
+        att.resp_obj = PoolObjectSQL::SCHEDULEDACTION;
+        att.resp_id = sched_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
     }
 
     att.resp_obj = PoolObjectSQL::SCHEDULEDACTION;
