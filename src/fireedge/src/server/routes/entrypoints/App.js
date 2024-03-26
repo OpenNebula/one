@@ -35,6 +35,7 @@ const {
   defaultApps,
   defaultAppName,
   defaultHeaderRemote,
+  defaultApiTimeout,
 } = require('server/utils/constants/defaults')
 
 // client
@@ -46,6 +47,11 @@ const APP_NAMES = Object.keys(defaultApps)
 
 const ensuredScriptValue = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c')
+
+const globalApiTimeout = (config) =>
+  /^\d+(?:_\d+)*$/.test(config?.api_timeout)
+    ? config.api_timeout
+    : defaultApiTimeout
 
 const router = Router()
 
@@ -144,6 +150,11 @@ router.get('*', async (req, res) => {
       window.__REMOTE_AUTH__ = ${JSON.stringify(remoteJWT)}
     </script>`
 
+  const requestTimeOut = `
+    <script id="preload-axios-config">
+      window.__GLOBAL_API_TIMEOUT__ = ${globalApiTimeout(appConfig)}
+    </script>`
+
   const storeRender = `
     <script id="preloadState">
       window.__PRELOADED_STATE__ = ${ensuredScriptValue(PRELOAD_STATE)}
@@ -169,6 +180,7 @@ router.get('*', async (req, res) => {
       <div id="root">${rootComponent}</div>
       ${storeRender}
       ${config}
+      ${requestTimeOut}
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

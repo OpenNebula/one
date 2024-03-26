@@ -31,7 +31,7 @@ http.interceptors.request.use((config) => {
       ...config.headers,
       'Content-Type': 'application/json',
     },
-    timeout: 45_000,
+    timeout: window.__GLOBAL_API_TIMEOUT__,
     timeoutErrorMessage: T.Timeout,
     withCredentials: true,
     validateStatus: (status) =>

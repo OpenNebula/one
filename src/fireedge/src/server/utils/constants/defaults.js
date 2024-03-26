@@ -168,6 +168,7 @@ const defaults = {
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
   defaultProvisionConfig: `${appNameProvision}-server.conf`,
+  defaultApiTimeout: 45_000,
   protectedConfigData: {
     [appNameSunstone]: [
       'support_url',
