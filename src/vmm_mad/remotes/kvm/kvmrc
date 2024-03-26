@@ -27,7 +27,7 @@ export VIRSH_TIMEOUT=60
 #CLEANUP_MEMORY_ON_START=yes
 
 # Compact memory after VM stops
-CLEANUP_MEMORY_ON_STOP=yes
+CLEANUP_MEMORY_ON_STOP=no
 
 # Uncomment this line to force VM's without ACPI enabled to be destroyed
 # on shutdown
