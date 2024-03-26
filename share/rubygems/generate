@@ -97,7 +97,7 @@ GEM_DESCRIPTION={
         :summary => 'OpenNebula Client API',
         :description => 'Libraries needed to talk to OpenNebula',
         :dependencies => [
-            'nokogiri',
+            ['nokogiri','<1.16'],
             'json',
             'rbvmomi2',
             'xmlrpc',
