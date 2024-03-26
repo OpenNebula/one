@@ -81,6 +81,10 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "virtual network template";
         case PoolObjectSQL::HOOK:
             return "hook";
+        case PoolObjectSQL::BACKUPJOB:
+            return "backup job";
+        case PoolObjectSQL::SCHEDULEDACTION:
+            return "scheduled action";
         default:
             return "-";
       }
