@@ -203,35 +203,38 @@ const list = (
     if (session.zendesk && session.zendesk.id) {
       /** LIST ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      zendeskClient.requests.listOpen((err, _, result) => {
-        let method = ok
-        let data = ''
+      zendeskClient.requests.getRequest(
+        { sort_by: 'id', sort_order: 'desc' },
+        (err, _, result) => {
+          let method = ok
+          let data = ''
 
-        if (err) {
-          method = internalServerError
-          data = parseBufferError(err)
-        } else if (result) {
-          const ticketCount = {
-            new: 0,
-            open: 0,
-            pending: 0,
-            hold: 0,
-            solved: 0,
-            closed: 0,
+          if (err) {
+            method = internalServerError
+            data = parseBufferError(err)
+          } else if (result) {
+            const ticketCount = {
+              new: 0,
+              open: 0,
+              pending: 0,
+              hold: 0,
+              solved: 0,
+              closed: 0,
+            }
+            const tickets = Array.isArray(result) ? result : result
+            tickets.forEach((ticket) => {
+              ticket?.status && (ticketCount[ticket.status] += 1)
+            })
+            data = {
+              tickets: result,
+              ...ticketCount,
+            }
           }
-          const tickets = Array.isArray(result) ? result : result
-          tickets.forEach((ticket) => {
-            ticket?.status && (ticketCount[ticket.status] += 1)
-          })
-          data = {
-            tickets: result,
-            ...ticketCount,
-          }
+
+          response.locals.httpCode = httpResponse(method, data)
+          next()
         }
-
-        response.locals.httpCode = httpResponse(method, data)
-        next()
-      })
+      )
     } else {
       response.locals.httpCode = httpResponse(unauthorized)
       next()
