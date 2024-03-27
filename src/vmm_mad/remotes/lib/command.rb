@@ -29,14 +29,28 @@ module Command
         begin
             fd = lock if block
 
-            STDERR.puts "Running command #{cmd}" if verbose >= 1
-
             stdout, stderr, s = Open3.capture3(cmd, opts)
         ensure
             unlock(fd) if block
         end
 
-        STDERR.puts "#{stdout}\n#{stderr}" if verbose == 2
+        return [s.exitstatus, stdout, stderr] if verbose <= 0
+
+        stdin = if opts[:stdin_data]
+                    opts[:stdin_data].lines.map { |l| "[stdin]: #{l}" }.join
+                else
+                    ''
+                end
+
+        if s.exitstatus == 0
+            STDERR.puts cmd
+            STDERR.puts "#{stdin}" unless stdin.empty?
+        else
+            STDERR.puts "Error executing: #{cmd}"
+            STDERR.puts "#{stdin}" unless stdin.empty?
+            STDERR.puts "\t[stdout]: #{stdout}" unless stdout.empty?
+            STDERR.puts "\t[stderr]: #{stderr}" unless stderr.empty?
+        end
 
         [s.exitstatus, stdout, stderr]
     end
@@ -47,20 +61,14 @@ module Command
 
     # Returns true/false if status is 0/!=0 and logs error if needed
     def self.execute_rc_log(cmd, lock = false)
-        rc, _stdout, stderr = execute(cmd, lock, 1)
+        rc = execute(cmd, lock, 1)
 
-        STDERR.puts stderr unless rc.zero?
-
-        rc.zero?
+        rc[0] == 0
     end
 
     # Execute cmd and logs error if needed
     def self.execute_log(cmd, lock = false)
-        rc = execute(cmd, lock, 1)
-
-        STDERR.puts rc[2] unless rc[0].zero?
-
-        rc
+        execute(cmd, lock, 1)
     end
 
     def self.execute_detach(cmd)
@@ -85,6 +93,37 @@ module Command
 
     def self.unlock(lfd)
         lfd.close
+    end
+
+    def self.ssh(options = {})
+        opt = {
+            :cmds    => '',
+            :host    => '',
+            :forward => false,
+            :nostdout => false,
+            :nostderr => false,
+            :verbose  => 1,
+            :block    => false,
+            :emsg     => ''
+        }.merge!(options)
+
+        script = <<~EOS
+            export LANG=C
+            export LC_ALL=C
+            #{opt[:cmds]}
+        EOS
+
+        cmd = 'ssh -o ControlMaster=no -o ControlPath=none'
+        cmd << ' -o ForwardAgent=yes' if opt[:forward]
+        cmd << " #{opt[:host]} bash -s "
+        cmd << ' 1>/dev/null' if opt[:nostdout]
+        cmd << ' 2>/dev/null' if opt[:nostderr]
+
+        r, o, e = execute(cmd, opt[:block], opt[:verbose], :stdin_data => script)
+
+        return [r, o, e] if r == 0 || emsg.empty?
+
+        raise StandardError, "#{emsg}: #{e}"
     end
 
 end
