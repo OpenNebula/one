@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
@@ -15,296 +15,248 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
 
-DRIVER_PATH=$(dirname $0)
-source "$DRIVER_PATH/../../etc/vmm/kvm/kvmrc"
-source "$DRIVER_PATH/../../scripts_common.sh"
-XPATH="$DRIVER_PATH/../../datastore/xpath.rb"
-
-get_qemu_img_version() {
-    qemu-img --version | head -1 | awk '{print $3}' | \
-        sed -e 's/[^0-9\.]//' | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }'
-}
-
-is_readonly() {
-    local DOMAIN=$1
-    local DISK=$2
-
-    READ_ONLY=$(virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
-            $XPATH --stdin --subtree \
-            "//domain/devices/disk[source/@file='$DISK']/readonly")
-
-    [[ "$READ_ONLY" =~ '<readonly/>' ]]
-}
-
-get_size_and_format_of_disk_img() {
-    local QEMU_IMG_PATH="$1"
-    local PARAM="$2"
-
-    if [[ "$QEMU_IMG_PATH" =~ disk.[0-9]*.snap/ ]]; then
-        #Disk lives in snap dir it is a link (includes replica)
-        echo unknown qcow2-symlink
-        return
-    elif [ -L "$QEMU_IMG_PATH" ]; then
-        #Disk is a synlink, assume network-disk
-        echo unknown network-disk
-        return
-    fi
-
-    IMG_INFO=$(qemu-img info $PARAM "$QEMU_IMG_PATH" --output json)
-
-    if [ -z "$IMG_INFO" ]; then
-        echo "Failed to get image info for $QEMU_IMG_PATH"
-        exit 1
-    fi
-
-    SIZE=$(echo $IMG_INFO | sed -nE 's/^.*virtual-size.: ([0-9]+).*/\1/p')
-    FORMAT=$(echo $IMG_INFO | sed -nE 's/^.*format.: "([a-z0-9]+)".*/\1/p')
-
-    if [ -z "$SIZE" ] || [ -z "$FORMAT" ]; then
-        echo "Failed to get image $QEMU_IMG_PATH size or format"
-        exit 1
-    fi
-
-    echo $SIZE $FORMAT
-}
-
-create_target_disk_img() {
-    local DEST_HOST=$1
-    local QEMU_IMG_PATH="$2"
-    local SIZE="$3"
-    local DISK_DIR="$(dirname $QEMU_IMG_PATH)"
-
-    ssh_monitor_and_log "$DEST_HOST" \
-        "mkdir -p '$DISK_DIR' && qemu-img create -f qcow2 '$QEMU_IMG_PATH' '$SIZE'" \
-        "Failed to create new qcow image for $QEMU_IMG_PATH"
-}
-
-STDIN=$(cat -)
-DEPLOY_ID=$1
-DEST_HOST=$2
-DISKS=$(virsh --connect $LIBVIRT_URI domblklist "$DEPLOY_ID" \
-    | tail -n+3 | grep -v "^$" | awk '{print $1 "," $2}')
-
-
-unset i j XPATH_ELEMENTS
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(echo $STDIN| $XPATH \
-            /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED \
-            /VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH)
-
-SHARED="${XPATH_ELEMENTS[j++]}"
-VM_DIR="${XPATH_ELEMENTS[j++]}"
-
-# use "force-share" param for qemu >= 2.10
-[ "$(get_qemu_img_version)" -ge 2010000 ] && QEMU_IMG_PARAM="-U"
-
-# migration can't be done with domain snapshots, drop them first but save current snapshot for redefine
-SNAP_CUR=$(virsh --connect $LIBVIRT_URI snapshot-current --name $DEPLOY_ID 2>/dev/null)
-
-SNAPS=$(monitor_and_log \
-   "virsh --connect $LIBVIRT_URI snapshot-list $DEPLOY_ID --name 2>/dev/null" \
-   "Failed to get snapshots for $DEPLOY_ID")
-
-for SNAP in $SNAPS; do
-    exec_and_log \
-        "virsh --connect $LIBVIRT_URI snapshot-delete $DEPLOY_ID --snapshotname $SNAP --metadata" \
-        "Failed to delete snapshot $SNAP from $DEPLOY_ID"
-done
-
-# Compact memory
-if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
-    ssh_exec_and_log "$DEST_HOST" "(sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null || true" \
-        "Failed compact memory on $DEST_HOST"
-fi
-
-if [ "$SHARED" = "YES" ]; then
-    retry_if_no_error "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
-        --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system
-
-    RC=$?
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
 else
-    if [[ -z "$DISKS" ]]; then
-        error_message "No disks discovered on the VM"
-        exit 1
-    fi
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
 
-    ssh_monitor_and_log "$DEST_HOST" "mkdir -p '$VM_DIR'" \
-        "Failed to make remote directory $VM_DIR image"
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
 
-    MIGRATE_DISKS=""
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
 
-    for DISK_STR in $DISKS; do
+$LOAD_PATH << RUBY_LIB_LOCATION
 
-        DISK_DEV=${DISK_STR/,*/}
-        DISK_PATH=${DISK_STR/*,/}
+require 'pathname'
 
-        read -r SIZE FORMAT <<<"$(get_size_and_format_of_disk_img "$DISK_PATH" "$QEMU_IMG_PARAM")"
+require_relative 'opennebula_vm'
+require_relative '../lib/command'
+require_relative '../lib/xmlparser'
 
-        if [ "$FORMAT" = "raw" ]; then
-            if ! is_readonly $DEPLOY_ID $DISK_PATH; then
-                RAW_DISKS+=" $DISK_PATH"
-                MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
-            fi
+include VirtualMachineManagerKVM
+include Command
 
-            # do initial rsync
-            multiline_exec_and_log "$TAR -cSf - $DISK_PATH | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
-                "Failed to rsync disk $DISK_PATH to $DEST_HOST:$DISK_PATH"
+load_remote_env
 
-        elif [ "$FORMAT" = "qcow2" ]; then
-            create_target_disk_img "$DEST_HOST" "$DISK_PATH" "$SIZE"
-            MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
+# ------------------------------------------------------------------------------
+# HELPER FUNCTIONS.
+#   Note input parameters are defined as instance variables
+#     - @deploy_id
+#     - @dst_host
+#     - @vm_dir
+#     - @shared
+# ------------------------------------------------------------------------------
 
-        elif [ "$FORMAT" = "qcow2-symlink" ]; then
-            # don't create disk, .snap dir will be copied anyway
-            MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
+# sync paths to the destination VM folder
+#
+# @param paths [Array/String] Array of paths to sync
+#
+def rsync_paths(paths, raise_error = true)
+    return if paths.empty?
 
-        elif [ "$FORMAT" = "network-disk" ]; then
-            true # skip
-        fi
+    opts  = '-az'
+    paths = paths.join(' ') if paths.class == Array
+    dpath = "#{@dst_host}:#{@vm_dir}/"
 
-        # copy disk snapshots
-        if [[ "$DISK_PATH" =~ (disk\.[0-9]*\.snap)/. ]]; then
-            SNAP_DIR="$VM_DIR/${BASH_REMATCH[1]}"
-        elif [ -d "${DISK_PATH}.snap" ]; then  #it should be included in the clause above
-            SNAP_DIR="${DISK_PATH}.snap"
-        fi
+    tini = Time.now
 
-        if [ -n "${SNAP_DIR}" ]; then
-            multiline_exec_and_log "$TAR -cSf - ${SNAP_DIR} | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
-                "Failed to rsync disk snapshot ${SNAP_DIR} to $DEST_HOST"
-        fi
+    rc, _o, e = Command.execute_log("rsync #{opts} #{paths} #{dpath}")
 
-        # recreate symlinks
-        if [ -L "$DISK_PATH" ]; then
-            TARGET=$(readlink $DISK_PATH)
-            LNAME=$DISK_PATH
-        elif [[ "$DISK_PATH" =~ (disk\.([0-9]*)\.snap/.*) ]]; then
-            TARGET=${BASH_REMATCH[1]}
-            LNAME="disk.${BASH_REMATCH[2]}"
-        else
-            continue
-        fi
+    STDERR.puts "rsync time #{Time.now-tini}s"
 
-        ssh_exec_and_log "$DEST_HOST" "cd ${VM_DIR}; [ -L \"$LNAME\" ] || ln -s \"$TARGET\" \"$LNAME\""
-            "Failed to create symlink $TARGET -> $LNAME on $DEST_HOST"
-    done
+    raise StandardError, "Cannot rsync files: #{e}" if rc != 0 && raise_error
+end
 
-    # copy vm.xml and ds.xml from the $VM_DIR
-    if ls $VM_DIR/*.xml > /dev/null; then
-        multiline_exec_and_log "$TAR -cSf - $VM_DIR/*.xml | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
-            "Failed to copy xml files to $DEST_HOST"
-    fi
+# In case of error this function is used to remove migration leftovers. For non
+# shared storage configuration it will remove the destination VM folder
+#
+# @param kvm_vm [KvmDomain] libvirt domain class
+# @param error[String] message for the StandardError raised by the function
+#
+def cleanup_host(kvm_vm, error)
+    kvm_vm.destroy @dst_host
 
-    # freeze/suspend domain and rsync raw disks again
-    if [ -n "$RAW_DISKS" ]; then
-        if virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
-            # local domfsthaw for the case migration fails
-            trap "virsh --connect $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
-            FREEZE="yes"
-        else
-            if virsh --connect $LIBVIRT_URI suspend $DEPLOY_ID; then
-                # local resume for the case migration fails
-                trap "virsh --connect $LIBVIRT_URI resume $DEPLOY_ID" EXIT
-                SUSPEND="yes"
+    kvm_vm.undefine @dst_host
+
+    if !@shared
+        Command.ssh(:host => @dst_host, :cmds => "rm -rf #{@vm_dir}")
+    end
+
+    raise StandardError, error
+end
+
+# Migrate VMs running on local storage, using the copy-storage feature of libvirt
+# Disks are scanned and classified as:
+#   - Regular disks are copied during migration (devs array). A place holder needs
+#     to be created in the destination host
+#
+#   - Readonly disks are copied before starting the migration (pre_sync array)
+#
+#   - Snapshots and other ancialliary files are also copied in the pre_sync phase
+#
+#   - Network disks are assumed to be shared and not copied
+#
+#   - qcow2 disks with system snapshots are rsync after migration to transfer
+#     the snapshots (wiped out during the migration)
+#
+# To allow this post sync phase the VM is paused after migration (--suspend)
+#
+# @param kvm_vm [KvmDomain] libvirt domain class
+def local_migration(kvm_vm)
+    devs = []
+
+    pre_sync  = ["#{@vm_dir}/*.xml"]
+    post_sync = []
+
+    kvm_vm.disks.each do |disk|
+        dev  = disk[0]
+        path = disk[1]
+
+        if !File.symlink? path #qcow2 & raw disks, regular files
+            qimg = QemuImg.new path
+
+            format = qimg['format']
+            size   = qimg['virtual-size']
+            snaps  = qimg['snapshots'] && !qimg['snapshots'].empty?
+
+            if format == 'raw' && kvm_vm.readonly?(path)
+                pre_sync << path
             else
-                error_message "Could not freeze or suspend the domain"
-                exit 1
-            fi
-        fi
+                devs << dev
+                post_sync << path if format == 'qcow2' && snaps
 
-        for DISK in $RAW_DISKS; do
-            multiline_exec_and_log "$TAR -cSf - $DISK | $SSH $DEST_HOST '$TAR -xSf - -C / '" \
-                "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
-        done
-    fi
+                cmds =<<~EOS
+                    mkdir -p #{File.dirname(path)}
+                    qemu-img create -f #{format} #{path} #{size}
+                EOS
 
-    # Enumerate disks to copy
-    if [ -n "$MIGRATE_DISKS" ]; then
-        DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS}"
-    fi
+                Command.ssh(:host => @dst_host, :cmds => cmds,
+                            :emsg => 'Cannot create disk')
+            end
+        elsif path.match(/disk.[0-9]*.snap\//) #qcow2-symlink, replica
+            devs << dev
+        #else
+        #network-disk, symlinks are assumed to be network disks
+        end
 
-    retry_if_no_error "active block job" 3 5 \
-        virsh --connect $LIBVIRT_URI migrate \
-        --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
-        $DISK_OPTS
-    RC=$?
+        # Add disk snapshots dir to the list of paths to sync
+        if File.directory? "#{path}.snap"
+            pre_sync << Pathname.new("#{path}.snap").cleanpath
+        elsif (m = path.match(/(disk.[0-9]*.snap)\//)) #replica
+            pre_sync << Pathname.new("#{@vm_dir}/#{m[1]}").cleanpath
+        end
 
-    # remote domfsthaw/resume, give it time
-    if [ $RC -eq 0 ]; then
-        if [ "$FREEZE" = "yes" ]; then
-            for I in $(seq 5); do
-                virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domfsthaw $DEPLOY_ID \
-                    && break
-                sleep 2
-            done
-        elif [ "$SUSPEND" = "yes" ]; then
-            for I in $(seq 5); do
-                virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system resume $DEPLOY_ID \
-                    && break
-                sleep 2
-            done
-        fi
-    fi
-fi
-
-# cleanup target host in case of error
-if [ $RC -ne 0 ]; then
-    for CLEAN_OP in destroy undefine; do
-        virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system "${CLEAN_OP}" $DEPLOY_ID >/dev/null 2>&1
-    done
-
-    if [ "$SHARED" != "YES" ]; then
-        ssh $DEST_HOST "rm -rf $VM_DIR"
-    fi
-
-    error_message "Could not migrate $DEPLOY_ID to $DEST_HOST"
-    exit $RC
-fi
-
-# redefine potential snapshots after live migration
-if [ "$SHARED" = "YES" ]; then
-    UUID=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system dominfo $DEPLOY_ID | awk '/UUID:/ {print $2}')
-    DISK_PATH=$(virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domblklist $DEPLOY_ID | awk '/disk.0/ {print $2}')
-    DISK_DIR=$(dirname $DISK_PATH)
-
-    if [[ "${DISK_DIR}" =~ .*/disk\.[0-9]+.snap$ ]]; then
-        DISK_DIR=$(dirname $DISK_DIR)
-    fi
-
-    for SNAPSHOT_MD_XML in $(ls -v ${DISK_DIR}/snap-*.xml 2>/dev/null); do
-        # replace uuid in the snapshot metadata xml
-        sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML
-
-        # redefine the snapshot using the xml metadata file
-        virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system snapshot-create $DEPLOY_ID $SNAPSHOT_MD_XML --redefine > /dev/null || true
-    done
-
-    [ -n "$SNAP_CUR" ] && virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system snapshot-current $DEPLOY_ID $SNAP_CUR
-fi
-
-# Synchronize VM time on background on remote host
-if [ "$SYNC_TIME" = "yes" ]; then
-    SYNC_TIME_CMD=$(cat <<EOF
-(
-    for I in \$(seq 4 -1 1); do
-        if virsh --connect $LIBVIRT_URI --readonly dominfo $DEPLOY_ID; then
-            virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID && exit
-            [ "\$I" -gt 1 ] && sleep 5
+        #recreate disk symlinks
+        if File.symlink? path
+            target = File.readlink(path)
+            lname  = path
+        elsif (m = path.match(/(disk.([0-9]*).snap)\/.*/)) #replica
+            target = m[1]
+            lname  = "disk.#{m[2]}"
         else
-            exit
-        fi
-    done
-) &>/dev/null &
-EOF
-)
-    ssh_exec_and_log_no_error "${DEST_HOST}" \
-        "${SYNC_TIME_CMD}" \
-        "Failed to synchronize VM time"
-fi
+            next
+        end
 
-# Compact memory
-if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
-    (sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
-fi
+        cmds =<<~EOS
+            cd #{@vm_dir}
+            [ -L "#{lname}" ] || ln -s "#{target}" "#{lname}"
+        EOS
+
+        Command.ssh(:host => @dst_host, :cmds => cmds,
+                    :emsg => 'Cannot symlink disk')
+    end
+
+    rsync_paths(pre_sync)
+
+    rc, _out, err = kvm_vm.live_migrate_disks(@dst_host, devs)
+
+    cleanup_host(err) if rc != 0
+
+    rsync_paths(post_sync)
+
+    kvm_vm.resume(@dst_host)
+end
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+begin
+    @deploy_id = ARGV[0]
+    @dst_host  = ARGV[1]
+
+    action_xml = XMLElement.new_s(STDIN.read)
+
+    @vm_dir = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH']).cleanpath
+    @shared = action_xml['/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED'].casecmp('YES') == 0
+
+    kvm_vm  = KvmDomain.new(@deploy_id)
+
+    # Migration can't be done with domain snapshots, drop them first
+    kvm_vm.snapshots_delete
+
+    # Migrate VMs using shared/local storage
+    if @shared
+        rc, _out, err = kvm_vm.live_migrate(@dst_host)
+
+        cleanup_host(kvm_vm, err) if rc != 0
+    else
+        local_migration(kvm_vm)
+    end
+
+    # Redefine system snapshots on the destination libvirtd
+    kvm_vm.snapshots_redefine(@dst_host, @vm_dir)
+
+    # Sync guest time
+    if ENV['SYNC_TIME'].upcase == 'YES'
+        cmds =<<~EOS
+        (
+          for I in $(seq 4 -1 1); do
+            if #{virsh} --readonly dominfo #{@deploy_id}; then
+              #{virsh} domtime --sync #{@deploy_id} && exit
+              [ "\$I" -gt 1 ] && sleep 5
+            else
+              exit
+            fi
+          done
+        ) &>/dev/null &
+        EOS
+
+        rc, _o, e = Command.ssh(:host => @dst_host, :cmds => cmds, :emsg => '')
+
+        STDERR.puts "Failed to synchronize VM time: #{e}" if rc != 0
+    end
+
+    # Compact memory
+    if ENV['CLEANUP_MEMORY_ON_STOP'].upcase == 'YES'
+        `(sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &`
+    end
+
+rescue StandardError => e
+  STDERR.puts "Error mirgating VM #{@deploy_id} to host #{@dst_host}: #{e.message}"
+  STDERR.puts "#{e.backtrace}"
+  exit(1)
+end

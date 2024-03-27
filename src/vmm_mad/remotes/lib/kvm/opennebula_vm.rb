@@ -14,7 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 require_relative '../lib/xmlparser'
+require_relative '../lib/command'
 require_relative '../lib/opennebula_vm'
+
+require 'json'
 
 # rubocop:disable Style/ClassAndModuleChildren
 # rubocop:disable Style/ClassVars
@@ -51,7 +54,14 @@ module VirtualMachineManagerKVM
 
             next unless m
 
-            ENV[m[2]] = m[3].delete("\n") if m[2] && m[3]
+            k,v = m[2],m[3].strip
+
+            # remove single or double quotes
+            if !v.empty? && v[0] == v[-1] && ["'", '"'].include?(v[0])
+                v = v.slice(1, v.length-2)
+            end
+
+            ENV[k] = v.delete("\n") if k && v
         end
     rescue StandardError
     end
@@ -62,6 +72,323 @@ module VirtualMachineManagerKVM
         uri ||= 'qemu:///system'
 
         "virsh --connect #{uri}"
+    end
+
+    # --------------------------------------------------------------------------
+    # This class abstracts the information and several methods to operate over
+    # qcow2 disk images files
+    # --------------------------------------------------------------------------
+    class QemuImg
+
+        attr_reader :path
+
+        def initialize(path)
+            @_info = nil
+            @path  = path
+        end
+
+        #@return[Array] with major, minor and micro qemu-img version numbers
+        def self.version
+            out, _err, _rc = Open3.capture3("qemu-img --version")
+
+            m = out.lines.first.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/)
+
+            return "0000000" unless m
+
+            [m[1], m[2], m[3]]
+        end
+
+        # qemu-img command methods
+        #   @param args[String] non option argument
+        #   @param opts[Hash] options arguments:
+        #     -keys options as symbols, e.g.
+        #       :o          '-o'
+        #       :disks      '--disks'
+        #       :disk_only  '--disk-only'
+        #       :map=       '--map= '
+        #     -values option values, can be empty
+        QEMU_IMG_COMMANDS = [
+          'convert',
+          'create',
+          'rebase',
+          'info',
+          'bitmap',
+          'commit'
+        ]
+
+        QEMU_IMG_COMMANDS.each do |command|
+            define_method(command.to_sym) do |args = '', opts|
+                cmd_str = "qemu-img #{command}"
+
+                opts.each do |key, value|
+                    next if key == :stdin_data
+
+                    if key.length == 1
+                        cmd_str << " -#{key}"
+                    else
+                        cmd_str << " --#{key.to_s.gsub('_', '-')}"
+                    end
+
+                    if value && !value.empty?
+                        cmd_str << ' ' if key[-1] != '='
+                        cmd_str << value.to_s
+                    end
+                end
+
+                out, err, rc = Open3.capture3("#{cmd_str} #{@path} #{args}",
+                                              :stdin_data => opts[:stdin_data])
+
+                if rc.exitstatus != 0
+                    msg = "Error executing: #{cmd_str} #{@path} #{args}\n"
+                    msg << "\t[stderr]: #{err}" unless err.empty?
+                    msg << "\t[stdout]: #{out}" unless out.empty?
+
+                    raise StandardError, msg
+                end
+
+                out
+            end
+        end
+
+        # Access image attribute
+        def [](key)
+            if !@_info
+                out    = info(:output => 'json', :force_share => '')
+                @_info = JSON.parse(out)
+            end
+
+            @_info[key]
+        end
+    end
+
+    #
+    # This class provides abstractions to access KVM/Qemu libvirt domains
+    #
+    class KvmDomain
+        def initialize(domain)
+            @domain = domain
+            @xml    = nil
+
+            out, err, rc = Open3.capture3("#{virsh} dumpxml #{@domain}")
+
+            if out.nil? || out.empty? || rc.exitstatus != 0
+                raise StandardError, "Error getting domain info #{err}"
+            end
+
+            @xml = XMLElement.new_s out
+
+            @snapshots = []
+            @snapshots_current = nil
+
+            @disks = nil
+        end
+
+        def [](xpath)
+            @xml[xpath]
+        end
+
+        def exist?(xpath)
+            @xml.exist?(xpath)
+        end
+
+        # ---------------------------------------------------------------------
+        # VM system snapshots interface
+        # ---------------------------------------------------------------------
+
+        # Get the system snapshots of a domain
+        #
+        #  @param query[Boolean] refresh the snapshot information by querying
+        #         libvirtd daemon
+        #
+        #  @return [Array] the array of snapshots name, and the current snapshot
+        #          (if any)
+        def snapshots(query = true)
+            return [@snapshots, @snapshots_current] unless query
+
+            o, e, rc = Open3.capture3("#{virsh} snapshot-list #{@domain} --name")
+
+            if rc.exitstatus != 0
+                raise StandardError, "Error getting domain snapshots #{e}"
+            end
+
+            @snapshots = o.lines.map { |l| l.strip! }
+            @snapshots.reject! {|s| s.empty? }
+
+            return [@snapshots, nil] if @snapshots.empty?
+
+            o, e, rc = Open3.capture3("#{virsh} snapshot-current #{@domain} --name")
+
+            @snapshots_current = o.strip if rc.exitstatus == 0
+
+            [@snapshots, @snapshots_current]
+        end
+
+        # Delete domain metadata snapshots.
+        #   @param query[Boolean] update the snapshot list of the domain
+        def snapshots_delete(query = true)
+            snapshots(query)
+
+            delete = "#{virsh} snapshot-delete #{@domain} --metadata --snapshotname"
+
+            @snapshots.each do |snap|
+                Command.execute_log("#{delete} #{snap}")
+            end
+        end
+
+        # Redefine system snapshots on the destination libvirtd, the internal
+        # list needs to be bootstraped by using the snapshots or snapshots_delete
+        #
+        #   @param host[String] where the snapshots will be defined
+        #   @param dir[String] VM folder path to look for the XML snapshot
+        #          metadata files
+        def snapshots_redefine(host, dir)
+            define  = "#{virsh_cmd(host)} snapshot-create --redefine #{@domain}"
+            current = "#{virsh_cmd(host)} snapshot-current #{@domain}"
+
+            @snapshots.each do |snap|
+                Command.execute_log("#{define} #{dir}/#{snap}.xml")
+            end
+
+            if @snapshots_current
+                Command.execute_log("#{current} #{@snapshots_current}")
+            end
+        end
+
+        # ---------------------------------------------------------------------
+        # vm disk interface
+        # ---------------------------------------------------------------------
+
+        # Gets the list of disks of a domain as an Array of [dev, path] pairs
+        #   - dev is the device name of the blk, e.g. vda, sdb...
+        #   - path of the file for the virtual disk
+        def disks
+            if !@disks
+                o, e, rc = Open3.capture3("#{virsh} domblklist #{@domain}")
+
+                if rc.exitstatus != 0
+                    raise StandardError, "Error getting domain snapshots #{e}"
+                end
+
+                @disks = o.lines[2..].map { |l| l.split }
+                @disks.reject! {|s| s.empty? }
+            end
+
+            @disks
+        end
+
+        # @return [Boolean] true if the disk (by path) is readonly
+        def readonly?(disk_path)
+            exist? "//domain/devices/disk[source/@file='#{disk_path}']/readonly"
+        end
+
+        # ---------------------------------------------------------------------
+        # domain operations
+        # ---------------------------------------------------------------------
+
+        # Live migrate the domain to the target host (SHARED STORAGE variant)
+        #   @param host[String] name of the target host
+        def live_migrate(host)
+            cmd =  "migrate --live #{ENV['MIGRATE_OPTIONS']} #{@domain}"
+            cmd << " #{virsh_uri(host)}"
+
+            virsh_retry(cmd, 'active block job', virsh_tries)
+        end
+
+        # Live migrate the domain to the target host (LOCAL STORAGE variant)
+        #   @param host[String] name of the target host
+        #   @param devs[Array] of the disks that will be copied
+        def live_migrate_disks(host, devs)
+            cmd =  "migrate --live #{ENV['MIGRATE_OPTIONS']} --suspend"
+            cmd << " #{@domain} #{virsh_uri(host)}"
+
+            if !devs.empty?
+                cmd << " --copy-storage-all --migrate-disks #{devs.join(',')}"
+            end
+
+            virsh_retry(cmd, 'active block job', virsh_tries)
+        end
+
+        #  Basic domain operations (does not require additional parameters)
+        VIRSH_COMMANDS = [
+          'resume',
+          'destroy',
+          'undefine'
+        ]
+
+        VIRSH_COMMANDS.each do |command|
+            define_method(command.to_sym) do |host = nil|
+                Command.execute_log("#{virsh_cmd(host)} #{command} #{@domain}")
+            end
+        end
+
+        # ---------------------------------------------------------------------
+        # Private function helpers
+        # ---------------------------------------------------------------------
+        private
+
+        # @return [Integer] number of retries for virsh operations
+        def virsh_tries
+            vt = ENV['VIRSH_TRIES'].to_i
+            vt = 3 if vt == 0
+
+            vt
+        end
+
+        # @return [String] including the --connect attribute to run virsh commands
+        def virsh_cmd(host = nil)
+            if host
+                "virsh --connect #{virsh_uri(host)}"
+            else
+                virsh
+            end
+        end
+
+        # @return [String] to contact libvirtd in a host
+        def virsh_uri(host)
+            proto = ENV['QEMU_PROTOCOL']
+            proto ||= 'qemu+ssh'
+
+            "#{proto}://#{host}/system"
+        end
+
+        # Retries a virsh operation if the returned error matches the provided
+        # one,
+        #
+        #  @param cmd[String] the virsh command arguments
+        #  @param no_error_str[String] when stderr matches the string the operation
+        #         will be retried
+        #  @param tries[Integer] number of tries
+        #  @param secs[Integer] seconds to wait between tries
+        def virsh_retry(cmd, no_error_str, tries = 1, secs = 5)
+            out, err, rc = nil
+
+            tini = Time.now
+
+            loop do
+              tries = tries - 1
+
+              out, err, rc = Open3.capture3("#{virsh} #{cmd}")
+
+              break if rc.exitstatus == 0
+
+              match = err.match(/#{no_error_str}/)
+
+              break if tries == 0 || !match
+
+              sleep(secs)
+            end
+
+            if rc.exitstatus == 0
+                STDERR.puts "#{virsh} #{cmd} (#{Time.now-tini}s)"
+            else
+                STDERR.puts "Error executing: #{virsh} #{cmd} (#{Time.now-tini}s)"
+                STDERR.puts "\t[stdout]: #{out}" unless out.empty?
+                STDERR.puts "\t[stderr]: #{err}" unless err.empty?
+            end
+
+            [rc.exitstatus, out, err]
+        end
+
     end
 
     #---------------------------------------------------------------------------
