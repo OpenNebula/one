@@ -87,13 +87,13 @@ module VirtualMachineManagerKVM
             @path  = path
         end
 
-        #@return[Array] with major, minor and micro qemu-img version numbers
+        # @return[Array] with major, minor and micro qemu-img version numbers
         def self.version
-            out, _err, _rc = Open3.capture3("qemu-img --version")
+            out, _err, _rc = Open3.capture3('qemu-img --version')
 
             m = out.lines.first.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/)
 
-            return "0000000" unless m
+            return '0000000' unless m
 
             [m[1], m[2], m[3]]
         end
@@ -108,12 +108,12 @@ module VirtualMachineManagerKVM
         #       :map=       '--map= '
         #     -values option values, can be empty
         QEMU_IMG_COMMANDS = [
-          'convert',
-          'create',
-          'rebase',
-          'info',
-          'bitmap',
-          'commit'
+            'convert',
+            'create',
+            'rebase',
+            'info',
+            'bitmap',
+            'commit'
         ]
 
         QEMU_IMG_COMMANDS.each do |command|
@@ -159,12 +159,14 @@ module VirtualMachineManagerKVM
 
             @_info[key]
         end
+
     end
 
     #
     # This class provides abstractions to access KVM/Qemu libvirt domains
     #
     class KvmDomain
+
         def initialize(domain)
             @domain = domain
             @xml    = nil
@@ -211,12 +213,12 @@ module VirtualMachineManagerKVM
                 raise StandardError, "Error getting domain snapshots #{e}"
             end
 
-            @snapshots = o.lines.map { |l| l.strip! }
+            @snapshots = o.lines.map {|l| l.strip! }
             @snapshots.reject! {|s| s.empty? }
 
             return [@snapshots, nil] if @snapshots.empty?
 
-            o, e, rc = Open3.capture3("#{virsh} snapshot-current #{@domain} --name")
+            o, _e, rc = Open3.capture3("#{virsh} snapshot-current #{@domain} --name")
 
             @snapshots_current = o.strip if rc.exitstatus == 0
 
@@ -249,9 +251,9 @@ module VirtualMachineManagerKVM
                 Command.execute_log("#{define} #{dir}/#{snap}.xml")
             end
 
-            if @snapshots_current
-                Command.execute_log("#{current} #{@snapshots_current}")
-            end
+            return unless @snapshots_current
+
+            Command.execute_log("#{current} #{@snapshots_current}")
         end
 
         # ---------------------------------------------------------------------
@@ -269,7 +271,7 @@ module VirtualMachineManagerKVM
                     raise StandardError, "Error getting domain snapshots #{e}"
                 end
 
-                @disks = o.lines[2..@disks.length].map { |l| l.split }
+                @disks = o.lines[2..@disks.length].map {|l| l.split }
                 @disks.reject! {|s| s.empty? }
             end
 
@@ -310,9 +312,9 @@ module VirtualMachineManagerKVM
 
         #  Basic domain operations (does not require additional parameters)
         VIRSH_COMMANDS = [
-          'resume',
-          'destroy',
-          'undefine'
+            'resume',
+            'destroy',
+            'undefine'
         ]
 
         VIRSH_COMMANDS.each do |command|
@@ -365,17 +367,17 @@ module VirtualMachineManagerKVM
             tini = Time.now
 
             loop do
-              tries = tries - 1
+                tries -= 1
 
-              out, err, rc = Open3.capture3("#{virsh} #{cmd}")
+                out, err, rc = Open3.capture3("#{virsh} #{cmd}")
 
-              break if rc.exitstatus == 0
+                break if rc.exitstatus == 0
 
-              match = err.match(/#{no_error_str}/)
+                match = err.match(/#{no_error_str}/)
 
-              break if tries == 0 || !match
+                break if tries == 0 || !match
 
-              sleep(secs)
+                sleep(secs)
             end
 
             if rc.exitstatus == 0
