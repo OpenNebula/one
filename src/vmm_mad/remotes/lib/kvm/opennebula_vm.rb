@@ -271,7 +271,7 @@ module VirtualMachineManagerKVM
                     raise StandardError, "Error getting domain snapshots #{e}"
                 end
 
-                @disks = o.lines[2..@disks.length].map {|l| l.split }
+                @disks = o.lines[2..o.lines.length].map {|l| l.split }
                 @disks.reject! {|s| s.empty? }
             end
 
