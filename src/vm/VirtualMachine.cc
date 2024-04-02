@@ -617,6 +617,9 @@ error_previous_history:
         << ") for VM id: " << oid;
 
     log("ONE", Log::ERROR, ose);
+
+    NebulaLog::error("ONE", ose.str());
+
     return -1;
 }
 
@@ -2628,6 +2631,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     if ( rc != 0 )
     {
+        NebulaLog::error("ONE", "The VM XML body is corrupted");
+
         return -1;
     }
 
@@ -2672,6 +2677,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     if (content.empty())
     {
+        NebulaLog::error("ONE", "The VM " + to_string(oid) + " doesn't have TEMPLATE");
+
         return -1;
     }
     rc += obj_template->from_xml_node(content[0]);
@@ -2712,6 +2719,8 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     if (content.empty())
     {
+        NebulaLog::error("ONE", "The VM " + to_string(oid) + " doesn't have USER_TEMPLATE");
+
         return -1;
     }
 
@@ -2772,6 +2781,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     if (rc != 0)
     {
+        NebulaLog::error("ONE", "Unable to recreate the VM " + to_string(oid)
+            + " from the xml body");
+
         return -1;
     }
 
