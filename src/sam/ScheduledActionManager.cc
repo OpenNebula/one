@@ -105,6 +105,9 @@ void ScheduledActionManager::scheduled_vm_actions()
 
         if (!sa)
         {
+            NebulaLog::warn("SCH", "Unable to read sched action: " + to_string(action.first)
+                + ", for VM " + to_string(vm_id));
+
             continue;
         }
 
@@ -112,7 +115,7 @@ void ScheduledActionManager::scheduled_vm_actions()
         {
             vm_backups.push_back(action);
 
-            return;
+            continue;
         }
 
         auto aname = sa->action();
