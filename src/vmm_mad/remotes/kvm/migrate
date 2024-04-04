@@ -136,7 +136,7 @@ def local_migration(kvm_vm)
         dev  = disk[0]
         path = disk[1]
 
-        if !File.symlink? path #qcow2 & raw disks, regular files
+        if !File.symlink? path # qcow2 & raw disks, regular files
             qimg = QemuImg.new path
 
             format = qimg['format']
@@ -157,24 +157,24 @@ def local_migration(kvm_vm)
                 Command.ssh(:host => @dst_host, :cmds => cmds,
                             :emsg => 'Cannot create disk')
             end
-        elsif path.match(/disk.[0-9]*.snap\//) #qcow2-symlink, replica
+        elsif path.match(%r{disk.[0-9]*.snap/}) # qcow2-symlink, replica
             devs << dev
-        #else
-        #network-disk, symlinks are assumed to be network disks
+            # else
+            # network-disk, symlinks are assumed to be network disks
         end
 
         # Add disk snapshots dir to the list of paths to sync
         if File.directory? "#{path}.snap"
             pre_sync << Pathname.new("#{path}.snap").cleanpath
-        elsif (m = path.match(/(disk.[0-9]*.snap)\//)) #replica
+        elsif (m = path.match(%r{(disk.[0-9]*.snap)/})) # replica
             pre_sync << Pathname.new("#{@vm_dir}/#{m[1]}").cleanpath
         end
 
-        #recreate disk symlinks
+        # recreate disk symlinks
         if File.symlink? path
             target = File.readlink(path)
             lname  = path
-        elsif (m = path.match(/(disk.([0-9]*).snap)\/.*/)) #replica
+        elsif (m = path.match(%r{(disk.([0-9]*).snap)/.*})) # replica
             target = m[1]
             lname  = "disk.#{m[2]}"
         else
@@ -233,16 +233,16 @@ begin
     # Sync guest time
     if ENV['SYNC_TIME'].upcase == 'YES'
         cmds =<<~EOS
-        (
-          for I in $(seq 4 -1 1); do
-            if #{virsh} --readonly dominfo #{@deploy_id}; then
-              #{virsh} domtime --sync #{@deploy_id} && exit
-              [ "\$I" -gt 1 ] && sleep 5
-            else
-              exit
-            fi
-          done
-        ) &>/dev/null &
+            (
+              for I in $(seq 4 -1 1); do
+                if #{virsh} --readonly dominfo #{@deploy_id}; then
+                  #{virsh} domtime --sync #{@deploy_id} && exit
+                  [ "\$I" -gt 1 ] && sleep 5
+                else
+                  exit
+                fi
+              done
+            ) &>/dev/null &
         EOS
 
         rc, _o, e = Command.ssh(:host => @dst_host, :cmds => cmds, :emsg => '')
@@ -251,12 +251,13 @@ begin
     end
 
     # Compact memory
+    # rubocop:disable Layout/LineLength
     if ENV['CLEANUP_MEMORY_ON_STOP'].upcase == 'YES'
         `(sudo -l | grep -q sysctl) && sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &`
     end
-
+    # rubocop:enable Layout/LineLength
 rescue StandardError => e
-  STDERR.puts "Error mirgating VM #{@deploy_id} to host #{@dst_host}: #{e.message}"
-  STDERR.puts "#{e.backtrace}"
-  exit(1)
+    STDERR.puts "Error mirgating VM #{@deploy_id} to host #{@dst_host}: #{e.message}"
+    STDERR.puts e.backtrace.to_s
+    exit(1)
 end
