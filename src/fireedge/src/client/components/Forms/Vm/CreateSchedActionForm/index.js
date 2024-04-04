@@ -31,7 +31,7 @@ import {
   VM_SCHED_FIELDS,
   VM_SCHED_SCHEMA,
 } from 'client/components/Forms/Vm/CreateSchedActionForm/schema'
-import { REPEAT_VALUES, SCHEDULE_TYPE } from 'client/constants'
+import { REPEAT_VALUES, SCHEDULE_TYPE, ALL_DAYS } from 'client/constants'
 
 const commonTransformInitialValue = (scheduledAction, schema, typeForm) => {
   const type = getTypeScheduleAction(scheduledAction)
@@ -44,10 +44,16 @@ const commonTransformInitialValue = (scheduledAction, schema, typeForm) => {
 
   if (type === SCHEDULE_TYPE.RELATIVE) {
     dataToCast.RELATIVE_TIME = scheduledAction.TIME
+    delete dataToCast.TIME
   } else {
     dataToCast.TIME = DateTime.fromSeconds(+scheduledAction.TIME)
     if (scheduledAction.WEEKLY) {
       dataToCast.WEEKLY = scheduledAction?.WEEKLY?.split?.(',') ?? []
+    }
+
+    // If DAYS are all the days of a week, change to REPEAT = -1 that means Daily
+    if (scheduledAction.DAYS === ALL_DAYS) {
+      dataToCast.REPEAT = -1
     }
   }
 
@@ -55,9 +61,6 @@ const commonTransformInitialValue = (scheduledAction, schema, typeForm) => {
     context: scheduledAction,
     stripUnknown: true,
   })
-
-  // #6154: Add temportal id for restricted attributes
-  castSchema.TEMP_ID = scheduledAction.TEMP_ID
 
   return castSchema
 }
@@ -102,7 +105,7 @@ const commonTransformBeforeSubmit = (formData) => {
       switch (REPEAT) {
         case REPEAT_VALUES.DAILY:
           scheduleAction.REPEAT = REPEAT_VALUES.WEEKLY
-          scheduleAction.DAYS = WEEKLY
+          scheduleAction.DAYS = ALL_DAYS
           break
         case REPEAT_VALUES.WEEKLY:
           scheduleAction.DAYS = WEEKLY

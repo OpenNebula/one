@@ -74,7 +74,8 @@ const getTomorrow = () => getNow().plus({ days: 1 })
 const getTomorrowAtMidnight = () =>
   getTomorrow().set({ hour: 12, minute: 0, second: 0 })
 
-const getNextWeek = () => getNow().plus({ weeks: 1 })
+const getNextWeek = () =>
+  getNow().plus({ weeks: 1 }).set({ hour: 12, minute: 0, second: 0 })
 
 const parseDateString = (_, originalValue) => {
   if (isDate(originalValue)) return originalValue // is JS Date
@@ -215,7 +216,7 @@ const PERIODIC_FIELD = (isVM = false) => ({
   validation: string()
     .trim()
     .required()
-    .default(() => TEMPLATE_SCHEDULE_TYPE_STRING.ONETIME),
+    .default(() => SCHEDULE_TYPE.ONETIME),
   grid: { md: 12 },
   notNull: true,
 })
@@ -226,7 +227,8 @@ const PERIODIC_FIELD = (isVM = false) => ({
 /** @type {Field} Time field */
 const TIME_FIELD = {
   name: 'TIME',
-  label: T.Time,
+  label: (typeAction) =>
+    typeAction === SCHEDULE_TYPE.PERIODIC ? T.StartTime : T.Time,
   type: INPUT_TYPES.TIME,
   dependOf: PERIODIC_FIELD_NAME,
   htmlType: (typeAction) =>
@@ -235,11 +237,11 @@ const TIME_FIELD = {
     .min(getNow().toJSDate())
     .transform(parseDateString)
     .afterSubmit(dateToMilliseconds)
+    .default(() => getTomorrowAtMidnight())
     .when(PERIODIC_FIELD_NAME, (typeAction, schema) =>
       typeAction !== SCHEDULE_TYPE.RELATIVE ? schema.required() : schema
     ),
   fieldProps: {
-    defaultValue: getTomorrowAtMidnight(),
     minDateTime: getNow(),
   },
 }
@@ -449,7 +451,10 @@ const END_TYPE_FIELD = {
 /** @type {Field} End value field */
 const END_VALUE_FIELD = {
   name: 'END_VALUE',
-  label: T.WhenYouWantThatTheActionFinishes,
+  label: ([typeAction, endType] = []) =>
+    typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
+      ? T.WhenDoYouWantThisActionToStop
+      : T.HowManyTimesDoYouWantThisActionToExecute,
   dependOf: [PERIODIC_FIELD_NAME, END_TYPE_FIELD.name],
   type: ([typeAction, endType] = []) =>
     typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
@@ -469,14 +474,12 @@ const END_VALUE_FIELD = {
       if (typeAction === SCHEDULE_TYPE.PERIODIC) {
         return {
           [END_TYPE_VALUES.NEVER]: string().strip(),
-          [END_TYPE_VALUES.REPETITION]: number().required().min(1).default(1),
-          [END_TYPE_VALUES.DATE]: lazy(() =>
-            date()
-              .min(ref(TIME_FIELD.name))
-              .required()
-              .transform(parseDateString)
-              .afterSubmit(dateToMilliseconds)
-          ),
+          [END_TYPE_VALUES.REPETITION]: number().required().min(1),
+          [END_TYPE_VALUES.DATE]: date()
+            .min(ref(TIME_FIELD.name))
+            .required()
+            .transform(parseDateString)
+            .afterSubmit(dateToMilliseconds),
         }[endType]
       } else {
         return string().trim().notRequired()
@@ -541,30 +544,13 @@ export const PERIOD_FIELD = {
 }
 
 // --------------------------------------------------------
-// End fields
-// --------------------------------------------------------
-
-/**
- * Filters the types to discard absolute times.
- *
- * @see {@linkplain https://github.com/OpenNebula/one/issues/5673 Waiting support from scheduler}
- * @type {Field} End types available to relative actions
- */
-const END_TYPE_FIELD_WITHOUT_DATE = {
-  ...END_TYPE_FIELD,
-  values: END_TYPE_FIELD.values.filter(
-    ({ value }) => value !== END_TYPE_VALUES.DATE
-  ),
-}
-
-// --------------------------------------------------------
 // Export
 // --------------------------------------------------------
 
 export const RELATIVE_FIELDS = {
   RELATIVE_TIME_FIELD,
   PERIOD_FIELD,
-  END_TYPE_FIELD_WITHOUT_DATE,
+  END_TYPE_FIELD,
 }
 
 export const PUNCTUAL_FIELDS = {

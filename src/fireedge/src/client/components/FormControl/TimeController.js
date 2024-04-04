@@ -40,6 +40,10 @@ const TimeController = memo(
       fieldState: { error },
     } = useController({ name, control, defaultValue })
 
+    const views = fieldProps?.views
+      ? fieldProps?.views
+      : ['year', 'month', 'day', 'hours', 'minutes']
+
     return (
       <DateTimePicker
         {...controllerProps}
@@ -66,6 +70,7 @@ const TimeController = memo(
             FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
           />
         )}
+        views={views}
       />
     )
   },

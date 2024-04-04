@@ -63,6 +63,9 @@ export const REPEAT_VALUES = {
   HOURLY: '3',
 }
 
+/** {string} All days string */
+export const ALL_DAYS = '0,1,2,3,4,5,6'
+
 /** @enum {string} Argument attributes */
 export const ARGS_TYPES = {
   DISK_ID: 'DISK_ID',

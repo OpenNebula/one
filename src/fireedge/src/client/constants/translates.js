@@ -255,6 +255,7 @@ module.exports = {
   Saturday: 'Saturday',
   Sun: 'Sun',
   Sunday: 'Sunday',
+  Daily: 'Daily',
   Weekly: 'Weekly',
   Monthly: 'Monthly',
   Yearly: 'Yearly',
@@ -277,6 +278,8 @@ module.exports = {
   DaysBetween0_365: 'Days should be between 0 and 365',
   HoursBetween0_168: 'Hours should be between 0 and 168',
   WhenDoYouWantThisActionToStop: 'When do you want this action to stop?',
+  HowManyTimesDoYouWantThisActionToExecute:
+    'How many times do you want this action to execute?',
   NumberOfRepetitions: 'Number of Repetitions',
 
   /* footer */

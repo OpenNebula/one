@@ -23,6 +23,7 @@ import {
   ScheduleAction,
   T,
   VM_ACTIONS,
+  ALL_DAYS,
 } from 'client/constants'
 import { isDate, timeToString } from 'client/models/Helper'
 
@@ -157,7 +158,10 @@ export const getRepeatInformation = (action) => {
   const days = DAYS?.split(',')?.map((day) => Tr(daysOfWeek[day])) ?? []
 
   const repeat = {
-    0: `${Tr(T.Weekly)} ${days.join(',')}`,
+    0:
+      DAYS === ALL_DAYS
+        ? `${Tr(T.Daily)}`
+        : `${Tr(T.Weekly)} ${days.join(',')}`,
     1: `${Tr(T.Monthly)} ${DAYS}`,
     2: `${Tr(T.Yearly)} ${DAYS}`,
     3: Tr([T.EachHours, DAYS]),
