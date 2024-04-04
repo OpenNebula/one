@@ -174,7 +174,7 @@ def local_migration(kvm_vm)
         if File.symlink? path
             target = File.readlink(path)
             lname  = path
-        elsif (m = path.match(%r{(disk.([0-9]*).snap)/.*})) # replica
+        elsif (m = path.match(%r{(disk.([0-9]*).snap/.*)}))
             target = m[1]
             lname  = "disk.#{m[2]}"
         else
