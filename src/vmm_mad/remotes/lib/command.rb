@@ -37,17 +37,17 @@ module Command
         return [s.exitstatus, stdout, stderr] if verbose <= 0
 
         stdin = if opts[:stdin_data]
-                    opts[:stdin_data].lines.map { |l| "[stdin]: #{l}" }.join
+                    opts[:stdin_data].lines.map {|l| "[stdin]: #{l}" }.join
                 else
                     ''
                 end
 
         if s.exitstatus == 0
             STDERR.puts cmd
-            STDERR.puts "#{stdin}" unless stdin.empty?
+            STDERR.puts stdin.to_s unless stdin.empty?
         else
             STDERR.puts "Error executing: #{cmd}"
-            STDERR.puts "#{stdin}" unless stdin.empty?
+            STDERR.puts stdin.to_s unless stdin.empty?
             STDERR.puts "\t[stdout]: #{stdout}" unless stdout.empty?
             STDERR.puts "\t[stderr]: #{stderr}" unless stderr.empty?
         end

@@ -54,7 +54,8 @@ module VirtualMachineManagerKVM
 
             next unless m
 
-            k,v = m[2],m[3].strip
+            k = m[2]
+            v = m[3].strip
 
             # remove single or double quotes
             if !v.empty? && v[0] == v[-1] && ["'", '"'].include?(v[0])
