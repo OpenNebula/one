@@ -104,8 +104,17 @@ const hostApi = oneApi.injectEndpoints({
           node.MEMORY.FREE = monitoringNode.MEMORY.FREE
           node.MEMORY.USED = monitoringNode.MEMORY.USED
 
-          node.HUGEPAGE.forEach((page) => {
-            const monitoringPage = monitoringNode.HUGEPAGE.find(
+          const ensuredHugepage =
+            node.HUGEPAGE && !Array.isArray(node.HUGEPAGE)
+              ? [node.HUGEPAGE]
+              : node.HUGEPAGE
+
+          ensuredHugepage.forEach((page) => {
+            const ensuredMonitoringNodeHugepage =
+              monitoringNode.HUGEPAGE && !Array.isArray(monitoringNode.HUGEPAGE)
+                ? [monitoringNode.HUGEPAGE]
+                : monitoringNode.HUGEPAGE
+            const monitoringPage = ensuredMonitoringNodeHugepage.find(
               (mPage) => mPage.SIZE === page.SIZE
             )
             page.FREE = monitoringPage.FREE
