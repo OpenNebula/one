@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+import { Box, Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import SplitPane from 'client/components/SplitPane'
+import { ZonesTable } from 'client/components/Tables'
+import ZoneTabs from 'client/components/Tabs/Zone'
+import { T, Zone } from 'client/constants'
 import {
   useLazyGetZoneQuery,
   useUpdateZoneMutation,
 } from 'client/features/OneApi/zone'
-import { ZonesTable } from 'client/components/Tables'
-import ZoneTabs from 'client/components/Tabs/Zone'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
-import { T, Zone } from 'client/constants'
 
 /**
  * Displays a list of Zones with a split pane between the list and selected row(s).
@@ -99,7 +99,7 @@ const InfoTabs = memo(({ zone, gotoPage, unselect }) => {
           icon={<RefreshDouble />}
           tooltip={Tr(T.Refresh)}
           isSubmitting={isFetching}
-          onClick={() => get({ id })}
+          onClick={() => get(id)}
         />
         {typeof gotoPage === 'function' && (
           <SubmitButton

@@ -46,7 +46,7 @@ const ZoneInfoTab = ({ tabProps = {}, id }) => {
   } = tabProps
 
   const [update] = useUpdateZoneMutation()
-  const { data: zone = {} } = useGetZoneQuery({ id })
+  const { data: zone = {} } = useGetZoneQuery(id)
   const { TEMPLATE } = zone
 
   const handleAttributeInXml = async (path, newValue) => {
