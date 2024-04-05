@@ -62,7 +62,8 @@ const TextController = memo(
     const handleChange = useCallback(
       (e) => {
         onBlur()
-        const condition = e.target.value
+        // Empty string it's undefined value (this way, a number input that is no mandatory could have empty value)
+        const condition = e.target.value === '' ? undefined : e.target.value
         onChange(condition)
         if (typeof onConditionChange === 'function') {
           onConditionChange(condition)

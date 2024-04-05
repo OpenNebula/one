@@ -157,8 +157,9 @@ export const MEMORY_COST = generateCostCapacityInput({
   fieldProps: ([memory, cost] = []) => {
     const fieldProps = { step: 0.1 }
 
-    if (memory && cost) {
-      const monthCost = formatNumberByCurrency(memory * cost * 24 * 30)
+    if (memory) {
+      const monthCost = formatNumberByCurrency(memory * (cost || 0) * 24 * 30)
+
       fieldProps.helperText = (
         <Translate word={T.CostEachMonth} values={[monthCost]} />
       )
@@ -178,8 +179,8 @@ export const CPU_COST = generateCostCapacityInput({
   fieldProps: ([cpu, cost] = []) => {
     const fieldProps = { step: 0.1 }
 
-    if (cpu && cost) {
-      const monthCost = formatNumberByCurrency(cpu * cost * 24 * 30)
+    if (cpu) {
+      const monthCost = formatNumberByCurrency(cpu * (cost || 0) * 24 * 30)
       fieldProps.helperText = (
         <Translate word={T.CostEachMonth} values={[monthCost]} />
       )

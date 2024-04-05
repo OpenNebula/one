@@ -205,11 +205,7 @@ const reduceGeneral = (
   Object.entries(correctionMap || {}).forEach(([key, correction]) => {
     if (correction && typeof correction === 'object' && correction.__delete__) {
       delete newGeneral[key]
-    } else if (
-      correction &&
-      key in formData &&
-      (!_.isEmpty(formData[key]) || formData[key] !== null)
-    ) {
+    } else if (correction) {
       // If the correction is boolean, means that the user changed this value that is a simple value
       // If the correction is an object with an attribute delete means that is a hidden field that was deleted because the user change the value of its parent
       // If the correction is an object without an attribute delete means that is a field with an object instead a simple value and the user changed its value
@@ -434,10 +430,13 @@ const handleNetwork = (
         )
       }
 
-      // Delete keys on existing data that are marked to delete and not exists on formData
+      // Delete keys on existing data that are marked to delete and not exists on formData or are marked to update and not exists on formData
       if (wrappedExistingData && wrappedExistingData[index])
         Object.entries(itemModifications)
-          .filter(([key, value]) => value.__delete__ && !item[key])
+          .filter(
+            ([key, value]) =>
+              (value.__delete__ && !item[key]) || (value && !item[key])
+          )
           .forEach(
             ([key, value]) =>
               wrappedExistingData[index][key] &&
