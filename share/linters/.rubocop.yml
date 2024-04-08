@@ -800,6 +800,9 @@ Style/ReturnNilInPredicateMethodDefinition:
 Style/RedundantReturn:
   Enabled: false
 
+Style/MapIntoArray:
+  Enabled: false
+
 ######
 # LINT
 ######

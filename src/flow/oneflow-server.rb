@@ -1,4 +1,3 @@
-# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -853,4 +852,3 @@ post '/service_template/:id/action' do
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 end
-# rubocop:enable Naming/FileName

@@ -1,4 +1,3 @@
-# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -1465,4 +1464,3 @@ class ServiceLCM
     end
 
 end
-# rubocop:enable Naming/FileName

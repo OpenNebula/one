@@ -1,4 +1,3 @@
-# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -138,4 +137,3 @@ class S3
     end
 
 end
-# rubocop:enable Naming/FileName
