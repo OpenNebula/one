@@ -1,4 +1,3 @@
-# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -216,4 +215,3 @@ module DriverExecHelper
     end
 
 end
-# rubocop:enable Naming/FileName

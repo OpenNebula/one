@@ -1,4 +1,3 @@
-# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -270,4 +269,3 @@ class ServiceWD
     end
 
 end
-# rubocop:enable Naming/FileName
