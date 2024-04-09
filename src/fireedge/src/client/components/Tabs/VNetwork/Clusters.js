@@ -22,7 +22,7 @@ import { Box } from '@mui/material'
 
 import { useViews } from 'client/features/Auth'
 import { useGetClustersQuery } from 'client/features/OneApi/cluster'
-import { useGetVNTemplateQuery } from 'client/features/OneApi/networkTemplate'
+import { useGetVNetworkQuery } from 'client/features/OneApi/network'
 
 import { ClustersTable } from 'client/components/Tables'
 import { RESOURCE_NAMES } from 'client/constants'
@@ -39,7 +39,7 @@ const { CLUSTER } = RESOURCE_NAMES
  */
 const ClustersTab = ({ id }) => {
   const { push: redirectTo } = useHistory()
-  const { data: vnet } = useGetVNTemplateQuery({ id })
+  const { data: vnet } = useGetVNetworkQuery({ id })
 
   const { view, hasAccessToResource } = useViews()
   const detailAccess = useMemo(() => hasAccessToResource(CLUSTER), [view])
