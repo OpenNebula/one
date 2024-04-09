@@ -393,7 +393,7 @@ module TransferManager
             return if nic.nil?
 
             if nic.instance_of? Array
-                nic.each {|n| remove_addresses(n) }
+                nic.each {|n| remove_address(n) }
             else
                 if nic['IP']
                     nic.delete('MAC')
