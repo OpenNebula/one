@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+import _ from 'lodash'
+
 const NETWORK_TYPE = {
   template_id: 'create',
   id: 'existing',
@@ -65,6 +67,31 @@ export const parseNetworkString = (network, reverse = false) => {
   }:${network?.netextra ?? ''}`
 
   return result
+}
+
+/**
+ * Recursively converts the keys of an object (and any nested objects) to either lower or upper case.
+ * If the input is an array, it applies the conversion to each item in the array.
+ *
+ * @param {object | Array} obj - The object or array whose keys are to be converted.
+ * @param {boolean} [toLower=true] - Whether to convert keys to lower case. If false, keys are converted to upper case.
+ * @returns {object | Array} - The input object or array with keys converted to the specified case.
+ */
+export const convertKeysToCase = (obj, toLower = true) => {
+  if (_.isArray(obj)) {
+    return obj.map((item) => convertKeysToCase(item, toLower))
+  }
+
+  if (_.isObject(obj) && !_.isDate(obj) && !_.isFunction(obj)) {
+    return _.mapValues(
+      _.mapKeys(obj, (_value, key) =>
+        toLower ? key.toLowerCase() : key.toUpperCase()
+      ),
+      (value) => convertKeysToCase(value, toLower)
+    )
+  }
+
+  return obj
 }
 
 /**

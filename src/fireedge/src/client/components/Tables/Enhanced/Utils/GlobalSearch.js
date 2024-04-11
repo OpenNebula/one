@@ -17,7 +17,7 @@ import { ReactElement, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { alpha, debounce, InputBase } from '@mui/material'
+import { alpha, debounce, InputBase, FormControl } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { Search as SearchIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps } from 'react-table'
@@ -92,17 +92,19 @@ const GlobalSearch = ({
       <div className={classes.searchIcon}>
         <SearchIcon />
       </div>
-      <InputBase
-        value={value ?? ''}
-        type="search"
-        onChange={(event) => {
-          setValue(event.target.value)
-          handleChange(event.target.value)
-        }}
-        placeholder={`${Tr(T.Search)}...`}
-        classes={{ root: classes.inputRoot, input: classes.inputInput }}
-        inputProps={{ 'aria-label': 'search', ...(searchProps ?? {}) }}
-      />
+      <FormControl>
+        <InputBase
+          value={value ?? ''}
+          type="search"
+          onChange={(event) => {
+            setValue(event.target.value)
+            handleChange(event.target.value)
+          }}
+          placeholder={`${Tr(T.Search)}...`}
+          classes={{ root: classes.inputRoot, input: classes.inputInput }}
+          inputProps={{ 'aria-label': 'search', ...(searchProps ?? {}) }}
+        />
+      </FormControl>
     </div>
   )
 }

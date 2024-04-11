@@ -57,12 +57,14 @@ export const CLUSTER_FIELD = {
   values: () => {
     const { data: clusters = [] } = useGetClustersQuery()
 
-    return arrayToOptions(clusters, {
+    const temps = arrayToOptions(clusters, {
       addEmpty: false,
       getText: ({ ID, NAME }) => `#${ID} ${NAME}`,
       getValue: ({ ID }) => ID,
       sorter: OPTION_SORTERS.numeric,
     })
+
+    return temps
   },
   validation: string()
     .trim()

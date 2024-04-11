@@ -26,7 +26,7 @@ const Row = ({ original, value, ...props }) => {
   const { ID, NAME, UNAME, GNAME, VMS, TEMPLATE_ID } = value
 
   return (
-    <div {...props}>
+    <div {...props} data-cy={`vrouter-${ID}`}>
       <div className={classes.main}>
         <div className={classes.title}>
           <Typography noWrap component="span">

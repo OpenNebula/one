@@ -178,7 +178,8 @@ export const RESOURCE_NAMES = {
   SEC_GROUP: 'security-group',
   USER: 'user',
   VDC: 'virtual-data-center',
-  VROUTER: 'virtual-router',
+  VROUTER: 'vrouter',
+  VROUTER_TEMPLATE: 'vrouter-template',
   VM_TEMPLATE: 'vm-template',
   VM_GROUP: 'vm-group',
   VM: 'vm',
@@ -220,6 +221,8 @@ export * from 'client/constants/vdc'
 export * from 'client/constants/vm'
 export * from 'client/constants/vmGroup'
 export * from 'client/constants/vmTemplate'
+export * from 'client/constants/vRouter'
+export * from 'client/constants/vRouterTemplate'
 export * from 'client/constants/serviceTemplate'
 export * from 'client/constants/support'
 export * from 'client/constants/zone'

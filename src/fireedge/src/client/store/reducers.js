@@ -16,12 +16,14 @@
 const { combineReducers } = require('@reduxjs/toolkit')
 const Auth = require('client/features/Auth/slice')
 const General = require('client/features/General/slice')
+const Persistent = require('client/features/Persistent/slice')
 const { oneApi } = require('client/features/OneApi')
 
 const rootReducer = combineReducers({
   general: General.reducer,
   auth: Auth.reducer,
   [oneApi.reducerPath]: oneApi.reducer,
+  [Persistent.name]: Persistent.reducer,
 })
 
 module.exports = rootReducer

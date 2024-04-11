@@ -33,10 +33,11 @@ import { useGeneral, updateDisabledSteps } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
-import { groupBy, Step, StepsForm } from 'client/utils'
+import { groupBy, Step, StepsForm, isDevelopment } from 'client/utils'
 import { T } from 'client/constants'
 import get from 'lodash.get'
 import { useSelector, useDispatch } from 'react-redux'
+import { isEmpty } from 'lodash'
 
 const FIRST_STEP = 0
 
@@ -58,6 +59,10 @@ const DefaultFormStepper = ({
     defaultValues,
     resolver: yupResolver(resolver()),
   })
+
+  if (isDevelopment() && !isEmpty(methods?.formState?.errors)) {
+    console.log('Validation Error(s): ', methods?.formState?.errors)
+  }
 
   return (
     <FormProvider

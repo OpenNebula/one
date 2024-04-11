@@ -24,6 +24,8 @@ import {
   mixed,
 } from 'yup'
 
+import { useSelector } from 'react-redux'
+
 import {
   INPUT_TYPES,
   T,
@@ -58,7 +60,9 @@ const valuesOfUITypes = Object.values(userInputTypes)
 const NAME = {
   name: 'name',
   label: T.Name,
-  type: INPUT_TYPES.TEXT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: false,
+  values: () => useSelector((state) => state.persistent.userInputSuggestionsVR),
   validation: string()
     .trim()
     .required()

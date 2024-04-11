@@ -57,10 +57,6 @@ const VirtualMachineDetail = loadable(
   () => import('client/containers/VirtualMachines/Detail'),
   { ssr: false }
 )
-const VirtualRouters = loadable(
-  () => import('client/containers/VirtualRouters'),
-  { ssr: false }
-)
 
 const Services = loadable(() => import('client/containers/Services'), {
   ssr: false,
@@ -118,6 +114,36 @@ const CreateServiceTemplates = loadable(
 
 const ServiceTemplateDetail = loadable(
   () => import('client/containers/ServiceTemplates/Detail'),
+  { ssr: false }
+)
+
+const VirtualRouterTemplates = loadable(
+  () => import('client/containers/VirtualRouterTemplates'),
+  { ssr: false }
+)
+
+const InstantiateVirtualRouterTemplate = loadable(
+  () => import('client/containers/VirtualRouterTemplates/Instantiate'),
+  { ssr: false }
+)
+
+const CreateVirtualRouterTemplates = loadable(
+  () => import('client/containers/VirtualRouterTemplates/Create'),
+  { ssr: false }
+)
+
+const VirtualRouterTemplateDetail = loadable(
+  () => import('client/containers/VirtualRouterTemplates/Detail'),
+  { ssr: false }
+)
+
+const VirtualRouters = loadable(
+  () => import('client/containers/VirtualRouters'),
+  { ssr: false }
+)
+
+const VirtualRoutersDetail = loadable(
+  () => import('client/containers/VirtualRouters/Detail'),
   { ssr: false }
 )
 
@@ -320,6 +346,8 @@ export const PATH = {
     },
     VROUTERS: {
       LIST: `/${RESOURCE_NAMES.VROUTER}`,
+      INSTANTIATE: `/${RESOURCE_NAMES.VROUTER}/instantiate`,
+      DETAIL: `/${RESOURCE_NAMES.VROUTER}/:id`,
     },
     SERVICES: {
       LIST: `/${RESOURCE_NAMES.SERVICE}`,
@@ -338,6 +366,12 @@ export const PATH = {
       INSTANTIATE: `/${RESOURCE_NAMES.VM_GROUP}/instantiate`,
       CREATE: `/${RESOURCE_NAMES.VM_GROUP}/create`,
       DETAIL: `/${RESOURCE_NAMES.VM_GROUP}/:id`,
+    },
+    VROUTERS: {
+      LIST: `/${RESOURCE_NAMES.VROUTER_TEMPLATE}`,
+      DETAIL: `/${RESOURCE_NAMES.VROUTER_TEMPLATE}/:id`,
+      INSTANTIATE: `/${RESOURCE_NAMES.VROUTER_TEMPLATE}/instantiate/`,
+      CREATE: `/${RESOURCE_NAMES.VROUTER_TEMPLATE}/create`,
     },
     SERVICES: {
       LIST: `/${RESOURCE_NAMES.SERVICE_TEMPLATE}`,
@@ -469,6 +503,19 @@ const ENDPOINTS = [
         Component: VirtualRouters,
       },
       {
+        title: T.InstantiateVirtualRouter,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.INSTANCE.VROUTERS.INSTANTIATE,
+        Component: InstantiateVirtualRouterTemplate,
+      },
+      {
+        title: T.VirtualRouters,
+        description: (params) => `#${params?.id}`,
+        path: PATH.INSTANCE.VROUTERS.DETAIL,
+        Component: VirtualRoutersDetail,
+      },
+      {
         title: T.Services,
         path: PATH.INSTANCE.SERVICES.LIST,
         sidebar: true,
@@ -546,6 +593,36 @@ const ENDPOINTS = [
         Component: ServiceTemplateDetail,
       },
       {
+        title: T.InstantiateVirtualRouterTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.VROUTERS.INSTANTIATE,
+        Component: InstantiateVirtualRouterTemplate,
+      },
+      {
+        title: T.VirtualRouters,
+        path: PATH.TEMPLATE.VROUTERS.LIST,
+        sidebar: true,
+        icon: VRoutersIcons,
+        Component: VirtualRouterTemplates,
+      },
+      {
+        title: (_, state) =>
+          state?.ID !== undefined
+            ? T.UpdateVirtualRouterTemplate
+            : T.CreateVirtualRouterTemplate,
+        description: (_, state) =>
+          state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
+        path: PATH.TEMPLATE.VROUTERS.CREATE,
+        Component: CreateVirtualRouterTemplates,
+      },
+      {
+        title: T.VirtualRouterTemplate,
+        description: (params) => `#${params?.id}`,
+        path: PATH.TEMPLATE.VROUTERS.DETAIL,
+        Component: VirtualRouterTemplateDetail,
+      },
+      {
         title: (_, state) =>
           state?.ID !== undefined ? T.UpdateVmGroup : T.CreateVmGroup,
         description: (_, state) =>
@@ -556,7 +633,6 @@ const ENDPOINTS = [
       {
         title: T.VMGroups,
         path: PATH.TEMPLATE.VMGROUP.LIST,
-        description: (params) => `#${params?.id}`,
         icon: VmGroupIcon,
         sidebar: true,
         Component: VmGroups,

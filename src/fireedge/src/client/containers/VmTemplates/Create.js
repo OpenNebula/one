@@ -136,6 +136,7 @@ function CreateVmTemplate() {
         oneConfig,
         adminGroup,
         store,
+        isVrouter: false,
       }}
       onSubmit={onSubmit}
       fallback={<SkeletonStepsForm />}

@@ -20,6 +20,7 @@ import parseFormToDeployApplication from 'client/utils/parser/parseFormToDeployA
 import {
   parseNetworkString,
   parseCustomInputString,
+  convertKeysToCase,
 } from 'client/utils/parser/parseServiceTemplate'
 import parseVmTemplateContents from 'client/utils/parser/parseVmTemplateContents'
 import { parseAcl } from 'client/utils/parser/parseACL'
@@ -40,6 +41,7 @@ export {
   parseAcl,
   parseNetworkString,
   parseCustomInputString,
+  convertKeysToCase,
   parseVmTemplateContents,
   parseTouchedDirty,
   isDeeplyEmpty,

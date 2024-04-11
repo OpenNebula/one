@@ -34,6 +34,7 @@ const AutocompleteController = memo(
     values = [],
     fieldProps: { separators, ...fieldProps } = {},
     readOnly = false,
+    optionsOnly = false,
     onConditionChange,
     disableEnter = false,
   }) => {
@@ -72,6 +73,7 @@ const AutocompleteController = memo(
         options={values}
         value={selected}
         multiple={multiple}
+        freeSolo={!optionsOnly}
         renderTags={(tags, getTagProps) =>
           // render when freesolo prop
           tags.map((tag, index) => {
@@ -152,6 +154,7 @@ AutocompleteController.propTypes = {
   values: PropTypes.arrayOf(PropTypes.object),
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
+  optionsOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
 }
 

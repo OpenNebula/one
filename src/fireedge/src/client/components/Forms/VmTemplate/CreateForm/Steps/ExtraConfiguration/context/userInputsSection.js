@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { forwardRef, JSXElementConstructor } from 'react'
+import { forwardRef, JSXElementConstructor, useState } from 'react'
+import PopUpDialog from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/userInputsAutocompleteDialog'
 import PropTypes from 'prop-types'
 import {
   WarningCircledOutline as WarningIcon,
@@ -116,7 +117,7 @@ UserInputItem.propTypes = {
   removeAction: PropTypes.func,
   error: PropTypes.object,
   userInput: PropTypes.object,
-  index: PropTypes.string,
+  index: PropTypes.number,
 }
 
 UserInputItem.displayName = 'UserInputItem'
@@ -128,6 +129,7 @@ UserInputItem.displayName = 'UserInputItem'
  * @returns {JSXElementConstructor} - User Inputs section
  */
 const UserInputsSection = ({ oneConfig, adminGroup }) => {
+  const [open, setOpen] = useState(false)
   const {
     formState: { errors },
   } = useFormContext()
@@ -163,9 +165,18 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
     }
   }
 
+  const handleClickOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
   return (
     <FormControl component="fieldset" sx={{ width: '100%' }}>
       <Legend title={T.UserInputs} tooltip={T.UserInputsConcept} />
+
       <FormProvider {...methods}>
         <Stack
           direction="row"
@@ -174,6 +185,9 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
           component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
+          <IconButton onClick={handleClickOpen}>
+            <AddCircledOutline />
+          </IconButton>
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
             saveState={true}
@@ -228,6 +242,7 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
           )}
         </Droppable>
       </DragDropContext>
+      <PopUpDialog open={open} handleClose={handleClose} />
     </FormControl>
   )
 }

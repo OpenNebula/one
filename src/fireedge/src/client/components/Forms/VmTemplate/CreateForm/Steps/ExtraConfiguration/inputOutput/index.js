@@ -33,7 +33,13 @@ import { useGeneralApi } from 'client/features/General'
 
 export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID, VIDEO_ID]
 
-const InputOutput = ({ hypervisor, oneConfig, adminGroup, isUpdate }) => {
+const InputOutput = ({
+  hypervisor,
+  oneConfig,
+  adminGroup,
+  isUpdate,
+  isVrouter,
+}) => {
   const { setFieldPath } = useGeneralApi()
   useEffect(() => {
     setFieldPath(`extra.InputOutput`)
@@ -58,12 +64,14 @@ const InputOutput = ({ hypervisor, oneConfig, adminGroup, isUpdate }) => {
         oneConfig={oneConfig}
         adminGroup={adminGroup}
       />
-      <PciDevicesSection
-        stepId={EXTRA_ID}
-        hypervisor={hypervisor}
-        oneConfig={oneConfig}
-        adminGroup={adminGroup}
-      />
+      {!isVrouter && (
+        <PciDevicesSection
+          stepId={EXTRA_ID}
+          hypervisor={hypervisor}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
+      )}
       <VideoSection
         stepId={EXTRA_ID}
         hypervisor={hypervisor}
@@ -82,6 +90,7 @@ InputOutput.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
   isUpdate: PropTypes.bool,
+  isVrouter: PropTypes.bool,
 }
 
 InputOutput.displayName = 'InputOutput'
@@ -91,7 +100,7 @@ const TAB = {
   id: 'input_output',
   name: T.InputOrOutput,
   icon: IOIcon,
-  Content: InputOutput,
+  Content: (isVrouter) => InputOutput(isVrouter),
   getError: (error) => TAB_ID.some((id) => error?.[id]),
 }
 

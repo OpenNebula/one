@@ -83,7 +83,10 @@ module.exports = {
   CreateProvision: 'Create Provision',
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
+  CreateVirtualRouterTemplate: 'Create Virtual Router Template',
   InstantiateServiceTemplate: 'Instantiate Service Template',
+  InstantiateVirtualRouterTemplate: 'Instantiate Virtual Router Template',
+  InstantiateVirtualRouter: 'Instantiate Virtual Router',
   CreateUser: 'Create User',
   UpdateUser: 'Update User',
   CreateVirtualNetwork: 'Create Virtual Network',
@@ -100,6 +103,8 @@ module.exports = {
   DeleteScheduleAction: 'Delete schedule action: %s',
   DeleteSeveralTemplates: 'Delete several Templates',
   DeleteSeveralVirtualNetworks: 'Delete several Virtual Networks',
+  DeleteVirtualRouter: 'Delete Virtual Router',
+  DeleteSeveralVirtualRouters: 'Delete several Virtual Routers',
   DeleteSomething: 'Delete: %s',
   DeleteAddressRange: 'Delete Address Range',
   DeleteTemplate: 'Delete Template',
@@ -218,6 +223,7 @@ module.exports = {
   UpdateProvider: 'Update Provider',
   UpdateScheduleAction: 'Update schedule action: %s',
   UpdateServiceTemplate: 'Update Service Template',
+  UpdateVirtualRouterTemplate: 'Update Virtual Router Template',
   UpdateVirtualNetwork: 'Update Virtual Network',
   UpdateVirtualNetworkTemplate: 'Update Virtual Network Template',
   UpdateVmConfiguration: 'Update VM Configuration',
@@ -299,6 +305,8 @@ module.exports = {
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
   KeepLast: 'Keep Last',
+  KeepAliveID: 'Keepalive service ID',
+  KeepAlivePass: 'Keepalive password',
   Credentials: 'Credentials',
   SwitchView: 'Switch view',
   SwitchGroup: 'Switch group',
@@ -716,6 +724,8 @@ module.exports = {
   Services: 'Services',
   ServiceTemplate: 'Service Template',
   ServiceTemplates: 'Service Templates',
+  VirtualRouterTemplate: 'Virtual Router Template',
+  VirtualRouterTemplates: 'Virtual Router Templates',
 
   /* sections - flow */
   ApplicationsTemplates: 'Applications templates',
@@ -823,6 +833,7 @@ module.exports = {
   VNName: 'Virtual Network Name',
   UserTemplate: 'User Template',
   Template: 'Template',
+  SelectTemplate: 'Select template',
   WhereIsRunning:
     'VM %1$s is currently running on Host %2$s and Datastore %3$s',
   /* VM schema - capacity */
@@ -1602,6 +1613,7 @@ module.exports = {
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
   DownloadApp: 'Download App',
+  DownloadDefaultImage: 'Download Default Image',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',
   ExportTemplateNameConcept: `

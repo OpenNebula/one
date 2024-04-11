@@ -38,6 +38,8 @@ import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extr
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
+const VROUTER_DISABLED_TABS = ['network']
+
 /**
  * @typedef {object} TabType
  * @property {string} id - Id will be to use in view yaml to hide/display the tab
@@ -62,7 +64,14 @@ export const TABS = [
   Backup,
 ]
 
-const Content = ({ data, setFormData, oneConfig, adminGroup, isUpdate }) => {
+const Content = ({
+  data,
+  setFormData,
+  oneConfig,
+  adminGroup,
+  isUpdate,
+  isVrouter,
+}) => {
   const {
     watch,
     formState: { errors },
@@ -83,27 +92,30 @@ const Content = ({ data, setFormData, oneConfig, adminGroup, isUpdate }) => {
 
   const tabs = useMemo(
     () =>
-      TABS.filter(({ id }) => sectionsAvailable.includes(id)).map(
-        ({ Content: TabContent, name, getError, ...section }) => ({
-          ...section,
-          name,
-          label: <Translate word={name} />,
-          renderContent: () => (
-            <TabContent
-              {...{
-                data,
-                setFormData,
-                hypervisor,
-                control,
-                oneConfig,
-                adminGroup,
-                isUpdate,
-              }}
-            />
-          ),
-          error: getError?.(errors[STEP_ID]),
-        })
-      ),
+      TABS.filter(
+        ({ id }) =>
+          sectionsAvailable.includes(id) &&
+          (isVrouter ? !VROUTER_DISABLED_TABS.includes(id) : true)
+      ).map(({ Content: TabContent, name, getError, ...section }) => ({
+        ...section,
+        name,
+        label: <Translate word={name} />,
+        renderContent: () => (
+          <TabContent
+            {...{
+              data,
+              setFormData,
+              hypervisor,
+              control,
+              oneConfig,
+              adminGroup,
+              isUpdate,
+              isVrouter,
+            }}
+          />
+        ),
+        error: getError?.(errors[STEP_ID]),
+      })),
     [totalErrors, view, control, oneConfig, adminGroup]
   )
 
@@ -121,6 +133,7 @@ const ExtraConfiguration = ({
   oneConfig,
   adminGroup,
   store,
+  isVrouter,
 }) => {
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
   const isUpdate = !!vmTemplate?.NAME
@@ -137,7 +150,8 @@ const ExtraConfiguration = ({
       return SCHEMA(hypervisor, oneConfig, adminGroup, isUpdate, modifiedFields)
     },
     optionsValidate: { abortEarly: false },
-    content: (props) => Content({ ...props, oneConfig, adminGroup, isUpdate }),
+    content: (props) =>
+      Content({ ...props, oneConfig, adminGroup, isUpdate, isVrouter }),
   }
 }
 
@@ -147,6 +161,7 @@ Content.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
   isUpdate: PropTypes.bool,
+  isVrouter: PropTypes.bool,
 }
 
 export default ExtraConfiguration

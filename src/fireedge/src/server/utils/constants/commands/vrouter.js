@@ -22,6 +22,7 @@ const {
 const VROUTER_ALLOCATE = 'vrouter.allocate'
 const VROUTER_DELETE = 'vrouter.delete'
 const VROUTER_INSTANTIATE = 'vrouter.instantiate'
+const VROUTER_INSTANTIATE_POSTBODY = 'vrouter.instantiate'
 const VROUTER_NIC_ATTACH = 'vrouter.attachnic'
 const VROUTER_NIC_DETACH = 'vrouter.detachnic'
 const VROUTER_UPDATE = 'vrouter.update'
@@ -37,6 +38,7 @@ const Actions = {
   VROUTER_ALLOCATE,
   VROUTER_DELETE,
   VROUTER_INSTANTIATE,
+  VROUTER_INSTANTIATE_POSTBODY,
   VROUTER_NIC_ATTACH,
   VROUTER_NIC_DETACH,
   VROUTER_UPDATE,
@@ -96,6 +98,37 @@ module.exports = {
           from: postBody,
           default: '',
         },
+        pending: {
+          from: postBody,
+          default: false,
+        },
+        template: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VROUTER_INSTANTIATE_POSTBODY]: {
+      // inspected
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: postBody,
+          default: 0,
+        },
+        number: {
+          from: postBody,
+          default: 1,
+        },
+        templateId: {
+          from: postBody,
+          default: 0,
+        },
+        name: {
+          from: postBody,
+          default: '',
+        },
+        // HOLD?
         pending: {
           from: postBody,
           default: false,

@@ -24,7 +24,7 @@ import { useGetHostQuery } from 'client/features/OneApi/host'
 import { VmsTable } from 'client/components/Tables'
 
 /**
- * Renders mainly information tab.
+ * Renders VM information tab.
  *
  * @param {object} props - Props
  * @param {string} props.id - Host id

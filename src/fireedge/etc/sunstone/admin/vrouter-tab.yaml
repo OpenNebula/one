@@ -1,0 +1,62 @@
+---
+# This file describes the information and actions available in the VRouter Template tab
+
+# Resource
+
+resource_name: "VROUTER"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  delete: true
+  chown: true
+  recover: true
+  chgrp: true
+  lock: true
+  unlock: true
+  edit_labels: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  owner: true
+  group: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: true
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: true
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: true
+    attributes_panel:
+      enabled: true
+      actions:
+        copy: true
+        add: true
+        edit: true
+        delete: true
+  vms:
+    enabled: true
+
+
+# Dialogs
+
+dialogs:
+   deploy_dialog:
+   create_dialog:

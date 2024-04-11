@@ -38,6 +38,7 @@ import UsersTable from 'client/components/Tables/Users'
 import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 import VNetworksTable from 'client/components/Tables/VNetworks'
 import VRoutersTable from 'client/components/Tables/VRouters'
+import VRouterTemplatesTable from 'client/components/Tables/VRouterTemplates'
 import VDCsTable from 'client/components/Tables/VirtualDataCenters'
 import VirtualizedTable from 'client/components/Tables/Virtualized'
 import VmGroupsTable from 'client/components/Tables/VmGroups'
@@ -74,6 +75,7 @@ export {
   VNetworkTemplatesTable,
   VNetworksTable,
   VRoutersTable,
+  VRouterTemplatesTable,
   VirtualizedTable,
   VmGroupsTable,
   VmTemplatesTable,

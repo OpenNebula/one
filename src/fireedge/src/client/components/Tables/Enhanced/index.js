@@ -74,6 +74,7 @@ const EnhancedTable = ({
   rootProps = {},
   searchProps = {},
   noDataMessage,
+  noDataCustomRenderer,
   messages = [],
   dataDepend,
   readOnly = false,
@@ -367,7 +368,7 @@ const EnhancedTable = ({
         {!isLoading &&
           !isUninitialized &&
           page?.length === 0 &&
-          (noDataMessage || (
+          (noDataCustomRenderer || noDataMessage || (
             <span className={styles.noDataMessage}>
               <InfoEmpty />
               <Translate word={T.NoDataAvailable} />
@@ -469,6 +470,7 @@ EnhancedTable.propTypes = {
     PropTypes.node,
     PropTypes.bool,
   ]),
+  noDataCustomRenderer: PropTypes.object,
   messages: PropTypes.array,
   dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
   readOnly: PropTypes.bool,

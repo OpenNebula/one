@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import _ from 'lodash'
 import General, {
   STEP_ID as GENERAL_ID,
 } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/General'
@@ -32,25 +31,9 @@ import {
   parseNetworkString,
   parseCustomInputString,
   parseVmTemplateContents,
+  convertKeysToCase,
   createSteps,
 } from 'client/utils'
-
-const convertKeysToCase = (obj, toLower = true) => {
-  if (_.isArray(obj)) {
-    return obj.map((item) => convertKeysToCase(item, toLower))
-  }
-
-  if (_.isObject(obj) && !_.isDate(obj) && !_.isFunction(obj)) {
-    return _.mapValues(
-      _.mapKeys(obj, (_value, key) =>
-        toLower ? key.toLowerCase() : key.toUpperCase()
-      ),
-      (value) => convertKeysToCase(value, toLower)
-    )
-  }
-
-  return obj
-}
 
 const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
   transformInitialValue: (ServiceTemplate, schema) => {
