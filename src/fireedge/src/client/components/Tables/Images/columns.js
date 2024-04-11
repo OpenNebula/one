@@ -61,6 +61,11 @@ const COLUMNS = [
     accessor: 'RUNNING_VMS',
     sortType: 'number',
   },
+  {
+    Header: 'Size',
+    accessor: 'SIZE',
+    sortType: 'number',
+  },
 ]
 
 COLUMNS.noFilterIds = ['id', 'name', 'type', 'label']
