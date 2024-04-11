@@ -38,6 +38,7 @@ import {
   getUniqueLabels,
   getColorFromString,
 } from 'client/models/Helper'
+import { prettyBytes } from 'client/utils'
 
 import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
@@ -55,6 +56,7 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
     PERSISTENT,
     locked,
     DATASTORE,
+    SIZE,
     RUNNING_VMS,
     label: LABELS = [],
   } = value
@@ -137,6 +139,9 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
           <span title={`${T.VMs}: ${RUNNING_VMS}`}>
             <ModernTv />
             <span>{`${RUNNING_VMS}`}</span>
+          </span>
+          <span title={`${T.Size}: ${SIZE}`}>
+            <span>{`${prettyBytes(+SIZE ?? 0)}`}</span>
           </span>
         </div>
       </div>
