@@ -66,24 +66,36 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SIZE \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT \
-                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/ORIGINAL_SIZE)
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/ORIGINAL_SIZE \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/DS_ID)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
 FORMAT="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+SYS_DS_ID="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy files to the remote host
 #-------------------------------------------------------------------------------
+SPARSE=$(get_ds_attribute $SYS_DS_ID "SPARSE")
 
 if [ -n "$ORIGINAL_SIZE" ] && [ "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-    RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+    if [[ "${SPARSE}" =~ ^(no|NO)$ ]]; then
+        RESIZE_CMD="qemu-img resize --preallocation=falloc ${DST_PATH} ${SIZE}M"
+    else
+        RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+    fi
 fi
 
 if [ "$FORMAT" = "qcow2" ]; then
     CLONE_CMD=$(qcow_dir_cmd "$SRC_PATH" "$DST_PATH" "convert")
 else
     CLONE_CMD="cp $SRC_PATH $DST_PATH"
+fi
+
+if [[ "${SPARSE}" =~ ^(no|NO)$ ]]; then
+    CLONE_CMD=$(qcow_dir_cmd "$SRC_PATH" "$DST_PATH" "convert")
+    CLONE_CMD="${CLONE_CMD/-O qcow2/-O qcow2 -S 0}"
 fi
 
 CLONE_RESIZE_CMD=$(cat <<EOF

@@ -260,3 +260,16 @@ function is_yes
 {
     [[ "$1" =~ ^(yes|YES|true|TRUE)$ ]]
 }
+
+# ------------------------------------------------------------------------------
+# Returns given attribute value from DATASTORE template
+# ------------------------------------------------------------------------------
+function get_ds_attribute {
+    local DS_ID=$1
+    local ATTRIBUTE=$2
+
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+    LOC="/DATASTORE/TEMPLATE/$ATTRIBUTE"
+
+    echo "$(awk 'gsub(/[\0]/, x)' <(onedatastore show $DS_ID -x|$XPATH $LOC))"
+}
