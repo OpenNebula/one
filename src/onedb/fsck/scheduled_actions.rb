@@ -34,23 +34,35 @@ module OneDBFsck
         query = 'SELECT * FROM schedaction_pool;'
 
         @db.fetch(query) do |row|
+            update = false
             doc = nokogiri_doc(row[:body], 'schedaction_pool')
 
-            optional_args = ['MESSAGE', 'ARGS']
-            optional_args.each do |att_name|
+            optional_args = { 'MESSAGE' => '',
+                              'ARGS' => '',
+                              'DONE' => -1,
+                              'REPEAT' => -1,
+                              'DAYS' => '',
+                              'END_TYPE' => -1,
+                              'END_VALUE' => -1 }
+
+            optional_args.each do |att_name, default_value|
                 att = doc.root.at_xpath(att_name)
 
                 next unless att.nil?
 
+                update = true
+
                 log_error("Scheduled action #{row[:oid]} doesn't have '#{att_name}' attribute",
                           true)
                 att = doc.create_element(att_name)
-                doc.root.add_child(att).content = ''
+                doc.root.add_child(att).content = default_value
             end
 
-            row[:body] = doc.root.to_s
+            if update
+                row[:body] = doc.root.to_s
 
-            @to_update << row
+                @to_update << row
+            end
         end
     end
 
