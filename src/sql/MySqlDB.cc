@@ -203,9 +203,6 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     {
         connections[i] = mysql_init(NULL);
 
-        bool reconnect = true;
-        mysql_options(connections[i], MYSQL_OPT_RECONNECT, &reconnect);
-
         mysql_options(connections[i], MYSQL_SET_CHARSET_NAME, encoding.c_str());
 
         rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
@@ -355,13 +352,19 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
                         password.c_str(), database.c_str(), port, NULL, 0))
                 {
                     oss << "... Reconnected.";
+
+                    // Retry the sql command
+                    if (mysql_query(db, c_str) != 0)
+                    {
+                        ec = SqlDB::CONNECTION;
+                    }
                 }
                 else
                 {
                     oss << "... Reconnection attempt failed.";
+                    ec = SqlDB::CONNECTION;
                 }
 
-                ec = SqlDB::CONNECTION;
                 break;
 
             // Error codes that should be considered applied for the RAFT log.
@@ -374,17 +377,20 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
                 break;
         }
 
-        if (ec != SqlError::CONNECTION)
+        if (ec != SqlDB::SUCCESS) // Reconnected, second run of the query succesfull
         {
-            oss << "SQL command was: " << c_str;
-            oss << ", error " << err_num << " : " << err_msg;
+            if (ec != SqlError::CONNECTION)
+            {
+                oss << "SQL command was: " << c_str;
+                oss << ", error " << err_num << " : " << err_msg;
+            }
+
+            NebulaLog::log("ONE", error_level, oss);
+
+            free_db_connection(db);
+
+            return ec;
         }
-
-        NebulaLog::log("ONE", error_level, oss);
-
-        free_db_connection(db);
-
-        return ec;
     }
 
     if (obj != 0)
