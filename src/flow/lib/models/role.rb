@@ -504,7 +504,7 @@ module OpenNebula
 
                     break unless OpenNebula.is_error?(rc)
 
-                    sleep(tries * 0.5)
+                    sleep(tries)
                 end
 
                 if tries == 3
