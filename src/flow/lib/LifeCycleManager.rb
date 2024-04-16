@@ -687,7 +687,7 @@ class ServiceLCM
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
             service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                if nodes[node] && service.roles[role_name].cardinality > 0
                     service.roles[role_name].cardinality -= 1
                 end
 
@@ -842,7 +842,7 @@ class ServiceLCM
     def scaleup_cb(external_user, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, external_user) do |service|
             service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                if nodes[node] && service.roles[role_name].cardinality > 0
                     service.roles[role_name].cardinality -= 1
                 end
 
@@ -1074,7 +1074,7 @@ class ServiceLCM
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
             service.roles[role_name].nodes.delete_if do |node|
-                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                if nodes[node] && service.roles[role_name].cardinality > 0
                     service.roles[role_name].cardinality -= 1
                 end
 
@@ -1231,18 +1231,27 @@ class ServiceLCM
         end
     end
 
-    # Returns true if the deployments of all roles was fine and
-    # update their state consequently
-    # @param [Array<Role>] roles to be deployed
-    # @param [Role::STATE] success_state new state of the role
-    #                      if deployed successfuly
-    # @param [Role::STATE] error_state new state of the role
-    #                      if deployed unsuccessfuly
+    # Deploys roles to an external user and updates their state accordingly
+    #
+    # @param [User]         external_user The external user to whom the roles will be deployed
+    # @param [Array<Role>]  roles An array of roles that will be deployed to the external user
+    # @param [Role::STATE]  success_state The state that will be returned if the roles
+    #                       are successfully deployed
+    # @param [Role::STATE]  error_state The state that will be returned if there is an error
+    #                       during the deployment of the roles
+    # @param [String]       action The action that will be performed during the deployment
+    #                       of the roles
+    # @param [Report]       report A report that will be generated after the deployment of the roles
+    #
+    # @return [Role::STATE] It returns either the success_state or the error_state
+    #                       depending on the result of the deployment
+    #
     # rubocop:disable Metrics/ParameterLists
     # rubocop:disable Layout/LineLength
     def deploy_roles(external_user, roles, success_state, error_state, action, report)
         # rubocop:enable Metrics/ParameterLists
-        roles.each do |name, role|
+        rc = roles.each do |name, role|
+            # Only applies to new services (pending)
             if role.state == Role::STATE['PENDING']
                 # Set all roles on hold if the on_hold option
                 # is set at service level
@@ -1281,6 +1290,10 @@ class ServiceLCM
                                               report)
             end
         end
+
+        Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        rc
     end
     # rubocop:enable Layout/LineLength
 
