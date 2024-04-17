@@ -32,6 +32,7 @@
 #include "vm_var_syntax.h"
 
 #include <sys/stat.h>
+#include <regex>
 
 using namespace std;
 
@@ -3128,6 +3129,15 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         {
             if (in->first < ib->first)
             {
+                // Do not allow add new attribute with name ETHx_y
+                if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                {
+                    err = "Unable to add " + in->first +
+                        ", update NIC to update network context";
+
+                    return -1;
+                }
+
                 context_changed = true;
                 ++in;
             }
@@ -3144,6 +3154,15 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
                 }
                 else
                 {
+                    // Do not allow update attribute with name ETHx_y
+                    if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
+                    {
+                        err = "Unable to update " + in->first +
+                            ", update NIC to update the network";
+
+                        return -1;
+                    }
+
                     context_changed = true;
                 }
 
@@ -3164,6 +3183,14 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         context_new->replace("TARGET",  context_bck->vector_value("TARGET"));
         context_new->replace("DISK_ID", context_bck->vector_value("DISK_ID"));
+
+        // In case of replace, keep NETWORK attribute to regenerate net context
+        auto it_net = equal_values.find("NETWORK");
+
+        if ( it_net != equal_values.end() )
+        {
+            context_new->replace("NETWORK", it_net->second);
+        }
 
         obj_template->remove(context_bck);
         obj_template->set(context_new);
