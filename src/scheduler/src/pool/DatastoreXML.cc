@@ -73,15 +73,11 @@ void DatastoreXML::init_attributes()
 
     if (rc == 0)
     {
-        long long free_limited = limit_mb - used_mb;
+        free_mb = limit_mb - used_mb;
 
-        if (free_limited < 0)
+        if (free_mb < 0)
         {
             free_mb = 0;
-        }
-        else if (free_limited < free_mb)
-        {
-            free_mb = free_limited;
         }
     }
 

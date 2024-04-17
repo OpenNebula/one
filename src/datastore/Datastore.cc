@@ -1083,20 +1083,14 @@ int Datastore::post_update_template(string& error_str)
 
 bool Datastore::get_avail_mb(long long &avail) const
 {
-    long long   limit_mb;
-    long long   free_limited;
-    bool        check;
+    long long limit_mb;
+    bool      check;
 
     avail = free_mb;
 
     if (get_template_attribute("LIMIT_MB", limit_mb))
     {
-        free_limited = limit_mb - used_mb;
-
-        if (free_limited < free_mb)
-        {
-            avail = free_limited;
-        }
+        avail = limit_mb - used_mb;
     }
 
     if (avail < 0)
