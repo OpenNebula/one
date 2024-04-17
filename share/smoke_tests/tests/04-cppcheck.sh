@@ -19,6 +19,6 @@ DEFINES="-DSQLITE_DB -DMYSQL_DB -DPOSTGRESQL_DB -DSYSTEMD"
 ENABLE="--enable=performance,information,warning,portability,style"
 IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers -i src/vmm/LibVirtDriverKVM.cc"
 SUPRESS="--suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"
-OTHERS="--std=c++14 --error-exitcode=2 -q -j 4"
+OTHERS="--std=c++17 --error-exitcode=2 -q -j 4"
 
 cppcheck $SOURCES $INCLUDES $DEFINES $IGNORE $ENABLE $SUPRESS $OTHERS
