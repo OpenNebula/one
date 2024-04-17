@@ -1369,7 +1369,7 @@ CommandParser::CmdParser.new(ARGV) do
         RAW       = ["DATA", "DATA_VMX", "TYPE", "VALIDATE"]
         CPU_MODEL = ["MODEL"]
         BACKUP_CONFIG = ["FS_FREEZE", "KEEP_LAST", "BACKUP_VOLATILE", "MODE", "INCREMENT_MODE"]
-        CONTEXT (any value, **variable substitution will be made**)
+        CONTEXT (any value, except ETH*, **variable substitution will be made**)
     EOT
 
     command :updateconf, updateconf_desc, :vmid, [:file, nil],
