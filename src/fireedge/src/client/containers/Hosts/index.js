@@ -29,6 +29,7 @@ import { HostsTable } from 'client/components/Tables'
 import HostActions from 'client/components/Tables/Hosts/actions'
 import HostTabs from 'client/components/Tabs/Host'
 import { Host, T } from 'client/constants'
+import { useGeneral } from 'client/features/General'
 import {
   useLazyGetHostQuery,
   useUpdateHostMutation,
@@ -42,6 +43,7 @@ import {
 function Hosts() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = HostActions()
+  const { zone } = useGeneral()
 
   const hasSelectedRows = selectedRows?.length > 0
   const moreThanOneSelected = selectedRows?.length > 1
@@ -54,6 +56,7 @@ function Hosts() {
             onSelectedRowsChange={onSelectedRowsChange}
             globalActions={actions}
             useUpdateMutation={useUpdateHostMutation}
+            zoneId={zone}
           />
 
           {hasSelectedRows && (

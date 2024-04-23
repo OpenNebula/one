@@ -134,6 +134,7 @@ const HostsTable = (props) => {
       updateSelectedRows()
     }
   })
+  useEffect(() => refetch(), [])
 
   return (
     <EnhancedTable
@@ -146,6 +147,7 @@ const HostsTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={HostRow}
       dataDepend={values}
+      zoneId={zoneId}
       {...rest}
     />
   )

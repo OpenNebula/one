@@ -34,13 +34,13 @@ import {
 } from 'react-table'
 
 import {
+  ChangeViewTable,
   GlobalActions,
   GlobalFilter,
   GlobalLabel,
   GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
-  ChangeViewTable,
   LABEL_COLUMN_ID,
 } from 'client/components/Tables/Enhanced/Utils'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
@@ -79,6 +79,7 @@ const EnhancedTable = ({
   dataDepend,
   readOnly = false,
   tableViews,
+  zoneId,
 }) => {
   const styles = EnhancedTableStyles({
     readOnly: readOnly,
@@ -392,6 +393,7 @@ const EnhancedTable = ({
           return (
             <RowComponent
               {...rowProps}
+              zone={zoneId}
               key={key}
               original={original}
               value={values}
@@ -475,6 +477,7 @@ EnhancedTable.propTypes = {
   dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
   readOnly: PropTypes.bool,
   tableViews: PropTypes.object,
+  zoneId: PropTypes.string,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

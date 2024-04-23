@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
-import PropTypes from 'prop-types'
-import hostApi, { useUpdateHostMutation } from 'client/features/OneApi/host'
 import { HostCard } from 'client/components/Cards'
+import hostApi, { useUpdateHostMutation } from 'client/features/OneApi/host'
 import { jsonToXml } from 'client/models/Helper'
+import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
 const Row = memo(
-  ({ original, value, onClickLabel, ...props }) => {
+  ({ original, value, onClickLabel, zone, ...props }) => {
     const [update] = useUpdateHostMutation()
 
     const {
       data: hosts,
       error,
       isLoading,
-    } = hostApi.endpoints.getHosts.useQuery(undefined)
+    } = hostApi.endpoints.getHosts.useQuery({ zone })
 
     const host = useMemo(
       () => hosts?.find((h) => +h.ID === +original.ID) ?? original,
@@ -70,6 +70,7 @@ Row.propTypes = {
   className: PropTypes.string,
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  zone: PropTypes.string,
 }
 
 Row.displayName = 'HostRow'
