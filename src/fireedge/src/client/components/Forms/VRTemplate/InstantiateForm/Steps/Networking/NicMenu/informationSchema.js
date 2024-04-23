@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { mixed, number, boolean, string } from 'yup'
+import { mixed, number, boolean } from 'yup'
 import { VNetworksTable, SecurityGroupsTable } from 'client/components/Tables'
 import { getObjectSchemaFromFields } from 'client/utils'
 
@@ -33,47 +33,6 @@ const NETWORK = {
     .notRequired('Network ID missing or malformed!')
     .default(() => null),
   grid: { md: 12 },
-}
-
-const ALIAS = {
-  name: 'alias',
-  label: 'Alias',
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
-  grid: { md: 6 },
-}
-
-const PARENT = {
-  name: 'parent',
-  label: T.AsAnAlias,
-  dependOf: 'alias',
-  type: INPUT_TYPES.SELECT,
-  htmlType: (alias) => (alias ? INPUT_TYPES.SELECT : INPUT_TYPES.HIDDEN),
-  values: (_, context) => {
-    const nics = context?.getValues(`networking.NIC`) ?? []
-
-    return [
-      { text: '', value: '' },
-      ...nics
-        /* eslint-disable-next-line no-shadow */
-        .filter(({ parent }) => !parent) // filter nic alias
-        .map(({ network, nicId, IP = '' }, index) => {
-          const textIdentifier = [
-            `NIC-${index}`,
-            `VNET-${network}`,
-            `IPv4-${IP?.slice(0, 16)}`,
-            `#${nicId?.slice(0, 10)}`,
-          ].join(` | `)
-
-          return { text: textIdentifier, value: nicId }
-        }),
-    ]
-  },
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => ''),
-  grid: { md: 6 },
 }
 
 const NETWORKSELECTION = {
@@ -154,8 +113,6 @@ const SECURITY_GROUPS = {
 }
 
 export const FIELDS = [
-  ALIAS,
-  PARENT,
   NETWORKSELECTION,
   RDP,
   SSH,

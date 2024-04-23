@@ -21,7 +21,6 @@ import {
   Network as ManagementIcon,
   IpAddress,
   HistoricShield as SecurityGroupIcon,
-  AtSign as AliasIcon,
   Computer as RdpIcon,
   TerminalSimple as SshIcon,
 } from 'iconoir-react'
@@ -47,7 +46,6 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
     autonetworkselect,
     sshconnection,
     rdpconnection,
-    alias,
   } = info
 
   return (
@@ -141,12 +139,6 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
             {sshconnection && (
               <Tooltip title="SSH Connection" arrow>
                 <SshIcon height={18} width={18} />
-              </Tooltip>
-            )}
-
-            {alias && (
-              <Tooltip title="Alias" arrow>
-                <AliasIcon height={18} width={18} />
               </Tooltip>
             )}
           </Box>
