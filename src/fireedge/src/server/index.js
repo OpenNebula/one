@@ -64,7 +64,7 @@ const appConfig = getFireedgeConfig()
 genFireedgeKey()
 
 // set logger
-initLogger(appConfig.debug_level)
+initLogger(appConfig.debug_level, appConfig.truncate_max_length)
 
 // destructure imports
 const unsecureServer = http.createServer

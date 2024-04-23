@@ -128,6 +128,7 @@ const defaults = {
   defaultProvisionPath: internalProvisionPath,
   defaultProvidersConfigPath: 'providers.d',
   defaultLogsLevels: ['error', 'warm', 'info', 'http', 'verbose', 'debug'],
+  defaultLogMessageLength: 100,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultProductionWebpackMode: 'production',

@@ -17,29 +17,51 @@
 const { env } = require('process')
 const { global } = require('window-or-global')
 const { transports, format, createLogger } = require('winston')
+const { printf } = format
 const { sprintf } = require('sprintf-js')
 const morgan = require('morgan')
+const _ = require('lodash')
 const { defaults } = require('server/utils/constants')
-const { defaultWebpackMode, defaultLogsLevels } = defaults
+const { defaultWebpackMode, defaultLogsLevels, defaultLogMessageLength } =
+  defaults
 
 let logger = null
+
+const getTruncFormat = (truncateMaxLength) =>
+  printf(({ timestamp, level, message }) => {
+    const formattedMessage =
+      truncateMaxLength === -1
+        ? message
+        : _.truncate(message, { length: truncateMaxLength })
+
+    return `[${timestamp}] - [${level}] ${formattedMessage}`
+  })
 
 /**
  * Initialize logger.
  *
  * @param {number} logLevel - log level
+ * @param {number} truncate_max_limit - max limit to truncate log messages
  */
-const initLogger = (logLevel = 0) => {
+const initLogger = (
+  logLevel = 0,
+  truncate_max_limit = defaultLogMessageLength
+) => {
   if (global && global.paths && global.paths.FIREEDGE_LOG) {
     const levelString = parseInt(logLevel, 10)
     const logString = defaultLogsLevels && defaultLogsLevels[levelString]
 
     const trans = []
 
+    const loggerFormat = format.combine(
+      format.timestamp(),
+      getTruncFormat(truncate_max_limit)
+    )
+
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
       trans.push(
         new transports.Console({
-          format: format.simple(),
+          format: loggerFormat,
         })
       )
     } else {
@@ -49,7 +71,7 @@ const initLogger = (logLevel = 0) => {
           level: logString,
           filename: global.paths.FIREEDGE_LOG,
           handleExceptions: true,
-          format: format.simple(),
+          format: loggerFormat,
           maxsize: 5242880, // 5MB
           colorize: false,
         })
@@ -66,10 +88,11 @@ const initLogger = (logLevel = 0) => {
         writeInLogger(message)
       },
     }
+
     if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
       logger.clear().add(
         new transports.Console({
-          format: format.simple(),
+          format: loggerFormat,
         })
       )
     }

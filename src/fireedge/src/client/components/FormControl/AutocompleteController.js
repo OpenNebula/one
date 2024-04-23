@@ -45,16 +45,17 @@ const AutocompleteController = memo(
 
     const selected = multiple
       ? renderValue ?? []
-      : values.find(({ value }) => value === renderValue) ?? null
+      : values.find(({ value }) => value === renderValue) || renderValue
 
     const handleChange = useCallback(
       (_, newValue) => {
         const newValueToChange = multiple
           ? newValue?.map((value) =>
-              // In case that is an object, get value attribute
-              ['string', 'number'].includes(typeof value) ? value : value.value
+              typeof value === 'object' ? value.value : value
             )
-          : newValue?.value
+          : typeof newValue === 'object'
+          ? newValue.value
+          : newValue
 
         onChange(newValueToChange ?? '')
         if (typeof onConditionChange === 'function') {
@@ -70,24 +71,31 @@ const AutocompleteController = memo(
         color="secondary"
         onBlur={onBlur}
         onChange={handleChange}
+        onInputChange={(_, newInputValue, reason) => {
+          // Processes the input in freesolo mode
+          if (
+            reason === 'input' &&
+            (fieldProps?.freeSolo || !optionsOnly) &&
+            !multiple
+          ) {
+            onChange(newInputValue)
+            if (typeof onConditionChange === 'function') {
+              onConditionChange(newInputValue)
+            }
+          }
+        }}
         options={values}
         value={selected}
         multiple={multiple}
         freeSolo={!optionsOnly}
         renderTags={(tags, getTagProps) =>
-          // render when freesolo prop
           tags.map((tag, index) => {
-            // When the component is multiple and has values, map to show the label that corresponds to the value
             const labelTag =
-              values &&
-              values.length > 0 &&
-              values.find((item) => item.value === tag)
-                ? values.find((item) => item.value === tag).text
-                : tag
+              values.find((item) => item.value === tag)?.text || tag
 
             return (
               <Chip
-                key={labelTag}
+                key={index}
                 size="small"
                 variant="outlined"
                 label={labelTag}
@@ -96,8 +104,12 @@ const AutocompleteController = memo(
             )
           })
         }
-        getOptionLabel={(option) => option.text}
-        isOptionEqualToValue={(option) => option.value === renderValue}
+        getOptionLabel={(option) =>
+          typeof option === 'object' ? option.text : option
+        }
+        isOptionEqualToValue={(option, value) =>
+          typeof option === 'object' ? option.value === value : option === value
+        }
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField
             label={<Translate word={label} />}

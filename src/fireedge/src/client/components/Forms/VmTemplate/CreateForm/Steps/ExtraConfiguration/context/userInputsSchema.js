@@ -61,13 +61,16 @@ const NAME = {
   name: 'name',
   label: T.Name,
   type: INPUT_TYPES.AUTOCOMPLETE,
+  disableEnter: true,
   optionsOnly: false,
+  multiple: false,
   values: () => useSelector((state) => state.persistent.userInputSuggestionsVR),
   validation: string()
     .trim()
     .required()
     .default(() => undefined),
   grid: { sm: 6, md: 4 },
+  fieldProps: { freeSolo: true },
 }
 
 /** @type {Field} Type field */
