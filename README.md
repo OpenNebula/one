@@ -14,7 +14,7 @@
 - Download our [technical white papers](https://opennebula.io/docs-whitepapers/).
 - See our [Documentation](https://docs.opennebula.io).
 - Join our [Community Forum](https://forum.opennebula.io).
-- Check our [Quick Start Guide] (https://docs.opennebula.io/stable/quick_start/index.html)
+- Check our [Quick Start Guide](https://docs.opennebula.io/stable/quick_start/index.html).
 
 [![OpenNebula Intro](https://opennebula.io/wp-content/uploads/2020/08/Intro_Screencast_small.png)](https://opennebula.io/screencast-overview/)
 
