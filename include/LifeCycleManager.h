@@ -148,6 +148,9 @@ public:
     void trigger_resize_success(int vid);
     void trigger_resize_failure(int vid);
 
+    void trigger_disk_restore_success(int vid);
+    void trigger_disk_restore_failure(int vid);
+
     void trigger_backup_success(int vid);
     void trigger_backup_failure(int vid);
     // -------------------------------------------------------------------------

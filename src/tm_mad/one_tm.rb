@@ -52,7 +52,6 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'pp'
 require 'shellwords'
 require 'OpenNebulaDriver'
 require 'CommandManager'
@@ -67,7 +66,7 @@ class TransferManagerDriver < OpenNebulaDriver
     # Register TRANSFER action, and tm drivers available
     # @param tm_type [Array] of tm types
     # @param options [Hash] basic options for an OpenNebula driver
-    def initialize(tm_type, options={})
+    def initialize(tm_type, options = {})
         @options={
             :concurrency => 15,
             :threaded    => true,
@@ -76,7 +75,7 @@ class TransferManagerDriver < OpenNebulaDriver
 
         super('tm/', @options)
 
-        if tm_type == nil
+        if tm_type.nil?
             @types = Dir["#{@local_scripts_path}/*/"].map do |d|
                 d.split('/')[-1]
             end
@@ -86,8 +85,7 @@ class TransferManagerDriver < OpenNebulaDriver
             @types = tm_type
         end
 
-        # register actions
-        register_action(:TRANSFER, method("action_transfer"))
+        register_action(:TRANSFER, method('action_transfer'))
     end
 
     # Driver Action: TRANSFER id script_file
@@ -95,23 +93,19 @@ class TransferManagerDriver < OpenNebulaDriver
     def action_transfer(id, script_file)
         script = parse_script(script_file)
         if script.nil?
-            send_message("TRANSFER",
-                         RESULT[:failure],
-                         id,
-                         "Transfer file '#{script_file}' does not exist")
-            return
+            return send_message('TRANSFER', RESULT[:failure], id,
+                                "Transfer file '#{script_file}' does not exist")
         end
 
-        script.each { |command|
+        script.each do |command|
             result, info = do_transfer_action(id, command)
 
             if result == RESULT[:failure]
-                send_message("TRANSFER", result, id, info)
-                return
+                return send_message('TRANSFER', result, id, info)
             end
-        }
+        end
 
-        send_message("TRANSFER", RESULT[:success], id)
+        send_message('TRANSFER', RESULT[:success], id)
     end
 
     # Executes a single transfer action (command), as returned by the parse
@@ -119,32 +113,36 @@ class TransferManagerDriver < OpenNebulaDriver
     # @param id [String] with the OpenNebula ID for the TRANSFER action
     # @param command [Array]
     # @param stdin [String]
-    def do_transfer_action(id, command, stdin=nil)
+    def do_transfer_action(id, command, stdin = nil)
         cmd  = command[0].downcase
         tm   = command[1]
-        args = command[2..-1].map{|e| Shellwords.escape(e)}.join(" ")
+        args = command[2..-1].map {|e| Shellwords.escape(e) }.join(' ')
 
-        if not @types.include?(tm)
+        if !@types.include?(tm)
             return RESULT[:failure], "Transfer Driver '#{tm}' not available"
         end
 
         path = File.join(@local_scripts_path, tm, cmd)
 
         if !File.exist?(path)
-            md  = cmd.match(/(.*)\.(.*)/)
-            if md && md[1]
-                path_shortened = File.join(@local_scripts_path, tm, md[1])
-                if !File.exist?(path_shortened)
-                    return RESULT[:failure],
-                        "Driver path '#{path}' nor '#{path_shortened}' exists"
-                end
-                path = path_shortened
-            else
+            md = cmd.match(/(.*)\.(.*)/)
+
+            if !md || !md[1]
                 return RESULT[:failure], "Driver path '#{path}' does not exists"
             end
+
+            path_shortened = File.join(@local_scripts_path, tm, md[1])
+
+            if !File.exist?(path_shortened)
+                return RESULT[:failure],
+                    "Driver path '#{path}' nor '#{path_shortened}' exists"
+            end
+
+            path = path_shortened
         end
 
-        path << " " << args
+        path << ' ' << args
+
         rc = LocalCommand.run(path, log_method(id), stdin)
 
         result, info = get_info_from_execution(rc)
@@ -159,19 +157,19 @@ class TransferManagerDriver < OpenNebulaDriver
     # @return lines [Array] with the commands of the script. Each command is an
     #         array itself.
     def parse_script(sfile)
-        return nil if !File.exist?(sfile)
+        return unless File.exist?(sfile)
 
         stext = File.read(sfile)
-        lines = Array.new
+        lines = []
 
-        stext.each_line {|line|
+        stext.each_line do |line|
             next if line.match(/^\s*#/) # skip if the line is commented
             next if line.match(/^\s*$/) # skip if the line is empty
 
-            command = line.split(" ")
+            command = line.split(' ')
 
             lines << command
-        }
+        end
 
         return lines
     end
@@ -183,12 +181,11 @@ end
 # TransferManager Driver Main program
 ################################################################################
 ################################################################################
-
 if __FILE__ == $0
     opts = GetoptLong.new(
-        [ '--threads',  '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-        [ '--tm-types', '-d', GetoptLong::OPTIONAL_ARGUMENT ],
-        [ '--timeout',  '-w', GetoptLong::OPTIONAL_ARGUMENT ]
+        ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
+        ['--tm-types', '-d', GetoptLong::OPTIONAL_ARGUMENT],
+        ['--timeout', '-w', GetoptLong::OPTIONAL_ARGUMENT]
     )
 
     tm_type = nil
@@ -198,15 +195,15 @@ if __FILE__ == $0
     begin
         opts.each do |opt, arg|
             case opt
-                when '--threads'
-                    threads = arg.to_i
-                when '--tm-types'
-                    tm_type = arg.split(',').map {|a| a.strip }
-                when '--timeout'
-                    timeout = arg
+            when '--threads'
+                threads = arg.to_i
+            when '--tm-types'
+                tm_type = arg.split(',').map {|a| a.strip }
+            when '--timeout'
+                timeout = arg
             end
         end
-    rescue Exception => e
+    rescue StandardError
         exit(-1)
     end
 

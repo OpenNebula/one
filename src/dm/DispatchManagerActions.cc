@@ -2867,6 +2867,43 @@ int DispatchManager::backup_cancel(int vid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::restore(int vid, int img_id, int inc_id, int disk_id,
+            const RequestAttributes& ra, std::string& error_str)
+{
+    ostringstream oss;
+
+    auto vm = vmpool->get(vid);
+
+    if ( vm == nullptr )
+    {
+        error_str ="Could not restore VM, it does not exist";
+        return -1;
+    }
+
+    if (vm->get_state() != VirtualMachine::POWEROFF)
+    {
+        error_str ="Could not restore VM, it must be in poweroff";
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::PROLOG_RESTORE);
+
+    // Call driver action to copy disk from image backup to VM system disk
+    tm->trigger_prolog_restore(vm->get_oid(), img_id, inc_id, disk_id);
+
+    vm->set_vm_info();
+
+    close_cp_history(vmpool, vm.get(), VMActions::RESTORE_ACTION, ra);
+
+    vmpool->update(vm.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
         string& error)
 {

@@ -579,7 +579,7 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 */
     set_conf_single("VM_ADMIN_OPERATIONS", "migrate, delete, recover, retry, "
-            "deploy, resched");
+            "deploy, resched, backup, restore");
 
     set_conf_single("VM_MANAGE_OPERATIONS", "undeploy, hold, release, stop, "
             "suspend, resume, reboot, poweroff, disk-attach, nic-attach, "

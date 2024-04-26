@@ -87,7 +87,8 @@ public:
         SG_ATTACH_ACTION         = 56,      // "one.vm.attachsg"
         SG_DETACH_ACTION         = 57,      // "one.vm.detachsg"
         PCI_ATTACH_ACTION        = 58,      // "one.vm.attachpci"
-        PCI_DETACH_ACTION        = 59       // "one.vm.detachpci"
+        PCI_DETACH_ACTION        = 59,      // "one.vm.detachpci"
+        RESTORE_ACTION           = 60       // "one.vm.restore"
     };
 
     static std::string action_to_str(Action action);

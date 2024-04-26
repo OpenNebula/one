@@ -63,7 +63,8 @@ module OpenNebula
             :updatenic      => 'vm.updatenic',
             :backupcancel   => 'vm.backupcancel',
             :attachpci      => 'vm.attachpci',
-            :detachpci      => 'vm.detachpci'
+            :detachpci      => 'vm.detachpci',
+            :restore        => 'vm.restore'
         }
 
         VM_STATE=['INIT', 'PENDING', 'HOLD', 'ACTIVE', 'STOPPED', 'SUSPENDED', 'DONE', 'FAILED',
@@ -140,7 +141,8 @@ module OpenNebula
             'HOTPLUG_SAVEAS_UNDEPLOYED',
             'HOTPLUG_SAVEAS_STOPPED',
             'BACKUP',
-            'BACKUP_POWEROFF'
+            'BACKUP_POWEROFF',
+            'RESTORE'
         ]
 
         SHORT_VM_STATES={
@@ -227,7 +229,8 @@ module OpenNebula
             'HOTPLUG_SAVEAS_UNDEPLOYED'  => 'hotp',
             'HOTPLUG_SAVEAS_STOPPED'     => 'hotp',
             'BACKUP'            => 'back',
-            'BACKUP_POWEROFF'   => 'back'
+            'BACKUP_POWEROFF'   => 'back',
+            'RESTORE'           => 'rest'
         }
 
         HISTORY_ACTION=[
@@ -290,7 +293,8 @@ module OpenNebula
           'sg-attach',
           'sg-detach',
           'pci-attach',
-          'pci-detach'
+          'pci-detach',
+          'restore'
         ]
 
         EXTERNAL_IP_ATTRS = [
@@ -889,6 +893,14 @@ module OpenNebula
         #   otherwise
         def pci_detach(pci_id)
             call(VM_METHODS[:detachpci], @pe_id, pci_id)
+        end
+
+        # Restore the VM from backup Image
+        #
+        # @return [nil, OpenNebula::Error] nil in case of sucess, Error
+        #  otherwise.
+        def restore(img_id, inc_id, disk_id)
+            @client.call(VM_METHODS[:restore], @pe_id, img_id, inc_id, disk_id)
         end
 
         ########################################################################

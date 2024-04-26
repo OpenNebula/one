@@ -2432,7 +2432,7 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
             if ( disk == nullptr )
             {
                 vm->log("LCM", Log::ERROR,
-                        "disk_resize_failure, but the VM doesn't have a disk with resize operation in progress");
+                        "disk_resize_failure, but no resize operation in progress");
                 return;
             }
 
@@ -2676,6 +2676,60 @@ void LifeCycleManager::trigger_resize_failure(int vid)
 
         // Quota rollback
         Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &deltas);
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_disk_restore_success(int vid)
+{
+    trigger([this, vid] {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState state = vm->get_lcm_state();
+
+            if (state == VirtualMachine::PROLOG_RESTORE)
+            {
+                // todo: Clear VM and disk snapshots
+                vm->set_state(VirtualMachine::POWEROFF);
+                vm->log("LCM", Log::INFO, "VM restore operation completed.");
+            }
+            else
+            {
+                vm->log("LCM", Log::ERROR, "VM restore success, VM in a wrong state");
+                return;
+            }
+
+            vmpool->update(vm.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_disk_restore_failure(int vid)
+{
+    trigger([this, vid] {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+            if (lcm_state == VirtualMachine::PROLOG_RESTORE)
+            {
+                vm->set_state(VirtualMachine::POWEROFF);
+                vm->log("LCM", Log::INFO, "VM restore operation fails");
+            }
+            else
+            {
+                vm->log("LCM", Log::ERROR,
+                        "restore fails, VM in a wrong state: " + vm->state_str());
+                return;
+            }
+
+            vmpool->update(vm.get());
+        }
     });
 }
 

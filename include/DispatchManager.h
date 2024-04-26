@@ -514,6 +514,21 @@ public:
     int backup_cancel(int vid, const RequestAttributes& ra, std::string& error_str);
 
     /**
+     * Restore VM from backup
+     *
+     *  @param vid the VM id
+     *  @param img_id the ID of the backup Image
+     *  @param inc_id the ID of the increment to restore
+     *  @param disk_id the ID of the disk (-1 for all)
+     *  @param ra information about the API call request
+     *  @param error_str Error reason, if any
+     *
+     *  @return 0 on success, -1 otherwise
+     */
+    int restore(int vid, int img_id, int inc_id, int disk_id,
+            const RequestAttributes& ra, std::string& error_str);
+
+    /**
      * Resize cpu and memory
      *
      *  @param vid the VM id

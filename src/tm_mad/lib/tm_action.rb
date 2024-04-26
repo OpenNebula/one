@@ -32,7 +32,7 @@ module TransferManager
     #    "ubuntu2004-6-4-4643-1.test:/var/lib/one//datastores/0/2/disk.0"
     class Action
 
-        attr_reader :logger, :vm
+        attr_reader :logger, :vm, :one
 
         def initialize(options = {})
             @options={
@@ -162,6 +162,10 @@ module TransferManager
         #  @return[String] VM_MAD name for this host
         def vm_mad
             @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/VM_MAD']
+        end
+
+        def persistent?(disk_id)
+            @vm["/VM/TEMPLATE/DISK [ DISK_ID = #{disk_id} ]/SAVE"].casecmp('YES') == 0
         end
 
         def kvm?

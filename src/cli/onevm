@@ -257,6 +257,21 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Creates a new backup image, from a new full backup (only for incremental)'
     }
 
+    INCREMENT = {
+        :name => 'increment',
+        :large => '--increment increment_id',
+        :format => Integer,
+        :description => 'Use the given increment ID to restore the backup.'\
+            ' If not provided the last one will be used'
+    }
+
+    DISK_ID = {
+        :name   => 'disk_id',
+        :large  => '--disk-id disk_id',
+        :format => Integer,
+        :description => 'Use only selected disk ID'
+    }
+
     OpenNebulaHelper::TEMPLATE_OPTIONS_VM.delete_if do |v|
         ['as_gid', 'as_uid'].include?(v[:name])
     end
@@ -279,6 +294,10 @@ CommandParser::CmdParser.new(ARGV) do
 
     set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
         OpenNebulaHelper.rname_to_id(arg, 'USER')
+    end
+
+    set :format, :imageid, OpenNebulaHelper.rname_to_id_desc('IMAGE') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'IMAGE')
     end
 
     set :format,
@@ -1768,6 +1787,27 @@ CommandParser::CmdParser.new(ARGV) do
             cmd = [vncviewer, "#{host}::#{port}"]
 
             exec(*cmd)
+        end
+    end
+
+    restore_desc = <<-EOT.unindent
+        Restore the Virtual Machine from the backup Image. The VM must be in poweroff state.
+    EOT
+
+    command :restore, restore_desc, :vmid, :imageid, :options => [DISK_ID, INCREMENT] do
+        helper.perform_action(args[0], options, 'Restoring VM from backup') do |vm|
+            disk_id = options[:disk_id]
+            disk_id ||= -1 # All disks by default
+
+            inc_id = options[:increment]
+            inc_id ||= -1 # Last increment by default
+
+            rc = vm.restore(args[1], inc_id, disk_id)
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts "Error restoring: #{rc.message}"
+                exit(-1)
+            end
         end
     end
 

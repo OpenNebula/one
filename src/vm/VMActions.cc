@@ -225,6 +225,10 @@ int VMActions::set_auth_ops(const string& ops_str,
             ops_set.set(PCI_ATTACH_ACTION);
             ops_set.set(PCI_DETACH_ACTION);
         }
+        else if ( the_op == "restore" )
+        {
+            ops_set.set(RESTORE_ACTION);
+        }
         else
         {
             error = "Unknown vm operation: " + the_op;
@@ -411,6 +415,9 @@ string VMActions::action_to_str(Action action)
         break;
         case PCI_DETACH_ACTION:
             st = "pci-detach";
+        break;
+        case RESTORE_ACTION:
+            st = "restore";
         break;
         case NONE_ACTION:
             st = "none";
@@ -645,6 +652,10 @@ int VMActions::action_from_str(const string& st, Action& action)
     else if ( st == "pci-detach")
     {
         action = PCI_DETACH_ACTION;
+    }
+    else if ( st == "restore")
+    {
+        action = RESTORE_ACTION;
     }
     else
     {

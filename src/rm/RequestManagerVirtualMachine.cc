@@ -4202,6 +4202,95 @@ void VirtualMachineDetachPCI::request_execute(
     {
         success_response(id, att);
     }
+}
+
+// -----------------------------------------------------------------------------
+
+void VirtualMachineRestore::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    // Get request parameters
+    int vm_id   = paramList.getInt(1);
+    int img_id  = paramList.getInt(2);
+    int inc_id  = paramList.getInt(3);
+    int disk_id = paramList.getInt(4);
+
+    Nebula& nd = Nebula::instance();
+    ImagePool *ipool  = nd.get_ipool();
+
+    // Authorize request
+    PoolObjectAuth vm_perms, img_perms;
+
+    if (auto vm = get_vm_ro(vm_id, att))
+    {
+        vm->get_permissions(vm_perms);
+
+        if (disk_id != -1 && !vm->get_disk(disk_id))
+        {
+            att.resp_msg = "VM disk does not exist";
+
+            failure_response(ACTION, att);
+            return;
+        }
+    }
+    else
+    {
+        att.resp_obj = PoolObjectSQL::VM;
+        att.resp_id  = vm_id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    if (auto img = ipool->get_ro(img_id))
+    {
+        if (img->get_type() != Image::BACKUP)
+        {
+            att.resp_msg = "Image has to be of type BACKUP";
+
+            failure_response(ACTION, att);
+            return;
+        }
+
+        if (inc_id > img->last_increment_id())
+        {
+            att.resp_msg = "Wrong increment";
+
+            failure_response(ACTION, att);
+            return;
+        }
+
+        img->get_permissions(img_perms);
+    }
+    else
+    {
+        att.resp_obj = PoolObjectSQL::IMAGE;
+        att.resp_id  = img_id;
+
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, vm_perms);
+    ar.add_auth(AuthRequest::USE, img_perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if (dm->restore(vm_id, img_id, inc_id, disk_id, att, att.resp_msg) != 0)
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
+    success_response(vm_id, att);
 
     return;
 }

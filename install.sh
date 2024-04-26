@@ -1984,7 +1984,8 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/prebackup_live \
                  src/tm_mad/shared/prebackup \
                  src/tm_mad/shared/postbackup_live \
-                 src/tm_mad/shared/postbackup"
+                 src/tm_mad/shared/postbackup \
+                 src/tm_mad/shared/restore"
 
 TM_QCOW2_FILES="${TM_SHARED_FILES}"
 
@@ -2064,7 +2065,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/prebackup_live \
               src/tm_mad/ssh/prebackup \
               src/tm_mad/ssh/postbackup_live \
-              src/tm_mad/ssh/postbackup"
+              src/tm_mad/ssh/postbackup \
+              src/tm_mad/ssh/restore"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 
@@ -2085,7 +2087,8 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/monitor \
               src/tm_mad/dummy/cpds \
-              src/tm_mad/dummy/resize"
+              src/tm_mad/dummy/resize \
+              src/tm_mad/dummy/prolog_restore"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/clone.ssh \
@@ -2265,7 +2268,8 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/backup_cancel \
                          src/datastore_mad/remotes/rsync/restore \
                          src/datastore_mad/remotes/rsync/export \
-                         src/datastore_mad/remotes/rsync/increment_flatten"
+                         src/datastore_mad/remotes/rsync/increment_flatten \
+                         src/datastore_mad/remotes/rsync/ls"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 

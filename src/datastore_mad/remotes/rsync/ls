@@ -1,0 +1,145 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    VAR_LOCATION      = '/var/lib/one'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+end
+
+SERVERADMIN_AUTH = VAR_LOCATION + '/.one/onegate_auth'
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'opennebula'
+require 'pathname'
+require 'rexml/document'
+require 'getoptlong'
+
+require_relative '../../tm/lib/backup'
+require_relative '../../tm/lib/tm_action'
+
+opts = GetoptLong.new(
+    ['--increment', '-i', GetoptLong::REQUIRED_ARGUMENT]
+)
+
+begin
+    # --------------------------------------------------------------------------
+    # Parse input parameters
+    # --------------------------------------------------------------------------
+    increment_id = -1
+
+    opts.each do |opt, arg|
+        case opt
+        when '--increment'
+            increment_id = arg.to_i
+        end
+    end
+
+    action = STDIN.read
+
+    # --------------------------------------------------------------------------
+    # Image and Datastore attributes
+    # --------------------------------------------------------------------------
+    image = TransferManager::BackupImage.new(action)
+    chain = if increment_id == -1
+                image.chain
+            else
+                image.chain_up_to(increment_id)
+            end
+
+    xml = REXML::Document.new(action).root
+
+    ds_id = xml.elements['DATASTORE/ID'].text.to_i
+    bpath = xml.elements['DATASTORE/BASE_PATH'].text
+    ruser = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
+    rhost = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+
+    snap = image.selected || image.last
+    burl = "rsync://#{ds_id}/#{image.bj_id}/#{chain}"
+
+    # --------------------------------------------------------------------------
+    # Get a list of disk paths stored in the backup
+    # --------------------------------------------------------------------------
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    snap_dir = %(#{bpath}/#{image.vm_id}/#{snap}/)
+    snap_dir = Pathname.new(snap_dir).cleanpath.to_s
+
+    script << %(find '#{snap_dir}' -type f -name 'disk.*')
+
+    rc = TransferManager::Action.ssh 'list_files',
+                                     :host     => "#{ruser}@#{rhost}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Error listing backups: #{rc.stderr}" if rc.code != 0
+
+    disk_paths = rc.stdout.lines.map(&:strip).reject(&:empty?)
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# ------------------------------------------------------------------------------
+# Out a json with disk PATHS (for downloader):
+# {"0":"rsync://102//0:0e6658/var/lib/one/datastores/102/21/0e6658/disk.0.0"}
+# ------------------------------------------------------------------------------
+disks = {}
+
+disk_paths.each do |f|
+    m = f.match(/disk\.([0-9]+)/)
+    next unless m
+
+    disks[m[1]] = "#{burl}#{f}"
+end
+
+puts disks.to_json

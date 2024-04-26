@@ -26,6 +26,8 @@ module TransferManager
     # lets you get datastore attributes
     class Datastore
 
+        attr_reader :ds, :mad
+
         # Constants for wrapper commands
         SYSTEMD_RUN = 'systemd-run --user --quiet --pipe --collect --wait'
         IONICE      = 'ionice'

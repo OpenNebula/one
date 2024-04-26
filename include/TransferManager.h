@@ -351,6 +351,11 @@ public:
      * This function resizes a VM disk
      */
     void trigger_resize(int vid);
+
+    /**
+     * This function restores VM disk from backup
+     */
+    void trigger_prolog_restore(int vid, int img_id, int inc_id, int disk_id);
 };
 
 #endif /*TRANSFER_MANAGER_H*/

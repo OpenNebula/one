@@ -22,6 +22,7 @@
 #include "VirtualMachineDisk.h"
 #include "VirtualMachinePool.h"
 #include "LifeCycleManager.h"
+#include "ImagePool.h"
 
 using namespace std;
 
@@ -933,7 +934,7 @@ void TransferManager::epilog_transfer_command(
 {
     string save = disk->vector_value("SAVE");
     int    disk_id = disk->get_disk_id();
-	string tm_mad_system;
+    string tm_mad_system;
 
     if ( one_util::toupper(save) == "YES" )
     {
@@ -2235,6 +2236,88 @@ void TransferManager::trigger_resize(int vid)
     });
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::trigger_prolog_restore(int vid, int img_id, int inc_id,
+        int disk_id)
+{
+    trigger([this, vid, img_id, inc_id, disk_id]{
+        ostringstream oss;
+
+        ofstream xfr;
+        string   xfr_name;
+
+        auto tm_md = get();
+
+        Nebula& nd = Nebula::instance();
+
+        unique_ptr<VirtualMachine> vm;
+
+        if (tm_md == nullptr)
+        {
+            goto error_driver;
+        }
+
+        vm = vmpool->get(vid);
+
+        if (!vm)
+        {
+            return;
+        }
+
+        if (!vm->hasHistory())
+        {
+            goto error_history;
+        }
+
+        xfr_name = vm->get_transfer_file() + ".prolog_restore";
+        xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
+
+        if (xfr.fail() == true)
+        {
+            goto error_file;
+        }
+
+        //RESTORE tm_mad host:remote_dir vm_id img_id inc_id disk_id
+        xfr << "RESTORE" << " "
+            << vm->get_tm_mad() << " "
+            << vm->get_hostname() << ":" << vm->get_system_dir() << " "
+            << vid << " "
+            << img_id << " "
+            << inc_id << " "
+            << disk_id << " "
+            << endl;
+
+        xfr.close();
+
+        {
+            transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
+            tm_md->write(msg);
+        }
+
+        return;
+
+        error_driver:
+            oss << "prolog_restore, error getting TM driver.";
+            goto error_common;
+
+        error_history:
+            oss << "prolog_restore, the VM has no history";
+            goto error_common;
+
+        error_file:
+            oss << "prolog_restore, could not open file: " << xfr_name;
+            goto error_common;
+
+        error_common:
+            vm->log("TrM", Log::ERROR, oss);
+
+            nd.get_lcm()->trigger_disk_restore_failure(vm->get_oid());
+
+            return;
+    });
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

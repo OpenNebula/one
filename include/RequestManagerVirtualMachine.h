@@ -745,4 +745,25 @@ protected:
     void request_execute(xmlrpc_c::paramList const& pl,
             RequestAttributes& ra) override;
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineRestore : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineRestore():
+        RequestManagerVirtualMachine("one.vm.restore",
+                           "Restore VM disks from backup Image",
+                           "A:siiii")
+    {
+        vm_action = VMActions::RESTORE_ACTION;
+        auth_op   = AuthRequest::ADMIN;
+    }
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
+};
+
 #endif

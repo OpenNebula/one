@@ -352,6 +352,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_backupcancel(new VirtualMachineBackupCancel());
     xmlrpc_c::methodPtr vm_attachpci(new VirtualMachineAttachPCI());
     xmlrpc_c::methodPtr vm_detachpci(new VirtualMachineDetachPCI());
+    xmlrpc_c::methodPtr vm_restore(new VirtualMachineRestore());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
@@ -619,6 +620,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.backupcancel", vm_backupcancel);
     RequestManagerRegistry.addMethod("one.vm.attachpci", vm_attachpci);
     RequestManagerRegistry.addMethod("one.vm.detachpci", vm_detachpci);
+    RequestManagerRegistry.addMethod("one.vm.restore", vm_restore);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);
