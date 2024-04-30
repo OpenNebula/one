@@ -134,7 +134,6 @@
     "redux-persist": "6.0.0",
     "redux-thunk": "2.3.0",
     "rimraf": "3.0.2",
-    "sharp": "0.30.7",
     "socket.io": "4.4.1",
     "socket.io-client": "4.4.1",
     "speakeasy": "2.0.0",

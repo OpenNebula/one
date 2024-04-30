@@ -174,7 +174,6 @@ export const RESOURCE_NAMES = {
   HOST: 'host',
   IMAGE: 'image',
   FILE: 'file',
-  LOGO: 'logo',
   MARKETPLACE: 'marketplace',
   SEC_GROUP: 'security-group',
   USER: 'user',
