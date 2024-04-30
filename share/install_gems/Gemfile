@@ -21,6 +21,7 @@
 ruby '>=2.0.0', '<4'
 source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
+rubygems_version = Gem::Version.new(`gem -v`)
 
 ################################################################################
 # Gems only in one ruby version
@@ -83,9 +84,12 @@ group :cli do
 
     if ruby_version < Gem::Version.new('3.0.0')
         gem 'sqlite3', '<= 1.6.9'
+    elsif rubygems_version < Gem::Version.new('3.3.21')
+        gem 'sqlite3', '<= 1.7.3'
     else
         gem 'sqlite3'
     end
+    gem 'mini_portile2'
     gem 'sequel'
 end
 
