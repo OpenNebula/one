@@ -2870,19 +2870,17 @@ int DispatchManager::backup_cancel(int vid,
 int DispatchManager::restore(int vid, int img_id, int inc_id, int disk_id,
             const RequestAttributes& ra, std::string& error_str)
 {
-    ostringstream oss;
-
     auto vm = vmpool->get(vid);
 
     if ( vm == nullptr )
     {
-        error_str ="Could not restore VM, it does not exist";
+        error_str = "Could not restore VM, it does not exist";
         return -1;
     }
 
     if (vm->get_state() != VirtualMachine::POWEROFF)
     {
-        error_str ="Could not restore VM, it must be in poweroff";
+        error_str = "Could not restore VM, it must be in poweroff";
         return -1;
     }
 
