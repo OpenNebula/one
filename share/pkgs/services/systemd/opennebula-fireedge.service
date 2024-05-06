@@ -10,6 +10,7 @@ AssertFileNotEmpty=/var/lib/one/.one/sunstone_auth
 Type=simple
 Group=oneadmin
 User=oneadmin
+AmbientCapabilities=CAP_NET_BIND_SERVICE
 ExecStartPre=-/usr/sbin/logrotate -f /etc/logrotate.d/opennebula-fireedge -s /var/lib/one/.logrotate.status
 ExecStartPre=-/bin/sh -c 'for file in /var/log/one/fireedge*.log; do if [ ! -f "$file.gz" ]; then gzip -9 "$file"; fi; done'
 ExecStart=/bin/sh -c 'exec node /usr/lib/one/fireedge/dist/index.js >>/var/log/one/fireedge.log 2>>/var/log/one/fireedge.error'
