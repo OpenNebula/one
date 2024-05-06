@@ -46,6 +46,7 @@ const routes = [
   'cluster',
   'files',
   'image',
+  'logo',
   'marketapp',
   'oneflow',
   'vcenter',

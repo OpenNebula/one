@@ -96,6 +96,7 @@
     "iconoir-react": "5.5.2",
     "immutable": "4.0.0-rc.12",
     "intersection-observer": "0.11.0",
+    "jimp": "0.22.12",
     "jsdom": "19.0.0",
     "jsonschema": "1.2.7",
     "jsonwebtoken": "8.5.1",

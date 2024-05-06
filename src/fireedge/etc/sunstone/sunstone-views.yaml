@@ -1,5 +1,13 @@
 # This file describes which Sunstone views are available according to the
 # primary group a user belongs to
+
+# Specify the filename for a custom logo to be used in the UI.
+# Acceptable formats include: .jpg, .jpeg, .png.
+# Ensure the filename adheres to the pattern: [a-zA-Z0-9-_]+.(jpg|jpeg|png)
+# Example:
+#
+# logo: custom_logo.png
+
 groups:
     oneadmin:
         - admin

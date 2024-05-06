@@ -31,6 +31,8 @@ const {
   getProvisionConfig,
   getFireedgeConfig,
 } = require('server/utils/yml')
+
+const { getEncodedFavicon } = require('server/utils/logo')
 const {
   defaultApps,
   defaultAppName,
@@ -71,6 +73,8 @@ router.get('*', async (req, res) => {
         ...getSunstoneConfig({ includeProtectedConfig: false }),
       } || defaultConfig,
   }
+
+  const encodedFavIcon = await getEncodedFavicon()
 
   const appConfig = getFireedgeConfig()
   if (appConfig?.auth === 'remote') {
@@ -144,6 +148,16 @@ router.get('*', async (req, res) => {
     }
   }
 
+  const faviconLink =
+    encodedFavIcon && encodedFavIcon?.b64 !== null
+      ? `<link rel="icon" href="${encodedFavIcon.b64}">`
+      : `
+      <link rel="icon" type="image/png" href="${STATIC_FILES_URL}/favicon/${appName}/favicon.ico">
+      <link rel="apple-touch-icon" sizes="180x180" href="${STATIC_FILES_URL}/favicon/${appName}/apple-touch-icon.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-32x32.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-16x16.png">
+    `
+
   const config = `
     <script id="preload-server-side">
       window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
@@ -167,10 +181,7 @@ router.get('*', async (req, res) => {
     <html lang="en">
     <head>
       <title>${upperCaseFirst(appName ?? 'FireEdge')} by OpenNebula</title>
-      <link rel="icon" type="image/png" href="${STATIC_FILES_URL}/favicon/${appName}/favicon.ico">
-      <link rel="apple-touch-icon" sizes="180x180" href="${STATIC_FILES_URL}/favicon/${appName}/apple-touch-icon.png">
-      <link rel="icon" type="image/png" sizes="32x32" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-32x32.png">
-      <link rel="icon" type="image/png" sizes="16x16" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-16x16.png">
+      ${faviconLink}
       <meta name="theme-color" content="#ffffff">
       <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width">
       <meta http-equiv="X-UA-Compatible" content="ie=edge">

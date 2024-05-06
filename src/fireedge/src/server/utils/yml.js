@@ -32,6 +32,12 @@ const getConfigPathByApp = (app) =>
     [defaultApps.provision.name]: global?.paths?.PROVISION_CONFIG,
   }[app])
 
+const getViewConfigPathByApp = (app) =>
+  ({
+    [defaultAppName]: global?.paths?.SUNSTONE_VIEWS,
+    [defaultApps.sunstone.name]: global?.paths?.SUNSTONE_VIEWS,
+  }[app])
+
 const getProtectedKeysByApp = (app) => protectedConfigData[app] || []
 
 /**
@@ -101,6 +107,22 @@ const getConfiguration = (
 }
 
 /**
+ * Get configuration by app name.
+ *
+ * @param {string} [app] - App name. Default: fireedge
+ * @param {GetConfigurationOptions} options - Options
+ * @returns {object} Configuration
+ */
+const getViewConfiguration = (
+  app = defaultAppName,
+  { onError = defaultEmptyFunction } = {}
+) => {
+  const config = readYAMLFile(getViewConfigPathByApp(app), onError)
+
+  return config
+}
+
+/**
  * Get FireEdge configuration.
  *
  * @param {GetConfigurationOptions} [options] - Options
@@ -118,6 +140,14 @@ const getSunstoneConfig = (options) =>
   getConfiguration(defaultApps.sunstone.name, options)
 
 /**
+ * Get Sunstone views configuration.
+ *
+ * @returns {object} Sunstone configuration
+ */
+const getSunstoneViewConfig = () =>
+  getViewConfiguration(defaultApps.sunstone.name)
+
+/**
  * Get Provision configuration.
  *
  * @param {GetConfigurationOptions} [options] - Options
@@ -129,5 +159,6 @@ const getProvisionConfig = (options) =>
 module.exports = {
   getFireedgeConfig,
   getSunstoneConfig,
+  getSunstoneViewConfig,
   getProvisionConfig,
 }
