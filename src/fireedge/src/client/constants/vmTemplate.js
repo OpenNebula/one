@@ -97,7 +97,7 @@ export const COMMON_RESOLUTIONS = {
   custom: 'custom',
 }
 
-export const FIRMWARE_TYPES = ['BIOS']
+export const FIRMWARE_TYPES = ['BIOS', 'EFI']
 
 export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
   '/usr/share/OVMF/OVMF_CODE.fd',
