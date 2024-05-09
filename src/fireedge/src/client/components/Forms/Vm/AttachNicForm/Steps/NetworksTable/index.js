@@ -15,29 +15,49 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-
-import { useListForm } from 'client/hooks'
 import { VNetworksTable } from 'client/components/Tables'
-
 import { SCHEMA } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable/schema'
 import { T } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
 
 export const STEP_ID = 'network'
 
 const Content = ({ data, setFormData }) => {
-  const { ID } = data?.[0] ?? {}
-
-  const { handleSelect, handleClear } = useListForm({
-    key: STEP_ID,
-    setList: setFormData,
-    modifiedFields: ['NETWORK', 'NETWORK_UNAME'],
-    fieldKey: 'general',
-  })
+  const { setModifiedFields } = useGeneralApi()
 
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
-    original.ID !== undefined ? handleSelect(original) : handleClear()
+    if (original.ID !== undefined) {
+      setModifiedFields({
+        network: {
+          NETWORK: true,
+          NETWORK_UID: true,
+          NETWORK_UNAME: true,
+          SECURITY_GROUPS: true,
+        },
+      })
+
+      setFormData((prevList) => ({
+        ...prevList,
+        [STEP_ID]: {
+          NETWORK: original?.NAME,
+          NETWORK_UID: original?.UID,
+          NETWORK_UNAME: original?.UNAME,
+          SECURITY_GROUPS: original?.SECURITY_GROUPS,
+        },
+      }))
+    } else {
+      setFormData((prevList) => ({
+        ...prevList,
+        [STEP_ID]: {
+          NETWORK: undefined,
+          NETWORK_UID: undefined,
+          NETWORK_UNAME: undefined,
+          SECURITY_GROUPS: undefined,
+        },
+      }))
+    }
   }
 
   return (
@@ -46,18 +66,21 @@ const Content = ({ data, setFormData }) => {
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      getRowId={(row) => String(row.ID)}
-      initialState={{ selectedRowIds: { [ID]: true } }}
+      getRowId={(row) => String(row.NAME)}
+      initialState={{ selectedRowIds: { [data?.NETWORK]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
   )
 }
 
-const NetworkStep = () => ({
+const NetworkStep = (props) => ({
   id: STEP_ID,
   label: T.SelectNetwork,
   resolver: SCHEMA,
   content: Content,
+  defaultDisabled: {
+    condition: () => props?.defaultData?.NETWORK_MODE === 'auto',
+  },
 })
 
 Content.propTypes = {

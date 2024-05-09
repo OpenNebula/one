@@ -18,12 +18,15 @@ import { Stack } from '@mui/material'
 import { ServerConnection as NetworkIcon } from 'iconoir-react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
 import { useEffect } from 'react'
+import { filter } from 'lodash'
 import { FormWithSchema } from 'client/components/Forms'
 import NicCard from 'client/components/Cards/NicCard'
 import {
   AttachAction,
   DetachAction,
+  AliasAction,
 } from 'client/components/Tabs/Vm/Network/Actions'
+import { SkeletonStepsForm } from 'client/components/FormStepper'
 
 import {
   STEP_ID as EXTRA_ID,
@@ -37,11 +40,11 @@ import {
 import { FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking/schema'
 import { T, PCI_TYPES } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 
 export const TAB_ID = ['NIC', 'NIC_ALIAS', 'PCI']
 
 const mapNicNameFunction = mapNameByIndex(TAB_ID[0])
-const mapAliasNameFunction = mapNameByIndex(TAB_ID[1])
 const mapPCINameFunction = mapNameByIndex(TAB_ID[2])
 
 const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
@@ -74,7 +77,9 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     setFieldPath(`extra.Network`)
   }, [])
 
-  const { setValue, getValues } = useFormContext()
+  const { setValue, getValues, control } = useFormContext()
+
+  const { data: vnets } = useGetVNetworksQuery()
 
   const {
     fields: nics = [],
@@ -85,14 +90,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     name: `${EXTRA_ID}.${TAB_ID[0]}`,
   })
 
-  const {
-    fields: alias = [],
-    replace: replaceAlias,
-    update: updateAlias,
-    append: appendAlias,
-  } = useFieldArray({
+  const methods = useFieldArray({
     name: `${EXTRA_ID}.${TAB_ID[1]}`,
   })
+
+  const { fields: alias = [], update: updateAlias } = methods
 
   const {
     fields: pcis = [],
@@ -109,16 +111,15 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
   }, [])
 
   /**
-   * Remove a nic and reorder the array of nics, alias or pcis. Also, update boot order.
+   * Remove a nic and reorder the array of nics or pcis. Also, update boot order and parent attribute in alias list.
    *
    * @param {object} nic - Nic to delete
-   * @param {string} idNic - If of the nic in the array
+   * @param {string} idNic - Id of the nic in the array
    * @param {object} updatedNic - Nic to update
    */
   const removeAndReorder = (nic, idNic, updatedNic) => {
-    // Get nic name and if it is alias or pci
+    // Get nic name and if it is pci
     const nicName = nic?.NAME
-    const isAlias = !!nic?.PARENT?.length
     const isPCI = nic?.TYPE === 'NIC'
 
     let list
@@ -134,16 +135,6 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
 
       // Set field path on the index of pci array to set delete flag in this element
       setFieldPath(`extra.InputOutput.PCI.${indexRemove}`)
-    } else if (isAlias) {
-      // Select list and map name function with alias type
-      list = alias
-      mapFunction = mapAliasNameFunction
-
-      // Find the id of the nic in alias array
-      const indexRemove = list.findIndex((nicAlias) => nicAlias.id === idNic)
-
-      // Set field path on the index of alias array to set delete flag in this element
-      setFieldPath(`extra.Network.NIC_ALIAS.${indexRemove}`)
     } else {
       // Select list and map name function with nic type
       list = nics
@@ -162,7 +153,23 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     setModifiedFields({ __flag__: 'DELETE' })
 
     // Update list selected (nics, alias or pcis) names. Names are based on index, so the names of the list elements are calculated and updated
-    const updatedList = list.filter(({ id }) => idNic !== id).map(mapFunction)
+    const updatedList = list
+      .filter(({ id }) => idNic !== id)
+      .map((itemNic, indexNicUpdated) => {
+        const nicUpdated = mapFunction(itemNic, indexNicUpdated)
+
+        // Update alias with new name of the NICs
+        alias.forEach((itemAlias, indexItemAlias) => {
+          if (itemAlias.PARENT === itemNic.NAME) {
+            setFieldPath(`extra.Network.NIC_ALIAS.${indexItemAlias}`)
+            setModifiedFields({ PARENT: true })
+            itemAlias.PARENT = nicUpdated.NAME
+            updateAlias(indexItemAlias, itemAlias)
+          }
+        })
+
+        return nicUpdated
+      })
 
     // Update boot order of booting section (boot order has disks and nics, so if we delete a nic, we need to update it)
     const currentBootOrder = getValues(BOOT_ORDER_NAME())
@@ -175,31 +182,8 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     // Set modifiedFields with boout order to update it
     setValue(BOOT_ORDER_NAME(), updatedBootOrder)
 
-    // Update refernces to NAME in alias items
-    if (!isAlias) {
-      alias.forEach((aliasItem) => {
-        const oldParent = list.find((item) => item.NAME === aliasItem.PARENT)
-        if (oldParent) {
-          const newParent = updatedList.find((item) => item.id === oldParent.id)
-          aliasItem.PARENT = newParent.NAME
-        }
-      })
-
-      if (updatedNic) {
-        const oldParent = list.find((item) => item.NAME === updatedNic.PARENT)
-        if (oldParent) {
-          const newParent = updatedList.find((item) => item.id === oldParent.id)
-          updatedNic.PARENT = newParent.NAME
-        }
-      }
-
-      replaceAlias(alias)
-    }
-
-    // Replace the list (nics, alias or pcis) with the new values after delete the element
-    if (isAlias) {
-      replaceAlias(updatedList)
-    } else if (isPCI) {
+    // Replace the list (nics or pcis) with the new values after delete the element
+    if (isPCI) {
       replacePCI(updatedList)
     } else {
       replaceNic(updatedList)
@@ -207,47 +191,32 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
   }
 
   /**
-   * Update a nic with the different cases that could be because nics, alias and pcis are on different array forms.
+   * Update a nic with the different cases that could be because nics and pcis are on different array forms.
    *
-   * @param {object} nic - The nic to update
-   * @param {string} nic.NAME - Name of the nic
+   * @param {object} updatedNic - The nic to update
    * @param {string} id - The id of the nic in the array form
-   * @param {object} nicForDelete - Nic to delete if user changes nic, alias or pci
+   * @param {object} nicForDelete - Nic to delete if user changes nic or pci
    * @returns {void} - Void value
    */
-  const handleUpdate = ({ NAME: _, ...updatedNic }, id, nicForDelete) => {
-    // Check if the nic is alias or pci
-    const isAlias = !!updatedNic?.PARENT?.length
+  const handleUpdate = (updatedNic, id, nicForDelete) => {
+    // Check if the nic is pci
     const isPCI = Object.values(PCI_TYPES).includes(updatedNic?.PCI_TYPE)
 
     if (isPCI) {
       // Get the index of the pci in the pci array
       const indexPci = pcis.findIndex((nic) => nic.id === id)
 
-      // If the index is equal to -1, that's mean that it's an element that before is not a pci, but in this update, user change this element from nic or alias type to pci.
-      // In this case, we need to delete the old element (that is on nics or alias array) and add to the pci arrays.
+      // If the index is equal to -1, that's mean that it's an element that before is not a pci, but in this update, user change this element from nic type to pci.
+      // In this case, we need to delete the old element (that is on nics array) and add to the pci arrays.
       if (indexPci === -1) {
-        // Check if the old element is in nic or alias array and get the index
+        // Check if the old element is in nic array and get the index
         const indexNic = nics.findIndex((nic) => nic.id === id)
-        const indexAlias = alias.findIndex((nic) => nic.id === id)
 
         // If the old element it's on nics array, we need to get the state (if it was deleted or updated) of the element from Network.NIC of modifiedFields and set on Network.PCI of modifiedFields
         if (indexNic !== -1) {
           changePositionModifiedFields({
             sourcePath: 'extra.Network.NIC',
             sourcePosition: indexNic,
-            targetPath: 'extra.InputOutput.PCI',
-            targetPosition: pcis.length,
-            sourceDelete: false,
-            emptyObjectContent: true,
-          })
-        }
-
-        // If the old element it's on alias array, we need to get the state (if it was deleted or updated) of the element from Network.NIC_ALIAS of moodifiedFields and set on Network.PCI of modifiedFields
-        if (indexAlias !== -1) {
-          changePositionModifiedFields({
-            sourcePath: 'extra.Network.NIC_ALIAS',
-            sourcePosition: indexAlias,
             targetPath: 'extra.InputOutput.PCI',
             targetPosition: pcis.length,
             sourceDelete: false,
@@ -268,82 +237,17 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       updatedNic.TYPE = 'NIC'
       delete updatedNic.PCI_TYPE
       updatePCI(indexPci, mapPCINameFunction(updatedNic, indexPci))
-    } else if (isAlias) {
-      // Get the index of the alias in the alias array
-      const indexAlias = alias.findIndex((nic) => nic.id === id)
-
-      // If the index is equal to -1, that's mean that it's an element that before is not an alias, but in this update, user change this element from nic or pci type to alias.
-      // In this case, we need to delete the old element (that is on nics or pcis array) and add to the alias arrays.
-      if (indexAlias === -1) {
-        // Check if the old element is in nic or pcis array and get the index
-        const indexNic = nics.findIndex((nic) => nic.id === id)
-        const indexPci = pcis.findIndex((nic) => nic.id === id)
-
-        // If the old element it's on nics array, we need to get the state (if it was deleted or updated) of the element from Network.NIC of moodifiedFields and set on Network.NIC_ALIAS of modifiedFields
-        if (indexNic !== -1) {
-          changePositionModifiedFields({
-            sourcePath: 'extra.Network.NIC',
-            sourcePosition: indexNic,
-            targetPath: 'extra.Network.NIC_ALIAS',
-            targetPosition: alias.length,
-            sourceDelete: false,
-            emptyObjectContent: true,
-          })
-        }
-
-        // If the old element it's on pcis array, we need to get the state (if it was deleted or updated) of the element from Network.PCI of moodifiedFields and set on Network.NIC_ALIAS of modifiedFields
-        if (indexPci !== -1) {
-          changePositionModifiedFields({
-            sourcePath: 'extra.InputOutput.PCI',
-            sourcePosition: indexPci,
-            targetPath: 'extra.Network.NIC_ALIAS',
-            targetPosition: alias.length,
-            sourceDelete: false,
-            emptyObjectContent: true,
-          })
-
-          // // If the element was pci, delete the pci fields
-          setFieldPath(`extra.Network.NIC_ALIAS.${alias.length}.advanced`)
-          setModifiedFields({
-            advanced: { TYPE: { __delete__: true } },
-          })
-        }
-
-        // Remove the old element
-        removeAndReorder(nicForDelete, id, updatedNic)
-
-        // Add the new element
-        handleAppend(updatedNic, true)
-
-        return
-      }
-
-      // Update if the alias exists on alias array
-      updateAlias(indexAlias, mapAliasNameFunction(updatedNic, indexAlias))
     } else {
       // Get the index of the nic in the nics array
       const indexNic = nics.findIndex((nic) => nic.id === id)
 
-      // If the index is equal to -1, that's mean that it's an element that before is not a nic, but in this update, user change this element from alias or pci type to nic.
-      // In this case, we need to delete the old element (that is on nics or pcis array) and add to the alias arrays.
+      // If the index is equal to -1, that's mean that it's an element that before is not a nic, but in this update, user change this element from pci type to nic.
+      // In this case, we need to delete the old element (that is on pcis array) and add to the nic arrays.
       if (indexNic === -1) {
-        // Check if the old element is in alias or pcis array and get the index
-        const indexAlias = alias.findIndex((nic) => nic.id === id)
+        // Check if the old element is in pcis array and get the index
         const indexPci = pcis.findIndex((nic) => nic.id === id)
 
-        // If the old element it's on alias array, we need to get the state (if it was deleted or updated) of the element from Network.NIC_ALIAS of moodifiedFields and set on Network.NIC of modifiedFields
-        if (indexAlias !== -1) {
-          changePositionModifiedFields({
-            sourcePath: 'extra.Network.NIC_ALIAS',
-            sourcePosition: indexAlias,
-            targetPath: 'extra.Network.NIC',
-            targetPosition: nics.length,
-            sourceDelete: false,
-            emptyObjectContent: true,
-          })
-        }
-
-        // If the old element it's on pcis array, we need to get the state (if it was deleted or updated) of the element from Network.PCI of moodifiedFields and set on Network.NIC_ALIAS of modifiedFields
+        // If the old element it's on pcis array, we need to get the state (if it was deleted or updated) of the element from Network.PCI of moodifiedFields and set on Network.NIC of modifiedFields
         if (indexPci !== -1) {
           changePositionModifiedFields({
             sourcePath: 'extra.InputOutput.PCI',
@@ -370,7 +274,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
         return
       }
 
-      // In case that the element has not changed from nic to alias or pci, update on nics array
+      // In case that the element has not changed from nic to pci, update on nics array
       updateNic(indexNic, mapNicNameFunction(updatedNic, indexNic))
     }
 
@@ -379,14 +283,13 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
   }
 
   /**
-   * Append a nic to the corresponding array (nics, alias or pcis).
+   * Append a nic to the corresponding array (nics or pcis).
    *
    * @param {object} newNic - The nic to append
    * @param {boolean} update - If the append it's when user are updating a nic
    */
   const handleAppend = (newNic, update) => {
-    // Check if nic is alias or pci
-    const isAlias = !!newNic?.PARENT?.length
+    // Check if nic is pci
     const isPCI = Object.values(PCI_TYPES).includes(newNic?.PCI_TYPE)
 
     if (isPCI) {
@@ -410,23 +313,6 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
 
       // Append to form array of pci
       appendPCI(mapPCINameFunction(newNic, pcis.length))
-    } else if (isAlias) {
-      // Add the nic to the alias section in modified fields
-      !update &&
-        changePositionModifiedFields({
-          sourcePath: 'extra.Network.NIC',
-          sourcePosition: nics.length,
-          targetPath: 'extra.Network.NIC_ALIAS',
-          targetPosition: alias.length,
-          sourceDelete: true,
-        })
-      setFieldPath(`extra.Network.NIC_ALIAS.${alias.length}`)
-      setModifiedFields({
-        advanced: { PCI_TYPE: { __delete__: true } },
-      })
-
-      // Append to form array of alias
-      appendAlias(mapAliasNameFunction(newNic, alias.length))
     } else {
       // Set field path to last position
       setFieldPath(`extra.Network.NIC.${nics.length}`)
@@ -439,7 +325,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     }
   }
 
-  return (
+  return vnets && Array.isArray(vnets) ? (
     <div>
       <AttachAction
         currentNics={nics}
@@ -460,9 +346,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
           },
         }}
       >
-        {[...nics, ...alias, ...pcis.filter((pci) => pci?.TYPE === 'NIC')]?.map(
+        {[...nics, ...pcis.filter((pci) => pci?.TYPE === 'NIC')]?.map(
           ({ id, ...item }, index) => {
-            const hasAlias = alias?.some((nic) => nic.PARENT === item.NAME)
+            const hasAlias = alias.find(
+              (aliasItem) => aliasItem.PARENT === item.NAME
+            )
             const isPci = item.TYPE === 'NIC'
             const isAlias = Object.prototype.hasOwnProperty.call(item, 'PARENT')
             item.NIC_ID = index
@@ -471,8 +359,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
               <NicCard
                 key={id ?? item?.NAME}
                 nic={item}
+                hasAlias={hasAlias}
+                aliasLength={filter(alias, { PARENT: item?.NAME }).length}
                 showParents
                 clipboardOnTags={false}
+                vnets={vnets}
                 actions={
                   <>
                     {!hasAlias && (
@@ -483,17 +374,25 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
                         adminGroup={adminGroup}
                       />
                     )}
+
+                    <AliasAction
+                      nic={item}
+                      alias={alias}
+                      control={control}
+                      methods={methods}
+                    />
+
                     <AttachAction
                       nic={item}
                       hypervisor={hypervisor}
                       oneConfig={oneConfig}
                       adminGroup={adminGroup}
                       currentNics={nics}
-                      onSubmit={(updatedNic) =>
+                      onSubmit={(updatedNic) => {
+                        updatedNic.NAME = item.NAME
                         handleUpdate(updatedNic, id, item)
-                      }
+                      }}
                       indexNic={nics.findIndex((nic) => nic.id === id)}
-                      indexAlias={alias.findIndex((nic) => nic.id === id)}
                       indexPci={pcis.findIndex((nic) => nic.id === id)}
                       hasAlias={hasAlias}
                       isPci={isPci}
@@ -515,6 +414,8 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
         saveState={true}
       />
     </div>
+  ) : (
+    <SkeletonStepsForm />
   )
 }
 

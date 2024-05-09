@@ -29,15 +29,19 @@ import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMediaQuery } from '@mui/material'
 
-import { useGeneral, updateDisabledSteps } from 'client/features/General'
+import {
+  useGeneral,
+  updateDisabledSteps,
+  useGeneralApi,
+} from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
 import { groupBy, Step, StepsForm, isDevelopment } from 'client/utils'
 import { T } from 'client/constants'
 import get from 'lodash.get'
+import { set, isEmpty } from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
-import { isEmpty } from 'lodash'
 
 const FIRST_STEP = 0
 
@@ -103,9 +107,15 @@ export const useDisableStep = () => useContext(DisableStepContext)
  * @param {Step[]} props.steps - Steps
  * @param {function():BaseSchema} props.schema - Function to get form schema
  * @param {Function} props.onSubmit - Submit function
+ * @param {Function} props.saveState - Use modifiedFields on Redux
  * @returns {ReactElement} Stepper form component
  */
-const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
+const FormStepper = ({
+  steps: initialSteps = [],
+  schema,
+  onSubmit,
+  saveState = false,
+}) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
   const {
     watch,
@@ -113,6 +123,8 @@ const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
     formState: { errors },
     setError,
   } = useFormContext()
+
+  const { setModifiedFields } = useGeneralApi()
 
   // Used to control the default visibility of a step
   useEffect(() => {
@@ -243,6 +255,29 @@ const FormStepper = ({ steps: initialSteps = [], schema, onSubmit }) => {
           context: submitData,
           isSubmit: true,
         })
+
+        // Iterate over steps to mark as delete in modifiedFields all the fields of a disabled step
+        saveState &&
+          Object.entries(disabledSteps).forEach(([stepName, stepState]) => {
+            // Check that step is disabled
+            if (stepState) {
+              // Define the object with the fields to delete
+              const fieldsToDelete = {}
+
+              // If formData has field on this step, iterate over each one
+              formData[stepName] &&
+                Object.keys(formData[stepName]).forEach((fieldName) => {
+                  // Add delete mark
+                  set(fieldsToDelete, `${stepName}.${fieldName}`, {
+                    __delete__: true,
+                  })
+                })
+
+              // Update modifiedFields
+              setModifiedFields(fieldsToDelete)
+            }
+          })
+
         onSubmit(schemaData)
       } else {
         setFormData((prev) => ({ ...prev, [id]: data }))
@@ -319,6 +354,7 @@ FormStepper.propTypes = {
   steps: PropTypes.array,
   schema: PropTypes.func,
   onSubmit: PropTypes.func,
+  saveState: PropTypes.bool,
 }
 
 export { DefaultFormStepper, SkeletonStepsForm }

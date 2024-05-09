@@ -337,7 +337,11 @@ module.exports = {
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',
   ErrorsOcurred: '%s error(s) occurred',
-  UpdatedNic: 'Updated nic',
+  AttachNicSuccess: 'NIC attached successfully - Virtual machine #%s',
+  DetachNicSuccess: 'NIC detached successfully - Virtual machine #%s',
+  UpdatedNicSuccess: 'NIC updated successfully - Virtual machine #%s',
+  AttachAliasSuccess: 'Alias attached successfully - Virtual machine #%s',
+  DetachAliasSuccess: 'Alias detached successfully - Virtual machine #%s',
   ErrorUpdatingSecGroups: 'VMs in error. The Update to the latest rules failed',
   PendingUpdatingSecGroups: 'VMs waiting to be updated with the latest rules',
   Unknown: 'Unknown',
@@ -870,7 +874,19 @@ module.exports = {
   /* VM schema - network */
   NIC: 'NIC',
   Alias: 'Alias',
+  CreateAlias: 'Create alias',
+  AttachAlias: 'Attach alias',
   AsAnAlias: 'Attach as an alias',
+  HasAlias: '%s contains %s alias',
+  NetworkAuto: 'Network auto',
+  NetReq: 'Network Requirements',
+  NetReqTooltip: 'Boolean expression that decides suitable vnets for this VM',
+  NetRank: 'Network Rank',
+  NetRankTooltip:
+    'This field sets which attribute will be used to sort the suitable vnets for this VM',
+  AutomaticNetworkMode: 'Automatic select virtual network',
+  NetworkModeConcept:
+    'Thee Schedule will decide which is the best virtual network',
   SkipNetworkContextualization: 'Skip network contextualization',
   SkipNetworkContextualizationConcept:
     'A virtual router can be configured to route SDNAT traffic for this NIC IP address',

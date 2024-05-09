@@ -54,6 +54,20 @@ const AttachSecGroupForm = (configProps) =>
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const AliasForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AliasForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const AttachAliasForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachAliasForm' }, configProps)
+
+/**
+ * @param {ConfigurationProps} configProps - Configuration
  * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
  */
 const ChangeUserForm = (configProps) =>
@@ -203,4 +217,6 @@ export {
   UpdateConfigurationForm,
   UpdateNicForm,
   VolatileSteps,
+  AliasForm,
+  AttachAliasForm,
 }

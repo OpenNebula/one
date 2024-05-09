@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
+import { ReactElement, useEffect } from 'react'
 import { useStore } from 'react-redux'
 import { Redirect, useHistory, useLocation } from 'react-router'
 
@@ -48,10 +48,20 @@ const _ = require('lodash')
  * @returns {ReactElement} Instantiation form
  */
 function InstantiateVmTemplate() {
+  // Reset modified fields + path on mount
+  useEffect(() => {
+    resetFieldPath()
+    resetModifiedFields()
+  }, [])
+
+  // Get store
   const store = useStore()
+
+  // Get history
   const history = useHistory()
   const { state: { ID: templateId, NAME: templateName } = {} } = useLocation()
 
+  // Hooks
   const { enqueueInfo, resetFieldPath, resetModifiedFields } = useGeneralApi()
   const [instantiate] = useInstantiateTemplateMutation()
 
@@ -67,21 +77,28 @@ function InstantiateVmTemplate() {
     { skip: templateId === undefined }
   )
 
+  // Clone template to be able to modify it
   const dataTemplateExtended = _.cloneDeep(apiTemplateDataExtended)
 
+  // Get users and groups
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async (templates) => {
     try {
+      // Get current state and modified fields
       const currentState = store.getState()
       const modifiedFields = currentState.general?.modifiedFields
+
+      // Iterate over all the templates
       await Promise.all(
         templates.map((rawTemplate) => {
+          // Get the original template
           const existingTemplate = {
             ...apiTemplateData?.TEMPLATE,
           }
 
+          // Filter template to delete attributes that the user has not interact with them
           const filteredTemplate = filterTemplateData(
             rawTemplate,
             modifiedFields,
@@ -95,11 +112,13 @@ function InstantiateVmTemplate() {
           // Every action that is not an human action
           transformActionsInstantiate(filteredTemplate, apiTemplateData)
 
+          // Convert template to xml
           const xmlFinal = jsonToXml(filteredTemplate)
 
           // Modify template
           rawTemplate.template = xmlFinal
 
+          // Instantiate virtual machine
           return instantiate(rawTemplate).unwrap()
         })
       )

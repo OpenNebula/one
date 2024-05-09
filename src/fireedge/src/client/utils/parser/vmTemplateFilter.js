@@ -46,8 +46,11 @@ const alwaysIncludePci = {
 }
 
 // Attributes that will be always modify with the value of the form in the Nic section
-const alwaysIncludeNic = {
-  NAME: true,
+const alwaysIncludeNic = {}
+
+// Attributes that will be always modify with the value of the form in the Nic alias section
+const alwaysIncludeNicAlias = {
+  PARENT: true,
 }
 
 const defaultValuesCreate = {
@@ -74,12 +77,6 @@ const defaultValuesCreate = {
 }
 
 const defaultValuesUpdate = {}
-
-// Attributes that will be always modify with the value of the form in the Nic alias section
-const alwaysIncludeNicAlias = {
-  PARENT: true,
-  NAME: true,
-}
 
 /**
  * Filter the data of the form data with the values that were modified by the user and not adding the ones that could be added by default. The goal is to create the most simplify template that we can.
@@ -687,6 +684,24 @@ const transformActionsInstantiate = (template, original) => {
       ...original?.TEMPLATE?.OS,
       ...template?.OS,
     })
+
+  if (original.TEMPLATE.NIC && (!template.NIC || template.NIC.length === 0)) {
+    template.NIC = '![CDATA[]]'
+  }
+
+  if (
+    original.TEMPLATE.DISK &&
+    (!template.DISK || template.DISK.length === 0)
+  ) {
+    template.DISK = '![CDATA[]]'
+  }
+
+  // if (
+  //   original.TEMPLATE.SCHED_ACTION &&
+  //   (!template.SCHED_ACTION || template.SCHED_ACTION.length === 0)
+  // ) {
+  //   template.SCHED_ACTION = '![CDATA[]]'
+  // }
 }
 
 /**
@@ -730,17 +745,6 @@ const transformActionsCommon = (template) => {
   if (Array.isArray(template?.CPU_MODEL?.FEATURES)) {
     template.CPU_MODEL.FEATURES = template.CPU_MODEL.FEATURES.join(', ')
   }
-
-  // Delete NIC name
-  ;['PCI', 'NIC_ALIAS'].forEach((nicKey) => {
-    const section = template?.[nicKey]
-      ? Array.isArray(template?.[nicKey])
-        ? template?.[nicKey]
-        : [template?.[nicKey]]
-      : []
-
-    section.forEach((NIC) => delete NIC?.NAME)
-  })
 
   // Delete Schedule action NAME
   if (template.SCHED_ACTION) {

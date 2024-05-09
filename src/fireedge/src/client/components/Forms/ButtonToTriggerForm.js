@@ -136,6 +136,7 @@ const ButtonToTriggerForm = ({
               fields,
               ContentForm,
               onSubmit,
+              saveState,
             }) =>
               resolver && (
                 <DialogForm
@@ -149,6 +150,7 @@ const ButtonToTriggerForm = ({
                       steps={steps}
                       schema={resolver}
                       onSubmit={onSubmit}
+                      saveState={saveState}
                     />
                   ) : ContentForm ? (
                     <ContentForm />

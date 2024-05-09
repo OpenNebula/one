@@ -13,48 +13,49 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, string, array, ObjectSchema } from 'yup'
+import NetworksTable, {
+  STEP_ID as NETWORK_ID,
+} from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable'
 
-import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
-import { mapNameByIndex } from '../schema'
+import AdvancedOptions, {
+  STEP_ID as ADVANCED_ID,
+} from 'client/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
+import { createSteps } from 'client/utils'
 
-/** @returns {Field} NIC filter field */
-const FILTER = {
-  name: 'NIC_DEFAULT.FILTER',
-  label: T.DefaultNicFilter,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-}
+const Steps = createSteps([NetworksTable, AdvancedOptions], {
+  transformInitialValue: (nic, schema) => {
+    const {
+      NETWORK,
+      NETWORK_ID: ID,
+      NETWORK_UID,
+      NETWORK_UNAME,
+      SECURITY_GROUPS,
+      ...rest
+    } = nic ?? {}
 
-/** @returns {Field} NIC model field */
-const MODEL = {
-  name: 'NIC_DEFAULT.MODEL',
-  label: T.DefaultNicModel,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-}
+    const castedValue = schema.cast(
+      { [ADVANCED_ID]: rest },
+      { stripUnknown: true }
+    )
 
-/** @type {Field[]} List of Network defaults fields */
-const FIELDS = [FILTER, MODEL]
+    return {
+      [NETWORK_ID]: {
+        NETWORK,
+        NETWORK_UID,
+        NETWORK_UNAME,
+        SECURITY_GROUPS,
+      },
+      [ADVANCED_ID]: castedValue[ADVANCED_ID],
+    }
+  },
+  transformBeforeSubmit: (formData) => {
+    const { [NETWORK_ID]: network, [ADVANCED_ID]: advanced } = formData
 
-/** @type {ObjectSchema} Network schema */
-const SCHEMA = object({
-  NIC: array()
-    .ensure()
-    .transform((nics) => nics.map(mapNameByIndex('NIC'))),
-  NIC_ALIAS: array()
-    .ensure()
-    .transform((alias) => alias.map(mapNameByIndex('ALIAS'))),
-  PCI: array()
-    .ensure()
-    .transform((nics) => nics.map(mapNameByIndex('PCI'))),
-}).concat(getObjectSchemaFromFields(FIELDS))
+    return {
+      ...network,
+      ...advanced,
+    }
+  },
+})
 
-export { FIELDS, SCHEMA }
+export default Steps

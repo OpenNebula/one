@@ -65,56 +65,38 @@ const fillPCIAtributes =
 
 /**
  * @param {object} [data] - VM or VM Template data
- * @param {Nic[]} [data.nics] - Current NICs
- * @param {boolean} [data.hasAlias] - If it's an alias
- * @param {boolean} [data.isPci] - If it's a PCI
+ * @param {boolean} [data.isAlias] - If it's an alias
  * @returns {Field[]} List of general fields
  */
-const GENERAL_FIELDS = ({ nics = [], hasAlias = false, isPci = false } = {}) =>
+const GENERAL_FIELDS = ({ isAlias = false } = {}) =>
   [
-    !!nics?.length && {
-      name: 'PARENT',
-      label: T.AsAnAlias,
-      dependOf: 'NAME',
-      type: (name) => {
-        const hasAliasExisting = nics?.some((nic) => nic.PARENT === name)
-
-        return name && hasAliasExisting
-          ? INPUT_TYPES.HIDDEN
-          : INPUT_TYPES.SELECT
-      },
-      values: (name) => [
-        { text: '', value: '' },
-        ...nics
-          .filter(({ PARENT }) => !PARENT) // filter nic alias
-          .filter(({ NAME }) => NAME !== name || !name) // filter it self
-          .map((nic) => {
-            const { NAME, IP = '', NETWORK = '', NIC_ID = '' } = nic
-            const text = [NAME ?? NIC_ID, NETWORK, IP]
-              .filter(Boolean)
-              .join(' - ')
-
-            return { text, value: NAME }
-          }),
-      ],
-      fieldProps: {
-        disabled: hasAlias || isPci,
-      },
-      validation: string()
-        .trim()
-        .notRequired()
-        .default(() => undefined),
-      grid: { sm: 6 },
-    },
-    {
+    isAlias && {
       name: 'EXTERNAL',
       label: T.SkipNetworkContextualization,
       tooltip: T.SkipNetworkContextualizationConcept,
       type: INPUT_TYPES.SWITCH,
-      dependOf: 'PARENT',
-      htmlType: (parent) => !parent?.length && INPUT_TYPES.HIDDEN,
       validation: boolean().yesOrNo(),
       grid: { sm: 6 },
+    },
+    !isAlias && {
+      name: 'NETWORK_MODE',
+      label: T.AutomaticNetworkMode,
+      tooltip: T.NetworkMoeConcept,
+      type: INPUT_TYPES.SWITCH,
+      validation: boolean()
+        .yesOrNo()
+        .afterSubmit((value) => (value ? 'auto' : '')),
+      grid: { sm: 6 },
+      stepControl: [
+        {
+          condition: (value) => value === true,
+          steps: ['network'],
+        },
+        {
+          condition: (value) => value === false,
+          steps: ['network-auto'],
+        },
+      ],
     },
   ].filter(Boolean)
 
@@ -652,25 +634,23 @@ const SECTIONS = ({
 
   let general = []
 
-  if (nics?.length) {
-    general = [
-      {
-        id: 'general',
-        legend: T.General,
-        fields: disableFields(
-          filterByHypAndDriver(
-            GENERAL_FIELDS({ nics, hasAlias, isPci }),
-            filters
-          ),
-          'NIC',
-          oneConfig,
-          adminGroup
+  general = [
+    {
+      id: 'general',
+      legend: T.General,
+      fields: disableFields(
+        filterByHypAndDriver(
+          GENERAL_FIELDS({ nics, hasAlias, isPci, isAlias }),
+          filters
         ),
-      },
-    ]
-  }
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
+    },
+  ]
 
-  return general.concat([
+  const sections = general.concat([
     {
       id: 'guacamole-connections',
       legend: T.GuacamoleConnections,
@@ -702,6 +682,20 @@ const SECTIONS = ({
       ),
     },
     {
+      id: 'guest',
+      legend: T.GuestOptions,
+      fields: disableFields(
+        filterByHypAndDriver(GUEST_FIELDS, filters),
+        'NIC',
+        oneConfig,
+        adminGroup
+      ),
+    },
+  ])
+
+  if (!isAlias) {
+    // Add hardware section before the guest section
+    sections.splice(sections.length - 1, 0, {
       id: 'hardware',
       legend: T.Hardware,
       fields: disableFields(
@@ -713,18 +707,10 @@ const SECTIONS = ({
         oneConfig,
         adminGroup
       ),
-    },
-    {
-      id: 'guest',
-      legend: T.GuestOptions,
-      fields: disableFields(
-        filterByHypAndDriver(GUEST_FIELDS, filters),
-        'NIC',
-        oneConfig,
-        adminGroup
-      ),
-    },
-  ])
+    })
+  }
+
+  return sections
 }
 
 /**

@@ -25,6 +25,7 @@ import {
   disableFields,
 } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
+import { mapNameByIndex } from '../schema'
 
 const { vcenter, lxc, firecracker } = HYPERVISORS
 
@@ -199,5 +200,13 @@ export const PCI_SCHEMA = getObjectSchemaFromFields([
 
 /** @type {ObjectSchema} PCI devices schema */
 export const PCI_DEVICES_SCHEMA = object({
-  PCI: array().ensure(),
+  PCI: array()
+    .ensure()
+    .transform((pcis) =>
+      pcis.map((pci, index) => {
+        const mapNicPci = mapNameByIndex('PCI')
+
+        return pci?.TYPE === 'NIC' ? mapNicPci(pci, index) : pci
+      })
+    ),
 })

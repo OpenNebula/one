@@ -44,6 +44,7 @@ const NOT_DEPEND_ATTRIBUTES = [
   'transform',
   'getRowId',
   'renderValue',
+  'selectValues',
 ]
 
 const INPUT_CONTROLLER = {
@@ -333,15 +334,27 @@ const FieldComponent = memo(
 
     const handleConditionChange = useCallback(
       (value) => {
-        // eslint-disable-next-line no-shadow
-        const { condition, statePaths, steps } = stepControl || {}
+        // Ensure step control as an array
+        const ensureStepControl = Array.isArray(stepControl)
+          ? stepControl
+          : stepControl
+          ? [stepControl]
+          : []
 
-        if (!condition) return
+        // Iterate over each step control to evaluate it
+        ensureStepControl.forEach((stepControlItem) => {
+          // eslint-disable-next-line no-shadow
+          const { condition, statePaths, steps } = stepControlItem || {}
 
-        const stateValues =
-          statePaths?.map((path) => get(currentState, path)) || []
-        const conditionResult = condition(value, ...stateValues)
-        disableSteps && disableSteps(steps, conditionResult)
+          // Exit if no condition
+          if (!condition) return
+
+          // Decide if disable or not a step
+          const stateValues =
+            statePaths?.map((path) => get(currentState, path)) || []
+          const conditionResult = condition(value, ...stateValues)
+          disableSteps && disableSteps(steps, conditionResult)
+        })
       },
       [stepControl, disableSteps, currentState]
     )

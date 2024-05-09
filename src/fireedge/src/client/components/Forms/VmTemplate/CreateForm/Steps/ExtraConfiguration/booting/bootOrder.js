@@ -131,8 +131,7 @@ const BootOrder = () => {
 
   const nics = useMemo(() => {
     const nicId = `${EXTRA_ID}.${NIC_ID[0]}`
-    const nicAliasId = `${EXTRA_ID}.${NIC_ID[1]}`
-    const nicValues = getValues([nicId, nicAliasId]).flat()
+    const nicValues = getValues([nicId]).flat()
 
     return (
       nicValues?.map((nic, idx) => ({

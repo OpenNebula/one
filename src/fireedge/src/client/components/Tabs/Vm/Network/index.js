@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 
-import { useGetVmQuery } from 'client/features/OneApi/vm'
+import {
+  useGetVmQuery,
+  useAttachNicMutation,
+  useDetachNicMutation,
+  useUpdateNicMutation,
+} from 'client/features/OneApi/vm'
 import NicCard from 'client/components/Cards/NicCard'
 import {
   AttachAction,
@@ -25,6 +30,7 @@ import {
   UpdateAction,
   AttachSecGroupAction,
   DetachSecGroupAction,
+  AliasAction,
 } from 'client/components/Tabs/Vm/Network/Actions'
 import Graphs from 'client/components/Tabs/Vm/Network/Graphs'
 import {
@@ -32,8 +38,12 @@ import {
   getHypervisor,
   isAvailableAction,
 } from 'client/models/VirtualMachine'
-import { getActionsAvailable } from 'client/models/Helper'
-import { VM_ACTIONS } from 'client/constants'
+import { getActionsAvailable, jsonToXml } from 'client/models/Helper'
+import { VM_ACTIONS, T, PCI_TYPES } from 'client/constants'
+import { filter } from 'lodash'
+
+import { Tr } from 'client/components/HOC'
+import { useGeneralApi } from 'client/features/General'
 
 const {
   ATTACH_NIC,
@@ -60,11 +70,38 @@ const VmNetworkTab = ({
   oneConfig,
   adminGroup,
 }) => {
+  // General api for enqueue
+  const { enqueueSuccess } = useGeneralApi()
+
+  // API to attach and detach NIC
+  const [attachNic, { isSuccess: isSuccessAttachNic }] = useAttachNicMutation()
+  const [detachNic, { isSuccess: isSuccessDetachNic }] = useDetachNicMutation()
+  const [updateNic, { isSuccess: isSuccessUpdateNic }] = useUpdateNicMutation()
+
+  // Success messages
+  const successMessageAttachNic = `${Tr(T.AttachNicSuccess, [id])}`
+  useEffect(
+    () => isSuccessAttachNic && enqueueSuccess(successMessageAttachNic),
+    [isSuccessAttachNic]
+  )
+  const successMessageDetachNic = `${Tr(T.DetachNicSuccess, [id])}`
+  useEffect(
+    () => isSuccessDetachNic && enqueueSuccess(successMessageDetachNic),
+    [isSuccessDetachNic]
+  )
+  const successMessageUpdateNic = `${Tr(T.UpdatedNicSuccess, [id])}`
+  useEffect(
+    () => isSuccessUpdateNic && enqueueSuccess(successMessageUpdateNic),
+    [isSuccessUpdateNic]
+  )
+
+  // Get data from vm
   const { data: vm } = useGetVmQuery({ id })
 
+  // Set nics, hypervisor and actions
   const [nics, hypervisor, actionsAvailable] = useMemo(() => {
     const groupedNics = getNics(vm, {
-      groupAlias: true,
+      groupAlias: false,
       securityGroupsFromTemplate: true,
     })
     const hyperV = getHypervisor(vm)
@@ -76,57 +113,89 @@ const VmNetworkTab = ({
     return [groupedNics, hyperV, actionsByState]
   }, [vm])
 
+  // Handle actions on NIC and alias
+  const handleAttach = async (formData) => {
+    // Add type if it's a pci nic
+    if (Object.values(PCI_TYPES).includes(formData?.PCI_TYPE))
+      formData.TYPE = 'NIC'
+
+    await attachNic({
+      id: id,
+      template: jsonToXml({ NIC: formData }),
+    })
+  }
+  const handleDetach = (nicId) => async () =>
+    await detachNic({ id: id, nic: nicId })
+  const handleUpdate = (nicId) => async (formData) =>
+    await updateNic({
+      id: id,
+      nic: nicId,
+      template: jsonToXml({ NIC: formData }),
+    })
+
   return (
     <div>
       {actionsAvailable?.includes?.(ATTACH_NIC) && (
         <AttachAction
-          vmId={id}
           currentNics={nics}
           hypervisor={hypervisor}
           oneConfig={oneConfig}
           adminGroup={adminGroup}
+          onSubmit={handleAttach}
         />
       )}
 
       <Stack gap="1em" py="0.8em">
-        {nics.map((nic) => {
-          const { IP, MAC, ADDRESS } = nic
-          const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
+        {nics
+          .filter((nic) => !nic.PARENT)
+          .map((nic) => {
+            const { IP, MAC, ADDRESS } = nic
+            const key = IP ?? MAC ?? ADDRESS // address only exists form PCI nics
 
-          return (
-            <NicCard
-              key={key}
-              nic={nic}
-              actions={
-                <>
-                  {actionsAvailable.includes(DETACH_NIC) && (
-                    <DetachAction nic={nic} vmId={id} />
-                  )}
-                  {actionsAvailable.includes(UPDATE_NIC) && (
-                    <UpdateAction nic={nic} vmId={id} />
-                  )}
-                  {actionsAvailable.includes(ATTACH_SEC_GROUP) && (
-                    <AttachSecGroupAction nic={nic} vmId={id} />
-                  )}
-                </>
-              }
-              aliasActions={({ alias }) =>
-                actionsAvailable.includes(DETACH_NIC) && (
-                  <DetachAction nic={alias} vmId={id} />
-                )
-              }
-              securityGroupActions={({ securityGroupId }) =>
-                actionsAvailable.includes(DETACH_SEC_GROUP) && (
-                  <DetachSecGroupAction
-                    nic={nic}
-                    vmId={id}
-                    securityGroupId={securityGroupId}
-                  />
-                )
-              }
-            />
-          )
-        })}
+            const hasAlias = nics.find(
+              (aliasItem) => aliasItem.PARENT === nic.NAME
+            )
+
+            return (
+              <NicCard
+                key={key}
+                nic={nic}
+                hasAlias={hasAlias}
+                aliasLength={filter(nics, { PARENT: nic?.NAME }).length}
+                actions={
+                  <>
+                    {actionsAvailable.includes(DETACH_NIC) && (
+                      <DetachAction
+                        nic={nic}
+                        vmId={id}
+                        onSubmit={handleDetach(nic.NIC_ID)}
+                      />
+                    )}
+                    {actionsAvailable.includes(UPDATE_NIC) && (
+                      <UpdateAction
+                        nic={nic}
+                        vmId={id}
+                        onSubmit={handleUpdate(nic.NIC_ID)}
+                      />
+                    )}
+                    {actionsAvailable.includes(ATTACH_SEC_GROUP) && (
+                      <AttachSecGroupAction nic={nic} vmId={id} />
+                    )}
+                    <AliasAction nic={nic} alias={nics} vmId={id} />
+                  </>
+                }
+                securityGroupActions={({ securityGroupId }) =>
+                  actionsAvailable.includes(DETACH_SEC_GROUP) && (
+                    <DetachSecGroupAction
+                      nic={nic}
+                      vmId={id}
+                      securityGroupId={securityGroupId}
+                    />
+                  )
+                }
+              />
+            )
+          })}
       </Stack>
       <Graphs id={id} />
     </div>

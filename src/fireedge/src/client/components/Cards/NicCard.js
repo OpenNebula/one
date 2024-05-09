@@ -32,37 +32,46 @@ import MultipleTags from 'client/components/MultipleTags'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { SecurityGroupRules } from 'client/components/Tabs/Common/RulesSecGroups'
 import { Nic, NicAlias, T } from 'client/constants'
 import { stringToBoolean } from 'client/models/Helper'
 import { groupBy } from 'client/utils'
+
+import { find } from 'lodash'
 
 const NicCard = memo(
   /**
    * @param {object} props - Props
    * @param {Nic|NicAlias} props.nic - NIC
    * @param {ReactElement} [props.actions] - Actions
-   * @param {function({ alias: NicAlias }):ReactElement} [props.aliasActions] - Alias actions
    * @param {function({ securityGroupId: string }):ReactElement} [props.securityGroupActions] - Security group actions
    * @param {boolean} [props.showParents] -
    * @param {boolean} [props.clipboardOnTags] -
+   * @param {Array} props.vnets - List of virtual networks
+   * @param {boolean} props.hasAlias - If it's a NIC and has alias
+   * @param {number} props.aliasLength - Number of alias that has a NIC
+   * @param {number} props.indexNicAlias - Index of the alias in the NIC
    * @returns {ReactElement} - Card
    */
   ({
     nic = {},
     actions,
-    aliasActions,
     securityGroupActions,
     showParents = false,
     clipboardOnTags = true,
+    vnets = [],
+    hasAlias = false,
+    aliasLength = 0,
+    indexNicAlias,
   }) => {
     const classes = rowStyles()
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
 
     const {
       NIC_ID,
-      NETWORK = '-',
+      NAME,
+      NETWORK,
       IP,
       IP6,
       IP6_GLOBAL,
@@ -73,7 +82,6 @@ const NicCard = memo(
       SSH,
       PARENT,
       ADDRESS,
-      ALIAS,
       SECURITY_GROUPS,
       TYPE,
     } = nic
@@ -82,19 +90,41 @@ const NicCard = memo(
     const isPciDevice = PCI_ID !== undefined || TYPE === 'NIC'
     const isAdditionalIp = NIC_ID === undefined || NETWORK === 'Additional IP'
 
+    const NETWORK_ID = find(vnets, { NAME: NETWORK })?.ID
+    const networkUrl =
+      window.location.origin +
+      '/fireedge/sunstone/virtual-network/' +
+      NETWORK_ID
+
     const dataCy = isAlias ? 'alias' : 'nic'
 
     const noClipboardTags = useMemo(
       () =>
         [
-          { text: stringToBoolean(RDP) && 'RDP', dataCy: `${dataCy}-rdp` },
-          { text: stringToBoolean(SSH) && 'SSH', dataCy: `${dataCy}-ssh` },
-          showParents && {
-            text: isAlias ? `PARENT: ${PARENT}` : false,
-            dataCy: `${dataCy}-parent`,
+          {
+            text: stringToBoolean(RDP) && 'RDP',
+            dataCy: `${dataCy}-rdp`,
+            helpText: 'Remote Desktop Protocol',
+          },
+          {
+            text: stringToBoolean(SSH) && 'SSH',
+            dataCy: `${dataCy}-ssh`,
+            helpText: 'Secure Shell Protocol',
+          },
+          hasAlias && {
+            text: `ALIAS: ${aliasLength}`,
+            dataCy: `${dataCy}-hasAlias`,
+            helpText: `${Tr(T.HasAlias, [NAME, aliasLength])}`,
+            stateColor: 'info',
+          },
+          isPciDevice && {
+            text: `PCI`,
+            dataCy: `${dataCy}-pci`,
+            helpText: `PCI Device`,
+            stateColor: 'info',
           },
         ].filter(({ text } = {}) => Boolean(text)),
-      [RDP, SSH, showParents, PARENT]
+      [RDP, SSH, hasAlias]
     )
 
     const tags = useMemo(
@@ -123,24 +153,37 @@ const NicCard = memo(
         >
           <div className={classes.title}>
             <Typography noWrap component="span" data-cy={`${dataCy}-name`}>
-              {NETWORK}
+              {NETWORK ? `${NAME}: ${NETWORK}` : `${NAME}`}
             </Typography>
             <span className={classes.labels}>
-              {isAlias && <StatusChip stateColor="info" text={'ALIAS'} />}
-              {isPciDevice && <StatusChip stateColor="info" text={'PCI'} />}
               {noClipboardTags.map((tag) => (
-                <StatusChip
+                <span
                   key={`${dataCy}-${NIC_ID}-${tag.dataCy}`}
-                  text={tag.text}
-                  dataCy={tag.dataCy}
-                />
+                  title={`${tag.helpText}`}
+                >
+                  <StatusChip
+                    text={tag.text}
+                    dataCy={tag.dataCy}
+                    stateColor={tag.stateColor}
+                  />
+                </span>
               ))}
             </span>
           </div>
           <div className={classes.caption}>
-            {`#${NIC_ID}`}
+            {isAlias ? `#${indexNicAlias}` : `#${NIC_ID}`}
             <span>
               <Network />
+              {NETWORK ? (
+                <a
+                  href={networkUrl}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  {NETWORK || 'auto'}
+                </a>
+              ) : (
+                'auto'
+              )}
               <Stack
                 direction="row"
                 justifyContent="end"
@@ -156,21 +199,15 @@ const NicCard = memo(
             </span>
           </div>
         </Box>
-        {!isAdditionalIp && <div className={classes.actions}>{actions}</div>}
-        {!!ALIAS?.length && (
-          <Stack gap="1em" flexBasis="100%" my="0.5em">
-            {ALIAS?.map((alias, aliasIdx) => (
-              <NicCard
-                key={alias.NIC_ID}
-                nic={{ ...alias, NIC_ID: `${NIC_ID}.${aliasIdx + 1}` }}
-                actions={aliasActions?.({ alias })}
-                showParents={showParents}
-              />
-            ))}
-          </Stack>
+        {(!isAdditionalIp || isAlias) && (
+          <div className={classes.actions}>{actions}</div>
         )}
         {useMemo(() => {
-          if (!Array.isArray(SECURITY_GROUPS) || !SECURITY_GROUPS?.length) {
+          if (
+            !Array.isArray(SECURITY_GROUPS) ||
+            !SECURITY_GROUPS?.length ||
+            isAlias
+          ) {
             return null
           }
 
@@ -213,6 +250,10 @@ NicCard.propTypes = {
   securityGroupActions: PropTypes.func,
   showParents: PropTypes.bool,
   clipboardOnTags: PropTypes.bool,
+  vnets: PropTypes.array,
+  hasAlias: PropTypes.bool,
+  aliasLength: PropTypes.number,
+  indexNicAlias: PropTypes.number,
 }
 
 NicCard.displayName = 'NicCard'

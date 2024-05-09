@@ -31,6 +31,7 @@ import { createSteps, getUnknownAttributes, decodeBase64 } from 'client/utils'
 import { KVM_FIRMWARE_TYPES, VCENTER_FIRMWARE_TYPES } from 'client/constants'
 
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
+  saveState: true,
   transformInitialValue: (vmTemplate, schema) => {
     const userInputs = userInputsToArray(vmTemplate?.TEMPLATE?.USER_INPUTS, {
       order: vmTemplate?.TEMPLATE?.INPUTS_ORDER,

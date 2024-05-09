@@ -16,7 +16,8 @@
 import { array, object, ArraySchema } from 'yup'
 
 /** @type {ArraySchema} Virtual Network table schema */
-export const SCHEMA = array(object())
+export const SCHEMA = object().required()
+array(object())
   .min(1)
   .max(1)
   .required()

@@ -56,16 +56,18 @@ function CreateVmTemplate() {
     resetModifiedFields()
   }, [])
 
+  // Get store
   const store = useStore()
 
+  // Get history
   const history = useHistory()
   const { state: { ID: templateId, NAME } = {} } = useLocation()
 
+  // Hooks
   const { enqueueSuccess, resetFieldPath, resetModifiedFields } =
     useGeneralApi()
   const [update] = useUpdateTemplateMutation()
   const [allocate] = useAllocateTemplateMutation()
-
   const { adminGroup, oneConfig } = useSystemData()
 
   const { data: apiTemplateDataExtended } = useGetTemplateQuery(
@@ -86,12 +88,16 @@ function CreateVmTemplate() {
 
   const onSubmit = async (rawTemplate) => {
     try {
+      // Get current state and modified fields
       const currentState = store.getState()
       const modifiedFields = currentState.general?.modifiedFields
 
+      // Get the original template
       const existingTemplate = {
         ...apiTemplateData?.TEMPLATE,
       }
+
+      // Filter template to delete attributes that the user has not interact with them
       const filteredTemplate = filterTemplateData(
         rawTemplate,
         modifiedFields,
@@ -106,7 +112,10 @@ function CreateVmTemplate() {
       // Every action that is not an human action
       transformActionsCreate(filteredTemplate)
 
+      // Convert template to xml
       const xmlTemplate = jsonToXml(filteredTemplate)
+
+      // Update or create the template
       if (!templateId) {
         const newTemplateId = await allocate({
           template: xmlTemplate,

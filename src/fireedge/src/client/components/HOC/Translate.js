@@ -127,10 +127,11 @@ const TranslateProvider = ({ children = [] }) => {
  * Function to translate a label.
  *
  * @param {WordTranslation} word - The label to translate
+ * @param {Array} values - The values to override in the translation
  * @returns {string} - The translated label
  */
-const Tr = (word = '') => {
-  const [w = '', v] = Array.isArray(word) ? word : [word]
+const Tr = (word = '', values = []) => {
+  const [w = '', v = values] = Array.isArray(word) ? word : [word, values]
   const ensuredValues = !Array.isArray(v) ? [v] : v
 
   return translateString(w, ensuredValues.filter(Boolean))

@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Edit, ShieldAdd, ShieldCross, Trash } from 'iconoir-react'
+import { Edit, ShieldAdd, ShieldCross, Trash, EyeAlt } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 
 import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import {
   AttachNicForm,
   AttachSecGroupForm,
   UpdateNicForm,
+  AliasForm,
+  AttachAliasForm,
 } from 'client/components/Forms/Vm'
 import {
-  useAttachNicMutation,
   useAttachSecurityGroupMutation,
-  useDetachNicMutation,
   useDetachSecurityGroupMutation,
-  useUpdateNicMutation,
 } from 'client/features/OneApi/vm'
 
 import { Tr, Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
-import { jsonToXml } from 'client/models/Helper'
 
 import { hasRestrictedAttributes } from 'client/utils'
+import { useDisableStep } from 'client/components/FormStepper'
 
 const AttachAction = memo(
   ({
-    vmId,
     hypervisor,
     nic,
     currentNics,
@@ -49,27 +47,13 @@ const AttachAction = memo(
     oneConfig,
     adminGroup,
     indexNic,
-    indexAlias,
     indexPci,
     hasAlias,
     isPci,
     isAlias,
   }) => {
     const { setFieldPath } = useGeneralApi()
-
-    const [attachNic] = useAttachNicMutation()
-
-    const handleAttachNic = async (formData) => {
-      if (onSubmit && typeof onSubmit === 'function') {
-        return await onSubmit(formData)
-      }
-
-      const key = isAlias ? 'NIC_ALIAS' : 'NIC'
-      const data = { [key]: formData }
-
-      const template = jsonToXml(data)
-      await attachNic({ id: vmId, template })
-    }
+    const disableSteps = useDisableStep()
 
     return (
       <ButtonToTriggerForm
@@ -97,8 +81,6 @@ const AttachAction = memo(
               if (nic) {
                 if (isPci) {
                   setFieldPath(`extra.InputOutput.PCI.${indexPci}`)
-                } else if (isAlias) {
-                  setFieldPath(`extra.Network.NIC_ALIAS.${indexAlias}`)
                 } else {
                   setFieldPath(`extra.Network.NIC.${indexNic}`)
                 }
@@ -116,11 +98,12 @@ const AttachAction = memo(
                   hasAlias,
                   isPci,
                   isAlias,
+                  disableSteps,
                 },
                 initialValues: nic,
               })
             },
-            onSubmit: handleAttachNic,
+            onSubmit: onSubmit,
           },
         ]}
       />
@@ -128,26 +111,164 @@ const AttachAction = memo(
   }
 )
 
-const DetachAction = memo(
-  ({ vmId, nic, onSubmit, sx, oneConfig, adminGroup }) => {
-    const [detachNic] = useDetachNicMutation()
-    const { NIC_ID, PARENT } = nic
-    const isAlias = !!PARENT?.length
+const DetachAction = memo(({ nic, onSubmit, sx, oneConfig, adminGroup }) => {
+  // Disable action if the nic has a restricted attribute on the template
+  const disabledAction =
+    !adminGroup &&
+    hasRestrictedAttributes(nic, 'NIC', oneConfig?.VM_RESTRICTED_ATTR)
 
-    const handleDetach = async () => {
-      const handleDetachNic = onSubmit ?? detachNic
-      await handleDetachNic({ id: vmId, nic: NIC_ID })
-    }
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        'data-cy': `detach-nic-${nic.NIC_ID}`,
+        icon: <Trash />,
+        tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
+        sx,
+        disabled: disabledAction,
+      }}
+      options={[
+        {
+          isConfirmDialog: true,
+          dialogProps: {
+            title: (
+              <Translate
+                word={T.DetachSomething}
+                values={`${T.NIC} #${nic.NIC_ID}`}
+              />
+            ),
+            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+          },
+          onSubmit: onSubmit,
+        },
+      ]}
+    />
+  )
+})
 
+const UpdateAction = memo(({ nic, onSubmit, sx }) => (
+  <ButtonToTriggerForm
+    buttonProps={{
+      'data-cy': `update-nic-${nic.NIC_ID}`,
+      icon: <Edit />,
+      tooltip: Tr(T.Update),
+      sx,
+    }}
+    options={[
+      {
+        dialogProps: { title: T.Update, dataCy: 'modal-update-nic' },
+        form: () =>
+          UpdateNicForm({
+            stepProps: { defaultData: nic },
+            initialValues: nic,
+          }),
+        onSubmit: onSubmit,
+      },
+    ]}
+  />
+))
+
+const AliasAction = memo(({ nic, alias, vmId, methods }) => {
+  const { NIC_ID, NAME } = nic
+
+  return (
+    <ButtonToTriggerForm
+      buttonProps={{
+        'data-cy': `alias-nic-${NIC_ID}`,
+        icon: <EyeAlt />,
+        tooltip: Tr(T.Alias),
+      }}
+      options={[
+        {
+          dialogProps: {
+            title: `${Tr(T.Alias)} - ${NAME}`,
+            dataCy: 'modal-show-alias',
+          },
+          form: () =>
+            AliasForm({
+              stepProps: {
+                parent: nic.NAME,
+                methods: methods,
+                vmId: vmId,
+              },
+              initialValues: {
+                ALIAS: alias,
+              },
+            }),
+        },
+      ]}
+    />
+  )
+})
+
+const AttachAliasAction = memo(
+  ({
+    hypervisor,
+    alias,
+    currentNics,
+    onSubmit,
+    sx,
+    oneConfig,
+    adminGroup,
+    indexAlias,
+    indexNicAlias,
+  }) => {
+    const { setFieldPath } = useGeneralApi()
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={
+          alias
+            ? {
+                'data-cy': `edit-${indexNicAlias}`,
+                icon: <Edit />,
+                tooltip: Tr(T.Edit),
+                sx,
+              }
+            : {
+                color: 'secondary',
+                'data-cy': 'add-alias',
+                label: T.CreateAlias,
+                variant: 'outlined',
+                sx,
+              }
+        }
+        options={[
+          {
+            dialogProps: { title: T.AttachAlias, dataCy: 'modal-attach-alias' },
+            form: () => {
+              setFieldPath(`extra.Network.NIC_ALIAS.${indexAlias}`)
+
+              return AttachAliasForm({
+                stepProps: {
+                  hypervisor,
+                  nics: currentNics,
+                  defaultData: alias,
+                  oneConfig,
+                  adminGroup,
+                  isAlias: true,
+                },
+                initialValues: alias,
+              })
+            },
+            onSubmit: onSubmit,
+          },
+        ]}
+      />
+    )
+  }
+)
+
+const DetachAliasAction = memo(
+  ({ alias, onSubmit, sx, oneConfig, adminGroup, indexNicAlias }) => {
     // Disable action if the nic has a restricted attribute on the template
     const disabledAction =
       !adminGroup &&
-      hasRestrictedAttributes(nic, 'NIC', oneConfig?.VM_RESTRICTED_ATTR)
+      hasRestrictedAttributes(alias, 'NIC_ALIAS', oneConfig?.VM_RESTRICTED_ATTR)
 
     return (
       <ButtonToTriggerForm
         buttonProps={{
-          'data-cy': `detach-nic-${NIC_ID}`,
+          'data-cy': `detach-alias-${indexNicAlias}-action`,
           icon: <Trash />,
           tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
           sx,
@@ -158,62 +279,18 @@ const DetachAction = memo(
             isConfirmDialog: true,
             dialogProps: {
               title: (
-                <Translate
-                  word={T.DetachSomething}
-                  values={`${isAlias ? T.Alias : T.NIC} #${NIC_ID}`}
-                />
+                <Translate word={T.DetachSomething} values={`${T.Alias}`} />
               ),
               children: <p>{Tr(T.DoYouWantProceed)}</p>,
+              dataCy: 'modal-detach-alias',
             },
-            onSubmit: handleDetach,
+            onSubmit: onSubmit,
           },
         ]}
       />
     )
   }
 )
-
-const UpdateAction = memo(({ vmId, nic, sx }) => {
-  const { enqueueSuccess } = useGeneralApi()
-  const [updateNic, { isSuccess }] = useUpdateNicMutation()
-  const { NIC_ID } = nic
-
-  const handleUpdate = async (formData) => {
-    const data = { NIC: formData }
-    const template = jsonToXml(data)
-
-    await updateNic({
-      id: vmId,
-      nic: NIC_ID,
-      template,
-    })
-  }
-  const updatedNicMessage = `${Tr(T.UpdatedNic)} - ${Tr(T.ID)} : ${NIC_ID}`
-
-  useEffect(() => isSuccess && enqueueSuccess(updatedNicMessage), [isSuccess])
-
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `update-nic-${NIC_ID}`,
-        icon: <Edit />,
-        tooltip: Tr(T.Update),
-        sx,
-      }}
-      options={[
-        {
-          dialogProps: { title: T.Update, dataCy: 'modal-update-nic' },
-          form: () =>
-            UpdateNicForm({
-              stepProps: { defaultData: nic },
-              initialValues: nic,
-            }),
-          onSubmit: handleUpdate,
-        },
-      ]}
-    />
-  )
-})
 
 const AttachSecGroupAction = memo(({ vmId, nic, onSubmit, sx }) => {
   const [attachSecGroup] = useAttachSecurityGroupMutation()
@@ -297,12 +374,16 @@ const ActionPropTypes = {
   sx: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
-  indexNic: PropTypes.string,
-  indexAlias: PropTypes.string,
-  indexPci: PropTypes.string,
+  indexNic: PropTypes.number,
+  indexAlias: PropTypes.number,
+  indexPci: PropTypes.number,
   hasAlias: PropTypes.bool,
   isPci: PropTypes.bool,
   isAlias: PropTypes.bool,
+  alias: PropTypes.array,
+  methods: PropTypes.object,
+  index: PropTypes.number,
+  indexNicAlias: PropTypes.number,
 }
 
 AttachAction.propTypes = ActionPropTypes
@@ -315,6 +396,12 @@ AttachSecGroupAction.propTypes = ActionPropTypes
 AttachSecGroupAction.displayName = 'AttachSecGroupButton'
 DetachSecGroupAction.propTypes = ActionPropTypes
 DetachSecGroupAction.displayName = 'DetachSecGroupButton'
+AttachAliasAction.propTypes = ActionPropTypes
+AttachAliasAction.displayName = 'AttachAliasAction'
+DetachAliasAction.propTypes = ActionPropTypes
+DetachAliasAction.displayName = 'DetachAliasAction'
+AliasAction.propTypes = ActionPropTypes
+AliasAction.displayName = 'AliasAction'
 
 export {
   AttachAction,
@@ -322,4 +409,7 @@ export {
   UpdateAction,
   AttachSecGroupAction,
   DetachSecGroupAction,
+  AliasAction,
+  AttachAliasAction,
+  DetachAliasAction,
 }

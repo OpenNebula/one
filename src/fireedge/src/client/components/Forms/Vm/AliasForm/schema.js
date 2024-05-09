@@ -13,48 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, string, array, ObjectSchema } from 'yup'
+import { array, object } from 'yup'
 
-import { T, INPUT_TYPES } from 'client/constants'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
-import { mapNameByIndex } from '../schema'
+import { getValidationFromFields } from 'client/utils'
+import { T } from 'client/constants'
 
-/** @returns {Field} NIC filter field */
-const FILTER = {
-  name: 'NIC_DEFAULT.FILTER',
-  label: T.DefaultNicFilter,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
+const ALIAS = {
+  name: 'ALIAS',
+  label: T.Alias,
+  validation: array()
+    .required()
     .default(() => undefined),
+  grid: { md: 12 },
 }
 
-/** @returns {Field} NIC model field */
-const MODEL = {
-  name: 'NIC_DEFAULT.MODEL',
-  label: T.DefaultNicModel,
-  type: INPUT_TYPES.TEXT,
-  validation: string()
-    .trim()
-    .notRequired()
-    .default(() => undefined),
-}
+export const FIELDS = [ALIAS]
 
-/** @type {Field[]} List of Network defaults fields */
-const FIELDS = [FILTER, MODEL]
-
-/** @type {ObjectSchema} Network schema */
-const SCHEMA = object({
-  NIC: array()
-    .ensure()
-    .transform((nics) => nics.map(mapNameByIndex('NIC'))),
-  NIC_ALIAS: array()
-    .ensure()
-    .transform((alias) => alias.map(mapNameByIndex('ALIAS'))),
-  PCI: array()
-    .ensure()
-    .transform((nics) => nics.map(mapNameByIndex('PCI'))),
-}).concat(getObjectSchemaFromFields(FIELDS))
-
-export { FIELDS, SCHEMA }
+export const SCHEMA = object(getValidationFromFields(FIELDS))
