@@ -30,7 +30,14 @@ const DEFAULT_DATA_CY = 'backups'
  * @returns {ReactElement} Backups table
  */
 const BackupsTable = (props) => {
-  const { rootProps = {}, searchProps = {}, vm, ...rest } = props ?? {}
+  const {
+    rootProps = {},
+    searchProps = {},
+    vm,
+    refetchVm,
+    isFetchingVm,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
@@ -65,14 +72,22 @@ const BackupsTable = (props) => {
     [view]
   )
 
+  /**
+   * Refetch vms and backups. If a new backup is created, the id of the backup will be in the data of a vm, so we need to refetch also the vms query.
+   */
+  const refetchAll = () => {
+    refetchVm()
+    refetch()
+  }
+
   return (
     <EnhancedTable
       columns={columns}
       data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
-      refetch={refetch}
-      isLoading={isFetching}
+      refetch={refetchAll}
+      isLoading={isFetching && isFetchingVm}
       getRowId={(row) => String(row.ID)}
       RowComponent={BackupRow}
       {...rest}

@@ -23,7 +23,7 @@ const getTotalOfResources = (resources) =>
 
 const COLUMNS = [
   { Header: 'ID', accessor: 'ID', id: 'id', sortType: 'number' },
-  { Header: 'Name', id: 'name', accessor: 'NAME' },
+  { Header: 'Name', id: 'NAME', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
   { Header: 'Locked', id: 'locked', accessor: 'LOCK' },

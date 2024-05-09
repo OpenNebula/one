@@ -28,7 +28,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  * @returns {ReactElement} Backups tab
  */
 const VmBackupTab = ({ id }) => {
-  const { data: vm = {} } = useGetVmQuery({ id })
+  const { data: vm = {}, refetch, isFetching } = useGetVmQuery({ id })
   const path = PATH.STORAGE.BACKUPS.DETAIL
   const history = useHistory()
 
@@ -40,6 +40,8 @@ const VmBackupTab = ({ id }) => {
     <BackupsTable
       disableRowSelect
       disableGlobalSort
+      refetchVm={refetch}
+      isFetchingVm={isFetching}
       vm={vm}
       onRowClick={(row) => handleRowClick(row.ID)}
     />
