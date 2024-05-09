@@ -75,7 +75,7 @@ export const SD_DISK_BUSES = ['scsi', 'sata']
 export const DEVICE_TYPES = { mouse: 'mouse', tablet: 'tablet' }
 export const DEVICE_BUS_TYPES = { usb: 'usb', ps2: 'ps2' }
 
-export const FIRMWARE_TYPES = ['BIOS']
+export const FIRMWARE_TYPES = ['BIOS', 'EFI']
 
 export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
   '/usr/share/OVMF/OVMF_CODE.fd',
