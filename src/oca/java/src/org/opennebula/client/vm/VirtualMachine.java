@@ -66,6 +66,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DETACHPCI           = METHOD_PREFIX + "detachpci";
     private static final String BACKUP              = METHOD_PREFIX + "backup";
     private static final String BACKUPCANCEL        = METHOD_PREFIX + "backupcancel";
+    private static final String RESTORE             = METHOD_PREFIX + "restore";
 
     private static final String[] VM_STATES =
     {
@@ -171,7 +172,8 @@ public class VirtualMachine extends PoolElement{
         "HOTPLUG_SAVEAS_UNDEPLOYED",
         "HOTPLUG_SAVEAS_STOPPED",
         "BACKUP",
-        "BACKUP_POWEROFF"
+        "BACKUP_POWEROFF",
+        "RESTORE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -246,7 +248,8 @@ public class VirtualMachine extends PoolElement{
         "hotp",     // HOTPLUG_SAVEAS_UNDEPLOYED
         "hotp",     // HOTPLUG_SAVEAS_STOPPED
         "back",     // BACKUP
-        "back"      // BACKUP_POWEROFF
+        "back",     // BACKUP_POWEROFF
+        "rest"      // RESTORE
     };
 
     /**
@@ -833,6 +836,22 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse backupCancel(Client client, int id)
     {
         return client.call(BACKUPCANCEL, id);
+    }
+
+    /**
+     * Restore Virtual Machine disks from backup Image
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Machine ID (vid) of the target instance.
+     * @param imageId Id of the backup Image
+     * @param incrementId ID of the backup increment. Use -1 for latest or with full backup
+     * @param diskId ID of the disk to restore. Use -1 to restore all disks
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse restore(Client client, int id, int imageId,
+            int incrementId, int diskId)
+    {
+        return client.call(RESTORE, id, imageId, incrementId, diskId);
     }
 
     // =================================
@@ -1447,6 +1466,19 @@ public class VirtualMachine extends PoolElement{
     public OneResponse backupCancel()
     {
         return backupCancel(client, id);
+    }
+
+    /**
+     * Restore Virtual Machine disks from backup Image
+     *
+     * @param imageId Id of the backup Image
+     * @param incrementId ID of the backup increment. Use -1 for latest or with full backup
+     * @param diskId ID of the disk to restore. Use -1 to restore all disks
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse restore(int imageId, int incrementId, int diskId)
+    {
+        return restore(client, id, imageId, incrementId, diskId);
     }
 
     // =================================

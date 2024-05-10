@@ -4235,10 +4235,7 @@ void VirtualMachineRestore::request_execute(
     }
     else
     {
-        att.resp_obj = PoolObjectSQL::VM;
-        att.resp_id  = vm_id;
-
-        failure_response(NO_EXISTS, att);
+        // Failure response set in get_vm_ro method
         return;
     }
 

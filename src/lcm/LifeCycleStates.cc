@@ -2685,13 +2685,21 @@ void LifeCycleManager::trigger_resize_failure(int vid)
 void LifeCycleManager::trigger_disk_restore_success(int vid)
 {
     trigger([this, vid] {
+        Template vm_quotas_snp;
+        vector<Template *> ds_quotas_snp;
+        int uid = -1, gid = -1;
+
         if ( auto vm = vmpool->get(vid) )
         {
             VirtualMachine::LcmState state = vm->get_lcm_state();
 
             if (state == VirtualMachine::PROLOG_RESTORE)
             {
-                // todo: Clear VM and disk snapshots
+                uid = vm->get_uid();
+                gid = vm->get_gid();
+                vm->delete_snapshots(vm_quotas_snp);
+                vm->delete_non_persistent_disk_snapshots(vm_quotas_snp, ds_quotas_snp);
+
                 vm->set_state(VirtualMachine::POWEROFF);
                 vm->log("LCM", Log::INFO, "VM restore operation completed.");
             }
@@ -2703,6 +2711,17 @@ void LifeCycleManager::trigger_disk_restore_success(int vid)
 
             vmpool->update(vm.get());
         }
+
+        if (!vm_quotas_snp.empty())
+        {
+            Quotas::quota_del(Quotas::VM, uid, gid, &vm_quotas_snp);
+        }
+
+        if ( !ds_quotas_snp.empty() )
+        {
+            Quotas::ds_del_recreate(uid, gid, ds_quotas_snp);
+        }
+
     });
 }
 

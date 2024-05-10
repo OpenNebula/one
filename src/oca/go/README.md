@@ -16,6 +16,13 @@ echo 'IM_MAD = [ NAME="dummy", SUNSTONE_NAME="Dummy", EXECUTABLE="one_im_sh", AR
 echo 'VM_MAD = [ NAME="dummy", SUNSTONE_NAME="Testing", EXECUTABLE="one_vmm_dummy",TYPE="xml" ]' >> /etc/one/oned.conf
 one restart
 ```
+
+Download go test moodule:
+```
+cd src/goca
+go get gopkg.in/check.v1
+```
+
 Make sure opennebula is running. Exuecute tests:
 ```
 cd src/goca

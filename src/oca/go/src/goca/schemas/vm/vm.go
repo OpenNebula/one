@@ -60,6 +60,7 @@ type VM struct {
 	UserTemplate    UserTemplate          `xml:"USER_TEMPLATE,omitempty"`
 	HistoryRecords  []HistoryRecord       `xml:"HISTORY_RECORDS>HISTORY,omitempty"`
 	Snapshots       []shared.DiskSnapshot `xml:"SNAPSHOTS,omitempty"`
+	Backups         Backups               `xml:"BACKUPS,omitempty"`
 
 	// Not filled with NewUserPool call
 	LockInfos *shared.Lock `xml:"LOCK"`
@@ -93,4 +94,10 @@ type HistoryRecord struct {
 	UID       int    `xml:"UID"`
 	GID       int    `xml:"GID"`
 	RequestID string `xml:"REQUEST_ID"`
+}
+
+// Backups
+type Backups struct {
+	BackupConfig    dyn.Template    `xml:"BACKUP_CONFIG"`
+	IDs             []int           `xml:"BACKUP_IDS>ID"`
 }

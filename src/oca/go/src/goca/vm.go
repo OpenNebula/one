@@ -1044,3 +1044,14 @@ func (vc *VMController) BackupCancelContext(ctx context.Context) error {
 	_, err := vc.c.Client.CallContext(ctx, "one.vm.backupcancel", vc.ID)
 	return err
 }
+
+// Restore Virtual Machine disks from backup Image
+func (vc *VMController) Restore(imageID int, incrementID int, diskID int) error {
+	return vc.RestoreContext(context.Background(), imageID, incrementID, diskID)
+}
+
+// Restore Virtual Machine disks from backup Image
+func (vc *VMController) RestoreContext(ctx context.Context, imageID int, incrementID int, diskID int) error {
+	_, err := vc.c.Client.CallContext(ctx, "one.vm.restore", vc.ID, imageID, incrementID, diskID)
+	return err
+}

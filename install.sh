@@ -2088,7 +2088,7 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/monitor \
               src/tm_mad/dummy/cpds \
               src/tm_mad/dummy/resize \
-              src/tm_mad/dummy/prolog_restore"
+              src/tm_mad/dummy/restore"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/clone.ssh \

@@ -295,16 +295,25 @@ const (
 	DiskResizeUndeployed LCMState = 64
 
 	// HotplugNicPoweroff lcm state
-	HotplugNicPoweroff = 65
+	HotplugNicPoweroff LCMState = 65
 
 	// HotplugResize lcm state
-	HotplugResize = 66
+	HotplugResize LCMState = 66
 
 	// HotplugSaveasUndeployed lcm state
-	HotplugSaveasUndeployed = 67
+	HotplugSaveasUndeployed LCMState = 67
 
 	// HotplugSaveasStopped lcm state
-	HotplugSaveasStopped = 68
+	HotplugSaveasStopped LCMState = 68
+
+	// Backup lcm state
+	Backup LCMState = 69
+
+	// BackupPoweroff lcm state
+	BackupPoweroff LCMState = 70
+
+	// PrologRestore lcm state
+	Restore LCMState = 71
 )
 
 func (s LCMState) isValid() bool {
@@ -450,6 +459,12 @@ func (s LCMState) String() string {
 		return "HOTPLUG_SAVEAS_UNDEPLOYED"
 	case HotplugSaveasStopped:
 		return "HOTPLUG_SAVEAS_STOPPED"
+	case Backup:
+		return "BACKUP"
+	case BackupPoweroff:
+		return "BACKUP_POWEROFF"
+	case Restore:
+		return "RESTORE"
 	default:
 		return ""
 	}
