@@ -1204,7 +1204,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             tm->trigger_epilog_delete(vm);
         break;
 
-        case VirtualMachine::PROLOG_RESTORE:
+        case VirtualMachine::RESTORE:
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
         break;
@@ -1569,7 +1569,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             }
         break;
 
-        case VirtualMachine::PROLOG_RESTORE:
+        case VirtualMachine::RESTORE:
             if (success)
             {
                 trigger_disk_restore_success(vim);
@@ -1801,7 +1801,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::BACKUP:
         case VirtualMachine::BACKUP_POWEROFF:
-        case VirtualMachine::PROLOG_RESTORE:
+        case VirtualMachine::RESTORE:
             break;
     }
 
@@ -1919,7 +1919,7 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
                         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
                         case VirtualMachine::BACKUP_POWEROFF:
-                        case VirtualMachine::PROLOG_RESTORE:
+                        case VirtualMachine::RESTORE:
                             is_tmpl = true;
                             break;
 

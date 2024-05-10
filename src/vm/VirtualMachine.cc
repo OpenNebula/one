@@ -300,8 +300,8 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = BACKUP;
     } else if ( st == "BACKUP_POWEROFF" ) {
         state = BACKUP_POWEROFF;
-    } else if ( st == "PROLOG_RESTORE" ) {
-        state = PROLOG_RESTORE;
+    } else if ( st == "RESTORE" ) {
+        state = RESTORE;
     } else {
         return -1;
     }
@@ -449,8 +449,8 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "BACKUP"; break;
         case BACKUP_POWEROFF:
             st = "BACKUP_POWEROFF"; break;
-        case PROLOG_RESTORE:
-            st = "PROLOG_RESTORE"; break;
+        case RESTORE:
+            st = "RESTORE"; break;
     }
 
     return st;

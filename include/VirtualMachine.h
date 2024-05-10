@@ -142,7 +142,7 @@ public:
         HOTPLUG_SAVEAS_STOPPED    = 68,
         BACKUP            = 69,
         BACKUP_POWEROFF   = 70,
-        PROLOG_RESTORE    = 71
+        RESTORE           = 71
     };
 
     static const int MAX_VNC_PASSWD_LENGTH = 8;

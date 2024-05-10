@@ -2693,7 +2693,7 @@ void LifeCycleManager::trigger_disk_restore_success(int vid)
         {
             VirtualMachine::LcmState state = vm->get_lcm_state();
 
-            if (state == VirtualMachine::PROLOG_RESTORE)
+            if (state == VirtualMachine::RESTORE)
             {
                 uid = vm->get_uid();
                 gid = vm->get_gid();
@@ -2735,7 +2735,7 @@ void LifeCycleManager::trigger_disk_restore_failure(int vid)
         {
             VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
-            if (lcm_state == VirtualMachine::PROLOG_RESTORE)
+            if (lcm_state == VirtualMachine::RESTORE)
             {
                 vm->set_state(VirtualMachine::POWEROFF);
                 vm->log("LCM", Log::INFO, "VM restore operation fails");

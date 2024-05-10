@@ -114,7 +114,7 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
                 lcm->trigger_disk_resize_success(id);
                 break;
 
-            case VirtualMachine::PROLOG_RESTORE:
+            case VirtualMachine::RESTORE:
                 lcm->trigger_disk_restore_success(id);
                 break;
 
@@ -188,7 +188,7 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
                 lcm->trigger_disk_resize_failure(id);
                 break;
 
-            case VirtualMachine::PROLOG_RESTORE:
+            case VirtualMachine::RESTORE:
                 lcm->trigger_disk_restore_failure(id);
                 break;
 
