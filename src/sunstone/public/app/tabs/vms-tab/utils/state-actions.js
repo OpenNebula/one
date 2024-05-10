@@ -127,9 +127,9 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_RESIZE         ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_UNDEPLOYED ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_STOPPED    ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BACKUP    ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BACKUP_POWEROFF    ] = [];
-  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.RESTORE_POWEROFF   ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BACKUP          ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BACKUP_POWEROFF ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.RESTORE         ] = [];
 
   return {
     'disableAllStateActions': disableAllStateActions,

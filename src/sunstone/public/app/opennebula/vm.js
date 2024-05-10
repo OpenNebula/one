@@ -221,7 +221,7 @@ define(function(require) {
     "info",    // HOTPLUG_SAVEAS_STOPPED
     "info",    // BACKUP
     "info",    // BACKUP_POWEROFF
-    "info",    // RESTORE_POWEROFF
+    "info",    // RESTORE
   ];
 
   var LCM_STATES = {
@@ -371,7 +371,7 @@ define(function(require) {
     Locale.tr("HOTPLUG"),         // HOTPLUG_SAVEAS_STOPPED
     Locale.tr("BACKUP"),          // BACKUP
     Locale.tr("BACKUP"),          // BACKUP_POWEROFF
-    Locale.tr("RESTORE"),         // RESTORE_POWEROFF
+    Locale.tr("RESTORE"),         // RESTORE
   ];
 
   var VNC_STATES = [
