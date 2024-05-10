@@ -298,7 +298,7 @@ module OpenNebula
 
             @body['networks_values'].each do |vnet|
                 vnet.each do |_, net|
-                    next if net.keys.first == 'id' && !deploy
+                    next if net.key?('id') && !deploy
 
                     ret << net['id'].to_i
                 end
@@ -635,24 +635,21 @@ module OpenNebula
         end
 
         def deploy_networks(deploy = true)
-            if deploy
-                body = JSON.parse(self['TEMPLATE/BODY'])
-            else
-                body = @body
-            end
+            body = if deploy
+                       JSON.parse(self['TEMPLATE/BODY'])
+                   else
+                       @body
+                   end
 
             return if body['networks_values'].nil?
 
             body['networks_values'].each do |vnet|
                 vnet.each do |name, net|
-                    key = net.keys.first
+                    next if net.key?('id')
 
-                    case key
-                    when 'id'
-                        next
-                    when 'template_id'
+                    if net.key?('template_id')
                         rc = create_vnet(name, net)
-                    when 'reserve_from'
+                    elsif net.key?('reserve_from')
                         rc = reserve(name, net)
                     end
 
@@ -678,18 +675,14 @@ module OpenNebula
 
             vnets.each do |vnet|
                 vnet.each do |_, net|
-                    key = net.keys.first
-
-                    next unless ['template_id', 'reserve_from'].include?(key)
+                    next unless net.key?('template_id') || net.key?('reserve_from')
 
                     rc = OpenNebula::VirtualNetwork.new_with_id(
                         net['id'],
                         @client
                     ).delete
 
-                    next unless OpenNebula.is_error?(rc)
-
-                    vnets_failed << net['id']
+                    vnets_failed << net['id'] if OpenNebula.is_error?(rc)
                 end
             end
 
