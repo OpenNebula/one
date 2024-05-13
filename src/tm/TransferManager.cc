@@ -2239,7 +2239,7 @@ void TransferManager::trigger_resize(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::trigger_prolog_restore(int vid, int img_id, int inc_id,
+void TransferManager::trigger_restore(int vid, int img_id, int inc_id,
         int disk_id)
 {
     trigger([this, vid, img_id, inc_id, disk_id]{
@@ -2271,7 +2271,7 @@ void TransferManager::trigger_prolog_restore(int vid, int img_id, int inc_id,
             goto error_history;
         }
 
-        xfr_name = vm->get_transfer_file() + ".prolog_restore";
+        xfr_name = vm->get_transfer_file() + ".restore";
         xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
         if (xfr.fail() == true)
@@ -2299,15 +2299,15 @@ void TransferManager::trigger_prolog_restore(int vid, int img_id, int inc_id,
         return;
 
         error_driver:
-            oss << "prolog_restore, error getting TM driver.";
+            oss << "restore, error getting TM driver.";
             goto error_common;
 
         error_history:
-            oss << "prolog_restore, the VM has no history";
+            oss << "restore, the VM has no history";
             goto error_common;
 
         error_file:
-            oss << "prolog_restore, could not open file: " << xfr_name;
+            oss << "restore, could not open file: " << xfr_name;
             goto error_common;
 
         error_common:

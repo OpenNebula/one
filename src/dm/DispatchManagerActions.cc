@@ -2888,7 +2888,7 @@ int DispatchManager::restore(int vid, int img_id, int inc_id, int disk_id,
     vm->set_state(VirtualMachine::RESTORE);
 
     // Call driver action to copy disk from image backup to VM system disk
-    tm->trigger_prolog_restore(vm->get_oid(), img_id, inc_id, disk_id);
+    tm->trigger_restore(vm->get_oid(), img_id, inc_id, disk_id);
 
     vm->set_vm_info();
 
