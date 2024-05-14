@@ -1949,6 +1949,7 @@ IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
 TM_FILES="src/tm_mad/tm_common.sh"
 
 TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
+              src/tm_mad/lib/ceph.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
               src/tm_mad/lib/datastore.rb \
@@ -2114,6 +2115,7 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/mkswap \
                  src/tm_mad/ceph/resize \
                  src/tm_mad/ceph/resize.ssh \
+                 src/tm_mad/ceph/restore \
                  src/tm_mad/ceph/prebackup_live \
                  src/tm_mad/ceph/prebackup \
                  src/tm_mad/ceph/postbackup_live \
