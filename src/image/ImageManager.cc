@@ -194,7 +194,7 @@ void ImageManager::monitor_datastore(int ds_id)
     {
         oss << "Error getting ImageManagerDriver";
 
-        NebulaLog::log("InM", Log::ERROR, oss);
+        NebulaLog::log("ImM", Log::ERROR, oss);
         return;
     }
 
@@ -255,7 +255,7 @@ void ImageManager::monitor_datastore(int ds_id)
     oss.str("");
     oss << "Monitoring datastore " << ds_name  << " (" << ds_id << ")";
 
-    NebulaLog::log("InM", Log::DEBUG, oss);
+    NebulaLog::log("ImM", Log::DEBUG, oss);
 
     image_msg_t msg(ImageManagerMessages::MONITOR, "", ds_id, drv_msg);
     imd->write(msg);
