@@ -120,7 +120,7 @@ int Backups::from_xml(const ObjectXML* xml)
 int Backups::parse(Template *tmpl, bool can_increment,
                    bool append, std::string& error_str)
 {
-    vector<VectorAttribute *> cfg_a;
+    vector<Attribute *> cfg_a;
 
     int    iattr;
     bool   battr;

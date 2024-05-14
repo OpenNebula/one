@@ -221,16 +221,15 @@ public:
      *  will be freed when the template destructor is called.
      *    @param attr pointer to the attribute
      */
-    virtual void set(Attribute * attr);
+    void set(Attribute * attr);
 
-    virtual void set(std::vector<SingleAttribute *>& values)
+    template<typename T>
+    void set(const std::vector<T *>& values)
     {
-        _set<SingleAttribute>(values);
-    }
-
-    virtual void set(std::vector<VectorAttribute *>& values)
-    {
-        _set<VectorAttribute>(values);
+        for (auto v : values)
+        {
+            set(v);
+        }
     }
 
     /**
@@ -302,7 +301,15 @@ public:
 
         for ( auto i = index.first; i != index.second; i++,j++ )
         {
-            values.push_back(static_cast<T *>(i->second));
+            auto att = dynamic_cast<T*>(i->second);
+
+            if (!att)
+            {
+                delete i->second;
+                continue;
+            }
+
+            values.push_back(att);
         }
 
         attributes.erase(index.first, index.second);
@@ -319,7 +326,14 @@ public:
 
         for ( auto i = index.first; i != index.second; i++,j++ )
         {
-            std::unique_ptr<T> va(static_cast<T *>(i->second));
+            std::unique_ptr<T> va(dynamic_cast<T *>(i->second));
+
+            if (!va)
+            {
+                delete i->second;
+                continue;
+            }
+
             values.push_back(std::move(va));
         }
 
@@ -698,15 +712,6 @@ private:
     {
         return const_cast<T *>(
                 static_cast<const Template&>(*this).__get<T>(s));
-    }
-
-    template<typename T>
-    void _set(const std::vector<T *>& values)
-    {
-        for (auto v : values)
-        {
-            set(v);
-        }
     }
 };
 

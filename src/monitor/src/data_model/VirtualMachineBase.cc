@@ -156,7 +156,7 @@ static bool isVolatile(const VectorAttribute * disk)
 
 void VirtualMachineBase::init_storage_usage()
 {
-    vector<Attribute  *>            disks;
+    vector<VectorAttribute *> disks;
 
     long long   size;
     long long   snapshot_size;
@@ -168,15 +168,8 @@ void VirtualMachineBase::init_storage_usage()
 
     int num = vm_template->remove("DISK", disks);
 
-    for (auto d : disks)
+    for (auto disk : disks)
     {
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(d);
-
-        if (disk == 0)
-        {
-            continue;
-        }
-
         if (disk->vector_value("SIZE", size) != 0)
         {
             continue;

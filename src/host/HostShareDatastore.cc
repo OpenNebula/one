@@ -24,7 +24,7 @@ using namespace std;
 
 void HostShareDatastore::set_monitorization(Template& ht)
 {
-    vector<Attribute *> vector_ds;
+    vector<VectorAttribute *> vector_ds;
 
     // -------------------------------------------------------------------------
     // Get overall datastore information
@@ -47,17 +47,9 @@ void HostShareDatastore::set_monitorization(Template& ht)
 
     ht.remove("DS", vector_ds);
 
-    for (auto it = vector_ds.begin(); it != vector_ds.end(); ++it)
+    for (auto ds: vector_ds)
     {
-        auto ds_attr = dynamic_cast<VectorAttribute*>(*it);
-
-        if (ds_attr == 0)
-        {
-            delete *it;
-            continue;
-        }
-
-        set(*it);
+        set(ds);
     }
 }
 
