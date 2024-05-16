@@ -131,68 +131,6 @@ module TransferManager
             rc
         end
 
-        # Makes a local call to some operation of the given DS driver
-        # @param [Integer] ds_id datastore ID
-        # @param [String] ds_op operation, as well as its arguments (e.g., "cp <img_id>")
-        #
-        # @return [GenericCommand] return code of the command
-        def call_ds_driver(ds_id, ds_op, extra_data = {})
-            ds = OpenNebula::Datastore.new_with_id(ds_id, @one)
-            rc = ds.info true
-            raise rc.message.to_s if OpenNebula.is_error?(rc)
-
-            extra_xml = extra_data[:extra_xml] || ''
-            extra_xml <<
-                if extra_data[:img_id]
-                    image = OpenNebula::Image.new_with_id(extra_data[:img_id], action.one)
-                    rc = image.info
-                    raise rc.message.to_s if OpenNebula.is_error?(rc)
-
-                    image.to_xml
-                else
-                    ''
-                end
-
-            ds_cmd = "#{__dir__}/../../datastore/#{ds['/DATASTORE/DS_MAD'].downcase}/#{ds_op}"
-
-            driver_action = <<~EOS
-                <DS_DRIVER_ACTION_DATA>
-                #{@vm.to_xml}
-                #{ds.to_xml}
-                #{extra_xml}
-                </DS_DRIVER_ACTION_DATA>
-            EOS
-
-            ssh(:host => nil,
-                :cmds => "echo '#{driver_action}' | #{ds_cmd}",
-                :forward  => false,
-                :nostdout => false,
-                :nostderr => false)
-        end
-
-        # Select a host from the datastore's BRIDGE_LIST.
-        # Equivalent to `get_destination_host` from datastore_mad/remotes/libfs.sh
-        # @param [Integer] ds_id datastore ID
-        #
-        # @return [String] chosen bridge host
-        def pick_bridge(ds_id)
-            bridges = get_bridge_list(ds_id)
-            bridge = bridges[@rridx % bridges.length]
-            @rridx += 1
-            bridge
-        end
-
-        # Return a datastore's BRIDGE_LIST
-        # @param [Integer] ds_id datastore ID
-        #
-        # @return [[String]] array of bridge hosts
-        def get_bridge_list(ds_id)
-            ds = OpenNebula::Datastore.new_with_id(ds_id, @one)
-            rc = ds.info
-            raise rc.message.to_s if OpenNebula.is_error?(rc)
-
-            ds['/DATASTORE/TEMPLATE/BRIDGE_LIST'].split
-        end
 
         # Creates dst path dir at host.
         # @param [String] dst path to create

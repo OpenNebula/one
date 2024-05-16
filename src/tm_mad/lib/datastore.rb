@@ -68,29 +68,114 @@ module TransferManager
         # Initialize OpenNebula object and get its information
         def initialize(options = {})
             @options={
-                :client      => nil,
-                :vm_xml      => '',
-                :ds_prefix   => '',
-                :ds_xml      => ''
+                :client => nil,
+                :ds     => nil
             }.merge!(options)
 
             @one = @options[:client]
             @one ||= OpenNebula::Client.new
 
-            if @options[:ds_xml].empty?
-                vm  = REXML::Document.new(@options[:vm_xml]).root
-                did = vm.elements['BACKUPS/BACKUP_CONFIG/LAST_DATASTORE_ID']
+            @ds    = @options[:ds]
+            @rridx = 0
 
-                @ds = OpenNebula::Datastore.new_with_id(did.text.to_i, @one)
-                rc  = @ds.info
+            @mad   = self['DS_MAD', ''].upcase
+        end
+
+        class << self
+            # Creates a datastore object associated to the backup datastore used
+            # by a VM
+            #  - options[:vm_xml] XML document for the VM
+            #  - options[:client] OpenNebula client object for API calls
+            def from_vm_backup_ds(options)
+                raise 'Virtual Machine XML not set' unless options[:vm_xml]
+
+                options[:client] ||= OpenNebula::Client.new
+
+                vm  = REXML::Document.new(options[:vm_xml]).root
+                did = vm.elements['BACKUPS/BACKUP_CONFIG/LAST_DATASTORE_ID'].text.to_i
+
+                options[:ds] = OpenNebula::Datastore.new_with_id(did, options[:client])
+
+                rc = options[:ds].info(true)
 
                 raise rc.message.to_s if OpenNebula.is_error?(rc)
-            else
-                xml = OpenNebula::XMLElement.build_xml(@options[:ds_xml], 'DATASTORE')
-                @ds = OpenNebula::Datastore.new(xml, @one)
+
+                self.new(options)
             end
 
-            @mad = self['DS_MAD', ''].upcase
+            # Creates a datastore object associated to a Image
+            #  - options[:image_id] ID of the Image
+            #  - options[:client] OpenNebula client object for API calls
+            def from_image_ds(options)
+                raise 'Image ID not set' unless options[:image]
+
+                options[:client] ||= OpenNebula::Client.new
+
+                did = options[:image]['/IMAGE/DATASTORE_ID'].to_i
+                options[:ds] = OpenNebula::Datastore.new_with_id(did, options[:client])
+
+                rc = options[:ds].info(true)
+
+                raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+                self.new(options)
+            end
+
+            # Creates a datastore from its XML description
+            #  - options[:ds_xml] XML document for the datastore object
+            #  - options[:client] OpenNebula client object for API calls
+            def from_xml(options)
+                raise 'Datastore XML not set' unless options[:ds_xml]
+
+                options[:client] ||= OpenNebula::Client.new
+
+                xml = OpenNebula::XMLElement.build_xml(options[:ds_xml], 'DATASTORE')
+                options[:ds] = OpenNebula::Datastore.new(xml, options[:client])
+
+                self.new(options)
+            end
+        end
+
+        # Makes a local call to some operation of the given DS driver
+        # @param [String] ds_op operation, as well as its arguments (e.g., "cp <img_id>")
+        #
+        # @return [GenericCommand] return code of the command
+        def action(ds_op, xml_data = '')
+            ds_cmd = "#{__dir__}/../../datastore/#{@mad.downcase}/#{ds_op}"
+
+            driver_action = <<~EOS
+                <DS_DRIVER_ACTION_DATA>
+                #{ds.to_xml}
+                #{xml_data}
+                </DS_DRIVER_ACTION_DATA>
+            EOS
+
+            Action.ssh('datastore_action',
+                       :host => nil,
+                       :cmds => "echo '#{driver_action}' | #{ds_cmd}",
+                       :forward  => false,
+                       :nostdout => false,
+                       :nostderr => false)
+        end
+
+        # Select a host from the datastore's BRIDGE_LIST.
+        # Equivalent to `get_destination_host` from datastore_mad/remotes/libfs.sh
+        #
+        # @return [String] chosen bridge host
+        def pick_bridge
+            bridges = bridge_list
+            bridge  = bridges[@rridx % bridges.length]
+
+            @rridx += 1
+
+            bridge
+        end
+
+        # Return a datastore's BRIDGE_LIST
+        #
+        # @return [[String]] array of bridge hosts
+        def bridge_list
+            @ds['/DATASTORE/TEMPLATE/BRIDGE_LIST'].split
         end
 
         def [](xpath, default = '')

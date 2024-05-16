@@ -120,7 +120,7 @@ Signal.trap(:TERM) do
     pipe_w.write 'W'
 end
 
-ds  = TransferManager::Datastore.new(:vm_xml => vm_xml)
+ds  = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml)
 cmd = ds.cmd_confinement(qcow2_cmd, rdir)
 
 pre_script = <<~EOS

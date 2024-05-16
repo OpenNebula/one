@@ -94,7 +94,7 @@ begin
         args = ds.elements['TEMPLATE/RSYNC_ARGS'].text
     end
 
-    ds = TransferManager::Datastore.new :ds_xml => ds_xml
+    ds = TransferManager::Datastore.from_xml(:ds_xml => ds_xml)
 rescue StandardError => e
     STDERR.puts e.message
     exit(-1)

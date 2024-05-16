@@ -62,7 +62,7 @@ require_relative '../lib/datastore'
 #-------------------------------------------------------------------------------
 # RESTORE vm_id img_id inc_id disk_id
 #-------------------------------------------------------------------------------
-# dir       = ARGV[0].split ':'
+_dir      = ARGV[0].split ':'
 vm_id     = ARGV[1]
 bk_img_id = ARGV[2].to_i
 inc_id    = ARGV[3]
@@ -71,25 +71,28 @@ disk_id   = ARGV[4].to_i
 begin
     action = TransferManager::Action.new(:action_name => 'restore',
                                          :vm_id => vm_id)
-
     # --------------------------------------------------------------------------
-    # Backup image information
+    # Image & Datastore information
     # --------------------------------------------------------------------------
     bk_img = OpenNebula::Image.new_with_id(bk_img_id, action.one)
+
     rc = bk_img.info
+
     raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-    # --------------------------------------------------------------------------
-    # Backup bk_img datastore
-    # --------------------------------------------------------------------------
-    ds_id = bk_img['/IMAGE/DATASTORE_ID'].to_i
-
+    ds = TransferManager::Datastore.from_image_ds(:image  => bk_img,
+                                                  :client => action.one)
     # --------------------------------------------------------------------------
     # Backup information
-    # --------------------------------------------------------------------------
-
     # sample output: {"0":"rsync://100//0:3ffce7/var/lib/one/datastores/100/1/3ffce7/disk.0.0"}
-    rc = action.call_ds_driver(ds_id, "ls -i #{inc_id}", :extra_xml => bk_img.to_xml)
+    # --------------------------------------------------------------------------
+    xml_data = <<~EOS
+        #{action.vm.to_xml}
+        #{bk_img.to_xml}
+    EOS
+
+    rc = ds.action("ls -i #{inc_id}", xml_data)
+
     raise 'cannot list backup contents' unless rc.code == 0
 
     disk_urls = JSON.parse(rc.stdout)
@@ -98,15 +101,17 @@ begin
     # --------------------------------------------------------------------------
     # Restore disk_urls in Host VM folder
     # --------------------------------------------------------------------------
-    ceph_disks = TransferManager::Ceph::Disk.from_vm(action.vm.template_xml)
+    ceph_disks    = TransferManager::Ceph::Disk.from_vm(action.vm.template_xml)
     success_disks = []
-    info = {}
-    disk_urls.each do |id, url|
-        ceph_disk = ceph_disks[id.to_i]
 
+    info = {}
+
+    disk_urls.each do |id, url|
+        ceph_disk  = ceph_disks[id.to_i]
         randsuffix = SecureRandom.hex(5)
+
         info[ceph_disk] = {
-            :br => action.pick_bridge(action.vm["/VM/TEMPLATE/DISK[DISK_ID = #{id}]/DATASTORE_ID"]),
+            :br  => ds.pick_bridge,
             :bak => "#{ceph_disk.rbd_image}.backup.#{randsuffix}",
             :old => "#{ceph_disk.rbd_image}.old.#{randsuffix}"
         }
@@ -136,12 +141,14 @@ begin
             cleanup = <<~EOS
                 #{ceph_disk.rbd_cmd} rm #{info[ceph_disk][:bak]}
             EOS
+
             action.ssh(:host => info[ceph_disk][:br],
                        :cmds => cleanup,
                        :forward  => false,
                        :nostdout => false,
                        :nostderr => false)
         end
+
         raise "error uploading backup disk to Ceph (#{success_disks.length}/#{disk_urls.length})"
     end
 

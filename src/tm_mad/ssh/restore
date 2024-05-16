@@ -73,7 +73,7 @@ begin
     action = TransferManager::Action.new(:action_name => 'restore',
                                          :vm_id => vm_id)
     # --------------------------------------------------------------------------
-    # Image information
+    # Image & Datastore information
     # --------------------------------------------------------------------------
     image = OpenNebula::Image.new_with_id(img_id.to_i, action.one)
 
@@ -81,34 +81,18 @@ begin
 
     raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-    # --------------------------------------------------------------------------
-    # Datastore information
-    # --------------------------------------------------------------------------
-    ds_id = image['/IMAGE/DATASTORE_ID'].to_i
-    ds    = OpenNebula::Datastore.new_with_id(ds_id, action.one)
-
-    rc = ds.info true
-
-    raise rc.message.to_s if OpenNebula.is_error?(rc)
-
-    ds_cmd = "#{__dir__}/../../datastore/#{ds['/DATASTORE/DS_MAD'].downcase}/ls"
+    ds = TransferManager::Datastore.from_image_ds(:image  => image,
+                                                  :client => action.one)
 
     # --------------------------------------------------------------------------
     # Backup information
     # --------------------------------------------------------------------------
-    driver_action = <<~EOS
-        <DS_DRIVER_ACTION_DATA>
-          #{action.vm.to_xml}
-          #{ds.to_xml}
-          #{image.to_xml}
-        </DS_DRIVER_ACTION_DATA>
+    xml_data = <<~EOS
+        #{action.vm.to_xml}
+        #{image.to_xml}
     EOS
 
-    rc = action.ssh(:host => nil,
-                    :cmds => "echo '#{driver_action}' | #{ds_cmd} -i #{inc_id}",
-                    :forward  => false,
-                    :nostdout => false,
-                    :nostderr => false)
+    rc = ds.action("ls -i #{inc_id}", xml_data)
 
     raise 'cannot list backup contents' unless rc.code == 0
 

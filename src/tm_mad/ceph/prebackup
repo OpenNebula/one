@@ -87,7 +87,7 @@ rdir      = dir[1]
 xml_doc = REXML::Document.new(vm_xml)
 vm      = xml_doc.root
 
-ds = TransferManager::Datastore.new(:vm_xml => vm_xml)
+ds = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml)
 
 base_path = ENV['BACKUP_BASE_PATH']
 
