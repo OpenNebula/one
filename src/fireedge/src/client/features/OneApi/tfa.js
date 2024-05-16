@@ -13,46 +13,53 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { oneApi } from 'client/features/OneApi'
+import { Actions, Commands } from 'server/routes/api/2fa/routes'
 
-const {
-  httpMethod,
-  from: fromData,
-} = require('../../../utils/constants/defaults')
+const tfaApi = oneApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getQr: builder.query({
+      /**
+       * Get Qr for 2FA.
+       *
+       * @param {object} params - Qr params
+       * @returns {object} Information about authenticated user
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.TFA_QR
+        const command = { name, ...Commands[name] }
 
-const { POST, DELETE, GET } = httpMethod
-const basepath = '/tfa'
-const TFA_SETUP = 'tfa.setup'
-const TFA_QR = 'tfa.qr'
-const TFA_DELETE = 'tfa.delete'
-
-const Actions = {
-  TFA_SETUP,
-  TFA_QR,
-  TFA_DELETE,
-}
-
-module.exports = {
-  Actions,
-  Commands: {
-    [TFA_SETUP]: {
-      path: `${basepath}`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        token: {
-          from: fromData.postBody,
-        },
+        return { params, command }
       },
-    },
-    [TFA_QR]: {
-      path: `${basepath}`,
-      httpMethod: GET,
-      auth: true,
-    },
-    [TFA_DELETE]: {
-      path: `${basepath}`,
-      httpMethod: DELETE,
-      auth: true,
-    },
-  },
-}
+      transformResponse: (response) => response?.img,
+    }),
+    enableTfa: builder.mutation({
+      query: (params) => {
+        const name = Actions.TFA_SETUP
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+    removeTfa: builder.mutation({
+      query: (params) => {
+        const name = Actions.TFA_DELETE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+    }),
+  }),
+})
+
+export const {
+  // Queries
+  useGetQrQuery,
+
+  // Mutations
+  useEnableTfaMutation,
+  useRemoveTfaMutation,
+} = tfaApi
+
+export default tfaApi

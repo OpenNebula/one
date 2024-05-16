@@ -100,20 +100,16 @@ const setup = (
   const { token } = params
   const oneConnect = oneConnection(user, password)
   getUserInfoAuthenticated(oneConnect, next, (data) => {
-    if (
-      Number.isInteger(parseInt(data?.USER?.ID, 10)) &&
-      data?.USER?.TEMPLATE?.SUNSTONE?.[default2FAOpennebulaTmpVar] &&
-      token
-    ) {
-      const sunstone = data.USER.TEMPLATE.SUNSTONE
-      const secret = sunstone[default2FAOpennebulaTmpVar]
+    const fireedge = data?.USER?.TEMPLATE?.FIREEDGE
+    const secret = fireedge?.[default2FAOpennebulaTmpVar]
+    if (Number.isInteger(parseInt(data?.USER?.ID, 10)) && secret && token) {
       if (check2Fa(secret, token)) {
         oneConnect({
           action: Actions.USER_UPDATE,
           parameters: [
             parseInt(data.USER.ID, 10),
             generateNewResourceTemplate(
-              data.USER.TEMPLATE.SUNSTONE || {},
+              fireedge || {},
               { [default2FAOpennebulaVar]: secret },
               [default2FAOpennebulaTmpVar]
             ),
@@ -186,7 +182,7 @@ const qr = (
               parameters: [
                 parseInt(data.USER.ID, 10),
                 generateNewResourceTemplate(
-                  data.USER.TEMPLATE.SUNSTONE || {},
+                  data.USER.TEMPLATE.FIREEDGE || {},
                   { [default2FAOpennebulaTmpVar]: base32 },
                   [default2FAOpennebulaVar]
                 ),
@@ -247,12 +243,13 @@ const del = (
 
   const oneConnect = oneConnection(user, password)
   getUserInfoAuthenticated(oneConnect, next, (data) => {
-    if (data?.USER?.TEMPLATE?.SUNSTONE) {
+    const fireedge = data?.USER?.TEMPLATE?.FIREEDGE
+    if (fireedge) {
       oneConnect({
         action: Actions.USER_UPDATE,
         parameters: [
           parseInt(data.USER.ID, 10),
-          generateNewResourceTemplate(data.USER.TEMPLATE.SUNSTONE || {}, {}, [
+          generateNewResourceTemplate(fireedge || {}, {}, [
             default2FAOpennebulaTmpVar,
             default2FAOpennebulaVar,
           ]),

@@ -397,7 +397,7 @@ const generateNewResourceTemplate = (
   current = {},
   addPositions = {},
   removedPositions = [],
-  wrapper = 'SUNSTONE=[%1$s]'
+  wrapper = 'FIREEDGE=[%1$s]'
 ) => {
   const positions = Object.entries({ ...current, ...addPositions })
     .filter((position) => {

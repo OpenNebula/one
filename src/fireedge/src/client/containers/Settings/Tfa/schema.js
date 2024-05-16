@@ -13,46 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { INPUT_TYPES, T } from 'client/constants'
+import { getObjectSchemaFromFields } from 'client/utils'
+import { number } from 'yup'
 
-const {
-  httpMethod,
-  from: fromData,
-} = require('../../../utils/constants/defaults')
-
-const { POST, DELETE, GET } = httpMethod
-const basepath = '/tfa'
-const TFA_SETUP = 'tfa.setup'
-const TFA_QR = 'tfa.qr'
-const TFA_DELETE = 'tfa.delete'
-
-const Actions = {
-  TFA_SETUP,
-  TFA_QR,
-  TFA_DELETE,
+const TFA_TOKEN = {
+  name: 'TOKEN',
+  label: T.EnterVerificationCode,
+  type: INPUT_TYPES.TEXT,
+  htmlType: 'number',
+  validation: number().min(0).required(),
+  grid: { md: 12 },
 }
 
-module.exports = {
-  Actions,
-  Commands: {
-    [TFA_SETUP]: {
-      path: `${basepath}`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        token: {
-          from: fromData.postBody,
-        },
-      },
-    },
-    [TFA_QR]: {
-      path: `${basepath}`,
-      httpMethod: GET,
-      auth: true,
-    },
-    [TFA_DELETE]: {
-      path: `${basepath}`,
-      httpMethod: DELETE,
-      auth: true,
-    },
-  },
-}
+/**
+ * @returns {object[]} fields
+ */
+export const FIELDS = [TFA_TOKEN]
+
+/**
+ * @returns {object[]} schema
+ */
+export const SCHEMA = () => getObjectSchemaFromFields(FIELDS)

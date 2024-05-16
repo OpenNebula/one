@@ -242,15 +242,23 @@ const updaterResponse = (code) => {
  */
 const validate2faAuthentication = (informationUser) => {
   let rtn = false
-  if (informationUser?.TEMPLATE?.SUNSTONE?.[default2FAOpennebulaVar]) {
+  const template = informationUser?.TEMPLATE
+  if (
+    template?.SUNSTONE?.[default2FAOpennebulaVar] ||
+    template?.FIREEDGE?.[default2FAOpennebulaVar]
+  ) {
     /*********************************************************
      * Validate 2FA
+     *
+     * Gives priority to the 2FA created directly in the fireedge and in case it is not configured, uses the 2FA created from the sunstone.
      *********************************************************/
 
     if (tfatoken.length <= 0) {
       updaterResponse(httpResponse(accepted, { id: informationUser?.ID }))
     } else {
-      const secret = informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
+      const secret =
+        template.FIREEDGE[default2FAOpennebulaVar] ||
+        template.SUNSTONE[default2FAOpennebulaVar]
       if (!check2Fa(secret, tfatoken)) {
         updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'))
       } else {

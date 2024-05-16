@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { Component, useReducer, useCallback } from 'react'
 import {
-  Typography,
-  TextField,
-  IconButton,
-  Grid,
-  Button,
   // Switch,
   // FormControlLabel,
   Box,
+  Button,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
   MenuItem,
+  TextField,
+  Typography,
 } from '@mui/material'
-import { EditPencil } from 'iconoir-react'
+import { useGeneralApi } from 'client/features/General'
 import {
+  useChangeAuthDriverMutation,
   useGetUserQuery,
   useUpdateUserMutation,
-  useChangeAuthDriverMutation,
 } from 'client/features/OneApi/user'
-import { useGeneralApi } from 'client/features/General'
+import { EditPencil } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { Component, useCallback, useReducer } from 'react'
 
 /**
  * Reducer to manage the state of the AuthenticationInfo component.
@@ -227,20 +227,6 @@ const AuthenticationInfo = ({ id }) => {
               ))}
             </TextField>
           </Grid>
-          {/* To be enabled when 2FA is done */}
-          {/*         <Grid item xs={6}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={state.twoFactorAuth}
-                onChange={() =>
-                  handleFieldChange('twoFactorAuth', !state.twoFactorAuth)
-                }
-              />
-            }
-            label="Two factor authentication"
-          />
-        </Grid> */}
           <Grid item xs={6}>
             <TextField
               label="Password"
@@ -255,16 +241,6 @@ const AuthenticationInfo = ({ id }) => {
               }}
             />
           </Grid>
-          {/* Not implemented yet */}
-          {/*         <Grid item xs={6}>
-          <TextField
-            label="Login token"
-            value={state.token}
-            onChange={(e) => handleFieldChange('token', e.target.value)}
-            fullWidth
-            variant="outlined"
-          />
-        </Grid> */}
           <Grid item xs={6}>
             <IconButton
               onClick={() => handleFieldChange('sshKeyDialogOpen', true)}

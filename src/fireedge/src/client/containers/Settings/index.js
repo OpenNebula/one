@@ -24,6 +24,7 @@ import ConfigurationUISection from 'client/containers/Settings/ConfigurationUI'
 import LabelsSection from 'client/containers/Settings/LabelsSection'
 import LoginTokenSection from 'client/containers/Settings/LoginToken'
 import ShowbackSection from 'client/containers/Settings/Showback'
+import Tfa from 'client/containers/Settings/Tfa'
 
 import { useSystemData } from 'client/features/Auth'
 
@@ -50,6 +51,7 @@ const Settings = () => {
         <AuthenticationSection />
         {adminGroup ? <ShowbackSection /> : null}
         <LoginTokenSection />
+        <Tfa />
       </Box>
     </>
   )

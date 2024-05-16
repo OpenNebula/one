@@ -22,6 +22,17 @@ export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
 export const SUPPORT_WEBSITE = 'https://opennebula.io/support/'
 export const COMMUNITY_WEBSITE = 'https://opennebula.io/usec'
 export const DOCUMENTATION_WEBSITE = 'https://docs.opennebula.io/6.3/'
+export const AUTH_APPS = [
+  { text: 'Authy', url: 'https://authy.com/download/' },
+  {
+    text: 'Google Authenticator',
+    url: 'https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en',
+  },
+  {
+    text: 'Microsoft Authenticator',
+    url: 'https://www.microsoft.com/en-us/p/microsoft-authenticator/9nblgggzmcj6?activetab=pivot:overviewtab',
+  },
+]
 
 /**
  * Server side constants (not all of them are used in client)
@@ -194,9 +205,9 @@ export const RESOURCE_NAMES = {
 }
 export * as T from 'client/constants/translates'
 
+export * from 'client/constants/acl'
 export * as ACTIONS from 'client/constants/actions'
 export * as STATES from 'client/constants/states'
-export * from 'client/constants/acl'
 
 export * from 'client/constants/backupjob'
 export * from 'client/constants/cluster'
@@ -215,15 +226,15 @@ export * from 'client/constants/provision'
 export * from 'client/constants/quota'
 export * from 'client/constants/scheduler'
 export * from 'client/constants/securityGroup'
+export * from 'client/constants/serviceTemplate'
+export * from 'client/constants/support'
 export * from 'client/constants/system'
 export * from 'client/constants/user'
 export * from 'client/constants/userInput'
+export * from 'client/constants/vRouter'
+export * from 'client/constants/vRouterTemplate'
 export * from 'client/constants/vdc'
 export * from 'client/constants/vm'
 export * from 'client/constants/vmGroup'
 export * from 'client/constants/vmTemplate'
-export * from 'client/constants/vRouter'
-export * from 'client/constants/vRouterTemplate'
-export * from 'client/constants/serviceTemplate'
-export * from 'client/constants/support'
 export * from 'client/constants/zone'
