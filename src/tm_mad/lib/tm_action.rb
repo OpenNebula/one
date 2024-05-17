@@ -131,7 +131,6 @@ module TransferManager
             rc
         end
 
-
         # Creates dst path dir at host.
         # @param [String] dst path to create
         # @param [String] host target host
@@ -139,6 +138,7 @@ module TransferManager
         # @param [Boolean] do_exit exit action if failure
         #
         # @return [Integer] of the path creation command
+
         def make_dst_path(host, dst, dmonit = false, do_exit = true)
             path   = File.dirname(dst)
             script = <<~EOS

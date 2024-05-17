@@ -82,6 +82,7 @@ module TransferManager
         end
 
         class << self
+
             # Creates a datastore object associated to the backup datastore used
             # by a VM
             #  - options[:vm_xml] XML document for the VM
@@ -100,7 +101,7 @@ module TransferManager
 
                 raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-                self.new(options)
+                new(options)
             end
 
             # Creates a datastore object associated to a Image
@@ -118,7 +119,7 @@ module TransferManager
 
                 raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-                self.new(options)
+                new(options)
             end
 
             # Creates a datastore from its XML description
@@ -132,8 +133,9 @@ module TransferManager
                 xml = OpenNebula::XMLElement.build_xml(options[:ds_xml], 'DATASTORE')
                 options[:ds] = OpenNebula::Datastore.new(xml, options[:client])
 
-                self.new(options)
+                new(options)
             end
+
         end
 
         # Makes a local call to some operation of the given DS driver
