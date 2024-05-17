@@ -53,7 +53,7 @@ const AutocompleteController = memo(
           ? newValue?.map((value) =>
               typeof value === 'object' ? value.value : value
             )
-          : typeof newValue === 'object'
+          : newValue && typeof newValue === 'object'
           ? newValue.value
           : newValue
 
