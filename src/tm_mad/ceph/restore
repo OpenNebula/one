@@ -77,11 +77,11 @@ begin
     bk_img = OpenNebula::Image.new_with_id(bk_img_id, action.one)
 
     rc = bk_img.info
-
     raise rc.message.to_s if OpenNebula.is_error?(rc)
 
-    ds = TransferManager::Datastore.from_image_ds(:image  => bk_img,
-                                                  :client => action.one)
+    bk_ds = TransferManager::Datastore.from_image_ds(:image  => bk_img,
+                                                     :client => action.one)
+
     # --------------------------------------------------------------------------
     # Backup information
     # sample output: {"0":"rsync://100//0:3ffce7/var/lib/one/datastores/100/1/3ffce7/disk.0.0"}
@@ -91,7 +91,7 @@ begin
         #{bk_img.to_xml}
     EOS
 
-    rc = ds.action("ls -i #{inc_id}", xml_data)
+    rc = bk_ds.action("ls -i #{inc_id}", xml_data)
 
     raise 'cannot list backup contents' unless rc.code == 0
 
@@ -110,8 +110,13 @@ begin
         ceph_disk  = ceph_disks[id.to_i]
         randsuffix = SecureRandom.hex(5)
 
+        ceph_one_ds = OpenNebula::Datastore.new_with_id(
+            action.vm["/VM/TEMPLATE/DISK[DISK_ID = #{id}]/DATASTORE_ID"].to_i, action.one
+        )
+        ceph_ds = TransferManager::Datastore.new(:ds => ceph_one_ds, :client => action.one)
+
         info[ceph_disk] = {
-            :br  => ds.pick_bridge,
+            :br  => ceph_ds.pick_bridge,
             :bak => "#{ceph_disk.rbd_image}.backup.#{randsuffix}",
             :old => "#{ceph_disk.rbd_image}.old.#{randsuffix}"
         }

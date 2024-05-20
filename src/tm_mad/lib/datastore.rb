@@ -76,6 +76,11 @@ module TransferManager
             @one ||= OpenNebula::Client.new
 
             @ds    = @options[:ds]
+            if @ds && @ds['NAME'].nil?
+                rc = @ds.info(true)
+                raise rc.message.to_s if OpenNebula.is_error?(rc)
+            end
+
             @rridx = 0
 
             @mad   = self['DS_MAD', ''].upcase
@@ -98,7 +103,6 @@ module TransferManager
                 options[:ds] = OpenNebula::Datastore.new_with_id(did, options[:client])
 
                 rc = options[:ds].info(true)
-
                 raise rc.message.to_s if OpenNebula.is_error?(rc)
 
                 new(options)
@@ -116,7 +120,6 @@ module TransferManager
                 options[:ds] = OpenNebula::Datastore.new_with_id(did, options[:client])
 
                 rc = options[:ds].info(true)
-
                 raise rc.message.to_s if OpenNebula.is_error?(rc)
 
                 new(options)
@@ -132,6 +135,9 @@ module TransferManager
 
                 xml = OpenNebula::XMLElement.build_xml(options[:ds_xml], 'DATASTORE')
                 options[:ds] = OpenNebula::Datastore.new(xml, options[:client])
+
+                rc = options[:ds].info(true)
+                raise rc.message.to_s if OpenNebula.is_error?(rc)
 
                 new(options)
             end
