@@ -696,12 +696,12 @@ const transformActionsInstantiate = (template, original) => {
     template.DISK = '![CDATA[]]'
   }
 
-  // if (
-  //   original.TEMPLATE.SCHED_ACTION &&
-  //   (!template.SCHED_ACTION || template.SCHED_ACTION.length === 0)
-  // ) {
-  //   template.SCHED_ACTION = '![CDATA[]]'
-  // }
+  if (
+    original.TEMPLATE.SCHED_ACTION &&
+    (!template.SCHED_ACTION || template.SCHED_ACTION.length === 0)
+  ) {
+    template.SCHED_ACTION = '![CDATA[]]'
+  }
 }
 
 /**
