@@ -357,16 +357,15 @@ define(function(require) {
 
           if (is_fireedge_configured){
             $(".provision_vnc_button", context).parent().hide();
+            $(".provision_guac_rdp_button", context).parent().toggle(is_rdp_allowed);
+            $(".provision_guac_ssh_button", context).parent().toggle(is_ssh_allowed);
+
             if (is_vmrc_allowed) {
               $(".provision_vmrc_button", context).parent().show();
               $(".provision_guac_vnc_button", context).parent().hide();
-              $(".provision_guac_rdp_button", context).parent().hide();
-              $(".provision_guac_ssh_button", context).parent().hide();
             }else { // Guacamole connections
               $(".provision_vmrc_button", context).parent().hide();
               $(".provision_guac_vnc_button", context).parent().show();
-              $(".provision_guac_rdp_button", context).parent().toggle(is_rdp_allowed);
-              $(".provision_guac_ssh_button", context).parent().toggle(is_ssh_allowed);
             }
           }
           else{
