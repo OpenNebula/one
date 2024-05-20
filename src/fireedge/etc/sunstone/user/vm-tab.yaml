@@ -130,6 +130,12 @@ info-tabs:
       nic-update: true
       sg-attach: true
       sg-detach: true
+      
+  pci:
+    enabled: true
+    actions:
+      pci-attach: true
+      pci-detach: true      
 
   snapshot:
     enabled: true

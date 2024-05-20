@@ -101,6 +101,7 @@ dialogs:
     network: true
     storage: true
     placement: true
+    pci: true
     input_output: true
     sched_action: true
     context: true

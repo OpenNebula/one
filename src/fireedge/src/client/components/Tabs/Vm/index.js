@@ -43,6 +43,7 @@ import SchedActions from 'client/components/Tabs/Vm/SchedActions'
 import Snapshot from 'client/components/Tabs/Vm/Snapshot'
 import Storage from 'client/components/Tabs/Vm/Storage'
 import Template from 'client/components/Tabs/Vm/Template'
+import Pci from 'client/components/Tabs/Vm/Pci'
 
 const useStyles = makeStyles(({ palette }) => ({
   vmError: {
@@ -57,6 +58,7 @@ const getTabComponent = (tabName) =>
   ({
     info: Info,
     network: Network,
+    pci: Pci,
     history: History,
     sched_actions: SchedActions,
     snapshot: Snapshot,

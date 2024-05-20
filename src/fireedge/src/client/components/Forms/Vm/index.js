@@ -194,8 +194,16 @@ const UpdateConfigurationForm = (configProps) =>
 const BackupForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Vm/BackupForm' }, configProps)
 
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const AttachPciForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Vm/AttachPciForm' }, configProps)
+
 export {
   AttachNicForm,
+  AttachPciForm,
   AttachSecGroupForm,
   BackupForm,
   ChangeGroupForm,

@@ -217,6 +217,20 @@ export const getNics = (vm, options = {}) => {
 }
 
 /**
+ * @param {VM} vm - Virtual machine
+ * @returns {Nic[]} List of pcis from resource
+ */
+export const getPcis = (vm) => {
+  const { TEMPLATE = {} } = vm ?? {}
+  const { PCI = [] } = TEMPLATE
+
+  const PCI_ARRAY = Array.isArray(PCI) ? PCI : [PCI]
+  const pcis = PCI_ARRAY.filter(({ TYPE } = {}) => TYPE !== 'NIC')
+
+  return pcis
+}
+
+/**
  * @param {Nic} nic - NIC
  * @returns {string[]} Ips from resource
  */

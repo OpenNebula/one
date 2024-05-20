@@ -99,6 +99,7 @@ dialogs:
         - firecracker
     network: true
     storage: true
+    pci: true
     placement: true
     input_output: true
     sched_action: true

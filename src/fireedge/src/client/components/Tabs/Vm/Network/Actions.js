@@ -80,7 +80,7 @@ const AttachAction = memo(
               // Set field path
               if (nic) {
                 if (isPci) {
-                  setFieldPath(`extra.InputOutput.PCI.${indexPci}`)
+                  setFieldPath(`extra.PciDevices.PCI.${indexPci}`)
                 } else {
                   setFieldPath(`extra.Network.NIC.${indexNic}`)
                 }

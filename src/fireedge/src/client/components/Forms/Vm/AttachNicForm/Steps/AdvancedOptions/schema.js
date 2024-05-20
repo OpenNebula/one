@@ -36,12 +36,12 @@ import {
   IPV4_METHODS,
   IPV6_METHODS,
 } from 'client/constants'
-import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { useGetHostsAdminQuery } from 'client/features/OneApi/host'
 import { getPciDevices } from 'client/models/Host'
 import {
   getPciAttributes,
   transformPciToString,
-} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/pciDevicesSchema'
+} from 'client/components/Forms/Vm/AttachPciForm/schema.js'
 
 const { vcenter, firecracker, lxc } = HYPERVISORS
 const PCI_TYPE_NAME = 'PCI_TYPE'
@@ -438,7 +438,7 @@ const HARDWARE_FIELDS = (
     label: T.DeviceName,
     type: INPUT_TYPES.SELECT,
     values: () => {
-      const { data: hosts = [] } = useGetHostsQuery()
+      const { data: hosts = [] } = useGetHostsAdminQuery()
       const pciDevices = hosts
         .map(getPciDevices)
         .flat()
@@ -573,11 +573,32 @@ const HARDWARE_FIELDS = (
   {
     name: 'SHORT_ADDRESS',
     label: T.ShortAddress,
-    type: INPUT_TYPES.TEXT,
+    tooltip: T.ShortAddressConcept,
+    type: INPUT_TYPES.AUTOCOMPLETE,
     notOnHypervisors: [vcenter, lxc, firecracker],
     dependOf: PCI_TYPE_NAME,
     htmlType: (value) =>
       value !== NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL && INPUT_TYPES.HIDDEN,
+    values: () => {
+      const { data: hosts = [] } = useGetHostsAdminQuery()
+      const pciDevices = hosts
+        .map(getPciDevices)
+        .flat()
+        .reduce(
+          (currentPCIS, newDevice) =>
+            currentPCIS.some((pci) => pci.ADDRESS === newDevice.ADDRESS) // Filter out devices with the same address
+              ? currentPCIS
+              : [...currentPCIS, newDevice],
+          []
+        )
+
+      return arrayToOptions(pciDevices, {
+        addEmpty: false,
+        getText: ({ SHORT_ADDRESS, DEVICE_NAME } = {}) =>
+          `${DEVICE_NAME}: ${SHORT_ADDRESS}`,
+        getValue: ({ SHORT_ADDRESS } = {}) => SHORT_ADDRESS,
+      })
+    },
     validation: string()
       .when('PCI_TYPE', (type, schema) =>
         type === NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL

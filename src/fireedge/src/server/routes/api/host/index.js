@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, ObjectSchema } from 'yup'
 
-import { GRAPHICS_SCHEMA } from './graphicsSchema'
-import { INPUTS_SCHEMA } from './inputsSchema'
-import { VIDEO_SCHEMA } from './videoSchema'
+const { Actions, Commands } = require('server/routes/api/host/routes')
+const { show } = require('server/routes/api/host/functions')
 
-/**
- * @param {string} [hypervisor] - VM hypervisor
- * @param {object} oneConfig - Config of oned.conf
- * @param {boolean} adminGroup - User is admin or not
- * @param {boolean} isUpdate - The form is being updated
- * @returns {ObjectSchema} I/O schema
- */
-export const SCHEMA = (hypervisor, oneConfig, adminGroup, isUpdate) =>
-  object()
-    .concat(INPUTS_SCHEMA)
-    .concat(GRAPHICS_SCHEMA(hypervisor, oneConfig, adminGroup, isUpdate))
-    .concat(VIDEO_SCHEMA(hypervisor))
+const { HOSTPOOL_ADMINSHOW } = Actions
 
-export * from './graphicsSchema'
-export * from './inputsSchema'
-export * from './videoSchema'
+module.exports = [
+  {
+    ...Commands[HOSTPOOL_ADMINSHOW],
+    action: show,
+  },
+]

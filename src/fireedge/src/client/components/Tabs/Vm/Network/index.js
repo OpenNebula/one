@@ -116,22 +116,37 @@ const VmNetworkTab = ({
   // Handle actions on NIC and alias
   const handleAttach = async (formData) => {
     // Add type if it's a pci nic
-    if (Object.values(PCI_TYPES).includes(formData?.PCI_TYPE))
+    if (Object.values(PCI_TYPES).includes(formData?.PCI_TYPE)) {
       formData.TYPE = 'NIC'
 
-    await attachNic({
-      id: id,
-      template: jsonToXml({ NIC: formData }),
-    })
+      await attachNic({
+        id: id,
+        template: jsonToXml({ PCI: formData }),
+      })
+    } else {
+      await attachNic({
+        id: id,
+        template: jsonToXml({ NIC: formData }),
+      })
+    }
   }
   const handleDetach = (nicId) => async () =>
     await detachNic({ id: id, nic: nicId })
-  const handleUpdate = (nicId) => async (formData) =>
-    await updateNic({
-      id: id,
-      nic: nicId,
-      template: jsonToXml({ NIC: formData }),
-    })
+  const handleUpdate = (nicId) => async (formData) => {
+    if (Object.values(PCI_TYPES).includes(formData?.PCI_TYPE)) {
+      await updateNic({
+        id: id,
+        nic: nicId,
+        template: jsonToXml({ PCI: formData }),
+      })
+    } else {
+      await updateNic({
+        id: id,
+        nic: nicId,
+        template: jsonToXml({ NIC: formData }),
+      })
+    }
+  }
 
   return (
     <div>

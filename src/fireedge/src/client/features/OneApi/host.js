@@ -27,6 +27,12 @@ import {
   updateResourceOnPool,
   updateTemplateOnResource,
 } from 'client/features/OneApi/common'
+
+import {
+  Actions as ExtraActions,
+  Commands as ExtraCommands,
+} from 'server/routes/api/host/routes'
+
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
 
 const { HOST } = ONE_RESOURCES
@@ -48,6 +54,29 @@ const hostApi = oneApi.injectEndpoints({
         const command = { name, ...Commands[name] }
 
         return { command, params }
+      },
+      transformResponse: (data) => [data?.HOST_POOL?.HOST ?? []].flat(),
+      providesTags: (hosts) =>
+        hosts
+          ? [
+              ...hosts.map(({ ID }) => ({ type: HOST_POOL, id: `${ID}` })),
+              HOST_POOL,
+            ]
+          : [HOST_POOL],
+    }),
+    getHostsAdmin: builder.query({
+      /**
+       * Retrieve the information as serveradmin.
+       *
+       * @param {object} params - Request params
+       * @returns {Host[]} Get cluster identified by id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActions.HOSTPOOL_ADMINSHOW
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
       },
       transformResponse: (data) => [data?.HOST_POOL?.HOST ?? []].flat(),
       providesTags: (hosts) =>
@@ -375,6 +404,7 @@ export const {
   useGetHostQuery,
   useLazyGetHostQuery,
   useGetHostsQuery,
+  useGetHostsAdminQuery,
   useLazyGetHostsQuery,
   useGetHostMonitoringQuery,
   useLazyGetHostMonitoringQuery,

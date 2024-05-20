@@ -35,14 +35,6 @@ const NETWORK = {
   grid: { md: 12 },
 }
 
-const NETWORKSELECTION = {
-  name: 'autonetworkselect',
-  label: 'Automatic network selection',
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
-  grid: { md: 6 },
-}
-
 const RDP = {
   name: 'rdpconnection',
   label: 'Enable RDP',
@@ -113,7 +105,6 @@ const SECURITY_GROUPS = {
 }
 
 export const FIELDS = [
-  NETWORKSELECTION,
   RDP,
   SSH,
   NETWORK,

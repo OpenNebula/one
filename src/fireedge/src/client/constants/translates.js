@@ -910,7 +910,17 @@ module.exports = {
   Emulated: 'Emulated',
   PCIPassthroughAutomatic: 'PCI Passthrough - Automatic',
   PCIPassthroughManual: 'PCI Passthrough - Manual',
+  AttachPci: 'Attach PCI device',
+  AttachPciSuccess: 'PCI attached successfully - Virtual machine #%s',
+  DetachPci: 'Detach PCI device',
+  DetachPciSuccess: 'PCI detached successfully - Virtual machine #%s',
+  PCISpecificDevice: 'Specific device',
+  PCISpecificDeviceHelp:
+    'Check if you want to specify a short address of a PCI device',
   ShortAddress: 'Short address',
+  NicPciWarning:
+    ' PCI passthrough of network devices is configured per NIC, in the "Network" tab. Do not add network devices here.',
+  PciAttachWarning: 'PCI only can be attach or detach in POWEROFF state.',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
   VmSnapshotHint: `

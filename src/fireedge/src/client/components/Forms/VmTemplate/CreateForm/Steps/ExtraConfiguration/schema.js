@@ -29,6 +29,7 @@ import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
 import { SCHEMA as STORAGE_SCHEMA } from './storage/schema'
 import { SCHEMA as NETWORK_SCHEMA } from './networking/schema'
+import { SCHEMA as PCI_SCHEMA } from './pci/schema'
 
 /**
  * Map name attribute if not exists.
@@ -79,6 +80,7 @@ export const SCHEMA = (
     )
     .concat(getObjectSchemaFromFields([...BACKUP_FIELDS]))
     .concat(VCPU_SCHEMA)
+    .concat(PCI_SCHEMA)
     .concat(NUMA_SCHEMA(hypervisor))
 
 export {

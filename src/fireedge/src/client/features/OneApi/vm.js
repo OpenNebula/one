@@ -1098,6 +1098,43 @@ const vmApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
     }),
+    attachPci: builder.mutation({
+      /**
+       * Attaches a new PCI device to the virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Virtual machine id
+       * @param {string} params.template
+       * - A string containing a single NIC vector attribute
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_PCI_ATTACH
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
+    detachPci: builder.mutation({
+      /**
+       * Detaches a PCI device from a virtual machine.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {string} params.nic - NIC id
+       * @returns {number} Virtual machine id
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.VM_PCI_DETACH
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+    }),
   }),
 })
 
@@ -1159,6 +1196,8 @@ export const {
   useAddScheduledActionMutation,
   useUpdateScheduledActionMutation,
   useDeleteScheduledActionMutation,
+  useAttachPciMutation,
+  useDetachPciMutation,
 } = vmApi
 
 export default vmApi

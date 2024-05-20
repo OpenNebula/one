@@ -179,7 +179,8 @@ export const TAB_FORM_MAP = {
   Storage: ['DISK', 'TM_MAD_SYSTEM'],
   Network: ['NIC', 'NIC_ALIAS', 'PCI', 'NIC_DEFAULT'],
   OsCpu: ['OS', 'CPU_MODEL', 'FEATURES', 'RAW'],
-  InputOutput: ['INPUT', 'GRAPHICS', 'VIDEO', 'PCI'],
+  PciDevices: ['PCI'],
+  InputOutput: ['INPUT', 'GRAPHICS', 'VIDEO'],
   Context: ['CONTEXT', 'USER_INPUTS', 'INPUTS_ORDER'],
   ScheduleAction: ['SCHED_ACTION'],
   Placement: [

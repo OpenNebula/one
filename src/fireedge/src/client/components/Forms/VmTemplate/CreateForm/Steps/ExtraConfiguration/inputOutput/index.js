@@ -25,21 +25,14 @@ import {
   TabType,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import InputsSection, { SECTION_ID as INPUT_ID } from './inputsSection'
-import PciDevicesSection, { SECTION_ID as PCI_ID } from './pciDevicesSection'
 import VideoSection, { SECTION_ID as VIDEO_ID } from './videoSection'
 import { GRAPHICS_FIELDS } from './schema'
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
-export const TAB_ID = ['GRAPHICS', INPUT_ID, PCI_ID, VIDEO_ID]
+export const TAB_ID = ['GRAPHICS', INPUT_ID, VIDEO_ID]
 
-const InputOutput = ({
-  hypervisor,
-  oneConfig,
-  adminGroup,
-  isUpdate,
-  isVrouter,
-}) => {
+const InputOutput = ({ hypervisor, oneConfig, adminGroup, isUpdate }) => {
   const { setFieldPath } = useGeneralApi()
   useEffect(() => {
     setFieldPath(`extra.InputOutput`)
@@ -64,14 +57,6 @@ const InputOutput = ({
         oneConfig={oneConfig}
         adminGroup={adminGroup}
       />
-      {!isVrouter && (
-        <PciDevicesSection
-          stepId={EXTRA_ID}
-          hypervisor={hypervisor}
-          oneConfig={oneConfig}
-          adminGroup={adminGroup}
-        />
-      )}
       <VideoSection
         stepId={EXTRA_ID}
         hypervisor={hypervisor}

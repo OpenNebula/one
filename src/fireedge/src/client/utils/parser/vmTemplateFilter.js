@@ -559,7 +559,7 @@ const handleOtherSections = (
       } else if (key === 'PCI') {
         handleNetwork(
           formData,
-          correctionMap?.extra?.InputOutput,
+          correctionMap?.extra?.PciDevices,
           newExtra,
           'PCI',
           'PCI',

@@ -58,6 +58,8 @@ const VM_POOL_MONITORING = 'vmpool.monitoring'
 const VM_POOL_ACCOUNTING = 'vmpool.accounting'
 const VM_POOL_SHOWBACK = 'vmpool.showback'
 const VM_POOL_CALCULATE_SHOWBACK = 'vmpool.calculateshowback'
+const VM_PCI_ATTACH = 'vm.attachpci'
+const VM_PCI_DETACH = 'vm.detachpci'
 const Actions = {
   VM_ALLOCATE,
   VM_DEPLOY,
@@ -100,6 +102,8 @@ const Actions = {
   VM_POOL_ACCOUNTING,
   VM_POOL_SHOWBACK,
   VM_POOL_CALCULATE_SHOWBACK,
+  VM_PCI_ATTACH,
+  VM_PCI_DETACH,
 }
 module.exports = {
   Actions,
@@ -843,6 +847,32 @@ module.exports = {
         endYear: {
           from: query,
           default: -1,
+        },
+      },
+    },
+    [VM_PCI_ATTACH]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        template: {
+          from: postBody,
+          default: '',
+        },
+      },
+    },
+    [VM_PCI_DETACH]: {
+      httpMethod: PUT,
+      params: {
+        id: {
+          from: resource,
+          default: -1,
+        },
+        pci: {
+          from: postBody,
+          default: 0,
         },
       },
     },

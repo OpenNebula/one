@@ -29,6 +29,7 @@ import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extra
 import ScheduleAction from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
 import Booting from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import Context from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context'
+import Pci from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/pci'
 import InputOutput from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput'
 import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa'
 import Backup from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup'
@@ -38,7 +39,7 @@ import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extr
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
 import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
-const VROUTER_DISABLED_TABS = ['network']
+const VROUTER_DISABLED_TABS = ['network', 'pci']
 
 /**
  * @typedef {object} TabType
@@ -56,6 +57,7 @@ export const TABS = [
   Storage,
   Networking,
   Booting,
+  Pci,
   InputOutput,
   Context,
   ScheduleAction,

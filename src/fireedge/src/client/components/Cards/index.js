@@ -36,6 +36,7 @@ import MarketplaceAppCard from 'client/components/Cards/MarketplaceAppCard'
 import MarketplaceCard from 'client/components/Cards/MarketplaceCard'
 import NetworkCard from 'client/components/Cards/NetworkCard'
 import NicCard from 'client/components/Cards/NicCard'
+import PciCard from 'client/components/Cards/PciCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
 import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
@@ -79,6 +80,7 @@ export {
   MarketplaceCard,
   NetworkCard,
   NicCard,
+  PciCard,
   PolicyCard,
   ProvisionCard,
   ProvisionTemplateCard,

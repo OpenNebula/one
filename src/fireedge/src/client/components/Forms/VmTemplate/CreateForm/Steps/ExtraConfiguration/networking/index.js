@@ -68,7 +68,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
     ])
 
     // Init pci modified fields
-    setFieldPath(`extra.InputOutput.PCI`)
+    setFieldPath(`extra.PciDevices.PCI`)
     initModifiedFields([
       ...pcis.map((element, index) => ({ __aliasPci__: index })),
     ])
@@ -134,7 +134,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
       const indexRemove = list.findIndex((nicPci) => nicPci.id === idNic)
 
       // Set field path on the index of pci array to set delete flag in this element
-      setFieldPath(`extra.InputOutput.PCI.${indexRemove}`)
+      setFieldPath(`extra.PciDevices.PCI.${indexRemove}`)
     } else {
       // Select list and map name function with nic type
       list = nics
@@ -217,7 +217,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
           changePositionModifiedFields({
             sourcePath: 'extra.Network.NIC',
             sourcePosition: indexNic,
-            targetPath: 'extra.InputOutput.PCI',
+            targetPath: 'extra.PciDevices.PCI',
             targetPosition: pcis.length,
             sourceDelete: false,
             emptyObjectContent: true,
@@ -250,7 +250,7 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
         // If the old element it's on pcis array, we need to get the state (if it was deleted or updated) of the element from Network.PCI of moodifiedFields and set on Network.NIC of modifiedFields
         if (indexPci !== -1) {
           changePositionModifiedFields({
-            sourcePath: 'extra.InputOutput.PCI',
+            sourcePath: 'extra.PciDevices.PCI',
             sourcePosition: indexPci,
             targetPath: 'extra.Network.NIC',
             targetPosition: nics.length,
@@ -302,11 +302,11 @@ const Networking = ({ hypervisor, oneConfig, adminGroup }) => {
         changePositionModifiedFields({
           sourcePath: 'extra.Network.NIC',
           sourcePosition: nics.length,
-          targetPath: 'extra.InputOutput.PCI',
+          targetPath: 'extra.PciDevices.PCI',
           targetPosition: pcis.length,
           sourceDelete: true,
         })
-      setFieldPath(`extra.InputOutput.PCI.${pcis.length}`)
+      setFieldPath(`extra.PciDevices.PCI.${pcis.length}`)
       setModifiedFields({
         advanced: { PCI_TYPE: { __delete__: true } },
       })
