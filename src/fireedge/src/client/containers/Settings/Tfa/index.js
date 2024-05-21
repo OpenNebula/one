@@ -121,6 +121,7 @@ const Qr = ({
                     className={classes.qr}
                     src={data}
                     alt={Tr(T.ScanThisQr)}
+                    data-cy="qrTfa"
                   />
                 )}
               </Grid>
@@ -237,7 +238,18 @@ const Tfa = () => {
         fireedge?.TWO_FACTOR_AUTH_SECRET) && (
         <List className={classes.enabled}>
           {sunstone?.TWO_FACTOR_AUTH_SECRET && (
-            <ListItem>
+            <ListItem
+              secondaryAction={
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleRemoveTfa}
+                  data-cy="removeTfa"
+                >
+                  <Trash className="icon" />
+                </Button>
+              }
+            >
               <Translate word={T.AuthenticatorAppSunstone} />
             </ListItem>
           )}
@@ -248,7 +260,7 @@ const Tfa = () => {
                   variant="contained"
                   size="small"
                   onClick={handleRemoveTfa}
-                  data-cy="addTfa"
+                  data-cy="removeTfa"
                 >
                   <Trash className="icon" />
                 </Button>

@@ -308,7 +308,7 @@ module.exports = {
   EnterVerificationCode: 'Enter Verification Code',
   TwoFactorAuthentication: 'Two Factor Authentication',
   RegisterAuthenticationApp: 'Register authentication App',
-  AuthenticatorAppSunstone: 'Authenticator app (HOTP) [Sunstone]',
+  AuthenticatorAppSunstone: 'Authenticator app (HOTP) [Legacy]',
   AuthenticatorApp: 'Authenticator app (HOTP)',
   KeepLoggedIn: 'Keep me logged in',
   KeepLast: 'Keep Last',

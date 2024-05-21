@@ -243,18 +243,28 @@ const del = (
 
   const oneConnect = oneConnection(user, password)
   getUserInfoAuthenticated(oneConnect, next, (data) => {
-    const fireedge = data?.USER?.TEMPLATE?.FIREEDGE
-    if (fireedge) {
+    const template = data?.USER?.TEMPLATE
+    const fireedge = template?.FIREEDGE
+    const sunstone = template?.SUNSTONE
+
+    if (fireedge || sunstone) {
+      let newTemplate = generateNewResourceTemplate(
+        sunstone || {},
+        {},
+        [default2FAOpennebulaTmpVar, default2FAOpennebulaVar],
+        'SUNSTONE=[%1$s]'
+      )
+
+      if (fireedge) {
+        newTemplate = generateNewResourceTemplate(fireedge || {}, {}, [
+          default2FAOpennebulaTmpVar,
+          default2FAOpennebulaVar,
+        ])
+      }
+
       oneConnect({
         action: Actions.USER_UPDATE,
-        parameters: [
-          parseInt(data.USER.ID, 10),
-          generateNewResourceTemplate(fireedge || {}, {}, [
-            default2FAOpennebulaTmpVar,
-            default2FAOpennebulaVar,
-          ]),
-          1,
-        ],
+        parameters: [parseInt(data.USER.ID, 10), newTemplate, 1],
         callback: (err, value) => {
           responseOpennebula(
             () => undefined,

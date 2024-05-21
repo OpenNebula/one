@@ -257,8 +257,8 @@ const validate2faAuthentication = (informationUser) => {
       updaterResponse(httpResponse(accepted, { id: informationUser?.ID }))
     } else {
       const secret =
-        template.FIREEDGE[default2FAOpennebulaVar] ||
-        template.SUNSTONE[default2FAOpennebulaVar]
+        template.FIREEDGE?.[default2FAOpennebulaVar] ||
+        template.SUNSTONE?.[default2FAOpennebulaVar]
       if (!check2Fa(secret, tfatoken)) {
         updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'))
       } else {
