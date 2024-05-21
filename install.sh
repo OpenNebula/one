@@ -51,7 +51,6 @@ usage() {
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
- echo "-e: install OpenNebula docker machine driver"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
@@ -72,11 +71,9 @@ ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
-DOCKER_MACHINE="no"
 
 while getopts $PARAMETERS opt; do
     case $opt in
-        e) DOCKER_MACHINE="yes" ;;
         h) usage; exit 0;;
         k) INSTALL_ETC="no" ;;
         r) UNINSTALL="yes" ;;
@@ -127,7 +124,6 @@ if [ -z "$ROOT" ] ; then
     VM_LOCATION="/var/lib/one/vms"
     DOCS_LOCATION="/usr/share/doc/one"
     SUNSTONE_MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
-    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -170,12 +166,6 @@ if [ -z "$ROOT" ] ; then
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS=""
-    elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
-
-        CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
@@ -212,7 +202,6 @@ else
     VM_LOCATION="$VAR_LOCATION/vms"
     DOCS_LOCATION="$ROOT/share/doc"
     SUNSTONE_MAIN_JS_LOCATION="$VAR_LOCATION/sunstone"
-    DOCKER_MACHINE_LOCATION="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -241,10 +230,6 @@ else
     elif [ "$ONEFLOW" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFLOW_LOCATION \
                    $ETC_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
-    elif [ "$DOCKER_MACHINE" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
     else
@@ -972,10 +957,6 @@ INSTALL_ONEHEM_FILES=(
 
 INSTALL_ONEHEM_ETC_FILES=(
     ONEHEM_ETC_FILES:$ETC_LOCATION
-)
-
-INSTALL_DOCKER_MACHINE_FILES=(
-    DOCKER_MACHINE_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_ETC_FILES=(
@@ -3133,12 +3114,6 @@ DOCKERFILES_TEMPLATES="src/datastore_mad/remotes/dockerhub/dockerfiles/alpine \
 DOCKERFILE_TEMPLATE="src/datastore_mad/remotes/dockerhub/dockerfile"
 
 #-----------------------------------------------------------------------------
-# Docker Machine files
-#-----------------------------------------------------------------------------
-
-DOCKER_MACHINE_BIN_FILES="src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula"
-
-#-----------------------------------------------------------------------------
 # SSH files
 #-----------------------------------------------------------------------------
 
@@ -3324,8 +3299,6 @@ elif [ "$FIREEDGE" = "yes" ]; then
   fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
-elif [ "$DOCKER_MACHINE" = "yes" ]; then
-    INSTALL_SET="${INSTALL_DOCKER_MACHINE_FILES[@]}"
 elif [ "$SUNSTONE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\

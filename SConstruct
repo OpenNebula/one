@@ -143,7 +143,6 @@ vars.Add('new_xmlrpc', 'Use xmlrpc-c version >=1.31', 'no')
 vars.Add('sunstone', 'Build Sunstone', 'no')
 vars.Add('fireedge', 'Build FireEdge', 'no')
 vars.Add('systemd', 'Build with systemd support', 'no')
-vars.Add('docker_machine', 'Build Docker machine driver', 'no')
 vars.Add('rubygems', 'Generate Ruby gems', 'no')
 vars.Add('svncterm', 'Build VNC support for LXD drivers', 'yes')
 vars.Add('context', 'Download guest contextualization packages', 'no')
@@ -241,9 +240,6 @@ main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
 # TODO this should be aligned with one-ee-tools workflows
 # Onedb Marshal files generation
 main_env.Append(marshal=ARGUMENTS.get('marshal', 'no'))
-
-# Docker-machine addon generation
-main_env.Append(docker_machine=ARGUMENTS.get('docker_machine', 'no'))
 
 # Context packages download
 main_env.Append(context=ARGUMENTS.get('context', 'no'))
@@ -349,7 +345,6 @@ build_scripts = [
     'src/fireedge/SConstruct',
     'share/rubygems/SConstruct',
     'src/client/SConstruct',
-    'src/docker_machine/SConstruct',
     'src/monitor/SConstruct',
     'src/onedb/SConstruct',
     'src/protocol/SConstruct',
