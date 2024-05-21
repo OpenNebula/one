@@ -739,7 +739,7 @@ CommandParser::CmdParser.new(ARGV) do
         States for success/failure recovers: Any ACTIVE state.
         States for a retry recover: Any *FAILURE state
         States for delete: Any
-        States for recreate: Any but DONE/POWEROFF/SUSPENDED
+        States for recreate: Any but DONE
         States for delete-db: Any
     EOT
 

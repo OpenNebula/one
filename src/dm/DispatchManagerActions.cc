@@ -289,7 +289,6 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     int gid;
     string deploy_id;
     int vrid = -1;
-    unsigned int port;
 
     VirtualMachineTemplate quota_tmpl;
 
@@ -330,14 +329,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
         }
     }
 
-    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
-
-    if ( graphics != nullptr && graphics->vector_value("PORT", port) == 0
-            && vm->hasHistory())
-    {
-        graphics->remove("PORT");
-        clpool->release_vnc_port(vm->get_cid(), port);
-    }
+    vm->release_vnc_port();
 
     vmpool->update(vm.get());
 
@@ -1204,18 +1196,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
     switch (vm->get_state())
     {
-        case VirtualMachine::POWEROFF:
-            error = "Cannot delete-recreate a powered off VM. Resume it first";
-            NebulaLog::log("DiM", Log::ERROR, error);
-            rc = -1;
-        break;
-
-        case VirtualMachine::SUSPENDED:
-            error = "Cannot delete-recreate a suspended VM. Resume it first";
-            NebulaLog::log("DiM", Log::ERROR, error);
-            rc = -1;
-        break;
-
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::CLONING:
@@ -1223,6 +1203,10 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
         break;
 
         case VirtualMachine::STOPPED:
+            vm->release_vnc_port();
+
+            [[fallthrough]];
+
         case VirtualMachine::UNDEPLOYED:
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
@@ -1255,6 +1239,8 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             }
         break;
 
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
             lcm->trigger_delete_recreate(vm->get_oid(), ra);
         break;

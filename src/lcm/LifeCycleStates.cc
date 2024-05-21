@@ -860,7 +860,6 @@ void LifeCycleManager::trigger_epilog_success(int vid)
         HostShareCapacity sr;
 
         time_t the_time = time(0);
-        unsigned int port;
 
         VirtualMachine::LcmState state;
         void (DispatchManager::*action)(int);
@@ -921,14 +920,10 @@ void LifeCycleManager::trigger_epilog_success(int vid)
 
         vm->set_etime(the_time);
 
-        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
-
         //Do not free VNC ports for STOP as it is stored in checkpoint file
-        if ( graphics != nullptr && (graphics->vector_value("PORT", port) == 0) &&
-            state != VirtualMachine::EPILOG_STOP )
+        if ( state != VirtualMachine::EPILOG_STOP )
         {
-            graphics->remove("PORT");
-            clpool->release_vnc_port(vm->get_cid(), port);
+            vm->release_vnc_port();
         }
 
         vmpool->update_history(vm.get());

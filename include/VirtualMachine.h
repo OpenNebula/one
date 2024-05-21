@@ -885,6 +885,11 @@ public:
     };
 
     /**
+     *  Release VNC port
+     */
+    void release_vnc_port();
+
+    /**
      *  Release the previous VNC port when a VM is migrated to another cluster
      *  (GRAPHICS/PREVIOUS_PORT present)
      */

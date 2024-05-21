@@ -4183,8 +4183,40 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::release_vnc_port()
+{
+    if (!hasHistory())
+    {
+        return;
+    }
+
+    ClusterPool * cpool = Nebula::instance().get_clpool();
+
+    VectorAttribute * graphics = get_template_attribute("GRAPHICS");
+
+    unsigned int port;
+
+    if (graphics == nullptr ||
+            graphics->vector_value("PORT", port) != 0)
+    {
+        return;
+    }
+
+    cpool->release_vnc_port(get_cid(), port);
+
+    graphics->remove("PORT");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::release_previous_vnc_port()
 {
+    if (!hasPreviousHistory())
+    {
+        return;
+    }
+
     ClusterPool * cpool = Nebula::instance().get_clpool();
 
     VectorAttribute * graphics = get_template_attribute("GRAPHICS");

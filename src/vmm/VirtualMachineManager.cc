@@ -1353,7 +1353,7 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
         return;
 
         error_history:
-            os << "driver_cacncel_action, VM has no history";
+            os << "driver_cancel_action, VM has no history";
             goto error_common;
 
         error_driver:

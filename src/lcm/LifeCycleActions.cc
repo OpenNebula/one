@@ -948,9 +948,13 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
 
         if ( auto vm = vmpool->get(vid) )
         {
-            if ( vm->get_state() != VirtualMachine::ACTIVE )
+            auto state = vm->get_state();
+
+            if ( state != VirtualMachine::ACTIVE &&
+                 state != VirtualMachine::POWEROFF &&
+                 state != VirtualMachine::SUSPENDED)
             {
-                vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+                vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state " + vm->state_str());
 
                 return;
             }
@@ -958,7 +962,7 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
             switch (vm->get_lcm_state())
             {
                 case VirtualMachine::CLEANUP_DELETE:
-                    vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+                    vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state " + vm->state_str());
                 break;
 
                 case VirtualMachine::CLEANUP_RESUBMIT:
@@ -1015,20 +1019,21 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 {
     HostShareCapacity sr;
 
-    unsigned int port;
-
     time_t the_time = time(0);
 
-    VirtualMachine::LcmState state = vm->get_lcm_state();
+    VirtualMachine::VmState state = vm->get_state();
+    VirtualMachine::LcmState lcmstate = vm->get_lcm_state();
     int vid   = vm->get_oid();
 
     if (dispose)
     {
+        vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
         vm->set_action(VMActions::DELETE_ACTION, uid, gid, req_id);
     }
     else
     {
+        vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
         vm->set_action(VMActions::DELETE_RECREATE_ACTION, uid, gid, req_id);
     }
@@ -1049,15 +1054,23 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
     hpool->del_capacity(vm->get_hid(), sr);
 
-    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+    vm->release_vnc_port();
 
-    if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+    if (state == VirtualMachine::POWEROFF ||
+            state == VirtualMachine::SUSPENDED)
     {
-        graphics->remove("PORT");
-        clpool->release_vnc_port(vm->get_cid(), port);
-    }
+        float memory, cpu;
 
-    switch (state)
+        vm->get_template_attribute("MEMORY", memory);
+        vm->get_template_attribute("CPU", cpu);
+
+        quota_tmpl.add("RUNNING_MEMORY", -memory);
+        quota_tmpl.add("RUNNING_CPU", -cpu);
+        quota_tmpl.add("RUNNING_VMS", -1);
+
+        vmm->trigger_cleanup(vid, false);
+    }
+    else switch (lcmstate)
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
