@@ -9,7 +9,7 @@ digraph OpenNebula {
 
     node [fontname="Helvetica"];
     edge [fontname="Menlo"];
-    
+
     user [
         fillcolor="black",
         style="filled", shape="box",
@@ -38,11 +38,11 @@ digraph OpenNebula {
 
 #   terminate
     #running     -> shutdown [label="terminate [--hard]"];
-    shutdown    -> epilog [label="undeploy/\nterminate [--hard]", style="dashed", color="navy", fontcolor="navy"];
+    shutdown    -> epilog [label="undeploy\nterminate [--hard]", style="dashed", color="navy", fontcolor="navy"];
     epilog      -> done [label="terminate [--hard]", style="dashed", color="navy", fontcolor="navy"];
 
 #   poweroff
-    running     -> shutdown [label="poweroff/\nundeploy/\nterminate [--hard]"];
+    running     -> shutdown [label="poweroff\nundeploy\nterminate [--hard]"];
     shutdown    -> poweroff [label="poweroff", style="dashed", color="navy", fontcolor="navy"];
 
 #   livemigrate
@@ -61,7 +61,7 @@ digraph OpenNebula {
     hold        -> pending [label="release"];
 
 #   stop
-    running     -> save [label="stop/\nsuspend/\nmigrate"];
+    running     -> save [label="stop\nsuspend\nmigrate"];
     save        -> epilog [label="stop", style="dashed", color="navy", fontcolor="navy"];
     epilog      -> stopped [label="stop", style="dashed", color="navy", fontcolor="navy"];
 
@@ -90,14 +90,26 @@ digraph OpenNebula {
 #   reboot
     running     -> running [label="reboot"];
 
-#   disk-attach nic-attach
+#   disk-attach nic-attach resize saveas
 #    running     -> hotplug [label="disk / nic -\n attach / detach"]
-    running     -> hotplug [label="disk / nic\nattach"]
+    running     -> hotplug [label="disk / nic attach\nresize\nsaveas"]
     hotplug     -> running [style="dashed", color="navy", fontcolor="navy"];
 
 #   snapshot
-    running     -> snapshot [label="snapshot-*"]
+    running     -> snapshot [label="snapshot-*\ndisk-snapshot-*"]
     snapshot    -> running [style="dashed", color="navy", fontcolor="navy"];
+
+#   disk-resize
+    running     -> disk_resize [label="disk-resize"]
+    disk_resize -> running [style="dashed", color="navy", fontcolor="navy"];
+
+#   backup
+    running     -> backup [label="backup"]
+    backup      -> running [style="dashed", color="navy", fontcolor="navy"];
+
+#   restore
+    poweroff    -> restore [label="restore"]
+    restore     -> poweroff [style="dashed", color="navy", fontcolor="navy"];
 
 #   failures and misc.
     "ANY "  -> failure [style="dotted", color="red"];

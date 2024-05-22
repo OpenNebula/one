@@ -17,7 +17,7 @@ digraph OpenNebula {
         fontcolor="white", fontsize= "24.0"];
 
     ANY [ shape="box" ];
-    "ANY \\ {poweroff,suspended,done}" [ shape="box" ];
+    "ANY except done" [ shape="box" ];
 
     running [ width = 2.5, height = 1 ]
 
@@ -99,6 +99,8 @@ digraph OpenNebula {
         disk_snapshot_poweroff;
         disk_snapshot_revert_poweroff;
         disk_snapshot_delete_poweroff;
+        backup_poweroff;
+        hotplug_nic_poweroff;
         color="white"
     }
     subgraph {
@@ -214,7 +216,7 @@ digraph OpenNebula {
     ANY         -> done [label="recover --delete"];
 
 #   recover --recreate
-    "ANY \\ {poweroff,suspended,done}" -> pending [label="recover --recreate"];
+    "ANY except done" -> pending [label="recover --recreate"];
 
 #   reboot
     running     -> running [label="reboot"];
@@ -262,7 +264,8 @@ digraph OpenNebula {
     running     -> hotplug_nic [label="nic-attach /\n-detach"]
     hotplug_nic -> running [style="dashed", color="blue"];
 
-    poweroff    -> poweroff [label="nic-attach /\n-detach"]
+    poweroff             -> hotplug_nic_poweroff [label="nic-attach /\n-detach"]
+    hotplug_nic_poweroff -> poweroff [style="dashed", color="blue"]
 
 #   snapshot
     running             -> hotplug_snapshot [label="snapshot-create /\n-revert /\n-delete"]
@@ -277,6 +280,37 @@ digraph OpenNebula {
 
     suspended                -> hotplug_saveas_suspended [label="disk-saveas"]
     hotplug_saveas_suspended -> suspended [style="dashed", color="blue"];
+
+    stopped                  -> hotplug_saveas_stopped [label="disk-saveas"]
+    hotplug_saveas_stopped   -> stopped [style="dashed", color="blue"]
+
+    undeployed                -> hotplug_saveas_undeployed [label="disk-saveas"]
+    hotplug_saveas_undeployed -> undeployed [style="dashed", color="blue"]
+
+#   disk-resize
+    running                 -> disk_resize [label="disk-resize"]
+    disk_resize             -> running [style="dashed", color="blue"]
+
+    poweroff                -> disk_resize_poweroff [label="disk-resize"]
+    disk_resize_poweroff    -> poweroff [style="dashed", color="blue"]
+
+    undeployed              -> disk_resize_undeployed [label="disk-resize"]
+    disk_resize_undeployed  -> undeployed [style="dashed", color="blue"]
+
+#   resize
+    running                 -> resize [label="resize"]
+    resize                  -> running [style="dashed", color="blue"]
+
+#   backup
+    running         -> backup [label="backup"]
+    backup          -> running [style="dashed", color="blue"]
+
+    poweroff        -> backup_poweroff [label="backup"]
+    backup_poweroff -> poweroff [style="dashed", color="blue"]
+
+#   restore
+    poweroff        -> restore [label="restore"]
+    restore         -> poweroff [style="dashed", color="blue"]
 
 #   failures and misc.
     boot_failure          -> boot [label="recover"];
