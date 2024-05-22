@@ -26,16 +26,17 @@ import { boolean, string } from 'yup'
 const checkDisabled = (name) => (type) => ({ disabled: type === name })
 
 /** @type {Field} View field */
-const VIEW = (name, admin) => ({
-  name: admin ? `GROUP_ADMIN_VIEWS.${name}` : `VIEWS.${name}`,
-  label: name,
+const VIEW = (view, admin) => ({
+  name: admin ? `GROUP_ADMIN_VIEWS.${view.type}` : `VIEWS.${view.type}`,
+  label: T[view.name] ? T[view.name] : view.name,
+  tooltip: T[view.description] ? T[view.description] : view.description,
   type: INPUT_TYPES.SWITCH,
   dependOf: admin ? `GROUP_ADMIN_DEFAULT_VIEW` : `DEFAULT_VIEW`,
   watcher: (value, { name: nameField }) => {
     // Check the switch if it is the default view
-    const view =
+    const viewType =
       nameField.split('.').length === 3 ? nameField.split('.')[2] : undefined
-    if (value === view) return true
+    if (value === viewType) return true
   },
   validation: boolean(),
   grid: { md: 12 },
@@ -47,6 +48,8 @@ const DEFAULT_VIEW = (views, admin) => ({
   label: T['groups.views.default'],
   type: INPUT_TYPES.SELECT,
   values: arrayToOptions(views, {
+    getText: (view) => (T[view.name] ? T[view.name] : view.name),
+    getValue: (view) => view.type,
     addEmpty: false,
   }),
   validation: string().default(() => (admin ? 'groupadmin' : 'cloud')),

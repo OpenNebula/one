@@ -51,9 +51,6 @@ function CreateACLs() {
   // Get ONE config
   const { oneConfig } = useSystemData()
 
-  // Get views
-  const { data: views } = systemApi.useGetSunstoneAvalaibleViewsQuery()
-
   // Get version to show links to documentation
   const { data: version } = systemApi.useGetOneVersionQuery()
 
@@ -93,8 +90,7 @@ function CreateACLs() {
     }
   }
 
-  return views &&
-    version &&
+  return version &&
     users &&
     groups &&
     clusters &&
@@ -103,7 +99,6 @@ function CreateACLs() {
     <CreateForm
       onSubmit={onSubmit}
       stepProps={{
-        views,
         version,
         fromString,
         users,

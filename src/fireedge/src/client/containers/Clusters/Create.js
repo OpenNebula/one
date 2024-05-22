@@ -57,7 +57,6 @@ function CreateCluster() {
   const [removeVnet] = useRemoveNetworkFromClusterMutation()
   const [rename] = useRenameClusterMutation()
 
-  const { data: views } = systemApi.useGetSunstoneAvalaibleViewsQuery()
   const { data: version } = systemApi.useGetOneVersionQuery()
 
   const { data: cluster } = clusterId
@@ -185,12 +184,11 @@ function CreateCluster() {
     }
   }
 
-  return views && version && (!clusterId || (clusterId && cluster)) ? (
+  return version && (!clusterId || (clusterId && cluster)) ? (
     <CreateForm
       initialValues={cluster}
       onSubmit={onSubmit}
       stepProps={{
-        views,
         version,
       }}
       fallback={<SkeletonStepsForm />}

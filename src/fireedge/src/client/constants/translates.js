@@ -1859,6 +1859,16 @@ module.exports = {
   'groups.actions.edit.admins.form': 'Select the administrators',
   'groups.actions.edit.admins.success': 'Administrators updated',
 
+  'groups.view.admin.name': 'Admin view',
+  'groups.view.admin.description': 'View used by admin users',
+  'groups.view.user.name': 'User view',
+  'groups.view.user.description': 'View used by regular users',
+  'groups.view.cloud.name': 'Cloud view',
+  'groups.view.cloud.description': 'View used by cloud users',
+  'groups.view.groupadmin.name': 'Admin group view',
+  'groups.view.groupadmin.description':
+    'View used by the admin users of the group',
+
   /* Showback */
   'showback.title': 'Showback',
   'showback.button.getShowback': 'Get showback',

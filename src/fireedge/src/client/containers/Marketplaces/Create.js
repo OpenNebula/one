@@ -49,7 +49,6 @@ function CreateMarketplace() {
   const [updateMarketplace] = useUpdateMarketplaceMutation()
   const [renameMarketplace] = useRenameMarketplaceMutation()
 
-  const { data: views } = systemApi.useGetSunstoneAvalaibleViewsQuery()
   const { data: version } = systemApi.useGetOneVersionQuery()
 
   const { data: marketplace } = marketplaceId
@@ -97,14 +96,11 @@ function CreateMarketplace() {
     }
   }
 
-  return views &&
-    version &&
-    (!marketplaceId || (marketplaceId && marketplace)) ? (
+  return version && (!marketplaceId || (marketplaceId && marketplace)) ? (
     <CreateForm
       onSubmit={onSubmit}
       initialValues={marketplace}
       stepProps={{
-        views,
         version,
       }}
       fallback={<SkeletonStepsForm />}

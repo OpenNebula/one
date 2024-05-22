@@ -309,12 +309,41 @@ const getAvailableViews = (res = {}, next = defaultEmptyFunction) => {
   const views = getDirectories(
     `${global.paths.SUNSTONE_PATH}`,
     () => (error = true)
-  ).map((dir) => dir.filename)
+  ).map((dir) => ({ name: dir.filename }))
 
-  responseHttp(
-    res,
-    next,
-    error ? httpResponse(notFound, error) : httpResponse(ok, views)
+  if (error) {
+    responseHttp(res, next, httpResponse(notFound, error))
+  }
+
+  existsFile(
+    global.paths.SUNSTONE_VIEWS,
+    (filedata) => {
+      // Get the content of global.paths.SUNSTONE_VIEWS file
+      const jsonFileData = parse(filedata) || {}
+      const viewsData = jsonFileData.views
+
+      // Iterate over views description
+      const viewsExtended = views.map((view) => {
+        if (viewsData && viewsData[view.name]) {
+          return {
+            type: view.name,
+            name: viewsData[view.name].name,
+            description: viewsData[view.name].description,
+          }
+        } else {
+          return {
+            type: view.name,
+            name: view.name,
+          }
+        }
+      })
+
+      // Return response
+      responseHttp(res, next, httpResponse(ok, viewsExtended))
+    },
+    () => {
+      responseHttp(res, next, httpResponse(ok, views))
+    }
   )
 }
 

@@ -14,3 +14,25 @@ groups:
         - user
 default:
     - user
+
+# Name and description of each view.
+#
+# More views could be added creating a new object under views attribute.
+# Example:
+#   customview:
+#     name: Name of the custom view
+#     description: Description of the custom view
+
+views:
+  admin:
+    name: groups.view.admin.name
+    description: groups.view.admin.description
+  cloud:
+    name: groups.view.cloud.name
+    description: groups.view.cloud.description
+  groupadmin:
+    name: groups.view.groupadmin.name
+    description: groups.view.groupadmin.description
+  user:
+    name: groups.view.user.name
+    description: groups.view.user.description
