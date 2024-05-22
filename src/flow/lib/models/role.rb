@@ -839,7 +839,11 @@ module OpenNebula
 
             rc = deploy
 
-            deployed_nodes.concat(rc[0]) if rc[1].nil?
+            unless rc[0]
+                return [false, "Error deploying nodes for role `#{name}`"]
+            end
+
+            deployed_nodes.concat(rc[0])
 
             deployed_nodes
         end
