@@ -109,7 +109,7 @@ info-tabs:
         enabled: true
         not_on:
           - firecracker
-      detach_disk: true
+      disk-detach: true
       disk-snapshot-create: true
       disk-snapshot-delete: true
       disk-snapshot-rename: true
