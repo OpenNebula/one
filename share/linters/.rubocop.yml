@@ -803,6 +803,9 @@ Style/RedundantReturn:
 Style/MapIntoArray:
   Enabled: false
 
+Style/SuperArguments:
+  Enabled: false
+
 ######
 # LINT
 ######
