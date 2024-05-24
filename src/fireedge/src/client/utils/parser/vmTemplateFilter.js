@@ -17,6 +17,7 @@ import _, { cloneDeep, merge, get } from 'lodash'
 import { convertToMB, isBase64 } from 'client/utils'
 import { MEMORY_RESIZE_OPTIONS, T } from 'client/constants'
 import { transformXmlString } from 'client/models/Helper'
+import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
 
 // Attributes that will be always modify with the value of the form (except Storage, Network and PCI sections)
 const alwaysIncludeAttributes = {
@@ -674,9 +675,15 @@ const transformActionsCreate = (template) => {
  *
  * @param {object} template - Template with data
  * @param {object} original - Initial values of the template
+ * @param {object} features - Features from the user's view
  */
-const transformActionsInstantiate = (template, original) => {
+const transformActionsInstantiate = (template, original, features) => {
   transformActionsCommon(template)
+
+  // Calculate CPU is needed
+  if (template?.VCPU && features?.cpu_factor) {
+    template.CPU = scaleVcpuByCpuFactor(template.VCPU, features.cpu_factor)
+  }
 
   original?.TEMPLATE?.OS &&
     template?.OS &&

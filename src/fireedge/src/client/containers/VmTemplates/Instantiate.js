@@ -32,13 +32,13 @@ import {
 } from 'client/components/FormStepper'
 import { InstantiateForm } from 'client/components/Forms/VmTemplate'
 
-import { useSystemData } from 'client/features/Auth'
+import { useSystemData, useViews } from 'client/features/Auth'
 import { jsonToXml } from 'client/models/Helper'
 import {
   filterTemplateData,
   transformActionsInstantiate,
 } from 'client/utils/parser'
-import { TAB_FORM_MAP } from 'client/constants'
+import { TAB_FORM_MAP, RESOURCE_NAMES } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -84,6 +84,11 @@ function InstantiateVmTemplate() {
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })
 
+  // Features of the view
+  const { getResourceView } = useViews()
+  const resource = RESOURCE_NAMES.VM_TEMPLATE
+  const { features } = getResourceView(resource)
+
   const onSubmit = async (templates) => {
     try {
       // Get current state and modified fields
@@ -110,7 +115,11 @@ function InstantiateVmTemplate() {
           )
 
           // Every action that is not an human action
-          transformActionsInstantiate(filteredTemplate, apiTemplateData)
+          transformActionsInstantiate(
+            filteredTemplate,
+            apiTemplateData,
+            features
+          )
 
           // Convert template to xml
           const xmlFinal = jsonToXml(filteredTemplate)

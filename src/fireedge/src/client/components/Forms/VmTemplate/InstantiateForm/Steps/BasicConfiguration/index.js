@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import {
@@ -25,8 +25,6 @@ import useStyles from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/
 import { RESOURCE_NAMES, T, VmTemplate } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { scaleVcpuByCpuFactor } from 'client/models/VirtualMachine'
-import { useFormContext } from 'react-hook-form'
 
 let generalFeatures
 
@@ -35,7 +33,6 @@ export const STEP_ID = 'general'
 const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
   const classes = useStyles()
   const { view, getResourceView } = useViews()
-  const { getValues, setValue } = useFormContext()
 
   const resource = RESOURCE_NAMES.VM_TEMPLATE
   const { features, dialogs } = getResourceView(resource)
@@ -51,20 +48,6 @@ const Content = ({ vmTemplate, oneConfig, adminGroup }) => {
       ({ id, required }) => required || sectionsAvailable.includes(id)
     )
   }, [view])
-
-  useEffect(() => {
-    if (vmTemplate?.TEMPLATE?.VCPU && features?.cpu_factor) {
-      const oldValues = {
-        ...getValues(),
-      }
-      oldValues.general.CPU = `${scaleVcpuByCpuFactor(
-        vmTemplate.TEMPLATE.VCPU,
-        features.cpu_factor
-      )}`
-
-      setValue(`${STEP_ID}`, oldValues)
-    }
-  }, [])
 
   return (
     <div className={classes.root}>
