@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string } from 'yup'
+import { string, array } from 'yup'
 
-import { Field, Section, disableFields } from 'client/utils'
+import { Field, Section, arrayToOptions, disableFields } from 'client/utils'
+import {
+  ClustersTable,
+  HostsTable,
+  DatastoresTable,
+} from 'client/components/Tables'
 import { T, INPUT_TYPES } from 'client/constants'
 import { transformXmlString } from 'client/models/Helper'
 
@@ -28,6 +33,7 @@ import { transformXmlString } from 'client/models/Helper'
  */
 const addHypervisorRequirement = (schedRequirements, hypervisor) => {
   // Regular expression pattern to match (HYPERVISOR=VALUE)
+
   const regexPattern = /\(HYPERVISOR=(kvm|dummy|lxc|vcenter|firecracker|qemu)\)/
 
   // If exists a condition with hypervisor, replace the type. If not, add the hypervisor type.
@@ -39,6 +45,10 @@ const addHypervisorRequirement = (schedRequirements, hypervisor) => {
     )
   } else {
     // Add the condition only
+    if (!hypervisor) {
+      return `${schedRequirements}`
+    }
+
     return schedRequirements
       ? `(${schedRequirements}) & (HYPERVISOR=${hypervisor})`
       : `(HYPERVISOR=${hypervisor})`
@@ -51,21 +61,60 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
   label: T.HostReqExpression,
   tooltip: T.HostReqExpressionConcept,
   type: INPUT_TYPES.TEXT,
-  dependOf: '$general.HYPERVISOR',
-  watcher: (hypervisor, { formContext }) => {
-    // Value of SCHED_REQUIREMENTS
+  dependOf: [
+    '$general.HYPERVISOR',
+    '$extra.CLUSTER_HOST_TABLE',
+    '$extra.CLUSTER_HOST_TYPE',
+  ],
+
+  watcher: (dependencies, { formContext }) => {
+    const [hypervisor, clusterHostTable, clusterHostType] = dependencies
+    const tableType = clusterHostType?.includes(T.Cluster) ? 'CLUSTER' : 'HOST'
+    const regexPattern = new RegExp(`\\b${tableType}_ID\\s*=\\s*(\\d+)`)
+
     const actualValue = formContext.getValues('extra.SCHED_REQUIREMENTS')
 
-    // Check if the hypervisor was changed by the user
-    const hypervisorHasChanged = modifiedFields?.general?.HYPERVISOR
+    const parts = actualValue?.split('&')?.map((part) => part?.trim())
 
-    // Add condition only if the hypervisor was changed by the user or if we are in the create form
-    if (hypervisorHasChanged || !isUpdate) {
-      // Return SCHED_REQUIREMENTS with the condition of hypervisor
-      return addHypervisorRequirement(actualValue, hypervisor)
+    const matchedParts = parts?.filter((part) => regexPattern.test(part))
+    const nonMatchedParts = parts?.filter((part) => !regexPattern.test(part))
+
+    const matchedIDs = matchedParts
+      ?.map((part) => part.match(/\d+/)?.[0])
+      ?.filter(Boolean)
+
+    const remainingIDs =
+      clusterHostTable?.filter((id) => matchedIDs?.includes(id)) ?? []
+
+    const filteredMatchedParts = matchedParts?.filter((part) => {
+      const idMatch = part.match(/\d+/)
+      const id = idMatch ? idMatch[0] : null
+
+      return id && remainingIDs?.includes(id) && part?.includes(tableType)
+    })
+
+    const newExpressions = clusterHostTable
+      ?.filter((id) => !remainingIDs.includes(id))
+      .map((id) => `(${tableType}_ID = ${id})`)
+
+    const updatedParts = [
+      ...(nonMatchedParts ?? []),
+      ...(filteredMatchedParts ?? []),
+      ...(newExpressions ?? []),
+    ]
+
+    const updatedValue = updatedParts?.join(' & ') ?? ''
+
+    // Check if the hypervisor condition already exists in the actualValue
+    const hasHypervisorCondition = actualValue?.includes(
+      `(HYPERVISOR=${hypervisor})`
+    )
+
+    // Add the hypervisor condition only if it doesn't exist
+    if (!hasHypervisorCondition || !isUpdate) {
+      return addHypervisorRequirement(updatedValue, hypervisor)
     } else {
-      // Return SCHED_REQUIREMENTS without the condition of hypervisor
-      return actualValue
+      return updatedValue
     }
   },
   validation: string()
@@ -99,42 +148,132 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
         return transformXmlString(value)
       }
     }),
+  grid: { xs: 12, md: 12 },
 })
+
+/** @type {Field} Host policy type field */
+const HOST_POLICY_TYPE_FIELD = {
+  name: 'HOST_POLICY_TYPE',
+  type: INPUT_TYPES.TOGGLE,
+  values: () =>
+    arrayToOptions(['Packing', 'Stripping', 'Load-aware'], {
+      addEmpty: false,
+      getText: (opt) => opt,
+      getValue: (_opt, idx) =>
+        ['RUNNING_VMS', '-RUNNING_VMS', 'FREE_CPU']?.[idx] ?? '',
+    }),
+  validation: string().trim().notRequired(),
+  grid: { xs: 12, md: 12 },
+}
+
+/** @type {Field} DS policy type field */
+const DS_POLICY_TYPE_FIELD = {
+  name: 'DS_POLICY_TYPE',
+  type: INPUT_TYPES.TOGGLE,
+  values: () =>
+    arrayToOptions(['Packing', 'Stripping'], {
+      addEmpty: false,
+      getText: (opt) => opt,
+      getValue: (_opt, idx) => ['-FREE_MB', 'FREE_MB']?.[idx] ?? '',
+    }),
+  validation: string().trim().notRequired(),
+  grid: { xs: 12, md: 12 },
+}
 
 /** @type {Field} Host rank requirement field */
 const HOST_RANK_FIELD = {
   name: 'SCHED_RANK',
   label: T.HostPolicyExpression,
+  dependOf: 'HOST_POLICY_TYPE',
   tooltip: T.HostPolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
+  watcher: (hostPolicyType) => `${hostPolicyType} `,
   validation: string().trim().notRequired(),
+  grid: { xs: 12, md: 12 },
 }
 
 /** @type {Field} Datastore requirement field */
 const DS_REQ_FIELD = {
+  dependOf: 'DS_TABLE',
   name: 'SCHED_DS_REQUIREMENTS',
   label: T.DatastoreReqExpression,
   tooltip: T.DatastoreReqExpressionConcept,
+  watcher: (dsArray) => dsArray?.map((ds) => `ID="${ds}"`).join('|'),
   type: INPUT_TYPES.TEXT,
   validation: string().trim().notRequired(),
+  grid: { xs: 12, md: 12 },
 }
 
 /** @type {Field} Datastore rank requirement field */
 const DS_RANK_FIELD = {
   name: 'SCHED_DS_RANK',
+  dependOf: 'DS_POLICY_TYPE',
   label: T.DatastorePolicyExpression,
+  watcher: (dsPolicyType) => `${dsPolicyType} `,
   tooltip: T.DatastorePolicyExpressionConcept,
   type: INPUT_TYPES.TEXT,
   validation: string().trim().notRequired(),
+  grid: { xs: 12, md: 12 },
+}
+
+/** @type {Field} Type field */
+const TABLE_TYPE = {
+  name: 'CLUSTER_HOST_TYPE',
+  type: INPUT_TYPES.TOGGLE,
+  values: () =>
+    arrayToOptions(
+      [T.Cluster, T.Host]?.map((t) => T.Select + ' ' + t),
+      {
+        addEmpty: false,
+      }
+    ),
+  validation: string()
+    .trim()
+    .required()
+    .default(() => T.Host),
+  notNull: true,
+  grid: { xs: 12, md: 12 },
+}
+
+/** @type {Field} Cluster selection field */
+const CLUSTER_HOST_TABLE = {
+  name: 'CLUSTER_HOST_TABLE',
+  dependOf: 'CLUSTER_HOST_TYPE',
+  type: INPUT_TYPES.TABLE,
+  Table: (tableType) =>
+    tableType?.includes(T.Cluster) ? ClustersTable : HostsTable,
+  singleSelect: false,
+  validation: array(string().trim())
+    .required()
+    .default(() => undefined),
+  grid: { xs: 12, md: 12 },
+}
+
+/** @type {Field} Cluster selection field */
+const DS_TABLE = {
+  name: 'DS_TABLE',
+  type: INPUT_TYPES.TABLE,
+  Table: () => DatastoresTable,
+  singleSelect: false,
+  validation: array(string().trim())
+    .required()
+    .default(() => undefined),
+  grid: { xs: 12, md: 12 },
 }
 
 /** @type {Section[]} Sections */
 const SECTIONS = (oneConfig, adminGroup, isUpdate, modifiedFields) => [
   {
     id: 'placement-host',
-    legend: T.Host,
+    legend: T.HostRequirements,
     fields: disableFields(
-      [HOST_REQ_FIELD(isUpdate, modifiedFields), HOST_RANK_FIELD],
+      [
+        TABLE_TYPE,
+        CLUSTER_HOST_TABLE,
+        HOST_REQ_FIELD(isUpdate, modifiedFields),
+        HOST_POLICY_TYPE_FIELD,
+        HOST_RANK_FIELD,
+      ],
       '',
       oneConfig,
       adminGroup
@@ -142,9 +281,9 @@ const SECTIONS = (oneConfig, adminGroup, isUpdate, modifiedFields) => [
   },
   {
     id: 'placement-ds',
-    legend: T.Datastore,
+    legend: T.DatastoreRequirements,
     fields: disableFields(
-      [DS_REQ_FIELD, DS_RANK_FIELD],
+      [DS_TABLE, DS_REQ_FIELD, DS_POLICY_TYPE_FIELD, DS_RANK_FIELD],
       '',
       oneConfig,
       adminGroup

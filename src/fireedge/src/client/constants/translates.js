@@ -1085,6 +1085,8 @@ module.exports = {
     the template is located.
   `,
   /* VM Template schema - placement */
+  HostRequirements: 'Host Requirements',
+  DatastoreRequirements: 'Datastore Requirements',
   HostReqExpression: 'Host requirements expression',
   HostReqExpressionConcept: `
     Boolean expression that rules out provisioning hosts
