@@ -14,7 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-gem 'augeas', '~> 0.6'
 require 'augeas'
 
 # rubocop:disable Style/ClassAndModuleChildren

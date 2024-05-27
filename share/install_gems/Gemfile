@@ -94,7 +94,7 @@ group :cli do
 end
 
 group :onecfg, :cli do
-    gem 'augeas', '~> 0.6'
+    gem 'opennebula-augeas', '>= 0.6.6.pre'
 end
 
 group :onecfg, :cloud, :oneflow, :sunstone do

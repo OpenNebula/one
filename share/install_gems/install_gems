@@ -62,7 +62,7 @@ case "${TARGET}" in
         apt-get -y install \
             ruby-dev make gcc libsqlite3-dev libcurl4-openssl-dev \
             rake libxml2-dev libxslt1-dev patch g++ build-essential \
-            libssl-dev libaugeas-dev \
+            libssl-dev libaugeas-dev pkgconf \
             postgresql-server-dev-all \
             >/dev/null
 

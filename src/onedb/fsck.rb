@@ -173,15 +173,11 @@ EOT
 
     def read_config
         begin
-            # Suppress augeas require warning message
-            $VERBOSE = nil
-
-            gem 'augeas', '~> 0.6'
             require 'augeas'
         rescue Gem::LoadError
             STDERR.puts(
                 'Augeas gem is not installed, run `gem install ' \
-                'augeas -v \'0.6\'` to install it'
+                'opennebula-augeas` to install it'
             )
             exit(-1)
         end
