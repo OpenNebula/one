@@ -822,6 +822,13 @@ public:
      */
     bool backup_increment(bool do_volatile);
 
+    /**
+     *  Returns list of disk IDs, ready for backup
+     *
+     *  @param do_volatile consider volatile disks
+     */
+    void backup_disk_ids(bool do_volatile, std::vector<int>& ids);
+
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,

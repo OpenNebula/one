@@ -2353,27 +2353,15 @@ int TransferManager::backup_transfer_commands(
     // -------------------------------------------------------------------------
     // Image Transfer Commands
     // -------------------------------------------------------------------------
-    ostringstream disk_str;
+    std::vector<int> disk_ids;
 
-    for (auto disk : disks)
-    {
-        string type = disk->vector_value("TYPE");
-
-        one_util::toupper(type);
-
-        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
-        {
-            continue;
-        }
-
-        disk_str << disk->get_disk_id() << ":";
-    }
+    disks.backup_disk_ids(do_volatile, disk_ids);
 
     //BACKUP(.tm_mad_system) tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bj_id vmid dsid
     xfr << "BACKUP" << tm_mad_system
         << " " << vm_tm_mad << " "
         << vm->get_hostname() << ":" << vm->get_system_dir() << " "
-        << disk_str.str() << " "
+        << one_util::join(disk_ids, ':') << " "
         << vm->get_deploy_id() << " ";
 
     if ( job_id == -1 )

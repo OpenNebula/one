@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
   <xs:element name="IMAGE">
     <xs:complexType>
       <xs:sequence>
@@ -65,27 +66,9 @@
         <xs:element name="TARGET_SNAPSHOT" type="xs:integer"/>
         <xs:element name="DATASTORE_ID" type="xs:integer"/>
         <xs:element name="DATASTORE" type="xs:string"/>
-        <xs:element name="VMS">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="CLONES">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="APP_CLONES">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="VMS" type="IDS"/>
+        <xs:element name="CLONES" type="IDS"/>
+        <xs:element name="APP_CLONES" type="IDS"/>
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
@@ -135,6 +118,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="BACKUP_DISK_IDS" type="IDS" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

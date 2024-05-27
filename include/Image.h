@@ -637,6 +637,14 @@ public:
         return _increments;
     }
 
+    /*
+     * Add VM disk ID to list of backed up disks
+     */
+    void add_backup_disk(int id)
+    {
+        _backup_disk_ids.add(id);
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -752,6 +760,8 @@ private:
      * incremental)
      */
     BackupIncrements _increments;
+
+    ObjectCollection _backup_disk_ids;
 
     /**
      * ID of the snapshot being processed (if any)

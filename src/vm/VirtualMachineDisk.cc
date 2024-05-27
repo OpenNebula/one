@@ -1577,6 +1577,25 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 }
 
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachineDisks::backup_disk_ids(bool do_volatile, std::vector<int>& ids)
+{
+    for (const auto disk : *this)
+    {
+        string type = disk->vector_value("TYPE");
+
+        one_util::toupper(type);
+
+        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
+        {
+            continue;
+        }
+
+        ids.push_back(disk->get_disk_id());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::set_saveas(int disk_id, int snap_id, int &iid,

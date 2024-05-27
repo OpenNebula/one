@@ -61,6 +61,7 @@ Image::Image(int             _uid,
         img_clone_collection("CLONES"),
         app_clone_collection("APP_CLONES"),
         snapshots(-1, Snapshots::DENY),
+        _backup_disk_ids("BACKUP_DISK_IDS"),
         target_snapshot(-1)
     {
         if (_image_template)
@@ -397,6 +398,7 @@ string& Image::to_xml(string& xml) const
     string template_xml;
     string perms_xml;
     string increments_xml;
+    string backup_disk_ids;
 
     ostringstream oss;
 
@@ -432,7 +434,8 @@ string& Image::to_xml(string& xml) const
             app_clone_collection.to_xml(app_clone_collection_xml)     <<
             obj_template->to_xml(template_xml)                        <<
             snapshots.to_xml(snapshots_xml)                           <<
-            _increments.to_xml(increments_xml)                         <<
+            _increments.to_xml(increments_xml)                        <<
+            _backup_disk_ids.to_xml(backup_disk_ids)                  <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -514,6 +517,7 @@ int Image::from_xml(const string& xml)
     rc += vm_collection.from_xml(this, "/IMAGE/");
     rc += img_clone_collection.from_xml(this, "/IMAGE/");
     rc += app_clone_collection.from_xml(this, "/IMAGE/");
+    _backup_disk_ids.from_xml(this, "/IMAGE/");     // For backward compatibility this attribute is not mandatory
 
     ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
 

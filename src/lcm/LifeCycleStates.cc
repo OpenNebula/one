@@ -2931,6 +2931,20 @@ void LifeCycleManager::trigger_backup_success(int vid)
             backups.add(image_id);
 
             backups.remove_last(delete_ids);
+
+            if (auto image = ipool->get(image_id))
+            {
+                vector<int> backup_disk_ids;
+
+                vm->get_disks().backup_disk_ids(backups.do_volatile(), backup_disk_ids);
+
+                for (auto id : backup_disk_ids)
+                {
+                    image->add_backup_disk(id);
+                }
+
+                ipool->update(image.get());
+            }
         }
 
         /* ------------------------------------------------------------------ */
