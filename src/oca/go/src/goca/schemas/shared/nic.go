@@ -30,8 +30,11 @@ type NIC struct {
 // NICKeys is here to help the user to keep track of XML tags defined in NIC
 type NICKeys string
 
-// Some keys are specific to VM some others to VRouter
-// For VM values: https://docs.opennebula.io/5.8/operation/references/template.html#network-section
+// Some keys are specific to VM some others to VRouter.
+// References:
+// https://docs.opennebula.io/6.8/management_and_operations/references/template.html#network-section
+// https://docs.opennebula.io/6.8/management_and_operations/references/vnet_template.html#contextualization-attributes
+// https://docs.opennebula.io/6.8/management_and_operations/network_management/vrouter.html#customization
 const (
 	NICVec            string  = "NIC"
 	NICID             NICKeys = "NIC_ID"
@@ -63,6 +66,11 @@ const (
 	Parent            NICKeys = "PARENT"
 	External          NICKeys = "EXTERNAL"
 	ExternalIP        NICKeys = "EXTERNAL_IP"
+	Method            NICKeys = "METHOD"
+	Gateway           NICKeys = "GATEWAY"
+	DNS               NICKeys = "DNS"
+	FloatingIP        NICKeys = "FLOATING_IP"
+	FloatingOnly      NICKeys = "FLOATING_ONLY"
 )
 
 // NewNIC returns a structure disk entity to build
