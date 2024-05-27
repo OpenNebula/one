@@ -51,7 +51,7 @@ type Service struct {
 
 type Role struct {
     Name                string             `json:"name,omitempty"`
-    Cardinality         int                `json:"cardinality,omitempty"`
+    Cardinality         int                `json:"cardinality"`
     VMTemplate          int                `json:"vm_template,omitempty"`
     ShutdownAction      string             `json:"shutdown_action,omitempty"`
     Parents             []string           `json:"parents,omitempty"`

@@ -31,7 +31,7 @@ module OpenNebula
                 },
                 'cardinality' => {
                     :type => :integer,
-                    :default => 1,
+                    :default => 0,
                     :minimum => 0
                 },
                 'vm_template' => {
