@@ -111,10 +111,18 @@ const VmStorageTab = ({
                     <SnapshotCreateAction {...diskActionProps} />
                   )}
                   {actionsAvailable.includes(RESIZE_DISK) && (
-                    <ResizeAction {...diskActionProps} />
+                    <ResizeAction
+                      {...diskActionProps}
+                      oneConfig={oneConfig}
+                      adminGroup={adminGroup}
+                    />
                   )}
                   {actionsAvailable.includes(DETACH_DISK) && (
-                    <DetachAction {...diskActionProps} />
+                    <DetachAction
+                      {...diskActionProps}
+                      oneConfig={oneConfig}
+                      adminGroup={adminGroup}
+                    />
                   )}
                 </>
               }

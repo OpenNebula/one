@@ -54,7 +54,7 @@ const HIDDEN_MONITORING_REG =
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Virtual machine id
- * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {object} props.oneConfig - OpenNebula configuration
  * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Information tab
  */
@@ -130,7 +130,12 @@ const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
       padding={{ sm: '0.8em' }}
     >
       {informationPanel?.enabled && (
-        <Information actions={getActions(informationPanel?.actions)} vm={vm} />
+        <Information
+          actions={getActions(informationPanel?.actions)}
+          vm={vm}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
+        />
       )}
       {permissionsPanel?.enabled && (
         <Permissions

@@ -183,6 +183,8 @@ const VmNetworkTab = ({
                       <DetachAction
                         nic={nic}
                         vmId={id}
+                        oneConfig={oneConfig}
+                        adminGroup={adminGroup}
                         onSubmit={handleDetach(nic.NIC_ID)}
                       />
                     )}
@@ -190,6 +192,8 @@ const VmNetworkTab = ({
                       <UpdateAction
                         nic={nic}
                         vmId={id}
+                        oneConfig={oneConfig}
+                        adminGroup={adminGroup}
                         onSubmit={handleUpdate(nic.NIC_ID)}
                       />
                     )}

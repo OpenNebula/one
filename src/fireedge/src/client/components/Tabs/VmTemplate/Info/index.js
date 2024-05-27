@@ -32,9 +32,11 @@ import * as Helper from 'client/models/Helper'
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Template id
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Information tab
  */
-const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
+const VmTemplateInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -67,6 +69,8 @@ const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
         <Information
           actions={getActions(informationPanel?.actions)}
           template={template}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
         />
       )}
       {permissionsPanel?.enabled && (
@@ -101,6 +105,8 @@ const VmTemplateInfoTab = ({ tabProps = {}, id }) => {
 VmTemplateInfoTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmTemplateInfoTab.displayName = 'VmTemplateInfoTab'

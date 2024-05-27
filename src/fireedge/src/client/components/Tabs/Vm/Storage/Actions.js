@@ -45,6 +45,7 @@ import {
 import { jsonToXml } from 'client/models/Helper'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, VM_ACTIONS } from 'client/constants'
+import { hasRestrictedAttributes, isRestrictedAttributes } from 'client/utils'
 
 const AttachAction = memo(
   ({ vmId, disk, hypervisor, onSubmit, sx, oneConfig, adminGroup }) => {
@@ -136,7 +137,9 @@ const DetachAction = memo(
       await handleDetachDisk({ id: vmId, disk: DISK_ID })
     }
 
-    const disabledAction = !adminGroup
+    const disabledAction =
+      !adminGroup &&
+      hasRestrictedAttributes(disk, 'DISK', oneConfig?.VM_RESTRICTED_ATTR)
 
     return (
       <ButtonToTriggerForm
@@ -213,39 +216,54 @@ const SaveAsAction = memo(({ vmId, disk, snapshot, name: imageName, sx }) => {
   )
 })
 
-const ResizeAction = memo(({ vmId, disk, name: imageName, sx }) => {
-  const [resizeDisk] = useResizeDiskMutation()
-  const { DISK_ID } = disk
+const ResizeAction = memo(
+  ({ vmId, disk, name: imageName, sx, oneConfig, adminGroup }) => {
+    const [resizeDisk] = useResizeDiskMutation()
+    const { DISK_ID } = disk
 
-  const handleResize = async ({ SIZE } = {}) => {
-    await resizeDisk({ id: vmId, disk: DISK_ID, size: SIZE })
-  }
+    const handleResize = async ({ SIZE } = {}) => {
+      await resizeDisk({ id: vmId, disk: DISK_ID, size: SIZE })
+    }
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`,
-        icon: <Expand />,
-        tooltip: Tr(T.Resize),
-        sx,
-      }}
-      options={[
-        {
-          dialogProps: {
-            title: (
-              <Translate
-                word={T.ResizeSomething}
-                values={`#${DISK_ID} - ${imageName}`}
-              />
-            ),
+    const disabledAction =
+      !adminGroup &&
+      isRestrictedAttributes('SIZE', 'DISK', oneConfig?.VM_RESTRICTED_ATTR)
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `${VM_ACTIONS.RESIZE_DISK}-${DISK_ID}`,
+          icon: <Expand />,
+          tooltip: !disabledAction ? Tr(T.Resize) : Tr(T.ResizeRestricted),
+          sx,
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.ResizeSomething}
+                  values={`#${DISK_ID} - ${imageName}`}
+                />
+              ),
+            },
+            form: () =>
+              ResizeDiskForm({
+                initialValues: disk,
+                stepProps: {
+                  oneConfig,
+                  adminGroup,
+                  nameParentAttribute: 'DISK',
+                },
+              }),
+            onSubmit: handleResize,
           },
-          form: () => ResizeDiskForm({ initialValues: disk }),
-          onSubmit: handleResize,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 const SnapshotCreateAction = memo(({ vmId, disk, name: imageName, sx }) => {
   const [createDiskSnapshot] = useCreateDiskSnapshotMutation()

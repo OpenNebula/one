@@ -20,7 +20,7 @@ import { useGeneralApi } from 'client/features/General'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
-import { convertKeysToCase, addTempInfo } from 'client/utils'
+import { convertKeysToCase } from 'client/utils'
 
 import {
   useInstantiateVRouterTemplateMutation,
@@ -66,8 +66,6 @@ function InstantiateVrTemplate() {
 
   const dataTemplateExtended = _.cloneDeep(apiTemplateDataExtended)
   const dataTemplate = _.cloneDeep(apiTemplateData)
-
-  if (!adminGroup) addTempInfo(dataTemplate, dataTemplateExtended)
 
   useGetUsersQuery(undefined, { refetchOnMountOrArgChange: false })
   useGetGroupsQuery(undefined, { refetchOnMountOrArgChange: false })

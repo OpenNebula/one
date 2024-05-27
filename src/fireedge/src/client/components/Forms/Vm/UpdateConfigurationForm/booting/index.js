@@ -24,10 +24,15 @@ import { HYPERVISORS } from 'client/constants'
 /**
  * @param {object} props - Component props
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {ReactElement} OS section component
  */
-const OsSection = ({ hypervisor }) => {
-  const sections = useMemo(() => SECTIONS({ hypervisor }), [hypervisor])
+const OsSection = ({ hypervisor, oneConfig, adminGroup }) => {
+  const sections = useMemo(
+    () => SECTIONS({ hypervisor, oneConfig, adminGroup }),
+    [hypervisor]
+  )
 
   return (
     <Stack
@@ -42,6 +47,10 @@ const OsSection = ({ hypervisor }) => {
   )
 }
 
-OsSection.propTypes = { hypervisor: PropTypes.string }
+OsSection.propTypes = {
+  hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 
 export default OsSection

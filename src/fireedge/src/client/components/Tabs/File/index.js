@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
 import { RESOURCE_NAMES } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useViews, useSystemData } from 'client/features/Auth'
 import { useGetImageQuery } from 'client/features/OneApi/image'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
@@ -33,12 +33,19 @@ const getTabComponent = (tabName) =>
 const FileTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = useGetImageQuery({ id })
+  const { adminGroup, oneConfig } = useSystemData()
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.IMAGE
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-    return getAvailableInfoTabs(infoTabs, getTabComponent, id)
+    return getAvailableInfoTabs(
+      infoTabs,
+      getTabComponent,
+      id,
+      oneConfig,
+      adminGroup
+    )
   }, [view, id])
 
   if (isError) {

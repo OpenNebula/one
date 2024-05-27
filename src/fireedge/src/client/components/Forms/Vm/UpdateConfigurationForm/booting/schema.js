@@ -22,6 +22,7 @@ import {
   Section,
   getObjectSchemaFromFields,
   filterFieldsByHypervisor,
+  disableFields,
 } from 'client/utils'
 import { T, HYPERVISORS, ATTR_CONF_CAN_BE_UPDATED } from 'client/constants'
 
@@ -36,24 +37,41 @@ const RAW_FIELDS = getFields(ATTR_CONF_CAN_BE_UPDATED.RAW)
 /**
  * @param {object} [formProps] - Form props
  * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
+ * @param {object} formProps.oneConfig - Config of oned.conf
+ * @param {boolean} formProps.adminGroup - User is admin or not
  * @returns {Section[]} Sections
  */
-const SECTIONS = ({ hypervisor }) => [
+const SECTIONS = ({ hypervisor, oneConfig, adminGroup }) => [
   {
     id: 'os-boot',
     legend: T.Boot,
-    fields: filterFieldsByHypervisor(OS_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(OS_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-features',
     legend: T.Features,
-    fields: filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
   {
     id: 'os-raw',
     legend: T.RawData,
     legendTooltip: T.RawDataConcept,
-    fields: filterFieldsByHypervisor(RAW_FIELDS, hypervisor),
+    fields: disableFields(
+      filterFieldsByHypervisor(RAW_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
   },
 ]
 

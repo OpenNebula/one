@@ -53,9 +53,16 @@ const {
  * @param {object|boolean} props.tabProps - Tab properties
  * @param {object} [props.tabProps.actions] - Actions from user view yaml
  * @param {string} props.id - Virtual Machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Schedule actions tab
  */
-const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
+const VmSchedulingTab = ({
+  tabProps: { actions } = {},
+  id,
+  oneConfig,
+  adminGroup,
+}) => {
   const [addScheduledAction] = useAddScheduledActionMutation()
   const [updateScheduledAction] = useUpdateScheduledActionMutation()
   const [deleteScheduledAction] = useDeleteScheduledActionMutation()
@@ -152,12 +159,16 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
                       vm={vm}
                       schedule={schedule}
                       onSubmit={(newAction) => handleUpdate(newAction, ID)}
+                      oneConfig={oneConfig}
+                      adminGroup={adminGroup}
                     />
                   )}
                   {isDeleteEnabled && (
                     <DeleteSchedButton
                       onSubmit={() => handleRemove(ID)}
                       schedule={schedule}
+                      oneConfig={oneConfig}
+                      adminGroup={adminGroup}
                     />
                   )}
                 </>
@@ -173,6 +184,8 @@ const VmSchedulingTab = ({ tabProps: { actions } = {}, id }) => {
 VmSchedulingTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default VmSchedulingTab

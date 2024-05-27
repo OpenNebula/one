@@ -41,9 +41,11 @@ import { cloneObject, set } from 'client/utils'
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Image id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Information tab
  */
-const ImageInfoTab = ({ tabProps = {}, id }) => {
+const ImageInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -96,6 +98,8 @@ const ImageInfoTab = ({ tabProps = {}, id }) => {
         <Information
           image={image}
           actions={getActions(informationPanel?.actions)}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
         />
       )}
       {permissionsPanel?.enabled && (
@@ -138,6 +142,8 @@ const ImageInfoTab = ({ tabProps = {}, id }) => {
 ImageInfoTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 ImageInfoTab.displayName = 'ImageInfoTab'

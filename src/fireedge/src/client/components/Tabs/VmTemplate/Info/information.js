@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { List } from 'client/components/Tabs/Common'
 import { useRenameTemplateMutation } from 'client/features/OneApi/vmTemplate'
-
+import { isRestrictedAttributes } from 'client/utils'
 import Image from 'client/components/Image'
 import { timeToString, levelLockToString } from 'client/models/Helper'
 import {
@@ -26,6 +26,7 @@ import {
   VM_TEMPLATE_ACTIONS,
   STATIC_FILES_URL,
   VmTemplate,
+  RESTRICTED_ATTRIBUTES_TYPE,
 } from 'client/constants'
 
 /**
@@ -34,9 +35,16 @@ import {
  * @param {object} props - Props
  * @param {VmTemplate} props.template - Template
  * @param {string[]} props.actions - Available actions to information tab
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Information tab
  */
-const InformationPanel = ({ template = {}, actions }) => {
+const InformationPanel = ({
+  template = {},
+  actions,
+  oneConfig,
+  adminGroup,
+}) => {
   const [renameTemplate] = useRenameTemplateMutation()
 
   const { ID, NAME, REGTIME, LOCK, TEMPLATE = {} } = template
@@ -51,7 +59,14 @@ const InformationPanel = ({ template = {}, actions }) => {
     {
       name: T.Name,
       value: NAME,
-      canEdit: actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME),
+      canEdit:
+        actions?.includes?.(VM_TEMPLATE_ACTIONS.RENAME) &&
+        (adminGroup ||
+          !isRestrictedAttributes(
+            'NAME',
+            undefined,
+            oneConfig[RESTRICTED_ATTRIBUTES_TYPE.VM]
+          )),
       handleEdit: handleRename,
       dataCy: 'name',
     },
@@ -86,6 +101,8 @@ InformationPanel.displayName = 'InformationPanel'
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   template: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 export default InformationPanel

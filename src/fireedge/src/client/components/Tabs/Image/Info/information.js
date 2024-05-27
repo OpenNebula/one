@@ -31,8 +31,18 @@ import {
   booleanToString,
   levelLockToString,
 } from 'client/models/Helper'
-import { arrayToOptions, prettyBytes } from 'client/utils'
-import { T, Image, IMAGE_ACTIONS, IMAGE_TYPES } from 'client/constants'
+import {
+  arrayToOptions,
+  prettyBytes,
+  isRestrictedAttributes,
+} from 'client/utils'
+import {
+  T,
+  Image,
+  IMAGE_ACTIONS,
+  IMAGE_TYPES,
+  RESTRICTED_ATTRIBUTES_TYPE,
+} from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 /**
@@ -41,9 +51,11 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  * @param {object} props - Props
  * @param {Image} props.image - Image resource
  * @param {string[]} props.actions - Available actions to information tab
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Information tab
  */
-const InformationPanel = ({ image = {}, actions }) => {
+const InformationPanel = ({ image = {}, actions, oneConfig, adminGroup }) => {
   const [rename] = useRenameImageMutation()
   const [changeType] = useChangeImageTypeMutation()
   const [persistent] = usePersistentImageMutation()
@@ -91,7 +103,14 @@ const InformationPanel = ({ image = {}, actions }) => {
       name: T.Name,
       value: NAME,
       dataCy: 'name',
-      canEdit: actions?.includes?.(IMAGE_ACTIONS.RENAME),
+      canEdit:
+        actions?.includes?.(IMAGE_ACTIONS.RENAME) &&
+        (adminGroup ||
+          !isRestrictedAttributes(
+            'NAME',
+            undefined,
+            oneConfig[RESTRICTED_ATTRIBUTES_TYPE.IMAGE]
+          )),
       handleEdit: handleRename,
     },
     DATASTORE_ID && {
@@ -166,6 +185,8 @@ const InformationPanel = ({ image = {}, actions }) => {
 InformationPanel.propTypes = {
   image: PropTypes.object,
   actions: PropTypes.arrayOf(PropTypes.string),
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 InformationPanel.displayName = 'InformationPanel'

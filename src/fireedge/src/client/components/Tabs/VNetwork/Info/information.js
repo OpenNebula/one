@@ -32,8 +32,14 @@ import {
   booleanToString,
 } from 'client/models/Helper'
 import { getState } from 'client/models/VirtualNetwork'
-import { T, VNetwork, VN_ACTIONS } from 'client/constants'
+import {
+  T,
+  VNetwork,
+  VN_ACTIONS,
+  RESTRICTED_ATTRIBUTES_TYPE,
+} from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { isRestrictedAttributes } from 'client/utils'
 
 /**
  * Renders mainly information tab.
@@ -41,9 +47,11 @@ import { PATH } from 'client/apps/sunstone/routesOne'
  * @param {object} props - Props
  * @param {VNetwork} props.vnet - Virtual Network resource
  * @param {string[]} props.actions - Available actions to information tab
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Information tab
  */
-const InformationPanel = ({ vnet = {}, actions }) => {
+const InformationPanel = ({ vnet = {}, actions, oneConfig, adminGroup }) => {
   const [rename] = useRenameVNetMutation()
   const {
     ID,
@@ -73,7 +81,14 @@ const InformationPanel = ({ vnet = {}, actions }) => {
       name: T.Name,
       value: NAME,
       dataCy: 'name',
-      canEdit: actions?.includes?.(VN_ACTIONS.RENAME),
+      canEdit:
+        actions?.includes?.(VN_ACTIONS.RENAME) &&
+        (adminGroup ||
+          !isRestrictedAttributes(
+            'NAME',
+            undefined,
+            oneConfig[RESTRICTED_ATTRIBUTES_TYPE.VNET]
+          )),
       handleEdit: handleRename,
     },
     parentId && {
@@ -134,6 +149,8 @@ const InformationPanel = ({ vnet = {}, actions }) => {
 InformationPanel.propTypes = {
   vnet: PropTypes.object,
   actions: PropTypes.arrayOf(PropTypes.string),
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 InformationPanel.displayName = 'InformationPanel'

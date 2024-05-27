@@ -26,9 +26,15 @@ import { Translate } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
 import { StatusChip, StatusCircle } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
-
+import { isRestrictedAttributes } from 'client/utils'
 import { PATH } from 'client/apps/sunstone/routesOne'
-import { RESOURCE_NAMES, T, VM, VM_ACTIONS } from 'client/constants'
+import {
+  RESOURCE_NAMES,
+  T,
+  VM,
+  VM_ACTIONS,
+  RESTRICTED_ATTRIBUTES_TYPE,
+} from 'client/constants'
 import {
   booleanToString,
   levelLockToString,
@@ -49,9 +55,11 @@ const { CLUSTER, HOST } = RESOURCE_NAMES
  * @param {object} props - Props
  * @param {VM} props.vm - Virtual machine
  * @param {string[]} props.actions - Available actions to information tab
+ * @param {object} props.oneConfig - Open Nebula configuration
+ * @param {boolean} props.adminGroup - If the user belongs to oneadmin group
  * @returns {ReactElement} Information tab
  */
-const InformationPanel = ({ vm = {}, actions }) => {
+const InformationPanel = ({ vm = {}, actions, oneConfig, adminGroup }) => {
   const [getCluster, { data: cluster }] = useLazyGetClusterAdminQuery()
   const [renameVm] = useRenameVmMutation()
 
@@ -95,7 +103,14 @@ const InformationPanel = ({ vm = {}, actions }) => {
     {
       name: T.Name,
       value: NAME,
-      canEdit: actions?.includes?.(VM_ACTIONS.RENAME),
+      canEdit:
+        actions?.includes?.(VM_ACTIONS.RENAME) &&
+        (adminGroup ||
+          !isRestrictedAttributes(
+            'NAME',
+            undefined,
+            oneConfig[RESTRICTED_ATTRIBUTES_TYPE.VM]
+          )),
       handleEdit: handleRename,
       dataCy: 'name',
     },
@@ -189,6 +204,8 @@ const InformationPanel = ({ vm = {}, actions }) => {
 InformationPanel.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.string),
   vm: PropTypes.object,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 InformationPanel.displayName = 'InformationPanel'

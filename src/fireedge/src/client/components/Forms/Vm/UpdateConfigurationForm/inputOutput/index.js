@@ -27,9 +27,11 @@ import { T, HYPERVISORS } from 'client/constants'
 /**
  * @param {object} props - Component props
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
+ * @param {object} props.oneConfig - Config of oned.conf
+ * @param {boolean} props.adminGroup - User is admin or not
  * @returns {ReactElement} IO section component
  */
-const InputOutput = ({ hypervisor }) => (
+const InputOutput = ({ hypervisor, oneConfig, adminGroup }) => (
   <Stack
     display="grid"
     gap="1em"
@@ -37,15 +39,30 @@ const InputOutput = ({ hypervisor }) => (
   >
     <FormWithSchema
       cy={'io-graphics'}
-      fields={useMemo(() => GRAPHICS_FIELDS({ hypervisor }), [hypervisor])}
+      fields={useMemo(
+        () => GRAPHICS_FIELDS({ hypervisor, oneConfig, adminGroup }),
+        [hypervisor]
+      )}
       legend={T.Graphics}
     />
-    <InputsSection hypervisor={hypervisor} />
-    <VideoSection hypervisor={hypervisor} />
+    <InputsSection
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
+    <VideoSection
+      hypervisor={hypervisor}
+      oneConfig={oneConfig}
+      adminGroup={adminGroup}
+    />
   </Stack>
 )
 
-InputOutput.propTypes = { hypervisor: PropTypes.string }
+InputOutput.propTypes = {
+  hypervisor: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
 InputOutput.displayName = 'InputOutput'
 
 export default InputOutput

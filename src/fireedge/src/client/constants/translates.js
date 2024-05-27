@@ -162,6 +162,8 @@ module.exports = {
   Reschedule: 'Reschedule',
   Reserve: 'Reserve',
   Resize: 'Resize',
+  ResizeRestricted:
+    'You cannot resize the disk because its SIZE attribute is restricted. Please, contact with your administrator.',
   ResizeCapacity: 'Resize capacity',
   ResizeSomething: 'Resize: %s',
   Resume: 'Resume',

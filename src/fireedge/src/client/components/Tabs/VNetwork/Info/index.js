@@ -51,9 +51,11 @@ const HIDDEN_ATTRIBUTES_REG =
  * @param {object} props - Props
  * @param {object} props.tabProps - Tab information
  * @param {string} props.id - Virtual network id
+ * @param {object} props.oneConfig - OpenNebula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Information tab
  */
-const VNetworkInfoTab = ({ tabProps = {}, id }) => {
+const VNetworkInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
   const {
     information_panel: informationPanel,
     permissions_panel: permissionsPanel,
@@ -121,6 +123,8 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
         <Information
           vnet={vnet}
           actions={getActions(informationPanel?.actions)}
+          oneConfig={oneConfig}
+          adminGroup={adminGroup}
         />
       )}
       {permissionsPanel?.enabled && (
@@ -183,6 +187,8 @@ const VNetworkInfoTab = ({ tabProps = {}, id }) => {
 VNetworkInfoTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VNetworkInfoTab.displayName = 'VNetworkInfoTab'
