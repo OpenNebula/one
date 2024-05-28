@@ -140,9 +140,9 @@ module OpenNebula
                 @one_endpoint = endpoint
             elsif ENV["ONE_XMLRPC"]
                 @one_endpoint = ENV["ONE_XMLRPC"]
-            elsif ENV['HOME'] and File.exists?(ENV['HOME']+"/.one/one_endpoint")
+            elsif ENV['HOME'] and File.exist?(ENV['HOME']+"/.one/one_endpoint")
                 @one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
-            elsif File.exists?("/var/lib/one/.one/one_endpoint")
+            elsif File.exist?("/var/lib/one/.one/one_endpoint")
                 @one_endpoint = File.read("/var/lib/one/.one/one_endpoint")
             else
                 @one_endpoint = "http://localhost:2633/RPC2"

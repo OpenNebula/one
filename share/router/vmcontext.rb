@@ -520,7 +520,7 @@ private
     end
 
     def read_context
-        return nil if !File.exists?(FILES[:context])
+        return nil if !File.exist?(FILES[:context])
 
         context = Hash.new
         context_file = File.read(FILES[:context])

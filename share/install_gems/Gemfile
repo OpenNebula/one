@@ -21,6 +21,7 @@
 ruby '>=2.0.0', '<4'
 source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
+rubygems_version = Gem::Version.new(`gem -v`)
 
 ################################################################################
 # Gems only in one ruby version
@@ -61,6 +62,10 @@ if ruby_version < Gem::Version.new('2.3.0')
     rq      = '< 1.0.0'
 end
 
+if ruby_version <= Gem::Version.new('2.0.0')
+   gem 'multipart-post', '~> 2.1.0'
+end
+
 gem 'ffi-rzmq', '~> 2.0.7'
 gem 'net-ldap'
 gem 'nokogiri', nokogiri
@@ -71,12 +76,20 @@ group :cli do
     gem 'highline', '~> 1.7'
     gem 'mysql2'
     gem 'pg', pg
-    gem 'sqlite3'
+
+    if ruby_version < Gem::Version.new('3.0.0')
+        gem 'sqlite3', '<= 1.6.9'
+    elsif rubygems_version < Gem::Version.new('3.3.21')
+        gem 'sqlite3', '<= 1.7.3'
+    else
+        gem 'sqlite3'
+    end
+    gem 'mini_portile2'
     gem 'sequel'
 end
 
 group :onecfg, :cli do
-    gem 'augeas', '~> 0.6'
+    gem 'opennebula-augeas', '>= 0.6.6.pre'
 end
 
 group :onecfg, :cloud, :oneflow, :sunstone do
@@ -110,7 +123,7 @@ end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    gem 'sinatra'
+    gem 'sinatra', '< 4.0.0'
 end
 
 group :cloud do

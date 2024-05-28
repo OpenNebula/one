@@ -565,7 +565,7 @@ class BackEndSQLite < OneDBBacKEnd
 
     def restore(bck_file, force=nil, federated=false)
         if !federated
-            if File.exists?(@sqlite_file) && !force
+            if File.exist?(@sqlite_file) && !force
                 raise "File #{@sqlite_file} exists, use -f to overwrite."
             end
         end
@@ -616,7 +616,7 @@ class BackEndSQLite < OneDBBacKEnd
     private
 
     def connect_db
-        if !File.exists?(@sqlite_file)
+        if !File.exist?(@sqlite_file)
             raise "File #{@sqlite_file} doesn't exist"
         end
 
