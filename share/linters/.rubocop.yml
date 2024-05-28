@@ -568,6 +568,9 @@ Layout/LineContinuationLeadingSpace:
 # STYLE
 #######
 
+Style/SuperArguments:
+    Enabled: false
+
 Style/OpenStructUse:
     Enabled: false
 
