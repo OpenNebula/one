@@ -1579,7 +1579,15 @@ int LibVirtDriver::deployment_description_kvm(
         //   - target is based on dev target to have a predictable order
         if ( target[0] == 's' && target[1] == 'd' )
         {
-            int target_number = target[2] - 'a';
+            string suffix        = target.substr(2);
+            int    target_number = 0;
+          
+            for (char ch : suffix)
+            {
+                target_number = target_number * 26 + (ch - 'a' + 1);
+            }
+          
+            target_number--;
 
             if ( disk_bus == "sata" )
             {

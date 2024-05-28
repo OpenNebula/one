@@ -743,10 +743,22 @@ void VirtualMachineDisks::assign_disk_targets(
 
         do
         {
-            target = disk_pair.first + static_cast<char>(('a'+ index));
+            string temp;
+            int remainder = index % 26;
+            int quotient  = index / 26;
+
+            while (quotient > 0) {
+                temp = static_cast<char>('a' + remainder) + temp;
+
+                remainder = (quotient - 1) % 26;
+                quotient  = (quotient - 1) / 26;
+            }
+
+            temp   = static_cast<char>('a' + remainder) + temp;
+            target = disk_pair.first + temp;
+
             index++;
-        }
-        while ( used_targets.count(target) > 0 && index < 26 );
+        } while (used_targets.count(target) > 0);
 
         disk_pair.second->replace("TARGET", target);
 
@@ -760,15 +772,13 @@ void VirtualMachineDisks::assign_disk_targets(
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
-        vector<Attribute *> disks, VectorAttribute * vcontext,
+        vector<VectorAttribute *> disks, VectorAttribute * vcontext, bool is_q35,
         std::string& error_str)
 {
     Nebula&    nd    = Nebula::instance();
     ImagePool* ipool = nd.get_ipool();
 
-    vector<Attribute*>::iterator it;
-
-    int         disk_id, image_id;
+    int         disk_id = 0, image_id, hd_disks = 0, sd_disks = 0;
     std::string dev_prefix, target;
 
     Image::ImageType image_type;
@@ -782,10 +792,10 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
 
     std::ostringstream oss;
 
-    for(it = disks.begin(), disk_id = 0; it != disks.end(); ++it, ++disk_id)
+    for(auto it = disks.begin(); it != disks.end(); ++it, ++disk_id)
     {
         Snapshots*       snapshots;
-        VectorAttribute* vdisk = static_cast<VectorAttribute * >(*it);
+        VectorAttribute* vdisk = *it;
 
         // ---------------------------------------------------------------------
         // Initialize DISK attribute information and acquire associated IMAGE
@@ -867,7 +877,32 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
                     break;
             }
         }
+
+        if ( dev_prefix == "sd" )
+        {
+            sd_disks++;
+        }
+
+        if ( dev_prefix == "hd" )
+        {
+            hd_disks++;
+        }
     }
+
+    // -------------------------------------------------------------------------
+    // Check for too many disks
+    // -------------------------------------------------------------------------
+
+    if ( hd_disks > 4 && !is_q35 )
+    {
+        goto error_too_many_hd_disks;
+    }
+
+    if ( sd_disks > 256 )
+    {
+        goto error_too_many_sd_disks;
+    }
+
 
     // -------------------------------------------------------------------------
     // Targets for OS Disks
@@ -918,6 +953,16 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
     assign_disk_targets(datablock_disks, used_targets);
 
     return 0;
+
+error_too_many_hd_disks:
+    oss << "Non-q35 VM " << vm_id << " has more than 4 hd disks";
+    error_str = oss.str();
+    goto error_common;
+
+error_too_many_sd_disks:
+    oss << "VM " << vm_id << " has more than 256 disks";
+    error_str = oss.str();
+    goto error_common;
 
 error_duplicated_target:
     oss << "Two disks have defined the same target " << target;

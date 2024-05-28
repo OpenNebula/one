@@ -3302,53 +3302,20 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
 int VirtualMachine::get_disk_images(string& error_str)
 {
-    vector<Attribute *> adisks;
-    vector<Attribute *> acontext_disks;
+    vector<VectorAttribute *> adisks;
+    vector<VectorAttribute *> acontext_disks;
 
     int num_context = user_obj_template->remove("CONTEXT", acontext_disks);
-    int num_disks   = user_obj_template->remove("DISK", adisks);
+    user_obj_template->remove("DISK", adisks);
 
-    for (auto it = acontext_disks.begin(); it != acontext_disks.end(); )
-    {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            num_context--;
-            it = acontext_disks.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
-    }
-
-    for (auto it = adisks.begin(); it != adisks.end(); )
-    {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            num_disks--;
-            it = adisks.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
-    }
-
-    if ( num_disks > 20 )
-    {
-        error_str = "Exceeded the maximum number of disks (20)";
-        return -1;
-    }
+    obj_template->set(acontext_disks);
+    obj_template->set(adisks);
 
     VectorAttribute * context = 0;
 
     if ( num_context > 0 )
     {
-        context = static_cast<VectorAttribute * >(acontext_disks[0]);
+        context = acontext_disks[0];
     }
 
     // -------------------------------------------------------------------------
@@ -3363,7 +3330,16 @@ int VirtualMachine::get_disk_images(string& error_str)
         obj_template->add("TM_MAD_SYSTEM", tm_mad_sys);
     }
 
-    return disks.get_images(oid, uid, tm_mad_sys, adisks, context, error_str);
+    VectorAttribute* os = obj_template->get("OS");
+    bool is_q35         = false;
+  
+    if (os)
+    {
+        string machine = os->vector_value("MACHINE");
+        is_q35         = machine.find("q35") != std::string::npos;
+    }
+
+    return disks.get_images(oid, uid, tm_mad_sys, adisks, context, is_q35, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
