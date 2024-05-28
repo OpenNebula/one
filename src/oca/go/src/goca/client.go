@@ -17,13 +17,14 @@
 package goca
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	errs "github.com/OpenNebula/one/src/oca/go/src/goca/errors"
 
@@ -56,41 +57,43 @@ type Response struct {
 
 // NewConfig returns a new OneConfig object with the specified user, password,
 // and endpoint
-func NewConfig(user string, password string, endpoint string) OneConfig {
-	var authToken string
-	var oneAuthPath string
-
-	oneXmlrpc := endpoint
+func NewConfig(user, password, endpoint string) OneConfig {
+	var conf OneConfig
 
 	if user == "" && password == "" {
-		oneAuthPath = os.Getenv("ONE_AUTH")
+		oneAuthPath := os.Getenv("ONE_AUTH")
 		if oneAuthPath == "" {
 			oneAuthPath = os.Getenv("HOME") + "/.one/one_auth"
 		}
 
-		token, err := ioutil.ReadFile(oneAuthPath)
-		if err == nil {
-			authToken = strings.TrimSpace(string(token))
-		} else {
-			authToken = ""
+		file, err := os.Open(oneAuthPath)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+
+		scanner.Scan()
+		if scanner.Err() != nil {
+			log.Fatalln(scanner.Err())
+		}
+
+		conf.Token = scanner.Text()
+	} else {
+		conf.Token = user + ":" + password
+	}
+
+	if endpoint == "" {
+		conf.Endpoint = os.Getenv("ONE_XMLRPC")
+		if conf.Endpoint == "" {
+			conf.Endpoint = "http://localhost:2633/RPC2"
 		}
 	} else {
-		authToken = user + ":" + password
+		conf.Endpoint = endpoint
 	}
 
-	if oneXmlrpc == "" {
-		oneXmlrpc = os.Getenv("ONE_XMLRPC")
-		if oneXmlrpc == "" {
-			oneXmlrpc = "http://localhost:2633/RPC2"
-		}
-	}
-
-	config := OneConfig{
-		Token:    authToken,
-		Endpoint: oneXmlrpc,
-	}
-
-	return config
+	return conf
 }
 
 // NewDefaultClient return a new basic one client
