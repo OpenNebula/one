@@ -59,16 +59,46 @@ const DRIVER_FIELD = {
   notNull: true,
 }
 
+/** @type {Field} Bridge switch linux field */
+const BRIDGE_SWITCH = {
+  name: 'bridgeSwitch',
+  label: T.BridgeSwitch,
+  tooltip: T.BridgeSwitchConcept,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
+  grid: { md: 12 },
+}
+
 /** @type {Field} Bridge linux field */
 const BRIDGE_FIELD = {
   name: 'BRIDGE',
   label: T.Bridge,
   tooltip: T.BridgeConcept,
+  dependOf: BRIDGE_SWITCH.name,
+  htmlType: (bridgeSwitch) => !bridgeSwitch && INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
     .notRequired()
-    .default(() => undefined),
+    .default(() => undefined)
+    .when(BRIDGE_SWITCH.name, {
+      is: (bridgeSwitch) => bridgeSwitch,
+      then: (schema) => schema.required(),
+    }),
+  grid: { md: 6 },
+}
+
+/** @type {Field} Bridge switch linux field */
+const PHYDEV_SWITCH = {
+  name: 'phyDevSwitch',
+  label: T.PhysicalDeviceSwitch,
+  tooltip: T.PhysicalDeviceSwitchConcept,
+  dependOf: DRIVER_FIELD.name,
+  htmlType: (driver) =>
+    [dot1Q, vxlan, openVSwitchVXLAN].includes(driver) && INPUT_TYPES.HIDDEN,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
+  grid: { md: 12 },
 }
 
 /** @type {Field} Physical device field */
@@ -76,14 +106,22 @@ const PHYDEV_FIELD = {
   name: 'PHYDEV',
   label: T.PhysicalDevice,
   tooltip: T.PhysicalDeviceConcept,
+  dependOf: [PHYDEV_SWITCH.name, DRIVER_FIELD.name],
+  htmlType: ([phyDevSwitch, driver] = []) =>
+    phyDevSwitch &&
+    ![dot1Q, vxlan, openVSwitchVXLAN].includes(driver) &&
+    INPUT_TYPES.HIDDEN,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(DRIVER_FIELD.name, {
-      is: (driver) => [dot1Q, vxlan, openVSwitchVXLAN].includes(driver),
+    .when([DRIVER_FIELD.name, PHYDEV_SWITCH.name], {
+      is: (driver, phyDevSwitch) =>
+        [dot1Q, vxlan, openVSwitchVXLAN].includes(driver) || !phyDevSwitch,
       then: (schema) => schema.required(),
+      otherwise: (schema) => schema.notRequired(),
     }),
+  grid: { md: 6 },
 }
 
 /** @type {Field} Filter MAC spoofing field */
@@ -169,9 +207,12 @@ const VLAN_ID_FIELD = {
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(AUTOMATIC_VLAN_FIELD.name, {
-      is: (automatic) => !automatic,
+    .when([DRIVER_FIELD.name, AUTOMATIC_VLAN_FIELD.name], {
+      is: (driver, automatic) =>
+        [dot1Q, vxlan, ovswitch, openVSwitchVXLAN].includes(driver) &&
+        !automatic,
       then: (schema) => schema.required(),
+      otherwise: (schema) => schema.notRequired(),
     }),
   grid: { sm: 6 },
 }
@@ -212,9 +253,11 @@ const OUTER_VLAN_ID_FIELD = {
   validation: string()
     .trim()
     .default(() => undefined)
-    .when(AUTOMATIC_OUTER_VLAN_ID_FIELD.name, {
-      is: (oAutomatic) => !oAutomatic,
+    .when([DRIVER_FIELD.name, AUTOMATIC_OUTER_VLAN_ID_FIELD.name], {
+      is: (driver, oAutomatic) =>
+        [openVSwitchVXLAN].includes(driver) && !oAutomatic,
       then: (schema) => schema.required(),
+      otherwise: (schema) => schema.notRequired(),
     }),
   grid: { sm: 6 },
 }
@@ -240,8 +283,12 @@ const FIELDS = (oneConfig, adminGroup) =>
   disableFields(
     [
       DRIVER_FIELD,
-      BRIDGE_FIELD,
+
+      PHYDEV_SWITCH,
       PHYDEV_FIELD,
+      BRIDGE_SWITCH,
+      BRIDGE_FIELD,
+
       FILTER_MAC_SPOOFING_FIELD,
       FILTER_IP_SPOOFING_FIELD,
       AUTOMATIC_VLAN_FIELD,

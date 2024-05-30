@@ -1431,9 +1431,17 @@ module.exports = {
   /* Virtual Network schema - driver configuration */
   NetworkMode: 'Network mode',
   Bridge: 'Bridge',
-  BridgeConcept: 'Name of the physical bridge in the nodes to attach VM NICs',
+  BridgeConcept:
+    'This lets you specify the name of the bridge to be created in the hosts.',
+  BridgeSwitch: 'Custom name for bridge',
+  BridgeSwitchConcept:
+    'If enabled, you have to define the name of the bridge. Otherwise, OpenNebula will create the name of the bridge with the "onebr" prefix.',
   PhysicalDevice: 'Physical device',
-  PhysicalDeviceConcept: 'Node NIC to send/receive virtual network traffic',
+  PhysicalDeviceConcept:
+    'Device name of the physical network card in the host to route traffic to. Example: eth0',
+  PhysicalDeviceSwitch: 'Use only private host networking',
+  PhysicalDeviceSwitchConcept:
+    'If enabled, the Virtual Network will not connect to any physical device and hence the Virtual Machines will be able to communicate only with other Virtual Machines in the same virtual network and in the same host.',
   MacSpoofingFilter: ' MAC spoofing filter',
   IpSpoofingFilter: ' IP spoofing filter',
   MTU: 'MTU of the interface',
