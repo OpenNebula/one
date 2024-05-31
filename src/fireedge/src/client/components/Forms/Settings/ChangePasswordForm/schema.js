@@ -13,35 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import General, {
-  STEP_ID as GENERAL_ID,
-} from 'client/components/Forms/User/CreateForm/Steps/General'
-import SecondaryGroups, {
-  STEP_ID as SECONDARY_GROUPS_ID,
-} from 'client/components/Forms/User/CreateForm/Steps/SecondaryGroups'
-import PrimaryGroup, {
-  STEP_ID as PRIMARY_GROUP_ID,
-} from 'client/components/Forms/User/CreateForm/Steps/PrimaryGroup'
-import { AUTH_DRIVER } from 'client/constants'
+import { ObjectSchema, string } from 'yup'
+import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { T, INPUT_TYPES } from 'client/constants'
 
-import { createSteps } from 'client/utils'
-const Steps = createSteps([General, PrimaryGroup, SecondaryGroups], {
-  transformBeforeSubmit: (formData) => {
-    const {
-      [GENERAL_ID]: generalData,
-      [PRIMARY_GROUP_ID]: primaryGroupsData,
-      [SECONDARY_GROUPS_ID]: secondaryGroupsData,
-    } = formData
+/** @type {Field} Password field */
+const PASSWORD_FIELD = {
+  name: 'password',
+  label: T.Password,
+  type: INPUT_TYPES.PASSWORD,
+  validation: string()
+    .trim()
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
+}
 
-    // LDAP driver needs to set passwort to '-'
-    return {
-      username: generalData.username,
-      password:
-        generalData.authType === AUTH_DRIVER.LDAP ? '-' : generalData.password,
-      driver: generalData.authType,
-      group: [primaryGroupsData, ...secondaryGroupsData],
-    }
-  },
-})
+/** @type {Field} Confirm Password field */
+const CONFIRM_PASSWORD_FIELD = {
+  name: 'confirmPassword',
+  label: T.ConfirmPassword,
+  type: INPUT_TYPES.PASSWORD,
+  validation: string()
+    .trim()
+    .required()
+    .test('passwords-match', T.PasswordsMustMatch, function (value) {
+      return this.parent.password === value
+    })
+    .default(() => undefined),
+  grid: { md: 12 },
+}
 
-export default Steps
+/**
+ * @returns {Field[]} List of change password form inputs fields
+ */
+export const CHANGE_PASSWORD_FIELDS = [PASSWORD_FIELD, CONFIRM_PASSWORD_FIELD]
+
+/** @type {ObjectSchema} Change password form object schema */
+export const CHANGE_PASSWORD_SCHEMA = getObjectSchemaFromFields(
+  CHANGE_PASSWORD_FIELDS
+)

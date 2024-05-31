@@ -30,7 +30,7 @@ import {
   useLoginMutation,
 } from 'client/features/OneApi/auth'
 
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { OpenNebulaLogo } from 'client/components/Icons'
 import { APPS, APPS_WITH_ONE_PREFIX, APP_URL, T } from 'client/constants'
 import Form from 'client/containers/Login/Opennebula/Form'
@@ -51,7 +51,7 @@ const STEPS = {
 function OpenNebula() {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
 
-  const { logout } = useAuthApi()
+  const { logout, setErrorMessage } = useAuthApi()
   const { error: authError, isLoginInProgress: needGroupToContinue } = useAuth()
 
   const [changeAuthGroup, changeAuthGroupState] = useChangeAuthGroupMutation()
@@ -64,6 +64,9 @@ function OpenNebula() {
     needGroupToContinue ? STEPS.GROUP_FORM : STEPS.USER_FORM
   )
 
+  // Wrong username and password message
+  const wrongUsernamePassword = Tr(T.WrongUsernamePassword)
+
   const handleSubmitUser = async (dataForm) => {
     try {
       const response = await login({ ...dataUserForm, ...dataForm }).unwrap()
@@ -75,7 +78,10 @@ function OpenNebula() {
         setStep(STEPS.FA2_FORM)
         setDataUserForm(dataForm)
       }
-    } catch {}
+    } catch (error) {
+      // If login request returns 401, show error message about username and password
+      error?.status === 401 && setErrorMessage(wrongUsernamePassword)
+    }
   }
 
   const handleSubmitGroup = (dataForm) => {

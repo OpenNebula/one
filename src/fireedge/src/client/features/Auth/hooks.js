@@ -125,6 +125,7 @@ export const useAuthApi = () => {
     changeView: (view) => dispatch(actions.changeView(view)),
     changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
     changeAuthUser: (user) => dispatch(actions.changeAuthUser(user)),
+    setErrorMessage: (message) => dispatch(actions.setErrorMessage(message)),
   }
 }
 

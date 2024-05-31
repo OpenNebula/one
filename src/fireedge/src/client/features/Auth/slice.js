@@ -51,6 +51,9 @@ const slice = createSlice({
     stopFirstRender: (state) => {
       state.firstRender = false
     },
+    setErrorMessage: (state, { payload }) => {
+      state.error = payload
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(logout, (_, { payload }) => {

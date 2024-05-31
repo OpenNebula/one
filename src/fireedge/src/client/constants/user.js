@@ -78,3 +78,14 @@ export const USER_ACTIONS = {
   ENABLE: 'enable',
   DISABLE: 'disable',
 }
+
+export const AUTH_DRIVER = {
+  CORE: 'core',
+  PUBLIC: 'public',
+  SSH: 'ssh',
+  X509: 'x509',
+  LDAP: 'ldap',
+  SERVER_CIPHER: 'server_cipher',
+  SERVER_X509: 'server_x509',
+  CUSTOM: 'custom',
+}

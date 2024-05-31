@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES, T } from 'client/constants'
-import { Field, getObjectSchemaFromFields } from 'client/utils'
+import { INPUT_TYPES, T, AUTH_DRIVER } from 'client/constants'
+import { Field, getObjectSchemaFromFields, arrayToOptions } from 'client/utils'
 import { string } from 'yup'
 
 /** @type {Field} Username field */
@@ -29,14 +29,37 @@ const USERNAME_FIELD = {
   grid: { md: 12 },
 }
 
+/** @type {Field} Authentication Type field */
+const AUTH_TYPE_FIELD = {
+  name: 'authType',
+  label: T.AuthType,
+  type: INPUT_TYPES.SELECT,
+  values: () =>
+    arrayToOptions(Object.keys(AUTH_DRIVER), {
+      addEmpty: false,
+      getText: (key) => AUTH_DRIVER[key],
+      getValue: (key) => AUTH_DRIVER[key],
+    }),
+  validation: string()
+    .trim()
+    .required()
+    .default(() => 'core'),
+  grid: { md: 12 },
+}
+
 /** @type {Field} Password field */
 const PASSWORD_FIELD = {
   name: 'password',
   label: T.Password,
   type: INPUT_TYPES.PASSWORD,
+  dependOf: AUTH_TYPE_FIELD.name,
+  htmlType: (authType) =>
+    authType && authType === AUTH_DRIVER.LDAP && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
-    .required()
+    .when(AUTH_TYPE_FIELD.name, (authType, schema) =>
+      authType === AUTH_DRIVER.LDAP ? schema.strip() : schema.required()
+    )
     .default(() => undefined),
   grid: { md: 12 },
 }
@@ -46,35 +69,18 @@ const CONFIRM_PASSWORD_FIELD = {
   name: 'confirmPassword',
   label: T.ConfirmPassword,
   type: INPUT_TYPES.PASSWORD,
+  dependOf: AUTH_TYPE_FIELD.name,
+  htmlType: (authType) =>
+    authType && authType === AUTH_DRIVER.LDAP && INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
-    .required()
+    .when(AUTH_TYPE_FIELD.name, (authType, schema) =>
+      authType === AUTH_DRIVER.LDAP ? schema.strip() : schema.required()
+    )
     .test('passwords-match', T.PasswordsMustMatch, function (value) {
       return this.parent.password === value
     })
     .default(() => undefined),
-  grid: { md: 12 },
-}
-
-/** @type {Field} Authentication Type field */
-const AUTH_TYPE_FIELD = {
-  name: 'authType',
-  label: T.AuthType,
-  type: INPUT_TYPES.SELECT,
-  values: [
-    { text: 'core', value: 'core' },
-    { text: 'public', value: 'public' },
-    { text: 'ssh', value: 'ssh' },
-    { text: 'x509', value: 'x509' },
-    { text: 'ldap', value: 'ldap' },
-    { text: 'server_cipher', value: 'server_cipher' },
-    { text: 'server_x509', value: 'server_x509' },
-    { text: 'custom', value: 'custom' },
-  ],
-  validation: string()
-    .trim()
-    .required()
-    .default(() => 'core'),
   grid: { md: 12 },
 }
 

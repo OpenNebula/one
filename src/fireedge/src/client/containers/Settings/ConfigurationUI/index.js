@@ -16,18 +16,22 @@
 import { Box, Link, Paper, debounce } from '@mui/material'
 import { ReactElement, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
 import { useAuth, useAuthApi, useViews } from 'client/features/Auth'
 
 import makeStyles from '@mui/styles/makeStyles'
 import { useGeneralApi } from 'client/features/General'
-import { useUpdateUserMutation } from 'client/features/OneApi/user'
+import {
+  useUpdateUserMutation,
+  useChangePasswordMutation,
+} from 'client/features/OneApi/user'
 import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { FormWithSchema } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { Translate, Tr } from 'client/components/HOC'
+import { T, ONEADMIN_ID, SERVERADMIN_ID, AUTH_DRIVER } from 'client/constants'
+
 import {
   FIELDS,
   SCHEMA,
@@ -35,9 +39,15 @@ import {
 import { jsonToXml } from 'client/models/Helper'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
 
+import { ChangePasswordForm } from 'client/components/Forms/Settings'
+import { generateDocLink } from 'client/utils'
+import systemApi from 'client/features/OneApi/system'
+
 const useStyles = makeStyles((theme) => ({
   content: {
-    textAlign: 'right',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 }))
 
@@ -49,10 +59,13 @@ const useStyles = makeStyles((theme) => ({
 const Settings = () => {
   const { user, settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { data: zones = [], isLoading } = useGetZonesQuery()
+  const { data: version } = systemApi.useGetOneVersionQuery()
 
   const { changeAuthUser } = useAuthApi()
-  const { enqueueError } = useGeneralApi()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
   const [updateUser] = useUpdateUserMutation()
+  const [changePassword, { isSuccess: isSuccessChangePassword }] =
+    useChangePasswordMutation()
   const { views, view: userView } = useViews()
 
   const classes = useStyles()
@@ -79,6 +92,26 @@ const Settings = () => {
     }, 1000),
     [updateUser]
   )
+
+  // Success messages
+  const successMessageChangePassword = `${Tr(T.ChangePasswordSuccess)}`
+  useEffect(
+    () =>
+      isSuccessChangePassword && enqueueSuccess(successMessageChangePassword),
+    [isSuccessChangePassword]
+  )
+
+  /**
+   * Change the user's password.
+   *
+   * @param {object} formData - Password data
+   */
+  const handleChangePassword = async (formData) => {
+    await changePassword({
+      id: user.ID,
+      password: formData.password,
+    })
+  }
 
   useEffect(() => {
     const subscription = watch((formData) => {
@@ -109,6 +142,47 @@ const Settings = () => {
         </FormProvider>
       )}
       <Box className={classes.content}>
+        {/* 
+          Oneadmin and serveradmin users cannot change their passwords -> management_and_operations/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin 
+          LDAP users cannot change their passwords (the password is stored on the LDAP server)
+        */}
+
+        <ButtonToTriggerForm
+          buttonProps={{
+            'data-cy': `change-password-button`,
+            label: T.ChangePassword,
+            tooltip:
+              user.ID === ONEADMIN_ID || user.ID === SERVERADMIN_ID
+                ? T.ChangePasswordAdminWarning
+                : user.AUTH_DRIVER === AUTH_DRIVER.LDAP
+                ? T.ChangePasswordLdapWarning
+                : undefined,
+            tooltipLink:
+              user.ID === ONEADMIN_ID || user.ID === SERVERADMIN_ID
+                ? {
+                    text: T.ChangePasswordAdminWarningLink,
+                    link: generateDocLink(
+                      version,
+                      'management_and_operations/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin'
+                    ),
+                  }
+                : {},
+            disabled:
+              user.ID === ONEADMIN_ID ||
+              user.ID === SERVERADMIN_ID ||
+              user.AUTH_DRIVER === AUTH_DRIVER.LDAP,
+          }}
+          options={[
+            {
+              dialogProps: {
+                title: T.ChangePassword,
+                dataCy: 'change-password-form',
+              },
+              form: () => ChangePasswordForm(),
+              onSubmit: handleChangePassword,
+            },
+          ]}
+        />
         <Link
           color="secondary"
           component={RouterLink}

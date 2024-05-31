@@ -39,6 +39,13 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.action.disabled,
     },
   },
+  tooltipLink: {
+    color: theme.palette.secondary.main,
+    textDecoration: 'none',
+    '&:hover': {
+      color: theme.palette.secondary.dark,
+    },
+  },
 }))
 
 const ButtonComponent = forwardRef(
@@ -63,23 +70,43 @@ const ButtonComponent = forwardRef(
     )
 )
 
-const TooltipComponent = ({ tooltip, tooltipprops, children }) => (
-  <ConditionalWrap
-    condition={tooltip && tooltip !== ''}
-    wrap={(wrapperChildren) => (
-      <Tooltip
-        arrow
-        placement="bottom"
-        title={<Typography variant="subtitle2">{tooltip}</Typography>}
-        {...tooltipprops}
-      >
-        <span>{wrapperChildren}</span>
-      </Tooltip>
-    )}
-  >
-    {children}
-  </ConditionalWrap>
-)
+const TooltipComponent = ({ tooltip, tooltipLink, tooltipprops, children }) => {
+  const classes = useStyles()
+
+  return (
+    <ConditionalWrap
+      condition={tooltip && tooltip !== ''}
+      wrap={(wrapperChildren) => (
+        <Tooltip
+          arrow
+          placement="bottom"
+          title={
+            tooltipLink ? (
+              <Typography variant="subtitle2">
+                {tooltip}{' '}
+                <a
+                  className={classes.tooltipLink}
+                  target="_blank"
+                  href={tooltipLink.link}
+                  rel="noreferrer"
+                >
+                  {tooltipLink.text}
+                </a>
+              </Typography>
+            ) : (
+              <Typography variant="subtitle2">{tooltip}</Typography>
+            )
+          }
+          {...tooltipprops}
+        >
+          <span>{wrapperChildren}</span>
+        </Tooltip>
+      )}
+    >
+      {children}
+    </ConditionalWrap>
+  )
+}
 
 const SubmitButton = memo(
   ({ isSubmitting, disabled, label, icon, className, ...props }) => {
@@ -118,6 +145,7 @@ export const SubmitButtonPropTypes = {
   endicon: PropTypes.node,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  tooltipLink: PropTypes.object,
   tooltipprops: PropTypes.object,
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,

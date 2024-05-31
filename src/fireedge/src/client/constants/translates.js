@@ -304,6 +304,14 @@ module.exports = {
   Password: 'Password',
   ConfirmPassword: 'Confirm Password',
   PasswordsMustMatch: 'Passwords must match',
+  ChangePassword: 'Change password',
+  ChangePasswordSuccess: 'Succesfully changed password',
+  ChangePasswordAdminWarning:
+    'Users oneadmin and serveradmin can not change theirs passwords using Sunstone.',
+  ChangePasswordAdminWarningLink:
+    'See OpenNebula documentation to get more details.',
+  ChangePasswordLdapWarning:
+    'Users with authentication driver LDAP can not change theirs passwords using Sunstone.',
   Token2FA: '2FA Token',
   GetAuthenticatorApp: 'Get authenticator app: ',
   ScanThisQr: 'Scan this Qr',
@@ -332,6 +340,7 @@ module.exports = {
   Reserved: 'Reserved',
   Vrouter: 'Vrouter',
   SessionExpired: 'Sorry, your session has expired',
+  WrongUsernamePassword: 'Wrong username or password',
   OnlyForOneadminGroup:
     'Only members of the oneadmin group can access OneProvision functionality',
   SomethingWrong: 'Something go wrong',
@@ -508,7 +517,7 @@ module.exports = {
   'cluster.form.create.general.help.paragraph.2':
     'Please, select a name for the cluster',
   'cluster.form.create.help.link':
-    'See Open Nebula documentation to get more details about clusters.',
+    'See OpenNebula documentation to get more details about clusters.',
   'cluster.form.create.hosts.help.title': 'Hosts',
   'cluster.form.create.hosts.help.paragraph.1':
     'Please, select one or more hosts in the hosts table. Hosts are not mandatory, so you can skip this step.',
@@ -1547,7 +1556,7 @@ module.exports = {
   'marketplace.form.create.general.description': 'Description',
   'marketplace.form.create.general.type': 'Storage backend',
   'marketplace.form.create.help.link':
-    'See Open Nebula documentation to get more details about marketplaces.',
+    'See OpenNebula documentation to get more details about marketplaces.',
   'marketplace.general.help.title': 'Marketplace',
   'marketplace.general.help.paragraph.1':
     'OpenNebula Marketplaces provide a simple way to integrate your cloud with popular application/image providers. Think of them as external datastores. A Marketplace can be:',
@@ -1566,7 +1575,7 @@ module.exports = {
   'marketplace.form.configuration.one.help.paragraph.2':
     'Please, fill the configuration attributes for Markeplace OpenNebula Systems.',
   'marketplace.form.configuration.one.help.link':
-    'See Open Nebula documentation to get more details about OpenNebula Systems marketplaces.',
+    'See OpenNebula documentation to get more details about OpenNebula Systems marketplaces.',
 
   'marketplace.form.configuration.http.url':
     'Base URL of the Marketplace HTTP endpoint',
@@ -1581,7 +1590,7 @@ module.exports = {
   'marketplace.form.configuration.http.help.paragraph.2':
     'Please, fill the configuration attributes for HTTP Marketplace.',
   'marketplace.form.configuration.http.help.link':
-    'See Open Nebula documentation to get more details about HTTP marketplaces.',
+    'See OpenNebula documentation to get more details about HTTP marketplaces.',
 
   'marketplace.form.configuration.s3.accessKey': 'Access Key Id',
   'marketplace.form.configuration.s3.accessKey.tooltip':
@@ -1612,7 +1621,7 @@ module.exports = {
   'marketplace.form.configuration.s3.help.paragraph.2':
     'Please, fill the configuration attributes for S3 Marketplace.',
   'marketplace.form.configuration.s3.help.link':
-    'See Open Nebula documentation to get more details about S3 marketplaces.',
+    'See OpenNebula documentation to get more details about S3 marketplaces.',
 
   'marketplace.form.configuration.dockerhub.info':
     'No configuration attributes are needed for Dockerhub.',
@@ -1621,7 +1630,7 @@ module.exports = {
   'marketplace.form.configuration.dockerhub.help.paragraph.2':
     'Please, fill the configuration attributes for DockerHub Marketplace.',
   'marketplace.form.configuration.dockerhub.help.link':
-    'See Open Nebula documentation to get more details about DockerHub marketplaces.',
+    'See OpenNebula documentation to get more details about DockerHub marketplaces.',
 
   'marketplace.form.configuration.dockerRegistry.url':
     'Marketplace Docker registry url',
@@ -1635,7 +1644,7 @@ module.exports = {
   'marketplace.form.configuration.dockerRegistry.help.paragraph.2':
     'Please, fill the configuration attributes for Docker Registry Marketplace.',
   'marketplace.form.configuration.dockerRegistry.help.link':
-    'See Open Nebula documentation to get more details about Docker Registry marketplaces.',
+    'See OpenNebula documentation to get more details about Docker Registry marketplaces.',
 
   'marketplace.types.one': 'OpenNebula Systems',
   'marketplace.types.http': 'HTTP',
@@ -1850,7 +1859,7 @@ module.exports = {
   'groups.permissions.help.paragraph.3':
     'On "Permissions - View" select if the users could or not view resources that other users of the group have created.',
   'groups.permissions.help.paragraph.link':
-    'See Open Nebula documentation to get more details about groups and permissions.',
+    'See OpenNebula documentation to get more details about groups and permissions.',
   'groups.views.group.section': 'Views - Groups',
   'groups.views.group.tooltip':
     'Select the default view and the views that any user on the group could use',
@@ -1866,7 +1875,7 @@ module.exports = {
   'groups.views.help.paragraph.3':
     'On "Views - Admin" select the views and the default view for an admin user of the group.',
   'groups.views.help.paragraph.link':
-    'See Open Nebula documentation to get more details about views on Fireedge Sunstone.',
+    'See OpenNebula documentation to get more details about views on Fireedge Sunstone.',
   'groups.actions.edit.admins': 'Edit administrators',
   'groups.actions.edit.admins.form': 'Select the administrators',
   'groups.actions.edit.admins.success': 'Administrators updated',
