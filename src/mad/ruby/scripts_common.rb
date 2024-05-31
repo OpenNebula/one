@@ -104,9 +104,6 @@ module OpenNebula
         file_name = 'monitord.conf'
 
         begin
-            # Suppress augeas require warning message
-            $VERBOSE = nil
-
             require 'augeas'
 
             aug = Augeas.create(:no_modl_autoload => true,
