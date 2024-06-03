@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Chip, Stack, Typography } from '@mui/material'
+/* eslint-disable react/prop-types */
+import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
@@ -24,7 +25,7 @@ import { Row } from 'react-table'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
-import SplitPane from 'client/components/SplitPane'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
 import { ZonesTable } from 'client/components/Tables'
 import ZoneTabs from 'client/components/Tabs/Zone'
 import { T, Zone } from 'client/constants'
@@ -39,37 +40,41 @@ import {
  * @returns {ReactElement} Zones list and selected row(s)
  */
 function Zones() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
-
-  const hasSelectedRows = selectedRows?.length > 0
-  const moreThanOneSelected = selectedRows?.length > 1
+  const [selectedRows, setSelectedRows] = useState(() => [])
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ZonesTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            useUpdateMutation={useUpdateZoneMutation}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              {moreThanOneSelected ? (
-                <GroupedTags tags={selectedRows} />
-              ) : (
-                <InfoTabs
-                  zone={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              )}
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      useUpdateMutation={useUpdateZoneMutation}
+      table={(props) => (
+        <ZonesTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => {
+        const propsInfo = {
+          zone: props?.selectedRows?.[0]?.original,
+          selectedRows: props?.selectedRows,
+        }
+        props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+        props?.unselect && (propsInfo.unselect = props.unselect)
+
+        return <InfoTabs {...propsInfo} />
+      }}
+    />
   )
 }
 
@@ -83,8 +88,8 @@ function Zones() {
  */
 const InfoTabs = memo(({ zone, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetZoneQuery()
-  const id = lazyData?.ID ?? zone.ID
-  const name = lazyData?.NAME ?? zone.NAME
+  const id = lazyData?.ID ?? zone?.ID
+  const name = lazyData?.NAME ?? zone?.NAME
 
   return (
     <Stack overflow="auto">
@@ -138,23 +143,34 @@ InfoTabs.displayName = 'InfoTabs'
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
-    <MultipleTags
-      limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
-    />
-  </Stack>
-))
+const GroupedTags = memo(
+  ({ tags = [], handleElement = true, onDelete = () => undefined }) => (
+    <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
+      <MultipleTags
+        limitTags={10}
+        tags={tags?.map((props) => {
+          const { original, id, toggleRowSelected, gotoPage } = props
+          const clickElement = handleElement
+            ? {
+                onClick: gotoPage,
+                onDelete: () => onDelete(id) || toggleRowSelected(false),
+              }
+            : {}
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+          return (
+            <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+          )
+        })}
+      />
+    </Stack>
+  )
+)
+
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default Zones

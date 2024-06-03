@@ -70,7 +70,7 @@ Row.propTypes = {
   className: PropTypes.string,
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
-  zone: PropTypes.string,
+  zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 }
 
 Row.displayName = 'HostRow'

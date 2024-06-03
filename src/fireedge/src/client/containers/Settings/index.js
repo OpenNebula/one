@@ -43,7 +43,7 @@ const Settings = () => {
       <Box
         display="grid"
         gridTemplateColumns={{ sm: '1fr', md: 'repeat(2, minmax(49%, 1fr))' }}
-        gridTemplateRows="minmax(0, 28em)"
+        gridTemplateRows="minmax(0, 33em)"
         gap="1em"
       >
         <ConfigurationUISection />

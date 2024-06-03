@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { Redirect, useParams } from 'react-router-dom'
 
-import BackButton from 'client/components/ResourcesBackButton/BackButton'
-import HostTabs from 'client/components/Tabs/Host'
+import { Grid, IconButton } from '@mui/material'
+import NavArrowLeft from 'iconoir-react/dist/NavArrowLeft'
+import { ReactElement, useCallback } from 'react'
+import { useHistory } from 'react-router-dom'
 
 /**
- * Displays the detail information about a Host.
+ * Back Button.
  *
- * @returns {ReactElement} Host detail component.
+ * @returns {ReactElement} BackButton rendered
  */
-function HostDetail() {
-  const { id } = useParams()
+const BackButton = () => {
+  const history = useHistory()
 
-  if (Number.isNaN(+id)) {
-    return <Redirect to="/" />
-  }
+  const handleBackClick = useCallback(() => {
+    history.goBack()
+  })
 
   return (
-    <>
-      <BackButton />
-      <HostTabs id={id} />
-    </>
+    <Grid container>
+      <Grid item>
+        <IconButton onClick={handleBackClick}>
+          <NavArrowLeft />
+        </IconButton>
+      </Grid>
+    </Grid>
   )
 }
 
-export default HostDetail
+export default BackButton

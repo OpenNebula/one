@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
+/* eslint-disable react/prop-types */
+import { Chip, Stack, Typography } from '@mui/material'
+import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { Pin as GotoIcon, RefreshDouble, Cancel } from 'iconoir-react'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
-import { useLazyGetVRouterQuery } from 'client/features/OneApi/vrouter'
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
 import { VRoutersTable } from 'client/components/Tables'
 import VRouterActions from 'client/components/Tables/VRouters/actions'
 import VirtualRouterTabs from 'client/components/Tabs/VirtualRouter'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
 import { T, VmTemplate } from 'client/constants'
+import { useGeneral } from 'client/features/General'
+import { useLazyGetVRouterQuery } from 'client/features/OneApi/vrouter'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).
@@ -35,38 +37,44 @@ import { T, VmTemplate } from 'client/constants'
  * @returns {ReactElement} VM Templates list and selected row(s)
  */
 function VRouters() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = VRouterActions()
-
-  const hasSelectedRows = selectedRows?.length > 0
-  const moreThanOneSelected = selectedRows?.length > 1
+  const { zone } = useGeneral()
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <VRoutersTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            globalActions={actions}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              {moreThanOneSelected ? (
-                <GroupedTags tags={selectedRows} />
-              ) : (
-                <InfoTabs
-                  template={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              )}
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      zone={zone}
+      actions={actions}
+      table={(props) => (
+        <VRoutersTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          zoneId={props.zone}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => {
+        const propsInfo = {
+          template: props?.selectedRows?.[0]?.original,
+          selectedRows: props?.selectedRows,
+        }
+        props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+        props?.unselect && (propsInfo.unselect = props.unselect)
+
+        return <InfoTabs {...propsInfo} />
+      }}
+    />
   )
 }
 
@@ -80,8 +88,8 @@ function VRouters() {
  */
 const InfoTabs = memo(({ template, gotoPage, unselect }) => {
   const [getTemplate, { data, isFetching }] = useLazyGetVRouterQuery()
-  const id = data?.ID ?? template.ID
-  const name = data?.NAME ?? template.NAME
+  const id = data?.ID ?? template?.ID
+  const name = data?.NAME ?? template?.NAME
 
   return (
     <Stack overflow="auto">
@@ -135,23 +143,34 @@ InfoTabs.displayName = 'InfoTabs'
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
   <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
     />
   </Stack>
-))
+)
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default VRouters

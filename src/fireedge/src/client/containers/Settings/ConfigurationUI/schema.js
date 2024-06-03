@@ -107,6 +107,14 @@ const ZONE_ENDPOINT_FIELD = ({ zones = [] }) => ({
   grid: { md: 12 },
 })
 
+const FULL_SCREEN_INFO_FIELD = {
+  name: 'FULL_SCREEN_INFO',
+  label: T.FullScreenInfo,
+  type: INPUT_TYPES.CHECKBOX,
+  validation: boolean().yesOrNo(),
+  grid: { md: 12 },
+}
+
 /**
  * @param {object} props - Props
  * @param {object} props.views - views.
@@ -120,6 +128,7 @@ export const FIELDS = (props) => [
   VIEW_FIELD(props),
   ZONE_ENDPOINT_FIELD(props),
   DISABLE_ANIMATIONS_FIELD,
+  FULL_SCREEN_INFO_FIELD,
 ]
 
 /**

@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
-import { Box, Stack, Chip } from '@mui/material'
-import { Row } from 'react-table'
-import SplitPane from 'client/components/SplitPane'
+/* eslint-disable react/prop-types */
+import { Chip, Stack } from '@mui/material'
 import MultipleTags from 'client/components/MultipleTags'
-import ACLActions from 'client/components/Tables/ACLs/actions'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
 import { ACLsTable } from 'client/components/Tables'
+import ACLActions from 'client/components/Tables/ACLs/actions'
+import { useGeneral } from 'client/features/General'
+import PropTypes from 'prop-types'
+import { ReactElement, useState } from 'react'
+import { Row } from 'react-table'
 
 /**
  * Displays a list of Groups with a split pane between the list and selected row(s).
@@ -28,30 +30,41 @@ import { ACLsTable } from 'client/components/Tables'
  * @returns {ReactElement} Groups list and selected row(s)
  */
 function ACLs() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
-
-  const hasSelectedRows = selectedRows?.length > 0
-
+  const [selectedRows, setSelectedRows] = useState(() => [])
+  const { zone } = useGeneral()
   const actions = ACLActions()
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ACLsTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            globalActions={actions}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              <GroupedTags tags={selectedRows} />
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      zone={zone}
+      actions={actions}
+      table={(props) => (
+        <ACLsTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          zoneId={props.zone}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+    />
   )
 }
 
@@ -61,23 +74,34 @@ function ACLs() {
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
   <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
     />
   </Stack>
-))
+)
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default ACLs

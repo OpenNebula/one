@@ -17,6 +17,8 @@ module.exports = {
   /* pagination / stepper */
   Back: 'Back',
   Previous: 'Previous',
+  DivideWindow: 'Divide Window',
+  UnDivideWindow: 'Undivide Window',
   Next: 'Next',
   Sort: 'Sort',
   SortBy: 'Sort by',
@@ -116,6 +118,7 @@ module.exports = {
   DetachRestricted:
     'You cannot delete this resource because it has restricted attributes on this template. Please, contact with your administrator.',
   DetachSomething: 'Detach: %s',
+
   Disable: 'Disable',
   Dismiss: 'Dismiss',
   DiskSnapshotCreate: 'Disk snapshot create',
@@ -830,6 +833,7 @@ module.exports = {
   CtrlAltDel: 'Ctrl-Alt-Del',
   Reconnect: 'Reconnect',
   FullScreen: 'Full screen',
+  FullScreenInfo: 'Full screen information in datatables',
   Screenshot: 'Screenshot',
   LastConnection: 'Last connection',
   VmIsNotOnVCenter: '%s is not located on vCenter Host',

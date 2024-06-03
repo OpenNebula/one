@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+/* eslint-disable react/prop-types */
+import { Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
-import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
-import { ServicesTable } from 'client/components/Tables'
-import ServiceTabs from 'client/components/Tabs/Service'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import ServiceActions from 'client/components/Tables/Services/actions'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
+import { ServicesTable } from 'client/components/Tables'
+import ServiceActions from 'client/components/Tables/Services/actions'
+import ServiceTabs from 'client/components/Tabs/Service'
 import { T } from 'client/constants'
+import { useGeneral } from 'client/features/General'
+import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
 
 /**
  * Displays a list of Service with a split pane between
@@ -38,38 +40,44 @@ import { T } from 'client/constants'
  * @returns {ReactElement} Service list and selected row(s)
  */
 function Services() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = ServiceActions()
-
-  const hasSelectedRows = selectedRows?.length > 0
-  const moreThanOneSelected = selectedRows?.length > 1
+  const { zone } = useGeneral()
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ServicesTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            globalActions={actions}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              {moreThanOneSelected ? (
-                <GroupedTags tags={selectedRows} />
-              ) : (
-                <InfoTabs
-                  service={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              )}
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      zone={zone}
+      actions={actions}
+      table={(props) => (
+        <ServicesTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          zoneId={props.zone}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => {
+        const propsInfo = {
+          service: props?.selectedRows?.[0]?.original,
+          selectedRows: props?.selectedRows,
+        }
+        props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+        props?.unselect && (propsInfo.unselect = props.unselect)
+
+        return <InfoTabs {...propsInfo} />
+      }}
+    />
   )
 }
 
@@ -83,8 +91,8 @@ function Services() {
  */
 const InfoTabs = memo(({ service, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetServiceQuery()
-  const id = lazyData?.ID ?? service.ID
-  const name = lazyData?.NAME ?? service.NAME
+  const id = lazyData?.ID ?? service?.ID
+  const name = lazyData?.NAME ?? service?.NAME
 
   return (
     <Stack overflow="auto">
@@ -138,23 +146,34 @@ InfoTabs.displayName = 'InfoTabs'
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
   <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
     />
   </Stack>
-))
+)
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default Services

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Chip, Stack, Typography } from '@mui/material'
+/* eslint-disable react/prop-types */
+import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
@@ -24,14 +25,15 @@ import { Row } from 'react-table'
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import MultipleTags from 'client/components/MultipleTags'
-import SplitPane from 'client/components/SplitPane'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
 import { ImagesTable } from 'client/components/Tables'
 import ImageActions from 'client/components/Tables/Images/actions'
 import ImageTabs from 'client/components/Tabs/Image'
 import { Image, T } from 'client/constants'
+import { useGeneral } from 'client/features/General'
 import {
-  useUpdateImageMutation,
   useLazyGetImageQuery,
+  useUpdateImageMutation,
 } from 'client/features/OneApi/image'
 
 /**
@@ -40,39 +42,46 @@ import {
  * @returns {ReactElement} Images list and selected row(s)
  */
 function Images() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
+  const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = ImageActions()
-
-  const hasSelectedRows = selectedRows?.length > 0
-  const moreThanOneSelected = selectedRows?.length > 1
+  const { zone } = useGeneral()
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ImagesTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            globalActions={actions}
-            useUpdateMutation={useUpdateImageMutation}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              {moreThanOneSelected ? (
-                <GroupedTags tags={selectedRows} />
-              ) : (
-                <InfoTabs
-                  image={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              )}
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      useUpdateMutation={useUpdateImageMutation}
+      zone={zone}
+      actions={actions}
+      table={(props) => (
+        <ImagesTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
+          zoneId={props.zone}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => {
+        const propsInfo = {
+          image: props?.selectedRows?.[0]?.original,
+          selectedRows: props?.selectedRows,
+        }
+        props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+        props?.unselect && (propsInfo.unselect = props.unselect)
+
+        return <InfoTabs {...propsInfo} />
+      }}
+    />
   )
 }
 
@@ -86,8 +95,8 @@ function Images() {
  */
 const InfoTabs = memo(({ image, gotoPage, unselect }) => {
   const [getImage, { data: lazyData, isFetching }] = useLazyGetImageQuery()
-  const id = lazyData?.ID ?? image.ID
-  const name = lazyData?.NAME ?? image.NAME
+  const id = lazyData?.ID ?? image?.ID
+  const name = lazyData?.NAME ?? image?.NAME
 
   return (
     <Stack overflow="auto">
@@ -119,7 +128,7 @@ const InfoTabs = memo(({ image, gotoPage, unselect }) => {
           />
         )}
       </Stack>
-      <ImageTabs id={image.ID} />
+      <ImageTabs id={id} />
     </Stack>
   )
 })
@@ -138,23 +147,34 @@ InfoTabs.displayName = 'InfoTabs'
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
   <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
     <MultipleTags
       limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
     />
   </Stack>
-))
+)
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default Images

@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import PropTypes from 'prop-types'
+/* eslint-disable react/prop-types */
+import { Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
-import { Typography, Box, Stack, Chip } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 import { Row } from 'react-table'
 
+import { SubmitButton } from 'client/components/FormControl'
+import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
+import ResourcesBackButton from 'client/components/ResourcesBackButton'
+import { ClustersTable } from 'client/components/Tables'
+import ClusterActions from 'client/components/Tables/Clusters/actions'
+import ClusterTabs from 'client/components/Tabs/Cluster'
+import { Cluster, T } from 'client/constants'
+import { useGeneral } from 'client/features/General'
 import {
   useLazyGetClustersQuery,
   useUpdateClusterMutation,
 } from 'client/features/OneApi/cluster'
-import { ClustersTable } from 'client/components/Tables'
-import ClusterTabs from 'client/components/Tabs/Cluster'
-import SplitPane from 'client/components/SplitPane'
-import MultipleTags from 'client/components/MultipleTags'
-import { SubmitButton } from 'client/components/FormControl'
-import { Tr } from 'client/components/HOC'
-import { T, Cluster } from 'client/constants'
-import ClusterActions from 'client/components/Tables/Clusters/actions'
 
 /**
  * Displays a list of Clusters with a split pane between the list and selected row(s).
@@ -40,40 +42,47 @@ import ClusterActions from 'client/components/Tables/Clusters/actions'
  * @returns {ReactElement} Clusters list and selected row(s)
  */
 function Clusters() {
-  const [selectedRows, onSelectedRowsChange] = useState(() => [])
-
-  const hasSelectedRows = selectedRows?.length > 0
-  const moreThanOneSelected = selectedRows?.length > 1
+  const [selectedRows, setSelectedRows] = useState(() => [])
 
   const actions = ClusterActions()
+  const { zone } = useGeneral()
 
   return (
-    <SplitPane gridTemplateRows="1fr auto 1fr">
-      {({ getGridProps, GutterComponent }) => (
-        <Box height={1} {...(hasSelectedRows && getGridProps())}>
-          <ClustersTable
-            onSelectedRowsChange={onSelectedRowsChange}
-            useUpdateMutation={useUpdateClusterMutation}
-            globalActions={actions}
-          />
-
-          {hasSelectedRows && (
-            <>
-              <GutterComponent direction="row" track={1} />
-              {moreThanOneSelected ? (
-                <GroupedTags tags={selectedRows} />
-              ) : (
-                <InfoTabs
-                  cluster={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              )}
-            </>
-          )}
-        </Box>
+    <ResourcesBackButton
+      selectedRows={selectedRows}
+      setSelectedRows={setSelectedRows}
+      useUpdateMutation={useUpdateClusterMutation}
+      zone={zone}
+      actions={actions}
+      table={(props) => (
+        <ClustersTable
+          onSelectedRowsChange={props.setSelectedRows}
+          globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
+          zoneId={props.zone}
+          initialState={{
+            selectedRowIds: props.selectedRowsTable,
+          }}
+        />
       )}
-    </SplitPane>
+      simpleGroupsTags={(props) => (
+        <GroupedTags
+          tags={props.selectedRows}
+          handleElement={props.handleElement}
+          onDelete={props.handleUnselectRow}
+        />
+      )}
+      info={(props) => {
+        const propsInfo = {
+          cluster: props?.selectedRows?.[0]?.original,
+          selectedRows: props?.selectedRows,
+        }
+        props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+        props?.unselect && (propsInfo.unselect = props.unselect)
+
+        return <InfoTabs {...propsInfo} />
+      }}
+    />
   )
 }
 
@@ -87,8 +96,8 @@ function Clusters() {
  */
 const InfoTabs = memo(({ cluster, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetClustersQuery()
-  const id = lazyData?.ID ?? cluster.ID
-  const name = lazyData?.NAME ?? cluster.NAME
+  const id = lazyData?.ID ?? cluster?.ID
+  const name = lazyData?.NAME ?? cluster?.NAME
 
   return (
     <Stack overflow="auto">
@@ -142,23 +151,34 @@ InfoTabs.displayName = 'InfoTabs'
  * @param {Row[]} tags - Row(s) to display as tags
  * @returns {ReactElement} List of tags
  */
-const GroupedTags = memo(({ tags = [] }) => (
-  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
-    <MultipleTags
-      limitTags={10}
-      tags={tags?.map(({ original, id, toggleRowSelected, gotoPage }) => (
-        <Chip
-          key={id}
-          label={original?.NAME ?? id}
-          onClick={gotoPage}
-          onDelete={() => toggleRowSelected(false)}
-        />
-      ))}
-    />
-  </Stack>
-))
+const GroupedTags = memo(
+  ({ tags = [], handleElement = true, onDelete = () => undefined }) => (
+    <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
+      <MultipleTags
+        limitTags={10}
+        tags={tags?.map((props) => {
+          const { original, id, toggleRowSelected, gotoPage } = props
+          const clickElement = handleElement
+            ? {
+                onClick: gotoPage,
+                onDelete: () => onDelete(id) || toggleRowSelected(false),
+              }
+            : {}
 
-GroupedTags.propTypes = { tags: PropTypes.array }
+          return (
+            <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+          )
+        })}
+      />
+    </Stack>
+  )
+)
+
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
 GroupedTags.displayName = 'GroupedTags'
 
 export default Clusters

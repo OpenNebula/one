@@ -75,14 +75,17 @@ const GlobalActions = ({
           onClick={refetch}
         />
       )}
-      {!singleSelect && !disableRowSelect && (
-        <Checkbox
-          {...getToggleAllPageRowsSelectedProps()}
-          title={Tr(T.ToggleAllSelectedCardsCurrentPage)}
-          indeterminate={getToggleAllRowsSelectedProps().indeterminate}
-          color="secondary"
-        />
-      )}
+      {!singleSelect &&
+        !disableRowSelect &&
+        getToggleAllPageRowsSelectedProps &&
+        getToggleAllRowsSelectedProps && (
+          <Checkbox
+            {...getToggleAllPageRowsSelectedProps()}
+            title={Tr(T.ToggleAllSelectedCardsCurrentPage)}
+            indeterminate={getToggleAllRowsSelectedProps().indeterminate}
+            color="secondary"
+          />
+        )}
       {globalActions?.map((item, idx) => {
         if ((singleSelect || disableRowSelect) && item.selected) return null
 

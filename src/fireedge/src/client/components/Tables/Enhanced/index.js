@@ -48,6 +48,9 @@ import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
+import _ from 'lodash'
+
+const RELOAD_STATE = 'RELOAD_STATE'
 
 const EnhancedTable = ({
   columns,
@@ -103,7 +106,7 @@ const EnhancedTable = ({
   )
   const stateReducer = (newState, action, prevState) => {
     switch (action.type) {
-      case 'RELOAD_STATE': {
+      case RELOAD_STATE: {
         const updatedState = {
           ...prevState,
           selectedRowIds: action.value,
@@ -169,6 +172,7 @@ const EnhancedTable = ({
     setGlobalFilter,
     state,
     toggleRowSelected: propsToggleRow,
+    dispatch,
   } = useTableProps
 
   const [stateData, setStateData] = useState(data)
@@ -219,6 +223,15 @@ const EnhancedTable = ({
         toggleRowSelected: safeToggleRowSelected(row),
       }))
   }, [state.selectedRowIds, selectedRowStates])
+
+  useEffect(() => {
+    initialState?.selectedRowIds &&
+      !_.isEqual(state.selectedRowIds, initialState.selectedRowIds) &&
+      dispatch({
+        type: RELOAD_STATE,
+        value: initialState.selectedRowIds,
+      })
+  }, [initialState?.selectedRowIds])
 
   useEffect(() => {
     if (
@@ -423,7 +436,6 @@ const EnhancedTable = ({
                   ) {
                     toggleAllRowsSelected?.(false)
                   }
-
                   toggleRowSelected?.(!isSelected)
                 }
               }}
@@ -477,7 +489,7 @@ EnhancedTable.propTypes = {
   dataDepend: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
   readOnly: PropTypes.bool,
   tableViews: PropTypes.object,
-  zoneId: PropTypes.string,
+  zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'
