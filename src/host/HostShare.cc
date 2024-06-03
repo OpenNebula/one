@@ -31,15 +31,15 @@ using namespace std;
 /* ------------------------------------------------------------------------ */
 
 HostShare::HostShare():
-        ObjectXML(),
-        mem_usage(0),
-        cpu_usage(0),
-        total_mem(0),
-        total_cpu(0),
-        max_mem(0),
-        max_cpu(0),
-        running_vms(0),
-        vms_thread(1){};
+    ObjectXML(),
+    mem_usage(0),
+    cpu_usage(0),
+    total_mem(0),
+    total_cpu(0),
+    max_mem(0),
+    max_cpu(0),
+    running_vms(0),
+    vms_thread(1) {};
 
 ostream& operator<<(ostream& os, const HostShare& hs)
 {
@@ -59,17 +59,17 @@ string& HostShare::to_xml(string& xml) const
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
-          << "<MEM_USAGE>"  << mem_usage  << "</MEM_USAGE>"
-          << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"
-          << "<TOTAL_MEM>"  << total_mem  << "</TOTAL_MEM>"
-          << "<TOTAL_CPU>"  << total_cpu  << "</TOTAL_CPU>"
-          << "<MAX_MEM>"    << max_mem    << "</MAX_MEM>"
-          << "<MAX_CPU>"    << max_cpu    << "</MAX_CPU>"
-          << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
-          << "<VMS_THREAD>" << vms_thread <<"</VMS_THREAD>"
-          << ds.to_xml(ds_xml)
-          << pci.to_xml(pci_xml)
-          << numa.to_xml(numa_xml)
+        << "<MEM_USAGE>"  << mem_usage  << "</MEM_USAGE>"
+        << "<CPU_USAGE>"  << cpu_usage  << "</CPU_USAGE>"
+        << "<TOTAL_MEM>"  << total_mem  << "</TOTAL_MEM>"
+        << "<TOTAL_CPU>"  << total_cpu  << "</TOTAL_CPU>"
+        << "<MAX_MEM>"    << max_mem    << "</MAX_MEM>"
+        << "<MAX_CPU>"    << max_cpu    << "</MAX_CPU>"
+        << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
+        << "<VMS_THREAD>" << vms_thread <<"</VMS_THREAD>"
+        << ds.to_xml(ds_xml)
+        << pci.to_xml(pci_xml)
+        << numa.to_xml(numa_xml)
         << "</HOST_SHARE>";
 
     xml = oss.str();
@@ -94,8 +94,8 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     rc += xpath<long long>(total_mem, "/HOST_SHARE/TOTAL_MEM", -1);
     rc += xpath<long long>(total_cpu, "/HOST_SHARE/TOTAL_CPU", -1);
 
-    rc += xpath<long long>(max_mem , "/HOST_SHARE/MAX_MEM", -1);
-    rc += xpath<long long>(max_cpu , "/HOST_SHARE/MAX_CPU", -1);
+    rc += xpath<long long>(max_mem, "/HOST_SHARE/MAX_MEM", -1);
+    rc += xpath<long long>(max_cpu, "/HOST_SHARE/MAX_CPU", -1);
 
     rc += xpath<long long>(running_vms, "/HOST_SHARE/RUNNING_VMS", -1);
 
@@ -160,7 +160,7 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 
 static void set_reserved_metric(long long& value, long long mvalue,
-        string& reserved)
+                                string& reserved)
 {
     bool abs = true;
 

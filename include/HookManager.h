@@ -28,7 +28,7 @@
 
 class HookManager :
     public DriverManager<Driver<hook_msg_t>>,
-    public Listener
+                                          public Listener
 {
 public:
 

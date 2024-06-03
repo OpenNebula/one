@@ -27,7 +27,8 @@ class VMActions
 public:
 
     enum Action
-    {                                       //Associated XML-RPC API call
+    {
+        //Associated XML-RPC API call
         NONE_ACTION            = 0,         // "one.vm.migrate"
         MIGRATE_ACTION         = 1,         // "one.vm.migrate"
         LIVE_MIGRATE_ACTION    = 2,
@@ -149,7 +150,7 @@ private:
      *  Returns action set from a string of actions seperated by commas
      */
     int set_auth_ops(const std::string& ops_str,
-       ActionSet<Action>& ops_set, std::string& error);
+                     ActionSet<Action>& ops_set, std::string& error);
 };
 
 #endif /*VMACTIONS_H*/

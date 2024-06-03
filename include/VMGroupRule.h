@@ -54,7 +54,7 @@ public:
     /* ---------------------------------------------------------------------- */
     /*  Rule Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    VMGroupRule():policy(VMGroupPolicy::NONE),roles(){};
+    VMGroupRule():policy(VMGroupPolicy::NONE), roles() {};
 
     VMGroupRule(VMGroupPolicy p, std::set<int> roles_id):policy(p)
     {

@@ -103,7 +103,7 @@ public:
      *    @return 0 on success
      */
     int allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
-            std::string &c_s);
+                         std::string &c_s);
 
     /**
      *  Remove allocation for the given CPUs
@@ -265,7 +265,7 @@ private:
      *    @param update if true also adds the core to the object Template
      */
     void set_core(unsigned int id, std::string& cpus, unsigned int vms_thread,
-            bool dedicated, bool update);
+                  bool dedicated, bool update);
 
     /**
      *  Regenerate the template representation of the CORES for this node.
@@ -285,7 +285,7 @@ private:
      *    @param update if true also adds the page to the object Template
      */
     void set_hugepage(unsigned long size, unsigned int nr,
-            unsigned long usage, bool update);
+                      unsigned long usage, bool update);
 
     void update_hugepage(unsigned long size);
 
@@ -332,7 +332,7 @@ private:
 class HostShareNUMA
 {
 public:
-    HostShareNUMA():threads_core(1){};
+    HostShareNUMA():threads_core(1) {};
 
     virtual ~HostShareNUMA()
     {
@@ -468,7 +468,7 @@ private:
      *   @return 0 success (vm was allocated) -1 otherwise
      */
     int make_affined_topology(HostShareCapacity &sr, int node_id,
-            unsigned long hpsz_kb, bool do_alloc);
+                              unsigned long hpsz_kb, bool do_alloc);
 
     /*
      * Computes the virtual topology for the VM based on the huge pages allocation
@@ -479,7 +479,7 @@ private:
      *   @return 0 success (vm was allocated) -1 otherwise
      */
     int make_hugepage_topology(HostShareCapacity &sr, unsigned long hpzs_kb,
-            bool do_alloc);
+                               bool do_alloc);
     /**
      *  This is an internal structure to represent a virtual node allocation
      *  request and the resulting schedule
@@ -500,7 +500,7 @@ private:
     };
 
     bool schedule_nodes(NUMANodeRequest &nr, unsigned int thr, bool dedicated,
-        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
+                        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
 };
 
 #endif /*HOST_SHARE_NUMA_H_*/

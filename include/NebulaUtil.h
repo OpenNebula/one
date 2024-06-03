@@ -66,22 +66,22 @@ namespace one_util
     std::string sha256_digest(const std::string& in);
 
 
-   /**
-    *  AES256 encryption
-    *    @param in the string to encrypt
-    *    @param password to encrypt data
-    *    @return a pointer to the encrypted string (must be freed) or nullptr in case of
-    *    error
-    */
+    /**
+     *  AES256 encryption
+     *    @param in the string to encrypt
+     *    @param password to encrypt data
+     *    @return a pointer to the encrypted string (must be freed) or nullptr in case of
+     *    error
+     */
     std::string * aes256cbc_encrypt(const std::string& in, const std::string& password);
 
-   /**
-    *  AES256 decryption
-    *    @param in the base64 string to decrypt
-    *    @param password to decrypt data
-    *    @return a pointer to the decrypted string (must be freed) or nullptr in case of
-    *    error
-    */
+    /**
+     *  AES256 decryption
+     *    @param in the base64 string to decrypt
+     *    @param password to decrypt data
+     *    @return a pointer to the decrypted string (must be freed) or nullptr in case of
+     *    error
+     */
     std::string * aes256cbc_decrypt(const std::string& in, const std::string& password);
 
     /**
@@ -177,7 +177,7 @@ namespace one_util
     }
 
     std::vector<std::string> split(const std::string& st, char delim,
-            bool clean_empty = true);
+                                   bool clean_empty = true);
 
     /**
      * Splits a string, using the given delimiter
@@ -212,7 +212,7 @@ namespace one_util
      */
     template <>
     void split_unique(const std::string& st, char delim,
-            std::set<std::string>& result);
+                      std::set<std::string>& result);
 
     /**
      * Joins the given element with the delimiter
@@ -319,11 +319,11 @@ namespace one_util
      * @return a string copy
      */
     std::string gsub(const std::string& st, const std::string& sfind,
-            const std::string& replacement);
+                     const std::string& replacement);
 
     template <class T>
     std::set<T> set_intersection(const std::set<T> &first, const std::set<T>
-            &second)
+                                 &second)
     {
         std::set<T> output;
 

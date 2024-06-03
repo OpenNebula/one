@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------------- */
 
 void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att)
+                                          RequestAttributes& att)
 {
     xmlrpc_c::value return_value;
 

@@ -68,7 +68,7 @@ Request::ErrorCode RequestManagerVirtualMachine::vm_authorization_no_response(
         string t_xml;
 
         ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE,
-                tmpl->to_xml(t_xml));
+                           tmpl->to_xml(t_xml));
     }
 
     if ( vtmpl != nullptr )
@@ -192,10 +192,10 @@ bool RequestManagerVirtualMachine::quota_resize_authorization(
 /* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::get_default_ds_information(
-    int cluster_id,
-    int& ds_id,
-    string& tm_mad,
-    RequestAttributes& att)
+        int cluster_id,
+        int& ds_id,
+        string& tm_mad,
+        RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -247,10 +247,10 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 /* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
-    set<int>& ds_cluster_ids,
-    string& tm_mad,
-    RequestAttributes& att,
-    bool& ds_migr)
+                                                     set<int>& ds_cluster_ids,
+                                                     string& tm_mad,
+                                                     RequestAttributes& att,
+                                                     bool& ds_migr)
 {
     Nebula& nd = Nebula::instance();
 
@@ -295,13 +295,13 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
 /* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::get_host_information(
-    int     hid,
-    string& name,
-    string& vmm,
-    int&    cluster_id,
-    bool&   is_public_cloud,
-    PoolObjectAuth&    host_perms,
-    RequestAttributes& att)
+        int     hid,
+        string& name,
+        string& vmm,
+        int&    cluster_id,
+        bool&   is_public_cloud,
+        PoolObjectAuth&    host_perms,
+        RequestAttributes& att)
 
 
 {
@@ -384,7 +384,7 @@ bool RequestManagerVirtualMachine::check_host(
 /* -------------------------------------------------------------------------- */
 
 unique_ptr<VirtualMachine> RequestManagerVirtualMachine::get_vm(int id,
-                                                      RequestAttributes& att)
+        RequestAttributes& att)
 {
     auto vm = pool->get<VirtualMachine>(id);
 
@@ -399,7 +399,7 @@ unique_ptr<VirtualMachine> RequestManagerVirtualMachine::get_vm(int id,
 }
 
 unique_ptr<VirtualMachine> RequestManagerVirtualMachine::get_vm_ro(int id,
-                                                      RequestAttributes& att)
+        RequestAttributes& att)
 {
     auto vm = pool->get_ro<VirtualMachine>(id);
 
@@ -417,13 +417,13 @@ unique_ptr<VirtualMachine> RequestManagerVirtualMachine::get_vm_ro(int id,
 /* -------------------------------------------------------------------------- */
 
 int RequestManagerVirtualMachine::add_history(VirtualMachine * vm,
-                                       int              hid,
-                                       int              cid,
-                                       const string&    hostname,
-                                       const string&    vmm_mad,
-                                       const string&    tm_mad,
-                                       int              ds_id,
-                                       RequestAttributes& att)
+                                              int              hid,
+                                              int              cid,
+                                              const string&    hostname,
+                                              const string&    vmm_mad,
+                                              const string&    tm_mad,
+                                              int              ds_id,
+                                              RequestAttributes& att)
 {
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
@@ -491,7 +491,7 @@ Request::ErrorCode VirtualMachineAction::request_execute(RequestAttributes& att,
     if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         att.resp_msg = "Action \"" + action_str + "\" is not supported for "
-            "imported VMs";
+                       "imported VMs";
 
         return ACTION;
     }
@@ -823,8 +823,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     {
         if (vm->hasHistory() &&
             (vm->get_action() == VMActions::STOP_ACTION ||
-            vm->get_action() == VMActions::UNDEPLOY_ACTION ||
-            vm->get_action() == VMActions::UNDEPLOY_HARD_ACTION))
+             vm->get_action() == VMActions::UNDEPLOY_ACTION ||
+             vm->get_action() == VMActions::UNDEPLOY_HARD_ACTION))
         {
             if (ds_id == -1)
             {
@@ -845,7 +845,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
-    {                    // by VirtualMachine::get_host_is_cloud()
+    {
+        // by VirtualMachine::get_host_is_cloud()
         ds_id  = -1;
         tm_mad = "";
     }
@@ -863,7 +864,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             set<int> ds_cluster_ids;
             bool     ds_migr;
 
-            if (get_ds_information(ds_id,ds_cluster_ids,tm_mad,att,ds_migr) != 0)
+            if (get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr) != 0)
             {
                 return;
             }
@@ -889,7 +890,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (ds_id == -1)
     {
-       auth_ds_perms = 0;
+        auth_ds_perms = 0;
     }
     else
     {
@@ -935,7 +936,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        auth = vm_authorization(id, 0, &tmpl, att, &host_perms, auth_ds_perms,0);
+        auth = vm_authorization(id, 0, &tmpl, att, &host_perms, auth_ds_perms, 0);
     }
     else
     {
@@ -965,7 +966,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         vm->get_state() != VirtualMachine::UNDEPLOYED)
     {
         att.resp_msg = "Deploy action is not available for state " +
-            vm->state_str();
+                       vm->state_str();
 
         failure_response(ACTION, att);
         return;
@@ -1118,7 +1119,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id == -1)
     {
-       auth_ds_perms = 0;
+        auth_ds_perms = 0;
     }
     else
     {
@@ -1165,11 +1166,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     if (vm->is_previous_history_open() ||
-       (vm->get_state() != VirtualMachine::POWEROFF &&
-        vm->get_state() != VirtualMachine::SUSPENDED &&
-        (vm->get_state() != VirtualMachine::ACTIVE ||
-         (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-          vm->get_lcm_state() != VirtualMachine::UNKNOWN))))
+        (vm->get_state() != VirtualMachine::POWEROFF &&
+         vm->get_state() != VirtualMachine::SUSPENDED &&
+         (vm->get_state() != VirtualMachine::ACTIVE ||
+          (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+           vm->get_lcm_state() != VirtualMachine::UNKNOWN))))
     {
         att.resp_msg = "Migrate action is not available for state " + vm->state_str();
         failure_response(ACTION, att);
@@ -1244,7 +1245,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     vm->get_capacity(sr);
 
     if ((sr.pci.size() > 0) && (!poffmgr &&
-                vm->get_state() != VirtualMachine::POWEROFF))
+                                vm->get_state() != VirtualMachine::POWEROFF))
     {
         ostringstream oss;
 
@@ -1310,7 +1311,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         if ( c_ds_id != ds_id && live && !vmmd->is_ds_live_migration())
         {
             att.resp_msg = "A migration to a different system datastore "
-                "cannot be performed live.";
+                           "cannot be performed live.";
             failure_response(ACTION, att);
 
             return;
@@ -1558,8 +1559,8 @@ void VirtualMachineDiskSaveas::request_execute(
     itemplate->add("NAME", img_name);
     itemplate->add("SIZE", size);
 
-    itemplate->add("SAVED_IMAGE_ID",iid_orig);
-    itemplate->add("SAVED_DISK_ID",disk_id);
+    itemplate->add("SAVED_IMAGE_ID", iid_orig);
+    itemplate->add("SAVED_DISK_ID", disk_id);
     itemplate->add("SAVED_VM_ID", id);
     itemplate->set_saving();
 
@@ -1760,7 +1761,7 @@ void VirtualMachineAttach::request_execute(
             !vm->is_imported_action_supported(VMActions::DISK_ATTACH_ACTION))
         {
             att.resp_msg = "Action \"disk-attach\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -1807,7 +1808,7 @@ void VirtualMachineAttach::request_execute(
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VirtualMachineAttach::request_execute(int id,
-        VirtualMachineTemplate& tmpl, RequestAttributes& att)
+                                                         VirtualMachineTemplate& tmpl, RequestAttributes& att)
 {
     Nebula&           nd = Nebula::instance();
     VirtualMachinePool * vmpool = nd.get_vmpool();
@@ -1926,7 +1927,7 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
-                                            RequestAttributes& att)
+                                           RequestAttributes& att)
 {
     int rc;
 
@@ -1951,12 +1952,12 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-                // Check if the action is supported for imported VMs
+        // Check if the action is supported for imported VMs
         if (vm->is_imported() &&
             !vm->is_imported_action_supported(VMActions::DISK_DETACH_ACTION))
         {
             att.resp_msg = "Action \"disk-detach\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -2077,7 +2078,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             !vm->is_imported_action_supported(VMActions::RESIZE_ACTION))
         {
             att.resp_msg = "Action \"resize\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -2097,8 +2098,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         auto state = vm->get_state();
 
         update_running_quota = state == VirtualMachine::PENDING ||
-            state == VirtualMachine::HOLD || (state == VirtualMachine::ACTIVE &&
-            vm->get_lcm_state() == VirtualMachine::RUNNING);
+                               state == VirtualMachine::HOLD || (state == VirtualMachine::ACTIVE &&
+                                                                 vm->get_lcm_state() == VirtualMachine::RUNNING);
     }
     else
     {
@@ -2163,8 +2164,8 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttributes& att,
-                                                                 int vid,
-                                                                 string& name)
+        int vid,
+        string& name)
 {
     PoolObjectAuth   vm_perms;
 
@@ -2190,7 +2191,7 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
             !vm->is_imported_action_supported(VMActions::SNAPSHOT_CREATE_ACTION))
         {
             att.resp_msg = "Action \"snapshot-create\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -2200,7 +2201,7 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
         if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
         {
             att.resp_msg = "Action \"snapshot-create\" is not compatible with "
-                "incremental backups";
+                           "incremental backups";
 
             return ACTION;
         }
@@ -2291,7 +2292,7 @@ Request::ErrorCode VirtualMachineSnapshotRevert::request_execute(
             !vm->is_imported_action_supported(VMActions::SNAPSHOT_REVERT_ACTION))
         {
             att.resp_msg = "Action \"snapshot-revert\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -2361,7 +2362,7 @@ Request::ErrorCode VirtualMachineSnapshotDelete::request_execute(
             !vm->is_imported_action_supported(VMActions::SNAPSHOT_DELETE_ACTION))
         {
             att.resp_msg = "Action \"snapshot-delete\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -2436,7 +2437,7 @@ void VirtualMachineAttachNic::request_execute(
             !vm->is_imported_action_supported(VMActions::NIC_ATTACH_ACTION))
         {
             att.resp_msg = "Action \"nic-attach\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -2477,7 +2478,7 @@ void VirtualMachineAttachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
-    VirtualMachineTemplate& tmpl, RequestAttributes& att)
+                                                            VirtualMachineTemplate& tmpl, RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -2541,7 +2542,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
     }
 
     if (quota_authorization(&tmpl, Quotas::NETWORK, att_quota,
-                att.resp_msg) == false)
+                            att.resp_msg) == false)
     {
         return AUTHORIZATION;
     }
@@ -2578,7 +2579,7 @@ Request::ErrorCode VirtualMachineAttachNic::request_execute(int id,
         if (!host->add_pci(sr))
         {
             att.resp_msg = "Cannot assign PCI device in host. Check address "
-                "and free devices";
+                           "and free devices";
 
             quota_rollback(&tmpl, Quotas::NETWORK, att_quota);
             return ACTION;
@@ -2638,7 +2639,7 @@ void VirtualMachineDetachNic::request_execute(
             !vm->is_imported_action_supported(VMActions::NIC_DETACH_ACTION))
         {
             att.resp_msg = "Action \"nic-detach\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -2668,7 +2669,7 @@ void VirtualMachineDetachNic::request_execute(
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VirtualMachineDetachNic::request_execute(int id, int nic_id,
-        RequestAttributes& att)
+                                                            RequestAttributes& att)
 {
     Nebula&             nd      = Nebula::instance();
     VirtualMachinePool* vmpool  = nd.get_vmpool();
@@ -2749,7 +2750,7 @@ void VirtualMachineUpdateNic::request_execute(
             !vm->is_imported_action_supported(VMActions::NIC_UPDATE_ACTION))
         {
             att.resp_msg = "Action \"nic-update\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -2762,7 +2763,7 @@ void VirtualMachineUpdateNic::request_execute(
         if (!nic)
         {
             att.resp_msg = "VM " + to_string(id) + ": NIC " + to_string(nic_id) +
-                " does not exists";
+                           " does not exists";
             failure_response(ACTION, att);
 
             return;
@@ -2895,7 +2896,7 @@ void VirtualMachineRecover::request_execute(
         !vm->is_imported_action_supported(action))
     {
         att.resp_msg = "Action \"" + VMActions::action_to_str(action) +
-            "\" is not supported for imported VMs";
+                       "\" is not supported for imported VMs";
         failure_response(ACTION, att);
 
         return;
@@ -2962,7 +2963,7 @@ void VirtualMachinePoolCalculateShowback::request_execute(
     }
 
     rc = (static_cast<VirtualMachinePool *>(pool))->calculate_showback(
-                    start_month, start_year, end_month, end_year, att.resp_msg);
+                 start_month, start_year, end_month, end_year, att.resp_msg);
 
     if (rc != 0)
     {
@@ -3008,7 +3009,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
             !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_CREATE_ACTION))
         {
             att.resp_msg = "Action \"disk-snapshot-create\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -3018,7 +3019,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
         if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
         {
             att.resp_msg = "Action \"disk-snapshot-create\" is not compatible with "
-                "incremental backups";
+                           "incremental backups";
 
             return ACTION;
         }
@@ -3094,9 +3095,9 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
     }
 
     RequestAttributes vm_att_quota  = RequestAttributes(vm_perms.uid,
-            vm_perms.gid, att);
+                                                        vm_perms.gid, att);
     RequestAttributes img_att_quota = RequestAttributes(img_perms.uid,
-            img_perms.gid, att);
+                                                        img_perms.gid, att);
 
     /* ---------------------------------------------------------------------- */
     /*  Check quotas for the new size in image/system datastoress             */
@@ -3214,7 +3215,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotRevert::request_execute(
             !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_REVERT_ACTION))
         {
             att.resp_msg = "Action \"disk-snapshot-revert\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -3282,7 +3283,7 @@ Request::ErrorCode VirtualMachineDiskSnapshotDelete::request_execute(
             !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_DELETE_ACTION))
         {
             att.resp_msg = "Action \"disk-snapshot-delete\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
 
             return ACTION;
         }
@@ -3377,7 +3378,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const& paramList,
-            RequestAttributes& att)
+                                                       RequestAttributes& att)
 {
     ostringstream oss;
 
@@ -3411,7 +3412,7 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
         !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_RENAME_ACTION))
     {
         att.resp_msg = "Action \"disk-snapshot-rename\" is not supported for "
-            "imported VMs";
+                       "imported VMs";
         failure_response(ACTION, att);
 
         return;
@@ -3505,7 +3506,7 @@ void VirtualMachineUpdateConf::request_execute(
         !vm->is_imported_action_supported(VMActions::UPDATECONF_ACTION))
     {
         att.resp_msg = "Action \"updateconf\" is not supported for "
-            "imported VMs";
+                       "imported VMs";
         failure_response(ACTION, att);
 
         return;
@@ -3546,7 +3547,7 @@ void VirtualMachineUpdateConf::request_execute(
 
     if (graphics != nullptr && graphics->vector_value("PORT", port) == -1 &&
         (state == VirtualMachine::ACTIVE || state == VirtualMachine::POWEROFF ||
-          state == VirtualMachine::SUSPENDED))
+         state == VirtualMachine::SUSPENDED))
     {
         ClusterPool * cpool = Nebula::instance().get_clpool();
 
@@ -3587,7 +3588,7 @@ void VirtualMachineUpdateConf::request_execute(
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDiskResize::request_execute(
-    xmlrpc_c::paramList const&  paramList, RequestAttributes& att)
+        xmlrpc_c::paramList const&  paramList, RequestAttributes& att)
 {
     Template ds_deltas;
     Template vm_deltas;
@@ -3598,7 +3599,7 @@ void VirtualMachineDiskResize::request_execute(
     int    did    = xmlrpc_c::value_int(paramList.getInt(2));
     string size_s = xmlrpc_c::value_string(paramList.getString(3));
 
-    long long size , current_size;
+    long long size, current_size;
 
     // ------------------------------------------------------------------------
     // Check request consistency (VM & disk exists, size, and no snapshots)
@@ -3633,7 +3634,7 @@ void VirtualMachineDiskResize::request_execute(
             !vm->is_imported_action_supported(VMActions::DISK_RESIZE_ACTION))
         {
             att.resp_msg = "Action \"disk-resize\" is not supported for "
-                "imported VMs";
+                           "imported VMs";
             failure_response(ACTION, att);
 
             return;
@@ -3709,22 +3710,22 @@ void VirtualMachineDiskResize::request_execute(
     }
 
     RequestAttributes img_att_quota = RequestAttributes(img_perms.uid,
-            img_perms.gid, att);
+                                                        img_perms.gid, att);
     RequestAttributes vm_att_quota  = RequestAttributes(vm_perms.uid,
-            vm_perms.gid, att);
+                                                        vm_perms.gid, att);
 
     /* ---------------------------------------------------------------------- */
     /*  Check quotas for the new size in image/system datastoress             */
     /* ---------------------------------------------------------------------- */
 
     if ( img_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                img_att_quota))
+                                              img_att_quota))
     {
         return;
     }
 
     if ( vm_ds_quota && !quota_authorization(&ds_deltas, Quotas::DATASTORE,
-                vm_att_quota))
+                                             vm_att_quota))
     {
         if ( img_ds_quota )
         {
@@ -3912,7 +3913,7 @@ void VirtualMachineBackup::request_execute(
         if ( bj_id != -1)
         {
             att.resp_msg = "Unable to start an individual backup for the Virtual Machine"
-                ", it is part of Backup Job ID " + to_string(bj_id);
+                           ", it is part of Backup Job ID " + to_string(bj_id);
 
             failure_response(INTERNAL, att);
             return;

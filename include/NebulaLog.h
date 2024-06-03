@@ -28,7 +28,8 @@
 class NebulaLog
 {
 public:
-    enum LogType {
+    enum LogType
+    {
         FILE       = 0,
         FILE_TS    = 1,
         STD        = 2,
@@ -41,11 +42,11 @@ public:
     // ---------------------------------------------------------------
 
     static void init_log_system(
-        LogType                 ltype,
-        Log::MessageType        clevel,
-        const char *            filename,
-        std::ios_base::openmode mode,
-        const std::string&      daemon)
+            LogType                 ltype,
+            Log::MessageType        clevel,
+            const char *            filename,
+            std::ios_base::openmode mode,
+            const std::string&      daemon)
     {
         _log_type = ltype;
 
@@ -92,27 +93,27 @@ public:
     }
 
     static void log(
-        const char *           module,
-        const Log::MessageType type,
-        const char *           message)
+            const char *           module,
+            const Log::MessageType type,
+            const char *           message)
     {
-        logger->log(module,type,message);
+        logger->log(module, type, message);
     };
 
     static void log(
-        const char *                module,
-        const Log::MessageType      type,
-        const std::ostringstream&   message)
+            const char *                module,
+            const Log::MessageType      type,
+            const std::ostringstream&   message)
     {
-        logger->log(module,type,message.str().c_str());
+        logger->log(module, type, message.str().c_str());
     };
 
     static void log(
-        const char *           module,
-        const Log::MessageType type,
-        const std::string&          message)
+            const char *           module,
+            const Log::MessageType type,
+            const std::string&          message)
     {
-        logger->log(module,type,message.c_str());
+        logger->log(module, type, message.c_str());
     };
 
     static void error(const char* module, const std::string& msg)
@@ -156,9 +157,9 @@ public:
     };
 
 private:
-    NebulaLog(){};
+    NebulaLog() {};
 
-    ~NebulaLog(){};
+    ~NebulaLog() {};
 
     static LogType _log_type;
     static Log *   logger;

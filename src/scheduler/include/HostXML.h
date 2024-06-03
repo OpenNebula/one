@@ -31,9 +31,9 @@
 class HostShareXML
 {
 public:
-    HostShareXML(){};
+    HostShareXML() {};
 
-    virtual ~HostShareXML(){};
+    virtual ~HostShareXML() {};
 
     /**
      *  Tests whether a new VM can be hosted by the host or not

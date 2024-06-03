@@ -38,7 +38,7 @@ void VdcEditGroup::request_execute(
     // -------------------------------------------------------------------------
 
     rc = get_info(pool, vdc_id, PoolObjectSQL::VDC,
-                    att, vdc_perms, vdc_name, true);
+                  att, vdc_perms, vdc_name, true);
 
     if ( rc == -1 )
     {
@@ -46,7 +46,7 @@ void VdcEditGroup::request_execute(
     }
 
     rc = get_info(gpool, group_id, PoolObjectSQL::GROUP, att, group_perms,
-                    group_name, false);
+                  group_name, false);
 
     if ( rc == -1 && check_obj_exist )
     {
@@ -146,7 +146,7 @@ void VdcEditResource::request_execute(
     }
 
     rc = get_info(zonepool, zone_id, PoolObjectSQL::ZONE, att, zone_perms,
-            zone_name, false);
+                  zone_name, false);
 
     zone_exists = (rc == 0);
 

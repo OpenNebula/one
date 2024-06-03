@@ -210,7 +210,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
             return;
         }
 
-        img = ipool->get_ro(source , uiid);
+        img = ipool->get_ro(source, uiid);
 
         if ( img != nullptr )
         {
@@ -313,7 +313,7 @@ int VirtualMachineDisk::revert_snapshot(int snap_id, bool revert)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 void VirtualMachineDisk::revert_snapshot_quotas(int snap_id, Template& ds_quota,
-        Template& vm_quota, bool& io, bool& vo)
+                                                Template& vm_quota, bool& io, bool& vo)
 {
     if ( snapshots == 0 )
     {
@@ -351,7 +351,7 @@ void VirtualMachineDisk::revert_snapshot_quotas(int snap_id, Template& ds_quota,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::delete_snapshot(int snap_id, Template& ds_quotas,
-        Template& vm_quotas, bool& img_owner, bool& vm_owner)
+                                         Template& vm_quotas, bool& img_owner, bool& vm_owner)
 {
     vm_owner  = false;
     img_owner = false;
@@ -378,7 +378,7 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template& ds_quotas,
     {
         ds_quotas.add("DATASTORE", vector_value("DATASTORE_ID"));
         ds_quotas.add("SIZE", ssize);
-        ds_quotas.add("IMAGES",0 );
+        ds_quotas.add("IMAGES", 0 );
     }
 
     if (tm_target == "SYSTEM")
@@ -461,7 +461,7 @@ long long VirtualMachineDisk::image_ds_size() const
 //  +----------------------------------------------+
 /* -------------------------------------------------------------------------- */
 void VirtualMachineDisk::resize_quotas(long long delta_size, Template& ds_deltas,
-        Template& vm_deltas, bool& do_img_owner, bool& do_vm_owner)
+                                       Template& vm_deltas, bool& do_img_owner, bool& do_vm_owner)
 {
     do_vm_owner = false;
     do_img_owner= false;
@@ -493,7 +493,7 @@ void VirtualMachineDisk::resize_quotas(long long delta_size, Template& ds_deltas
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisk::datastore_sizes(int& ds_id, long long& image_sz,
-        long long& system_sz) const
+                                         long long& system_sz) const
 {
     long long tmp_size, snapshot_size;
 
@@ -645,7 +645,7 @@ long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl,
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::image_ds_quotas(Template * tmpl,
-        vector<unique_ptr<Template>>& ds_quotas)
+                                          vector<unique_ptr<Template>>& ds_quotas)
 {
     VirtualMachineDisks disks(tmpl, false);
 
@@ -747,7 +747,8 @@ void VirtualMachineDisks::assign_disk_targets(
             int remainder = index % 26;
             int quotient  = index / 26;
 
-            while (quotient > 0) {
+            while (quotient > 0)
+            {
                 temp = static_cast<char>('a' + remainder) + temp;
 
                 remainder = (quotient - 1) % 26;
@@ -772,8 +773,8 @@ void VirtualMachineDisks::assign_disk_targets(
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
-        vector<VectorAttribute *> disks, VectorAttribute * vcontext, bool is_q35,
-        std::string& error_str)
+                                    vector<VectorAttribute *> disks, VectorAttribute * vcontext, bool is_q35,
+                                    std::string& error_str)
 {
     Nebula&    nd    = Nebula::instance();
     ImagePool* ipool = nd.get_ipool();
@@ -812,7 +813,7 @@ int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
         }
 
         if ( ipool->acquire_disk(vm_id, disk, disk_id, image_type, dev_prefix,
-                uid, image_id, &snapshots, false, error_str) != 0 )
+                                 uid, image_id, &snapshots, false, error_str) != 0 )
         {
             oss << "DISK " << disk_id << ": " << error_str;
             error_str = oss.str();
@@ -983,7 +984,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::release_images(int vmid, bool image_error,
-        vector<Template *>& ds_quotas)
+                                         vector<Template *>& ds_quotas)
 {
     Nebula& nd = Nebula::instance();
     ImageManager * imagem = nd.get_imagem();
@@ -1065,7 +1066,7 @@ void VirtualMachineDisks::get_cloning_image_ids(std::set<int>& ids)
     for ( disk_iterator disk = begin() ; disk != end() ; ++disk )
     {
         if ( (*disk)->is_cloning() &&
-                ((*disk)->vector_value("IMAGE_ID", image_id) == 0) )
+             ((*disk)->vector_value("IMAGE_ID", image_id) == 0) )
         {
             ids.insert(image_id);
         }
@@ -1089,10 +1090,10 @@ void VirtualMachineDisks::clear_cloning_image_id(int iid,
             (*disk)->replace("SOURCE", source);
 
             if ( !format.empty() )
-	    {
-		(*disk)->replace("DRIVER", format);
-		(*disk)->replace("FORMAT", format);
-	    }
+            {
+                (*disk)->replace("DRIVER", format);
+                (*disk)->replace("FORMAT", format);
+            }
 
             break;
         }
@@ -1123,9 +1124,9 @@ int VirtualMachineDisks::set_attach(int id)
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
-        int cluster_id, VectorAttribute * vdisk, const std::string& tsys,
-        const VectorAttribute * vcontext,
-        string& error)
+                                                        int cluster_id, VectorAttribute * vdisk, const std::string& tsys,
+                                                        const VectorAttribute * vcontext,
+                                                        string& error)
 {
     set<string> used_targets;
     int         max_disk_id = -1;
@@ -1195,7 +1196,7 @@ VirtualMachineDisk * VirtualMachineDisks::set_up_attach(int vmid, int uid,
     }
 
     int rc = ipool->acquire_disk(vmid, disk, max_disk_id + 1, img_type,
-                         dev_prefix, uid, image_id, &snap, true, error);
+                                 dev_prefix, uid, image_id, &snap, true, error);
     if ( rc != 0 )
     {
         delete disk;
@@ -1373,11 +1374,11 @@ void VirtualMachineDisks::clear_active_snapshot()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_active_snapshot(int& ds_id, string& tm_mad,
-        int& disk_id, int& snap_id) const
+                                             int& disk_id, int& snap_id) const
 {
     int rc;
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute("DISK_SNAPSHOT_ACTIVE"));
+            static_cast<VirtualMachineDisk *>(get_attribute("DISK_SNAPSHOT_ACTIVE"));
 
     if ( disk == 0 )
     {
@@ -1407,10 +1408,10 @@ int VirtualMachineDisks::get_active_snapshot(int& ds_id, string& tm_mad,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::create_snapshot(int disk_id, const string& name,
-        string& error)
+                                         string& error)
 {
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
+            static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
 
     if ( disk == 0 )
     {
@@ -1427,7 +1428,7 @@ int VirtualMachineDisks::create_snapshot(int disk_id, const string& name,
 const Snapshots * VirtualMachineDisks::get_snapshots(int id, string& error) const
 {
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute(id));
+            static_cast<VirtualMachineDisk *>(get_attribute(id));
 
     if ( disk == 0 )
     {
@@ -1451,7 +1452,7 @@ const Snapshots * VirtualMachineDisks::get_snapshots(int id, string& error) cons
 int VirtualMachineDisks::revert_snapshot(int id, int snap_id, bool revert)
 {
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute(id));
+            static_cast<VirtualMachineDisk *>(get_attribute(id));
 
     if ( disk == 0 )
     {
@@ -1468,10 +1469,10 @@ int VirtualMachineDisks::revert_snapshot(int id, int snap_id, bool revert)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
-        Template& ds_quota, Template& vm_quota, bool& img_owner, bool& vm_owner)
+                                          Template& ds_quota, Template& vm_quota, bool& img_owner, bool& vm_owner)
 {
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
+            static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
 
     if ( disk == 0 )
     {
@@ -1485,7 +1486,7 @@ void VirtualMachineDisks::delete_snapshot(int disk_id, int snap_id,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string& new_name,
-        string& error_str)
+                                         string& error_str)
 {
     VirtualMachineDisk * disk = get_disk(disk_id);
 
@@ -1502,7 +1503,7 @@ int VirtualMachineDisks::rename_snapshot(int disk_id, int snap_id, const string&
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::delete_non_persistent_snapshots(Template &vm_quotas,
-        vector<Template *> &ds_quotas)
+                                                          vector<Template *> &ds_quotas)
 {
     long long system_disk = 0;
 
@@ -1644,12 +1645,12 @@ void VirtualMachineDisks::backup_disk_ids(bool do_volatile, std::vector<int>& id
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::set_saveas(int disk_id, int snap_id, int &iid,
-        long long &size, string& err_str)
+                                    long long &size, string& err_str)
 {
     iid = -1;
 
     VirtualMachineDisk * disk =
-        static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
+            static_cast<VirtualMachineDisk *>(get_attribute(disk_id));
 
     if (disk == 0)
     {
@@ -1731,7 +1732,7 @@ int VirtualMachineDisks::clear_saveas()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_saveas_info(int& disk_id, string& source,
-        int& image_id, string& snap_id, string& tm_mad, string& ds_id) const
+                                         int& image_id, string& snap_id, string& tm_mad, string& ds_id) const
 {
     int rc;
 
@@ -1809,7 +1810,7 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
             }
 
             if ( ds_img->get_tm_mad_targets(tm_mad, ln_target, clone_target,
-                        disk_type) != 0 )
+                                            disk_type) != 0 )
             {
                 error = "Image Datastore does not support transfer mode: " + tm_mad;
 

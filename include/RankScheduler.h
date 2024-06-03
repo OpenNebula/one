@@ -27,7 +27,7 @@ class RankScheduler : public Scheduler
 {
 public:
 
-    RankScheduler():Scheduler(),rp_host(0),rp_ds(0),rp_nics(0), rp_vm(0){};
+    RankScheduler():Scheduler(), rp_host(0), rp_ds(0), rp_nics(0), rp_vm(0) {};
 
     ~RankScheduler()
     {

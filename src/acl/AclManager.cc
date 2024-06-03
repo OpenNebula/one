@@ -62,14 +62,14 @@ static void set_lastOID(SqlDB * db, int lastOID)
 /* -------------------------------------------------------------------------- */
 
 AclManager::AclManager(
-    SqlDB * _db,
-    int     _zone_id,
-    bool    _is_federation_slave,
-    time_t  _timer_period)
-        : zone_id(_zone_id)
-        , db(_db)
-        , is_federation_slave(_is_federation_slave)
-        , timer_period(_timer_period)
+        SqlDB * _db,
+        int     _zone_id,
+        bool    _is_federation_slave,
+        time_t  _timer_period)
+    : zone_id(_zone_id)
+    , db(_db)
+    , is_federation_slave(_is_federation_slave)
+    , timer_period(_timer_period)
 {
     int lastOID;
 
@@ -89,15 +89,15 @@ AclManager::AclManager(
         // Users in group USERS can create standard resources
         // @1 VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VMGROUP/* CREATE *
         add_rule(AclRule::GROUP_ID |
-                    1,
+                 1,
                  AclRule::ALL_ID |
-                    PoolObjectSQL::VM |
-                    PoolObjectSQL::IMAGE |
-                    PoolObjectSQL::TEMPLATE |
-                    PoolObjectSQL::DOCUMENT |
-                    PoolObjectSQL::SECGROUP |
-                    PoolObjectSQL::VMGROUP |
-                    PoolObjectSQL::BACKUPJOB,
+                 PoolObjectSQL::VM |
+                 PoolObjectSQL::IMAGE |
+                 PoolObjectSQL::TEMPLATE |
+                 PoolObjectSQL::DOCUMENT |
+                 PoolObjectSQL::SECGROUP |
+                 PoolObjectSQL::VMGROUP |
+                 PoolObjectSQL::BACKUPJOB,
                  AuthRequest::CREATE,
                  AclRule::ALL_ID,
                  error_str);
@@ -105,7 +105,7 @@ AclManager::AclManager(
         // * ZONE/* USE *
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
-                    PoolObjectSQL::ZONE,
+                 PoolObjectSQL::ZONE,
                  AuthRequest::USE,
                  AclRule::ALL_ID,
                  error_str);
@@ -113,8 +113,8 @@ AclManager::AclManager(
         // * MARKETPLACE+MARKETPLACEAPP/* USE *
         add_rule(AclRule::ALL_ID,
                  AclRule::ALL_ID |
-                    PoolObjectSQL::MARKETPLACE |
-                    PoolObjectSQL::MARKETPLACEAPP,
+                 PoolObjectSQL::MARKETPLACE |
+                 PoolObjectSQL::MARKETPLACEAPP,
                  AuthRequest::USE,
                  AclRule::ALL_ID,
                  error_str);
@@ -128,16 +128,16 @@ int AclManager::start()
 {
     int rc;
 
-    NebulaLog::log("ACL",Log::INFO,"Starting ACL Manager...");
+    NebulaLog::log("ACL", Log::INFO, "Starting ACL Manager...");
 
     rc = select();
 
     if (is_federation_slave)
     {
-        timer_thread = make_unique<Timer>(timer_period, [this](){timer_action();});
+        timer_thread = make_unique<Timer>(timer_period, [this]() {timer_action();});
     }
 
-    NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
+    NebulaLog::log("ACL", Log::INFO, "ACL Manager started.");
 
     return rc;
 }
@@ -293,7 +293,7 @@ bool AclManager::authorize(
                          AclRule::INDIVIDUAL_ID | zone_id);
 
         oss << "Request " << log_rule.to_str();
-        NebulaLog::log("ACL",Log::DDEBUG,oss);
+        NebulaLog::log("ACL", Log::DDEBUG, oss);
     }
 
     // -------------------------------------------------------------------------
@@ -374,7 +374,7 @@ bool AclManager::authorize(
         }
     }
 
-    NebulaLog::log("ACL",Log::DDEBUG,"No more rules, permission not granted ");
+    NebulaLog::log("ACL", Log::DDEBUG, "No more rules, permission not granted ");
 
     return false;
 }
@@ -417,16 +417,16 @@ bool AclManager::match_rules_wrapper(
 
     // Match against the tmp rules
     auth = match_rules(
-            user_req,
-            resource_oid_req,
-            resource_gid_req,
-            resource_cid_req,
-            resource_all_req,
-            rights_req,
-            individual_obj_type,
-            group_obj_type,
-            cluster_obj_type,
-            tmp_rules);
+                   user_req,
+                   resource_oid_req,
+                   resource_gid_req,
+                   resource_cid_req,
+                   resource_all_req,
+                   rights_req,
+                   individual_obj_type,
+                   group_obj_type,
+                   cluster_obj_type,
+                   tmp_rules);
 
     if ( auth == true )
     {
@@ -437,16 +437,16 @@ bool AclManager::match_rules_wrapper(
     lock_guard<std::mutex> ul(acl_mutex);
 
     auth = match_rules(
-            user_req,
-            resource_oid_req,
-            resource_gid_req,
-            resource_cid_req,
-            resource_all_req,
-            rights_req,
-            individual_obj_type,
-            group_obj_type,
-            cluster_obj_type,
-            acl_rules);
+                   user_req,
+                   resource_oid_req,
+                   resource_gid_req,
+                   resource_cid_req,
+                   resource_all_req,
+                   rights_req,
+                   individual_obj_type,
+                   group_obj_type,
+                   cluster_obj_type,
+                   acl_rules);
 
     return auth;
 }
@@ -501,39 +501,39 @@ bool AclManager::match_rules(
         {
             oss.str("");
             oss << "> Rule  " << it->second->to_str();
-            NebulaLog::log("ACL",Log::DDEBUG,oss);
+            NebulaLog::log("ACL", Log::DDEBUG, oss);
         }
 
         auth =
-          (
-            // Rule applies in any Zone
-            ( ( it->second->zone & zone_all_req ) == zone_all_req )
-            ||
-            // Rule applies in this Zone
-            ( ( it->second->zone & zone_oid_mask ) == zone_req )
-          )
-          &&
-          // Rule grants the requested rights
-          ( ( it->second->rights & rights_req ) == rights_req )
-          &&
-          (
-            // Rule grants permission for all objects of this type
-            ( ( it->second->resource & resource_all_req ) == resource_all_req )
-            ||
-            // Or rule's object type and group object ID match
-            ( ( it->second->resource & resource_gid_mask ) == resource_gid_req )
-            ||
-            // Or rule's object type and individual object ID match
-            ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
-            ||
-            // Or rule's object type and one of the cluster object ID match
-            match_cluster_req(resource_cid_req, resource_cid_mask,
-                it->second->resource)
-          );
+                (
+                        // Rule applies in any Zone
+                        ( ( it->second->zone & zone_all_req ) == zone_all_req )
+                        ||
+                        // Rule applies in this Zone
+                        ( ( it->second->zone & zone_oid_mask ) == zone_req )
+                )
+                &&
+                // Rule grants the requested rights
+                ( ( it->second->rights & rights_req ) == rights_req )
+                &&
+                (
+                        // Rule grants permission for all objects of this type
+                        ( ( it->second->resource & resource_all_req ) == resource_all_req )
+                        ||
+                        // Or rule's object type and group object ID match
+                        ( ( it->second->resource & resource_gid_mask ) == resource_gid_req )
+                        ||
+                        // Or rule's object type and individual object ID match
+                        ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
+                        ||
+                        // Or rule's object type and one of the cluster object ID match
+                        match_cluster_req(resource_cid_req, resource_cid_mask,
+                                          it->second->resource)
+                );
 
         if ( auth == true )
         {
-            NebulaLog::log("ACL",Log::DDEBUG,"Permission granted");
+            NebulaLog::log("ACL", Log::DDEBUG, "Permission granted");
 
             break;
         }
@@ -546,13 +546,13 @@ bool AclManager::match_rules(
 /* -------------------------------------------------------------------------- */
 
 int AclManager::add_rule(long long user, long long resource, long long rights,
-                        long long zone, string& error_str)
+                         long long zone, string& error_str)
 {
     if (is_federation_slave)
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "AclManager::add_rule called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "AclManager::add_rule called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -643,9 +643,9 @@ int AclManager::del_rule(int oid, string& error_str)
 
     if (is_federation_slave)
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "AclManager::del_rule called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "AclManager::del_rule called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -689,7 +689,7 @@ int AclManager::del_rule(int oid, string& error_str)
         oss << "Internal error: ACL Rule " << oid
             << " indexed by oid, but not in by user attribute";
 
-        NebulaLog::log("ACL",Log::ERROR,oss);
+        NebulaLog::log("ACL", Log::ERROR, oss);
 
         return -1;
     }
@@ -958,7 +958,7 @@ void AclManager::reverse_search(int                       uid,
                          zone_oid_req);
 
         oss << "Reverse search request " << log_rule.to_str();
-        NebulaLog::log("ACL",Log::DDEBUG,oss);
+        NebulaLog::log("ACL", Log::DDEBUG, oss);
     }
 
     // ---------------------------------------------------
@@ -990,7 +990,7 @@ void AclManager::reverse_search(int                       uid,
 
             for (auto it = index.first; it != index.second; it++)
             {
-                    // Rule grants the requested rights
+                // Rule grants the requested rights
                 if ( ( ( it->second->rights & rights_req ) == rights_req )
                      &&
                      // Rule applies in this zone or in all zones
@@ -1004,7 +1004,7 @@ void AclManager::reverse_search(int                       uid,
                     {
                         oss.str("");
                         oss << "> Rule  " << it->second->to_str();
-                        NebulaLog::log("ACL",Log::DDEBUG,oss);
+                        NebulaLog::log("ACL", Log::DDEBUG, oss);
                     }
 
                     // Rule grants permission for all objects of this type
@@ -1101,7 +1101,7 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
         ostringstream oss;
 
         oss << "Loading ACL Rule " << rule->to_str();
-        NebulaLog::log("ACL",Log::DDEBUG,oss);
+        NebulaLog::log("ACL", Log::DDEBUG, oss);
     }
 
     acl_rules.insert( make_pair(rule->user, rule) );

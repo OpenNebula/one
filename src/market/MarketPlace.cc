@@ -28,20 +28,20 @@ using namespace std;
 /* ************************************************************************ */
 
 MarketPlace::MarketPlace(
-    int                   uid,
-    int                   gid,
-    const std::string&    uname,
-    const std::string&    gname,
-    int                   umask,
-    unique_ptr<MarketPlaceTemplate> mp_template):
-        PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
-        state(ENABLED),
-        market_mad(""),
-        total_mb(0),
-        free_mb(0),
-        used_mb(0),
-        zone_id(-1),
-        marketapps("MARKETPLACEAPPS")
+        int                   uid,
+        int                   gid,
+        const std::string&    uname,
+        const std::string&    gname,
+        int                   umask,
+        unique_ptr<MarketPlaceTemplate> mp_template):
+    PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
+    state(ENABLED),
+    market_mad(""),
+    total_mb(0),
+    free_mb(0),
+    used_mb(0),
+    zone_id(-1),
+    marketapps("MARKETPLACEAPPS")
 {
     if (mp_template)
     {
@@ -122,7 +122,7 @@ int MarketPlace::parse_template(string& error_str)
     string state_str;
     MarketPlaceState state_new;
 
-	//MarketPlacePool::allocate checks NAME & ZONE_ID
+    //MarketPlacePool::allocate checks NAME & ZONE_ID
     erase_template_attribute("NAME", name);
     remove_template_attribute("ZONE_ID");
 
@@ -264,28 +264,28 @@ int MarketPlace::bootstrap(SqlDB * db)
 /* *************************************************************************** */
 std::string& MarketPlace::to_xml(std::string& xml) const
 {
-	std::ostringstream oss;
-	std::string        template_xml;
-	std::string        collection_xml;
-	std::string        perm_str;
+    std::ostringstream oss;
+    std::string        template_xml;
+    std::string        collection_xml;
+    std::string        perm_str;
 
 
     oss << "<MARKETPLACE>"
-			"<ID>"    << oid   << "</ID>"  <<
-			"<UID>"   << uid   << "</UID>" <<
-			"<GID>"   << gid   << "</GID>" <<
-			"<UNAME>" << uname << "</UNAME>" <<
-			"<GNAME>" << gname << "</GNAME>" <<
-			"<NAME>"  << name  << "</NAME>"  <<
-			"<STATE>"  << state << "</STATE>"  <<
-			"<MARKET_MAD>"<<one_util::escape_xml(market_mad)<<"</MARKET_MAD>"<<
-			"<ZONE_ID>"   <<one_util::escape_xml(zone_id)<<"</ZONE_ID>"<<
-			"<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
-			"<FREE_MB>"  << free_mb  << "</FREE_MB>"  <<
-			"<USED_MB>"  << used_mb  << "</USED_MB>"  <<
-            marketapps.to_xml(collection_xml) <<
-			perms_to_xml(perm_str) <<
-			obj_template->to_xml(template_xml) <<
+        "<ID>"    << oid   << "</ID>"  <<
+        "<UID>"   << uid   << "</UID>" <<
+        "<GID>"   << gid   << "</GID>" <<
+        "<UNAME>" << uname << "</UNAME>" <<
+        "<GNAME>" << gname << "</GNAME>" <<
+        "<NAME>"  << name  << "</NAME>"  <<
+        "<STATE>"  << state << "</STATE>"  <<
+        "<MARKET_MAD>"<<one_util::escape_xml(market_mad)<<"</MARKET_MAD>"<<
+        "<ZONE_ID>"   <<one_util::escape_xml(zone_id)<<"</ZONE_ID>"<<
+        "<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
+        "<FREE_MB>"  << free_mb  << "</FREE_MB>"  <<
+        "<USED_MB>"  << used_mb  << "</USED_MB>"  <<
+        marketapps.to_xml(collection_xml) <<
+        perms_to_xml(perm_str) <<
+        obj_template->to_xml(template_xml) <<
         "</MARKETPLACE>";
 
     xml = oss.str();
@@ -297,7 +297,7 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 /* --------------------------------------------------------------------------- */
 
 static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
-        const string& astr)
+                                  const string& astr)
 {
     std::vector<std::string> actions;
 
@@ -347,13 +347,13 @@ int MarketPlace::from_xml(const std::string &xml_str)
     rc += xpath<long long>(free_mb,  "/MARKETPLACE/FREE_MB",  0);
     rc += xpath<long long>(used_mb,  "/MARKETPLACE/USED_MB",  0);
 
-	// ----- Permissions -----
+    // ----- Permissions -----
     rc += perms_from_xml();
 
-	// ----- MARKETPLACEAPP Collection  -----
+    // ----- MARKETPLACEAPP Collection  -----
     rc += marketapps.from_xml(this, "/MARKETPLACE/");
 
-	// ----- TEMPLATE -----
+    // ----- TEMPLATE -----
     ObjectXML::get_nodes("/MARKETPLACE/TEMPLATE", content);
 
     if (content.empty())
@@ -401,7 +401,7 @@ int MarketPlace::from_xml(const std::string &xml_str)
 
 int MarketPlace::post_update_template(std::string& error)
 {
-	std::string new_market_mad;
+    std::string new_market_mad;
 
     erase_template_attribute("MARKET_MAD", new_market_mad);
 
@@ -418,7 +418,7 @@ int MarketPlace::post_update_template(std::string& error)
 
     add_template_attribute("MARKET_MAD", market_mad);
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

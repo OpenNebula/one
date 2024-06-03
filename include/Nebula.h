@@ -402,7 +402,7 @@ public:
      */
     template<typename T>
     int get_configuration_attribute(int uid, int gid, const std::string& name,
-            T& value) const
+                                    T& value) const
     {
         if ( uid != -1 )
         {
@@ -450,7 +450,7 @@ public:
      *  Gets a DS configuration attribute
      */
     int get_ds_conf_attribute(const std::string& ds_name,
-        const VectorAttribute* &value) const
+                              const VectorAttribute* &value) const
     {
         return get_conf_attribute("DS_MAD_CONF", ds_name, value);
     };
@@ -459,7 +459,7 @@ public:
      * Gets a VN configuration attribute
      */
     int get_vn_conf_attribute(const std::string& vn_name,
-        const VectorAttribute* &value) const
+                              const VectorAttribute* &value) const
     {
         return get_conf_attribute("VN_MAD_CONF", vn_name, value);
     }
@@ -468,7 +468,7 @@ public:
      *  Gets a TM configuration attribute
      */
     int get_tm_conf_attribute(const std::string& tm_name,
-        const VectorAttribute* &value) const
+                              const VectorAttribute* &value) const
     {
         return get_conf_attribute("TM_MAD_CONF", tm_name, value);
     };
@@ -477,7 +477,7 @@ public:
      *  Gets a Market configuration attribute
      */
     int get_market_conf_attribute( const std::string& mk_name,
-        const VectorAttribute* &value) const
+                                   const VectorAttribute* &value) const
     {
         return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
     };
@@ -487,8 +487,8 @@ public:
      */
     template<typename T>
     int get_auth_conf_attribute(const std::string& driver,
-        const std::string& attribute,
-        T& value) const
+                                const std::string& attribute,
+                                T& value) const
     {
         return get_conf_attribute("AUTH_MAD_CONF", driver, attribute, value);
     };
@@ -591,9 +591,9 @@ public:
      *    @return 0 on success
      */
     int insert_sys_attribute(
-        const std::string& attr_name,
-        const std::string& xml_attr,
-        std::string&       error_str)
+            const std::string& attr_name,
+            const std::string& xml_attr,
+            std::string&       error_str)
     {
         return system_db->insert_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -604,9 +604,9 @@ public:
      *    @return 0 on success
      */
     int update_sys_attribute(
-        const std::string& attr_name,
-        const std::string& xml_attr,
-        std::string&       error_str)
+            const std::string& attr_name,
+            const std::string& xml_attr,
+            std::string&       error_str)
     {
         return system_db->update_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -628,10 +628,10 @@ public:
                               "/DEFAULT_USER_QUOTAS/IMAGE_QUOTA",
                               "/DEFAULT_USER_QUOTAS/VM_QUOTA")
         , default_group_quota("DEFAULT_GROUP_QUOTAS",
-                             "/DEFAULT_GROUP_QUOTAS/DATASTORE_QUOTA",
-                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
-                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
-                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA")
+                              "/DEFAULT_GROUP_QUOTAS/DATASTORE_QUOTA",
+                              "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
+                              "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
+                              "/DEFAULT_GROUP_QUOTAS/VM_QUOTA")
         , system_db(0), db_backend_type("sqlite"), logdb(0), fed_logdb(0)
         , vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0)
         , dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0)
@@ -753,9 +753,9 @@ private:
      *  @return a reference to the generated string
      */
     int get_conf_attribute(
-        const std::string& key,
-        const std::string& name,
-        const VectorAttribute* &value) const;
+            const std::string& key,
+            const std::string& name,
+            const VectorAttribute* &value) const;
 
     /**
      *  Gets a Generic configuration attribute
@@ -766,10 +766,10 @@ private:
      */
     template<typename T>
     int get_conf_attribute(
-        const std::string& key,
-        const std::string& name,
-        const std::string& vname,
-        T& value) const
+            const std::string& key,
+            const std::string& name,
+            const std::string& vname,
+            T& value) const
     {
         const VectorAttribute* vattr;
 

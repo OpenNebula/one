@@ -24,11 +24,11 @@
 
 namespace ssl_util
 {
-   /**
-    *  Base 64 decoding
-    *    @param in the string to decode
-    *    @param out the decoded string
-    */
+    /**
+     *  Base 64 decoding
+     *    @param in the string to decode
+     *    @param out the decoded string
+     */
     void base64_decode(const std::string& in, std::string& out);
 
     /**
@@ -107,7 +107,7 @@ namespace ssl_util
 
     private:
         friend void sslmutex_lock_callback(int mode, int type, char *file,
-            int line);
+                                           int line);
 
         SSLMutex();
 

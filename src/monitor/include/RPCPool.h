@@ -92,7 +92,7 @@ public:
 protected:
     // ------------------------------------------------------------------------
     explicit RPCPool(SqlDB* _db)
-    : db(_db)
+        : db(_db)
     {
     }
 
@@ -121,7 +121,7 @@ protected:
         if (node == 0 || node->children == 0)
         {
             NebulaLog::log("POOL", Log::ERROR,
-                        "XML Node does not represent a valid object");
+                           "XML Node does not represent a valid object");
             return;
         }
 

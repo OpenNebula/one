@@ -90,7 +90,7 @@ public:
      *    @return true if the authorization is granted for oneadmin
      */
     bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
-                         AuthRequest::Operation op) const;
+                            AuthRequest::Operation op) const;
 
     /**
      *  Adds a new rule to the ACL rule set

@@ -86,7 +86,7 @@ int VirtualMachinePoolXML::set_up()
                     << right << setw(3)  << sr.pci.size() << " "
                     << right << setw(11) << sr.disk       << " ";
 
-                map<int,long long> ds_usage = vm->get_storage_usage();
+                map<int, long long> ds_usage = vm->get_storage_usage();
 
                 for ( auto ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
@@ -101,7 +101,7 @@ int VirtualMachinePoolXML::set_up()
             oss << "Found " << objects.size() << " pending/rescheduling VMs.";
         }
 
-        NebulaLog::log("VM",Log::DEBUG,oss);
+        NebulaLog::log("VM", Log::DEBUG, oss);
     }
 
     return rc;
@@ -114,14 +114,14 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 || node->children->next==0 )
     {
-        NebulaLog::log("VM",Log::ERROR,
+        NebulaLog::log("VM", Log::ERROR,
                        "XML Node does not represent a valid Virtual Machine");
         return;
     }
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(vm->get_oid(), vm));
+    objects.insert(pair<int, ObjectXML*>(vm->get_oid(), vm));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -172,7 +172,7 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,
                          false,           // argument 4 (ENFORCE)
                          -1,              // argument 5 (DS_ID)
                          cold_migrate_mode // argument 6 (0 save, 1 poweroff, 2 poweroff hard)
-                         );
+                        );
         }
         else
         {
@@ -192,13 +192,13 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,
 
         oss << "Exception raised: " << e.what() << '\n';
 
-        NebulaLog::log("VM",Log::ERROR,oss);
+        NebulaLog::log("VM", Log::ERROR, oss);
 
         return -1;
     }
 
     vector<xmlrpc_c::value> values =
-                    xmlrpc_c::value_array(deploy_result).vectorValueValue();
+            xmlrpc_c::value_array(deploy_result).vectorValueValue();
 
     bool success = xmlrpc_c::value_boolean(values[0]);
 
@@ -210,7 +210,7 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,
         oss << "Error deploying virtual machine " << vid
             << " to HID: " << hid << ". Reason: " << message;
 
-        NebulaLog::log("VM",Log::ERROR,oss);
+        NebulaLog::log("VM", Log::ERROR, oss);
 
         return -1;
     }

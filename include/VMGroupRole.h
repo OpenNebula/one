@@ -150,7 +150,7 @@ public:
      *    @param oss stream where the requirement expression is output
      */
     static void host_requirements(std::set<int>& hosts, const std::string& op1,
-        const std::string& op2, std::ostringstream& oss);
+                                  const std::string& op2, std::ostringstream& oss);
 
 private:
     /**
@@ -318,12 +318,12 @@ public:
             return role_it->second;
         }
 
-        RoleIterator(){};
-        RoleIterator(const RoleIterator& rit):role_it(rit.role_it){};
+        RoleIterator() {};
+        RoleIterator(const RoleIterator& rit):role_it(rit.role_it) {};
         RoleIterator(const std::map<int, VMGroupRole *>::iterator& _role_it)
-            :role_it(_role_it){};
+            :role_it(_role_it) {};
 
-        virtual ~RoleIterator(){};
+        virtual ~RoleIterator() {};
 
     private:
         std::map<int, VMGroupRole *>::iterator role_it;

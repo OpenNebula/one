@@ -35,7 +35,7 @@ int SqlDB::exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
             NebulaLog::error("SQL", "Lost connection to DB server, exiting...");
 
             // Kill the master process. The call is in the thread to avoid deadlock
-            std::thread thr([]{ kill(getpid(), SIGTERM); });
+            std::thread thr([] { kill(getpid(), SIGTERM); });
             thr.detach();
         }
     }

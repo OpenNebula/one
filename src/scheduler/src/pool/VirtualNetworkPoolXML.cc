@@ -51,7 +51,7 @@ int VirtualNetworkPoolXML::set_up()
             oss << "Discovered " << objects.size() << " vnets.";
         }
 
-        NebulaLog::log("VNET",Log::DEBUG,oss);
+        NebulaLog::log("VNET", Log::DEBUG, oss);
     }
 
     return rc;
@@ -65,14 +65,14 @@ void VirtualNetworkPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
     {
-        NebulaLog::log("VNET",Log::ERROR,
+        NebulaLog::log("VNET", Log::ERROR,
                        "XML Node does not represent a valid VNET");
         return;
     }
 
     VirtualNetworkXML* vnet = new VirtualNetworkXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(vnet->get_oid(), vnet));
+    objects.insert(pair<int, ObjectXML*>(vnet->get_oid(), vnet));
 }
 
 /* -------------------------------------------------------------------------- */

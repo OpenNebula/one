@@ -46,7 +46,7 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
     }
     else
     {
-         oss << "<USER_TEMPLATE>";
+        oss << "<USER_TEMPLATE>";
 
         /* ------------------------------------------------------------------ */
         /* Attributes required by Sunstone                                    */
@@ -138,64 +138,87 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECONF_ATTRS = {
-    { "OS",
-        { "ARCH",
-          "MACHINE",
-          "KERNEL",
-          "INITRD",
-          "BOOTLOADER",
-          "BOOT",
-          "KERNEL_CMD",
-          "ROOT",
-          "SD_DISK_BUS",
-          "UUID",
-          "FIRMWARE"}
+std::map<std::string, std::vector<std::string>> VirtualMachineTemplate::UPDATECONF_ATTRS =
+{
+    {
+        "OS",
+        {
+            "ARCH",
+            "MACHINE",
+            "KERNEL",
+            "INITRD",
+            "BOOTLOADER",
+            "BOOT",
+            "KERNEL_CMD",
+            "ROOT",
+            "SD_DISK_BUS",
+            "UUID",
+            "FIRMWARE"
+        }
     },
-    { "FEATURES",
-        { "PAE",
-          "ACPI",
-          "APIC",
-          "LOCALTIME",
-          "HYPERV",
-          "GUEST_AGENT",
-          "VIRTIO_SCSI_QUEUES",
-          "VIRTIO_BLK_QUEUES",
-          "IOTHREADS"}
+    {
+        "FEATURES",
+        {
+            "PAE",
+            "ACPI",
+            "APIC",
+            "LOCALTIME",
+            "HYPERV",
+            "GUEST_AGENT",
+            "VIRTIO_SCSI_QUEUES",
+            "VIRTIO_BLK_QUEUES",
+            "IOTHREADS"
+        }
     },
-    { "INPUT",
-        { "TYPE",
-          "BUS"}
+    {
+        "INPUT",
+        {
+            "TYPE",
+            "BUS"
+        }
     },
-    {"GRAPHICS",
-        { "TYPE",
-          "LISTEN",
-          "PASSWD",
-          "KEYMAP",
-          "COMMAND"}
+    {
+        "GRAPHICS",
+        {
+            "TYPE",
+            "LISTEN",
+            "PASSWD",
+            "KEYMAP",
+            "COMMAND"
+        }
     },
-    {"VIDEO",
-        { "IOMMU",
-          "ATS",
-          "TYPE",
-          "VRAM",
-          "RESOLUTION"}
+    {
+        "VIDEO",
+        {
+            "IOMMU",
+            "ATS",
+            "TYPE",
+            "VRAM",
+            "RESOLUTION"
+        }
     },
-    {"RAW",
-        { "TYPE",
-          "DATA",
-          "VALIDATE",
-          "DATA_VMX"}
+    {
+        "RAW",
+        {
+            "TYPE",
+            "DATA",
+            "VALIDATE",
+            "DATA_VMX"
+        }
     },
-    {"CPU_MODEL",
+    {
+        "CPU_MODEL",
         { "MODEL" }
     },
-    {"BACKUP_CONFIG",
-        { "FS_FREEZE",
-          "KEEP_LAST",
-          "BACKUP_VOLATILE",
-          "INCREMENT_MODE",
-          "MODE"}
+    {
+        "BACKUP_CONFIG",
+        {
+            "FS_FREEZE",
+            "KEEP_LAST",
+            "BACKUP_VOLATILE",
+            "INCREMENT_MODE",
+            "MODE"
+        }
     }
 };
 
@@ -204,7 +227,7 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
  * returns a copy the values of a vector value
  */
 static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
-        const char * name)
+                               const char * name)
 {
     const VectorAttribute * old_attr = old_tmpl->get(name);
 

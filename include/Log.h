@@ -31,7 +31,8 @@
 class Log
 {
 public:
-    enum MessageType {
+    enum MessageType
+    {
         ERROR   = 0,
         WARNING = 1,
         INFO    = 2,
@@ -42,9 +43,9 @@ public:
 
     static const std::string error_names[];
 
-    Log(const MessageType _level = WARNING):log_level(_level){};
+    Log(const MessageType _level = WARNING):log_level(_level) {};
 
-    virtual ~Log(){};
+    virtual ~Log() {};
 
     MessageType get_log_level() const
     {
@@ -73,7 +74,7 @@ public:
         clock_gettime(CLOCK_MONOTONIC, &eend);
 
         sec = (eend.tv_sec + (eend.tv_nsec * 1e-9)) - (estart->tv_sec +
-            (estart->tv_nsec * 1e-9));
+                                                       (estart->tv_nsec * 1e-9));
 
         return sec;
     }
@@ -83,9 +84,9 @@ public:
     // -------------------------------------------------------------------------
 
     virtual void log(
-        const char *            module,
-        const MessageType       type,
-        const char *            message) = 0;
+            const char *            module,
+            const MessageType       type,
+            const char *            message) = 0;
 
 protected:
     /**
@@ -116,9 +117,9 @@ public:
     virtual ~FileLog();
 
     void log(
-        const char *            module,
-        const MessageType       type,
-        const char *            message) override;
+            const char *            module,
+            const MessageType       type,
+            const char *            message) override;
 
 private:
     std::string log_file_name;
@@ -133,19 +134,19 @@ public:
     FileLogTS(const std::string&       file_name,
               const MessageType        level    = WARNING,
               std::ios_base::openmode  mode     = std::ios_base::app)
-                       :FileLog(file_name,level,mode)
+        :FileLog(file_name, level, mode)
     {
     }
 
     ~FileLogTS() = default;
 
     void log(
-        const char *            module,
-        const MessageType       type,
-        const char *            message) override
+            const char *            module,
+            const MessageType       type,
+            const char *            message) override
     {
         std::lock_guard <std::mutex> lock(log_mutex);
-        FileLog::log(module,type,message);
+        FileLog::log(module, type, message);
     }
 
 private:
@@ -162,18 +163,18 @@ private:
 class StdLog : public Log
 {
 public:
-    StdLog(const MessageType level):Log(level){};
+    StdLog(const MessageType level):Log(level) {};
 
     StdLog(const MessageType level,
            int oid,
            const PoolObjectSQL::ObjectType obj_type);
 
-    ~StdLog(){};
+    ~StdLog() {};
 
     void log(
-        const char *            module,
-        const MessageType       type,
-        const char *            message) override;
+            const char *            module,
+            const MessageType       type,
+            const char *            message) override;
 
 private:
     std::string resource_label;
@@ -195,12 +196,12 @@ public:
            int oid,
            const PoolObjectSQL::ObjectType obj_type);
 
-    ~SysLog(){};
+    ~SysLog() {};
 
     void log(
-        const char *            module,
-        const MessageType       type,
-        const char *            message) override;
+            const char *            module,
+            const MessageType       type,
+            const char *            message) override;
 
     /**
      *  Return the associated syslog level

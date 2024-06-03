@@ -26,12 +26,12 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
-    int                       oid,
-    int                       new_uid,
-    int                       new_gid,
-    RequestAttributes&        att,
-    PoolSQL *                 pool,
-    PoolObjectSQL::ObjectType auth_object)
+        int                       oid,
+        int                       new_uid,
+        int                       new_gid,
+        RequestAttributes&        att,
+        PoolSQL *                 pool,
+        PoolObjectSQL::ObjectType auth_object)
 {
     std::map<Quotas::QuotaType, std::unique_ptr<Template>> quota_map;
     std::map<Quotas::QuotaType, std::unique_ptr<Template>> quota_to_rback;
@@ -80,7 +80,7 @@ unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
         auto tmpl = make_unique<Template>();
 
         tmpl->add("DATASTORE", img->get_ds_id());
-        tmpl->add("SIZE",img->get_size()+img->get_snapshots().total_size());
+        tmpl->add("SIZE", img->get_size()+img->get_snapshots().total_size());
 
         quota_map.insert(make_pair(Quotas::DATASTORE, move(tmpl)));
     }
@@ -258,7 +258,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( nuid > -1  )
     {
-        rc = get_info(upool,nuid,PoolObjectSQL::USER,att,nuperms,nuname,true);
+        rc = get_info(upool, nuid, PoolObjectSQL::USER, att, nuperms, nuname, true);
 
         if ( rc == -1 )
         {
@@ -268,7 +268,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( ngid > -1  )
     {
-        rc = get_info(gpool,ngid,PoolObjectSQL::GROUP,att,ngperms,ngname,true);
+        rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname, true);
 
         if ( rc == -1 )
         {
@@ -362,7 +362,7 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
             if (market && market->is_public())
             {
                 att.resp_msg = "App " + to_string(oid) +
-                    ": Changing the ownership for an App from the public Marketplace is not permitted";
+                               ": Changing the ownership for an App from the public Marketplace is not permitted";
                 failure_response(INTERNAL, att);
 
                 return;
@@ -493,7 +493,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if ( Nebula::instance().get_auth_conf_attribute(auth_driver,
-            "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0 )
+                                                    "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0 )
     {
         driver_managed_groups = false;
     }
@@ -501,12 +501,12 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     if (driver_managed_groups && new_group)
     {
         att.resp_msg = "Groups cannot be manually managed for auth driver " +
-            auth_driver;
+                       auth_driver;
         failure_response(ACTION, att);
         return;
     }
 
-    rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname,true);
+    rc = get_info(gpool, ngid, PoolObjectSQL::GROUP, att, ngperms, ngname, true);
 
     if ( rc == -1 )
     {
@@ -553,7 +553,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        user->set_group(ngid,ngname);
+        user->set_group(ngid, ngname);
 
         // The user is removed from the old group only if the new group is not a
         // secondary one

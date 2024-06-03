@@ -58,9 +58,9 @@ protected:
 
     ClusterableSingle(int _cluster_id, const std::string& _cluster):
         cluster_id(_cluster_id),
-        cluster(_cluster){};
+        cluster(_cluster) {};
 
-    ~ClusterableSingle(){};
+    ~ClusterableSingle() {};
 
     /**
      * ID of the cluster this object belongs to.

@@ -32,7 +32,7 @@ static int master_allocate(MarketPlaceApp * mp, string& error)
 
     std::string        mp_xml;
     std::ostringstream oss("Cannot allocate marketapp at federation master: ",
-            std::ios::ate);
+                           std::ios::ate);
 
     mp->to_xml(mp_xml);
 
@@ -68,16 +68,16 @@ static int master_allocate(MarketPlaceApp * mp, string& error)
 /* -------------------------------------------------------------------------- */
 
 int MarketPlaceAppPool:: allocate(
-            int                uid,
-            int                gid,
-            const std::string& uname,
-            const std::string& gname,
-            int                umask,
-            std::unique_ptr<MarketPlaceAppTemplate> apptemplate,
-            int                mp_id,
-            const std::string& mp_name,
-            int *              oid,
-            std::string&       error_str)
+        int                uid,
+        int                gid,
+        const std::string& uname,
+        const std::string& gname,
+        int                umask,
+        std::unique_ptr<MarketPlaceAppTemplate> apptemplate,
+        int                mp_id,
+        const std::string& mp_name,
+        int *              oid,
+        std::string&       error_str)
 {
     MarketPlaceApp * mp;
 
@@ -158,7 +158,7 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
         vector<xmlrpc_c::value> values;
 
         std::ostringstream oss("Cannot drop marketapp at federation master: ",
-                std::ios::ate);
+                               std::ios::ate);
         try
         {
             client->call("one.marketapp.dropdb", "i", &result, objsql->get_oid());
@@ -193,14 +193,14 @@ int MarketPlaceAppPool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
-        const std::string& mp_name, int& app_id, std::string& error_str)
+                               const std::string& mp_name, int& app_id, std::string& error_str)
 {
     // -------------------------------------------------------------------------
     // Build the marketplace app object
     // -------------------------------------------------------------------------
     MarketPlaceApp * app = new MarketPlaceApp(UserPool::ONEADMIN_ID,
-        GroupPool::ONEADMIN_ID, UserPool::oneadmin_name, GroupPool::ONEADMIN_NAME
-        ,0133, 0);
+                                              GroupPool::ONEADMIN_ID, UserPool::oneadmin_name, GroupPool::ONEADMIN_NAME
+                                              , 0133, 0);
 
     if ( app->from_template64(t64, error_str) != 0 )
     {
@@ -235,7 +235,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         app_id = mp_aux->oid;
 
         if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 ||
-                mp_aux->source != app->source )
+             mp_aux->source != app->source )
         {
             mp_aux->from_template64(t64, error_str);
             update(mp_aux.get());
@@ -277,12 +277,12 @@ int MarketPlaceAppPool::update(PoolObjectSQL * objsql)
         vector<xmlrpc_c::value> values;
 
         std::ostringstream oss("Cannot update marketapp at federation master: ",
-                std::ios::ate);
+                               std::ios::ate);
 
         try
         {
             client->call("one.marketapp.updatedb", "is", &result,
-                objsql->get_oid(), objsql->to_xml(tmpl_xml).c_str());
+                         objsql->get_oid(), objsql->to_xml(tmpl_xml).c_str());
         }
         catch (exception const& e)
         {

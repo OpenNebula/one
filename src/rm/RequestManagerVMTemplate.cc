@@ -122,8 +122,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string&  name,
-        bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
-        RequestAttributes& att)
+                                                          bool on_hold, const string &str_uattrs, Template* extra_attrs, int& vid,
+                                                          RequestAttributes& att)
 {
     int rc;
     std::string memory, cpu;
@@ -192,7 +192,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
 
     if (!name.empty())
     {
-        tmpl->set(new SingleAttribute("NAME",name));
+        tmpl->set(new SingleAttribute("NAME", name));
     }
 
     if (VirtualMachine::parse_topology(tmpl.get(), att.resp_msg) != 0)
@@ -214,7 +214,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
 
         // CREATE TEMPLATE
         ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::TEMPLATE,
-                tmpl_str);
+                           tmpl_str);
     }
 
     extended_tmpl = *tmpl;
@@ -241,7 +241,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     QuotaVirtualMachine::add_running_quota_generic(extended_tmpl);
 
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
-                att.resp_msg) == false)
+                            att.resp_msg) == false)
     {
         return AUTHORIZATION;
     }
@@ -256,7 +256,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     for ( auto& ds : ds_quotas )
     {
         if ( quota_authorization(ds.get(), Quotas::DATASTORE, att, att.resp_msg)
-                == false )
+             == false )
         {
             ds_quota_auth = false;
             break;
@@ -287,7 +287,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
     tmpl->remove("SCHED_ACTION", sas);
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            move(tmpl), &vid, att.resp_msg, on_hold);
+                          move(tmpl), &vid, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
@@ -372,37 +372,37 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, const string& 
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VMTemplateInstantiate::merge(
-                Template *      tmpl,
-                const string    &str_uattrs,
-                RequestAttributes& att)
+        Template *      tmpl,
+        const string    &str_uattrs,
+        RequestAttributes& att)
 {
-	int rc;
+    int rc;
 
-	VirtualMachineTemplate  uattrs;
-	string                  aname;
+    VirtualMachineTemplate  uattrs;
+    string                  aname;
 
-	rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
+    rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
 
-	if ( rc != 0 )
-	{
-		return INTERNAL;
+    if ( rc != 0 )
+    {
+        return INTERNAL;
     }
     else if (uattrs.empty())
     {
         return SUCCESS;
-	}
+    }
 
-	if (!att.is_admin())
-	{
+    if (!att.is_admin())
+    {
         if (uattrs.check_restricted(aname, tmpl, true))
-		{
-			att.resp_msg ="User Template includes a restricted attribute " + aname;
+        {
+            att.resp_msg ="User Template includes a restricted attribute " + aname;
 
-			return AUTHORIZATION;
-		}
-	}
+            return AUTHORIZATION;
+        }
+    }
 
-	tmpl->merge(&uattrs);
+    tmpl->merge(&uattrs);
 
     return SUCCESS;
 }

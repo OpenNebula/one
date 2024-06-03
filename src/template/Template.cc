@@ -201,7 +201,7 @@ void Template::set(Attribute * attr)
         attributes.erase(attr->name());
     }
 
-    attributes.insert(make_pair(attr->name(),attr));
+    attributes.insert(make_pair(attr->name(), attr));
 };
 
 /* -------------------------------------------------------------------------- */
@@ -221,7 +221,7 @@ int Template::replace(const string& name, const string& value)
         attributes.erase(index.first, index.second);
     }
 
-    SingleAttribute * sattr = new SingleAttribute(name,value);
+    SingleAttribute * sattr = new SingleAttribute(name, value);
 
     attributes.insert(make_pair(sattr->name(), sattr));
 
@@ -277,12 +277,12 @@ int Template::erase(const string& name)
         return 0;
     }
 
-    for ( auto i = index.first; i != index.second; i++,j++ )
+    for ( auto i = index.first; i != index.second; i++, j++ )
     {
         delete i->second;
     }
 
-    attributes.erase(index.first,index.second);
+    attributes.erase(index.first, index.second);
 
     return j;
 }
@@ -545,8 +545,8 @@ Attribute * Template::single_xml_att(const xmlNode * node)
          child->type == XML_CDATA_SECTION_NODE))
     {
         attr = new SingleAttribute(
-                            reinterpret_cast<const char *>(node->name),
-                            reinterpret_cast<const char *>(child->content) );
+                reinterpret_cast<const char *>(node->name),
+                reinterpret_cast<const char *>(child->content) );
     }
 
     return attr;
@@ -569,7 +569,7 @@ Attribute * Template::vector_xml_att(const xmlNode * node)
     if(child != 0)
     {
         attr = new VectorAttribute(
-                        reinterpret_cast<const char *>(node->name));
+                reinterpret_cast<const char *>(node->name));
 
         for( ; child != 0; child = child->next)
         {
@@ -597,7 +597,7 @@ int Template::from_xml(const string &xml_str)
     xmlNode * root_element;
 
     // Parse xml string as libxml document
-    xml_doc = xmlParseMemory (xml_str.c_str(),xml_str.length());
+    xml_doc = xmlParseMemory (xml_str.c_str(), xml_str.length());
 
     if (xml_doc == 0) // Error parsing XML Document
     {
@@ -721,7 +721,7 @@ void Template::merge(const Template * from)
 /* ------------------------------------------------------------------------ */
 
 static void parse_attributes(const vector<const SingleAttribute *>& as,
-        std::map<std::string, std::set<std::string> >& as_m)
+                             std::map<std::string, std::set<std::string> >& as_m)
 {
     for (auto attr : as)
     {
@@ -730,7 +730,7 @@ static void parse_attributes(const vector<const SingleAttribute *>& as,
 
         if (pos != string::npos) //Vector Attribute
         {
-            string avector = va.substr(0,pos);
+            string avector = va.substr(0, pos);
             string vattr   = va.substr(pos+1);
 
             auto jt = as_m.find(avector);
@@ -761,7 +761,7 @@ static void parse_attributes(const vector<const SingleAttribute *>& as,
 /* -------------------------------------------------------------------------- */
 
 void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
-    std::map<std::string, std::set<std::string> >& rattr_m)
+                                std::map<std::string, std::set<std::string> >& rattr_m)
 {
     parse_attributes(ras, rattr_m);
 }
@@ -770,7 +770,7 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 /* -------------------------------------------------------------------------- */
 
 void Template::parse_encrypted(const vector<const SingleAttribute *>& eas,
-    std::map<std::string, std::set<std::string> >& eattr_m)
+                               std::map<std::string, std::set<std::string> >& eattr_m)
 {
     parse_attributes(eas, eattr_m);
 }
@@ -779,7 +779,7 @@ void Template::parse_encrypted(const vector<const SingleAttribute *>& eas,
 /* -------------------------------------------------------------------------- */
 
 static bool restricted_values(const string& vname, const set<string>& vsubs,
-        const Template* tmpl, vector<string>& rstrings)
+                              const Template* tmpl, vector<string>& rstrings)
 {
     string value;
     bool exists;
@@ -805,7 +805,7 @@ static bool restricted_values(const string& vname, const set<string>& vsubs,
 }
 
 bool Template::check_restricted(string& ra, const Template* base,
-        const std::map<std::string, std::set<std::string> >& ras, bool append)
+                                const std::map<std::string, std::set<std::string> >& ras, bool append)
 {
     for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
@@ -815,7 +815,7 @@ bool Template::check_restricted(string& ra, const Template* base,
 
             bool new_restricted  = restricted_values(rit->first, rit->second, this, rvalues);
             bool base_restricted = restricted_values(rit->first, rit->second, base, rvalues_base);
-            
+
             bool has_restricted = new_restricted || (!append && base_restricted);
 
             if ( rvalues != rvalues_base && has_restricted)
@@ -859,7 +859,7 @@ bool Template::check_restricted(string& ra, const Template* base,
 /* -------------------------------------------------------------------------- */
 
 bool Template::check_restricted(string& ra,
-        const std::map<std::string, std::set<std::string> >& ras)
+                                const std::map<std::string, std::set<std::string> >& ras)
 {
     for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {

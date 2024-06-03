@@ -31,7 +31,7 @@ public:
 
     HostPoolXML(Client* client):PoolXML(client) {};
 
-    ~HostPoolXML(){};
+    ~HostPoolXML() {};
 
     int set_up() override;
 

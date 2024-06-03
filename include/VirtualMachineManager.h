@@ -36,7 +36,7 @@ class VirtualMachineManager :
 public:
 
     VirtualMachineManager(
-        const std::string&        _mads);
+            const std::string&        _mads);
 
     ~VirtualMachineManager() = default;
 
@@ -382,19 +382,19 @@ private:
      *    @param id of the security group
      */
     std::string format_message(
-        const std::string& hostname,
-        const std::string& m_hostname,
-        const std::string& domain,
-        const std::string& ldfile,
-        const std::string& rdfile,
-        const std::string& cfile,
-        const std::string& tm_command,
-        const std::string& tm_command_rollback,
-        const std::string& disk_target_path,
-        const std::string& tmpl,
-        int ds_id,
-        int sgid = -1,
-        int nicid = -1);
+            const std::string& hostname,
+            const std::string& m_hostname,
+            const std::string& domain,
+            const std::string& ldfile,
+            const std::string& rdfile,
+            const std::string& cfile,
+            const std::string& tm_command,
+            const std::string& tm_command_rollback,
+            const std::string& disk_target_path,
+            const std::string& tmpl,
+            int ds_id,
+            int sgid = -1,
+            int nicid = -1);
 
 public:
     /**
@@ -553,18 +553,18 @@ public:
      */
     void trigger_resize(int vid);
 
-  /**
-     * Create backup for the VM
-     *
-     * @param vid the id of the VM.
-     */
+    /**
+       * Create backup for the VM
+       *
+       * @param vid the id of the VM.
+       */
     void trigger_backup(int vid);
 
-  /**
-     * Cancel ongoing backup operation
-     *
-     * @param vid the id of the VM.
-     */
+    /**
+       * Cancel ongoing backup operation
+       *
+       * @param vid the id of the VM.
+       */
     void trigger_backup_cancel(int vid);
 };
 

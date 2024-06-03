@@ -40,7 +40,7 @@ public:
         , self_authorize(true)
     {}
 
-    ~AuthRequest(){};
+    ~AuthRequest() {};
 
     /**
      *  Authorization Request Type
@@ -78,11 +78,11 @@ public:
 
     static Operation str_to_operation(const std::string& str)
     {
-            if      (str == "USE")    return USE;
-            else if (str == "MANAGE") return MANAGE;
-            else if (str == "ADMIN")  return ADMIN;
-            else if (str == "CREATE") return CREATE;
-            else     return NONE;
+        if      (str == "USE")    return USE;
+        else if (str == "MANAGE") return MANAGE;
+        else if (str == "ADMIN")  return ADMIN;
+        else if (str == "CREATE") return CREATE;
+        else     return NONE;
     };
 
     /**

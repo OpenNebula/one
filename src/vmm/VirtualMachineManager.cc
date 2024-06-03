@@ -34,9 +34,9 @@ using namespace std;
 /* ************************************************************************** */
 
 VirtualMachineManager::VirtualMachineManager(
-    const string&                   _mad_location):
-        DriverManager(_mad_location),
-        Listener("Virtual Machine Manager")
+        const string&                   _mad_location):
+    DriverManager(_mad_location),
+    Listener("Virtual Machine Manager")
 {
     Nebula& nd = Nebula::instance();
 
@@ -54,85 +54,85 @@ int VirtualMachineManager::start()
     using namespace std::placeholders; // for _1
 
     register_action(VMManagerMessages::UNDEFINED,
-            &VirtualMachineManager::_undefined);
+                    &VirtualMachineManager::_undefined);
 
     register_action(VMManagerMessages::DEPLOY,
-            bind(&VirtualMachineManager::_deploy, this, _1));
+                    bind(&VirtualMachineManager::_deploy, this, _1));
 
     register_action(VMManagerMessages::SHUTDOWN,
-            bind(&VirtualMachineManager::_shutdown, this, _1));
+                    bind(&VirtualMachineManager::_shutdown, this, _1));
 
     register_action(VMManagerMessages::RESET,
-            bind(&VirtualMachineManager::_reboot, this, _1));
+                    bind(&VirtualMachineManager::_reboot, this, _1));
 
     register_action(VMManagerMessages::CANCEL,
-            bind(&VirtualMachineManager::_cancel, this, _1));
+                    bind(&VirtualMachineManager::_cancel, this, _1));
 
     register_action(VMManagerMessages::CLEANUP,
-            bind(&VirtualMachineManager::_cleanup, this, _1));
+                    bind(&VirtualMachineManager::_cleanup, this, _1));
 
     register_action(VMManagerMessages::CHECKPOINT,
-            bind(&VirtualMachineManager::_checkpoint, this, _1));
+                    bind(&VirtualMachineManager::_checkpoint, this, _1));
 
     register_action(VMManagerMessages::SAVE,
-            bind(&VirtualMachineManager::_save, this, _1));
+                    bind(&VirtualMachineManager::_save, this, _1));
 
     register_action(VMManagerMessages::RESTORE,
-            bind(&VirtualMachineManager::_restore, this, _1));
+                    bind(&VirtualMachineManager::_restore, this, _1));
 
     register_action(VMManagerMessages::MIGRATE,
-            bind(&VirtualMachineManager::_migrate, this, _1));
+                    bind(&VirtualMachineManager::_migrate, this, _1));
 
     register_action(VMManagerMessages::ATTACHDISK,
-            bind(&VirtualMachineManager::_attachdisk, this, _1));
+                    bind(&VirtualMachineManager::_attachdisk, this, _1));
 
     register_action(VMManagerMessages::DETACHDISK,
-            bind(&VirtualMachineManager::_detachdisk, this, _1));
+                    bind(&VirtualMachineManager::_detachdisk, this, _1));
 
     register_action(VMManagerMessages::ATTACHNIC,
-            bind(&VirtualMachineManager::_attachnic, this, _1));
+                    bind(&VirtualMachineManager::_attachnic, this, _1));
 
     register_action(VMManagerMessages::DETACHNIC,
-            bind(&VirtualMachineManager::_detachnic, this, _1));
+                    bind(&VirtualMachineManager::_detachnic, this, _1));
 
     register_action(VMManagerMessages::SNAPSHOTCREATE,
-            bind(&VirtualMachineManager::_snapshotcreate, this, _1));
+                    bind(&VirtualMachineManager::_snapshotcreate, this, _1));
 
     register_action(VMManagerMessages::SNAPSHOTREVERT,
-            bind(&VirtualMachineManager::_snapshotrevert, this, _1));
+                    bind(&VirtualMachineManager::_snapshotrevert, this, _1));
 
     register_action(VMManagerMessages::SNAPSHOTDELETE,
-            bind(&VirtualMachineManager::_snapshotdelete, this, _1));
+                    bind(&VirtualMachineManager::_snapshotdelete, this, _1));
 
     register_action(VMManagerMessages::DISKSNAPSHOTCREATE,
-            bind(&VirtualMachineManager::_disksnapshotcreate, this, _1));
+                    bind(&VirtualMachineManager::_disksnapshotcreate, this, _1));
 
     register_action(VMManagerMessages::RESIZEDISK,
-            bind(&VirtualMachineManager::_resizedisk, this, _1));
+                    bind(&VirtualMachineManager::_resizedisk, this, _1));
 
     register_action(VMManagerMessages::UPDATECONF,
-            bind(&VirtualMachineManager::_updateconf, this, _1));
+                    bind(&VirtualMachineManager::_updateconf, this, _1));
 
     register_action(VMManagerMessages::UPDATESG,
-            bind(&VirtualMachineManager::_updatesg, this, _1));
+                    bind(&VirtualMachineManager::_updatesg, this, _1));
 
     register_action(VMManagerMessages::DRIVER_CANCEL,
-            bind(&VirtualMachineManager::_driver_cancel, this, _1));
+                    bind(&VirtualMachineManager::_driver_cancel, this, _1));
 
     register_action(VMManagerMessages::RESIZE,
-            bind(&VirtualMachineManager::_resize, this, _1));
+                    bind(&VirtualMachineManager::_resize, this, _1));
 
     register_action(VMManagerMessages::BACKUP,
-            bind(&VirtualMachineManager::_backup, this, _1));
+                    bind(&VirtualMachineManager::_backup, this, _1));
 
     register_action(VMManagerMessages::LOG,
-            bind(&VirtualMachineManager::_log, this, _1));
+                    bind(&VirtualMachineManager::_log, this, _1));
 
     register_action(VMManagerMessages::UPDATENIC,
-            bind(&VirtualMachineManager::_updatenic, this, _1));
+                    bind(&VirtualMachineManager::_updatenic, this, _1));
 
     register_action(VMManagerMessages::BACKUPCANCEL,
-            bind(&VirtualMachineManager::_driver_cancel, this, _1));
+                    bind(&VirtualMachineManager::_driver_cancel, this, _1));
 
     string error;
     if ( DriverManager::start(error) != 0 )
@@ -140,7 +140,7 @@ int VirtualMachineManager::start()
         return -1;
     }
 
-    NebulaLog::log("VMM",Log::INFO,"Starting Virtual Machine Manager...");
+    NebulaLog::log("VMM", Log::INFO, "Starting Virtual Machine Manager...");
 
     Listener::start();
 
@@ -209,19 +209,19 @@ int VirtualMachineManager::validate_template(const string& vmm_mad,
 /* ------------------------------------------------------------------------ */
 
 string VirtualMachineManager::format_message(
-    const string& hostname,
-    const string& m_hostname,
-    const string& domain,
-    const string& ldfile,
-    const string& rdfile,
-    const string& cfile,
-    const string& tm_command,
-    const string& tm_command_rollback,
-    const string& disk_target_path,
-    const string& tmpl,
-    int ds_id,
-    int sgid,
-    int nicid)
+        const string& hostname,
+        const string& m_hostname,
+        const string& domain,
+        const string& ldfile,
+        const string& rdfile,
+        const string& cfile,
+        const string& tm_command,
+        const string& tm_command_rollback,
+        const string& disk_target_path,
+        const string& tmpl,
+        int ds_id,
+        int sgid,
+        int nicid)
 {
     ostringstream oss;
 
@@ -328,7 +328,7 @@ string VirtualMachineManager::format_message(
 /* -------------------------------------------------------------------------- */
 
 static int do_context_command(VirtualMachine * vm, const string& password,
-        string& prolog_cmd, string& disk_path)
+                              string& prolog_cmd, string& disk_path)
 {
     prolog_cmd = "";
     disk_path  = "";
@@ -374,7 +374,8 @@ static int do_context_command(VirtualMachine * vm, const string& password,
 
 void VirtualMachineManager::trigger_deploy(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
         int rc;
 
@@ -441,18 +442,18 @@ void VirtualMachineManager::trigger_deploy(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            "",
-            vm->get_deployment_file(),
-            vm->get_remote_deployment_file(),
-            "",
-            prolog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                "",
+                vm->get_deployment_file(),
+                vm->get_remote_deployment_file(),
+                "",
+                prolog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->deploy(vid, drv_msg);
 
@@ -460,29 +461,29 @@ void VirtualMachineManager::trigger_deploy(int vid)
 
         return;
 
-        error_history:
-            os << "deploy_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "deploy_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "deploy_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "deploy_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_file:
-            os << "deploy_action, error generating deployment file: "
-            << vm->get_deployment_file();
-            goto error_common;
+error_file:
+        os << "deploy_action, error generating deployment file: "
+           << vm->get_deployment_file();
+        goto error_common;
 
-        error_no_tm_command:
-            os << "Cannot set context disk to update it for VM " << vm->get_oid();
+error_no_tm_command:
+        os << "Cannot set context disk to update it for VM " << vm->get_oid();
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_deploy_failure(vid);
+        lcm->trigger_deploy_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -491,7 +492,8 @@ void VirtualMachineManager::trigger_deploy(int vid)
 
 void VirtualMachineManager::trigger_save(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         string   hostname, checkpoint_file;
@@ -543,41 +545,41 @@ void VirtualMachineManager::trigger_save(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            hostname,
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            checkpoint_file,
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            ds_id,
-            -1);
+                          hostname,
+                          "",
+                          vm->get_deploy_id(),
+                          "",
+                          "",
+                          checkpoint_file,
+                          "",
+                          "",
+                          "",
+                          vm->to_xml(vm_tmpl),
+                          ds_id,
+                          -1);
 
         vmd->save(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "save_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "save_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "save_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "save_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_previous_history:
-            os << "save_action, VM has no previous history";
+error_previous_history:
+        os << "save_action, VM has no previous history";
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_save_failure(vid);
+        lcm->trigger_save_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -586,7 +588,8 @@ void VirtualMachineManager::trigger_save(int vid)
 
 void VirtualMachineManager::trigger_shutdown(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         string        hostname;
@@ -636,41 +639,41 @@ void VirtualMachineManager::trigger_shutdown(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            hostname,
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            ds_id,
-            -1);
+                          hostname,
+                          "",
+                          vm->get_deploy_id(),
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          vm->to_xml(vm_tmpl),
+                          ds_id,
+                          -1);
 
         vmd->shutdown(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "shutdown_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "shutdown_action, VM has no history";
+        goto error_common;
 
-        error_previous_history:
-            os << "save_action, VM has no previous history";
-            goto error_common;
+error_previous_history:
+        os << "save_action, VM has no previous history";
+        goto error_common;
 
-        error_driver:
-            os << "shutdown_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "shutdown_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_shutdown_failure(vid);
+        lcm->trigger_shutdown_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -679,7 +682,8 @@ void VirtualMachineManager::trigger_shutdown(int vid)
 
 void VirtualMachineManager::trigger_reboot(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         string        vm_tmpl;
@@ -709,33 +713,33 @@ void VirtualMachineManager::trigger_reboot(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->reboot(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "reboot_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "reboot_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "reboot_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "reboot_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            vm->log("VMM", Log::ERROR, os);
-            return;
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -744,7 +748,8 @@ void VirtualMachineManager::trigger_reboot(int vid)
 
 void VirtualMachineManager::trigger_reset(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         string        vm_tmpl;
@@ -774,33 +779,33 @@ void VirtualMachineManager::trigger_reset(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->reset(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "reset_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "reset_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "reset_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "reset_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            vm->log("VMM", Log::ERROR, os);
-            return;
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -809,7 +814,8 @@ void VirtualMachineManager::trigger_reset(int vid)
 
 void VirtualMachineManager::trigger_cancel(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream    os;
 
         string   hostname;
@@ -859,41 +865,41 @@ void VirtualMachineManager::trigger_cancel(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            hostname,
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            ds_id,
-            -1);
+                          hostname,
+                          "",
+                          vm->get_deploy_id(),
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          vm->to_xml(vm_tmpl),
+                          ds_id,
+                          -1);
 
         vmd->cancel(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "cancel_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "cancel_action, VM has no history";
+        goto error_common;
 
-        error_previous_history:
-            os << "save_action, VM has no previous history";
-            goto error_common;
+error_previous_history:
+        os << "save_action, VM has no previous history";
+        goto error_common;
 
-        error_driver:
-            os << "cancel_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "cancel_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common://LCMAction::cancel_failure_action will check state
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common://LCMAction::cancel_failure_action will check state
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_shutdown_failure(vid);
+        lcm->trigger_shutdown_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -902,7 +908,8 @@ void VirtualMachineManager::trigger_cancel(int vid)
 
 void VirtualMachineManager::trigger_cancel_previous(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream    os;
 
         string   vm_tmpl;
@@ -933,33 +940,33 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_previous_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_previous_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->cancel(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "cancel_previous_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "cancel_previous_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "cancel_previous_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "cancel_previous_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            vm->log("VMM", Log::ERROR, os);
-            return;
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -968,7 +975,8 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
 
 void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 {
-    trigger([this, vid, cancel_previous] {
+    trigger([this, vid, cancel_previous]
+    {
         ostringstream    os;
 
         string   vm_tmpl;
@@ -1019,39 +1027,39 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            m_hostname,
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            tm_command,
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                          vm->get_hostname(),
+                          m_hostname,
+                          vm->get_deploy_id(),
+                          "",
+                          "",
+                          "",
+                          tm_command,
+                          "",
+                          "",
+                          vm->to_xml(vm_tmpl),
+                          vm->get_ds_id(),
+                          -1);
 
         vmd->cleanup(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "cleanup_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "cleanup_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "cleanup_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "cleanup_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_epligo_command:
-            os << "cleanup_action canceled";
+error_epligo_command:
+        os << "cleanup_action canceled";
 
-        error_common:
-            nd.get_lcm()->trigger_cleanup_callback(vid);
+error_common:
+        nd.get_lcm()->trigger_cleanup_callback(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1060,7 +1068,8 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 
 void VirtualMachineManager::trigger_cleanup_previous(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream    os;
 
         string   vm_tmpl;
@@ -1101,39 +1110,39 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_previous_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            tm_command,
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_previous_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                tm_command,
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->cleanup(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "cleanup_previous_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "cleanup_previous_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "cleanup_previous_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "cleanup_previous_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_epilog_command:
-            os << "cleanup_action canceled";
+error_epilog_command:
+        os << "cleanup_action canceled";
 
-        error_common:
-            nd.get_lcm()->trigger_cleanup_callback(vid);
+error_common:
+        nd.get_lcm()->trigger_cleanup_callback(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1142,7 +1151,8 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
 
 void VirtualMachineManager::trigger_migrate(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1179,41 +1189,41 @@ void VirtualMachineManager::trigger_migrate(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_previous_hostname(),
-            vm->get_hostname(),
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            os.str(),
-            "",
-            vm->get_system_dir(),
-            vm->to_xml(vm_tmpl),
-            vm->get_previous_ds_id(),
-            -1);
+                vm->get_previous_hostname(),
+                vm->get_hostname(),
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                os.str(),
+                "",
+                vm->get_system_dir(),
+                vm->to_xml(vm_tmpl),
+                vm->get_previous_ds_id(),
+                -1);
 
         vmd->migrate(vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "migrate_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "migrate_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "migrate_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "migrate_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_previous_history:
-            os << "migrate_action, error VM has no previous history";
+error_previous_history:
+        os << "migrate_action, error VM has no previous history";
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_deploy_failure(vid);
+        lcm->trigger_deploy_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1222,7 +1232,8 @@ void VirtualMachineManager::trigger_migrate(int vid)
 
 void VirtualMachineManager::trigger_restore(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1276,18 +1287,18 @@ void VirtualMachineManager::trigger_restore(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            vm->get_checkpoint_file(),
-            prolog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                vm->get_checkpoint_file(),
+                prolog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->restore(vid, drv_msg);
 
@@ -1295,24 +1306,24 @@ void VirtualMachineManager::trigger_restore(int vid)
 
         return;
 
-        error_history:
-            os << "restore_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "restore_action, VM has no history";
+        goto error_common;
 
-        error_no_tm_command:
-            os << "Cannot set context disk to update it for VM " << vm->get_oid();
-            goto error_common;
+error_no_tm_command:
+        os << "Cannot set context disk to update it for VM " << vm->get_oid();
+        goto error_common;
 
-        error_driver:
-            os << "restore_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "restore_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_deploy_failure(vid);
+        lcm->trigger_deploy_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1321,7 +1332,8 @@ void VirtualMachineManager::trigger_restore(int vid)
 
 void VirtualMachineManager::trigger_driver_cancel(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream    os;
 
         const VirtualMachineManagerDriver * vmd;
@@ -1352,16 +1364,16 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
 
         return;
 
-        error_history:
-            os << "driver_cancel_action, VM has no history";
-            goto error_common;
+error_history:
+        os << "driver_cancel_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "driver_cancel_action, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "driver_cancel_action, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            vm->log("VMM", Log::ERROR, os);
-            return;
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1370,7 +1382,8 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
 
 void VirtualMachineManager::trigger_attach(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os, error_os;
@@ -1455,50 +1468,50 @@ void VirtualMachineManager::trigger_attach(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            prolog_cmd,
-            epilog_cmd,
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                prolog_cmd,
+                epilog_cmd,
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->attach(vid, drv_msg);
 
         return;
 
-        error_disk:
-            os.str("");
-            os << "attach_action, could not find disk to attach";
-            goto error_common;
+error_disk:
+        os.str("");
+        os << "attach_action, could not find disk to attach";
+        goto error_common;
 
-        error_history:
-            os.str("");
-            os << "attach_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "attach_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "attach_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "attach_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_no_tm_command:
-            os.str("");
-            os << "Cannot set disk to attach it to VM: " << error_os.str();
-            goto error_common;
+error_no_tm_command:
+        os.str("");
+        os << "Cannot set disk to attach it to VM: " << error_os.str();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_attach_failure(vid);
+        lcm->trigger_attach_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1507,7 +1520,8 @@ void VirtualMachineManager::trigger_attach(int vid)
 
 void VirtualMachineManager::trigger_detach(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1570,45 +1584,45 @@ void VirtualMachineManager::trigger_detach(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            epilog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                epilog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->detach(vid, drv_msg);
 
         return;
 
-        error_disk:
-            os.str("");
-            os << "detach_action, could not find disk to detach";
-            goto error_common;
+error_disk:
+        os.str("");
+        os << "detach_action, could not find disk to detach";
+        goto error_common;
 
-        error_history:
-            os.str("");
-            os << "detach_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "detach_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "detach_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "detach_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_detach_failure(vid);
+        lcm->trigger_detach_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1617,7 +1631,8 @@ void VirtualMachineManager::trigger_detach(int vid)
 
 void VirtualMachineManager::trigger_snapshot_create(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1647,34 +1662,34 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
         }
 
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->snapshot_create(vid, drv_msg);
 
         return;
 
-    error_history:
+error_history:
         os.str("");
         os << "snapshot_create_action, VM has no history";
         goto error_common;
 
-    error_driver:
+error_driver:
         os.str("");
         os << "snapshot_create_action, error getting driver " << vm->get_vmm_mad();
         goto error_common;
 
-    error_common:
+error_common:
         LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
         lcm->trigger_snapshot_create_failure(vid);
@@ -1689,7 +1704,8 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
 
 void VirtualMachineManager::trigger_snapshot_revert(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1719,40 +1735,40 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
         }
 
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->snapshot_revert(vid, drv_msg);
 
         return;
 
-        error_history:
-            os.str("");
-            os << "snapshot_revert_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "snapshot_revert_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "snapshot_revert_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "snapshot_revert_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_snapshot_revert_failure(vid);
+        lcm->trigger_snapshot_revert_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1761,7 +1777,8 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
 
 void VirtualMachineManager::trigger_snapshot_delete(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1791,40 +1808,40 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
         }
 
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->snapshot_delete(vid, drv_msg);
 
         return;
 
-        error_history:
-            os.str("");
-            os << "snapshot_delete_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "snapshot_delete_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "snapshot_delete_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "snapshot_delete_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_snapshot_delete_failure(vid);
+        lcm->trigger_snapshot_delete_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1833,7 +1850,8 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
 
 void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1894,46 +1912,46 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            vm->get_checkpoint_file(),
-            snap_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                vm->get_checkpoint_file(),
+                snap_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->disk_snapshot_create(vid, drv_msg);
 
         return;
 
-        error_disk:
-            os << "disk_snapshot_create, could not find disk to take snapshot";
-            goto error_common;
+error_disk:
+        os << "disk_snapshot_create, could not find disk to take snapshot";
+        goto error_common;
 
-        error_history:
-            os << "disk_snapshot_create, VM has no history";
-            goto error_common;
+error_history:
+        os << "disk_snapshot_create, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "disk_snapshot_create, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "disk_snapshot_create, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_no_tm_command:
-            os << "Cannot set disk for snapshot.";
-            goto error_common;
+error_no_tm_command:
+        os << "Cannot set disk for snapshot.";
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_disk_snapshot_failure(vid);
+        lcm->trigger_disk_snapshot_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -1942,7 +1960,8 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 
 void VirtualMachineManager::trigger_disk_resize(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         VirtualMachineDisk * disk;
@@ -2001,46 +2020,46 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            resize_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                resize_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->disk_resize(vid, drv_msg);
 
         return;
 
-        error_disk:
-            os << "disk_snapshot_create, could not find disk to take snapshot";
-            goto error_common;
+error_disk:
+        os << "disk_snapshot_create, could not find disk to take snapshot";
+        goto error_common;
 
-        error_history:
-            os << "disk_snapshot_create, VM has no history";
-            goto error_common;
+error_history:
+        os << "disk_snapshot_create, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "disk_snapshot_create, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os << "disk_snapshot_create, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_no_tm_command:
-            os << "Cannot set disk for snapshot.";
-            goto error_common;
+error_no_tm_command:
+        os << "Cannot set disk for snapshot.";
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_disk_snapshot_failure(vid);
+        lcm->trigger_disk_snapshot_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -2049,7 +2068,8 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
 
 void VirtualMachineManager::trigger_update_conf(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream os;
 
         string  vm_tmpl;
@@ -2096,30 +2116,30 @@ void VirtualMachineManager::trigger_update_conf(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            prolog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                prolog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->update_conf(vid, drv_msg);
 
         return;
 
-        error:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_update_conf_failure(vid);
+        lcm->trigger_update_conf_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -2128,7 +2148,8 @@ void VirtualMachineManager::trigger_update_conf(int vid)
 
 void VirtualMachineManager::trigger_attach_nic(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -2183,18 +2204,18 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            prolog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                prolog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->attach_nic(vid, drv_msg);
 
@@ -2202,28 +2223,28 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "attach_nic_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "attach_nic_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "attach_nic_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "attach_nic_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_no_tm_command:
-            os.str("");
-            os << "Cannot set context disk to update it for VM " << vm->get_oid();
-            goto error_common;
+error_no_tm_command:
+        os.str("");
+        os << "Cannot set context disk to update it for VM " << vm->get_oid();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_attach_nic_failure(vid);
+        lcm->trigger_attach_nic_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -2232,7 +2253,8 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 
 void VirtualMachineManager::trigger_detach_nic(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -2286,45 +2308,45 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            prolog_cmd,
-            "",
-            disk_path,
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                prolog_cmd,
+                "",
+                disk_path,
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->detach_nic(vid, drv_msg);
 
         return;
 
-        error_history:
-            os.str("");
-            os << "detach_nic_action, VM has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "detach_nic_action, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os.str("");
-            os << "detach_nic_action, error getting driver " << vm->get_vmm_mad();
-            goto error_common;
+error_driver:
+        os.str("");
+        os << "detach_nic_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
 
-        error_no_tm_command:
-            os.str("");
-            os << "Cannot set context disk to update it for VM " << vm->get_oid();
-            goto error_common;
+error_no_tm_command:
+        os.str("");
+        os << "Cannot set context disk to update it for VM " << vm->get_oid();
+        goto error_common;
 
-        error_common:
-            LifeCycleManager *  lcm = Nebula::instance().get_lcm();
+error_common:
+        LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
-            lcm->trigger_detach_nic_failure(vid);
+        lcm->trigger_detach_nic_failure(vid);
 
-            vm->log("VMM", Log::ERROR, os);
-            return;
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -2351,18 +2373,18 @@ int VirtualMachineManager::updatesg(VirtualMachine * vm, int sgid)
 
     // Invoke driver method
     drv_msg = format_message(
-        vm->get_hostname(),
-        "",
-        vm->get_deploy_id(),
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        vm->to_xml(vm_tmpl),
-        vm->get_ds_id(),
-        sgid);
+                      vm->get_hostname(),
+                      "",
+                      vm->get_deploy_id(),
+                      "",
+                      "",
+                      "",
+                      "",
+                      "",
+                      "",
+                      vm->to_xml(vm_tmpl),
+                      vm->get_ds_id(),
+                      sgid);
 
     vmd->updatesg(vm->get_oid(), drv_msg);
 
@@ -2392,19 +2414,19 @@ int VirtualMachineManager::updatenic(VirtualMachine * vm, int vnid)
 
     // Invoke driver method
     drv_msg = format_message(
-        vm->get_hostname(),
-        "",
-        vm->get_deploy_id(),
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        vm->to_xml(vm_tmpl),
-        vm->get_ds_id(),
-        -1,
-        vnid);
+                      vm->get_hostname(),
+                      "",
+                      vm->get_deploy_id(),
+                      "",
+                      "",
+                      "",
+                      "",
+                      "",
+                      "",
+                      vm->to_xml(vm_tmpl),
+                      vm->get_ds_id(),
+                      -1,
+                      vnid);
 
     vmd->updatenic(vm->get_oid(), drv_msg);
 
@@ -2416,7 +2438,8 @@ int VirtualMachineManager::updatenic(VirtualMachine * vm, int vnid)
 
 void VirtualMachineManager::trigger_resize(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         string        vm_tmpl;
@@ -2446,33 +2469,33 @@ void VirtualMachineManager::trigger_resize(int vid)
 
         // Invoke driver method
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            vm->get_ds_id(),
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                vm->get_ds_id(),
+                -1);
 
         vmd->write_drv(VMManagerMessages::RESIZE, vid, drv_msg);
 
         return;
 
-        error_history:
-            os << "trigger_resize, VM has no history";
-            goto error_common;
+error_history:
+        os << "trigger_resize, VM has no history";
+        goto error_common;
 
-        error_driver:
-            os << "trigger_resize, error getting driver " << vm->get_vmm_mad();
+error_driver:
+        os << "trigger_resize, error getting driver " << vm->get_vmm_mad();
 
-        error_common:
-            vm->log("VMM", Log::ERROR, os);
-            return;
+error_common:
+        vm->log("VMM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -2481,7 +2504,8 @@ void VirtualMachineManager::trigger_resize(int vid)
 
 void VirtualMachineManager::trigger_backup(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os, xfr;
@@ -2528,40 +2552,40 @@ void VirtualMachineManager::trigger_backup(int vid)
         }
 
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            xfr.str(),
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            ds_backup_id,
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                xfr.str(),
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                ds_backup_id,
+                -1);
 
         vmd->backup(vid, drv_msg);
 
         return;
 
-    error_history:
+error_history:
         os.str("");
         os << "backup, VM has no history";
         goto error_common;
 
-    error_driver:
+error_driver:
         os.str("");
         os << "backup, error getting driver " << vm->get_vmm_mad();
         goto error_common;
 
-    error_ds:
+error_ds:
         os.str("");
         os << "backup, backup datastore " << ds_backup_id
            << " does not exist";
         goto error_common;
 
-    error_common:
+error_common:
         LifeCycleManager *  lcm = Nebula::instance().get_lcm();
 
         lcm->trigger_backup_failure(vid);
@@ -2576,7 +2600,8 @@ void VirtualMachineManager::trigger_backup(int vid)
 
 void VirtualMachineManager::trigger_backup_cancel(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os, xfr;
@@ -2623,40 +2648,40 @@ void VirtualMachineManager::trigger_backup_cancel(int vid)
         }
 
         drv_msg = format_message(
-            vm->get_hostname(),
-            "",
-            vm->get_deploy_id(),
-            "",
-            "",
-            "",
-            xfr.str(),
-            "",
-            "",
-            vm->to_xml(vm_tmpl),
-            ds_backup_id,
-            -1);
+                vm->get_hostname(),
+                "",
+                vm->get_deploy_id(),
+                "",
+                "",
+                "",
+                xfr.str(),
+                "",
+                "",
+                vm->to_xml(vm_tmpl),
+                ds_backup_id,
+                -1);
 
         vmd->backup_cancel(vid, drv_msg);
 
         return;
 
-    error_history:
+error_history:
         os.str("");
         os << "backup cancel, VM has no history";
         goto error_common;
 
-    error_driver:
+error_driver:
         os.str("");
         os << "backup cancel, error getting driver " << vm->get_vmm_mad();
         goto error_common;
 
-    error_ds:
+error_ds:
         os.str("");
         os << "backup cancel, backup datastore " << ds_backup_id
            << " does not exist";
         goto error_common;
 
-    error_common:
+error_common:
         vm->log("VMM", Log::ERROR, os);
         return;
     });
@@ -2708,7 +2733,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
             oss.str("");
             oss << "\tUnknown driver type: " << type;
 
-            NebulaLog::log("VMM",Log::ERROR,oss);
+            NebulaLog::log("VMM", Log::ERROR, oss);
 
             continue;
         }
@@ -2723,7 +2748,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
         oss.str("");
         oss << "\tDriver " << name << " loaded.";
 
-        NebulaLog::log("VMM",Log::INFO,oss);
+        NebulaLog::log("VMM", Log::INFO, oss);
     }
 
     return 0;

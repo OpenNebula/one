@@ -28,9 +28,9 @@ class VNTemplatePool : public PoolSQL
 {
 public:
 
-    VNTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vn_template_table){};
+    VNTemplatePool(SqlDB * db) : PoolSQL(db, one_db::vn_template_table) {};
 
-    ~VNTemplatePool(){};
+    ~VNTemplatePool() {};
 
     /**
      *  Allocates a new object, writting it in the pool database. No memory is
@@ -90,7 +90,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VNTEMPLATE_POOL", "body",
                              one_db::vn_template_table, where, sid, eid, desc);
@@ -112,7 +112,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new VNTemplate(-1,-1,-1,"","",0,0);
+        return new VNTemplate(-1, -1, -1, "", "", 0, 0);
     };
 };
 

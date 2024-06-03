@@ -27,9 +27,9 @@
 class ReplicaRequest : public SyncRequest
 {
 public:
-    ReplicaRequest(uint64_t i):_index(i), _to_commit(-1), _replicas(1){};
+    ReplicaRequest(uint64_t i):_index(i), _to_commit(-1), _replicas(1) {};
 
-    ~ReplicaRequest(){};
+    ~ReplicaRequest() {};
 
     /**
      *  This function updates the number of replicas of the record and decrement

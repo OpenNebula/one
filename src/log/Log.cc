@@ -29,7 +29,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const string Log::error_names[] ={ "E", "W", "I", "D", "DD", "DDD" };
+const string Log::error_names[] = { "E", "W", "I", "D", "DD", "DDD" };
 
 unsigned int Log::zone_id = 0;
 
@@ -39,7 +39,7 @@ unsigned int Log::zone_id = 0;
 FileLog::FileLog(const string&   file_name,
                  const MessageType   level,
                  ios_base::openmode  mode)
-        :Log(level), log_file_name(file_name)
+    :Log(level), log_file_name(file_name)
 {
     ofstream file;
 
@@ -65,9 +65,9 @@ FileLog::~FileLog() { }
 /* -------------------------------------------------------------------------- */
 
 void FileLog::log(
-    const char *            module,
-    const MessageType       type,
-    const char *            message)
+        const char *            module,
+        const MessageType       type,
+        const char *            message)
 {
     char        str[26];
     time_t      the_time;
@@ -85,9 +85,9 @@ void FileLog::log(
         the_time = time(NULL);
 
 #ifdef SOLARIS
-        ctime_r(&(the_time),str,sizeof(char)*26);
+        ctime_r(&(the_time), str, sizeof(char)*26);
 #else
-        ctime_r(&(the_time),str);
+        ctime_r(&(the_time), str);
 #endif
         // Get rid of final enter character
         str[24] = '\0';
@@ -109,7 +109,7 @@ void FileLog::log(
 /* -------------------------------------------------------------------------- */
 
 StdLog::StdLog(const MessageType level, int oid,
-       const PoolObjectSQL::ObjectType obj_type):Log(level)
+               const PoolObjectSQL::ObjectType obj_type):Log(level)
 {
     ostringstream oss;
 
@@ -120,9 +120,9 @@ StdLog::StdLog(const MessageType level, int oid,
 /* -------------------------------------------------------------------------- */
 
 void StdLog::log(
-    const char *            module,
-    const MessageType       type,
-    const char *            message)
+        const char *            module,
+        const MessageType       type,
+        const char *            message)
 {
     char        str[26];
     time_t      the_time;
@@ -140,7 +140,7 @@ void StdLog::log(
         str[24] = '\0';
 
         std::clog << str << " "
-				  << resource_label
+                  << resource_label
                   << "[Z"<< zone_id<< "]"
                   << "[" << module << "]"
                   << "[" << error_names[type] << "]: "
@@ -172,7 +172,7 @@ SysLog::SysLog(const MessageType level,
 /* -------------------------------------------------------------------------- */
 
 SysLog::SysLog(const MessageType level, int oid,
-    const PoolObjectSQL::ObjectType obj_type):Log(level)
+               const PoolObjectSQL::ObjectType obj_type):Log(level)
 {
     ostringstream oss;
 
@@ -183,9 +183,9 @@ SysLog::SysLog(const MessageType level, int oid,
 /* -------------------------------------------------------------------------- */
 
 void SysLog::log(
-    const char *            module,
-    const MessageType       type,
-    const char *            message)
+        const char *            module,
+        const MessageType       type,
+        const char *            message)
 {
     if( type <= log_level)
     {
@@ -199,7 +199,7 @@ void SysLog::log(
             ostringstream oss;
 
             oss << resource_label
-				<< "[Z"<< zone_id<< "]"
+                << "[Z"<< zone_id<< "]"
                 << "[" << module << "]"
                 << "[" << error_names[type] << "]: "
                 << line;

@@ -30,7 +30,7 @@ protected:
     RequestManagerAcl( const std::string& method_name,
                        const std::string& help,
                        const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         auth_object = PoolObjectSQL::ACL;
         auth_op     = AuthRequest::MANAGE;
@@ -39,7 +39,7 @@ protected:
         aclm        = nd.get_aclm();
     };
 
-    ~RequestManagerAcl(){};
+    ~RequestManagerAcl() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -58,7 +58,7 @@ public:
                           "A:ssss")
     {};
 
-    ~AclAddRule(){};
+    ~AclAddRule() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -76,7 +76,7 @@ public:
                           "A:si")
     {};
 
-    ~AclDelRule(){};
+    ~AclDelRule() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -94,7 +94,7 @@ public:
                           "A:s")
     {};
 
-    ~AclInfo(){};
+    ~AclInfo() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;

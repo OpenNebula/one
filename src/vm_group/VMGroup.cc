@@ -28,7 +28,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
-        int _umask, unique_ptr<Template> group_template):
+                 int _umask, unique_ptr<Template> group_template):
     PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, one_db::vm_group_table)
 {
     if (group_template)
@@ -55,7 +55,7 @@ string& VMGroup::to_xml(string& xml) const
     string lock_str;
 
     oss <<
-    "<VM_GROUP>"    <<
+        "<VM_GROUP>"    <<
         "<ID>"      << oid      << "</ID>"     <<
         "<UID>"     << uid      << "</UID>"    <<
         "<GID>"     << gid      << "</GID>"    <<
@@ -66,7 +66,7 @@ string& VMGroup::to_xml(string& xml) const
         lock_db_to_xml(lock_str)               <<
         _roles.to_xml(roles_xml)               <<
         obj_template->to_xml(template_xml)     <<
-    "</VM_GROUP>";
+        "</VM_GROUP>";
 
     xml = oss.str();
 
@@ -87,8 +87,8 @@ int VMGroup::from_xml(const string &xml_str)
     rc += xpath(oid,    "/VM_GROUP/ID",   -1);
     rc += xpath(uid,    "/VM_GROUP/UID",  -1);
     rc += xpath(gid,    "/VM_GROUP/GID",  -1);
-    rc += xpath(uname,  "/VM_GROUP/UNAME","not_found");
-    rc += xpath(gname,  "/VM_GROUP/GNAME","not_found");
+    rc += xpath(uname,  "/VM_GROUP/UNAME", "not_found");
+    rc += xpath(gname,  "/VM_GROUP/GNAME", "not_found");
     rc += xpath(name,   "/VM_GROUP/NAME", "not_found");
 
     // Permissions
@@ -261,7 +261,7 @@ int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 /* -------------------------------------------------------------------------- */
 
 int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
-        std::string& error_str)
+                       std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
 
@@ -444,7 +444,7 @@ int VMGroup::check_rule_consistency(std::string& error)
                 if ( role != 0 && role->policy() == VMGroupPolicy::ANTI_AFFINED )
                 {
                     error = "Role " + role->name() + " is in an AFFINED rule "
-                        "but the role policy is ANTI_AFFINED";
+                            "but the role policy is ANTI_AFFINED";
 
                     return -1;
                 }

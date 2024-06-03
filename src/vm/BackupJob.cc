@@ -35,11 +35,11 @@ const int BackupJob::MAX_USER_PRIO = 49;
 /* -------------------------------------------------------------------------- */
 
 BackupJob::BackupJob(int          uid,
-              int                 gid,
-              const std::string&  uname,
-              const std::string&  gname,
-              int                 umask,
-              std::unique_ptr<Template> templ)
+                     int                 gid,
+                     const std::string&  uname,
+                     const std::string&  gname,
+                     int                 umask,
+                     std::unique_ptr<Template> templ)
     : PoolObjectSQL(-1, BACKUPJOB, "", uid, gid, uname, gname, one_db::backup_job_table),
       _priority(50),
       _sched_actions("SCHED_ACTIONS"),
@@ -198,23 +198,23 @@ std::string& BackupJob::to_xml_extended(std::string& xml, bool do_sa) const
 
     oss <<
         "<BACKUPJOB>" <<
-            "<ID>"       << oid       << "</ID>"       <<
-            "<UID>"      << uid       << "</UID>"      <<
-            "<GID>"      << gid       << "</GID>"      <<
-            "<UNAME>"    << uname     << "</UNAME>"    <<
-            "<GNAME>"    << gname     << "</GNAME>"    <<
-            "<NAME>"     << name      << "</NAME>"     <<
-            lock_db_to_xml(lock_str)  <<
-            perms_to_xml(perms_xml)   <<
-            "<PRIORITY>" << _priority << "</PRIORITY>" <<
-            "<LAST_BACKUP_TIME>"     << _last_time     << "</LAST_BACKUP_TIME>" <<
-            "<LAST_BACKUP_DURATION>" << _last_duration << "</LAST_BACKUP_DURATION>" <<
-            _sched_actions.to_xml(tmp_xml) <<
-            _updated.to_xml(tmp_xml)  <<
-            _outdated.to_xml(tmp_xml) <<
-            _backing_up.to_xml(tmp_xml) <<
-            _error.to_xml(tmp_xml)    <<
-            obj_template->to_xml(template_xml, sas_xml) <<
+        "<ID>"       << oid       << "</ID>"       <<
+        "<UID>"      << uid       << "</UID>"      <<
+        "<GID>"      << gid       << "</GID>"      <<
+        "<UNAME>"    << uname     << "</UNAME>"    <<
+        "<GNAME>"    << gname     << "</GNAME>"    <<
+        "<NAME>"     << name      << "</NAME>"     <<
+        lock_db_to_xml(lock_str)  <<
+        perms_to_xml(perms_xml)   <<
+        "<PRIORITY>" << _priority << "</PRIORITY>" <<
+        "<LAST_BACKUP_TIME>"     << _last_time     << "</LAST_BACKUP_TIME>" <<
+        "<LAST_BACKUP_DURATION>" << _last_duration << "</LAST_BACKUP_DURATION>" <<
+        _sched_actions.to_xml(tmp_xml) <<
+        _updated.to_xml(tmp_xml)  <<
+        _outdated.to_xml(tmp_xml) <<
+        _backing_up.to_xml(tmp_xml) <<
+        _error.to_xml(tmp_xml)    <<
+        obj_template->to_xml(template_xml, sas_xml) <<
         "</BACKUPJOB>";
 
     xml = oss.str();
@@ -448,7 +448,8 @@ void BackupJob::get_backup_config(Template &tmpl)
     /*  - INCREMENT_MODE                                                      */
     /* ---------------------------------------------------------------------- */
     static vector<string> CONFIG_ATTRIBUTES = { "KEEP_LAST", "BACKUP_VOLATILE",
-        "FS_FREEZE", "MODE", "INCREMENT_MODE"};
+                                                "FS_FREEZE", "MODE", "INCREMENT_MODE"
+                                              };
 
     string tmp_str;
     VectorAttribute* va = new VectorAttribute("BACKUP_CONFIG");
@@ -472,7 +473,7 @@ int BackupJob::replace_template(
         bool            keep_restricted,
         string&         error)
 {
-    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
     string new_str, backup_vms;
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
@@ -498,7 +499,7 @@ int BackupJob::append_template(
         bool            keep_restricted,
         string&         error)
 {
-    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
     string new_str, backup_vms;
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
@@ -664,7 +665,7 @@ int BackupJob::parse(string& error)
 
 int BackupJob::process_backup_vms(const std::string& vms_new_str,
                                   const std::string& vms_old_str,
-                                        std::string& error)
+                                  std::string& error)
 {
     set<unsigned int> vms_old;
     set<unsigned int> vms_new;

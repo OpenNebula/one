@@ -242,8 +242,8 @@ public:
      *    @return 0 on success
      */
     int replace_template(const std::string& tmpl_str,
-                                 bool keep_restricted,
-                                 std::string& error) override;
+                         bool keep_restricted,
+                         std::string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -254,7 +254,7 @@ public:
      *    @return 0 on success
      */
     int append_template(const std::string& tmpl_str, bool keep_restricted,
-            std::string& error) override;
+                        std::string& error) override;
 
     friend class BackupJobPool;
     friend class PoolSQL;
@@ -296,7 +296,7 @@ protected:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-     int update(SqlDB * db) override;
+    int update(SqlDB * db) override;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -394,7 +394,7 @@ private:
      */
     int process_backup_vms(const std::string& vms_new_str,
                            const std::string& vms_old_str,
-                                 std::string& error);
+                           std::string& error);
 
     /**
      * Remove Backup Job ID from Virtual Machines listed in BACKUP_VMS attribute

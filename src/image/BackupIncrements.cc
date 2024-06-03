@@ -36,7 +36,7 @@ int BackupIncrements::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 
 int BackupIncrements::add_increment(const std::string& source, long long size,
-        Increment::Type type)
+                                    Increment::Type type)
 {
     VectorAttribute * va = increments.new_increment(source, size, type);
 
@@ -68,7 +68,7 @@ int BackupIncrements::last_increment_id()
 /* -------------------------------------------------------------------------- */
 
 VectorAttribute * IncrementSet::new_increment(const std::string& source, long long sz,
-        Increment::Type type)
+                                              Increment::Type type)
 {
     Increment * li = last_increment();
 

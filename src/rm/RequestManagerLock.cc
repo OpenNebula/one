@@ -119,7 +119,7 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
-                                         RequestAttributes& att)
+                                           RequestAttributes& att)
 {
     int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
 
@@ -177,7 +177,7 @@ DocumentLock::DocumentLock()
 
 DocumentUnlock::DocumentUnlock():
     RequestManagerUnlock("one.document.unlock",
-                        "Unlocks the object")
+                         "Unlocks the object")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_docpool();

@@ -35,13 +35,13 @@ class SessionToken
 {
 public:
 
-    SessionToken():expiration_time(0), token(""){};
+    SessionToken():expiration_time(0), token("") {};
 
-    virtual ~SessionToken(){};
+    virtual ~SessionToken() {};
 
-     /**
-      *  Clears the token if not valid
-      */
+    /**
+     *  Clears the token if not valid
+     */
     void reset();
 
     /**
@@ -89,9 +89,9 @@ class LoginToken: public SessionToken
 {
 public:
 
-    LoginToken():SessionToken(), egid(-1){};
+    LoginToken():SessionToken(), egid(-1) {};
 
-    virtual ~LoginToken(){};
+    virtual ~LoginToken() {};
 
     /**
      *  Check if the token is valid (same as the one provided, and not expired)
@@ -155,7 +155,7 @@ private:
 class LoginTokenPool
 {
 public:
-    LoginTokenPool(){};
+    LoginTokenPool() {};
 
     ~LoginTokenPool();
 

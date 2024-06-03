@@ -56,12 +56,12 @@ protected:
 
     // Authorize the request, do not set failure_response message
     ErrorCode vm_authorization_no_response(int id,
-                          ImageTemplate *         tmpl,
-                          VirtualMachineTemplate* vtmpl,
-                          RequestAttributes&      att,
-                          PoolObjectAuth *        host_perms,
-                          PoolObjectAuth *        ds_perm,
-                          PoolObjectAuth *        img_perm);
+                                           ImageTemplate *         tmpl,
+                                           VirtualMachineTemplate* vtmpl,
+                                           RequestAttributes&      att,
+                                           PoolObjectAuth *        host_perms,
+                                           PoolObjectAuth *        ds_perm,
+                                           PoolObjectAuth *        img_perm);
 
     // Check user and group quotas. Do not set failure_response on failure
     bool quota_resize_authorization(
@@ -70,26 +70,26 @@ protected:
             PoolObjectAuth&     vm_perms);
 
     int get_host_information(
-        int                hid,
-        std::string&       name,
-        std::string&       vmm,
-        int&               cluster_id,
-        bool&              is_public_cloud,
-        PoolObjectAuth&    host_perms,
-        RequestAttributes& att);
+            int                hid,
+            std::string&       name,
+            std::string&       vmm,
+            int&               cluster_id,
+            bool&              is_public_cloud,
+            PoolObjectAuth&    host_perms,
+            RequestAttributes& att);
 
     int get_ds_information(
-        int ds_id,
-        std::set<int>& ds_cluster_ids,
-        std::string& tm_mad,
-        RequestAttributes& att,
-        bool& ds_migr);
+            int ds_id,
+            std::set<int>& ds_cluster_ids,
+            std::string& tm_mad,
+            RequestAttributes& att,
+            bool& ds_migr);
 
     int get_default_ds_information(
-        int cluster_id,
-        int& ds_id,
-        std::string& tm_mad,
-        RequestAttributes& att);
+            int cluster_id,
+            int& ds_id,
+            std::string& tm_mad,
+            RequestAttributes& att);
 
     bool check_host(int hid,
                     bool enforce,
@@ -129,7 +129,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -150,7 +150,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -171,7 +171,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -182,8 +182,8 @@ class VirtualMachineDiskSaveas : public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskSaveas():
         RequestManagerVirtualMachine("one.vm.disksaveas",
-                           "Save a disk from virtual machine as a new image",
-                           "A:siissi")
+                                     "Save a disk from virtual machine as a new image",
+                                     "A:siissi")
     {
         vm_action = VMActions::DISK_SAVEAS_ACTION;
     }
@@ -192,7 +192,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -203,8 +203,8 @@ class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 public:
     VirtualMachineMonitoring():
         RequestManagerVirtualMachine("one.vm.monitoring",
-                "Returns the virtual machine monitoring records",
-                "A:si")
+                                     "Returns the virtual machine monitoring records",
+                                     "A:si")
     {
         auth_op   = AuthRequest::USE_NO_LCK;
         vm_action = VMActions::MONITOR_ACTION;
@@ -214,7 +214,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -225,8 +225,8 @@ class VirtualMachineAttach : public RequestManagerVirtualMachine
 public:
     VirtualMachineAttach():
         RequestManagerVirtualMachine("one.vm.attach",
-                           "Attaches a new disk to the virtual machine",
-                           "A:sis")
+                                     "Attaches a new disk to the virtual machine",
+                                     "A:sis")
     {
         vm_action = VMActions::DISK_ATTACH_ACTION;
     }
@@ -241,12 +241,12 @@ public:
      *   @return ErroCode as defined in Request
      */
     ErrorCode request_execute(int id, VirtualMachineTemplate& tl,
-        RequestAttributes& att);
+                              RequestAttributes& att);
 
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -257,8 +257,8 @@ class VirtualMachineDetach : public RequestManagerVirtualMachine
 public:
     VirtualMachineDetach():
         RequestManagerVirtualMachine("one.vm.detach",
-                           "Detaches a disk from a virtual machine",
-                           "A:sii")
+                                     "Detaches a disk from a virtual machine",
+                                     "A:sii")
     {
         vm_action = VMActions::DISK_DETACH_ACTION;
     }
@@ -267,7 +267,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -278,8 +278,8 @@ class VirtualMachineAttachNic : public RequestManagerVirtualMachine
 public:
     VirtualMachineAttachNic():
         RequestManagerVirtualMachine("one.vm.attachnic",
-                           "Attaches a new NIC to the virtual machine",
-                           "A:sis")
+                                     "Attaches a new NIC to the virtual machine",
+                                     "A:sis")
     {
         vm_action = VMActions::NIC_ATTACH_ACTION;
     }
@@ -294,11 +294,11 @@ public:
      *   @return ErroCode as defined in Request
      */
     ErrorCode request_execute(int id, VirtualMachineTemplate& tl,
-        RequestAttributes& att);
+                              RequestAttributes& att);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -309,8 +309,8 @@ class VirtualMachineDetachNic : public RequestManagerVirtualMachine
 public:
     VirtualMachineDetachNic():
         RequestManagerVirtualMachine("one.vm.detachnic",
-                           "Detaches a NIC from a virtual machine",
-                           "A:sii")
+                                     "Detaches a NIC from a virtual machine",
+                                     "A:sii")
     {
         vm_action = VMActions::NIC_DETACH_ACTION;
     }
@@ -328,7 +328,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -339,15 +339,15 @@ class VirtualMachineUpdateNic : public RequestManagerVirtualMachine
 public:
     VirtualMachineUpdateNic():
         RequestManagerVirtualMachine("one.vm.updatenic",
-                           "Update NIC attributes, propagate the changes to host",
-                           "A:siis")
+                                     "Update NIC attributes, propagate the changes to host",
+                                     "A:siis")
     {
         vm_action = VMActions::NIC_UPDATE_ACTION;
     }
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -358,8 +358,8 @@ class VirtualMachineAttachPCI : public RequestManagerVirtualMachine
 public:
     VirtualMachineAttachPCI():
         RequestManagerVirtualMachine("one.vm.attachpci",
-                           "Attaches a new PCI device to the virtual machine",
-                           "A:sis")
+                                     "Attaches a new PCI device to the virtual machine",
+                                     "A:sis")
     {
         vm_action = VMActions::PCI_ATTACH_ACTION;
     }
@@ -368,7 +368,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -379,8 +379,8 @@ class VirtualMachineDetachPCI : public RequestManagerVirtualMachine
 public:
     VirtualMachineDetachPCI():
         RequestManagerVirtualMachine("one.vm.detachpci",
-                           "Detaches a PCI from a virtual machine",
-                           "A:sii")
+                                     "Detaches a PCI from a virtual machine",
+                                     "A:sii")
     {
         vm_action = VMActions::PCI_DETACH_ACTION;
     }
@@ -389,7 +389,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -400,8 +400,8 @@ class VirtualMachineResize : public RequestManagerVirtualMachine
 public:
     VirtualMachineResize():
         RequestManagerVirtualMachine("one.vm.resize",
-                           "Changes the capacity of the virtual machine",
-                           "A:sisb")
+                                     "Changes the capacity of the virtual machine",
+                                     "A:sisb")
     {
         vm_action = VMActions::RESIZE_ACTION;
     }
@@ -410,7 +410,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -421,8 +421,8 @@ class VirtualMachineSnapshotCreate: public RequestManagerVirtualMachine
 public:
     VirtualMachineSnapshotCreate():
         RequestManagerVirtualMachine("one.vm.snapshotcreate",
-                           "Creates a new virtual machine snapshot",
-                           "A:sis")
+                                     "Creates a new virtual machine snapshot",
+                                     "A:sis")
     {
         vm_action = VMActions::SNAPSHOT_CREATE_ACTION;
     }
@@ -431,7 +431,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -442,8 +442,8 @@ class VirtualMachineSnapshotRevert: public RequestManagerVirtualMachine
 public:
     VirtualMachineSnapshotRevert():
         RequestManagerVirtualMachine("one.vm.snapshotrevert",
-                           "Reverts a virtual machine to a snapshot",
-                           "A:sii")
+                                     "Reverts a virtual machine to a snapshot",
+                                     "A:sii")
     {
         vm_action = VMActions::SNAPSHOT_REVERT_ACTION;
     }
@@ -452,7 +452,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -463,8 +463,8 @@ class VirtualMachineSnapshotDelete: public RequestManagerVirtualMachine
 public:
     VirtualMachineSnapshotDelete():
         RequestManagerVirtualMachine("one.vm.snapshotdelete",
-                           "Deletes a virtual machine snapshot",
-                           "A:sii")
+                                     "Deletes a virtual machine snapshot",
+                                     "A:sii")
     {
         vm_action = VMActions::SNAPSHOT_DELETE_ACTION;
     }
@@ -473,7 +473,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -494,7 +494,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -505,8 +505,8 @@ class VirtualMachinePoolCalculateShowback : public RequestManagerVirtualMachine
 public:
     VirtualMachinePoolCalculateShowback():
         RequestManagerVirtualMachine("one.vmpool.calculateshowback",
-            "Processes all the history records, and stores the monthly cost"
-            " for each VM", "A:sii")
+                                     "Processes all the history records, and stores the monthly cost"
+                                     " for each VM", "A:sii")
     {
         auth_object = PoolObjectSQL::VM;
     }
@@ -515,7 +515,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -526,8 +526,8 @@ class VirtualMachineDiskSnapshotCreate: public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskSnapshotCreate():
         RequestManagerVirtualMachine("one.vm.disksnapshotcreate",
-                           "Creates a new virtual machine disk snapshot",
-                           "A:siis")
+                                     "Creates a new virtual machine disk snapshot",
+                                     "A:siis")
     {
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
@@ -536,11 +536,11 @@ public:
     }
 
     ErrorCode request_execute(RequestAttributes& att, int vid, int disk_id,
-            const std::string& name);
+                              const std::string& name);
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -554,8 +554,8 @@ class VirtualMachineDiskSnapshotRevert: public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskSnapshotRevert():
         RequestManagerVirtualMachine("one.vm.disksnapshotrevert",
-                           "Reverts disk state to a snapshot",
-                           "A:siii")
+                                     "Reverts disk state to a snapshot",
+                                     "A:siii")
     {
         vm_action = VMActions::DISK_SNAPSHOT_REVERT_ACTION;
     }
@@ -564,7 +564,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -575,8 +575,8 @@ class VirtualMachineDiskSnapshotDelete: public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskSnapshotDelete():
         RequestManagerVirtualMachine("one.vm.disksnapshotdelete",
-                           "Deletes a disk snapshot",
-                           "A:siii")
+                                     "Deletes a disk snapshot",
+                                     "A:siii")
     {
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
@@ -588,7 +588,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -602,8 +602,8 @@ class VirtualMachineDiskSnapshotRename: public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskSnapshotRename():
         RequestManagerVirtualMachine("one.vm.disksnapshotrename",
-                           "Rename a disk snapshot",
-                           "A:siiis")
+                                     "Rename a disk snapshot",
+                                     "A:siiis")
     {
         vm_action = VMActions::DISK_SNAPSHOT_RENAME_ACTION;
     }
@@ -612,7 +612,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -623,8 +623,8 @@ class VirtualMachineUpdateConf: public RequestManagerVirtualMachine
 public:
     VirtualMachineUpdateConf():
         RequestManagerVirtualMachine("one.vm.updateconf",
-                           "Updates several configuration attributes of a VM",
-                           "A:sis")
+                                     "Updates several configuration attributes of a VM",
+                                     "A:sis")
     {
         vm_action = VMActions::UPDATECONF_ACTION;
     }
@@ -633,7 +633,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -644,8 +644,8 @@ class VirtualMachineDiskResize : public RequestManagerVirtualMachine
 public:
     VirtualMachineDiskResize():
         RequestManagerVirtualMachine("one.vm.diskresize",
-                           "Resizes a disk from a virtual machine",
-                           "A:siis")
+                                     "Resizes a disk from a virtual machine",
+                                     "A:siis")
     {
         Nebula& nd = Nebula::instance();
         ipool      = nd.get_ipool();
@@ -657,7 +657,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -671,15 +671,15 @@ class VirtualMachineAttachSG : public RequestManagerVirtualMachine
 public:
     VirtualMachineAttachSG():
         RequestManagerVirtualMachine("one.vm.attachsg",
-                           "Attaches a SG to the virtual machine NIC",
-                           "A:siii")
+                                     "Attaches a SG to the virtual machine NIC",
+                                     "A:siii")
     {
         vm_action  = VMActions::SG_ATTACH_ACTION;
     }
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -690,15 +690,15 @@ class VirtualMachineDetachSG : public RequestManagerVirtualMachine
 public:
     VirtualMachineDetachSG():
         RequestManagerVirtualMachine("one.vm.detachsg",
-                           "Detaches a SG form virtual machine NIC",
-                           "A:siii")
+                                     "Detaches a SG form virtual machine NIC",
+                                     "A:siii")
     {
         vm_action  = VMActions::SG_DETACH_ACTION;
     }
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -709,8 +709,8 @@ class VirtualMachineBackup : public RequestManagerVirtualMachine
 public:
     VirtualMachineBackup():
         RequestManagerVirtualMachine("one.vm.backup",
-                           "Creates a new backup image for the virtual machine",
-                           "A:siib")
+                                     "Creates a new backup image for the virtual machine",
+                                     "A:siib")
     {
         vm_action = VMActions::BACKUP_ACTION;
         auth_op   = AuthRequest::ADMIN;
@@ -723,7 +723,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -734,8 +734,8 @@ class VirtualMachineBackupCancel : public RequestManagerVirtualMachine
 public:
     VirtualMachineBackupCancel():
         RequestManagerVirtualMachine("one.vm.backupcancel",
-                           "Cancel an active backup operation",
-                           "A:si")
+                                     "Cancel an active backup operation",
+                                     "A:si")
     {
         vm_action = VMActions::BACKUP_CANCEL_ACTION;
         auth_op   = AuthRequest::ADMIN;
@@ -743,7 +743,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -754,8 +754,8 @@ class VirtualMachineRestore : public RequestManagerVirtualMachine
 public:
     VirtualMachineRestore():
         RequestManagerVirtualMachine("one.vm.restore",
-                           "Restore VM disks from backup Image",
-                           "A:siiii")
+                                     "Restore VM disks from backup Image",
+                                     "A:siiii")
     {
         vm_action = VMActions::RESTORE_ACTION;
         auth_op   = AuthRequest::ADMIN;
@@ -763,7 +763,7 @@ public:
 
 protected:
     void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& ra) override;
+                         RequestAttributes& ra) override;
 };
 
 #endif

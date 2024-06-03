@@ -31,7 +31,7 @@ protected:
     RequestManagerVMGroup(const std::string& method_name,
                           const std::string& params,
                           const std::string& help)
-        : Request(method_name,params,help)
+        : Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmgrouppool();

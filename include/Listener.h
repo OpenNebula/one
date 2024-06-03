@@ -75,14 +75,16 @@ public:
 
         end = false;
 
-        timer_thread = std::thread([&, s, timer]{
+        timer_thread = std::thread([&, s, timer]
+        {
 
             std::unique_lock<std::mutex> ul(lock);
 
             while (true)
             {
-                bool tout = cond.wait_for(ul, std::chrono::duration<double>(s), [&]{
-                        return end == true;
+                bool tout = cond.wait_for(ul, std::chrono::duration<double>(s), [&]
+                {
+                    return end == true;
                 });
 
                 if (end)
@@ -159,7 +161,8 @@ public:
      */
     void finalize()
     {
-        trigger([&] {
+        trigger([&]
+        {
             if (!name.empty())
             {
                 NebulaLog::info("Lis", "Stopping " + name);
@@ -187,7 +190,8 @@ protected:
      */
     void start()
     {
-        loop_thread = std::thread([&] {
+        loop_thread = std::thread([&]
+        {
             NebulaLog::info("Lis", name + " started.");
 
             loop();
@@ -207,7 +211,7 @@ protected:
             {
                 std::unique_lock<std::mutex> ul(lock);
 
-                cond.wait(ul, [&]{return (end || !pending.empty());});
+                cond.wait(ul, [&] {return (end || !pending.empty());});
 
                 if (end)
                 {

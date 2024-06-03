@@ -54,7 +54,7 @@ int LogDB::bootstrap(SqlDB *_db)
 int LogDBRecord::select_cb(void *nil, int num, char **values, char **names)
 {
     if ( !values || !values[0] || !values[1] || !values[2] || !values[3] ||
-            !values[4] || !values[5] || !values[6] || num != 7 )
+         !values[4] || !values[5] || !values[6] || num != 7 )
     {
         return -1;
     }
@@ -283,7 +283,7 @@ int LogDB::update_raft_state(const std::string& name, const std::string& raft_xm
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert(uint64_t index, unsigned int term, const std::string& sql,
-    time_t tstamp, uint64_t fed_index, bool replace)
+                  time_t tstamp, uint64_t fed_index, bool replace)
 {
     std::ostringstream oss;
 
@@ -395,7 +395,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 /* -------------------------------------------------------------------------- */
 
 uint64_t LogDB::insert_log_record(unsigned int term, const std::ostringstream& sql,
-        time_t timestamp, uint64_t fed_index)
+                                  time_t timestamp, uint64_t fed_index)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -443,8 +443,8 @@ uint64_t LogDB::insert_log_record(unsigned int term, const std::ostringstream& s
 /* -------------------------------------------------------------------------- */
 
 int LogDB::insert_log_record(uint64_t index, unsigned int term,
-        const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
-        bool replace)
+                             const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
+                             bool replace)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -499,12 +499,12 @@ int LogDB::_exec_wr(ostringstream& cmd, uint64_t federated)
     }
     else if ( cache )
     {
-        NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB in caching mode");
+        NebulaLog::log("DBM", Log::ERROR, "Tried to modify DB in caching mode");
         return -1;
     }
     else if ( raftm == 0 || !raftm->is_leader() )
     {
-        NebulaLog::log("DBM", Log::ERROR,"Tried to modify DB being a follower");
+        NebulaLog::log("DBM", Log::ERROR, "Tried to modify DB being a follower");
         return -1;
     }
 
@@ -751,7 +751,7 @@ int LogDB::replicate(uint64_t rindex)
     if ( !raftm->is_leader() ) // Check we are still leaders before applying
     {
         NebulaLog::log("DBM", Log::ERROR, "Not applying log record, oned is"
-                " now a follower");
+                       " now a follower");
         rc = -1;
     }
     else if ( rr.result == true ) //Record replicated on majority of followers

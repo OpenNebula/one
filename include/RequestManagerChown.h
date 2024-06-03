@@ -44,7 +44,7 @@ protected:
     RequestManagerChown(const std::string& method_name,
                         const std::string& help,
                         const std::string& params = "A:siii")
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         auth_op = AuthRequest::MANAGE;
 
@@ -53,7 +53,7 @@ protected:
         upool = nd.get_upool();
     };
 
-    ~RequestManagerChown(){};
+    ~RequestManagerChown() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -109,7 +109,7 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachineChown(){};
+    ~VirtualMachineChown() {};
 
     int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
@@ -132,7 +132,7 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateChown(){};
+    ~TemplateChown() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -150,7 +150,7 @@ public:
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
-    ~VirtualNetworkTemplateChown(){};
+    ~VirtualNetworkTemplateChown() {};
 };
 
 
@@ -163,14 +163,14 @@ class VirtualNetworkChown: public RequestManagerChown
 public:
     VirtualNetworkChown():
         RequestManagerChown("one.vn.chown",
-                           "Changes ownership of a virtual network")
+                            "Changes ownership of a virtual network")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkChown(){};
+    ~VirtualNetworkChown() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -188,7 +188,7 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageChown(){};
+    ~ImageChown() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -207,7 +207,7 @@ public:
         auth_object = PoolObjectSQL::USER;
     };
 
-    ~UserChown(){};
+    ~UserChown() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -228,14 +228,14 @@ class DatastoreChown: public RequestManagerChown
 public:
     DatastoreChown():
         RequestManagerChown("one.datastore.chown",
-                           "Changes ownership of a datastore")
+                            "Changes ownership of a datastore")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreChown(){};
+    ~DatastoreChown() {};
 
     int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
@@ -258,7 +258,7 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentChown(){};
+    ~DocumentChown() {};
 
     int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
@@ -281,7 +281,7 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupChown(){};
+    ~SecurityGroupChown() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -299,7 +299,7 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterChown(){};
+    ~VirtualRouterChown() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -317,7 +317,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceChown(){};
+    ~MarketPlaceChown() {};
 
     int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
@@ -340,7 +340,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppChown(){};
+    ~MarketPlaceAppChown() {};
 };
 
 /* -------------------------------------------------------------------------- */
@@ -358,7 +358,7 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupChown(){};
+    ~VMGroupChown() {};
 };
 
 /* -------------------------------------------------------------------------- */

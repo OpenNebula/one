@@ -34,15 +34,15 @@ class VirtualNetworkPool : public PoolSQL
 public:
 
     VirtualNetworkPool(SqlDB * db,
-            const std::string& str_mac_prefix,
-            unsigned long int default_size,
-            std::vector<const SingleAttribute *>& restricted_attrs,
-            std::vector<const SingleAttribute *>& encrypted_attrs,
-            const std::vector<const SingleAttribute *>& _inherit_attrs,
-            const VectorAttribute * vlan_conf,
-            const VectorAttribute * vxlan_conf);
+                       const std::string& str_mac_prefix,
+                       unsigned long int default_size,
+                       std::vector<const SingleAttribute *>& restricted_attrs,
+                       std::vector<const SingleAttribute *>& encrypted_attrs,
+                       const std::vector<const SingleAttribute *>& _inherit_attrs,
+                       const VectorAttribute * vlan_conf,
+                       const VectorAttribute * vxlan_conf);
 
-    ~VirtualNetworkPool(){};
+    ~VirtualNetworkPool() {};
 
     //--------------------------------------------------------------------------
     // Virtual Network DB access functions
@@ -61,16 +61,16 @@ public:
      *    @return oid on success, -1 error
      */
     int allocate (
-        int                         uid,
-        int                         gid,
-        const std::string&          uname,
-        const std::string&          gname,
-        int                         umask,
-        int                         parent_vid,
-        std::unique_ptr<VirtualNetworkTemplate> vn_template,
-        int *                       oid,
-        const std::set<int>         &cluster_ids,
-        std::string&                error_str);
+            int                         uid,
+            int                         gid,
+            const std::string&          uname,
+            const std::string&          gname,
+            int                         umask,
+            int                         parent_vid,
+            std::unique_ptr<VirtualNetworkTemplate> vn_template,
+            int *                       oid,
+            const std::set<int>         &cluster_ids,
+            std::string&                error_str);
 
     /**
      *  Updates a Virtual Network in the data base. It also updates the previous state
@@ -125,7 +125,7 @@ public:
      */
     std::unique_ptr<VirtualNetwork> get(const std::string& name, int uid)
     {
-        return PoolSQL::get<VirtualNetwork>(name,uid);
+        return PoolSQL::get<VirtualNetwork>(name, uid);
     }
 
     /**
@@ -138,7 +138,7 @@ public:
      */
     std::unique_ptr<VirtualNetwork> get_ro(const std::string& name, int uid)
     {
-        return PoolSQL::get_ro<VirtualNetwork>(name,uid);
+        return PoolSQL::get_ro<VirtualNetwork>(name, uid);
     }
 
     /**
@@ -169,10 +169,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VNET_POOL", "body", one_db::vn_table,
-                where, sid, eid, desc);
+                             where, sid, eid, desc);
     }
 
     /**
@@ -271,7 +271,7 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-            std::string& err);
+                     std::string& err);
 
     /**
      *  Reserve an address range
@@ -284,13 +284,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const std::string& ip, std::string& err);
+                           unsigned int ar_id, const std::string& ip, std::string& err);
 
     int reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const std::string& ip, std::string& err);
+                            unsigned int ar_id, const std::string& ip, std::string& err);
 
     int reserve_addr_by_mac(int pid, int rid, unsigned int rsize,
-            unsigned int ar_id, const std::string& mac, std::string& err);
+                            unsigned int ar_id, const std::string& mac, std::string& err);
 
     void delete_success(std::unique_ptr<VirtualNetwork> vn);
 
@@ -315,9 +315,9 @@ private:
      */
     const VectorAttribute vlan_conf;
 
-   /**
-    *  ID for the VLAN_BITMAP, to store it in the DB
-    */
+    /**
+     *  ID for the VLAN_BITMAP, to store it in the DB
+     */
     static const int VLAN_BITMAP_ID;
 
     /**
@@ -403,7 +403,7 @@ private:
     PoolObjectSQL * create() override
     {
         std::set <int> empty;
-        return new VirtualNetwork(-1,-1,"","",0,-1,empty,0);
+        return new VirtualNetwork(-1, -1, "", "", 0, -1, empty, 0);
     };
 };
 

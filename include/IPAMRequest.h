@@ -37,16 +37,16 @@ public:
     /* IPAM Request constructors                                              */
     /* ---------------------------------------------------------------------- */
     IPAMRequest(VectorAttribute * _ar_vattr) : IPAMRequest(_ar_vattr,
-            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+                                                               "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>") {};
 
     IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _address_xml);
 
     IPAMRequest(AddressRange * _ar) : IPAMRequest(_ar,
-            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+                                                      "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>") {};
 
     IPAMRequest(AddressRange * _ar, const std::string& _address_xml);
 
-    virtual ~IPAMRequest(){};
+    virtual ~IPAMRequest() {};
 
     /* ---------------------------------------------------------------------- */
     /* Driver message formatting and processing                               */

@@ -63,7 +63,7 @@ ExtendedAttribute * ExtendedAttributeSet::last_attribute() const
 /* -------------------------------------------------------------------------- */
 
 void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
-        std::vector<VectorAttribute *>& vas)
+                                              std::vector<VectorAttribute *>& vas)
 {
     int id;
     int auto_id = 0;

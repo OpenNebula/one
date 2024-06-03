@@ -100,7 +100,7 @@ ostream& operator<<(ostream& o, const HostShareNode& n)
 // -----------------------------------------------------------------------------
 
 HostShareNode::Core::Core(unsigned int _i, const std::string& _c,
-        unsigned int _vt, bool _d):id(_i), vms_thread(_vt), dedicated(_d)
+                          unsigned int _vt, bool _d):id(_i), vms_thread(_vt), dedicated(_d)
 {
     std::stringstream cpu_s(_c);
 
@@ -343,7 +343,7 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
         unsigned int  nr;
 
         (*vp_it)->vector_value("SIZE", size_kb);
-        (*vp_it)->vector_value("PAGES",nr);
+        (*vp_it)->vector_value("PAGES", nr);
 
         (*vp_it)->vector_value("USAGE", usage_kb);
 
@@ -371,7 +371,7 @@ int HostShareNode::from_xml_node(const xmlNodePtr &node, unsigned int _vt)
 // -----------------------------------------------------------------------------
 
 int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
-        std::string &c_s)
+                                           std::string &c_s)
 {
     std::ostringstream oss;
 
@@ -437,7 +437,7 @@ int HostShareNode::allocate_dedicated_cpus(int id, unsigned int tcpus,
 // within each core.
 // -----------------------------------------------------------------------------
 int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
-        std::string &c_s)
+                                    std::string &c_s)
 {
     std::ostringstream oss;
 
@@ -448,7 +448,7 @@ int HostShareNode::allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
         unsigned int c_to_alloc = ( core.free_cpus/tc ) * tc;
 
         for ( auto cpu = core.cpus.begin(); cpu != core.cpus.end() &&
-                c_to_alloc > 0 ; ++cpu )
+              c_to_alloc > 0 ; ++cpu )
         {
             if ( cpu->second.size() >= core.vms_thread )
             {
@@ -597,7 +597,7 @@ void HostShareNode::set_memory()
 // -----------------------------------------------------------------------------
 
 void HostShareNode::set_core(unsigned int id, std::string& cpus,
-        unsigned int vms_thread, bool dedicated, bool update)
+                             unsigned int vms_thread, bool dedicated, bool update)
 {
     if ( cores.find(id) != cores.end() )
     {
@@ -617,7 +617,7 @@ void HostShareNode::set_core(unsigned int id, std::string& cpus,
 // -----------------------------------------------------------------------------
 
 void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
-        unsigned long usage, bool update)
+                                 unsigned long usage, bool update)
 {
     auto pt = pages.find(size);
 
@@ -647,7 +647,7 @@ void HostShareNode::set_hugepage(unsigned long size, unsigned int nr,
 // -----------------------------------------------------------------------------
 
 void HostShareNode::free_capacity(unsigned int &fcpus, long long &memory,
-        unsigned int tc)
+                                  unsigned int tc)
 {
     fcpus  = 0;
     memory = total_mem - mem_usage;
@@ -659,7 +659,7 @@ void HostShareNode::free_capacity(unsigned int &fcpus, long long &memory,
 }
 
 void HostShareNode::free_dedicated_capacity(unsigned int &fcpus,
-        long long &memory)
+                                            long long &memory)
 {
     fcpus  = 0;
     memory = total_mem - mem_usage;
@@ -826,7 +826,7 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
         }
 
         (*it)->vector_value("SIZE", size);
-        (*it)->vector_value("PAGES",nr);
+        (*it)->vector_value("PAGES", nr);
 
         HostShareNode& node = get_node(node_id);
 
@@ -926,10 +926,10 @@ static bool sort_node_mem(VectorAttribute *i, VectorAttribute *j)
 // -----------------------------------------------------------------------------
 
 bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
-        bool dedicated, unsigned long hpsz_kb, std::set<unsigned int> &pci,
-        bool do_alloc)
+                                   bool dedicated, unsigned long hpsz_kb, std::set<unsigned int> &pci,
+                                   bool do_alloc)
 {
-    std::vector<std::tuple<float,int> > cpu_fits;
+    std::vector<std::tuple<float, int> > cpu_fits;
     std::set<unsigned int> mem_fits;
 
     for (auto it = nodes.begin(); it != nodes.end(); ++it)
@@ -1050,7 +1050,7 @@ bool HostShareNUMA::schedule_nodes(NUMANodeRequest &nr, unsigned int threads,
 /* -------------------------------------------------------------------------- */
 
 int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
-        unsigned long hpsz_kb, bool do_alloc)
+                                          unsigned long hpsz_kb, bool do_alloc)
 {
     unsigned long n_hp = sr.mem / hpsz_kb; //sr.mem = SUM(sr.nodes.memory)
     unsigned long node_fhp = 0;
@@ -1132,7 +1132,7 @@ int HostShareNUMA::make_hugepage_topology(HostShareCapacity &sr,
 /* -------------------------------------------------------------------------- */
 
 int HostShareNUMA::make_affined_topology(HostShareCapacity &sr, int node_id,
-        unsigned long hpsz_kb, bool do_alloc)
+                                         unsigned long hpsz_kb, bool do_alloc)
 {
     auto it = nodes.find(node_id);
 
@@ -1406,7 +1406,7 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         for (auto vn_it = vm_nodes.begin(); vn_it != vm_nodes.end(); ++vn_it)
         {
             if (!schedule_nodes(*vn_it, *tc_it, dedicated, hpsz_kb, pci_nodes,
-                        do_alloc))
+                                do_alloc))
             {
                 break; //Node cannot be allocated with *tc_it threads/core
             }
@@ -1446,12 +1446,12 @@ int HostShareNUMA::make_topology(HostShareCapacity &sr, int vm_id, bool do_alloc
         if ( dedicated )
         {
             it->second->allocate_dedicated_cpus(vm_id, (*vn_it).total_cpus,
-                    (*vn_it).cpu_ids);
+                                                (*vn_it).cpu_ids);
         }
         else
         {
             it->second->allocate_ht_cpus(vm_id, (*vn_it).total_cpus, v_t,
-                    (*vn_it).cpu_ids);
+                                         (*vn_it).cpu_ids);
         }
 
         it = nodes.find((*vn_it).mem_node_id);

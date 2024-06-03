@@ -64,11 +64,11 @@ public:
     /**
      *  Set the fields of the ACL, and updates its representation
      */
-     void set(int       _oid,
-              long long _user,
-              long long _resource,
-              long long _rights,
-              long long _zone)
+    void set(int       _oid,
+             long long _user,
+             long long _resource,
+             long long _rights,
+             long long _zone)
     {
         oid      = _oid;
         user     = _user;

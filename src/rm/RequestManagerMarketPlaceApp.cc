@@ -22,7 +22,7 @@
 /* ------------------------------------------------------------------------- */
 
 RequestManagerMarketPlaceApp::RequestManagerMarketPlaceApp(const std::string& method_name,
-    const std::string& help, const std::string& params) :
+                                                           const std::string& help, const std::string& params) :
     Request(method_name, params, help)
 {
     Nebula& nd = Nebula::instance();
@@ -36,7 +36,7 @@ RequestManagerMarketPlaceApp::RequestManagerMarketPlaceApp(const std::string& me
 /* ------------------------------------------------------------------------- */
 
 void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
-	RequestAttributes& att)
+                                           RequestAttributes& att)
 {
     int  id          = xmlrpc_c::value_int(paramList.getInt(1));
     bool enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));

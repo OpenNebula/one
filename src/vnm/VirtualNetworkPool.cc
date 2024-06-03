@@ -48,16 +48,16 @@ const int VirtualNetworkPool::VLAN_BITMAP_ID = 0;
 /* -------------------------------------------------------------------------- */
 
 VirtualNetworkPool::VirtualNetworkPool(
-    SqlDB *                             db,
-    const string&                       prefix,
-    unsigned long int                   __default_size,
-    vector<const SingleAttribute *>& restricted_attrs,
-    vector<const SingleAttribute *>& encrypted_attrs,
-    const vector<const SingleAttribute *>& _inherit_attrs,
-    const VectorAttribute *             _vlan_conf,
-    const VectorAttribute *             _vxlan_conf):
-        PoolSQL(db, one_db::vn_table), vlan_conf(_vlan_conf),
-        vxlan_conf(_vxlan_conf)
+        SqlDB *                             db,
+        const string&                       prefix,
+        unsigned long int                   __default_size,
+        vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs,
+        const vector<const SingleAttribute *>& _inherit_attrs,
+        const VectorAttribute *             _vlan_conf,
+        const VectorAttribute *             _vxlan_conf):
+    PoolSQL(db, one_db::vn_table), vlan_conf(_vlan_conf),
+    vxlan_conf(_vxlan_conf)
 {
     istringstream iss;
     size_t        pos   = 0;
@@ -78,7 +78,7 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
-        mac.replace(pos,1," ");
+        mac.replace(pos, 1, " ");
         count++;
     }
 
@@ -260,8 +260,8 @@ unique_ptr<VirtualNetwork> VirtualNetworkPool::get_nic_by_name(
 /* -------------------------------------------------------------------------- */
 
 unique_ptr<VirtualNetwork> VirtualNetworkPool::get_nic_by_id(const string& id_s,
-                                                             bool ro,
-                                                             string& error)
+        bool ro,
+        string& error)
 {
     istringstream  is;
     int            id;
@@ -497,7 +497,7 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             }
 
             rcx = set_vxlan_id(vn->get_oid(), vn->outer_vlan_id,
-                    vn->outer_vlan_id_automatic);
+                               vn->outer_vlan_id_automatic);
 
             if ( rc != 0 || rcx != 0 )
             {
@@ -688,7 +688,7 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, strin
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-        string& err)
+                                     string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 
@@ -726,7 +726,7 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsig
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize,
-        unsigned int ar_id, const string& ip, string& err)
+                                            unsigned int ar_id, const string& ip, string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 
@@ -764,7 +764,7 @@ int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
-        unsigned int ar_id, const string& ip, string& err)
+                                           unsigned int ar_id, const string& ip, string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 
@@ -802,7 +802,7 @@ int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetworkPool::reserve_addr_by_mac(int pid, int rid, unsigned int rsize, unsigned int ar_id,
-        const string& mac, string& err)
+                                            const string& mac, string& err)
 {
     AddressRange * rar = allocate_ar(rid, err);
 
@@ -861,7 +861,7 @@ void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
     if ( rc != 0 )
     {
         NebulaLog::error("IPM", "Unable to delete Virtual Network id = "
-            + to_string(oid));
+                         + to_string(oid));
         return;
     }
 
@@ -879,9 +879,9 @@ void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
             if ( rc < 0 )
             {
                 NebulaLog::error("IPM", "Unable to remove Virtual Network id="
-                    + to_string(oid)
-                    + " from cluster id=" + to_string(cluster->get_oid())
-                    + ", error: " + err);
+                                 + to_string(oid)
+                                 + " from cluster id=" + to_string(cluster->get_oid())
+                                 + ", error: " + err);
             }
         }
     }
@@ -900,8 +900,8 @@ void VirtualNetworkPool::delete_success(std::unique_ptr<VirtualNetwork> vn)
         else
         {
             NebulaLog::error("IPM", "VN " + to_string(oid) +
-                " unable to free resources from parent network id=" +
-                to_string(pvid) + ", it doesn't exists");
+                             " unable to free resources from parent network id=" +
+                             to_string(pvid) + ", it doesn't exists");
         }
 
         if (freed > 0)

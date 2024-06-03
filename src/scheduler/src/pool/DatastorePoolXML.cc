@@ -25,14 +25,14 @@ void DatastorePoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
     {
-        NebulaLog::log("DATASTORE",Log::ERROR,
+        NebulaLog::log("DATASTORE", Log::ERROR,
                        "XML Node does not represent a valid Host");
         return;
     }
 
     DatastoreXML* ds = new DatastoreXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(ds->get_oid(), ds));
+    objects.insert(pair<int, ObjectXML*>(ds->get_oid(), ds));
 }
 
 /* -------------------------------------------------------------------------- */

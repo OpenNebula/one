@@ -40,8 +40,8 @@ class UserPool : public PoolSQL
 public:
 
     UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
-        const std::vector<const SingleAttribute *>& restricted_attrs,
-        const std::vector<const SingleAttribute *>& encrypted_attrs);
+             const std::vector<const SingleAttribute *>& restricted_attrs,
+             const std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~UserPool() = default;
 
@@ -51,15 +51,15 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate(
-        int * oid,
-        const std::string& uname,
-        int   gid,
-        const std::string& password,
-        const std::string& auth,
-        bool  enabled,
-        const std::set<int>& gids,
-        const std::set<int>& agids,
-        std::string& error_str);
+            int * oid,
+            const std::string& uname,
+            int   gid,
+            const std::string& password,
+            const std::string& auth,
+            bool  enabled,
+            const std::set<int>& gids,
+            const std::set<int>& agids,
+            std::string& error_str);
 
     /**
      *  Drops the object's data in the data base. The object mutex SHOULD be
@@ -117,7 +117,7 @@ public:
     std::unique_ptr<User> get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        auto u = PoolSQL::get<User>(name,-1);
+        auto u = PoolSQL::get<User>(name, -1);
 
         if (u)
         {
@@ -318,7 +318,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
+        return new User(-1, -1, "", "", "", UserPool::CORE_AUTH, true);
     };
 };
 

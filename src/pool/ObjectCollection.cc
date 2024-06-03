@@ -25,35 +25,35 @@ using namespace std;
 
 int ObjectCollection::from_xml_node(const xmlNodePtr node)
 {
-   istringstream iss;
-   int           id;
-   int           rc = 0;
-   ostringstream oss;
+    istringstream iss;
+    int           id;
+    int           rc = 0;
+    ostringstream oss;
 
-   vector<string> ids;
+    vector<string> ids;
 
-   ObjectXML oxml(node);
+    ObjectXML oxml(node);
 
-   oss << "/" << collection_name << "/ID";
+    oss << "/" << collection_name << "/ID";
 
-   oxml.xpaths(ids, oss.str().c_str());
+    oxml.xpaths(ids, oss.str().c_str());
 
-   for (auto id_str : ids)
-   {
-       iss.clear();
-       iss.str(id_str);
-       iss >> dec >> id;
+    for (auto id_str : ids)
+    {
+        iss.clear();
+        iss.str(id_str);
+        iss >> dec >> id;
 
-       if ( iss.fail() )
-       {
-           rc = -1;
-           break;
-       }
-       else
-       {
-           collection_set.insert(id);
-       }
-   }
+        if ( iss.fail() )
+        {
+            rc = -1;
+            break;
+        }
+        else
+        {
+            collection_set.insert(id);
+        }
+    }
 
     return rc;
 };
@@ -206,8 +206,8 @@ ObjectCollection& ObjectCollection::operator-=(const ObjectCollection& r)
     std::set<int> diff;
 
     std::set_difference(collection_set.cbegin(), collection_set.cend(),
-            r.collection_set.cbegin(), r.collection_set.cend(),
-            std::inserter(diff, diff.end()));
+                        r.collection_set.cbegin(), r.collection_set.cend(),
+                        std::inserter(diff, diff.end()));
 
     collection_set.swap(diff);
 
@@ -219,7 +219,7 @@ ObjectCollection& ObjectCollection::operator-=(const std::set<int>& r)
     std::set<int> diff;
 
     std::set_difference(collection_set.cbegin(), collection_set.cend(),
-            r.cbegin(), r.cend(), std::inserter(diff, diff.end()));
+                        r.cbegin(), r.cend(), std::inserter(diff, diff.end()));
 
     collection_set.swap(diff);
 

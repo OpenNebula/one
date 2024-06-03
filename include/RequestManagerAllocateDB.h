@@ -26,12 +26,12 @@ class RequestManagerAllocateDB: public Request
 {
 protected:
     RequestManagerAllocateDB(const std::string& name): Request(name, "A:ss",
-            "Allocates a new object from its template representation")
+                                                                   "Allocates a new object from its template representation")
     {
         auth_op = AuthRequest::MANAGE;
     };
 
-    ~RequestManagerAllocateDB(){};
+    ~RequestManagerAllocateDB() {};
 
     virtual PoolObjectSQL * create(const std::string& xml) = 0;
 
@@ -75,7 +75,7 @@ public:
         pool        =  Nebula::instance().get_apppool();
     };
 
-    ~MarketPlaceAppAllocateDB(){};
+    ~MarketPlaceAppAllocateDB() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -101,7 +101,7 @@ public:
         pool        =  Nebula::instance().get_marketpool();
     };
 
-    ~MarketPlaceAllocateDB(){};
+    ~MarketPlaceAllocateDB() {};
 
     /* -------------------------------------------------------------------- */
 

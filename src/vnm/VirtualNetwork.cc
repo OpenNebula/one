@@ -45,19 +45,19 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _pvid,
                                const set<int>           &_cluster_ids,
                                unique_ptr<VirtualNetworkTemplate> _vn_template):
-            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,one_db::vn_table),
-            Clusterable(_cluster_ids),
-            state(LOCK_CREATE),
-            prev_state(INIT),
-            bridge(""),
-            vlan_id_automatic(false),
-            outer_vlan_id_automatic(false),
-            parent_vid(_pvid),
-            vrouters("VROUTERS"),
-            updated("UPDATED_VMS"),
-            outdated("OUTDATED_VMS"),
-            updating("UPDATING_VMS"),
-            error("ERROR_VMS")
+    PoolObjectSQL(-1, NET, "", _uid, _gid, _uname, _gname, one_db::vn_table),
+    Clusterable(_cluster_ids),
+    state(LOCK_CREATE),
+    prev_state(INIT),
+    bridge(""),
+    vlan_id_automatic(false),
+    outer_vlan_id_automatic(false),
+    parent_vid(_pvid),
+    vrouters("VROUTERS"),
+    updated("UPDATED_VMS"),
+    outdated("OUTDATED_VMS"),
+    updating("UPDATING_VMS"),
+    error("ERROR_VMS")
 {
     if (_vn_template)
     {
@@ -89,7 +89,7 @@ void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
 /* -------------------------------------------------------------------------- */
 
 void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
-        string& id, bool& auto_id)
+                                   string& id, bool& auto_id)
 {
     string vis;
 
@@ -218,7 +218,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         obj_template->add("TEMPLATE_ID", value);
     }
 
-    obj_template->get("NAME",name);
+    obj_template->get("NAME", name);
     obj_template->erase("NAME");
 
     obj_template->get("TEMPLATE_NAME", prefix);
@@ -268,12 +268,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("PHYDEV", phydev);
 
-    erase_template_attribute("BRIDGE",bridge);
+    erase_template_attribute("BRIDGE", bridge);
 
     parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
 
     parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
-            outer_vlan_id_automatic);
+                  outer_vlan_id_automatic);
 
     // -------------------------------------------------------------------------
     // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
@@ -419,7 +419,7 @@ int VirtualNetwork::post_update_template(string& error)
         remove_template_attribute("OUTER_VLAN_ID");
     }
 
-    erase_template_attribute("BRIDGE",new_bridge);
+    erase_template_attribute("BRIDGE", new_bridge);
 
     if (!new_bridge.empty())
     {
@@ -463,7 +463,8 @@ int VirtualNetwork::post_update_template(string& error)
 
 void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
 {
-    static const set<string> UPDATE_ATTRIBUTES = {
+    static const set<string> UPDATE_ATTRIBUTES =
+    {
         "PHYDEV",
         "MTU",
         "VLAN_ID",
@@ -487,7 +488,8 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
     VectorAttribute* update_attr = new VectorAttribute("VNET_UPDATE");
 
     // Detect new and modified attributes
-    new_tmpl->each_attribute([&](const Attribute* att){
+    new_tmpl->each_attribute([&](const Attribute* att)
+    {
         if ( att->type() == Attribute::SIMPLE )
         {
             const SingleAttribute* sa = static_cast<const SingleAttribute*>(att);
@@ -496,7 +498,7 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
 
             if ( UPDATE_ATTRIBUTES.count(sa->name()) == 1
                  && (!obj_template->get(sa->name(), old_value)
-                 || sa->value() != old_value))
+                     || sa->value() != old_value))
             {
                 update_attr->replace(sa->name(), old_value);
             }
@@ -506,7 +508,8 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
     if (removed)
     {
         // Detect removed attributes
-        obj_template->each_attribute([&](const Attribute* att){
+        obj_template->each_attribute([&](const Attribute* att)
+        {
             if ( att->type() == Attribute::SIMPLE )
             {
                 const SingleAttribute* sa = static_cast<const SingleAttribute*>(att);
@@ -514,8 +517,8 @@ void VirtualNetwork::set_updated_attributes(Template* new_tmpl, bool removed)
                 string new_value;
 
                 if ( UPDATE_ATTRIBUTES.count(sa->name()) == 1
-                    && !new_tmpl->get(sa->name(), new_value)
-                    && !sa->value().empty())
+                     && !new_tmpl->get(sa->name(), new_value)
+                     && !sa->value().empty())
                 {
                     update_attr->replace(sa->name(), sa->value());
                 }
@@ -647,7 +650,7 @@ string& VirtualNetwork::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
-        const vector<int>& vnets, const vector<int>& vrs) const
+                                        const vector<int>& vnets, const vector<int>& vrs) const
 {
     return to_xml_extended(xml, true, vms, vnets, vrs);
 }
@@ -656,8 +659,8 @@ string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
 /* -------------------------------------------------------------------------- */
 
 string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
-    const vector<int>& vms, const vector<int>& vnets,
-    const vector<int>& vrs) const
+                                        const vector<int>& vms, const vector<int>& vnets,
+                                        const vector<int>& vrs) const
 {
     ostringstream   os;
 
@@ -673,20 +676,20 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
     int int_outer_vlan_id_automatic = outer_vlan_id_automatic ? 1 : 0;
 
     os <<
-        "<VNET>" <<
-            "<ID>"     << oid      << "</ID>"    <<
-            "<UID>"    << uid      << "</UID>"   <<
-            "<GID>"    << gid      << "</GID>"   <<
-            "<UNAME>"  << uname    << "</UNAME>" <<
-            "<GNAME>"  << gname    << "</GNAME>" <<
-            "<NAME>"   << name     << "</NAME>"  <<
-            lock_db_to_xml(lock_str) <<
-            perms_to_xml(perm_str) <<
-            Clusterable::to_xml(clusters_xml)    <<
-            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
-            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>"
-            "<STATE>" << one_util::escape_xml(state) << "</STATE>"
-            "<PREV_STATE>" << one_util::escape_xml(prev_state) << "</PREV_STATE>";
+       "<VNET>" <<
+       "<ID>"     << oid      << "</ID>"    <<
+       "<UID>"    << uid      << "</UID>"   <<
+       "<GID>"    << gid      << "</GID>"   <<
+       "<UNAME>"  << uname    << "</UNAME>" <<
+       "<GNAME>"  << gname    << "</GNAME>" <<
+       "<NAME>"   << name     << "</NAME>"  <<
+       lock_db_to_xml(lock_str) <<
+       perms_to_xml(perm_str) <<
+       Clusterable::to_xml(clusters_xml)    <<
+       "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
+       "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>"
+       "<STATE>" << one_util::escape_xml(state) << "</STATE>"
+       "<PREV_STATE>" << one_util::escape_xml(prev_state) << "</PREV_STATE>";
 
     if (parent_vid != -1)
     {
@@ -799,7 +802,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(uname,  "/VNET/UNAME", "not_found");
     rc += xpath(gname,  "/VNET/GNAME", "not_found");
     rc += xpath(name,   "/VNET/NAME",  "not_found");
-    rc += xpath(bridge, "/VNET/BRIDGE","not_found");
+    rc += xpath(bridge, "/VNET/BRIDGE", "not_found");
     rc += xpath(int_state, "/VNET/STATE", 0);
 
     state = static_cast<VirtualNetworkState>(int_state);
@@ -823,7 +826,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     xpath(int_vlan_id_automatic, "/VNET/VLAN_ID_AUTOMATIC", 0);
     xpath(int_outer_vlan_id_automatic, "/VNET/OUTER_VLAN_ID_AUTOMATIC", 0);
 
-    xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
+    xpath(parent_vid, "/VNET/PARENT_NETWORK_ID", -1);
 
     vlan_id_automatic = int_vlan_id_automatic;
     outer_vlan_id_automatic = int_outer_vlan_id_automatic;
@@ -884,7 +887,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::nic_update(VirtualMachineNic *nic,
-        unique_ptr<VectorAttribute>& update_attr) const
+                               unique_ptr<VectorAttribute>& update_attr) const
 {
     //--------------------------------------------------------------------------
     //  Set updated values from the Virtual Network to NIC
@@ -1028,22 +1031,22 @@ int VirtualNetwork::nic_attribute(
     else if (ip_ne == 1)
     {
         rc = allocate_by_ip(PoolObjectSQL::VM, vid, ip, nic->vector_attribute(),
-                inherit_attrs);
+                            inherit_attrs);
     }
     else if (ip6_ne == 1)
     {
         rc = allocate_by_ip6(PoolObjectSQL::VM, vid, ip6, nic->vector_attribute(),
-                inherit_attrs);
+                             inherit_attrs);
     }
     else if (mac_ne == 1)
     {
-        rc = allocate_by_mac(PoolObjectSQL::VM, vid,mac,nic->vector_attribute(),
-                inherit_attrs);
+        rc = allocate_by_mac(PoolObjectSQL::VM, vid, mac, nic->vector_attribute(),
+                             inherit_attrs);
     }
     else
     {
         rc = allocate_addr(PoolObjectSQL::VM, vid, nic->vector_attribute(),
-                inherit_attrs);
+                           inherit_attrs);
     }
 
     for (const auto& inherit : inherit_attrs)
@@ -1092,7 +1095,7 @@ int VirtualNetwork::nic_attribute(
     }
 
     nic->replace("SECURITY_GROUPS",
-        one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
+                 one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
 
     updated.add(vid);
 
@@ -1140,22 +1143,22 @@ int VirtualNetwork::vrouter_nic_attribute(
         if (ip_ne == 1)
         {
             rc = allocate_by_ip(PoolObjectSQL::VROUTER, vrid, ip,
-                    nic->vector_attribute(), inherit_attrs);
+                                nic->vector_attribute(), inherit_attrs);
         }
         else if (ip6_ne == 1)
         {
             rc = allocate_by_ip6(PoolObjectSQL::VROUTER, vrid, ip6,
-                    nic->vector_attribute(), inherit_attrs);
+                                 nic->vector_attribute(), inherit_attrs);
         }
         else if (mac_ne == 1)
         {
             rc = allocate_by_mac(PoolObjectSQL::VROUTER, vrid, mac,
-                    nic->vector_attribute(), inherit_attrs);
+                                 nic->vector_attribute(), inherit_attrs);
         }
         else
         {
             rc = allocate_addr(PoolObjectSQL::VROUTER, vrid,
-                    nic->vector_attribute(), inherit_attrs);
+                               nic->vector_attribute(), inherit_attrs);
         }
     }
 
@@ -1259,7 +1262,7 @@ int VirtualNetwork::update_ar(
     keep_restricted = keep_restricted && is_reservation();
 
     auto rc = ar_pool.update_ar(tmp_ars, keep_restricted, update_ids,
-                    update_attr, error_msg);
+                                update_attr, error_msg);
 
     if (rc == 0 && !update_attr->empty())
     {
@@ -1458,7 +1461,7 @@ int VirtualNetwork::replace_template(const std::string& tmpl_str,
     {
         // This code should be unreachable
         error = "Trying to update uninitialized Virtual Network id="
-            + to_string(get_oid());
+                + to_string(get_oid());
         return -1;
     }
 
@@ -1474,7 +1477,7 @@ int VirtualNetwork::replace_template(const std::string& tmpl_str,
     }
 
     if ( keep_restricted &&
-            new_tmpl->check_restricted(ra, obj_template.get(), false) )
+         new_tmpl->check_restricted(ra, obj_template.get(), false) )
     {
         error = "Tried to change restricted attribute: " + ra;
 
@@ -1508,7 +1511,7 @@ int VirtualNetwork::append_template(
     {
         // This code should be unreachable
         error = "Trying to update uninitialized Virtual Network id="
-            + to_string(get_oid());
+                + to_string(get_oid());
         return -1;
     }
 
@@ -1548,7 +1551,7 @@ int VirtualNetwork::append_template(
 /* -------------------------------------------------------------------------- */
 
 void VirtualNetwork::get_template_attribute(const string& name,
-    string& value, int ar_id) const
+                                            string& value, int ar_id) const
 {
     ar_pool.get_attribute(name, value, ar_id);
 
@@ -1562,7 +1565,7 @@ void VirtualNetwork::get_template_attribute(const string& name,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::get_template_attribute(const string& name, int& value,
-    int ar_id) const
+                                           int ar_id) const
 {
     int rc = ar_pool.get_attribute(name, value, ar_id);
 
@@ -1581,7 +1584,7 @@ int VirtualNetwork::get_template_attribute(const string& name, int& value,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, AddressRange *rar,
-    string& error_str)
+                                 string& error_str)
 {
     if (ar_pool.reserve_addr(rid, rsize, rar) != 0)
     {
@@ -1597,7 +1600,7 @@ int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, AddressRange *rar,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, unsigned int ar_id,
-        AddressRange *rar, string& error_str)
+                                 AddressRange *rar, string& error_str)
 {
     if (ar_pool.reserve_addr(rid, rsize, ar_id, rar) != 0)
     {
@@ -1618,7 +1621,7 @@ int VirtualNetwork::reserve_addr(int rid, unsigned int rsize, unsigned int ar_id
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::reserve_addr_by_ip(int rid, unsigned int rsize,
-        unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
+                                       unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
 {
     if (ar_pool.reserve_addr_by_ip(rid, rsize, ar_id, ip, rar)!=0)
     {
@@ -1639,7 +1642,7 @@ int VirtualNetwork::reserve_addr_by_ip(int rid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::reserve_addr_by_ip6(int rid, unsigned int rsize,
-        unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
+                                        unsigned int ar_id, const string& ip, AddressRange *rar, string& error_str)
 {
     if (ar_pool.reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar)!=0)
     {
@@ -1660,7 +1663,7 @@ int VirtualNetwork::reserve_addr_by_ip6(int rid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::reserve_addr_by_mac(int rid, unsigned int rsize,
-        unsigned int ar_id, const string& mac, AddressRange *rar, string& error_str)
+                                        unsigned int ar_id, const string& mac, AddressRange *rar, string& error_str)
 {
     if (ar_pool.reserve_addr_by_mac(rid, rsize, ar_id, mac, rar)!=0)
     {

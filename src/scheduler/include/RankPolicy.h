@@ -25,9 +25,9 @@ class RankPolicy : public SchedulerPolicy
 public:
 
     RankPolicy(PoolXML * _pool, const std::string&  dr, float  w = 1.0):
-            SchedulerPolicy(w), default_rank(dr), pool(_pool) {};
+        SchedulerPolicy(w), default_rank(dr), pool(_pool) {};
 
-    virtual ~RankPolicy(){};
+    virtual ~RankPolicy() {};
 
 protected:
 
@@ -67,12 +67,12 @@ private:
 
         if (srank.empty())
         {
-            priority.resize(resources.size(),0);
+            priority.resize(resources.size(), 0);
             return;
         }
 
         NebulaLog::log("RANK", Log::DDEBUG, "Rank evaluation for expression : "
-                + srank);
+                       + srank);
 
         for (unsigned int i=0; i<resources.size(); rank=0, i++)
         {
@@ -99,7 +99,7 @@ private:
                     free(errmsg);
                 }
 
-                NebulaLog::log("RANK",Log::ERROR,oss);
+                NebulaLog::log("RANK", Log::ERROR, oss);
             }
 
             if (NebulaLog::log_level() >= Log::DDEBUG)
@@ -122,9 +122,9 @@ class RankHostPolicy : public RankPolicy
 public:
 
     RankHostPolicy(HostPoolXML * pool, const std::string&  dr, float  w = 1.0):
-            RankPolicy(pool, dr, w){};
+        RankPolicy(pool, dr, w) {};
 
-    ~RankHostPolicy(){};
+    ~RankHostPolicy() {};
 
 private:
 
@@ -153,10 +153,10 @@ class RankDatastorePolicy : public RankPolicy
 {
 public:
 
-    RankDatastorePolicy(DatastorePoolXML * pool, const std::string&  dr,float w=1.0):
-            RankPolicy(pool, dr, w){};
+    RankDatastorePolicy(DatastorePoolXML * pool, const std::string&  dr, float w=1.0):
+        RankPolicy(pool, dr, w) {};
 
-    ~RankDatastorePolicy(){};
+    ~RankDatastorePolicy() {};
 
 private:
 
@@ -184,10 +184,10 @@ class RankNetworkPolicy : public RankPolicy
 {
 public:
 
-    RankNetworkPolicy(VirtualNetworkPoolXML * pool, const std::string&  dr,float w=1.0):
-            RankPolicy(pool, dr, w){};
+    RankNetworkPolicy(VirtualNetworkPoolXML * pool, const std::string&  dr, float w=1.0):
+        RankPolicy(pool, dr, w) {};
 
-    ~RankNetworkPolicy(){};
+    ~RankNetworkPolicy() {};
 
 private:
 

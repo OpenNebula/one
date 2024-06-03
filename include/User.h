@@ -66,10 +66,10 @@ public:
      *  Check if the user is enabled
      *    @return true if the user is enabled
      */
-     bool isEnabled() const
-     {
+    bool isEnabled() const
+    {
         return enabled;
-     }
+    }
 
     /**
      *  Returns user password
@@ -384,7 +384,7 @@ protected:
          const std::string& _password,
          const std::string& _auth_driver,
          bool               _enabled):
-        PoolObjectSQL(id,USER,_uname,-1,_gid,"",_gname,one_db::user_table),
+        PoolObjectSQL(id, USER, _uname, -1, _gid, "", _gname, one_db::user_table),
         quota(),
         password(_password),
         auth_driver(_auth_driver),

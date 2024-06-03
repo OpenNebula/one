@@ -36,7 +36,7 @@
 class Increment : public ExtendedAttribute
 {
 public:
-    Increment(VectorAttribute *va, int id): ExtendedAttribute(va, id){};
+    Increment(VectorAttribute *va, int id): ExtendedAttribute(va, id) {};
 
     ~Increment() = default;
 
@@ -90,7 +90,7 @@ public:
             case FULL:
                 replace("TYPE", "FULL");
                 break;
-            case INCREMENT: 
+            case INCREMENT:
                 replace("TYPE", "INCREMENT");
                 break;
         }
@@ -121,7 +121,7 @@ public:
 class IncrementSet : public ExtendedAttributeSet
 {
 public:
-    IncrementSet(): ExtendedAttributeSet(false){};
+    IncrementSet(): ExtendedAttributeSet(false) {};
 
     ~IncrementSet() = default;
 
@@ -146,7 +146,7 @@ public:
      *  @return Pointer to the new attribute
      */
     VectorAttribute * new_increment(const std::string& source, long long sz,
-            Increment::Type type);
+                                    Increment::Type type);
 
     Increment * last_increment()
     {
@@ -182,10 +182,10 @@ public:
     class IncIterator : public AttributeIterator
     {
     public:
-        IncIterator():AttributeIterator(){};
-        IncIterator(const AttributeIterator& dit):AttributeIterator(dit){};
+        IncIterator():AttributeIterator() {};
+        IncIterator(const AttributeIterator& dit):AttributeIterator(dit) {};
 
-        virtual ~IncIterator(){};
+        virtual ~IncIterator() {};
 
         Increment * operator*() const
         {
@@ -229,7 +229,7 @@ private:
 class BackupIncrements
 {
 public:
-    BackupIncrements():_template(false,'=',"BACKUP_INCREMENTS"){};
+    BackupIncrements():_template(false, '=', "BACKUP_INCREMENTS") {};
 
     ~BackupIncrements() = default;
 

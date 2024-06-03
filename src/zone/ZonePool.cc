@@ -67,8 +67,8 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
         // Build the local zone
         auto tmpl = make_unique<Template>();
         rc = tmpl->parse_str_or_xml(
-                zone_tmpl.str(),
-                error_str);
+                     zone_tmpl.str(),
+                     error_str);
 
         if( rc < 0 )
         {
@@ -92,7 +92,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
 error_bootstrap:
     ostringstream oss;
     oss << "Error trying to create local zone: " << error_str;
-    NebulaLog::log("ZONE",Log::ERROR,oss);
+    NebulaLog::log("ZONE", Log::ERROR, oss);
 
     throw runtime_error(oss.str());
 }
@@ -114,9 +114,9 @@ int ZonePool::allocate(
 
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "ZonePool::allocate called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "ZonePool::allocate called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -163,9 +163,9 @@ int ZonePool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "ZonePool::update called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "ZonePool::update called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -180,9 +180,9 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "ZonePool::drop called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "ZonePool::drop called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -204,7 +204,7 @@ int ZonePool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 unsigned int ZonePool::get_zone_servers(int zone_id,
-        std::map<int, std::string>& _serv)
+                                        std::map<int, std::string>& _serv)
 {
     unsigned int _num_servers;
 

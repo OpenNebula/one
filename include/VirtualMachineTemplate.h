@@ -28,17 +28,17 @@
 class VirtualMachineTemplate : public Template
 {
 public:
-    VirtualMachineTemplate():Template(false,'=',"TEMPLATE"){};
+    VirtualMachineTemplate():Template(false, '=', "TEMPLATE") {};
 
     VirtualMachineTemplate(
             bool _replace_mode,
             const char   _separator,
             const char * _xml_root):
-        Template(_replace_mode, _separator, _xml_root){};
+        Template(_replace_mode, _separator, _xml_root) {};
 
-    ~VirtualMachineTemplate(){};
+    ~VirtualMachineTemplate() {};
 
-    VirtualMachineTemplate(const Template& vmt):Template(vmt){};
+    VirtualMachineTemplate(const Template& vmt):Template(vmt) {};
 
     VirtualMachineTemplate(const VirtualMachineTemplate& t) = default;
 
@@ -78,7 +78,7 @@ public:
     // -------------------------------------------------------------------------
     // UpdateConf attributes
     // -------------------------------------------------------------------------
-    static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
+    static std::map<std::string, std::vector<std::string>> UPDATECONF_ATTRS;
 
     /**
      *  Returns a new template that contains only the attribues vaild in an

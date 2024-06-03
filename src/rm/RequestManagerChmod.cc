@@ -48,10 +48,10 @@ void RequestManagerChmod::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     ErrorCode ec = chmod(pool, oid,
-                        owner_u, owner_m, owner_a,
-                        group_u, group_m, group_a,
-                        other_u, other_m, other_a,
-                        recursive, att);
+                         owner_u, owner_m, owner_a,
+                         group_u, group_m, group_a,
+                         other_u, other_m, other_a,
+                         recursive, att);
 
     if ( ec == SUCCESS )
     {
@@ -159,7 +159,7 @@ Request::ErrorCode RequestManagerChmod::chmod(
     }
 
     int rc = object->set_permissions(owner_u, owner_m, owner_a, group_u,
-                    group_m, group_a, other_u, other_m, other_a, att.resp_msg);
+                                     group_m, group_a, other_u, other_m, other_a, att.resp_msg);
 
     if ( rc != 0 )
     {
@@ -191,10 +191,10 @@ Request::ErrorCode TemplateChmod::chmod(
 
 {
     ErrorCode ec = RequestManagerChmod::chmod(pool, oid,
-            owner_u, owner_m, owner_a,
-            group_u, group_m, group_a,
-            other_u, other_m, other_a,
-            false, att);
+                                              owner_u, owner_m, owner_a,
+                                              group_u, group_m, group_a,
+                                              other_u, other_m, other_a,
+                                              false, att);
 
     if ( ec != SUCCESS )
     {
@@ -235,7 +235,7 @@ Request::ErrorCode TemplateChmod::chmod(
     for (auto img_id : img_ids)
     {
         ec = img_chmod.request_execute(ipool, img_id, owner_u, owner_m, owner_a,
-                group_u, group_m, group_a, other_u, other_m, other_a, att);
+                                       group_u, group_m, group_a, other_u, other_m, other_a, att);
 
         if ( ec != SUCCESS )
         {
@@ -248,7 +248,7 @@ Request::ErrorCode TemplateChmod::chmod(
     if ( !error_ids.empty() )
     {
         att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
-            ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
+                       ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
 
         return ACTION;
     }
@@ -260,7 +260,7 @@ Request::ErrorCode TemplateChmod::chmod(
 /* -------------------------------------------------------------------------- */
 
 void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
-                                          RequestAttributes& att)
+                                         RequestAttributes& att)
 {
     int oid     = xmlrpc_c::value_int(paramList.getInt(1));
 
@@ -296,10 +296,10 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     ErrorCode ec = chmod(vrpool, oid,
-                        owner_u, owner_m, owner_a,
-                        group_u, group_m, group_a,
-                        other_u, other_m, other_a,
-                        recursive, att);
+                         owner_u, owner_m, owner_a,
+                         group_u, group_m, group_a,
+                         other_u, other_m, other_a,
+                         recursive, att);
 
     if ( ec != SUCCESS )
     {
@@ -310,10 +310,10 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
     for (auto vm_id : vms)
     {
         ErrorCode ec_aux = chmod(pool, vm_id,
-                        owner_u, owner_m, owner_a,
-                        group_u, group_m, group_a,
-                        other_u, other_m, other_a,
-                        recursive, att);
+                                 owner_u, owner_m, owner_a,
+                                 group_u, group_m, group_a,
+                                 other_u, other_m, other_a,
+                                 recursive, att);
 
         if ( ec_aux != SUCCESS )
         {

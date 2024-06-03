@@ -70,11 +70,11 @@ ClusterPool::ClusterPool(SqlDB * db,
         }
 
         add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
-                DatastorePool::SYSTEM_DS_ID, error_str);
+                       DatastorePool::SYSTEM_DS_ID, error_str);
         add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
-                DatastorePool::DEFAULT_DS_ID, error_str);
+                       DatastorePool::DEFAULT_DS_ID, error_str);
         add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
-                DatastorePool::FILE_DS_ID, error_str);
+                       DatastorePool::FILE_DS_ID, error_str);
 
         // User created clusters will start from ID 100
         set_lastOID(99);
@@ -88,7 +88,7 @@ ClusterPool::ClusterPool(SqlDB * db,
 error_bootstrap:
     oss.str("");
     oss << "Error trying to create default cluster: " << error_str;
-    NebulaLog::log("CLUSTER",Log::ERROR,oss);
+    NebulaLog::log("CLUSTER", Log::ERROR, oss);
 
     throw runtime_error(oss.str());
 }
@@ -176,7 +176,7 @@ int ClusterPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 void ClusterPool::cluster_acl_filter(ostringstream& filter,
-        PoolObjectSQL::ObjectType auth_object, const vector<int>& cids)
+                                     PoolObjectSQL::ObjectType auth_object, const vector<int>& cids)
 {
     if ( cids.empty() )
     {
@@ -273,7 +273,7 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 /* -------------------------------------------------------------------------- */
 
 int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
-                                          int resource_id, string& error_msg)
+                                int resource_id, string& error_msg)
 {
     string table, names;
 
@@ -330,7 +330,7 @@ int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster
 /* -------------------------------------------------------------------------- */
 
 int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
-                                          int resource_id, string& error_msg)
+                                  int resource_id, string& error_msg)
 {
     string table;
 

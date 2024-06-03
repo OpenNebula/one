@@ -19,8 +19,8 @@
 using namespace std;
 
 void GroupSetQuota::
-    request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+request_execute(xmlrpc_c::paramList const& paramList,
+                RequestAttributes& att)
 {
     int     id        = xmlrpc_c::value_int(paramList.getInt(1));
     string  quota_str = xmlrpc_c::value_string(paramList.getString(2));
@@ -95,7 +95,7 @@ void GroupEditAdmin::request_execute(
     // -------------------------------------------------------------------------
 
     rc = get_info(pool, group_id, PoolObjectSQL::GROUP,
-                    att, group_perms, group_name, true);
+                  att, group_perms, group_name, true);
 
     if ( rc == -1 )
     {
@@ -103,7 +103,7 @@ void GroupEditAdmin::request_execute(
     }
 
     rc = get_info(upool, user_id, PoolObjectSQL::USER, att, user_perms,
-                    user_name, false);
+                  user_name, false);
 
     if ( rc == -1 )
     {

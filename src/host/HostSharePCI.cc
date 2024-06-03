@@ -110,7 +110,7 @@ bool HostSharePCI::test_by_name(const VectorAttribute *device, std::set<string>&
 
     int vendor_rc = get_pci_value("VENDOR", device, vendor_id);
     int device_rc = get_pci_value("DEVICE", device, device_id);
-    int class_rc  = get_pci_value("CLASS" , device, class_id);
+    int class_rc  = get_pci_value("CLASS", device, class_id);
 
     if (vendor_rc <= 0 && device_rc <= 0 && class_rc <= 0)
     {
@@ -157,7 +157,7 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
         if (short_addr.empty() ||
             get_pci_value("VENDOR", device, vendor_id) > 0 ||
             get_pci_value("DEVICE", device, device_id) > 0 ||
-            get_pci_value("CLASS" , device, class_id) > 0)
+            get_pci_value("CLASS", device, class_id) > 0)
         {
             continue;
         }
@@ -194,10 +194,11 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 /*  Function to assign host PCI devices to a VM                               */
 /* -------------------------------------------------------------------------- */
 void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
-        bool set_prev)
+                                 bool set_prev)
 {
     static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
-        "ADDRESS", "SHORT_ADDRESS"};
+                                     "ADDRESS", "SHORT_ADDRESS"
+                                    };
 
     static vector<string> cp_check_attr = {"NUMA_NODE", "UUID"};
 
@@ -237,7 +238,7 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
 /* -------------------------------------------------------------------------- */
 
 bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr,
-        int vmid)
+                               int vmid)
 {
     for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
     {
@@ -273,7 +274,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
 
     int vendor_rc = get_pci_value("VENDOR", device, vendor_id);
     int device_rc = get_pci_value("DEVICE", device, device_id);
-    int class_rc  = get_pci_value("CLASS" , device, class_id);
+    int class_rc  = get_pci_value("CLASS", device, class_id);
 
     if (vendor_rc <= 0 && device_rc <= 0 && class_rc <= 0)
     {
@@ -316,7 +317,7 @@ bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
         if (short_addr.empty() ||
             get_pci_value("VENDOR", device, vendor_id) > 0 ||
             get_pci_value("DEVICE", device, device_id) > 0 ||
-            get_pci_value("CLASS" , device, class_id) > 0)
+            get_pci_value("CLASS", device, class_id) > 0)
         {
             continue;
         }
@@ -357,7 +358,7 @@ void HostSharePCI::del(const vector<VectorAttribute *> &devs, int vmid)
         if (pci_it != pci_devices.end() && pci_it->second->vmid == vmid)
         {
             pci_it->second->vmid = -1;
-            pci_it->second->attrs->replace("VMID",-1);
+            pci_it->second->attrs->replace("VMID", -1);
 
             device->remove("PREV_ADDRESS");
 
@@ -369,7 +370,7 @@ void HostSharePCI::del(const vector<VectorAttribute *> &devs, int vmid)
         if (pci_it != pci_devices.end() && pci_it->second->vmid == vmid)
         {
             pci_it->second->vmid = -1;
-            pci_it->second->attrs->replace("VMID",-1);
+            pci_it->second->attrs->replace("VMID", -1);
 
             // Clean address from VM as it's not using it anymore
             device->remove("ADDRESS");
@@ -487,7 +488,7 @@ void HostSharePCI::clear()
 /* ------------------------------------------------------------------------*/
 
 int HostSharePCI::get_pci_value(const char * name,
-    const VectorAttribute * pci_device, unsigned int &pci_value)
+                                const VectorAttribute * pci_device, unsigned int &pci_value)
 {
     const string& temp = pci_device->vector_value(name);
 
@@ -513,7 +514,7 @@ int HostSharePCI::get_pci_value(const char * name,
 /* ------------------------------------------------------------------------*/
 
 int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
-        const string& dbus, bool bus_index, bool clean)
+                                  const string& dbus, bool bus_index, bool clean)
 {
     string        bus;
     ostringstream oss;
@@ -522,7 +523,8 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
 
     // ------------------- Remove well-known attributes -----------------------
     static vector<string> rm_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
-        "ADDRESS", "PREV_ADDRESS", "NUMA_NODE", "UUID"};
+                                     "ADDRESS", "PREV_ADDRESS", "NUMA_NODE", "UUID"
+                                    };
 
     if (clean)
     {
@@ -598,7 +600,7 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
 
     get_pci_value("VENDOR", attrs, vendor_id);
     get_pci_value("DEVICE", attrs, device_id);
-    get_pci_value("CLASS" , attrs, class_id);
+    get_pci_value("CLASS", attrs, class_id);
 
     if (attrs->vector_value("VMID", vmid) == -1)
     {

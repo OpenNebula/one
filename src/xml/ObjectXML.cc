@@ -69,7 +69,7 @@ ObjectXML::ObjectXML(const xmlNodePtr node)
         throw("Unable to create new XPath context");
     }
 
-    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+    xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
 
     if (root_node == 0)
     {
@@ -192,7 +192,7 @@ int ObjectXML::xpath(string& value, const char * xpath_expr, const char * def)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
+int ObjectXML::xpath_value(string& value, const char *doc, const char *the_xpath)
 {
     try
     {
@@ -220,12 +220,12 @@ int ObjectXML::xpath_value(string& value,const char *doc,const char *the_xpath)
 /* -------------------------------------------------------------------------- */
 
 int ObjectXML::get_nodes(const string& xpath_expr,
-        std::vector<xmlNodePtr>& content) const
+                         std::vector<xmlNodePtr>& content) const
 {
     xmlXPathObjectPtr obj;
 
     obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
+                  reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
 
     if (obj == 0)
     {
@@ -245,7 +245,7 @@ int ObjectXML::get_nodes(const string& xpath_expr,
 
     for(int i = 0; i < size; ++i)
     {
-        cur = xmlCopyNode(ns->nodeTab[i],1);
+        cur = xmlCopyNode(ns->nodeTab[i], 1);
 
         if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
         {
@@ -268,7 +268,7 @@ int ObjectXML::get_nodes(const string& xpath_expr,
 int ObjectXML::count_nodes(const string& xpath_expr) const
 {
     xmlXPathObjectPtr obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
+                                    reinterpret_cast<const xmlChar *>(xpath_expr.c_str()), ctx);
 
     if (obj == 0)
     {
@@ -299,7 +299,7 @@ int ObjectXML::add_node(
     xmlXPathObjectPtr obj;
 
     obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+                  reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
 
     if (obj == 0 || obj->nodesetval == 0)
     {
@@ -403,7 +403,7 @@ int ObjectXML::update_from_node(const xmlNodePtr node)
         return -1;
     }
 
-    xmlNodePtr root_node = xmlDocCopyNode(node,xml,1);
+    xmlNodePtr root_node = xmlDocCopyNode(node, xml, 1);
 
     if (root_node == 0)
     {
@@ -423,7 +423,7 @@ int ObjectXML::update_from_node(const xmlNodePtr node)
 int ObjectXML::validate_xml(const string &xml_doc)
 {
     xmlDocPtr tmp_xml = 0;
-    tmp_xml = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+    tmp_xml = xmlParseMemory (xml_doc.c_str(), xml_doc.length());
 
     if (tmp_xml == 0)
     {
@@ -440,7 +440,7 @@ int ObjectXML::validate_xml(const string &xml_doc)
 
 void ObjectXML::xml_parse(const string &xml_doc)
 {
-    xml = xmlReadMemory (xml_doc.c_str(),xml_doc.length(),0,0,XML_PARSE_HUGE);
+    xml = xmlReadMemory (xml_doc.c_str(), xml_doc.length(), 0, 0, XML_PARSE_HUGE);
 
     if (xml == 0)
     {
@@ -464,7 +464,7 @@ int ObjectXML::rename_nodes(const char * xpath_expr, const char * new_name)
     xmlXPathObjectPtr obj;
 
     obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+                  reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
 
     if (obj == 0 || obj->nodesetval == 0)
     {
@@ -500,7 +500,7 @@ int ObjectXML::rename_nodes(const char * xpath_expr, const char * new_name)
 int ObjectXML::remove_nodes(const char * xpath_expr)
 {
     xmlXPathObjectPtr obj = xmlXPathEvalExpression(
-        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+                                    reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
 
     if (obj == 0 || obj->nodesetval == 0)
     {
@@ -617,7 +617,7 @@ int ObjectXML::validate_rng(const std::string &xml_doc, const string& schema_pat
     xmlRelaxNGValidCtxtPtr validctxt;
     xmlRelaxNGParserCtxtPtr rngparser;
 
-    doc = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+    doc = xmlParseMemory (xml_doc.c_str(), xml_doc.length());
 
     if (doc == 0)
     {

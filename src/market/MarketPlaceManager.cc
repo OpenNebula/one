@@ -29,13 +29,13 @@ const char * MarketPlaceManager::market_driver_name = "market_exe";
 /* -------------------------------------------------------------------------- */
 
 MarketPlaceManager::MarketPlaceManager(
-            time_t _timer_period,
-            time_t _monitor_period,
-            const string& _mad_location)
+        time_t _timer_period,
+        time_t _monitor_period,
+        const string& _mad_location)
     : DriverManager(_mad_location)
-    , timer_thread(_timer_period, [this](){timer_action();})
-    , timer_period(_timer_period)
-    , monitor_period(_monitor_period)
+    , timer_thread(_timer_period, [this]() {timer_action();})
+, timer_period(_timer_period)
+, monitor_period(_monitor_period)
 {
     Nebula& nd = Nebula::instance();
 
@@ -52,7 +52,7 @@ int MarketPlaceManager::load_drivers(const std::vector<const VectorAttribute*>& 
 {
     const VectorAttribute * vattr = nullptr;
 
-    NebulaLog::log("MKP", Log::INFO,"Loading Marketplace Manager driver.");
+    NebulaLog::log("MKP", Log::INFO, "Loading Marketplace Manager driver.");
 
     if ( _mads.size() > 0 )
     {
@@ -61,7 +61,7 @@ int MarketPlaceManager::load_drivers(const std::vector<const VectorAttribute*>& 
 
     if ( vattr == nullptr )
     {
-        NebulaLog::log("MKP", Log::INFO,"Failed to load Marketplace Manager driver.");
+        NebulaLog::log("MKP", Log::INFO, "Failed to load Marketplace Manager driver.");
         return -1;
     }
 
@@ -98,22 +98,22 @@ int MarketPlaceManager::start()
 {
     using namespace std::placeholders; // for _1
 
-    NebulaLog::log("MKP",Log::INFO,"Starting Marketplace Manager...");
+    NebulaLog::log("MKP", Log::INFO, "Starting Marketplace Manager...");
 
     register_action(MarketPlaceManagerMessages::UNDEFINED,
-            &MarketPlaceManager::_undefined);
+                    &MarketPlaceManager::_undefined);
 
     register_action(MarketPlaceManagerMessages::IMPORT,
-            bind(&MarketPlaceManager::_import, this, _1));
+                    bind(&MarketPlaceManager::_import, this, _1));
 
     register_action(MarketPlaceManagerMessages::DELETE,
-            bind(&MarketPlaceManager::_delete, this, _1));
+                    bind(&MarketPlaceManager::_delete, this, _1));
 
     register_action(MarketPlaceManagerMessages::MONITOR,
-            bind(&MarketPlaceManager::_monitor, this, _1));
+                    bind(&MarketPlaceManager::_monitor, this, _1));
 
     register_action(MarketPlaceManagerMessages::LOG,
-            &MarketPlaceManager::_log);
+                    &MarketPlaceManager::_log);
 
     string error;
 
@@ -130,9 +130,9 @@ int MarketPlaceManager::start()
 /* -------------------------------------------------------------------------- */
 
 string MarketPlaceManager::format_message(
-    const string& app_data,
-    const string& market_data,
-    const string& extra_data)
+        const string& app_data,
+        const string& market_data,
+        const string& extra_data)
 {
     ostringstream oss;
 
@@ -161,7 +161,7 @@ void MarketPlaceManager::timer_action()
 
     if ( mark >= 600 )
     {
-        NebulaLog::log("MKP",Log::INFO,"--Mark--");
+        NebulaLog::log("MKP", Log::INFO, "--Mark--");
         mark = 0;
     }
 
@@ -223,7 +223,7 @@ void MarketPlaceManager::monitor_market(int mp_id)
         if ( !mp->is_action_supported(MarketPlaceApp::MONITOR) )
         {
             NebulaLog::log("MKP", Log::DEBUG, "Monitoring disabled for market: " +
-                    mp_name);
+                           mp_name);
 
             return;
         }

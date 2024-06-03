@@ -55,10 +55,10 @@ PostgreSqlDB::PostgreSqlDB(const string& _server,
 
     // Set up connection parameters
     string params = "host=" + _server
-                  + " port=" + to_string(port)
-                  + " user=" + user
-                  + " password=" + password
-                  + " dbname=" + database;
+                    + " port=" + to_string(port)
+                    + " user=" + user
+                    + " password=" + password
+                    + " dbname=" + database;
 
     // Create connection pool
     for (int i = 0; i < max_connections; i++)
@@ -88,7 +88,8 @@ PostgreSqlDB::PostgreSqlDB(const string& _server,
         throw runtime_error(error);
     }
 
-    features = {
+    features =
+    {
         {SqlFeature::MULTIPLE_VALUE, PQlibVersion() > 80200},
         {SqlFeature::LIMIT, false},
         {SqlFeature::FTS, false},
@@ -263,7 +264,7 @@ PGconn * PostgreSqlDB::get_db_connection()
 
     unique_lock<mutex> lock(_mutex);
 
-    cond.wait(lock, [&]{ return !db_connect.empty(); });
+    cond.wait(lock, [&] { return !db_connect.empty(); });
 
     conn = db_connect.front();
     db_connect.pop();
@@ -286,7 +287,7 @@ void PostgreSqlDB::free_db_connection(PGconn * db)
 /* -------------------------------------------------------------------------- */
 
 static void replace_substring(std::string& cmd, const std::string& s1,
-        const std::string& s2)
+                              const std::string& s2)
 {
     size_t pos = cmd.find(s1);
 

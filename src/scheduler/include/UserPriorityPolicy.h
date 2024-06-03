@@ -31,9 +31,9 @@ class UserPriorityPolicy : public SchedulerPolicy
 public:
 
     UserPriorityPolicy(VirtualMachinePoolXML * _pool, float  w = 1.0):
-            SchedulerPolicy(w), vm_pool(_pool) {};
+        SchedulerPolicy(w), vm_pool(_pool) {};
 
-    virtual ~UserPriorityPolicy(){};
+    virtual ~UserPriorityPolicy() {};
 
 protected:
     /**

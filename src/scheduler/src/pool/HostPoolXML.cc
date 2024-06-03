@@ -45,7 +45,7 @@ int HostPoolXML::set_up()
             oss << "Discovered " << objects.size() << " enabled hosts.";
         }
 
-        NebulaLog::log("HOST",Log::DEBUG,oss);
+        NebulaLog::log("HOST", Log::DEBUG, oss);
     }
 
     return rc;
@@ -58,7 +58,7 @@ void HostPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
     {
-        NebulaLog::log("HOST",Log::ERROR,
+        NebulaLog::log("HOST", Log::ERROR,
                        "XML Node does not represent a valid Host");
 
         return;
@@ -66,7 +66,7 @@ void HostPoolXML::add_object(xmlNodePtr node)
 
     HostXML* host = new HostXML( node );
 
-    objects.insert( pair<int,ObjectXML*>(host->get_hid(), host) );
+    objects.insert( pair<int, ObjectXML*>(host->get_hid(), host) );
 }
 
 /* -------------------------------------------------------------------------- */

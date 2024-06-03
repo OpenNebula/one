@@ -33,11 +33,11 @@ Cluster::Cluster(
         const string& name,
         std::unique_ptr<ClusterTemplate>  cl_template,
         const VectorAttribute& vnc_conf):
-            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",one_db::cluster_table),
-            hosts("HOSTS"),
-            datastores("DATASTORES"),
-            vnets("VNETS"),
-            vnc_bitmap(vnc_conf, id, one_db::cluster_bitmap_table)
+    PoolObjectSQL(id, CLUSTER, name, -1, -1, "", "", one_db::cluster_table),
+    hosts("HOSTS"),
+    datastores("DATASTORES"),
+    vnets("VNETS"),
+    vnc_bitmap(vnc_conf, id, one_db::cluster_bitmap_table)
 {
     if (cl_template)
     {
@@ -240,14 +240,14 @@ string& Cluster::to_xml(string& xml) const
     string          template_xml;
 
     oss <<
-    "<CLUSTER>"  <<
+        "<CLUSTER>"  <<
         "<ID>"          << oid          << "</ID>"          <<
         "<NAME>"        << name         << "</NAME>"        <<
         hosts.to_xml(host_collection_xml)    <<
         datastores.to_xml(ds_collection_xml) <<
         vnets.to_xml(vnet_collection_xml)    <<
         obj_template->to_xml(template_xml)   <<
-    "</CLUSTER>";
+        "</CLUSTER>";
 
     xml = oss.str();
 
@@ -270,7 +270,7 @@ int Cluster::from_xml(const string& xml)
     rc += xpath(name,       "/CLUSTER/NAME",        "not_found");
 
     // Set oneadmin as the owner
-    set_user(0,"");
+    set_user(0, "");
 
     // Set the Cluster ID as the cluster it belongs to
     set_group(oid, name);

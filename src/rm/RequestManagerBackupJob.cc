@@ -124,7 +124,7 @@ void BackupJobCancel::request_execute(xmlrpc_c::paramList const& _paramList,
 /* -------------------------------------------------------------------------- */
 
 void BackupJobRetry::request_execute(xmlrpc_c::paramList const& _paramList,
-                                      RequestAttributes& att)
+                                     RequestAttributes& att)
 {
     int  bj_id = _paramList.getInt(1);
 

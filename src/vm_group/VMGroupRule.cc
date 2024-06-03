@@ -26,7 +26,7 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VMGroupRule::compatible(rule_set& affined, rule_set& anti,VMGroupRule& err)
+bool VMGroupRule::compatible(rule_set& affined, rule_set& anti, VMGroupRule& err)
 {
     VMGroupRule ta, taa;
 

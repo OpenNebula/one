@@ -26,7 +26,7 @@ class GroupPool : public PoolSQL
 public:
 
     GroupPool(SqlDB * db, bool is_federation_slave,
-        const std::vector<const SingleAttribute *>& restricted_attrs);
+              const std::vector<const SingleAttribute *>& restricted_attrs);
 
     ~GroupPool() = default;
 
@@ -172,7 +172,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Group(-1,"");
+        return new Group(-1, "");
     };
 };
 

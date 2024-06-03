@@ -25,7 +25,7 @@ using namespace std;
 
 int DispatchManager::start()
 {
-    NebulaLog::log("DiM",Log::INFO,"Starting Dispatch Manager...");
+    NebulaLog::log("DiM", Log::INFO, "Starting Dispatch Manager...");
 
     Listener::start();
 

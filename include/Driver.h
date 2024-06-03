@@ -190,7 +190,7 @@ private:
 
 template<typename MSG>
 void Driver<MSG>
-    ::stop_driver(int secs)
+::stop_driver(int secs)
 {
     if ( pid == -1 )
     {
@@ -230,7 +230,7 @@ void Driver<MSG>
 
 template<typename MSG>
 int Driver<MSG>
-    ::start_driver(std::string& error)
+::start_driver(std::string& error)
 {
     // Open communication pipes
     int to_drv_pipe[2];
@@ -249,35 +249,35 @@ int Driver<MSG>
 
     switch (pid)
     {
-    case -1: // Error
-        error = "Error forking to start driver, ";
-        error.append(strerror(errno));
-        return -1;
-
-    case 0:  // Child process (driver)
-        close(to_drv_pipe[1]);
-        close(from_drv_pipe[0]);
-
-        if ( dup2(to_drv_pipe[0], 0) != 0 || dup2(from_drv_pipe[1], 1) != 1 )
-        {
-            error = "Error setting communication pipes, ";
+        case -1: // Error
+            error = "Error forking to start driver, ";
             error.append(strerror(errno));
             return -1;
-        }
 
-        close(to_drv_pipe[0]);
-        close(from_drv_pipe[1]);
+        case 0:  // Child process (driver)
+            close(to_drv_pipe[1]);
+            close(from_drv_pipe[0]);
 
-        close(2);
+            if ( dup2(to_drv_pipe[0], 0) != 0 || dup2(from_drv_pipe[1], 1) != 1 )
+            {
+                error = "Error setting communication pipes, ";
+                error.append(strerror(errno));
+                return -1;
+            }
 
-        execlp(cmd.c_str(), cmd.c_str(), arg.c_str(), (char*)NULL);
+            close(to_drv_pipe[0]);
+            close(from_drv_pipe[1]);
 
-        error = "Error starting driver, ";
-        error.append(strerror(errno));
-        return -1;
+            close(2);
 
-    default:
-        break;
+            execlp(cmd.c_str(), cmd.c_str(), arg.c_str(), (char*)NULL);
+
+            error = "Error starting driver, ";
+            error.append(strerror(errno));
+            return -1;
+
+        default:
+            break;
     }
 
     // Parent process (daemon)
@@ -337,11 +337,12 @@ int Driver<MSG>
 
 template<typename MSG>
 void Driver<MSG>
-    ::start_listener()
+::start_listener()
 {
     streamer.fd(from_drv);
 
-    stream_thr = std::thread([this](){
+    stream_thr = std::thread([this]()
+    {
         while(streamer.action_loop(concurrency) == -1 && !terminate.load())
         {
             std::string error;

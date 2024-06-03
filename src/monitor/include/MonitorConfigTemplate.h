@@ -26,7 +26,7 @@ public:
     explicit MonitorConfigTemplate(const std::string& etc,
                                    const std::string& filename):
         NebulaTemplate(etc, filename.c_str(), "MONITOR_CONFIGURATION")
-        {};
+    {};
 
     ~MonitorConfigTemplate() = default;
 

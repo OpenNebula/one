@@ -29,8 +29,8 @@ string& QuotasSQL::to_xml_db(string& xml) const
     ostringstream oss;
 
     oss << "<QUOTAS>"
-            << "<ID>" << oid << "</ID>"
-            << Quotas::to_xml(xml)
+        << "<ID>" << oid << "</ID>"
+        << Quotas::to_xml(xml)
         << "</QUOTAS>";
 
     xml = oss.str();
@@ -66,7 +66,7 @@ int QuotasSQL::select(SqlDB * db)
     oss << "SELECT body FROM " << table()
         << " WHERE " << table_oid_column() << " = " << oid;
 
-    rc = db->exec_rd(oss,this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 

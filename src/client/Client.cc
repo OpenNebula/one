@@ -35,7 +35,7 @@ Client * Client::_client = 0;
 /* -------------------------------------------------------------------------- */
 
 Client::Client(const string& secret, const string& endpoint,
-    size_t message_size, unsigned int tout)
+               size_t message_size, unsigned int tout)
 {
     string error;
     char * xmlrpc_env;
@@ -136,7 +136,7 @@ int Client::read_oneauth(string &secret, string& error_msg)
 /* -------------------------------------------------------------------------- */
 
 void Client::call(const std::string &method, const std::string &format,
-    xmlrpc_c::value * const result, ...)
+                  xmlrpc_c::value * const result, ...)
 {
     va_list args;
     va_start(args, result);
@@ -179,7 +179,7 @@ void Client::call(const std::string &method, const std::string &format,
 
             case 'I':
                 vval = static_cast<std::set<int> *>(va_arg(args,
-                    std::set<int> *));
+                                                           std::set<int> *));
 
                 for (auto it = vval->begin(); it != vval->end(); ++it)
                 {
@@ -191,7 +191,7 @@ void Client::call(const std::string &method, const std::string &format,
 
             default:
                 break;
-         }
+        }
     }
 
     va_end(args);
@@ -203,10 +203,10 @@ void Client::call(const std::string &method, const std::string &format,
 /* -------------------------------------------------------------------------- */
 
 void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
-     xmlrpc_c::value * const result)
+                  xmlrpc_c::value * const result)
 {
     xmlrpc_c::clientXmlTransport_curl ctrans(
-        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout));
+            xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(timeout));
 
     xmlrpc_c::carriageParm_curl0 cparam(one_endpoint);
 
@@ -233,8 +233,8 @@ void Client::call(const std::string& method, const xmlrpc_c::paramList& plist,
 /* -------------------------------------------------------------------------- */
 
 int Client::call(const std::string& endpoint, const std::string& method,
-        const xmlrpc_c::paramList& plist, unsigned int _timeout,
-        xmlrpc_c::value * const result, std::string& error)
+                 const xmlrpc_c::paramList& plist, unsigned int _timeout,
+                 xmlrpc_c::value * const result, std::string& error)
 {
 // Transport timeouts are not reliably implemented, interrupt flag and async
 // client performs better.
@@ -291,7 +291,7 @@ int Client::call(const std::string& endpoint, const std::string& method,
     }
     catch (exception const& e)
     {
-		error  = e.what();
+        error  = e.what();
         xml_rc = -1;
     }
 

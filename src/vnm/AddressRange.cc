@@ -161,7 +161,7 @@ int AddressRange::init_ipv6_static(string& error_msg)
     if ( attr->vector_value("SIZE").empty() )
     {
         unsigned long int s = pl <= 64 ? std::numeric_limits<unsigned long int>::max()
-            : 1UL << (128 - pl);
+                              : 1UL << (128 - pl);
 
         // The IP range doesn't have to start from ::0 address. The user may want to skip
         // few addresses. In this case we have to reduce the size, as the last address
@@ -369,7 +369,7 @@ int AddressRange::update_attributes(
     if (is_reservation)
     {
         vup->replace("PARENT_NETWORK_AR_ID",
-                attr->vector_value("PARENT_NETWORK_AR_ID"));
+                     attr->vector_value("PARENT_NETWORK_AR_ID"));
     }
 
     /* ------ Remove non-persistent attributes, generated in to_xml() ------ */
@@ -473,7 +473,7 @@ int AddressRange::update_attributes(
         if (it != allocated.end())
         {
             error_msg = "New SIZE cannot be applied. There are used leases"
-                    " that would fall outside the range.";
+                        " that would fall outside the range.";
 
             return -1;
         }
@@ -518,7 +518,7 @@ int AddressRange::update_attributes(
         string oldValue;
         if ( inherited_attrs.count(it.first) > 0
              && (attr->vector_value(it.first, oldValue) < 0
-             || it.second != oldValue))
+                 || it.second != oldValue))
         {
             update_attr->replace(it.first, oldValue);
         }
@@ -529,7 +529,7 @@ int AddressRange::update_attributes(
     {
         string newValue;
         if ( (inherited_attrs.count(it.first) > 0)
-              && (vup->vector_value(it.first, newValue) < 0) )
+             && (vup->vector_value(it.first, newValue) < 0) )
         {
             update_attr->replace(it.first, it.second);
         }
@@ -611,7 +611,7 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
-        ostringstream& oss) const
+                               ostringstream& oss) const
 {
     unsigned int new_mac[2];
     string       ip6_s;
@@ -659,7 +659,7 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 
 void AddressRange::to_xml(ostringstream &oss) const
 {
-    const map<string,string>& ar_attrs = attr->value();
+    const map<string, string>& ar_attrs = attr->value();
 
     unsigned int mac_end[2];
 
@@ -744,9 +744,9 @@ void AddressRange::to_xml(ostringstream &oss) const
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
-        const vector<int>& vns, const vector<int>& vrs) const
+                          const vector<int>& vns, const vector<int>& vrs) const
 {
-    const map<string,string>&          ar_attrs = attr->value();
+    const map<string, string>&          ar_attrs = attr->value();
 
     int          rc;
     unsigned int mac_end[2];
@@ -851,7 +851,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             {
                 int vmid = it->second & 0x00000000FFFFFFFFLL;
 
-                if (all_vms || (find(vms.begin(),vms.end(),vmid) != vms.end()))
+                if (all_vms || (find(vms.begin(), vms.end(), vmid) != vms.end()))
                 {
                     lease.replace("VM", vmid);
                     is_in = true;
@@ -861,7 +861,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             {
                 int vnid = it->second & 0x00000000FFFFFFFFLL;
 
-                if (all_vns || (find(vns.begin(),vns.end(),vnid) != vns.end()))
+                if (all_vns || (find(vns.begin(), vns.end(), vnid) != vns.end()))
                 {
                     lease.replace("VNET", vnid);
                     is_in = true;
@@ -871,7 +871,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             {
                 int oid = it->second & 0x00000000FFFFFFFFLL;
 
-                if (all_vrs || (find(vrs.begin(),vrs.end(),oid) != vrs.end()))
+                if (all_vrs || (find(vrs.begin(), vrs.end(), oid) != vrs.end()))
                 {
                     lease.replace("VROUTER", oid);
                     is_in = true;
@@ -925,7 +925,7 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
 
     while ( (pos = mac.find(':')) !=  string::npos )
     {
-        mac.replace(pos,1," ");
+        mac.replace(pos, 1, " ");
         count++;
     }
 
@@ -943,7 +943,7 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[])
     i_mac[1] <<= 8;
     i_mac[1] += tmp;
 
-    for (int i=0;i<4;i++)
+    for (int i=0; i<4; i++)
     {
         iss >> hex >> tmp >> ws;
 
@@ -962,7 +962,7 @@ string AddressRange::mac_to_s(const unsigned int i_mac[])
     ostringstream oss;
     unsigned int  temp_byte;
 
-    for (int i=5;i>=0;i--)
+    for (int i=5; i>=0; i--)
     {
         if ( i < 4 )
         {
@@ -1009,7 +1009,7 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip)
 
     while ( (pos = ip.find('.')) !=  string::npos )
     {
-        ip.replace(pos,1," ");
+        ip.replace(pos, 1, " ");
         count++;
     }
 
@@ -1023,7 +1023,7 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip)
 
     i_ip = 0;
 
-    for (int i=0;i<4;i++)
+    for (int i=0; i<4; i++)
     {
         iss >> dec >> tmp;
 
@@ -1047,7 +1047,7 @@ string AddressRange::ip_to_s(unsigned int i_ip)
     ostringstream oss;
     unsigned int  temp_byte;
 
-    for (int index=0;index<4;index++)
+    for (int index=0; index<4; index++)
     {
         temp_byte =   i_ip;
         temp_byte >>= (24-index*8);
@@ -1121,7 +1121,7 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[])
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::ip6_to_s(const unsigned int prefix[],
-        const unsigned int mac[], string& ip6_s)
+                           const unsigned int mac[], string& ip6_s)
 {
     unsigned int eui64[2];
     unsigned int mlow = mac[0];
@@ -1173,7 +1173,7 @@ int AddressRange::ip6_to_s(const unsigned int ip6_i[], string& ip6_s)
 /* ************************************************************************** */
 
 bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
-    bool check_free)
+                                bool check_free)
 {
     unsigned int mac_i[2];
 
@@ -1201,7 +1201,7 @@ bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
 /* -------------------------------------------------------------------------- */
 
 bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
-    bool check_free) const
+                               bool check_free) const
 {
     if (!is_ipv4())//Not of type IP4 or IP4_6
     {
@@ -1234,7 +1234,7 @@ bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
 /* -------------------------------------------------------------------------- */
 
 bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
-    bool check_free)
+                                bool check_free)
 {
     if (!is_ipv6_static())//Not of type IP6_STATIC or IP4_6_STATIC
     {
@@ -1250,7 +1250,7 @@ bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
 
     //3 most significant 32bit blocks must be equal
     if ( ip_i[3] != ip6[3] || ip_i[2] != ip6[2] || ip_i[1] != ip6[1]
-            || ip_i[0] < ip6[0] )
+         || ip_i[0] < ip6[0] )
     {
         return false;
     }
@@ -1269,7 +1269,7 @@ bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::set_port_ranges(unsigned int addr_index,
-        VectorAttribute * nic) const
+                                   VectorAttribute * nic) const
 {
     if ( port_size == 0 || port_start == 0 )
     {
@@ -1350,7 +1350,7 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::set_ip6_static(unsigned int addr_index,
-        VectorAttribute * nic) const
+                                  VectorAttribute * nic) const
 {
     unsigned int ip_low[4];
     string       ip6_s;
@@ -1454,7 +1454,7 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
             return -1;
         }
 
-        allocated.insert(make_pair(addr_index,object_pack));
+        allocated.insert(make_pair(addr_index, object_pack));
     }
 
     if ( get_used_addr() > size )
@@ -1468,11 +1468,11 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
-    unsigned int addr_index)
+                                      unsigned int addr_index)
 {
     long long lobid = obid & 0x00000000FFFFFFFFLL;
 
-    allocated.insert(make_pair(addr_index,ot|lobid));
+    allocated.insert(make_pair(addr_index, ot|lobid));
 
     allocated_to_attr();
 }
@@ -1480,7 +1480,7 @@ void AddressRange::set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
-    unsigned int addr_index)
+                                      unsigned int addr_index)
 {
     long long lobid = obid & 0x00000000FFFFFFFFLL;
 
@@ -1501,10 +1501,10 @@ int AddressRange::free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
 /* ************************************************************************** */
 
 void AddressRange::allocate_by_index(unsigned int index,
-    PoolObjectSQL::ObjectType ot,
-    int                       obid,
-    VectorAttribute*          nic,
-    const set<string>&     inherit)
+                                     PoolObjectSQL::ObjectType ot,
+                                     int                       obid,
+                                     VectorAttribute*          nic,
+                                     const set<string>&     inherit)
 {
     set_mac(index, nic);
 
@@ -1554,10 +1554,10 @@ int AddressRange::allocate_random_addr(VectorAttribute* nic)
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::allocate_addr(
-    PoolObjectSQL::ObjectType ot,
-    int                       obid,
-    VectorAttribute*          nic,
-    const set<string>&     inherit)
+        PoolObjectSQL::ObjectType ot,
+        int                       obid,
+        VectorAttribute*          nic,
+        const set<string>&     inherit)
 {
     unsigned int index;
     string       error_msg;
@@ -1582,11 +1582,11 @@ int AddressRange::allocate_addr(
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::allocate_by_mac(
-    const string&             mac_s,
-    PoolObjectSQL::ObjectType ot,
-    int                       obid,
-    VectorAttribute*          nic,
-    const set<string>&     inherit)
+        const string&             mac_s,
+        PoolObjectSQL::ObjectType ot,
+        int                       obid,
+        VectorAttribute*          nic,
+        const set<string>&     inherit)
 {
     string error_msg;
     unsigned int index;
@@ -1611,11 +1611,11 @@ int AddressRange::allocate_by_mac(
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::allocate_by_ip(
-    const string&             ip_s,
-    PoolObjectSQL::ObjectType ot,
-    int                       obid,
-    VectorAttribute*          nic,
-    const set<string>&        inherit)
+        const string&             ip_s,
+        PoolObjectSQL::ObjectType ot,
+        int                       obid,
+        VectorAttribute*          nic,
+        const set<string>&        inherit)
 {
     string error_msg;
     unsigned int index;
@@ -1640,11 +1640,11 @@ int AddressRange::allocate_by_ip(
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::allocate_by_ip6(
-    const string&             ip6_s,
-    PoolObjectSQL::ObjectType ot,
-    int                       obid,
-    VectorAttribute*          nic,
-    const set<string>&        inherit)
+        const string&             ip6_s,
+        PoolObjectSQL::ObjectType ot,
+        int                       obid,
+        VectorAttribute*          nic,
+        const set<string>&        inherit)
 {
     string error_msg;
     unsigned int index;
@@ -1669,7 +1669,7 @@ int AddressRange::allocate_by_ip6(
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
-    const string& mac_s)
+                            const string& mac_s)
 {
     string error_msg;
     unsigned int mac_i[2];
@@ -1696,7 +1696,7 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
-    const string& ip_s)
+                                  const string& ip_s)
 {
     string error_msg;
 
@@ -1731,7 +1731,7 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
-    const string& ip_s)
+                                   const string& ip_s)
 {
     string error_msg;
 
@@ -1750,7 +1750,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
     unsigned int index = ip_i[0] - ip6[0];
 
     if (ip6[0] > ip_i[0] || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
-            || ip6[1] != ip_i[1])
+        || ip6[1] != ip_i[1])
     {
         return -1;
     }
@@ -1802,7 +1802,7 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
-    const string& mac_s, unsigned int rsize)
+                                     const string& mac_s, unsigned int rsize)
 {
     int freed = 0;
 
@@ -1828,7 +1828,7 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
         for (unsigned int i=0; i<rsize; i++)
         {
             if (it != allocated.end() && it->second == obj_pack &&
-                     free_addr(it->first, error_msg) == 0)
+                free_addr(it->first, error_msg) == 0)
             {
                 it = allocated.erase(it);
 
@@ -1849,13 +1849,15 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * AddressRange::SG_RULE_ATTRIBUTES[] = {
+const char * AddressRange::SG_RULE_ATTRIBUTES[] =
+{
     "AR_ID",
     "TYPE",
     "SIZE",
     "MAC",
     "IP",
-    "IP6"};
+    "IP6"
+};
 
 const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 6;
 
@@ -2001,13 +2003,13 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
         set_ip6_static(first_index, new_ar);
     }
 
-    new_ar->replace("SIZE",rsize);
+    new_ar->replace("SIZE", rsize);
 
     new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("PARENT_NETWORK_AR_ID",id);
+    new_ar->replace("PARENT_NETWORK_AR_ID", id);
 
     return 0;
 }
@@ -2016,7 +2018,7 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
-    unsigned int sindex, AddressRange *rar)
+                                        unsigned int sindex, AddressRange *rar)
 {
     string error_msg;
 
@@ -2060,13 +2062,13 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
         set_ip6_static(sindex, new_ar);
     }
 
-    new_ar->replace("SIZE",rsize);
+    new_ar->replace("SIZE", rsize);
 
     new_ar->remove("IPAM_MAD");
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("PARENT_NETWORK_AR_ID",id);
+    new_ar->replace("PARENT_NETWORK_AR_ID", id);
 
     return 0;
 }
@@ -2075,7 +2077,7 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::reserve_addr_by_ip6(int vid, unsigned int rsize,
-    const string& ip_s, AddressRange *rar)
+                                      const string& ip_s, AddressRange *rar)
 {
     unsigned int sindex;
 
@@ -2091,7 +2093,7 @@ int AddressRange::reserve_addr_by_ip6(int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
-    const string& ip_s, AddressRange *rar)
+                                     const string& ip_s, AddressRange *rar)
 {
     unsigned int sindex;
 
@@ -2107,7 +2109,7 @@ int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::reserve_addr_by_mac(int vid, unsigned int rsize,
-    const string& mac_s, AddressRange *rar)
+                                      const string& mac_s, AddressRange *rar)
 {
     unsigned int sindex;
 
@@ -2133,7 +2135,7 @@ bool AddressRange::check(string& rs_attr) const
         return false;
     }
 
-    const map<string,string>& ar_attrs = attr->value();
+    const map<string, string>& ar_attrs = attr->value();
 
     for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
@@ -2187,7 +2189,7 @@ void AddressRange::remove_restricted(VectorAttribute* va)
 
 void AddressRange::remove_all_except_restricted(VectorAttribute* va)
 {
-    map<string,string> vals = va->value();
+    map<string, string> vals = va->value();
 
     ostringstream oss;
 

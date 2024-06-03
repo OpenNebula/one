@@ -39,8 +39,8 @@ MarketPlaceEnable::MarketPlaceEnable()
 /* ------------------------------------------------------------------------- */
 
 void MarketPlaceEnable::request_execute(
-    xmlrpc_c::paramList const& paramList,
-	RequestAttributes& att)
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
 {
     Nebula& nd       = Nebula::instance();
     int  id          = xmlrpc_c::value_int(paramList.getInt(1));

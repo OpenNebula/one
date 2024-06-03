@@ -175,7 +175,7 @@ public:
         {
             bs->reset(bit);
         }
-        catch(const std::out_of_range& oor){};
+        catch(const std::out_of_range& oor) {};
     }
 
     /**
@@ -196,7 +196,7 @@ public:
                 rc = 0;
             }
         }
-        catch(const std::out_of_range& oor){};
+        catch(const std::out_of_range& oor) {};
 
         return rc;
     }
@@ -304,7 +304,7 @@ private:
         else
         {
             oss << "INSERT INTO " << db_table << " (id, map) VALUES ("
-            << id << ",'" << ezipped64 << "')";
+                << id << ",'" << ezipped64 << "')";
         }
 
         int rc = db->exec_wr(oss);

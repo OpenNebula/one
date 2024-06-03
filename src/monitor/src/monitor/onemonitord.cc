@@ -105,8 +105,9 @@ int main(int argc, char **argv)
 
         _argv_c[_argc] = 0;
 
-        static struct option long_options[] = {
-            {"version",no_argument, 0, 'v'},
+        static struct option long_options[] =
+        {
+            {"version", no_argument, 0, 'v'},
             {"help",   no_argument, 0, 'h'},
             {"config", required_argument, 0, 'c'},
             {"oned-config", required_argument, 0, 'o'},
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
         int opt;
 
         while ((opt = getopt_long(_argc, _argv_c, "vhc:o:",
-                        long_options, &long_index)) != -1)
+                                  long_options, &long_index)) != -1)
         {
             switch(opt)
             {

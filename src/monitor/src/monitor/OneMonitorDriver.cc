@@ -29,25 +29,25 @@ OneMonitorDriver::OneMonitorDriver(HostMonitorManager * _hm)
     hm = _hm;
 
     register_action(InformationManagerMessages::UNDEFINED,
-            &OneMonitorDriver::_undefined);
+                    &OneMonitorDriver::_undefined);
 
     register_action(InformationManagerMessages::HOST_LIST,
-            &OneMonitorDriver::_host_list);
+                    &OneMonitorDriver::_host_list);
 
     register_action(InformationManagerMessages::UPDATE_HOST,
-            &OneMonitorDriver::_update_host);
+                    &OneMonitorDriver::_update_host);
 
     register_action(InformationManagerMessages::DEL_HOST,
-            &OneMonitorDriver::_del_host);
+                    &OneMonitorDriver::_del_host);
 
     register_action(InformationManagerMessages::START_MONITOR,
-            &OneMonitorDriver::_start_monitor);
+                    &OneMonitorDriver::_start_monitor);
 
     register_action(InformationManagerMessages::STOP_MONITOR,
-            &OneMonitorDriver::_stop_monitor);
+                    &OneMonitorDriver::_stop_monitor);
 
     register_action(InformationManagerMessages::RAFT_STATUS,
-            &OneMonitorDriver::_raft_status);
+                    &OneMonitorDriver::_raft_status);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -82,7 +82,7 @@ void OneMonitorDriver::vm_state(int oid, const std::string& state)
 /* -------------------------------------------------------------------------- */
 
 void OneMonitorDriver::host_system_info(int oid, const std::string& status,
-        const std::string& payload)
+                                        const std::string& payload)
 {
     im_msg_t oned_msg;
 
@@ -115,7 +115,7 @@ void OneMonitorDriver::_host_list(std::unique_ptr<im_msg_t> msg)
 
     for (const auto& node : nodes)
     {
-        Template host(false,'=',"HOST");
+        Template host(false, '=', "HOST");
         host.from_xml_node(node);
         int id;
         if (host.get("ID", id))

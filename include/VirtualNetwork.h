@@ -60,7 +60,8 @@ public:
         BRIDGE         = 9
     };
 
-    enum BridgeType {
+    enum BridgeType
+    {
         UNDEFINED           = 0,
         LINUX               = 1,
         OPENVSWITCH         = 2,
@@ -69,7 +70,8 @@ public:
         BRNONE              = 5
     };
 
-    enum VirtualNetworkState {
+    enum VirtualNetworkState
+    {
         INIT            = 0, //!< Initialization state
         READY           = 1, //!< Virtual Network ready to use
         LOCK_CREATE     = 2, //!< Driver create in progress
@@ -468,7 +470,7 @@ public:
      *    @return the number of addresses freed
      */
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
-            int obid, const std::string& mac, unsigned int rsize)
+                           int obid, const std::string& mac, unsigned int rsize)
     {
         if (ot == PoolObjectSQL::VM)
         {
@@ -553,7 +555,7 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int rid, unsigned int rsize, unsigned int ar_id,
-        AddressRange *rar, std::string& error_str);
+                     AddressRange *rar, std::string& error_str);
 
     /**
      *  Reserve an address range for this network and add it to the given vnet
@@ -566,13 +568,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int rid, unsigned int rsize, unsigned int ar_id,
-            const std::string& mac, AddressRange *rar, std::string& error_str);
+                            const std::string& mac, AddressRange *rar, std::string& error_str);
 
     int reserve_addr_by_ip(int rid, unsigned int rsize, unsigned int ar_id,
-            const std::string& ip, AddressRange *rar, std::string& error_str);
+                           const std::string& ip, AddressRange *rar, std::string& error_str);
 
     int reserve_addr_by_ip6(int rid, unsigned int rsize, unsigned int ar_id,
-            const std::string& ip6, AddressRange *rar, std::string& error_str);
+                            const std::string& ip6, AddressRange *rar, std::string& error_str);
 
     /**
      * Returns true if this VNET is a reservation
@@ -640,7 +642,7 @@ public:
      *  @return a reference to the generated string
      */
     std::string& to_xml_extended(std::string& xml, const std::vector<int>& vms,
-        const std::vector<int>& vnets, const std::vector<int>& vrs) const;
+                                 const std::vector<int>& vnets, const std::vector<int>& vrs) const;
 
     /**
      *  Replace template for this object. Object should be updated
@@ -734,12 +736,12 @@ public:
      */
     void decrypt() override;
 
-     /**
-      * Commit Virtual Network changes to associated VMs
-      *   @param recover, if true It will propagate the changes to VMs in error
-      *   and those being updated. Otherwise all VMs associated with the VN will
-      *   be updated
-      */
+    /**
+     * Commit Virtual Network changes to associated VMs
+     *   @param recover, if true It will propagate the changes to VMs in error
+     *   and those being updated. Otherwise all VMs associated with the VN will
+     *   be updated
+     */
     void commit(bool recover);
 
     void commit(const std::set<int>& vm_ids);
@@ -904,7 +906,7 @@ private:
      *    @param auto the associated automatic variable
      */
     void parse_vlan_id(const char * id_name, const char * auto_name,
-            std::string& id, bool& auto_id);
+                       std::string& id, bool& auto_id);
 
     // *************************************************************************
     // Address allocation funtions
@@ -919,7 +921,7 @@ private:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int oid,
-            VectorAttribute * nic, const std::set<std::string>& inherit)
+                      VectorAttribute * nic, const std::set<std::string>& inherit)
     {
         return ar_pool.allocate_addr(ot, oid, nic, inherit);
     }
@@ -998,8 +1000,8 @@ private:
      *  @return a reference to the generated string
      */
     std::string& to_xml_extended(std::string& xml, bool extended_and_check,
-        const std::vector<int>& vm_ids, const std::vector<int>& vnet_oids,
-        const std::vector<int>& vr_ids) const;
+                                 const std::vector<int>& vm_ids, const std::vector<int>& vnet_oids,
+                                 const std::vector<int>& vr_ids) const;
 
     /**
      *  Rebuilds the object from an xml formatted string

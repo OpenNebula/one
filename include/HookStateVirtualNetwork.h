@@ -40,7 +40,7 @@ private:
     // Constructor/Destructor
     // *************************************************************************
 
-    HookStateVirtualNetwork():state(VirtualNetwork::INIT){};
+    HookStateVirtualNetwork():state(VirtualNetwork::INIT) {};
 
     virtual ~HookStateVirtualNetwork() = default;
 

@@ -29,7 +29,7 @@ public:
     AclXML(Client * _client, int zone_id):AclManager(zone_id), client(_client)
     {};
 
-    virtual ~AclXML(){};
+    virtual ~AclXML() {};
 
     /**
      *  Loads the ACL rule set from the DB

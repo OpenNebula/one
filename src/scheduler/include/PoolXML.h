@@ -61,13 +61,13 @@ public:
 
         if ( rc != 0 )
         {
-            NebulaLog::log("POOL",Log::ERROR,
+            NebulaLog::log("POOL", Log::ERROR,
                            "Could not retrieve pool info from ONE");
             return -1;
         }
 
         std::vector<xmlrpc_c::value> values =
-                        xmlrpc_c::value_array(result).vectorValueValue();
+                xmlrpc_c::value_array(result).vectorValueValue();
 
         bool   success = xmlrpc_c::value_boolean( values[0] );
         std::string message = xmlrpc_c::value_string(  values[1] );
@@ -154,7 +154,7 @@ public:
      */
     virtual bool insert(int oid, ObjectXML * obj)
     {
-        auto rc = objects.insert(std::pair<int,ObjectXML*>(oid, obj));
+        auto rc = objects.insert(std::pair<int, ObjectXML*>(oid, obj));
 
         return rc.second;
     }
@@ -194,7 +194,7 @@ protected:
      */
     void flush()
     {
-        for (auto it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin(); it!=objects.end(); it++)
         {
             delete it->second;
         }

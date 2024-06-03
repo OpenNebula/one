@@ -29,7 +29,7 @@ public:
                 const VectorAttribute * vnc_conf,
                 const std::vector<const SingleAttribute *>& encrypted_attrs);
 
-    ~ClusterPool(){};
+    ~ClusterPool() {};
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
@@ -175,7 +175,7 @@ public:
 
         rc  = Cluster::bootstrap(_db);
         rc += _db->exec_local_wr(
-                BitMap<0>::bootstrap(one_db::cluster_bitmap_table, oss_bitmap));
+                      BitMap<0>::bootstrap(one_db::cluster_bitmap_table, oss_bitmap));
 
         return rc;
     };
@@ -192,7 +192,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "CLUSTER_POOL", "body",
                              one_db::cluster_table, where,
@@ -207,7 +207,7 @@ public:
      *    @param cids vector of cluster ids
      */
     static void cluster_acl_filter(std::ostringstream& filter,
-            PoolObjectSQL::ObjectType auth_object, const std::vector<int>& cids);
+                                   PoolObjectSQL::ObjectType auth_object, const std::vector<int>& cids);
 
     /**
      * Returns the Datastore Clusters performing a DB query
@@ -269,7 +269,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Cluster(-1,"",0, &vnc_conf);
+        return new Cluster(-1, "", 0, &vnc_conf);
     };
 };
 

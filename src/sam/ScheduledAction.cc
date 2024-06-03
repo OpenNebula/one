@@ -20,7 +20,8 @@
 
 using namespace std;
 
-std::set<std::string> ScheduledAction::VM_ACTIONS = {
+std::set<std::string> ScheduledAction::VM_ACTIONS =
+{
     "terminate",
     "terminate-hard",
     "undeploy",
@@ -43,7 +44,8 @@ std::set<std::string> ScheduledAction::VM_ACTIONS = {
     "backup"
 };
 
-std::set<PoolObjectSQL::ObjectType> ScheduledAction::SCHED_OBJECTS = {
+std::set<PoolObjectSQL::ObjectType> ScheduledAction::SCHED_OBJECTS =
+{
     PoolObjectSQL::VM,
     PoolObjectSQL::BACKUPJOB
 };
@@ -219,15 +221,16 @@ int ScheduledAction::parse(const VectorAttribute * va, time_t origin, string& er
 
 bool ScheduledAction::days_in_range(std::string& error)
 {
-    static const char * e[] = {
+    static const char * e[] =
+    {
         "Days in a week have to be in [0,6] range",   //WEEKLY - 0
         "Days in a month have to be in [1,31] range", // MONTHLY - 1
         "Days in a year have to be in [0,365] range", // YEARLY - 2
         "Hours have to be in [0,168] range"           // HOURLY - 3
     };
 
-    static int fday[] = {0,1,0,1};
-    static int lday[] = {7,32,366,168};
+    static int fday[] = {0, 1, 0, 1};
+    static int lday[] = {7, 32, 366, 168};
 
     bool extra_check;
 
@@ -383,7 +386,8 @@ time_t ScheduledAction::next_action()
     /* ---------------------------------------------------------------------  */
     if ( _repeat == HOURLY )
     {
-        do {
+        do
+        {
             _time += *(days_set.begin()) * 3600;
         } while (_time < current);
 
@@ -455,8 +459,8 @@ int ScheduledAction::rebuild_attributes()
     rc += xpath(_parent_id, "/SCHED_ACTION/PARENT_ID", -1);
     rc += xpath(_action, "/SCHED_ACTION/ACTION", "");
     rc += xpath(_args, "/SCHED_ACTION/ARGS", "");
-    rc += xpath(_time, "/SCHED_ACTION/TIME",(time_t) -1);
-    rc += xpath(_done, "/SCHED_ACTION/DONE",(time_t) -1);
+    rc += xpath(_time, "/SCHED_ACTION/TIME", (time_t) -1);
+    rc += xpath(_done, "/SCHED_ACTION/DONE", (time_t) -1);
     rc += xpath(_days, "/SCHED_ACTION/DAYS", "");
     rc += xpath(_message, "/SCHED_ACTION/MESSAGE", "");
     rc += xpath(_end_value, "/SCHED_ACTION/END_VALUE", (time_t)-1);
@@ -523,7 +527,8 @@ int ScheduledAction::days_in_period(int month, int year)
 {
     static map<int, int> MONTHS_DAYS = {{0, 31}, {1, 28}, {2, 31}, {3, 30},
         {4, 31}, {5, 30}, {6, 31}, {7, 31}, {8, 30}, {9, 31}, {10, 30},
-        {11, 31}};
+        {11, 31}
+    };
 
     int leap_year  = 0;
     int leap_month = 0;

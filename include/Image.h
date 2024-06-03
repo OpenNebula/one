@@ -213,7 +213,7 @@ public:
      *    @return true if the image is set to persistent, false otherwise
      */
     static bool test_set_persistent(Template * image_template, int uid, int gid,
-            bool is_allocate);
+                                    bool is_allocate);
 
     /**
      *  Returns the source path of the image
@@ -461,8 +461,8 @@ public:
 
         if ((snapshots.size() > 0) && !persis)
         {
-           error_str = "Image has snapshots.";
-           return -1;
+            error_str = "Image has snapshots.";
+            return -1;
         }
 
         switch (state)
@@ -702,9 +702,9 @@ private:
      */
     long long size_mb;
 
-     /**
-      *  Image state
-      */
+    /**
+     *  Image state
+     */
     ImageState   state;
 
     ImageState   prev_state;

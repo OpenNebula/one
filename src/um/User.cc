@@ -50,7 +50,7 @@ int User::select(SqlDB * db, const string& name, int uid)
 {
     int rc;
 
-    rc = PoolObjectSQL::select(db,name,uid);
+    rc = PoolObjectSQL::select(db, name, uid);
 
     if ( rc != 0 )
     {
@@ -217,15 +217,15 @@ string& User::to_xml_extended(string& xml, bool extended) const
     int  enabled_int = enabled?1:0;
 
     oss <<
-    "<USER>"
-         "<ID>"          << oid         <<"</ID>"         <<
-         "<GID>"         << gid         <<"</GID>"        <<
-         groups.to_xml(collection_xml)  <<
-         "<GNAME>"       << gname       <<"</GNAME>"      <<
-         "<NAME>"        << name        <<"</NAME>"       <<
-         "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
-         "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
-         "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
+        "<USER>"
+        "<ID>"          << oid         <<"</ID>"         <<
+        "<GID>"         << gid         <<"</GID>"        <<
+        groups.to_xml(collection_xml)  <<
+        "<GNAME>"       << gname       <<"</GNAME>"      <<
+        "<NAME>"        << name        <<"</NAME>"       <<
+        "<PASSWORD>"    <<one_util::escape_xml(password)   <<"</PASSWORD>"   <<
+        "<AUTH_DRIVER>" <<one_util::escape_xml(auth_driver)<<"</AUTH_DRIVER>"<<
+        "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
         login_tokens.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);
 
@@ -266,8 +266,8 @@ int User::from_xml(const string& xml)
     rc += xpath(gname,      "/USER/GNAME",       "not_found");
     rc += xpath(name,       "/USER/NAME",        "not_found");
     rc += xpath(password,   "/USER/PASSWORD",    "not_found");
-    rc += xpath(auth_driver,"/USER/AUTH_DRIVER", UserPool::CORE_AUTH);
-    rc += xpath(int_enabled,"/USER/ENABLED",     0);
+    rc += xpath(auth_driver, "/USER/AUTH_DRIVER", UserPool::CORE_AUTH);
+    rc += xpath(int_enabled, "/USER/ENABLED",     0);
 
     enabled = int_enabled;
 
@@ -319,7 +319,7 @@ int User::split_secret(const string& secret, string& user, string& pass)
 
     if (pos != string::npos)
     {
-        user = secret.substr(0,pos);
+        user = secret.substr(0, pos);
         pass = secret.substr(pos+1);
 
         rc = 0;
@@ -397,7 +397,7 @@ int User::get_umask() const
 
     if (umask_st.empty())
     {
-        Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
+        Nebula::instance().get_configuration_attribute("DEFAULT_UMASK", umask_st);
     }
 
     iss.str(umask_st);
@@ -417,7 +417,7 @@ int User::get_default_umask()
 
     istringstream iss;
 
-    Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
+    Nebula::instance().get_configuration_attribute("DEFAULT_UMASK", umask_st);
 
     iss.str(umask_st);
 

@@ -38,13 +38,13 @@ public:
                  DatastorePool *           _dspool,
                  const std::string&        _mads_location,
                  int                       _monitor_vm_disk):
-            DriverManager(_mads_location),
-            timer_thread(_timer_period, [this](){timer_action();}),
-            timer_period(_timer_period),
-            monitor_period(_monitor_period),
-            monitor_vm_disk(_monitor_vm_disk),
-            ipool(_ipool),
-            dspool(_dspool)
+        DriverManager(_mads_location),
+        timer_thread(_timer_period, [this]() {timer_action();}),
+                 timer_period(_timer_period),
+                 monitor_period(_monitor_period),
+                 monitor_vm_disk(_monitor_vm_disk),
+                 ipool(_ipool),
+                 dspool(_dspool)
     {
     }
 
@@ -97,7 +97,7 @@ public:
      *    @return pointer to the image or 0 if could not be acquired
      */
     std::unique_ptr<Image> acquire_image(int vm_id, const std::string& name,
-                          int uid, bool attach, std::string& error);
+                                         int uid, bool attach, std::string& error);
 
     /**
      *  Releases an image and triggers any needed operations in the repo
@@ -176,7 +176,7 @@ public:
      *   @return 0 on success
      */
     int set_clone_state(PoolObjectSQL::ObjectType ot, int new_id,
-            int cloning_id, std::string& error);
+                        int cloning_id, std::string& error);
 
     /**
      * Sets the state to CLONE for the given image
@@ -237,7 +237,7 @@ public:
      *    @return 0 on success
      */
     int restore_image(int iid, int dst_ds_id, const std::string& opts,
-                  std::string& result);
+                      std::string& result);
 
     /**
      *  Gets the size of an image by calling the STAT action of the associated
@@ -249,15 +249,15 @@ public:
      *         occurred describing the error.
      *  @result 0 on success
      */
-     int stat_image(Template* img_tmpl,
-                    const std::string& ds_tmpl,
-                    std::string& res);
+    int stat_image(Template* img_tmpl,
+                   const std::string& ds_tmpl,
+                   std::string& res);
 
-     /**
-      *  Trigger a monitor action for the datastore.
-      *    @param ds_id id of the datastore to monitor
-      */
-     void monitor_datastore(int ds_id);
+    /**
+     *  Trigger a monitor action for the datastore.
+     *    @param ds_id id of the datastore to monitor
+     */
+    void monitor_datastore(int ds_id);
 
     /**
      *  Set the snapshots for the given image. The image MUST be persistent
@@ -265,13 +265,13 @@ public:
      *    @param iid id of image
      *    @param s snapshot list
      */
-     void set_image_snapshots(int iid, const Snapshots& s);
+    void set_image_snapshots(int iid, const Snapshots& s);
 
-     /**
-      *  Clear the snapshots of an image by setting an empty set.
-      *    @param iid id of image
-      */
-     void clear_image_snapshots(int iid);
+    /**
+     *  Clear the snapshots of an image by setting an empty set.
+     *    @param iid id of image
+     */
+    void clear_image_snapshots(int iid);
 
     /**
      *  Set the size for the given image. The image MUST be persistent
@@ -279,44 +279,44 @@ public:
      *    @param iid id of image
      *    @param size
      */
-     void set_image_size(int iid, long long size);
+    void set_image_size(int iid, long long size);
 
-     /**
-      *  Deletes the snapshot of an image
-      *    @param iid id of image
-      *    @param sid id of the snapshot
-      *    @param error_str Error reason, if any
-      *    @return 0 on success
-      */
-     int delete_snapshot(int iid, int sid, std::string& error);
+    /**
+     *  Deletes the snapshot of an image
+     *    @param iid id of image
+     *    @param sid id of the snapshot
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+     */
+    int delete_snapshot(int iid, int sid, std::string& error);
 
-     /**
-      *  Reverts image state to a previous snapshot
-      *    @param iid id of image
-      *    @param sid id of the snapshot
-      *    @param error_str Error reason, if any
-      *    @return 0 on success
-      */
-     int revert_snapshot(int iid, int sid, std::string& error);
+    /**
+     *  Reverts image state to a previous snapshot
+     *    @param iid id of image
+     *    @param sid id of the snapshot
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+     */
+    int revert_snapshot(int iid, int sid, std::string& error);
 
-     /**
-      *  Flattens the snapshot by commiting changes to base image.
-      *    @param iid id of image
-      *    @param sid id of the snapshot
-      *    @param error_str Error reason, if any
-      *    @return 0 on success
-      */
-     int flatten_snapshot(int iid, int sid, std::string& error);
+    /**
+     *  Flattens the snapshot by commiting changes to base image.
+     *    @param iid id of image
+     *    @param sid id of the snapshot
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+     */
+    int flatten_snapshot(int iid, int sid, std::string& error);
 
-     /**
-      *  Flattens the backup chain by commiting changes to first (full) backup
-      *    @param iid id of image
-      *    @param ds_id id of the datastore
-      *    @param edata XML string with KEEP_LAST and VM_ID
-      *    @param error_str Error reason, if any
-      *    @return 0 on success
-      */
-     int flatten_increments(int iid, int ds_id, const std::string& edata, std::string& error);
+    /**
+     *  Flattens the backup chain by commiting changes to first (full) backup
+     *    @param iid id of image
+     *    @param ds_id id of the datastore
+     *    @param edata XML string with KEEP_LAST and VM_ID
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+     */
+    int flatten_increments(int iid, int ds_id, const std::string& edata, std::string& error);
 
 private:
     /**
@@ -393,8 +393,8 @@ private:
      *    @return the XML message
      */
     static std::string format_message(const std::string& img_data,
-            const std::string& ds_data,
-            const std::string& extra_data);
+                                      const std::string& ds_data,
+                                      const std::string& extra_data);
 
     // -------------------------------------------------------------------------
     // Protocol implementation, procesing messages from driver

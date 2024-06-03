@@ -266,7 +266,7 @@ private:
      * image may need to be set to error state.
      */
     void clean_up_vm(VirtualMachine *vm, bool dispose, int& image_id,
-            int uid, int gid, int req_id, Template& quota_tmpl);
+                     int uid, int gid, int req_id, Template& quota_tmpl);
 };
 
 #endif /*LIFE_CYCLE_MANAGER_H_*/

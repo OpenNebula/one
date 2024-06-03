@@ -32,14 +32,14 @@ class VectorAttribute;
 
 class IPAMManager :
     public DriverManager<Driver<ipam_msg_t>>,
-    public Listener
+                                          public Listener
 {
 public:
 
     IPAMManager(time_t timer, const std::string& mad_location)
         : DriverManager(mad_location)
         , Listener("IPAM Manager")
-        , timer_thread(timer, [this](){timer_action();})
+        , timer_thread(timer, [this]() {timer_action();})
     {
     }
 

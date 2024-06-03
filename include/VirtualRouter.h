@@ -161,7 +161,7 @@ public:
      *    @param  check_lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
-                                bool check_lock);
+                                 bool check_lock);
 
 
     // -------------------------------------------------------------------------

@@ -25,7 +25,8 @@ using namespace std;
 
 void DispatchManager::trigger_suspend_success(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)
@@ -35,10 +36,10 @@ void DispatchManager::trigger_suspend_success(int vid)
 
         if ((vm->get_state() == VirtualMachine::ACTIVE) &&
             (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE||
-            vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_SUSPENDED ||
-            vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
+             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND ||
+             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE||
+             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_SUSPENDED ||
+             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED))
         {
             VirtualMachineTemplate quota_tmpl;
 
@@ -69,7 +70,7 @@ void DispatchManager::trigger_suspend_success(int vid)
 
             oss << "suspend_success action received but VM " << vid
                 << " not in ACTIVE state";
-            NebulaLog::log("DiM",Log::ERROR,oss);
+            NebulaLog::log("DiM", Log::ERROR, oss);
 
             return;
         }
@@ -81,7 +82,8 @@ void DispatchManager::trigger_suspend_success(int vid)
 
 void DispatchManager::trigger_stop_success(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)
@@ -91,7 +93,7 @@ void DispatchManager::trigger_stop_success(int vid)
 
         if ((vm->get_state() == VirtualMachine::ACTIVE) &&
             (vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
+             vm->get_lcm_state() == VirtualMachine::PROLOG_RESUME))
         {
             VirtualMachineTemplate quota_tmpl;
 
@@ -124,7 +126,7 @@ void DispatchManager::trigger_stop_success(int vid)
 
             oss << "stop_success action received but VM " << vid
                 << " not in ACTIVE state";
-            NebulaLog::log("DiM",Log::ERROR,oss);
+            NebulaLog::log("DiM", Log::ERROR, oss);
             return;
         }
     });
@@ -135,7 +137,8 @@ void DispatchManager::trigger_stop_success(int vid)
 
 void DispatchManager::trigger_undeploy_success(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)
@@ -145,8 +148,8 @@ void DispatchManager::trigger_undeploy_success(int vid)
 
         if ((vm->get_state() == VirtualMachine::ACTIVE) &&
             (vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
-            vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
+             vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_UNDEPLOYED ||
+             vm->get_lcm_state() == VirtualMachine::PROLOG_UNDEPLOY))
         {
             VirtualMachineTemplate quota_tmpl;
 
@@ -181,7 +184,7 @@ void DispatchManager::trigger_undeploy_success(int vid)
 
             oss << "undeploy_success action received but VM " << vid
                 << " not in ACTIVE state";
-            NebulaLog::log("DiM",Log::ERROR,oss);
+            NebulaLog::log("DiM", Log::ERROR, oss);
 
             return;
         }
@@ -193,7 +196,8 @@ void DispatchManager::trigger_undeploy_success(int vid)
 
 void DispatchManager::trigger_poweroff_success(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)
@@ -203,15 +207,15 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
         if ((vm->get_state() == VirtualMachine::ACTIVE) &&
             (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
-            vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
+             vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::DISK_RESIZE_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF ||
+             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
         {
             VirtualMachineTemplate quota_tmpl;
 
@@ -245,7 +249,7 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
             oss << "poweroff_success action received but VM " << vid
                 << " not in ACTIVE state";
-            NebulaLog::log("DiM",Log::ERROR,oss);
+            NebulaLog::log("DiM", Log::ERROR, oss);
 
             return;
         }
@@ -257,7 +261,8 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
 void DispatchManager::trigger_done(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)
@@ -270,7 +275,7 @@ void DispatchManager::trigger_done(int vid)
 
         if ((dm_state == VirtualMachine::ACTIVE) &&
             (lcm_state == VirtualMachine::EPILOG ||
-            lcm_state == VirtualMachine::CLEANUP_DELETE))
+             lcm_state == VirtualMachine::CLEANUP_DELETE))
         {
             free_vm_resources(std::move(vm), true);
         }
@@ -289,7 +294,8 @@ void DispatchManager::trigger_done(int vid)
 
 void DispatchManager::trigger_resubmit(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         auto vm = vmpool->get(vid);
 
         if (!vm)

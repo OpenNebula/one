@@ -135,9 +135,9 @@ void RequestManagerUpdateTemplate::request_execute(int oid,
 /* ------------------------------------------------------------------------- */
 
 void VirtualMachineUpdateTemplate::request_execute(int oid,
-                                                  const std::string& tmpl,
-                                                  int update_type,
-                                                  RequestAttributes& att)
+                                                   const std::string& tmpl,
+                                                   int update_type,
+                                                   RequestAttributes& att)
 {
     int rc;
 
@@ -161,7 +161,7 @@ void VirtualMachineUpdateTemplate::request_execute(int oid,
     }
 
     // Apply generic quota deltas
-    auto new_tmpl = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+    auto new_tmpl = make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
 
     if ( new_tmpl->parse_str_or_xml(tmpl, att.resp_msg) != 0 )
     {

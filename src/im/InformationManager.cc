@@ -34,16 +34,16 @@ int InformationManager::start()
     NebulaLog::info("InM", "Starting Information Manager...");
 
     register_action(InformationManagerMessages::UNDEFINED,
-            &InformationManager::_undefined);
+                    &InformationManager::_undefined);
 
     register_action(InformationManagerMessages::HOST_STATE,
-            bind(&InformationManager::_host_state, this, _1));
+                    bind(&InformationManager::_host_state, this, _1));
 
     register_action(InformationManagerMessages::HOST_SYSTEM,
-            bind(&InformationManager::_host_system, this, _1));
+                    bind(&InformationManager::_host_system, this, _1));
 
     register_action(InformationManagerMessages::VM_STATE,
-            bind(&InformationManager::_vm_state, this, _1));
+                    bind(&InformationManager::_vm_state, this, _1));
 
     int rc = DriverManager::start(error);
 
@@ -95,7 +95,7 @@ int InformationManager::start_monitor(Host * host, bool update_remotes)
     ostringstream oss;
 
     oss << "Monitoring host "<< host->get_name()<< " ("<< host->get_oid()<< ")";
-    NebulaLog::log("InM",Log::DEBUG,oss);
+    NebulaLog::log("InM", Log::DEBUG, oss);
 
     auto imd = get_driver("monitord");
 
@@ -201,7 +201,7 @@ void InformationManager::raft_status(RaftManager::State state)
 void InformationManager::_undefined(unique_ptr<im_msg_t> msg)
 {
     NebulaLog::warn("InM", "Received undefined message: " + msg->payload() +
-            "from host: " + to_string(msg->oid()));
+                    "from host: " + to_string(msg->oid()));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -211,7 +211,7 @@ void InformationManager::_undefined(unique_ptr<im_msg_t> msg)
 void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 {
     NebulaLog::ddebug("InM", "HOST_STATE update from host: " +
-        to_string(msg->oid()) + ". Host information: " + msg->payload());
+                      to_string(msg->oid()) + ". Host information: " + msg->payload());
 
     string str_state;
     string err_message;
@@ -273,7 +273,7 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 {
     NebulaLog::ddebug("InM", "HOST_SYSTEM update from host: " +
-        to_string(msg->oid()) + ". Host information: " + msg->payload());
+                      to_string(msg->oid()) + ". Host information: " + msg->payload());
 
     char *   error_msg;
     Template tmpl;
@@ -313,7 +313,7 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
     hpool->update(host.get());
 
     NebulaLog::debug("InM", "Host " + host->get_name() + " (" +
-         to_string(host->get_oid()) + ") successfully monitored.");
+                     to_string(host->get_oid()) + ") successfully monitored.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -448,8 +448,8 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         hv_ids.insert(id);
 
         NebulaLog::debug("InM", "VM_STATE update from host: " +
-            to_string(msg->oid()) + ". VM id: " + to_string(id) + ", state: " +
-            state_str);
+                         to_string(msg->oid()) + ". VM id: " + to_string(id) + ", state: " +
+                         state_str);
 
         auto vm = vmpool->get(id);
 
@@ -510,10 +510,10 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
     set<int> zombies;
 
     set_difference(host_ids.begin(), host_ids.end(), hv_ids.begin(),
-            hv_ids.end(), inserter(missing, missing.begin()));
+                   hv_ids.end(), inserter(missing, missing.begin()));
 
     set_difference(hv_ids.begin(), hv_ids.end(), host_ids.begin(),
-            host_ids.end(), inserter(zombies, zombies.begin()));
+                   host_ids.end(), inserter(zombies, zombies.begin()));
 
     host->update_zombies(zombies);
 
@@ -536,18 +536,18 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         }
 
         if (vm->get_state() != VirtualMachine::ACTIVE || (
-             vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
-             vm->get_lcm_state() != VirtualMachine::RUNNING &&
-             vm->get_lcm_state() != VirtualMachine::SHUTDOWN &&
-             vm->get_lcm_state() != VirtualMachine::SHUTDOWN_POWEROFF &&
-             vm->get_lcm_state() != VirtualMachine::SHUTDOWN_UNDEPLOY))
+                    vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
+                    vm->get_lcm_state() != VirtualMachine::RUNNING &&
+                    vm->get_lcm_state() != VirtualMachine::SHUTDOWN &&
+                    vm->get_lcm_state() != VirtualMachine::SHUTDOWN_POWEROFF &&
+                    vm->get_lcm_state() != VirtualMachine::SHUTDOWN_UNDEPLOY))
         {
             continue;
         }
 
         NebulaLog::debug("InM", "VM_STATE update from host: " +
-            to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
-            ", state: " + missing_state);
+                         to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
+                         ", state: " + missing_state);
 
         if (missing_state == "UNKNOWN")
         {

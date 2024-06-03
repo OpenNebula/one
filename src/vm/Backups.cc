@@ -26,7 +26,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 Backups::Backups():
-    config(false,'=',"BACKUP_CONFIG"),
+    config(false, '=', "BACKUP_CONFIG"),
     ids("BACKUP_IDS")
 {
 };

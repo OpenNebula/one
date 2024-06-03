@@ -56,22 +56,22 @@ int OpenNebulaTemplate::load_configuration()
 
 void OpenNebulaTemplate::set_multiple_conf_default()
 {
-/*
-#*******************************************************************************
-# Transfer Manager Configuration
-#*******************************************************************************
-# dummy
-# lvm
-# fs_lvm
-# fs_lvmm_ssh
-# shared
-# qcow2
-# ssh
-# vmfs
-# ceph
-# dev
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Transfer Manager Configuration
+    #*******************************************************************************
+    # dummy
+    # lvm
+    # fs_lvm
+    # fs_lvmm_ssh
+    # shared
+    # qcow2
+    # ssh
+    # vmfs
+    # ceph
+    # dev
+    #*******************************************************************************
+    */
     set_conf_tm("dummy", "NONE", "SYSTEM", "YES", "YES", "");
 
     set_conf_tm("lvm", "NONE",   "SELF",   "YES", "NO",  "");
@@ -89,20 +89,20 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 
 
     register_multiple_conf_default("TM_MAD_CONF");
-/*
-#*******************************************************************************
-# Datastore Manager Configuration
-#*******************************************************************************
-# ceph
-# dev
-# dummy
-# fs
-# lvm
-# shared
-# ssh
-# vmfs
-#******
-*/
+    /*
+    #*******************************************************************************
+    # Datastore Manager Configuration
+    #*******************************************************************************
+    # ceph
+    # dev
+    # dummy
+    # fs
+    # lvm
+    # shared
+    # ssh
+    # vmfs
+    #******
+    */
     set_conf_ds("dev",            "DISK_TYPE",            "YES");
     set_conf_ds("iscsi_libvirt",  "DISK_TYPE,ISCSI_HOST", "YES");
     set_conf_ds("dummy",          "",                     "NO");
@@ -112,21 +112,21 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_ds("ssh",            "",                     "NO");
     set_conf_ds("vmfs",           "BRIDGE_LIST",          "NO");
     set_conf_ds("vcenter",
-        "VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
-        "NO");
+                "VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
+                "NO");
     set_conf_ds("ceph",
                 "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
                 "NO");
 
     register_multiple_conf_default("DS_MAD_CONF");
-/*
-#*******************************************************************************
-# Marketplace Manager Configuration
-#*******************************************************************************
-# http
-# s3
-#******
-*/
+    /*
+    #*******************************************************************************
+    # Marketplace Manager Configuration
+    #*******************************************************************************
+    # http
+    # s3
+    #******
+    */
     set_conf_market("one",  "", "monitor");
     set_conf_market("http", "BASE_URL,PUBLIC_DIR", "create, delete, monitor");
     set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET",
@@ -134,19 +134,19 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_market("docker_registry", "BASE_URL", "monitor");
 
     register_multiple_conf_default("MARKET_MAD_CONF");
-/*
-#*******************************************************************************
-# Auth Manager Configuration
-#*******************************************************************************
-# core
-# public
-# ssh
-# x509
-# ldap
-# server_cipher
-# server_x509
-#******
-*/
+    /*
+    #*******************************************************************************
+    # Auth Manager Configuration
+    #*******************************************************************************
+    # core
+    # public
+    # ssh
+    # x509
+    # ldap
+    # server_cipher
+    # server_x509
+    #******
+    */
     set_conf_auth("core", "YES", "NO", "NO", "-1");
     set_conf_auth("public", "NO", "NO", "NO", "-1");
     set_conf_auth("ssh", "YES", "NO", "NO", "-1");
@@ -157,23 +157,23 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 
     register_multiple_conf_default("AUTH_MAD_CONF");
 
-/*
-#*******************************************************************************
-# Virtual Network Configuration
-#*******************************************************************************
-#dummy
-#802.1Q
-#ebtables
-#fw
-#ovswitch
-#vxlan
-#vcenter
-#ovswitch_vxlan
-#bridge
-#elastic
-#nodeport
-#******
-*/
+    /*
+    #*******************************************************************************
+    # Virtual Network Configuration
+    #*******************************************************************************
+    #dummy
+    #802.1Q
+    #ebtables
+    #fw
+    #ovswitch
+    #vxlan
+    #vcenter
+    #ovswitch_vxlan
+    #bridge
+    #elastic
+    #nodeport
+    #******
+    */
 
     set_conf_vn("dummy", "linux");
     set_conf_vn("802.1Q", "linux");
@@ -194,7 +194,7 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 /* -------------------------------------------------------------------------- */
 
 void OpenNebulaTemplate::register_multiple_conf_default(
-                                                const std::string& conf_section)
+        const std::string& conf_section)
 {
     std::string d_name;
 
@@ -262,7 +262,7 @@ void OpenNebulaTemplate::set_conf_ds(const std::string& name,
                                      const std::string& persistent_only)
 {
     VectorAttribute *   vattribute;
-    std::map<std::string,std::string>  vvalue;
+    std::map<std::string, std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
@@ -282,7 +282,7 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
                                      const std::string& driver)
 {
     VectorAttribute *   vattribute;
-    std::map<std::string,std::string>  vvalue;
+    std::map<std::string, std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("LN_TARGET", ln_target));
@@ -303,7 +303,7 @@ void OpenNebulaTemplate::set_conf_market(const std::string& name,
                                          const std::string& app_actions)
 {
     VectorAttribute *   vattribute;
-    std::map<std::string,std::string>  vvalue;
+    std::map<std::string, std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
@@ -323,7 +323,7 @@ void OpenNebulaTemplate::set_conf_auth(const std::string& name,
                                        const std::string& max_token_time)
 {
     VectorAttribute *   vattribute;
-    std::map<std::string,std::string>  vvalue;
+    std::map<std::string, std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("PASSWORD_CHANGE", password_change));
@@ -339,10 +339,10 @@ void OpenNebulaTemplate::set_conf_auth(const std::string& name,
 /* -------------------------------------------------------------------------- */
 
 void OpenNebulaTemplate::set_conf_vn(const std::string& name,
-                                         const std::string& bridge_type)
+                                     const std::string& bridge_type)
 {
     VectorAttribute *   vattribute;
-    std::map<std::string,std::string>  vvalue;
+    std::map<std::string, std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("BRIDGE_TYPE", bridge_type));
@@ -357,27 +357,27 @@ void OpenNebulaTemplate::set_conf_vn(const std::string& name,
 void OpenNebulaTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
-    map<string,string>  vvalue;
+    map<string, string>  vvalue;
 
-/*
-#*******************************************************************************
-# Daemon configuration attributes
-#-------------------------------------------------------------------------------
-#  MANAGER_TIMER
-#  MONITORING_INTERVAL_MARKET
-#  MONITORING_INTERVAL_DATASTORE
-#  DS_MONITOR_VM_DISK
-#  VM_MONITORING_EXPIRATION_TIME
-#  LISTEN_ADDRESS
-#  PORT
-#  DB
-#  SCRIPTS_REMOTE_DIR
-#  VM_SUBMIT_ON_HOLD
-#  API_LIST_ORDER
-#  VNC_PORTS
-#  SHOWBACK_ONLY_RUNNING
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Daemon configuration attributes
+    #-------------------------------------------------------------------------------
+    #  MANAGER_TIMER
+    #  MONITORING_INTERVAL_MARKET
+    #  MONITORING_INTERVAL_DATASTORE
+    #  DS_MONITOR_VM_DISK
+    #  VM_MONITORING_EXPIRATION_TIME
+    #  LISTEN_ADDRESS
+    #  PORT
+    #  DB
+    #  SCRIPTS_REMOTE_DIR
+    #  VM_SUBMIT_ON_HOLD
+    #  API_LIST_ORDER
+    #  VNC_PORTS
+    #  SHOWBACK_ONLY_RUNNING
+    #*******************************************************************************
+    */
     set_conf_single("MANAGER_TIMER", "15");
     set_conf_single("MONITORING_INTERVAL_MARKET", "600");
     set_conf_single("MONITORING_INTERVAL_DATASTORE", "300");
@@ -400,99 +400,99 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("CONTEXT_SAFE_DIRS", "");
 
     //DB CONFIGURATION
-    vvalue.insert(make_pair("BACKEND","sqlite"));
-    vvalue.insert(make_pair("TIMEOUT","2500"));
+    vvalue.insert(make_pair("BACKEND", "sqlite"));
+    vvalue.insert(make_pair("TIMEOUT", "2500"));
 
-    vattribute = new VectorAttribute("DB",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("DB", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     // LOG CONFIGURATION
     vvalue.clear();
-    vvalue.insert(make_pair("SYSTEM","file"));
-    vvalue.insert(make_pair("DEBUG_LEVEL","3"));
-    vvalue.insert(make_pair("USE_VMS_LOCATION","NO"));
+    vvalue.insert(make_pair("SYSTEM", "file"));
+    vvalue.insert(make_pair("DEBUG_LEVEL", "3"));
+    vvalue.insert(make_pair("USE_VMS_LOCATION", "NO"));
 
-    vattribute = new VectorAttribute("LOG",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("LOG", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     // VNC CONFIGURATION
     vvalue.clear();
-    vvalue.insert(make_pair("RESERVED",""));
-    vvalue.insert(make_pair("START","5900"));
+    vvalue.insert(make_pair("RESERVED", ""));
+    vvalue.insert(make_pair("START", "5900"));
 
-    vattribute = new VectorAttribute("VNC_PORTS",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("VNC_PORTS", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     set_conf_single("MAX_BACKUPS", "5");
     set_conf_single("MAX_BACKUPS_HOST", "2");
 
-/*
-#*******************************************************************************
-# Federation configuration attributes
-#-------------------------------------------------------------------------------
-#  FEDERATION
-#   MODE
-#   ZONE_ID
-#   SERVER_ID
-#   MASTER_ONED
-#
-#  RAFT
-#   LOG_RETENTION
-#   LOG_PURGE_TIMEOUT
-#   ELECTION_TIMEOUT_MS
-#   BROADCAST_TIMEOUT_MS
-#   XMLRPC_TIMEOUT_MS
-#   LIMIT_PURGE
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Federation configuration attributes
+    #-------------------------------------------------------------------------------
+    #  FEDERATION
+    #   MODE
+    #   ZONE_ID
+    #   SERVER_ID
+    #   MASTER_ONED
+    #
+    #  RAFT
+    #   LOG_RETENTION
+    #   LOG_PURGE_TIMEOUT
+    #   ELECTION_TIMEOUT_MS
+    #   BROADCAST_TIMEOUT_MS
+    #   XMLRPC_TIMEOUT_MS
+    #   LIMIT_PURGE
+    #*******************************************************************************
+    */
     // FEDERATION
     vvalue.clear();
-    vvalue.insert(make_pair("MODE","STANDALONE"));
-    vvalue.insert(make_pair("ZONE_ID","0"));
-    vvalue.insert(make_pair("SERVER_ID","-1"));
-    vvalue.insert(make_pair("MASTER_ONED",""));
+    vvalue.insert(make_pair("MODE", "STANDALONE"));
+    vvalue.insert(make_pair("ZONE_ID", "0"));
+    vvalue.insert(make_pair("SERVER_ID", "-1"));
+    vvalue.insert(make_pair("MASTER_ONED", ""));
 
-    vattribute = new VectorAttribute("FEDERATION",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("FEDERATION", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     //RAFT
     vvalue.clear();
-    vvalue.insert(make_pair("LOG_RETENTION","500000"));
-    vvalue.insert(make_pair("LOG_PURGE_TIMEOUT","600"));
-    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS","1500"));
-    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS","500"));
-    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS","100"));
-    vvalue.insert(make_pair("LIMIT_PURGE","100000"));
+    vvalue.insert(make_pair("LOG_RETENTION", "500000"));
+    vvalue.insert(make_pair("LOG_PURGE_TIMEOUT", "600"));
+    vvalue.insert(make_pair("ELECTION_TIMEOUT_MS", "1500"));
+    vvalue.insert(make_pair("BROADCAST_TIMEOUT_MS", "500"));
+    vvalue.insert(make_pair("XMLRPC_TIMEOUT_MS", "100"));
+    vvalue.insert(make_pair("LIMIT_PURGE", "100000"));
 
-    vattribute = new VectorAttribute("RAFT",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
-/*
-#*******************************************************************************
-# Default showback cost
-#*******************************************************************************
-*/
+    vattribute = new VectorAttribute("RAFT", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+    /*
+    #*******************************************************************************
+    # Default showback cost
+    #*******************************************************************************
+    */
     vvalue.clear();
-    vvalue.insert(make_pair("CPU_COST","0"));
-    vvalue.insert(make_pair("MEMORY_COST","0"));
-    vvalue.insert(make_pair("DISK_COST","0"));
+    vvalue.insert(make_pair("CPU_COST", "0"));
+    vvalue.insert(make_pair("MEMORY_COST", "0"));
+    vvalue.insert(make_pair("DISK_COST", "0"));
 
-    vattribute = new VectorAttribute("DEFAULT_COST",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("DEFAULT_COST", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
-/*
-#*******************************************************************************
-# XML-RPC server configuration
-#-------------------------------------------------------------------------------
-#  MAX_CONN
-#  MAX_CONN_BACKLOG
-#  KEEPALIVE_TIMEOUT
-#  KEEPALIVE_MAX_CONN
-#  TIMEOUT
-#  RPC_LOG
-#  MESSAGE_SIZE
-#  LOG_CALL_FORMAT
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # XML-RPC server configuration
+    #-------------------------------------------------------------------------------
+    #  MAX_CONN
+    #  MAX_CONN_BACKLOG
+    #  KEEPALIVE_TIMEOUT
+    #  KEEPALIVE_MAX_CONN
+    #  TIMEOUT
+    #  RPC_LOG
+    #  MESSAGE_SIZE
+    #  LOG_CALL_FORMAT
+    #*******************************************************************************
+    */
     set_conf_single("MAX_CONN", "15");
     set_conf_single("MAX_CONN_BACKLOG", "15");
     set_conf_single("KEEPALIVE_TIMEOUT", "15");
@@ -502,47 +502,47 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("MESSAGE_SIZE", "1073741824");
     set_conf_single("LOG_CALL_FORMAT", "Req:%i UID:%u IP:%A %m invoked %l");
 
-/*
-#*******************************************************************************
-# Physical Networks configuration
-#*******************************************************************************
-#  NETWORK_SIZE
-#  MAC_PREFIX
-#  VLAN_ID
-#  VXLAN_ID
-#  PCI_PASSTHROUGH_BUS
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Physical Networks configuration
+    #*******************************************************************************
+    #  NETWORK_SIZE
+    #  MAC_PREFIX
+    #  VLAN_ID
+    #  VXLAN_ID
+    #  PCI_PASSTHROUGH_BUS
+    #*******************************************************************************
+    */
     set_conf_single("MAC_PREFIX", "02:00");
     set_conf_single("NETWORK_SIZE", "254");
 
     vvalue.clear();
-    vvalue.insert(make_pair("RESERVED","0, 1, 4095"));
-    vvalue.insert(make_pair("START","2"));
+    vvalue.insert(make_pair("RESERVED", "0, 1, 4095"));
+    vvalue.insert(make_pair("START", "2"));
 
-    vattribute = new VectorAttribute("VLAN_IDS",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("VLAN_IDS", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     vvalue.clear();
-    vvalue.insert(make_pair("START","2"));
+    vvalue.insert(make_pair("START", "2"));
 
-    vattribute = new VectorAttribute("VXLAN_IDS",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("VXLAN_IDS", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     set_conf_single("PCI_PASSTHROUGH_BUS", "0x01");
-/*
-#*******************************************************************************
-# Datastore Configuration
-#*******************************************************************************
-#  DATASTORE_LOCATION
-#  DATASTORE_CAPACITY_CHECK
-#  DEFAULT_IMAGE_TYPE
-#  DEFAULT_DEVICE_PREFIX
-#  DEFAULT_CDROM_DEVICE_PREFIX
-#  DEFAULT_IMAGE_PERSISTENCY
-#  DEFAULT_IMAGE_PERSISTENCY_ON_NEW
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Datastore Configuration
+    #*******************************************************************************
+    #  DATASTORE_LOCATION
+    #  DATASTORE_CAPACITY_CHECK
+    #  DEFAULT_IMAGE_TYPE
+    #  DEFAULT_DEVICE_PREFIX
+    #  DEFAULT_CDROM_DEVICE_PREFIX
+    #  DEFAULT_IMAGE_PERSISTENCY
+    #  DEFAULT_IMAGE_PERSISTENCY_ON_NEW
+    #*******************************************************************************
+    */
     set_conf_single("DATASTORE_LOCATION", var_location + "/datastores");
     set_conf_single("DATASTORE_CAPACITY_CHECK", "YES");
 
@@ -554,51 +554,51 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("DEFAULT_CDROM_DEVICE_PREFIX", "hd");
 
     set_conf_single("VM_SNAPSHOT_FACTOR", "0");
-/*
-#*******************************************************************************
-# Auth Manager Configuration
-#*******************************************************************************
-# DEFAULT_AUTH
-# SESSION_EXPIRATION_TIME
-# ENABLE_OTHER_PERMISSIONS
-# DEFAULT_UMASK
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # Auth Manager Configuration
+    #*******************************************************************************
+    # DEFAULT_AUTH
+    # SESSION_EXPIRATION_TIME
+    # ENABLE_OTHER_PERMISSIONS
+    # DEFAULT_UMASK
+    #*******************************************************************************
+    */
     set_conf_single("DEFAULT_AUTH", "default");
     set_conf_single("SESSION_EXPIRATION_TIME", "0");
     set_conf_single("ENABLE_OTHER_PERMISSIONS", "YES");
     set_conf_single("DEFAULT_UMASK", "177");
 
-/*
-#*******************************************************************************
-# VM Operations Permissions
-#*******************************************************************************
-# VM_ADMIN_OPERATIONS
-# VM_MANAGE_OPERATIONS
-# VM_USE_OPERATIONS
-#*******************************************************************************
-*/
+    /*
+    #*******************************************************************************
+    # VM Operations Permissions
+    #*******************************************************************************
+    # VM_ADMIN_OPERATIONS
+    # VM_MANAGE_OPERATIONS
+    # VM_USE_OPERATIONS
+    #*******************************************************************************
+    */
     set_conf_single("VM_ADMIN_OPERATIONS", "migrate, delete, recover, retry, "
-            "deploy, resched, backup, restore");
+                    "deploy, resched, backup, restore");
 
     set_conf_single("VM_MANAGE_OPERATIONS", "undeploy, hold, release, stop, "
-            "suspend, resume, reboot, poweroff, disk-attach, nic-attach, "
-            "disk-snapshot, terminate, disk-resize, snapshot, updateconf, "
-            "rename, resize, update, disk-saveas, sched-action, sg-attach, "
-            "pci-attach");
+                    "suspend, resume, reboot, poweroff, disk-attach, nic-attach, "
+                    "disk-snapshot, terminate, disk-resize, snapshot, updateconf, "
+                    "rename, resize, update, disk-saveas, sched-action, sg-attach, "
+                    "pci-attach");
 
     set_conf_single("VM_USE_OPERATIONS", "");
-/*/
-#*******************************************************************************
-# Hook Log Configuration
-#*******************************************************************************
-*/
+    /*/
+    #*******************************************************************************
+    # Hook Log Configuration
+    #*******************************************************************************
+    */
     vvalue.clear();
 
-    vvalue.insert(make_pair("LOG_RETENTION","10"));
+    vvalue.insert(make_pair("LOG_RETENTION", "10"));
     vattribute = new VectorAttribute("HOOK_LOG_CONF", vvalue);
 
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -663,7 +663,7 @@ int OpenNebulaTemplate::load_key()
 
 
     SingleAttribute * attribute = new SingleAttribute("ONE_KEY", key);
-    attributes.insert(make_pair(attribute->name(),attribute));
+    attributes.insert(make_pair(attribute->name(), attribute));
 
     return 0;
 }

@@ -44,7 +44,7 @@ public:
             const std::vector<const SingleAttribute *>& encrypted_attrs,
             const std::vector<const SingleAttribute *>& inherit_attrs);
 
-    ~ImagePool(){};
+    ~ImagePool() {};
 
     /**
      *  Function to allocate a new Image object
@@ -69,23 +69,23 @@ public:
      *                  -2 in case of template parse failure
      */
     int allocate (
-        int                      uid,
-        int                      gid,
-        const std::string&       uname,
-        const std::string&       gname,
-        int                      umask,
-        std::unique_ptr<ImageTemplate> img_template,
-        int                      ds_id,
-        const std::string&       ds_name,
-        Image::DiskType          disk_type,
-        const std::string&       ds_data,
-        Datastore::DatastoreType ds_type,
-        const std::string&       ds_mad,
-        const std::string&       tm_mad,
-        const std::string&       extra_data,
-        int                      source_img_id,
-        int *                    oid,
-        std::string&             error_str);
+            int                      uid,
+            int                      gid,
+            const std::string&       uname,
+            const std::string&       gname,
+            int                      umask,
+            std::unique_ptr<ImageTemplate> img_template,
+            int                      ds_id,
+            const std::string&       ds_name,
+            Image::DiskType          disk_type,
+            const std::string&       ds_data,
+            Datastore::DatastoreType ds_type,
+            const std::string&       ds_mad,
+            const std::string&       tm_mad,
+            const std::string&       extra_data,
+            int                      source_img_id,
+            int *                    oid,
+            std::string&             error_str);
 
     /**
      *  Updates an Image in the data base. It also updates the previous state
@@ -130,7 +130,7 @@ public:
      */
     std::unique_ptr<Image> get(const std::string& name, int uid)
     {
-        return PoolSQL::get<Image>(name,uid);
+        return PoolSQL::get<Image>(name, uid);
     }
 
     /**
@@ -167,7 +167,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "IMAGE_POOL", "body", one_db::image_table,
                              where, sid, eid, desc);
@@ -261,7 +261,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Image(-1,-1,"","",0,0);
+        return new Image(-1, -1, "", "", 0, 0);
     };
 };
 

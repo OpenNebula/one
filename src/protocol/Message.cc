@@ -19,7 +19,8 @@
 #include "ProtocolMessages.h"
 
 template<>
-const EString<MonitorDriverMessages> monitor_msg_t::_type_str({
+const EString<MonitorDriverMessages> monitor_msg_t::_type_str(
+{
     {"UNDEFINED", MonitorDriverMessages::UNDEFINED},
     {"INIT", MonitorDriverMessages::INIT},
     {"FINALIZE", MonitorDriverMessages::FINALIZE},
@@ -34,7 +35,8 @@ const EString<MonitorDriverMessages> monitor_msg_t::_type_str({
 });
 
 template<>
-const EString<InformationManagerMessages> im_msg_t::_type_str({
+const EString<InformationManagerMessages> im_msg_t::_type_str(
+{
     {"UNDEFINED", InformationManagerMessages::UNDEFINED},
     {"INIT", InformationManagerMessages::INIT},
     {"FINALIZE", InformationManagerMessages::FINALIZE},
@@ -50,7 +52,8 @@ const EString<InformationManagerMessages> im_msg_t::_type_str({
 });
 
 template<>
-const EString<ImageManagerMessages> image_msg_t::_type_str({
+const EString<ImageManagerMessages> image_msg_t::_type_str(
+{
     {"UNDEFINED", ImageManagerMessages::UNDEFINED},
     {"INIT", ImageManagerMessages::INIT},
     {"FINALIZE", ImageManagerMessages::FINALIZE},
@@ -69,7 +72,8 @@ const EString<ImageManagerMessages> image_msg_t::_type_str({
 });
 
 template<>
-const EString<AuthManagerMessages> auth_msg_t::_type_str({
+const EString<AuthManagerMessages> auth_msg_t::_type_str(
+{
     {"UNDEFINED", AuthManagerMessages::UNDEFINED},
     {"INIT", AuthManagerMessages::INIT},
     {"FINALIZE", AuthManagerMessages::FINALIZE},
@@ -79,7 +83,8 @@ const EString<AuthManagerMessages> auth_msg_t::_type_str({
 });
 
 template<>
-const EString<IPAMManagerMessages> ipam_msg_t::_type_str({
+const EString<IPAMManagerMessages> ipam_msg_t::_type_str(
+{
     {"UNDEFINED", IPAMManagerMessages::UNDEFINED},
     {"INIT", IPAMManagerMessages::INIT},
     {"FINALIZE", IPAMManagerMessages::FINALIZE},
@@ -94,7 +99,8 @@ const EString<IPAMManagerMessages> ipam_msg_t::_type_str({
 });
 
 template<>
-const EString<MarketPlaceManagerMessages> market_msg_t::_type_str({
+const EString<MarketPlaceManagerMessages> market_msg_t::_type_str(
+{
     {"UNDEFINED", MarketPlaceManagerMessages::UNDEFINED},
     {"INIT", MarketPlaceManagerMessages::INIT},
     {"FINALIZE", MarketPlaceManagerMessages::FINALIZE},
@@ -105,7 +111,8 @@ const EString<MarketPlaceManagerMessages> market_msg_t::_type_str({
 });
 
 template<>
-const EString<TransferManagerMessages> transfer_msg_t::_type_str({
+const EString<TransferManagerMessages> transfer_msg_t::_type_str(
+{
     {"UNDEFINED", TransferManagerMessages::UNDEFINED},
     {"INIT", TransferManagerMessages::INIT},
     {"FINALIZE", TransferManagerMessages::FINALIZE},
@@ -115,7 +122,8 @@ const EString<TransferManagerMessages> transfer_msg_t::_type_str({
 });
 
 template<>
-const EString<VMManagerMessages> vm_msg_t::_type_str({
+const EString<VMManagerMessages> vm_msg_t::_type_str(
+{
     {"UNDEFINED", VMManagerMessages::UNDEFINED},
     {"INIT", VMManagerMessages::INIT},
     {"FINALIZE", VMManagerMessages::FINALIZE},
@@ -150,7 +158,8 @@ const EString<VMManagerMessages> vm_msg_t::_type_str({
 });
 
 template<>
-const EString<HookManagerMessages> hook_msg_t::_type_str({
+const EString<HookManagerMessages> hook_msg_t::_type_str(
+{
     {"UNDEFINED", HookManagerMessages::UNDEFINED},
     {"INIT", HookManagerMessages::INIT},
     {"FINALIZE", HookManagerMessages::FINALIZE},

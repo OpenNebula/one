@@ -53,16 +53,16 @@ static unsigned int get_zone_servers(std::map<int, std::string>& _s);
 /* -------------------------------------------------------------------------- */
 
 RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
-        const VectorAttribute * follower_hook_mad, time_t log_purge,
-        long long bcast, long long elect, time_t xmlrpc,
-        const string& remotes_location)
+                         const VectorAttribute * follower_hook_mad, time_t log_purge,
+                         long long bcast, long long elect, time_t xmlrpc,
+                         const string& remotes_location)
     : server_id(id)
     , term(0)
     , num_servers(0)
     , reconciling(false)
     , timer_thread()
-    , purge_thread(log_purge, [this](){purge_action();})
-    , commit(0)
+    , purge_thread(log_purge, [this]() {purge_action();})
+, commit(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -153,7 +153,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         else
         {
             leader_hook = make_unique<ExecuteHook>("RAFT_LEADER_HOOK",
-                            cmd, arg, remotes_location);
+                                                   cmd, arg, remotes_location);
         }
     }
 
@@ -174,7 +174,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         else
         {
             follower_hook = make_unique<ExecuteHook>("RAFT_FOLLOWER_HOOK",
-                                cmd, arg, remotes_location);
+                                                     cmd, arg, remotes_location);
         }
     }
 
@@ -184,7 +184,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     }
 
     // timer_thread has short period, start it at the end of the constructor
-    timer_thread.start(timer_period_ms / 1000.0, [this](){timer_action();});
+    timer_thread.start(timer_period_ms / 1000.0, [this]() {timer_action();});
 }
 
 /* -------------------------------------------------------------------------- */
@@ -415,7 +415,8 @@ void RaftManager::leader()
 
     if ( _applied < index )
     {
-        std::thread t([this, _next_index] {
+        std::thread t([this, _next_index]
+        {
             Nebula& nd = Nebula::instance();
 
             LogDB * logdb    = nd.get_logdb();
@@ -586,7 +587,7 @@ void RaftManager::replicate_success(int follower_id)
     }
 
     if (db_lindex > replicated_index && state == LEADER &&
-            requests.is_replicable(replicated_index + 1))
+        requests.is_replicable(replicated_index + 1))
     {
         replica_manager.replicate(follower_id);
     }
@@ -707,7 +708,7 @@ void RaftManager::timer_action()
         long   nsec = last_heartbeat.tv_nsec + broadcast_timeout.tv_nsec;
 
         if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-                nsec <= the_time.tv_nsec))
+                                        nsec <= the_time.tv_nsec))
         {
             heartbeat_manager.replicate();
 
@@ -720,10 +721,10 @@ void RaftManager::timer_action()
         long   nsec = last_heartbeat.tv_nsec + election_timeout.tv_nsec;
 
         if ((sec < the_time.tv_sec) || (sec == the_time.tv_sec &&
-                nsec <= the_time.tv_nsec))
+                                        nsec <= the_time.tv_nsec))
         {
             NebulaLog::log("RRM", Log::ERROR, "Failed to get heartbeat from "
-                "leader. Starting election proccess");
+                           "leader. Starting election proccess");
 
             state = CANDIDATE;
 
@@ -758,7 +759,7 @@ void RaftManager::purge_action()
     // Thread heartbeat
     if ( (mark_tics * purge_period_ms) >= 600000 )
     {
-        NebulaLog::log("RCM",Log::INFO,"--Mark--");
+        NebulaLog::log("RCM", Log::INFO, "--Mark--");
         mark_tics = 0;
     }
 
@@ -926,7 +927,7 @@ void RaftManager::request_vote()
         logdb->update_raft_state(raft_state_name, raft_state_xml);
 
         ms = one_util::random<float>(0, 1) * (election_timeout.tv_sec * 1000
-            + election_timeout.tv_nsec / 1000000);
+                                              + election_timeout.tv_nsec / 1000000);
 
         oss.str("");
 
@@ -944,7 +945,7 @@ void RaftManager::request_vote()
 /* -------------------------------------------------------------------------- */
 
 int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
-        bool& success, unsigned int& fterm, std::string& error)
+                                      bool& success, unsigned int& fterm, std::string& error)
 {
     int _server_id;
     uint64_t _commit;
@@ -1002,7 +1003,7 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
     xml_rc = Client::call(follower_edp, replica_method, replica_params,
-            xmlrpc_timeout_ms, &result, error);
+                          xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
     {
@@ -1038,8 +1039,8 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 /* -------------------------------------------------------------------------- */
 
 int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
-        unsigned int lterm, bool& success, unsigned int& fterm,
-        std::string& error)
+                                     unsigned int lterm, bool& success, unsigned int& fterm,
+                                     std::string& error)
 {
     int _server_id;
     unsigned int _term;
@@ -1090,7 +1091,7 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
     xml_rc = Client::call(follower_edp, replica_method, replica_params,
-        xmlrpc_timeout_ms, &result, error);
+                          xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
     {

@@ -31,7 +31,7 @@ protected:
     RequestManagerVMTemplate(const std::string& method_name,
                              const std::string& help,
                              const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -39,7 +39,7 @@ protected:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~RequestManagerVMTemplate(){};
+    ~RequestManagerVMTemplate() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -50,12 +50,12 @@ class VMTemplateInstantiate : public RequestManagerVMTemplate
 public:
     VMTemplateInstantiate():
         RequestManagerVMTemplate("one.template.instantiate", "Instantiates a new "
-            "virtual machine using a template", "A:sisbs")
+                                 "virtual machine using a template", "A:sisbs")
     {
         auth_op = AuthRequest::USE;
     };
 
-    ~VMTemplateInstantiate(){};
+    ~VMTemplateInstantiate() {};
 
     /**
      * Instantiates the VM Template, checking permissions, quotas, etc
@@ -73,10 +73,10 @@ public:
      * @return ErroCode for the request.
      */
     ErrorCode request_execute(int id, const std::string& name, bool on_hold,
-        const std::string& s_uattr, Template* extra_attrs, int& vid,
-        RequestAttributes& att);
+                              const std::string& s_uattr, Template* extra_attrs, int& vid,
+                              RequestAttributes& att);
 
-	/**
+    /**
      * Parse & merge user attributes (check if the request user is not oneadmin)
      *  @param tmpl to merge the attributes to
      *  @param s_uattr Template supplied by user to merge with the original

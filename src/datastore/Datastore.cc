@@ -36,18 +36,18 @@ Datastore::Datastore(
         int                 umask,
         unique_ptr<DatastoreTemplate>  ds_template,
         const set<int>      &cluster_ids):
-            PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,one_db::ds_table),
-            Clusterable(cluster_ids),
-            ds_mad(""),
-            tm_mad(""),
-            base_path(""),
-            type(IMAGE_DS),
-            disk_type(Image::FILE),
-            total_mb(0),
-            free_mb(0),
-            used_mb(0),
-            state(READY),
-            images("IMAGES")
+    PoolObjectSQL(-1, DATASTORE, "", uid, gid, uname, gname, one_db::ds_table),
+    Clusterable(cluster_ids),
+    ds_mad(""),
+    tm_mad(""),
+    base_path(""),
+    type(IMAGE_DS),
+    disk_type(Image::FILE),
+    total_mb(0),
+    free_mb(0),
+    used_mb(0),
+    state(READY),
+    images("IMAGES")
 {
     if (ds_template)
     {
@@ -542,11 +542,11 @@ int Datastore::set_ds_disk_type(string& s_dt, string& error)
 {
     if (s_dt.empty())
     {
-       disk_type = Image::FILE;
+        disk_type = Image::FILE;
     }
     else
     {
-       disk_type = Image::str_to_disk_type(s_dt);
+        disk_type = Image::str_to_disk_type(s_dt);
     }
 
     switch(type)
@@ -840,7 +840,7 @@ string& Datastore::to_xml(string& xml) const
     string          perms_xml;
 
     oss <<
-    "<DATASTORE>"               <<
+        "<DATASTORE>"               <<
         "<ID>"                  << oid          << "</ID>"        <<
         "<UID>"                 << uid          << "</UID>"       <<
         "<GID>"                 << gid          << "</GID>"       <<
@@ -860,7 +860,7 @@ string& Datastore::to_xml(string& xml) const
         "<USED_MB>"             << used_mb      << "</USED_MB>"   <<
         images.to_xml(images_xml)               <<
         obj_template->to_xml(template_xml)      <<
-    "</DATASTORE>";
+        "</DATASTORE>";
 
     xml = oss.str();
 
@@ -893,10 +893,10 @@ int Datastore::from_xml(const string& xml)
     rc += xpath(ds_mad,       "/DATASTORE/DS_MAD",    "not_found");
     rc += xpath(tm_mad,       "/DATASTORE/TM_MAD",    "not_found");
     rc += xpath(int_ds_type,  "/DATASTORE/TYPE",      -1);
-    rc += xpath(int_disk_type,"/DATASTORE/DISK_TYPE", -1);
+    rc += xpath(int_disk_type, "/DATASTORE/DISK_TYPE", -1);
     rc += xpath(int_state,    "/DATASTORE/STATE",     0);
 
-    rc += xpath<long long>(total_mb,"/DATASTORE/TOTAL_MB",0);
+    rc += xpath<long long>(total_mb, "/DATASTORE/TOTAL_MB", 0);
     rc += xpath<long long>(free_mb, "/DATASTORE/FREE_MB", 0);
     rc += xpath<long long>(used_mb, "/DATASTORE/USED_MB", 0);
 
@@ -1153,7 +1153,7 @@ bool Datastore::is_concurrent_forget() const
 /* -------------------------------------------------------------------------- */
 
 int Datastore::get_tm_mad_targets(const string &tm_mad, string& ln_target,
-        string& clone_target, string& disk_type) const
+                                  string& clone_target, string& disk_type) const
 {
     if (tm_mad.empty())
     {

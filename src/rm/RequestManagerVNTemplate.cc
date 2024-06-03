@@ -68,8 +68,8 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VNTemplateInstantiate::request_execute(int id, const string& name,
-        const string &str_uattrs, Template* extra_attrs, int& vid,
-        RequestAttributes& att)
+                                                          const string &str_uattrs, Template* extra_attrs, int& vid,
+                                                          RequestAttributes& att)
 {
     int rc;
 
@@ -146,7 +146,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, const string& 
 
     if (!name.empty())
     {
-        tmpl->set(new SingleAttribute("NAME",name));
+        tmpl->set(new SingleAttribute("NAME", name));
     }
 
     //--------------------------------------------------------------------------
@@ -163,7 +163,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, const string& 
     }
 
     rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            -1, move(tmpl), &vid, cluster_ids, att.resp_msg);
+                          -1, move(tmpl), &vid, cluster_ids, att.resp_msg);
 
     if ( rc < 0 )
     {
@@ -186,9 +186,9 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, const string& 
 /* -------------------------------------------------------------------------- */
 
 Request::ErrorCode VNTemplateInstantiate::merge(
-                Template *      tmpl,
-                const string    &str_uattrs,
-                RequestAttributes& att)
+        Template *      tmpl,
+        const string    &str_uattrs,
+        RequestAttributes& att)
 {
     int rc;
 

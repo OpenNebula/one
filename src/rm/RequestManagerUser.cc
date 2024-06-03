@@ -19,8 +19,8 @@
 using namespace std;
 
 void RequestManagerUser::
-    request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+request_execute(xmlrpc_c::paramList const& paramList,
+                RequestAttributes& att)
 {
     int    id  = xmlrpc_c::value_int(paramList.getInt(1));
 
@@ -67,7 +67,7 @@ int UserChangePassword::user_action(int     user_id,
     bool allowed  = false;
 
     if ( Nebula::instance().get_auth_conf_attribute(driver, "PASSWORD_CHANGE",
-            allowed) != 0)
+                                                    allowed) != 0)
     {
         allowed = false;
     }
@@ -223,8 +223,8 @@ int UserEnable::user_action(int     user_id,
 /* -------------------------------------------------------------------------- */
 
 void UserEditGroup::
-    request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+request_execute(xmlrpc_c::paramList const& paramList,
+                RequestAttributes& att)
 {
     int user_id  = xmlrpc_c::value_int(paramList.getInt(1));
     int group_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -255,7 +255,7 @@ void UserEditGroup::
     bool driver_managed_groups;
 
     if (Nebula::instance().get_auth_conf_attribute(auth_driver,
-            "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0)
+                                                   "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0)
     {
         driver_managed_groups = false;
     }
@@ -263,12 +263,12 @@ void UserEditGroup::
     if (driver_managed_groups)
     {
         att.resp_msg = "Groups cannot be manually managed for auth driver " +
-            auth_driver;
+                       auth_driver;
         failure_response(ACTION, att);
         return;
     }
 
-    rc = get_info(gpool,group_id,PoolObjectSQL::GROUP,att,gperms,gname,true);
+    rc = get_info(gpool, group_id, PoolObjectSQL::GROUP, att, gperms, gname, true);
 
     if ( rc == -1 )
     {
@@ -300,10 +300,10 @@ void UserEditGroup::
 /* -------------------------------------------------------------------------- */
 
 int UserAddGroup::secondary_group_action(
-            int                        user_id,
-            int                        group_id,
-            xmlrpc_c::paramList const& _paramList,
-            string&                    error_str)
+        int                        user_id,
+        int                        group_id,
+        xmlrpc_c::paramList const& _paramList,
+        string&                    error_str)
 {
     int rc;
 
@@ -351,10 +351,10 @@ int UserAddGroup::secondary_group_action(
 /* -------------------------------------------------------------------------- */
 
 int UserDelGroup::secondary_group_action(
-            int                        user_id,
-            int                        group_id,
-            xmlrpc_c::paramList const& _paramList,
-            string&                    error_str)
+        int                        user_id,
+        int                        group_id,
+        xmlrpc_c::paramList const& _paramList,
+        string&                    error_str)
 {
     int rc;
 
@@ -403,7 +403,7 @@ int UserDelGroup::secondary_group_action(
 /* -------------------------------------------------------------------------- */
 
 void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+                                RequestAttributes& att)
 {
     /* ---------------------------------------------------------------------- */
     /* Parse request attributes and authorize request                         */
@@ -457,8 +457,8 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
     string auth_driver = user->get_auth_driver();
     time_t max_token_time;
 
-    if (Nebula::instance().get_auth_conf_attribute(auth_driver,"MAX_TOKEN_TIME",
-        max_token_time) != 0)
+    if (Nebula::instance().get_auth_conf_attribute(auth_driver, "MAX_TOKEN_TIME",
+                                                   max_token_time) != 0)
     {
         max_token_time = -1;
     }
@@ -502,7 +502,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
          * 3. user is not oneadmin or admin group
          */
         if ( egid != -1 && !att.is_admin() && ( !user->is_in_group(egid) ||
-                    att.group_ids.count(egid) == 0) )
+                                                att.group_ids.count(egid) == 0) )
         {
             att.resp_msg = "EGID is not in user group list";
             failure_response(XML_RPC_API,  att);

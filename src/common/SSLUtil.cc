@@ -70,7 +70,7 @@ namespace ssl_util
         auto output        = new char[max_size];
 
         const int size = EVP_EncodeBlock(reinterpret_cast<unsigned char *>(output),
-            reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
+                                         reinterpret_cast<const unsigned char *>(in.c_str()), in.length());
 
         if (size <= 0)
         {
@@ -91,7 +91,7 @@ namespace ssl_util
     /**
      *  Buffer length for zlib inflate/deflate
      */
-    #define ZBUFFER 16384
+#define ZBUFFER 16384
 
     int zlib_decompress(const std::string& in, std::string& out)
     {
@@ -281,7 +281,7 @@ namespace ssl_util
         char * out_c = (char *) malloc(sizeof(char) * RSA_size(rsa));
 
         int rc = RSA_public_encrypt(in.length(), (const unsigned char *) in.c_str(),
-                (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
+                                    (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
 
         if ( rc != -1 )
         {
@@ -341,7 +341,7 @@ namespace ssl_util
             }
 
             int rc = RSA_private_decrypt(block_size, (const unsigned char *)
-                    in_c + index, (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
+                                         in_c + index, (unsigned char *) out_c, rsa, RSA_PKCS1_PADDING);
 
             if ( rc != -1 )
             {
@@ -365,7 +365,7 @@ namespace ssl_util
     /* -------------------------------------------------------------------------- */
 
     extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
-        int line)
+                                           int line)
     {
         const auto& pm = SSLMutex::ssl_mutex->vmutex[type];
 
@@ -423,7 +423,7 @@ namespace ssl_util
         CRYPTO_set_id_callback((unsigned long (*)()) sslmutex_id_callback);
 
         CRYPTO_set_locking_callback(
-            (void (*)(int, int, const char*, int))sslmutex_lock_callback);
+                (void (*)(int, int, const char*, int))sslmutex_lock_callback);
     }
 
     /* -------------------------------------------------------------------------- */

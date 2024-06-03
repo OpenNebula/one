@@ -66,10 +66,10 @@ public:
     const std::string& _to_str(T ev) const
     {
         const auto it = std::find_if(enum_map.begin(), enum_map.end(),
-            [ev](const std::pair<std::string, T> & t) -> bool
-            {
-                return t.second == ev;
-            });
+                                     [ev](const std::pair<std::string, T> & t) -> bool
+        {
+            return t.second == ev;
+        });
 
         return it->first;
     }

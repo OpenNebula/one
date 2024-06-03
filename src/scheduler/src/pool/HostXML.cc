@@ -29,14 +29,16 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 int HostXML::host_num_paths = 7;
 
-const char *HostXML::host_paths[] = {
+const char *HostXML::host_paths[] =
+{
     "/HOST/TEMPLATE/",
     "/HOST/HOST_SHARE/",
     "/HOST/HOST_SHARE/DATASTORES/",
     "/HOST/MONITORING/CAPACITY/",
     "/HOST/MONITORING/SYSTEM/",
     "/HOST/",
-    "/HOST/CLUSTER_TEMPLATE/"};
+    "/HOST/CLUSTER_TEMPLATE/"
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

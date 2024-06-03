@@ -34,7 +34,7 @@ public:
                        const std::string& _conf_name = conf_name):
         NebulaTemplate(etc_location, _conf_name.c_str(), "OPENNEBULA_CONFIGURATION"),
         var_location(_var_location)
-        {};
+    {};
 
     ~OpenNebulaTemplate() = default;
 
@@ -54,7 +54,7 @@ public:
      *  Returns action set from a string of actions seperated by commas
      */
     static int set_vm_auth_ops(const std::string& ops_str,
-       ActionSet<VMActions::Action>& ops_set, std::string& error);
+                               ActionSet<VMActions::Action>& ops_set, std::string& error);
 
     /**
      *  @param  action

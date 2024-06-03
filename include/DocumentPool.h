@@ -29,11 +29,12 @@ class DocumentPool : public PoolSQL
 public:
 
     DocumentPool(SqlDB * db, const std::vector<const SingleAttribute *>& ea) :
-        PoolSQL(db, one_db::doc_table) {
+        PoolSQL(db, one_db::doc_table)
+    {
         DocumentTemplate::parse_encrypted(ea);
     };
 
-    ~DocumentPool(){};
+    ~DocumentPool() {};
 
     /**
      *  Allocates a new object, writing it in the pool database. No memory is
@@ -61,9 +62,9 @@ public:
                  std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
-            new Document(-1, uid, gid, uname, gname, umask, type,
-                         std::move(template_contents)),
-            error_str);
+                       new Document(-1, uid, gid, uname, gname, umask, type,
+                                    std::move(template_contents)),
+                       error_str);
 
         return *oid;
     }
@@ -103,7 +104,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", one_db::doc_table,
                              where, sid, eid, desc);
@@ -125,7 +126,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Document(-1,-1,-1,"","",0,0,0);
+        return new Document(-1, -1, -1, "", "", 0, 0, 0);
     };
 };
 

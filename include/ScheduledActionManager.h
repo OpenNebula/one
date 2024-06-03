@@ -55,7 +55,7 @@ private:
     /*
      * Count backups per host map<host_id, backups_count>
      */
-    std::map<int,int> host_backups;
+    std::map<int, int> host_backups;
 
     /*
      * List of backups to run <sa_id, vm_id>

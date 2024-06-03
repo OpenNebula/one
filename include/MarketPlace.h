@@ -45,9 +45,12 @@ public:
 
         state = ENABLED;
 
-        if ( st == "ENABLED" ) {
+        if ( st == "ENABLED" )
+        {
             state = ENABLED;
-        } else if ( st == "DISABLED" ) {
+        }
+        else if ( st == "DISABLED" )
+        {
             state = DISABLED;
         }
         else

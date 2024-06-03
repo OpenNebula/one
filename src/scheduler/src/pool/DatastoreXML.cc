@@ -28,7 +28,8 @@ using namespace std;
 
 int DatastoreXML::ds_num_paths = 2;
 
-const char * DatastoreXML::ds_paths[] = {
+const char * DatastoreXML::ds_paths[] =
+{
     "/DATASTORE/TEMPLATE/",
     "/DATASTORE/"
 };

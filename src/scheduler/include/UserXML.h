@@ -50,7 +50,7 @@ private:
     void init_attributes()
     {
         xpath(oid,  "/USER/ID", -1);
-        xpaths(gids,"/USER/GROUPS/ID");
+        xpaths(gids, "/USER/GROUPS/ID");
     };
 };
 

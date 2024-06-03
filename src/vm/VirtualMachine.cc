@@ -47,21 +47,21 @@ VirtualMachine::VirtualMachine(int           id,
                                const string& _gname,
                                int           umask,
                                unique_ptr<VirtualMachineTemplate> _vm_template):
-        PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,one_db::vm_table),
-        state(INIT),
-        prev_state(INIT),
-        lcm_state(LCM_INIT),
-        prev_lcm_state(LCM_INIT),
-        resched(0),
-        stime(time(0)),
-        etime(0),
-        deploy_id(""),
-        history(0),
-        previous_history(0),
-        disks(false),
-        nics(false),
-        _log(0),
-        _sched_actions("SCHED_ACTIONS")
+    PoolObjectSQL(id, VM, "", _uid, _gid, _uname, _gname, one_db::vm_table),
+    state(INIT),
+    prev_state(INIT),
+    lcm_state(LCM_INIT),
+    prev_lcm_state(LCM_INIT),
+    resched(0),
+    stime(time(0)),
+    etime(0),
+    deploy_id(""),
+    history(0),
+    previous_history(0),
+    disks(false),
+    nics(false),
+    _log(0),
+    _sched_actions("SCHED_ACTIONS")
 {
     if (_vm_template != 0)
     {
@@ -72,7 +72,7 @@ VirtualMachine::VirtualMachine(int           id,
     }
     else
     {
-        user_obj_template = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+        user_obj_template = make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
     }
 
     obj_template = make_unique<VirtualMachineTemplate>();
@@ -97,29 +97,52 @@ int VirtualMachine::vm_state_from_str(string& st, VmState& state)
 {
     one_util::toupper(st);
 
-    if ( st == "INIT" ) {
+    if ( st == "INIT" )
+    {
         state = INIT;
-    } else if ( st == "PENDING" ) {
+    }
+    else if ( st == "PENDING" )
+    {
         state = PENDING;
-    } else if ( st == "HOLD" ) {
+    }
+    else if ( st == "HOLD" )
+    {
         state = HOLD;
-    } else if ( st == "ACTIVE" ) {
+    }
+    else if ( st == "ACTIVE" )
+    {
         state = ACTIVE;
-    } else if ( st == "STOPPED" ) {
+    }
+    else if ( st == "STOPPED" )
+    {
         state = STOPPED;
-    } else if ( st == "SUSPENDED" ) {
+    }
+    else if ( st == "SUSPENDED" )
+    {
         state = SUSPENDED;
-    } else if ( st == "DONE" ) {
+    }
+    else if ( st == "DONE" )
+    {
         state = DONE;
-    } else if ( st == "POWEROFF" ) {
+    }
+    else if ( st == "POWEROFF" )
+    {
         state = POWEROFF;
-    } else if ( st == "UNDEPLOYED" ) {
+    }
+    else if ( st == "UNDEPLOYED" )
+    {
         state = UNDEPLOYED;
-    } else if ( st == "CLONING" ) {
+    }
+    else if ( st == "CLONING" )
+    {
         state = CLONING;
-    } else if ( st == "CLONING_FAILURE" ) {
+    }
+    else if ( st == "CLONING_FAILURE" )
+    {
         state = CLONING_FAILURE;
-    } else {
+    }
+    else
+    {
         return -1;
     }
 
@@ -166,143 +189,280 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
 {
     one_util::toupper(st);
 
-    if ( st == "LCM_INIT" ){
+    if ( st == "LCM_INIT" )
+    {
         state = LCM_INIT;
-    } else if ( st == "PROLOG" ) {
+    }
+    else if ( st == "PROLOG" )
+    {
         state = PROLOG;
-    } else if ( st == "BOOT" ) {
+    }
+    else if ( st == "BOOT" )
+    {
         state = BOOT;
-    } else if ( st == "RUNNING" ) {
+    }
+    else if ( st == "RUNNING" )
+    {
         state = RUNNING;
-    } else if ( st == "MIGRATE" ) {
+    }
+    else if ( st == "MIGRATE" )
+    {
         state = MIGRATE;
-    } else if ( st == "SAVE_STOP" ) {
+    }
+    else if ( st == "SAVE_STOP" )
+    {
         state = SAVE_STOP;
-    } else if ( st == "SAVE_SUSPEND" ) {
+    }
+    else if ( st == "SAVE_SUSPEND" )
+    {
         state = SAVE_SUSPEND;
-    } else if ( st == "SAVE_MIGRATE" ) {
+    }
+    else if ( st == "SAVE_MIGRATE" )
+    {
         state = SAVE_MIGRATE;
-    } else if ( st == "PROLOG_MIGRATE" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE" )
+    {
         state = PROLOG_MIGRATE;
-    } else if ( st == "PROLOG_RESUME" ) {
+    }
+    else if ( st == "PROLOG_RESUME" )
+    {
         state = PROLOG_RESUME;
-    } else if ( st == "EPILOG_STOP" ) {
+    }
+    else if ( st == "EPILOG_STOP" )
+    {
         state = EPILOG_STOP;
-    } else if ( st == "EPILOG" ) {
+    }
+    else if ( st == "EPILOG" )
+    {
         state = EPILOG;
-    } else if ( st == "SHUTDOWN" ) {
+    }
+    else if ( st == "SHUTDOWN" )
+    {
         state = SHUTDOWN;
-    } else if ( st == "CLEANUP_RESUBMIT" ) {
+    }
+    else if ( st == "CLEANUP_RESUBMIT" )
+    {
         state = CLEANUP_RESUBMIT;
-    } else if ( st == "UNKNOWN" ) {
+    }
+    else if ( st == "UNKNOWN" )
+    {
         state = UNKNOWN;
-    } else if ( st == "HOTPLUG" ) {
+    }
+    else if ( st == "HOTPLUG" )
+    {
         state = HOTPLUG;
-    } else if ( st == "SHUTDOWN_POWEROFF" ) {
+    }
+    else if ( st == "SHUTDOWN_POWEROFF" )
+    {
         state = SHUTDOWN_POWEROFF;
-    } else if ( st == "BOOT_UNKNOWN" ) {
+    }
+    else if ( st == "BOOT_UNKNOWN" )
+    {
         state = BOOT_UNKNOWN;
-    } else if ( st == "BOOT_POWEROFF" ) {
+    }
+    else if ( st == "BOOT_POWEROFF" )
+    {
         state = BOOT_POWEROFF;
-    } else if ( st == "BOOT_SUSPENDED" ) {
+    }
+    else if ( st == "BOOT_SUSPENDED" )
+    {
         state = BOOT_SUSPENDED;
-    } else if ( st == "BOOT_STOPPED" ) {
+    }
+    else if ( st == "BOOT_STOPPED" )
+    {
         state = BOOT_STOPPED;
-    } else if ( st == "CLEANUP_DELETE" ) {
+    }
+    else if ( st == "CLEANUP_DELETE" )
+    {
         state = CLEANUP_DELETE;
-    } else if ( st == "HOTPLUG_SNAPSHOT" ) {
+    }
+    else if ( st == "HOTPLUG_SNAPSHOT" )
+    {
         state = HOTPLUG_SNAPSHOT;
-    } else if ( st == "HOTPLUG_NIC" ) {
+    }
+    else if ( st == "HOTPLUG_NIC" )
+    {
         state = HOTPLUG_NIC;
-    } else if ( st == "HOTPLUG_SAVEAS" ) {
+    }
+    else if ( st == "HOTPLUG_SAVEAS" )
+    {
         state = HOTPLUG_SAVEAS;
-    } else if ( st == "HOTPLUG_SAVEAS_POWEROFF" ) {
+    }
+    else if ( st == "HOTPLUG_SAVEAS_POWEROFF" )
+    {
         state = HOTPLUG_SAVEAS_POWEROFF;
-    } else if ( st == "HOTPLUG_SAVEAS_SUSPENDED" ) {
+    }
+    else if ( st == "HOTPLUG_SAVEAS_SUSPENDED" )
+    {
         state = HOTPLUG_SAVEAS_SUSPENDED;
-    } else if ( st == "SHUTDOWN_UNDEPLOY" ) {
+    }
+    else if ( st == "SHUTDOWN_UNDEPLOY" )
+    {
         state = SHUTDOWN_UNDEPLOY;
-    } else if ( st == "EPILOG_UNDEPLOY" ) {
+    }
+    else if ( st == "EPILOG_UNDEPLOY" )
+    {
         state = EPILOG_UNDEPLOY;
-    } else if ( st == "PROLOG_UNDEPLOY" ) {
+    }
+    else if ( st == "PROLOG_UNDEPLOY" )
+    {
         state = PROLOG_UNDEPLOY;
-    } else if ( st == "BOOT_UNDEPLOY" ) {
+    }
+    else if ( st == "BOOT_UNDEPLOY" )
+    {
         state = BOOT_UNDEPLOY;
-    } else if ( st == "HOTPLUG_PROLOG_POWEROFF" ) {
+    }
+    else if ( st == "HOTPLUG_PROLOG_POWEROFF" )
+    {
         state = HOTPLUG_PROLOG_POWEROFF;
-    } else if ( st == "HOTPLUG_EPILOG_POWEROFF" ) {
+    }
+    else if ( st == "HOTPLUG_EPILOG_POWEROFF" )
+    {
         state = HOTPLUG_EPILOG_POWEROFF;
-    } else if ( st == "BOOT_MIGRATE" ) {
+    }
+    else if ( st == "BOOT_MIGRATE" )
+    {
         state = BOOT_MIGRATE;
-    } else if ( st == "BOOT_FAILURE" ) {
+    }
+    else if ( st == "BOOT_FAILURE" )
+    {
         state = BOOT_FAILURE;
-    } else if ( st == "BOOT_MIGRATE_FAILURE" ) {
+    }
+    else if ( st == "BOOT_MIGRATE_FAILURE" )
+    {
         state = BOOT_MIGRATE_FAILURE;
-    } else if ( st == "PROLOG_MIGRATE_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_FAILURE" )
+    {
         state = PROLOG_MIGRATE_FAILURE;
-    } else if ( st == "PROLOG_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_FAILURE" )
+    {
         state = PROLOG_FAILURE;
-    } else if ( st == "EPILOG_FAILURE" ) {
+    }
+    else if ( st == "EPILOG_FAILURE" )
+    {
         state = EPILOG_FAILURE;
-    } else if ( st == "EPILOG_STOP_FAILURE" ) {
+    }
+    else if ( st == "EPILOG_STOP_FAILURE" )
+    {
         state = EPILOG_STOP_FAILURE;
-    } else if ( st == "EPILOG_UNDEPLOY_FAILURE" ) {
+    }
+    else if ( st == "EPILOG_UNDEPLOY_FAILURE" )
+    {
         state = EPILOG_UNDEPLOY_FAILURE;
-    } else if ( st == "PROLOG_MIGRATE_POWEROFF" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_POWEROFF" )
+    {
         state = PROLOG_MIGRATE_POWEROFF;
-    } else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE" )
+    {
         state = PROLOG_MIGRATE_POWEROFF_FAILURE;
-    } else if ( st == "PROLOG_MIGRATE_SUSPEND" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_SUSPEND" )
+    {
         state = PROLOG_MIGRATE_SUSPEND;
-    } else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE" )
+    {
         state = PROLOG_MIGRATE_SUSPEND_FAILURE;
-    } else if ( st == "BOOT_STOPPED_FAILURE" ) {
+    }
+    else if ( st == "BOOT_STOPPED_FAILURE" )
+    {
         state = BOOT_STOPPED_FAILURE;
-    } else if ( st == "BOOT_UNDEPLOY_FAILURE" ) {
+    }
+    else if ( st == "BOOT_UNDEPLOY_FAILURE" )
+    {
         state = BOOT_UNDEPLOY_FAILURE;
-    } else if ( st == "PROLOG_RESUME_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_RESUME_FAILURE" )
+    {
         state = PROLOG_RESUME_FAILURE;
-    } else if ( st == "PROLOG_UNDEPLOY_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_UNDEPLOY_FAILURE" )
+    {
         state = PROLOG_UNDEPLOY_FAILURE;
-    } else if ( st == "DISK_SNAPSHOT_POWEROFF" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_POWEROFF" )
+    {
         state = DISK_SNAPSHOT_POWEROFF;
-    } else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF" )
+    {
         state = DISK_SNAPSHOT_REVERT_POWEROFF;
-    } else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF" )
+    {
         state = DISK_SNAPSHOT_DELETE_POWEROFF;
-    } else if ( st == "DISK_SNAPSHOT_SUSPENDED" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_SUSPENDED" )
+    {
         state = DISK_SNAPSHOT_SUSPENDED;
-    } else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED" )
+    {
         state = DISK_SNAPSHOT_DELETE_SUSPENDED;
-    } else if ( st == "DISK_SNAPSHOT" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT" )
+    {
         state = DISK_SNAPSHOT;
-    } else if ( st == "DISK_SNAPSHOT_DELETE" ) {
+    }
+    else if ( st == "DISK_SNAPSHOT_DELETE" )
+    {
         state = DISK_SNAPSHOT_DELETE;
-    } else if ( st == "PROLOG_MIGRATE_UNKNOWN" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_UNKNOWN" )
+    {
         state = PROLOG_MIGRATE_UNKNOWN;
-    } else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE" ) {
+    }
+    else if ( st == "PROLOG_MIGRATE_UNKNOWN_FAILURE" )
+    {
         state = PROLOG_MIGRATE_UNKNOWN_FAILURE;
-    } else if ( st == "DISK_RESIZE" ) {
+    }
+    else if ( st == "DISK_RESIZE" )
+    {
         state = DISK_RESIZE;
-    } else if ( st == "DISK_RESIZE_POWEROFF" ) {
+    }
+    else if ( st == "DISK_RESIZE_POWEROFF" )
+    {
         state = DISK_RESIZE_POWEROFF;
-    } else if ( st == "DISK_RESIZE_UNDEPLOYED" ) {
+    }
+    else if ( st == "DISK_RESIZE_UNDEPLOYED" )
+    {
         state = DISK_RESIZE_UNDEPLOYED;
-    } else if ( st == "HOTPLUG_NIC_POWEROFF" ) {
+    }
+    else if ( st == "HOTPLUG_NIC_POWEROFF" )
+    {
         state = HOTPLUG_NIC_POWEROFF;
-    } else if ( st == "HOTPLUG_RESIZE" ) {
+    }
+    else if ( st == "HOTPLUG_RESIZE" )
+    {
         state = HOTPLUG_RESIZE;
-    } else if ( st == "HOTPLUG_SAVEAS_UNDEPLOYED" ) {
+    }
+    else if ( st == "HOTPLUG_SAVEAS_UNDEPLOYED" )
+    {
         state = HOTPLUG_SAVEAS_UNDEPLOYED;
-    } else if ( st == "HOTPLUG_SAVEAS_STOPPED" ) {
+    }
+    else if ( st == "HOTPLUG_SAVEAS_STOPPED" )
+    {
         state = HOTPLUG_SAVEAS_STOPPED;
-    } else if ( st == "BACKUP" ) {
+    }
+    else if ( st == "BACKUP" )
+    {
         state = BACKUP;
-    } else if ( st == "BACKUP_POWEROFF" ) {
+    }
+    else if ( st == "BACKUP_POWEROFF" )
+    {
         state = BACKUP_POWEROFF;
-    } else if ( st == "RESTORE" ) {
+    }
+    else if ( st == "RESTORE" )
+    {
         state = RESTORE;
-    } else {
+    }
+    else
+    {
         return -1;
     }
 
@@ -610,7 +770,7 @@ int VirtualMachine::select(SqlDB * db)
     catch(exception &e)
     {
         ose << "Error creating log: " << e.what();
-        NebulaLog::log("ONE",Log::ERROR, ose);
+        NebulaLog::log("ONE", Log::ERROR, ose);
 
         _log = 0;
     }
@@ -687,7 +847,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
             goto error_parsing;
         }
 
-        if (str_dev.compare(0,4,"DISK") == 0)
+        if (str_dev.compare(0, 4, "DISK") == 0)
         {
             pos = 4;
 
@@ -696,7 +856,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
 
             id_name = "DISK_ID";
         }
-        else if (str_dev.compare(0,3,"NIC") == 0)
+        else if (str_dev.compare(0, 3, "NIC") == 0)
         {
             pos = 3;
 
@@ -726,7 +886,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
             int j_disk_id;
 
             if ( (*dev)[j]->vector_value(id_name, j_disk_id) == 0 &&
-                   j_disk_id == disk_id )
+                 j_disk_id == disk_id )
             {
                 (*dev)[j]->replace("ORDER", index++);
                 found = true;
@@ -789,7 +949,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         obj_template->add("TEMPLATE_ID", value);
     }
 
-    user_obj_template->get("NAME",name);
+    user_obj_template->get("NAME", name);
     user_obj_template->erase("NAME");
 
     user_obj_template->get("TEMPLATE_NAME", prefix);
@@ -1045,7 +1205,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // the backups
     // ------------------------------------------------------------------------
     rc = _backups.parse(user_obj_template.get(), disks.backup_increment(true),
-            false, error_str);
+                        false, error_str);
 
     if ( rc != 0 )
     {
@@ -1189,7 +1349,7 @@ error_public:
 error_name:
 error_mem_mode:
 error_common:
-    NebulaLog::log("ONE",Log::ERROR, error_str);
+    NebulaLog::log("ONE", Log::ERROR, error_str);
 
     return -1;
 }
@@ -1201,7 +1361,7 @@ error_common:
  * @return -1 for incompatible datastore IDs, -2 for missing datastore IDs
  */
 static int check_and_set_datastores_id(const set<int> &csystem_ds,
-        set<int> &ds_ids)
+                                       set<int> &ds_ids)
 {
     if ( csystem_ds.empty() )
     {
@@ -1263,7 +1423,7 @@ static int check_and_set_cluster_id(
     }
 
     set<int> intersection = one_util::set_intersection(cluster_ids,
-            vatt_cluster_ids);
+                                                       vatt_cluster_ids);
 
     if (intersection.empty())
     {
@@ -1345,7 +1505,7 @@ static void update_nic_cluster_id(VectorAttribute* nic)
  * @return 0 on success
  */
 static int get_cluster_requirements(Template *tmpl, set<int>& cluster_ids,
-        string& error_str)
+                                    string& error_str)
 {
     ostringstream   oss;
     int             num_vatts;
@@ -1379,7 +1539,7 @@ static int get_cluster_requirements(Template *tmpl, set<int>& cluster_ids,
     }
 
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
-    num_vatts = tmpl->get("DISK",vatts);
+    num_vatts = tmpl->get("DISK", vatts);
 
     for (int i=0; i<num_vatts; i++)
     {
@@ -1527,7 +1687,7 @@ error_common:
  * @return 0 on success
  */
 static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
-        bool& shareable, string& error_str)
+                                      bool& shareable, string& error_str)
 {
     ostringstream oss;
 
@@ -1540,7 +1700,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
     int incomp_id;
 
     // Get cluster id from all DISK vector attributes (IMAGE Datastore)
-    int num_vatts = tmpl->get("DISK",vatts);
+    int num_vatts = tmpl->get("DISK", vatts);
 
     for (int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
@@ -1895,12 +2055,12 @@ int VirtualMachine::update_search(SqlDB * db)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::add_history(
-    int   hid,
-    int   cid,
-    const string& hostname,
-    const string& vmm_mad,
-    const string& tm_mad,
-    int           ds_id)
+        int   hid,
+        int   cid,
+        const string& hostname,
+        const string& vmm_mad,
+        const string& tm_mad,
+        int           ds_id)
 {
     int           seq;
     string        vm_xml;
@@ -1919,7 +2079,7 @@ void VirtualMachine::add_history(
     to_xml_extended(vm_xml, 0, false);
 
     history = new History(oid, seq, hid, hostname, cid, vmm_mad, tm_mad, ds_id,
-            vm_xml);
+                          vm_xml);
 
     history_records.push_back(history);
 };
@@ -2029,7 +2189,7 @@ void VirtualMachine::get_capacity(HostShareCapacity& sr) const
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::resize(float cpu, long int memory, unsigned int vcpu,
-        string& error)
+                           string& error)
 {
     unsigned int s, c, t;
 
@@ -2230,8 +2390,9 @@ int VirtualMachine::nic_update(int vnid)
 int VirtualMachine::nic_update(int nic_id, VirtualMachineNic *new_nic, bool live)
 {
     static const set<string> UPDATE_ATTRIBUTES = { "INBOUND_AVG_BW",
-        "INBOUND_PEAK_BW", "INBOUND_PEAK_KB", "OUTBOUND_AVG_BW",
-        "OUTBOUND_PEAK_BW", "OUTBOUND_PEAK_KB" };
+                                                   "INBOUND_PEAK_BW", "INBOUND_PEAK_KB", "OUTBOUND_AVG_BW",
+                                                   "OUTBOUND_PEAK_BW", "OUTBOUND_PEAK_KB"
+                                                 };
 
     VirtualMachineNic *nic = get_nic(nic_id);
 
@@ -2453,7 +2614,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history, bool sa) con
     }
 
     for (auto disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
-            disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
+         disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
     {
         const Snapshots * snapshots = (*disk)->get_snapshots();
 
@@ -2655,7 +2816,7 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     rc += xpath<time_t>(stime, "/VM/STIME", 0);
     rc += xpath<time_t>(etime, "/VM/ETIME", 0);
-    rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
+    rc += xpath(deploy_id, "/VM/DEPLOY_ID", "");
 
     // Permissions
     rc += perms_from_xml();
@@ -2738,8 +2899,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     int last_seq;
 
-    if ( xpath(last_seq,"/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 &&
-            last_seq != -1 )
+    if ( xpath(last_seq, "/VM/HISTORY_RECORDS/HISTORY/SEQ", -1) == 0 &&
+         last_seq != -1 )
     {
         history_records.resize(last_seq + 1);
 
@@ -2787,7 +2948,7 @@ int VirtualMachine::from_xml(const string &xml_str)
     if (rc != 0)
     {
         NebulaLog::error("ONE", "Unable to recreate the VM " + to_string(oid)
-            + " from the xml body");
+                         + " from the xml body");
 
         return -1;
     }
@@ -2816,7 +2977,7 @@ int VirtualMachine::replace_template(
     string ra;
 
     auto new_tmpl =
-        make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+            make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
@@ -2868,7 +3029,7 @@ int VirtualMachine::append_template(
         string&         error)
 {
     auto new_tmpl =
-        make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
+            make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
     string rname;
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
@@ -2915,7 +3076,7 @@ void VirtualMachine::set_template_error_message(const string& message)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::set_template_error_message(const string& name,
-                                               const string& message)
+                                                const string& message)
 {
     SingleAttribute * attr;
     ostringstream     error_value;
@@ -2974,7 +3135,7 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
  * Replaces the values of a vector value, preserving the existing ones
  */
 static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
-        const char * name, bool append)
+                                  const char * name, bool append)
 {
     string value;
 
@@ -3017,7 +3178,7 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
-        bool append)
+                               bool append)
 {
     bool context_changed = false;
 
@@ -3129,7 +3290,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
         auto ib = context_bck->value().cbegin();
 
         for ( ; in != context_new->value().cend() &&
-                    ib != context_bck->value().cend() ; )
+              ib != context_bck->value().cend() ; )
         {
             if (in->first < ib->first)
             {
@@ -3137,7 +3298,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
                 if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                 {
                     err = "Unable to add " + in->first +
-                        ", update NIC to update network context";
+                          ", update NIC to update network context";
 
                     return -1;
                 }
@@ -3162,7 +3323,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
                     if (std::regex_match(in->first, regex("ETH\\d+_\\w+")))
                     {
                         err = "Unable to update " + in->first +
-                            ", update NIC to update the network";
+                              ", update NIC to update the network";
 
                         return -1;
                     }
@@ -3234,13 +3395,13 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     // -------------------------------------------------------------------------
     if ( parse_graphics(err, obj_template.get()) != 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR, err);
+        NebulaLog::log("ONE", Log::ERROR, err);
         return -1;
     }
 
     if ( parse_video(err, obj_template.get()) != 0 )
     {
-        NebulaLog::log("ONE",Log::ERROR, err);
+        NebulaLog::log("ONE", Log::ERROR, err);
         return -1;
     }
 
@@ -3253,7 +3414,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
     if ( backup_conf != nullptr && lcm_state != BACKUP && lcm_state != BACKUP_POWEROFF)
     {
         bool increment = disks.backup_increment(_backups.do_volatile()) &&
-                            !has_snapshots();
+                         !has_snapshots();
 
         string smode        = backup_conf->vector_value("MODE");
         Backups::Mode bmode = Backups::str_to_mode(smode);
@@ -3279,7 +3440,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err,
 
         if ( _backups.parse(tmpl, increment, append, err) != 0 )
         {
-            NebulaLog::log("ONE",Log::ERROR, err);
+            NebulaLog::log("ONE", Log::ERROR, err);
             return -1;
         }
     }
@@ -3332,7 +3493,7 @@ int VirtualMachine::get_disk_images(string& error_str)
 
     VectorAttribute* os = obj_template->get("OS");
     bool is_q35         = false;
-  
+
     if (os)
     {
         string machine = os->vector_value("MACHINE");
@@ -3346,15 +3507,15 @@ int VirtualMachine::get_disk_images(string& error_str)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::release_disk_images(vector<Template *>& quotas,
-        bool set_state)
+                                         bool set_state)
 {
     bool image_error;
 
     if ( set_state )
     {
         image_error = (state == ACTIVE && lcm_state != EPILOG) &&
-                       state != PENDING && state != HOLD &&
-                       state != CLONING && state != CLONING_FAILURE;
+                      state != PENDING && state != HOLD &&
+                      state != CLONING && state != CLONING_FAILURE;
     }
     else
     {
@@ -3499,7 +3660,7 @@ int VirtualMachine::clear_saveas_state()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
-        string& estr)
+                                            string& estr)
 {
     vector<VectorAttribute *> vnics;
 
@@ -3713,7 +3874,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
             if (pci_id > max_pci_id)
             {
-               max_pci_id = pci_id;
+                max_pci_id = pci_id;
             }
         }
 
@@ -3722,7 +3883,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
         nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
 
         if ( HostSharePCI::set_pci_address(_new_nic.get(), bus,
-                    test_machine_type("q35"), false) != 0 )
+                                           test_machine_type("q35"), false) != 0 )
         {
             err = "Wrong BUS in PCI attribute";
             return -1;
@@ -3737,7 +3898,7 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
     VectorAttribute * nic_default = obj_template->get("NIC_DEFAULT");
 
     int rc = nics.set_up_attach_nic(oid, uid, get_cid(), _new_nic.get(),
-            nic_default, sgs, err);
+                                    nic_default, sgs, err);
 
     if ( rc != 0 )
     {
@@ -3782,7 +3943,7 @@ int VirtualMachine::set_detach_nic(int nic_id)
         std::ostringstream oss;
 
         if ( nic->vector_value("ALIAS_ID", alias_id) != 0 ||
-                nic->vector_value("PARENT_ID", parent_id) != 0 )
+             nic->vector_value("PARENT_ID", parent_id) != 0 )
         {
             return -1;
         }
@@ -3856,7 +4017,7 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
 
         if (pci_id > max_pci_id)
         {
-           max_pci_id = pci_id;
+            max_pci_id = pci_id;
         }
     }
 
@@ -3873,7 +4034,7 @@ int VirtualMachine::attach_pci(VectorAttribute * vpci, string& err)
     nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", bus);
 
     if ( HostSharePCI::set_pci_address(_new_pci.get(), bus,
-                test_machine_type("q35"), false) != 0 )
+                                       test_machine_type("q35"), false) != 0 )
     {
         err = "Wrong BUS in PCI attribute";
         return -1;
@@ -4047,7 +4208,7 @@ int VirtualMachine::check_shareable_disks(const string& vmm_mad, string& error)
         if (shareable)
         {
             error = "VM has shareable disk, but vmm driver: '"
-                + vmm_mad + "' doesn't support shareable disks";
+                    + vmm_mad + "' doesn't support shareable disks";
 
             return -1;
         }
@@ -4090,27 +4251,27 @@ bool VirtualMachine::is_running_quota() const
            (state == VirtualMachine::CLONING_FAILURE) ||
            (state == VirtualMachine::HOLD) ||
            ((state == VirtualMachine::ACTIVE &&
-                (lcm_state != VirtualMachine::HOTPLUG_SAVEAS_POWEROFF &&
-                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED &&
-                lcm_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
-                lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
-                lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
-                lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
-                lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
-                lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
-                lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
-                lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
-                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
-                lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED &&
-                lcm_state != VirtualMachine::HOTPLUG_PROLOG_POWEROFF &&
-                lcm_state != VirtualMachine::HOTPLUG_EPILOG_POWEROFF )));
+             (lcm_state != VirtualMachine::HOTPLUG_SAVEAS_POWEROFF &&
+              lcm_state != VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED &&
+              lcm_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
+              lcm_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
+              lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF &&
+              lcm_state != VirtualMachine::DISK_SNAPSHOT_SUSPENDED &&
+              lcm_state != VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED &&
+              lcm_state != VirtualMachine::DISK_RESIZE_POWEROFF &&
+              lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
+              lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
+              lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
+              lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED &&
+              lcm_state != VirtualMachine::HOTPLUG_PROLOG_POWEROFF &&
+              lcm_state != VirtualMachine::HOTPLUG_EPILOG_POWEROFF )));
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
-        bool basic_quota, bool running_quota)
+                                        bool basic_quota, bool running_quota)
 {
     if (basic_quota)
     {
@@ -4173,7 +4334,7 @@ void VirtualMachine::release_vnc_port()
     unsigned int port;
 
     if (graphics == nullptr ||
-            graphics->vector_value("PORT", port) != 0)
+        graphics->vector_value("PORT", port) != 0)
     {
         return;
     }
@@ -4200,7 +4361,7 @@ void VirtualMachine::release_previous_vnc_port()
     unsigned int previous_port;
 
     if (graphics == nullptr ||
-            graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
+        graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
     {
         return;
     }
@@ -4222,7 +4383,7 @@ void VirtualMachine::rollback_previous_vnc_port()
     unsigned int port;
 
     if (graphics == nullptr ||
-            graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
+        graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
     {
         return;
     }

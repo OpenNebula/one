@@ -24,7 +24,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 Snapshots::Snapshots(int __disk_id, AllowOrphansMode _orphans):
-    snapshot_template(false,'=',"SNAPSHOTS"),
+    snapshot_template(false, '=', "SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
     _disk_id(__disk_id),

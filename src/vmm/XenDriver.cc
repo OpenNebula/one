@@ -30,8 +30,8 @@ string on_off_string(bool value)
 }
 
 int XenDriver::deployment_description(
-    const VirtualMachine *  vm,
-    const string&           file_name) const
+        const VirtualMachine *  vm,
+        const string&           file_name) const
 {
     ofstream file;
 
@@ -144,7 +144,7 @@ int XenDriver::deployment_description(
 
     // -------------------------------------------------------------------------
 
-    vm->get_template_attribute("MEMORY",memory);
+    vm->get_template_attribute("MEMORY", memory);
 
     if (!memory.empty())
     {
@@ -157,11 +157,11 @@ int XenDriver::deployment_description(
 
     // -------------------------------------------------------------------------
 
-    vm->get_template_attribute("VCPU",vcpu);
+    vm->get_template_attribute("VCPU", vcpu);
 
     if (vcpu.empty())
     {
-        get_default("VCPU",vcpu);
+        get_default("VCPU", vcpu);
     }
 
     if (!vcpu.empty())
@@ -188,32 +188,32 @@ int XenDriver::deployment_description(
 
     if ( kernel.empty() )
     {
-        get_default("OS","KERNEL",kernel);
+        get_default("OS", "KERNEL", kernel);
     }
 
     if ( initrd.empty() )
     {
-        get_default("OS","INITRD",initrd);
+        get_default("OS", "INITRD", initrd);
     }
 
     if ( bootloader.empty() )
     {
-        get_default("OS","BOOTLOADER",bootloader);
+        get_default("OS", "BOOTLOADER", bootloader);
     }
 
     if ( root.empty() )
     {
-        get_default("OS","ROOT",root);
+        get_default("OS", "ROOT", root);
     }
 
     if ( hvm.empty() )
     {
-        get_default("OS","HVM",hvm);
+        get_default("OS", "HVM", hvm);
     }
 
     if ( kernel_cmd.empty() )
     {
-        get_default("OS","KERNEL_CMD",kernel_cmd);
+        get_default("OS", "KERNEL_CMD", kernel_cmd);
     }
 
     if ( !kernel.empty() ) //Direct Kernel boot method
@@ -283,7 +283,7 @@ int XenDriver::deployment_description(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-    get_default("DISK","DRIVER",default_driver);
+    get_default("DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
     {
@@ -298,7 +298,7 @@ int XenDriver::deployment_description(
 
     num = vm->get_template_attribute("DISK", disk);
 
-    for (int i=0; i < num ;i++)
+    for (int i=0; i < num ; i++)
     {
         target = disk[i]->vector_value("TARGET");
         type   = disk[i]->vector_value("TYPE");
@@ -388,7 +388,7 @@ int XenDriver::deployment_description(
         else
         {
             vm->log("VMM", Log::WARNING, "Could not find target device to"
-                " attach context, will continue without it.");
+                    " attach context, will continue without it.");
         }
     }
 
@@ -403,7 +403,7 @@ int XenDriver::deployment_description(
 
     file << "vif = [" << endl;
 
-    for(int i=0; i<num;i++)
+    for(int i=0; i<num; i++)
     {
         char pre_char = ' ';
 
@@ -593,7 +593,7 @@ int XenDriver::deployment_description(
         else
         {
             vm->log("VMM", Log::WARNING,
-                "Not supported input, only usb tablet, ignored.");
+                    "Not supported input, only usb tablet, ignored.");
         }
     }
 
@@ -610,7 +610,7 @@ int XenDriver::deployment_description(
             acpi_found = features->vector_value("ACPI", acpi);
             apic_found = features->vector_value("APIC", apic);
             localtime_found =
-                features->vector_value("LOCALTIME", localtime);
+                    features->vector_value("LOCALTIME", localtime);
 
             device_model = features->vector_value("DEVICE_MODEL");
             if ( device_model != "" )
@@ -680,7 +680,7 @@ int XenDriver::deployment_description(
 
     num = vm->get_template_attribute("RAW", raw);
 
-    for(int i=0; i<num;i++)
+    for(int i=0; i<num; i++)
     {
         type = raw[i]->vector_value("TYPE");
 

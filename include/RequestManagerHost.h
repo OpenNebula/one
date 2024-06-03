@@ -31,7 +31,7 @@ protected:
     RequestManagerHost(const std::string& method_name,
                        const std::string& help,
                        const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
@@ -39,7 +39,7 @@ protected:
         auth_object = PoolObjectSQL::HOST;
     };
 
-    ~RequestManagerHost(){};
+    ~RequestManagerHost() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -61,7 +61,7 @@ public:
         auth_op = AuthRequest::ADMIN;
     };
 
-    ~HostStatus(){};
+    ~HostStatus() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -75,13 +75,13 @@ class HostMonitoring : public RequestManagerHost
 public:
     HostMonitoring():
         RequestManagerHost("one.host.monitoring",
-                            "Returns the host monitoring records",
-                            "A:si")
+                           "Returns the host monitoring records",
+                           "A:si")
     {
         auth_op = AuthRequest::USE;
     };
 
-    ~HostMonitoring(){};
+    ~HostMonitoring() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;

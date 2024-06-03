@@ -23,7 +23,7 @@
 
 int LifeCycleManager::start()
 {
-    NebulaLog::log("LCM",Log::INFO,"Starting Life-cycle Manager...");
+    NebulaLog::log("LCM", Log::INFO, "Starting Life-cycle Manager...");
 
     Listener::start();
 

@@ -81,10 +81,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "SCHED_ACTION_POOL", "body",
-                    one_db::scheduled_action_table, where, sid, eid, desc);
+                             one_db::scheduled_action_table, where, sid, eid, desc);
     }
 
     /**

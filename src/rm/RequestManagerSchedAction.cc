@@ -41,7 +41,7 @@ void RequestManagerSchedAdd::request_execute(xmlrpc_c::paramList const& paramLis
         {
             att.resp_id = oid;
             att.resp_msg = "Unable to create Scheduled Action for Virtual Machine "
-                + to_string(oid) + ", it's in DONE state";
+                           + to_string(oid) + ", it's in DONE state";
 
             failure_response(INTERNAL, att);
             return;

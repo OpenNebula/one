@@ -41,7 +41,8 @@ struct ContextVariable
     bool ar_lookup;
 };
 
-const std::vector<ContextVariable> NETWORK_CONTEXT = {
+const std::vector<ContextVariable> NETWORK_CONTEXT =
+{
     {"IP", "IP", "", false},
     {"MAC", "MAC", "", false},
     {"MASK", "NETWORK_MASK", "", true},
@@ -58,7 +59,8 @@ const std::vector<ContextVariable> NETWORK_CONTEXT = {
     {"EXTERNAL", "EXTERNAL", "", false},
 };
 
-const std::vector<ContextVariable> NETWORK6_CONTEXT = {
+const std::vector<ContextVariable> NETWORK6_CONTEXT =
+{
     {"IP6", "IP6_GLOBAL", "IP6", false},
     {"IP6_ULA", "IP6_ULA", "", false},
     {"IP6_GATEWAY", "GATEWAY6", "", true},
@@ -109,7 +111,7 @@ bool is_restricted(const string& path,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::generate_context(string &files, int &disk_id,
-        const string& token_password)
+                                     const string& token_password)
 {
     ofstream file;
     string   files_ds, error_str;
@@ -147,7 +149,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         return -1;
     }
 
-    file.open(history->context_file.c_str(),ios::out);
+    file.open(history->context_file.c_str(), ios::out);
 
     if (file.fail() == true)
     {
@@ -194,7 +196,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
         files += files_ds;
     }
 
-    for (size_t i=0;i<files.length();i++)
+    for (size_t i=0; i<files.length(); i++)
     {
         if (files[i] == '\n')
         {
@@ -265,7 +267,7 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 
         while ((pos = escape_str.find('\'', pos)) != string::npos)
         {
-            escape_str.replace(pos,1,"'\\''");
+            escape_str.replace(pos, 1, "'\\''");
             pos = pos + 4;
         }
 
@@ -303,7 +305,7 @@ int VirtualMachine::get_created_by_uid() const
 /* -------------------------------------------------------------------------- */
 
 static void parse_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, VectorAttribute * nic)
+                                  VectorAttribute * context, VectorAttribute * nic)
 {
     string nic_id = nic->vector_value("NIC_ID");
 
@@ -350,7 +352,7 @@ static void parse_context_network(const std::vector<ContextVariable>& cvars,
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::generate_network_context(VectorAttribute* context,
-        string& error_str, bool only_auto)
+                                             string& error_str, bool only_auto)
 {
     bool net_context;
 
@@ -377,7 +379,7 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 
     if ( num_tatts == 0 )
     {
-         return 0;
+        return 0;
     }
 
     vatts.insert(vatts.end(), aatts.begin(), aatts.end());
@@ -477,7 +479,7 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
 /* -------------------------------------------------------------------------- */
 
 static void parse_pci_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, const VectorAttribute * nic)
+                                      VectorAttribute * context, const VectorAttribute * nic)
 {
     const string& pci_id = nic->vector_value("PCI_ID");
 
@@ -750,7 +752,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::parse_context_variables(VectorAttribute ** context,
-        string& error_str)
+                                            string& error_str)
 {
     int rc;
 
@@ -783,7 +785,7 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 
 
 static void clear_context_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, int nic_id)
+                                  VectorAttribute * context, int nic_id)
 {
     ostringstream att_name;
 
@@ -816,7 +818,7 @@ void VirtualMachine::clear_nic_context(int nicid)
 /* ------------------------------------------------------------------------ */
 
 static void clear_context_alias_network(const std::vector<ContextVariable>& cvars,
-        VectorAttribute * context, int nic_id, int alias_id)
+                                        VectorAttribute * context, int nic_id, int alias_id)
 {
     ostringstream att_name;
 

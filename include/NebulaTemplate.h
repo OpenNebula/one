@@ -28,11 +28,12 @@ class NebulaTemplate : public Template
 {
 public:
     NebulaTemplate(const std::string& etc_location, const char * _conf_name,
-            const char * root_name)
+                   const char * root_name)
         : Template(false, '=', root_name)
-        , hidden_attributes{
-            {"DB", {"BACKEND", "SERVER", "PORT", "USER", "PASSWD", "DB_NAME"}}
-        }
+        , hidden_attributes
+    {
+        {"DB", {"BACKEND", "SERVER", "PORT", "USER", "PASSWD", "DB_NAME"}}
+    }
     {
         if (_conf_name[0] == '/')
         {

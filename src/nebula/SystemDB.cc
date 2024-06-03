@@ -27,7 +27,7 @@ const char * SystemDB::pc_table = "pool_control";
 const char * SystemDB::pc_names = "tablename, last_oid";
 
 const char * SystemDB::pc_bootstrap = "CREATE TABLE pool_control "
-    "(tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)";
+                                      "(tablename VARCHAR(32) PRIMARY KEY, last_oid BIGINT UNSIGNED)";
 
 
 // DB versioning table, shared (federation) tables
@@ -35,23 +35,23 @@ const char * SystemDB::shared_ver_table = "db_versioning";
 const char * SystemDB::shared_ver_names = "oid, version, timestamp, comment";
 
 const char * SystemDB::shared_ver_bootstrap = "CREATE TABLE db_versioning "
-    "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
-    "comment VARCHAR(256))";
+                                              "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
+                                              "comment VARCHAR(256))";
 
 // DB versioning table, local tables
 const char * SystemDB::local_ver_table = "local_db_versioning";
 const char * SystemDB::local_ver_names = "oid, version, timestamp, comment, is_slave";
 
 const char * SystemDB::local_ver_bootstrap = "CREATE TABLE local_db_versioning "
-    "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
-    "comment VARCHAR(256), is_slave BOOLEAN)";
+                                             "(oid INTEGER PRIMARY KEY, version VARCHAR(256), timestamp INTEGER, "
+                                             "comment VARCHAR(256), is_slave BOOLEAN)";
 
 // System attributes table
 const char * SystemDB::sys_table = "system_attributes";
 const char * SystemDB::sys_names = "name, body";
 
 const char * SystemDB::sys_bootstrap =  "CREATE TABLE IF NOT EXISTS"
-        " system_attributes (name VARCHAR(128) PRIMARY KEY, body MEDIUMTEXT)";
+                                        " system_attributes (name VARCHAR(128) PRIMARY KEY, body MEDIUMTEXT)";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -119,7 +119,7 @@ int SystemDB::local_bootstrap()
 /* -------------------------------------------------------------------------- */
 
 int SystemDB::select_cb(void *_loaded_db_version, int num, char **values,
-                      char **names)
+                        char **names)
 {
     string *        loaded_db_version;
 
@@ -230,7 +230,7 @@ int SystemDB::check_db_version(bool is_slave, bool &local_bs, bool &shared_bs)
             if (is_slave)
             {
                 NebulaLog::log("ONE", Log::ERROR,
-                    "Cannot join federation, oned master needs upgrade.");
+                               "Cannot join federation, oned master needs upgrade.");
             }
             else
             {
@@ -243,7 +243,7 @@ int SystemDB::check_db_version(bool is_slave, bool &local_bs, bool &shared_bs)
             if (is_slave)
             {
                 NebulaLog::log("ONE", Log::ERROR, "Cannot access shared DB"
-                    " tables. Check DB replica configuration.");
+                               " tables. Check DB replica configuration.");
 
                 return -1;
             }

@@ -84,16 +84,16 @@ RequestManager::RequestManager(
         const string& call_log_format,
         const string& _listen_address,
         int message_size):
-            end(false),
-            port(_port),
-            socket_fd(-1),
-            max_conn(_max_conn),
-            max_conn_backlog(_max_conn_backlog),
-            keepalive_timeout(_keepalive_timeout),
-            keepalive_max_conn(_keepalive_max_conn),
-            timeout(_timeout),
-            xml_log_file(_xml_log_file),
-            listen_address(_listen_address)
+    end(false),
+    port(_port),
+    socket_fd(-1),
+    max_conn(_max_conn),
+    max_conn_backlog(_max_conn_backlog),
+    keepalive_timeout(_keepalive_timeout),
+    keepalive_max_conn(_keepalive_max_conn),
+    timeout(_timeout),
+    xml_log_file(_xml_log_file),
+    listen_address(_listen_address)
 {
     Request::set_call_log_format(call_log_format);
 
@@ -158,7 +158,8 @@ void RequestManager::xml_server_loop()
 
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
-        thread conn_thread([client_fd, this]{
+        thread conn_thread([client_fd, this]
+        {
             xmlrpc_c::serverAbyss * as = create_abyss();
 
             as->runConn(client_fd);
@@ -175,7 +176,7 @@ void RequestManager::xml_server_loop()
         conn_thread.detach();
     }
 
-    NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+    NebulaLog::log("ReM", Log::INFO, "XML-RPC server stopped.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -222,7 +223,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Cannot open server socket: " << gai_strerror(rc);
-        NebulaLog::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM", Log::ERROR, oss);
 
         return -1;
     }
@@ -234,7 +235,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Cannot open server socket: " << strerror(errno);
-        NebulaLog::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM", Log::ERROR, oss);
 
         freeaddrinfo(result);
 
@@ -248,7 +249,7 @@ int RequestManager::setup_socket()
         ostringstream oss;
 
         oss << "Cannot set socket options: " << strerror(errno);
-        NebulaLog::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM", Log::ERROR, oss);
 
         close(socket_fd);
 
@@ -257,7 +258,7 @@ int RequestManager::setup_socket()
         return -1;
     }
 
-    fcntl(socket_fd,F_SETFD,FD_CLOEXEC); // Close socket in MADs
+    fcntl(socket_fd, F_SETFD, FD_CLOEXEC); // Close socket in MADs
 
     rc = ::bind(socket_fd, result->ai_addr, result->ai_addrlen);
 
@@ -270,7 +271,7 @@ int RequestManager::setup_socket()
         oss << "Cannot bind to " << listen_address << ":" << port << " : "
             << strerror(errno);
 
-        NebulaLog::log("ReM",Log::ERROR,oss);
+        NebulaLog::log("ReM", Log::ERROR, oss);
 
         close(socket_fd);
 
@@ -287,7 +288,7 @@ int RequestManager::start()
 {
     ostringstream   oss;
 
-    NebulaLog::log("ReM",Log::INFO,"Starting Request Manager...");
+    NebulaLog::log("ReM", Log::INFO, "Starting Request Manager...");
 
     int rc = setup_socket();
 
@@ -299,11 +300,11 @@ int RequestManager::start()
     register_xml_methods();
 
     oss << "Starting XML-RPC server, port " << port << " ...";
-    NebulaLog::log("ReM",Log::INFO,oss);
+    NebulaLog::log("ReM", Log::INFO, oss);
 
     xml_server_thread = thread(&RequestManager::xml_server_loop, this);
 
-    NebulaLog::log("ReM",Log::INFO,"Request Manager started");
+    NebulaLog::log("ReM", Log::INFO, "Request Manager started");
 
     return 0;
 }
@@ -632,8 +633,8 @@ void RequestManager::register_xml_methods()
 
     /* VM Template related methods*/
     RequestManagerRegistry.addMethod("one.template.update", template_update);
-    RequestManagerRegistry.addMethod("one.template.instantiate",template_instantiate);
-    RequestManagerRegistry.addMethod("one.template.allocate",template_allocate);
+    RequestManagerRegistry.addMethod("one.template.instantiate", template_instantiate);
+    RequestManagerRegistry.addMethod("one.template.allocate", template_allocate);
     RequestManagerRegistry.addMethod("one.template.delete", template_delete);
     RequestManagerRegistry.addMethod("one.template.info", template_info);
     RequestManagerRegistry.addMethod("one.template.chown", template_chown);
@@ -642,12 +643,12 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.template.rename", template_rename);
     RequestManagerRegistry.addMethod("one.template.lock", template_lock);
     RequestManagerRegistry.addMethod("one.template.unlock", template_unlock);
-    RequestManagerRegistry.addMethod("one.templatepool.info",template_pool_info);
+    RequestManagerRegistry.addMethod("one.templatepool.info", template_pool_info);
 
     /* VN Template related methods */
     RequestManagerRegistry.addMethod("one.vntemplate.update", vntemplate_update);
-    RequestManagerRegistry.addMethod("one.vntemplate.instantiate",vntemplate_instantiate);
-    RequestManagerRegistry.addMethod("one.vntemplate.allocate",vntemplate_allocate);
+    RequestManagerRegistry.addMethod("one.vntemplate.instantiate", vntemplate_instantiate);
+    RequestManagerRegistry.addMethod("one.vntemplate.allocate", vntemplate_allocate);
     RequestManagerRegistry.addMethod("one.vntemplate.delete", vntemplate_delete);
     RequestManagerRegistry.addMethod("one.vntemplate.info", vntemplate_info);
     RequestManagerRegistry.addMethod("one.vntemplate.chown", vntemplate_chown);
@@ -656,7 +657,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vntemplate.rename", vntemplate_rename);
     RequestManagerRegistry.addMethod("one.vntemplate.lock", vntemplate_lock);
     RequestManagerRegistry.addMethod("one.vntemplate.unlock", vntemplate_unlock);
-    RequestManagerRegistry.addMethod("one.vntemplatepool.info",vntemplate_pool_info);
+    RequestManagerRegistry.addMethod("one.vntemplatepool.info", vntemplate_pool_info);
 
     /* Host related methods*/
     RequestManagerRegistry.addMethod("one.host.status", host_status);
@@ -867,7 +868,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.acl.info",    acl_info);
 
     /* Datastore related methods */
-    RequestManagerRegistry.addMethod("one.datastore.allocate",datastore_allocate);
+    RequestManagerRegistry.addMethod("one.datastore.allocate", datastore_allocate);
     RequestManagerRegistry.addMethod("one.datastore.delete",  datastore_delete);
     RequestManagerRegistry.addMethod("one.datastore.info",    datastore_info);
     RequestManagerRegistry.addMethod("one.datastore.update",  datastore_update);
@@ -876,10 +877,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.datastore.rename",  datastore_rename);
     RequestManagerRegistry.addMethod("one.datastore.enable",  datastore_enable);
 
-    RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
+    RequestManagerRegistry.addMethod("one.datastorepool.info", datastorepool_info);
 
     /* Cluster related methods */
-    RequestManagerRegistry.addMethod("one.cluster.allocate",cluster_allocate);
+    RequestManagerRegistry.addMethod("one.cluster.allocate", cluster_allocate);
     RequestManagerRegistry.addMethod("one.cluster.delete",  cluster_delete);
     RequestManagerRegistry.addMethod("one.cluster.info",    cluster_info);
     RequestManagerRegistry.addMethod("one.cluster.update",  cluster_update);
@@ -892,10 +893,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.addvnet", cluster_addvnet);
     RequestManagerRegistry.addMethod("one.cluster.delvnet", cluster_delvnet);
 
-    RequestManagerRegistry.addMethod("one.clusterpool.info",clusterpool_info);
+    RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 
     /* Generic Document objects related methods*/
-    RequestManagerRegistry.addMethod("one.document.allocate",doc_allocate);
+    RequestManagerRegistry.addMethod("one.document.allocate", doc_allocate);
     RequestManagerRegistry.addMethod("one.document.delete",  doc_delete);
     RequestManagerRegistry.addMethod("one.document.info",    doc_info);
     RequestManagerRegistry.addMethod("one.document.update",  doc_update);
@@ -906,7 +907,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.document.lock",    doc_lock);
     RequestManagerRegistry.addMethod("one.document.unlock",  doc_unlock);
 
-    RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
+    RequestManagerRegistry.addMethod("one.documentpool.info", docpool_info);
 
     /* Zone related methods */
 
@@ -956,20 +957,20 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.zone.info",     zone_info);
     RequestManagerRegistry.addMethod("one.zone.rename",   zone_rename);
     RequestManagerRegistry.addMethod("one.zone.enable",   zone_enable);
-    RequestManagerRegistry.addMethod("one.zone.replicate",zone_replicatelog);
-    RequestManagerRegistry.addMethod("one.zone.fedreplicate",zone_fedreplicatelog);
-    RequestManagerRegistry.addMethod("one.zone.voterequest",zone_voterequest);
+    RequestManagerRegistry.addMethod("one.zone.replicate", zone_replicatelog);
+    RequestManagerRegistry.addMethod("one.zone.fedreplicate", zone_fedreplicatelog);
+    RequestManagerRegistry.addMethod("one.zone.voterequest", zone_voterequest);
     RequestManagerRegistry.addMethod("one.zone.raftstatus", zone_raftstatus);
 
     RequestManagerRegistry.addMethod("one.zone.addserver", zone_addserver);
     RequestManagerRegistry.addMethod("one.zone.delserver", zone_delserver);
     RequestManagerRegistry.addMethod("one.zone.resetserver", zone_resetserver);
 
-    RequestManagerRegistry.addMethod("one.zonepool.info",zonepool_info);
+    RequestManagerRegistry.addMethod("one.zonepool.info", zonepool_info);
 
     /* Security Group objects related methods*/
 
-    RequestManagerRegistry.addMethod("one.secgroup.allocate",secg_allocate);
+    RequestManagerRegistry.addMethod("one.secgroup.allocate", secg_allocate);
     RequestManagerRegistry.addMethod("one.secgroup.delete",  secg_delete);
     RequestManagerRegistry.addMethod("one.secgroup.info",    secg_info);
     RequestManagerRegistry.addMethod("one.secgroup.update",  secg_update);
@@ -979,7 +980,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.secgroup.rename",  secg_rename);
     RequestManagerRegistry.addMethod("one.secgroup.commit",  secg_commit);
 
-    RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
+    RequestManagerRegistry.addMethod("one.secgrouppool.info", secgpool_info);
 
     /* VM Group objects related methods*/
 
@@ -1084,8 +1085,8 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.vdc.addhost",     vdc_add_host);
     RequestManagerRegistry.addMethod("one.vdc.delhost",     vdc_del_host);
-    RequestManagerRegistry.addMethod("one.vdc.adddatastore",vdc_add_datastore);
-    RequestManagerRegistry.addMethod("one.vdc.deldatastore",vdc_del_datastore);
+    RequestManagerRegistry.addMethod("one.vdc.adddatastore", vdc_add_datastore);
+    RequestManagerRegistry.addMethod("one.vdc.deldatastore", vdc_del_datastore);
     RequestManagerRegistry.addMethod("one.vdc.addvnet",     vdc_add_vnet);
     RequestManagerRegistry.addMethod("one.vdc.delvnet",     vdc_del_vnet);
 
@@ -1096,19 +1097,19 @@ void RequestManager::register_xml_methods()
 
     /* Virtual Router related methods*/
     RequestManagerRegistry.addMethod("one.vrouter.update", vrouter_update);
-    RequestManagerRegistry.addMethod("one.vrouter.allocate",vrouter_allocate);
+    RequestManagerRegistry.addMethod("one.vrouter.allocate", vrouter_allocate);
     RequestManagerRegistry.addMethod("one.vrouter.delete", vrouter_delete);
     RequestManagerRegistry.addMethod("one.vrouter.info", vrouter_info);
     RequestManagerRegistry.addMethod("one.vrouter.chown", vrouter_chown);
     RequestManagerRegistry.addMethod("one.vrouter.chmod", vrouter_chmod);
     RequestManagerRegistry.addMethod("one.vrouter.rename", vrouter_rename);
-    RequestManagerRegistry.addMethod("one.vrouter.instantiate",vrouter_instantiate);
+    RequestManagerRegistry.addMethod("one.vrouter.instantiate", vrouter_instantiate);
     RequestManagerRegistry.addMethod("one.vrouter.attachnic", vrouter_attachnic);
     RequestManagerRegistry.addMethod("one.vrouter.detachnic", vrouter_detachnic);
     RequestManagerRegistry.addMethod("one.vrouter.lock", vrouter_lock);
     RequestManagerRegistry.addMethod("one.vrouter.unlock", vrouter_unlock);
 
-    RequestManagerRegistry.addMethod("one.vrouterpool.info",vrouter_pool_info);
+    RequestManagerRegistry.addMethod("one.vrouterpool.info", vrouter_pool_info);
 
     /* MarketPlace related methods */
 
@@ -1141,10 +1142,10 @@ void RequestManager::register_xml_methods()
         xmlrpc_c::methodPtr market_allocatedb(new MarketPlaceAllocateDB());
 
         RequestManagerRegistry.addMethod("one.market.updatedb",
-                market_updatedb);
+                                         market_updatedb);
 
         RequestManagerRegistry.addMethod("one.market.allocatedb",
-                market_allocatedb);
+                                         market_allocatedb);
     }
 
     xmlrpc_c::methodPtr market_allocate(new MarketPlaceAllocate());
@@ -1205,13 +1206,13 @@ void RequestManager::register_xml_methods()
         xmlrpc_c::methodPtr marketapp_allocatedb(new MarketPlaceAppAllocateDB());
 
         RequestManagerRegistry.addMethod("one.marketapp.updatedb",
-                marketapp_updatedb);
+                                         marketapp_updatedb);
 
         RequestManagerRegistry.addMethod("one.marketapp.dropdb",
-                marketapp_dropdb);
+                                         marketapp_dropdb);
 
         RequestManagerRegistry.addMethod("one.marketapp.allocatedb",
-                marketapp_allocatedb);
+                                         marketapp_allocatedb);
     }
 
     xmlrpc_c::methodPtr marketapp_allocate(new MarketPlaceAppAllocate());
@@ -1286,7 +1287,7 @@ void RequestManager::register_xml_methods()
 
 void RequestManager::finalize()
 {
-    NebulaLog::log("ReM",Log::INFO,"Stopping XML-RPC server...");
+    NebulaLog::log("ReM", Log::INFO, "Stopping XML-RPC server...");
 
     {
         std::lock_guard<std::mutex> lock(end_lock);

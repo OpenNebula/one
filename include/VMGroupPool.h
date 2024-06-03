@@ -26,9 +26,9 @@ class AuthRequest;
 class VMGroupPool : public PoolSQL
 {
 public:
-    VMGroupPool(SqlDB * db):PoolSQL(db, one_db::vm_group_table){};
+    VMGroupPool(SqlDB * db):PoolSQL(db, one_db::vm_group_table) {};
 
-    ~VMGroupPool(){};
+    ~VMGroupPool() {};
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
@@ -49,9 +49,9 @@ public:
      *   @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(int uid, int gid, const std::string& uname,
-        const std::string& gname, int umask,
-        std::unique_ptr<Template> vmgrp_tmpl, int * oid,
-        std::string& error_str);
+                 const std::string& gname, int umask,
+                 std::unique_ptr<Template> vmgrp_tmpl, int * oid,
+                 std::string& error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -108,10 +108,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VM_GROUP_POOL", "body",
-            one_db::vm_group_table, where, sid, eid, desc);
+                             one_db::vm_group_table, where, sid, eid, desc);
     };
 
     /**
@@ -148,7 +148,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new VMGroup(-1,-1,"","",0,0);
+        return new VMGroup(-1, -1, "", "", 0, 0);
     };
 
     /**

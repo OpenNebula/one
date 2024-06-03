@@ -33,7 +33,7 @@ protected:
     RequestManagerCluster(const std::string& method_name,
                           const std::string& help,
                           const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd = Nebula::instance();
         clpool     = nd.get_clpool();
@@ -44,7 +44,7 @@ protected:
         auth_op     = AuthRequest::ADMIN;
     };
 
-    ~RequestManagerCluster(){};
+    ~RequestManagerCluster() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -111,17 +111,17 @@ protected:
             const std::string& method_name,
             const std::string& help,
             const std::string& params)
-                :Request(method_name,params,help)
-            {
-                Nebula& nd = Nebula::instance();
-                clpool     = nd.get_clpool();
-                hpool      = nd.get_hpool();
+        :Request(method_name, params, help)
+    {
+        Nebula& nd = Nebula::instance();
+        clpool     = nd.get_clpool();
+        hpool      = nd.get_hpool();
 
-                auth_object = PoolObjectSQL::CLUSTER;
-                auth_op     = AuthRequest::ADMIN;
-            };
+        auth_object = PoolObjectSQL::CLUSTER;
+        auth_op     = AuthRequest::ADMIN;
+    };
 
-    ~RequestManagerClusterHost(){};
+    ~RequestManagerClusterHost() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -144,10 +144,10 @@ class ClusterAddHost : public RequestManagerClusterHost
 public:
     ClusterAddHost():
         RequestManagerClusterHost("one.cluster.addhost",
-                "Adds a host to the cluster",
-                "A:sii"){};
+                                  "Adds a host to the cluster",
+                                  "A:sii") {};
 
-    ~ClusterAddHost(){};
+    ~ClusterAddHost() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -167,10 +167,10 @@ class ClusterDelHost : public RequestManagerClusterHost
 public:
     ClusterDelHost():
         RequestManagerClusterHost("one.cluster.delhost",
-                "Deletes a host from its cluster",
-                "A:sii"){};
+                                  "Deletes a host from its cluster",
+                                  "A:sii") {};
 
-    ~ClusterDelHost(){};
+    ~ClusterDelHost() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -191,12 +191,12 @@ class RequestManagerClusterDatastore : public RequestManagerCluster
 {
 public:
     RequestManagerClusterDatastore(
-        const std::string& method_name,
-        const std::string& help,
-        const std::string& params):
-            RequestManagerCluster(method_name, help, params){};
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params):
+        RequestManagerCluster(method_name, help, params) {};
 
-    ~RequestManagerClusterDatastore(){};
+    ~RequestManagerClusterDatastore() {};
 
     int add_object(
             Cluster* cluster,
@@ -212,7 +212,7 @@ public:
     }
 
     void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
-                     Clusterable ** cluster_obj) override
+             Clusterable ** cluster_obj) override
     {
         auto ds = dspool->get(oid);
 
@@ -229,10 +229,10 @@ class ClusterAddDatastore : public RequestManagerClusterDatastore
 public:
     ClusterAddDatastore():
         RequestManagerClusterDatastore("one.cluster.adddatastore",
-                "Adds a datastore to the cluster",
-                "A:sii"){};
+                                       "Adds a datastore to the cluster",
+                                       "A:sii") {};
 
-    ~ClusterAddDatastore(){};
+    ~ClusterAddDatastore() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -241,7 +241,7 @@ public:
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
         return add_generic(cluster_id, object_id, att,
-                dspool, PoolObjectSQL::DATASTORE);
+                           dspool, PoolObjectSQL::DATASTORE);
     }
 };
 
@@ -253,10 +253,10 @@ class ClusterDelDatastore : public RequestManagerClusterDatastore
 public:
     ClusterDelDatastore():
         RequestManagerClusterDatastore("one.cluster.deldatastore",
-                "Deletes a datastore from its cluster",
-                "A:sii"){};
+                                       "Deletes a datastore from its cluster",
+                                       "A:sii") {};
 
-    ~ClusterDelDatastore(){};
+    ~ClusterDelDatastore() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -265,7 +265,7 @@ public:
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
         return del_generic(cluster_id, object_id, att,
-                dspool, PoolObjectSQL::DATASTORE);
+                           dspool, PoolObjectSQL::DATASTORE);
     }
 };
 
@@ -280,9 +280,9 @@ public:
             const std::string& method_name,
             const std::string& help,
             const std::string& params):
-                RequestManagerCluster(method_name, help, params){};
+        RequestManagerCluster(method_name, help, params) {};
 
-    ~RequestManagerClusterVNet(){};
+    ~RequestManagerClusterVNet() {};
 
     int add_object(
             Cluster* cluster,
@@ -298,7 +298,7 @@ public:
     }
 
     void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
-                     Clusterable ** cluster_obj) override
+             Clusterable ** cluster_obj) override
     {
         auto vnet = vnpool->get(oid);
 
@@ -315,10 +315,10 @@ class ClusterAddVNet : public RequestManagerClusterVNet
 public:
     ClusterAddVNet():
         RequestManagerClusterVNet("one.cluster.addvnet",
-                "Adds a virtual network to the cluster",
-                "A:sii"){};
+                                  "Adds a virtual network to the cluster",
+                                  "A:sii") {};
 
-    ~ClusterAddVNet(){};
+    ~ClusterAddVNet() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -327,7 +327,7 @@ public:
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
         return add_generic(cluster_id, object_id, att,
-                vnpool, PoolObjectSQL::NET);
+                           vnpool, PoolObjectSQL::NET);
     }
 };
 
@@ -339,10 +339,10 @@ class ClusterDelVNet : public RequestManagerClusterVNet
 public:
     ClusterDelVNet():
         RequestManagerClusterVNet("one.cluster.delvnet",
-                "Deletes a virtual network from its cluster",
-                "A:sii"){};
+                                  "Deletes a virtual network from its cluster",
+                                  "A:sii") {};
 
-    ~ClusterDelVNet(){};
+    ~ClusterDelVNet() {};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
                          RequestAttributes& att) override
@@ -351,7 +351,7 @@ public:
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
 
         return del_generic(cluster_id, object_id, att,
-                vnpool, PoolObjectSQL::NET);
+                           vnpool, PoolObjectSQL::NET);
     }
 };
 

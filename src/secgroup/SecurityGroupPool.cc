@@ -32,13 +32,13 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
     {
         // Build the default default security group
         string default_sg =
-            "NAME=default\n"
-            "DESCRIPTION=\"The default security group is added to every "
-            "network. Use it to add default filter rules for your networks. "
-            "You may remove this security group from any network by "
-            "updating its properties.\"\n"
-            "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]\n"
-            "RULE=[RULE_TYPE=INBOUND,PROTOCOL=ALL]";
+                "NAME=default\n"
+                "DESCRIPTION=\"The default security group is added to every "
+                "network. Use it to add default filter rules for your networks. "
+                "You may remove this security group from any network by "
+                "updating its properties.\"\n"
+                "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]\n"
+                "RULE=[RULE_TYPE=INBOUND,PROTOCOL=ALL]";
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
@@ -59,7 +59,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
                 oneadmin->get_umask(),
                 move(default_tmpl));
 
-        secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
+        secgroup->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
 
         if (PoolSQL::allocate(secgroup, error) < 0)
         {
@@ -136,7 +136,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 
 void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
-    vector<VectorAttribute*> &rules)
+                                                 vector<VectorAttribute*> &rules)
 {
     vector<VectorAttribute*> sg_rules;
 

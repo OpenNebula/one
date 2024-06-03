@@ -164,7 +164,7 @@ int RaftReplicaThread::replicate()
     }
 
     if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
-                error) != 0 )
+                                     error) != 0 )
     {
         std::ostringstream oss;
 
@@ -265,24 +265,24 @@ int HeartBeatThread::replicate()
 {
     int rc;
 
-	bool success;
+    bool success;
 
-	std::string error;
+    std::string error;
 
-	unsigned int fterm;
+    unsigned int fterm;
     unsigned int term  = raftm->get_term();
 
-	LogDBRecord lr;
+    LogDBRecord lr;
 
-	lr.index = 0;
-	lr.prev_index = 0;
+    lr.index = 0;
+    lr.prev_index = 0;
 
-	lr.term = 0;
-	lr.prev_term = 0;
+    lr.term = 0;
+    lr.prev_term = 0;
 
-	lr.sql = "";
+    lr.sql = "";
 
-	lr.timestamp = 0;
+    lr.timestamp = 0;
     lr.fed_index = UINT64_MAX;
 
     rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success, fterm, error);

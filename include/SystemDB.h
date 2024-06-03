@@ -45,9 +45,9 @@ public:
      *    @return 0 on success
      */
     int insert_sys_attribute(
-        const std::string& attr_name,
-        const std::string& xml_attr,
-        std::string&       error_str)
+            const std::string& attr_name,
+            const std::string& xml_attr,
+            std::string&       error_str)
     {
         return insert_replace(attr_name, xml_attr, false, error_str);
     };
@@ -58,9 +58,9 @@ public:
      *    @return 0 on success
      */
     int update_sys_attribute(
-        const std::string& attr_name,
-        const std::string& xml_attr,
-        std::string&       error_str)
+            const std::string& attr_name,
+            const std::string& xml_attr,
+            std::string&       error_str)
     {
         return insert_replace(attr_name, xml_attr, true, error_str);
     };
@@ -68,9 +68,9 @@ public:
 private:
     friend class Nebula; //Only for Nebula class
 
-    SystemDB(SqlDB *_db):db(_db){};
+    SystemDB(SqlDB *_db):db(_db) {};
 
-    ~SystemDB(){};
+    ~SystemDB() {};
 
     // Pool control table
     static const char * pc_names;

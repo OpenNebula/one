@@ -66,20 +66,20 @@ public:
     /**
      * Returns the name that identifies the quota in a template
      */
-     virtual const char * get_quota_name() const = 0;
+    virtual const char * get_quota_name() const = 0;
 
-     /**
-      *  Gets a quota identified by its ID.
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *    @return 0 on success, -1 if not found
-      */
-     virtual int get_quota(const std::string& id, VectorAttribute **va) = 0;
+    /**
+     *  Gets a quota identified by its ID.
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *    @return 0 on success, -1 if not found
+     */
+    virtual int get_quota(const std::string& id, VectorAttribute **va) = 0;
 
 protected:
-    QuotaInterface(){};
+    QuotaInterface() {};
 
-    virtual ~QuotaInterface(){};
+    virtual ~QuotaInterface() {};
 };
 
 /**
@@ -120,9 +120,9 @@ class QuotaDecorator : public QuotaInterface
     }
 
 protected:
-    QuotaDecorator(QuotaInterface * _quota):quota(_quota){};
+    QuotaDecorator(QuotaInterface * _quota):quota(_quota) {};
 
-    virtual ~QuotaDecorator(){};
+    virtual ~QuotaDecorator() {};
 
     QuotaInterface * quota;
 };
@@ -162,33 +162,33 @@ public:
     /**
      * Returns the name that identifies the quota in a template
      */
-     const char * get_quota_name() const override
-     {
+    const char * get_quota_name() const override
+    {
         return template_name;
-     }
+    }
 
-     /**
-      *  Gets a quota identified by its ID.
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *    @return 0 on success, -1 if not found
-      */
-     int get_quota(const std::string& id, VectorAttribute **va) override
-     {
-         std::map<std::string, Attribute *>::iterator it;
-         return get_quota(id, va, it);
-     }
+    /**
+     *  Gets a quota identified by its ID.
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *    @return 0 on success, -1 if not found
+     */
+    int get_quota(const std::string& id, VectorAttribute **va) override
+    {
+        std::map<std::string, Attribute *>::iterator it;
+        return get_quota(id, va, it);
+    }
 
-     /**
-      * Value for limit default
-      */
-     static const int         DEFAULT;
-     static const std::string DEFAULT_STR;
+    /**
+     * Value for limit default
+     */
+    static const int         DEFAULT;
+    static const std::string DEFAULT_STR;
 
-     /**
-      * Value for "unlimited" limit
-      */
-     static const int UNLIMITED;
+    /**
+     * Value for "unlimited" limit
+     */
+    static const int UNLIMITED;
 
 protected:
 
@@ -199,9 +199,9 @@ protected:
         : Template(false, '=', quota_name),
           template_name(_template_name),
           metrics(_metrics),
-          is_default(_is_default){};
+          is_default(_is_default) {};
 
-    virtual ~Quota(){};
+    virtual ~Quota() {};
 
     /**
      *  Generic Quota Names
@@ -271,8 +271,8 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     virtual int get_default_quota(const std::string& id,
-                                Quotas& default_quotas,
-                                VectorAttribute **va) = 0;
+                                  Quotas& default_quotas,
+                                  VectorAttribute **va) = 0;
 
     /**
      * Gets a quota identified by its ID.
@@ -312,7 +312,7 @@ private:
      */
     void add(VectorAttribute * nq)
     {
-       attributes.insert(make_pair(nq->name(), nq));
+        attributes.insert(make_pair(nq->name(), nq));
     }
 
     /**
@@ -333,7 +333,7 @@ private:
      *    @return 0 on success or -1 if wrong limits
      */
     int update_limits(VectorAttribute* quota,
-            const VectorAttribute* va);
+                      const VectorAttribute* va);
 
     /**
      *  Extract the limits for the defined quota metrics from a given attribute

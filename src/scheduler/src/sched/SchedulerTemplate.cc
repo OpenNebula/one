@@ -29,25 +29,25 @@ const char * SchedulerTemplate::conf_name="sched.conf";
 void SchedulerTemplate::set_conf_default()
 {
     VectorAttribute *   vattribute;
-    map<string,string>  vvalue;
+    map<string, string>  vvalue;
 
-/*
-#*******************************************************************************
-# Daemon configuration attributes
-#-------------------------------------------------------------------------------
-#  MESSAGE_SIZE
-#  TIMEOUT
-#  SCHED_INTERVAL
-#  MAX_VM
-#  MAX_DISPATCH
-#  MAX_HOST
-#  DEFAULT_SCHED
-#  DEFAULT_DS_SCHED
-#  LIVE_RESCHEDS
-#  COLD_MIGRATE_MODE
-#  LOG
-#-------------------------------------------------------------------------------
-*/
+    /*
+    #*******************************************************************************
+    # Daemon configuration attributes
+    #-------------------------------------------------------------------------------
+    #  MESSAGE_SIZE
+    #  TIMEOUT
+    #  SCHED_INTERVAL
+    #  MAX_VM
+    #  MAX_DISPATCH
+    #  MAX_HOST
+    #  DEFAULT_SCHED
+    #  DEFAULT_DS_SCHED
+    #  LIVE_RESCHEDS
+    #  COLD_MIGRATE_MODE
+    #  LOG
+    #-------------------------------------------------------------------------------
+    */
     set_conf_single("MESSAGE_SIZE", "1073741824");
     set_conf_single("TIMEOUT", "60");
     set_conf_single("ONE_XMLRPC", "http://localhost:2633/RPC2");
@@ -60,35 +60,35 @@ void SchedulerTemplate::set_conf_default()
 
     //DEFAULT_SCHED
     vvalue.clear();
-    vvalue.insert(make_pair("POLICY","1"));
+    vvalue.insert(make_pair("POLICY", "1"));
 
-    vattribute = new VectorAttribute("DEFAULT_SCHED",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("DEFAULT_SCHED", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     //DEFAULT_DS_SCHED
     vvalue.clear();
-    vvalue.insert(make_pair("POLICY","1"));
+    vvalue.insert(make_pair("POLICY", "1"));
 
-    vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("DEFAULT_DS_SCHED", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     //DEFAULT_NIC_SCHED
     vvalue.clear();
-    vvalue.insert(make_pair("POLICY","1"));
+    vvalue.insert(make_pair("POLICY", "1"));
 
-    vattribute = new VectorAttribute("DEFAULT_NIC_SCHED",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("DEFAULT_NIC_SCHED", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 
     set_conf_single("MEMORY_SYSTEM_DS_SCALE", "0");
     set_conf_single("DIFFERENT_VNETS", "YES");
 
     //LOG CONFIGURATION
     vvalue.clear();
-    vvalue.insert(make_pair("SYSTEM","file"));
-    vvalue.insert(make_pair("DEBUG_LEVEL","3"));
+    vvalue.insert(make_pair("SYSTEM", "file"));
+    vvalue.insert(make_pair("DEBUG_LEVEL", "3"));
 
-    vattribute = new VectorAttribute("LOG",vvalue);
-    conf_default.insert(make_pair(vattribute->name(),vattribute));
+    vattribute = new VectorAttribute("LOG", vvalue);
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -115,23 +115,23 @@ string SchedulerTemplate::get_policy() const
     {
         case 0: //Packing
             rank = "RUNNING_VMS";
-        break;
+            break;
 
         case 1: //Striping
             rank = "- RUNNING_VMS";
-        break;
+            break;
 
         case 2: //Load-aware
             rank = "FREE_CPU";
-        break;
+            break;
 
         case 3: //Custom
             rank = sched->vector_value("RANK");
-        break;
+            break;
 
         case 4: //Fixed
             rank = "PRIORITY";
-        break;
+            break;
 
         default:
             rank = "";
@@ -164,19 +164,19 @@ string SchedulerTemplate::get_ds_policy() const
     {
         case 0: //Packing
             rank = "- FREE_MB";
-        break;
+            break;
 
         case 1: //Striping
             rank = "FREE_MB";
-        break;
+            break;
 
         case 2: //Custom
             rank = sched->vector_value("RANK");
-        break;
+            break;
 
         case 3: //Fixed
             rank = "PRIORITY";
-        break;
+            break;
 
         default:
             rank = "";
@@ -209,19 +209,19 @@ string SchedulerTemplate::get_nics_policy() const
     {
         case 0: //Packing
             rank = "USED_LEASES";
-        break;
+            break;
 
         case 1: //Striping
             rank = "- USED_LEASES";
-        break;
+            break;
 
         case 2: //Custom
             rank = sched->vector_value("RANK");
-        break;
+            break;
 
         case 3: //Fixed
             rank = "PRIORITY";
-        break;
+            break;
 
         default:
             rank = "";

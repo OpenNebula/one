@@ -77,7 +77,7 @@ int VirtualMachineBase::init_attributes()
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
     resume = (action == VMActions::STOP_ACTION || action == VMActions::UNDEPLOY_ACTION
-            || action == VMActions::UNDEPLOY_HARD_ACTION );
+              || action == VMActions::UNDEPLOY_HARD_ACTION );
 
     xpath(hid, "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
     xpath(dsid, "/VM/HISTORY_RECORDS/HISTORY/DS_ID", -1);

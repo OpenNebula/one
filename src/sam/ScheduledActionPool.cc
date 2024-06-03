@@ -75,7 +75,7 @@ int ScheduledActionPool::dump(const std::set<int> &actions, std::string& oss)
     }
 
     return PoolSQL::dump(oss, string(), "body", one_db::scheduled_action_table,
-            oid_filter.str(), 0, -1, false);
+                         oid_filter.str(), 0, -1, false);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -125,7 +125,7 @@ std::vector<std::pair<int, int>> ScheduledActionPool::get_is_due_actions(PoolObj
 
     time_t actual_time = time(0);
 
-    vector_pair_cb<int,int> cb;
+    vector_pair_cb<int, int> cb;
     std::vector<std::pair<int, int>> actions;
     cb.set_callback(&actions);
 

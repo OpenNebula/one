@@ -32,9 +32,9 @@ using namespace std;
 ScheduledActionManager::ScheduledActionManager(time_t timer,
                                                int max_backups,
                                                int max_backups_host)
-    : timer_thread(timer, [this](){timer_action();})
-    , _max_backups(max_backups)
-    , _max_backups_host(max_backups_host)
+    : timer_thread(timer, [this]() {timer_action();})
+, _max_backups(max_backups)
+, _max_backups_host(max_backups_host)
 {
     NebulaLog::info("SCH", "Staring Scheduled Action Manager...");
 
@@ -106,7 +106,7 @@ void ScheduledActionManager::scheduled_vm_actions()
         if (!sa)
         {
             NebulaLog::warn("SCH", "Unable to read sched action: " + to_string(action.first)
-                + ", for VM " + to_string(vm_id));
+                            + ", for VM " + to_string(vm_id));
 
             continue;
         }
@@ -468,7 +468,7 @@ void ScheduledActionManager::backup_jobs()
                                  PoolObjectSQL::VM);
 
             NebulaLog::info("SCH", "Backup Job " + to_string(bj_id) +
-                                   " executing backup for VM " + to_string(vm_id) );
+                            " executing backup for VM " + to_string(vm_id) );
 
             auto ec = vm_backup.request_execute(ra, vm_id, ds_id, reset);
 

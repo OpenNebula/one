@@ -48,14 +48,14 @@ public:
      *   @return the debug level, to instantiate Log'ers
      */
     Log::MessageType get_debug_level(
-        Log::MessageType default_ = Log::ERROR) const;
+            Log::MessageType default_ = Log::ERROR) const;
 
     /**
      *  Returns the value of LOG->SYSTEM in oned.conf file
      *      @return the logging system CERR, FILE_TS or SYSLOG
      */
     NebulaLog::LogType get_log_system(
-        NebulaLog::LogType default_ = NebulaLog::UNDEFINED) const;
+            NebulaLog::LogType default_ = NebulaLog::UNDEFINED) const;
 
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
@@ -137,11 +137,11 @@ public:
      */
     static std::string version()
     {
-       std::ostringstream os;
-       os << "OpenNebula " << code_version();
-       os << " (" << GITVERSION << ")";
+        std::ostringstream os;
+        os << "OpenNebula " << code_version();
+        os << " (" << GITVERSION << ")";
 
-       return os.str();
+        return os.str();
     };
 
     /**

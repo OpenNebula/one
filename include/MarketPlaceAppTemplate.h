@@ -26,9 +26,9 @@ class MarketPlaceAppTemplate : public Template
 {
 public:
     MarketPlaceAppTemplate():
-        Template(false,'=',"TEMPLATE"){};
+        Template(false, '=', "TEMPLATE") {};
 
-    ~MarketPlaceAppTemplate(){};
+    ~MarketPlaceAppTemplate() {};
 };
 
 /* -------------------------------------------------------------------------- */

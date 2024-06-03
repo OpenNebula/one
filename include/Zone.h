@@ -43,9 +43,12 @@ public:
 
         state = ENABLED;
 
-        if ( st == "ENABLED" ) {
+        if ( st == "ENABLED" )
+        {
             state = ENABLED;
-        } else if ( st == "DISABLED" ) {
+        }
+        else if ( st == "DISABLED" )
+        {
             state = DISABLED;
         }
         else
@@ -120,10 +123,10 @@ public:
     }
 
     /**
-	 *  @param server_id
+     *  @param server_id
      *  @return the server
      */
-	ZoneServer * get_server(int server_id) const;
+    ZoneServer * get_server(int server_id) const;
 
     /**
      *  @return the number of servers in this zone

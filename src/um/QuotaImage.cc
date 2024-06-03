@@ -36,7 +36,7 @@ bool QuotaImage::check(Template * tmpl, Quotas& default_quotas, string& error)
 
     map<string, float> image_request;
 
-    image_request.insert(make_pair("RVMS",1));
+    image_request.insert(make_pair("RVMS", 1));
 
     num = tmpl->get("DISK", disk);
 
@@ -69,7 +69,7 @@ void QuotaImage::del(Template * tmpl)
 
     map<string, float> image_request;
 
-    image_request.insert(make_pair("RVMS",1));
+    image_request.insert(make_pair("RVMS", 1));
 
     num = tmpl->get("DISK", disk);
 
@@ -85,9 +85,9 @@ void QuotaImage::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 
 int QuotaImage::get_default_quota(
-    const string& id,
-    Quotas& default_quotas,
-    VectorAttribute **va)
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va)
 {
     return default_quotas.image_get(id, va);
 }

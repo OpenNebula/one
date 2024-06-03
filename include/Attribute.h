@@ -45,11 +45,11 @@ public:
         if  ((size >0 && !(isalpha(aname[0]) || aname[0] == '_')) ||
              (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
         {
-            attribute_name.insert(0,"ONE_");
+            attribute_name.insert(0, "ONE_");
         }
     };
 
-    virtual ~Attribute(){};
+    virtual ~Attribute() {};
 
     enum AttributeType
     {
@@ -82,7 +82,7 @@ public:
     virtual void to_token(std::ostringstream& s) const = 0;
 
     virtual void to_xml(std::ostringstream& s,
-        const std::map<std::string, std::set<std::string>> &hidden) const = 0;
+                        const std::map<std::string, std::set<std::string>> &hidden) const = 0;
 
     /**
      *  Builds a new attribute from a string.
@@ -145,7 +145,7 @@ public:
         , attribute_value(sa.attribute_value)
     {}
 
-    ~SingleAttribute(){};
+    ~SingleAttribute() {};
 
     /**
      *  Returns the attribute value, a string.
@@ -182,17 +182,17 @@ public:
     }
 
     void to_xml(std::ostringstream& s,
-        const std::map<std::string, std::set<std::string>> &hidden) const override
+                const std::map<std::string, std::set<std::string>> &hidden) const override
     {
         s << "<" << attribute_name << ">";
 
         if (hidden.find(attribute_name) != hidden.end() )
         {
-             s << "***";
+            s << "***";
         }
         else
         {
-             s << one_util::escape_xml(attribute_value);
+            s << one_util::escape_xml(attribute_value);
         }
 
         s << "</"<< attribute_name << ">";
@@ -282,7 +282,7 @@ public:
     {}
 
     VectorAttribute(const std::string& name,
-                    const  std::map<std::string,std::string>& value)
+                    const  std::map<std::string, std::string>& value)
         : Attribute(name)
         , attribute_value(value)
     {}
@@ -296,12 +296,12 @@ public:
 
     VectorAttribute& operator=(const VectorAttribute& va) = default;
 
-    ~VectorAttribute(){};
+    ~VectorAttribute() {};
 
     /**
      *  Returns the attribute value, a string.
      */
-    const std::map<std::string,std::string>& value() const
+    const std::map<std::string, std::string>& value() const
     {
         return attribute_value;
     };
@@ -452,7 +452,7 @@ public:
     void to_xml(std::ostringstream& s) const override;
 
     void to_xml(std::ostringstream& s,
-        const std::map<std::string, std::set<std::string>> &hidden) const override;
+                const std::map<std::string, std::set<std::string>> &hidden) const override;
 
     void to_json(std::ostringstream& s) const override;
 
@@ -467,7 +467,7 @@ public:
     /**
      *  Replace the value of the given attribute with the provided map
      */
-    void replace(const std::map<std::string,std::string>& attr);
+    void replace(const std::map<std::string, std::string>& attr);
 
     /**
      * The attributes from vattr will be copied to this vector
@@ -560,7 +560,7 @@ private:
 
     static const int    magic_sep_size;
 
-    std::map<std::string,std::string> attribute_value;
+    std::map<std::string, std::string> attribute_value;
 };
 
 #endif /*ATTRIBUTE_H_*/

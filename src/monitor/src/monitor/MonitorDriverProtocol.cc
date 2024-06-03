@@ -67,13 +67,13 @@ void MonitorDriverProtocol::_monitor_vm(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Failed to monitor VM for host " +
-            to_string(msg->oid()) + ": " + msg->payload());
+                        to_string(msg->oid()) + ": " + msg->payload());
 
         return;
     }
 
     if (!hm->test_set_timestamp(MonitorDriverMessages::MONITOR_VM, msg->oid(),
-                msg->timestamp()))
+                                msg->timestamp()))
     {
         return;
     }
@@ -129,7 +129,7 @@ void MonitorDriverProtocol::_monitor_vm(unique_ptr<monitor_msg_t> msg)
         if (rc != 0)
         {
             NebulaLog::error("MDP", "Error parsing VM monitor attribute: "
-                + monitor_plain + ", error: " + error_msg);
+                             + monitor_plain + ", error: " + error_msg);
 
             free(error_msg);
             continue;
@@ -173,7 +173,7 @@ void MonitorDriverProtocol::_beacon_host(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Error condition detected on beacon for host "
-                + to_string(msg->oid()) + ": " + msg->payload());
+                        + to_string(msg->oid()) + ": " + msg->payload());
 
         if (msg->oid() >= 0)
         {
@@ -195,14 +195,14 @@ void MonitorDriverProtocol::_monitor_host(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Failed to monitor host " + to_string(msg->oid())
-                + ": " + msg->payload());
+                        + ": " + msg->payload());
 
         hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 
     if (!hm->test_set_timestamp(MonitorDriverMessages::MONITOR_HOST, msg->oid(),
-                msg->timestamp()))
+                                msg->timestamp()))
     {
         return;
     }
@@ -240,14 +240,14 @@ void MonitorDriverProtocol::_system_host(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Failed to get system information for host " +
-            to_string(msg->oid()) + ": " + msg->payload());
+                        to_string(msg->oid()) + ": " + msg->payload());
 
         hm->error_monitor(msg->oid(), msg->payload());
         return;
     }
 
     if (!hm->test_set_timestamp(MonitorDriverMessages::SYSTEM_HOST, msg->oid(),
-                msg->timestamp()))
+                                msg->timestamp()))
     {
         return;
     }
@@ -266,13 +266,13 @@ void MonitorDriverProtocol::_state_vm(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Failed to monitor VM state for host " +
-            to_string(msg->oid()) + ": " + msg->payload());
+                        to_string(msg->oid()) + ": " + msg->payload());
 
         return;
     }
 
     if (!hm->test_set_timestamp(MonitorDriverMessages::STATE_VM, msg->oid(),
-                msg->timestamp()))
+                                msg->timestamp()))
     {
         return;
     }
@@ -301,7 +301,7 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
     if (msg->status() != "SUCCESS")
     {
         NebulaLog::warn("MDP", "Start monitor failed for host " +
-            to_string(msg->oid()) + ": " + msg->payload());
+                        to_string(msg->oid()) + ": " + msg->payload());
 
         hm->start_monitor_failure(msg->oid());
         return;
@@ -322,7 +322,7 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
         hm->start_monitor_failure(msg->oid());
 
         NebulaLog::warn("MDP", "Error parsing start message for host " +
-            to_string(msg->oid()) + ": " + msg->payload());
+                        to_string(msg->oid()) + ": " + msg->payload());
 
         return;
     }
@@ -331,7 +331,8 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
 
     msg_xml.xpath(ts, "/MONITOR_MESSAGES/TIMESTAMP", static_cast<time_t>(0));
 
-    const vector<MonitorDriverMessages> stypes = {
+    const vector<MonitorDriverMessages> stypes =
+    {
         MonitorDriverMessages::MONITOR_VM,
         MonitorDriverMessages::BEACON_HOST,
         MonitorDriverMessages::MONITOR_HOST,
@@ -344,7 +345,7 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
         string payload64, payload;
 
         string xpath = "/MONITOR_MESSAGES/" +
-             monitor_msg_t::type_str(it);
+                       monitor_msg_t::type_str(it);
 
         if ( msg_xml.xpath(payload64, xpath.c_str(), "") != 0 )
         {
@@ -399,15 +400,15 @@ void MonitorDriverProtocol::_log(unique_ptr<monitor_msg_t> msg)
 
     switch (msg->status()[0])
     {
-            case 'E':
-                log_type = Log::ERROR;
-                break;
-            case 'W':
-                log_type = Log::WARNING;
-                break;
-            case 'D':
-                log_type = Log::DEBUG;
-                break;
+        case 'E':
+            log_type = Log::ERROR;
+            break;
+        case 'W':
+            log_type = Log::WARNING;
+            break;
+        case 'D':
+            log_type = Log::DEBUG;
+            break;
     }
 
     NebulaLog::log("MDP", log_type, msg->payload());

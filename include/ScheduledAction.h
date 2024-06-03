@@ -212,12 +212,12 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-     int update(SqlDB * db) override
-     {
+    int update(SqlDB * db) override
+    {
         std::string error;
 
         return insert_replace(db, true, error);
-     }
+    }
 
     /**
      *  Execute an INSERT or REPLACE Sql query.

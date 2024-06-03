@@ -29,7 +29,8 @@ using namespace std;
 
 int VirtualNetworkXML::net_num_paths = 2;
 
-const char * VirtualNetworkXML::net_paths[] = {
+const char * VirtualNetworkXML::net_paths[] =
+{
     "/VNET/TEMPLATE/",
     "/VNET/"
 };
@@ -65,8 +66,8 @@ void VirtualNetworkXML::init_attributes()
     vector<string> ar_size;
     vector<string> ar_used_leases;
 
-    xpaths(ar_size,"/VNET/AR_POOL/AR/SIZE");
-    xpaths(ar_used_leases,"/VNET/AR_POOL/AR/USED_LEASES");
+    xpaths(ar_size, "/VNET/AR_POOL/AR/SIZE");
+    xpaths(ar_used_leases, "/VNET/AR_POOL/AR/USED_LEASES");
 
     int used_leases;
 

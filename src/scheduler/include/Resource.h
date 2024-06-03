@@ -28,9 +28,9 @@ class PoolXML;
 struct Resource
 {
 public:
-    Resource(int _oid):oid(_oid), priority(0){};
+    Resource(int _oid):oid(_oid), priority(0) {};
 
-    virtual ~Resource(){};
+    virtual ~Resource() {};
 
     int   oid;
     float priority;
@@ -45,7 +45,7 @@ public:
 class ResourceMatch
 {
 public:
-    ResourceMatch(){};
+    ResourceMatch() {};
 
     virtual ~ResourceMatch()
     {
@@ -69,7 +69,8 @@ public:
      */
     virtual void remove_resource(int oid)
     {
-        auto it = std::find_if(resources.begin(), resources.end(), [oid](const auto val) {
+        auto it = std::find_if(resources.begin(), resources.end(), [oid](const auto val)
+        {
             return oid == val->oid;
         });
 

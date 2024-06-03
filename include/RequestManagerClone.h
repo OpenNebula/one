@@ -33,41 +33,41 @@ class RequestManagerClone: public Request
 {
 protected:
     RequestManagerClone(const std::string& method_name, const std::string& help,
-        const std::string& params = "A:sis"):
-        Request(method_name,params,help){};
+                        const std::string& params = "A:sis"):
+        Request(method_name, params, help) {};
 
-    ~RequestManagerClone(){};
+    ~RequestManagerClone() {};
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
     /* -------------------------------------------------------------------- */
     /* Especialization Functions for specific Clone actions                 */
     /* -------------------------------------------------------------------- */
 
-	/**
+    /**
      *  Function to clone the object
      */
     virtual ErrorCode clone(int source_id, const std::string &name, int &new_id,
-            bool recursive, const std::string& s_uattr, RequestAttributes& att);
+                            bool recursive, const std::string& s_uattr, RequestAttributes& att);
 
-	/**
+    /**
      *  Function to clone the base template
      */
     virtual std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) = 0;
 
-	/**
+    /**
      *  Function to merge user/additional attributes in the cloned object
      */
     virtual ErrorCode merge(Template * tmpl, const std::string &str_uattrs,
-            RequestAttributes& att)
+                            RequestAttributes& att)
     {
         return SUCCESS;
     }
 
-	/**
+    /**
      *  Function to allocated the new clone object
      */
     virtual int pool_allocate(int source_id, std::unique_ptr<Template> tmpl,
@@ -82,7 +82,7 @@ class VMTemplateClone : public RequestManagerClone
 public:
     VMTemplateClone():
         RequestManagerClone("one.template.clone",
-                "Clone a virtual machine template", "A:sisb")
+                            "Clone a virtual machine template", "A:sisb")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
@@ -91,7 +91,7 @@ public:
         auth_op     = AuthRequest::USE;
     };
 
-    ~VMTemplateClone(){};
+    ~VMTemplateClone() {};
 
     ErrorCode clone(int source_id, const std::string &name, int &new_id,
                     bool recursive, const std::string& s_a,
@@ -116,10 +116,10 @@ protected:
     {
         VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
         std::unique_ptr<VirtualMachineTemplate> t(
-            static_cast<VirtualMachineTemplate*>(tmpl.release()));
+                static_cast<VirtualMachineTemplate*>(tmpl.release()));
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                std::move(t), &id, att.resp_msg);
+                               std::move(t), &id, att.resp_msg);
     }
 
     ErrorCode merge(Template * tmpl, const std::string &s_a,
@@ -141,7 +141,7 @@ class VNTemplateClone : public RequestManagerClone
 public:
     VNTemplateClone():
         RequestManagerClone("one.vntemplate.clone",
-                "Clone a virtual network template", "A:sis")
+                            "Clone a virtual network template", "A:sis")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vntpool();
@@ -150,7 +150,7 @@ public:
         auth_op     = AuthRequest::USE;
     };
 
-    ~VNTemplateClone(){};
+    ~VNTemplateClone() {};
 
 protected:
 
@@ -164,10 +164,10 @@ protected:
     {
         VNTemplatePool * tpool     = static_cast<VNTemplatePool *>(pool);
         std::unique_ptr<VirtualNetworkTemplate> t(
-            static_cast<VirtualNetworkTemplate*>(tmpl.release()));
+                static_cast<VirtualNetworkTemplate*>(tmpl.release()));
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                std::move(t), &id, att.resp_msg);
+                               std::move(t), &id, att.resp_msg);
     }
 
 };
@@ -188,7 +188,7 @@ public:
         auth_op     = AuthRequest::USE;
     };
 
-    ~DocumentClone(){};
+    ~DocumentClone() {};
 
 protected:
 
@@ -211,7 +211,7 @@ protected:
         int dtype = doc->get_document_type();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, dtype, std::move(tmpl), &id, att.resp_msg);
+                                 att.umask, dtype, std::move(tmpl), &id, att.resp_msg);
     }
 };
 
@@ -231,7 +231,7 @@ public:
         auth_op     = AuthRequest::USE;
     };
 
-    ~SecurityGroupClone(){};
+    ~SecurityGroupClone() {};
 
 protected:
 
@@ -246,7 +246,7 @@ protected:
         SecurityGroupPool * sg = static_cast<SecurityGroupPool *>(pool);
 
         return sg->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                std::move(tmpl), &id, att.resp_msg);
+                            std::move(tmpl), &id, att.resp_msg);
     }
 };
 

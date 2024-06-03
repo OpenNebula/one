@@ -30,7 +30,7 @@
 /* -------------------------------------------------------------------------- */
 
 ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
-        const std::string& _arg, const std::string& rl): name(_name), cmd(_cmd)
+                         const std::string& _arg, const std::string& rl): name(_name), cmd(_cmd)
 {
     std::istringstream iss(_arg);
 
@@ -60,7 +60,8 @@ ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
 
 void ExecuteHook::execute()
 {
-    std::thread thr([this]{
+    std::thread thr([this]
+    {
         int out[2];
         int err[2];
 
@@ -114,7 +115,7 @@ void ExecuteHook::execute()
 
             case -1: //failure
                 NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + name);
-            break;
+                break;
 
             default: //parent
             {

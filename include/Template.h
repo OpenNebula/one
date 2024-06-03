@@ -44,9 +44,9 @@ public:
     explicit Template(bool         _replace_mode = false,
                       const char   _separator    = '=',
                       const char * _xml_root     = "TEMPLATE"):
-                 replace_mode(_replace_mode),
-                 separator(_separator),
-                 xml_root(_xml_root){}
+        replace_mode(_replace_mode),
+        separator(_separator),
+        xml_root(_xml_root) {}
 
     Template(const Template& t)
         : replace_mode(t.replace_mode)
@@ -55,7 +55,7 @@ public:
     {
         for (auto it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
-            attributes.insert(make_pair(it->first,(it->second)->clone()));
+            attributes.insert(make_pair(it->first, (it->second)->clone()));
         }
     }
 
@@ -79,7 +79,7 @@ public:
 
             for (auto att : t.attributes)
             {
-                attributes.insert(make_pair(att.first,(att.second)->clone()));
+                attributes.insert(make_pair(att.first, (att.second)->clone()));
             }
         }
 
@@ -299,7 +299,7 @@ public:
 
         auto index = attributes.equal_range(name);
 
-        for ( auto i = index.first; i != index.second; i++,j++ )
+        for ( auto i = index.first; i != index.second; i++, j++ )
         {
             auto att = dynamic_cast<T*>(i->second);
 
@@ -324,7 +324,7 @@ public:
 
         auto index = attributes.equal_range(name);
 
-        for ( auto i = index.first; i != index.second; i++,j++ )
+        for ( auto i = index.first; i != index.second; i++, j++ )
         {
             std::unique_ptr<T> va(dynamic_cast<T *>(i->second));
 
@@ -400,12 +400,12 @@ public:
      */
     inline const VectorAttribute * get(const std::string& name) const
     {
-      return __get<VectorAttribute>(name);
+        return __get<VectorAttribute>(name);
     }
 
     inline VectorAttribute * get(const std::string& name)
     {
-      return __get<VectorAttribute>(name);
+        return __get<VectorAttribute>(name);
     }
 
     /**
@@ -466,7 +466,7 @@ public:
      *  replacing the existing ones
      *    @param from_tmpl the template to be merged
      */
-     void merge(const Template * from_tmpl);
+    void merge(const Template * from_tmpl);
 
     /**
      *  Check if the template can be safely merge with a base template. If a
@@ -495,12 +495,12 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt(const std::string& one_key){};
+    virtual void encrypt(const std::string& one_key) {};
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt(const std::string& one_key){};
+    virtual void decrypt(const std::string& one_key) {};
 
     /**
      *  @return true if template is empty
@@ -525,7 +525,7 @@ protected:
     /**
      *  The template attributes
      */
-    std::multimap<std::string,Attribute *> attributes;
+    std::multimap<std::string, Attribute *> attributes;
 
     /**
      *  Builds a SingleAttribute from the given node
@@ -556,7 +556,7 @@ protected:
      *    If the RA is Single the sub attribute list will be empty.
      */
     static void parse_restricted(const std::vector<const SingleAttribute *>& ras,
-        std::map<std::string, std::set<std::string> >& rattr_m);
+                                 std::map<std::string, std::set<std::string> >& rattr_m);
 
     /**
      *  Check if the template can be safely merge with a base template. If a
@@ -571,10 +571,10 @@ protected:
      *    in the template
      */
     bool check_restricted(std::string& rs_attr, const Template* base,
-           const std::map<std::string, std::set<std::string> >& ras, bool append);
+                          const std::map<std::string, std::set<std::string> >& ras, bool append);
 
     bool check_restricted(std::string& rs_attr,
-           const std::map<std::string, std::set<std::string> >& ras);
+                          const std::map<std::string, std::set<std::string> >& ras);
 
     /**
      *  Parses a list of encrypted attributes in the form ATTRIBUTE_NAME or
@@ -589,7 +589,7 @@ protected:
      *    If the EA is Single the sub attribute list will be empty.
      */
     static void parse_encrypted(const std::vector<const SingleAttribute *>& eas,
-        std::map<std::string, std::set<std::string> >& eattr_m);
+                                std::map<std::string, std::set<std::string> >& eattr_m);
 
     /**
      *  Encrypt all secret attributes
@@ -711,7 +711,7 @@ private:
     T * __get(const std::string& s)
     {
         return const_cast<T *>(
-                static_cast<const Template&>(*this).__get<T>(s));
+                       static_cast<const Template&>(*this).__get<T>(s));
     }
 };
 

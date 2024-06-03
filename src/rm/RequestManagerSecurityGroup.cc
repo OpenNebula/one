@@ -37,7 +37,7 @@ SecurityGroupCommit::SecurityGroupCommit()
 /* ------------------------------------------------------------------------- */
 
 void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                          RequestAttributes& att)
 {
     int  oid     = xmlrpc_c::value_int(paramList.getInt(1));
     bool recover = xmlrpc_c::value_boolean(paramList.getBoolean(2));
