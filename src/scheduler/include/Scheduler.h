@@ -51,7 +51,7 @@ public:
         }
     }
 
-    virtual void register_policies(const SchedulerTemplate& conf){};
+    virtual void register_policies(const SchedulerTemplate& conf) {};
 
     static Scheduler& instance(Scheduler* the_sched=0)
     {

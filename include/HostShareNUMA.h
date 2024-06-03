@@ -103,7 +103,7 @@ public:
      *    @return 0 on success
      */
     int allocate_ht_cpus(int id, unsigned int tcpus, unsigned int tc,
-            std::string &c_s);
+                         std::string &c_s);
 
     /**
      *  Remove allocation for the given CPUs
@@ -259,7 +259,7 @@ private:
      *    @param update if true also adds the core to the object Template
      */
     void set_core(unsigned int id, std::string& cpus, unsigned int vms_thread,
-            bool dedicated, bool update);
+                  bool dedicated, bool update);
 
     /**
      *  Regenerate the template representation of the CORES for this node.
@@ -279,7 +279,7 @@ private:
      *    @param update if true also adds the page to the object Template
      */
     void set_hugepage(unsigned long size, unsigned int nr,
-            unsigned long usage, bool update);
+                      unsigned long usage, bool update);
 
     void update_hugepage(unsigned long size);
 
@@ -326,7 +326,7 @@ private:
 class HostShareNUMA
 {
 public:
-    HostShareNUMA():threads_core(1){};
+    HostShareNUMA():threads_core(1) {};
 
     virtual ~HostShareNUMA()
     {
@@ -470,7 +470,7 @@ private:
     };
 
     bool schedule_nodes(NUMANodeRequest &nr, unsigned int thr, bool dedicated,
-        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
+                        unsigned long hpsz_kb, std::set<unsigned int> &pci, bool do_alloc);
 };
 
 #endif /*HOST_SHARE_NUMA_H_*/

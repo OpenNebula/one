@@ -29,15 +29,15 @@ const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
 
 const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
-                                | PoolObjectSQL::ObjectType::TEMPLATE
-                                | PoolObjectSQL::ObjectType::IMAGE
-                                | PoolObjectSQL::ObjectType::MARKETPLACEAPP
-                                | PoolObjectSQL::ObjectType::NET
-                                | PoolObjectSQL::ObjectType::VROUTER
-                                | PoolObjectSQL::ObjectType::VMGROUP
-                                | PoolObjectSQL::ObjectType::VNTEMPLATE
-                                | PoolObjectSQL::ObjectType::DOCUMENT
-                                | PoolObjectSQL::ObjectType::HOOK;
+                                               | PoolObjectSQL::ObjectType::TEMPLATE
+                                               | PoolObjectSQL::ObjectType::IMAGE
+                                               | PoolObjectSQL::ObjectType::MARKETPLACEAPP
+                                               | PoolObjectSQL::ObjectType::NET
+                                               | PoolObjectSQL::ObjectType::VROUTER
+                                               | PoolObjectSQL::ObjectType::VMGROUP
+                                               | PoolObjectSQL::ObjectType::VNTEMPLATE
+                                               | PoolObjectSQL::ObjectType::DOCUMENT
+                                               | PoolObjectSQL::ObjectType::HOOK;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -84,7 +84,7 @@ int PoolObjectSQL::select(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 
 int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
-        const string& _name, int _uid)
+                              const string& _name, int _uid)
 {
     char * sql_name = db->escape_str(_name);
 
@@ -383,15 +383,15 @@ string& PoolObjectSQL::perms_to_xml(string& xml) const
 
     oss <<
         "<PERMISSIONS>" <<
-            "<OWNER_U>" << owner_u << "</OWNER_U>"  <<
-            "<OWNER_M>" << owner_m << "</OWNER_M>"  <<
-            "<OWNER_A>" << owner_a << "</OWNER_A>"  <<
-            "<GROUP_U>" << group_u << "</GROUP_U>"  <<
-            "<GROUP_M>" << group_m << "</GROUP_M>"  <<
-            "<GROUP_A>" << group_a << "</GROUP_A>"  <<
-            "<OTHER_U>" << other_u << "</OTHER_U>"  <<
-            "<OTHER_M>" << other_m << "</OTHER_M>"  <<
-            "<OTHER_A>" << other_a << "</OTHER_A>"  <<
+        "<OWNER_U>" << owner_u << "</OWNER_U>"  <<
+        "<OWNER_M>" << owner_m << "</OWNER_M>"  <<
+        "<OWNER_A>" << owner_a << "</OWNER_A>"  <<
+        "<GROUP_U>" << group_u << "</GROUP_U>"  <<
+        "<GROUP_M>" << group_m << "</GROUP_M>"  <<
+        "<GROUP_A>" << group_a << "</GROUP_A>"  <<
+        "<OTHER_U>" << other_u << "</OTHER_U>"  <<
+        "<OTHER_M>" << other_m << "</OTHER_M>"  <<
+        "<OTHER_A>" << other_a << "</OTHER_A>"  <<
         "</PERMISSIONS>";
 
     xml = oss.str();
@@ -645,10 +645,10 @@ string& PoolObjectSQL::lock_db_to_xml(string& xml) const
     ostringstream oss;
 
     oss << "<LOCK>"
-            << "<LOCKED>" << static_cast<int>(locked)   << "</LOCKED>"
-            << "<OWNER>"  << lock_owner << "</OWNER>"
-            << "<TIME>"   << lock_time << "</TIME>"
-            << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
+        << "<LOCKED>" << static_cast<int>(locked)   << "</LOCKED>"
+        << "<OWNER>"  << lock_owner << "</OWNER>"
+        << "<TIME>"   << lock_time << "</TIME>"
+        << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
         << "</LOCK>";
 
     xml = oss.str();

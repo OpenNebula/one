@@ -181,7 +181,7 @@ void Nebula::start(bool bootstrap_only)
         if ( rc != 0 )
         {
             throw runtime_error("Error getting hostname" +
-                    std::string(strerror(rc)));
+                                std::string(strerror(rc)));
         }
 
         rc = getaddrinfo(hn, nullptr, &hints, &addrs);
@@ -189,7 +189,7 @@ void Nebula::start(bool bootstrap_only)
         if ( rc != 0 )
         {
             throw runtime_error("Error getting hostname: " +
-                    std::string(gai_strerror(rc)));
+                                std::string(gai_strerror(rc)));
         }
 
         if ( addrs != nullptr && addrs->ai_canonname != nullptr )
@@ -238,12 +238,12 @@ void Nebula::start(bool bootstrap_only)
         os << *nebula_configuration;
         os << "----------------------------------------";
 
-        NebulaLog::log("ONE",Log::INFO,os);
+        NebulaLog::log("ONE", Log::INFO, os);
 
         os.str("");
         os << "Log level:" << clevel << " [0=ERROR,1=WARNING,2=INFO,3=DEBUG]";
 
-        NebulaLog::log("ONE",Log::INFO,os);
+        NebulaLog::log("ONE", Log::INFO, os);
 
         os.str("");
         os << "Support for xmlrpc-c > 1.31: ";
@@ -254,7 +254,7 @@ void Nebula::start(bool bootstrap_only)
         os << "yes";
 #endif
 
-        NebulaLog::log("ONE",Log::INFO,os);
+        NebulaLog::log("ONE", Log::INFO, os);
     }
     catch(runtime_error&)
     {
@@ -335,7 +335,7 @@ void Nebula::start(bool bootstrap_only)
         else
         {
             throw runtime_error(
-                "FEDERATION MODE must be one of STANDALONE, MASTER, SLAVE or CACHE.");
+                    "FEDERATION MODE must be one of STANDALONE, MASTER, SLAVE or CACHE.");
         }
 
         if (federation_enabled)
@@ -345,7 +345,7 @@ void Nebula::start(bool bootstrap_only)
             if (rc != 0)
             {
                 throw runtime_error("FEDERATION ZONE_ID must be set for "
-                    "federated instances.");
+                                    "federated instances.");
             }
         }
 
@@ -416,12 +416,12 @@ void Nebula::start(bool bootstrap_only)
         else if ( db_backend_type == "mysql" )
         {
             db_backend = new MySqlDB(server, port, user, passwd, db_name,
-                    encoding, connections, compare_binary);
+                                     encoding, connections, compare_binary);
         }
         else if ( db_backend_type == "postgresql" )
         {
             db_backend = new PostgreSqlDB(server, port, user, passwd, db_name,
-                    connections);
+                                          connections);
         }
         else
         {
@@ -434,12 +434,12 @@ void Nebula::start(bool bootstrap_only)
         bool local_bootstrap;
         bool shared_bootstrap;
 
-        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
+        NebulaLog::log("ONE", Log::INFO, "Checking database version.");
 
         SystemDB sysdb(db_backend);
 
         rc = sysdb.check_db_version(is_federation_slave(), local_bootstrap,
-                shared_bootstrap);
+                                    shared_bootstrap);
 
         if ( rc == -1 )
         {
@@ -449,7 +449,7 @@ void Nebula::start(bool bootstrap_only)
         if ((local_bootstrap || shared_bootstrap) && (mode != "STANDALONE"))
         {
             throw runtime_error("Database has to be bootstraped to start"
-                    " oned in FEDERATION");
+                                " oned in FEDERATION");
         }
 
         // ---------------------------------------------------------------------
@@ -496,13 +496,13 @@ void Nebula::start(bool bootstrap_only)
         if ( (local_bootstrap || shared_bootstrap) && !solo )
         {
             throw runtime_error("Database has to be bootstraped to start"
-                    " oned in HA");
+                                " oned in HA");
         }
 
         if (local_bootstrap)
         {
-            NebulaLog::log("ONE",Log::INFO,
-                    "Bootstrapping OpenNebula database, stage 1.");
+            NebulaLog::log("ONE", Log::INFO,
+                           "Bootstrapping OpenNebula database, stage 1.");
 
             rc += VirtualMachinePool::bootstrap(logdb);
             rc += HostPool::bootstrap(logdb);
@@ -534,8 +534,8 @@ void Nebula::start(bool bootstrap_only)
 
         if (shared_bootstrap)
         {
-            NebulaLog::log("ONE",Log::INFO,
-                    "Bootstrapping OpenNebula database, stage 2.");
+            NebulaLog::log("ONE", Log::INFO,
+                           "Bootstrapping OpenNebula database, stage 2.");
 
             rc += GroupPool::bootstrap(logdb);
             rc += UserPool::bootstrap(logdb);
@@ -568,7 +568,7 @@ void Nebula::start(bool bootstrap_only)
         xmlCleanupParser();
 
         NebulaLog::log("ONE", Log::INFO,
-                "Database bootstrap finalized, exiting.\n");
+                       "Database bootstrap finalized, exiting.\n");
         return;
     }
 
@@ -579,9 +579,9 @@ void Nebula::start(bool bootstrap_only)
     {
         fd = open("/dev/null", O_RDWR);
 
-        dup2(fd,0);
-        dup2(fd,1);
-        dup2(fd,2);
+        dup2(fd, 0);
+        dup2(fd, 1);
+        dup2(fd, 2);
 
         close(fd);
 
@@ -622,7 +622,7 @@ void Nebula::start(bool bootstrap_only)
     try
     {
         aclm = new AclManager(db_ptr, zone_id, is_federation_slave(),
-                timer_period);
+                              timer_period);
     }
     catch (bad_alloc&)
     {
@@ -633,7 +633,7 @@ void Nebula::start(bool bootstrap_only)
 
     if ( rc != 0 )
     {
-       throw runtime_error("Could not start the ACL Manager");
+        throw runtime_error("Could not start the ACL Manager");
     }
 
     try
@@ -665,7 +665,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_ENCRYPTED_ATTR", vm_encrypted_attrs);
 
-        nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
+        nebula_configuration->get("VM_SUBMIT_ON_HOLD", vm_submit_on_hold);
 
         default_cost = nebula_configuration->get("DEFAULT_COST");
 
@@ -687,7 +687,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("SHOWBACK_ONLY_RUNNING", showback_only_running);
 
         vmpool = new VirtualMachinePool(logdb, vm_restricted_attrs, vm_encrypted_attrs,
-                vm_submit_on_hold, cpu_cost, mem_cost, disk_cost, showback_only_running);
+                                        vm_submit_on_hold, cpu_cost, mem_cost, disk_cost, showback_only_running);
 
         /* ---------------------------- Host Pool --------------------------- */
         vector<const SingleAttribute *> host_encrypted_attrs;
@@ -725,8 +725,8 @@ void Nebula::start(bool bootstrap_only)
         vxlan_id = nebula_configuration->get("VXLAN_IDS");
 
         vnpool = new VirtualNetworkPool(logdb, mac_prefix, size,
-                vnet_restricted_attrs, vnet_encrypted_attrs, inherit_vnet_attrs,
-                vlan_id, vxlan_id);
+                                        vnet_restricted_attrs, vnet_encrypted_attrs, inherit_vnet_attrs,
+                                        vlan_id, vxlan_id);
 
         /* ----------------------- Group/User Pool -------------------------- */
         vector<const SingleAttribute *> user_restricted;
@@ -744,7 +744,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("USER_ENCRYPTED_ATTR", user_encrypted);
 
         upool = new UserPool(db_ptr, expiration_time, is_federation_slave(),
-                user_restricted, user_encrypted);
+                             user_restricted, user_encrypted);
 
         /* -------------------- Image/Datastore Pool ------------------------ */
         string  image_type;
@@ -772,7 +772,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("IMAGE_ENCRYPTED_ATTR", img_encrypted_attrs);
 
         ipool = new ImagePool(logdb, image_type, device_prefix, cd_dev_prefix,
-            img_restricted_attrs, img_encrypted_attrs, img_inherit_attrs);
+                              img_restricted_attrs, img_encrypted_attrs, img_inherit_attrs);
 
         dspool = new DatastorePool(logdb, ds_inherit_attrs, ds_encrypted_attrs);
 
@@ -842,7 +842,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-           throw runtime_error("Could not start the Hook Manager");
+            throw runtime_error("Could not start the Hook Manager");
         }
     }
 
@@ -856,7 +856,7 @@ void Nebula::start(bool bootstrap_only)
     try
     {
         raftm = new RaftManager(server_id, raft_leader_hook, raft_follower_hook,
-                log_purge, bcast_ms, election_ms, xmlrpc_ms, remotes_location);
+                                log_purge, bcast_ms, election_ms, xmlrpc_ms, remotes_location);
     }
     catch (bad_alloc&)
     {
@@ -978,7 +978,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-           throw runtime_error("Could not start the Dispatch Manager");
+            throw runtime_error("Could not start the Dispatch Manager");
         }
     }
 
@@ -1036,7 +1036,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-           throw runtime_error("Could not start the Image Manager");
+            throw runtime_error("Could not start the Image Manager");
         }
     }
 
@@ -1059,7 +1059,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-           throw runtime_error("Could not start the Marketplace Manager");
+            throw runtime_error("Could not start the Marketplace Manager");
         }
     }
 
@@ -1081,7 +1081,7 @@ void Nebula::start(bool bootstrap_only)
 
         if ( rc != 0 )
         {
-           throw runtime_error("Could not start the IPAM Manager");
+            throw runtime_error("Could not start the IPAM Manager");
         }
     }
 
@@ -1125,8 +1125,8 @@ void Nebula::start(bool bootstrap_only)
         }
 
         rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
-            keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
-            log_call_format, rm_listen_address, message_size);
+                                keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
+                                log_call_format, rm_listen_address, message_size);
     }
     catch (bad_alloc&)
     {
@@ -1156,7 +1156,7 @@ void Nebula::start(bool bootstrap_only)
 
     if ( rm->start() != 0 )
     {
-       throw runtime_error("Could not start the Request Manager");
+        throw runtime_error("Could not start the Request Manager");
     }
 
 #ifdef SYSTEMD
@@ -1248,7 +1248,7 @@ void Nebula::update_zone_state()
     else
     {
         NebulaLog::warn("ONE", "Unable to find zone id: "
-            + to_string(get_zone_id()));
+                        + to_string(get_zone_id()));
     }
 }
 
@@ -1291,9 +1291,9 @@ string Nebula::get_vm_log_filename(int oid) const
 /* -------------------------------------------------------------------------- */
 
 int Nebula::get_conf_attribute(
-    const std::string& key,
-    const std::string& name,
-    const VectorAttribute* &value) const
+        const std::string& key,
+        const std::string& name,
+        const VectorAttribute* &value) const
 {
     std::vector<const VectorAttribute*> values;
 

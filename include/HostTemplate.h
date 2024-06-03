@@ -26,11 +26,11 @@
 class HostTemplate : public Template
 {
 public:
-    HostTemplate() : Template(false,'=',"TEMPLATE"){};
+    HostTemplate() : Template(false, '=', "TEMPLATE") {};
 
-    ~HostTemplate(){};
+    ~HostTemplate() {};
 
-    HostTemplate(HostTemplate& ht):Template(ht){};
+    HostTemplate(HostTemplate& ht):Template(ht) {};
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

@@ -44,9 +44,9 @@ public:
         DATE     = 2
     };
 
-    SchedAction(VectorAttribute *va, int id):VirtualMachineAttribute(va, id){};
+    SchedAction(VectorAttribute *va, int id):VirtualMachineAttribute(va, id) {};
 
-    virtual ~SchedAction(){};
+    virtual ~SchedAction() {};
 
     /**
      *  Returns the REPEAT value of the SCHED_ACTION
@@ -140,7 +140,7 @@ public:
         init_attribute_map("ID", vas);
     };
 
-    virtual ~SchedActions(){};
+    virtual ~SchedActions() {};
 
     /**
      *  Parse the ScheduleActions of a template
@@ -182,7 +182,7 @@ public:
      *   @return 0 on success -1 if error
      */
     static int parse(std::vector<VectorAttribute *>& vas, std::string& err,
-            bool clean, bool set_id);
+                     bool clean, bool set_id);
 
     /**
      *  Adds a new SchedAction based on the provided VectorAttribute. The new
@@ -208,9 +208,9 @@ public:
     class SchedActionIterator : public AttributeIterator
     {
     public:
-        SchedActionIterator():AttributeIterator(){};
-        SchedActionIterator(const AttributeIterator& i):AttributeIterator(i){};
-        virtual ~SchedActionIterator(){};
+        SchedActionIterator():AttributeIterator() {};
+        SchedActionIterator(const AttributeIterator& i):AttributeIterator(i) {};
+        virtual ~SchedActionIterator() {};
 
         SchedAction * operator*() const
         {
@@ -234,7 +234,7 @@ public:
 
 protected:
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-        int id) const
+                                                int id) const
     {
         return new SchedAction(va, id);
     };

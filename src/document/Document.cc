@@ -31,7 +31,7 @@ Document::Document( int id,
                     int _umask,
                     int _type,
                     std::unique_ptr<Template> _template_contents)
-    : PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,one_db::doc_table)
+    : PoolObjectSQL(id, DOCUMENT, "", _uid, _gid, _uname, _gname, one_db::doc_table)
     , type(_type)
 {
     if (_template_contents)
@@ -97,7 +97,7 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-   // Update the Object
+    // Update the Object
 
     sql_name = db->escape_str(name);
 
@@ -196,16 +196,16 @@ string& Document::to_xml(string& xml) const
     string          lock_str;
 
     oss << "<DOCUMENT>"
-            << "<ID>"       << oid        << "</ID>"
-            << "<UID>"      << uid        << "</UID>"
-            << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>"
-            << "<GNAME>"    << gname      << "</GNAME>"
-            << "<NAME>"     << name       << "</NAME>"
-            << "<TYPE>"     << type       << "</TYPE>"
-            << perms_to_xml(perm_str)
-            << lock_db_to_xml(lock_str)
-            << obj_template->to_xml(template_xml)
+        << "<ID>"       << oid        << "</ID>"
+        << "<UID>"      << uid        << "</UID>"
+        << "<GID>"      << gid        << "</GID>"
+        << "<UNAME>"    << uname      << "</UNAME>"
+        << "<GNAME>"    << gname      << "</GNAME>"
+        << "<NAME>"     << name       << "</NAME>"
+        << "<TYPE>"     << type       << "</TYPE>"
+        << perms_to_xml(perm_str)
+        << lock_db_to_xml(lock_str)
+        << obj_template->to_xml(template_xml)
         << "</DOCUMENT>";
 
     xml = oss.str();

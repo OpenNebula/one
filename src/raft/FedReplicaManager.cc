@@ -58,7 +58,7 @@ FedReplicaManager::~FedReplicaManager()
 /* -------------------------------------------------------------------------- */
 
 uint64_t FedReplicaManager::apply_log_record(uint64_t index, uint64_t prev,
-        const std::string& sql)
+                                             const std::string& sql)
 {
     lock_guard<mutex> ul(fed_mutex);
 
@@ -202,7 +202,7 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 /* -------------------------------------------------------------------------- */
 
 int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
-        LogDBRecord& lr, std::string& error)
+                                       LogDBRecord& lr, std::string& error)
 {
     lock_guard<mutex> ul(fed_mutex);
 
@@ -319,13 +319,13 @@ void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 /* -------------------------------------------------------------------------- */
 
 int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
-        uint64_t& last, std::string& error)
+                                            uint64_t& last, std::string& error)
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
     std::string zedp, xmlrpc_secret;
 
-	int xml_rc = 0;
+    int xml_rc = 0;
 
     LogDBRecord lr;
 
@@ -358,7 +358,7 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     // Do the XML-RPC call
     // -------------------------------------------------------------------------
     xml_rc = Client::client()->call(zedp, replica_method, replica_params,
-        xmlrpc_timeout_ms, &result, error);
+                                    xmlrpc_timeout_ms, &result, error);
 
     if ( xml_rc == 0 )
     {

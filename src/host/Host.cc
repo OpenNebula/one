@@ -30,19 +30,19 @@ using namespace std;
 /* ************************************************************************ */
 
 Host::Host(
-    int id,
-    const string& _hostname,
-    const string& _im_mad_name,
-    const string& _vmm_mad_name,
-    int           _cluster_id,
-    const string& _cluster_name):
-        PoolObjectSQL(id, HOST, _hostname, -1, -1, "", "", one_db::host_table),
-        ClusterableSingle(_cluster_id, _cluster_name),
-        state(INIT),
-        prev_state(INIT),
-        im_mad_name(_im_mad_name),
-        vmm_mad_name(_vmm_mad_name),
-        vm_collection("VMS")
+        int id,
+        const string& _hostname,
+        const string& _im_mad_name,
+        const string& _vmm_mad_name,
+        int           _cluster_id,
+        const string& _cluster_name):
+    PoolObjectSQL(id, HOST, _hostname, -1, -1, "", "", one_db::host_table),
+    ClusterableSingle(_cluster_id, _cluster_name),
+    state(INIT),
+    prev_state(INIT),
+    im_mad_name(_im_mad_name),
+    vmm_mad_name(_vmm_mad_name),
+    vm_collection("VMS")
 {
     obj_template = make_unique<HostTemplate>();
 
@@ -70,7 +70,7 @@ int Host::insert_replace(SqlDB *db, bool replace, string& error_str)
     set_user(0, "");
     set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
-   // Update the Host
+    // Update the Host
 
     sql_hostname = db->escape_str(name);
 
@@ -395,20 +395,20 @@ string& Host::to_xml(string& xml) const
     string        vm_collection_xml;
 
     oss <<
-    "<HOST>"
-       "<ID>"            << oid              << "</ID>"              <<
-       "<NAME>"          << name             << "</NAME>"            <<
-       "<STATE>"         << state            << "</STATE>"           <<
-       "<PREV_STATE>"    << prev_state       << "</PREV_STATE>"      <<
-       "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
-       "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
-       "<CLUSTER_ID>"    << cluster_id       << "</CLUSTER_ID>"      <<
-       "<CLUSTER>"       << cluster          << "</CLUSTER>"         <<
-       host_share.to_xml(share_xml)  <<
-       vm_collection.to_xml(vm_collection_xml) <<
-       obj_template->to_xml(template_xml) <<
-       monitoring.to_xml() <<
-    "</HOST>";
+        "<HOST>"
+        "<ID>"            << oid              << "</ID>"              <<
+        "<NAME>"          << name             << "</NAME>"            <<
+        "<STATE>"         << state            << "</STATE>"           <<
+        "<PREV_STATE>"    << prev_state       << "</PREV_STATE>"      <<
+        "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
+        "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
+        "<CLUSTER_ID>"    << cluster_id       << "</CLUSTER_ID>"      <<
+        "<CLUSTER>"       << cluster          << "</CLUSTER>"         <<
+        host_share.to_xml(share_xml)  <<
+        vm_collection.to_xml(vm_collection_xml) <<
+        obj_template->to_xml(template_xml) <<
+        monitoring.to_xml() <<
+        "</HOST>";
 
     xml = oss.str();
 

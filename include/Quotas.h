@@ -30,7 +30,8 @@ public:
     /**
      *  Different quota types
      */
-    enum QuotaType {
+    enum QuotaType
+    {
         DATASTORE,      /**< Checks Datastore usage */
         VM,             /**< Checks VM usage (MEMORY, CPU and VMS) */
         NETWORK,        /**< Checks Network usage (leases) */
@@ -52,71 +53,71 @@ public:
      *  Delete usage from quota counters.
      *    @param tmpl Template with the quota usage
      */
-     void ds_del(Template * tmpl)
-     {
+    void ds_del(Template * tmpl)
+    {
         datastore_quota.del(tmpl);
-     }
+    }
 
-     /**
-      * Gets a Datastore quota identified by its ID.
-      *
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *
-      *    @return 0 on success, -1 if not found
-      */
-     int ds_get(const std::string& id, VectorAttribute **va)
-     {
-         return datastore_quota.get_quota(id, va);
-     }
+    /**
+     * Gets a Datastore quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int ds_get(const std::string& id, VectorAttribute **va)
+    {
+        return datastore_quota.get_quota(id, va);
+    }
 
-     /**
-      * Add VM quota usage, without checking limits
-      *    @param tmpl Template with the quota usage
-      */
-     void vm_add(Template * tmpl)
-     {
-         vm_quota.add(tmpl);
-     }
+    /**
+     * Add VM quota usage, without checking limits
+     *    @param tmpl Template with the quota usage
+     */
+    void vm_add(Template * tmpl)
+    {
+        vm_quota.add(tmpl);
+    }
 
-     /**
-      * Gets a VM quota identified by its ID.
-      *
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *
-      *    @return 0 on success, -1 if not found
-      */
-     int vm_get(const std::string& id, VectorAttribute **va)
-     {
-         return vm_quota.get_quota(id, va);
-     }
+    /**
+     * Gets a VM quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int vm_get(const std::string& id, VectorAttribute **va)
+    {
+        return vm_quota.get_quota(id, va);
+    }
 
-     /**
-      * Gets a Network quota identified by its ID.
-      *
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *
-      *    @return 0 on success, -1 if not found
-      */
-     int network_get(const std::string& id, VectorAttribute **va)
-     {
-         return network_quota.get_quota(id, va);
-     }
+    /**
+     * Gets a Network quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int network_get(const std::string& id, VectorAttribute **va)
+    {
+        return network_quota.get_quota(id, va);
+    }
 
-     /**
-      * Gets an Image quota identified by its ID.
-      *
-      *    @param id of the quota
-      *    @param va The quota, if it is found
-      *
-      *    @return 0 on success, -1 if not found
-      */
-     int image_get(const std::string& id, VectorAttribute **va)
-     {
-         return image_quota.get_quota(id, va);
-     }
+    /**
+     * Gets an Image quota identified by its ID.
+     *
+     *    @param id of the quota
+     *    @param va The quota, if it is found
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int image_get(const std::string& id, VectorAttribute **va)
+    {
+        return image_quota.get_quota(id, va);
+    }
 
     /**
      *  Check quota, it updates  usage counters if quotas are not exceeded.
@@ -126,7 +127,7 @@ public:
      *    @param error_str string describing the error
      *    @return true if resource can be allocated, false otherwise
      */
-     bool quota_check(QuotaType type,
+    bool quota_check(QuotaType type,
                      Template *tmpl,
                      Quotas& default_quotas,
                      std::string& error_str);
@@ -140,10 +141,10 @@ public:
      *    @param error_str string describing the error
      *    @return true if resource can be updated, false otherwise
      */
-     bool quota_update(QuotaType type,
-                       Template *tmpl,
-                       Quotas& default_quotas,
-                       std::string& error_str);
+    bool quota_update(QuotaType type,
+                      Template *tmpl,
+                      Quotas& default_quotas,
+                      std::string& error_str);
 
     /**
      *  Delete usage from the given quota counters.
@@ -229,12 +230,12 @@ public:
         }
     }
 
-     /**
-      *  Delete a set of Datastore usage attributes from quota counters. Each
-      *  quota datastore is associate to a given image. NOTE: The templates
-      *  *ARE FREED* by this function
-      *    @param ds_quotas a map with image_id and a tmpl with usage attributes
-      */
+    /**
+     *  Delete a set of Datastore usage attributes from quota counters. Each
+     *  quota datastore is associate to a given image. NOTE: The templates
+     *  *ARE FREED* by this function
+     *    @param ds_quotas a map with image_id and a tmpl with usage attributes
+     */
     static void ds_del_recreate(int uid, int gid, std::vector<Template *>& ds_quotas);
 
     /**
@@ -254,7 +255,7 @@ public:
      *    @param tmpl template for the image, with usage
      */
     static void quota_check(QuotaType type, int uid, int gid, Template * tmpl,
-        std::string& error);
+                            std::string& error);
 
 protected:
     /**
@@ -266,16 +267,16 @@ protected:
            const char * _img_xpath,
            const char * _vm_xpath,
            bool         is_deafult):
-                datastore_quota(is_deafult),
-                network_quota(is_deafult),
-                image_quota(is_deafult),
-                vm_quota(is_deafult),
-                ds_xpath(_ds_xpath),
-                net_xpath(_net_xpath),
-                img_xpath(_img_xpath),
-                vm_xpath(_vm_xpath){};
+        datastore_quota(is_deafult),
+        network_quota(is_deafult),
+        image_quota(is_deafult),
+        vm_quota(is_deafult),
+        ds_xpath(_ds_xpath),
+        net_xpath(_net_xpath),
+        img_xpath(_img_xpath),
+        vm_xpath(_vm_xpath) {};
 
-    virtual ~Quotas(){};
+    virtual ~Quotas() {};
 
 private:
     //--------------------------------------------------------------------------
@@ -285,22 +286,22 @@ private:
     /**
      * Datastore Quotas
      */
-     QuotaDatastore datastore_quota;
+    QuotaDatastore datastore_quota;
 
     /**
      * Network Quotas
      */
-     QuotaNetwork network_quota;
+    QuotaNetwork network_quota;
 
     /**
      * Image Quotas
      */
-     QuotaImage image_quota;
+    QuotaImage image_quota;
 
     /**
      * Virtual Machine Quotas
      */
-     QuotaVirtualMachine vm_quota;
+    QuotaVirtualMachine vm_quota;
 
     //--------------------------------------------------------------------------
     // XPaths

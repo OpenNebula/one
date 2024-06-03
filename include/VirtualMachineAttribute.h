@@ -36,12 +36,12 @@ protected:
      *    @param va pointer to the VectorAttribute.
      */
     VirtualMachineAttribute(VectorAttribute *_va):
-        ExtendedAttribute(_va){};
+        ExtendedAttribute(_va) {};
 
     VirtualMachineAttribute(VectorAttribute *_va, int _id):
         ExtendedAttribute(_va, _id) {};
 
-    virtual ~VirtualMachineAttribute(){};
+    virtual ~VirtualMachineAttribute() {};
 
     /* ---------------------------------------------------------------------- */
     /* VirtualMachineAttribute Interface                                      */
@@ -86,9 +86,9 @@ protected:
      *  Creates the VirtualMachineAttribute set
      *    @param dispose elements upon set destruction
      */
-    VirtualMachineAttributeSet(bool _dispose):ExtendedAttributeSet(_dispose){};
+    VirtualMachineAttributeSet(bool _dispose):ExtendedAttributeSet(_dispose) {};
 
-    virtual ~VirtualMachineAttributeSet(){};
+    virtual ~VirtualMachineAttributeSet() {};
 
     /* ---------------------------------------------------------------------- */
     /* Methods to access attributes                                           */
@@ -99,7 +99,7 @@ protected:
     VirtualMachineAttribute * get_attribute(int id) const
     {
         return static_cast<VirtualMachineAttribute *>(
-            ExtendedAttributeSet::get_attribute(id));
+                       ExtendedAttributeSet::get_attribute(id));
     }
 
     /**

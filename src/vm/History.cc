@@ -27,64 +27,64 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int _oid,
-    int _seq):
-        ObjectXML(),
-        oid(_oid),
-        seq(_seq),
-        uid(-1),
-        gid(-1),
-        req_id(-1),
-        hid(-1),
-        hostname(""),
-        cid(-1),
-        vmm_mad_name(""),
-        tm_mad_name(""),
-        ds_id(0),
-        stime(0),
-        etime(0),
-        prolog_stime(0),
-        prolog_etime(0),
-        running_stime(0),
-        running_etime(0),
-        epilog_stime(0),
-        epilog_etime(0),
-        action(VMActions::NONE_ACTION),
-        vm_info("<VM/>"){};
+        int _oid,
+        int _seq):
+    ObjectXML(),
+    oid(_oid),
+    seq(_seq),
+    uid(-1),
+    gid(-1),
+    req_id(-1),
+    hid(-1),
+    hostname(""),
+    cid(-1),
+    vmm_mad_name(""),
+    tm_mad_name(""),
+    ds_id(0),
+    stime(0),
+    etime(0),
+    prolog_stime(0),
+    prolog_etime(0),
+    running_stime(0),
+    running_etime(0),
+    epilog_stime(0),
+    epilog_etime(0),
+    action(VMActions::NONE_ACTION),
+    vm_info("<VM/>") {};
 
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int _oid,
-    int _seq,
-    int _hid,
-    const string& _hostname,
-    int _cid,
-    const string& _vmm,
-    const string& _tmm,
-    int           _ds_id,
-    const string& _vm_info):
-        oid(_oid),
-        seq(_seq),
-        uid(-1),
-        gid(-1),
-        req_id(-1),
-        hid(_hid),
-        hostname(_hostname),
-        cid(_cid),
-        vmm_mad_name(_vmm),
-        tm_mad_name(_tmm),
-        ds_id(_ds_id),
-        stime(0),
-        etime(0),
-        prolog_stime(0),
-        prolog_etime(0),
-        running_stime(0),
-        running_etime(0),
-        epilog_stime(0),
-        epilog_etime(0),
-        action(VMActions::NONE_ACTION),
-        vm_info(_vm_info)
+        int _oid,
+        int _seq,
+        int _hid,
+        const string& _hostname,
+        int _cid,
+        const string& _vmm,
+        const string& _tmm,
+        int           _ds_id,
+        const string& _vm_info):
+    oid(_oid),
+    seq(_seq),
+    uid(-1),
+    gid(-1),
+    req_id(-1),
+    hid(_hid),
+    hostname(_hostname),
+    cid(_cid),
+    vmm_mad_name(_vmm),
+    tm_mad_name(_tmm),
+    ds_id(_ds_id),
+    stime(0),
+    etime(0),
+    prolog_stime(0),
+    prolog_etime(0),
+    running_stime(0),
+    running_etime(0),
+    epilog_stime(0),
+    epilog_etime(0),
+    action(VMActions::NONE_ACTION),
+    vm_info(_vm_info)
 {
     non_persistent_data();
 };
@@ -235,14 +235,14 @@ int History::select(SqlDB * db)
 
     set_callback(static_cast<Callbackable::Callback>(&History::select_cb));
 
-    rc = db->exec_rd(oss,this);
+    rc = db->exec_rd(oss, this);
 
     unset_callback();
 
-	if ( hostname.empty() )
-	{
-		rc = -1;
-	}
+    if ( hostname.empty() )
+    {
+        rc = -1;
+    }
 
     if ( rc == 0 ) // Regenerate non-persistent data
     {
@@ -299,26 +299,26 @@ string& History::to_xml(string& xml, bool database) const
 
     oss <<
         "<HISTORY>" <<
-          "<OID>"        << oid           << "</OID>"   <<
-          "<SEQ>"        << seq           << "</SEQ>"   <<
-          "<HOSTNAME>"   << hostname      << "</HOSTNAME>"<<
-          "<HID>"        << hid           << "</HID>"   <<
-          "<CID>"        << cid           << "</CID>"   <<
-          "<STIME>"      << stime         << "</STIME>" <<
-          "<ETIME>"      << etime         << "</ETIME>" <<
-          "<VM_MAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
-          "<TM_MAD>"     << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
-          "<DS_ID>"      << ds_id         << "</DS_ID>" <<
-          "<PSTIME>"     << prolog_stime  << "</PSTIME>"<<
-          "<PETIME>"     << prolog_etime  << "</PETIME>"<<
-          "<RSTIME>"     << running_stime << "</RSTIME>"<<
-          "<RETIME>"     << running_etime << "</RETIME>"<<
-          "<ESTIME>"     << epilog_stime  << "</ESTIME>"<<
-          "<EETIME>"     << epilog_etime  << "</EETIME>"<<
-          "<ACTION>"     << action        << "</ACTION>"<<
-          "<UID>"        << uid           << "</UID>"<<
-          "<GID>"        << gid           << "</GID>"<<
-          "<REQUEST_ID>" << req_id        << "</REQUEST_ID>";
+        "<OID>"        << oid           << "</OID>"   <<
+        "<SEQ>"        << seq           << "</SEQ>"   <<
+        "<HOSTNAME>"   << hostname      << "</HOSTNAME>"<<
+        "<HID>"        << hid           << "</HID>"   <<
+        "<CID>"        << cid           << "</CID>"   <<
+        "<STIME>"      << stime         << "</STIME>" <<
+        "<ETIME>"      << etime         << "</ETIME>" <<
+        "<VM_MAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
+        "<TM_MAD>"     << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
+        "<DS_ID>"      << ds_id         << "</DS_ID>" <<
+        "<PSTIME>"     << prolog_stime  << "</PSTIME>"<<
+        "<PETIME>"     << prolog_etime  << "</PETIME>"<<
+        "<RSTIME>"     << running_stime << "</RSTIME>"<<
+        "<RETIME>"     << running_etime << "</RETIME>"<<
+        "<ESTIME>"     << epilog_stime  << "</ESTIME>"<<
+        "<EETIME>"     << epilog_etime  << "</EETIME>"<<
+        "<ACTION>"     << action        << "</ACTION>"<<
+        "<UID>"        << uid           << "</UID>"<<
+        "<GID>"        << gid           << "</GID>"<<
+        "<REQUEST_ID>" << req_id        << "</REQUEST_ID>";
 
     if ( database )
     {
@@ -328,9 +328,9 @@ string& History::to_xml(string& xml, bool database) const
     oss <<
         "</HISTORY>";
 
-   xml = oss.str();
+    xml = oss.str();
 
-   return xml;
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -341,26 +341,26 @@ string& History::to_json(string& json) const
     ostringstream oss;
 
     oss << "\"HISTORY\": {" <<
-          "\"OID\": \""      << oid           << "\"," <<
-          "\"SEQ\": \""      << seq           << "\"," <<
-          "\"HOSTNAME\": \"" << hostname      << "\"," <<
-          "\"HID\": \""      << hid           << "\"," <<
-          "\"CID\": \""      << cid           << "\"," <<
-          "\"STIME\": \""    << stime         << "\"," <<
-          "\"ETIME\": \""    << etime         << "\"," <<
-          "\"VM_MAD\": \""   << vmm_mad_name  << "\"," <<
-          "\"TM_MAD\": \""   << tm_mad_name   << "\"," <<
-          "\"DS_ID\": \""    << ds_id         << "\"," <<
-          "\"PSTIME\": \""   << prolog_stime  << "\"," <<
-          "\"PETIME\": \""   << prolog_etime  << "\"," <<
-          "\"RSTIME\": \""   << running_stime << "\"," <<
-          "\"RETIME\": \""   << running_etime << "\"," <<
-          "\"ESTIME\": \""   << epilog_stime  << "\"," <<
-          "\"EETIME\": \""   << epilog_etime  << "\"," <<
-          "\"ACTION\": \""   << action        << "\"," <<
-          "\"UID\": \""      << uid           << "\"," <<
-          "\"GID\": \""      << gid           << "\"," <<
-          "\"REQUEST_ID\": \"" << req_id      << "\",";
+        "\"OID\": \""      << oid           << "\"," <<
+        "\"SEQ\": \""      << seq           << "\"," <<
+        "\"HOSTNAME\": \"" << hostname      << "\"," <<
+        "\"HID\": \""      << hid           << "\"," <<
+        "\"CID\": \""      << cid           << "\"," <<
+        "\"STIME\": \""    << stime         << "\"," <<
+        "\"ETIME\": \""    << etime         << "\"," <<
+        "\"VM_MAD\": \""   << vmm_mad_name  << "\"," <<
+        "\"TM_MAD\": \""   << tm_mad_name   << "\"," <<
+        "\"DS_ID\": \""    << ds_id         << "\"," <<
+        "\"PSTIME\": \""   << prolog_stime  << "\"," <<
+        "\"PETIME\": \""   << prolog_etime  << "\"," <<
+        "\"RSTIME\": \""   << running_stime << "\"," <<
+        "\"RETIME\": \""   << running_etime << "\"," <<
+        "\"ESTIME\": \""   << epilog_stime  << "\"," <<
+        "\"EETIME\": \""   << epilog_etime  << "\"," <<
+        "\"ACTION\": \""   << action        << "\"," <<
+        "\"UID\": \""      << uid           << "\"," <<
+        "\"GID\": \""      << gid           << "\"," <<
+        "\"REQUEST_ID\": \"" << req_id      << "\",";
 
     oss << "}";
 
@@ -381,8 +381,8 @@ string& History::to_token(string& text) const
     oss << "\n";
 
     oss << "HID="   << hid   << "\n" <<
-           "CID="   << cid   << "\n" <<
-           "DS_ID=" << ds_id << "\n";
+        "CID="   << cid   << "\n" <<
+        "DS_ID=" << ds_id << "\n";
 
     text = oss.str();
 
@@ -398,20 +398,20 @@ string& History::to_xml_short(string& xml) const
 
     oss <<
         "<HISTORY>" <<
-          "<OID>" << oid << "</OID>" <<
-          "<SEQ>" << seq << "</SEQ>" <<
-          "<HOSTNAME>" << one_util::escape_xml(hostname) << "</HOSTNAME>" <<
-          "<HID>"    << hid   << "</HID>"   <<
-          "<CID>"    << cid   << "</CID>"   <<
-          "<DS_ID>"  << ds_id << "</DS_ID>" <<
-          "<VM_MAD>" << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
-          "<TM_MAD>" << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
-          "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
+        "<OID>" << oid << "</OID>" <<
+        "<SEQ>" << seq << "</SEQ>" <<
+        "<HOSTNAME>" << one_util::escape_xml(hostname) << "</HOSTNAME>" <<
+        "<HID>"    << hid   << "</HID>"   <<
+        "<CID>"    << cid   << "</CID>"   <<
+        "<DS_ID>"  << ds_id << "</DS_ID>" <<
+        "<VM_MAD>" << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
+        "<TM_MAD>" << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
+        "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
         "</HISTORY>";
 
-   xml = oss.str();
+    xml = oss.str();
 
-   return xml;
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -432,20 +432,20 @@ int History::rebuild_attributes()
 
     rc += xpath(hostname, "/HISTORY/HOSTNAME", "not_found");
 
-    rc += xpath<time_t>(stime , "/HISTORY/STIME", 0);
-    rc += xpath<time_t>(etime , "/HISTORY/ETIME", 0);
+    rc += xpath<time_t>(stime, "/HISTORY/STIME", 0);
+    rc += xpath<time_t>(etime, "/HISTORY/ETIME", 0);
 
     rc += xpath(vmm_mad_name, "/HISTORY/VM_MAD", "not_found");
-    rc += xpath(tm_mad_name , "/HISTORY/TM_MAD", "not_found");
+    rc += xpath(tm_mad_name, "/HISTORY/TM_MAD", "not_found");
 
-    rc += xpath<time_t>(prolog_stime , "/HISTORY/PSTIME", 0);
-    rc += xpath<time_t>(prolog_etime , "/HISTORY/PETIME", 0);
+    rc += xpath<time_t>(prolog_stime, "/HISTORY/PSTIME", 0);
+    rc += xpath<time_t>(prolog_etime, "/HISTORY/PETIME", 0);
     rc += xpath<time_t>(running_stime, "/HISTORY/RSTIME", 0);
     rc += xpath<time_t>(running_etime, "/HISTORY/RETIME", 0);
-    rc += xpath<time_t>(epilog_stime , "/HISTORY/ESTIME", 0);
-    rc += xpath<time_t>(epilog_etime , "/HISTORY/EETIME", 0);
+    rc += xpath<time_t>(epilog_stime, "/HISTORY/ESTIME", 0);
+    rc += xpath<time_t>(epilog_etime, "/HISTORY/EETIME", 0);
 
-    rc += xpath(int_action , "/HISTORY/ACTION", 0);
+    rc += xpath(int_action, "/HISTORY/ACTION", 0);
 
     rc += xpath(uid, "/HISTORY/UID", -1);
     rc += xpath(gid, "/HISTORY/GID", -1);

@@ -145,7 +145,7 @@ int VirtualMachineNic::get_uid(int _uid, string& error)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
-        AuthRequest* ar, bool check_lock)
+                                  AuthRequest* ar, bool check_lock)
 {
     Nebula& nd = Nebula::instance();
 
@@ -280,7 +280,7 @@ const char * VirtualMachineNics::NIC_ID_NAME = "NIC_ID";
 /* -------------------------------------------------------------------------- */
 struct NicAliasID
 {
-    NicAliasID(int _n):nic_id(_n), alias_id(0){};
+    NicAliasID(int _n):nic_id(_n), alias_id(0) {};
 
     int nic_id;
     int alias_id;
@@ -289,8 +289,8 @@ struct NicAliasID
 };
 
 int VirtualMachineNics::get_network_leases(int vm_id, int uid,
-        vector<Attribute *> nics, VectorAttribute * nic_default,
-        vector<VectorAttribute*>& sgs, std::string& error_str)
+                                           vector<Attribute *> nics, VectorAttribute * nic_default,
+                                           vector<VectorAttribute*>& sgs, std::string& error_str)
 {
     Nebula& nd = Nebula::instance();
 
@@ -327,7 +327,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
                 }
 
                 if ( vnpool->nic_attribute(PoolObjectSQL::VM, nic, nic_id, uid,
-                        vm_id, error_str) == -1 )
+                                           vm_id, error_str) == -1 )
                 {
                     delete nic;
                     return -1;
@@ -376,7 +376,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     for (auto it=alias_nics.begin(); it != alias_nics.end() ; ++it, ++nic_id)
     {
         VirtualMachineNic * nic = new
-            VirtualMachineNic(static_cast<VectorAttribute *>(*it), nic_id);
+        VirtualMachineNic(static_cast<VectorAttribute *>(*it), nic_id);
 
         std::string pnic = nic->vector_value("PARENT");
 
@@ -406,7 +406,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
         nic->replace("NIC_ID", nic_id);
 
         if ( vnpool->nic_attribute(PoolObjectSQL::VM, nic, nic_id, uid,
-                vm_id, error_str) == -1 )
+                                   vm_id, error_str) == -1 )
         {
             delete nic;
             return -1;
@@ -445,8 +445,8 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
 }
 
 int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
-        VectorAttribute * nic_default, vector<VectorAttribute*>& sgs,
-        std::string& error_str)
+                                                VectorAttribute * nic_default, vector<VectorAttribute*>& sgs,
+                                                std::string& error_str)
 {
     Nebula& nd = Nebula::instance();
 
@@ -480,7 +480,7 @@ int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
         }
 
         if ( vnpool->nic_attribute(PoolObjectSQL::VM, *nic, nic_id, uid,
-                vm_id, error_str) == -1 )
+                                   vm_id, error_str) == -1 )
         {
             return -1;
         }
@@ -533,8 +533,8 @@ void VirtualMachineNics::get_security_groups(set<int>& sgs)
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
-        VectorAttribute * vnic, VectorAttribute * nic_default,
-        vector<VectorAttribute*>& sgs, std::string& error_str )
+                                          VectorAttribute * vnic, VectorAttribute * nic_default,
+                                          vector<VectorAttribute*>& sgs, std::string& error_str )
 {
     Nebula&             nd     = Nebula::instance();
     VirtualNetworkPool* vnpool = nd.get_vnpool();
@@ -631,7 +631,7 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
     // Acquire a new network lease
     // -------------------------------------------------------------------------
     int rc = vnpool->nic_attribute(PoolObjectSQL::VM, nic, max_nic_id+1, uid,
-            vmid, error_str);
+                                   vmid, error_str);
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {

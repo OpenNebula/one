@@ -25,8 +25,8 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 
 void RequestManagerVirtualNetwork::
-    request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+request_execute(xmlrpc_c::paramList const& paramList,
+                RequestAttributes& att)
 {
     int    id       = xmlrpc_c::value_int    (paramList.getInt(1));
     string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
@@ -60,8 +60,8 @@ void RequestManagerVirtualNetwork::
     if (vn->get_state() != VirtualNetwork::READY)
     {
         att.resp_msg = "Could not execute " + method_name +
-                        "Virtual Network is in wrong state: "
-                        + vn->state_to_str(vn->get_state());
+                       "Virtual Network is in wrong state: "
+                       + vn->state_to_str(vn->get_state());
         failure_response(ACTION, att);
         return;
     }
@@ -84,8 +84,8 @@ void RequestManagerVirtualNetwork::
 /* ------------------------------------------------------------------------- */
 
 void VirtualNetworkRmAddressRange::
-    request_execute(xmlrpc_c::paramList const& paramList,
-                    RequestAttributes& att)
+request_execute(xmlrpc_c::paramList const& paramList,
+                RequestAttributes& att)
 {
     int    id = xmlrpc_c::value_int(paramList.getInt(1));
     int ar_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -137,7 +137,7 @@ void VirtualNetworkRmAddressRange::
 
         rc  = vn->get_template_attribute("SIZE", rsize, ar_id);
 
-        vn->get_template_attribute("MAC" , mac  , ar_id);
+        vn->get_template_attribute("MAC", mac, ar_id);
 
         if (vn->rm_ar(ar_id, force, att.resp_msg) < 0)
         {
@@ -164,7 +164,7 @@ void VirtualNetworkRmAddressRange::
         if ( auto vn = pool->get<VirtualNetwork>(parent) )
         {
             int freed = vn->free_addr_by_range((unsigned int) parent_ar,
-                PoolObjectSQL::NET, id, mac, rsize);
+                                               PoolObjectSQL::NET, id, mac, rsize);
 
             pool->update(vn.get());
 
@@ -194,7 +194,7 @@ void VirtualNetworkRmAddressRange::
 /* ------------------------------------------------------------------------- */
 
 void VirtualNetworkReserve::request_execute(
-    xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
     int    id       = xmlrpc_c::value_int    (paramList.getInt(1));
     string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
@@ -382,7 +382,7 @@ void VirtualNetworkReserve::request_execute(
         vtmpl->replace("NAME", name);
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                id, move(vtmpl), &rid, cluster_ids, att.resp_msg);
+                              id, move(vtmpl), &rid, cluster_ids, att.resp_msg);
 
         if (rc < 0)
         {
@@ -442,17 +442,17 @@ void VirtualNetworkReserve::request_execute(
         if (!ip.empty())
         {
             rc = vnpool->reserve_addr_by_ip(id, rid, size, ar_id, ip,
-                    att.resp_msg);
+                                            att.resp_msg);
         }
         else if (!ip6.empty())
         {
             rc = vnpool->reserve_addr_by_ip6(id, rid, size, ar_id, ip6,
-                    att.resp_msg);
+                                             att.resp_msg);
         }
         else if (!mac.empty())
         {
             rc = vnpool->reserve_addr_by_mac(id, rid, size, ar_id, mac,
-                    att.resp_msg);
+                                             att.resp_msg);
         }
         else
         {
@@ -606,15 +606,15 @@ void VirtualNetworkRecover::request_execute(
                 case VirtualNetwork::LOCK_CREATE:
                 case VirtualNetwork::LOCK_DELETE:
                 case VirtualNetwork::ERROR:
-                    {
-                        string xml64;
-                        vn->to_xml64(xml64);
+                {
+                    string xml64;
+                    vn->to_xml64(xml64);
 
-                        vnpool->delete_success(move(vn));
+                    vnpool->delete_success(move(vn));
 
-                        ipamm->trigger_vnet_delete(id, xml64);
-                    }
-                    break;
+                    ipamm->trigger_vnet_delete(id, xml64);
+                }
+                break;
 
                 case VirtualNetwork::DONE:
                 case VirtualNetwork::READY:

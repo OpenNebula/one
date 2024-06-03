@@ -30,12 +30,12 @@ class InformationManager : public DriverManager<Driver<im_msg_t>>
 {
 public:
     InformationManager(
-        HostPool * _hpool,
-        VirtualMachinePool * _vmpool,
-        const std::string& mad_location)
-            : DriverManager(mad_location)
-            , hpool(_hpool)
-            , vmpool(_vmpool)
+            HostPool * _hpool,
+            VirtualMachinePool * _vmpool,
+            const std::string& mad_location)
+        : DriverManager(mad_location)
+        , hpool(_hpool)
+        , vmpool(_vmpool)
     {
     }
 

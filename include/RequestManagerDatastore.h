@@ -29,9 +29,9 @@ class RequestManagerDatastore: public Request
 {
 protected:
     RequestManagerDatastore(const std::string& method_name,
-                        const std::string& help,
-                        const std::string& params)
-        :Request(method_name,params,help)
+                            const std::string& help,
+                            const std::string& params)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
@@ -50,7 +50,7 @@ class DatastoreEnable : public RequestManagerDatastore
 {
 public:
     DatastoreEnable(): RequestManagerDatastore("one.datastore.enable",
-        "Enables or disables an datastore", "A:sib"){};
+                                                   "Enables or disables an datastore", "A:sib") {};
 
     ~DatastoreEnable() = default;
 

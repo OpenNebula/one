@@ -78,14 +78,14 @@ void IPAMManager::_vnet_create(unique_ptr<ipam_msg_t> msg)
     if (!vn)
     {
         NebulaLog::error("IPM", "Received VNET_CREATE response for non-existing "
-            "VNET " + to_string(vn_id));
+                         "VNET " + to_string(vn_id));
         return;
     }
 
     if (vn->get_state() != VirtualNetwork::LOCK_CREATE)
     {
         NebulaLog::error("IPM", "Received VNET_CREATE but VNET " + to_string(vn_id)
-            + " is in wrong state " + VirtualNetwork::state_to_str(vn->get_state()));
+                         + " is in wrong state " + VirtualNetwork::state_to_str(vn->get_state()));
         return;
     }
 
@@ -129,7 +129,7 @@ void IPAMManager::_vnet_create(unique_ptr<ipam_msg_t> msg)
             vn->set_template_error_message(error_str);
 
             NebulaLog::error("IPM", "Error creating address range for VNET "
-                + to_string(vn->get_oid()) + ": " + error_str);
+                             + to_string(vn->get_oid()) + ": " + error_str);
         }
     }
     else
@@ -139,7 +139,7 @@ void IPAMManager::_vnet_create(unique_ptr<ipam_msg_t> msg)
         vn->set_template_error_message(info);
 
         NebulaLog::error("IPM", "VNET " + to_string(vn_id) +
-                ", vnet_create failed: " + info);
+                         ", vnet_create failed: " + info);
     }
 
     vnpool->update(vn.get());
@@ -166,14 +166,14 @@ void IPAMManager::_vnet_delete(unique_ptr<ipam_msg_t> msg)
     if (!vn)
     {
         NebulaLog::error("IPM", "Received VNET_DELETE response for non-existing "
-            "VNET " + to_string(oid));
+                         "VNET " + to_string(oid));
         return;
     }
 
     if (vn->get_state() != VirtualNetwork::LOCK_DELETE)
     {
         NebulaLog::error("IPM", "Received VNET_DELETE but VNET " + to_string(oid)
-            + " is in wrong state " + VirtualNetwork::state_to_str(vn->get_state()));
+                         + " is in wrong state " + VirtualNetwork::state_to_str(vn->get_state()));
         return;
     }
 
@@ -190,8 +190,8 @@ void IPAMManager::_vnet_delete(unique_ptr<ipam_msg_t> msg)
 
         vnpool->update(vn.get());
 
-        NebulaLog::error("IPM", "VNET " + to_string(oid) + 
-                ", vnet_delete failed: " + info);
+        NebulaLog::error("IPM", "VNET " + to_string(oid) +
+                         ", vnet_delete failed: " + info);
     }
 
     return;

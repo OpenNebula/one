@@ -56,9 +56,9 @@ public:
         register_action(MSG::msg_enum::UNDEFINED, error_cbk);
     };
 
-    StreamManager(callback_t error_cbk):StreamManager(-1, error_cbk){};
+    StreamManager(callback_t error_cbk):StreamManager(-1, error_cbk) {};
 
-    StreamManager():StreamManager(-1, [](std::unique_ptr<MSG> m){}){};
+    StreamManager():StreamManager(-1, [](std::unique_ptr<MSG> m) {}) {};
 
     virtual ~StreamManager()
     {
@@ -128,7 +128,7 @@ private:
 
 template<typename MSG>
 void StreamManager<MSG>
-    ::register_action(typename MSG::msg_enum t, callback_t a)
+::register_action(typename MSG::msg_enum t, callback_t a)
 {
     auto ret = actions.insert({t, a});
 
@@ -143,7 +143,7 @@ void StreamManager<MSG>
 
 template<typename MSG>
 void StreamManager<MSG>
-    ::do_action(std::unique_ptr<MSG>& msg, bool thr)
+::do_action(std::unique_ptr<MSG>& msg, bool thr)
 {
     const auto it = actions.find(msg->type());
 
@@ -168,7 +168,8 @@ void StreamManager<MSG>
 
         lock.unlock();
 
-        std::thread action_thread([this, action, mptr]{
+        std::thread action_thread([this, action, mptr]
+        {
             action(std::unique_ptr<MSG>{mptr});
 
             std::unique_lock<std::mutex> lock(_mutex);
@@ -184,7 +185,7 @@ void StreamManager<MSG>
     }
     else
     {
-        action(std::unique_ptr<MSG>{mptr});
+        action(std::unique_ptr<MSG> {mptr});
     }
 }
 
@@ -193,7 +194,7 @@ void StreamManager<MSG>
 
 template<typename MSG>
 int StreamManager<MSG>
-    ::action_loop(int concurrency)
+::action_loop(int concurrency)
 {
     bool threaded = concurrency > 0;
     _concurrency  = concurrency;

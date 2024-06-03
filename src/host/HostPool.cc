@@ -36,7 +36,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 HostPool::HostPool(SqlDB * db, const vector<const SingleAttribute *>& ea) :
-            PoolSQL(db, one_db::host_table)
+    PoolSQL(db, one_db::host_table)
 {
     HostTemplate::parse_encrypted(ea);
 }
@@ -45,13 +45,13 @@ HostPool::HostPool(SqlDB * db, const vector<const SingleAttribute *>& ea) :
 /* -------------------------------------------------------------------------- */
 
 int HostPool::allocate (
-    int * oid,
-    const string& hostname,
-    const string& im_mad_name,
-    const string& vmm_mad_name,
-    int           cluster_id,
-    const string& cluster_name,
-    string& error_str)
+        int * oid,
+        const string& hostname,
+        const string& im_mad_name,
+        const string& vmm_mad_name,
+        int           cluster_id,
+        const string& cluster_name,
+        string& error_str)
 {
     Host *        host_ptr;
     ostringstream oss;

@@ -82,14 +82,14 @@ DatastorePool::DatastorePool(
         }
 
         allocate(UserPool::ONEADMIN_ID,
-                GroupPool::ONEADMIN_ID,
-                UserPool::oneadmin_name,
-                GroupPool::ONEADMIN_NAME,
-                0137,
-                move(ds_tmpl),
-                &rc,
-                cluster_ids,
-                error_str);
+                 GroupPool::ONEADMIN_ID,
+                 UserPool::oneadmin_name,
+                 GroupPool::ONEADMIN_NAME,
+                 0137,
+                 move(ds_tmpl),
+                 &rc,
+                 cluster_ids,
+                 error_str);
 
         if( rc < 0 )
         {
@@ -115,14 +115,14 @@ DatastorePool::DatastorePool(
         }
 
         allocate(UserPool::ONEADMIN_ID,
-                GroupPool::ONEADMIN_ID,
-                UserPool::oneadmin_name,
-                GroupPool::ONEADMIN_NAME,
-                0137,
-                move(ds_tmpl),
-                &rc,
-                cluster_ids,
-                error_str);
+                 GroupPool::ONEADMIN_ID,
+                 UserPool::oneadmin_name,
+                 GroupPool::ONEADMIN_NAME,
+                 0137,
+                 move(ds_tmpl),
+                 &rc,
+                 cluster_ids,
+                 error_str);
 
         if( rc < 0 )
         {
@@ -148,14 +148,14 @@ DatastorePool::DatastorePool(
         }
 
         allocate(UserPool::ONEADMIN_ID,
-                GroupPool::ONEADMIN_ID,
-                UserPool::oneadmin_name,
-                GroupPool::ONEADMIN_NAME,
-                0137,
-                move(ds_tmpl),
-                &rc,
-                cluster_ids,
-                error_str);
+                 GroupPool::ONEADMIN_ID,
+                 UserPool::oneadmin_name,
+                 GroupPool::ONEADMIN_NAME,
+                 0137,
+                 move(ds_tmpl),
+                 &rc,
+                 cluster_ids,
+                 error_str);
 
         if( rc < 0 )
         {
@@ -174,7 +174,7 @@ DatastorePool::DatastorePool(
 error_bootstrap:
     oss.str("");
     oss << "Error trying to create default datastore: " << error_str;
-    NebulaLog::log("DATASTORE",Log::ERROR,oss);
+    NebulaLog::log("DATASTORE", Log::ERROR, oss);
 
     throw runtime_error(oss.str());
 }
@@ -201,7 +201,7 @@ int DatastorePool::allocate(
     ostringstream oss;
 
     ds = new Datastore(uid, gid, uname, gname, umask,
-            move(ds_template), cluster_ids);
+                       move(ds_template), cluster_ids);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

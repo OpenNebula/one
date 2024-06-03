@@ -43,7 +43,7 @@ protected:
 
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
     ErrorCode delete_object(int oid, bool recursive, RequestAttributes& att);
 
@@ -154,7 +154,7 @@ public:
     };
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
 protected:
 

@@ -25,13 +25,13 @@
 class DocumentTemplate : public Template
 {
 public:
-    DocumentTemplate() : Template(false,'=',"TEMPLATE"){};
+    DocumentTemplate() : Template(false, '=', "TEMPLATE") {};
 
-    ~DocumentTemplate(){};
+    ~DocumentTemplate() {};
 
-    DocumentTemplate(DocumentTemplate& dt):Template(dt){};
+    DocumentTemplate(DocumentTemplate& dt):Template(dt) {};
 
-    DocumentTemplate(const Template& tmpl):Template(tmpl){};
+    DocumentTemplate(const Template& tmpl):Template(tmpl) {};
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

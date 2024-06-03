@@ -25,7 +25,7 @@
 class UserTemplate : public Template
 {
 public:
-    UserTemplate() : Template(true,'=',"TEMPLATE") {}
+    UserTemplate() : Template(true, '=', "TEMPLATE") {}
 
     ~UserTemplate() = default;
 

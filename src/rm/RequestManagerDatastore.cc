@@ -22,7 +22,7 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 
 void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
-                                    RequestAttributes& att)
+                                      RequestAttributes& att)
 {
     int     id          = xmlrpc_c::value_int(paramList.getInt(1));
     bool    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));

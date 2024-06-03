@@ -108,23 +108,23 @@ public:
      */
     int delete_app(int appid, const std::string& market_data, std::string& err);
 
-     /**
-      *  Trigger a monitor action for the marketplace .
-      *    @param ds_id id of the datastore to monitor
-      */
-     void monitor_market(int ds_id);
+    /**
+     *  Trigger a monitor action for the marketplace .
+     *    @param ds_id id of the datastore to monitor
+     */
+    void monitor_market(int ds_id);
 
-     /**
-      *  Relsease resources locked by this app during the import phase
-      *    @param appid of the app
-      */
+    /**
+     *  Relsease resources locked by this app during the import phase
+     *    @param appid of the app
+     */
     void release_app_resources(int appid);
 
 private:
     /**
      *  Generic name for the marketplace driver
      */
-     static const char *  market_driver_name;
+    static const char *  market_driver_name;
 
     /**
      *  Timer action async execution

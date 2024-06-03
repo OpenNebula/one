@@ -272,7 +272,7 @@ int Hook::insert_replace(SqlDB *db, bool replace, std::string& error_str)
     set_user(0, "");
     set_group(GroupPool::ONEADMIN_ID, GroupPool::ONEADMIN_NAME);
 
-   // Update the Hook
+    // Update the Hook
     sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )

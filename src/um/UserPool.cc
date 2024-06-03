@@ -54,8 +54,8 @@ string UserPool::oneadmin_name;
 /* -------------------------------------------------------------------------- */
 
 UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
-        const vector<const SingleAttribute *>& restricted_attrs,
-        const vector<const SingleAttribute *>& encrypted_attrs)
+                   const vector<const SingleAttribute *>& restricted_attrs,
+                   const vector<const SingleAttribute *>& encrypted_attrs)
     : PoolSQL(db, one_db::user_table)
 {
     int one_uid    = -1;
@@ -112,7 +112,7 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
         goto error_readoneauth;
     }
 
-    if (User::split_secret(one_token,one_name,one_pass) != 0)
+    if (User::split_secret(one_token, one_name, one_pass) != 0)
     {
         goto error_token;
     }
@@ -222,7 +222,7 @@ error_serveradmin:
     oss << "Error creating server_admin user: " << error_str;
 
 error_common:
-    NebulaLog::log("ONE",Log::ERROR,oss);
+    NebulaLog::log("ONE", Log::ERROR, oss);
     throw runtime_error(oss.str());
 }
 
@@ -230,7 +230,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 
 static int master_allocate(const string& uname, const string& passwd,
-        const string& driver, const set<int>& gids, string& error_str)
+                           const string& driver, const set<int>& gids, string& error_str)
 {
     Client * client = Client::client();
 
@@ -238,11 +238,11 @@ static int master_allocate(const string& uname, const string& passwd,
     vector<xmlrpc_c::value> values;
 
     std::ostringstream oss("Cannot allocate user at federation master: ",
-            std::ios::ate);
+                           std::ios::ate);
     try
     {
         client->call("one.user.allocate", "sssI", &result, uname.c_str(),
-                passwd.c_str(), driver.c_str(), &gids);
+                     passwd.c_str(), driver.c_str(), &gids);
     }
     catch (exception const& e)
     {
@@ -279,7 +279,7 @@ static int master_chgrp(int user_id, int group_id, string& error_str)
     vector<xmlrpc_c::value> values;
 
     std::ostringstream oss("Cannot change user group at federation master: ",
-            std::ios::ate);
+                           std::ios::ate);
     try
     {
         client->call("one.user.chgrp", "ii", &result, user_id, group_id);
@@ -310,15 +310,15 @@ static int master_chgrp(int user_id, int group_id, string& error_str)
 /* -------------------------------------------------------------------------- */
 
 int UserPool::allocate(
-    int * oid,
-    const string& uname,
-    int   gid,
-    const string& password,
-    const string& auth,
-    bool  enabled,
-    const set<int>& gids,
-    const set<int>& agids,
-    string& error_str)
+        int * oid,
+        const string& uname,
+        int   gid,
+        const string& password,
+        const string& auth,
+        bool  enabled,
+        const set<int>& gids,
+        const set<int>& agids,
+        string& error_str)
 {
     Nebula& nd = Nebula::instance();
 
@@ -359,7 +359,7 @@ int UserPool::allocate(
         goto error_pass;
     }
 
-    if (!PoolObjectSQL::name_is_valid(uname,User::INVALID_NAME_CHARS,error_str))
+    if (!PoolObjectSQL::name_is_valid(uname, User::INVALID_NAME_CHARS, error_str))
     {
         goto error_name;
     }
@@ -431,7 +431,7 @@ int UserPool::allocate(
     }
 
     if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
-            driver_managed_group_admin) != 0)
+                                   driver_managed_group_admin) != 0)
     {
         driver_managed_group_admin = false;
     }
@@ -511,9 +511,9 @@ int UserPool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "UserPool::drop called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "UserPool::drop called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -536,9 +536,9 @@ int UserPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "UserPool::update called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "UserPool::update called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -558,14 +558,14 @@ int UserPool::update_quotas(User * user)
 /* -------------------------------------------------------------------------- */
 
 static int parse_auth_msg(
-    AuthRequest &ar,
-    int         &gid,
-    set<int>    &group_ids,
-    set<int>    &group_admin_ids,
-    string      &driver_name,
-    string      &mad_name,
-    string      &mad_pass,
-    string      &error_str)
+        AuthRequest &ar,
+        int         &gid,
+        set<int>    &group_ids,
+        set<int>    &group_admin_ids,
+        string      &driver_name,
+        string      &mad_name,
+        string      &mad_pass,
+        string      &error_str)
 {
     istringstream is;
 
@@ -697,13 +697,13 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     auth_driver = user->auth_driver;
 
     if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUPS",
-            driver_managed_groups) != 0)
+                                   driver_managed_groups) != 0)
     {
         driver_managed_groups = false;
     }
 
     if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
-            driver_managed_group_admin) != 0)
+                                   driver_managed_group_admin) != 0)
     {
         driver_managed_group_admin = false;
     }
@@ -766,7 +766,7 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     // -------------------------------------------------------------------------
     if ( auth_driver == UserPool::CORE_AUTH )
     {
-        ar.add_authenticate("",username,password,token);
+        ar.add_authenticate("", username, password, token);
 
         if ( !ar.core_authenticate() )
         {
@@ -779,7 +779,7 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     }
     else if ( authm != 0 )
     {
-        ar.add_authenticate(auth_driver,username,password,token);
+        ar.add_authenticate(auth_driver, username, password, token);
 
         authm->trigger_authenticate(ar);
 
@@ -795,7 +795,7 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
             string str;
 
             if ( parse_auth_msg(ar, new_gid, new_group_ids, new_group_admin_ids,
-                        str, str, str, error_str) != 0 )
+                                str, str, str, error_str) != 0 )
             {
                 goto auth_failure_parse;
             };
@@ -833,8 +833,8 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     }
 
     if ( !driver_managed_groups || new_gid == -1 ||
-            ( new_group_ids == group_ids
-              && group_admin_ids == new_group_admin_ids ) )
+         ( new_group_ids == group_ids
+           && group_admin_ids == new_group_admin_ids ) )
     {
         return true;
     }
@@ -853,18 +853,18 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
 
     // Previous groups that were not returned this time
     std::set_difference(group_ids.begin(), group_ids.end(),
-            new_group_ids.begin(), new_group_ids.end(),
-            std::inserter(groups_remove, groups_remove.end()));
+                        new_group_ids.begin(), new_group_ids.end(),
+                        std::inserter(groups_remove, groups_remove.end()));
 
     // New groups
     std::set_difference(new_group_ids.begin(), new_group_ids.end(),
-            group_ids.begin(), group_ids.end(),
-            std::inserter(groups_add, groups_add.end()));
+                        group_ids.begin(), group_ids.end(),
+                        std::inserter(groups_add, groups_add.end()));
 
     // Same groups
     std::set_intersection(group_ids.begin(), group_ids.end(),
-            new_group_ids.begin(), new_group_ids.end(),
-            std::inserter(groups_same, groups_same.end()));
+                          new_group_ids.begin(), new_group_ids.end(),
+                          std::inserter(groups_same, groups_same.end()));
 
     for (auto gid : groups_add)
     {
@@ -952,25 +952,25 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
 
 auth_failure_egid:
     oss << "Token sets an EGID no longer part of user group list";
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_parse:
     oss << "An error ocurred parsing the driver message: " << error_str;
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_public:
     oss << "User: " << username << " attempted a direct authentication.";
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_driver:
     oss << "Auth Error: " << ar.message;
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
@@ -979,9 +979,9 @@ auth_failure_token:
     goto auth_failure;
 
 auth_failure_nodriver:
-    NebulaLog::log("AuM",Log::ERROR,
-        "Auth Error: Authentication driver not enabled. "
-        "Check AUTH_MAD in oned.conf");
+    NebulaLog::log("AuM", Log::ERROR,
+                   "Auth Error: Authentication driver not enabled. "
+                   "Check AUTH_MAD in oned.conf");
 
 auth_failure:
     user_id  = -1;
@@ -1138,27 +1138,27 @@ bool UserPool::authenticate_server(unique_ptr<User> user,
 
 wrong_server_token:
     oss << "Wrong token format";
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_user:
     oss << "User: " << target_username
         << " does not exist. Returned by server auth";
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_driver:
     oss << "Auth Error: " << ar.message;
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_nodriver:
-    NebulaLog::log("AuM",Log::ERROR,
-        "Auth Error: Authentication driver not enabled. "
-        "Check AUTH_MAD in oned.conf");
+    NebulaLog::log("AuM", Log::ERROR,
+                   "Auth Error: Authentication driver not enabled. "
+                   "Check AUTH_MAD in oned.conf");
 
 auth_failure:
     user_id  = -1;
@@ -1209,7 +1209,7 @@ bool UserPool::authenticate_external(const string&  username,
     set<int> empty_set;
     set<int> group_admin_ids;
 
-    AuthRequest ar(-1,empty_set);
+    AuthRequest ar(-1, empty_set);
 
     if (authm == 0)
     {
@@ -1217,9 +1217,9 @@ bool UserPool::authenticate_external(const string&  username,
     }
 
     //Initialize authentication request and call the driver
-    nd.get_configuration_attribute("DEFAULT_AUTH",default_auth);
+    nd.get_configuration_attribute("DEFAULT_AUTH", default_auth);
 
-    ar.add_authenticate(default_auth, username,"-",token);
+    ar.add_authenticate(default_auth, username, "-", token);
 
     authm->trigger_authenticate(ar);
     ar.wait();
@@ -1235,7 +1235,7 @@ bool UserPool::authenticate_external(const string&  username,
     // Parse driver response
     //--------------------------------------------------------------------------
     rc = parse_auth_msg(ar, gid, group_ids, group_admin_ids,
-            driver_name, mad_name, mad_pass, error_str);
+                        driver_name, mad_name, mad_pass, error_str);
 
     if (rc != 0)
     {
@@ -1290,20 +1290,20 @@ bool UserPool::authenticate_external(const string&  username,
 auth_failure_user:
     oss << "Can't create user: " << error_str << ". Driver response: "
         << ar.message;
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_driver:
     oss << "Auth Error: " << ar.message;
-    NebulaLog::log("AuM",Log::ERROR,oss);
+    NebulaLog::log("AuM", Log::ERROR, oss);
 
     goto auth_failure;
 
 auth_failure_nodriver:
-    NebulaLog::log("AuM",Log::ERROR,
-        "Auth Error: Authentication driver not enabled. "
-        "Check AUTH_MAD in oned.conf");
+    NebulaLog::log("AuM", Log::ERROR,
+                   "Auth Error: Authentication driver not enabled. "
+                   "Check AUTH_MAD in oned.conf");
 
 auth_failure:
     user_id  = -1;
@@ -1340,7 +1340,7 @@ bool UserPool::authenticate(const string& session,
     int  rc;
     bool ar;
 
-    rc = User::split_secret(session,username,token);
+    rc = User::split_secret(session, username, token);
 
     if ( rc != 0 )
     {
@@ -1349,7 +1349,7 @@ bool UserPool::authenticate(const string& session,
 
     if (!PoolObjectSQL::name_is_valid(username, User::INVALID_NAME_CHARS, error_str))
     {
-        NebulaLog::log("AuM",Log::ERROR, "User is invalid, " + error_str );
+        NebulaLog::log("AuM", Log::ERROR, "User is invalid, " + error_str );
         return false;
     }
 
@@ -1366,18 +1366,18 @@ bool UserPool::authenticate(const string& session,
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
             ar = authenticate_server(std::move(user), token, password, user_id, group_id,
-                uname, gname, group_ids, umask);
+                                     uname, gname, group_ids, umask);
         }
         else
         {
             ar = authenticate_internal(std::move(user), token, password, user_id, group_id,
-                uname, gname, group_ids, umask);
+                                       uname, gname, group_ids, umask);
         }
     }
     else
     {
         ar = authenticate_external(username, token, password, user_id, group_id,
-            uname, gname, group_ids, umask);
+                                   uname, gname, group_ids, umask);
     }
 
     return ar;
@@ -1413,7 +1413,7 @@ int UserPool::authorize(AuthRequest& ar)
             ostringstream oss;
             oss << "Auth Error: " << ar.message;
 
-            NebulaLog::log("AuM",Log::ERROR,oss);
+            NebulaLog::log("AuM", Log::ERROR, oss);
         }
     }
 

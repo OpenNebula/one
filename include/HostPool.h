@@ -42,13 +42,13 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
-        int *              oid,
-        const std::string& hostname,
-        const std::string& im_mad_name,
-        const std::string& vmm_mad_name,
-        int                cluster_id,
-        const std::string& cluster_name,
-        std::string&       error_str);
+            int *              oid,
+            const std::string& hostname,
+            const std::string& im_mad_name,
+            const std::string& vmm_mad_name,
+            int                cluster_id,
+            const std::string& cluster_name,
+            std::string&       error_str);
 
     /**
      *  Updates a Host in the data base. It also updates the previous state
@@ -154,9 +154,9 @@ public:
 
         if ( auto host = get(oid) )
         {
-          host->add_capacity(sr);
+            host->add_capacity(sr);
 
-          update(host.get());
+            update(host.get());
         }
         else
         {
@@ -210,10 +210,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "HOST_POOL", "body", one_db::host_table,
-                where, sid, eid, desc);
+                             where, sid, eid, desc);
     };
 
     /**
@@ -271,7 +271,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Host(-1,"","","",-1,"");
+        return new Host(-1, "", "", "", -1, "");
     };
 };
 

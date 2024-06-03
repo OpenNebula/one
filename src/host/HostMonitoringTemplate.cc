@@ -134,7 +134,7 @@ int NUMAMonitoring::from_template(const Template &tmpl)
             page->to_token(oss);
 
             NebulaLog::warn("HMM", "Hugepage doesn't contain node ID: "
-                + oss.str());
+                            + oss.str());
 
             continue;
         }
@@ -144,7 +144,7 @@ int NUMAMonitoring::from_template(const Template &tmpl)
             page->to_token(oss);
 
             NebulaLog::warn("HMM", "Hugepage doesn't contain size: "
-                + oss.str());
+                            + oss.str());
 
             continue;
         }
@@ -172,7 +172,7 @@ int NUMAMonitoring::from_template(const Template &tmpl)
             mem->to_token(oss);
 
             NebulaLog::warn("HMM", "Memory node doesn't contain node ID: "
-                + oss.str());
+                            + oss.str());
 
             continue;
         }

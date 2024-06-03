@@ -29,9 +29,9 @@ class VirtualMachineNic : public VirtualMachineAttribute
 {
 public:
     VirtualMachineNic(VectorAttribute *va, int id):
-        VirtualMachineAttribute(va, id){};
+        VirtualMachineAttribute(va, id) {};
 
-    virtual ~VirtualMachineNic(){};
+    virtual ~VirtualMachineNic() {};
 
     /* ---------------------------------------------------------------------- */
     /* DISK get/set functions for boolean disk flags                          */
@@ -192,7 +192,7 @@ private:
      *    @param ar auth request
      */
     void authorize(PoolObjectSQL::ObjectType ot, int uid, AuthRequest* ar,
-                    bool check_lock);
+                   bool check_lock);
 };
 
 
@@ -257,9 +257,9 @@ public:
      *  Creates an empty nic set
      */
     VirtualMachineNics(bool dispose):
-        VirtualMachineAttributeSet(dispose){};
+        VirtualMachineAttributeSet(dispose) {};
 
-    virtual ~VirtualMachineNics(){};
+    virtual ~VirtualMachineNics() {};
 
     /**
      *  Function used to initialize the attribute map based on a vector of NIC
@@ -285,9 +285,9 @@ public:
     class NicIterator : public AttributeIterator
     {
     public:
-        NicIterator():AttributeIterator(){};
-        NicIterator(const AttributeIterator& dit):AttributeIterator(dit){};
-        virtual ~NicIterator(){};
+        NicIterator():AttributeIterator() {};
+        NicIterator(const AttributeIterator& dit):AttributeIterator(dit) {};
+        virtual ~NicIterator() {};
 
         VirtualMachineNic * operator*() const
         {
@@ -352,11 +352,11 @@ public:
      *  @return 0 if success
      */
     int get_network_leases(int vm_id, int uid, std::vector<Attribute *> nics,
-            VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
-            std::string& estr);
+                           VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
+                           std::string& estr);
 
     int get_auto_network_leases(int vm_id, int uid, VectorAttribute * nic_default,
-            std::vector<VectorAttribute*>& sgs, std::string& error_str);
+                                std::vector<VectorAttribute*>& sgs, std::string& error_str);
 
     /**
      *  Release all the network leases and SG associated to the set
@@ -404,8 +404,8 @@ public:
      *    @return 0 if success
      */
     int set_up_attach_nic(int vmid, int uid, int cluster_id,
-        VectorAttribute * vnic, VectorAttribute * nic_default,
-        std::vector<VectorAttribute*>& sgs, std::string& error_str);
+                          VectorAttribute * vnic, VectorAttribute * nic_default,
+                          std::vector<VectorAttribute*>& sgs, std::string& error_str);
     /**
      *  Marshall NICs in XML format with just essential information
      *    @param xml string to write the NIC XML description
@@ -415,7 +415,7 @@ public:
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-        int id) const
+                                                int id) const
     {
         return new VirtualMachineNic(va, id);
     };

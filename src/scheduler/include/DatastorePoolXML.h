@@ -26,9 +26,9 @@ class DatastorePoolXML : public PoolXML
 {
 public:
 
-    DatastorePoolXML(Client* client):PoolXML(client){};
+    DatastorePoolXML(Client* client):PoolXML(client) {};
 
-    ~DatastorePoolXML(){};
+    ~DatastorePoolXML() {};
 
     /**
      *  Gets an object from the pool
@@ -54,7 +54,7 @@ protected:
 class SystemDatastorePoolXML : public DatastorePoolXML
 {
 public:
-    SystemDatastorePoolXML(Client* client):DatastorePoolXML(client){};
+    SystemDatastorePoolXML(Client* client):DatastorePoolXML(client) {};
 
 protected:
     int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
@@ -69,7 +69,7 @@ protected:
 class ImageDatastorePoolXML : public DatastorePoolXML
 {
 public:
-    ImageDatastorePoolXML(Client* client):DatastorePoolXML(client){};
+    ImageDatastorePoolXML(Client* client):DatastorePoolXML(client) {};
 
 protected:
     int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override

@@ -81,7 +81,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
 error_bootstrap:
     ostringstream oss;
     oss << "Error trying to create default vdc: " << error_str;
-    NebulaLog::log("VDC",Log::ERROR,oss);
+    NebulaLog::log("VDC", Log::ERROR, oss);
 
     throw runtime_error(oss.str());
 }
@@ -101,9 +101,9 @@ int VdcPool::allocate(
 
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "VdcPool::allocate called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "VdcPool::allocate called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -150,9 +150,9 @@ int VdcPool::update(PoolObjectSQL * objsql)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "VdcPool::update called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "VdcPool::update called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -167,9 +167,9 @@ int VdcPool::drop(PoolObjectSQL * objsql, string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "VdcPool::drop called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "VdcPool::drop called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }

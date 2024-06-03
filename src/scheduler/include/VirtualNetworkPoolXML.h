@@ -28,7 +28,7 @@ public:
 
     VirtualNetworkPoolXML(Client* client):PoolXML(client) {};
 
-    ~VirtualNetworkPoolXML(){};
+    ~VirtualNetworkPoolXML() {};
 
     int set_up() override;
 

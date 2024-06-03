@@ -26,7 +26,7 @@ using namespace std;
 
 
 Group::Group(int id, const string& name):
-    PoolObjectSQL(id,GROUP,name,-1,-1,"","",one_db::group_table),
+    PoolObjectSQL(id, GROUP, name, -1, -1, "", "", one_db::group_table),
     quota(),
     users("USERS"),
     admins("ADMINS")
@@ -61,7 +61,7 @@ int Group::select(SqlDB * db, const string& name, int uid)
 {
     int rc;
 
-    rc = PoolObjectSQL::select(db,name,uid);
+    rc = PoolObjectSQL::select(db, name, uid);
 
     if ( rc != 0 )
     {
@@ -117,7 +117,7 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
 
     // Set oneadmin as the owner
-    set_user(0,"");
+    set_user(0, "");
 
     // Set the Group ID as the group it belongs to
     set_group(oid, name);
@@ -224,7 +224,7 @@ string& Group::to_xml_extended(string& xml, bool extended) const
     string          template_xml;
 
     oss <<
-    "<GROUP>"    <<
+        "<GROUP>"    <<
         "<ID>"   << oid  << "</ID>"        <<
         "<NAME>" << name << "</NAME>"      <<
         obj_template->to_xml(template_xml) <<
@@ -273,10 +273,10 @@ int Group::from_xml(const string& xml)
 
     // Get class base attributes
     rc += xpath(oid, "/GROUP/ID",   -1);
-    rc += xpath(name,"/GROUP/NAME", "not_found");
+    rc += xpath(name, "/GROUP/NAME", "not_found");
 
     // Set oneadmin as the owner
-    set_user(0,"");
+    set_user(0, "");
 
     // Set the Group ID as the group it belongs to
     set_group(oid, name);
@@ -356,84 +356,84 @@ void Group::add_admin_rules(int user_id)
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
     if ( aclm->add_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::USER |
-            AclRule::GROUP_ID |
-            oid,
+                 PoolObjectSQL::USER |
+                 AclRule::GROUP_ID |
+                 oid,
 
-            AuthRequest::USE |
-            AuthRequest::MANAGE |
-            AuthRequest::ADMIN |
-            AuthRequest::CREATE,
+                 AuthRequest::USE |
+                 AuthRequest::MANAGE |
+                 AuthRequest::ADMIN |
+                 AuthRequest::CREATE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP/@<gid> USE+MANAGE *
     if ( aclm->add_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::VM |
-            PoolObjectSQL::NET |
-            PoolObjectSQL::IMAGE |
-            PoolObjectSQL::TEMPLATE |
-            PoolObjectSQL::DOCUMENT |
-            PoolObjectSQL::SECGROUP |
-            PoolObjectSQL::VROUTER |
-            PoolObjectSQL::VMGROUP |
-            AclRule::GROUP_ID |
-            oid,
+                 PoolObjectSQL::VM |
+                 PoolObjectSQL::NET |
+                 PoolObjectSQL::IMAGE |
+                 PoolObjectSQL::TEMPLATE |
+                 PoolObjectSQL::DOCUMENT |
+                 PoolObjectSQL::SECGROUP |
+                 PoolObjectSQL::VROUTER |
+                 PoolObjectSQL::VMGROUP |
+                 AclRule::GROUP_ID |
+                 oid,
 
-            AuthRequest::USE |
-            AuthRequest::MANAGE,
+                 AuthRequest::USE |
+                 AuthRequest::MANAGE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> VROUTER/* CREATE *
     if ( aclm->add_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            AclRule::ALL_ID |
-            PoolObjectSQL::VROUTER,
+                 AclRule::ALL_ID |
+                 PoolObjectSQL::VROUTER,
 
-            AuthRequest::CREATE,
+                 AuthRequest::CREATE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> GROUP/<gid> MANAGE *
     if ( aclm->add_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::GROUP |
-            AclRule::INDIVIDUAL_ID |
-            oid,
+                 PoolObjectSQL::GROUP |
+                 AclRule::INDIVIDUAL_ID |
+                 oid,
 
-            AuthRequest::MANAGE,
+                 AuthRequest::MANAGE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 }
 
@@ -471,84 +471,84 @@ void Group::del_admin_rules(int user_id)
 
     // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
     if ( aclm->del_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::USER |
-            AclRule::GROUP_ID |
-            oid,
+                 PoolObjectSQL::USER |
+                 AclRule::GROUP_ID |
+                 oid,
 
-            AuthRequest::USE |
-            AuthRequest::MANAGE |
-            AuthRequest::ADMIN |
-            AuthRequest::CREATE,
+                 AuthRequest::USE |
+                 AuthRequest::MANAGE |
+                 AuthRequest::ADMIN |
+                 AuthRequest::CREATE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0)
+                 error_msg) < 0)
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP+VROUTER+VMGROUP/@<gid> USE+MANAGE *
     if ( aclm->del_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::VM |
-            PoolObjectSQL::NET |
-            PoolObjectSQL::IMAGE |
-            PoolObjectSQL::TEMPLATE |
-            PoolObjectSQL::DOCUMENT |
-            PoolObjectSQL::SECGROUP |
-            PoolObjectSQL::VROUTER |
-            PoolObjectSQL::VMGROUP |
-            AclRule::GROUP_ID |
-            oid,
+                 PoolObjectSQL::VM |
+                 PoolObjectSQL::NET |
+                 PoolObjectSQL::IMAGE |
+                 PoolObjectSQL::TEMPLATE |
+                 PoolObjectSQL::DOCUMENT |
+                 PoolObjectSQL::SECGROUP |
+                 PoolObjectSQL::VROUTER |
+                 PoolObjectSQL::VMGROUP |
+                 AclRule::GROUP_ID |
+                 oid,
 
-            AuthRequest::USE |
-            AuthRequest::MANAGE,
+                 AuthRequest::USE |
+                 AuthRequest::MANAGE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0)
+                 error_msg) < 0)
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> VROUTER/* CREATE *
     if ( aclm->del_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            AclRule::ALL_ID |
-            PoolObjectSQL::VROUTER,
+                 AclRule::ALL_ID |
+                 PoolObjectSQL::VROUTER,
 
-            AuthRequest::CREATE,
+                 AuthRequest::CREATE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 
     // #<uid> GROUP/<gid> MANAGE *
     if ( aclm->del_rule(
-            AclRule::INDIVIDUAL_ID |
-            user_id,
+                 AclRule::INDIVIDUAL_ID |
+                 user_id,
 
-            PoolObjectSQL::GROUP |
-            AclRule::INDIVIDUAL_ID |
-            oid,
+                 PoolObjectSQL::GROUP |
+                 AclRule::INDIVIDUAL_ID |
+                 oid,
 
-            AuthRequest::MANAGE,
+                 AuthRequest::MANAGE,
 
-            AclRule::ALL_ID,
+                 AclRule::ALL_ID,
 
-            error_msg) < 0 )
+                 error_msg) < 0 )
     {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+        NebulaLog::log("GROUP", Log::ERROR, error_msg);
     }
 }
 
@@ -556,14 +556,14 @@ void Group::del_admin_rules(int user_id)
 /* ------------------------------------------------------------------------ */
 
 void Group::sunstone_views(const string& user_default, const string& user_views,
-            const string& admin_default, const string& admin_views)
+                           const string& admin_default, const string& admin_views)
 {
 
     VectorAttribute * sunstone = obj_template->get("SUNSTONE");
 
     if ( sunstone == 0 )
     {
-        map<string,string>  vvalue;
+        map<string, string>  vvalue;
 
         vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
         vvalue.insert(make_pair("VIEWS", user_views));

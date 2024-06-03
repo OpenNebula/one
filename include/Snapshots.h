@@ -276,7 +276,7 @@ private:
     VectorAttribute * get_snapshot(int id)
     {
         return const_cast<VectorAttribute *>(
-                static_cast<const Snapshots&>(*this).get_snapshot(id));
+                       static_cast<const Snapshots&>(*this).get_snapshot(id));
     };
 
     /**

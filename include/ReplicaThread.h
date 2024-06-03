@@ -100,7 +100,7 @@ class RaftReplicaThread : public ReplicaThread
 public:
     RaftReplicaThread(int follower_id);
 
-    virtual ~RaftReplicaThread(){};
+    virtual ~RaftReplicaThread() {};
 
 private:
     /**
@@ -127,7 +127,7 @@ class FedReplicaThread : public ReplicaThread
 public:
     FedReplicaThread(int zone_id);
 
-    virtual ~FedReplicaThread(){};
+    virtual ~FedReplicaThread() {};
 
 private:
     /**
@@ -149,7 +149,7 @@ class HeartBeatThread : public ReplicaThread
 public:
     HeartBeatThread(int follower_id);
 
-    virtual ~HeartBeatThread(){};
+    virtual ~HeartBeatThread() {};
 
 private:
     /**

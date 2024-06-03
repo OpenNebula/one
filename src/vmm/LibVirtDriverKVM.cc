@@ -111,7 +111,7 @@ static int to_i(const string& sval)
 }
 
 static void insert_sec(ofstream& file, const string& base, const string& s,
-        const string& sm, const string& sml)
+                       const string& sm, const string& sml)
 {
     int s_i = 0;
 
@@ -164,7 +164,7 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 /* -------------------------------------------------------------------------- */
 
 static void pin_cpu(ofstream& file, const VectorAttribute * topology,
-        std::vector<const VectorAttribute *> &nodes)
+                    std::vector<const VectorAttribute *> &nodes)
 {
     HostShare::PinPolicy pp = HostShare::PP_NONE;
     unsigned int vcpu_id = 0;
@@ -229,8 +229,8 @@ static void pin_cpu(ofstream& file, const VectorAttribute * topology,
 /* -------------------------------------------------------------------------- */
 
 static void vtopol(ofstream& file, const VectorAttribute * topology,
-        std::vector<const VectorAttribute *> &nodes,  std::string &numatune,
-        std::string &membacking)
+                   std::vector<const VectorAttribute *> &nodes,  std::string &numatune,
+                   std::string &membacking)
 {
     std::string ma;
     int hpsz_kb = 0;
@@ -261,7 +261,7 @@ static void vtopol(ofstream& file, const VectorAttribute * topology,
         }
 
         file << "\t\t<topology sockets='" << s << "' cores='" << c
-            << "' threads='"<< t <<"'/>\n";
+             << "' threads='"<< t <<"'/>\n";
     }
 
     if ( nodes.empty() )
@@ -694,7 +694,7 @@ int LibVirtDriver::deployment_description_kvm(
     {
         file << "\t<vcpu current=" << one_util::escape_xml_attr(vcpu) << ">"
              << one_util::escape_xml(vcpu_max) << "</vcpu>" << endl;
-            }
+    }
     else if (!vcpu.empty())
     {
         file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
@@ -740,7 +740,7 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t</cputune>\n";
 
     // Memory must be expressed in Kb
-    if (vm->get_template_attribute("MEMORY",memory))
+    if (vm->get_template_attribute("MEMORY", memory))
     {
         bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
         has_memory_max = has_memory_max && memory < memory_max;
@@ -829,7 +829,7 @@ int LibVirtDriver::deployment_description_kvm(
         string firmware_secure = "no";
 
         if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE",
-                    boot_secure) && boot_secure)
+                           boot_secure) && boot_secure)
         {
             firmware_secure = "yes";
         }
@@ -883,7 +883,7 @@ int LibVirtDriver::deployment_description_kvm(
             if ( cpu_mode == "custom" )
             {
                 file << "\t\t<model fallback='forbid'>"
-                    << one_util::escape_xml(cpu_model) << "</model>\n";
+                     << one_util::escape_xml(cpu_model) << "</model>\n";
             }
         }
         else
@@ -941,7 +941,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (default_driver_cache.empty())
     {
-       default_driver_cache = "default";
+        default_driver_cache = "default";
     }
 
     get_attribute(nullptr, host, cluster, "DISK", "IO", default_driver_disk_io);
@@ -977,7 +977,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     num = vm->get_template_attribute("DISK", disk);
 
-    for (int i=0; i < num ;i++)
+    for (int i=0; i < num ; i++)
     {
         type      = disk[i]->vector_value("TYPE");
         disk_type = disk[i]->vector_value("DISK_TYPE");
@@ -1082,7 +1082,8 @@ int LibVirtDriver::deployment_description_kvm(
             }
         }
 
-        if (vm->get_disk(disk_id)->is_volatile()) {
+        if (vm->get_disk(disk_id)->is_volatile())
+        {
             // For volatile disk the type attribute is used to define if it is SWAP or FS,
             // For non-volatile disk it is set as subtype of disk_type (check Image::disk_attribute method)
             type = disk_type;
@@ -1270,7 +1271,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (!disk_bus.empty())
         {
-             file << " bus="<< one_util::escape_xml_attr(disk_bus);
+            file << " bus="<< one_util::escape_xml_attr(disk_bus);
         }
 
         file <<"/>\n";
@@ -1391,34 +1392,34 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( total_bytes_sec.empty() && total_bytes_sec_max.empty() )
             {
-                insert_sec(file, "read_bytes", read_bytes_sec ,
-                        read_bytes_sec_max , read_bytes_sec_max_length);
+                insert_sec(file, "read_bytes", read_bytes_sec,
+                           read_bytes_sec_max, read_bytes_sec_max_length);
 
-                insert_sec(file, "write_bytes", write_bytes_sec ,
-                        write_bytes_sec_max , write_bytes_sec_max_length);
+                insert_sec(file, "write_bytes", write_bytes_sec,
+                           write_bytes_sec_max, write_bytes_sec_max_length);
             }
             else
             {
-                insert_sec(file, "total_bytes", total_bytes_sec ,
-                        total_bytes_sec_max , total_bytes_sec_max_length);
+                insert_sec(file, "total_bytes", total_bytes_sec,
+                           total_bytes_sec_max, total_bytes_sec_max_length);
             }
 
             if ( total_iops_sec.empty() && total_iops_sec_max.empty() )
             {
-                insert_sec(file, "read_iops", read_iops_sec ,
-                        read_iops_sec_max , read_iops_sec_max_length);
+                insert_sec(file, "read_iops", read_iops_sec,
+                           read_iops_sec_max, read_iops_sec_max_length);
 
-                insert_sec(file, "write_iops", write_iops_sec ,
-                        write_iops_sec_max , write_iops_sec_max_length);
+                insert_sec(file, "write_iops", write_iops_sec,
+                           write_iops_sec_max, write_iops_sec_max_length);
             }
             else
             {
-                insert_sec(file, "total_iops", total_iops_sec ,
-                        total_iops_sec_max , total_iops_sec_max_length);
+                insert_sec(file, "total_iops", total_iops_sec,
+                           total_iops_sec_max, total_iops_sec_max_length);
             }
 
             if ( !size_iops_sec.empty() && !(total_iops_sec.empty()
-                 && read_iops_sec.empty() && write_iops_sec.empty()))
+                                             && read_iops_sec.empty() && write_iops_sec.empty()))
             {
                 insert_sec(file, "size_iops", size_iops_sec, "", "");
             }
@@ -1463,14 +1464,14 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
-                     << one_util::escape_xml_attr(fname.str())  << "/>\n"
+                 << one_util::escape_xml_attr(fname.str())  << "/>\n"
                  << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
 
             disk_bus = get_disk_bus(machine, target, sd_bus);
 
             if (!disk_bus.empty())
             {
-                 file << " bus="<< one_util::escape_xml_attr(disk_bus);
+                file << " bus="<< one_util::escape_xml_attr(disk_bus);
             }
 
             file <<"/>\n"
@@ -1481,7 +1482,7 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             vm->log("VMM", Log::WARNING, "Could not find target device to"
-                " attach context, will continue without it.");
+                    " attach context, will continue without it.");
         }
     }
 
@@ -1614,14 +1615,14 @@ int LibVirtDriver::deployment_description_kvm(
             if ( the_filter != 0 )
             {
                 file << "\t\t\t<filterref filter="
-                         << one_util::escape_xml_attr(*the_filter) << ">\n"
+                     << one_util::escape_xml_attr(*the_filter) << ">\n"
                      << "\t\t\t\t<parameter name='IP' value="
-                         << one_util::escape_xml_attr(ip) << "/>\n";
+                     << one_util::escape_xml_attr(ip) << "/>\n";
 
                 if ( !vrouter_ip.empty() )
                 {
                     file << "\t\t\t\t<parameter name='IP' value="
-                            << one_util::escape_xml_attr(vrouter_ip) << "/>\n";
+                         << one_util::escape_xml_attr(vrouter_ip) << "/>\n";
                 }
 
                 file << "\t\t\t</filterref>\n";
@@ -1797,7 +1798,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     num = vm->get_template_attribute("PCI", pci);
 
-    for (int i=0; i < num ;i++)
+    for (int i=0; i < num ; i++)
     {
         domain  = pci[i]->vector_value("DOMAIN");
         bus     = pci[i]->vector_value("BUS");
@@ -1824,8 +1825,8 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<hostdev mode='subsystem' type='mdev' model='vfio-pci'>\n";
             file << "\t\t\t<source>\n";
             file << "\t\t\t\t<address "
-                    << " uuid="   << one_util::escape_xml_attr(uuid)
-                << "/>\n";
+                 << " uuid="   << one_util::escape_xml_attr(uuid)
+                 << "/>\n";
             file << "\t\t\t</source>\n";
         }
         else
@@ -1834,22 +1835,22 @@ int LibVirtDriver::deployment_description_kvm(
 
             file << "\t\t\t<source>\n";
             file << "\t\t\t\t<address "
-                    << " domain="   << one_util::escape_xml_attr("0x" + domain)
-                    << " bus="      << one_util::escape_xml_attr("0x" + bus)
-                    << " slot="     << one_util::escape_xml_attr("0x" + slot)
-                    << " function=" << one_util::escape_xml_attr("0x" + func)
-                << "/>\n";
+                 << " domain="   << one_util::escape_xml_attr("0x" + domain)
+                 << " bus="      << one_util::escape_xml_attr("0x" + bus)
+                 << " slot="     << one_util::escape_xml_attr("0x" + slot)
+                 << " function=" << one_util::escape_xml_attr("0x" + func)
+                 << "/>\n";
             file << "\t\t\t</source>\n";
 
             if ( !vm_domain.empty() && !vm_bus.empty() && !vm_slot.empty() &&
-                    !vm_func.empty() )
+                 !vm_func.empty() )
             {
                 file << "\t\t\t\t<address type='pci'"
-                        << " domain="   << one_util::escape_xml_attr(vm_domain)
-                        << " bus="      << one_util::escape_xml_attr(vm_bus)
-                        << " slot="     << one_util::escape_xml_attr(vm_slot)
-                        << " function=" << one_util::escape_xml_attr(vm_func)
-                    << "/>\n";
+                     << " domain="   << one_util::escape_xml_attr(vm_domain)
+                     << " bus="      << one_util::escape_xml_attr(vm_bus)
+                     << " slot="     << one_util::escape_xml_attr(vm_slot)
+                     << " function=" << one_util::escape_xml_attr(vm_func)
+                     << "/>\n";
             }
         }
 
@@ -2000,7 +2001,7 @@ int LibVirtDriver::deployment_description_kvm(
          << time(0)
          << "</one:deployment_time>\n"
          << "\t\t</one:vm>\n"
-        // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
+         // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";
 
     file << "</domain>" << endl;

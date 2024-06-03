@@ -41,7 +41,7 @@ protected:
                  const std::string& help,
                  const std::string& params,
                  bool          _check_obj_exist)
-        :Request(method_name,params,help),
+        :Request(method_name, params, help),
          check_obj_exist(_check_obj_exist)
     {
         Nebula& nd  = Nebula::instance();
@@ -69,7 +69,7 @@ class VdcAddGroup : public VdcEditGroup
 {
 public:
     VdcAddGroup():VdcEditGroup("one.vdc.addgroup", "Adds a group to the VDC",
-        "A:sii", true){};
+                                   "A:sii", true) {};
 
     ~VdcAddGroup() = default;
 
@@ -83,8 +83,8 @@ public:
 class VdcDelGroup : public VdcEditGroup
 {
 public:
-    VdcDelGroup():VdcEditGroup("one.vdc.delgroup","Deletes a group from the VDC",
-        "A:sii", false){};
+    VdcDelGroup():VdcEditGroup("one.vdc.delgroup", "Deletes a group from the VDC",
+                                   "A:sii", false) {};
 
     ~VdcDelGroup() = default;
 
@@ -108,7 +108,7 @@ protected:
                     bool               _check_obj_exist,
                     PoolSQL*           respool,
                     PoolObjectSQL::ObjectType res_obj_type)
-        :Request(method_name,params,help),
+        :Request(method_name, params, help),
          check_obj_exist(_check_obj_exist),
          respool(respool),
          res_obj_type(res_obj_type)
@@ -142,8 +142,8 @@ class VdcAddCluster : public VdcEditResource
 {
 public:
     VdcAddCluster():VdcEditResource("one.vdc.addcluster",
-        "Adds a cluster to the VDC", "A:siii", true,
-        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
+                                        "Adds a cluster to the VDC", "A:siii", true,
+                                        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER) {};
 
     ~VdcAddCluster() = default;
 
@@ -158,8 +158,8 @@ class VdcDelCluster : public VdcEditResource
 {
 public:
     VdcDelCluster():VdcEditResource("one.vdc.delcluster",
-        "Deletes a cluster from the VDC", "A:siii", false,
-        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER){};
+                                        "Deletes a cluster from the VDC", "A:siii", false,
+                                        Nebula::instance().get_clpool(), PoolObjectSQL::CLUSTER) {};
 
     ~VdcDelCluster() = default;
 
@@ -174,7 +174,7 @@ class VdcAddHost : public VdcEditResource
 {
 public:
     VdcAddHost(): VdcEditResource("one.vdc.addhost", "Adds a host to the VDC",
-        "A:siii", true, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
+                                      "A:siii", true, Nebula::instance().get_hpool(), PoolObjectSQL::HOST) {};
 
     ~VdcAddHost() = default;
 
@@ -189,7 +189,7 @@ class VdcDelHost : public VdcEditResource
 {
 public:
     VdcDelHost():VdcEditResource("one.vdc.delhost", "Deletes a host from the VDC",
-        "A:siii", false, Nebula::instance().get_hpool(), PoolObjectSQL::HOST){};
+                                     "A:siii", false, Nebula::instance().get_hpool(), PoolObjectSQL::HOST) {};
 
     ~VdcDelHost() = default;
 
@@ -204,8 +204,8 @@ class VdcAddDatastore : public VdcEditResource
 {
 public:
     VdcAddDatastore():VdcEditResource("one.vdc.adddatastore",
-        "Adds a datastore to the VDC", "A:siii", true,
-        Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
+                                          "Adds a datastore to the VDC", "A:siii", true,
+                                          Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE) {};
 
     ~VdcAddDatastore() = default;
 
@@ -220,8 +220,8 @@ class VdcDelDatastore : public VdcEditResource
 {
 public:
     VdcDelDatastore():VdcEditResource("one.vdc.deldatastore",
-        "Deletes a datastore from the VDC", "A:siii", false,
-        Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE){};
+                                          "Deletes a datastore from the VDC", "A:siii", false,
+                                          Nebula::instance().get_dspool(), PoolObjectSQL::DATASTORE) {};
 
     ~VdcDelDatastore() = default;
 
@@ -236,8 +236,8 @@ class VdcAddVNet : public VdcEditResource
 {
 public:
     VdcAddVNet():VdcEditResource("one.vdc.addvnet",
-        "Adds a virtual network to the VDC", "A:siii", true,
-        Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
+                                     "Adds a virtual network to the VDC", "A:siii", true,
+                                     Nebula::instance().get_vnpool(), PoolObjectSQL::NET) {};
 
     ~VdcAddVNet() = default;
 
@@ -252,8 +252,8 @@ class VdcDelVNet : public VdcEditResource
 {
 public:
     VdcDelVNet(): VdcEditResource("one.vdc.delvnet",
-        "Deletes a virtual network from the VDC", "A:siii", false,
-        Nebula::instance().get_vnpool(), PoolObjectSQL::NET){};
+                                      "Deletes a virtual network from the VDC", "A:siii", false,
+                                      Nebula::instance().get_vnpool(), PoolObjectSQL::NET) {};
 
     ~VdcDelVNet() = default;
 

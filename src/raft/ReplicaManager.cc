@@ -115,7 +115,8 @@ void ReplicaManager::add_replica_thread(int follower_id)
 
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
-    std::thread replica_thread([rthread] {
+    std::thread replica_thread([rthread]
+    {
         rthread->do_replication();
 
         delete rthread;

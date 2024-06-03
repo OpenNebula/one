@@ -52,8 +52,8 @@ public:
      *   @return the oid assigned to the object or -1 in case of failure
      */
     virtual int allocate(
-        PoolObjectSQL   *objsql,
-        std::string&     error_str);
+            PoolObjectSQL   *objsql,
+            std::string&     error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -153,9 +153,9 @@ public:
      *   @return 0 on success
      */
     virtual int search(
-        std::vector<int>&   oids,
-        const char *        table,
-        const std::string&  where);
+            std::vector<int>&   oids,
+            const char *        table,
+            const std::string&  where);
 
     /**
      *  List the objects in the pool
@@ -165,8 +165,8 @@ public:
      *   @return 0 on success
      */
     int list(
-        std::vector<int>&   oids,
-        const char *        table)
+            std::vector<int>&   oids,
+            const char *        table)
     {
         return search(oids, table, "");
     }
@@ -179,7 +179,7 @@ public:
      *    @return 0 on success.
      */
     virtual int update(
-        PoolObjectSQL * objsql)
+            PoolObjectSQL * objsql)
     {
         return objsql->update(db);
     };
@@ -245,10 +245,10 @@ public:
      *  @return 0 on success
      */
     virtual int dump_extended(std::string& oss,
-                      const std::string& where,
-                      int sid,
-                      int eid,
-                      bool desc)
+                              const std::string& where,
+                              int sid,
+                              int eid,
+                              bool desc)
     {
         return dump(oss, where, sid, eid, desc);
     }
@@ -328,10 +328,10 @@ public:
     /**
      * Return true if feature is supported
      */
-     bool supports(SqlDB::SqlFeature ft)
-     {
-         return db->supports(ft);
-     }
+    bool supports(SqlDB::SqlFeature ft)
+    {
+        return db->supports(ft);
+    }
 
 protected:
 

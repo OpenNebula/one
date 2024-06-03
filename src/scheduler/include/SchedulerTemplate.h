@@ -26,9 +26,9 @@ public:
 
     SchedulerTemplate(const std::string& etc_location):
         NebulaTemplate(etc_location, conf_name, "SCHEDULER_CONFIGURATION")
-        {};
+    {};
 
-    ~SchedulerTemplate(){};
+    ~SchedulerTemplate() {};
 
     std::string get_policy() const;
 

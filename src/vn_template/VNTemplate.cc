@@ -31,7 +31,7 @@ VNTemplate::VNTemplate(int id,
                        const string& _gname,
                        int umask,
                        unique_ptr<VirtualNetworkTemplate> _template_contents):
-    PoolObjectSQL(id,VNTEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vn_template_table),
+    PoolObjectSQL(id, VNTEMPLATE, "", _uid, _gid, _uname, _gname, one_db::vn_template_table),
     regtime(time(0))
 {
     if (_template_contents)
@@ -78,7 +78,7 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
     get_template_attribute("OUTER_VLAN_ID", outer_id);
 
     rc = VirtualNetwork::parse_phydev_vlans(obj_template.get(), vn_mad, phydev,
-            bridge, auto_id, vlan_id, auto_outer, outer_id, error_str);
+                                            bridge, auto_id, vlan_id, auto_outer, outer_id, error_str);
 
     if (rc == -1)
     {
@@ -111,7 +111,7 @@ int VNTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-   // Update the Object
+    // Update the Object
 
     sql_name = db->escape_str(name);
 
@@ -207,16 +207,16 @@ string& VNTemplate::to_xml(string& xml) const
     string          lock_str;
 
     oss << "<VNTEMPLATE>"
-            << "<ID>"       << oid        << "</ID>"
-            << "<UID>"      << uid        << "</UID>"
-            << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>"
-            << "<GNAME>"    << gname      << "</GNAME>"
-            << "<NAME>"     << name       << "</NAME>"
-            << lock_db_to_xml(lock_str)
-            << perms_to_xml(perm_str)
-            << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << obj_template->to_xml(template_xml)
+        << "<ID>"       << oid        << "</ID>"
+        << "<UID>"      << uid        << "</UID>"
+        << "<GID>"      << gid        << "</GID>"
+        << "<UNAME>"    << uname      << "</UNAME>"
+        << "<GNAME>"    << gname      << "</GNAME>"
+        << "<NAME>"     << name       << "</NAME>"
+        << lock_db_to_xml(lock_str)
+        << perms_to_xml(perm_str)
+        << "<REGTIME>"  << regtime    << "</REGTIME>"
+        << obj_template->to_xml(template_xml)
         << "</VNTEMPLATE>";
 
     xml = oss.str();

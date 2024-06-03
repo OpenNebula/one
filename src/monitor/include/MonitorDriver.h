@@ -34,25 +34,25 @@ public:
         Driver(c, a, ct)
     {
         register_action(MonitorDriverMessages::UNDEFINED,
-                &MonitorDriverProtocol::_undefined);
+                        &MonitorDriverProtocol::_undefined);
 
         register_action(MonitorDriverMessages::MONITOR_VM,
-                &MonitorDriverProtocol::_monitor_vm);
+                        &MonitorDriverProtocol::_monitor_vm);
 
         register_action(MonitorDriverMessages::MONITOR_HOST,
-                &MonitorDriverProtocol::_monitor_host);
+                        &MonitorDriverProtocol::_monitor_host);
 
         register_action(MonitorDriverMessages::SYSTEM_HOST,
-                &MonitorDriverProtocol::_system_host);
+                        &MonitorDriverProtocol::_system_host);
 
         register_action(MonitorDriverMessages::STATE_VM,
-                &MonitorDriverProtocol::_state_vm);
+                        &MonitorDriverProtocol::_state_vm);
 
         register_action(MonitorDriverMessages::START_MONITOR,
-                &MonitorDriverProtocol::_start_monitor);
+                        &MonitorDriverProtocol::_start_monitor);
 
         register_action(MonitorDriverMessages::LOG,
-                &MonitorDriverProtocol::_log);
+                        &MonitorDriverProtocol::_log);
     };
 
     void start_monitor(int oid, const std::string& host_xml)

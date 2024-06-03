@@ -196,10 +196,10 @@ private:
     // -------------------------------------------------------------------------
     // VMGroup attributes
     // -------------------------------------------------------------------------
-	/**
-	 *  The role set
-	 */
-	VMGroupRoles roles;
+    /**
+     *  The role set
+     */
+    VMGroupRoles roles;
 };
 
 #endif /*VMGROUP_H_*/

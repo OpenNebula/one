@@ -37,30 +37,30 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
     {
         // Build the template for the OpenNebula Systems MarketPlace
         string default_market =
-            "NAME=\"OpenNebula Public\"\n"
-            "MARKET_MAD=one\n"
-            "DESCRIPTION=\"OpenNebula Systems MarketPlace\"";
+                "NAME=\"OpenNebula Public\"\n"
+                "MARKET_MAD=one\n"
+                "DESCRIPTION=\"OpenNebula Systems MarketPlace\"";
 
         string lxc_market =
-            "NAME=\"Linux Containers\"\n"
-            "STATE=DISABLED\n"
-            "MARKET_MAD=linuxcontainers\n"
-            "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
-            " LXD hosted at linuxcontainers.org\"";
+                "NAME=\"Linux Containers\"\n"
+                "STATE=DISABLED\n"
+                "MARKET_MAD=linuxcontainers\n"
+                "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
+                " LXD hosted at linuxcontainers.org\"";
 
         string tk_market =
-            "NAME=\"TurnKey Linux Containers\"\n"
-            "STATE=DISABLED\n"
-            "MARKET_MAD=turnkeylinux\n"
-            "DESCRIPTION=\"TurnKey linux is a free software repository"
-            " based on Debian images hosted at turnkeylinux.org\"";
+                "NAME=\"TurnKey Linux Containers\"\n"
+                "STATE=DISABLED\n"
+                "MARKET_MAD=turnkeylinux\n"
+                "DESCRIPTION=\"TurnKey linux is a free software repository"
+                " based on Debian images hosted at turnkeylinux.org\"";
 
         string dh_market =
-            "NAME=\"DockerHub\"\n"
-            "STATE=DISABLED\n"
-            "MARKET_MAD=dockerhub\n"
-            "DESCRIPTION=\"DockerHub is the world's largest library and"
-            "  community for container images hosted at hub.docker.com/\"";
+                "NAME=\"DockerHub\"\n"
+                "STATE=DISABLED\n"
+                "MARKET_MAD=dockerhub\n"
+                "DESCRIPTION=\"DockerHub is the world's largest library and"
+                "  community for container images hosted at hub.docker.com/\"";
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
@@ -112,10 +112,10 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_umask(),
                 move(dh_tmpl));
 
-        marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
-        lxc_marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
-        tk_marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
-        dh_marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
+        marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        lxc_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        tk_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        dh_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
 
         marketplace->zone_id = Nebula::instance().get_zone_id();
         lxc_marketplace->zone_id = Nebula::instance().get_zone_id();
@@ -264,9 +264,9 @@ int MarketPlacePool::drop(PoolObjectSQL * objsql, std::string& error_msg)
 {
     if (Nebula::instance().is_federation_slave())
     {
-        NebulaLog::log("ONE",Log::ERROR,
-                "MarketPlacePool::drop called, but this "
-                "OpenNebula is a federation slave");
+        NebulaLog::log("ONE", Log::ERROR,
+                       "MarketPlacePool::drop called, but this "
+                       "OpenNebula is a federation slave");
 
         return -1;
     }
@@ -292,7 +292,7 @@ int MarketPlacePool::update(PoolObjectSQL * objsql)
         try
         {
             client->call("one.market.updatedb", "is", &result, objsql->get_oid(),
-                    objsql->to_xml(tmpl_xml).c_str());
+                         objsql->to_xml(tmpl_xml).c_str());
         }
         catch (exception const& e)
         {

@@ -32,17 +32,17 @@ public:
     History(int oid, int _seq = -1);
 
     History(
-        int oid,
-        int seq,
-        int hid,
-        const std::string& hostname,
-        int cid,
-        const std::string& vmm,
-        const std::string& tmm,
-        int           ds_id,
-        const std::string& vm_info);
+            int oid,
+            int seq,
+            int hid,
+            const std::string& hostname,
+            int cid,
+            const std::string& vmm,
+            const std::string& tmm,
+            int           ds_id,
+            const std::string& vm_info);
 
-    ~History(){};
+    ~History() {};
 
     /**
      *  Function to write the History Record in an output stream
@@ -144,10 +144,10 @@ private:
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-     int update(SqlDB * db) override
-     {
+    int update(SqlDB * db) override
+    {
         return insert_replace(db, true);
-     }
+    }
 
     /**
      *  Removes the all history records from the DB

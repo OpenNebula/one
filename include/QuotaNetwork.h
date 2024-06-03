@@ -34,9 +34,9 @@ class QuotaNetwork :  public Quota
 {
 public:
     QuotaNetwork(bool is_default): Quota("NETWORK_QUOTA", "NETWORK", NET_METRICS,
-        NUM_NET_METRICS, is_default) {};
+                                             NUM_NET_METRICS, is_default) {};
 
-    virtual ~QuotaNetwork(){};
+    virtual ~QuotaNetwork() {};
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
@@ -72,8 +72,8 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_default_quota(const std::string& id,
-                        Quotas& default_quotas,
-                        VectorAttribute **va) override;
+                          Quotas& default_quotas,
+                          VectorAttribute **va) override;
 
     static const char * NET_METRICS[];
 
@@ -97,7 +97,7 @@ private:
      *    @return true if the operation can be performed
      */
     bool check(PoolObjectSQL::ObjectType otype, Template* tmpl,
-            Quotas& default_quotas, std::string& error);
+               Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when freeing a lease. This method considers
@@ -116,9 +116,9 @@ private:
 class QuotaNetworkVirtualRouter: public QuotaDecorator
 {
 public:
-    QuotaNetworkVirtualRouter(QuotaNetwork *qn):QuotaDecorator(qn){};
+    QuotaNetworkVirtualRouter(QuotaNetwork *qn):QuotaDecorator(qn) {};
 
-    virtual ~QuotaNetworkVirtualRouter(){};
+    virtual ~QuotaNetworkVirtualRouter() {};
 
     bool check(Template* tmpl, Quotas& default_quotas, std::string& err) override
     {
@@ -127,7 +127,7 @@ public:
         return qn->check(PoolObjectSQL::VROUTER, tmpl, default_quotas, err);
     }
 
-void del(Template* tmpl) override
+    void del(Template* tmpl) override
     {
         QuotaNetwork * qn = static_cast<QuotaNetwork *>(quota);
 

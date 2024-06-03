@@ -44,10 +44,10 @@ class HostMonitorManager
 {
 public:
     HostMonitorManager(HostRPCPool *hp, VMRPCPool *vmp,
-            const std::string& addr, unsigned int port, unsigned int threads,
-            const std::string& driver_path,
-            int timer_period,
-            int monitor_interval_host);
+                       const std::string& addr, unsigned int port, unsigned int threads,
+                       const std::string& driver_path,
+                       int timer_period,
+                       int monitor_interval_host);
 
     ~HostMonitorManager();
 

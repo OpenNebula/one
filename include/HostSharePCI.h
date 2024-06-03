@@ -47,7 +47,7 @@ class HostSharePCI : public Template
 {
 public:
 
-    HostSharePCI() : Template(false, '=', "PCI_DEVICES"){};
+    HostSharePCI() : Template(false, '=', "PCI_DEVICES") {};
 
     HostSharePCI(const HostSharePCI& src);
 
@@ -148,7 +148,7 @@ private:
 
         PCIDevice(const PCIDevice& src);
 
-        ~PCIDevice(){};
+        ~PCIDevice() {};
 
         unsigned int vendor_id;
         unsigned int device_id;

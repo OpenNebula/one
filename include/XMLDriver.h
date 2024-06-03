@@ -44,8 +44,8 @@ private:
      *    @return 0 on success
      */
     int deployment_description(
-        const VirtualMachine *  vm,
-        const std::string&      file_name) const override;
+            const VirtualMachine *  vm,
+            const std::string&      file_name) const override;
 };
 
 #endif /*XML_DRIVER_H_*/

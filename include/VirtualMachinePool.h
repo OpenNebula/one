@@ -39,7 +39,7 @@ public:
                        float                        default_disk_cost,
                        bool                         showback_only_running);
 
-    ~VirtualMachinePool(){};
+    ~VirtualMachinePool() {};
 
     /**
      *  Function to allocate a new VM object
@@ -57,15 +57,15 @@ public:
      *  the template
      */
     int allocate (
-        int                      uid,
-        int                      gid,
-        const std::string&       uname,
-        const std::string&       gname,
-        int                      umask,
-        std::unique_ptr<VirtualMachineTemplate> vm_template,
-        int *                    oid,
-        std::string&             error_str,
-        bool                     on_hold = false);
+            int                      uid,
+            int                      gid,
+            const std::string&       uname,
+            const std::string&       gname,
+            int                      umask,
+            std::unique_ptr<VirtualMachineTemplate> vm_template,
+            int *                    oid,
+            std::string&             error_str,
+            bool                     on_hold = false);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
@@ -153,9 +153,9 @@ public:
      *   @return 0 on success
      */
     int get_running(
-        std::vector<int>&    oids,
-        int             vm_limit,
-        time_t          last_poll);
+            std::vector<int>&    oids,
+            int             vm_limit,
+            time_t          last_poll);
 
     /**
      *  Function to get the IDs of pending VMs
@@ -163,7 +163,7 @@ public:
      *   @return 0 on success
      */
     int get_pending(
-        std::vector<int>&    oids);
+            std::vector<int>&    oids);
 
     /**
      *  Gets the IDs of VMs matching the given SQL where string.
@@ -186,7 +186,7 @@ public:
      *    @return 0 on success
      */
     int insert_history(
-        VirtualMachine * vm)
+            VirtualMachine * vm)
     {
         return vm->insert_history(db);
     }
@@ -197,7 +197,7 @@ public:
      *    @return 0 on success
      */
     int update_history(
-        VirtualMachine * vm)
+            VirtualMachine * vm)
     {
         return vm->update_history(db);
     }
@@ -208,7 +208,7 @@ public:
      *    @return 0 on success
      */
     int update_previous_history(
-        VirtualMachine * vm)
+            VirtualMachine * vm)
     {
         return vm->update_previous_history(db);
     }
@@ -219,7 +219,7 @@ public:
      *    @return 0 on success
      */
     int update_search(
-        VirtualMachine * vm)
+            VirtualMachine * vm)
     {
         return vm->update_search(db);
     }
@@ -252,7 +252,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VM_POOL", "short_body", one_db::vm_table, where,
                              sid, eid, desc);
@@ -383,11 +383,11 @@ public:
      *  @return 0 on success
      */
     int calculate_showback(
-                int start_month,
-                int start_year,
-                int end_month,
-                int end_year,
-                std::string &error_str);
+            int start_month,
+            int start_year,
+            int end_month,
+            int end_year,
+            std::string &error_str);
 
     /**
      * Deletes the DISK that was in the process of being attached. Releases
@@ -417,7 +417,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new VirtualMachine(-1,-1,-1,"","",0,0);
+        return new VirtualMachine(-1, -1, -1, "", "", 0, 0);
     };
 
     /**

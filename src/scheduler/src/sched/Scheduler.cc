@@ -60,8 +60,8 @@ static double profile(bool start, const string& message="")
 
     clock_gettime(CLOCK_MONOTONIC, &eend);
 
-    t = (eend.tv_sec + (eend.tv_nsec * pow(10,-9))) -
-        (estart.tv_sec+(estart.tv_nsec*pow(10,-9)));
+    t = (eend.tv_sec + (eend.tv_nsec * pow(10, -9))) -
+        (estart.tv_sec+(estart.tv_nsec*pow(10, -9)));
 
     if (!message.empty())
     {
@@ -167,10 +167,10 @@ void Scheduler::start()
         if ( log_system != NebulaLog::UNDEFINED )
         {
             NebulaLog::init_log_system(log_system,
-                           clevel,
-                           log_file.c_str(),
-                           ios_base::ate,
-                           "mm_sched");
+                                       clevel,
+                                       log_file.c_str(),
+                                       ios_base::ate,
+                                       "mm_sched");
         }
         else
         {
@@ -313,7 +313,7 @@ void Scheduler::start()
         cold_migrate_mode = 0;
 
         NebulaLog::warn("SCHED",
-            "Invalid parameter COLD_MIGRATE_MODE, setting default = 0");
+                        "Invalid parameter COLD_MIGRATE_MODE, setting default = 0");
     }
 
     vmpool = new VirtualMachinePoolXML(client, machines_limit, live_rescheds==1,
@@ -338,9 +338,9 @@ void Scheduler::start()
     {
         int fd = open("/dev/null", O_RDWR);
 
-        dup2(fd,0);
-        dup2(fd,1);
-        dup2(fd,2);
+        dup2(fd, 0);
+        dup2(fd, 1);
+        dup2(fd, 2);
 
         close(fd);
 
@@ -370,9 +370,9 @@ void Scheduler::start()
     // Create the scheduler loop
     // -----------------------------------------------------------
 
-    NebulaLog::log("SCHED",Log::INFO,"Starting scheduler loop...");
+    NebulaLog::log("SCHED", Log::INFO, "Starting scheduler loop...");
 
-    timer_thread.reset(new Timer(timer, [this](){timer_action();}));
+    timer_thread.reset(new Timer(timer, [this]() {timer_action();}));
 
     // -----------------------------------------------------------
     // Wait for a SIGTERM or SIGINT signal
@@ -511,8 +511,8 @@ int Scheduler::set_up_pools()
  *  @return true for a positive match
  */
 static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm,
-    HostShareCapacity &sr, HostXML * host, int &n_auth, int& n_error, int &n_fits,
-    int &n_matched, string &error)
+                       HostShareCapacity &sr, HostXML * host, int &n_auth, int& n_error, int &n_fits,
+                       int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -601,7 +601,7 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
         if (matched == false)
         {
             error = "It does not fulfill SCHED_REQUIREMENTS: " +
-                vm->get_requirements();
+                    vm->get_requirements();
             return false;
         }
     }
@@ -632,8 +632,8 @@ static bool match_host(AclXML * acls, UserPoolXML * upool, VirtualMachineXML* vm
  *  @return true for a positive match
  */
 static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
-    VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds, int& n_auth,
-    int& n_error, int& n_fits, int &n_matched, string &error)
+                            VirtualMachineXML* vm, long long vdisk, DatastoreXML * ds, int& n_auth,
+                            int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Check if user is authorized
@@ -746,8 +746,8 @@ static bool match_system_ds(AclXML * acls, UserPoolXML * upool,
  *  @return true for a positive match
  */
 static bool match_network(AclXML * acls, UserPoolXML * upool,
-    VirtualMachineXML* vm, int nic_id, VirtualNetworkXML * net, int& n_auth,
-    int& n_error, int& n_fits, int &n_matched, string &error)
+                          VirtualMachineXML* vm, int nic_id, VirtualNetworkXML * net, int& n_auth,
+                          int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Check if user is authorized
@@ -919,7 +919,7 @@ void Scheduler::match_schedule()
             host = static_cast<HostXML *>(obj_it->second);
 
             if (match_host(acls, upool, vm, sr, host, n_auth, n_error, n_fits,
-                        n_matched, m_error))
+                           n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
 
@@ -981,7 +981,7 @@ void Scheduler::match_schedule()
             }
 
             log_match(vm->get_oid(),
-                    "Cannot schedule VM, there is no suitable host.");
+                      "Cannot schedule VM, there is no suitable host.");
 
             vmpool->remove_vm_resources(vm->get_oid());
 
@@ -1026,7 +1026,7 @@ void Scheduler::match_schedule()
             ds = static_cast<DatastoreXML *>(obj_it->second);
 
             if (match_system_ds(acls, upool, vm, sr.disk, ds, n_auth, n_error,
-                        n_fits, n_matched, m_error))
+                                n_fits, n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -1098,7 +1098,7 @@ void Scheduler::match_schedule()
                 vm->clear_match_hosts();
 
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no suitable "
-                    "system ds.");
+                          "system ds.");
 
                 vmpool->remove_vm_resources(vm->get_oid());
 
@@ -1146,7 +1146,7 @@ void Scheduler::match_schedule()
                 net = static_cast<VirtualNetworkXML *>(obj_it->second);
 
                 if (match_network(acls, upool, vm, nic_id, net, n_auth, n_error,
-                            n_fits, n_matched, m_error))
+                                  n_fits, n_matched, m_error))
                 {
                     vm->add_match_network(net->get_oid(), nic_id);
 
@@ -1202,7 +1202,7 @@ void Scheduler::match_schedule()
                 vm->clear_match_datastores();
 
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no "
-                    "suitable network.");
+                          "suitable network.");
 
                 vmpool->remove_vm_resources(vm->get_oid());
 
@@ -1265,7 +1265,7 @@ void Scheduler::match_schedule()
         oss << "Scheduling Results:" << endl;
 
         for (auto vm_it=pending_vms.begin();
-            vm_it != pending_vms.end(); vm_it++)
+             vm_it != pending_vms.end(); vm_it++)
         {
             vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
@@ -1323,7 +1323,7 @@ void Scheduler::dispatch()
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
     for (k = vm_rs.rbegin(); k != vm_rs.rend() &&
-            ( dispatch_limit == 0 || dispatched_vms < dispatch_limit ); ++k)
+         ( dispatch_limit == 0 || dispatched_vms < dispatch_limit ); ++k)
     {
         dispatched = false;
 
@@ -1374,7 +1374,7 @@ void Scheduler::dispatch()
             matched = true;
 
             if ( one_util::regex_match("CURRENT_VMS",
-                        vm->get_requirements().c_str()) == 0 )
+                                       vm->get_requirements().c_str()) == 0 )
             {
                 if (host->eval_bool(vm->get_requirements(), matched, &estr)!=0)
                 {
@@ -1498,7 +1498,7 @@ void Scheduler::dispatch()
                 continue;
             }
 
-             //------------------------------------------------------------------
+            //------------------------------------------------------------------
             // Get the highest ranked network
             //------------------------------------------------------------------
             extra.str("");
@@ -1667,8 +1667,8 @@ void Scheduler::dispatch()
         if (!dispatched)
         {
             vm->log("Cannot dispatch VM to any Host. Possible reasons: Not "
-                "enough capacity in Host or System DS, dispatch limit "
-                "reached, or limit of free leases reached.");
+                    "enough capacity in Host or System DS, dispatch limit "
+                    "reached, or limit of free leases reached.");
         }
     }
 
@@ -1777,7 +1777,7 @@ int Scheduler::do_scheduled_actions()
             ostringstream oss_aux;
             first_action->to_xml(oss_aux);
             NebulaLog::warn("SCHED", string("Unable to update sched action: ")
-                + oss_aux.str());
+                            + oss_aux.str());
         }
 
         NebulaLog::log("VM", Log::INFO, oss);
@@ -1832,7 +1832,7 @@ void Scheduler::timer_action()
         Client::client()->call("one.zone.raftstatus", "", &result);
 
         vector<xmlrpc_c::value> values =
-                        xmlrpc_c::value_array(result).vectorValueValue();
+                xmlrpc_c::value_array(result).vectorValueValue();
 
         bool success = xmlrpc_c::value_boolean(values[0]);
         string msg   = xmlrpc_c::value_string(values[1]);
@@ -1849,17 +1849,17 @@ void Scheduler::timer_action()
                 return;
             }
 
-           if ( raft.get("STATE", state) == false )
-           {
+            if ( raft.get("STATE", state) == false )
+            {
                 NebulaLog::log("SCHED", Log::ERROR, "Cannot get oned state");
                 return;
-           }
+            }
 
-           if ( state != 3 && state != 0 )
-           {
+            if ( state != 3 && state != 0 )
+            {
                 NebulaLog::log("SCHED", Log::ERROR, "oned is not leader");
                 return;
-           }
+            }
         }
         else
         {
@@ -1879,18 +1879,18 @@ void Scheduler::timer_action()
 
     profile(true);
     rc = vmapool->set_up();
-    profile(false,"Getting scheduled actions information.");
+    profile(false, "Getting scheduled actions information.");
 
     if ( rc == 0 )
     {
         profile(true);
         do_scheduled_actions();
-        profile(false,"Executing scheduled actions.");
+        profile(false, "Executing scheduled actions.");
     }
 
     profile(true);
     rc = set_up_pools();
-    profile(false,"Getting VM and Host information.");
+    profile(false, "Getting VM and Host information.");
 
     if ( rc != 0 )
     {
@@ -1899,11 +1899,11 @@ void Scheduler::timer_action()
 
     profile(true);
     do_vm_groups();
-    profile(false,"Setting VM groups placement constraints.");
+    profile(false, "Setting VM groups placement constraints.");
 
     match_schedule();
 
     profile(true);
     dispatch();
-    profile(false,"Dispatching VMs to hosts.");
+    profile(false, "Dispatching VMs to hosts.");
 }

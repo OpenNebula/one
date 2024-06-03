@@ -28,24 +28,24 @@ using namespace std;
 /* ************************************************************************ */
 
 MarketPlaceApp::MarketPlaceApp(
-    int                      uid,
-    int                      gid,
-    const std::string&       uname,
-    const std::string&       gname,
-    int                      umask,
-    unique_ptr<MarketPlaceAppTemplate> app_template):
-        PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, one_db::mp_app_table),
-        source(""),
-        md5(""),
-        size_mb(0),
-        description(""),
-        version(""),
-        apptemplate64(""),
-        market_id(-1),
-        market_name(""),
-        state(INIT),
-        type(IMAGE),
-        zone_id(-1)
+        int                      uid,
+        int                      gid,
+        const std::string&       uname,
+        const std::string&       gname,
+        int                      umask,
+        unique_ptr<MarketPlaceAppTemplate> app_template):
+    PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, one_db::mp_app_table),
+    source(""),
+    md5(""),
+    size_mb(0),
+    description(""),
+    version(""),
+    apptemplate64(""),
+    market_id(-1),
+    market_name(""),
+    state(INIT),
+    type(IMAGE),
+    zone_id(-1)
 {
     if (app_template)
     {
@@ -241,35 +241,35 @@ int MarketPlaceApp::bootstrap(SqlDB * db)
 /* *************************************************************************** */
 std::string& MarketPlaceApp::to_xml(std::string& xml) const
 {
-	std::ostringstream oss;
-	std::string        template_xml;
-	std::string        perm_str;
+    std::ostringstream oss;
+    std::string        template_xml;
+    std::string        perm_str;
     string lock_str;
 
     oss << "<MARKETPLACEAPP>"
-			"<ID>"             << oid           << "</ID>"  <<
-			"<UID>"            << uid           << "</UID>" <<
-			"<GID>"            << gid           << "</GID>" <<
-			"<UNAME>"          << uname         << "</UNAME>" <<
-			"<GNAME>"          << gname         << "</GNAME>" <<
-            lock_db_to_xml(lock_str) <<
-			"<REGTIME>"        << regtime       << "</REGTIME>" <<
-			"<NAME>"           << name          << "</NAME>" <<
-            "<ZONE_ID>"   << one_util::escape_xml(zone_id)  << "</ZONE_ID>" <<
-            "<ORIGIN_ID>" << one_util::escape_xml(origin_id)<< "</ORIGIN_ID>" <<
-            "<SOURCE>"    << one_util::escape_xml(source)   << "</SOURCE>" <<
-            "<MD5>"       << one_util::escape_xml(md5)      << "</MD5>" <<
-            "<SIZE>"           << size_mb       << "</SIZE>" <<
-            "<DESCRIPTION>"   << one_util::escape_xml(description)   << "</DESCRIPTION>" <<
-            "<VERSION>"       << one_util::escape_xml(version)       << "</VERSION>" <<
-            "<FORMAT>"        << one_util::escape_xml(format)        << "</FORMAT>" <<
-            "<APPTEMPLATE64>" << one_util::escape_xml(apptemplate64) << "</APPTEMPLATE64>" <<
-            "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
-            "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
-            "<STATE>"          << state         << "</STATE>" <<
-            "<TYPE>"           << type          << "</TYPE>"  <<
-			perms_to_xml(perm_str) <<
-			obj_template->to_xml(template_xml) <<
+        "<ID>"             << oid           << "</ID>"  <<
+        "<UID>"            << uid           << "</UID>" <<
+        "<GID>"            << gid           << "</GID>" <<
+        "<UNAME>"          << uname         << "</UNAME>" <<
+        "<GNAME>"          << gname         << "</GNAME>" <<
+        lock_db_to_xml(lock_str) <<
+        "<REGTIME>"        << regtime       << "</REGTIME>" <<
+        "<NAME>"           << name          << "</NAME>" <<
+        "<ZONE_ID>"   << one_util::escape_xml(zone_id)  << "</ZONE_ID>" <<
+        "<ORIGIN_ID>" << one_util::escape_xml(origin_id)<< "</ORIGIN_ID>" <<
+        "<SOURCE>"    << one_util::escape_xml(source)   << "</SOURCE>" <<
+        "<MD5>"       << one_util::escape_xml(md5)      << "</MD5>" <<
+        "<SIZE>"           << size_mb       << "</SIZE>" <<
+        "<DESCRIPTION>"   << one_util::escape_xml(description)   << "</DESCRIPTION>" <<
+        "<VERSION>"       << one_util::escape_xml(version)       << "</VERSION>" <<
+        "<FORMAT>"        << one_util::escape_xml(format)        << "</FORMAT>" <<
+        "<APPTEMPLATE64>" << one_util::escape_xml(apptemplate64) << "</APPTEMPLATE64>" <<
+        "<MARKETPLACE_ID>" << market_id     << "</MARKETPLACE_ID>" <<
+        "<MARKETPLACE>"    << market_name   << "</MARKETPLACE>" <<
+        "<STATE>"          << state         << "</STATE>" <<
+        "<TYPE>"           << type          << "</TYPE>"  <<
+        perms_to_xml(perm_str) <<
+        obj_template->to_xml(template_xml) <<
         "</MARKETPLACEAPP>";
 
     xml = oss.str();
@@ -297,7 +297,7 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(uname,        "/MARKETPLACEAPP/UNAME", "not_found");
     rc += xpath(gname,        "/MARKETPLACEAPP/GNAME", "not_found");
     rc += xpath(name,         "/MARKETPLACEAPP/NAME", "not_found");
-    rc += xpath<time_t>(regtime,"/MARKETPLACEAPP/REGTIME", -1);
+    rc += xpath<time_t>(regtime, "/MARKETPLACEAPP/REGTIME", -1);
     rc += xpath(source,       "/MARKETPLACEAPP/SOURCE", "not_found");
     rc += xpath(origin_id,    "/MARKETPLACEAPP/ORIGIN_ID", -1);
     rc += xpath(zone_id,      "/MARKETPLACEAPP/ZONE_ID", -1);
@@ -308,20 +308,20 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
     rc += xpath(version,      "/MARKETPLACEAPP/VERSION", "not_found");
     rc += xpath(md5,          "/MARKETPLACEAPP/MD5", "not_found");
     rc += xpath(format,       "/MARKETPLACEAPP/FORMAT", "not_found");
-    rc += xpath(apptemplate64,"/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
+    rc += xpath(apptemplate64, "/MARKETPLACEAPP/APPTEMPLATE64", "not_found");
     rc += xpath(market_name,  "/MARKETPLACEAPP/MARKETPLACE", "not_found");
     rc += xpath(market_id,    "/MARKETPLACEAPP/MARKETPLACE_ID", -1);
 
     state = static_cast<State>(istate);
     type  = static_cast<Type>(itype);
 
-	// ----- Permissions -----
+    // ----- Permissions -----
     rc += perms_from_xml();
 
     // ------ Lock -------
     rc += lock_db_from_xml();
 
-	// ----- TEMPLATE -----
+    // ----- TEMPLATE -----
     ObjectXML::get_nodes("/MARKETPLACEAPP/TEMPLATE", content);
 
     if (content.empty())
@@ -346,14 +346,14 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 
 int MarketPlaceApp::post_update_template(string& error)
 {
-	// -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Update well known attributes
     // -------------------------------------------------------------------------
     get_template_attribute("DESCRIPTION",   description);
     get_template_attribute("APPTEMPLATE64", apptemplate64);
     get_template_attribute("VERSION",       version);
 
-	// -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Remove non-update attributes
     // -------------------------------------------------------------------------
     remove_template_attribute("SOURCE");
@@ -363,7 +363,7 @@ int MarketPlaceApp::post_update_template(string& error)
     remove_template_attribute("REGTIME");
     remove_template_attribute("ORIGIN_ID");
 
-	return 0;
+    return 0;
 }
 
 /* --------------------------------------------------------------------------- */

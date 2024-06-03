@@ -101,7 +101,7 @@ public:
     bool is_admin() const
     {
         return uid == UserPool::ONEADMIN_ID ||
-            group_ids.count(GroupPool::ONEADMIN_ID) == 1;
+               group_ids.count(GroupPool::ONEADMIN_ID) == 1;
     }
 
     bool is_oneadmin() const
@@ -129,7 +129,7 @@ public:
 
     ParamList(const xmlrpc_c::paramList * paramList,
               const std::set<int>& hidden):
-        _paramList(paramList), _hidden(hidden){};
+        _paramList(paramList), _hidden(hidden) {};
 
     std::string& to_string(std::string& str) const
     {
@@ -207,7 +207,8 @@ public:
     /**
      *  Error codes for the XML-RPC API
      */
-    enum ErrorCode {
+    enum ErrorCode
+    {
         SUCCESS        = 0x00000,
         AUTHENTICATION = 0x00100,
         AUTHORIZATION  = 0x00200,
@@ -307,7 +308,7 @@ protected:
      *    @param _retval value to be returned to the client
      */
     void execute(xmlrpc_c::paramList const& _paramList,
-        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval) override;
+                 const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval) override;
 
     /**
      *  Actual Execution method for the request. Must be implemented by the
@@ -439,7 +440,7 @@ protected:
      *    @return true if the user is authorized.
      */
     bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes&  att);
+                             RequestAttributes&  att);
 
     /**
      *  Performs a basic quota check for this request using the uid/gid
@@ -455,7 +456,7 @@ protected:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        const RequestAttributes& att, std::string& error_str);
+                                    const RequestAttributes& att, std::string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -464,7 +465,7 @@ protected:
      *    @param att the specific request attributes
      */
     static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
-        const RequestAttributes& att);
+                               const RequestAttributes& att);
 
     /**
      *    @param tmpl describing the object
@@ -477,16 +478,16 @@ private:
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
     static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        const RequestAttributes& att, std::string& error_str);
+                                         const RequestAttributes& att, std::string& error_str);
 
     static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        const RequestAttributes& att, std::string& error_str);
+                                          const RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        const RequestAttributes& att);
+                                    const RequestAttributes& att);
 
     static void group_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
-        const RequestAttributes& att);
+                                     const RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -506,9 +507,9 @@ private:
      * @param callInfoP information of client
      */
     static void log_method_invoked(const RequestAttributes& att,
-        const xmlrpc_c::paramList&  paramList, const std::string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params,
-        const xmlrpc_c::callInfo * callInfoP);
+                                   const xmlrpc_c::paramList&  paramList, const std::string& format_str,
+                                   const std::string& method_name, const std::set<int>& hidden_params,
+                                   const xmlrpc_c::callInfo * callInfoP);
 
     /**
      * Logs the method result, including the output data or error message
@@ -517,7 +518,7 @@ private:
      * @param method_name that produced the error
      */
     static void log_result(const RequestAttributes& att,
-            const std::string& method_name);
+                           const std::string& method_name);
 
     /**
      * Formats and adds a xmlrpc_c::value to oss.
@@ -527,7 +528,7 @@ private:
      * @param limit of characters to wirte
      */
     static void log_xmlrpc_value(const xmlrpc_c::value& v,
-            std::ostringstream& oss, const int limit);
+                                 std::ostringstream& oss, const int limit);
 
     // Default number of character to show in the log. Option %l<number>
     const static int DEFAULT_LOG_LIMIT = 20;

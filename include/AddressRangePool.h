@@ -88,7 +88,7 @@ public:
      *    @return 0 on success
      */
     int update_ar(std::vector<VectorAttribute *> ars, bool keep_restricted,
-            std::string& error_msg);
+                  std::string& error_msg);
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
      *  needs to be initialized. Only the AR_ID is set.
@@ -119,7 +119,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const std::vector<std::string> &inherit);
+                      VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Allocates an address in a suitable address range from the pool by mac/ip
@@ -173,13 +173,13 @@ public:
      *    @param mac/ip the specific MAC/IP address requested
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
-        const std::string& mac);
+                   const std::string& mac);
 
     void free_addr_by_ip(unsigned int arid, PoolObjectSQL::ObjectType ot,
-        int obid, const std::string& ip);
+                         int obid, const std::string& ip);
 
     void free_addr_by_ip6(unsigned int arid, PoolObjectSQL::ObjectType ot,
-        int obid, const std::string& ip);
+                          int obid, const std::string& ip);
 
     /**
      *  Frees the given address by MAC/IP from all address ranges containing
@@ -214,7 +214,7 @@ public:
      *    @param rsize size of the address range
      */
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
-            int obid, const std::string& mac, unsigned int rsize);
+                           int obid, const std::string& mac, unsigned int rsize);
 
     /**
      * From a Security Group rule that uses this vnet, creates a new rule
@@ -251,7 +251,7 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int vid, unsigned int rsize, unsigned int ar_id,
-        AddressRange *rar);
+                     AddressRange *rar);
 
     /**
      *  Reserve a number of addresses from an address range from a given ip/mac
@@ -263,13 +263,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, unsigned int ar_id,
-        const std::string& mac, AddressRange *rar);
+                            const std::string& mac, AddressRange *rar);
 
     int reserve_addr_by_ip(int vid, unsigned int rsize, unsigned int ar_id,
-        const std::string& ip, AddressRange *rar);
+                           const std::string& ip, AddressRange *rar);
 
     int reserve_addr_by_ip6(int vid, unsigned int rsize, unsigned int ar_id,
-        const std::string& ip, AddressRange *rar);
+                            const std::string& ip, AddressRange *rar);
 
 
     // *************************************************************************

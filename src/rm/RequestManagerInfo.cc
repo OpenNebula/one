@@ -82,7 +82,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
-                                         RequestAttributes& att)
+                                   RequestAttributes& att)
 {
     VMTemplatePool * tpool   = static_cast<VMTemplatePool *>(pool);
 
@@ -166,7 +166,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
-                                         RequestAttributes& att)
+                                                 RequestAttributes& att)
 {
     VNTemplatePool * tpool   = static_cast<VNTemplatePool *>(pool);
 
@@ -222,7 +222,7 @@ void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& para
 /* ------------------------------------------------------------------------- */
 
 void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
-    string& str)
+                                string& str)
 {
     vector<int> vms;
     vector<int> vnets;
@@ -253,13 +253,13 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     else
     {
         all_reservations = RequestManagerPoolInfoFilter::use_filter(att,
-                PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
+                                                                    PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
 
         all_vms = RequestManagerPoolInfoFilter::use_filter(att,
-                PoolObjectSQL::VM, false, false, false, "", where_vms);
+                                                           PoolObjectSQL::VM, false, false, false, "", where_vms);
 
         all_vrs = RequestManagerPoolInfoFilter::use_filter(att,
-                PoolObjectSQL::VROUTER, false, false, false, "", where_vrs);
+                                                           PoolObjectSQL::VROUTER, false, false, false, "", where_vrs);
     }
 
     if ( all_reservations == true )

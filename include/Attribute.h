@@ -45,11 +45,11 @@ public:
         if  ((size >0 && !(isalpha(aname[0]) || aname[0] == '_')) ||
              (size >=3 && (aname[0]=='X' && aname[1]=='M' && aname[2]=='L')))
         {
-            attribute_name.insert(0,"ONE_");
+            attribute_name.insert(0, "ONE_");
         }
     };
 
-    virtual ~Attribute(){};
+    virtual ~Attribute() {};
 
     enum AttributeType
     {
@@ -144,7 +144,7 @@ public:
         , attribute_value(sa.attribute_value)
     {}
 
-    ~SingleAttribute(){};
+    ~SingleAttribute() {};
 
     /**
      *  Returns the attribute value, a string.
@@ -261,7 +261,7 @@ public:
     {}
 
     VectorAttribute(const std::string& name,
-                    const  std::map<std::string,std::string>& value)
+                    const  std::map<std::string, std::string>& value)
         : Attribute(name)
         , attribute_value(value)
     {}
@@ -275,12 +275,12 @@ public:
 
     VectorAttribute& operator=(const VectorAttribute& va) = default;
 
-    ~VectorAttribute(){};
+    ~VectorAttribute() {};
 
     /**
      *  Returns the attribute value, a string.
      */
-    const std::map<std::string,std::string>& value() const
+    const std::map<std::string, std::string>& value() const
     {
         return attribute_value;
     };
@@ -443,7 +443,7 @@ public:
     /**
      *  Replace the value of the given attribute with the provided map
      */
-    void replace(const std::map<std::string,std::string>& attr);
+    void replace(const std::map<std::string, std::string>& attr);
 
     /**
      * The attributes from vattr will be copied to this vector
@@ -536,7 +536,7 @@ private:
 
     static const int    magic_sep_size;
 
-    std::map<std::string,std::string> attribute_value;
+    std::map<std::string, std::string> attribute_value;
 };
 
 #endif /*ATTRIBUTE_H_*/

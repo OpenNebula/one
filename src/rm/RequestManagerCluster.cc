@@ -43,7 +43,7 @@ void RequestManagerCluster::action_generic(
     PoolObjectAuth obj_perms;
 
     rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
-            cluster_name, true);
+                  cluster_name, true);
 
     if ( rc == -1 )
     {
@@ -191,7 +191,7 @@ void RequestManagerClusterHost::add_generic(
     string  old_cluster_name;
 
     rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
-            cluster_name, true);
+                  cluster_name, true);
 
     if ( rc == -1 )
     {

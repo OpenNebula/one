@@ -114,7 +114,7 @@ protected:
     float       cpu;
     long long   system_ds_usage;
 
-    std::map<int,long long> ds_usage;
+    std::map<int, long long> ds_usage;
 
     time_t stime;
 

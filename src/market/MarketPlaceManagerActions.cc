@@ -69,35 +69,35 @@ int MarketPlaceManager::import_app(
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
+        {
+            int ds_id;
+
+            if ( auto image = ipool->get_ro(origin_id) )
             {
-                int ds_id;
+                image->to_xml(image_data);
 
-                if ( auto image = ipool->get_ro(origin_id) )
-                {
-                    image->to_xml(image_data);
-
-                    ds_id = image->get_ds_id();
-                }
-                else
-                {
-                    goto error_noimage;
-                }
-
-                if ( auto ds = dspool->get_ro(ds_id) )
-                {
-                    ds->to_xml(ds_data);
-                }
-                else
-                {
-                    goto error_nods;
-                }
-
-                if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
-                {
-                    goto error_clone;
-                }
+                ds_id = image->get_ds_id();
             }
-            break;
+            else
+            {
+                goto error_noimage;
+            }
+
+            if ( auto ds = dspool->get_ro(ds_id) )
+            {
+                ds->to_xml(ds_data);
+            }
+            else
+            {
+                goto error_nods;
+            }
+
+            if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
+            {
+                goto error_clone;
+            }
+        }
+        break;
 
         case MarketPlaceApp::VMTEMPLATE:
         case MarketPlaceApp::SERVICE_TEMPLATE:
@@ -108,7 +108,7 @@ int MarketPlaceManager::import_app(
 
     {
         string drv_msg(format_message(app_data, market_data,
-                    image_data + ds_data));
+                                      image_data + ds_data));
 
         msg.payload(drv_msg);
         mpmd->write(msg);
@@ -182,7 +182,7 @@ void MarketPlaceManager::release_app_resources(int appid)
 /* -------------------------------------------------------------------------- */
 
 int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
-        std::string& error_str)
+                                   std::string& error_str)
 {
     std::string app_data;
 

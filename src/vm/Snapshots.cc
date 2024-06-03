@@ -23,7 +23,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 Snapshots::Snapshots(int _disk_id, AllowOrphansMode _orphans):
-    snapshot_template(false,'=',"SNAPSHOTS"),
+    snapshot_template(false, '=', "SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
     disk_id(_disk_id),

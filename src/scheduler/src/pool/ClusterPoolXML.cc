@@ -24,7 +24,7 @@ void ClusterPoolXML::add_object(xmlNodePtr node)
 {
     if ( node == 0 || node->children == 0 )
     {
-        NebulaLog::log("CLUSTER",Log::ERROR,
+        NebulaLog::log("CLUSTER", Log::ERROR,
                        "XML Node does not represent a valid Cluster");
 
         return;
@@ -32,7 +32,7 @@ void ClusterPoolXML::add_object(xmlNodePtr node)
 
     ClusterXML* cluster = new ClusterXML( node );
 
-    objects.insert( pair<int,ObjectXML*>(cluster->get_oid(), cluster) );
+    objects.insert( pair<int, ObjectXML*>(cluster->get_oid(), cluster) );
 }
 
 /* -------------------------------------------------------------------------- */

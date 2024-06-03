@@ -60,7 +60,7 @@ public:
      *    @params oss stream to output debug information
      */
     void set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
-            std::ostringstream& oss);
+                                       std::ostringstream& oss);
 
     /**
      *  Adds the internal role placement rules to each VM in the role
@@ -68,7 +68,7 @@ public:
      *    @params oss stream to output debug information
      */
     void set_affinity_requirements(VirtualMachinePoolXML * vmpool,
-            VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss);
+                                   VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss);
 
     /**
      *  Adds host affinity rules to each VM in the roles
@@ -76,7 +76,7 @@ public:
      *    @params oss stream to output debug information
      */
     void set_host_requirements(VirtualMachinePoolXML * vmp,
-            std::ostringstream& oss);
+                               std::ostringstream& oss);
 
 
 private:

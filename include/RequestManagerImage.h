@@ -31,7 +31,7 @@ protected:
     RequestManagerImage(const std::string& method_name,
                         const std::string& help,
                         const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
@@ -40,7 +40,7 @@ protected:
         auth_op     = AuthRequest::MANAGE;
     };
 
-    ~RequestManagerImage(){};
+    ~RequestManagerImage() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -51,9 +51,9 @@ class ImageEnable : public RequestManagerImage
 public:
     ImageEnable():
         RequestManagerImage("one.image.enable", "Enables or disables an image",
-                "A:sib"){};
+                            "A:sib") {};
 
-    ~ImageEnable(){};
+    ~ImageEnable() {};
 
 protected:
 
@@ -70,9 +70,9 @@ public:
     ImagePersistent():
         RequestManagerImage("one.image.persistent",
                             "Makes an image persistent or non-persistent",
-                            "A:sib"){};
+                            "A:sib") {};
 
-    ~ImagePersistent(){};
+    ~ImagePersistent() {};
 
     ErrorCode request_execute(int id, bool persis_flag, RequestAttributes& att);
 
@@ -90,9 +90,9 @@ class ImageChangeType : public RequestManagerImage
 public:
     ImageChangeType():
         RequestManagerImage("one.image.chtype", "Changes the type of an image",
-                            "A:sis"){};
+                            "A:sis") {};
 
-    ~ImageChangeType(){};
+    ~ImageChangeType() {};
 
 protected:
 
@@ -112,10 +112,10 @@ public:
         auth_op = AuthRequest::USE;
     };
 
-    ~ImageClone(){};
+    ~ImageClone() {};
 
     ErrorCode request_execute(int clone_id, const std::string &name, int ds_id,
-        bool persistent, int &new_id, RequestAttributes& att);
+                              bool persistent, int &new_id, RequestAttributes& att);
 
 protected:
 
@@ -131,9 +131,9 @@ class ImageSnapshotRevert : public RequestManagerImage
 public:
     ImageSnapshotRevert():
         RequestManagerImage("one.image.snapshotrevert",
-                "Reverts image state to a previous snapshot", "A:sii"){};
+                            "Reverts image state to a previous snapshot", "A:sii") {};
 
-    ~ImageSnapshotRevert(){};
+    ~ImageSnapshotRevert() {};
 
 protected:
 
@@ -149,9 +149,9 @@ class ImageSnapshotFlatten : public RequestManagerImage
 public:
     ImageSnapshotFlatten():
         RequestManagerImage("one.image.snapshotflatten",
-                "Flattens the selected image snapshot", "A:sii"){};
+                            "Flattens the selected image snapshot", "A:sii") {};
 
-    ~ImageSnapshotFlatten(){};
+    ~ImageSnapshotFlatten() {};
 
 protected:
 
@@ -167,9 +167,9 @@ class ImageSnapshotDelete : public RequestManagerImage
 public:
     ImageSnapshotDelete():
         RequestManagerImage("one.image.snapshotdelete",
-                "Deletes a snapshot from image", "A:sii"){};
+                            "Deletes a snapshot from image", "A:sii") {};
 
-    ~ImageSnapshotDelete(){};
+    ~ImageSnapshotDelete() {};
 
 protected:
 

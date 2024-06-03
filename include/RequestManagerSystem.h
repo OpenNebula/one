@@ -35,7 +35,7 @@ protected:
         auth_op = AuthRequest::ADMIN;
     };
 
-    ~RequestManagerSystem(){};
+    ~RequestManagerSystem() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -46,13 +46,13 @@ class SystemVersion : public RequestManagerSystem
 public:
     SystemVersion():
         RequestManagerSystem("one.system.version",
-                          "Returns the OpenNebula version",
-                          "A:s")
+                             "Returns the OpenNebula version",
+                             "A:s")
     {
         zone_disabled = true;
     }
 
-    ~SystemVersion(){};
+    ~SystemVersion() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -66,13 +66,13 @@ class SystemConfig : public RequestManagerSystem
 public:
     SystemConfig():
         RequestManagerSystem("one.system.config",
-                          "Returns the OpenNebula configuration",
-                          "A:s")
+                             "Returns the OpenNebula configuration",
+                             "A:s")
     {
         zone_disabled = true;
     }
 
-    ~SystemConfig(){};
+    ~SystemConfig() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -85,9 +85,9 @@ class SystemSql: public RequestManagerSystem
 {
 public:
     SystemSql():RequestManagerSystem("one.system.sql",
-            "Executes and replicates SQL commands on the DB backend","A:ssb") {}
+                                         "Executes and replicates SQL commands on the DB backend", "A:ssb") {}
 
-    ~SystemSql(){};
+    ~SystemSql() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -100,9 +100,9 @@ class SystemSqlQuery: public RequestManagerSystem
 {
 public:
     SystemSqlQuery():RequestManagerSystem("one.system.sqlquery",
-            "Executes SQL queries on the DB backend","A:ss") { }
+                                              "Executes SQL queries on the DB backend", "A:ss") { }
 
-    ~SystemSqlQuery(){};
+    ~SystemSqlQuery() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -139,13 +139,13 @@ class UserQuotaInfo : public RequestManagerSystem
 public:
     UserQuotaInfo():
         RequestManagerSystem("one.userquota.info",
-                           "Returns the default user quota limits",
-                           "A:s")
+                             "Returns the default user quota limits",
+                             "A:s")
     {
         zone_disabled = true;
     }
 
-    ~UserQuotaInfo(){};
+    ~UserQuotaInfo() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -159,13 +159,13 @@ class GroupQuotaInfo : public RequestManagerSystem
 public:
     GroupQuotaInfo():
         RequestManagerSystem("one.groupquota.info",
-                           "Returns the default group quota limits",
-                           "A:s")
+                             "Returns the default group quota limits",
+                             "A:s")
     {
         zone_disabled = true;
     }
 
-    ~GroupQuotaInfo(){};
+    ~GroupQuotaInfo() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -180,10 +180,10 @@ protected:
     QuotaUpdate(const std::string& method_name,
                 const std::string& help):
         RequestManagerSystem(method_name,
-                            help,
-                           "A:ss") { }
+                             help,
+                             "A:ss") { }
 
-    ~QuotaUpdate(){};
+    ~QuotaUpdate() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -201,7 +201,7 @@ class UserQuotaUpdate : public QuotaUpdate
 public:
     UserQuotaUpdate():
         QuotaUpdate("one.userquota.update",
-                   "Updates the default user quota limits") { }
+                    "Updates the default user quota limits") { }
 
     int set_default_quota(Template *tmpl, std::string& error) override;
 
@@ -216,7 +216,7 @@ class GroupQuotaUpdate : public QuotaUpdate
 public:
     GroupQuotaUpdate():
         QuotaUpdate("one.groupquota.update",
-                   "Updates the default group quota limits") { }
+                    "Updates the default group quota limits") { }
 
     int set_default_quota(Template *tmpl, std::string& error) override;
 

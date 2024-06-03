@@ -26,9 +26,9 @@ class VectorAttribute;
 class AddressRangeInternal : public AddressRange
 {
 public:
-    AddressRangeInternal(unsigned int _id):AddressRange(_id), next(0){};
+    AddressRangeInternal(unsigned int _id):AddressRange(_id), next(0) {};
 
-    virtual ~AddressRangeInternal(){};
+    virtual ~AddressRangeInternal() {};
 
     /* ---------------------------------------------------------------------- */
     /* AddressRange Interface                                                 */

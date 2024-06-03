@@ -158,31 +158,31 @@ public:
                   const std::string& _uname,
                   const std::string& _gname,
                   const char *       _table)
-            :ObjectSQL(),
-             ObjectXML(),
-             oid(id),
-             obj_type(_obj_type),
-             name(_name),
-             uid(_uid),
-             gid(_gid),
-             uname(_uname),
-             gname(_gname),
-             owner_u(1),
-             owner_m(1),
-             owner_a(0),
-             group_u(0),
-             group_m(0),
-             group_a(0),
-             other_u(0),
-             other_m(0),
-             other_a(0),
-             locked(LockStates::ST_NONE),
-             lock_owner(-1),
-             lock_req_id(-1),
-             lock_time(0),
-             ro(false),
-             _mutex(nullptr),
-             table(_table)
+        :ObjectSQL(),
+         ObjectXML(),
+         oid(id),
+         obj_type(_obj_type),
+         name(_name),
+         uid(_uid),
+         gid(_gid),
+         uname(_uname),
+         gname(_gname),
+         owner_u(1),
+         owner_m(1),
+         owner_a(0),
+         group_u(0),
+         group_m(0),
+         group_a(0),
+         other_u(0),
+         other_m(0),
+         other_a(0),
+         locked(LockStates::ST_NONE),
+         lock_owner(-1),
+         lock_req_id(-1),
+         lock_time(0),
+         ro(false),
+         _mutex(nullptr),
+         table(_table)
     {
     };
 
@@ -625,7 +625,7 @@ protected:
      *    @return -1 if not found or oid otherwise
      */
     static int select_oid(SqlDB *db, const char * _table, const std::string& _name,
-            int _uid);
+                          int _uid);
 
     /**
      *  Check if the object exists

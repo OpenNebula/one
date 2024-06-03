@@ -107,8 +107,7 @@ public:
             line_sz -= (eom - buffer) + 1;
 
             return 0;
-        }
-        while (true);
+        } while (true);
     }
 
 private:

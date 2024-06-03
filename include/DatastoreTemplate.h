@@ -27,11 +27,11 @@ class DatastoreTemplate : public Template
 {
 public:
     DatastoreTemplate():
-        Template(false,'=',"TEMPLATE"){};
+        Template(false, '=', "TEMPLATE") {};
 
-    ~DatastoreTemplate(){};
+    ~DatastoreTemplate() {};
 
-    DatastoreTemplate(DatastoreTemplate& dt):Template(dt){};
+    DatastoreTemplate(DatastoreTemplate& dt):Template(dt) {};
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

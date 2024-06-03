@@ -78,7 +78,7 @@ public:
     int from_xml(const std::string& xml_string);
 
     /**
-     *  The contents of the provided template are merged with any previous 
+     *  The contents of the provided template are merged with any previous
      *  exisiting data, preserving it.
      *    @param tmpl with monitoring attributes
      *    @return 0 on succes, -1 otherwise

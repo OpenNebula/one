@@ -47,10 +47,10 @@ public:
 
     ~DispatchManager() = default;
 
-     /**
-      * Initializes internal pointers to other managers. Must be called when
-      * all the other managers exist in Nebula::instance
-      */
+    /**
+     * Initializes internal pointers to other managers. Must be called when
+     * all the other managers exist in Nebula::instance
+     */
     void init_managers();
 
     /**
@@ -122,7 +122,7 @@ public:
      *    in a wrong a state
      */
     int terminate(int vid, bool hard, const RequestAttributes& request,
-        std::string& error_str);
+                  std::string& error_str);
 
     /**
      *  Shuts down a VM, but it is saved in the system DS instead of destroyed.
@@ -133,7 +133,7 @@ public:
      *    in a wrong a state
      */
     int undeploy(int vid, bool hard, const RequestAttributes& ra,
-            std::string& error_str);
+                 std::string& error_str);
 
     /**
      *  Powers off a VM.
@@ -144,7 +144,7 @@ public:
      *    in a wrong a state
      */
     int poweroff(int vid, bool hard, const RequestAttributes& ra,
-            std::string& error_str);
+                 std::string& error_str);
 
     /**
      *  Holds a VM.
@@ -245,7 +245,7 @@ public:
      *    @return 0 on success
      */
     int retry(std::unique_ptr<VirtualMachine> vm, const RequestAttributes& ra,
-            std::string& error_str);
+              std::string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
@@ -256,7 +256,7 @@ public:
      *    in a wrong a state
      */
     int reboot(int vid, bool hard, const RequestAttributes& ra,
-            std::string& error_str);
+               std::string& error_str);
 
     /**
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
@@ -268,7 +268,7 @@ public:
      *    in a wrong a state
      */
     int resched(int vid, bool do_resched, const RequestAttributes& ra,
-            std::string& error_str);
+                std::string& error_str);
 
     /**
      *  Starts the attach disk action.
@@ -280,7 +280,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach(int vid, VirtualMachineTemplate * tmpl,
-            const RequestAttributes& ra, std::string& error_str);
+               const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the detach disk action.
@@ -292,7 +292,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int detach(int id, int disk_id, const RequestAttributes& ra,
-            std::string&  error_str);
+               std::string&  error_str);
 
     /**
      *  Starts the attach NIC action.
@@ -304,7 +304,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int attach_nic(int vid, VirtualMachineTemplate * tmpl,
-            const RequestAttributes& ra, std::string& error_str);
+                   const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the detach NIC action.
@@ -316,7 +316,7 @@ public:
      *    @return 0 on success, -1 otherwise
      */
     int detach_nic(int id, int nic_id, const RequestAttributes& ra,
-            std::string& error_str);
+                   std::string& error_str);
 
     /**
      * Starts the snapshot create action
@@ -330,7 +330,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int snapshot_create(int vid, std::string& name, int& snap_id,
-            const RequestAttributes& ra, std::string& error_str);
+                        const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the snapshot revert action
@@ -343,7 +343,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int snapshot_revert(int vid, int snap_id, const RequestAttributes& ra,
-            std::string& error_str);
+                        std::string& error_str);
 
     /**
      * Starts the snapshot delete action
@@ -356,7 +356,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int snapshot_delete(int vid, int snap_id, const RequestAttributes& ra,
-            std::string& error_str);
+                        std::string& error_str);
 
     /**
      * Starts the disk snapshot create action
@@ -371,7 +371,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_snapshot_create(int vid, int did, const std::string& name,
-            int& snap_id, const RequestAttributes& ra, std::string& error_str);
+                             int& snap_id, const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Reverts the disk state to a previous snapshot
@@ -385,7 +385,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_snapshot_revert(int vid, int did, int snap_id,
-            const RequestAttributes& ra, std::string& error_str);
+                             const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Deletes a disk snapshot
@@ -399,7 +399,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_snapshot_delete(int vid, int did, int snap_id,
-            const RequestAttributes& ra, std::string& error_str);
+                             const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Starts the disk resize create action
@@ -413,7 +413,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int disk_resize(int vid, int did, long long new_size,
-            const RequestAttributes& ra, std::string& error_str);
+                    const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Update virtual machine context
@@ -425,7 +425,7 @@ public:
      * @return 0 on success, -1 otherwise
      */
     int live_updateconf(std::unique_ptr<VirtualMachine> vm,
-            const RequestAttributes& ra, std::string& error_str);
+                        const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Attach a new SG to a VM NIC
@@ -439,7 +439,7 @@ public:
      *  @return 0 on success, -1 otherwise
      */
     int attach_sg(int vid, int nicid, int sgid,
-            const RequestAttributes& ra, std::string& error_str);
+                  const RequestAttributes& ra, std::string& error_str);
 
     /**
      * Detach a SG from VM NIC
@@ -453,7 +453,7 @@ public:
      *  @return 0 on success, -1 otherwise
      */
     int detach_sg(int vid, int nicid, int sgid,
-            const RequestAttributes& ra, std::string& error_str);
+                  const RequestAttributes& ra, std::string& error_str);
 
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition

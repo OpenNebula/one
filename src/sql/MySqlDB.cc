@@ -117,7 +117,7 @@ int MySqlDB::db_encoding(string& error)
     MYSQL * connection = mysql_init(nullptr);
 
     if ( mysql_real_connect(connection, server.c_str(), user.c_str(),
-                password.c_str(), 0, port, NULL, 0) == nullptr)
+                            password.c_str(), 0, port, NULL, 0) == nullptr)
     {
         error = "Could not open connect to database server: ";
         error.append(mysql_error(connection));
@@ -142,7 +142,7 @@ int MySqlDB::db_encoding(string& error)
 
     //Get encodings for database and tables
     string db_sql = "SELECT default_character_set_name FROM "
-     "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
+                    "information_schema.SCHEMATA WHERE schema_name = \"" + database + "\"";
 
     string db_enc = get_encoding(connection, db_sql, error);
 
@@ -152,16 +152,16 @@ int MySqlDB::db_encoding(string& error)
     }
 
     string table_sql = "SELECT CCSA.character_set_name FROM information_schema."\
-     "`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY`"
-     " CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema = "
-     "\"" + database + "\" AND T.table_name = \"system_attributes\"";
+                       "`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY`"
+                       " CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema = "
+                       "\"" + database + "\" AND T.table_name = \"system_attributes\"";
 
     string table_enc = get_encoding(connection, table_sql, error);
 
     if ( !table_enc.empty() && table_enc != db_enc)
     {
         error = "Database and table charsets (" + db_enc + ", " + table_enc
-            + ") differs";
+                + ") differs";
         return -1;
     }
 
@@ -176,7 +176,7 @@ int MySqlDB::db_encoding(string& error)
 /* -------------------------------------------------------------------------- */
 
 MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
-    const string& d, const string& e, int m, const string& _compare_binary)
+                 const string& d, const string& e, int m, const string& _compare_binary)
     : max_connections(m), server(s), port(p), user(u), password(_p),
       database(d), encoding(e)
 {
@@ -209,8 +209,8 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         mysql_options(connections[i], MYSQL_SET_CHARSET_NAME, encoding.c_str());
 
         rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
-                password.c_str(), database.c_str(), port, NULL,
-                CLIENT_REMEMBER_OPTIONS);
+                                password.c_str(), database.c_str(), port, NULL,
+                                CLIENT_REMEMBER_OPTIONS);
 
         if ( rc == nullptr)
         {
@@ -229,7 +229,7 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     db_escape_connect = mysql_init(NULL);
 
     rc = mysql_real_connect(db_escape_connect, server.c_str(), user.c_str(),
-            password.c_str(), 0, port, NULL, 0);
+                            password.c_str(), 0, port, NULL, 0);
 
     if ( rc == nullptr)
     {
@@ -290,7 +290,8 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         NebulaLog::log("ONE", Log::INFO, "\tFTS disabled");
     }
 
-    features = {
+    features =
+    {
         {SqlFeature::MULTIPLE_VALUE, true},
         {SqlFeature::LIMIT, true},
         {SqlFeature::FTS, version >= min_fts_version},
@@ -352,7 +353,7 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 
                 // Try to re-connect
                 if (mysql_real_connect(db, server.c_str(), user.c_str(),
-                        password.c_str(), database.c_str(), port, NULL, 0))
+                                       password.c_str(), database.c_str(), port, NULL, 0))
                 {
                     oss << "... Reconnected.";
                 }
@@ -409,7 +410,7 @@ int MySqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
                 oss << "SQL command was: " << c_str;
                 oss << ", error " << err_num << " : " << err_msg;
 
-                NebulaLog::log("ONE",error_level,oss);
+                NebulaLog::log("ONE", error_level, oss);
 
                 free_db_connection(db);
 
@@ -487,7 +488,7 @@ MYSQL * MySqlDB::get_db_connection()
 
     unique_lock<mutex> lock(_mutex);
 
-    cond.wait(lock, [&]{ return !db_connect.empty(); });
+    cond.wait(lock, [&] { return !db_connect.empty(); });
 
     db = db_connect.front();
 

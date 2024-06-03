@@ -33,7 +33,7 @@ public:
         method_name = method;
     };
 
-    ~RequestManagerProxy(){};
+    ~RequestManagerProxy() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;

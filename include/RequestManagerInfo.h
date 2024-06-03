@@ -63,7 +63,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     virtual void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-        std::string& str)
+                        std::string& str)
     {
         object->to_xml(str);
     };
@@ -92,7 +92,7 @@ public:
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,
-            std::string& str) override
+                std::string& str) override
     {
         static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };
@@ -435,7 +435,7 @@ public:
         auth_object = PoolObjectSQL::HOOK;
     };
 
-    ~HookInfo(){};
+    ~HookInfo() {};
 
 protected:
     void to_xml(RequestAttributes& att, PoolObjectSQL * object,

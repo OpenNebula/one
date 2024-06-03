@@ -103,7 +103,7 @@ private:
 /* -------------------------------------------------------------------------- */
 template<typename MSG>
 int UDPStream<MSG>
-    ::action_loop(int threads, std::string& error)
+::action_loop(int threads, std::string& error)
 {
     struct addrinfo hints;
     struct addrinfo *res;
@@ -150,7 +150,8 @@ int UDPStream<MSG>
 
     for (int i = 0 ; i < threads; ++i)
     {
-        std::thread action_thread = std::thread([this]{
+        std::thread action_thread = std::thread([this]
+        {
             while (true)
             {
                 std::string line;
@@ -185,7 +186,7 @@ int UDPStream<MSG>
 
 template<typename MSG>
 int UDPStream<MSG>
-    ::read_line(std::string& line)
+::read_line(std::string& line)
 {
     char   buffer[MESSAGE_SIZE];
 
@@ -193,7 +194,7 @@ int UDPStream<MSG>
     socklen_t addr_size = sizeof(struct sockaddr_storage);
 
     ssize_t rc = recvfrom(_socket, buffer, MESSAGE_SIZE, 0,
-            (struct sockaddr *) &addr, &addr_size);
+                          (struct sockaddr *) &addr, &addr_size);
 
     if (rc > 0 && rc < MESSAGE_SIZE)
     {

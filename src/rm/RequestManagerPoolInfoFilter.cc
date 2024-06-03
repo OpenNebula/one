@@ -74,22 +74,22 @@ void RequestManagerPoolInfoFilter::request_execute(
 /* ------------------------------------------------------------------------- */
 
 bool RequestManagerPoolInfoFilter::use_filter(RequestAttributes& att,
-    PoolObjectSQL::ObjectType aobj,
-    bool disable_all_acl,
-    bool disable_cluster_acl,
-    bool disable_group_acl,
-    const string& and_str,
-    string& where_str)
+                                              PoolObjectSQL::ObjectType aobj,
+                                              bool disable_all_acl,
+                                              bool disable_cluster_acl,
+                                              bool disable_group_acl,
+                                              const string& and_str,
+                                              string& where_str)
 {
     bool all;
 
     string acl_str;
 
     PoolSQL::acl_filter(att.uid, att.group_ids, aobj, all,
-        disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
+                        disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
 
     PoolSQL::usr_filter(att.uid, att.gid, att.group_ids, ALL, all, acl_str,
-        where_str);
+                        where_str);
 
     if (!and_str.empty())
     {
@@ -128,10 +128,10 @@ void RequestManagerPoolInfoFilter::where_filter(
     ostringstream filter;
 
     PoolSQL::acl_filter(att.uid, att.group_ids, auth_object, all,
-        disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
+                        disable_all_acl, disable_cluster_acl, disable_group_acl, acl_str);
 
     PoolSQL::usr_filter(att.uid, att.gid, att.group_ids, filter_flag, all,
-        acl_str, uid_str);
+                        acl_str, uid_str);
 
     PoolSQL::oid_filter(start_id, end_id, oid_str);
 
@@ -225,7 +225,7 @@ void RequestManagerPoolInfoFilter::dump(
     }
 
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
-            "API_LIST_ORDER", desc);
+                                                   "API_LIST_ORDER", desc);
 
     if ( extended )
     {
@@ -494,11 +494,11 @@ void VirtualMachinePoolShowback::request_execute(
     where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
 
     rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
-                                                              where,
-                                                              start_month,
-                                                              start_year,
-                                                              end_month,
-                                                              end_year);
+            where,
+            start_month,
+            start_year,
+            end_month,
+            end_year);
     if ( rc != 0 )
     {
         att.resp_msg = "Internal error";
@@ -622,10 +622,10 @@ void VirtualNetworkPoolInfo::request_execute(
     ostringstream where_string;
 
     where_filter(att, filter_flag, start_id, end_id, "pid = -1", "", false,
-        false, false, where_vnets);
+                 false, false, where_vnets);
 
     where_filter(att, filter_flag, start_id, end_id, "pid != -1", "", true,
-        true, false, where_reserv);
+                 true, false, where_reserv);
 
     where_string << "( " << where_vnets << " ) OR ( " << where_reserv << " ) ";
 
@@ -645,10 +645,10 @@ void VirtualNetworkPoolInfo::request_execute(
     std::string desc;
 
     Nebula::instance().get_configuration_attribute(att.uid, att.gid,
-            "API_LIST_ORDER", desc);
+                                                   "API_LIST_ORDER", desc);
 
     int rc = pool->dump(pool_oss, where_string.str(), start_id, limit_end_id,
-            one_util::toupper(desc) == "DESC");
+                        one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {
@@ -923,8 +923,8 @@ SecurityGroupPoolInfo::SecurityGroupPoolInfo()
 
 VdcPoolInfo::VdcPoolInfo()
     : RequestManagerPoolInfoFilter("one.vdcpool.info",
-                                    "Returns the VDC pool",
-                                    "A:s")
+                                   "Returns the VDC pool",
+                                   "A:s")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_vdcpool();
@@ -995,8 +995,8 @@ MarketPlaceAppPoolInfo::MarketPlaceAppPoolInfo()
 
 VMGroupPoolInfo::VMGroupPoolInfo():
     RequestManagerPoolInfoFilter("one.vmgrouppool.info",
-                                    "Returns the vm group pool",
-                                    "A:siii")
+                                 "Returns the vm group pool",
+                                 "A:siii")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_vmgrouppool();
@@ -1033,7 +1033,7 @@ HookLogInfo::HookLogInfo()
 /* -------------------------------------------------------------------------- */
 
 void HookLogInfo::request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att)
+                                  RequestAttributes& att)
 {
     int min_ts  = xmlrpc_c::value_int(_paramList.getInt(1));
     int max_ts  = xmlrpc_c::value_int(_paramList.getInt(2));

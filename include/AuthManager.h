@@ -29,17 +29,17 @@ class AuthRequest;
 
 class AuthManager :
     public DriverManager<Driver<auth_msg_t>>,
-    public Listener
+                                          public Listener
 {
 public:
 
     AuthManager(
-        time_t             timer,
-        const std::string& mads_location)
-            : DriverManager(mads_location)
-            , Listener("Authorization Manager")
-            , timer_thread(timer, [this](){timer_action();})
-            , authz_enabled(false)
+            time_t             timer,
+            const std::string& mads_location)
+        : DriverManager(mads_location)
+        , Listener("Authorization Manager")
+        , timer_thread(timer, [this]() {timer_action();})
+    , authz_enabled(false)
     {
     }
 
@@ -88,9 +88,9 @@ private:
      */
     static const char * auth_driver_name;
 
-     /**
-      * True if there is an authorization driver enabled
-      */
+    /**
+     * True if there is an authorization driver enabled
+     */
     bool authz_enabled;
 
     /**

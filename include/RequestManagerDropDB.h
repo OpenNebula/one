@@ -26,12 +26,12 @@ class RequestManagerDropDB: public Request
 {
 protected:
     RequestManagerDropDB(const std::string& name): Request(name, "A:si",
-            "Drops an object from DB")
+                                                               "Drops an object from DB")
     {
         auth_op = AuthRequest::MANAGE;
     };
 
-    virtual ~RequestManagerDropDB(){};
+    virtual ~RequestManagerDropDB() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -79,7 +79,7 @@ public:
         pool        =  Nebula::instance().get_apppool();
     }
 
-    ~MarketPlaceAppDropDB(){};
+    ~MarketPlaceAppDropDB() {};
 };
 
 #endif /* REQUEST_MANAGER_DROP_DB_H */

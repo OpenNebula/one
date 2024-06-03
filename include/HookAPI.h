@@ -53,7 +53,7 @@ private:
     // *************************************************************************
     HookAPI() = default;
 
-    HookAPI(const std::string& _call): call(_call){};
+    HookAPI(const std::string& _call): call(_call) {};
 
     virtual ~HookAPI() = default;
 

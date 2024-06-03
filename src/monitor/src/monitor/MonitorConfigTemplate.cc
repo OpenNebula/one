@@ -22,14 +22,14 @@
 void MonitorConfigTemplate::set_conf_default()
 {
     VectorAttribute * va;
-/*
- HOST_MONITORING_EXPIRATION_TIME
- VM_MONITORING_EXPIRATION_TIME
- DB
- LOG
- NETWORK
- PROBES_PERIOD
- */
+    /*
+     HOST_MONITORING_EXPIRATION_TIME
+     VM_MONITORING_EXPIRATION_TIME
+     DB
+     LOG
+     NETWORK
+     PROBES_PERIOD
+     */
 
     // Timers
     set_conf_single("MANAGER_TIMER", "15");
@@ -44,11 +44,13 @@ void MonitorConfigTemplate::set_conf_default()
     conf_default.insert(make_pair(va->name(), va));
 
     va = new VectorAttribute("NETWORK", {{"ADDRESS", "0.0.0.0"},
-            {"PORT", "4124"}, {"THREADS", "16"}});
+        {"PORT", "4124"}, {"THREADS", "16"}
+    });
     conf_default.insert(make_pair(va->name(), va));
 
     va = new VectorAttribute("PROBES_PERIOD", {{"SYSTEM_HOST", "600"},
-            {"MONITOR_HOST", "120"}, {"MONITOR_VM", "90"}, {"STATUS_VM", "10"}});
+        {"MONITOR_HOST", "120"}, {"MONITOR_VM", "90"}, {"STATUS_VM", "10"}
+    });
     conf_default.insert(make_pair(va->name(), va));
 }
 

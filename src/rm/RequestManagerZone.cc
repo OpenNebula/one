@@ -29,7 +29,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 static Request::ErrorCode master_update_zone(int oid, const std::string& xml,
-        RequestAttributes& att)
+                                             RequestAttributes& att)
 {
     Client * client = Client::client();
 
@@ -37,7 +37,7 @@ static Request::ErrorCode master_update_zone(int oid, const std::string& xml,
     vector<xmlrpc_c::value> values;
 
     std::ostringstream oss("Cannot update zone at federation master: ",
-            std::ios::ate);
+                           std::ios::ate);
     try
     {
         client->call("one.zone.updatedb", "is", &result, oid, xml.c_str());
@@ -69,20 +69,20 @@ static Request::ErrorCode master_update_zone(int oid, const std::string& xml,
 /* -------------------------------------------------------------------------- */
 
 void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                    RequestAttributes& att)
 {
     Nebula& nd    = Nebula::instance();
 
     int    id     = xmlrpc_c::value_int(paramList.getInt(1));
     string zs_str = xmlrpc_c::value_string(paramList.getString(2));
-	int    zs_id;
+    int    zs_id;
 
     string error_str, xmlep;
 
     if ( id != nd.get_zone_id() )
     {
         att.resp_msg = "Servers have to be added through the target zone"
-             " endpoints";
+                       " endpoints";
         failure_response(ACTION, att);
 
         return;
@@ -169,7 +169,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-	nd.get_raftm()->add_server(zs_id, xmlep);
+    nd.get_raftm()->add_server(zs_id, xmlep);
 
     success_response(id, att);
 }
@@ -178,7 +178,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                       RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -190,7 +190,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     if ( id != nd.get_zone_id() )
     {
         att.resp_msg = "Servers have to be deleted through the target zone"
-             " endpoints";
+                       " endpoints";
         failure_response(ACTION, att);
 
         return;
@@ -218,7 +218,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-	nd.get_raftm()->delete_server(zs_id);
+    nd.get_raftm()->delete_server(zs_id);
 
     if ( nd.is_federation_master() || !nd.is_federation_enabled() )
     {
@@ -250,7 +250,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                      RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -260,7 +260,7 @@ void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
     if ( id != nd.get_zone_id() )
     {
         att.resp_msg = "Servers have to be deleted through the target zone"
-             " endpoints";
+                       " endpoints";
         failure_response(ACTION, att);
 
         return;
@@ -271,7 +271,7 @@ void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-	nd.get_raftm()->reset_index(zs_id);
+    nd.get_raftm()->reset_index(zs_id);
 
     success_response(id, att);
 }
@@ -280,7 +280,7 @@ void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                       RequestAttributes& att)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -445,7 +445,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                      RequestAttributes& att)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -511,7 +511,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if ((log_term > candidate_log_term) || ((log_term == candidate_log_term) &&
-        (log_index > candidate_log_index)))
+                                            (log_index > candidate_log_index)))
     {
         att.resp_msg = "Candidate's log is outdated";
         att.resp_id  = current_term;
@@ -536,7 +536,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneRaftStatus::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                     RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -558,7 +558,7 @@ void ZoneRaftStatus::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                          RequestAttributes& att)
 {
     std::ostringstream oss;
 
@@ -649,7 +649,7 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 
 void ZoneEnable::request_execute(xmlrpc_c::paramList const& paramList,
-    RequestAttributes& att)
+                                 RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -662,7 +662,7 @@ void ZoneEnable::request_execute(xmlrpc_c::paramList const& paramList,
     if ( id != nd.get_zone_id() )
     {
         att.resp_msg = "Enable/disable mode have to be set through the target"
-             " zone endpoints";
+                       " zone endpoints";
         failure_response(ACTION, att);
 
         return;

@@ -132,7 +132,7 @@ int ImagePool::allocate (
             {
                 goto error_types_missmatch_file;
             }
-        break;
+            break;
 
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -141,7 +141,7 @@ int ImagePool::allocate (
             {
                 goto error_types_missmatch_image;
             }
-        break;
+            break;
     }
 
     db_oid = exist(name, uid);
@@ -186,7 +186,7 @@ int ImagePool::allocate (
         else
         {
             rc = imagem->clone_image(*oid, cloning_id, ds_data, extra_data,
-                    error_str);
+                                     error_str);
         }
 
         if ( rc == -1 )

@@ -104,7 +104,7 @@ void VMGroupRole::set_vms()
 /* -------------------------------------------------------------------------- */
 
 static void affinity_requirements(int vm_id, std::string& requirements,
-        VMGroupPolicy policy, const std::set<int>& vms)
+                                  VMGroupPolicy policy, const std::set<int>& vms)
 {
     string op, op2;
 
@@ -160,7 +160,7 @@ void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 /* -------------------------------------------------------------------------- */
 
 void VMGroupRole::host_requirements(std::set<int>& hosts, const std::string& op1,
-        const std::string& op2, std::ostringstream& oss)
+                                    const std::string& op2, std::ostringstream& oss)
 {
     bool empty = true;
 

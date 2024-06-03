@@ -67,15 +67,24 @@ public:
 
         state = INIT;
 
-        if ( st == "INIT" ) {
+        if ( st == "INIT" )
+        {
             state = INIT;
-        } else if ( st == "MONITORED" ) {
+        }
+        else if ( st == "MONITORED" )
+        {
             state = MONITORED;
-        } else if ( st == "ERROR" ) {
+        }
+        else if ( st == "ERROR" )
+        {
             state = ERROR;
-        } else if ( st == "DISABLED" ) {
+        }
+        else if ( st == "DISABLED" )
+        {
             state = DISABLED;
-        } else if ( st == "OFFLINE" ) {
+        }
+        else if ( st == "OFFLINE" )
+        {
             state = OFFLINE;
         }
         else
@@ -129,11 +138,11 @@ public:
      */
     int from_xml(const std::string &xml_str) override;
 
-     /**
-      *  Checks if the host is a remote public cloud
-      *    @return true if the host is a remote public cloud
-      */
-     bool is_public_cloud() const;
+    /**
+     *  Checks if the host is a remote public cloud
+     *    @return true if the host is a remote public cloud
+     */
+    bool is_public_cloud() const;
 
     /**
      *   Sets the current host offline, it will not be monitored nor used by the

@@ -42,7 +42,7 @@ public:
               is_default)
     {};
 
-    ~QuotaImage(){};
+    ~QuotaImage() {};
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
@@ -72,8 +72,8 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_default_quota(const std::string& id,
-                        Quotas& default_quotas,
-                        VectorAttribute **va) override;
+                          Quotas& default_quotas,
+                          VectorAttribute **va) override;
 
     static const char * IMAGE_METRICS[];
 

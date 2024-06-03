@@ -35,12 +35,12 @@ class PostgreSqlDB : public SqlDB
 {
 public:
     PostgreSqlDB(
-        const std::string& _server,
-        int                _port,
-        const std::string& _user,
-        const std::string& _password,
-        const std::string& _database,
-        int                _connections);
+            const std::string& _server,
+            int                _port,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            int                _connections);
 
     ~PostgreSqlDB();
 
@@ -168,24 +168,25 @@ class PostgreSqlDB : public SqlDB
 {
 public:
     PostgreSqlDB(
-        const std::string& _server,
-        int                _port,
-        const std::string& _user,
-        const std::string& _password,
-        const std::string& _database,
-        int                _connections)
+            const std::string& _server,
+            int                _port,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            int                _connections)
     {
         throw std::runtime_error("Aborting oned, PostgreSQL support not compiled!");
     }
 
-    ~PostgreSqlDB(){}
+    ~PostgreSqlDB() {}
 
     char * escape_str(const std::string& str) const override {return 0;};
 
     void free_str(char * str) const override {};
 
 protected:
-    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override
+    {
         return -1;
     };
 };

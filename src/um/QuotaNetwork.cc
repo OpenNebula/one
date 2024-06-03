@@ -31,13 +31,13 @@ const int QuotaNetwork::NUM_NET_METRICS  = 1;
 /* -------------------------------------------------------------------------- */
 
 bool QuotaNetwork::check(PoolObjectSQL::ObjectType otype, Template * tmpl,
-        Quotas& default_quotas, string& error)
+                         Quotas& default_quotas, string& error)
 {
     bool uses_lease;
 
     map<string, float> net_request;
 
-    net_request.insert(make_pair("LEASES",1));
+    net_request.insert(make_pair("LEASES", 1));
 
     VirtualMachineNics *nics = new VirtualMachineNics(tmpl);
     VirtualMachineNics::NicIterator nic;
@@ -86,7 +86,7 @@ void QuotaNetwork::del(PoolObjectSQL::ObjectType otype, Template * tmpl)
 
     map<string, float> net_request;
 
-    net_request.insert(make_pair("LEASES",1));
+    net_request.insert(make_pair("LEASES", 1));
 
     VirtualMachineNics *nics = new VirtualMachineNics(tmpl);
     VirtualMachineNics::NicIterator nic;

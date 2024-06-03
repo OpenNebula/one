@@ -26,7 +26,7 @@ class RequestManagerMarketPlaceApp: public Request
 {
 protected:
     RequestManagerMarketPlaceApp(const std::string& method_name,
-        const std::string& help, const std::string& params);
+                                 const std::string& help, const std::string& params);
 
     ~RequestManagerMarketPlaceApp() = default;
 };
@@ -39,14 +39,14 @@ class MarketPlaceAppEnable : public RequestManagerMarketPlaceApp
 public:
     MarketPlaceAppEnable()
         : RequestManagerMarketPlaceApp("one.marketapp.enable",
-            "Enables or disables a marketplace app", "A:sib")
+                                       "Enables or disables a marketplace app", "A:sib")
     {
     }
 
     ~MarketPlaceAppEnable() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

@@ -24,35 +24,35 @@ using namespace std;
 
 int ObjectCollection::from_xml_node(const xmlNodePtr node)
 {
-   istringstream iss;
-   int           id;
-   int           rc = 0;
-   ostringstream oss;
+    istringstream iss;
+    int           id;
+    int           rc = 0;
+    ostringstream oss;
 
-   vector<string> ids;
+    vector<string> ids;
 
-   ObjectXML oxml(node);
+    ObjectXML oxml(node);
 
-   oss << "/" << collection_name << "/ID";
+    oss << "/" << collection_name << "/ID";
 
-   oxml.xpaths(ids, oss.str().c_str());
+    oxml.xpaths(ids, oss.str().c_str());
 
-   for (auto id_str : ids)
-   {
-       iss.clear();
-       iss.str(id_str);
-       iss >> dec >> id;
+    for (auto id_str : ids)
+    {
+        iss.clear();
+        iss.str(id_str);
+        iss >> dec >> id;
 
-       if ( iss.fail() )
-       {
-           rc = -1;
-           break;
-       }
-       else
-       {
-           collection_set.insert(id);
-       }
-   }
+        if ( iss.fail() )
+        {
+            rc = -1;
+            break;
+        }
+        else
+        {
+            collection_set.insert(id);
+        }
+    }
 
     return rc;
 };

@@ -38,13 +38,13 @@ int TransferManager::start()
     using namespace std::placeholders; // for _1
 
     register_action(TransferManagerMessages::UNDEFINED,
-            &TransferManager::_undefined);
+                    &TransferManager::_undefined);
 
     register_action(TransferManagerMessages::TRANSFER,
-            bind(&TransferManager::_transfer, this, _1));
+                    bind(&TransferManager::_transfer, this, _1));
 
     register_action(TransferManagerMessages::LOG,
-            &TransferManager::_log);
+                    &TransferManager::_log);
 
     string error;
     if ( DriverManager::start(error) != 0 )
@@ -53,7 +53,7 @@ int TransferManager::start()
         return -1;
     }
 
-    NebulaLog::log("TrM",Log::INFO,"Starting Transfer Manager...");
+    NebulaLog::log("TrM", Log::INFO, "Starting Transfer Manager...");
 
     Listener::start();
 
@@ -293,8 +293,8 @@ int TransferManager::prolog_context_command(
  *    @return 0 if the TM event needs to be triggered
  */
 static int test_and_trigger(VirtualMachine * vm,
-        void (LifeCycleManager::*success)(int),
-        void (LifeCycleManager::*failure)(int))
+                            void (LifeCycleManager::*success)(int),
+                            void (LifeCycleManager::*failure)(int))
 {
     if (!vm->hasHistory())
     {
@@ -326,15 +326,16 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_prolog_success,
-            &LifeCycleManager::trigger_prolog_failure);
+                               &LifeCycleManager::trigger_prolog_success,
+                               &LifeCycleManager::trigger_prolog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream      xfr;
         ostringstream os("prolog, ");
         string        xfr_name;
@@ -400,7 +401,7 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
         for (auto disk : disks)
         {
             rc = prolog_transfer_command(vm.get(), disk, vm_tm_mad, opennebula_hostname,
-                    xfr, os);
+                                         xfr, os);
 
             if ( rc != 0 )
             {
@@ -421,18 +422,18 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
             bool update = false;
 
             kernel = prolog_os_transfer_commands(
-                        vm.get(),
-                        os_attr,
-                        "KERNEL",
-                        opennebula_hostname,
-                        xfr);
+                             vm.get(),
+                             os_attr,
+                             "KERNEL",
+                             opennebula_hostname,
+                             xfr);
 
             initrd = prolog_os_transfer_commands(
-                        vm.get(),
-                        os_attr,
-                        "INITRD",
-                        opennebula_hostname,
-                        xfr);
+                             vm.get(),
+                             os_attr,
+                             "INITRD",
+                             opennebula_hostname,
+                             xfr);
 
             if ( !kernel.empty() )
             {
@@ -465,28 +466,28 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os << "VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os << "VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "prolog, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "prolog, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os << "could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os << "could not open file: " << xfr_name;
+        goto error_common;
 
-        error_attributes:
-            xfr.close();
-            goto error_common;
+error_attributes:
+        xfr.close();
+        goto error_common;
 
-        error_common:
-            nd.get_lcm()->trigger_prolog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        nd.get_lcm()->trigger_prolog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -498,15 +499,16 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_prolog_success,
-            &LifeCycleManager::trigger_prolog_failure);
+                               &LifeCycleManager::trigger_prolog_success,
+                               &LifeCycleManager::trigger_prolog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream        xfr;
         ostringstream   os;
         string          xfr_name;
@@ -616,26 +618,26 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "prolog_migr, VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "prolog_migr, VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "prolog_migr, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "prolog_migr, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os.str("");
-            os << "prolog_migr, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os.str("");
+        os << "prolog_migr, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_common:
-            Nebula::instance().get_lcm()->trigger_prolog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        Nebula::instance().get_lcm()->trigger_prolog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -647,14 +649,15 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_prolog_success,
-            &LifeCycleManager::trigger_prolog_failure);
+                               &LifeCycleManager::trigger_prolog_success,
+                               &LifeCycleManager::trigger_prolog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream        xfr;
         ostringstream   os;
         string          xfr_name;
@@ -769,26 +772,26 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "prolog_resume, VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "prolog_resume, VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "prolog_resume, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "prolog_resume, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os.str("");
-            os << "prolog_resume, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os.str("");
+        os << "prolog_resume, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_common:
-            nd.get_lcm()->trigger_prolog_failure(vid);
+error_common:
+        nd.get_lcm()->trigger_prolog_failure(vid);
 
-            vm->log("TrM", Log::ERROR, os);
-            return;
+        vm->log("TrM", Log::ERROR, os);
+        return;
     });
 }
 
@@ -800,15 +803,16 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_prolog_success,
-            &LifeCycleManager::trigger_prolog_failure);
+                               &LifeCycleManager::trigger_prolog_success,
+                               &LifeCycleManager::trigger_prolog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream      xfr;
         ostringstream os("prolog, ");
         string        xfr_name;
@@ -870,11 +874,11 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
         }
 
         rc = prolog_transfer_command(vm.get(),
-                                    disk,
-                                    vm_tm_mad,
-                                    opennebula_hostname,
-                                    xfr,
-                                    os);
+                                     disk,
+                                     vm_tm_mad,
+                                     opennebula_hostname,
+                                     xfr,
+                                     os);
 
         if ( rc != 0 )
         {
@@ -892,33 +896,33 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os << "VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os << "VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "prolog_attach, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "prolog_attach, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os << "could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os << "could not open file: " << xfr_name;
+        goto error_common;
 
-        error_disk:
-            os.str("");
-            os << "prolog_attach, could not find disk to attach";
-            goto error_common;
+error_disk:
+        os.str("");
+        os << "prolog_attach, could not find disk to attach";
+        goto error_common;
 
-        error_attributes:
-            xfr.close();
-            goto error_common;
+error_attributes:
+        xfr.close();
+        goto error_common;
 
-        error_common:
-            nd.get_lcm()->trigger_prolog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        nd.get_lcm()->trigger_prolog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -933,7 +937,7 @@ void TransferManager::epilog_transfer_command(
 {
     string save = disk->vector_value("SAVE");
     int    disk_id = disk->get_disk_id();
-	string tm_mad_system;
+    string tm_mad_system;
 
     if ( one_util::toupper(save) == "YES" )
     {
@@ -1014,15 +1018,16 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, local, vid] {
+    trigger([this, local, vid]
+    {
         ofstream      xfr;
         ostringstream os;
 
@@ -1103,26 +1108,26 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "epilog, VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "epilog, VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "epilog, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "epilog, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os.str("");
-            os << "epilog, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os.str("");
+        os << "epilog, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_common:
-            nd.get_lcm()->trigger_epilog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        nd.get_lcm()->trigger_epilog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -1134,15 +1139,16 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream      xfr;
         ostringstream os;
 
@@ -1251,26 +1257,26 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "epilog_stop, VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "epilog_stop, VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "epilog_stop, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "epilog_stop, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os.str("");
-            os << "epilog_stop, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os.str("");
+        os << "epilog_stop, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_common:
-            nd.get_lcm()->trigger_epilog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        nd.get_lcm()->trigger_epilog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -1367,7 +1373,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         const string& tsys = disk->vector_value("TM_MAD_SYSTEM");
         if (!tsys.empty())
         {
-           tm_mad_system = "." + tsys;
+            tm_mad_system = "." + tsys;
         }
 
         //DELETE tm_mad(.tm_mad_system) host:remote_system_dir/disk.i vmid dsid(image)
@@ -1413,15 +1419,16 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, local, vid] {
+    trigger([this, local, vid]
+    {
         ostringstream os;
 
         ofstream xfr;
@@ -1476,20 +1483,20 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
 
         return;
 
-        error_driver:
-            os << "epilog_delete, error getting TM driver.";
-            goto error_common;
+error_driver:
+        os << "epilog_delete, error getting TM driver.";
+        goto error_common;
 
-        error_file:
-            os << "epilog_delete, could not open file: " << xfr_name;
-            os << ". You may need to manually clean the host (current)";
-            goto error_common;
+error_file:
+        os << "epilog_delete, could not open file: " << xfr_name;
+        os << ". You may need to manually clean the host (current)";
+        goto error_common;
 
-        error_common:
-            vm->log("TrM", Log::ERROR, os);
-            (nd.get_lcm())->trigger_epilog_failure(vid);
+error_common:
+        vm->log("TrM", Log::ERROR, os);
+        (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            return;
+        return;
     });
 }
 
@@ -1501,15 +1508,16 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream os;
 
         ofstream xfr;
@@ -1539,7 +1547,7 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
         }
 
         xfr_name = vm->get_transfer_file() + ".delete_prev";
-        xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+        xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
         if (xfr.fail() == true)
         {
@@ -1564,20 +1572,20 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
 
         return;
 
-        error_driver:
-            os << "epilog_delete_previous, error getting TM driver.";
-            goto error_common;
+error_driver:
+        os << "epilog_delete_previous, error getting TM driver.";
+        goto error_common;
 
-        error_file:
-            os << "epilog_delete_previous, could not open file: " << xfr_name;
-            os << ". You may need to manually clean the host (previous)";
-            goto error_common;
+error_file:
+        os << "epilog_delete_previous, could not open file: " << xfr_name;
+        os << ". You may need to manually clean the host (previous)";
+        goto error_common;
 
-        error_common:
-            vm->log("TrM", Log::ERROR, os);
-            (nd.get_lcm())->trigger_epilog_failure(vid);
+error_common:
+        vm->log("TrM", Log::ERROR, os);
+        (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            return;
+        return;
     });
 }
 
@@ -1589,15 +1597,16 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream os;
 
         ofstream xfr;
@@ -1627,7 +1636,7 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
         }
 
         xfr_name = vm->get_transfer_file() + ".delete_both";
-        xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+        xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
         if (xfr.fail() == true)
         {
@@ -1653,20 +1662,20 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
 
         return;
 
-        error_driver:
-            os << "epilog_delete_both, error getting TM driver.";
-            goto error_common;
+error_driver:
+        os << "epilog_delete_both, error getting TM driver.";
+        goto error_common;
 
-        error_file:
-            os << "epilog_delete_both, could not open file: " << xfr_name;
-            os << ". You may need to manually clean hosts (previous & current)";
-            goto error_common;
+error_file:
+        os << "epilog_delete_both, could not open file: " << xfr_name;
+        os << ". You may need to manually clean hosts (previous & current)";
+        goto error_common;
 
-        error_common:
-            vm->log("TrM", Log::ERROR, os);
-            (nd.get_lcm())->trigger_epilog_failure(vid);
+error_common:
+        vm->log("TrM", Log::ERROR, os);
+        (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            return;
+        return;
     });
 }
 
@@ -1678,15 +1687,16 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
     int vid = vm->get_oid();
 
     int rc  = test_and_trigger(vm,
-            &LifeCycleManager::trigger_epilog_success,
-            &LifeCycleManager::trigger_epilog_failure);
+                               &LifeCycleManager::trigger_epilog_success,
+                               &LifeCycleManager::trigger_epilog_failure);
 
     if ( rc == -1 )
     {
         return;
     }
 
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ofstream        xfr;
         ostringstream   os;
         string xfr_name;
@@ -1754,31 +1764,31 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
 
         return;
 
-        error_history:
-            os.str("");
-            os << "epilog_detach, VM " << vid << " has no history";
-            goto error_common;
+error_history:
+        os.str("");
+        os << "epilog_detach, VM " << vid << " has no history";
+        goto error_common;
 
-        error_drivers:
-            os.str("");
-            os << "epilog_detach, error getting drivers.";
-            goto error_common;
+error_drivers:
+        os.str("");
+        os << "epilog_detach, error getting drivers.";
+        goto error_common;
 
-        error_file:
-            os.str("");
-            os << "epilog_detach, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os.str("");
+        os << "epilog_detach, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_disk:
-            os.str("");
-            os << "epilog_detach, could not find disk to detach";
-            goto error_common;
+error_disk:
+        os.str("");
+        os << "epilog_detach, could not find disk to detach";
+        goto error_common;
 
-        error_common:
-            (nd.get_lcm())->trigger_epilog_failure(vid);
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        (nd.get_lcm())->trigger_epilog_failure(vid);
+        vm->log("TrM", Log::ERROR, os);
 
-            return;
+        return;
     });
 }
 
@@ -1787,7 +1797,8 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
 
 void TransferManager::trigger_driver_cancel(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         // ------------------------------------------------------------------------
         // Get the Driver for this host
         // ------------------------------------------------------------------------
@@ -1812,7 +1823,8 @@ void TransferManager::trigger_driver_cancel(int vid)
 
 void TransferManager::trigger_saveas_hot(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         int    disk_id;
         int    image_id;
         string src;
@@ -1860,7 +1872,7 @@ void TransferManager::trigger_saveas_hot(int vid)
         }
 
         xfr_name = vm->get_transfer_file() + ".disk_saveas";
-        xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+        xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
         if (xfr.fail() == true)
         {
@@ -1910,29 +1922,29 @@ void TransferManager::trigger_saveas_hot(int vid)
 
         return;
 
-        error_history:
-            os << "saveas_hot_transfer, the VM has no history";
-            goto error_common;
+error_history:
+        os << "saveas_hot_transfer, the VM has no history";
+        goto error_common;
 
-        error_disk:
-            os << "saveas_hot_transfer, could not get disk information to export it";
-            goto error_common;
+error_disk:
+        os << "saveas_hot_transfer, could not get disk information to export it";
+        goto error_common;
 
-        error_driver:
-            os << "saveas_hot_transfer, error getting TM driver.";
-            goto error_common;
+error_driver:
+        os << "saveas_hot_transfer, error getting TM driver.";
+        goto error_common;
 
-        error_file:
-            os << "saveas_hot_transfer, could not open file: " << xfr_name;
-            os << ". You may need to manually clean hosts (previous & current)";
-            goto error_common;
+error_file:
+        os << "saveas_hot_transfer, could not open file: " << xfr_name;
+        os << ". You may need to manually clean hosts (previous & current)";
+        goto error_common;
 
-        error_common:
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        vm->log("TrM", Log::ERROR, os);
 
-            nd.get_lcm()->trigger_saveas_failure(vid);
+        nd.get_lcm()->trigger_saveas_failure(vid);
 
-            return;
+        return;
     });
 }
 
@@ -2034,7 +2046,7 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
     }
 
     xfr_name = vm->get_transfer_file() + ".disk_snapshot";
-    xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+    xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
 
     if (xfr.fail() == true)
     {
@@ -2084,7 +2096,8 @@ error_common:
 
 void TransferManager::trigger_snapshot_create(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         do_snapshot_action(vid, "SNAP_CREATE");
     });
 }
@@ -2094,7 +2107,8 @@ void TransferManager::trigger_snapshot_create(int vid)
 
 void TransferManager::trigger_snapshot_revert(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         do_snapshot_action(vid, "SNAP_REVERT");
     });
 }
@@ -2104,7 +2118,8 @@ void TransferManager::trigger_snapshot_revert(int vid)
 
 void TransferManager::trigger_snapshot_delete(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         do_snapshot_action(vid, "SNAP_DELETE");
     });
 }
@@ -2113,7 +2128,7 @@ void TransferManager::trigger_snapshot_delete(int vid)
 /* -------------------------------------------------------------------------- */
 
 void TransferManager::resize_command(VirtualMachine * vm,
-        const VirtualMachineDisk * disk, ostream& xfr)
+                                     const VirtualMachineDisk * disk, ostream& xfr)
 {
     string tm_mad;
     string tm_mad_system;
@@ -2152,7 +2167,8 @@ void TransferManager::resize_command(VirtualMachine * vm,
 
 void TransferManager::trigger_resize(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream os;
 
         ofstream xfr;
@@ -2210,28 +2226,28 @@ void TransferManager::trigger_resize(int vid)
 
         return;
 
-        error_driver:
-            os << "disk_resize, error getting TM driver.";
-            goto error_common;
+error_driver:
+        os << "disk_resize, error getting TM driver.";
+        goto error_common;
 
-        error_history:
-            os << "disk_resize, the VM has no history";
-            goto error_common;
+error_history:
+        os << "disk_resize, the VM has no history";
+        goto error_common;
 
-        error_file:
-            os << "disk_resize, could not open file: " << xfr_name;
-            goto error_common;
+error_file:
+        os << "disk_resize, could not open file: " << xfr_name;
+        goto error_common;
 
-        error_disk:
-            os << "disk_resize, could not find resize disk";
-            goto error_common;
+error_disk:
+        os << "disk_resize, could not find resize disk";
+        goto error_common;
 
-        error_common:
-            vm->log("TrM", Log::ERROR, os);
+error_common:
+        vm->log("TrM", Log::ERROR, os);
 
-            nd.get_lcm()->trigger_disk_resize_failure(vid);
+        nd.get_lcm()->trigger_disk_resize_failure(vid);
 
-            return;
+        return;
     });
 }
 
@@ -2252,7 +2268,7 @@ int TransferManager::load_drivers(const std::vector<const VectorAttribute*>& _ma
 
     if ( vattr == nullptr )
     {
-        NebulaLog::log("TrM",Log::ERROR,"Failed to load Transfer Manager driver.");
+        NebulaLog::log("TrM", Log::ERROR, "Failed to load Transfer Manager driver.");
         return -1;
     }
 

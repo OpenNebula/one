@@ -25,11 +25,11 @@
 class ImageTemplate : public Template
 {
 public:
-    ImageTemplate() : Template(true,'=',"TEMPLATE"){};
+    ImageTemplate() : Template(true, '=', "TEMPLATE") {};
 
-    ImageTemplate(const Template& tmpl):Template(tmpl){};
+    ImageTemplate(const Template& tmpl):Template(tmpl) {};
 
-    ~ImageTemplate(){};
+    ~ImageTemplate() {};
 
     bool is_saving()
     {

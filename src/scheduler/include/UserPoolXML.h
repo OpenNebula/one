@@ -27,9 +27,9 @@ class UserPoolXML : public PoolXML
 {
 public:
 
-    UserPoolXML(Client* client):PoolXML(client){};
+    UserPoolXML(Client* client):PoolXML(client) {};
 
-    ~UserPoolXML(){};
+    ~UserPoolXML() {};
 
     /**
      *  Gets an object from the pool

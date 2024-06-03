@@ -80,7 +80,7 @@ public:
      *     @return 0 on success -1 if a xml-rpc/network error occurred
      */
     int xmlrpc_replicate_log(int zone_id, bool& success, uint64_t& last,
-            std::string& err);
+                             std::string& err);
 
     /**
      *  Start the replication threads, and updates the server list of the zone
@@ -139,9 +139,9 @@ private:
     struct ZoneServers
     {
         ZoneServers(int z, uint64_t l, const std::string& s):
-            zone_id(z), endpoint(s), next(l), last(UINT64_MAX){};
+            zone_id(z), endpoint(s), next(l), last(UINT64_MAX) {};
 
-        ~ZoneServers(){};
+        ~ZoneServers() {};
 
         int zone_id;
 
@@ -166,7 +166,7 @@ private:
      *    @return 0 on success, -1 otherwise
      */
     int get_next_record(int zone_id, std::string& zedp, LogDBRecord& lr,
-            std::string& error);
+                        std::string& error);
 
 };
 

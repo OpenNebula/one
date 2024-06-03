@@ -199,7 +199,7 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
         rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att,
-                cluster_perms, cluster_name, true);
+                      cluster_perms, cluster_name, true);
 
         if ( rc != 0 )
         {
@@ -281,11 +281,11 @@ Request::ErrorCode VirtualMachineAllocate::pool_allocate(
     Template tmpl_back(*tmpl);
 
     unique_ptr<VirtualMachineTemplate> ttmpl(
-        static_cast<VirtualMachineTemplate*>(tmpl.release()));
+            static_cast<VirtualMachineTemplate*>(tmpl.release()));
     VirtualMachinePool * vmpool   = static_cast<VirtualMachinePool *>(pool);
 
     int rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            move(ttmpl), &id, att.resp_msg, on_hold);
+                              move(ttmpl), &id, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
@@ -331,7 +331,7 @@ Request::ErrorCode VirtualNetworkAllocate::pool_allocate(
 {
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     unique_ptr<VirtualNetworkTemplate> vtmpl(
-        static_cast<VirtualNetworkTemplate*>(tmpl.release()));
+            static_cast<VirtualNetworkTemplate*>(tmpl.release()));
 
     set<int> cluster_ids;
 
@@ -340,8 +340,8 @@ Request::ErrorCode VirtualNetworkAllocate::pool_allocate(
         cluster_ids.insert(cluster_id);
     }
 
-    int rc = vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
-            move(vtmpl), &id, cluster_ids, att.resp_msg);
+    int rc = vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask, -1,
+                             move(vtmpl), &id, cluster_ids, att.resp_msg);
 
     if (rc < 0)
     {
@@ -355,7 +355,7 @@ Request::ErrorCode VirtualNetworkAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
-                                             RequestAttributes& att)
+                                    RequestAttributes& att)
 {
     string size_str;
 
@@ -648,10 +648,10 @@ Request::ErrorCode TemplateAllocate::pool_allocate(
     VMTemplatePool * tpool = static_cast<VMTemplatePool *>(pool);
 
     unique_ptr<VirtualMachineTemplate> ttmpl(
-        static_cast<VirtualMachineTemplate *>(tmpl.release()));
+            static_cast<VirtualMachineTemplate *>(tmpl.release()));
 
     int rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        move(ttmpl), &id, att.resp_msg);
+                             move(ttmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -665,7 +665,7 @@ Request::ErrorCode TemplateAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool TemplateAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -708,10 +708,10 @@ Request::ErrorCode VirtualNetworkTemplateAllocate::pool_allocate(
     VNTemplatePool * vnpool = static_cast<VNTemplatePool *>(pool);
 
     unique_ptr<VirtualNetworkTemplate> ttmpl(
-        static_cast<VirtualNetworkTemplate *>(tmpl.release()));
+            static_cast<VirtualNetworkTemplate *>(tmpl.release()));
 
     int rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        move(ttmpl), &id, att.resp_msg);
+                              move(ttmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -725,7 +725,7 @@ Request::ErrorCode VirtualNetworkTemplateAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool VirtualNetworkTemplateAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -773,7 +773,7 @@ Request::ErrorCode HostAllocate::pool_allocate(
     HostPool * hpool = static_cast<HostPool *>(pool);
 
     int rc = hpool->allocate(&id, host, im_mad, vmm_mad, cluster_id, cluster_name,
-            att.resp_msg);
+                             att.resp_msg);
 
     if (rc < 0)
     {
@@ -787,7 +787,7 @@ Request::ErrorCode HostAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool UserAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -797,7 +797,7 @@ bool UserAllocate::allocate_authorization(
     if ( paramList.size() > 4 )
     {
         param_arr = xmlrpc_c::value_array(
-                paramList.getArray(4)).vectorValueValue();
+                            paramList.getArray(4)).vectorValueValue();
     }
 
     AuthRequest ar(att.uid, att.group_ids);
@@ -815,7 +815,7 @@ bool UserAllocate::allocate_authorization(
             att.resp_id  = tmp_gid;
             att.resp_obj = PoolObjectSQL::GROUP;
 
-			failure_response(NO_EXISTS, att);
+            failure_response(NO_EXISTS, att);
             return false;
         }
 
@@ -865,7 +865,7 @@ Request::ErrorCode UserAllocate::pool_allocate(
     if ( paramList.size() > 4 )
     {
         param_arr = xmlrpc_c::value_array(
-                paramList.getArray(4)).vectorValueValue();
+                            paramList.getArray(4)).vectorValueValue();
     }
 
     AuthRequest ar(att.uid, att.group_ids);
@@ -902,7 +902,7 @@ Request::ErrorCode UserAllocate::pool_allocate(
     }
 
     int rc = static_cast<UserPool *>(pool)->allocate(&id, uname, gid, passwd,
-            driver, true, gids, agids, att.resp_msg);
+                                                     driver, true, gids, agids, att.resp_msg);
 
     if (rc < 0)
     {
@@ -962,7 +962,7 @@ Request::ErrorCode DatastoreAllocate::pool_allocate(
 {
     DatastorePool * dspool      = static_cast<DatastorePool *>(pool);
     unique_ptr<DatastoreTemplate> ds_tmpl(
-        static_cast<DatastoreTemplate *>(tmpl.release()));
+            static_cast<DatastoreTemplate *>(tmpl.release()));
 
     set<int> cluster_ids;
 
@@ -972,7 +972,7 @@ Request::ErrorCode DatastoreAllocate::pool_allocate(
     }
 
     int rc = dspool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            move(ds_tmpl), &id, cluster_ids, att.resp_msg);
+                              move(ds_tmpl), &id, cluster_ids, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1019,7 +1019,7 @@ Request::ErrorCode DocumentAllocate::pool_allocate(
     DocumentPool * docpool = static_cast<DocumentPool *>(pool);
 
     int rc = docpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            type, move(tmpl), &id, att.resp_msg);
+                               type, move(tmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1080,7 +1080,7 @@ Request::ErrorCode SecurityGroupAllocate::pool_allocate(
     SecurityGroupPool * sgpool = static_cast<SecurityGroupPool *>(pool);
 
     int rc = sgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        move(tmpl), &id, att.resp_msg);
+                              move(tmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1123,7 +1123,7 @@ Request::ErrorCode VirtualRouterAllocate::pool_allocate(
     VirtualRouterPool * vrpool = static_cast<VirtualRouterPool *>(pool);
 
     int rc = vrpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        move(tmpl), &id, att.resp_msg);
+                              move(tmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1137,7 +1137,7 @@ Request::ErrorCode VirtualRouterAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 
 bool VirtualRouterAllocate::allocate_authorization(
-		xmlrpc_c::paramList const&  paramList,
+        xmlrpc_c::paramList const&  paramList,
         Template *          tmpl,
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
@@ -1180,10 +1180,10 @@ Request::ErrorCode MarketPlaceAllocate::pool_allocate(
 {
     MarketPlacePool *     mppool = static_cast<MarketPlacePool *>(pool);
     unique_ptr<MarketPlaceTemplate> ttmpl(
-        static_cast<MarketPlaceTemplate*>(tmpl.release()));
+            static_cast<MarketPlaceTemplate*>(tmpl.release()));
 
     int rc = mppool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-        move(ttmpl), &id, att.resp_msg);
+                              move(ttmpl), &id, att.resp_msg);
 
     if (rc < 0)
     {
@@ -1206,7 +1206,7 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
 
     MarketPlaceAppPool*     appool = static_cast<MarketPlaceAppPool *>(pool);
     unique_ptr<MarketPlaceAppTemplate> ttmpl(
-        static_cast<MarketPlaceAppTemplate *>(tmpl.release()));
+            static_cast<MarketPlaceAppTemplate *>(tmpl.release()));
 
     int         mp_id = xmlrpc_c::value_int(paramList.getInt(2));
     std::string mp_data;
@@ -1245,7 +1245,7 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
     // Allocate MarketPlaceApp request is forwarded to master for slaves      //
     // ---------------------------------------------------------------------- //
     int rc = appool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                move(ttmpl), mp_id, mp_name, &id, att.resp_msg);
+                              move(ttmpl), mp_id, mp_name, &id, att.resp_msg);
 
     if (rc < 0)
     {

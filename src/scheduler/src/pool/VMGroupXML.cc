@@ -28,7 +28,7 @@ void VMGroupXML::init_attributes()
     std::vector<std::string> srules;
 
     xpath(oid, "/VM_GROUP/ID", -1);
-    xpath(name,"/VM_GROUP/NAME", "undefined");
+    xpath(name, "/VM_GROUP/NAME", "undefined");
 
     // VMGroup roles
     get_nodes("/VM_GROUP/ROLES", content);
@@ -73,7 +73,7 @@ void VMGroupXML::init_attributes()
 /* -------------------------------------------------------------------------- */
 
 void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
-        std::ostringstream& oss)
+                                               std::ostringstream& oss)
 {
     oss << "\n";
     oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
@@ -200,7 +200,7 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
 /* -------------------------------------------------------------------------- */
 
 void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool,
-        std::ostringstream& oss)
+                                       std::ostringstream& oss)
 {
     oss << "\n";
     oss << setfill('-') << setw(80) << '-' << setfill(' ') << "\n";
@@ -253,8 +253,8 @@ void VMGroupXML::set_host_requirements(VirtualMachinePoolXML * vmpool,
 /* -------------------------------------------------------------------------- */
 
 static void schecule_affined_set(const std::set<int>& vms,
-    VirtualMachinePoolXML * vmpool, VirtualMachineRolePoolXML * vm_roles_pool,
-    std::ostringstream& oss)
+                                 VirtualMachinePoolXML * vmpool, VirtualMachineRolePoolXML * vm_roles_pool,
+                                 std::ostringstream& oss)
 {
     std::set<int>::iterator it;
     std::set<int> hosts;
@@ -374,7 +374,7 @@ static void schecule_affined_set(const std::set<int>& vms,
 /* -------------------------------------------------------------------------- */
 
 void VMGroupXML::set_affinity_requirements(VirtualMachinePoolXML * vmpool,
-        VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss)
+                                           VirtualMachineRolePoolXML * vm_roles_pool, std::ostringstream& oss)
 {
     /* ---------------------------------------------------------------------- */
     /* Intra-role affinity placement rule                                     */

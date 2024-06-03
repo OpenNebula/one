@@ -33,7 +33,7 @@ SecurityGroup::SecurityGroup(
         const string&   _gname,
         int             _umask,
         unique_ptr<Template> sgroup_template):
-    PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,one_db::sg_table),
+    PoolObjectSQL(-1, SECGROUP, "", _uid, _gid, _uname, _gname, one_db::sg_table),
     updated("UPDATED_VMS"),
     outdated("OUTDATED_VMS"),
     updating("UPDATING_VMS"),
@@ -59,7 +59,7 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
     vector<VectorAttribute*> rules;
 
-    erase_template_attribute("NAME",name);
+    erase_template_attribute("NAME", name);
 
     if (name.empty())
     {
@@ -207,7 +207,7 @@ string& SecurityGroup::to_xml(string& xml) const
     string          error_xml;
 
     oss <<
-    "<SECURITY_GROUP>"    <<
+        "<SECURITY_GROUP>"    <<
         "<ID>"      << oid      << "</ID>"     <<
         "<UID>"     << uid      << "</UID>"    <<
         "<GID>"     << gid      << "</GID>"    <<
@@ -220,7 +220,7 @@ string& SecurityGroup::to_xml(string& xml) const
         updating.to_xml(updating_xml)      <<
         error.to_xml(error_xml)      <<
         obj_template->to_xml(template_xml)     <<
-    "</SECURITY_GROUP>";
+        "</SECURITY_GROUP>";
 
     xml = oss.str();
 
@@ -242,8 +242,8 @@ int SecurityGroup::from_xml(const string& xml)
     rc += xpath(oid,    "/SECURITY_GROUP/ID",   -1);
     rc += xpath(uid,    "/SECURITY_GROUP/UID",  -1);
     rc += xpath(gid,    "/SECURITY_GROUP/GID",  -1);
-    rc += xpath(uname,  "/SECURITY_GROUP/UNAME","not_found");
-    rc += xpath(gname,  "/SECURITY_GROUP/GNAME","not_found");
+    rc += xpath(uname,  "/SECURITY_GROUP/UNAME", "not_found");
+    rc += xpath(gname,  "/SECURITY_GROUP/GNAME", "not_found");
     rc += xpath(name,   "/SECURITY_GROUP/NAME", "not_found");
 
     // Permissions
@@ -287,7 +287,7 @@ void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
     for ( auto rule : rules )
     {
         VectorAttribute* new_rule = new VectorAttribute(
-                                    "SECURITY_GROUP_RULE", rule->value());
+                "SECURITY_GROUP_RULE", rule->value());
 
         new_rule->replace("SECURITY_GROUP_ID", this->get_oid());
         new_rule->replace("SECURITY_GROUP_NAME", this->get_name());
@@ -318,10 +318,10 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
     one_util::toupper(proto);
 
     if ( proto != "TCP" && proto != "UDP" && proto != "ICMP" && proto != "ICMPV6"
-        && proto != "IPSEC" && proto != "ALL")
+         && proto != "IPSEC" && proto != "ALL")
     {
         error = "Wrong PROTOCOL in rule. Valid options: TCP, UDP, ICMP, ICMPV6,"
-            " IPSEC, ALL.";
+                " IPSEC, ALL.";
         return false;
     }
 
@@ -422,7 +422,7 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
 
         if (inet_pton(AF_INET6, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
         {
-            if (inet_pton(AF_INET,ip.c_str(),static_cast<void*>(&ip_addr)) != 1)
+            if (inet_pton(AF_INET, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
             {
                 error = "Wrong format for IP value.";
                 return false;
@@ -454,9 +454,10 @@ void SecurityGroup::remove_duplicates(vector<VectorAttribute*>& rules)
 
     // Sort to get duplicates next to each other
     sort(rules.begin(), rules.end(),
-        [](const VectorAttribute* va1, const VectorAttribute* va2) {
-            return va1->vector_value("HASH") < va2->vector_value("HASH");
-        });
+         [](const VectorAttribute* va1, const VectorAttribute* va2)
+    {
+        return va1->vector_value("HASH") < va2->vector_value("HASH");
+    });
 
     string prev_value;
 

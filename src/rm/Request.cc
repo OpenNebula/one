@@ -83,14 +83,14 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "hook";
         default:
             return "-";
-      }
+    }
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
-        ip, char * const port)
+                          ip, char * const port)
 {
     struct abyss_unix_chaninfo * unix_ci;
 
@@ -107,7 +107,7 @@ static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
     // -------------------------------------------------------------------------
 
     int rc = getnameinfo(&(unix_ci->peerAddr), unix_ci->peerAddrLen, ip,
-            NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+                         NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
 
     if ( rc != 0 )
     {
@@ -120,9 +120,9 @@ static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
 }
 
 void Request::log_method_invoked(const RequestAttributes& att,
-        const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params,
-        const xmlrpc_c::callInfo * call_info)
+                                 const xmlrpc_c::paramList&  paramList, const string& format_str,
+                                 const std::string& method_name, const std::set<int>& hidden_params,
+                                 const xmlrpc_c::callInfo * call_info)
 {
     std::ostringstream oss;
     std::ostringstream oss_limit;
@@ -136,7 +136,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
     ip[0]   = '\0';
     port[0] = '\0';
 
-    for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
+    for (unsigned int j = 0 ; j < format_str.length() - 1; j++ )
     {
         if (format_str[j] != '%')
         {
@@ -157,39 +157,39 @@ void Request::log_method_invoked(const RequestAttributes& att,
             {
                 case '%':
                     oss << "%";
-                break;
+                    break;
 
                 case 'i':
                     oss << att.req_id;
-                break;
+                    break;
 
                 case 'u':
                     oss << att.uid;
-                break;
+                    break;
 
                 case 'U':
                     oss << att.uname;
-                break;
+                    break;
 
                 case 'g':
                     oss << att.gid;
-                break;
+                    break;
 
                 case 'G':
                     oss << att.gname;
-                break;
+                    break;
 
                 case 'p':
                     oss << att.password;
-                break;
+                    break;
 
                 case 'a':
                     oss << att.session;
-                break;
+                    break;
 
                 case 'm':
                     oss << method_name;
-                break;
+                    break;
 
                 case 'l':
                     while ((j+2)<format_str.length() && isdigit(format_str[j+2]))
@@ -214,7 +214,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                             log_xmlrpc_value(paramList[i], oss, limit);
                         }
                     }
-                break;
+                    break;
 
                 case 'A':
                     if ( ip[0] == '\0' )
@@ -223,7 +223,7 @@ void Request::log_method_invoked(const RequestAttributes& att,
                     }
 
                     oss << ip;
-                break;
+                    break;
 
                 case 'P':
                     if ( port[0] == '\0' )
@@ -232,11 +232,11 @@ void Request::log_method_invoked(const RequestAttributes& att,
                     }
 
                     oss << port;
-                break;
+                    break;
 
                 default:
                     oss << format_str[j] << format_str[j+1];
-                break;
+                    break;
             }
 
             j = j+1;
@@ -292,7 +292,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss,const int limit)
+void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss, const int limit)
 {
     size_t st_limit = limit;
     size_t st_newline;
@@ -325,7 +325,7 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
             }
 
             oss << ", \"" <<
-                static_cast<string>(xmlrpc_c::value_string(v)).substr(0,st_limit);
+                static_cast<string>(xmlrpc_c::value_string(v)).substr(0, st_limit);
 
             if ( static_cast<string>(xmlrpc_c::value_string(v)).size() > st_limit )
             {
@@ -379,14 +379,14 @@ void Request::execute(
     HookManager * hm = nd.get_hm();
 
     bool authenticated = upool->authenticate(att.session, att.password,
-        att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+                                             att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
 
     att.set_auth_op(vm_action);
 
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
-                hidden_params, _callInfoP);
+                           hidden_params, _callInfoP);
     }
 
     if ( authenticated == false )
@@ -417,7 +417,7 @@ void Request::execute(
         }
 
         int rc = Client::call(leader_endpoint, method_name, _paramList,
-                xmlrpc_timeout, _retval, att.resp_msg);
+                              xmlrpc_timeout, _retval, att.resp_msg);
 
         if ( rc != 0 )
         {
@@ -815,11 +815,11 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
 
             if ( att.resp_id != -1 )
             {
-               oss << " [" << att.resp_id << "].";
+                oss << " [" << att.resp_id << "].";
             }
             else
             {
-              oss << " Pool.";
+                oss << " Pool.";
             }
             break;
 
@@ -836,7 +836,7 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
 
             if ( att.resp_id != -1 )
             {
-               oss << " [" << att.resp_id << "].";
+                oss << " [" << att.resp_id << "].";
             }
             break;
         case REPLICATION:
@@ -1017,7 +1017,7 @@ Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
         tmpl->erase("AS_UID");
 
         rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,
-                true);
+                      true);
 
         if ( rc == -1 )
         {
@@ -1034,7 +1034,7 @@ Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
         tmpl->erase("AS_GID");
 
         rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,
-                true);
+                      true);
 
         if ( rc == -1 )
         {

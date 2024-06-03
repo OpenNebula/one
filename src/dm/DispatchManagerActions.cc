@@ -56,7 +56,7 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
     vid = vm->get_oid();
 
     oss << "Deploying VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if ( vm->get_state() == VirtualMachine::PENDING ||
          vm->get_state() == VirtualMachine::HOLD ||
@@ -64,7 +64,7 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
          vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
         do_quotas = vm->get_state() == VirtualMachine::STOPPED ||
-             vm->get_state() == VirtualMachine::UNDEPLOYED;
+                    vm->get_state() == VirtualMachine::UNDEPLOYED;
 
         vm->set_state(VirtualMachine::ACTIVE);
 
@@ -98,7 +98,7 @@ error:
     oss.str("");
     oss << "Could not deploy VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     return -1;
 }
@@ -181,7 +181,7 @@ int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttribut
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
-        const RequestAttributes& ra)
+                             const RequestAttributes& ra)
 {
     ostringstream oss;
     int           vid;
@@ -194,15 +194,16 @@ int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
     vid = vm->get_oid();
 
     oss << "Migrating VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if ((vm->get_state()     == VirtualMachine::ACTIVE &&
          (vm->get_lcm_state() == VirtualMachine::RUNNING ||
           vm->get_lcm_state() == VirtualMachine::UNKNOWN )) ||
-         vm->get_state() == VirtualMachine::POWEROFF ||
-         vm->get_state() == VirtualMachine::SUSPENDED)
+        vm->get_state() == VirtualMachine::POWEROFF ||
+        vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        switch (poff_migrate) {
+        switch (poff_migrate)
+        {
             case 0:
                 lcm->trigger_migrate(vid, ra);
                 break;
@@ -229,7 +230,7 @@ error:
     oss.str("");
     oss << "Could not migrate VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     return -1;
 }
@@ -238,7 +239,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::live_migrate(VirtualMachine * vm,
-        const RequestAttributes& ra)
+                                  const RequestAttributes& ra)
 {
     ostringstream oss;
     int           vid;
@@ -251,7 +252,7 @@ int DispatchManager::live_migrate(VirtualMachine * vm,
     vid = vm->get_oid();
 
     oss << "Live-migrating VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -269,7 +270,7 @@ error:
     oss.str("");
     oss << "Could not live-migrate VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     return -1;
 }
@@ -345,7 +346,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
     if ( graphics != nullptr && graphics->vector_value("PORT", port) == 0
-            && vm->hasHistory())
+         && vm->hasHistory())
     {
         graphics->remove("PORT");
         clpool->release_vnc_port(vm->get_cid(), port);
@@ -396,7 +397,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
-        string& error_str)
+                               string& error_str)
 {
     int rc = 0;
     ostringstream oss;
@@ -409,7 +410,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
     }
 
     oss << "Terminating VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     switch (vm->get_state())
     {
@@ -471,7 +472,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                     oss << "Could not terminate VM " << vid
                         << ", wrong state " << vm->state_str() << ".";
 
-                    NebulaLog::log("DiM",Log::ERROR,oss);
+                    NebulaLog::log("DiM", Log::ERROR, oss);
                     error_str = oss.str();
 
                     rc = -2;
@@ -487,7 +488,7 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
-        string& error_str)
+                              string& error_str)
 {
     ostringstream oss;
 
@@ -499,12 +500,12 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
     }
 
     oss << "Undeploying VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if ( vm->get_state()       == VirtualMachine::POWEROFF ||
          (vm->get_state()       == VirtualMachine::ACTIVE &&
-           (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
+          (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+           vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         if (hard)
         {
@@ -532,7 +533,7 @@ error:
     oss.str("");
     oss << "Could not undeploy VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -545,7 +546,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
-        string& error_str)
+                              string& error_str)
 {
     ostringstream oss;
 
@@ -557,7 +558,7 @@ int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
     }
 
     oss << "Powering off VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     auto lcm_state = vm->get_lcm_state();
 
@@ -592,7 +593,7 @@ error:
     oss.str("");
     oss << "Could not power off VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -605,7 +606,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::hold(int vid, const RequestAttributes& ra,
-        string& error_str)
+                          string& error_str)
 {
     ostringstream oss;
 
@@ -617,7 +618,7 @@ int DispatchManager::hold(int vid, const RequestAttributes& ra,
     }
 
     oss << "Holding VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state() == VirtualMachine::PENDING)
     {
@@ -637,7 +638,7 @@ error:
     oss.str("");
     oss << "Could not hold VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -650,7 +651,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::release(int vid, const RequestAttributes& ra,
-        string& error_str)
+                             string& error_str)
 {
     ostringstream oss;
 
@@ -662,7 +663,7 @@ int DispatchManager::release(int vid, const RequestAttributes& ra,
     }
 
     oss << "Releasing VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state() == VirtualMachine::HOLD)
     {
@@ -691,7 +692,7 @@ error_requirements:
     oss.str("");
     oss << "Could not release VM " << vid
         << ", error updating requirements. " << error_str;
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     error_str = oss.str();
 
@@ -701,7 +702,7 @@ error_state:
     oss.str("");
     oss << "Could not release VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -714,7 +715,7 @@ error_state:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::stop(int vid, const RequestAttributes& ra,
-        string& error_str)
+                          string& error_str)
 {
     ostringstream oss;
 
@@ -726,7 +727,7 @@ int DispatchManager::stop(int vid, const RequestAttributes& ra,
     }
 
     oss << "Stopping VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state()        == VirtualMachine::SUSPENDED ||
         (vm->get_state()       == VirtualMachine::ACTIVE &&
@@ -745,7 +746,7 @@ error:
     oss.str("");
     oss << "Could not stop VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -758,7 +759,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::suspend(int vid, const RequestAttributes& ra,
-        string& error_str)
+                             string& error_str)
 {
     ostringstream oss;
 
@@ -770,7 +771,7 @@ int DispatchManager::suspend(int vid, const RequestAttributes& ra,
     }
 
     oss << "Suspending VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -801,7 +802,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::resume(int vid, const RequestAttributes& ra,
-        string& error_str)
+                            string& error_str)
 {
     ostringstream oss;
 
@@ -813,7 +814,7 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
     }
 
     oss << "Resuming VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state() == VirtualMachine::STOPPED ||
         vm->get_state() == VirtualMachine::UNDEPLOYED )
@@ -837,8 +838,8 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         lcm->trigger_restore(vid, ra);
     }
     else if ( vm->get_state() == VirtualMachine::POWEROFF ||
-             (vm->get_state() == VirtualMachine::ACTIVE &&
-              vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+              (vm->get_state() == VirtualMachine::ACTIVE &&
+               vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         lcm->trigger_restart(vid, ra);
     }
@@ -853,7 +854,7 @@ error_requirements:
     oss.str("");
     oss << "Could not resume VM " << vid
         << ", error updating requirements. " << error_str;
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     error_str = oss.str();
 
@@ -863,7 +864,7 @@ error_state:
     oss.str("");
     oss << "Could not resume VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -876,7 +877,7 @@ error_state:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::reboot(int vid, bool hard, const RequestAttributes& ra,
-        string& error_str)
+                            string& error_str)
 {
     ostringstream oss;
 
@@ -888,7 +889,7 @@ int DispatchManager::reboot(int vid, bool hard, const RequestAttributes& ra,
     }
 
     oss << "Rebooting VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
@@ -917,7 +918,7 @@ error:
     oss.str("");
     oss << "Could not reboot VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -930,7 +931,7 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::resched(int vid, bool do_resched,
-        const RequestAttributes& ra, string& error_str)
+                             const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -942,7 +943,7 @@ int DispatchManager::resched(int vid, bool do_resched,
     }
 
     oss << "Setting rescheduling flag on VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     if (vm->get_state()     == VirtualMachine::POWEROFF ||
         (vm->get_state()     == VirtualMachine::ACTIVE &&
@@ -976,7 +977,7 @@ error_requirements:
     oss.str("");
     oss << "Could not set rescheduling flag for VM " << vid
         << ", error updating requirements. " << error_str;
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     error_str = oss.str();
 
@@ -986,7 +987,7 @@ error_state:
     oss.str("");
     oss << "Could not set rescheduling flag for VM " << vid
         << ", wrong state " << vm->state_str() << ".";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    NebulaLog::log("DiM", Log::ERROR, oss);
 
     oss.str("");
     oss << "This action is not available for state " << vm->state_str();
@@ -999,7 +1000,7 @@ error_state:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::recover(unique_ptr<VirtualMachine> vm, bool success,
-         const RequestAttributes& ra, string& error_str)
+                             const RequestAttributes& ra, string& error_str)
 {
     int rc = 0;
     int vid = vm->get_oid();
@@ -1039,8 +1040,8 @@ int DispatchManager::recover(unique_ptr<VirtualMachine> vm, bool success,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::retry(unique_ptr<VirtualMachine> vm,
-        const RequestAttributes& ra,
-        string& error_str)
+                           const RequestAttributes& ra,
+                           string& error_str)
 {
     int rc = 0;
 
@@ -1068,8 +1069,8 @@ int DispatchManager::retry(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
-        const RequestAttributes& ra,
-        string& error)
+                               const RequestAttributes& ra,
+                               string& error)
 {
     ostringstream oss;
 
@@ -1101,7 +1102,7 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
     }
 
     oss << "Deleting VM " << vm->get_oid();
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     switch (vm->get_state())
     {
@@ -1121,7 +1122,7 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
             }
 
             free_vm_resources(std::move(vm), true);
-        break;
+            break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
@@ -1135,7 +1136,7 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
             }
 
             free_vm_resources(std::move(vm), true);
-        break;
+            break;
 
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
@@ -1143,14 +1144,14 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
             free_vm_resources(std::move(vm), true);
-        break;
+            break;
 
         case VirtualMachine::ACTIVE:
             lcm->trigger_delete(vid, ra);
-        break;
+            break;
 
         case VirtualMachine::DONE:
-        break;
+            break;
     }
 
     return 0;
@@ -1160,7 +1161,7 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::delete_vm(int vid, const RequestAttributes& ra,
-        std::string& error_str)
+                               std::string& error_str)
 {
     auto vm = vmpool->get(vid);
 
@@ -1177,7 +1178,7 @@ int DispatchManager::delete_vm(int vid, const RequestAttributes& ra,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
-        const RequestAttributes& ra, string& error)
+                                     const RequestAttributes& ra, string& error)
 {
     int rc = 0;
 
@@ -1196,19 +1197,19 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             error = "Cannot delete-recreate a powered off VM. Resume it first";
             NebulaLog::log("DiM", Log::ERROR, error);
             rc = -1;
-        break;
+            break;
 
         case VirtualMachine::SUSPENDED:
             error = "Cannot delete-recreate a suspended VM. Resume it first";
             NebulaLog::log("DiM", Log::ERROR, error);
             rc = -1;
-        break;
+            break;
 
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-        break;
+            break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
@@ -1216,7 +1217,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             vm_gid = vm->get_gid();
 
             vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
-                    ds_quotas_snp);
+                                                     ds_quotas_snp);
 
             do_quotas = true;
 
@@ -1226,7 +1227,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             if (vm->hasHistory())
             {
                 vm->set_action(VMActions::DELETE_RECREATE_ACTION, ra.uid, ra.gid,
-                        ra.req_id);
+                               ra.req_id);
                 vmpool->update_history(vm.get());
             }
 
@@ -1241,17 +1242,17 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             {
                 vm->get_quota_template(quota_tmpl, true);
             }
-        break;
+            break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
             lcm->trigger_delete_recreate(vm->get_oid(), ra);
-        break;
+            break;
 
         case VirtualMachine::DONE:
             error = "Cannot delete-recreate a VM already in DONE state";
             NebulaLog::log("DiM", Log::ERROR, error);
             rc = -1;
-        break;
+            break;
     }
 
     vm.reset(); //force unlock of vm mutex
@@ -1278,14 +1279,14 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
-            const RequestAttributes& ra, string& error_str)
+                                  const RequestAttributes& ra, string& error_str)
 {
     HostShareCapacity sr;
 
     ostringstream oss;
     oss << "Deleting VM from DB " << vm->get_oid();
 
-    NebulaLog::log("DiM",Log::DEBUG,oss);
+    NebulaLog::log("DiM", Log::DEBUG, oss);
 
     switch (vm->get_state())
     {
@@ -1306,10 +1307,10 @@ int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
             free_vm_resources(std::move(vm), false);
-        break;
+            break;
 
         case VirtualMachine::DONE:
-        break;
+            break;
     }
 
     return 0;
@@ -1319,7 +1320,7 @@ int DispatchManager::delete_vm_db(unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
-        VMActions::Action action, const RequestAttributes& ra)
+                             VMActions::Action action, const RequestAttributes& ra)
 {
     time_t the_time = time(0);
     bool set_retime = false;
@@ -1360,7 +1361,7 @@ static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
-        const RequestAttributes& ra, string & err)
+                            const RequestAttributes& ra, string & err)
 {
     ostringstream oss;
 
@@ -1438,7 +1439,7 @@ int DispatchManager::attach(int vid, VirtualMachineTemplate * tmpl,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
-        string&  error_str)
+                            string&  error_str)
 {
     ostringstream oss;
 
@@ -1507,7 +1508,7 @@ int DispatchManager::detach(int vid, int disk_id, const RequestAttributes& ra,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::snapshot_create(int vid, string& name, int& snap_id,
-        const RequestAttributes& ra, string& error_str)
+                                     const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -1553,7 +1554,7 @@ int DispatchManager::snapshot_create(int vid, string& name, int& snap_id,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::snapshot_revert(int vid, int snap_id,
-        const RequestAttributes& ra, string& error_str)
+                                     const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -1612,7 +1613,7 @@ int DispatchManager::snapshot_revert(int vid, int snap_id,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::snapshot_delete(int vid, int snap_id,
-        const RequestAttributes& ra,string& error_str)
+                                     const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -1639,9 +1640,9 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
     }
 
     if ( (vm->get_state() != VirtualMachine::ACTIVE ||
-                vm->get_lcm_state() != VirtualMachine::RUNNING) &&
+          vm->get_lcm_state() != VirtualMachine::RUNNING) &&
          (!is_keep_snapshots ||
-                vm->get_state() != VirtualMachine::POWEROFF) )
+          vm->get_state() != VirtualMachine::POWEROFF) )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1680,7 +1681,7 @@ int DispatchManager::snapshot_delete(int vid, int snap_id,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
-        const RequestAttributes& ra, string& error_str)
+                                const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -1701,10 +1702,10 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
     VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
     bool is_running = state == VirtualMachine::ACTIVE &&
-        lcm_state == VirtualMachine::RUNNING;
+                      lcm_state == VirtualMachine::RUNNING;
 
     bool is_poweroff = state == VirtualMachine::POWEROFF &&
-        lcm_state == VirtualMachine::LCM_INIT;
+                       lcm_state == VirtualMachine::LCM_INIT;
 
     if (!is_running && !is_poweroff)
     {
@@ -1802,7 +1803,7 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra,
-        string&  error_str)
+                                string&  error_str)
 {
     ostringstream oss;
 
@@ -1821,10 +1822,10 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
     VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
     bool is_running = state == VirtualMachine::ACTIVE &&
-        lcm_state == VirtualMachine::RUNNING;
+                      lcm_state == VirtualMachine::RUNNING;
 
     bool is_poweroff = state == VirtualMachine::POWEROFF &&
-        lcm_state == VirtualMachine::LCM_INIT;
+                       lcm_state == VirtualMachine::LCM_INIT;
 
     if (!is_running && !is_poweroff)
     {
@@ -1907,7 +1908,7 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
-        int& snap_id, const RequestAttributes& ra, string& error_str)
+                                          int& snap_id, const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -1996,7 +1997,7 @@ int DispatchManager::disk_snapshot_create(int vid, int did, const string& name,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
-        const RequestAttributes& ra, string& error_str)
+                                          const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -2076,7 +2077,7 @@ int DispatchManager::disk_snapshot_revert(int vid, int did, int snap_id,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
-        const RequestAttributes& ra, string& error_str)
+                                          const RequestAttributes& ra, string& error_str)
 {
 
     auto vm = vmpool->get(vid);
@@ -2165,7 +2166,7 @@ int DispatchManager::disk_snapshot_delete(int vid, int did, int snap_id,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::disk_resize(int vid, int did, long long new_size,
-        const RequestAttributes& ra, string& error_str)
+                                 const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -2252,7 +2253,7 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::live_updateconf(std::unique_ptr<VirtualMachine> vm,
-        const RequestAttributes& ra, string& error_str)
+                                     const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -2288,7 +2289,7 @@ int DispatchManager::live_updateconf(std::unique_ptr<VirtualMachine> vm,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::attach_sg(int vid, int nicid, int sgid,
-        const RequestAttributes& ra, string& error_str)
+                               const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 
@@ -2424,7 +2425,7 @@ int DispatchManager::attach_sg(int vid, int nicid, int sgid,
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::detach_sg(int vid, int nicid, int sgid,
-        const RequestAttributes& ra, string& error_str)
+                               const RequestAttributes& ra, string& error_str)
 {
     ostringstream oss;
 

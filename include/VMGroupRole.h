@@ -40,7 +40,7 @@ class VMGroupRole
 public:
     VMGroupRole(VectorAttribute *_va);
 
-    virtual ~VMGroupRole(){};
+    virtual ~VMGroupRole() {};
 
     /**
      *  @return the role id
@@ -136,7 +136,7 @@ public:
      *    @param oss stream where the requirement expression is output
      */
     static void host_requirements(std::set<int>& hosts, const std::string& op1,
-        const std::string& op2, std::ostringstream& oss);
+                                  const std::string& op2, std::ostringstream& oss);
 
 private:
     /**
@@ -161,7 +161,7 @@ private:
 class VMGroupRoles
 {
 public:
-    VMGroupRoles():roles_template(false,'=',"ROLES"), next_role(0){};
+    VMGroupRoles():roles_template(false, '=', "ROLES"), next_role(0) {};
 
     ~VMGroupRoles()
     {
@@ -283,12 +283,12 @@ public:
             return role_it->second;
         }
 
-        RoleIterator(){};
-        RoleIterator(const RoleIterator& rit):role_it(rit.role_it){};
+        RoleIterator() {};
+        RoleIterator(const RoleIterator& rit):role_it(rit.role_it) {};
         RoleIterator(const std::map<int, VMGroupRole *>::iterator& _role_it)
-            :role_it(_role_it){};
+            :role_it(_role_it) {};
 
-        virtual ~RoleIterator(){};
+        virtual ~RoleIterator() {};
 
     private:
         std::map<int, VMGroupRole *>::iterator role_it;
@@ -392,7 +392,7 @@ private:
     /**
      *  The role template to store the VMGroupRole
      */
-	Template roles_template;
+    Template roles_template;
 
     /**
      *  The next role id

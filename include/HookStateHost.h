@@ -40,7 +40,7 @@ private:
     // Constructor/Destructor
     // *************************************************************************
 
-    HookStateHost():state(Host::INIT){};
+    HookStateHost():state(Host::INIT) {};
 
     virtual ~HookStateHost() = default;
 

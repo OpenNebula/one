@@ -41,16 +41,16 @@ void Monitor::start()
     if (oned_config.load_configuration() != 0)
     {
         throw runtime_error("Error reading oned configuration file " +
-            oned_filename);
+                            oned_filename);
     }
 
     config = make_unique<MonitorConfigTemplate>(get_defaults_location(),
-                conf_filename);
+                                                conf_filename);
 
     if (config->load_configuration() != 0)
     {
         throw runtime_error("Error reading monitor configuration file" +
-            conf_filename);
+                            conf_filename);
     }
 
     string datastore_location;
@@ -130,12 +130,12 @@ void Monitor::start()
         if ( db_backend == "postgresql" )
         {
             sqlDB = make_unique<PostgreSqlDB>(server, port, user, passwd, db_name,
-                    connections);
+                                              connections);
         }
         else if ( db_backend == "mysql" )
         {
             sqlDB = make_unique<MySqlDB>(server, port, user, passwd, db_name,
-                        encoding, connections, compare_binary);
+                                         encoding, connections, compare_binary);
         }
         else
         {
@@ -202,10 +202,10 @@ void Monitor::start()
     }
 
     hm = make_unique<HostMonitorManager>(hpool.get(), vmpool.get(),
-                addr, port, threads,
-                get_mad_location(),
-                timer_period,
-                monitor_interval_host);
+                                         addr, port, threads,
+                                         get_mad_location(),
+                                         timer_period,
+                                         monitor_interval_host);
 
     if (hm->load_monitor_drivers(drivers_conf) != 0)
     {

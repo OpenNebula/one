@@ -109,14 +109,14 @@ public:
      *
      * @return a group of vector attributes
      */
-     void get_rules(std::vector<VectorAttribute*>& result) const;
+    void get_rules(std::vector<VectorAttribute*>& result) const;
 
-     /**
-      * Commit SG changes to associated VMs
-      *   @param recover, if true It will propagate the changes to VMs in error
-      *   and those being updated. Otherwise all VMs associated with the SG will
-      *   be updated
-      */
+    /**
+     * Commit SG changes to associated VMs
+     *   @param recover, if true It will propagate the changes to VMs in error
+     *   and those being updated. Otherwise all VMs associated with the SG will
+     *   be updated
+     */
     void commit(bool recover)
     {
         if (!recover)

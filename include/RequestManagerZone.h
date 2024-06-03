@@ -31,7 +31,7 @@ protected:
     RequestManagerZone(const std::string& method_name,
                        const std::string& help,
                        const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_zonepool();
@@ -40,7 +40,7 @@ protected:
         auth_op     = AuthRequest::ADMIN;
     };
 
-    ~RequestManagerZone(){};
+    ~RequestManagerZone() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -51,9 +51,9 @@ class ZoneAddServer : public RequestManagerZone
 public:
     ZoneAddServer():
         RequestManagerZone("one.zone.addserver", "Add a server to zone",
-                "A:sis"){};
+                           "A:sis") {};
 
-    ~ZoneAddServer(){};
+    ~ZoneAddServer() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -67,9 +67,9 @@ class ZoneDeleteServer : public RequestManagerZone
 public:
     ZoneDeleteServer():
         RequestManagerZone("one.zone.delserver", "Delete a server from zone",
-                "A:sii"){};
+                           "A:sii") {};
 
-    ~ZoneDeleteServer(){};
+    ~ZoneDeleteServer() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -83,9 +83,9 @@ class ZoneResetServer : public RequestManagerZone
 public:
     ZoneResetServer():
         RequestManagerZone("one.zone.resetserver", "Reset server log index",
-                "A:sis"){};
+                           "A:sis") {};
 
-    ~ZoneResetServer(){};
+    ~ZoneResetServer() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -99,14 +99,14 @@ class ZoneReplicateLog : public RequestManagerZone
 public:
     ZoneReplicateLog():
         RequestManagerZone("one.zone.replicate", "Replicate a log record",
-                "A:siiiiiiis")
+                           "A:siiiiiiis")
     {
         log_method_call = false;
         leader_only     = false;
         zone_disabled   = true;
     };
 
-    ~ZoneReplicateLog(){};
+    ~ZoneReplicateLog() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -119,13 +119,13 @@ class ZoneVoteRequest : public RequestManagerZone
 {
 public:
     ZoneVoteRequest(): RequestManagerZone("one.zone.voterequest",
-        "Request vote from a candidate", "A:siiii")
+                                              "Request vote from a candidate", "A:siiii")
     {
         leader_only = false;
         zone_disabled = true;
     };
 
-    ~ZoneVoteRequest(){};
+    ~ZoneVoteRequest() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -138,13 +138,13 @@ class ZoneRaftStatus : public RequestManagerZone
 {
 public:
     ZoneRaftStatus(): RequestManagerZone("one.zone.raftstatus",
-        "Returns Raft status", "A:s")
+                                             "Returns Raft status", "A:s")
     {
         leader_only = false;
         zone_disabled = true;
     };
 
-    ~ZoneRaftStatus(){};
+    ~ZoneRaftStatus() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -158,13 +158,13 @@ class ZoneReplicateFedLog : public RequestManagerZone
 public:
     ZoneReplicateFedLog():
         RequestManagerZone("one.zone.fedreplicate", "Replicate a fed log record",
-                "A:sis")
+                           "A:sis")
     {
         log_method_call = false;
         zone_disabled   = true;
     };
 
-    ~ZoneReplicateFedLog(){};
+    ~ZoneReplicateFedLog() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
@@ -178,7 +178,7 @@ class ZoneEnable : public RequestManagerZone
 public:
     ZoneEnable():
         RequestManagerZone("one.zone.enable", "Enable or disable zone",
-                "A:sii")
+                           "A:sii")
     {
         log_method_call = true;
         zone_disabled   = true;

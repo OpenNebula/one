@@ -196,17 +196,17 @@ private:
 
 template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
 Message<E, compress, encode, encrypt, has_timestamp>
-    ::Message(E type, std::string &&status, int oid, const std::string& payload)
-        : _type(type)
-        , _status(std::move(status))
-        , _oid(oid)
-        , _payload(payload)
+::Message(E type, std::string &&status, int oid, const std::string& payload)
+    : _type(type)
+    , _status(std::move(status))
+    , _oid(oid)
+    , _payload(payload)
 {
 }
 
 template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
 int Message<E, compress, encode, encrypt, has_timestamp>
-    ::parse_from(const std::string& input)
+::parse_from(const std::string& input)
 {
     std::istringstream is(input);
     std::string buffer;
@@ -279,7 +279,7 @@ error:
 
 template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
 int Message<E, compress, encode, encrypt, has_timestamp>
-    ::write_to(std::string& out) const
+::write_to(std::string& out) const
 {
     out.clear();
 
@@ -332,7 +332,7 @@ int Message<E, compress, encode, encrypt, has_timestamp>
 
 template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
 int Message<E, compress, encode, encrypt, has_timestamp>
-    ::write_to(int fd) const
+::write_to(int fd) const
 {
     std::string out;
 
@@ -351,7 +351,7 @@ int Message<E, compress, encode, encrypt, has_timestamp>
 
 template<typename E, bool compress, bool encode, bool encrypt, bool has_timestamp>
 int Message<E, compress, encode, encrypt, has_timestamp>
-    ::write_to(std::ostream& oss) const
+::write_to(std::ostream& oss) const
 {
     std::string out;
 

@@ -36,14 +36,17 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 const char * VirtualMachine::NO_NIC_DEFAULTS[] = {"NETWORK_ID", "NETWORK",
-    "NETWORK_UID", "NETWORK_UNAME"};
+                                                  "NETWORK_UID", "NETWORK_UNAME"
+                                                 };
 
 const int VirtualMachine::NUM_NO_NIC_DEFAULTS = 4;
 
-const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
-        "VROUTER_ID",
-        "VROUTER_KEEPALIVED_ID",
-        "VROUTER_KEEPALIVED_PASSWORD"};
+const char*  VirtualMachine::VROUTER_ATTRIBUTES[] =
+{
+    "VROUTER_ID",
+    "VROUTER_KEEPALIVED_ID",
+    "VROUTER_KEEPALIVED_PASSWORD"
+};
 const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
 
 /* -------------------------------------------------------------------------- */
@@ -58,7 +61,7 @@ const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
  *    @return 0 on succes
  */
 int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
-        Image::ImageType base_type, string& error_str)
+                                Image::ImageType base_type, string& error_str)
 {
     vector<int>  img_ids;
     Nebula& nd = Nebula::instance();
@@ -316,7 +319,7 @@ int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 
 static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
-    string& error_str)
+                                string& error_str)
 {
     static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
     static int num_attrs  = 3;
@@ -492,7 +495,7 @@ int VirtualMachine::parse_requirements(string& error_str)
     {
         SingleAttribute * reqs_parsed;
 
-        reqs_parsed = new SingleAttribute("SCHED_REQUIREMENTS",parsed);
+        reqs_parsed = new SingleAttribute("SCHED_REQUIREMENTS", parsed);
         user_obj_template->set(reqs_parsed);
     }
 
@@ -537,8 +540,9 @@ void VirtualMachine::parse_well_known_attributes()
      * NUMA_NODE
      */
     std::vector<std::string> names = {"INPUT", "FEATURES", "RAW",
-        "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE", "HYPERV_OPTIONS",
-        "SPICE_OPTIONS"};
+                                      "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE", "HYPERV_OPTIONS",
+                                      "SPICE_OPTIONS"
+                                     };
 
     for (auto it = names.begin(); it != names.end() ; ++it)
     {
@@ -578,7 +582,7 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
 
     if (str_buffer == 0)
     {
-        log("VM",Log::ERROR,"Error setting scan buffer");
+        log("VM", Log::ERROR, "Error setting scan buffer");
         return -1;
     }
 
@@ -636,7 +640,7 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 
     if (str_buffer == 0)
     {
-        log("VM",Log::ERROR,"Error setting scan buffer");
+        log("VM", Log::ERROR, "Error setting scan buffer");
         return -1;
     }
 
@@ -745,14 +749,14 @@ int VirtualMachine::parse_cpu_model(Template * tmpl)
 
 int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
 {
-/**
- *   TOPOLOGY
- *      - NUMA_NODES: number of numa nodes
- *      - PIN_POLICY: CORE, THREAD, SHARED, NONE
- *      - THREADS
- *      - CORES
- *      - SOCKETS
- */
+    /**
+     *   TOPOLOGY
+     *      - NUMA_NODES: number of numa nodes
+     *      - PIN_POLICY: CORE, THREAD, SHARED, NONE
+     *      - THREADS
+     *      - CORES
+     *      - SOCKETS
+     */
     std::vector<VectorAttribute *> numa_nodes;
     std::vector<VectorAttribute *> vtopol_a;
 
@@ -841,7 +845,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
         if ( c == 0 || t == 0 || s == 0 )
         {
             error = "Non-pinned VMs with a virtual topology needs to set "
-                " SOCKETS, CORES and THREADS numbers.";
+                    " SOCKETS, CORES and THREADS numbers.";
             return -1;
         }
         else if ((s * c * t) != vcpu)

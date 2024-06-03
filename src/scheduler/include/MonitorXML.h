@@ -54,7 +54,7 @@ class MonitorPoolXML : public PoolXML
 {
 public:
 
-    MonitorPoolXML (Client* client):PoolXML(client){};
+    MonitorPoolXML (Client* client):PoolXML(client) {};
 
     ~MonitorPoolXML() = default;
 
@@ -80,14 +80,14 @@ protected:
     {
         if ( node == 0 || node->children == 0 )
         {
-            NebulaLog::log("MONITOR",Log::ERROR,
+            NebulaLog::log("MONITOR", Log::ERROR,
                            "XML Node is not a valid MONITORING record");
             return;
         }
 
         MonitorXML* monitor = new MonitorXML(node);
 
-        objects.insert(std::pair<int,ObjectXML*>(monitor->get_oid(), monitor));
+        objects.insert(std::pair<int, ObjectXML*>(monitor->get_oid(), monitor));
     }
 
     int load_info(xmlrpc_c::value &result) override

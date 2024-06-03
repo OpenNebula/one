@@ -69,9 +69,9 @@ public:
 protected:
 
     Clusterable(const std::set<int> &_cluster_ids):
-        cluster_ids("CLUSTERS", _cluster_ids){};
+        cluster_ids("CLUSTERS", _cluster_ids) {};
 
-    ~Clusterable(){};
+    ~Clusterable() {};
 
     /**
      * IDs of the clusters this object belongs to.

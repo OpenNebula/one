@@ -77,8 +77,8 @@ VirtualRouter::VirtualRouter(   int             id,
                                 const string&   _gname,
                                 int             _umask,
                                 unique_ptr<Template> _template_contents):
-        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,one_db::vr_table),
-        vms("VMS")
+    PoolObjectSQL(id, VROUTER, "", _uid, _gid, _uname, _gname, one_db::vr_table),
+    vms("VMS")
 {
     if (_template_contents)
     {
@@ -198,14 +198,14 @@ int VirtualRouter::get_network_leases(string& estr) const
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
-    int num_nics = obj_template->get("NIC",nics);
+    int num_nics = obj_template->get("NIC", nics);
 
     for (int i=0; i<num_nics; i++)
     {
         VirtualMachineNic nic(nics[i], i);
 
         if (vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, i, uid, oid,
-                estr) == -1)
+                                  estr) == -1)
         {
             return -1;
         }
@@ -230,7 +230,7 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-   // Update the Object
+    // Update the Object
 
     sql_name = db->escape_str(name);
 
@@ -328,16 +328,16 @@ string& VirtualRouter::to_xml(string& xml) const
     string          lock_str;
 
     oss << "<VROUTER>"
-            << "<ID>"       << oid        << "</ID>"
-            << "<UID>"      << uid        << "</UID>"
-            << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>"
-            << "<GNAME>"    << gname      << "</GNAME>"
-            << "<NAME>"     << name       << "</NAME>"
-            << perms_to_xml(perm_str)
-            << lock_db_to_xml(lock_str)
-            << vms.to_xml(vm_collection_xml)
-            << obj_template->to_xml(template_xml)
+        << "<ID>"       << oid        << "</ID>"
+        << "<UID>"      << uid        << "</UID>"
+        << "<GID>"      << gid        << "</GID>"
+        << "<UNAME>"    << uname      << "</UNAME>"
+        << "<GNAME>"    << gname      << "</GNAME>"
+        << "<NAME>"     << name       << "</NAME>"
+        << perms_to_xml(perm_str)
+        << lock_db_to_xml(lock_str)
+        << vms.to_xml(vm_collection_xml)
+        << obj_template->to_xml(template_xml)
         << "</VROUTER>";
 
     xml = oss.str();
@@ -400,7 +400,7 @@ void VirtualRouter::release_network_leases()
 {
     vector<VectorAttribute const *> nics;
 
-    int num_nics = get_template_attribute("NIC",nics);
+    int num_nics = get_template_attribute("NIC", nics);
 
     for (int i=0; i<num_nics; i++)
     {
@@ -463,7 +463,7 @@ Template * VirtualRouter::get_vm_template() const
     int    keepalived_id;
     string st;
 
-    int num_nics = obj_template->get("NIC",nics);
+    int num_nics = obj_template->get("NIC", nics);
 
     for (int i=0; i<num_nics; i++)
     {
@@ -497,8 +497,8 @@ Template * VirtualRouter::get_vm_template() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
-		string& error)
+int VirtualRouter::replace_template(const string &tmpl_str, bool keep_restricted,
+                                    string& error)
 {
     auto       new_tmpl = get_new_template();
     string     new_str;
@@ -534,7 +534,7 @@ int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 /* -------------------------------------------------------------------------- */
 
 int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
-	   	string& error)
+                                   string& error)
 {
     auto       new_tmpl = get_new_template();
     string     new_str;
@@ -612,7 +612,7 @@ VectorAttribute * VirtualRouter::attach_nic(
     VirtualMachineNic nic(nics[0], nic_id);
 
     rc = vnpool->nic_attribute(PoolObjectSQL::VROUTER, &nic, nic_id, uid, oid,
-            error_str);
+                               error_str);
 
     if (rc == -1)
     {
@@ -682,7 +682,7 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 /* -------------------------------------------------------------------------- */
 
 void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
-                                    bool check_lock)
+                                     bool check_lock)
 {
     VirtualMachineNics tnics(tmpl);
 

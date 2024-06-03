@@ -36,7 +36,7 @@ class HostShare : public ObjectXML
 public:
     HostShare();
 
-    ~HostShare(){};
+    ~HostShare() {};
 
     /**
      *  Pin policy for the host

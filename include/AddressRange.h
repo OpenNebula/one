@@ -33,7 +33,7 @@ class AddressRange
 {
 public:
 
-    virtual ~AddressRange(){};
+    virtual ~AddressRange() {};
 
     // *************************************************************************
     // Address Range types
@@ -166,7 +166,7 @@ public:
      *      A vector containing just -1 means all VRouters.
      */
     void to_xml(std::ostringstream &oss, const std::vector<int>& vms,
-        const std::vector<int>& vnets, const std::vector<int>& vrs) const;
+                const std::vector<int>& vnets, const std::vector<int>& vrs) const;
 
     /**
      *  Same as above but without the LEASES section
@@ -188,7 +188,7 @@ public:
      *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
-        VectorAttribute * nic, const std::vector<std::string> &inherit);
+                      VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Returns the specific address by mac/ip if is not allocated. The NIC attr
@@ -201,13 +201,13 @@ public:
      *    @return 0 if success
      */
     int allocate_by_mac(const std::string& mac, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+                        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     int allocate_by_ip(const std::string& ip, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+                       int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     int allocate_by_ip6(const std::string& ip6, PoolObjectSQL::ObjectType ot,
-        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
+                        int obid, VectorAttribute * nic, const std::vector<std::string> &inherit);
 
     /**
      *  Sets the given ip/mac on hold, the address is associated to a VM of
@@ -231,7 +231,7 @@ public:
 
     int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const std::string& ip);
 
-    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id,const std::string& ip);
+    int free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int id, const std::string& ip);
 
     /**
      *  Frees all previous allocated address to the given object
@@ -251,7 +251,7 @@ public:
      *  @return the number of addresses freed
      */
     int free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
-        const std::string& mac, unsigned int rsize);
+                           const std::string& mac, unsigned int rsize);
 
     /**
      * Adds the relevant AR definition attributes to the Security Group rule
@@ -282,13 +282,13 @@ public:
      *    @return 0 on success
      */
     int reserve_addr_by_mac(int vid, unsigned int rsize, const std::string& mac,
-        AddressRange *rar);
+                            AddressRange *rar);
 
     int reserve_addr_by_ip(int vid, unsigned int rsize, const std::string& ip,
-        AddressRange *rar);
+                           AddressRange *rar);
 
     int reserve_addr_by_ip6(int vid, unsigned int rsize, const std::string& ip,
-        AddressRange *rar);
+                            AddressRange *rar);
 
     // *************************************************************************
     // Helpers
@@ -415,7 +415,7 @@ protected:
      *  Base constructor it cannot be called directly but from the
      *  AddressRange factory constructor.
      */
-    AddressRange(unsigned int _id):id(_id){};
+    AddressRange(unsigned int _id):id(_id) {};
 
     /* ---------------------------------------------------------------------- */
     /* Address/AR helper functions to build/parse driver messages             */
@@ -440,7 +440,7 @@ protected:
      *    @param oss string stream to write the request to
      */
     void addr_to_xml(unsigned int index, unsigned int size,
-            std::ostringstream& oss) const;
+                     std::ostringstream& oss) const;
 
     /**
      *  Check if the given MAC is valid for this address range by verifying:
@@ -589,7 +589,7 @@ private:
      * @return 0 on success
      */
     static int ip6_to_s(const unsigned int prefix[], const unsigned int mac[],
-        std::string& ip6_s);
+                        std::string& ip6_s);
 
     static int ip6_to_s(const unsigned int ip6_i[], std::string& ip6_s);
 
@@ -664,7 +664,7 @@ private:
      *  Adds a new allocated address to the map. Updates the ALLOCATED attribute
      */
     void set_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
-        unsigned int addr_index);
+                            unsigned int addr_index);
 
     /**
      *  Sets the address lease as used and fills a NIC attribute with the
@@ -677,16 +677,16 @@ private:
      *    @return 0 if success
      */
     void allocate_by_index(unsigned int index,
-        PoolObjectSQL::ObjectType       ot,
-        int                             obid,
-        VectorAttribute*                nic,
-        const std::vector<std::string>& inherit);
+                           PoolObjectSQL::ObjectType       ot,
+                           int                             obid,
+                           VectorAttribute*                nic,
+                           const std::vector<std::string>& inherit);
 
     /**
      *  Frees an address from the map. Updates the ALLOCATED attribute
      */
     int free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
-        unsigned int addr_index);
+                            unsigned int addr_index);
 
     /**
      *  Reserve a set of addresses from an starting one
@@ -697,7 +697,7 @@ private:
      *    @return 0 on success
      */
     int reserve_addr_by_index(int vid, unsigned int rsize, unsigned int sindex,
-        AddressRange *rar);
+                              AddressRange *rar);
 
     /* ---------------------------------------------------------------------- */
     /* Restricted Attributes functions                                        */

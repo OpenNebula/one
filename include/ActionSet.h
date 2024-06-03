@@ -28,7 +28,7 @@ template <typename T>
 class ActionSet
 {
 public:
-    ActionSet():action_set(0UL){};
+    ActionSet():action_set(0UL) {};
     ActionSet(const T * actions, int actions_len):action_set(0)
     {
         for (int i=0; i<actions_len; i++)
@@ -37,7 +37,7 @@ public:
         }
     };
 
-    ~ActionSet(){};
+    ~ActionSet() {};
 
     /* Set the action in the set */
     void set(T action)

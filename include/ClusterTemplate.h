@@ -27,11 +27,11 @@ class ClusterTemplate : public Template
 {
 public:
     ClusterTemplate():
-        Template(false,'=',"TEMPLATE"){};
+        Template(false, '=', "TEMPLATE") {};
 
-    ~ClusterTemplate(){};
+    ~ClusterTemplate() {};
 
-    ClusterTemplate(ClusterTemplate& ct):Template(ct){};
+    ClusterTemplate(ClusterTemplate& ct):Template(ct) {};
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

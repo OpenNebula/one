@@ -38,7 +38,7 @@ void ImageEnable::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    rc = imagem->enable_image(id,enable_flag, att.resp_msg);
+    rc = imagem->enable_image(id, enable_flag, att.resp_msg);
 
     if( rc < 0 )
     {
@@ -83,9 +83,9 @@ void ImagePersistent::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 Request::ErrorCode ImagePersistent::request_execute(
-            int     id,
-            bool    persistent_flag,
-            RequestAttributes& att)
+        int     id,
+        bool    persistent_flag,
+        RequestAttributes& att)
 {
     int     rc;
 
@@ -141,7 +141,7 @@ Request::ErrorCode ImagePersistent::request_execute(
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
-        break;
+            break;
 
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -217,12 +217,12 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                 (itype != Image::CDROM))
             {
                 att.resp_msg = "Cannot change image type to an incompatible type"
-                    " for the current datastore.";
+                               " for the current datastore.";
                 failure_response(ACTION, att);
 
                 return;
             }
-        break;
+            break;
 
         case Image::KERNEL:
         case Image::RAMDISK:
@@ -232,12 +232,12 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                 (itype != Image::CONTEXT) )
             {
                 att.resp_msg = "Cannot change image type to an incompatible type"
-                    " for the current datastore.";
+                               " for the current datastore.";
                 failure_response(ACTION, att);
 
                 return;
             }
-        break;
+            break;
     }
 
     rc = image->set_type(type, att.resp_msg);
@@ -320,13 +320,13 @@ Request::ErrorCode ImageClone::request_execute(
             case Image::OS:
             case Image::DATABLOCK:
             case Image::CDROM:
-            break;
+                break;
 
             case Image::KERNEL:
             case Image::RAMDISK:
             case Image::CONTEXT:
                 att.resp_msg = "KERNEL, RAMDISK and CONTEXT cannot be cloned.";
-            return ACTION;
+                return ACTION;
         }
 
         const Snapshots& snaps = img->get_snapshots();
@@ -471,7 +471,7 @@ Request::ErrorCode ImageClone::request_execute(
     // -------------------------- Check Quotas  ----------------------------
 
     if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
-                att.resp_msg) == false )
+                             att.resp_msg) == false )
     {
         return AUTHORIZATION;
     }
@@ -514,7 +514,7 @@ Request::ErrorCode ImageClone::request_execute(
 /* ------------------------------------------------------------------------- */
 
 void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
-                                  RequestAttributes& att)
+                                          RequestAttributes& att)
 {
     int id      = xmlrpc_c::value_int(paramList.getInt(1));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -542,7 +542,7 @@ void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
-                                  RequestAttributes& att)
+                                          RequestAttributes& att)
 {
     int id      = xmlrpc_c::value_int(paramList.getInt(1));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
@@ -570,7 +570,7 @@ void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void ImageSnapshotFlatten::request_execute(xmlrpc_c::paramList const& paramList,
-                                  RequestAttributes& att)
+                                           RequestAttributes& att)
 {
     int id      = xmlrpc_c::value_int(paramList.getInt(1));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(2));

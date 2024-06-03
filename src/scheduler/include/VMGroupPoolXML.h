@@ -27,9 +27,9 @@ class VMGroupPoolXML : public PoolXML
 {
 public:
 
-    VMGroupPoolXML(Client* client):PoolXML(client){};
+    VMGroupPoolXML(Client* client):PoolXML(client) {};
 
-    ~VMGroupPoolXML(){};
+    ~VMGroupPoolXML() {};
 
     VMGroupXML * get(int oid) const
     {

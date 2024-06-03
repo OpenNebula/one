@@ -31,33 +31,35 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
 const int AclRule::num_pool_objects = 18;
-const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
-            PoolObjectSQL::VM,
-            PoolObjectSQL::HOST,
-            PoolObjectSQL::NET,
-            PoolObjectSQL::IMAGE,
-            PoolObjectSQL::USER,
-            PoolObjectSQL::TEMPLATE,
-            PoolObjectSQL::GROUP,
-            PoolObjectSQL::DATASTORE,
-            PoolObjectSQL::CLUSTER,
-            PoolObjectSQL::DOCUMENT,
-            PoolObjectSQL::ZONE,
-            PoolObjectSQL::SECGROUP,
-            PoolObjectSQL::VDC,
-            PoolObjectSQL::VROUTER,
-            PoolObjectSQL::MARKETPLACE,
-            PoolObjectSQL::MARKETPLACEAPP,
-            PoolObjectSQL::VMGROUP,
-            PoolObjectSQL::VNTEMPLATE
+const PoolObjectSQL::ObjectType AclRule::pool_objects[] =
+{
+    PoolObjectSQL::VM,
+    PoolObjectSQL::HOST,
+    PoolObjectSQL::NET,
+    PoolObjectSQL::IMAGE,
+    PoolObjectSQL::USER,
+    PoolObjectSQL::TEMPLATE,
+    PoolObjectSQL::GROUP,
+    PoolObjectSQL::DATASTORE,
+    PoolObjectSQL::CLUSTER,
+    PoolObjectSQL::DOCUMENT,
+    PoolObjectSQL::ZONE,
+    PoolObjectSQL::SECGROUP,
+    PoolObjectSQL::VDC,
+    PoolObjectSQL::VROUTER,
+    PoolObjectSQL::MARKETPLACE,
+    PoolObjectSQL::MARKETPLACEAPP,
+    PoolObjectSQL::VMGROUP,
+    PoolObjectSQL::VNTEMPLATE
 };
 
 const int AclRule::num_auth_operations = 4;
-const AuthRequest::Operation AclRule::auth_operations[] = {
-            AuthRequest::USE,
-            AuthRequest::MANAGE,
-            AuthRequest::ADMIN,
-            AuthRequest::CREATE
+const AuthRequest::Operation AclRule::auth_operations[] =
+{
+    AuthRequest::USE,
+    AuthRequest::MANAGE,
+    AuthRequest::ADMIN,
+    AuthRequest::CREATE
 };
 
 const long long AclRule::INVALID_CLUSTER_OBJECTS =
@@ -154,7 +156,7 @@ bool AclRule::malformed(string& error_str) const
          ( (resource & GROUP_ID)      != 0 && (resource & 0xF00000000LL) != GROUP_ID ) ||
          ( (resource & CLUSTER_ID)    != 0 && (resource & 0xF00000000LL) != CLUSTER_ID ) ||
          ( (resource & ALL_ID)        != 0 && (resource & 0xF00000000LL) != ALL_ID )
-        )
+       )
     {
         if ( error )
         {
@@ -463,14 +465,14 @@ string& AclRule::to_xml(string& xml) const
     ostringstream   oss;
 
     oss <<
-    "<ACL>"
+        "<ACL>"
         "<ID>"       << oid              << "</ID>"          <<
         "<USER>"     << hex << user      << "</USER>"        <<
         "<RESOURCE>" << hex << resource  << "</RESOURCE>"    <<
         "<RIGHTS>"   << hex << rights    << "</RIGHTS>"      <<
         "<ZONE>"     << hex << zone      << "</ZONE>"        <<
         "<STRING>"   << str              << "</STRING>"      <<
-    "</ACL>";
+        "</ACL>";
 
     xml = oss.str();
 

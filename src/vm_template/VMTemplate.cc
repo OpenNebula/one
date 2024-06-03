@@ -33,7 +33,7 @@ VMTemplate::VMTemplate(int id,
                        const string& _gname,
                        int umask,
                        unique_ptr<Template> _template_contents):
-    PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vm_template_table),
+    PoolObjectSQL(id, TEMPLATE, "", _uid, _gid, _uname, _gname, one_db::vm_template_table),
     regtime(time(0))
 {
     if (_template_contents)
@@ -98,7 +98,7 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-   // Update the Object
+    // Update the Object
 
     sql_name = db->escape_str(name);
 
@@ -244,16 +244,16 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
     string          lock_str;
 
     oss << "<VMTEMPLATE>"
-            << "<ID>"       << oid        << "</ID>"
-            << "<UID>"      << uid        << "</UID>"
-            << "<GID>"      << gid        << "</GID>"
-            << "<UNAME>"    << uname      << "</UNAME>"
-            << "<GNAME>"    << gname      << "</GNAME>"
-            << "<NAME>"     << name       << "</NAME>"
-            << lock_db_to_xml(lock_str)
-            << perms_to_xml(perm_str)
-            << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << tmpl->to_xml(template_xml)
+        << "<ID>"       << oid        << "</ID>"
+        << "<UID>"      << uid        << "</UID>"
+        << "<GID>"      << gid        << "</GID>"
+        << "<UNAME>"    << uname      << "</UNAME>"
+        << "<GNAME>"    << gname      << "</GNAME>"
+        << "<NAME>"     << name       << "</NAME>"
+        << lock_db_to_xml(lock_str)
+        << perms_to_xml(perm_str)
+        << "<REGTIME>"  << regtime    << "</REGTIME>"
+        << tmpl->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
     xml = oss.str();

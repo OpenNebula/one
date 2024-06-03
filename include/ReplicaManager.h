@@ -66,7 +66,7 @@ public:
     void add_replica_thread(int follower_id);
 
 protected:
-    ReplicaManager(){};
+    ReplicaManager() {};
 
     virtual ~ReplicaManager()
     {
@@ -96,9 +96,9 @@ private:
 class RaftReplicaManager : public ReplicaManager
 {
 public:
-    RaftReplicaManager():ReplicaManager(){};
+    RaftReplicaManager():ReplicaManager() {};
 
-    virtual ~RaftReplicaManager(){};
+    virtual ~RaftReplicaManager() {};
 
 private:
     ReplicaThread * thread_factory(int follower_id) override;
@@ -107,9 +107,9 @@ private:
 class HeartBeatManager : public ReplicaManager
 {
 public:
-    HeartBeatManager():ReplicaManager(){};
+    HeartBeatManager():ReplicaManager() {};
 
-    virtual ~HeartBeatManager(){};
+    virtual ~HeartBeatManager() {};
 
 private:
     ReplicaThread * thread_factory(int follower_id) override;

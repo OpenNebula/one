@@ -93,7 +93,7 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 
     if (msg->status() != "SUCCESS")
     {
-       goto error;
+        goto error;
     }
 
     is >> source;
@@ -163,9 +163,9 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
 
     ostringstream oss;
     istringstream is(info);
-    
+
     NebulaLog::dddebug("ImM", "_clone: " + info);
-    
+
     is >> skipws;
 
     auto image = ipool->get(msg->oid());
@@ -194,7 +194,7 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
 
     if (msg->status() != "SUCCESS")
     {
-       goto error;
+        goto error;
     }
 
     is >> source;
@@ -291,7 +291,7 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     else if (image->get_state() == Image::DELETE)
     {
         NebulaLog::info("ImM", "Ignoring mkfs callback, image is "
-                "being deleted");
+                        "being deleted");
 
         return;
     }

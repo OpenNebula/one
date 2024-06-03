@@ -20,8 +20,8 @@
 using namespace std;
 
 int XMLDriver::deployment_description(
-    const VirtualMachine *  vm,
-    const string&           file_name) const
+        const VirtualMachine *  vm,
+        const string&           file_name) const
 {
     ofstream    file;
     string      xml;

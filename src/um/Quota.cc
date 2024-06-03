@@ -415,7 +415,7 @@ int Quota::update_limits(
             }
         }
 
-            // Negative. Default & unlimited allowed
+        // Negative. Default & unlimited allowed
         if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
@@ -436,7 +436,7 @@ int Quota::update_limits(
 
 VectorAttribute * Quota::new_quota(const VectorAttribute * va)
 {
-    map<string,string> limits;
+    map<string, string> limits;
 
     float  limit_f;
 
@@ -459,7 +459,7 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
                 limit_f = DEFAULT;
             }
         }
-            // Negative. Default & unlimited allowed
+        // Negative. Default & unlimited allowed
         if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
@@ -480,5 +480,5 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
         limits.insert(make_pair("ID", id));
     }
 
-    return new VectorAttribute(template_name,limits);
+    return new VectorAttribute(template_name, limits);
 }

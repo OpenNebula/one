@@ -49,7 +49,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 static Request::ErrorCode delete_authorization(PoolSQL* pool, int oid,
-        RequestAttributes& att)
+                                               RequestAttributes& att)
 {
     PoolObjectAuth  perms;
 
@@ -109,7 +109,7 @@ RequestManagerDelete::RequestManagerDelete(const string& method_name,
 /* ------------------------------------------------------------------------- */
 
 void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
+                                           RequestAttributes& att)
 {
     int  oid       = xmlrpc_c::value_int(paramList.getInt(1));
     bool recursive = false;
@@ -141,7 +141,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 Request::ErrorCode RequestManagerDelete::delete_object(int oid, bool recursive,
-        RequestAttributes& att)
+                                                       RequestAttributes& att)
 {
     string    err;
     ErrorCode ec;
@@ -166,7 +166,7 @@ Request::ErrorCode RequestManagerDelete::delete_object(int oid, bool recursive,
     if ( rc != 0 )
     {
         att.resp_msg = "Cannot delete " + object_name(auth_object) + ". "
-            + att.resp_msg;
+                       + att.resp_msg;
 
         return ACTION;
     }
@@ -180,7 +180,7 @@ Request::ErrorCode RequestManagerDelete::delete_object(int oid, bool recursive,
 /* ------------------------------------------------------------------------- */
 
 int RequestManagerDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
-        RequestAttributes& att)
+                               RequestAttributes& att)
 {
     set<int> cluster_ids = get_cluster_ids(object.get());
 
@@ -228,7 +228,7 @@ TemplateDelete::TemplateDelete()
 /* ------------------------------------------------------------------------- */
 
 int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
-        RequestAttributes& att)
+                         RequestAttributes& att)
 {
     vector<VectorAttribute *> vdisks;
 
@@ -274,9 +274,9 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
     if ( !error_ids.empty() )
     {
         att.resp_msg = "Template " + to_string(tid) +
-            " deleted, unable to recursively delete " +
-            object_name(PoolObjectSQL::IMAGE) +
-            ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
+                       " deleted, unable to recursively delete " +
+                       object_name(PoolObjectSQL::IMAGE) +
+                       ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
 
         NebulaLog::warn("ReM", att.resp_msg);
     }
@@ -289,8 +289,8 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
 
 VirtualNetworkTemplateDelete::VirtualNetworkTemplateDelete()
     : RequestManagerDelete("one.vntemplate.delete",
-                            "A:si",
-                            "Deletes a virtual network template")
+                           "A:si",
+                           "Deletes a virtual network template")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_vntpool();
@@ -330,7 +330,7 @@ int VirtualNetworkDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Re
         case VirtualNetwork::LOCK_DELETE:
         case VirtualNetwork::DONE:
             att.resp_msg = "Can not remove a Virtual Network, wrong state "
-                + vnet->state_to_str(vnet->get_state());
+                           + vnet->state_to_str(vnet->get_state());
             return -1;
         case VirtualNetwork::INIT:
         case VirtualNetwork::READY:
@@ -381,7 +381,7 @@ ImageDelete::ImageDelete()
 /* ------------------------------------------------------------------------- */
 
 void ImageDelete::request_execute(xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
+                                  RequestAttributes& att)
 {
     int  oid = xmlrpc_c::value_int(paramList.getInt(1));
 
@@ -751,7 +751,7 @@ int ZoneDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, RequestAttri
 
 SecurityGroupDelete::SecurityGroupDelete():
     RequestManagerDelete("one.secgroup.delete",
-                            "Deletes a security group")
+                         "Deletes a security group")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_secgrouppool();
@@ -885,17 +885,17 @@ int MarketPlaceDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool r, Reque
             continue;
         }
 
-       if ( apppool->drop(app.get(), app_error) != 0 )
-       {
-           ostringstream oss;
+        if ( apppool->drop(app.get(), app_error) != 0 )
+        {
+            ostringstream oss;
 
-           oss << "Cannot remove " << object_name(PoolObjectSQL::MARKETPLACEAPP)
-               << " " << app_id << ": " << app_error << ". ";
+            oss << "Cannot remove " << object_name(PoolObjectSQL::MARKETPLACEAPP)
+                << " " << app_id << ": " << app_error << ". ";
 
-           att.resp_msg = att.resp_msg + oss.str();
+            att.resp_msg = att.resp_msg + oss.str();
 
-           rc = -1;
-       }
+            rc = -1;
+        }
     }
 
     MarketPlacePool* mppool = static_cast<MarketPlacePool *>(pool);
@@ -1003,7 +1003,7 @@ VMGroupDelete::VMGroupDelete()
 
 HookDelete::HookDelete():
     RequestManagerDelete("one.hook.delete",
-                            "Deletes a hook")
+                         "Deletes a hook")
 {
     Nebula& nd  = Nebula::instance();
     pool        = nd.get_hkpool();

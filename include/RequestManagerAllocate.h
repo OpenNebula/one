@@ -56,7 +56,7 @@ protected:
                            const std::string& help,
                            const std::string& xml_args,
                            bool          _do_template)
-        :Request(method_name,xml_args,help), do_template(_do_template)
+        :Request(method_name, xml_args, help), do_template(_do_template)
     {
         auth_op = AuthRequest::CREATE;
 
@@ -64,7 +64,7 @@ protected:
         clpool      = nd.get_clpool();
     };
 
-    ~RequestManagerAllocate(){};
+    ~RequestManagerAllocate() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -72,29 +72,29 @@ protected:
                          RequestAttributes& att) override;
 
     virtual bool allocate_authorization(xmlrpc_c::paramList const& _paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms);
+                                        Template *obj_template, RequestAttributes&  att,
+                                        PoolObjectAuth *cluster_perms);
 
     /* -------------------------------------------------------------------- */
 
     virtual std::unique_ptr<Template> get_object_template() const { return 0; };
 
     virtual Request::ErrorCode pool_allocate(
-                              xmlrpc_c::paramList const& _paramList,
-                              std::unique_ptr<Template> tmpl,
-                              int& id,
-                              RequestAttributes& att)
+            xmlrpc_c::paramList const& _paramList,
+            std::unique_ptr<Template> tmpl,
+            int& id,
+            RequestAttributes& att)
     {
         return Request::INTERNAL;
     };
 
     virtual Request::ErrorCode pool_allocate(
-                              xmlrpc_c::paramList const& _paramList,
-                              std::unique_ptr<Template> tmpl,
-                              int& id,
-                              RequestAttributes& att,
-                              int cluster_id,
-                              const std::string& cluster_name)
+            xmlrpc_c::paramList const& _paramList,
+            std::unique_ptr<Template> tmpl,
+            int& id,
+            RequestAttributes& att,
+            int cluster_id,
+            const std::string& cluster_name)
     {
         return pool_allocate(_paramList, move(tmpl), id, att);
     };
@@ -154,7 +154,7 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachineAllocate(){};
+    ~VirtualMachineAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -169,8 +169,8 @@ public:
                                      RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms) override;
+                                Template *obj_template, RequestAttributes&  att,
+                                PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -190,7 +190,7 @@ public:
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkAllocate(){};
+    ~VirtualNetworkAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -200,11 +200,11 @@ public:
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template> tmpl,
-                      int& id,
-                      RequestAttributes& att,
-                      int cluster_id,
-                      const std::string& cluster_name) override;
+                                     std::unique_ptr<Template> tmpl,
+                                     int& id,
+                                     RequestAttributes& att,
+                                     int cluster_id,
+                                     const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
@@ -237,7 +237,7 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageAllocate(){};
+    ~ImageAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -262,7 +262,7 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateAllocate(){};
+    ~TemplateAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -277,8 +277,8 @@ public:
                                      RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms) override;
+                                Template *obj_template, RequestAttributes&  att,
+                                PoolObjectAuth *cluster_perms) override;
 };
 
 class VirtualNetworkTemplateAllocate : public RequestManagerAllocate
@@ -295,7 +295,7 @@ public:
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
-    ~VirtualNetworkTemplateAllocate(){};
+    ~VirtualNetworkTemplateAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -310,8 +310,8 @@ public:
                                      RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms) override;
+                                Template *obj_template, RequestAttributes&  att,
+                                PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -331,16 +331,16 @@ public:
         auth_object = PoolObjectSQL::HOST;
     };
 
-    ~HostAllocate(){};
+    ~HostAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template> tmpl,
-                      int& id,
-                      RequestAttributes& att,
-                      int cluster_id,
-                      const std::string& cluster_name) override;
+                                     std::unique_ptr<Template> tmpl,
+                                     int& id,
+                                     RequestAttributes& att,
+                                     int cluster_id,
+                                     const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
@@ -376,7 +376,7 @@ public:
         hidden_params.insert(2); // password argument
     };
 
-    ~UserAllocate(){};
+    ~UserAllocate() {};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      std::unique_ptr<Template>   tmpl,
@@ -384,8 +384,8 @@ public:
                                      RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms) override;
+                                Template *obj_template, RequestAttributes&  att,
+                                PoolObjectAuth *cluster_perms) override;
 private:
     GroupPool * gpool;
 };
@@ -409,7 +409,7 @@ public:
         vdcpool     = nd.get_vdcpool();
     };
 
-    ~GroupAllocate(){};
+    ~GroupAllocate() {};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      std::unique_ptr<Template>   tmpl,
@@ -437,7 +437,7 @@ public:
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreAllocate(){};
+    ~DatastoreAllocate() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -447,11 +447,11 @@ public:
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template> tmpl,
-                      int& id,
-                      RequestAttributes& att,
-                      int cluster_id,
-                      const std::string& cluster_name) override;
+                                     std::unique_ptr<Template> tmpl,
+                                     int& id,
+                                     RequestAttributes& att,
+                                     int cluster_id,
+                                     const std::string& cluster_name) override;
 
     int get_cluster_id(xmlrpc_c::paramList const& paramList) const override
     {
@@ -484,7 +484,7 @@ public:
         auth_object = PoolObjectSQL::CLUSTER;
     };
 
-    ~ClusterAllocate(){};
+    ~ClusterAllocate() {};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
                                      std::unique_ptr<Template>   tmpl,
@@ -509,7 +509,7 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentAllocate(){};
+    ~DocumentAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -541,7 +541,7 @@ public:
         auth_object = PoolObjectSQL::ZONE;
     };
 
-    ~ZoneAllocate(){};
+    ~ZoneAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -576,7 +576,7 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupAllocate(){};
+    ~SecurityGroupAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -608,7 +608,7 @@ public:
         auth_object = PoolObjectSQL::VDC;
     };
 
-    ~VdcAllocate(){};
+    ~VdcAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -641,7 +641,7 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterAllocate(){};
+    ~VirtualRouterAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -656,8 +656,8 @@ public:
                                      RequestAttributes&          att) override;
 
     bool allocate_authorization(xmlrpc_c::paramList const&  paramList,
-            Template *obj_template, RequestAttributes&  att,
-            PoolObjectAuth *cluster_perms) override;
+                                Template *obj_template, RequestAttributes&  att,
+                                PoolObjectAuth *cluster_perms) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -677,7 +677,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceAllocate(){};
+    ~MarketPlaceAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -687,9 +687,9 @@ public:
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template>  tmpl,
-                      int&                       id,
-                      RequestAttributes&         att) override;
+                                     std::unique_ptr<Template>  tmpl,
+                                     int&                       id,
+                                     RequestAttributes&         att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -710,7 +710,7 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppAllocate(){};
+    ~MarketPlaceAppAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -720,9 +720,9 @@ public:
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template>  tmpl,
-                      int&                       id,
-                      RequestAttributes&         att) override;
+                                     std::unique_ptr<Template>  tmpl,
+                                     int&                       id,
+                                     RequestAttributes&         att) override;
 private:
     MarketPlacePool * mppool;
 };
@@ -744,7 +744,7 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupAllocate(){};
+    ~VMGroupAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -777,7 +777,7 @@ public:
         auth_object = PoolObjectSQL::HOOK;
     };
 
-    ~HookAllocate(){};
+    ~HookAllocate() {};
 
     /* --------------------------------------------------------------------- */
 
@@ -787,9 +787,9 @@ public:
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      std::unique_ptr<Template> tmpl,
-                      int& id,
-                      RequestAttributes& att) override;
+                                     std::unique_ptr<Template> tmpl,
+                                     int& id,
+                                     RequestAttributes& att) override;
 
 
 };

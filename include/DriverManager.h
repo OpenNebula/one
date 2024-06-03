@@ -45,7 +45,7 @@ public:
      *  for all installed drivers. Must be called after load_drivers method.
      */
     void register_action(typename D::message_t::msg_enum t,
-        std::function<void(std::unique_ptr<typename D::message_t>)> a);
+                         std::function<void(std::unique_ptr<typename D::message_t>)> a);
 
     /**
      *  Start all drivers
@@ -137,7 +137,7 @@ int DriverManager<D>::load_driver(const VectorAttribute* mad_config)
     }
 
     auto rc = drivers.insert(std::make_pair(name,
-                std::unique_ptr<D>(new D(exec, args, threads))));
+                                            std::unique_ptr<D>(new D(exec, args, threads))));
 
     if (rc.second)
     {
@@ -191,7 +191,7 @@ D * DriverManager<D>::get_driver(const std::string& name) const
 
 template<typename D>
 void DriverManager<D>::register_action(typename D::message_t::msg_enum t,
-    std::function<void(std::unique_ptr<typename D::message_t>)> a)
+                                       std::function<void(std::unique_ptr<typename D::message_t>)> a)
 {
     for (auto& driver : drivers)
     {
@@ -211,7 +211,7 @@ int DriverManager<D>::start(std::string& error)
         if (rc != 0)
         {
             NebulaLog::error("DrM", "Unable to start driver '" + driver.first
-                + "': " + error);
+                             + "': " + error);
             return rc;
         }
     }
@@ -229,7 +229,8 @@ void DriverManager<D>::stop(int secs)
     for (auto& driver : drivers)
     {
         int _secs = secs;
-        threads.push_back(std::thread([_secs, &driver] () {
+        threads.push_back(std::thread([_secs, &driver] ()
+        {
             driver.second->stop(_secs);
         }));
     }
@@ -300,7 +301,7 @@ void DriverManager<D>::add_request(SyncRequest *ar)
 
     ar->id = request_id++;
 
-    sync_requests.insert(sync_requests.end(),std::make_pair(ar->id,ar));
+    sync_requests.insert(sync_requests.end(), std::make_pair(ar->id, ar));
 }
 
 /* -------------------------------------------------------------------------- */

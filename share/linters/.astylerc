@@ -1,0 +1,27 @@
+# Options file for AStyle C++ linter
+
+# Braces
+style=allman
+attach-closing-while
+
+# Indent
+min-conditional-indent=0
+max-continuation-indent=60
+indent-continuation=2
+indent-switches
+indent-namespaces
+
+# Pading
+pad-comma
+
+# Others fromating options
+max-code-length=120
+keep-one-line-statements
+keep-one-line-blocks
+attach-return-type
+convert-tabs
+
+# File selection options
+recursive
+exclude=node_modules
+exclude=parsers

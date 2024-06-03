@@ -253,13 +253,13 @@ public:
      *  the VM MUST BE obtained through the VirtualMachinePool get() method.
      */
     void log(
-        const char *            module,
-        const Log::MessageType  type,
-        const std::ostringstream&    message) const
+            const char *            module,
+            const Log::MessageType  type,
+            const std::ostringstream&    message) const
     {
         if (_log != 0)
         {
-            _log->log(module,type,message.str().c_str());
+            _log->log(module, type, message.str().c_str());
         }
     };
 
@@ -268,13 +268,13 @@ public:
      *  the VM MUST BE obtained through the VirtualMachinePool get() method.
      */
     void log(
-        const char *            module,
-        const Log::MessageType  type,
-        const char *            message) const
+            const char *            module,
+            const Log::MessageType  type,
+            const char *            message) const
     {
         if (_log != 0)
         {
-            _log->log(module,type,message);
+            _log->log(module, type, message);
         }
     };
 
@@ -283,9 +283,9 @@ public:
      *  the VM MUST BE obtained through the VirtualMachinePool get() method.
      */
     void log(
-        const char *            module,
-        const Log::MessageType  type,
-        const std::string&      message) const
+            const char *            module,
+            const Log::MessageType  type,
+            const std::string&      message) const
     {
         log(module, type, message.c_str());
     };
@@ -399,12 +399,12 @@ public:
      *  Adds a new history record an writes it in the database.
      */
     void add_history(
-        int                hid,
-        int                cid,
-        const std::string& hostname,
-        const std::string& vmm_mad,
-        const std::string& tm_mad,
-        int                ds_id);
+            int                hid,
+            int                cid,
+            const std::string& hostname,
+            const std::string& vmm_mad,
+            const std::string& tm_mad,
+            int                ds_id);
 
     /**
      *  Duplicates the last history record. Only the host related fields are
@@ -861,7 +861,7 @@ public:
         history->req_id = -1;
     }
 
-    void set_previous_action(VMActions::Action action, int uid, int gid,int rid)
+    void set_previous_action(VMActions::Action action, int uid, int gid, int rid)
     {
         previous_history->action = action;
 
@@ -951,7 +951,7 @@ public:
      *    @return 0 on success
      */
     int replace_template(const std::string& tmpl_str, bool keep_restricted,
-            std::string& error) override;
+                         std::string& error) override;
 
     /**
      *  Append new attributes to the *user template*.
@@ -962,7 +962,7 @@ public:
      *    @return 0 on success
      */
     int append_template(const std::string& tmpl_str, bool keep_restricted,
-            std::string& error) override;
+                        std::string& error) override;
 
     /**
      *  This function gets an attribute from the user template
@@ -1226,7 +1226,7 @@ public:
      *    @return -1 if the image cannot saveas, 0 on success
      */
     int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size,
-            std::string& err_str)
+                        std::string& err_str)
     {
         return disks.set_saveas(disk_id, snap_id, img_id, size, err_str);
     }
@@ -1284,10 +1284,10 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, std::string& source, int& image_id,
-            std::string& snap_id, std::string& tm_mad, std::string& ds_id) const
+                        std::string& snap_id, std::string& tm_mad, std::string& ds_id) const
     {
         return disks.get_saveas_info(disk_id, source, image_id, snap_id,
-                tm_mad, ds_id);
+                                     tm_mad, ds_id);
     }
 
     // ------------------------------------------------------------------------
@@ -1302,7 +1302,7 @@ public:
      *    @param  check_lock for check if the resource is lock or not
      */
     static void set_auth_request(int uid, AuthRequest& ar,
-            VirtualMachineTemplate *tmpl, bool check_lock);
+                                 VirtualMachineTemplate *tmpl, bool check_lock);
 
     // -------------------------------------------------------------------------
     // Attach Disk Interface
@@ -1519,7 +1519,7 @@ public:
      *    @param vo delete ds quotas from vm owners
      */
     void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
-            Template **vm_quotas, bool& io, bool& vo)
+                              Template **vm_quotas, bool& io, bool& vo)
     {
         disks.delete_snapshot(disk_id, snap_id, ds_quotas, vm_quotas, io, vo);
     }
@@ -1545,7 +1545,7 @@ public:
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_disk_snapshots(Template& vm_quotas,
-        std::vector<Template *>& ds_quotas)
+                                              std::vector<Template *>& ds_quotas)
     {
         disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
     }
@@ -1558,7 +1558,7 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_snapshot_disk(int& ds_id, std::string& tm_mad, int& disk_id,
-            int& snap_id) const
+                          int& snap_id) const
     {
         return disks.get_active_snapshot(ds_id, tm_mad, disk_id, snap_id);
     }
@@ -1965,7 +1965,7 @@ private:
      *    @return 0 on succes
      */
     int set_os_file(VectorAttribute* os, const std::string& base_name,
-            Image::ImageType base_type, std::string& error_str);
+                    Image::ImageType base_type, std::string& error_str);
 
     /**
      *  Parse the "OS" attribute of the template by substituting
@@ -2036,7 +2036,7 @@ private:
      *    @return 0 on success
      */
     int generate_network_context(VectorAttribute * context, std::string& error,
-            bool only_auto);
+                                 bool only_auto);
 
     /**
      *  Deletes the NETWORK related CONTEXT section for the given nic, i.e.
@@ -2232,7 +2232,7 @@ protected:
      */
     int drop(SqlDB * db) override
     {
-        NebulaLog::log("ONE",Log::ERROR, "VM Drop not implemented!");
+        NebulaLog::log("ONE", Log::ERROR, "VM Drop not implemented!");
         return -1;
     }
 

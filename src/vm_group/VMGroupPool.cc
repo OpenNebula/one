@@ -20,8 +20,8 @@
 using namespace std;
 
 int VMGroupPool::allocate(int uid, int gid, const string& uname,
-        const string& gname, int umask, unique_ptr<Template> vmgroup_template,
-        int * oid, string& error_str)
+                          const string& gname, int umask, unique_ptr<Template> vmgroup_template,
+                          int * oid, string& error_str)
 {
     VMGroup * vmgrp;
 
@@ -65,7 +65,7 @@ error_name:
 /* -------------------------------------------------------------------------- */
 
 std::unique_ptr<VMGroup> VMGroupPool::get_from_attribute(
-    const VectorAttribute *va, int _uid)
+        const VectorAttribute *va, int _uid)
 {
     std::unique_ptr<VMGroup> vmgroup;
 
@@ -94,7 +94,7 @@ std::unique_ptr<VMGroup> VMGroupPool::get_from_attribute(
 /* -------------------------------------------------------------------------- */
 
 int VMGroupPool::vmgroup_attribute(VectorAttribute * va, int uid, int vid,
-    string& error)
+                                   string& error)
 {
     string vmg_role = va->vector_value("ROLE");
 

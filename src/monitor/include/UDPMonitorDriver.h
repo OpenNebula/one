@@ -29,25 +29,25 @@ public:
         :UDPStream(a, p)
     {
         register_action(MonitorDriverMessages::UNDEFINED,
-                &MonitorDriverProtocol::_undefined);
+                        &MonitorDriverProtocol::_undefined);
 
         register_action(MonitorDriverMessages::MONITOR_VM,
-                &MonitorDriverProtocol::_monitor_vm);
+                        &MonitorDriverProtocol::_monitor_vm);
 
         register_action(MonitorDriverMessages::BEACON_HOST,
-                &MonitorDriverProtocol::_beacon_host);
+                        &MonitorDriverProtocol::_beacon_host);
 
         register_action(MonitorDriverMessages::MONITOR_HOST,
-                &MonitorDriverProtocol::_monitor_host);
+                        &MonitorDriverProtocol::_monitor_host);
 
         register_action(MonitorDriverMessages::SYSTEM_HOST,
-                &MonitorDriverProtocol::_system_host);
+                        &MonitorDriverProtocol::_system_host);
 
         register_action(MonitorDriverMessages::STATE_VM,
-                &MonitorDriverProtocol::_state_vm);
+                        &MonitorDriverProtocol::_state_vm);
     };
 
-   ~UDPMonitorDriver() = default;
+    ~UDPMonitorDriver() = default;
 };
 
 #endif // UDP_MONITOR_DRIVER_H_

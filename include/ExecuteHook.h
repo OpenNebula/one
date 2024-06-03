@@ -25,7 +25,7 @@ class ExecuteHook
 {
 public:
     ExecuteHook(const std::string& _name, const std::string& _cmd,
-        const std::string& _arg, const std::string& rl);
+                const std::string& _arg, const std::string& rl);
 
     ~ExecuteHook() = default;
 

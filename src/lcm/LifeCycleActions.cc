@@ -29,7 +29,8 @@ using namespace std;
 
 void LifeCycleManager::trigger_deploy(int vid)
 {
-    trigger([this, vid] {
+    trigger([this, vid]
+    {
         ostringstream       os;
 
         auto vm = vmpool->get(vid);
@@ -57,7 +58,7 @@ void LifeCycleManager::trigger_deploy(int vid)
             vm_state  = VirtualMachine::PROLOG;
 
             void (TransferManager::*tm_action)(VirtualMachine *) =
-                    &TransferManager::trigger_prolog;
+            &TransferManager::trigger_prolog;
 
             if (vm->hasPreviousHistory())
             {
@@ -67,7 +68,7 @@ void LifeCycleManager::trigger_deploy(int vid)
                     tm_action = &TransferManager::trigger_prolog_resume;
                 }
                 else if (vm->get_previous_action() == VMActions::UNDEPLOY_ACTION ||
-                        vm->get_previous_action() == VMActions::UNDEPLOY_HARD_ACTION)
+                         vm->get_previous_action() == VMActions::UNDEPLOY_HARD_ACTION)
                 {
                     vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
                     tm_action = &TransferManager::trigger_prolog_resume;
@@ -112,7 +113,8 @@ void LifeCycleManager::trigger_suspend(int vid, const RequestAttributes& ra)
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -157,7 +159,8 @@ void LifeCycleManager::trigger_stop(int vid, const RequestAttributes& ra)
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -219,7 +222,7 @@ void LifeCycleManager::trigger_stop(int vid, const RequestAttributes& ra)
             //----------------------------------------------------
 
             tm->trigger_epilog_stop(vm.get());
-            
+
             // Add running quota, it will be removed in DM::stop_success
             vm.reset();
             Quotas::vm_add(quota_uid, quota_gid, &quota_tmpl);
@@ -241,7 +244,8 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id, vm_action] {
+    trigger([this, vid, uid, gid, req_id, vm_action]
+    {
         HostShareCapacity sr;
         Template quota_tmpl;
 
@@ -297,9 +301,9 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
             }
         }
         else if (vm->get_state() == VirtualMachine::POWEROFF ||
-                vm->get_state() == VirtualMachine::SUSPENDED ||
-                (vm->get_state() == VirtualMachine::ACTIVE &&
-                vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
+                 vm->get_state() == VirtualMachine::SUSPENDED ||
+                 (vm->get_state() == VirtualMachine::ACTIVE &&
+                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
         {
             //----------------------------------------------------------------------
             // Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF/SUSPENDED/UNKNOWN
@@ -317,7 +321,7 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
                 vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
 
                 vm->set_previous_action(VMActions::MIGRATE_ACTION, uid,
-                        gid, req_id);
+                                        gid, req_id);
             }
 
             vm->set_previous_running_etime(the_time);
@@ -383,7 +387,8 @@ void LifeCycleManager::trigger_live_migrate(int vid, const RequestAttributes& ra
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         ostringstream os;
 
         auto vm = vmpool->get(vid);
@@ -415,7 +420,7 @@ void LifeCycleManager::trigger_live_migrate(int vid, const RequestAttributes& ra
             vmpool->update_history(vm.get());
 
             vm->set_previous_action(VMActions::LIVE_MIGRATE_ACTION, uid, gid,
-                        req_id);
+                                    req_id);
 
             vmpool->update_previous_history(vm.get());
 
@@ -442,7 +447,8 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, hard, vid, uid, gid, req_id] {
+    trigger([this, hard, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
         VirtualMachineTemplate quota_tmpl;
 
@@ -493,14 +499,14 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
             if (hard)
             {
                 vm->set_action(VMActions::TERMINATE_HARD_ACTION, uid, gid,
-                        req_id);
+                               req_id);
 
                 vmm->trigger_cancel(vid);
             }
             else
             {
                 vm->set_action(VMActions::TERMINATE_ACTION, uid, gid,
-                        req_id);
+                               req_id);
 
                 vmm->trigger_shutdown(vid);
             }
@@ -512,7 +518,7 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
             vmpool->update(vm.get());
         }
         else if (vm->get_state() == VirtualMachine::SUSPENDED ||
-                vm->get_state() == VirtualMachine::POWEROFF)
+                 vm->get_state() == VirtualMachine::POWEROFF)
         {
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::EPILOG);
@@ -534,7 +540,7 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
             Quotas::vm_add(uid, gid, &quota_tmpl);
         }
         else if (vm->get_state() == VirtualMachine::STOPPED ||
-                vm->get_state() == VirtualMachine::UNDEPLOYED)
+                 vm->get_state() == VirtualMachine::UNDEPLOYED)
         {
             vm->set_state(VirtualMachine::ACTIVE);
             vm->set_state(VirtualMachine::EPILOG);
@@ -572,7 +578,8 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, hard, vid, uid, gid, req_id] {
+    trigger([this, hard, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -606,14 +613,14 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
             if (hard)
             {
                 vm->set_action(VMActions::UNDEPLOY_HARD_ACTION, uid, gid,
-                        req_id);
+                               req_id);
 
                 vmm->trigger_cancel(vid);
             }
             else
             {
                 vm->set_action(VMActions::UNDEPLOY_ACTION, uid, gid,
-                        req_id);
+                               req_id);
 
                 vmm->trigger_shutdown(vid);
             }
@@ -696,7 +703,8 @@ void LifeCycleManager::trigger_poweroff(int vid, bool hard,
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, hard, vid, uid, gid, req_id] {
+    trigger([this, hard, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -730,7 +738,7 @@ void LifeCycleManager::trigger_poweroff(int vid, bool hard,
             if (hard)
             {
                 vm->set_action(VMActions::POWEROFF_HARD_ACTION, uid, gid,
-                        req_id);
+                               req_id);
 
                 vmm->trigger_cancel(vid);
             }
@@ -761,7 +769,8 @@ void LifeCycleManager::trigger_restore(int vid, const RequestAttributes& ra)
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         ostringstream os;
 
         auto vm = vmpool->get(vid);
@@ -820,7 +829,8 @@ void LifeCycleManager::trigger_restart(int vid, const RequestAttributes& ra)
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         auto vm = vmpool->get(vid);
 
         if ( vm == nullptr )
@@ -879,7 +889,8 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         int image_id = -1;
         Template quota_tmpl;
 
@@ -902,12 +913,12 @@ void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
 
                 case VirtualMachine::CLEANUP_DELETE:
                     dm->trigger_done(vid);
-                break;
+                    break;
 
                 default:
                     clean_up_vm(vm.get(), true, image_id, uid, gid, req_id, quota_tmpl);
                     dm->trigger_done(vid);
-                break;
+                    break;
             }
         }
         else
@@ -942,7 +953,8 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
     int gid = ra.gid;
     int req_id = ra.req_id;
 
-    trigger([this, vid, uid, gid, req_id] {
+    trigger([this, vid, uid, gid, req_id]
+    {
         Template vm_quotas_snp;
 
         vector<Template *> ds_quotas_snp;
@@ -964,11 +976,11 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
             {
                 case VirtualMachine::CLEANUP_DELETE:
                     vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
-                break;
+                    break;
 
                 case VirtualMachine::CLEANUP_RESUBMIT:
                     dm->trigger_resubmit(vid);
-                break;
+                    break;
 
                 default:
                     vm_uid = vm->get_uid();
@@ -977,12 +989,12 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
                     clean_up_vm(vm.get(), false, image_id, uid, gid, req_id, vm_quotas_snp);
 
                     vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
-                            ds_quotas_snp);
+                                                             ds_quotas_snp);
 
                     vm->delete_snapshots(vm_quotas_snp);
 
                     vmpool->update(vm.get());
-                break;
+                    break;
             }
         }
         else
@@ -1016,7 +1028,7 @@ void LifeCycleManager::trigger_delete_recreate(int vid,
 /* -------------------------------------------------------------------------- */
 
 void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
-        int& image_id, int uid, int gid, int req_id, Template& quota_tmpl)
+                                   int& image_id, int uid, int gid, int req_id, Template& quota_tmpl)
 {
     HostShareCapacity sr;
 
@@ -1074,7 +1086,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::BOOT:
         case VirtualMachine::BOOT_UNKNOWN:
@@ -1097,7 +1109,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG:
             vm->clear_attach_disk();
@@ -1106,7 +1118,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_NIC:
         case VirtualMachine::HOTPLUG_NIC_POWEROFF:
@@ -1116,7 +1128,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_SAVEAS:
             image_id = vm->clear_saveas_disk();
@@ -1125,7 +1137,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
@@ -1135,12 +1147,12 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
         case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
             image_id = vm->clear_saveas_disk();
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
@@ -1148,7 +1160,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_RESIZE:
             vm->reset_resize();
@@ -1157,7 +1169,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
@@ -1170,7 +1182,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::DISK_SNAPSHOT:
             vm->clear_snapshot_disk();
@@ -1179,7 +1191,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::DISK_RESIZE:
             vm->clear_resize_disk(true);
@@ -1188,7 +1200,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::DISK_RESIZE_POWEROFF:
         case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
@@ -1196,7 +1208,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::MIGRATE:
             vm->set_running_etime(the_time);
@@ -1211,7 +1223,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, true);
-        break;
+            break;
 
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
@@ -1219,7 +1231,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup(vid, false);
-        break;
+            break;
 
         case VirtualMachine::SAVE_MIGRATE:
             vm->set_running_etime(the_time);
@@ -1234,7 +1246,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vmm->trigger_driver_cancel(vid);
             vmm->trigger_cleanup_previous(vid);
-        break;
+            break;
 
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_FAILURE:
@@ -1248,7 +1260,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete_both(vm);
-        break;
+            break;
 
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
@@ -1260,12 +1272,12 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             tm->trigger_driver_cancel(vid);
             tm->trigger_epilog_delete(vm);
-        break;
+            break;
 
         case VirtualMachine::LCM_INIT:
         case VirtualMachine::CLEANUP_RESUBMIT:
         case VirtualMachine::CLEANUP_DELETE:
-        break;
+            break;
     }
 
     vmpool->update_history(vm);
@@ -1277,7 +1289,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 /* -------------------------------------------------------------------------- */
 
 void LifeCycleManager::recover(VirtualMachine * vm, bool success,
-        const RequestAttributes& ra)
+                               const RequestAttributes& ra)
 {
     string action;
     int vim = vm->get_oid();
@@ -1329,7 +1341,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_prolog_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::EPILOG:
         case VirtualMachine::EPILOG_STOP:
@@ -1345,7 +1357,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_epilog_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
@@ -1360,7 +1372,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_saveas_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
             if (success)
@@ -1371,7 +1383,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_attach_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
             if (success)
@@ -1382,7 +1394,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_detach_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::BOOT:
         case VirtualMachine::BOOT_UNKNOWN:
@@ -1414,7 +1426,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_deploy_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
@@ -1427,7 +1439,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_shutdown_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
@@ -1440,7 +1452,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_save_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG:
             if (success)
@@ -1451,7 +1463,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_attach_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_NIC:
         case VirtualMachine::HOTPLUG_NIC_POWEROFF:
@@ -1463,7 +1475,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_attach_nic_failure(vim);
             }
-        break;
+            break;
 
         //This is for all snapshot actions (create, delete & revert)
         case VirtualMachine::HOTPLUG_SNAPSHOT:
@@ -1503,7 +1515,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
                     trigger_snapshot_delete_failure(vim);
                 }
             }
-        break;
+            break;
 
         case VirtualMachine::HOTPLUG_RESIZE:
             if (success)
@@ -1514,7 +1526,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_resize_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
@@ -1532,7 +1544,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_disk_snapshot_failure(vim);
             }
-        break;
+            break;
 
         case VirtualMachine::DISK_RESIZE_POWEROFF:
         case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
@@ -1545,7 +1557,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             {
                 trigger_disk_resize_failure(vim);
             }
-        break;
+            break;
     }
 }
 
@@ -1670,7 +1682,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             tm->trigger_epilog_stop(vm);
             break;
 
-       case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+        case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
             vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
             vmpool->update(vm);
@@ -1778,7 +1790,8 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
 void LifeCycleManager::trigger_updatesg(int sgid)
 {
-    trigger([this, sgid] {
+    trigger([this, sgid]
+    {
         int  vmid, rc;
 
         auto sg = sgpool->get(sgid);

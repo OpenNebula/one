@@ -125,16 +125,16 @@ int AuthManager::start()
     using namespace std::placeholders; // for _1
 
     register_action(AuthManagerMessages::UNDEFINED,
-            &AuthManager::_undefined);
+                    &AuthManager::_undefined);
 
     register_action(AuthManagerMessages::AUTHORIZE,
-            bind(&AuthManager::_authorize, this, _1));
+                    bind(&AuthManager::_authorize, this, _1));
 
     register_action(AuthManagerMessages::AUTHENTICATE,
-            bind(&AuthManager::_authenticate, this, _1));
+                    bind(&AuthManager::_authenticate, this, _1));
 
     register_action(AuthManagerMessages::LOG,
-            &AuthManager::_log);
+                    &AuthManager::_log);
 
     string error;
 
@@ -145,7 +145,7 @@ int AuthManager::start()
         return -1;
     }
 
-    NebulaLog::log("AuM",Log::INFO,"Starting Auth Manager...");
+    NebulaLog::log("AuM", Log::INFO, "Starting Auth Manager...");
 
     Listener::start();
 
@@ -157,7 +157,8 @@ int AuthManager::start()
 
 void AuthManager::trigger_authenticate(AuthRequest& ar)
 {
-    trigger([&] {
+    trigger([&]
+    {
         // ------------------------------------------------------------------------
         // Get the driver
         // ------------------------------------------------------------------------
@@ -205,7 +206,8 @@ void AuthManager::trigger_authenticate(AuthRequest& ar)
 
 void AuthManager::trigger_authorize(AuthRequest& ar)
 {
-    trigger([&] {
+    trigger([&]
+    {
         // ------------------------------------------------------------------------
         // Get the driver
         // ------------------------------------------------------------------------
@@ -272,13 +274,13 @@ int AuthManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 
     if ( vattr == nullptr )
     {
-        NebulaLog::log("AuM",Log::ERROR,"Failed to load Auth. Manager driver.");
+        NebulaLog::log("AuM", Log::ERROR, "Failed to load Auth. Manager driver.");
         return -1;
     }
 
-    VectorAttribute auth_conf("AUTH_MAD",vattr->value());
+    VectorAttribute auth_conf("AUTH_MAD", vattr->value());
 
-    auth_conf.replace("NAME",auth_driver_name);
+    auth_conf.replace("NAME", auth_driver_name);
 
     oss.str("");
 

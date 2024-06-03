@@ -69,8 +69,10 @@ public:
             return;
         }
 
-        cond.wait(lock, [&]{
-                return (connections < max_connections) || end; });
+        cond.wait(lock, [&]
+        {
+            return (connections < max_connections) || end;
+        });
     }
 
     /**

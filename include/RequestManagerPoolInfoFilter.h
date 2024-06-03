@@ -47,12 +47,12 @@ public:
      *    should be granted.
      */
     static bool use_filter(RequestAttributes& att,
-          PoolObjectSQL::ObjectType aobj,
-          bool disable_all_acl,
-          bool disable_cluster_acl,
-          bool disable_group_acl,
-          const std::string& and_str,
-          std::string& where_str);
+                           PoolObjectSQL::ObjectType aobj,
+                           bool disable_all_acl,
+                           bool disable_cluster_acl,
+                           bool disable_group_acl,
+                           const std::string& and_str,
+                           std::string& where_str);
 
 protected:
     /*
@@ -63,7 +63,7 @@ protected:
     RequestManagerPoolInfoFilter(const std::string& method_name,
                                  const std::string& help,
                                  const std::string& signature)
-        :Request(method_name,signature,help)
+        :Request(method_name, signature, help)
     {
         leader_only = false;
         extended    = false;
@@ -74,15 +74,15 @@ protected:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
 
     void where_filter(RequestAttributes& att,
-              int                filter_flag,
-              int                start_id,
-              int                end_id,
-              const std::string& and_clause,
-              const std::string& or_clause,
-              bool               disable_all_acl,
-              bool               disable_cluster_acl,
-              bool               disable_group_acl,
-              std::string&       where_string);
+                      int                filter_flag,
+                      int                start_id,
+                      int                end_id,
+                      const std::string& and_clause,
+                      const std::string& or_clause,
+                      bool               disable_all_acl,
+                      bool               disable_cluster_acl,
+                      bool               disable_group_acl,
+                      std::string&       where_string);
 
     void dump(RequestAttributes& att,
               int                filter_flag,
@@ -123,8 +123,8 @@ class VirtualMachinePoolInfoExtended : public VirtualMachinePoolInfo
 public:
     VirtualMachinePoolInfoExtended():
         VirtualMachinePoolInfo("one.vmpool.infoextended",
-            "Returns the virtual machine instances pool in extended format",
-            "A:siiiis")
+                               "Returns the virtual machine instances pool in extended format",
+                               "A:siiiis")
     {
         extended    = true;
     };

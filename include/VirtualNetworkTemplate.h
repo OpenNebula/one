@@ -25,16 +25,16 @@
 class VirtualNetworkTemplate : public Template
 {
 public:
-    VirtualNetworkTemplate():Template(false,'=',"TEMPLATE"){};
+    VirtualNetworkTemplate():Template(false, '=', "TEMPLATE") {};
 
     VirtualNetworkTemplate(bool replace_mode,
                            const char   separator,
                            const char * xml_root)
         : Template(replace_mode, separator, xml_root) {}
 
-    ~VirtualNetworkTemplate(){};
+    ~VirtualNetworkTemplate() {};
 
-    VirtualNetworkTemplate(const Template& vnt):Template(vnt){};
+    VirtualNetworkTemplate(const Template& vnt):Template(vnt) {};
 
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation

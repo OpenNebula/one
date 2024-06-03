@@ -28,9 +28,9 @@ class SqlDB
 {
 public:
 
-    SqlDB(){};
+    SqlDB() {};
 
-    virtual ~SqlDB(){};
+    virtual ~SqlDB() {};
 
     enum SqlError
     {
@@ -94,12 +94,12 @@ public:
         return exec_ext(cmd, obj, false);
     }
 
-   /**
-     *  This function returns a legal SQL string that can be used in an SQL
-     *  statement.
-     *    @param str the string to be escaped
-     *    @return a valid SQL string or NULL in case of failure
-     */
+    /**
+      *  This function returns a legal SQL string that can be used in an SQL
+      *  statement.
+      *    @param str the string to be escaped
+      *    @return a valid SQL string or NULL in case of failure
+      */
     virtual char * escape_str(const std::string& str) const = 0;
 
     /**
@@ -194,7 +194,8 @@ protected:
     /**
      *  Feature set
      */
-    std::map<SqlFeature, bool> features = {
+    std::map<SqlFeature, bool> features =
+    {
         {SqlFeature::MULTIPLE_VALUE, false},
         {SqlFeature::LIMIT, false},
         {SqlFeature::FTS, false},

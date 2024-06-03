@@ -34,7 +34,7 @@ class VirtualMachineDisk : public VirtualMachineAttribute
 {
 public:
     VirtualMachineDisk(VectorAttribute *va, int id):
-        VirtualMachineAttribute(va, id), snapshots(0){};
+        VirtualMachineAttribute(va, id), snapshots(0) {};
 
     virtual ~VirtualMachineDisk()
     {
@@ -292,7 +292,7 @@ public:
      *    @param vo delete ds quotas from vm owners
      */
     void delete_snapshot(int snap_id, Template **ds_quota, Template **vm_quota,
-            bool& io, bool& vo);
+                         bool& io, bool& vo);
 
     /* ---------------------------------------------------------------------- */
     /* Disk resize functions                                                  */
@@ -312,8 +312,8 @@ public:
      *    @param do_vm_owner quotas counter allocated for vm uid/gid
      *
      */
-   void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta,
-           bool& do_img_owner, bool& do_vm_owner);
+    void resize_quotas(long long new_size, Template& dsdelta, Template& vmdelta,
+                       bool& do_img_owner, bool& do_vm_owner);
 
     /* ---------------------------------------------------------------------- */
     /* Disk space usage functions                                             */
@@ -398,9 +398,9 @@ public:
      *  Creates an empty disk set
      */
     VirtualMachineDisks(bool dispose):
-        VirtualMachineAttributeSet(dispose){};
+        VirtualMachineAttributeSet(dispose) {};
 
-    virtual ~VirtualMachineDisks(){};
+    virtual ~VirtualMachineDisks() {};
 
     /**
      *  Function used to initialize the attribute map based on a vector of DISK
@@ -426,9 +426,9 @@ public:
     class DiskIterator : public AttributeIterator
     {
     public:
-        DiskIterator():AttributeIterator(){};
-        DiskIterator(const AttributeIterator& dit):AttributeIterator(dit){};
-        virtual ~DiskIterator(){};
+        DiskIterator():AttributeIterator() {};
+        DiskIterator(const AttributeIterator& dit):AttributeIterator(dit) {};
+        virtual ~DiskIterator() {};
 
         VirtualMachineDisk * operator*() const
         {
@@ -520,8 +520,8 @@ public:
      *  @return 0 if success
      */
     int get_images(int vm_id, int uid, const std::string& tm_mad_sys,
-            std::vector<Attribute *> disks, VectorAttribute * context,
-            std::string& error_str);
+                   std::vector<Attribute *> disks, VectorAttribute * context,
+                   std::string& error_str);
 
     /**
      *  Release the images in the disk set
@@ -602,8 +602,8 @@ public:
      *     @return Pointer to the new disk or 0 in case of error
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
-            VectorAttribute * vdisk, const std::string& tsys,
-            const VectorAttribute * vcontext, std::string& error);
+                                       VectorAttribute * vdisk, const std::string& tsys,
+                                       const VectorAttribute * vcontext, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */
@@ -614,7 +614,7 @@ public:
     VirtualMachineDisk * get_saveas() const
     {
         return static_cast<VirtualMachineDisk *>(
-                get_attribute("HOTPLUG_SAVE_AS_ACTIVE"));
+                       get_attribute("HOTPLUG_SAVE_AS_ACTIVE"));
     }
 
     /**
@@ -628,7 +628,7 @@ public:
      *    @return -1 if the image cannot saveas, 0 on success
      */
     int set_saveas(int disk_id, int snap_id, int &iid, long long &size,
-            std::string& err_str);
+                   std::string& err_str);
 
     /**
      *  Set save attributes for the disk
@@ -656,7 +656,7 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_info(int& disk_id, std::string& source, int& image_id,
-            std::string& snap_id, std::string& tm_mad, std::string& ds_id) const;
+                        std::string& snap_id, std::string& tm_mad, std::string& ds_id) const;
 
     /* ---------------------------------------------------------------------- */
     /* Resize disk Interface                                                  */
@@ -686,7 +686,7 @@ public:
      *
      *     @return 0 on success
      */
-	int set_up_resize(int disk_id, long size, std::string& error);
+    int set_up_resize(int disk_id, long size, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* SNAPSHOT interface                                                     */
@@ -694,7 +694,7 @@ public:
     VirtualMachineDisk * get_active_snapshot() const
     {
         return static_cast<VirtualMachineDisk *>(
-                get_attribute("DISK_SNAPSHOT_ACTIVE"));
+                       get_attribute("DISK_SNAPSHOT_ACTIVE"));
     }
 
     /**
@@ -729,7 +729,7 @@ public:
      *    @param snap_id of the snapshot
      */
     int get_active_snapshot(int& ds_id, std::string& tm_mad, int& disk_id,
-            int& snap_id) const;
+                            int& snap_id) const;
     /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk
@@ -759,7 +759,7 @@ public:
      *    @param vo delete ds quotas from vm owners
      */
     void delete_snapshot(int disk_id, int snap_id, Template **ds_quota,
-            Template **vm_quota, bool& io, bool& vo);
+                         Template **vm_quota, bool& io, bool& vo);
 
     /**
      *  Renames a given snapshot
@@ -796,7 +796,7 @@ public:
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-        int id) const
+                                                int id) const
     {
         return new VirtualMachineDisk(va, id);
     };

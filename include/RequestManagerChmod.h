@@ -41,19 +41,19 @@ class RequestManagerChmod : public Request
 {
 protected:
     RequestManagerChmod(const std::string& method_name, const std::string& help,
-        const std::string& params = "A:siiiiiiiiii"):
-            Request(method_name, params, help){};
+                        const std::string& params = "A:siiiiiiiiii"):
+        Request(method_name, params, help) {};
 
-    ~RequestManagerChmod(){};
+    ~RequestManagerChmod() {};
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
     virtual ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
-        int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, bool recursive, RequestAttributes& att);
+                            int owner_a, int group_u, int group_m, int group_a, int other_u,
+                            int other_m, int other_a, bool recursive, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -71,7 +71,7 @@ public:
         auth_object = PoolObjectSQL::VM;
     };
 
-    ~VirtualMachineChmod(){};
+    ~VirtualMachineChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -82,28 +82,28 @@ class TemplateChmod : public RequestManagerChmod
 public:
     TemplateChmod():
         RequestManagerChmod("one.template.chmod", "Changes permission bits of a "
-            "virtual machine template", "A:siiiiiiiiiib")
+                            "virtual machine template", "A:siiiiiiiiiib")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateChmod(){};
+    ~TemplateChmod() {};
 
     ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
-        int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, bool recursive, RequestAttributes& att)
+                              int owner_a, int group_u, int group_m, int group_a, int other_u,
+                              int other_m, int other_a, bool recursive, RequestAttributes& att)
     {
         return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
-                group_a, other_u, other_m, other_a, recursive, att);
+                     group_a, other_u, other_m, other_a, recursive, att);
     }
 
 protected:
 
     ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
-        int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, bool recursive, RequestAttributes& att) override;
+                    int owner_a, int group_u, int group_m, int group_a, int other_u,
+                    int other_m, int other_a, bool recursive, RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -114,21 +114,21 @@ class VirtualNetworkTemplateChmod : public RequestManagerChmod
 public:
     VirtualNetworkTemplateChmod():
         RequestManagerChmod("one.vntemplate.chmod", "Changes permission bits of a "
-            "virtual network template")
+                            "virtual network template")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vntpool();
         auth_object = PoolObjectSQL::VNTEMPLATE;
     };
 
-    ~VirtualNetworkTemplateChmod(){};
+    ~VirtualNetworkTemplateChmod() {};
 
     ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
-        int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, bool recursive, RequestAttributes& att)
+                              int owner_a, int group_u, int group_m, int group_a, int other_u,
+                              int other_m, int other_a, bool recursive, RequestAttributes& att)
     {
         return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
-                group_a, other_u, other_m, other_a, recursive, att);
+                     group_a, other_u, other_m, other_a, recursive, att);
     }
 };
 
@@ -140,14 +140,14 @@ class VirtualNetworkChmod: public RequestManagerChmod
 public:
     VirtualNetworkChmod():
         RequestManagerChmod("one.vn.chmod",
-                           "Changes permission bits of a virtual network")
+                            "Changes permission bits of a virtual network")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkChmod(){};
+    ~VirtualNetworkChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -165,14 +165,14 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageChmod(){};
+    ~ImageChmod() {};
 
     ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
-        int owner_a, int group_u, int group_m, int group_a, int other_u,
-        int other_m, int other_a, RequestAttributes& att)
+                              int owner_a, int group_u, int group_m, int group_a, int other_u,
+                              int other_m, int other_a, RequestAttributes& att)
     {
         return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
-                group_a, other_u, other_m, other_a, false, att);
+                     group_a, other_u, other_m, other_a, false, att);
     }
 };
 
@@ -184,14 +184,14 @@ class DatastoreChmod: public RequestManagerChmod
 public:
     DatastoreChmod():
         RequestManagerChmod("one.datastore.chmod",
-                           "Changes permission bits of a datastore")
+                            "Changes permission bits of a datastore")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_dspool();
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreChmod(){};
+    ~DatastoreChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -209,7 +209,7 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentChmod(){};
+    ~DocumentChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -227,7 +227,7 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupChmod(){};
+    ~SecurityGroupChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -246,10 +246,10 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterChmod(){};
+    ~VirtualRouterChmod() {};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
 private:
 
@@ -264,14 +264,14 @@ class MarketPlaceChmod: public RequestManagerChmod
 public:
     MarketPlaceChmod():
         RequestManagerChmod("one.market.chmod",
-                           "Changes permission bits of a marketplace")
+                            "Changes permission bits of a marketplace")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_marketpool();
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceChmod(){};
+    ~MarketPlaceChmod() {};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -282,14 +282,14 @@ class MarketPlaceAppChmod: public RequestManagerChmod
 public:
     MarketPlaceAppChmod():
         RequestManagerChmod("one.marketapp.chmod",
-                           "Changes permission bits of a marketplace app")
+                            "Changes permission bits of a marketplace app")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_apppool();
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppChmod(){};
+    ~MarketPlaceAppChmod() {};
 };
 
 /* -------------------------------------------------------------------------- */
@@ -307,7 +307,7 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupChmod(){};
+    ~VMGroupChmod() {};
 };
 
 #endif

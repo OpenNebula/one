@@ -25,7 +25,7 @@ using namespace std;
 /* ------------------------------------------------------------------------- */
 
 void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                    RequestAttributes& att)
 {
     success_response(Nebula::instance().code_version(), att);
 
@@ -36,12 +36,12 @@ void SystemVersion::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                   RequestAttributes& att)
 {
     if ( att.gid != GroupPool::ONEADMIN_ID )
     {
         att.resp_msg = "The oned configuration can only be retrieved by users "
-            "in the oneadmin group";
+                       "in the oneadmin group";
         failure_response(AUTHORIZATION, att);
         return;
     }
@@ -55,7 +55,7 @@ void SystemConfig::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void SystemSql::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                RequestAttributes& att)
 {
     std::string sql = xmlrpc_c::value_string(paramList.getString(1));
     bool federate   = xmlrpc_c::value_boolean(paramList.getBoolean(2));
@@ -117,7 +117,7 @@ void SystemSql::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 int SystemSqlQuery::select_cb::callback(void *nil, int num, char **values,
-        char **names)
+                                        char **names)
 {
     oss << "<ROW>";
 
@@ -151,7 +151,7 @@ int SystemSqlQuery::select_cb::callback(void *nil, int num, char **values,
 /* ------------------------------------------------------------------------- */
 
 void SystemSqlQuery::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                     RequestAttributes& att)
 {
     std::string sql = xmlrpc_c::value_string(paramList.getString(1));
 
@@ -202,7 +202,7 @@ void SystemSqlQuery::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void UserQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                    RequestAttributes& att)
 {
     string xml;
 
@@ -215,7 +215,7 @@ void UserQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void GroupQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                     RequestAttributes& att)
 {
     string xml;
 
@@ -228,7 +228,7 @@ void GroupQuotaInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 
 void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
-                                 RequestAttributes& att)
+                                  RequestAttributes& att)
 {
     string   quota_str = xmlrpc_c::value_string(paramList.getString(1));
     string   xml;
@@ -239,7 +239,7 @@ void QuotaUpdate::request_execute(xmlrpc_c::paramList const& paramList,
     if ( att.gid != GroupPool::ONEADMIN_ID )
     {
         att.resp_msg = "The default quotas can only be updated by users in the"
-            " oneadmin group";
+                       " oneadmin group";
         failure_response(AUTHORIZATION, att);
         return;
     }

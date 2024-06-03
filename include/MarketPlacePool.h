@@ -29,7 +29,7 @@ public:
     MarketPlacePool(SqlDB * db,
                     bool    is_federation_slave);
 
-    ~MarketPlacePool(){};
+    ~MarketPlacePool() {};
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
@@ -118,10 +118,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", one_db::mp_table,
-                where, sid, eid, desc);
+                             where, sid, eid, desc);
     };
 
     /**
@@ -130,10 +130,10 @@ public:
      *
      *  @return 0 on success
      */
-     int list(std::vector<int>& oids)
-     {
+    int list(std::vector<int>& oids)
+    {
         return PoolSQL::list(oids, one_db::mp_table);
-     }
+    }
 
     /**
      *  Factory method to produce objects
@@ -141,7 +141,7 @@ public:
      */
     PoolObjectSQL * create() override
     {
-        return new MarketPlace(-1,-1,"","", 0, 0);
+        return new MarketPlace(-1, -1, "", "", 0, 0);
     };
 };
 

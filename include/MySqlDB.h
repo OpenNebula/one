@@ -155,14 +155,15 @@ public:
         throw std::runtime_error("Aborting oned, MySQL support not compiled!");
     };
 
-    ~MySqlDB(){};
+    ~MySqlDB() {};
 
     char * escape_str(const std::string& str) const override {return nullptr;};
 
     void free_str(char * str) const override {};
 
 protected:
-    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override
+    {
         return -1;
     };
 };

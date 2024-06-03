@@ -66,14 +66,15 @@ const string HookAPI::unsupported_calls[] =  {"one.vm.info",
                                               "one.marketapppool.info",
                                               "one.hook.info",
                                               "one.hookpool.info",
-                                              "one.hooklog.info"};
+                                              "one.hooklog.info"
+                                             };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 std::string HookAPI::format_message(const std::string& method,
-            const ParamList& paramList,
-            const RequestAttributes& att)
+                                    const ParamList& paramList,
+                                    const RequestAttributes& att)
 {
     ostringstream oss;
 
@@ -89,14 +90,14 @@ std::string HookAPI::format_message(const std::string& method,
         << "<RESULT>" << att.success << "</RESULT>"
         << "<PARAMETERS>";
 
-        for (int i = 0; i < paramList.size(); i++)
-        {
-            oss << "<PARAMETER>"
-                << "<POSITION>" << i + 1 << "</POSITION>"
-                << "<TYPE>IN</TYPE>"
-                << "<VALUE>" << paramList.get_value_as_string(i) << "</VALUE>"
-                << "</PARAMETER>";
-        }
+    for (int i = 0; i < paramList.size(); i++)
+    {
+        oss << "<PARAMETER>"
+            << "<POSITION>" << i + 1 << "</POSITION>"
+            << "<TYPE>IN</TYPE>"
+            << "<VALUE>" << paramList.get_value_as_string(i) << "</VALUE>"
+            << "</PARAMETER>";
+    }
 
     oss << att.retval_xml
         << "</PARAMETERS>"

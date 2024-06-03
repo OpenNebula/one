@@ -36,7 +36,7 @@ class VirtualMachineManager :
 public:
 
     VirtualMachineManager(
-        const std::string&        _mads);
+            const std::string&        _mads);
 
     ~VirtualMachineManager() = default;
 
@@ -363,18 +363,18 @@ private:
      *    @param id of the security group
      */
     std::string format_message(
-        const std::string& hostname,
-        const std::string& m_hostname,
-        const std::string& domain,
-        const std::string& ldfile,
-        const std::string& rdfile,
-        const std::string& cfile,
-        const std::string& tm_command,
-        const std::string& tm_command_rollback,
-        const std::string& disk_target_path,
-        const std::string& tmpl,
-        int ds_id,
-        int sgid);
+            const std::string& hostname,
+            const std::string& m_hostname,
+            const std::string& domain,
+            const std::string& ldfile,
+            const std::string& rdfile,
+            const std::string& cfile,
+            const std::string& tm_command,
+            const std::string& tm_command_rollback,
+            const std::string& disk_target_path,
+            const std::string& tmpl,
+            int ds_id,
+            int sgid);
 
 public:
     /**

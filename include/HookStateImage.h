@@ -40,7 +40,7 @@ private:
     // Constructor/Destructor
     // *************************************************************************
 
-    HookStateImage():state(Image::INIT){};
+    HookStateImage():state(Image::INIT) {};
 
     virtual ~HookStateImage() = default;
 

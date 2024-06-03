@@ -41,39 +41,39 @@ Image::Image(int             _uid,
              const string&   _gname,
              int             _umask,
              unique_ptr<ImageTemplate> _image_template):
-        PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,one_db::image_table),
-        type(OS),
-        disk_type(FILE),
-        regtime(time(0)),
-        source(""),
-        path(""),
-        format(""),
-        fs(""),
-        size_mb(0),
-        state(INIT),
-        prev_state(INIT),
-        running_vms(0),
-        cloning_ops(0),
-        cloning_id(-1),
-        ds_id(-1),
-        ds_name(""),
-        vm_collection("VMS"),
-        img_clone_collection("CLONES"),
-        app_clone_collection("APP_CLONES"),
-        snapshots(-1, Snapshots::DENY),
-        target_snapshot(-1)
+    PoolObjectSQL(-1, IMAGE, "", _uid, _gid, _uname, _gname, one_db::image_table),
+    type(OS),
+    disk_type(FILE),
+    regtime(time(0)),
+    source(""),
+    path(""),
+    format(""),
+    fs(""),
+    size_mb(0),
+    state(INIT),
+    prev_state(INIT),
+    running_vms(0),
+    cloning_ops(0),
+    cloning_id(-1),
+    ds_id(-1),
+    ds_name(""),
+    vm_collection("VMS"),
+    img_clone_collection("CLONES"),
+    app_clone_collection("APP_CLONES"),
+    snapshots(-1, Snapshots::DENY),
+    target_snapshot(-1)
+{
+    if (_image_template)
     {
-        if (_image_template)
-        {
-            obj_template = move(_image_template);
-        }
-        else
-        {
-            obj_template = make_unique<ImageTemplate>();
-        }
-
-        set_umask(_umask);
+        obj_template = move(_image_template);
     }
+    else
+    {
+        obj_template = make_unique<ImageTemplate>();
+    }
+
+    set_umask(_umask);
+}
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */
@@ -142,14 +142,14 @@ int Image::insert(SqlDB *db, string& error_str)
 
                 obj_template->set(dev_att);
             }
-        break;
+            break;
 
         case KERNEL: // Files are always non-persistent with no dev_prefix
         case RAMDISK:
         case CONTEXT:
             persistent_img = false;
             erase_template_attribute("DEV_PREFIX", dev_prefix);
-        break;
+            break;
     }
 
     // ------------ SIZE --------------------
@@ -370,36 +370,36 @@ string& Image::to_xml(string& xml) const
 
     oss <<
         "<IMAGE>" <<
-            "<ID>"             << oid             << "</ID>"          <<
-            "<UID>"            << uid             << "</UID>"         <<
-            "<GID>"            << gid             << "</GID>"         <<
-            "<UNAME>"          << uname           << "</UNAME>"       <<
-            "<GNAME>"          << gname           << "</GNAME>"       <<
-            "<NAME>"           << name            << "</NAME>"        <<
-            lock_db_to_xml(lock_str)                                  <<
-            perms_to_xml(perms_xml)                                   <<
-            "<TYPE>"           << type            << "</TYPE>"        <<
-            "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
-            "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
-            "<REGTIME>"        << regtime         << "</REGTIME>"     <<
-            "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
-            "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
-            "<FORMAT>"         << one_util::escape_xml(format) << "</FORMAT>" <<
-            "<FS>"             << one_util::escape_xml(fs)     << "</FS>"     <<
-            "<SIZE>"           << size_mb         << "</SIZE>"        <<
-            "<STATE>"          << state           << "</STATE>"       <<
-            "<PREV_STATE>"     << prev_state      << "</PREV_STATE>"  <<
-            "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
-            "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
-            "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
-            "<TARGET_SNAPSHOT>"<< target_snapshot << "</TARGET_SNAPSHOT>"<<
-            "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
-            "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
-            vm_collection.to_xml(vm_collection_xml)                   <<
-            img_clone_collection.to_xml(clone_collection_xml)         <<
-            app_clone_collection.to_xml(app_clone_collection_xml)     <<
-            obj_template->to_xml(template_xml)                        <<
-            snapshots.to_xml(snapshots_xml)                           <<
+        "<ID>"             << oid             << "</ID>"          <<
+        "<UID>"            << uid             << "</UID>"         <<
+        "<GID>"            << gid             << "</GID>"         <<
+        "<UNAME>"          << uname           << "</UNAME>"       <<
+        "<GNAME>"          << gname           << "</GNAME>"       <<
+        "<NAME>"           << name            << "</NAME>"        <<
+        lock_db_to_xml(lock_str)                                  <<
+        perms_to_xml(perms_xml)                                   <<
+        "<TYPE>"           << type            << "</TYPE>"        <<
+        "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
+        "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
+        "<REGTIME>"        << regtime         << "</REGTIME>"     <<
+        "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
+        "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
+        "<FORMAT>"         << one_util::escape_xml(format) << "</FORMAT>" <<
+        "<FS>"             << one_util::escape_xml(fs)     << "</FS>"     <<
+        "<SIZE>"           << size_mb         << "</SIZE>"        <<
+        "<STATE>"          << state           << "</STATE>"       <<
+        "<PREV_STATE>"     << prev_state      << "</PREV_STATE>"  <<
+        "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
+        "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
+        "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
+        "<TARGET_SNAPSHOT>"<< target_snapshot << "</TARGET_SNAPSHOT>"<<
+        "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
+        "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
+        vm_collection.to_xml(vm_collection_xml)                   <<
+        img_clone_collection.to_xml(clone_collection_xml)         <<
+        app_clone_collection.to_xml(app_clone_collection_xml)     <<
+        obj_template->to_xml(template_xml)                        <<
+        snapshots.to_xml(snapshots_xml)                           <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -435,7 +435,7 @@ int Image::from_xml(const string& xml)
 
     rc += xpath(int_type,        "/IMAGE/TYPE",      0);
     rc += xpath(int_disk_type,   "/IMAGE/DISK_TYPE", 0);
-    rc += xpath(persistent_img,  "/IMAGE/PERSISTENT",0);
+    rc += xpath(persistent_img,  "/IMAGE/PERSISTENT", 0);
     rc += xpath<time_t>(regtime, "/IMAGE/REGTIME",   0);
     rc += xpath(format,          "/IMAGE/FORMAT",   "");
 
@@ -444,8 +444,8 @@ int Image::from_xml(const string& xml)
     rc += xpath(source,     "/IMAGE/SOURCE",     "not_found");
     rc += xpath(int_state,  "/IMAGE/STATE",      0);
     rc += xpath(int_pstate, "/IMAGE/PREV_STATE", 0);
-    rc += xpath(running_vms,"/IMAGE/RUNNING_VMS",-1);
-    rc += xpath(cloning_ops,"/IMAGE/CLONING_OPS",-1);
+    rc += xpath(running_vms, "/IMAGE/RUNNING_VMS", -1);
+    rc += xpath(cloning_ops, "/IMAGE/CLONING_OPS", -1);
     rc += xpath(cloning_id, "/IMAGE/CLONING_ID", -1);
 
     rc += xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
@@ -458,7 +458,7 @@ int Image::from_xml(const string& xml)
     rc += perms_from_xml();
 
     //Optional image attributes
-    xpath(path,"/IMAGE/PATH", "");
+    xpath(path, "/IMAGE/PATH", "");
     xpath(fs, "/IMAGE/FS", "");
 
     type      = static_cast<ImageType>(int_type);
@@ -626,7 +626,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     //Image is being copied/cloned
     if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS
-            || state == Image::LOCKED )
+         || state == Image::LOCKED )
     {
         disk->replace("CLONING", "YES");
     }
@@ -959,12 +959,12 @@ void Image::set_state(ImageState _state)
     }
     else if (state == LOCKED)
     {
-        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE, true);
+        lock_db(-1, -1, PoolObjectSQL::LockStates::ST_USE, true);
     }
 
     if (_state != LOCKED )
     {
-        unlock_db(-1,-1);
+        unlock_db(-1, -1);
     }
 
     state = _state;
@@ -979,9 +979,10 @@ void Image::set_state_unlock()
 
     bool vms_notify = false;
 
-    switch (state) {
+    switch (state)
+    {
         case LOCKED:
-            unlock_db(-1,-1);
+            unlock_db(-1, -1);
             set_state(READY);
             break;
 
@@ -1034,7 +1035,7 @@ void Image::set_state_unlock()
 /* -------------------------------------------------------------------------- */
 
 bool Image::test_set_persistent(Template * image_template, int uid, int gid,
-        bool is_allocate)
+                                bool is_allocate)
 {
     Nebula&  nd = Nebula::instance();
 

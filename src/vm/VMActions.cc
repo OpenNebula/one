@@ -73,7 +73,7 @@ int VMActions::set_auth_ops(const Template& tmpl, string& error)
 /* -------------------------------------------------------------------------- */
 
 int VMActions::set_auth_ops(const string& ops_str,
-        ActionSet<Action>& ops_set, string& error)
+                            ActionSet<Action>& ops_set, string& error)
 {
     std::set<std::string> ops;
 
@@ -235,7 +235,7 @@ string VMActions::action_to_str(Action action)
     {
         case MIGRATE_ACTION:
             st = "migrate";
-        break;
+            break;
         case POFF_MIGRATE_ACTION:
             st = "poweroff-migrate";
             break;
@@ -244,151 +244,151 @@ string VMActions::action_to_str(Action action)
             break;
         case LIVE_MIGRATE_ACTION:
             st = "live-migrate";
-        break;
+            break;
         case TERMINATE_ACTION:
             st = "terminate";
-        break;
+            break;
         case TERMINATE_HARD_ACTION:
             st = "terminate-hard";
-        break;
+            break;
         case UNDEPLOY_ACTION:
             st = "undeploy";
-        break;
+            break;
         case UNDEPLOY_HARD_ACTION:
             st = "undeploy-hard";
-        break;
+            break;
         case HOLD_ACTION:
             st = "hold";
-        break;
+            break;
         case RELEASE_ACTION:
             st = "release";
-        break;
+            break;
         case STOP_ACTION:
             st = "stop";
-        break;
+            break;
         case SUSPEND_ACTION:
             st = "suspend";
-        break;
+            break;
         case RESUME_ACTION:
             st = "resume";
-        break;
+            break;
         case DELETE_ACTION:
             st = "delete";
-        break;
+            break;
         case DELETE_RECREATE_ACTION:
             st = "delete-recreate";
-        break;
+            break;
         case REBOOT_ACTION:
             st = "reboot";
-        break;
+            break;
         case REBOOT_HARD_ACTION:
             st = "reboot-hard";
-        break;
+            break;
         case RESCHED_ACTION:
             st = "resched";
-        break;
+            break;
         case UNRESCHED_ACTION:
             st = "unresched";
-        break;
+            break;
         case POWEROFF_ACTION:
             st = "poweroff";
-        break;
+            break;
         case POWEROFF_HARD_ACTION:
             st = "poweroff-hard";
-        break;
+            break;
         case DISK_ATTACH_ACTION:
             st = "disk-attach";
-        break;
+            break;
         case DISK_DETACH_ACTION:
             st = "disk-detach";
-        break;
+            break;
         case NIC_ATTACH_ACTION:
             st = "nic-attach";
-        break;
+            break;
         case NIC_DETACH_ACTION:
             st = "nic-detach";
-        break;
+            break;
         case ALIAS_ATTACH_ACTION:
             st = "alias-attach";
-        break;
+            break;
         case ALIAS_DETACH_ACTION:
             st = "alias-detach";
-        break;
+            break;
         case DISK_SNAPSHOT_CREATE_ACTION:
             st = "disk-snapshot-create";
-        break;
+            break;
         case DISK_SNAPSHOT_DELETE_ACTION:
             st = "disk-snapshot-delete";
-        break;
+            break;
         case DISK_SNAPSHOT_RENAME_ACTION:
             st = "disk-snapshot-rename";
-        break;
+            break;
         case DISK_RESIZE_ACTION:
             st = "disk-resize";
-        break;
+            break;
         case DEPLOY_ACTION:
             st = "deploy";
-        break;
+            break;
         case CHOWN_ACTION:
             st = "chown";
-        break;
+            break;
         case CHMOD_ACTION:
             st = "chmod";
-        break;
+            break;
         case UPDATECONF_ACTION:
             st = "updateconf";
-        break;
+            break;
         case RENAME_ACTION:
             st = "rename";
-        break;
+            break;
         case RESIZE_ACTION:
             st = "resize";
-        break;
+            break;
         case UPDATE_ACTION:
             st = "update";
-        break;
+            break;
         case SNAPSHOT_CREATE_ACTION:
             st = "snapshot-create";
-        break;
+            break;
         case SNAPSHOT_DELETE_ACTION:
             st = "snapshot-delete";
-        break;
+            break;
         case SNAPSHOT_REVERT_ACTION:
             st = "snapshot-revert";
-        break;
+            break;
         case DISK_SAVEAS_ACTION:
             st = "disk-saveas";
-        break;
+            break;
         case DISK_SNAPSHOT_REVERT_ACTION:
             st = "disk-snapshot-revert";
-        break;
+            break;
         case RECOVER_ACTION:
             st = "recover";
-        break;
+            break;
         case RETRY_ACTION:
             st = "retry";
-        break;
+            break;
         case MONITOR_ACTION:
             st = "monitor";
-        break;
+            break;
         case SCHED_ADD_ACTION:
             st = "sched-add";
-        break;
+            break;
         case SCHED_UPDATE_ACTION:
             st = "sched-update";
-        break;
+            break;
         case SCHED_DELETE_ACTION:
             st = "sched-delete";
-        break;
+            break;
         case SG_ATTACH_ACTION:
             st = "sg-attach";
-        break;
+            break;
         case SG_DETACH_ACTION:
             st = "sg-detach";
-        break;
+            break;
         case NONE_ACTION:
             st = "none";
-        break;
+            break;
     }
 
     return st;

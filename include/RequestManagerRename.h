@@ -48,7 +48,7 @@ protected:
     RequestManagerRename(const std::string& method_name,
                          const std::string& help,
                          const std::string& params = "A:sis")
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         auth_op = AuthRequest::MANAGE;
     }
@@ -58,7 +58,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                        RequestAttributes& att) override;
+                         RequestAttributes& att) override;
 
     /**
      *  Gets and object by name and owner. Default implementation returns no
@@ -69,7 +69,7 @@ protected:
     /**
      *  Batch rename of related objects. Default implementation does nothing
      */
-    virtual void batch_rename(int oid){};
+    virtual void batch_rename(int oid) {};
 
     /**
      *  Test if a rename is being perform on a given object. If not it set it.
@@ -125,7 +125,7 @@ class VirtualMachineRename : public RequestManagerRename
 {
 public:
     VirtualMachineRename():
-        RequestManagerRename("one.vm.rename","Renames a virtual machine")
+        RequestManagerRename("one.vm.rename", "Renames a virtual machine")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
@@ -211,7 +211,7 @@ class VirtualNetworkRename: public RequestManagerRename
 {
 public:
     VirtualNetworkRename():
-        RequestManagerRename("one.vn.rename","Renames a virtual network")
+        RequestManagerRename("one.vn.rename", "Renames a virtual network")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();

@@ -29,9 +29,9 @@
 class LogDBRecord : public Callbackable
 {
 public:
-   /**
-    *  Index for this log entry (and previous)
-    */
+    /**
+     *  Index for this log entry (and previous)
+     */
     uint64_t index;
 
     uint64_t prev_index;
@@ -83,7 +83,7 @@ class LogDB : public SqlDB
 {
 public:
     LogDB(SqlDB * _db, bool solo, bool cache, uint64_t log_retention,
-            uint64_t limit_purge);
+          uint64_t limit_purge);
 
     virtual ~LogDB();
 
@@ -126,8 +126,8 @@ public:
      *    @return 0 on sucess, -1 on failure
      */
     int insert_log_record(uint64_t index, unsigned int term,
-            const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
-            bool replace);
+                          const std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
+                          bool replace);
 
     /**
      *  Replicate a log record on followers. It will also replicate any missing
@@ -383,7 +383,7 @@ private:
      *    @return -1 on failure, index of the inserted record on success
      */
     uint64_t insert_log_record(unsigned int term, const std::ostringstream& sql,
-            time_t timestamp, uint64_t fed_index);
+                               time_t timestamp, uint64_t fed_index);
 };
 
 // -----------------------------------------------------------------------------
@@ -393,9 +393,9 @@ private:
 class FedLogDB: public SqlDB
 {
 public:
-    FedLogDB(LogDB *db):_logdb(db){};
+    FedLogDB(LogDB *db):_logdb(db) {};
 
-    virtual ~FedLogDB(){};
+    virtual ~FedLogDB() {};
 
     int exec_wr(std::ostringstream& cmd) override;
 

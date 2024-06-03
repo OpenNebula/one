@@ -58,7 +58,7 @@ public:
      */
     void sort_match_networks()
     {
-       match_networks.sort_resources();
+        match_networks.sort_resources();
     }
 
     /**
@@ -229,7 +229,7 @@ public:
     /**
      *  @return storage usage for the VM
      */
-    const std::map<int,long long>& get_storage_usage() const
+    const std::map<int, long long>& get_storage_usage() const
     {
         return ds_usage;
     }
@@ -498,7 +498,7 @@ protected:
     float       cpu;
     long long   system_ds_usage;
 
-    std::map<int,long long> ds_usage;
+    std::map<int, long long> ds_usage;
 
     std::string rank;
     std::string requirements;

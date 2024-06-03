@@ -34,7 +34,8 @@ public:
     /**
      *  State of this server
      */
-    enum State {
+    enum State
+    {
         SOLO      = 0,
         CANDIDATE = 1,
         FOLLOWER  = 2,
@@ -52,9 +53,9 @@ public:
      *   @param xmlrpc timeout for RAFT related xmlrpc API calls
      **/
     RaftManager(int server_id, const VectorAttribute * leader_hook_mad,
-        const VectorAttribute * follower_hook_mad, time_t log_purge,
-        long long bcast, long long election, time_t xmlrpc,
-        const std::string& remotes_location);
+                const VectorAttribute * follower_hook_mad, time_t log_purge,
+                long long bcast, long long election, time_t xmlrpc,
+                const std::string& remotes_location);
 
     ~RaftManager() = default;
 
@@ -254,7 +255,7 @@ public:
      *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
      */
     int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
-        unsigned int& ft, std::string& error);
+                             unsigned int& ft, std::string& error);
 
     /**
      *  Calls the request vote xml-rpc method
@@ -267,8 +268,8 @@ public:
      *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
      */
     int xmlrpc_request_vote(int follower_id, uint64_t lindex,
-            unsigned int lterm, bool& success, unsigned int& fterm,
-            std::string& error);
+                            unsigned int lterm, bool& success, unsigned int& fterm,
+                            std::string& error);
 
     // -------------------------------------------------------------------------
     // Server related interface

@@ -101,11 +101,12 @@ int HostMonitorManager::start(std::string& error)
     }
 
     //Start the timer action thread
-    thread timer_thr = thread([&, this]{
+    thread timer_thr = thread([&, this]
+    {
         unique_lock<mutex> end_lck(end_mtx);
 
         while(!end_cv.wait_for(end_lck, chrono::seconds(timer_period),
-                    [&](){return end;}))
+        [&]() {return end;}))
         {
             timer_action();
         }
@@ -166,7 +167,7 @@ void HostMonitorManager::update_host(int oid, const std::string &xml)
             host->last_system_host(0);
 
             NebulaLog::debug("HMM", "Updated Host " + to_string(host->oid())
-                + ", state " + Host::state_to_str(host->state()));
+                             + ", state " + Host::state_to_str(host->state()));
         }
     }
     else
@@ -269,7 +270,7 @@ void HostMonitorManager::monitor_host(int oid, const Template &tmpl)
     {
         string str;
         NebulaLog::log("HMM", Log::ERROR, "Error parsing host monitoring template: "
-                + tmpl.to_str(str));
+                       + tmpl.to_str(str));
         return;
     }
 
@@ -335,7 +336,7 @@ void HostMonitorManager::monitor_vm(int oid,
     {
         string str;
         NebulaLog::log("HMM", Log::ERROR, "Error parsing VM monitoring: "
-                + tmpl.to_str(str));
+                       + tmpl.to_str(str));
         return;
     }
 
@@ -515,7 +516,7 @@ void HostMonitorManager::start_host_monitor(const HostRPCPool::HostBaseLock& hos
     host->last_monitored(time(nullptr));
 
     NebulaLog::debug("HMM", "Monitoring host " +host->name() + "("
-            + to_string(host->oid()) + ")");
+                     + to_string(host->oid()) + ")");
 
     string xml = host->to_xml();
 
@@ -541,7 +542,7 @@ void HostMonitorManager::stop_host_monitor(const HostRPCPool::HostBaseLock& host
     }
 
     NebulaLog::debug("HMM", "Stopping Monitoring on host " +host->name() + "("
-        + to_string(host->oid()) + ")");
+                     + to_string(host->oid()) + ")");
 
     string xml = host->to_xml();
 
@@ -584,7 +585,7 @@ void HostMonitorManager::error_monitor(int oid, const string& msg)
 /* -------------------------------------------------------------------------- */
 
 bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
-        time_t ts) const
+                                            time_t ts) const
 {
     time_t last_ts;
 
@@ -598,7 +599,7 @@ bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
     if (!host.valid())
     {
         NebulaLog::warn("HMM", "message ignored for unknown host "
-            + to_string(oid));
+                        + to_string(oid));
         return false;
     }
 
@@ -626,7 +627,7 @@ bool HostMonitorManager::test_set_timestamp(MonitorDriverMessages type, int oid,
     if ( last_ts > ts )
     {
         NebulaLog::warn("HMM", "out of order message ignored for host "
-            + to_string(oid));
+                        + to_string(oid));
         return false;
     }
 

@@ -60,7 +60,7 @@ void VirtualMachineXML::init_attributes()
 
     xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
     resume = (action == VMActions::STOP_ACTION || action == VMActions::UNDEPLOY_ACTION
-            || action == VMActions::UNDEPLOY_HARD_ACTION );
+              || action == VMActions::UNDEPLOY_HARD_ACTION );
 
     xpath(hid, "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
     xpath(dsid, "/VM/HISTORY_RECORDS/HISTORY/DS_ID", -1);
@@ -122,7 +122,7 @@ void VirtualMachineXML::init_attributes()
     // Datastore requirements                                                 //
     // ---------------------------------------------------------------------- //
     xpath(automatic_ds_requirements, "/VM/TEMPLATE/AUTOMATIC_DS_REQUIREMENTS",
-            "");
+          "");
 
     rc = xpath(ds_requirements, "/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS", "");
 
@@ -146,7 +146,7 @@ void VirtualMachineXML::init_attributes()
     // Network requirements & rank                                            //
     // ---------------------------------------------------------------------- //
     xpath(automatic_nic_requirements, "/VM/TEMPLATE/AUTOMATIC_NIC_REQUIREMENTS",
-            "");
+          "");
 
     if (get_nodes("/VM/TEMPLATE/NIC", nodes) > 0)
     {
@@ -434,7 +434,7 @@ void VirtualMachineXML::reset_capacity(HostShareCapacity &sr)
 /* -------------------------------------------------------------------------- */
 
 bool VirtualMachineXML::test_image_datastore_capacity(
-    ImageDatastorePoolXML * img_dspool, string & error_msg) const
+        ImageDatastorePoolXML * img_dspool, string & error_msg) const
 {
     for (auto ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ++ds_it)
     {
@@ -567,9 +567,9 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
     for (auto nic_id : nics_ids)
     {
         os << "\tNIC_ID: "<< nic_id << endl
-        << "\t-----------------------------------"  << endl;
+           << "\t-----------------------------------"  << endl;
         os << "\tPRI\tID - NETWORKS"<< endl
-        << "\t------------------------"  << endl;
+           << "\t------------------------"  << endl;
 
         const vector<Resource *> net_resources = vm.nics[nic_id]->get_match_networks();
 
@@ -643,29 +643,29 @@ int VirtualMachineXML::parse_action_name(string& action_st)
     one_util::tolower(action_st);
 
     if (   action_st != "terminate"
-        && action_st != "terminate-hard"
-        && action_st != "undeploy"
-        && action_st != "undeploy-hard"
-        && action_st != "hold"
-        && action_st != "release"
-        && action_st != "stop"
-        && action_st != "suspend"
-        && action_st != "resume"
-        && action_st != "reboot"
-        && action_st != "reboot-hard"
-        && action_st != "poweroff"
-        && action_st != "poweroff-hard"
-        && action_st != "snapshot-create"
-        && action_st != "snapshot-revert"
-        && action_st != "snapshot-delete"
-        && action_st != "disk-snapshot-create"
-        && action_st != "disk-snapshot-revert"
-        && action_st != "disk-snapshot-delete"
+           && action_st != "terminate-hard"
+           && action_st != "undeploy"
+           && action_st != "undeploy-hard"
+           && action_st != "hold"
+           && action_st != "release"
+           && action_st != "stop"
+           && action_st != "suspend"
+           && action_st != "resume"
+           && action_st != "reboot"
+           && action_st != "reboot-hard"
+           && action_st != "poweroff"
+           && action_st != "poweroff-hard"
+           && action_st != "snapshot-create"
+           && action_st != "snapshot-revert"
+           && action_st != "snapshot-delete"
+           && action_st != "disk-snapshot-create"
+           && action_st != "disk-snapshot-revert"
+           && action_st != "disk-snapshot-delete"
 
-        // Compatibility with 4.x
-        && action_st != "shutdown"
-        && action_st != "shutdown-hard"
-        && action_st != "delete")
+           // Compatibility with 4.x
+           && action_st != "shutdown"
+           && action_st != "shutdown-hard"
+           && action_st != "delete")
     {
         return -1;
     }

@@ -53,7 +53,7 @@ public:
               is_default)
     {};
 
-    ~QuotaVirtualMachine(){};
+    ~QuotaVirtualMachine() {};
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
@@ -126,9 +126,9 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_default_quota(
-        const std::string& id,
-        Quotas& default_quotas,
-        VectorAttribute **va) override;
+            const std::string& id,
+            Quotas& default_quotas,
+            VectorAttribute **va) override;
 
     static const char * VM_METRICS[];
 

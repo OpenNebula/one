@@ -24,13 +24,13 @@ void VMGroupPoolXML::add_object(xmlNodePtr node)
     if ( node == 0 || node->children == 0 )
     {
         NebulaLog::log("VM_GROUP", Log::ERROR, "XML Node does not represent a "
-                "valid user");
+                       "valid user");
         return;
     }
 
     VMGroupXML * vmg = new VMGroupXML(node);
 
-    objects.insert( pair<int,ObjectXML*>(vmg->get_oid(), vmg) );
+    objects.insert( pair<int, ObjectXML*>(vmg->get_oid(), vmg) );
 }
 
 int VMGroupPoolXML::load_info(xmlrpc_c::value &result)

@@ -30,7 +30,7 @@ protected:
     RequestManagerUser(const std::string& method_name,
                        const std::string& help,
                        const std::string& params)
-        :Request(method_name,params,help)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
@@ -38,7 +38,7 @@ protected:
         auth_object = PoolObjectSQL::USER;
     };
 
-    ~RequestManagerUser(){};
+    ~RequestManagerUser() {};
 
     /* -------------------------------------------------------------------- */
 
@@ -69,7 +69,7 @@ public:
         hidden_params.insert(2); // password argument
     };
 
-    ~UserChangePassword(){};
+    ~UserChangePassword() {};
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
@@ -92,7 +92,7 @@ public:
         hidden_params.insert(3); // new password argument
     };
 
-    ~UserChangeAuth(){};
+    ~UserChangeAuth() {};
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
@@ -114,7 +114,7 @@ public:
         auth_op = AuthRequest::ADMIN;
     };
 
-    ~UserSetQuota(){};
+    ~UserSetQuota() {};
 
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
@@ -149,7 +149,7 @@ class UserLogin : public Request
 {
 public:
     UserLogin(): Request("one.user.login", "A:sssii",
-            "Generates or sets a login token")
+                             "Generates or sets a login token")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
@@ -160,7 +160,7 @@ public:
         hidden_params.insert(2); // password argument
     };
 
-    virtual ~UserLogin(){};
+    virtual ~UserLogin() {};
 
     void request_execute(
             xmlrpc_c::paramList const&  _paramList,
@@ -177,7 +177,7 @@ public:
             const std::string& method_name,
             const std::string& help,
             const std::string& params):
-                Request(method_name,params,help)
+        Request(method_name, params, help)
     {
         auth_object = PoolObjectSQL::USER;
         auth_op     = AuthRequest::MANAGE;
@@ -187,7 +187,7 @@ public:
         upool = nd.get_upool();
     };
 
-    ~UserEditGroup(){};
+    ~UserEditGroup() {};
 
     void request_execute(
             xmlrpc_c::paramList const&  _paramList,
@@ -214,16 +214,16 @@ class UserAddGroup : public UserEditGroup
 public:
     UserAddGroup():
         UserEditGroup("one.user.addgroup",
-                       "Adds the user to a secondary group",
-                       "A:sii"){};
+                      "Adds the user to a secondary group",
+                      "A:sii") {};
 
-    ~UserAddGroup(){};
+    ~UserAddGroup() {};
 
     int secondary_group_action(
-                int                        user_id,
-                int                        group_id,
-                xmlrpc_c::paramList const& _paramList,
-                std::string&               error_str) override;
+            int                        user_id,
+            int                        group_id,
+            xmlrpc_c::paramList const& _paramList,
+            std::string&               error_str) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -234,10 +234,10 @@ class UserDelGroup : public UserEditGroup
 public:
     UserDelGroup():
         UserEditGroup("one.user.delgroup",
-                       "Deletes the user from a secondary group",
-                       "A:sii"){};
+                      "Deletes the user from a secondary group",
+                      "A:sii") {};
 
-    ~UserDelGroup(){};
+    ~UserDelGroup() {};
 
     int secondary_group_action(
             int                        user_id,

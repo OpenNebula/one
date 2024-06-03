@@ -25,7 +25,8 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 const char * QuotaVirtualMachine::VM_METRICS[] = {"VMS", "RUNNING_VMS", "CPU",
-    "RUNNING_CPU", "MEMORY", "RUNNING_MEMORY", "SYSTEM_DISK_SIZE"};
+                                                  "RUNNING_CPU", "MEMORY", "RUNNING_MEMORY", "SYSTEM_DISK_SIZE"
+                                                 };
 
 const int QuotaVirtualMachine::NUM_VM_METRICS  = 7;
 
@@ -206,9 +207,9 @@ void QuotaVirtualMachine::del(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 
 int QuotaVirtualMachine::get_default_quota(
-    const string& id,
-    Quotas& default_quotas,
-    VectorAttribute **va)
+        const string& id,
+        Quotas& default_quotas,
+        VectorAttribute **va)
 {
     return default_quotas.vm_get(id, va);
 }

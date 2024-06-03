@@ -34,7 +34,7 @@ using namespace std;
 
 string& one_util::toupper(string& st)
 {
-    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::toupper);
+    transform(st.begin(), st.end(), st.begin(), (int(*)(int))std::toupper);
     return st;
 };
 
@@ -43,7 +43,7 @@ string& one_util::toupper(string& st)
 
 string& one_util::tolower(string& st)
 {
-    transform(st.begin(),st.end(),st.begin(),(int(*)(int))std::tolower);
+    transform(st.begin(), st.end(), st.begin(), (int(*)(int))std::tolower);
     return st;
 };
 
@@ -53,10 +53,11 @@ string& one_util::tolower(string& st)
 bool one_util::icasecmp(const std::string& str1, const std::string& str2)
 {
     return (str1.size() == str2.size()) &&
-        std::equal(str1.begin(), str1.end(), str2.begin(),
-                   [](const char & c1, const char & c2){
-                       return (c1 == c2 || std::toupper(c1) == std::toupper(c2));
-                   });
+           std::equal(str1.begin(), str1.end(), str2.begin(),
+                      [](const char & c1, const char & c2)
+    {
+        return (c1 == c2 || std::toupper(c1) == std::toupper(c2));
+    });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -67,9 +68,9 @@ string one_util::log_time(time_t the_time)
     char time_str[26];
 
 #ifdef SOLARIS
-    ctime_r(&(the_time),time_str,sizeof(char)*26);
+    ctime_r(&(the_time), time_str, sizeof(char)*26);
 #else
-    ctime_r(&(the_time),time_str);
+    ctime_r(&(the_time), time_str);
 #endif
 
     time_str[24] = '\0'; // Get rid of final enter character
@@ -123,7 +124,7 @@ string one_util::sha1_digest(const string& in)
 
     EVP_DigestUpdate(mdctx, in.c_str(), in.length());
 
-    EVP_DigestFinal_ex(mdctx,md_value, &md_len);
+    EVP_DigestFinal_ex(mdctx, md_value, &md_len);
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     EVP_MD_CTX_cleanup(mdctx);
@@ -152,8 +153,8 @@ string one_util::sha256_digest(const string& in)
     SHA256((unsigned char*) in.c_str(), in.length(), digest);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
-         oss << setfill('0') << setw(2) << hex << nouppercase
-             << (unsigned int) digest[i];
+        oss << setfill('0') << setw(2) << hex << nouppercase
+            << (unsigned int) digest[i];
 
     return oss.str();
 }
@@ -347,7 +348,7 @@ string one_util::trim(const string& str)
         return string();
     }
 
-    auto rwlast = find_if(str.rbegin(),str.rend(),not_space);
+    auto rwlast = find_if(str.rbegin(), str.rend(), not_space);
 
     auto wlast(rwlast.base());
 
@@ -360,7 +361,7 @@ string one_util::trim(const string& str)
 /* -------------------------------------------------------------------------- */
 
 string one_util::gsub(const string& st, const string& sfind,
-    const string& srepl)
+                      const string& srepl)
 {
     string result = st;
 
@@ -373,7 +374,7 @@ string one_util::gsub(const string& st, const string& sfind,
 
     while (pos != string::npos)
     {
-        result.replace(pos, sfind_len , srepl);
+        result.replace(pos, sfind_len, srepl);
         pos += srepl_len;
 
         pos = result.find(sfind, pos);

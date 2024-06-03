@@ -48,7 +48,7 @@ public:
      *  Singleton initializer
      */
     static Client * initialize(const std::string& secret,
-            const std::string& endpoint, size_t message_size, unsigned int tout)
+                               const std::string& endpoint, size_t message_size, unsigned int tout)
     {
         if ( _client == 0 )
         {
@@ -69,16 +69,16 @@ public:
      */
     static int read_oneauth(std::string &secret, std::string& error);
 
-	/**
+    /**
      *  Performs a xmlrpc call to the initialized server
      *    @param method name
      *    @param plist initialized param list
      *    @param result of the xmlrpc call
      */
     void call(const std::string& method, const xmlrpc_c::paramList& plist,
-		 xmlrpc_c::value * const result);
+              xmlrpc_c::value * const result);
 
-	/**
+    /**
      *  Performs a xmlrpc call
      *    @param endpoint of server
      *    @param method name
@@ -89,10 +89,10 @@ public:
      *    @return 0
      */
     static int call(const std::string& endpoint, const std::string& method,
-        const xmlrpc_c::paramList& plist, unsigned int _timeout,
-        xmlrpc_c::value * const result, std::string& error);
+                    const xmlrpc_c::paramList& plist, unsigned int _timeout,
+                    xmlrpc_c::value * const result, std::string& error);
 
-	/**
+    /**
      *  Performs an xmlrpc call to the initialized server and credentials.
      *  This method automatically adds the credential argument.
      *    @param method name
@@ -102,7 +102,7 @@ public:
      *    @param ... xmlrpc arguments
      */
     void call(const std::string &method, const std::string &format,
-		xmlrpc_c::value * const result, ...);
+              xmlrpc_c::value * const result, ...);
 
 private:
     /**
@@ -117,12 +117,12 @@ private:
      * @throws Exception if the authorization options are invalid
      */
     Client(const std::string& secret, const std::string& endpoint, size_t message_size,
-		unsigned int tout);
+           unsigned int tout);
 
     std::string  one_auth;
     std::string  one_endpoint;
 
-	unsigned int timeout;
+    unsigned int timeout;
 
     static Client * _client;
 };

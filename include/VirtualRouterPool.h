@@ -28,9 +28,9 @@ class VirtualRouterPool : public PoolSQL
 {
 public:
 
-    VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vr_table){};
+    VirtualRouterPool(SqlDB * db) : PoolSQL(db, one_db::vr_table) {};
 
-    ~VirtualRouterPool(){};
+    ~VirtualRouterPool() {};
 
     /**
      *  Allocates a new object, writing it in the pool database. No memory is
@@ -56,8 +56,8 @@ public:
                  std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
-            new VirtualRouter(-1, uid, gid, uname, gname, umask, move(template_contents)),
-            error_str);
+                       new VirtualRouter(-1, uid, gid, uname, gname, umask, move(template_contents)),
+                       error_str);
 
         return *oid;
     }
@@ -97,10 +97,10 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VROUTER_POOL", "body", one_db::vr_table,
-                where, sid, eid, desc);
+                             where, sid, eid, desc);
     };
 
     /**
@@ -130,7 +130,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new VirtualRouter(-1,-1,-1,"","",0,0);
+        return new VirtualRouter(-1, -1, -1, "", "", 0, 0);
     };
 };
 

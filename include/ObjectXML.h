@@ -70,7 +70,7 @@ public:
         xmlNodePtr cur;
         xmlChar *  str_ptr;
 
-        obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr),ctx);
+        obj = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(expr), ctx);
 
         if (obj == 0)
         {

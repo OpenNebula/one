@@ -136,7 +136,7 @@ void VectorAttribute::to_token(std::ostringstream& s) const
 
 void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 {
-    size_t  bpos=0,epos,mpos;
+    size_t  bpos=0, epos, mpos;
     string  tmp;
     bool    cont = true;
 
@@ -156,7 +156,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 
     while(cont)
     {
-        epos=sattr.find(my_sep,bpos);
+        epos=sattr.find(my_sep, bpos);
 
         if (epos == string::npos)
         {
@@ -165,7 +165,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
         }
         else
         {
-            tmp  = sattr.substr(bpos,epos-bpos);
+            tmp  = sattr.substr(bpos, epos-bpos);
             bpos = epos + my_sep_size;
         }
 
@@ -178,11 +178,11 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 
         if ( mpos + 1 == tmp.size() )
         {
-            attribute_value.insert(make_pair(tmp.substr(0,mpos),""));
+            attribute_value.insert(make_pair(tmp.substr(0, mpos), ""));
         }
         else
         {
-            attribute_value.insert(make_pair(tmp.substr(0,mpos),
+            attribute_value.insert(make_pair(tmp.substr(0, mpos),
                                              tmp.substr(mpos+1)));
         }
     }
@@ -190,7 +190,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VectorAttribute::replace(const map<string,string>& attr)
+void VectorAttribute::replace(const map<string, string>& attr)
 {
     attribute_value = attr;
 }
@@ -199,7 +199,7 @@ void VectorAttribute::replace(const map<string,string>& attr)
 
 void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 {
-    const map<string,string>& source_values = vattr->value();
+    const map<string, string>& source_values = vattr->value();
 
     for (auto it=source_values.begin(); it!=source_values.end(); it++)
     {
@@ -217,7 +217,7 @@ void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
             }
         }
 
-        attribute_value.insert(make_pair(it->first,it->second));
+        attribute_value.insert(make_pair(it->first, it->second));
     }
 }
 
@@ -233,7 +233,7 @@ void VectorAttribute::replace(const string& name, const string& value)
         attribute_value.erase(it);
     }
 
-    attribute_value.insert(make_pair(name,value));
+    attribute_value.insert(make_pair(name, value));
 }
 
 /* -------------------------------------------------------------------------- */

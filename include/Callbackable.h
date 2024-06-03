@@ -43,7 +43,7 @@ public:
     /**
      *  Datatype for call back pointers
      */
-    typedef int (Callbackable::*Callback)(void *, int, char ** ,char **);
+    typedef int (Callbackable::*Callback)(void *, int, char **, char **);
 
     /**
      *  Set the callback function and custom arguments to be executed by the
@@ -91,9 +91,9 @@ public:
         _mutex.unlock();
     }
 
-     /**
-     *  set affected rows variable
-     */
+    /**
+    *  set affected rows variable
+    */
     void set_affected_rows(int num_rows)
     {
         affected_rows = num_rows;
@@ -277,7 +277,7 @@ private:
 class string_cb : public Callbackable
 {
 public:
-    string_cb(int _total):total_values(_total){};
+    string_cb(int _total):total_values(_total) {};
 
     void set_callback(std::string * _str)
     {
@@ -317,7 +317,7 @@ private:
 class stream_cb : public Callbackable
 {
 public:
-    stream_cb(int _total): total_values(_total){};
+    stream_cb(int _total): total_values(_total) {};
 
     void set_callback(std::ostringstream * _oss)
     {
@@ -358,7 +358,7 @@ private:
 class empty_cb : public Callbackable
 {
 public:
-    void set_callback(Callback _cb, void * _arg = 0){};
+    void set_callback(Callback _cb, void * _arg = 0) {};
 
     bool isCallBackSet() override
     {

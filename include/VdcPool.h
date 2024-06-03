@@ -26,9 +26,9 @@ class VdcPool : public PoolSQL
 {
 public:
     VdcPool(SqlDB * db,
-             bool    is_federation_slave);
+            bool    is_federation_slave);
 
-    ~VdcPool(){};
+    ~VdcPool() {};
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
@@ -97,7 +97,7 @@ public:
      *  @return 0 on success
      */
     int dump(std::string& oss, const std::string& where, int sid, int eid,
-        bool desc) override
+             bool desc) override
     {
         return PoolSQL::dump(oss, "VDC_POOL", "body", one_db::vdc_table,
                              where, sid, eid, desc);
@@ -109,10 +109,10 @@ public:
      *
      *  @return 0 on success
      */
-     int list(std::vector<int>& oids)
-     {
+    int list(std::vector<int>& oids)
+    {
         return PoolSQL::list(oids, one_db::vdc_table);
-     }
+    }
 
     /**
      *  Default name for the default VDC
@@ -132,7 +132,7 @@ private:
      */
     PoolObjectSQL * create() override
     {
-        return new Vdc(-1,0);
+        return new Vdc(-1, 0);
     };
 };
 
