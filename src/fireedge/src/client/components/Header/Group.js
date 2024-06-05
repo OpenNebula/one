@@ -26,7 +26,12 @@ import HeaderPopover from 'client/components/Header/Popover'
 import { Tr, Translate } from 'client/components/HOC'
 import { T, FILTER_POOL } from 'client/constants'
 
-const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
+const {
+  ALL_RESOURCES,
+  PRIMARY_GROUP_RESOURCES,
+  USER_RESOURCES,
+  USER_GROUPS_RESOURCES,
+} = FILTER_POOL
 
 const ButtonGroup = memo(
   ({ group, handleClick, disabled }) => {
@@ -37,6 +42,8 @@ const ButtonGroup = memo(
 
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
+      (filterPool === USER_RESOURCES && USER_RESOURCES === ID) ||
+      (filterPool === USER_GROUPS_RESOURCES && USER_GROUPS_RESOURCES === ID) ||
       (filterPool === PRIMARY_GROUP_RESOURCES && isPrimaryGroup)
 
     return (
@@ -81,9 +88,20 @@ const Group = () => {
     a.ID === user?.GUID ? -1 : b.ID === user?.GUID ? 1 : 0
 
   const ShowAllOption = { ID: ALL_RESOURCES, NAME: Tr(T.ShowAll) }
+  const ShowAllOptionUserAndGroups = {
+    ID: USER_GROUPS_RESOURCES,
+    NAME: Tr(T.ShowBelongingUserAndGroups),
+  }
+  const ShowAllOptionUser = {
+    ID: USER_RESOURCES,
+    NAME: Tr(T.ShowBelongingUser),
+  }
 
   const sortMainGroupFirst = useMemo(
-    () => [ShowAllOption].concat(groups).sort(sortGroupAsMainFirst),
+    () =>
+      [ShowAllOption, ShowAllOptionUserAndGroups, ShowAllOptionUser]
+        .concat(groups)
+        .sort(sortGroupAsMainFirst),
     [user?.GUID, ShowAllOption?.NAME]
   )
 

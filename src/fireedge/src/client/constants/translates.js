@@ -204,6 +204,8 @@ module.exports = {
   Share: 'Share',
   Show: 'Show',
   ShowAll: 'Show all',
+  ShowBelongingUser: 'Show all owned by the user',
+  ShowBelongingUserAndGroups: 'Show all owned by the user or his groups',
   SignIn: 'Sign In',
   SignOut: 'Sign Out',
   SnapshotCreate: 'Snapshot create',
