@@ -15,16 +15,16 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 
-import { useListForm } from 'client/hooks'
-import { ImagesTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/Vm/AttachDiskForm/ImageSteps/ImagesTable/schema'
-import { Step } from 'client/utils'
+import { ImagesTable } from 'client/components/Tables'
 import { T } from 'client/constants'
+import { useListForm } from 'client/hooks'
+import { Step } from 'client/utils'
 
 export const STEP_ID = 'image'
 
 const Content = ({ data, setFormData }) => {
-  const { ID } = data?.[0] ?? {}
+  const { ID: DATA_ID } = data?.[0] ?? {}
 
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
@@ -37,8 +37,15 @@ const Content = ({ data, setFormData }) => {
     const { original = {} } = rows?.[0] ?? {}
 
     // #6129 #6154. To create an image we only need IMAGE and IMAGE_UNAME attributes. Also, we add datastore and type to show on disk card
-    const { NAME, UNAME, DATASTORE, DATASTORE_ID, TYPE } = original
-    const selectedImage = { NAME, UNAME, DATASTORE, DATASTORE_ID, TYPE }
+    const { NAME, UNAME, DATASTORE, DATASTORE_ID, TYPE, ID } = original
+    const selectedImage = {
+      NAME,
+      UNAME,
+      DATASTORE,
+      DATASTORE_ID,
+      TYPE,
+      ID,
+    }
 
     original.ID !== undefined ? handleSelect(selectedImage) : handleClear()
   }
@@ -49,7 +56,7 @@ const Content = ({ data, setFormData }) => {
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      initialState={{ selectedRowIds: { [ID]: true } }}
+      initialState={{ selectedRowIds: { [DATA_ID]: true } }}
       onSelectedRowsChange={handleSelectedRows}
     />
   )
