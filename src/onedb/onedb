@@ -552,14 +552,14 @@ CommandParser::CmdParser.new(ARGV) do
 
     LIVE_ACTION_HELP = <<-EOT.unindent
         **WARNING**: This action is done while OpenNebula is running. Make
-        a backup of the datasbase before executing.
+        a backup of the database before executing.
     EOT
 
     ###########################################################################
     # Purge history
     ###########################################################################
     purge_history_desc = <<-EOT.unindent
-        Deletes all but the last history records from non DONE VMs. A single VM
+        Deletes all but the last two history records from non DONE VMs. A single VM
         history deletion can be specified with the --id option.
 
         #{LIVE_ACTION_HELP}
@@ -693,9 +693,9 @@ CommandParser::CmdParser.new(ARGV) do
             * --id: vm id, example: 156
             * --seq: sequence number of the record, example: 0
 
-        The new value for this elemente is set in the third parameter.
+        The new value for this element is set in the third parameter.
 
-        Change the the hostname of first record:
+        Change the hostname of first record:
 
             onedb change-history --id 3 --seq 0 '/HISTORY/HOSTNAME' new_host
 
@@ -863,7 +863,7 @@ CommandParser::CmdParser.new(ARGV) do
             * --seq: sequence number of the record, example: 0
 
         For example to show the 3rd record of VM 0
-            onedb update-history --id 0 --seq 3
+            onedb show-history --id 0 --seq 3
 
         #{LIVE_ACTION_HELP}
     EOT
