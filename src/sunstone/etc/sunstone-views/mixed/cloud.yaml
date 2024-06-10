@@ -172,44 +172,44 @@ tabs:
       - 3 # Onwer
       - 4 # Group
       - 5 # Datastore
-      #- 6        # Size
+      #- 6 # Size
       - 7 # Type
-      #- 8        # Registration time
-      #- 9        # Persistent
+      #- 8 # Registration time
+      #- 9 # Persistent
       - 10 # Status
-      - 11 # #VMs
-      #- 12       # Target
+      - 11 # VMs
+      #- 12 # Target
   vnets-tab:
     # Allows to instantiate a service with vnets
     table_columns:
       - 0 # Checkbox
       - 1 # ID
       - 2 # Name
-      #- 3         # Owner
+      #- 3 # Owner
       - 4 # Group
       - 5 # Status
-      #- 6         # Reservation
+      #- 6 # Reservation
       - 7 # Cluster
-      #- 8        # Bridge
-      #- 9         # Leases
-      #- 10        # VLAN ID
+      #- 8 # Bridge
+      #- 9 # Leases
+      #- 10 # VLAN ID
   vnets-templates-tab:
     # Allows to instantiate a service with vnets templates
     table_columns:
       - 0 # Checkbox
       - 1 # ID
       - 2 # Name
-      #- 3        # Owner
+      #- 3 # Owner
       - 4 # Group
-      #- 6        # Cluster
+      #- 6 # Cluster
   secgroups-tab:
     table_columns:
       - 0 # Checkbox
       - 1 # ID
       - 2 # Name
-      #- 3        # Owner
+      #- 3 # Owner
       - 4 # Group
-      #- 5        # Labels
+      #- 5 # Labels
   vmgroup-tab:
     table_columns:
       - 0 # Checkbox
@@ -218,8 +218,8 @@ tabs:
       - 3 # Owner
       - 4 # Group
       - 5 # Vms
-      #- 6        # Labels
-      #- 7        # Search data
+      #- 6 # Labels
+      #- 7 # Search data
   datastores-tab:
     table_columns:
       - 0 # Checkbox
@@ -227,15 +227,15 @@ tabs:
       - 2 # Name
       - 3 # Owner
       - 4 # Group
-      #- 5        # Capacity
-      #- 6        # Cluster
-      #- 7        # Basepath
-      #- 8        # TM
-      #- 9        # DS
-      #- 10       # Type
+      #- 5 # Capacity
+      #- 6 # Cluster
+      #- 7 # Basepath
+      #- 8 # TM MAD
+      #- 9 # DS MAD
+      #- 10 # Type
       - 11 # Status
-      #- 12       # Labels
-      #- 13       # Search data
+      #- 12 # Labels
+      #- 13 # Search data
   templates-tab:
     table_columns:
       - 0 # Checkbox
@@ -244,8 +244,8 @@ tabs:
       - 3 # Group
       - 4 # Name
       - 5 # Registration time
-      #- 6         # Labels
-      #- 7         # Search data
+      #- 6 # Labels
+      #- 7 # Search data
     actions: *provisionactions
     template_creation_tabs:
       general: true
