@@ -19,7 +19,7 @@ import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useEffect, useState } from 'react'
+import { ReactElement, memo, useCallback, useEffect, useState } from 'react'
 import { Row } from 'react-table'
 
 import { SubmitButton } from 'client/components/FormControl'
@@ -30,6 +30,7 @@ import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'
 import VmTabs from 'client/components/Tabs/Vm'
 import { T, VM } from 'client/constants'
+import ButtonClearErrors from 'client/containers/VirtualMachines/ButtonClearErrors'
 import { setSelectedIds, useGeneral } from 'client/features/General'
 import {
   useLazyGetVmQuery,
@@ -43,6 +44,7 @@ import { useDispatch } from 'react-redux'
  * @returns {ReactElement} VMs list and selected row(s)
  */
 function VirtualMachines() {
+  const [dismissError] = useUpdateUserTemplateMutation()
   const dispatch = useDispatch()
   const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = VmActions(selectedRows)
@@ -53,6 +55,11 @@ function VirtualMachines() {
     dispatch(setSelectedIds(selectedIds))
   }, [selectedRows, dispatch])
 
+  const handleDismissError = useCallback(
+    async (id, xml) => dismissError({ id, template: xml, replace: 0 }),
+    []
+  )
+
   return (
     <ResourcesBackButton
       selectedRows={selectedRows}
@@ -60,6 +67,7 @@ function VirtualMachines() {
       useUpdateMutation={useUpdateUserTemplateMutation}
       zone={zone}
       actions={actions}
+      handleDismissError={handleDismissError}
       table={(props) => (
         <VmsTable
           onSelectedRowsChange={props.setSelectedRows}
@@ -71,20 +79,29 @@ function VirtualMachines() {
           }}
         />
       )}
-      simpleGroupsTags={(props) => (
-        <GroupedTags
-          tags={props.selectedRows}
-          handleElement={props.handleElement}
-          onDelete={props.handleUnselectRow}
-        />
-      )}
+      simpleGroupsTags={(props) => {
+        const propsSimpleGroups = {
+          tags: props.selectedRows,
+          handleElement: props.handleElement,
+          onDelete: props.handleUnselectRow,
+        }
+        props.moreThanOneSelected &&
+          props.handleDismissError &&
+          (propsSimpleGroups.handleDismissError = props.handleDismissError)
+
+        return <GroupedTags {...propsSimpleGroups} />
+      }}
       info={(props) => {
         const propsInfo = {
           vm: props?.selectedRows?.[0]?.original,
           selectedRows: props?.selectedRows,
         }
+        props?.selectedRows && (propsInfo.tags = props.tags)
         props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
         props?.unselect && (propsInfo.unselect = props.unselect)
+        props.moreThanOneSelected &&
+          props.handleDismissError &&
+          (propsInfo.handleDismissError = props.handleDismissError)
 
         return <InfoTabs {...propsInfo} />
       }}
@@ -100,53 +117,61 @@ function VirtualMachines() {
  * @param {Function} [unselect] - Function to unselect a VM
  * @returns {ReactElement} VM details
  */
-const InfoTabs = memo(({ vm, gotoPage, unselect }) => {
-  const [getVm, { data: lazyData, isFetching }] = useLazyGetVmQuery()
-  const id = lazyData?.ID ?? vm?.ID
-  const name = lazyData?.NAME ?? vm?.NAME
+const InfoTabs = memo(
+  ({ vm, gotoPage, unselect, handleDismissError, tags }) => {
+    const [getVm, { data: lazyData, isFetching }] = useLazyGetVmQuery()
+    const id = lazyData?.ID ?? vm?.ID
+    const name = lazyData?.NAME ?? vm?.NAME
 
-  return (
-    <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-        <Typography color="text.primary" noWrap flexGrow={1}>
-          {`#${id} | ${name}`}
-        </Typography>
+    return (
+      <Stack overflow="auto">
+        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          <Typography color="text.primary" noWrap flexGrow={1}>
+            {`#${id} | ${name}`}
+          </Typography>
 
-        {/* -- ACTIONS -- */}
-        <SubmitButton
-          data-cy="detail-refresh"
-          icon={<RefreshDouble />}
-          tooltip={Tr(T.Refresh)}
-          isSubmitting={isFetching}
-          onClick={() => getVm({ id })}
-        />
-        {typeof gotoPage === 'function' && (
-          <SubmitButton
-            data-cy="locate-on-table"
-            icon={<GotoIcon />}
-            tooltip={Tr(T.LocateOnTable)}
-            onClick={() => gotoPage()}
+          {/* -- ACTIONS -- */}
+          <ButtonClearErrors
+            tags={tags}
+            handleDismissError={handleDismissError}
           />
-        )}
-        {typeof unselect === 'function' && (
           <SubmitButton
-            data-cy="unselect"
-            icon={<Cancel />}
-            tooltip={Tr(T.Close)}
-            onClick={() => unselect()}
+            data-cy="detail-refresh"
+            icon={<RefreshDouble />}
+            tooltip={Tr(T.Refresh)}
+            isSubmitting={isFetching}
+            onClick={() => getVm({ id })}
           />
-        )}
-        {/* -- END ACTIONS -- */}
+          {typeof gotoPage === 'function' && (
+            <SubmitButton
+              data-cy="locate-on-table"
+              icon={<GotoIcon />}
+              tooltip={Tr(T.LocateOnTable)}
+              onClick={() => gotoPage()}
+            />
+          )}
+          {typeof unselect === 'function' && (
+            <SubmitButton
+              data-cy="unselect"
+              icon={<Cancel />}
+              tooltip={Tr(T.Close)}
+              onClick={() => unselect()}
+            />
+          )}
+          {/* -- END ACTIONS -- */}
+        </Stack>
+        <VmTabs id={id} />
       </Stack>
-      <VmTabs id={id} />
-    </Stack>
-  )
-})
+    )
+  }
+)
 
 InfoTabs.propTypes = {
+  selectedRows: PropTypes.array,
   vm: PropTypes.object,
   gotoPage: PropTypes.func,
   unselect: PropTypes.func,
+  handleDismissError: PropTypes.func,
 }
 
 InfoTabs.displayName = 'InfoTabs'
@@ -161,8 +186,10 @@ const GroupedTags = ({
   tags = [],
   handleElement = true,
   onDelete = () => undefined,
+  handleDismissError,
 }) => (
   <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
+    <ButtonClearErrors tags={tags} handleDismissError={handleDismissError} />
     <MultipleTags
       limitTags={10}
       tags={tags?.map((props) => {
@@ -184,6 +211,7 @@ GroupedTags.propTypes = {
   tags: PropTypes.array,
   handleElement: PropTypes.bool,
   onDelete: PropTypes.func,
+  handleDismissError: PropTypes.func,
 }
 GroupedTags.displayName = 'GroupedTags'
 

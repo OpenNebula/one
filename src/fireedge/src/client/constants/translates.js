@@ -41,6 +41,8 @@ module.exports = {
   SelectAllResources: 'Select all %s resources',
   ClearSelection: 'Clear selection',
   ResetFilters: 'Clear current search query, filters, and sorts',
+  VmsClearErrors:
+    'Clear error messages and warnings from selects Virtual Machines',
 
   /* actions */
   Accept: 'Accept',

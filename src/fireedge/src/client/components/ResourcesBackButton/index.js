@@ -103,6 +103,7 @@ const ResourcesBackButton = memo(
       gotoPage: !divided && selectedRows?.[0]?.gotoPage,
       unselect: !divided && (() => selectedRows?.[0]?.toggleRowSelected(false)),
       handleUnselectRow,
+      tags: selectedRows,
     }
 
     return (
