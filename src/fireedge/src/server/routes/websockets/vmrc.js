@@ -39,7 +39,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   logLevel: 'debug',
   pathRewrite: (path) => path.replace(endpointVmrc, '/ticket'),
   onProxyReqWs: (proxyReq, __, socket) => {
-    proxyReq.setHeader('Access-Control-Allow-Origin', '*');
+    proxyReq.setHeader('Access-Control-Allow-Origin', '*')
 
     socket.on('error', (err) => {
       writeInLogger(err?.message || '', {
