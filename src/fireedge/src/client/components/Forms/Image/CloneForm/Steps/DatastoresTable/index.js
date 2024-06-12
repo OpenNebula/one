@@ -47,6 +47,10 @@ const Content = ({ data, app }) => {
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
+      filter={(datastores) =>
+        // 0 = image
+        datastores?.filter(({ TYPE }) => TYPE === '0') ?? []
+      }
       getRowId={(row) => String(row.NAME)}
       initialState={{
         selectedRowIds: { [NAME]: true },
