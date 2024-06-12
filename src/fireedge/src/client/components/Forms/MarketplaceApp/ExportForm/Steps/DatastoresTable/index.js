@@ -56,7 +56,9 @@ const Content = ({ data, app }) => {
       filter={(dataToFilter) =>
         dataToFilter.filter(
           (datastore) =>
-            datastore?.TEMPLATE?.TYPE === DATASTORE_TYPES.IMAGE.value
+            datastore?.TEMPLATE?.TYPE &&
+            isKernelType !==
+              (datastore.TEMPLATE.TYPE === DATASTORE_TYPES.IMAGE.value)
         )
       }
     />

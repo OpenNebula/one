@@ -35,11 +35,14 @@ const AppTemplateTab = ({ id }) => {
   const { APPTEMPLATE64, VMTEMPLATE64 } = marketplaceApp?.TEMPLATE
 
   const appTemplate = useMemo(
-    () => decodeBase64(APPTEMPLATE64),
+    () => (APPTEMPLATE64 ? decodeBase64(APPTEMPLATE64) : T.Empty),
     [APPTEMPLATE64]
   )
 
-  const vmTemplate = useMemo(() => decodeBase64(VMTEMPLATE64), [VMTEMPLATE64])
+  const vmTemplate = useMemo(
+    () => (VMTEMPLATE64 ? decodeBase64(VMTEMPLATE64) : T.Empty),
+    [VMTEMPLATE64]
+  )
 
   return (
     <>
