@@ -18,7 +18,6 @@
 const { parse } = require('url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { getFireedgeConfig } = require('server/utils/yml')
-const { messageTerminal } = require('server/utils/general')
 const {
   genPathResources,
   validateServerIsSecure,
@@ -32,9 +31,6 @@ const appConfig = getFireedgeConfig()
 const port = appConfig.port || defaultPort
 const protocol = validateServerIsSecure() ? 'https' : 'http'
 const url = `${protocol}://localhost:${port}`
-const config = {
-  color: 'red',
-}
 const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   target: url,
   changeOrigin: false,
@@ -42,22 +38,36 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   secure: /^(https):\/\/[^ "]+$/.test(url),
   logLevel: 'debug',
   pathRewrite: (path) => path.replace(endpointVmrc, '/ticket'),
-  onError: (err) => {
-    config.error = err.message
-    config.message = 'Error connection : %s'
-    messageTerminal(config)
+  onProxyReqWs: (proxyReq, __, socket) => {
+    proxyReq.setHeader('Access-Control-Allow-Origin', '*');
+
+    socket.on('error', (err) => {
+      writeInLogger(err?.message || '', {
+        format: 'WebSocket Error connection : %s',
+        level: 2,
+      })
+      socket.end()
+    })
+  },
+  onError: (err, _, res) => {
+    writeInLogger(err?.message || '', {
+      format: 'Error connection : %s',
+      level: 2,
+    })
+
+    res.status(500).send('VMRC proxy error')
   },
   // eslint-disable-next-line consistent-return
   router: (req) => {
-    if (req && req.url) {
+    if (req?.url) {
       const parseURL = parse(req.url)
-      if (parseURL && parseURL.pathname) {
+      if (parseURL?.pathname) {
         const ticket = parseURL.pathname.split('/')[3]
         writeInLogger(ticket, {
-          format: 'path to vmrc token: %s',
+          format: 'Path to VMRC token: %s',
           level: 2,
         })
-        if (global && global.vcenterToken && global.vcenterToken[ticket]) {
+        if (global?.vcenterToken?.[ticket]) {
           return global.vcenterToken[ticket]
         } else {
           writeInLogger(ticket, {
@@ -76,13 +86,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
  * @param {object} appServer - express app
  */
 const vmrc = (appServer) => {
-  if (
-    appServer &&
-    appServer.on &&
-    appServer.constructor &&
-    appServer.constructor.name &&
-    appServer.constructor.name === 'Server'
-  ) {
+  if (appServer && appServer?.on && appServer?.constructor?.name === 'Server') {
     appServer.on('upgrade', vmrcProxy.upgrade)
   }
 }
