@@ -56,7 +56,7 @@ import {
   GlobalAction,
   createActions,
 } from 'client/components/Tables/Enhanced/Utils'
-import VmTemplatesTable from 'client/components/Tables/VmTemplates'
+import VmTemplatesTable from 'client/components/Tables/Vms/VmTemplateTable'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { Translate } from 'client/components/HOC'

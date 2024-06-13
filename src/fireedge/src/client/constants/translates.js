@@ -43,6 +43,8 @@ module.exports = {
   ResetFilters: 'Clear current search query, filters, and sorts',
   VmsClearErrors:
     'Clear error messages and warnings from selects Virtual Machines',
+  ItemsTables: 'Displays the items as a Table',
+  ItemsRow: 'Displays the items as a list',
 
   /* actions */
   Accept: 'Accept',
