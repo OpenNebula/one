@@ -199,8 +199,6 @@ public:
 
     std::string& to_json(std::string& xml) const;
 
-    std::string& to_token(std::string& xml) const;
-
     /**
      *  Writes the template in a plain text string
      *    @param str string that hold the template representation

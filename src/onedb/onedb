@@ -104,12 +104,6 @@ FEDERATED = {
     :description => 'Limit backup/restore to federated tables'
 }
 
-RECREATE = {
-    :name => 'recreate',
-    :large => '--recreate',
-    :description => 'Delete FTS index and create a new one'
-}
-
 ###############################################################################
 # SQLite options
 ###############################################################################
@@ -890,24 +884,5 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         0 # exit code
-    end
-
-    ###########################################################################
-    # Create and recreate FTS index in vmpool
-    ###########################################################################
-    fts_desc = <<-EOT.unindent
-        Create or recreate FTS index in vm pool to be able to search VMs
-    EOT
-
-    command :'create-index', fts_desc, :options => [RECREATE] do
-        begin
-            helper = OneDB.new(options)
-            helper.fts_index(options.key?(:recreate))
-        rescue StandardError => e
-            STDERR.puts e.message
-            [-1, e.message]
-        end
-
-        0
     end
 end

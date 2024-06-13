@@ -92,7 +92,7 @@ PostgreSqlDB::PostgreSqlDB(const string& _server,
     {
         {SqlFeature::MULTIPLE_VALUE, PQlibVersion() > 80200},
         {SqlFeature::LIMIT, false},
-        {SqlFeature::FTS, false},
+        {SqlFeature::JSON_QUERY, false},
         {SqlFeature::COMPARE_BINARY, false}
     };
 }

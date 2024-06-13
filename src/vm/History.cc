@@ -372,26 +372,6 @@ string& History::to_json(string& json) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& History::to_token(string& text) const
-{
-    ostringstream oss;
-
-    oss << "HOSTNAME=";
-    one_util::escape_token(hostname, oss);
-    oss << "\n";
-
-    oss << "HID="   << hid   << "\n" <<
-        "CID="   << cid   << "\n" <<
-        "DS_ID=" << ds_id << "\n";
-
-    text = oss.str();
-
-    return text;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 string& History::to_xml_short(string& xml) const
 {
     ostringstream oss;

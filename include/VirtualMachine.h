@@ -1965,8 +1965,6 @@ private:
 
     std::string& to_json(std::string& json) const;
 
-    std::string& to_token(std::string& text) const;
-
     // -------------------------------------------------------------------------
     // Attribute Parser
     // -------------------------------------------------------------------------

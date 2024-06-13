@@ -147,22 +147,6 @@ void VectorAttribute::to_json(std::ostringstream& s) const
     s << "}";
 }
 
-void VectorAttribute::to_token(std::ostringstream& s) const
-{
-    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
-    {
-        if (it->first.empty() || it->second.empty())
-        {
-            continue;
-        }
-
-        one_util::escape_token(it->first, s);
-        s << "=";
-        one_util::escape_token(it->second, s);
-        s << std::endl;
-    }
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

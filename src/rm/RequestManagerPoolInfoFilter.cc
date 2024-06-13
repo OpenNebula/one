@@ -295,15 +295,15 @@ void VirtualMachinePoolInfo::request_execute(
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
     int state       = xmlrpc_c::value_int(paramList.getInt(4));
 
-    std::string fts_query;
+    std::string json_query;
 
     if (paramList.size() > 5)
     {
-        fts_query = xmlrpc_c::value_string(paramList.getString(5));
+        json_query = xmlrpc_c::value_string(paramList.getString(5));
 
-        if (!fts_query.empty() && !pool->supports(SqlDB::SqlFeature::FTS))
+        if (!json_query.empty() && !pool->supports(SqlDB::SqlFeature::JSON_QUERY))
         {
-            att.resp_msg = "Full text search is not supported by the SQL backend";
+            att.resp_msg = "JSON query search is not supported by the SQL backend";
 
             failure_response(INTERNAL, att);
             return;
@@ -335,11 +335,11 @@ void VirtualMachinePoolInfo::request_execute(
             break;
     }
 
-    if (!fts_query.empty())
+    if (!json_query.empty())
     {
-        char * _fts_query = pool->escape_str(fts_query);
+        char * _json_query = pool->escape_str(json_query);
 
-        if ( _fts_query == 0 )
+        if ( _json_query == 0 )
         {
             att.resp_msg = "Error building search query";
 
@@ -352,11 +352,33 @@ void VirtualMachinePoolInfo::request_execute(
             and_filter << " AND ";
         }
 
-        and_filter << "MATCH(search_token) AGAINST ('+\"";
-        one_util::escape_token(_fts_query, and_filter);
-        and_filter << "\"' in boolean mode)";
+        vector<string> keys;
 
-        pool->free_str(_fts_query);
+        one_util::split(_json_query, '&', keys);
+
+        for(const auto& key: keys)
+        {
+            vector<string> kv;
+
+            one_util::split(key, '=', kv);
+
+            if (kv.size() == 1)
+            {
+                // No key specified, search whole json body
+                kv.push_back(kv[0]);
+                kv[0] = "*";
+            }
+
+            and_filter << "JSON_UNQUOTE(JSON_EXTRACT(body_json, '$." << kv[0] << "'))";
+            and_filter << " LIKE '%" << kv[1] << "%'";
+
+            if (key != keys.back())
+            {
+                and_filter << " AND ";
+            }
+        }
+
+        pool->free_str(_json_query);
     }
 
     dump(att, filter_flag, start_id, end_id, and_filter.str(), "");

@@ -386,23 +386,6 @@ class BackEndMySQL < OneDBBacKEnd
         puts "MySQL DB #{@db_name} at #{@server} restored."
     end
 
-    # Create or recreate FTS index on vm_pool search_token column
-    #
-    # @param recreate [Boolean] True to delete the index and create it again
-    def fts_index(recreate = false)
-        connect_db
-
-        if recreate
-            @db.alter_table(:vm_pool) do
-                drop_index :search_token, name: 'ftidx'
-            end
-        end
-
-        @db.alter_table(:vm_pool) do
-            add_full_text_index :search_token, name: 'ftidx'
-        end
-    end
-
     def idx?(idx)
         query = "SHOW INDEX FROM #{idx[:table]} WHERE KEY_NAME = '#{idx[:name]}'"
         !@db.fetch(query).first.nil?
@@ -800,16 +783,12 @@ class BackEndPostgreSQL < OneDBBacKEnd
         puts "PostgreSQL DB #{@db_name} at #{@server} restored."
     end
 
-    def fts_index(recreate = false)
-        raise "FTS index not supported for PostgreSQL."
-    end
-
     def idx?(idx)
         query = "SELECT * FROM pg_indexes WHERE indexname = '#{idx[:name]}'"
         !@db.fetch(query).first.nil?
     end
 
-    def create_idx(version = nil)    
+    def create_idx(version = nil)
         schema = get_schema(:index_sqlite, version)
 
         schema.each do |idx|
@@ -830,7 +809,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
 
         schema.each do |idx|
             next unless idx? idx
-            
+
             query = "DROP INDEX  #{idx[:name]};"
 
             @db.run query

@@ -160,7 +160,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     SEARCH = {
         :name => 'search',
         :large => '--search search',
-        :description => 'query in KEY=VALUE format',
+        :description => 'Query in PATH=VALUE format. For example: ' \
+        'onevm list --search "VM.NAME=abc&VM.TEMPLATE.DISK[*].IMAGE=db1"',
         :format => String
     }
 

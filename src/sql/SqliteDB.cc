@@ -65,7 +65,7 @@ SqliteDB::SqliteDB(const string& db_name, int timeout)
     {
         {SqlFeature::MULTIPLE_VALUE, false},
         {SqlFeature::LIMIT, enable_limit == 1},
-        {SqlFeature::FTS, false},
+        {SqlFeature::JSON_QUERY, false},
         {SqlFeature::COMPARE_BINARY, false}
     };
 }

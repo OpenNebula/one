@@ -252,10 +252,10 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     oss.clear();
 
     //--------------------------------------------------------------------------
-    // Get server information and FTS support & features
+    // Get server information and JSON query support & features
     //--------------------------------------------------------------------------
     unsigned long version;
-    unsigned long min_fts_version;
+    unsigned long min_json_version;
 
     string server_info = mysql_get_server_info(db_escape_connect);
 
@@ -271,27 +271,27 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
 
     if (server_info.find("mariadb") == std::string::npos)
     {
-        min_fts_version = 50600;
+        min_json_version = 50708;
     }
     else
     {
-        min_fts_version = 100005;
+        min_json_version = 100200;
     }
 
-    if (version >= min_fts_version)
+    if (version >= min_json_version)
     {
-        NebulaLog::log("ONE", Log::INFO, "\tFTS enabled");
+        NebulaLog::log("ONE", Log::INFO, "\tJSON queries enabled");
     }
     else
     {
-        NebulaLog::log("ONE", Log::INFO, "\tFTS disabled");
+        NebulaLog::log("ONE", Log::INFO, "\tJSON queries disabled");
     }
 
     features =
     {
         {SqlFeature::MULTIPLE_VALUE, true},
         {SqlFeature::LIMIT, true},
-        {SqlFeature::FTS, version >= min_fts_version},
+        {SqlFeature::JSON_QUERY, version >= min_json_version},
         {SqlFeature::COMPARE_BINARY, one_util::icasecmp(_compare_binary, "YES")}
     };
 }

@@ -45,7 +45,7 @@ public:
     {
         MULTIPLE_VALUE, // syntax INSERT VALUES (data), (data), (data)
         LIMIT,          // LIMIT in queries with DELETE and UPDATE
-        FTS,            // Full Text Search
+        JSON_QUERY,     // JSON queries Search
         COMPARE_BINARY  // Use BINARY for comparing name in DB
     };
 
@@ -198,7 +198,7 @@ protected:
     {
         {SqlFeature::MULTIPLE_VALUE, false},
         {SqlFeature::LIMIT, false},
-        {SqlFeature::FTS, false},
+        {SqlFeature::JSON_QUERY, false},
         {SqlFeature::COMPARE_BINARY, false}
     };
 

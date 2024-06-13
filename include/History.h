@@ -192,8 +192,6 @@ private:
 
     std::string& to_json(std::string& json) const;
 
-    std::string& to_token(std::string& text) const;
-
     /**
      *  Rebuilds the object from an xml node
      *    @param node The xml node pointer

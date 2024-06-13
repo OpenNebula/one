@@ -414,6 +414,9 @@ string& Template::to_xml(string& xml, const string& extra) const
 
 string& Template::to_json(string& json) const
 {
+    // List of attributes that should be an Array (even with just 1 element)
+    static const std::set<string> ARRAY_ATTRS = {"DISK", "NIC"};
+
     ostringstream oss;
 
     bool is_first = true;
@@ -433,7 +436,8 @@ string& Template::to_json(string& json) const
 
         oss << "\"" << it->first << "\": ";
 
-        if ( attributes.count(it->first) == 1 )
+        if ( attributes.count(it->first) == 1 &&
+             ARRAY_ATTRS.count(it->first) == 0)
         {
             it->second->to_json(oss);
 
@@ -469,19 +473,6 @@ string& Template::to_json(string& json) const
     json = oss.str();
 
     return json;
-}
-
-string& Template::to_token(string& str) const
-{
-    ostringstream os;
-
-    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
-    {
-        it->second->to_token(os);
-    }
-
-    str = os.str();
-    return str;
 }
 
 /* -------------------------------------------------------------------------- */

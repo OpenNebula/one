@@ -709,17 +709,6 @@ class OneDB
         end
     end
 
-    # Create or recreate FTS index on vm_pool search_token column
-    #
-    # @param recreate [Boolean] True to delete the index and create it again
-    def fts_index(recreate = false)
-        if backend.is_a? BackEndSQLite
-            raise 'This is operation is not supported for sqlite backend'
-        end
-
-        backend.fts_index(recreate)
-    end
-
     private
 
     def one_not_running()

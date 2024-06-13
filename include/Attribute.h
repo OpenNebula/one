@@ -79,8 +79,6 @@ public:
 
     virtual void to_json(std::ostringstream& s) const = 0;
 
-    virtual void to_token(std::ostringstream& s) const = 0;
-
     virtual void to_xml(std::ostringstream& s,
                         const std::map<std::string, std::set<std::string>> &hidden) const = 0;
 
@@ -201,19 +199,6 @@ public:
     void to_json(std::ostringstream& s) const override
     {
         one_util::escape_json(attribute_value, s);
-    }
-
-    void to_token(std::ostringstream& s) const override
-    {
-        if (attribute_name.empty() || attribute_value.empty())
-        {
-            return;
-        }
-
-        one_util::escape_token(attribute_name, s);
-        s << "=";
-        one_util::escape_token(attribute_value, s);
-        s << std::endl;
     }
 
     /**
@@ -455,8 +440,6 @@ public:
                 const std::map<std::string, std::set<std::string>> &hidden) const override;
 
     void to_json(std::ostringstream& s) const override;
-
-    void to_token(std::ostringstream& s) const override;
 
     /**
      *  Builds a new attribute from a string of the form:

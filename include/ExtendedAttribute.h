@@ -93,11 +93,6 @@ public:
         return va->to_json(s);
     };
 
-    void to_token(std::ostringstream& s) const override
-    {
-        return va->to_token(s);
-    };
-
     void to_xml(std::ostringstream& s,
                 const std::map<std::string, std::set<std::string>> &hidden) const override
     {

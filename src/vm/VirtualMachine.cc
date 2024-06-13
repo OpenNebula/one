@@ -642,15 +642,6 @@ int VirtualMachine::bootstrap(SqlDB * db)
 
     oss_vm << one_db::vm_db_bootstrap;
 
-    if (db->supports(SqlDB::SqlFeature::FTS))
-    {
-        oss_vm << ", FULLTEXT ftidx(search_token))";
-    }
-    else
-    {
-        oss_vm << ")";
-    }
-
     ostringstream oss_monit(one_db::vm_monitor_db_bootstrap);
     ostringstream oss_hist(one_db::history_db_bootstrap);
     ostringstream oss_showback(one_db::vm_showback_db_bootstrap);
@@ -1952,7 +1943,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml_short;
     }
 
-    sql_text = db->escape_str(to_token(text));
+    sql_text = db->escape_str(to_json(text));
 
     if ( sql_text == 0 )
     {
@@ -2034,7 +2025,7 @@ int VirtualMachine::update_search(SqlDB * db)
     std::ostringstream oss;
     std::string text;
 
-    char * sql_text = db->escape_str(to_token(text));
+    char * sql_text = db->escape_str(to_json(text));
 
     if ( sql_text == 0 )
     {
@@ -2043,7 +2034,7 @@ int VirtualMachine::update_search(SqlDB * db)
     }
 
     oss << "UPDATE " << one_db::vm_table << " SET "
-        << "search_token = '" << sql_text << "' "
+        << "body_json = '" << sql_text << "' "
         << "WHERE oid = " << oid;
 
     db->free_str(sql_text);
@@ -2678,37 +2669,6 @@ string& VirtualMachine::to_json(string& json) const
     json = oss.str();
 
     return json;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& VirtualMachine::to_token(string& text) const
-{
-    string template_text;
-    string user_template_text;
-    string history_text;
-
-    ostringstream oss;
-
-    oss << "UNAME="<< uname << "\n"
-        << "GNAME="<< gname << "\n"
-        << obj_template->to_token(template_text) << "\n"
-        << user_obj_template->to_token(user_template_text)
-        << "NAME=";
-
-    one_util::escape_token(name, oss);
-
-    oss << "\n";
-
-    if ( hasHistory() )
-    {
-        oss << "\n" << history->to_token(history_text);
-    }
-
-    text = oss.str();
-
-    return text;
 }
 
 /* -------------------------------------------------------------------------- */
