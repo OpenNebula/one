@@ -13,44 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
-import { Typography, Grid } from '@mui/material'
+import { Typography } from '@mui/material'
 import {
-  MoreVert,
   AddCircledOutline,
-  Lock,
   Cart,
   Group,
+  Lock,
+  MoreVert,
   Trash,
-  Code,
-  PageEdit,
 } from 'iconoir-react'
+import { useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { useViews } from 'client/features/Auth'
 import {
-  useLockImageMutation,
-  useCloneImageMutation,
-  useUnlockImageMutation,
-  useEnableImageMutation,
-  useDisableImageMutation,
-  usePersistentImageMutation,
   useChangeImageOwnershipMutation,
+  useCloneImageMutation,
+  useDisableImageMutation,
+  useEnableImageMutation,
+  useLockImageMutation,
+  usePersistentImageMutation,
   useRemoveImageMutation,
+  useUnlockImageMutation,
 } from 'client/features/OneApi/image'
 
-import { ChangeUserForm, ChangeGroupForm } from 'client/components/Forms/Vm'
 import { CloneForm } from 'client/components/Forms/Image'
+import { ChangeGroupForm, ChangeUserForm } from 'client/components/Forms/Vm'
 import {
-  createActions,
   GlobalAction,
+  createActions,
 } from 'client/components/Tables/Enhanced/Utils'
-import ImageCreateCard from 'client/components/Cards/ImageCreateCard'
 
-import { Tr, Translate } from 'client/components/HOC'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { Tr, Translate } from 'client/components/HOC'
+import { IMAGE_ACTIONS, RESOURCE_NAMES, T, VM_ACTIONS } from 'client/constants'
 import { isAvailableAction } from 'client/models/VirtualMachine'
-import { T, IMAGE_ACTIONS, VM_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
 const isDisabled = (action) => (rows) =>
   !isAvailableAction(
@@ -109,39 +106,10 @@ const Actions = () => {
         actions: [
           {
             accessor: IMAGE_ACTIONS.CREATE_DIALOG,
+            tooltip: T.CreateImage,
             dataCy: `image_${IMAGE_ACTIONS.CREATE_DIALOG}`,
-            tooltip: T.Create,
             icon: AddCircledOutline,
-            options: [
-              {
-                isConfirmDialog: true,
-                dialogProps: {
-                  title: T.CreateImage,
-                  children: () => (
-                    <Grid container spacing={3}>
-                      <ImageCreateCard
-                        name={Tr(T.CreateImage)}
-                        Icon={PageEdit}
-                        onClick={() => history.push(PATH.STORAGE.IMAGES.CREATE)}
-                      />
-                      {resourcesView?.dockerfile_dialog && (
-                        <ImageCreateCard
-                          name={Tr(T.CreateDockerfile)}
-                          Icon={Code}
-                          onClick={() =>
-                            history.push(PATH.STORAGE.IMAGES.DOCKERFILE)
-                          }
-                        />
-                      )}
-                    </Grid>
-                  ),
-                  fixedWidth: true,
-                  fixedHeight: true,
-                  handleAccept: undefined,
-                  dataCy: `modal-${IMAGE_ACTIONS.CREATE_DIALOG}`,
-                },
-              },
-            ],
+            action: () => history.push(PATH.STORAGE.IMAGES.CREATE),
           },
           {
             accessor: VM_ACTIONS.CREATE_APP_DIALOG,

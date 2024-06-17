@@ -34,6 +34,7 @@ import {
   MultiplePagesEmpty as ServiceTemplateIcon,
   Packages as ServicesIcon,
   Box as StorageIcon,
+  HeadsetHelp as SupportIcon,
   Home as SystemIcon,
   EmptyPage as TemplateIcon,
   Archive as TemplatesIcon,
@@ -43,7 +44,6 @@ import {
   Folder as VmGroupIcon,
   ModernTv as VmsIcons,
   MinusPinAlt as ZoneIcon,
-  HeadsetHelp as SupportIcon,
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -194,12 +194,6 @@ const BackupDetail = loadable(
 const CreateImages = loadable(() => import('client/containers/Images/Create'), {
   ssr: false,
 })
-const CreateDockerfile = loadable(
-  () => import('client/containers/Images/Dockerfile'),
-  {
-    ssr: false,
-  }
-)
 
 // Marketplace
 const Marketplaces = loadable(() => import('client/containers/Marketplaces'), {
@@ -390,7 +384,6 @@ export const PATH = {
       LIST: `/${RESOURCE_NAMES.IMAGE}`,
       DETAIL: `/${RESOURCE_NAMES.IMAGE}/:id`,
       CREATE: `/${RESOURCE_NAMES.IMAGE}/create`,
-      DOCKERFILE: `/${RESOURCE_NAMES.IMAGE}/dockerfile`,
     },
     FILES: {
       LIST: `/${RESOURCE_NAMES.FILE}`,
@@ -690,11 +683,6 @@ const ENDPOINTS = [
         title: T.CreateFile,
         path: PATH.STORAGE.FILES.CREATE,
         Component: CreateFiles,
-      },
-      {
-        title: T.CreateDockerfile,
-        path: PATH.STORAGE.IMAGES.DOCKERFILE,
-        Component: CreateDockerfile,
       },
       {
         title: T.Backups,

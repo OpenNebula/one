@@ -10,7 +10,6 @@ resource_name: "IMAGE"
 actions:
   create_dialog: true
   import_dialog: true
-  dockerfile_dialog: false
   clone: true
   lock: true
   unlock: true

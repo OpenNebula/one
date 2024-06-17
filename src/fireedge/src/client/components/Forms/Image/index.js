@@ -31,11 +31,4 @@ const CloneForm = (configProps) =>
 const CreateForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Image/CreateForm' }, configProps)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const CreateDockerfileForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Image/CreateDockerfile' }, configProps)
-
-export { CloneForm, CreateForm, CreateDockerfileForm }
+export { CloneForm, CreateForm }
