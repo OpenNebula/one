@@ -39,7 +39,10 @@ const StyledRowButtons = styled(Grid)(() => ({
   },
 }))
 
-const defaultPropsResize = 'auto 1fr auto 1fr'
+const heightWindowRow = 30
+const heightGutterRow = 40
+
+const defaultPropsResize = `${heightWindowRow}px 1fr ${heightGutterRow}px 1fr`
 
 const ResourcesBackButton = memo(
   ({
@@ -64,7 +67,7 @@ const ResourcesBackButton = memo(
 
     useEffect(() => {
       divided
-        ? setPropsResize('auto auto auto 1fr')
+        ? setPropsResize(`${heightWindowRow}px 100% ${heightGutterRow}px 1fr`)
         : setPropsResize(defaultPropsResize)
 
       !divided && setPageIndex(0)
@@ -107,7 +110,7 @@ const ResourcesBackButton = memo(
     }
 
     return (
-      <SplitPane gridTemplateRows={propsResize}>
+      <SplitPane gridTemplateRows={propsResize} rowMinSize={heightGutterRow}>
         {({ getGridProps, GutterComponent }) => (
           <Box
             height={1}
@@ -130,22 +133,12 @@ const ResourcesBackButton = memo(
               </Grid>
 
               <StyledWindowButtons item xs={4}>
-                {!divided && (
-                  <IconButton
-                    onClick={() => setDivided(true)}
-                    title={Tr(T.DivideWindow)}
-                  >
-                    <OpenNewWindow />
-                  </IconButton>
-                )}
-                {divided && (
-                  <IconButton
-                    onClick={() => setDivided(false)}
-                    title={Tr(T.UnDivideWindow)}
-                  >
-                    <OpenInWindow />
-                  </IconButton>
-                )}
+                <IconButton
+                  onClick={() => setDivided(!divided)}
+                  title={Tr(T.DivideWindow)}
+                >
+                  {divided ? <OpenInWindow /> : <OpenNewWindow />}
+                </IconButton>
               </StyledWindowButtons>
             </StyledRowButtons>
             {divided ? !hasSelectedRows && table(props) : table(props)}
