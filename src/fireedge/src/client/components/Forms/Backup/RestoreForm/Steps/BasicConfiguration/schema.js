@@ -17,13 +17,14 @@ import { INPUT_TYPES, T } from 'client/constants'
 import { timeFromMilliseconds } from 'client/models/Helper'
 import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
 import { ObjectSchema, boolean, object, string } from 'yup'
+import { STEP_ID as VM_DISK_ID } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable'
 
 const NO_NIC = {
   name: 'no_nic',
   label: T.DoNotRestoreNICAttributes,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { xs: 12, md: 6 },
+  grid: { md: 12 },
 }
 
 const NO_IP = {
@@ -31,7 +32,21 @@ const NO_IP = {
   label: T.DoNotRestoreIPAttributes,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { xs: 12, md: 6 },
+  grid: { md: 12 },
+}
+
+const INDIVIDUAL_DISK = {
+  name: 'restoreIndividualDisk',
+  label: T.RestoreIndividualDisk,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo().default(false),
+  stepControl: [
+    {
+      condition: (value) => value === false,
+      steps: [VM_DISK_ID],
+    },
+  ],
+  grid: { md: 12 },
 }
 
 const NAME = {
@@ -39,7 +54,7 @@ const NAME = {
   label: T.Name,
   type: INPUT_TYPES.TEXT,
   validation: string(),
-  grid: { xs: 12, md: 6 },
+  grid: { md: 6 },
 }
 
 const INCREMENT_ID = ({ increments = [] }) => ({
@@ -55,7 +70,7 @@ const INCREMENT_ID = ({ increments = [] }) => ({
     getValue: (increment) => increment.id,
   }),
   validation: string(),
-  grid: { xs: 12, md: 6 },
+  grid: { md: 6 },
   fieldProps: {
     disabled: increments.length === 0,
   },
@@ -65,7 +80,13 @@ const INCREMENT_ID = ({ increments = [] }) => ({
  * @param {object} [data] - Backup data
  * @returns {Field[]} Fields
  */
-export const FIELDS = (data = {}) => [NAME, INCREMENT_ID(data), NO_NIC, NO_IP]
+export const FIELDS = (data = {}) => [
+  NAME,
+  INCREMENT_ID(data),
+  NO_NIC,
+  NO_IP,
+  INDIVIDUAL_DISK,
+]
 
 /**
  * @param {object} [data] - Backup data

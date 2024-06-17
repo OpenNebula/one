@@ -34,6 +34,7 @@ import { useGeneral } from 'client/features/General'
 import {
   useLazyGetImageQuery,
   useUpdateImageMutation,
+  useGetBackupsQuery,
 } from 'client/features/OneApi/image'
 
 /**
@@ -45,6 +46,7 @@ function Backups() {
   const [selectedRows, setSelectedRows] = useState(() => [])
   const actions = BackupActions(selectedRows)
   const { zone } = useGeneral()
+  const { refetch, isFetching } = useGetBackupsQuery()
 
   return (
     <ResourcesBackButton
@@ -59,6 +61,8 @@ function Backups() {
           globalActions={props.actions}
           useUpdateMutation={props.useUpdateMutation}
           zoneId={props.zone}
+          refetchVm={refetch}
+          isFetchingVm={isFetching}
           initialState={{
             selectedRowIds: props.selectedRowsTable,
           }}

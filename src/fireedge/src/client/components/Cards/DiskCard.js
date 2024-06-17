@@ -33,10 +33,11 @@ const DiskCard = memo(
    * @param {object} props - Props
    * @param {Disk} props.disk - Disk
    * @param {ReactElement} [props.actions] - Actions
+   * @param {object} props.rootProps - Props to root component
    * @param {function({ snapshot: DiskSnapshot }):ReactElement} [props.snapshotActions] - Snapshot actions
    * @returns {ReactElement} - Card
    */
-  ({ disk = {}, actions, snapshotActions }) => {
+  ({ disk = {}, rootProps = {}, actions, snapshotActions }) => {
     const classes = rowStyles()
 
     const {
@@ -91,6 +92,7 @@ const DiskCard = memo(
         className={classes.root}
         sx={{ flexWrap: 'wrap', alignContent: 'start' }}
         data-cy={`disk-${DISK_ID}`}
+        {...rootProps} // overwrites className for selection
       >
         <div className={classes.main}>
           <div className={classes.title}>
@@ -160,6 +162,9 @@ const DiskCard = memo(
 DiskCard.propTypes = {
   disk: PropTypes.object.isRequired,
   actions: PropTypes.any,
+  rootProps: PropTypes.shape({
+    className: PropTypes.string,
+  }),
   snapshotActions: PropTypes.any,
 }
 

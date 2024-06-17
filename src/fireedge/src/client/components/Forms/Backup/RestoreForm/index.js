@@ -19,10 +19,14 @@ import BasicConfiguration, {
 import DatastoresTable, {
   STEP_ID as DATASTORE_ID,
 } from 'client/components/Forms/Backup/RestoreForm/Steps/DatastoresTable'
+import VmDisksTable, {
+  STEP_ID as VM_DISK_ID,
+} from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps([BasicConfiguration, DatastoresTable], {
-  transformInitialValue: (increments, schema) => {
+const Steps = createSteps([BasicConfiguration, VmDisksTable, DatastoresTable], {
+  transformInitialValue: (initialValues, schema) => {
+    const { increments } = initialValues
     const castedValuesBasic = schema.cast(
       { [BASIC_ID]: { increments } },
       { stripUnknown: true }
@@ -39,11 +43,15 @@ const Steps = createSteps([BasicConfiguration, DatastoresTable], {
     }
   },
   transformBeforeSubmit: (formData) => {
-    const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
-      formData
+    const {
+      [BASIC_ID]: configuration,
+      [VM_DISK_ID]: individualDisk = [],
+      [DATASTORE_ID]: [datastore] = [],
+    } = formData
 
     return {
       datastore: datastore?.ID,
+      individualDisk: individualDisk?.[0] ?? [],
       ...configuration,
     }
   },

@@ -16,58 +16,59 @@
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
-import { DatastoresTable } from 'client/components/Tables'
-import { SCHEMA } from 'client/components/Forms/Backup/RestoreForm/Steps/DatastoresTable/schema'
+import { VmDisksTable } from 'client/components/Tables'
+import { SCHEMA } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable/schema'
 
 import { Step } from 'client/utils'
-import { T, DATASTORE_TYPES } from 'client/constants'
+import { T } from 'client/constants'
 
-export const STEP_ID = 'datastore'
+export const STEP_ID = 'vmdisk'
 
-const Content = ({ data, app }) => {
-  const { NAME } = data?.[0] ?? {}
+const Content = ({ data, app: { backupDiskIds = [], vmsId = [] } = {} }) => {
   const { setValue } = useFormContext()
+  const selectedRow = data?.[0]
 
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
-    setValue(STEP_ID, original.ID !== undefined ? [original] : [])
+    setValue(
+      STEP_ID,
+      original?.DISK_ID !== undefined ? [original?.DISK_ID] : []
+    )
   }
 
   return (
-    <DatastoresTable
+    <VmDisksTable
       singleSelect
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      getRowId={(row) => String(row.NAME)}
-      filter={
-        (datastores) =>
-          datastores?.filter(
-            ({ TYPE }) => +TYPE === DATASTORE_TYPES.IMAGE.id
-          ) ?? []
-        // 0 = image
-      }
-      initialState={{
-        selectedRowIds: { [NAME]: true },
-        filters: [{ id: 'TYPE', value: 'IMAGE' }],
-      }}
       onSelectedRowsChange={handleSelectedRows}
+      vmId={vmsId?.[0]}
+      initialState={{
+        selectedRowIds: { [selectedRow]: true },
+      }}
+      filter={(disks) =>
+        disks?.filter((disk) => backupDiskIds?.includes(disk?.DISK_ID))
+      }
     />
   )
 }
 
 /**
- * Step to select the Datastore.
+ * Step to select the disk to restore.
  *
- * @param {object} app - Marketplace App resource
- * @returns {Step} Datastore step
+ * @param {object} app - Backupdisk ID's + VM id resource
+ * @returns {Step} Individual disk step
  */
-const DatastoreStep = (app) => ({
+const IndividualDiskStep = (app) => ({
   id: STEP_ID,
-  label: T.SelectDatastoreImage,
+  label: T.SelectDisk,
   resolver: SCHEMA,
   content: (props) => Content({ ...props, app }),
+  defaultDisabled: {
+    condition: () => true,
+  },
 })
 
 Content.propTypes = {
@@ -76,4 +77,4 @@ Content.propTypes = {
   app: PropTypes.object,
 }
 
-export default DatastoreStep
+export default IndividualDiskStep

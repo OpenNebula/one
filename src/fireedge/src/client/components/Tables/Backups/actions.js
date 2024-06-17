@@ -99,7 +99,11 @@ const Actions = () => {
                 },
                 form: (row) => {
                   const backup = row?.[0]?.original
-                  let increments = backup?.BACKUP_INCREMENTS?.INCREMENT || []
+                  let increments = backup?.BACKUP_INCREMENTS?.INCREMENT ?? []
+                  const backupDiskIds = [].concat(
+                    backup?.BACKUP_DISK_IDS?.ID ?? []
+                  )
+                  const vmsId = [].concat(backup?.VMS?.ID ?? [])
                   increments = Array.isArray(increments)
                     ? increments
                     : [increments]
@@ -110,14 +114,22 @@ const Actions = () => {
                   }))
 
                   return RestoreForm({
-                    stepProps: { increments },
-                    initialValues: increments,
+                    stepProps: { increments, backupDiskIds, vmsId },
+                    initialValues: {
+                      increments: increments,
+                      backupDiskIds: backupDiskIds,
+                    },
                   })
                 },
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   let options = `NO_IP="${formData.no_ip}"\nNO_NIC="${formData.no_nic}"\n`
                   if (formData.name) options += `NAME="${formData.name}"\n`
+                  if (
+                    formData.restoreIndividualDisk === 'YES' &&
+                    formData.individualDisk
+                  )
+                    options += `DISK_ID="${formData.individualDisk}"\n`
                   if (formData.increment_id !== '')
                     options += `INCREMENT_ID="${formData.increment_id}"\n`
                   await Promise.all(

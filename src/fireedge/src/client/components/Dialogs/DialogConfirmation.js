@@ -78,6 +78,8 @@ const DialogConfirmation = memo(
           sx: {
             minWidth: fixedWidth ? '80vw' : 'auto',
             minHeight: fixedHeight ? '80vh' : 'auto',
+            maxWidth: fixedWidth ? '80vw' : 'auto',
+            maxHeight: fixedHeight ? '80vh' : 'auto',
           },
         }}
         open={open}

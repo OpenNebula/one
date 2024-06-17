@@ -425,11 +425,20 @@ FieldComponent.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  stepControl: PropTypes.shape({
-    condition: PropTypes.func,
-    steps: PropTypes.arrayOf(PropTypes.string),
-    statePaths: PropTypes.arrayOf(PropTypes.string),
-  }),
+  stepControl: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        condition: PropTypes.func,
+        steps: PropTypes.arrayOf(PropTypes.string),
+        statePaths: PropTypes.arrayOf(PropTypes.string),
+      })
+    ),
+    PropTypes.shape({
+      condition: PropTypes.func,
+      steps: PropTypes.arrayOf(PropTypes.string),
+      statePaths: PropTypes.arrayOf(PropTypes.string),
+    }),
+  ]),
 }
 
 FieldComponent.displayName = 'FieldComponent'

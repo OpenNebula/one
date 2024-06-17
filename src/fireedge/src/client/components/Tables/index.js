@@ -44,6 +44,7 @@ import VirtualizedTable from 'client/components/Tables/Virtualized'
 import VmGroupsTable from 'client/components/Tables/VmGroups'
 import VmTemplatesTable from 'client/components/Tables/VmTemplates'
 import VmsTable from 'client/components/Tables/Vms'
+import VmDisksTable from 'client/components/Tables/VmDisks'
 import ZonesTable from 'client/components/Tables/Zones'
 
 export * from 'client/components/Tables/Enhanced/Utils'
@@ -80,5 +81,6 @@ export {
   VmGroupsTable,
   VmTemplatesTable,
   VmsTable,
+  VmDisksTable,
   ZonesTable,
 }
