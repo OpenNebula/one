@@ -63,12 +63,20 @@ const Content = ({ data, app }) => {
  * @param {object} app - Marketplace App resource
  * @returns {Step} Datastore step
  */
-const DatastoreStep = (app) => ({
-  id: STEP_ID,
-  label: T.SelectDatastoreImage,
-  resolver: SCHEMA,
-  content: (props) => Content({ ...props, app }),
-})
+const DatastoreStep = (app) => {
+  const { disableImageSelection } = app
+
+  return {
+    id: STEP_ID,
+    label: T.SelectDatastoreImage,
+    resolver: SCHEMA,
+    content: (props) => Content({ ...props, app }),
+    defaultDisabled: {
+      // Disabled when image selection is enabled, aka when in restore operation
+      condition: () => !disableImageSelection,
+    },
+  }
+}
 
 Content.propTypes = {
   data: PropTypes.any,

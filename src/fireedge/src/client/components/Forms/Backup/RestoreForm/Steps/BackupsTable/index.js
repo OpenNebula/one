@@ -16,62 +16,62 @@
 import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 
-import { VmDisksTable } from 'client/components/Tables'
-import { SCHEMA } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable/schema'
+import { BackupsTable } from 'client/components/Tables'
+import { SCHEMA } from 'client/components/Forms/Backup/RestoreForm/Steps/BackupsTable/schema'
 
 import { Step } from 'client/utils'
 import { T } from 'client/constants'
 
-export const STEP_ID = 'vmdisk'
+export const STEP_ID = 'image'
 
-const Content = ({ data, app: { backupDiskIds = [], vmsId = [] } = {} }) => {
+const Content = ({ data, app: { backupIds = [] } = {} }) => {
+  const { ID } = data?.[0] ?? {}
+
   const { setValue } = useFormContext()
-  const selectedRow = data?.[0]
 
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
-    setValue(
-      STEP_ID,
-      original?.DISK_ID !== undefined ? [original?.DISK_ID] : []
-    )
+    setValue(STEP_ID, original.ID !== undefined ? [original] : [])
   }
 
   return (
-    <VmDisksTable
+    <BackupsTable
       singleSelect
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      onSelectedRowsChange={handleSelectedRows}
-      vmId={vmsId?.[0]}
-      initialState={{
-        selectedRowIds: { [selectedRow]: true },
-      }}
-      filter={(disks) =>
-        disks &&
-        disks?.length > 0 &&
-        disks?.filter((disk) => backupDiskIds?.includes(disk?.DISK_ID))
+      getRowId={(row) => String(row.ID)}
+      filter={(images) =>
+        images?.filter(({ ID: imgId }) => backupIds?.includes(imgId)) ?? []
       }
+      initialState={{
+        selectedRowIds: { [ID]: true },
+      }}
+      onSelectedRowsChange={handleSelectedRows}
     />
   )
 }
 
 /**
- * Step to select the disk to restore.
+ * Step to select the Image.
  *
- * @param {object} app - Backupdisk ID's + VM id resource
- * @returns {Step} Individual disk step
+ * @param {object} app - Marketplace App resource
+ * @returns {Step} Image step
  */
-const IndividualDiskStep = (app) => ({
-  id: STEP_ID,
-  label: T.SelectDisk,
-  resolver: SCHEMA,
-  content: (props) => Content({ ...props, app }),
-  defaultDisabled: {
-    condition: () => true,
-  },
-})
+const ImageStep = (app) => {
+  const { disableImageSelection } = app
+
+  return {
+    id: STEP_ID,
+    label: T.SelectBackupImage,
+    resolver: SCHEMA,
+    content: (props) => Content({ ...props, app }),
+    defaultDisabled: {
+      condition: () => disableImageSelection,
+    },
+  }
+}
 
 Content.propTypes = {
   data: PropTypes.any,
@@ -79,4 +79,4 @@ Content.propTypes = {
   app: PropTypes.object,
 }
 
-export default IndividualDiskStep
+export default ImageStep

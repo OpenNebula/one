@@ -23,12 +23,10 @@ import {
   ReactElement,
 } from 'react'
 import PropTypes from 'prop-types'
-
 import { BaseSchema } from 'yup'
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMediaQuery } from '@mui/material'
-
 import {
   useGeneral,
   updateDisabledSteps,
@@ -99,6 +97,7 @@ const DisableStepContext = createContext(() => {})
  * disableStep('step1', true); // This will disable 'step1'
  */
 export const useDisableStep = () => useContext(DisableStepContext)
+
 /**
  * Represents a form with one or more steps.
  * Finally, it submit the result.
@@ -123,8 +122,12 @@ const FormStepper = ({
     formState: { errors },
     setError,
   } = useFormContext()
-
   const { setModifiedFields } = useGeneralApi()
+  const { isLoading } = useGeneral()
+  const [steps, setSteps] = useState(initialSteps)
+  const [disabledSteps, setDisabledSteps] = useState({})
+  const dispatch = useDispatch()
+  const currentState = useSelector((state) => state)
 
   // Used to control the default visibility of a step
   useEffect(() => {
@@ -151,17 +154,11 @@ const FormStepper = ({
       },
       {}
     )
+
     // Set the initial state of the steps accessible from redux
     dispatch(updateDisabledSteps(newState))
     setDisabledSteps(newState)
   }, [])
-
-  const { isLoading } = useGeneral()
-  const [steps, setSteps] = useState(initialSteps)
-  const [disabledSteps, setDisabledSteps] = useState({})
-  const dispatch = useDispatch()
-
-  const currentState = useSelector((state) => state)
 
   const disableStep = useCallback((stepIds, shouldDisable) => {
     const ids = Array.isArray(stepIds) ? stepIds : [stepIds]
@@ -169,11 +166,10 @@ const FormStepper = ({
     setDisabledSteps((prev) => {
       let newDisabledSteps = { ...prev }
 
-      // eslint-disable-next-line no-shadow
-      ids.forEach((stepId) => {
+      ids.forEach((sId) => {
         newDisabledSteps = shouldDisable
-          ? { ...newDisabledSteps, [stepId]: true }
-          : (({ [stepId]: _, ...rest }) => rest)(newDisabledSteps)
+          ? { ...newDisabledSteps, [sId]: true }
+          : (({ [sId]: _, ...rest }) => rest)(newDisabledSteps)
       })
 
       return newDisabledSteps
@@ -300,12 +296,12 @@ const FormStepper = ({
         Number.isInteger(stepToBack) ? stepToBack : prevStep - 1
       )
     },
-    [activeStep]
+    [activeStep, steps]
   )
 
   const { id: stepId, content: Content } = useMemo(
     () => steps[activeStep] || { id: null, content: null },
-    [formData, activeStep]
+    [steps, activeStep]
   )
 
   return (
@@ -358,5 +354,4 @@ FormStepper.propTypes = {
 }
 
 export { DefaultFormStepper, SkeletonStepsForm }
-
 export default FormStepper

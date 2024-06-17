@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import BackupsTable, {
+  STEP_ID as BACKUP_IMG_ID,
+} from 'client/components/Forms/Backup/RestoreForm/Steps/BackupsTable'
 import BasicConfiguration, {
   STEP_ID as BASIC_ID,
 } from 'client/components/Forms/Backup/RestoreForm/Steps/BasicConfiguration'
@@ -24,37 +27,42 @@ import VmDisksTable, {
 } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable'
 import { createSteps } from 'client/utils'
 
-const Steps = createSteps([BasicConfiguration, VmDisksTable, DatastoresTable], {
-  transformInitialValue: (initialValues, schema) => {
-    const { increments } = initialValues
-    const castedValuesBasic = schema.cast(
-      { [BASIC_ID]: { increments } },
-      { stripUnknown: true }
-    )
+const Steps = createSteps(
+  [BackupsTable, BasicConfiguration, VmDisksTable, DatastoresTable],
+  {
+    transformInitialValue: (initialValues, schema) => {
+      const { increments } = initialValues
+      const castedValuesBasic = schema.cast(
+        { [BASIC_ID]: { increments } },
+        { stripUnknown: true }
+      )
 
-    const castedValuesDatastore = schema.cast(
-      { [DATASTORE_ID]: {} },
-      { stripUnknown: true }
-    )
+      const castedValuesDatastore = schema.cast(
+        { [DATASTORE_ID]: {} },
+        { stripUnknown: true }
+      )
 
-    return {
-      [BASIC_ID]: castedValuesBasic[BASIC_ID],
-      [DATASTORE_ID]: castedValuesDatastore[DATASTORE_ID],
-    }
-  },
-  transformBeforeSubmit: (formData) => {
-    const {
-      [BASIC_ID]: configuration,
-      [VM_DISK_ID]: individualDisk = [],
-      [DATASTORE_ID]: [datastore] = [],
-    } = formData
+      return {
+        [BASIC_ID]: castedValuesBasic[BASIC_ID],
+        [DATASTORE_ID]: castedValuesDatastore[DATASTORE_ID],
+      }
+    },
+    transformBeforeSubmit: (formData) => {
+      const {
+        [BACKUP_IMG_ID]: backupImgId = [],
+        [BASIC_ID]: configuration,
+        [VM_DISK_ID]: individualDisk = [],
+        [DATASTORE_ID]: [datastore] = [],
+      } = formData
 
-    return {
-      datastore: datastore?.ID,
-      individualDisk: individualDisk?.[0] ?? [],
-      ...configuration,
-    }
-  },
-})
+      return {
+        datastore: datastore?.ID,
+        individualDisk: individualDisk?.[0] ?? [],
+        backupImgId: backupImgId?.[0] ?? [],
+        ...configuration,
+      }
+    },
+  }
+)
 
 export default Steps

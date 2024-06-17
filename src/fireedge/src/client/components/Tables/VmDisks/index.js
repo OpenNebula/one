@@ -41,7 +41,7 @@ const VmDisksTable = (props) => {
   const { data, isFetching, refetch } = useGetVmQuery({ id: vmId })
 
   const disks =
-    typeof filter === 'function'
+    typeof filter === 'function' && Array.isArray(data?.TEMPLATE?.DISK)
       ? filter(data?.TEMPLATE?.DISK ?? [])
       : data?.TEMPLATE?.DISK ?? []
 

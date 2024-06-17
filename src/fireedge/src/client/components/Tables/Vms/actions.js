@@ -35,6 +35,7 @@ import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import {
   useActionVmMutation,
   useBackupMutation,
+  useRestoreMutation,
   useChangeVmOwnershipMutation,
   useDeployMutation,
   useLockVmMutation,
@@ -52,6 +53,7 @@ import {
   RecoverForm,
   SaveAsTemplateForm,
 } from 'client/components/Forms/Vm'
+import { RestoreForm } from 'client/components/Forms/Backup'
 import {
   GlobalAction,
   createActions,
@@ -124,6 +126,7 @@ const Actions = () => {
   const [actionVm] = useActionVmMutation()
   const [recover] = useRecoverMutation()
   const [backup] = useBackupMutation()
+  const [restore] = useRestoreMutation()
   const [changeOwnership] = useChangeVmOwnershipMutation()
   const [deploy] = useDeployMutation()
   const [migrate] = useMigrateMutation()
@@ -520,6 +523,41 @@ const Actions = () => {
                   await Promise.all(
                     ids.map((id) => backup({ id, ...formData }))
                   )
+                },
+              },
+              {
+                accessor: VM_ACTIONS.RESTORE,
+                disabled: isDisabled(VM_ACTIONS.RESTORE),
+                name: T.Restore,
+                selected: { max: 1 },
+                dialogProps: {
+                  title: T.RestoreVm,
+                  subheader: SubHeader,
+                },
+                form: (row) => {
+                  const vm = row?.[0]?.original
+                  const vmId = vm?.ID
+                  const backupIds = [].concat(vm?.BACKUPS?.BACKUP_IDS?.ID ?? [])
+
+                  return RestoreForm({
+                    stepProps: {
+                      disableImageSelection: false,
+                      vmsId: [vmId],
+                      backupIds,
+                    },
+                  })
+                },
+                onSubmit: (rows) => async (formData) => {
+                  const vmId = rows?.[0]?.id
+                  const imageId = formData?.backupImgId?.ID
+                  const incrementId = formData?.increment_id
+                  const diskId = formData?.individualDisk
+                  await restore({
+                    id: vmId,
+                    imageId,
+                    incrementId,
+                    diskId,
+                  })
                 },
               },
             ],

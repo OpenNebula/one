@@ -35,6 +35,7 @@ const BackupsTable = (props) => {
     searchProps = {},
     vm,
     refetchVm,
+    filter,
     isFetchingVm,
     ...rest
   } = props ?? {}
@@ -54,11 +55,13 @@ const BackupsTable = (props) => {
           : [vm?.BACKUPS?.BACKUP_IDS?.ID]
         : []
 
+      const backupData = result?.data?.filter((backup) =>
+        vm ? backupsIds?.includes(backup.ID) : true
+      )
+
       return {
         ...result,
-        data: result?.data?.filter((backup) =>
-          vm ? backupsIds?.includes(backup.ID) : true
-        ),
+        data: typeof filter === 'function' ? filter(backupData) : backupData,
       }
     },
   })
@@ -76,9 +79,12 @@ const BackupsTable = (props) => {
    * Refetch vms and backups. If a new backup is created, the id of the backup will be in the data of a vm, so we need to refetch also the vms query.
    */
   const refetchAll = () => {
-    refetchVm()
+    refetchVm && refetchVm()
     refetch()
   }
+
+  const isFetchingAll = () =>
+    isFetchingVm ? !!(isFetchingVm && isFetching) : isFetching
 
   return (
     <EnhancedTable
@@ -87,7 +93,7 @@ const BackupsTable = (props) => {
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetchAll}
-      isLoading={isFetching && isFetchingVm}
+      isLoading={isFetchingAll()}
       getRowId={(row) => String(row.ID)}
       RowComponent={BackupRow}
       {...rest}

@@ -114,7 +114,12 @@ const Actions = () => {
                   }))
 
                   return RestoreForm({
-                    stepProps: { increments, backupDiskIds, vmsId },
+                    stepProps: {
+                      increments,
+                      backupDiskIds,
+                      vmsId,
+                      disableImageSelection: true,
+                    },
                     initialValues: {
                       increments: increments,
                       backupDiskIds: backupDiskIds,

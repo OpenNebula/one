@@ -31,6 +31,7 @@ const VM_RESIZE = 'vm.resize'
 const VM_UPDATE = 'vm.update'
 const VM_CONF_UPDATE = 'vm.updateconf'
 const VM_RECOVER = 'vm.recover'
+const VM_RESTORE = 'vm.restore'
 const VM_INFO = 'vm.info'
 const VM_MONITORING = 'vm.monitoring'
 const VM_LOCK = 'vm.lock'
@@ -75,6 +76,7 @@ const Actions = {
   VM_UPDATE,
   VM_CONF_UPDATE,
   VM_RECOVER,
+  VM_RESTORE,
   VM_INFO,
   VM_MONITORING,
   VM_LOCK,
@@ -603,6 +605,28 @@ module.exports = {
         operation: {
           from: postBody,
           default: 1,
+        },
+      },
+    },
+    [VM_RESTORE]: {
+      // inspected
+      httpMethod: POST,
+      params: {
+        id: {
+          from: postBody,
+          default: -1,
+        },
+        imageId: {
+          from: postBody,
+          default: -1,
+        },
+        incrementId: {
+          from: postBody,
+          default: -1,
+        },
+        diskId: {
+          from: postBody,
+          default: -1,
         },
       },
     },

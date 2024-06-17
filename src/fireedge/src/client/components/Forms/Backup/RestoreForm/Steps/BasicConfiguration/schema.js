@@ -18,11 +18,17 @@ import { timeFromMilliseconds } from 'client/models/Helper'
 import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
 import { ObjectSchema, boolean, object, string } from 'yup'
 import { STEP_ID as VM_DISK_ID } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisksTable'
+import { STEP_ID as BACKUP_IMG_ID } from 'client/components/Forms/Backup/RestoreForm/Steps/BackupsTable'
 
 const NO_NIC = {
   name: 'no_nic',
   label: T.DoNotRestoreNICAttributes,
   type: INPUT_TYPES.SWITCH,
+  htmlType: (deps) => {
+    const selectedImage = deps?.[BACKUP_IMG_ID]?.[0]
+
+    return selectedImage ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SWITCH
+  },
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
@@ -31,6 +37,11 @@ const NO_IP = {
   name: 'no_ip',
   label: T.DoNotRestoreIPAttributes,
   type: INPUT_TYPES.SWITCH,
+  htmlType: (deps) => {
+    const selectedImage = deps?.[BACKUP_IMG_ID]?.[0]
+
+    return selectedImage ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SWITCH
+  },
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
@@ -61,19 +72,37 @@ const INCREMENT_ID = ({ increments = [] }) => ({
   name: 'increment_id',
   label: T.IncrementId,
   type: INPUT_TYPES.SELECT,
-  values: arrayToOptions(increments, {
-    addEmpty: true,
-    getText: (increment) =>
-      `${increment.id}: ${timeFromMilliseconds(increment.date)
-        .toFormat('ff')
-        .replace(',', '')} (${increment.source})`,
-    getValue: (increment) => increment.id,
-  }),
+  values: (deps) => {
+    const selectedImage = deps?.[BACKUP_IMG_ID]?.[0]
+    let backupIncrements = [].concat(
+      selectedImage?.BACKUP_INCREMENTS?.INCREMENT ?? []
+    )
+
+    backupIncrements = backupIncrements.map((increment) => ({
+      id: increment.ID,
+      date: increment.DATE,
+      source: increment.SOURCE,
+    }))
+
+    return arrayToOptions(
+      backupIncrements?.length > 0 ? backupIncrements : increments,
+      {
+        addEmpty: true,
+        getText: (increment) =>
+          `${increment.id}: ${timeFromMilliseconds(increment.date)
+            .toFormat('ff')
+            .replace(',', '')} (${increment.source})`,
+        getValue: (increment) => increment.id,
+      }
+    )
+  },
   validation: string(),
   grid: { md: 6 },
-  fieldProps: {
-    disabled: increments.length === 0,
-  },
+  fieldProps: (deps) => ({
+    disabled:
+      deps?.[BACKUP_IMG_ID]?.[0]?.BACKUP_INCRMENETS?.INCREMENT?.length === 0 &&
+      increments.length === 0,
+  }),
 })
 
 /**

@@ -40,6 +40,7 @@ actions:
   rdp: true
   edit_labels: false
   backup: true  
+  restore: false
 
 # Filters - List of criteria to filter the resources
 

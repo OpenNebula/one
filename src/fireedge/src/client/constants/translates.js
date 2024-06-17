@@ -611,6 +611,7 @@ module.exports = {
   IncrementMode: 'Increment Mode',
   IncrementId: 'Increment ID',
   RestoreBackup: 'Restore backup',
+  RestoreVm: 'Restore VM',
   BackupJobs: 'BackupJobs',
   BackupJob: 'BackupJob',
 
@@ -1689,6 +1690,7 @@ module.exports = {
   ImportAssociateApp: 'Import associated VM templates/images',
   SelectResourceToCreateTheApp: 'Select the resource to create the App',
   SelectImageToCreateTheApp: 'Select the Image to create the App',
+  SelectBackupImage: 'Select backup image',
   SelectVmToCreateTheApp: 'Select the VM to create the App',
   SelectVmTemplateToCreateTheApp: 'Select the VM Template to create the App',
 
