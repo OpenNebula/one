@@ -71,7 +71,8 @@ const NAME = {
 const INCREMENT_ID = ({ increments = [] }) => ({
   name: 'increment_id',
   label: T.IncrementId,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: (deps) => {
     const selectedImage = deps?.[BACKUP_IMG_ID]?.[0]
     let backupIncrements = [].concat(

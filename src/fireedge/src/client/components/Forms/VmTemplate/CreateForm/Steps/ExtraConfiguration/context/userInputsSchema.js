@@ -77,7 +77,8 @@ const NAME = {
 const TYPE = {
   name: 'type',
   label: T.Type,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: NAME.name,
   values: (name) => {
     let defaultValues = valuesOfUITypes
@@ -198,9 +199,10 @@ const DEFAULT_VALUE = {
   name: 'default',
   label: T.DefaultValue,
   dependOf: [TYPE.name, OPTIONS.name],
+  optionsOnly: true,
   type: ([type] = []) =>
     [uiBoolean, uiList, uiListMultiple].includes(type)
-      ? INPUT_TYPES.SELECT
+      ? INPUT_TYPES.AUTOCOMPLETE
       : INPUT_TYPES.TEXT,
   htmlType: ([type] = []) =>
     ({

@@ -28,8 +28,6 @@ import General, {
 import { userInputsToArray } from 'client/models/Helper'
 import { createSteps, getUnknownAttributes, decodeBase64 } from 'client/utils'
 
-import { KVM_FIRMWARE_TYPES, VCENTER_FIRMWARE_TYPES } from 'client/constants'
-
 const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
   saveState: true,
   transformInitialValue: (vmTemplate, schema) => {
@@ -56,13 +54,8 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
     // cast FIRMWARE
     const firmware = vmTemplate?.TEMPLATE?.OS?.FIRMWARE
     if (firmware) {
-      const firmwareOption =
-        KVM_FIRMWARE_TYPES.includes(firmware) ||
-        VCENTER_FIRMWARE_TYPES.includes(firmware)
-
       objectSchema[EXTRA_ID].OS = {
         ...vmTemplate?.TEMPLATE?.OS,
-        FEATURE_CUSTOM_ENABLED: !firmwareOption ? 'YES' : 'NO',
       }
     }
 

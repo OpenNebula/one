@@ -56,7 +56,8 @@ const PRIORITY = {
 const EXECUTION = {
   name: 'EXECUTION',
   label: T.Execution,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(EXECUTION_OPTIONS), {
     getText: (type) => type,
     getValue: (type) => EXECUTION_OPTIONS[type],
@@ -68,7 +69,8 @@ const EXECUTION = {
 const FS_FREEZE = {
   name: 'FS_FREEZE',
   label: T.FSFreeze,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(FS_FREEZE_OPTIONS), {
     getText: (type) => type,
     getValue: (type) => FS_FREEZE_OPTIONS[type],
@@ -80,7 +82,8 @@ const FS_FREEZE = {
 const MODE = {
   name: 'MODE',
   label: T.Mode,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(BACKUP_MODE_OPTIONS), {
     addEmpty: true,
     getText: (type) => type,
@@ -93,7 +96,8 @@ const MODE = {
 const INCREMENT_MODE = {
   name: 'INCREMENT_MODE',
   label: T.IncrementMode,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: MODE.name,
   htmlType: (mode) =>
     mode !== BACKUP_MODE_OPTIONS[T.Increment] && INPUT_TYPES.HIDDEN,

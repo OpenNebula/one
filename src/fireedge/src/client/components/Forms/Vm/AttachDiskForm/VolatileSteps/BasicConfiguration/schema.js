@@ -51,7 +51,8 @@ const SIZE = {
 export const SIZEUNIT = {
   name: 'SIZEUNIT',
   label: T.SizeUnit,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   tooltip: T.SizeUnitTooltip,
   values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
     addEmpty: false,
@@ -71,7 +72,8 @@ export const SIZEUNIT = {
 const TYPE = (hypervisor) => ({
   name: 'TYPE',
   label: T.DiskType,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values:
     hypervisor === vcenter
       ? [
@@ -93,7 +95,8 @@ const TYPE = (hypervisor) => ({
 const FORMAT = (hypervisor) => ({
   name: 'FORMAT',
   label: T.Format,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: 'TYPE',
   htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
   values:
@@ -121,7 +124,8 @@ const FILESYSTEM = {
   name: 'FS',
   label: T.FileSystemType,
   notOnHypervisors: [vcenter],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: 'TYPE',
   htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
   values: () => arrayToOptions(SERVER_CONFIG?.supported_fs),

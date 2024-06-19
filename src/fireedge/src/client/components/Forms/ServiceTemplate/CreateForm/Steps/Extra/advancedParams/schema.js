@@ -31,7 +31,8 @@ const VM_SHUTDOWN_TYPES = {
 const STRATEGY_TYPE = {
   label: 'Strategy',
   name: 'ADVANCED.DEPLOYMENT',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(STRATEGY_TYPES), {
     addEmpty: false,
     getText: (key) => STRATEGY_TYPES[key],
@@ -49,7 +50,8 @@ const STRATEGY_TYPE = {
 const VM_SHUTDOWN_TYPE = {
   label: 'VM Shutdown',
   name: 'ADVANCED.VMSHUTDOWN',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(VM_SHUTDOWN_TYPES), { addEmpty: false }),
   validation: string()
     .trim()

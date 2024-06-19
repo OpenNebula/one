@@ -36,7 +36,8 @@ export const ARCH = {
   name: 'OS.ARCH',
   label: T.CpuArchitecture,
   notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => arrayToOptions(CPU_ARCHITECTURES),
   validation: string()
     .trim()
@@ -49,7 +50,8 @@ export const SD_DISK_BUS = {
   name: 'OS.SD_DISK_BUS',
   label: T.BusForSdDisks,
   notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(SD_DISK_BUSES, { getText: (o) => o.toUpperCase() }),
   validation: string()
     .trim()
@@ -62,7 +64,8 @@ export const MACHINE_TYPES = {
   name: 'OS.MACHINE',
   label: T.MachineType,
   notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: hosts = [] } = useGetHostsQuery()
     const kvmMachines = getKvmMachines(hosts)
@@ -145,35 +148,19 @@ export const UUID = {
   grid: { md: 12 },
 }
 
-/** @type {Field} Feature custom field  */
-export const FEATURE_CUSTOM_ENABLED = {
-  name: 'OS.FEATURE_CUSTOM_ENABLED',
-  label: T.CustomPath,
-  notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SWITCH,
-  validation: boolean()
-    .yesOrNo()
-    .default(() => false)
-    .afterSubmit((value) => undefined),
-  grid: { md: 12 },
-}
-
 /** @type {Field} Firmware field */
 export const FIRMWARE = {
   name: 'OS.FIRMWARE',
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
   notOnHypervisors: [firecracker, lxc],
-  type: ([, , custom] = [], formContext) => {
-    const enabled = formContext?.getValues('extra.OS.FEATURE_CUSTOM_ENABLED')
-
-    return custom || enabled ? INPUT_TYPES.TEXT : INPUT_TYPES.SELECT
-  },
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: false,
   validation: string()
     .trim()
     .notRequired()
     .default(() => undefined),
-  dependOf: ['HYPERVISOR', '$general.HYPERVISOR', FEATURE_CUSTOM_ENABLED.name],
+  dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: ([templateHyperv, hypervisor = templateHyperv] = []) => {
     const types =
       {
@@ -182,6 +169,9 @@ export const FIRMWARE = {
       }[hypervisor] ?? FIRMWARE_TYPES
 
     return arrayToOptions(types)
+  },
+  fieldProps: {
+    freeSolo: true,
   },
   grid: { md: 12 },
 }
@@ -192,8 +182,6 @@ export const FIRMWARE_SECURE = {
   label: T.FirmwareSecure,
   notOnHypervisors: [vcenter, firecracker, lxc],
   type: INPUT_TYPES.CHECKBOX,
-  dependOf: FEATURE_CUSTOM_ENABLED.name,
-  htmlType: (custom) => !custom && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
@@ -207,7 +195,6 @@ export const BOOT_FIELDS = [
   KERNEL_CMD,
   BOOTLOADER,
   UUID,
-  FEATURE_CUSTOM_ENABLED,
   FIRMWARE,
   FIRMWARE_SECURE,
 ]

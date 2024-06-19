@@ -61,7 +61,8 @@ const CA_TYPES = {
 const CA_TYPE = {
   name: 'type',
   label: 'Type',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(CA_TYPES), { addEmpty: false }),
   defaultValueProp: CA_TYPES.text,
   validation: string()

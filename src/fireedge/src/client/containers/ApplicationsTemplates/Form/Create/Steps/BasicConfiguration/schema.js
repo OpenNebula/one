@@ -56,7 +56,8 @@ export const FORM_FIELDS = [
   {
     name: 'deployment',
     label: 'Select a strategy',
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: STRATEGIES_DEPLOY,
     validation: yup
       .string()
@@ -68,7 +69,8 @@ export const FORM_FIELDS = [
   {
     name: 'shutdown_action',
     label: 'Select a VM shutdown action',
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: SHUTDOWN_ACTIONS,
     validation: yup
       .string()

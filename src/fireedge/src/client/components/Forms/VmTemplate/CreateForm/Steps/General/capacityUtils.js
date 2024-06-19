@@ -69,7 +69,8 @@ const getModificationIdsByFieldName = (fieldName) => ({
 const modificationTypeInput = (fieldName, { type: typeId }) => ({
   name: typeId,
   ...MODIFICATION_TRANSLATES[fieldName],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions([fixed, range, list], {
     addEmpty: 'Any value',
     getValue: (type) =>

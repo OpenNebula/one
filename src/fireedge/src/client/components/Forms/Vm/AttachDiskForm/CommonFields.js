@@ -34,7 +34,8 @@ export const GENERAL_FIELDS = [
     name: 'READONLY',
     label: T.ReadOnly,
     notOnHypervisors: [vcenter],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: T.Yes, value: 'YES' },
       { text: T.No, value: 'NO' },
@@ -48,7 +49,8 @@ export const GENERAL_FIELDS = [
     name: 'DEV_PREFIX',
     label: T.Bus,
     notOnHypervisors: [vcenter, firecracker, lxc],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'Virtio', value: 'vd' },
@@ -62,7 +64,8 @@ export const GENERAL_FIELDS = [
     name: 'CACHE',
     label: T.Cache,
     notOnHypervisors: [vcenter, firecracker, lxc],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'Default', value: 'default' },
@@ -77,7 +80,8 @@ export const GENERAL_FIELDS = [
     name: 'IO',
     label: T.IoPolicy,
     notOnHypervisors: [vcenter, firecracker, lxc],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'Threads', value: 'threads' },
@@ -90,7 +94,8 @@ export const GENERAL_FIELDS = [
     name: 'DISCARD',
     label: T.Discard,
     notOnHypervisors: [vcenter, firecracker, lxc],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'Ignore', value: 'ignore' },
@@ -129,7 +134,8 @@ export const VCENTER_FIELDS = [
     name: 'VCENTER_ADAPTER_TYPE',
     label: T.BusAdapterController,
     onlyOnHypervisors: [vcenter],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'lsiLogic', value: 'lsiLogic' },
@@ -143,7 +149,8 @@ export const VCENTER_FIELDS = [
     name: 'VCENTER_DISK_TYPE',
     label: T.DiskProvisioningType,
     onlyOnHypervisors: [vcenter],
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: [
       { text: '', value: '' },
       { text: 'Thin', value: 'thin' },

@@ -38,7 +38,8 @@ export const createElasticityPolicyFields = (pathPrefix) => {
     {
       name: getPath('TYPE'),
       label: 'Type',
-      type: INPUT_TYPES.SELECT,
+      type: INPUT_TYPES.AUTOCOMPLETE,
+      optionsOnly: true,
       cy: 'roleconfig-elasticitypolicies',
       values: arrayToOptions(Object.keys(ELASTICITY_TYPES), {
         addEmpty: false,

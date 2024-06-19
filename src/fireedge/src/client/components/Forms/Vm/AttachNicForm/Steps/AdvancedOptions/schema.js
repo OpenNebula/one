@@ -138,7 +138,8 @@ const GUACAMOLE_CONNECTIONS = [
   {
     name: 'RDP_RESIZE_METHOD',
     label: T.RdpRizeMethod,
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     dependOf: 'RDP',
     values: [
       { text: '-', value: undefined },
@@ -322,7 +323,8 @@ const OVERRIDE_IPV4_FIELDS = [
     name: 'METHOD',
     label: T.NetworkMethod,
     tooltip: T.NetworkMethod4Concept,
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: arrayToOptions(Object.keys(IPV4_METHODS), {
       getText: (key) => key,
       getValue: (key) => IPV4_METHODS[key],
@@ -358,7 +360,8 @@ const OVERRIDE_IPV6_FIELDS = [
     name: 'IP6_METHOD',
     label: T.NetworkMethod,
     tooltip: T.NetworkMethod6Concept,
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: arrayToOptions(Object.keys(IPV6_METHODS), {
       getText: (key) => key,
       getValue: (key) => IPV6_METHODS[key],
@@ -377,7 +380,8 @@ const HARDWARE_FIELDS = (
   {
     name: PCI_TYPE_NAME,
     label: T.VirtualNicHardwareMode,
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: arrayToOptions(Object.values(NIC_HARDWARE), {
       addEmpty: false,
       getText: (key) => NIC_HARDWARE_STR[key],
@@ -436,7 +440,8 @@ const HARDWARE_FIELDS = (
   {
     name: DEVICE_LIST,
     label: T.DeviceName,
-    type: INPUT_TYPES.SELECT,
+    type: INPUT_TYPES.AUTOCOMPLETE,
+    optionsOnly: true,
     values: () => {
       const { data: hosts = [] } = useGetHostsAdminQuery()
       const pciDevices = hosts

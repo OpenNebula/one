@@ -46,7 +46,8 @@ const { kvm, dummy } = HYPERVISORS
 /** @type {Field} Type field */
 export const VIDEO_TYPE = {
   name: 'VIDEO.TYPE',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   label: T.VideoType,
   tooltip: T.VideoTypeConcept,
   onlyOnHypervisors: [kvm, dummy],
@@ -167,7 +168,8 @@ export const VRAM = {
 /** @type {Field} Resolution field */
 export const RESOLUTION = {
   name: 'VIDEO.RESOLUTION',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   label: T.Resolution,
   tooltip: T.ResolutionConcept,
   onlyOnHypervisors: [kvm, dummy],

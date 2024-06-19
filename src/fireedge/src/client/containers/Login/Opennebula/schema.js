@@ -80,7 +80,8 @@ const TOKEN = {
 const GROUP = {
   name: 'group',
   label: T.SelectYourActiveGroup,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { user, groups } = useAuth()
     const primaryText = Tr(T.Primary)

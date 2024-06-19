@@ -29,7 +29,8 @@ export const NETWORK_TYPES = {
 const NETWORK_TYPE = {
   name: 'type',
   label: 'Type',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(NETWORK_TYPES), { addEmpty: false }),
   validation: string()
     .trim()
@@ -63,7 +64,8 @@ const DESCRIPTION = {
 const NETWORK_SELECTION = {
   name: 'network',
   label: 'Network',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: vnets = [] } = useGetVNetworksQuery()
     const networks = vnets

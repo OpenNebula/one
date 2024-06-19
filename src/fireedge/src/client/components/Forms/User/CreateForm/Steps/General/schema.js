@@ -33,7 +33,8 @@ const USERNAME_FIELD = {
 const AUTH_TYPE_FIELD = {
   name: 'authType',
   label: T.AuthType,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.keys(AUTH_DRIVER), {
       addEmpty: false,

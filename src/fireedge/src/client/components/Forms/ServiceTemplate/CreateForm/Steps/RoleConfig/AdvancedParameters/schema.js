@@ -32,7 +32,8 @@ const SHUTDOWN_ENUMS_ONEFLOW = {
 const SHUTDOWN_TYPE = {
   name: `${ADVANCED_SECTION_ID}.SHUTDOWNTYPE`,
   label: 'VM Shutdown action',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(SHUTDOWN_TYPES), {
     addEmpty: false,
     getText: (key) => SHUTDOWN_TYPES[key],

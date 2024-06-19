@@ -48,7 +48,8 @@ const TYPE = {
   name: 'TYPE',
   label: T.Type,
   notOnHypervisors: [lxc, vcenter],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(DEVICE_TYPES)),
   validation: string()
     .trim()
@@ -62,7 +63,8 @@ const BUS = {
   name: 'BUS',
   label: T.Bus,
   notOnHypervisors: [lxc, vcenter],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(DEVICE_BUS_TYPES)),
   validation: string()
     .trim()

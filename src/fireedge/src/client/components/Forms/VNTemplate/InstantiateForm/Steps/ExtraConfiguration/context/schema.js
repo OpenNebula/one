@@ -85,7 +85,8 @@ const GUEST_MTU_FIELD = {
 const METHOD_FIELD = {
   name: 'METHOD',
   label: T.NetMethod,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.entries(VNET_METHODS), {
     addEmpty: 'none (Use default)',
     getText: ([, text]) => text,
@@ -98,7 +99,8 @@ const METHOD_FIELD = {
 const IP6_METHOD_FIELD = {
   name: 'IP6_METHOD',
   label: T.NetMethod6,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.entries(VNET_METHODS6), {
     addEmpty: 'none (Use default)',
     getText: ([, text]) => text,

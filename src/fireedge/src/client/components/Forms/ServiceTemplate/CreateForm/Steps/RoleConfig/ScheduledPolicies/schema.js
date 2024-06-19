@@ -50,7 +50,8 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     {
       name: getPath('SCHEDTYPE'),
       label: 'Type',
-      type: INPUT_TYPES.SELECT,
+      type: INPUT_TYPES.AUTOCOMPLETE,
+      optionsOnly: true,
       cy: 'roleconfig-scheduledpolicies',
       values: arrayToOptions(Object.keys(SCHED_TYPES), {
         addEmpty: false,
@@ -88,7 +89,8 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     {
       name: getPath('TIMEFORMAT'),
       label: 'Time Format',
-      type: INPUT_TYPES.SELECT,
+      type: INPUT_TYPES.AUTOCOMPLETE,
+      optionsOnly: true,
       cy: 'roleconfig-scheduledpolicies',
       values: arrayToOptions(Object.values(TIME_TYPES), { addEmpty: false }),
       validation: string()

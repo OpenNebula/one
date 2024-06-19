@@ -75,7 +75,8 @@ export const HYPERVISOR_FIELD = (isUpdate) => ({
 export const LOGO = {
   name: 'LOGO',
   label: T.Logo,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(
     [['-', DEFAULT_TEMPLATE_LOGO], ...Object.entries(TEMPLATE_LOGOS)],
     {

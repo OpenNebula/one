@@ -43,7 +43,8 @@ export const ACPI = {
   label: T.Acpi,
   tooltip: T.AcpiConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -54,7 +55,8 @@ export const PAE = {
   label: T.Pae,
   tooltip: T.PaeConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -65,7 +67,8 @@ export const APIC = {
   label: T.Apic,
   tooltip: T.ApicConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -76,7 +79,8 @@ export const HYPERV = {
   label: T.Hyperv,
   tooltip: T.HypervConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -87,7 +91,8 @@ export const LOCALTIME = {
   label: T.Localtime,
   tooltip: T.LocaltimeConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -98,7 +103,8 @@ export const GUEST_AGENT = {
   label: T.GuestAgent,
   tooltip: T.GuestAgentConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: commonOptions,
   validation: commonValidation,
 }
@@ -110,7 +116,8 @@ export const VIRTIO_SCSI_QUEUES = {
   label: T.VirtioQueues,
   tooltip: T.VirtioQueuesConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: optionsInputsVirtio,
   validation: commonValidation,
 }
@@ -122,7 +129,8 @@ export const VIRTIO_BLK_QUEUES = {
   label: T.VirtioBlkQueues,
   tooltip: T.VirtioBlkQueuesConcept,
   notOnHypervisors: [vcenter, lxc, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: optionsInputsVirtio,
   validation: commonValidation,
 }

@@ -45,7 +45,8 @@ const DESCRIPTION = {
 const TYPE = {
   name: 'MARKET_MAD',
   label: T['marketplace.form.create.general.type'],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(MARKET_TYPES), {
     addEmpty: true,
     getText: (key) => T[MARKET_TYPES[key].text],

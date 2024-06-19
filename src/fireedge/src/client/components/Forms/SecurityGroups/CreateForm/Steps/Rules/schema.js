@@ -34,7 +34,8 @@ import {
 export const RULE_TYPE = {
   name: 'RULE_TYPE',
   label: T.Traffic,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(RULE_TYPE_STRING), {
     addEmpty: false,
     getText: (ruleType) => {
@@ -60,7 +61,8 @@ export const RULE_TYPE = {
 export const PROTOCOL = {
   name: 'PROTOCOL',
   label: T.Protocol,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(PROTOCOL_STRING), {
     addEmpty: false,
     getText: (protocol) => {
@@ -94,7 +96,8 @@ export const ICMP_TYPE = {
   name: 'ICMP_TYPE',
   dependOf: PROTOCOL.name,
   label: T.ICMP,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   htmlType: (protocol) =>
     protocol !== PROTOCOL_STRING.ICMP && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(Object.entries(ICMP_STRING), {
@@ -115,7 +118,8 @@ export const ICMPV6_TYPE = {
   name: 'ICMPv6_TYPE',
   dependOf: PROTOCOL.name,
   label: T.ICMPV6,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   htmlType: (protocol) =>
     protocol !== PROTOCOL_STRING.ICMPV6 && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(Object.entries(ICMP_V6_STRING), {
@@ -135,7 +139,8 @@ export const ICMPV6_TYPE = {
 export const RANGE_TYPE = {
   name: 'RANGE_TYPE',
   label: T.PortRange,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions([T.All, T.PortRange], {
     addEmpty: false,
   }),
@@ -164,7 +169,8 @@ export const RANGE = {
 export const TARGET = {
   name: 'TARGET',
   label: T.TargetNetwork,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(
     [T.AnyNetwork, T.ManualNetwork, T.OpennebulaVirtualNetwork],
     {

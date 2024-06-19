@@ -23,7 +23,8 @@ export const ZONE_FIELD_NAME = 'ZONE_ID'
 const ZONE = (zones) => ({
   name: ZONE_FIELD_NAME,
   label: T.Zone,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(zones, {
     addEmpty: false,
     getText: (zone) => `Zone ${zone.ID} - ${zone.NAME}`,

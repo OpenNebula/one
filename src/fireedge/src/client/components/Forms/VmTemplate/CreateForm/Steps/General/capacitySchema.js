@@ -64,7 +64,8 @@ export const MEMORYUNIT = () => ({
   name: 'MEMORYUNIT',
   label: T.MemoryUnit,
   tooltip: T.MemoryConceptUnit,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   grid: { md: 3 },
   values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
     addEmpty: false,
@@ -232,7 +233,8 @@ export const SHOWBACK_FIELDS = (features) =>
 export const MEMORY_RESIZE_MODE_FIELD = {
   name: 'MEMORY_RESIZE_MODE',
   label: T.MemoryResizeMode,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   notOnHypervisors: [lxc, firecracker, vcenter],
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: arrayToOptions(Object.keys(MEMORY_RESIZE_OPTIONS), {

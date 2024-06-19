@@ -42,7 +42,8 @@ const FS_FREEZE_FIELD = {
   name: 'BACKUP_CONFIG.FS_FREEZE',
   label: T.FSFreeze,
   tooltip: T.FSFreezeConcept,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(FS_FREEZE_OPTIONS), {
     getText: (type) => type,
     getValue: (type) => FS_FREEZE_OPTIONS[type],
@@ -68,7 +69,8 @@ const KEEP_LAST_FIELD = {
 const MODE_FIELD = {
   name: 'BACKUP_CONFIG.MODE',
   label: T.Mode,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(BACKUP_MODE_OPTIONS), {
     addEmpty: true,
     getText: (type) => type,
@@ -83,7 +85,8 @@ const MODE_FIELD = {
 const INCREMENT_MODE = {
   name: 'BACKUP_CONFIG.INCREMENT_MODE',
   label: T.IncrementMode,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: MODE_FIELD.name,
   htmlType: (mode) =>
     mode !== BACKUP_MODE_OPTIONS[T.Increment] && INPUT_TYPES.HIDDEN,

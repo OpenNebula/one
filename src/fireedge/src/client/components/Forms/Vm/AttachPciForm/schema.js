@@ -69,7 +69,8 @@ const SPECIFIC_DEVICE = {
 const NAME_FIELD = {
   name: 'PCI_DEVICE_NAME',
   label: T.DeviceName,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: SPECIFIC_DEVICE.name,
   htmlType: (specificDevice) => specificDevice && INPUT_TYPES.HIDDEN,
   values: () => {

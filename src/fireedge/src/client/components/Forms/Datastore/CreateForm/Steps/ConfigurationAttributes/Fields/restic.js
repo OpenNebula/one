@@ -90,7 +90,8 @@ const RESTIC_COMPRESSION = {
   label: T.CompressionLevel,
   tooltip: T.CompressionLevelConcept,
   dependOf: '$general.STORAGE_BACKEND',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(['OFF', 'AUTO', 'MAX'], {
       addEmpty: true,

@@ -50,7 +50,8 @@ const CARDINALITY = {
 const SHUTDOWN_ACTION = {
   name: 'shutdown_action',
   label: 'Select a VM shutdown action',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: SHUTDOWN_ACTIONS,
   validation: yup
     .string()

@@ -36,7 +36,8 @@ const hasExtraValue = (type) =>
 const TYPE = {
   name: 'type',
   label: 'Select a type',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: TYPES_NETWORKS,
   validation: yup
     .string()

@@ -339,7 +339,8 @@ export const schemaUserInput = ({
 
       return {
         values,
-        type: INPUT_TYPES.SELECT,
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        optionsOnly: true,
         validation: string()
           .trim()
           .concat(requiredSchema(mandatory, string()))
@@ -367,7 +368,8 @@ export const schemaUserInput = ({
 
       return {
         values,
-        type: INPUT_TYPES.SELECT,
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        optionsOnly: true,
         multiple: true,
         validation: array(string().trim())
           .concat(requiredSchema(mandatory, array()))

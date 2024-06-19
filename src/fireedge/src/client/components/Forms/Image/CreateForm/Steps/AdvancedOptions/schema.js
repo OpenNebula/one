@@ -46,7 +46,8 @@ const htmlType = (opt) => (value) => value !== opt && INPUT_TYPES.HIDDEN
 export const DEV_PREFIX = {
   name: 'DEV_PREFIX',
   label: T.Bus,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.entries(BUS_TYPES), {
     addEmpty: true,
     getText: ([_, name]) => name,
@@ -100,7 +101,8 @@ export const FORMAT_FIELD = {
   dependOf: `$general.${IMAGE_LOCATION_FIELD.name}`,
   htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY),
   label: T.Format,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(FORMAT_TYPES), {
     addEmpty: true,
     getText: (type) => type.toUpperCase(),
@@ -144,7 +146,8 @@ export const FS = {
   dependOf: `$general.${IMAGE_LOCATION_FIELD.name}`,
   htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY),
   label: T.Fs,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: sunstoneConfig = {} } = useGetSunstoneConfigQuery()
 

@@ -47,7 +47,8 @@ export const MODEL = {
   name: 'CPU_MODEL.MODEL',
   label: T.CpuModel,
   notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: hosts = [] } = useGetHostsQuery()
     const kvmCpuModels = getKvmCpuModels(hosts)
@@ -66,7 +67,8 @@ export const FEATURES = {
   name: 'CPU_MODEL.FEATURES',
   label: T.CpuFeature,
   notOnHypervisors: [vcenter, firecracker, lxc],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   multiple: true,
   values: () => {
     const { data: hosts = [] } = useGetHostsQuery()

@@ -63,7 +63,8 @@ const PIN_POLICY = {
   name: 'TOPOLOGY.PIN_POLICY',
   label: T.PinPolicy,
   tooltip: [T.PinPolicyConcept, numaPinPolicies.join(', ')],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(numaPinPolicies, {
     addEmpty: false,
     getText: sentenceCase,
@@ -173,9 +174,10 @@ const THREADS = {
   htmlType: ([, enableNuma] = []) =>
     !enableNuma ? INPUT_TYPES.HIDDEN : 'number',
   dependOf: ['$general.HYPERVISOR', ENABLE_NUMA.name],
+  optionsOnly: true,
   type: ([hypervisor] = []) =>
     [firecracker, vcenter].includes(hypervisor)
-      ? INPUT_TYPES.SELECT
+      ? INPUT_TYPES.AUTOCOMPLETE
       : INPUT_TYPES.TEXT,
   values: (hypervisor) =>
     ({
@@ -199,7 +201,8 @@ const HUGEPAGES = {
   notOnHypervisors: [vcenter, firecracker],
   dependOf: ENABLE_NUMA.name,
   htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: hosts = [] } = useGetHostsQuery()
     const sizes = hosts
@@ -223,7 +226,8 @@ const MEMORY_ACCESS = {
   label: T.MemoryAccess,
   tooltip: [T.MemoryAccessConcept, NUMA_MEMORY_ACCESS.join(', ')],
   notOnHypervisors: [vcenter, firecracker],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: ENABLE_NUMA.name,
   htmlType: (enableNuma) => !enableNuma && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(NUMA_MEMORY_ACCESS, { getText: sentenceCase }),

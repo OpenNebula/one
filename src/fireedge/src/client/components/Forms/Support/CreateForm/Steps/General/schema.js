@@ -40,7 +40,8 @@ export const BODY = {
 export const SEVERITY = {
   name: 'SEVERITY',
   label: T.Severity,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.entries(SEVERITIES), {
     addEmpty: false,
     getText: ([_, value]) => value,

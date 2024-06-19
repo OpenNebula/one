@@ -95,7 +95,8 @@ const getUserInput = ({ mandatory, name, type, options, defaultValue }) => {
 
       return {
         values,
-        type: INPUT_TYPES.SELECT,
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        optionsOnly: true,
         validation: yup
           .string()
           .trim()
@@ -110,7 +111,8 @@ const getUserInput = ({ mandatory, name, type, options, defaultValue }) => {
 
       return {
         values,
-        type: INPUT_TYPES.SELECT,
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        optionsOnly: true,
         multiple: true,
         validation: yup
           .array(yup.string().trim())

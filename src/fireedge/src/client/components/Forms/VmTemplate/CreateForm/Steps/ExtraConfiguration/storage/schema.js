@@ -26,7 +26,8 @@ const TM_MAD_SYSTEM = {
   name: 'TM_MAD_SYSTEM',
   label: T.DeployMode,
   tooltip: T.DeployModeConcept,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: datastores = [] } = useGetDatastoresQuery()
     const modes = datastores.map(getDeployMode)?.flat()

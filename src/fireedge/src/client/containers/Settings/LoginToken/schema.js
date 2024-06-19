@@ -39,7 +39,8 @@ const EXPIRE_FIELD = {
 const GROUP_FIELD = (userGroups) => ({
   name: constants.groupFieldName,
   label: T.Group,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(userGroups, {
       addEmpty: '-',

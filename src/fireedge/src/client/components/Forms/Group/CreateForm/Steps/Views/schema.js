@@ -46,7 +46,8 @@ const VIEW = (view, admin) => ({
 const DEFAULT_VIEW = (views, admin) => ({
   name: admin ? `GROUP_ADMIN_DEFAULT_VIEW` : `DEFAULT_VIEW`,
   label: T['groups.views.default'],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(views, {
     getText: (view) => (T[view.name] ? T[view.name] : view.name),
     getValue: (view) => view.type,

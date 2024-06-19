@@ -22,7 +22,8 @@ import { PIN_POLICY, INPUT_TYPES } from 'client/constants'
 /** @type {Field} Pin Policy field */
 const PIN_POLICY_FIELD = {
   name: 'PIN_POLICY',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: [
     { text: 'None', value: PIN_POLICY.NONE },
     { text: 'Pinned', value: PIN_POLICY.PINNED },

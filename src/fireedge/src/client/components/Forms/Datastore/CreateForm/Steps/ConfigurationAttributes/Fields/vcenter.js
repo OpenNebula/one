@@ -27,7 +27,8 @@ import { isVcenter, typeIsOneOf } from '../../functions'
 const VCENTER_ADAPTER_TYPE = {
   name: 'VCENTER_ADAPTER_TYPE',
   label: T.AdapterTypeUsedByVirtualDisksVMs,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.values(DS_VCENTER_ADAPTER_TYPE_OPTIONS), {
       addEmpty: true,
@@ -45,7 +46,8 @@ const VCENTER_ADAPTER_TYPE = {
 const VCENTER_DISK_TYPE = {
   name: 'VCENTER_DISK_TYPE',
   label: T.TypeOfDiskToBeCreated,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.values(DS_VCENTER_DISK_TYPE_OPTIONS), {
       addEmpty: true,

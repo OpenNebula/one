@@ -33,7 +33,8 @@ const ROLE_NAME_FIELD = {
 const POLICY_FIELD = {
   name: 'POLICY',
   label: 'VM-VM Affinity',
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   validation: string()
     .required('No valid policy selected')
     .default(() => 'None'),

@@ -73,7 +73,8 @@ export const DESCRIPTION = {
 export const TYPE = {
   name: 'TYPE',
   label: T.Type,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.values(IMAGE_TYPES_FOR_IMAGES), {
     addEmpty: false,
     getText: (type) => {
@@ -181,7 +182,8 @@ export const SIZEUNIT = {
   dependOf: IMAGE_LOCATION_FIELD.name,
   htmlType: htmlType(IMAGE_LOCATION_TYPES.EMPTY, true),
   label: T.SizeUnit,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   tooltip: T.SizeUnitTooltip,
   values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
     addEmpty: false,

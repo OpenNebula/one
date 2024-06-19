@@ -27,7 +27,8 @@ import { boolean, string } from 'yup'
 const SCHEME_FIELD = {
   name: 'SCHEME',
   label: T.Schema,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: [
     { text: T.System, value: SCHEMES.SYSTEM },
     { text: T.Dark, value: SCHEMES.DARK },
@@ -43,7 +44,8 @@ const SCHEME_FIELD = {
 const LANG_FIELD = {
   name: 'LANG',
   label: T.Language,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.entries(LANGUAGES), {
       addEmpty: false,
@@ -68,7 +70,8 @@ const DISABLE_ANIMATIONS_FIELD = {
 const VIEW_FIELD = ({ views }) => ({
   name: 'DEFAULT_VIEW',
   label: T.View,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(Object.entries(views), {
       addEmpty: true,
@@ -85,7 +88,8 @@ const VIEW_FIELD = ({ views }) => ({
 const ZONE_ENDPOINT_FIELD = ({ zones = [] }) => ({
   name: 'DEFAULT_ZONE_ENDPOINT',
   label: T.DefaultZoneEndpoint,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () =>
     arrayToOptions(
       zones

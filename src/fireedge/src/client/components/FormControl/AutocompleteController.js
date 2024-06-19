@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { TextField, Chip, Autocomplete } from '@mui/material'
-import { useController } from 'react-hook-form'
+import { useController, useWatch, useFormContext } from 'react-hook-form'
 
 import { ErrorHelper } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
@@ -36,6 +36,8 @@ const AutocompleteController = memo(
     readOnly = false,
     optionsOnly = false,
     onConditionChange,
+    watcher,
+    dependencies,
     disableEnter = false,
   }) => {
     const {
@@ -62,8 +64,41 @@ const AutocompleteController = memo(
           onConditionChange(newValueToChange ?? '')
         }
       },
-      [onChange, onConditionChange, multiple]
+      [onChange, onConditionChange, multiple, renderValue]
     )
+
+    // Add watcher to know if the dependencies fields have changes
+    const watch = useWatch({
+      name: dependencies,
+      disabled: dependencies == null,
+      defaultValue: Array.isArray(dependencies) ? [] : undefined,
+    })
+
+    const filterOptions = (options, { inputValue }) =>
+      options?.filter((option) => {
+        const optionText = typeof option?.text === 'string' ? option.text : ''
+        const optionValue =
+          typeof option?.value === 'string' ? option.value : ''
+
+        const textMatch = optionText
+          .toLowerCase()
+          .includes(inputValue?.toLowerCase())
+        const valueMatch = optionValue
+          .toLowerCase()
+          .includes(inputValue?.toLowerCase())
+
+        return textMatch || valueMatch
+      })
+
+    const formContext = useFormContext()
+
+    useEffect(() => {
+      if (!watcher || !dependencies || !watch) return
+
+      const watcherValue = watcher(watch, { name, formContext })
+
+      watcherValue !== undefined && onChange(watcherValue)
+    }, [watch, watcher, dependencies])
 
     return (
       <Autocomplete
@@ -85,9 +120,15 @@ const AutocompleteController = memo(
           }
         }}
         options={values}
+        filterOptions={filterOptions}
         value={selected}
         multiple={multiple}
         freeSolo={!optionsOnly}
+        renderOption={(props, option) => (
+          <li {...props} data-value={option?.value ?? option?.text}>
+            {option?.text}
+          </li>
+        )}
         renderTags={(tags, getTagProps) =>
           tags.map((tag, index) => {
             const labelTag =
@@ -168,6 +209,11 @@ AutocompleteController.propTypes = {
   readOnly: PropTypes.bool,
   optionsOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  watcher: PropTypes.func,
+  dependencies: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
 }
 
 AutocompleteController.displayName = 'AutocompleteController'

@@ -68,7 +68,8 @@ const NAME = {
 const STORAGE_BACKEND = {
   name: 'STORAGE_BACKEND',
   label: T.StorageBackend,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: TYPE.name,
   values: (type) =>
     arrayToOptions(getStorageBackendsFromDStype(type), {
@@ -87,7 +88,8 @@ const STORAGE_BACKEND = {
 const DS_MAD = {
   name: 'DS_MAD',
   label: T.Datastore,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: STORAGE_BACKEND.name,
   values: arrayToOptions(Object.values(DATASTORE_OPTIONS), {
     addEmpty: false,
@@ -104,7 +106,8 @@ const DS_MAD = {
 const TM_MAD = {
   name: 'TM_MAD',
   label: T.Transfer,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: STORAGE_BACKEND.name,
   values: arrayToOptions(Object.values(TRANSFER_OPTIONS), {
     addEmpty: false,

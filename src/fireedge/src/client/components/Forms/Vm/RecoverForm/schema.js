@@ -20,7 +20,8 @@ import { T, INPUT_TYPES } from 'client/constants'
 const OPERATION = {
   name: 'operation',
   label: T.Operation,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: 'operation', // itself is a dependency
   tooltip: (operation) =>
     ({

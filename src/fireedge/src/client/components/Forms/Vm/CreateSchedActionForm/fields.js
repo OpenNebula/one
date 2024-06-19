@@ -108,7 +108,8 @@ const createArgField = (argName) => ({
 const ACTION_FIELD = (vm) => ({
   name: ACTION_FIELD_NAME,
   label: T.Action,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(
     Object.entries({
       ...VM_ACTIONS_WITH_SCHEDULE,
@@ -139,7 +140,8 @@ const ACTION_FIELD_FOR_CHARTERS = {
 const ARGS_DS_ID_FIELD = {
   ...createArgField(ARGS_TYPES.DS_ID),
   label: T.BackupDatastore,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: () => {
     const { data: datastores = [] } = useGetDatastoresQuery()
 
@@ -160,7 +162,8 @@ const ARGS_DS_ID_FIELD = {
 const ARGS_DISK_ID_FIELD = (vm) => ({
   ...createArgField(ARGS_TYPES.DISK_ID),
   label: T.Disk,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(getDisks(vm), {
     getText: ({ IMAGE_ID, IMAGE, TARGET, SIZE } = {}) => {
       const isVolatile = !IMAGE && !IMAGE_ID
@@ -188,7 +191,8 @@ const ARGS_NAME_FIELD = {
 const ARGS_SNAPSHOT_ID_FIELD = (vm) => ({
   ...createArgField(ARGS_TYPES.SNAPSHOT_ID),
   label: T.Snapshot,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(getSnapshotList(vm), {
     getText: ({ NAME } = {}) => NAME,
     getValue: ({ SNAPSHOT_ID } = {}) => SNAPSHOT_ID,
@@ -253,7 +257,8 @@ const TIME_FIELD = {
 const REPEAT_FIELD = {
   name: 'REPEAT',
   label: T.GranularityOfAction,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   values: arrayToOptions(Object.keys(REPEAT_VALUES), {
     addEmpty: true,
     getText: (key) => sentenceCase(key),
@@ -277,7 +282,8 @@ const REPEAT_FIELD = {
 const WEEKLY_FIELD = {
   name: 'WEEKLY',
   dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   multiple: true,
   label: T.DayOfWeek,
   values: arrayToOptions(DAYS_OF_WEEK, {
@@ -436,7 +442,8 @@ const DAYS_FIELD = {
 const END_TYPE_FIELD = {
   name: 'END_TYPE',
   label: T.EndType,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: PERIODIC_FIELD_NAME,
   htmlType: (typeAction) =>
     typeAction !== SCHEDULE_TYPE.PERIODIC && INPUT_TYPES.HIDDEN,
@@ -518,7 +525,8 @@ export const RELATIVE_TIME_FIELD = {
 export const PERIOD_FIELD = {
   name: 'PERIOD',
   label: T.PeriodType,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: PERIODIC_FIELD_NAME,
   htmlType: (typeAction) =>
     typeAction !== SCHEDULE_TYPE.RELATIVE && INPUT_TYPES.HIDDEN,

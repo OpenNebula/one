@@ -90,7 +90,8 @@ const NAME_FIELD = {
 const EXISTING_RESERVE_FIELD = ({ vnet = {} }) => ({
   name: 'NETWORK_ID',
   label: T.SelectNetwork,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: SWITCH_FIELD.name,
   htmlType: (switcher) =>
     switcher === SWITCH_TYPES.newVnet && INPUT_TYPES.HIDDEN,
@@ -125,7 +126,8 @@ const EXISTING_RESERVE_FIELD = ({ vnet = {} }) => ({
 const AR_FIELD = ({ arPool = {} }) => ({
   name: 'AR_ID',
   label: T.CanSelectAddressFromAR,
-  type: INPUT_TYPES.SELECT,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
   dependOf: SWITCH_FIELD.name,
   values: arrayToOptions(arPool, {
     getText: ({ AR_ID, IP, MAC }) =>
