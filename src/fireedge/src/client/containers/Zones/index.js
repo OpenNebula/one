@@ -88,8 +88,8 @@ function Zones() {
  */
 const InfoTabs = memo(({ zone, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetZoneQuery()
-  const id = lazyData?.ID ?? zone?.ID
-  const name = lazyData?.NAME ?? zone?.NAME
+  const id = zone?.ID ?? lazyData?.ID
+  const name = zone?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

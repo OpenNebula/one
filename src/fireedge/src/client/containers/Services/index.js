@@ -91,8 +91,8 @@ function Services() {
  */
 const InfoTabs = memo(({ service, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetServiceQuery()
-  const id = lazyData?.ID ?? service?.ID
-  const name = lazyData?.NAME ?? service?.NAME
+  const id = service?.ID ?? lazyData?.ID
+  const name = service?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

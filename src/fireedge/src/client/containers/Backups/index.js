@@ -32,9 +32,9 @@ import BackupTabs from 'client/components/Tabs/Backup'
 import { Image, T } from 'client/constants'
 import { useGeneral } from 'client/features/General'
 import {
+  useGetBackupsQuery,
   useLazyGetImageQuery,
   useUpdateImageMutation,
-  useGetBackupsQuery,
 } from 'client/features/OneApi/image'
 
 /**
@@ -99,8 +99,8 @@ function Backups() {
  */
 const InfoTabs = memo(({ image, gotoPage, unselect }) => {
   const [getImage, { data: lazyData, isFetching }] = useLazyGetImageQuery()
-  const id = lazyData?.ID ?? image?.ID
-  const name = lazyData?.NAME ?? image?.NAME
+  const id = image?.ID ?? lazyData?.ID
+  const name = image?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

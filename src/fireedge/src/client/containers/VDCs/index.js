@@ -93,8 +93,8 @@ function VirtualDataCenters() {
  */
 const InfoTabs = memo(({ template, gotoPage, unselect }) => {
   const [getVDC, { data, isFetching }] = useLazyGetVDCQuery()
-  const id = data?.ID ?? template?.ID
-  const name = data?.NAME ?? template?.NAME
+  const id = template?.ID ?? data?.ID
+  const name = template?.NAME ?? data?.NAME
 
   return (
     <Stack overflow="auto">

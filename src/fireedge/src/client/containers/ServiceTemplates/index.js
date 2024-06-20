@@ -91,8 +91,8 @@ function ServiceTemplates() {
  */
 const InfoTabs = memo(({ template, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetServiceTemplateQuery()
-  const id = lazyData?.ID ?? template?.ID
-  const name = lazyData?.NAME ?? template?.NAME
+  const id = template?.ID ?? lazyData?.ID
+  const name = template?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

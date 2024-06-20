@@ -95,8 +95,8 @@ function Users() {
  */
 const InfoTabs = memo(({ user, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetUserQuery()
-  const id = lazyData?.ID ?? user?.ID
-  const name = lazyData?.NAME ?? user?.NAME
+  const id = user?.ID ?? lazyData?.ID
+  const name = user?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

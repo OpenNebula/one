@@ -96,8 +96,8 @@ function Groups() {
  */
 const InfoTabs = memo(({ group, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetGroupQuery()
-  const id = lazyData?.ID ?? group?.ID
-  const name = lazyData?.NAME ?? group?.NAME
+  const id = group?.ID ?? lazyData?.ID
+  const name = group?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

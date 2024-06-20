@@ -97,8 +97,8 @@ const InfoTabs = memo(({ app, gotoPage, unselect }) => {
   const [get, queryState] = useLazyGetMarketplaceAppQuery()
   const { data: lazyData, isFetching } = queryState
 
-  const id = lazyData?.ID ?? app?.ID
-  const name = lazyData?.NAME ?? app?.NAME
+  const id = app?.ID ?? lazyData?.ID
+  const name = app?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

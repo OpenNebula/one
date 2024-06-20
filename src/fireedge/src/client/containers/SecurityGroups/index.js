@@ -96,8 +96,8 @@ function SecurityGroups() {
 const InfoTabs = memo(({ securityGroup, gotoPage, unselect }) => {
   const [getSecurityGroup, { data: lazyData, isFetching }] =
     useLazyGetSecGroupQuery()
-  const id = lazyData?.ID ?? securityGroup?.ID
-  const name = lazyData?.NAME ?? securityGroup?.NAME
+  const id = securityGroup?.ID ?? lazyData?.ID
+  const name = securityGroup?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

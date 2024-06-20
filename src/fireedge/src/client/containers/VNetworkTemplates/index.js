@@ -95,8 +95,8 @@ function VNetworkTemplates() {
  */
 const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetVNTemplateQuery()
-  const id = lazyData?.ID ?? vnTemplate?.ID
-  const name = lazyData?.NAME ?? vnTemplate?.NAME
+  const id = vnTemplate?.ID ?? lazyData?.ID
+  const name = vnTemplate?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

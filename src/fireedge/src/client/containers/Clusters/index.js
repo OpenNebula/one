@@ -96,8 +96,8 @@ function Clusters() {
  */
 const InfoTabs = memo(({ cluster, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetClustersQuery()
-  const id = lazyData?.ID ?? cluster?.ID
-  const name = lazyData?.NAME ?? cluster?.NAME
+  const id = cluster?.ID ?? lazyData?.ID
+  const name = cluster?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

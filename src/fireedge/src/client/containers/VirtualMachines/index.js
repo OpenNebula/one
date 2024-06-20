@@ -120,8 +120,8 @@ function VirtualMachines() {
 const InfoTabs = memo(
   ({ vm, gotoPage, unselect, handleDismissError, tags }) => {
     const [getVm, { data: lazyData, isFetching }] = useLazyGetVmQuery()
-    const id = lazyData?.ID ?? vm?.ID
-    const name = lazyData?.NAME ?? vm?.NAME
+    const id = vm?.ID ?? lazyData?.ID
+    const name = vm?.NAME ?? lazyData?.NAME
 
     return (
       <Stack overflow="auto">

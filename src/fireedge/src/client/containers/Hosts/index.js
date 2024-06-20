@@ -95,8 +95,8 @@ function Hosts() {
  */
 const InfoTabs = memo(({ host, gotoPage, unselect }) => {
   const [getVm, { data: lazyData, isFetching }] = useLazyGetHostQuery()
-  const id = lazyData?.ID ?? host?.ID
-  const name = lazyData?.NAME ?? host?.NAME
+  const id = host?.ID ?? lazyData?.ID
+  const name = host?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

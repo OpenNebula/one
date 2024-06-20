@@ -96,8 +96,8 @@ function Datastores() {
 const InfoTabs = memo(({ datastore, gotoPage, unselect }) => {
   const [getDatastore, { data: lazyData, isFetching }] =
     useLazyGetDatastoreQuery()
-  const id = lazyData?.ID ?? datastore?.ID
-  const name = lazyData?.NAME ?? datastore?.NAME
+  const id = datastore?.ID ?? lazyData?.ID
+  const name = datastore?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

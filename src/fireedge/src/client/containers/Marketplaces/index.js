@@ -96,8 +96,8 @@ function Marketplaces() {
  */
 const InfoTabs = memo(({ market, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetMarketplaceQuery()
-  const id = lazyData?.ID ?? market?.ID
-  const name = lazyData?.NAME ?? market?.NAME
+  const id = market?.ID ?? lazyData?.ID
+  const name = market?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

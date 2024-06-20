@@ -95,8 +95,8 @@ function VirtualNetworks() {
  */
 const InfoTabs = memo(({ vnet, gotoPage, unselect }) => {
   const [get, { data: lazyData, isFetching }] = useLazyGetVNetworkQuery()
-  const id = lazyData?.ID ?? vnet?.ID
-  const name = lazyData?.NAME ?? vnet?.NAME
+  const id = vnet?.ID ?? lazyData?.ID
+  const name = vnet?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">

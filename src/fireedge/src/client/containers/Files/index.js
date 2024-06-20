@@ -90,8 +90,8 @@ function Files() {
  */
 const InfoTabs = memo(({ file, gotoPage, unselect }) => {
   const [getImage, { data: lazyData, isFetching }] = useLazyGetImageQuery()
-  const id = lazyData?.ID ?? file?.ID
-  const name = lazyData?.NAME ?? file?.NAME
+  const id = file?.ID ?? lazyData?.ID
+  const name = file?.NAME ?? lazyData?.NAME
 
   return (
     <Stack overflow="auto">
