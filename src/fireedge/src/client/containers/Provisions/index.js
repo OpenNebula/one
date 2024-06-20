@@ -123,7 +123,7 @@ function Provisions() {
                     onSubmit: async (formData) => {
                       try {
                         await configureProvision({ id: ID, ...formData })
-                        enqueueInfo(`Configuring provision - ID: ${ID}`)
+                        enqueueInfo(T.InfoProvisionConfigure, ID)
                       } finally {
                         hide()
                       }
@@ -151,7 +151,7 @@ function Provisions() {
                     onSubmit: async (formData) => {
                       try {
                         await deleteProvision({ id: ID, ...formData })
-                        enqueueInfo(`Deleting provision - ID: ${ID}`)
+                        enqueueInfo(T.InfoProvisionDelete, ID)
                       } finally {
                         hide()
                       }

@@ -18,7 +18,8 @@ import PropTypes from 'prop-types'
 
 import { Typography } from '@mui/material'
 import { HomeShield } from 'iconoir-react'
-
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 import { StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
@@ -41,7 +42,7 @@ const Row = ({ original, value, ...props }) => {
         </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span title={`Endpoint: ${ENDPOINT}`}>
+          <span title={`${Tr(T.Endpoint)}: ${ENDPOINT}`}>
             <HomeShield />
             <span>{` ${ENDPOINT}`}</span>
           </span>

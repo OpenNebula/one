@@ -151,7 +151,7 @@ const SelectController = memo(
       >
         {values?.map(({ text, value = '' }) => (
           <option key={`${name}-${value}`} value={value}>
-            {text}
+            {Tr(text)}
           </option>
         ))}
       </TextField>

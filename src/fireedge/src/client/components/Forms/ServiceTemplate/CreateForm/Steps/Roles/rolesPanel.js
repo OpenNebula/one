@@ -17,6 +17,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box, TextField, Typography } from '@mui/material'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 /**
  * Role Panel component for managing roles.
@@ -45,10 +46,10 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
   return (
     <Box p={2}>
       <Box sx={{ flex: 1 }}>
-        <Typography variant="h6">Role Details</Typography>
+        <Typography variant="h6">{Tr(T.RoleDetails)}</Typography>
         <Box sx={{ mb: 2 }}>
           <TextField
-            label="Role Name"
+            label={Tr(T.RoleName)}
             name="NAME"
             value={roles?.[selectedRoleIndex]?.NAME ?? ''}
             onChange={handleInputChange}
@@ -61,7 +62,7 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
         <Box sx={{ mb: 2 }}>
           <TextField
             type="number"
-            label={T.NumberOfVms}
+            label={Tr(T.NumberOfVms)}
             value={roles?.[selectedRoleIndex]?.CARDINALITY ?? 1}
             onChange={handleInputChange}
             name="CARDINALITY"

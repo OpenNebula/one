@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, string, number } from 'yup'
 import { getValidationFromFields, arrayToOptions } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, T } from 'client/constants'
 
 const TIME_TYPES = {
   none: '',
@@ -49,7 +49,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
   return [
     {
       name: getPath('SCHEDTYPE'),
-      label: 'Type',
+      label: T.Type,
       type: INPUT_TYPES.AUTOCOMPLETE,
       optionsOnly: true,
       cy: 'roleconfig-scheduledpolicies',
@@ -66,7 +66,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('ADJUST'),
-      label: 'Adjust',
+      label: T.Adjust,
       type: INPUT_TYPES.TEXT,
       cy: 'roleconfig-scheduledpolicies',
       validation: string()
@@ -77,7 +77,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('MIN'),
-      label: 'Min',
+      label: T.Min,
       type: INPUT_TYPES.TEXT,
       cy: 'roleconfig-scheduledpolicies',
       fieldProps: {
@@ -88,7 +88,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('TIMEFORMAT'),
-      label: 'Time Format',
+      label: T.TimeFormat,
       type: INPUT_TYPES.AUTOCOMPLETE,
       optionsOnly: true,
       cy: 'roleconfig-scheduledpolicies',
@@ -102,7 +102,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('TIMEEXPRESSION'),
-      label: 'Time Expression',
+      label: T.TimeExpression,
       type: INPUT_TYPES.TEXT,
       cy: 'roleconfig-scheduledpolicies',
       validation: string()

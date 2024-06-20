@@ -41,6 +41,7 @@ import {
 
 import { useGeneralApi } from 'client/features/General'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import {
   validateResourceId,
   validateValue,
@@ -56,6 +57,8 @@ import {
   ResourceIDAutocomplete,
 } from 'client/components/Tabs/Quota/Components/helpers/subcomponents'
 import { useGetOneConfigQuery } from 'client/features/OneApi/system'
+
+import { mapValues, map } from 'lodash'
 
 /**
  * QuotaControls Component
@@ -107,7 +110,12 @@ export const QuotaControls = memo(
       return acc
     }, [])
 
-    const extendedQuotaIdentifiers = { ...quotaIdentifiers }
+    const extendedQuotaIdentifiers = mapValues(quotaIdentifiers, (quotaArray) =>
+      map(quotaArray, (quota) => ({
+        ...quota,
+        displayName: Tr(quota.displayName),
+      }))
+    )
 
     if (!extendedQuotaIdentifiers.VM) {
       extendedQuotaIdentifiers.VM = []
@@ -261,11 +269,11 @@ export const QuotaControls = memo(
               variant="outlined"
               data-cy="qc-type-selector"
             >
-              <InputLabel>Type</InputLabel>
+              <InputLabel>{Tr(T.Type)}</InputLabel>
               <Select
                 value={selectedType || ''}
                 onChange={(e) => setSelectedType(e.target.value)}
-                label="Type"
+                label={Tr(T.Type)}
                 inputProps={{ 'data-cy': 'qc-type-selector-input' }}
               >
                 {quotaTypes.map((type) => (
@@ -308,7 +316,7 @@ export const QuotaControls = memo(
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Identifier"
+                  label={Tr(T.Identifier)}
                   variant="outlined"
                   inputProps={{
                     ...params.inputProps,
@@ -383,7 +391,7 @@ export const QuotaControls = memo(
               size={'large'}
               data-cy={'qc-apply-button'}
             >
-              {T.Apply}
+              {Tr(T.Apply)}
             </Button>
           </Grid>
           <Grid item sx={{ mt: 2 }}>
@@ -392,18 +400,18 @@ export const QuotaControls = memo(
               color="textSecondary"
               sx={{ opacity: 0.7 }}
             >
-              <strong>How to use Quota Controls:</strong>
+              <strong>{Tr(T.QuotaHelpTitle)}:</strong>
               <ul>
-                <li>Select the quota type from the dropdown.</li>
+                <li>{Tr(T.QuotaHelpStep1)}</li>
                 <Box
                   component="li"
                   sx={{
                     textDecoration: 'underline',
                     fontWeight: 'bold',
                   }}
-                  title="enter Resource IDs over which this quota will apply"
+                  title={Tr(T.QuotaHelpStep2Tooltip)}
                 >
-                  (Optional) Individual Resource Quotas .
+                  {Tr(T.QuotaHelpStep2)}
                 </Box>
 
                 <Box
@@ -412,13 +420,13 @@ export const QuotaControls = memo(
                     textDecoration: 'underline',
                     fontWeight: 'bold',
                   }}
-                  title="this further qualifies the quota type to a more specific attribute"
+                  title={Tr(T.QuotaHelpStep3Tooltip)}
                 >
-                  Select identifiers for the quota.
+                  {Tr(T.QuotaHelpStep3)}
                 </Box>
 
-                <li>Enter the value for the selected quota.</li>
-                <li>Click Apply to set the quotas.</li>
+                <li>{Tr(T.QuotaHelpStep4)}</li>
+                <li>{Tr(T.QuotaHelpStep5)}</li>
               </ul>
             </Typography>
           </Grid>

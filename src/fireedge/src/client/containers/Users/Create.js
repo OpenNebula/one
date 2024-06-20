@@ -25,6 +25,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/User'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation form for a User.
@@ -40,7 +41,7 @@ function CreateUser() {
     try {
       const newUserId = await createUser(props).unwrap()
       history.push(PATH.SYSTEM.USERS.LIST)
-      enqueueSuccess(`User created - #${newUserId}`)
+      enqueueSuccess(T.SuccessUserCreated, newUserId)
     } catch {}
   }
 

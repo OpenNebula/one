@@ -67,8 +67,8 @@ const GlobalSort = memo(
         <HeaderPopover
           id="sort-by-button"
           icon={<SortDown />}
-          headerTitle={T.SortBy}
-          buttonLabel={T.Sort}
+          headerTitle={<Translate word={T.SortBy} />}
+          buttonLabel={<Translate word={T.Sort} />}
           buttonProps={{
             'data-cy': 'sort-by-button',
             disableElevation: true,

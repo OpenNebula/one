@@ -18,6 +18,7 @@ import { useState, Component } from 'react'
 import { Box, Button, Menu, MenuItem, IconButton } from '@mui/material'
 import PropTypes from 'prop-types'
 import { NavArrowDown } from 'iconoir-react'
+import { Tr } from 'client/components/HOC'
 
 /**
  * @param {object} root0 - Props
@@ -68,7 +69,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
             endIcon={items.length > 1 ? <NavArrowDown /> : null}
             {...options?.button}
           >
-            {options?.button?.title || ''}
+            {options?.button?.title ? Tr(options?.button?.title) : ''}
           </Button>
         )}
         <Menu
@@ -88,7 +89,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
               }}
               {...options?.menuItem}
             >
-              {name}
+              {Tr(name)}
             </MenuItem>
           ))}
         </Menu>
@@ -120,7 +121,11 @@ export const ButtonGenerator = ({ items, options = {} }) => {
           ...options?.singleButton?.sx,
         }}
       >
-        {options?.singleButton?.title || items.name || ''}
+        {options?.singleButton?.title
+          ? Tr(options?.singleButton?.title)
+          : items.name
+          ? Tr(items.name)
+          : ''}
       </Button>
     )
   }

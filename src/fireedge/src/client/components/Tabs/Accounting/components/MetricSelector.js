@@ -16,6 +16,7 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material'
+import { Tr } from 'client/components/HOC'
 
 /**
  * Sub-component used to select different metrics.
@@ -41,7 +42,7 @@ export const MetricSelector = ({ selectedItems, onChange, items }) => (
               color="primary"
             />
           }
-          label={item.label}
+          label={Tr(item.label)}
         />
       ))}
     </FormGroup>

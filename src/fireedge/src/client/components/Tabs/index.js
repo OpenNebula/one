@@ -25,6 +25,7 @@ import {
   styled,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
+import { Tr } from 'client/components/HOC'
 
 const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -110,7 +111,7 @@ const Tabs = ({
               iconPosition="start"
               icon={error ? <WarningIcon /> : Icon && <Icon />}
               value={value ?? idx}
-              label={label ?? id}
+              label={Tr(label) ?? id}
               data-cy={`tab-${id}`}
             />
           )

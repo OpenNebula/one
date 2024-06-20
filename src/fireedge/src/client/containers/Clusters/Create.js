@@ -37,6 +37,7 @@ import { CreateForm } from 'client/components/Forms/Cluster'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 import systemApi from 'client/features/OneApi/system'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation form for a cluster.
@@ -111,7 +112,7 @@ function CreateCluster() {
         }
 
         // Only show cluster message
-        enqueueSuccess(`Cluster created - #${newClusterId}`)
+        enqueueSuccess(T.SuccessClusterCreated, newClusterId)
 
         // Go to clusters list
         history.push(PATH.INFRASTRUCTURE.CLUSTERS.LIST)
@@ -174,13 +175,13 @@ function CreateCluster() {
         }
 
         // Only show cluster message
-        enqueueSuccess(`Cluster updated - #${clusterId}`)
+        enqueueSuccess(T.SuccessClusterUpdated, clusterId)
 
         // Go to clusters list
         history.push(PATH.INFRASTRUCTURE.CLUSTERS.LIST)
       }
     } catch (error) {
-      enqueueError('Error performing operation on cluster')
+      enqueueError(T.ErrorClusterOperation)
     }
   }
 

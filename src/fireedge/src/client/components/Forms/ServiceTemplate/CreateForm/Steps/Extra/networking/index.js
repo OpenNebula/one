@@ -22,7 +22,7 @@ import {
   NETWORK_INPUT_SCHEMA,
 } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/schema'
 import { FormWithSchema, Legend } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
 import { Stack, FormControl, Divider, Button, Box } from '@mui/material'
 import List from '@mui/material/List'
@@ -30,6 +30,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { T } from 'client/constants'
+import { sentenceCase } from 'client/utils'
 
 export const SECTION_ID = 'NETWORKING'
 
@@ -105,10 +106,10 @@ const NetworkingSection = ({ stepId }) => {
         {networks?.map(
           ({ name, description, netextra, id, network, type }, index) => {
             const secondaryFields = [
-              description && `Description: ${description}`,
-              type && `Type: ${type}`,
-              network && `Network: ${network}`,
-              netextra && `Extra: ${netextra}`,
+              description && `${Tr(T.Description)}: ${description}`,
+              type && `${Tr(T.Type)}: ${Tr(sentenceCase(type))}`,
+              network && `${Tr(T.Network)}: ${network}`,
+              netextra && `${Tr(T.Extra)}: ${netextra}`,
             ].filter(Boolean)
 
             return (

@@ -42,6 +42,8 @@ import {
 } from 'iconoir-react'
 
 import { useGeneralApi } from 'client/features/General'
+import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 // Filters actions based on the data-cy key
 const filterActions = ['vm_resume', 'vm-manage', 'vm-host', 'vm-terminate']
@@ -74,18 +76,16 @@ const RolesTab = ({ id }) => {
       const roleName = roles?.[roleIdx]?.name
 
       try {
-        enqueueInfo(`Starting '${actionType}' action on role: ${roleName}`)
+        enqueueInfo(T.InfoServiceActionRole, [actionType, roleName])
 
         await createApiCallback(addRoleAction)({
           perform: actionType,
           role: roleName,
         })
 
-        enqueueSuccess(`Action '${actionType}' completed on role: ${roleName}`)
+        enqueueSuccess(T.SuccessRoleActionCompleted, [actionType, roleName])
       } catch (error) {
-        enqueueError(
-          `Action '${actionType}' failed on role: ${roleName}. Error: ${error}`
-        )
+        enqueueError(T.ErrorServiceActionRole, [actionType, roleName, error])
       }
     }
   }
@@ -186,7 +186,7 @@ const RolesTab = ({ id }) => {
           <>
             <ButtonGenerator
               items={{
-                name: 'Add Role',
+                name: T.AddRole,
                 onClick: handleOpenAddRole,
                 icon: Plus,
               }}
@@ -209,7 +209,7 @@ const RolesTab = ({ id }) => {
 
           <ButtonGenerator
             items={{
-              name: 'Scale',
+              name: T.Scale,
               onClick: handleOpenScale,
               icon: Plus,
             }}
@@ -255,7 +255,7 @@ const RolesTab = ({ id }) => {
           <ButtonGenerator
             items={[
               {
-                name: 'Suspend',
+                name: T.Suspend,
                 onClick: () =>
                   handleAddRoleAction({
                     perform: 'suspend',
@@ -263,13 +263,11 @@ const RolesTab = ({ id }) => {
                   }),
               },
               {
-                name: 'Poweroff',
-
+                name: T.Poweroff,
                 onClick: () => handleAddRoleAction('poweroff'),
               },
               {
-                name: 'Poweroff Hard',
-
+                name: T.PoweroffHard,
                 onClick: () => handleAddRoleAction('poweroff-hard'),
               },
             ]}
@@ -290,16 +288,15 @@ const RolesTab = ({ id }) => {
           <ButtonGenerator
             items={[
               {
-                name: 'Stop',
-
+                name: T.Stop,
                 onClick: () => handleAddRoleAction('stop'),
               },
               {
-                name: 'Undeploy',
+                name: T.Undeploy,
                 onClick: () => handleAddRoleAction('undeploy'),
               },
               {
-                name: 'Undeploy Hard',
+                name: T.UndeployHard,
                 onClick: () => handleAddRoleAction('undeploy-hard'),
               },
             ]}
@@ -320,11 +317,11 @@ const RolesTab = ({ id }) => {
           <ButtonGenerator
             items={[
               {
-                name: 'Reboot',
+                name: T.Reboot,
                 onClick: () => handleAddRoleAction('reboot'),
               },
               {
-                name: 'Reboot Hard',
+                name: T.RebootHard,
                 onClick: () => handleAddRoleAction('reboot-hard'),
               },
             ]}
@@ -346,11 +343,11 @@ const RolesTab = ({ id }) => {
           <ButtonGenerator
             items={[
               {
-                name: 'Terminate',
+                name: T.Terminate,
                 onClick: () => handleAddRoleAction('terminate'),
               },
               {
-                name: 'Terminate Hard',
+                name: T.TerminateHard,
                 onClick: () => handleAddRoleAction('terminate-hard'),
               },
             ]}
@@ -458,9 +455,11 @@ const RoleComponent = memo(({ role, selected, status }) => {
           {name}
         </Typography>
         <Typography variant="body1" mb={1}>
-          VM Template ID: {templateId}
+          {Tr(T.VMTemplate)} {Tr(T.ID)}: {templateId}
         </Typography>
-        <Typography variant="body1">Cardinality: {cardinality}</Typography>
+        <Typography variant="body1">
+          {Tr(T.Cardinality)}: {cardinality}
+        </Typography>
       </Box>
     </Box>
   )

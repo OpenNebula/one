@@ -24,7 +24,7 @@ import {
   GuacamoleSession, // eslint-disable-line no-unused-vars
   SOCKETS,
   GUACAMOLE_STATES_STR,
-  // THUMBNAIL_UPDATE_FREQUENCY,
+  T,
 } from 'client/constants'
 
 const {
@@ -172,8 +172,8 @@ const GuacamoleClient = ({ id, display }) => {
       const isDisconnected = DISCONNECTED === stateString
       const isConnected = CONNECTED === stateString
 
-      isConnected && enqueueSuccess('Connection established')
-      isDisconnected && enqueueInfo('Disconnected')
+      isConnected && enqueueSuccess(T.SuccessConnectionEstablished)
+      isDisconnected && enqueueInfo(T.InfoDisconnected)
 
       !isDisconnect && setConnectionState({ state: stateString })
     }

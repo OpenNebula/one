@@ -29,6 +29,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/Vdc'
 import { useGetZonesQuery } from 'client/features/OneApi/zone'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a VDC Template.
@@ -52,13 +53,13 @@ function CreateVDC() {
         const newVDCId = await create(vdc).unwrap()
         if (newVDCId) {
           history.push(PATH.SYSTEM.VDCS.LIST)
-          enqueueSuccess(`VDC created - #${newVDCId}`)
+          enqueueSuccess(T.SuccessVDCCreated, newVDCId)
         }
       } else {
         const updatedVDC = await update({ id: vdcId, ...vdc }).unwrap()
         if (updatedVDC) {
           history.push(PATH.SYSTEM.VDCS.LIST)
-          enqueueSuccess(`VDC updated - #${vdcId} ${NAME}`)
+          enqueueSuccess(T.SuccessVDCUpdated, [vdcId, NAME])
         }
       }
     } catch {}

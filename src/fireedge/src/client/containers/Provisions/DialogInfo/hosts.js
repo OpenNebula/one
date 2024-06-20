@@ -77,7 +77,10 @@ const Hosts = memo(({ id, setTab, logTabId }) => {
             isSubmitting={loadingAddHost}
             onClick={async () => {
               addHost({ id, amount })
-              enqueueInfo(`Adding ${amount} Host${amount > 1 ? 's' : ''}`)
+              enqueueInfo(T.InfoProvisionAddHost, [
+                amount,
+                amount > 1 ? 's' : '',
+              ])
             }}
           />
         </Stack>
@@ -112,7 +115,7 @@ const Hosts = memo(({ id, setTab, logTabId }) => {
                   isSubmitting={loadingConfigure}
                   onClick={async () => {
                     configureHost({ provision: id, id: host.ID })
-                    enqueueInfo(`Configuring host - ID: ${host.ID}`)
+                    enqueueInfo(T.InfoProvisionConfigureHost, host.ID)
                     setTab(logTabId)
                   }}
                 />
@@ -126,7 +129,7 @@ const Hosts = memo(({ id, setTab, logTabId }) => {
                       id: host.ID,
                       resource: 'host',
                     })
-                    enqueueInfo(`Deleting Host - ID:${host.ID}`)
+                    enqueueInfo(T.InfoProvisionDeleteHost, host.ID)
                   }}
                 />
               </>

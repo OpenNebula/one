@@ -34,6 +34,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 import { jsonToXml } from 'client/models/Helper'
 
 import systemApi from 'client/features/OneApi/system'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation form for a marketplace.
@@ -65,7 +66,7 @@ function CreateMarketplace() {
         }).unwrap()
 
         // Only show marketplace message
-        enqueueSuccess(`Marketplace created - #${newMarketplaceId}`)
+        enqueueSuccess(T.SuccessMarketplaceCreated, newMarketplaceId)
       } else {
         // Rename if the name has been changed
         if (template?.changeName) {
@@ -86,13 +87,13 @@ function CreateMarketplace() {
         }).unwrap()
 
         // Only show marketplace message
-        enqueueSuccess(`Marketplace updated - #${marketplaceId}`)
+        enqueueSuccess(T.SuccessMarketplaceUpdated, marketplaceId)
       }
 
       // Go to marketplaces list
       history.push(PATH.STORAGE.MARKETPLACES.LIST)
     } catch (error) {
-      enqueueError('Error creating marketplace')
+      enqueueError(T.ErrorMarketplaceCreated)
     }
   }
 

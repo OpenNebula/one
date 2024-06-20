@@ -27,6 +27,9 @@ import {
 import { Trash as ClearIcon } from 'iconoir-react'
 import SubNode from './SubNode'
 
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 /**
  * @param {object} root0 - Params
  * @param {Array} root0.userInputs - Array of user inputs
@@ -62,7 +65,7 @@ const NodeMenu = ({ userInputs }) => {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Search..."
+        placeholder={`${Tr(T.Search)}...`}
         value={searchTerm}
         onChange={handleSearchChange}
         sx={{ paddingBottom: '6px' }}
@@ -87,7 +90,7 @@ const NodeMenu = ({ userInputs }) => {
               }}
             />
           }
-          label="Show mandatory only"
+          label={Tr(T.VirtualRouterUserInputsShowMandatory)}
         />
       </FormGroup>
       {filteredUserInputs.map((userInput, index) => (

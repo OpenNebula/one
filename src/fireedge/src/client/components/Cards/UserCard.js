@@ -113,7 +113,7 @@ const UserCard = ({ user, rootProps }) => {
         >
           <Typography variant="caption">{`#${ID}`}</Typography>
           <Box display="flex" alignItems="center" mt={1}>
-            <Tooltip title={`Group: ${GNAME}`}>
+            <Tooltip title={`${Tr(T.Group)}: ${GNAME}`}>
               <Box display="flex" alignItems="center" mr={2}>
                 <Group />
                 <Typography variant="caption" ml={1}>
@@ -121,7 +121,7 @@ const UserCard = ({ user, rootProps }) => {
                 </Typography>
               </Box>
             </Tooltip>
-            <Tooltip title={`Auth Driver: ${AUTH_DRIVER}`}>
+            <Tooltip title={`${Tr(T.AuthDriver)}: ${AUTH_DRIVER}`}>
               <Box display="flex" alignItems="center">
                 <LockKey />
                 <Typography
@@ -142,13 +142,13 @@ const UserCard = ({ user, rootProps }) => {
             <LinearProgressWithTooltip
               value={datastoreQuotaUsage.size.percentOfUsed}
               label={datastoreQuotaUsage.size.percentLabel}
-              tooltipTitle="Datastore Size"
+              tooltipTitle={T.DatastoreSize}
               icon={<HardDrive />}
             />
             <LinearProgressWithTooltip
               value={vmQuotaUsage.vms.percentOfUsed}
               label={vmQuotaUsage.vms.percentLabel}
-              tooltipTitle="VM Count"
+              tooltipTitle={T.VMCount}
               icon={<ModernTv />}
             />
           </Grid>
@@ -156,13 +156,13 @@ const UserCard = ({ user, rootProps }) => {
             <LinearProgressWithTooltip
               value={networkQuotaUsage.leases.percentOfUsed}
               label={networkQuotaUsage.leases.percentLabel}
-              tooltipTitle="Network Leases"
+              tooltipTitle={T.NetworkLeases}
               icon={<Network />}
             />
             <LinearProgressWithTooltip
               value={imageQuotaUsage.rvms.percentOfUsed}
               label={imageQuotaUsage.rvms.percentLabel}
-              tooltipTitle="Image RVMS"
+              tooltipTitle={T.ImageRVMS}
               icon={<BoxIso />}
             />
           </Grid>

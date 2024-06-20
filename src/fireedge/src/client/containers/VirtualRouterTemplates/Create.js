@@ -43,6 +43,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 import { jsonToXml } from 'client/models/Helper'
 
 import { useSystemData } from 'client/features/Auth'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -107,13 +108,13 @@ function CreateVRTemplate() {
         resetFieldPath()
         resetModifiedFields()
         history.push(PATH.TEMPLATE.VROUTERS.LIST)
-        enqueueSuccess(`VR Template created - #${newTemplateId}`)
+        enqueueSuccess(T.SuccessVrTemplateCreated, newTemplateId)
       } else {
         await update({ id: templateId, template: xmlTemplate }).unwrap()
         resetFieldPath()
         resetModifiedFields()
         history.push(PATH.TEMPLATE.VROUTERS.LIST)
-        enqueueSuccess(`VR Template updated - #${templateId} ${NAME}`)
+        enqueueSuccess(T.SuccessVrTemplateUpdated, [templateId, NAME])
       }
     } catch {}
   }

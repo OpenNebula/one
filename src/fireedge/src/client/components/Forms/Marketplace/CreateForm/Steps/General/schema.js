@@ -20,7 +20,7 @@ import { string } from 'yup'
 /** @type {Field} Name field */
 const NAME = {
   name: 'NAME',
-  label: T['marketplace.form.create.general.name'],
+  label: T.Name,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -32,7 +32,7 @@ const NAME = {
 /** @type {Field} Name field */
 const DESCRIPTION = {
   name: 'DESCRIPTION',
-  label: T['marketplace.form.create.general.description'],
+  label: T.Description,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()

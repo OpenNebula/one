@@ -76,12 +76,12 @@ export const ARGS_TYPES = {
 
 /** @enum {string} Period type */
 export const PERIOD_TYPES = {
-  YEARS: 'years',
-  MONTHS: 'months',
-  WEEKS: 'weeks',
-  DAYS: 'days',
-  HOURS: 'hours',
-  MINUTES: 'minutes',
+  YEARS: T.Years,
+  MONTHS: T.Months,
+  WEEKS: T.Weeks,
+  DAYS: T.Days,
+  HOURS: T.Hours,
+  MINUTES: T.Minutes,
 }
 
 export const SCHEDULE_TYPE = {

@@ -16,7 +16,7 @@
 
 import { object, number } from 'yup'
 import { getValidationFromFields } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, T } from 'client/constants'
 
 const MAX_VALUE = 999999
 
@@ -34,7 +34,7 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
   return [
     {
       name: getPath('min_vms'),
-      label: 'Min VMs',
+      label: T.RolesMinVms,
       type: INPUT_TYPES.TEXT,
       cy: 'elasticity',
       validation: number()
@@ -51,7 +51,7 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
     },
     {
       name: getPath('max_vms'),
-      label: 'Max VMs',
+      label: T.RolesMaxVms,
       type: INPUT_TYPES.TEXT,
       cy: 'elasticity',
       validation: number()
@@ -66,7 +66,7 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
     },
     {
       name: getPath('cooldown'),
-      label: 'Cooldown',
+      label: T.Cooldown,
       type: INPUT_TYPES.TEXT,
       cy: 'elasticity',
       validation: number()

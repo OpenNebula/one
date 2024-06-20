@@ -76,9 +76,10 @@ const BackupsTable = (props) => {
   )
 
   /**
-   * Refetch vms and backups. If a new backup is created, the id of the backup will be in the data of a vm, so we need to refetch also the vms query.
+   * Refetch vms and backups. If a new backup is created, the id of the backup will be in the data of a vm, so we need to refetch also the vms query when we are showing the backups of a vm.
    */
   const refetchAll = () => {
+    // Refetch vm only if the function exists (if not, we are looking for all backups, no matter which vm is associated)
     refetchVm && refetchVm()
     refetch()
   }

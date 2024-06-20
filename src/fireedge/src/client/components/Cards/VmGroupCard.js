@@ -29,6 +29,7 @@ import {
 import { StatusCircle } from 'client/components/Status'
 import { getState } from 'client/models/VmGroup'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 /**
  * VmGroupCard component to display vmgroup details.
@@ -76,7 +77,7 @@ const VmGroupCard = ({ vmgroup, rootProps }) => {
         >
           <Typography variant="caption">{`#${ID}`}</Typography>
           <Box display="flex" alignItems="center" mt={1}>
-            <Tooltip title={`Group: ${GNAME}`}>
+            <Tooltip title={`${Tr(T.Group)}: ${GNAME}`}>
               <Box display="flex" alignItems="center" mr={2}>
                 <Group />
                 <Typography variant="caption" ml={1}>
@@ -192,7 +193,7 @@ const RolesComponent = ({ roles }) => {
         }}
       >
         <AccordionSummary>
-          <Typography variant="caption">Affined Roles</Typography>
+          <Typography variant="caption">{Tr(T.AffinedRoles)}</Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ overflow: 'hidden' }}>
           {renderRoles(affinedRoles)}
@@ -221,7 +222,7 @@ const RolesComponent = ({ roles }) => {
         }}
       >
         <AccordionSummary>
-          <Typography variant="caption">Anti-Affined Roles</Typography>
+          <Typography variant="caption">{Tr(T.AntiAffinedRoles)}</Typography>
         </AccordionSummary>
         <AccordionDetails>{renderRoles(antiAffinedRoles)}</AccordionDetails>
       </Accordion>

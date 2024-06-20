@@ -28,6 +28,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 export const SECTION_ID = 'ADVANCEDPARAMS'
 
@@ -76,7 +77,7 @@ const AdvancedParametersSection = ({ stepId, roleConfigs, onChange }) => {
             filter: 'brightness(90%)',
           }}
         >
-          <Typography variant="body1">{T.AdvancedParams}</Typography>
+          <Typography variant="body1">{Tr(T.AdvancedParams)}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box

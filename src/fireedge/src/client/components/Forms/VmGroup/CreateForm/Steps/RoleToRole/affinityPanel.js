@@ -32,6 +32,8 @@ import {
 } from '@mui/material'
 import { Group } from 'iconoir-react'
 import { AffinityGroup } from './affinityGroup'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Role Affinity Panel component for managing roles.
@@ -163,10 +165,10 @@ const RoleAffinityPanel = ({
               fullWidth
             >
               <ToggleButton data-cy="policy-AFFINED" value="AFFINED">
-                Affined
+                {Tr(T.Affined)}
               </ToggleButton>
               <ToggleButton data-cy="policy-ANTI_AFFINED" value="ANTI_AFFINED">
-                Anti-Affined
+                {Tr(T.AntiAffined)}
               </ToggleButton>
             </ToggleButtonGroup>
             <List
@@ -219,7 +221,7 @@ const RoleAffinityPanel = ({
               size="large"
               fullWidth
             >
-              Add Group
+              {Tr(T.AddGroup)}
             </Button>
           </CardActions>
         </Card>
@@ -238,7 +240,7 @@ const RoleAffinityPanel = ({
                     color: affinedGroups.length ? 'inherit' : 'text.disabled',
                   }}
                 >
-                  Affined Groups
+                  {Tr(T.AffinedGroups)}
                 </Typography>
                 <Box maxHeight={'500px'} minHeight={'500px'} overflow={'auto'}>
                   <AffinityGroup
@@ -265,7 +267,7 @@ const RoleAffinityPanel = ({
                       : 'text.disabled',
                   }}
                 >
-                  Anti-Affined Groups
+                  {Tr(T.AntiAffinedGroups)}
                 </Typography>
                 <Box maxHeight={'500px'} minHeight={'500px'} overflow={'auto'}>
                   <AffinityGroup

@@ -18,6 +18,8 @@ import { Component, useEffect } from 'react'
 import { Box, Typography, CircularProgress } from '@mui/material'
 import { InfoEmpty, CloudError } from 'iconoir-react'
 import { useGeneralApi } from 'client/features/General'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Renders a display message based on the presence of an error.
@@ -51,14 +53,14 @@ export const LoadingDisplay = ({ isLoading, error, isEmpty }) => {
     )
   }
 
-  let displayMessage = 'No data available'
+  let displayMessage = Tr(T.NoDataAvailable)
   let DisplayIcon = InfoEmpty
 
   if (error && error.length > 0) {
     displayMessage = error
     DisplayIcon = CloudError
   } else if (isEmpty) {
-    displayMessage = 'No data available'
+    displayMessage = Tr(T.NoDataAvailable)
     DisplayIcon = InfoEmpty
   }
 

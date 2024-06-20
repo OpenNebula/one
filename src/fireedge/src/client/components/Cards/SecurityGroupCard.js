@@ -21,8 +21,9 @@ import { Typography } from '@mui/material'
 
 import MultipleTags from 'client/components/MultipleTags'
 import { rowStyles } from 'client/components/Tables/styles'
-import { SecurityGroup } from 'client/constants'
+import { SecurityGroup, T } from 'client/constants'
 import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
+import { Tr } from 'client/components/HOC'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
@@ -83,23 +84,23 @@ const SecurityGroupCard = memo(
           </div>
           <div className={classes.caption}>
             <span>{`#${ID}`}</span>
-            <span title={`Owner: ${UNAME}`}>
+            <span title={`${Tr(T.Owner)}: ${UNAME}`}>
               <User />
               <span data-cy="uname">{` ${UNAME}`}</span>
             </span>
-            <span title={`Group: ${GNAME}`}>
+            <span title={`${Tr(T.Group)}: ${GNAME}`}>
               <Group />
               <span data-cy="gname">{` ${GNAME}`}</span>
             </span>
-            <span title={`Total updated VMs: ${totalUpdatedVms}`}>
+            <span title={`${Tr(T.TotalUpdatedVms)}: ${totalUpdatedVms}`}>
               <PcCheck />
               <span>{` ${totalUpdatedVms}`}</span>
             </span>
-            <span title={`Total outdated VMs: ${totalOutdatedVms}`}>
+            <span title={`${Tr(T.TotalOutdatedVms)}: ${totalOutdatedVms}`}>
               <PcNoEntry />
               <span>{` ${totalOutdatedVms}`}</span>
             </span>
-            <span title={`Total error VMs: ${totalErrorVms}`}>
+            <span title={`${Tr(T.TotalErrorVms)}: ${totalErrorVms}`}>
               <PcWarning />
               <span>{` ${totalErrorVms}`}</span>
             </span>

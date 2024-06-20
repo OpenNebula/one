@@ -22,6 +22,7 @@ import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
 import { UsePaginationState } from 'react-table'
 
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 const Pagination = ({
   className,
@@ -59,10 +60,10 @@ const Pagination = ({
         color="inherit"
       >
         <NavArrowLeft />
-        {T.Previous}
+        {Tr(T.Previous)}
       </Button>
       <Typography variant="body2" component="span">
-        {`${pageIndex + 1} of ${showPageCount ? pageCount : 'many'}`}
+        {`${pageIndex + 1} ${Tr(T.Of)} ${showPageCount ? pageCount : 'many'}`}
       </Typography>
       <Button
         aria-label="next page"
@@ -71,7 +72,7 @@ const Pagination = ({
         size="small"
         color="inherit"
       >
-        {T.Next}
+        {Tr(T.Next)}
         <NavArrowRight />
       </Button>
     </Stack>

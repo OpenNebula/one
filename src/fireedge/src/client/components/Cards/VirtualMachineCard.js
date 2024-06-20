@@ -170,7 +170,7 @@ const VirtualMachineCard = memo(
           <div className={classes.caption}>
             <span data-cy="id">{`#${ID}`}</span>
             <span title={timeFormat}>
-              {`${+ETIME ? T.Done : T.Started} `}
+              {`${+ETIME ? Tr(T.Done) : Tr(T.Started)} `}
               <Timer initial={time} />
             </span>
             <span title={`${Tr(T.VirtualCpu)}: ${VCPU}`}>

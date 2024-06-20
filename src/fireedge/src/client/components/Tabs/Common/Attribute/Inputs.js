@@ -23,6 +23,7 @@ import {
   forwardRef,
   useState,
 } from 'react'
+import { Tr } from 'client/components/HOC'
 
 import { Actions } from 'client/components/Tabs/Common/Attribute'
 
@@ -110,7 +111,7 @@ const Text = forwardRef(
         inputRef={ref}
         onChange={handleChange}
         value={newValue}
-        name={name}
+        name={Tr(name)}
         {...props}
       />
     )

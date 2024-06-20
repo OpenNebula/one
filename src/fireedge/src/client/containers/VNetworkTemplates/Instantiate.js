@@ -30,6 +30,7 @@ import {
 import { InstantiateForm } from 'client/components/Forms/VNTemplate'
 
 import { useSystemData } from 'client/features/Auth'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -60,7 +61,7 @@ const InstantiateVnTemplate = () => {
       history.push(PATH.NETWORK.VN_TEMPLATES.LIST)
 
       const templateInfo = `#${templateId} ${templateName}`
-      enqueueInfo(`VN Template instantiated - ${templateInfo}`)
+      enqueueInfo(T.InfoVNTemplateInstantiated, [templateInfo])
     } catch {}
   }
 

@@ -30,6 +30,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/SecurityGroups'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a VM Template.
@@ -53,11 +54,11 @@ function CreateSecGroup() {
           template: jsonToXml(template),
         }).unwrap()
         history.push(PATH.NETWORK.SEC_GROUPS.LIST)
-        enqueueSuccess(`Security Group created - #${newTemplateId}`)
+        enqueueSuccess(T.SuccessSecurityGroupCreated, newTemplateId)
       } else {
         await update({ id: secID, template: jsonToXml(template) }).unwrap()
         history.push(PATH.NETWORK.SEC_GROUPS.LIST)
-        enqueueSuccess(`Security Group updated - #${secID} ${NAME}`)
+        enqueueSuccess(T.SuccessSecurityGroupUpdated, [secID, NAME])
       }
     } catch {}
   }

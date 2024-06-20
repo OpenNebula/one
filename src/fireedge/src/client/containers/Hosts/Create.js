@@ -25,6 +25,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/Host'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a Host.
@@ -41,7 +42,7 @@ function CreateHost() {
     try {
       const newHostId = await allocate(props).unwrap()
       history.push(PATH.INFRASTRUCTURE.HOSTS.LIST)
-      enqueueSuccess(`Host created - #${newHostId}`)
+      enqueueSuccess(T.SuccessHostCreated, newHostId)
     } catch {}
   }
 

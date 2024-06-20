@@ -24,6 +24,8 @@ import {
 } from '@mui/material'
 import { DeleteCircledOutline } from 'iconoir-react'
 import { Component } from 'react'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * AffinityGroup component displays the affinity groups and their descriptions.
@@ -45,19 +47,19 @@ export const AffinityGroup = ({
   const isAffined = groupType === 'AFFINED'
 
   const description = isAffined
-    ? 'Affined groups improve performance and communication by placing related VM roles together on the same host. Ideal for roles that require high interactivity and shared resources.                               '
-    : 'Anti-Affined groups enhance reliability and fault tolerance by distributing VM roles across different hosts. Suitable for roles that need isolation to prevent resource contention and single points of failure.'
+    ? Tr(T.AffinedGroupsDescription)
+    : Tr(T.AntiAffinedGroupsDescription)
 
   const useCases = isAffined
     ? [
-        'Database clusters requiring shared storage.',
-        'High-performance computing with intensive data exchange.',
-        'Real-time processing applications demanding low-latency communication.',
+        Tr(T.AffinedGroupsPotentialCase1),
+        Tr(T.AffinedGroupsPotentialCase2),
+        Tr(T.AffinedGroupsPotentialCase3),
       ]
     : [
-        'Operational VMs separated from backup VMs.',
-        'Diverse application servers to prevent simultaneous failures.',
-        'Resource-heavy VMs spread out to avoid performance bottlenecks.',
+        Tr(T.AntiAffinedGroupsPotentialCase1),
+        Tr(T.AntiAffinedGroupsPotentialCase2),
+        Tr(T.AntiAffinedGroupsPotentialCase3),
       ]
 
   return (
@@ -85,7 +87,7 @@ export const AffinityGroup = ({
             color="textSecondary"
             sx={{ mt: 14, opacity: 0.7, textAlign: 'start' }}
           >
-            <strong>Potential Use Cases:</strong>
+            <strong>{Tr(T.PotentialUseCases)}:</strong>
             <ul>
               {useCases.map((useCase, index) => (
                 <li key={index}>{useCase}</li>

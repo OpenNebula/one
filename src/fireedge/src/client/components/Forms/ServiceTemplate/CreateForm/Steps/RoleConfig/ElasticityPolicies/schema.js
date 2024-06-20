@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, string, number } from 'yup'
 import { getValidationFromFields, arrayToOptions } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, T } from 'client/constants'
 
 // Define the CA types
 export const ELASTICITY_TYPES = {
@@ -37,7 +37,7 @@ export const createElasticityPolicyFields = (pathPrefix) => {
   return [
     {
       name: getPath('TYPE'),
-      label: 'Type',
+      label: T.Type,
       type: INPUT_TYPES.AUTOCOMPLETE,
       optionsOnly: true,
       cy: 'roleconfig-elasticitypolicies',
@@ -55,7 +55,7 @@ export const createElasticityPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('ADJUST'),
-      label: 'Adjust',
+      label: T.Adjust,
       type: INPUT_TYPES.TEXT,
       cy: 'roleconfig-elasticitypolicies',
       fieldProps: {
@@ -66,7 +66,7 @@ export const createElasticityPolicyFields = (pathPrefix) => {
     },
     {
       name: getPath('MIN'),
-      label: 'Min',
+      label: T.Min,
       dependOf: getPath('TYPE'),
       htmlType: (type) =>
         // ONLY DISPLAY ON PERCENTAGE_CHANGE
@@ -86,7 +86,7 @@ export const createElasticityPolicyFields = (pathPrefix) => {
     {
       name: getPath('EXPRESSION'),
       dependOf: getPath('TYPE'),
-      label: 'Expression',
+      label: T.Expression,
       type: INPUT_TYPES.TEXT,
       cy: 'roleconfig-elasticitypolicies',
       validation: string().trim().required(),

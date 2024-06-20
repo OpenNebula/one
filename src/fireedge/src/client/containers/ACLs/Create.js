@@ -35,6 +35,8 @@ import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
 import { useSystemData } from 'client/features/Auth'
 
+import { T } from 'client/constants'
+
 const _ = require('lodash')
 
 /**
@@ -80,13 +82,13 @@ function CreateACLs() {
 
       if (idAcl) {
         // Success message
-        enqueueSuccess(`ACL rule created - #${idAcl}`)
+        enqueueSuccess(T.SuccessACLCreated, idAcl)
 
         // Go to ACL list
         history.push(PATH.SYSTEM.ACLS.LIST)
       }
     } catch (error) {
-      enqueueError('Error creating ACL rule')
+      enqueueError(T.ErrorACLCreated)
     }
   }
 

@@ -38,7 +38,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { jsonToXml } from 'client/models/Helper'
 import { filterTemplateData, transformActionsCreate } from 'client/utils/parser'
-import { TAB_FORM_MAP } from 'client/constants'
+import { TAB_FORM_MAP, T } from 'client/constants'
 
 import { useSystemData } from 'client/features/Auth'
 
@@ -123,13 +123,13 @@ function CreateVmTemplate() {
         resetFieldPath()
         resetModifiedFields()
         history.push(PATH.TEMPLATE.VMS.LIST)
-        enqueueSuccess(`VM Template created - #${newTemplateId}`)
+        enqueueSuccess(T.SuccessVMTemplateCreated, newTemplateId)
       } else {
         await update({ id: templateId, template: xmlTemplate }).unwrap()
         resetFieldPath()
         resetModifiedFields()
         history.push(PATH.TEMPLATE.VMS.LIST)
-        enqueueSuccess(`VM Template updated - #${templateId} ${NAME}`)
+        enqueueSuccess(T.SuccessVMTemplateUpdated, [templateId, NAME])
       }
     } catch {}
   }

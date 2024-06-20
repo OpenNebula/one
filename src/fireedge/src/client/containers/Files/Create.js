@@ -30,6 +30,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/File'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a VM Template.
@@ -67,7 +68,7 @@ function CreateFile() {
         datastore,
       }).unwrap()
       history.push(PATH.STORAGE.FILES.LIST)
-      enqueueSuccess(`File created - #${newTemplateId}`)
+      enqueueSuccess(T.SuccessFileCreated, newTemplateId)
     } catch {}
   }
 

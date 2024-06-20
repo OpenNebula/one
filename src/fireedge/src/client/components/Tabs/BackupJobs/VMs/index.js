@@ -33,7 +33,7 @@ import { generatePath, useHistory } from 'react-router-dom'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { SubmitButton } from 'client/components/FormControl'
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { VmsTable } from 'client/components/Tables'
 import AttachVms from 'client/components/Tabs/BackupJobs/VMs/Actions'
 import { T } from 'client/constants'
@@ -189,7 +189,7 @@ const VmsInfoTab = ({ id }) => {
                     key={type}
                     value={type}
                     control={<Radio />}
-                    label={states[type].select}
+                    label={Tr(states[type].select)}
                   />
                 ))}
               </RadioGroup>

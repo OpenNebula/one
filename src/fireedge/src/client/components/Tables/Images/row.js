@@ -33,6 +33,7 @@ import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import {
   jsonToXml,
   getUniqueLabels,
@@ -120,27 +121,27 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
           <span title={time.toFormat('ff')}>
             <Timer translateWord={T.RegisteredAt} initial={time} />
           </span>
-          <span title={`${T.Owner}: ${UNAME}`}>
+          <span title={`${Tr(T.Owner)}: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span title={`${T.Group}: ${GNAME}`}>
+          <span title={`${Tr(T.Group)}: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span title={`${T.Datastore}: ${DATASTORE}`}>
+          <span title={`${Tr(T.Datastore)}: ${DATASTORE}`}>
             <DatastoreIcon />
             <span>{` ${DATASTORE}`}</span>
           </span>
-          <span title={+PERSISTENT ? T.Persistent : T.NonPersistent}>
+          <span title={+PERSISTENT ? Tr(T.Persistent) : Tr(T.NonPersistent)}>
             <PersistentIcon />
-            <span>{+PERSISTENT ? T.Persistent : T.NonPersistent}</span>
+            <span>{+PERSISTENT ? Tr(T.Persistent) : Tr(T.NonPersistent)}</span>
           </span>
-          <span title={`${T.VMs}: ${RUNNING_VMS}`}>
+          <span title={`${Tr(T.VMs)}: ${RUNNING_VMS}`}>
             <ModernTv />
             <span>{`${RUNNING_VMS}`}</span>
           </span>
-          <span title={`${T.Size}: ${SIZE}`}>
+          <span title={`${Tr(T.Size)}: ${SIZE}`}>
             <span>{`${prettyBytes(+SIZE ?? 0)}`}</span>
           </span>
         </div>

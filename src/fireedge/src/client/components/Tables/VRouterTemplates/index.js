@@ -16,7 +16,7 @@
 import { Component, useMemo, useState, useEffect } from 'react'
 import { DatastoreDialog } from './DatastoreSelectionDialog'
 import { Grid, Box, Button } from '@mui/material'
-
+import { Tr, Translate } from 'client/components/HOC'
 import { T, RESOURCE_NAMES } from 'client/constants'
 import { BoxIso as DownloadIcon } from 'iconoir-react'
 import { useViews } from 'client/features/Auth'
@@ -37,7 +37,6 @@ import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VRouterTemplateColumns from 'client/components/Tables/VRouterTemplates/columns'
 import VRouterTemplateRow from 'client/components/Tables/VRouterTemplates/row'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
-import { Translate } from 'client/components/HOC'
 import { useStyles } from 'client/components/Tabs/EmptyTab/styles'
 
 const DEFAULT_DATA_CY = 'vrouter-templates'
@@ -144,7 +143,7 @@ const VRouterTemplatesTable = (props) => {
     const enableMarket = async (marketID) => {
       const response = await enableMarketplace({ id: marketID })
       if (response?.data === parseInt(marketID, 10)) {
-        enqueueInfo('Enabled OpenNebula Public marketplace')
+        enqueueInfo(T.InfoEnableOpenNebulaMarketplace)
         setOneMarket({ ...oneMarket, STATE: 'ENABLED' })
         fetchApps()
       }
@@ -204,7 +203,7 @@ const VRouterTemplatesTable = (props) => {
     })
       .then((res) => {
         if (res?.data) {
-          enqueueSuccess('Downloaded default image') && refetch()
+          enqueueSuccess(T.SuccessDownloadDefaultImage) && refetch()
         } else if (res?.error) {
           enqueueError(res.error)
         } else {
@@ -246,7 +245,7 @@ const VRouterTemplatesTable = (props) => {
               startIcon={<DownloadIcon />}
               onClick={() => handleDownloadDefaultImage()}
             >
-              {T.DownloadDefaultImage}
+              {Tr(T.DownloadDefaultImage)}
             </Button>
           </Box>
         </Grid>

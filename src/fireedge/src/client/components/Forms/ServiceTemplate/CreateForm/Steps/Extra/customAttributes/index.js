@@ -22,7 +22,7 @@ import {
   CUSTOM_ATTRIBUTES_SCHEMA,
 } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/customAttributes/schema'
 import { FormWithSchema, Legend } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
 import { Stack, FormControl, Divider, Button, Box } from '@mui/material'
 import List from '@mui/material/List'
@@ -30,6 +30,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { T } from 'client/constants'
+import { sentenceCase } from 'client/utils'
 
 export const SECTION_ID = 'CUSTOM_ATTRIBUTES'
 
@@ -102,10 +103,13 @@ const CustomAttributesSection = ({ stepId }) => {
         {customattributes?.map(
           ({ id, name, defaultvalue, description, mandatory, type }, index) => {
             const secondaryFields = [
-              description && `Description: ${description}`,
-              defaultvalue && `Default value: ${defaultvalue}`,
-              type && `Type: ${type}`,
-              mandatory && `Mandatory: ${mandatory ? 'Yes' : 'No'}`,
+              description && `${Tr(T.Description)}: ${description}`,
+              defaultvalue && `${Tr(T.DefaultValue)}: ${defaultvalue}`,
+              type && `${Tr(T.Type)}: ${Tr(sentenceCase(type))}`,
+              mandatory &&
+                `${Tr(T.Mandatory)}: ${
+                  mandatory ? `${Tr(T.Yes)}` : `${Tr(T.No)}`
+                }`,
             ].filter(Boolean)
 
             return (

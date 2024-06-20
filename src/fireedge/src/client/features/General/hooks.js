@@ -60,27 +60,30 @@ export const useGeneralApi = () => {
           options,
         })
       ),
-    enqueueSuccess: (message) =>
+    enqueueSuccess: (message, values) =>
       dispatch(
         actions.enqueueSnackbar({
           key: generateKey(),
           message,
+          values,
           options: { variant: 'success' },
         })
       ),
-    enqueueError: (message) =>
+    enqueueError: (message, values) =>
       dispatch(
         actions.enqueueSnackbar({
           key: generateKey(),
           message,
+          values,
           options: { variant: 'error' },
         })
       ),
-    enqueueInfo: (message) =>
+    enqueueInfo: (message, values) =>
       dispatch(
         actions.enqueueSnackbar({
           key: generateKey(),
           message,
+          values,
           options: { variant: 'info' },
         })
       ),

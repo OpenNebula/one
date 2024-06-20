@@ -23,7 +23,7 @@ import { DialogConfirmation } from 'client/components/Dialogs'
 import { Actions, Inputs } from 'client/components/Tabs/Common/Attribute'
 import { useDialog } from 'client/hooks'
 
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const Column = (props) => {
@@ -121,7 +121,6 @@ const Attribute = memo(
             noWrap
             component="span"
             variant="body2"
-            title={typeof name === 'string' ? name : undefined}
             flexGrow={1}
             sx={{
               ...(numberOfParents > 0 && { pl: `${numberOfParents}em` }),
@@ -133,7 +132,7 @@ const Attribute = memo(
             }}
           >
             {icon}
-            {name}
+            {Tr(name)}
           </Typography>
           <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
             {canCopy && <Actions.Copy name={name} value={name} />}
@@ -195,7 +194,7 @@ const Attribute = memo(
                     {value}
                   </Link>
                 ) : (
-                  value
+                  Tr(value)
                 )}
               </Typography>
               <ActionWrapper {...(showActionsOnHover && { display: 'none' })}>
@@ -205,6 +204,7 @@ const Attribute = memo(
                     title={title || name}
                     name={name}
                     handleClick={handleActiveEditForm}
+                    tooltip={name}
                   />
                 )}
                 {canDelete && (

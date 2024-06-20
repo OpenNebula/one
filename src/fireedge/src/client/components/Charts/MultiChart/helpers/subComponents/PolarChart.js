@@ -17,7 +17,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Paper, Typography } from '@mui/material'
 import { isDevelopment } from 'client/utils'
-
+import { Tr } from 'client/components/HOC'
 /**
  * Formats the input data for use in a polar chart.
  *
@@ -106,13 +106,15 @@ export const PolarTooltip = ({ active, payload }) => {
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
-            {data.name
-              .split('_')
-              .map(
-                (word) =>
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-              )
-              .join(' ')}
+            {Tr(
+              data.name
+                .split('_')
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                )
+                .join(' ')
+            )}
           </Typography>
           <Typography variant="body2">
             {data?.uv} / {data?.pv}

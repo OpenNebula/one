@@ -22,6 +22,8 @@ import {
   exportDataToPDF,
 } from 'client/components/Charts/MultiChart/helpers/scripts'
 import { useGeneralApi } from 'client/features/General'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Renders a button that provides export options for data.
@@ -48,9 +50,7 @@ export const ExportButton = ({ data, exportOptions, exportHandlers }) => {
     if (exportHandlers[type]) {
       const error = exportHandlers[type](data)
       if (error) {
-        enqueueError(
-          'Error exporting data to ' + type.toUpperCase() + ': ' + error.message
-        )
+        enqueueError(T.ErrorExportingData, [type.toUpperCase(), error.message])
       }
     }
     handleMenuClose()
@@ -73,7 +73,7 @@ export const ExportButton = ({ data, exportOptions, exportHandlers }) => {
           },
         }}
       >
-        Export
+        {Tr(T.Export)}
       </Button>
       <Menu
         anchorEl={anchorEl}
@@ -83,7 +83,7 @@ export const ExportButton = ({ data, exportOptions, exportHandlers }) => {
       >
         {exportOptions.map((option) => (
           <MenuItem key={option.type} onClick={() => handleExport(option.type)}>
-            {option.label}
+            {Tr(option.label)}
           </MenuItem>
         ))}
       </Menu>
@@ -104,8 +104,8 @@ ExportButton.propTypes = {
 
 ExportButton.defaultProps = {
   exportOptions: [
-    { type: 'csv', label: 'Export as CSV' },
-    { type: 'pdf', label: 'Export as PDF' },
+    { type: 'csv', label: T.ExportCSV },
+    { type: 'pdf', label: T.ExportPDF },
   ],
   exportHandlers: {
     csv: (data) => exportDataToCSV(data),

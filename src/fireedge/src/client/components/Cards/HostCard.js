@@ -101,11 +101,11 @@ const HostCard = memo(
           </div>
           <div className={classes.caption}>
             <span>{`#${ID}`}</span>
-            <span data-cy="cluster" title={`Cluster: ${CLUSTER}`}>
+            <span data-cy="cluster" title={`${Tr(T.Cluster)}: ${CLUSTER}`}>
               <Server />
               <span>{` ${CLUSTER}`}</span>
             </span>
-            <span title={`Running VMs: ${runningVms} / ${totalVms}`}>
+            <span title={`${Tr(T.RunningVMs)}: ${runningVms} / ${totalVms}`}>
               <ModernTv />
               <span>{` ${runningVms} / ${totalVms}`}</span>
             </span>

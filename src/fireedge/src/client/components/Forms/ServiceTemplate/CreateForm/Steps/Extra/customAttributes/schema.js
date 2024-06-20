@@ -14,7 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { string, boolean, number } from 'yup'
-import { getObjectSchemaFromFields, arrayToOptions } from 'client/utils'
+import {
+  getObjectSchemaFromFields,
+  arrayToOptions,
+  sentenceCase,
+} from 'client/utils'
 import { INPUT_TYPES, T } from 'client/constants'
 
 const getTypeProp = (type) => {
@@ -60,10 +64,13 @@ const CA_TYPES = {
 
 const CA_TYPE = {
   name: 'type',
-  label: 'Type',
+  label: T.Type,
   type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  values: arrayToOptions(Object.values(CA_TYPES), { addEmpty: false }),
+  values: arrayToOptions(Object.values(CA_TYPES), {
+    addEmpty: false,
+    getText: (type) => sentenceCase(type),
+  }),
+
   defaultValueProp: CA_TYPES.text,
   validation: string()
     .trim()
@@ -78,7 +85,7 @@ const CA_TYPE = {
 
 const NAME = {
   name: 'name',
-  label: 'Name',
+  label: T.Name,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -95,7 +102,7 @@ const NAME = {
 
 const DESCRIPTION = {
   name: 'description',
-  label: 'Description',
+  label: T.Description,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -106,7 +113,7 @@ const DESCRIPTION = {
 
 const DEFAULT_VALUE_TEXT = {
   name: 'defaultvalue',
-  label: 'Default value',
+  label: T.DefaultValue,
   dependOf: CA_TYPE.name,
 
   htmlType: (type) => type === CA_TYPES.password && INPUT_TYPES.HIDDEN,
@@ -122,7 +129,7 @@ const DEFAULT_VALUE_TEXT = {
 
 const DEFAULT_VALUE_RANGE_MIN = {
   name: 'defaultvaluerangemin',
-  label: 'Min range',
+  label: T.MinRange,
   dependOf: CA_TYPE.name,
 
   htmlType: (type) =>
@@ -137,7 +144,7 @@ const DEFAULT_VALUE_RANGE_MIN = {
 
 const DEFAULT_VALUE_RANGE_MAX = {
   name: 'defaultvaluerangemax',
-  label: 'Max range',
+  label: T.MaxRange,
   dependOf: CA_TYPE.name,
   htmlType: (type) =>
     ![CA_TYPES.range, CA_TYPES.rangefloat].includes(type) && INPUT_TYPES.HIDDEN,
@@ -151,7 +158,7 @@ const DEFAULT_VALUE_RANGE_MAX = {
 
 const DEFAULT_VALUE_LIST = {
   name: 'defaultvaluelist',
-  label: 'Comma separated list of options',
+  label: T.UIOptionsConcept,
   dependOf: CA_TYPE.name,
   htmlType: (type) =>
     ![CA_TYPES.listmultiple, CA_TYPES.list].includes(type) &&

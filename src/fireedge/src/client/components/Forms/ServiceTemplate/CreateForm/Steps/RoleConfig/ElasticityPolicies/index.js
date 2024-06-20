@@ -28,7 +28,7 @@ import {
   ELASTICITY_TYPES,
 } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig/ElasticityPolicies/schema'
 import { FormWithSchema } from 'client/components/Forms'
-import { Translate } from 'client/components/HOC'
+import { Translate, Tr } from 'client/components/HOC'
 import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
 import {
   Accordion,
@@ -102,7 +102,7 @@ const ElasticityPoliciesSection = ({ stepId, selectedRoleIndex }) => {
             filter: 'brightness(90%)',
           }}
         >
-          <Typography variant="body1">{T.ElasticityPolicies}</Typography>
+          <Typography variant="body1">{Tr(T.ElasticityPolicies)}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <FormProvider {...methods}>
@@ -149,14 +149,14 @@ const ElasticityPoliciesSection = ({ stepId, selectedRoleIndex }) => {
                   index
                 ) => {
                   const secondaryFields = [
-                    `Expression: ${EXPRESSION}`,
-                    `Adjust: ${ADJUST}`,
-                    `Cooldown: ${COOLDOWN}`,
-                    `Period: ${PERIOD}`,
+                    `${Tr(T.Expression)}: ${EXPRESSION}`,
+                    `${Tr(T.Adjust)}: ${ADJUST}`,
+                    `${Tr(T.Cooldown)}: ${COOLDOWN}`,
+                    `${Tr(T.Period)}: ${PERIOD}`,
                     `#: ${PERIOD_NUMBER}`,
                   ]
                   if (MIN !== undefined && TYPE === 'PERCENTAGE_CHANGE') {
-                    secondaryFields.push(`Min: ${MIN}`)
+                    secondaryFields.push(`${Tr(T.Min)}: ${MIN}`)
                   }
 
                   return (
@@ -178,7 +178,7 @@ const ElasticityPoliciesSection = ({ stepId, selectedRoleIndex }) => {
                         sx={{ '&:hover': { bgcolor: 'action.hover' } }}
                       >
                         <ListItemText
-                          primary={ELASTICITY_TYPES?.[TYPE]}
+                          primary={Tr(ELASTICITY_TYPES?.[TYPE])}
                           primaryTypographyProps={{ variant: 'body1' }}
                           secondary={secondaryFields.join(' | ')}
                         />

@@ -26,6 +26,7 @@ import {
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/Datastore'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a VM Template.
@@ -45,7 +46,7 @@ function CreateDatastore() {
         cluster,
       }).unwrap()
       history.push(PATH.STORAGE.DATASTORES.LIST)
-      enqueueSuccess(`Datastore created - #${newTemplateId}`)
+      enqueueSuccess(T.SuccessDatastoreCreated, newTemplateId)
     } catch {}
   }
 

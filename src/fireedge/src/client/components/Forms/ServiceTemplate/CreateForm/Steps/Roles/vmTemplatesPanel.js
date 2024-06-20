@@ -31,6 +31,8 @@ import {
 import { useLazyGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGeneralApi } from 'client/features/General'
 import { DateTime } from 'luxon'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const convertTimestampToDate = (timestamp) =>
   DateTime.fromSeconds(parseInt(timestamp)).toFormat('dd/MM/yyyy HH:mm:ss')
@@ -57,9 +59,7 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
 
   useEffect(() => {
     if (error) {
-      enqueueError(
-        `Error fetching VM templates data: ${error?.message ?? error}`
-      )
+      enqueueError(T.ErrorVmTemplateFetching, error?.message ?? error)
     }
   }, [error, enqueueError])
 
@@ -89,18 +89,18 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
       }}
     >
       <Typography variant="h6" gutterBottom>
-        VM Templates
+        {Tr(T.VMTemplates)}
       </Typography>
       <Paper sx={{ overflow: 'auto', marginBottom: 2 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox"></TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Owner</TableCell>
-              <TableCell>Group</TableCell>
-              <TableCell>Registration time</TableCell>
+              <TableCell>{Tr(T.ID)}</TableCell>
+              <TableCell>{Tr(T.Name)}</TableCell>
+              <TableCell>{Tr(T.Owner)}</TableCell>
+              <TableCell>{Tr(T.Group)}</TableCell>
+              <TableCell>{Tr(T.RegistrationTime)}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -156,6 +156,7 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage={Tr(T.RowsPerPage)}
       />
     </Box>
   )

@@ -25,7 +25,8 @@ import { nameMapper } from 'client/components/Tabs/Quota/Components/helpers/scri
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
-
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 /**
  * Generates a QuotaInfoTab for an user or a group.
  *
@@ -105,9 +106,8 @@ const generateQuotasInfoTab = ({ groups }) => {
           const transformedKey = key
             .replace(/_/g, ' ')
             .split(' ')
-            .map(
-              (word) =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            .map((word) =>
+              Tr(word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             )
             .join(' ')
 
@@ -144,7 +144,7 @@ const generateQuotasInfoTab = ({ groups }) => {
 
     const quotaTypesConfig = [
       {
-        title: 'VM Quota',
+        title: Tr(T.VMQuota),
         quota: Array.isArray(apiData.VM_QUOTA)
           ? apiData.VM_QUOTA
           : [apiData.VM_QUOTA],
@@ -152,7 +152,7 @@ const generateQuotasInfoTab = ({ groups }) => {
         keyMap: generateKeyMap(apiData.VM_QUOTA),
       },
       {
-        title: 'Datastore Quota',
+        title: Tr(T.DatastoreQuota),
         quota: Array.isArray(apiData.DATASTORE_QUOTA)
           ? apiData.DATASTORE_QUOTA
           : [apiData.DATASTORE_QUOTA],
@@ -160,7 +160,7 @@ const generateQuotasInfoTab = ({ groups }) => {
         keyMap: generateKeyMap(apiData.DATASTORE_QUOTA),
       },
       {
-        title: 'Network Quota',
+        title: Tr(T.NetworkQuota),
         quota: Array.isArray(apiData.NETWORK_QUOTA)
           ? apiData.NETWORK_QUOTA
           : [apiData.NETWORK_QUOTA],
@@ -168,7 +168,7 @@ const generateQuotasInfoTab = ({ groups }) => {
         keyMap: generateKeyMap(apiData.NETWORK_QUOTA),
       },
       {
-        title: 'Image Quota',
+        title: Tr(T.ImageQuota),
         quota: Array.isArray(apiData.IMAGE_QUOTA)
           ? apiData.IMAGE_QUOTA
           : [apiData.IMAGE_QUOTA],
@@ -249,7 +249,7 @@ const generateQuotasInfoTab = ({ groups }) => {
                   textAlign={'center'}
                   sx={{ opacity: 0.8 }}
                 >
-                  Quota Controls
+                  {Tr(T.QuotaControls)}
                 </Typography>
                 <Box overflow={'auto'}>
                   <QuotaControls

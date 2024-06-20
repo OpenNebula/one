@@ -19,6 +19,8 @@ import { Component, useState } from 'react'
 import UserInputDialog from './UserInputDialog'
 import { Typography, Box, useTheme, Grid } from '@mui/material'
 import { WarningCircledOutline as MandatoryIcon } from 'iconoir-react'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * @param {object} root0 - Params
@@ -30,7 +32,12 @@ const SubNode = ({ userInput }) => {
   const theme = useTheme()
   const [dialogOpen, setDialogOpen] = useState(false)
   const { getValues } = useFormContext()
-  const userInputValue = getValues(`user_inputs.${userInput.name}`) || undefined
+  const userInputValue =
+    userInput.type === 'boolean'
+      ? getValues(`user_inputs.${userInput.name}`) === 'YES'
+        ? Tr(T.Yes)
+        : Tr(T.No)
+      : getValues(`user_inputs.${userInput.name}`) || undefined
 
   const toggleDialog = () => setDialogOpen(!dialogOpen)
 
@@ -65,7 +72,7 @@ const SubNode = ({ userInput }) => {
         {userInputValue && (
           <Grid item xs={12}>
             <Typography noWrap variant="body1">
-              {`Value: ${userInputValue}`}
+              {`${Tr(T.Value)}: ${userInputValue}`}
             </Typography>
           </Grid>
         )}

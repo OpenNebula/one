@@ -25,11 +25,11 @@ const STRATEGY_TYPES = {
 
 const VM_SHUTDOWN_TYPES = {
   terminate: 'Terminate',
-  terminateHard: 'Terminate Hard',
+  terminateHard: 'Terminate hard',
 }
 
 const STRATEGY_TYPE = {
-  label: 'Strategy',
+  label: T.Strategy,
   name: 'ADVANCED.DEPLOYMENT',
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
@@ -48,7 +48,7 @@ const STRATEGY_TYPE = {
 }
 
 const VM_SHUTDOWN_TYPE = {
-  label: 'VM Shutdown',
+  label: T.VMShutdownAction,
   name: 'ADVANCED.VMSHUTDOWN',
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,

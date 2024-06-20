@@ -78,8 +78,7 @@ function Providers() {
   }
 
   useEffect(() => {
-    successDelete &&
-      enqueueSuccess(`Provider deleted - ID: ${deletedProviderId}`)
+    successDelete && enqueueSuccess(T.SuccessProviderDeleted, deletedProviderId)
   }, [successDelete])
 
   return (

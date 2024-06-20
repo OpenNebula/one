@@ -17,7 +17,13 @@ import PropTypes from 'prop-types'
 import { Component, useState } from 'react'
 import { Box, TextField } from '@mui/material'
 import { DatePicker } from '@mui/lab'
-import { DateTime } from 'luxon'
+import { DateTime, Settings } from 'luxon'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import AdapterLuxon from '@mui/lab/AdapterLuxon'
+import { useAuth } from 'client/features/Auth'
 
 /**
  * DateRangeFilter component for selecting a date range.
@@ -35,6 +41,11 @@ export const DateRangeFilter = ({
   onDateChange,
   views,
 }) => {
+  // Set language for date picker
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const lang = fireedge?.LANG?.substring(0, 2)
+  Settings.defaultLocale = lang
+
   const [dateRange, setDateRange] = useState({
     startDate: initialStartDate,
     endDate: initialEndDate,
@@ -56,27 +67,32 @@ export const DateRangeFilter = ({
 
   return (
     <Box display="flex" alignItems="center" marginRight={2}>
-      <DatePicker
-        label="Start Date"
-        value={dateRange.startDate}
-        onChange={(date) => handleDateChange('startDate', date)}
-        maxDate={dateRange.endDate || today}
-        renderInput={(params) => (
-          <TextField {...params} variant="outlined" margin="dense" />
-        )}
-        views={views}
-      />
-      <Box marginLeft={2}>
+      <LocalizationProvider dateAdapter={AdapterLuxon} locale={lang}>
         <DatePicker
-          label="End Date"
-          value={dateRange.endDate}
-          onChange={(date) => handleDateChange('endDate', date)}
-          minDate={dateRange.startDate || '1900-01-01'}
+          label={Tr(T.StartDate)}
+          value={dateRange.startDate}
+          onChange={(date) => handleDateChange('startDate', date)}
+          maxDate={dateRange.endDate || today}
           renderInput={(params) => (
             <TextField {...params} variant="outlined" margin="dense" />
           )}
           views={views}
         />
+      </LocalizationProvider>
+
+      <Box marginLeft={2}>
+        <LocalizationProvider dateAdapter={AdapterLuxon} locale={lang}>
+          <DatePicker
+            label={Tr(T.EndDate)}
+            value={dateRange.endDate}
+            onChange={(date) => handleDateChange('endDate', date)}
+            minDate={dateRange.startDate || '1900-01-01'}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" margin="dense" />
+            )}
+            views={views}
+          />
+        </LocalizationProvider>
       </Box>
     </Box>
   )

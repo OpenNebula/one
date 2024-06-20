@@ -28,6 +28,7 @@ import { useGeneralApi } from 'client/features/General'
 import { DatastoresTable } from 'client/components/Tables'
 import { DatastoreCard } from 'client/components/Cards'
 import { SubmitButton } from 'client/components/FormControl'
+import { T } from 'client/constants'
 
 const Datastores = memo(
   ({ id }) => {
@@ -50,7 +51,7 @@ const Datastores = memo(
 
     useEffect(() => {
       successRemove &&
-        enqueueSuccess(`Datastore deleted - ID: ${deletedDatastoreId}`)
+        enqueueSuccess(T.SuccessDatastoreDeleted, deletedDatastoreId)
     }, [successRemove])
 
     return (

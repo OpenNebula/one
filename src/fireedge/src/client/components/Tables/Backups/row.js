@@ -39,6 +39,7 @@ import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
@@ -126,38 +127,40 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
           <span title={time.toFormat('ff')}>
             <Timer translateWord={T.RegisteredAt} initial={time} />
           </span>
-          <span title={`${T.Owner}: ${UNAME}`}>
+          <span title={`${Tr(T.Owner)}: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span title={`${T.Group}: ${GNAME}`}>
+          <span title={`${Tr(T.Group)}: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span title={`${T.Datastore}: ${DATASTORE}`}>
+          <span title={`${Tr(T.Datastore)}: ${DATASTORE}`}>
             <DatastoreIcon />
             <span>{` ${DATASTORE}`}</span>
           </span>
           <span
             title={
               PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()
+                ? Tr(T.Persistent).toLowerCase()
+                : Tr(T.NonPersistent).toLowerCase()
             }
           >
             <PersistentIcon />
             <span>
               {PERSISTENT
-                ? T.Persistent.toLowerCase()
-                : T.NonPersistent.toLowerCase()}
+                ? Tr(T.Persistent).toLowerCase()
+                : Tr(T.NonPersistent).toLowerCase()}
             </span>
           </span>
-          <span title={`${T.DiskType}: ${DISK_TYPE.toLowerCase()}`}>
+          <span title={`${Tr(T.DiskType)}: ${DISK_TYPE.toLowerCase()}`}>
             <DiskTypeIcon />
             <span>{` ${DISK_TYPE.toLowerCase()}`}</span>
           </span>
           <span
-            title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
+            title={`${Tr(T.Running)} / ${Tr(T.Used)} ${Tr(
+              T.VMs
+            )}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
           >
             <ModernTv />
             <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>

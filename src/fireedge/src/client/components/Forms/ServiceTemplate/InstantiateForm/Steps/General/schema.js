@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, T } from 'client/constants'
 import { Field, getObjectSchemaFromFields } from 'client/utils'
 import { string, number } from 'yup'
 
 /** @type {Field} Name field */
 const NAME_FIELD = {
   name: 'NAME',
-  label: 'Service Name',
+  label: T.ServiceName,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -34,7 +34,7 @@ const NAME_FIELD = {
 /** @type {Field} Description field */
 const INSTANCE_FIELD = {
   name: 'INSTANCES',
-  label: 'Number of instances',
+  label: T.NumberOfInstances,
   type: INPUT_TYPES.TEXT,
   validation: number().required(),
   fieldProps: {

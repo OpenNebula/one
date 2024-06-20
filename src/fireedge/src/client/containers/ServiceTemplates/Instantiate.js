@@ -33,6 +33,7 @@ import {
 } from 'client/components/FormStepper'
 import { InstantiateForm } from 'client/components/Forms/ServiceTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -67,7 +68,7 @@ function CreateServiceTemplate() {
         template: jsonTemplate,
       }).unwrap()
       history.push(PATH.INSTANCE.SERVICES.LIST)
-      enqueueSuccess(`Service Template initiated - #${templateId} ${NAME}`)
+      enqueueSuccess(T.SuccessServiceTemplateInitiated, [templateId, NAME])
     } catch {}
   }
 

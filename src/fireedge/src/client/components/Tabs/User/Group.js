@@ -26,6 +26,7 @@ import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { Chip, Box, Grid, Typography } from '@mui/material'
 
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 /**
  * Renders mainly information tab.
@@ -70,7 +71,7 @@ const GroupsInfoTab = ({ id }) => {
       <Grid container spacing={2} alignItems="center">
         {primaryGroupName && (
           <Grid item xs={12}>
-            <Typography variant="h7">{T.Primary}</Typography>
+            <Typography variant="h7">{Tr(T.Primary)}</Typography>
           </Grid>
         )}
 
@@ -90,7 +91,7 @@ const GroupsInfoTab = ({ id }) => {
 
         {secondaryGroupNames.length > 0 && (
           <Grid item xs={12}>
-            <Typography variant="body2">{T.Secondary}</Typography>
+            <Typography variant="body2">{Tr(T.Secondary)}</Typography>
           </Grid>
         )}
 

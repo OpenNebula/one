@@ -20,6 +20,8 @@ import { Typography } from '@mui/material'
 import { Cloud, Group, Lock, User } from 'iconoir-react'
 
 import { rowStyles } from 'client/components/Tables/styles'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import * as Helper from 'client/models/Helper'
 
@@ -41,16 +43,16 @@ const Row = ({ original, value, ...props }) => {
         </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')}>{`#${ID} ${timeAgo}`}</span>
-          <span title={`Owner: ${UNAME}`}>
+          <span title={`${Tr(T.Owner)}: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span title={`Group: ${GNAME}`}>
+          <span title={`${Tr(T.Group)}: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
           {PROVISION_ID && (
-            <span title={`Provision ID: #${PROVISION_ID}`}>
+            <span title={`${Tr(T.ProvisionId)}: #${PROVISION_ID}`}>
               <Cloud />
               <span>{` ${PROVISION_ID}`}</span>
             </span>

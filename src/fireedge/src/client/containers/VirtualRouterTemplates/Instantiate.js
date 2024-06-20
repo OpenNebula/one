@@ -36,6 +36,7 @@ import { InstantiateForm } from 'client/components/Forms/VRTemplate'
 
 import { useSystemData } from 'client/features/Auth'
 import { jsonToXml } from 'client/models/Helper'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -97,7 +98,7 @@ function InstantiateVrTemplate() {
       history.push(PATH.INSTANCE.VROUTERS.LIST)
 
       const templateInfo = `#${templateId ?? ''} ${templateName ?? ''}`
-      enqueueInfo(`VR Template instantiated ${templateInfo ?? ''}`)
+      enqueueInfo(T.InfoVRTemplateInstantiated, templateInfo ?? '')
     } catch {}
   }
 

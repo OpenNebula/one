@@ -96,7 +96,7 @@ const ToggleController = memo(
         >
           {values?.map(({ text, value = '' }) => (
             <ToggleButton key={`${name}-${value}`} value={value} sx={{ p: 1 }}>
-              {text}
+              {Tr(text)}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>

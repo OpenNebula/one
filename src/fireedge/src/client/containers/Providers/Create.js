@@ -37,6 +37,7 @@ import {
 } from 'client/models/ProviderTemplate'
 import { PATH } from 'client/apps/provision/routes'
 import { deepmerge } from 'client/utils'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a Provider.
@@ -76,14 +77,12 @@ function ProviderCreateForm() {
         await updateProvider({ id, data: submitData })
       } else {
         if (!isValidProviderTemplate(submitData, providerConfig)) {
-          enqueueError(
-            'The template selected has a bad format. Ask your cloud administrator'
-          )
+          enqueueError(T.ErrorProviderTemplateSelected)
           history.push(PATH.PROVIDERS.LIST)
         }
 
         const responseId = await createProvider({ data: submitData }).unwrap()
-        responseId && enqueueSuccess(`Provider created - ID: ${responseId}`)
+        responseId && enqueueSuccess(T.SuccessProviderCreated, responseId)
       }
 
       history.push(PATH.PROVIDERS.LIST)
@@ -96,8 +95,7 @@ function ProviderCreateForm() {
   }, [])
 
   useEffect(() => {
-    successUpdate &&
-      enqueueSuccess(`Provider updated - ID: ${updatedProviderId}`)
+    successUpdate && enqueueSuccess(T.SuccessProviderUpdated, updatedProviderId)
   }, [successUpdate])
 
   if (errorConfig || errorConnection || errorProvider) {

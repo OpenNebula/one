@@ -22,6 +22,7 @@ import RoleVmVmPanel from 'client/components/Forms/ServiceTemplate/CreateForm/St
 import RoleColumn from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/rolesColumn'
 import VmTemplatesPanel from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/vmTemplatesPanel'
 import RoleSummary from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Roles/roleSummary'
+import { T } from 'client/constants'
 
 export const STEP_ID = 'roledefinition'
 
@@ -118,7 +119,7 @@ const Content = () => {
  */
 const RoleDefinition = () => ({
   id: STEP_ID,
-  label: 'Role Definition',
+  label: T.RoleDefinition,
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
   content: Content,

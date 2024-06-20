@@ -532,7 +532,7 @@ export const PERIOD_FIELD = {
     typeAction !== SCHEDULE_TYPE.RELATIVE && INPUT_TYPES.HIDDEN,
   values: arrayToOptions(Object.keys(PERIOD_TYPES), {
     addEmpty: false,
-    getText: (key) => sentenceCase(key),
+    getText: (key) => PERIOD_TYPES[key],
     getValue: (key) => PERIOD_TYPES[key],
   }),
   validation: lazy((_, { context }) =>

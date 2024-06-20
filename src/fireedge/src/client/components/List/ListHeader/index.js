@@ -70,7 +70,7 @@ const ListHeader = memo(
                 type="search"
                 onChange={searchProps.handleChange}
                 fullWidth
-                placeholder={`${T.Search}...`}
+                placeholder={`${Tr(T.Search)}...`}
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,

@@ -37,7 +37,7 @@ import { CreateForm, UpdateForm } from 'client/components/Forms/Group'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { createStringACL, createAclObjectFromString } from 'client/models/ACL'
-import { ACL_RIGHTS, ACL_TYPE_ID } from 'client/constants'
+import { ACL_RIGHTS, ACL_TYPE_ID, T } from 'client/constants'
 
 import systemApi from 'client/features/OneApi/system'
 
@@ -145,7 +145,7 @@ function CreateGroup() {
         updateTemplate(props, newGroupId)
 
         // Only show group message
-        enqueueSuccess(`Group created - #${newGroupId}`)
+        enqueueSuccess(T.SuccessGroupCreated, newGroupId)
       } else {
         // Update case. Only update template
 
@@ -153,13 +153,13 @@ function CreateGroup() {
         updateTemplate(props, groupId)
 
         // Only show group message
-        enqueueSuccess(`Group updated - #${groupId}`)
+        enqueueSuccess(T.SuccessGroupUpdated, groupId)
       }
 
       // Go to groups list
       history.push(PATH.SYSTEM.GROUPS.LIST)
     } catch (error) {
-      enqueueError('Error creating group')
+      enqueueError(T.ErrorGroupCreated)
     }
   }
 

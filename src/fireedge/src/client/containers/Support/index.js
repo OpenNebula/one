@@ -59,7 +59,7 @@ const Support = () => {
       if (user) {
         changeSupportAuthUser(user)
       } else {
-        enqueueError('Error with support credentials')
+        enqueueError(T.ErrorSupportCredentials)
       }
     } catch {}
   }

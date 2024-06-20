@@ -78,7 +78,7 @@ function CreateImage() {
           datastore,
         }).unwrap()
         history.push(PATH.STORAGE.IMAGES.LIST)
-        enqueueSuccess(`Image created - #${newTemplateId}`)
+        enqueueSuccess(T.SuccessImageCreated, newTemplateId)
       }
     } catch {}
   }

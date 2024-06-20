@@ -17,6 +17,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { DataGrid } from '@mui/x-data-grid'
 import { Box } from '@mui/material'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Renders a data grid table using the provided data and columns.
@@ -43,6 +45,20 @@ const DataGridTable = ({ data, columns }) => {
         rows={flattenedData.map((row, index) => ({ ...row, id: index }))}
         columns={columns}
         rowsPerPageOptions={[25, 50, 100]}
+        localeText={{
+          columnMenuLabel: Tr(T.ColumnMenuLabel),
+          columnMenuShowColumns: Tr(T.ColumnMenuShowColumns),
+          columnMenuManageColumns: Tr(T.ColumnMenuManageColumns),
+          columnMenuFilter: Tr(T.ColumnMenuFilter),
+          columnMenuHideColumn: Tr(T.ColumnMenuHideColumn),
+          columnMenuUnsort: Tr(T.ColumnMenuUnsort),
+          columnMenuSortAsc: Tr(T.ColumnMenuSortAsc),
+          columnMenuSortDesc: Tr(T.ColumnMenuSortDesc),
+          columnHeaderSortIconLabel: Tr(T.ColumnHeaderSortIconLabel),
+          MuiTablePagination: {
+            labelRowsPerPage: Tr(T.RowsPerPage),
+          },
+        }}
       />
     </Box>
   )

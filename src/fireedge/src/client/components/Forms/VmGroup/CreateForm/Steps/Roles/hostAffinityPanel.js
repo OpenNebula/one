@@ -32,8 +32,9 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useLazyGetHostsQuery } from 'client/features/OneApi/host'
-import { HOST_STATES } from 'client/constants'
+import { HOST_STATES, T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
+import { Tr } from 'client/components/HOC'
 
 /**
  * HostAffinityPanel component.
@@ -84,7 +85,7 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
 
   useEffect(() => {
     if (error) {
-      enqueueError(`Error fetching host data: ${error?.message ?? error}`)
+      enqueueError(T.ErrorHostFetching, [error?.message ?? error])
     }
   }, [error, enqueueError])
 
@@ -130,7 +131,7 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
       }}
     >
       <Typography variant="h6" gutterBottom>
-        Host Affinity
+        {Tr(T.HostAffinity)}
       </Typography>
       <Box>
         <ToggleButtonGroup
@@ -141,16 +142,13 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
           sx={{ marginBottom: 2 }}
         >
           <ToggleButton value="Affined" aria-label="Affined">
-            Affined
+            {Tr(T.Affined)}
           </ToggleButton>
           <ToggleButton value="Anti-Affined" aria-label="Anti-Affined">
-            Anti-Affined
+            {Tr(T.AntiAffined)}
           </ToggleButton>
         </ToggleButtonGroup>
-        <Tooltip
-          title="Add a role name to assign Host-VM affinity"
-          placement="right"
-        >
+        <Tooltip title={Tr(T.AddRoleAffinity)} placement="right">
           <span>
             <Button
               variant="contained"
@@ -160,7 +158,7 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
               sx={{ ml: 2 }}
               disabled={isDisabled || selectedHostIds?.length < 1}
             >
-              Add
+              {Tr(T.Add)}
             </Button>
           </span>
         </Tooltip>
@@ -170,10 +168,10 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox"></TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Cluster</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>{Tr(T.ID)}</TableCell>
+              <TableCell>{Tr(T.Name)}</TableCell>
+              <TableCell>{Tr(T.Cluster)}</TableCell>
+              <TableCell>{Tr(T.Status)}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -214,6 +212,7 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage={Tr(T.RowsPerPage)}
       />
     </Box>
   )

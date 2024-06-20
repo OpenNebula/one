@@ -17,6 +17,8 @@ import { useCallback, Component } from 'react'
 import PropTypes from 'prop-types'
 import { Box, Button, List, ListItem, IconButton } from '@mui/material'
 import { Cancel } from 'iconoir-react'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * RoleColumn component for displaying and managing roles.
@@ -75,7 +77,7 @@ const RoleColumn = ({
           size="large"
           data-cy="add-role"
         >
-          Add Role
+          {Tr(T.AddRole)}
         </Button>
         <Box
           sx={{
@@ -128,7 +130,7 @@ const RoleColumn = ({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {role?.NAME || 'New Role'}
+                    {role?.NAME || Tr(T.NewRole)}
                   </div>
                 </ListItem>
               ))}

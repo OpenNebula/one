@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from 'client/constants'
 
 /**
  * @param {Array} values - Array of values
@@ -129,11 +130,9 @@ export const handleApplyGlobalQuotas = async (
       if (result.error) {
         throw new Error(result.error.message)
       }
-      enqueueSuccess(`Quota updated successfully for ID ${actualId}`)
+      enqueueSuccess(T.SuccessQuotaUpdated, [actualId.toString()])
     } catch (error) {
-      enqueueError(
-        `Error updating quota for ID ${resourceIdOrName}: ${error.message}`
-      )
+      enqueueError(T.ErrorQuotaUpdated, [resourceIdOrName, error.message])
     }
   }
 
@@ -147,7 +146,7 @@ export const handleApplyGlobalQuotas = async (
       if (value !== undefined && value !== '') {
         await applyQuotaChange(resourceId, value)
       } else {
-        enqueueError(`No value specified for Resource ID ${resourceId}`)
+        enqueueError(T.ErrorQuotaNoValueSpecified, resourceId)
       }
     }
   }
@@ -206,18 +205,18 @@ const quotasToXml = (type, resourceId, quota) => {
 
 export const quotaIdentifiers = {
   VM: [
-    { id: 'VMS', displayName: 'Virtual Machines' },
-    { id: 'RUNNING_VMS', displayName: 'Running VMs' },
-    { id: 'MEMORY', displayName: 'Memory' },
-    { id: 'RUNNING_MEMORY', displayName: 'Running Memory' },
-    { id: 'CPU', displayName: 'CPU' },
-    { id: 'RUNNING_CPU', displayName: 'Running CPU' },
-    { id: 'SYSTEM_DISK_SIZE', displayName: 'System Disk Size' },
+    { id: 'VMS', displayName: T.VirtualMachines },
+    { id: 'RUNNING_VMS', displayName: T.RunningVMs },
+    { id: 'MEMORY', displayName: T.Memory },
+    { id: 'RUNNING_MEMORY', displayName: T.RunningMemory },
+    { id: 'CPU', displayName: T.CPU },
+    { id: 'RUNNING_CPU', displayName: T.RunningCPU },
+    { id: 'SYSTEM_DISK_SIZE', displayName: T.SystemDiskSize },
   ],
   DATASTORE: [
-    { id: 'SIZE', displayName: 'Size' },
-    { id: 'IMAGES', displayName: 'Images' },
+    { id: 'SIZE', displayName: T.Size },
+    { id: 'IMAGES', displayName: T.Images },
   ],
-  NETWORK: [{ id: 'LEASES', displayName: 'Leases' }],
-  IMAGE: [{ id: 'RVMS', displayName: 'Running VMs' }],
+  NETWORK: [{ id: 'LEASES', displayName: T.Leases }],
+  IMAGE: [{ id: 'RVMS', displayName: T.RunningVMs }],
 }

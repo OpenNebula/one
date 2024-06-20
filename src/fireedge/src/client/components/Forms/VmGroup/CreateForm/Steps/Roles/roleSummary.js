@@ -27,6 +27,7 @@ import {
 import PropTypes from 'prop-types'
 import { Cancel, InfoEmpty } from 'iconoir-react'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import { Component } from 'react'
 /**
  * RoleSummary displays detailed information about a VM role, including its configuration and affinity settings.
@@ -70,7 +71,7 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
         }}
       >
         <Typography variant="h6" component="div" gutterBottom>
-          #{selectedRoleIndex + 1 ?? 0} Role Configuration
+          #{selectedRoleIndex + 1 ?? 0} {Tr(T.RoleConfiguration)}
         </Typography>
 
         <Typography
@@ -78,7 +79,7 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
           color={role?.NAME ? 'text.primary' : 'text.disabled'}
           gutterBottom
         >
-          Name: {role?.NAME || 'Enter a name for this role.'}
+          {Tr(T.Name)}: {role?.NAME || Tr(T.RoleEnterName)}
         </Typography>
 
         <Typography
@@ -90,18 +91,21 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
           }
           gutterBottom
         >
-          Policy: {formatPolicy(role?.POLICY)}
+          {Tr(T.Policy)}: {Tr(formatPolicy(role?.POLICY))}
         </Typography>
 
         {role?.HOST_AFFINED && role.HOST_AFFINED.length > 0 ? (
           <>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Affined Hosts:
+              {Tr(T.AffinedHosts)}:
             </Typography>
             <List sx={{ bgcolor: 'background.paper' }}>
               {role.HOST_AFFINED.map((hostId, index) => (
                 <ListItem key={hostId} sx={{ p: 0, pl: 1 }}>
-                  <ListItemText primary={`Host ${hostId}`} sx={{ mr: 1 }} />
+                  <ListItemText
+                    primary={`${Tr(T.Host)} ${hostId}`}
+                    sx={{ mr: 1 }}
+                  />
                   <IconButton
                     edge="end"
                     aria-label="remove"
@@ -116,9 +120,8 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
           </>
         ) : (
           <Typography variant="body2" color="text.disabled" gutterBottom>
-            No affined hosts. Assign a set of hosts where the VMs of this role
-            can be allocated.
-            <Tooltip title="Affined hosts are VMs grouped together on a set of hosts to better modularize deployments and increase performance.">
+            {Tr(T.NoAffinedHosts)}
+            <Tooltip title={Tr(T.NoAffinedHostsConcept)}>
               <InfoEmpty fontSize="small" />
             </Tooltip>
           </Typography>
@@ -127,7 +130,7 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
         {role?.HOST_ANTI_AFFINED && role.HOST_ANTI_AFFINED.length > 0 ? (
           <>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Anti-Affined Hosts:
+              {Tr(T.AntiAffinedHosts)}:
             </Typography>
             <List sx={{ bgcolor: 'background.paper' }}>
               {role.HOST_ANTI_AFFINED.map((hostId, index) => (
@@ -147,9 +150,8 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
           </>
         ) : (
           <Typography variant="body2" color="text.disabled" gutterBottom>
-            No anti-affined hosts. Assign a set of hosts where the VMs of this
-            role can&apos;t be allocated.
-            <Tooltip title="Anti-affined hosts are VMs separated across different hosts to ensure redundancy and fault-tolerance. ">
+            {Tr(T.NoAntiAffinedHosts)}
+            <Tooltip title={Tr(T.NoAntiAffinedHostsConcept)}>
               <InfoEmpty fontSize="small" />
             </Tooltip>
           </Typography>
@@ -161,11 +163,11 @@ const RoleSummary = ({ role, selectedRoleIndex, onRemoveAffinity }) => {
           color="textSecondary"
           sx={{ opacity: 0.7 }}
         >
-          <strong>VM Group Configuration:</strong>
+          <strong>{Tr(T.VMGroupConfiguration)}:</strong>
           <ul>
-            <li>Define roles and placement constraints.</li>
-            <li>Optimize performance and fault tolerance.</li>
-            <li>Manage multi-VM applications efficiently.</li>
+            <li>{Tr(T.RoleDefineRoles)}</li>
+            <li>{Tr(T.RoleOptimize)}</li>
+            <li>{Tr(T.RoleManageApps)}</li>
           </ul>
         </Typography>
       </CardActions>

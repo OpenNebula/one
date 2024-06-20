@@ -39,6 +39,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { Trash as DeleteIcon, Download } from 'iconoir-react'
+import { T } from 'client/constants'
 
 /**
  * @param {object} root0 - Props
@@ -99,7 +100,7 @@ const PopUpDialog = ({ open, handleClose }) => {
         }
       })
       .catch(() => {
-        enqueueError('Failed to fetch official suggestions')
+        enqueueError(T.ErrorUserInputAutocompleteFetch)
       })
   }
 

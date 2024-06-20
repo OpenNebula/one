@@ -31,6 +31,7 @@ import { CreateForm } from 'client/components/Forms/VNetwork'
 import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { useSystemData } from 'client/features/Auth'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -57,10 +58,10 @@ function CreateVirtualNetwork() {
     try {
       if (!vnetId) {
         const newVnetId = await allocate({ template: xml }).unwrap()
-        enqueueSuccess(`Virtual Network created - #${newVnetId}`)
+        enqueueSuccess(T.SuccessVnetCreated, newVnetId)
       } else {
         await update({ id: vnetId, template: xml }).unwrap()
-        enqueueSuccess(`Virtual Network updated - #${vnetId} ${NAME}`)
+        enqueueSuccess(T.SuccessVnetUpdated, [vnetId, NAME])
       }
 
       history.push(PATH.NETWORK.VNETS.LIST)

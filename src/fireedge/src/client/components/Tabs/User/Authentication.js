@@ -14,8 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import {
-  // Switch,
-  // FormControlLabel,
   Box,
   Button,
   Dialog,
@@ -37,7 +35,8 @@ import {
 import { EditPencil } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { Component, useCallback, useReducer } from 'react'
-
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 /**
  * Reducer to manage the state of the AuthenticationInfo component.
  *
@@ -107,15 +106,15 @@ const AuthenticationInfo = ({ id }) => {
       await changeAuthDriver(updateParams)
 
       if (passwordUpdated) {
-        enqueueSuccess('Password updated successfully!')
+        enqueueSuccess(T.SuccessPasswordUpdated)
       } else {
-        enqueueSuccess('Authentication driver updated successfully!')
+        enqueueSuccess(T.SuccessAuthDriver)
       }
     } catch (error) {
       if (passwordUpdated) {
-        enqueueError(`Error updating password: ${error.message}`)
+        enqueueError(T.ErrorPasswordUpdated, error.message)
       } else {
-        enqueueError(`Error updating authentication driver: ${error.message}`)
+        enqueueError(T.ErrorAuthDriverUpdated, error.message)
       }
     }
   }, [id, state, user.PASSWORD, changeAuthDriver, enqueueSuccess, enqueueError])
@@ -135,9 +134,9 @@ const AuthenticationInfo = ({ id }) => {
       })
 
       handleFieldChange('sshKeyDialogOpen', false)
-      enqueueSuccess('Public SSH Key updated successfully!')
+      enqueueSuccess(T.SuccessPublicSSHKeyUpdated)
     } catch (error) {
-      enqueueError(`Error updating Public SSH Key: ${error.message}`)
+      enqueueError(T.ErrorPublicSSHKeyUpdated, error.message)
     }
   }
 
@@ -152,9 +151,9 @@ const AuthenticationInfo = ({ id }) => {
       })
 
       handleFieldChange('privateSshKeyDialogOpen', false)
-      enqueueSuccess('Private SSH Key updated successfully!')
+      enqueueSuccess(T.SuccessPrivateSSHKeyUpdated)
     } catch (error) {
-      enqueueError(`Error updating Private SSH Key: ${error.message}`)
+      enqueueError(T.ErrorPrivateSSHKeyUpdated, error.message)
     }
   }
 
@@ -169,9 +168,9 @@ const AuthenticationInfo = ({ id }) => {
       })
 
       handleFieldChange('passphraseDialogOpen', false)
-      enqueueSuccess('SSH Key Passphrase updated successfully!')
+      enqueueSuccess(T.SuccessPassphraseSSHKeyUpdated)
     } catch (error) {
-      enqueueError(`Error updating SSH Key Passphrase: ${error.message}`)
+      enqueueError(T.ErrorPassphraseSSHKeyUpdated, error.message)
     }
   }
 
@@ -188,12 +187,12 @@ const AuthenticationInfo = ({ id }) => {
         minHeight={'300px'}
       >
         <Typography variant="h6" gutterBottom>
-          Authentication
+          {Tr(T.Authentication)}
         </Typography>
         <Grid container spacing={2} style={{ flexGrow: 1 }}>
           <Grid item xs={6}>
             <TextField
-              label="Authentication driver"
+              label={Tr(T.AuthenticationDriver)}
               value={state.authDriver}
               onChange={(e) => handleFieldChange('authDriver', e.target.value)}
               fullWidth
@@ -229,7 +228,7 @@ const AuthenticationInfo = ({ id }) => {
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Password"
+              label={Tr(T.Password)}
               value={state.password}
               onChange={(e) => handleFieldChange('password', e.target.value)}
               fullWidth
@@ -247,7 +246,7 @@ const AuthenticationInfo = ({ id }) => {
             >
               <EditPencil />
             </IconButton>
-            <Typography display="inline">Edit Public SSH Key</Typography>
+            <Typography display="inline">{Tr(T.EditPublicSSHKey)}</Typography>
           </Grid>
           <Grid item xs={6}>
             <IconButton
@@ -255,7 +254,7 @@ const AuthenticationInfo = ({ id }) => {
             >
               <EditPencil />
             </IconButton>
-            <Typography display="inline">Edit Private SSH Key</Typography>
+            <Typography display="inline">{Tr(T.EditPrivateSSHKey)}</Typography>
           </Grid>
           <Grid item xs={6}>
             <IconButton
@@ -263,7 +262,9 @@ const AuthenticationInfo = ({ id }) => {
             >
               <EditPencil />
             </IconButton>
-            <Typography display="inline">Edit SSH Key Passphrase</Typography>
+            <Typography display="inline">
+              {Tr(T.EditSSHKeyPassphrase)}
+            </Typography>
           </Grid>
           <Grid item xs={12}>
             <Button
@@ -272,7 +273,7 @@ const AuthenticationInfo = ({ id }) => {
               onClick={handleUpdateAuthDriver}
               data-cy={'auth-save'}
             >
-              Save Changes
+              {Tr(T.SaveChanges)}
             </Button>
           </Grid>
         </Grid>
@@ -280,7 +281,7 @@ const AuthenticationInfo = ({ id }) => {
           open={state.sshKeyDialogOpen}
           onClose={() => handleFieldChange('sshKeyDialogOpen', false)}
         >
-          <DialogTitle>Edit Public SSH Key</DialogTitle>
+          <DialogTitle>{Tr(T.EditPublicSSHKey)}</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
@@ -288,7 +289,7 @@ const AuthenticationInfo = ({ id }) => {
               rows={4}
               value={state.sshKey}
               onChange={(e) => handleFieldChange('sshKey', e.target.value)}
-              placeholder="Paste your SSH Key here..."
+              placeholder={Tr(T.PasteSSHKey)}
             />
           </DialogContent>
           <DialogActions>
@@ -296,10 +297,10 @@ const AuthenticationInfo = ({ id }) => {
               onClick={() => handleFieldChange('sshKeyDialogOpen', false)}
               color="primary"
             >
-              Cancel
+              {Tr(T.Cancel)}
             </Button>
             <Button onClick={handleSshKeySave} color="primary">
-              Save
+              {Tr(T.Save)}
             </Button>
           </DialogActions>
         </Dialog>
@@ -307,7 +308,7 @@ const AuthenticationInfo = ({ id }) => {
           open={state.privateSshKeyDialogOpen}
           onClose={() => handleFieldChange('privateSshKeyDialogOpen', false)}
         >
-          <DialogTitle>Edit Private SSH Key</DialogTitle>
+          <DialogTitle>{Tr(T.EditPrivateSSHKey)}</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
@@ -317,7 +318,7 @@ const AuthenticationInfo = ({ id }) => {
               onChange={(e) =>
                 handleFieldChange('privateSshKey', e.target.value)
               }
-              placeholder="Paste your Private SSH Key here..."
+              placeholder={Tr(T.PastePrivateSSHKey)}
             />
           </DialogContent>
           <DialogActions>
@@ -327,10 +328,10 @@ const AuthenticationInfo = ({ id }) => {
               }
               color="primary"
             >
-              Cancel
+              {Tr(T.Cancel)}
             </Button>
             <Button onClick={handlePrivateSshKeySave} color="primary">
-              Save
+              {Tr(T.Save)}
             </Button>
           </DialogActions>
         </Dialog>
@@ -339,13 +340,13 @@ const AuthenticationInfo = ({ id }) => {
           open={state.passphraseDialogOpen}
           onClose={() => handleFieldChange('passphraseDialogOpen', false)}
         >
-          <DialogTitle>Edit SSH Key Passphrase</DialogTitle>
+          <DialogTitle>{Tr(T.EditSSHKeyPassphrase)}</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
               value={state.passphrase}
               onChange={(e) => handleFieldChange('passphrase', e.target.value)}
-              placeholder="Enter your passphrase..."
+              placeholder={Tr(T.EnterPassphrase)}
             />
           </DialogContent>
           <DialogActions>
@@ -353,10 +354,10 @@ const AuthenticationInfo = ({ id }) => {
               onClick={() => handleFieldChange('passphraseDialogOpen', false)}
               color="primary"
             >
-              Cancel
+              {Tr(T.Cancel)}
             </Button>
             <Button onClick={handlePassphraseSave} color="primary">
-              Save
+              {Tr(T.Save)}
             </Button>
           </DialogActions>
         </Dialog>

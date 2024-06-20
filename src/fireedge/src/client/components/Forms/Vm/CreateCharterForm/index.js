@@ -16,7 +16,8 @@
 import { useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { Stack, Typography, Divider } from '@mui/material'
-
+import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import {
   timeToSecondsByPeriodicity,
   transformChartersToSchedActions,
@@ -48,8 +49,11 @@ const FixedLeases = ({ leases }) => {
               spacing={0.5}
             >
               <Typography noWrap variant="subtitle1" padding="1rem">
-                {`> ${sentenceCase(ACTION)} in ${TIME} ${PERIOD}`}
-                {WARNING && ` | Warning before ${WARNING} ${WARNING_PERIOD}`}
+                {`> ${Tr(sentenceCase(ACTION))} ${Tr(T.In)} ${TIME} ${Tr(
+                  PERIOD
+                )}`}
+                {WARNING &&
+                  ` | ${Tr(T.WarningBefore)} ${WARNING} ${Tr(WARNING_PERIOD)}`}
               </Typography>
             </Stack>
           )

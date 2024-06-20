@@ -31,7 +31,7 @@ const TEMPLATEID = {
     preserveState: true,
   },
   validation: mixed()
-    .required('VR template ID missing or malformed!')
+    .required()
     .default(() => null),
   grid: { md: 12 },
 }

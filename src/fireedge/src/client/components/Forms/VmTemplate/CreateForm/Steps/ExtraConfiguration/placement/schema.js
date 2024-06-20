@@ -156,7 +156,7 @@ const HOST_POLICY_TYPE_FIELD = {
   name: 'HOST_POLICY_TYPE',
   type: INPUT_TYPES.TOGGLE,
   values: () =>
-    arrayToOptions(['Packing', 'Stripping', 'Load-aware'], {
+    arrayToOptions([T.Packing, T.Stripping, T.LoadAware], {
       addEmpty: false,
       getText: (opt) => opt,
       getValue: (_opt, idx) =>
@@ -221,12 +221,9 @@ const TABLE_TYPE = {
   name: 'CLUSTER_HOST_TYPE',
   type: INPUT_TYPES.TOGGLE,
   values: () =>
-    arrayToOptions(
-      [T.Cluster, T.Host]?.map((t) => T.Select + ' ' + t),
-      {
-        addEmpty: false,
-      }
-    ),
+    arrayToOptions([T.SelectCluster, T.SelectHost], {
+      addEmpty: false,
+    }),
   validation: string()
     .trim()
     .required()

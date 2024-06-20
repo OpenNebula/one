@@ -25,6 +25,7 @@ import { CreateForm } from 'client/components/Forms/BackupJob'
 import { useGeneralApi } from 'client/features/General'
 import { useCreateBackupJobMutation } from 'client/features/OneApi/backupjobs'
 import { jsonToXml } from 'client/models/Helper'
+import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a BackupJob.
@@ -44,7 +45,7 @@ function CreateBackupJob() {
       }).unwrap()
       if (newBackupJobId) {
         history.push(PATH.STORAGE.BACKUPJOBS.LIST)
-        enqueueSuccess(`BackupJob created - #${newBackupJobId}`)
+        enqueueSuccess(T.SuccessBackupJobCreated, newBackupJobId)
       }
     } catch {}
   }

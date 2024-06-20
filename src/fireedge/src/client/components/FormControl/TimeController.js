@@ -25,6 +25,11 @@ import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 import { generateKey } from 'client/utils'
 
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import AdapterLuxon from '@mui/lab/AdapterLuxon'
+import { useAuth } from 'client/features/Auth'
+import { Settings } from 'luxon'
+
 const TimeController = memo(
   ({
     control,
@@ -35,6 +40,11 @@ const TimeController = memo(
     fieldProps: { defaultValue, ...fieldProps } = {},
     readOnly = false,
   }) => {
+    // Set language for date picker
+    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const lang = fireedge?.LANG?.substring(0, 2)
+    Settings.defaultLocale = lang
+
     const {
       field: { value, ...controllerProps },
       fieldState: { error },
@@ -45,33 +55,35 @@ const TimeController = memo(
       : ['year', 'month', 'day', 'hours', 'minutes']
 
     return (
-      <DateTimePicker
-        {...controllerProps}
-        {...fieldProps}
-        value={value}
-        label={<Translate word={label} />}
-        cancelText={<Translate word={T.Cancel} />}
-        clearText={<Translate word={T.Clear} />}
-        todayText={<Translate word={T.Today} />}
-        InputProps={{
-          readOnly,
-          autoComplete: 'off',
-          startAdornment: tooltip && <Tooltip title={tooltip} />,
-        }}
-        renderInput={({ inputProps, ...dateTimePickerProps }) => (
-          <TextField
-            {...dateTimePickerProps}
-            fullWidth
-            inputProps={{ ...inputProps, 'data-cy': cy }}
-            error={Boolean(error)}
-            helperText={
-              Boolean(error) && <ErrorHelper label={error?.message} />
-            }
-            FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-          />
-        )}
-        views={views}
-      />
+      <LocalizationProvider dateAdapter={AdapterLuxon} locale={lang}>
+        <DateTimePicker
+          {...controllerProps}
+          {...fieldProps}
+          value={value}
+          label={<Translate word={label} />}
+          cancelText={<Translate word={T.Cancel} />}
+          clearText={<Translate word={T.Clear} />}
+          todayText={<Translate word={T.Today} />}
+          InputProps={{
+            readOnly,
+            autoComplete: 'off',
+            startAdornment: tooltip && <Tooltip title={tooltip} />,
+          }}
+          renderInput={({ inputProps, ...dateTimePickerProps }) => (
+            <TextField
+              {...dateTimePickerProps}
+              fullWidth
+              inputProps={{ ...inputProps, 'data-cy': cy }}
+              error={Boolean(error)}
+              helperText={
+                Boolean(error) && <ErrorHelper label={error?.message} />
+              }
+              FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+            />
+          )}
+          views={views}
+        />
+      </LocalizationProvider>
     )
   },
   (prevProps, nextProps) =>

@@ -55,11 +55,11 @@ const Networks = memo(({ id }) => {
     ) ?? []
 
   useEffect(() => {
-    successAddIp && enqueueSuccess(`IP added ${amount}x`)
+    successAddIp && enqueueSuccess(T.SuccessIPAdded, amount)
   }, [successAddIp])
 
   useEffect(() => {
-    successRemove && enqueueSuccess(`Network deleted - ID: ${vnetId}`)
+    successRemove && enqueueSuccess(T.SuccessNetworkDeleted, vnetId)
   }, [successRemove])
 
   return (

@@ -34,6 +34,7 @@ import {
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/ServiceTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -69,7 +70,7 @@ function CreateServiceTemplate() {
           template: jsonTemplate,
         }).unwrap()
         history.push(PATH.TEMPLATE.SERVICES.LIST)
-        enqueueSuccess(`Service Template created - #${newTemplateId} ${NAME}`)
+        enqueueSuccess(T.SuccessServiceTemplateCreated, [newTemplateId, NAME])
       } else {
         await update({
           id: templateId,
@@ -77,7 +78,7 @@ function CreateServiceTemplate() {
           merge: false,
         }).unwrap()
         history.push(PATH.TEMPLATE.SERVICES.LIST)
-        enqueueSuccess(`Service Template updated - #${templateId} ${NAME}`)
+        enqueueSuccess(T.SuccessServiceTemplateUpdated, [templateId, NAME])
       }
     } catch {}
   }

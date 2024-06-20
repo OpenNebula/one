@@ -22,6 +22,7 @@ import {
 } from '@mui/material'
 import PropTypes from 'prop-types'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import { Component } from 'react'
 /**
  * RoleSummary displays detailed information about a VM role, including its configuration and affinity settings.
@@ -51,7 +52,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
       }}
     >
       <Typography variant="h6" component="div" gutterBottom>
-        #{selectedRoleIndex + 1 ?? 0} Role Configuration
+        #{selectedRoleIndex + 1 ?? 0} {Tr(T.RoleConfiguration)}
       </Typography>
 
       <Typography
@@ -59,7 +60,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color={role?.NAME ? 'text.primary' : 'text.disabled'}
         gutterBottom
       >
-        Name: {role?.NAME || 'Enter a name for this role.'}
+        {Tr(T.Name)}: {role?.NAME || Tr(T.RoleEnterName)}
       </Typography>
 
       <Typography
@@ -73,7 +74,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         }
         gutterBottom
       >
-        {T.NumberOfVms}: {role?.CARDINALITY}
+        {Tr(T.NumberOfVms)}: {role?.CARDINALITY}
       </Typography>
 
       {role?.SELECTED_VM_TEMPLATE_ID ? (
@@ -89,12 +90,12 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
             }
             gutterBottom
           >
-            VM Template ID: {role?.SELECTED_VM_TEMPLATE_ID}
+            {Tr(T.VMTemplate)} {Tr(T.ID)}: {role?.SELECTED_VM_TEMPLATE_ID}
           </Typography>
         </>
       ) : (
         <Typography variant="body2" color="text.disabled" gutterBottom>
-          Select a VM template.
+          {Tr(T.SelectVmTemplate)}
         </Typography>
       )}
       <Divider />
@@ -103,11 +104,11 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color={role?.NETWORKS ? 'text.primary' : 'text.disabled'}
         gutterBottom
       >
-        Networks: {role?.NETWORKS || 'Select a network for this role.'}
+        {Tr(T.Networks)}: {role?.NETWORKS || ' ' + Tr(T.RoleSelectNetwork)}
       </Typography>
 
       <Typography color={'text.primary'} sx={{ fontSize: 16 }} gutterBottom>
-        Role Elasticity
+        {Tr(T.RoleElasticity)}
       </Typography>
 
       <Typography
@@ -115,8 +116,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color={role?.MINVMS ? 'text.primary' : 'text.disabled'}
         gutterBottom
       >
-        Min VMs:
-        {role?.MINVMS || ' Minimum number of VMs for elasticity adjustments.'}
+        {Tr(T.RolesMinVms)}:{role?.MINVMS || ' ' + Tr(T.RoleMinElasticity)}
       </Typography>
 
       <Typography
@@ -124,8 +124,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
         gutterBottom
       >
-        Max VMs:
-        {role?.MAXVMS || ' Maximum number of VMs for elasticity adjustments.'}
+        {Tr(T.RolesMaxVms)}:{role?.MAXVMS || ' ' + Tr(T.RoleMaxElasticity)}
       </Typography>
 
       <Typography
@@ -133,9 +132,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
         gutterBottom
       >
-        Cooldown:
-        {role?.COOLDOWN ||
-          ' Duration after a scale operation in seconds. If it is not set, the default set in oneflow-server.conf will be used.'}
+        {Tr(T.Cooldown)}:{role?.COOLDOWN || ' ' + Tr(T.RoleDurationScale)}
       </Typography>
 
       <Typography
@@ -143,7 +140,7 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         sx={{ fontSize: 14 }}
         gutterBottom
       >
-        Elasticity Policies
+        {Tr(T.ElasticityPolicies)}
       </Typography>
 
       <Typography
@@ -153,8 +150,8 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         }
         gutterBottom
       >
-        Type:
-        {role?.ELASTICITYPOLICIES?.TYPE || ' Adjustment type'}
+        {Tr(T.Type)}:
+        {role?.ELASTICITYPOLICIES?.TYPE || ' ' + Tr(T.RoleAdjustmentType)}
       </Typography>
 
       <Typography
@@ -164,8 +161,9 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         }
         gutterBottom
       >
-        Adjust:
-        {role?.ELASTICITYPOLICIES?.ADJUST || ' Positive or negative adjustment'}
+        {Tr(T.Adjust)}:
+        {role?.ELASTICITYPOLICIES?.ADJUST ||
+          ' ' + Tr(T.RoleAdjustmentTypePositiveNegative)}
       </Typography>
     </CardContent>
     <CardActions sx={{ p: 2, pt: 0 }}>
@@ -174,11 +172,11 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
         color="textSecondary"
         sx={{ opacity: 0.7 }}
       >
-        <strong>VM Group Configuration:</strong>
+        <strong>{Tr(T.VMGroupConfiguration)}:</strong>
         <ul>
-          <li>Define roles and placement constraints.</li>
-          <li>Optimize performance and fault tolerance.</li>
-          <li>Manage multi-VM applications efficiently.</li>
+          <li>{Tr(T.RoleDefineRoles)}</li>
+          <li>{Tr(T.RoleOptimize)}</li>
+          <li>{Tr(T.RoleManageApps)}</li>
         </ul>
       </Typography>
     </CardActions>

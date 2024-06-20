@@ -230,11 +230,14 @@ const slice = createSlice({
       }))
       /* NOTIFICATION ACTIONS */
       .addCase(actions.enqueueSnackbar, (state, { payload }) => {
-        const { key, options, message } = payload
+        const { key, options, message, values } = payload
 
         return {
           ...state,
-          notifications: [...state.notifications, { key, options, message }],
+          notifications: [
+            ...state.notifications,
+            { key, options, message, values },
+          ],
         }
       })
       .addCase(actions.dismissSnackbar, (state, { payload }) => {

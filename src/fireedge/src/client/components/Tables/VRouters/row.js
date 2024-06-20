@@ -21,6 +21,9 @@ import { Typography } from '@mui/material'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, VMS, TEMPLATE_ID } = value
@@ -35,19 +38,19 @@ const Row = ({ original, value, ...props }) => {
         </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span title={`Owner: ${UNAME}`}>
+          <span title={`${Tr(T.Owner)}: ${UNAME}`}>
             <User />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span title={`Group: ${GNAME}`}>
+          <span title={`${Tr(T.Group)}: ${GNAME}`}>
             <Group />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span title={`Template ID: ${TEMPLATE_ID}`}>
+          <span title={`${Tr(T.Template)}${Tr(T.ID)}: ${TEMPLATE_ID}`}>
             <EmptyPage />
             <span>{` ${TEMPLATE_ID}`}</span>
           </span>
-          <span title={`Total VMs: ${VMS}`}>
+          <span title={`${Tr(T.TotalVms)}: ${VMS}`}>
             <ModernTv />
             <span>{` ${VMS}`}</span>
           </span>

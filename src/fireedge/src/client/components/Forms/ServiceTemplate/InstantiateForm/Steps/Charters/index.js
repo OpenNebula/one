@@ -27,6 +27,7 @@ import {
 
 import PropTypes from 'prop-types'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import { Legend } from 'client/components/Forms'
 
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
@@ -77,7 +78,7 @@ const ScheduleActionsSection = ({ oneConfig, adminGroup }) => {
 
   return (
     <Box mt={2}>
-      <Legend title={'Add Charters Values Configuration'} />
+      <Legend title={Tr(T.AddChartes)} />
       <Box sx={{ width: '100%', gridColumn: '1 / -1' }}>
         <Stack flexDirection="row" gap="1em">
           <CreateSchedButton

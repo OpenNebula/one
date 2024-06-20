@@ -50,7 +50,7 @@ function ProvisionCreateForm() {
   const onSubmit = async (formData) => {
     try {
       const response = await createProvision({ data: formData }).unwrap()
-      enqueueInfo('Creating provision')
+      enqueueInfo(T.InfoProvisionCreate)
 
       response && setUuid(response)
     } catch {}

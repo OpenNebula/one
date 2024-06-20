@@ -38,7 +38,7 @@ import {
   filterTemplateData,
   transformActionsInstantiate,
 } from 'client/utils/parser'
-import { TAB_FORM_MAP, RESOURCE_NAMES } from 'client/constants'
+import { TAB_FORM_MAP, RESOURCE_NAMES, T } from 'client/constants'
 
 const _ = require('lodash')
 
@@ -139,7 +139,7 @@ function InstantiateVmTemplate() {
 
       const total = templates.length
       const templateInfo = `#${templateId} ${templateName}`
-      enqueueInfo(`VM Template instantiated x${total} - ${templateInfo}`)
+      enqueueInfo(T.InfoVMTemplateInstantiated, [total, templateInfo])
     } catch {}
   }
 

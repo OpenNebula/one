@@ -36,8 +36,8 @@ import {
 import { useGeneralApi } from 'client/features/General'
 
 const LEASES_COLUMNS = [
-  'RESOURCE',
-  'STATE',
+  T.Resource,
+  T.State,
   'IP',
   'IP6',
   'MAC',
@@ -137,7 +137,7 @@ const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
             isSubmitting={isHolding}
             color="secondary"
             variant="outlined"
-            label={'Hold IP'}
+            label={T.HoldIP}
           />
         </Box>
       )}

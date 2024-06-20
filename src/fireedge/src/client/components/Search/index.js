@@ -20,6 +20,9 @@ import { TextField, Box } from '@mui/material'
 import { useSearch } from 'client/hooks'
 import { ListInfiniteScroll } from 'client/components/List'
 
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 const Search = ({
   list,
   listOptions,
@@ -38,7 +41,7 @@ const Search = ({
           value={query}
           onChange={handleChange}
           fullWidth
-          placeholder="Search..."
+          placeholder={`${Tr(T.Search)}...`}
         />
       </Box>
       {result?.length === 0 ? (

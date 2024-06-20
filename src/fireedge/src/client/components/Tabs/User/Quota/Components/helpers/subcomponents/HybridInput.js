@@ -24,6 +24,8 @@ import {
   Grid,
 } from '@mui/material'
 import { Cancel } from 'iconoir-react'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * @param {object} props - The props for the component.
@@ -76,7 +78,7 @@ export const HybridInputField = ({
   return (
     <>
       <TextField
-        label="Value"
+        label={Tr(T.VAlue)}
         disabled={isDisabled()}
         value={getValue()}
         onChange={(e) => {

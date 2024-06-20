@@ -33,6 +33,7 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 import { useGeneralApi } from 'client/features/General'
 import { isEqual } from 'lodash'
 import { isDevelopment } from 'client/utils'
+import { T } from 'client/constants'
 
 /**
  * Compares two role objects while ignoring the ID property of the original role.
@@ -116,7 +117,7 @@ function CreateVmGroup() {
 
   useEffect(() => {
     if (error) {
-      enqueueError(`Failed to fetch VM Group data: ${error.message}`)
+      enqueueError(T.ErrorVMGroupFetch, error.message)
     }
   }, [error])
 
@@ -175,7 +176,7 @@ function CreateVmGroup() {
             template: jsonToXml({ ...rest, ...TEMPLATE }),
           }).unwrap()
           history.push(PATH.TEMPLATE.VMGROUP.LIST)
-          enqueueSuccess(`VM group created - #${newVmGroupId}`)
+          enqueueSuccess(T.SuccessVMGroupCreated, newVmGroupId)
         } else {
           const originalRoles = data?.ROLES?.ROLE
           // eslint-disable-next-line react/prop-types
@@ -188,7 +189,7 @@ function CreateVmGroup() {
           )
 
           history.push(PATH.TEMPLATE.VMGROUP.LIST)
-          enqueueSuccess(`VM group updated - #${templateId} ${NAME}`)
+          enqueueSuccess(T.SuccessVMGroupUpdated, [templateId, NAME])
         }
       } catch (error) {
         isDevelopment() && console.error(`Error in VM group form: ${error}`)

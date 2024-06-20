@@ -25,6 +25,9 @@ import {
   TerminalSimple as SshIcon,
 } from 'iconoir-react'
 
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 /**
  * Renders a NIC card with details and actions.
  *
@@ -113,7 +116,7 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
         >
           <Tooltip title={`#${nicId?.slice(0, 10)}`} arrow>
             <Typography noWrap variant="body1">
-              {autonetworkselect ? 'Automatically selected' : network}
+              {autonetworkselect ? Tr(T['nic.card.automatic']) : network}
             </Typography>
           </Tooltip>
 
@@ -125,19 +128,19 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
             }}
           >
             {management && (
-              <Tooltip title="Management interface" arrow>
+              <Tooltip title={Tr(T['nic.card.management'])} arrow>
                 <ManagementIcon height={18} width={18} />
               </Tooltip>
             )}
 
             {rdpconnection && (
-              <Tooltip title="RDP Connection" arrow>
+              <Tooltip title={Tr(T.RdpConnection)} arrow>
                 <RdpIcon height={18} width={18} />
               </Tooltip>
             )}
 
             {sshconnection && (
-              <Tooltip title="SSH Connection" arrow>
+              <Tooltip title={Tr(T.SshConnection)} arrow>
                 <SshIcon height={18} width={18} />
               </Tooltip>
             )}
@@ -202,7 +205,7 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
             }}
           >
             <Typography noWrap variant="body2">
-              {secgroup || 'Security Group'}
+              {secgroup || Tr(T.SecurityGroup)}
             </Typography>
           </Box>
         </Box>

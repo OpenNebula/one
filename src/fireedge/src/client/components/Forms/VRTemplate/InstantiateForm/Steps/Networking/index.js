@@ -20,6 +20,7 @@ import {
   SCHEMA,
 } from 'client/components/Forms/VRTemplate/InstantiateForm/Steps/Networking/NicMenu/informationSchema'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import { Box, Typography } from '@mui/material'
 import { useState, useMemo } from 'react'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
@@ -79,25 +80,18 @@ const Content = () => {
             gutterBottom
             style={{ color: '#1976d', fontWeight: 'bold' }}
           >
-            Add a NIC to Start Configuring
+            {Tr(T.VirtualRouterNICStart)}
           </Typography>
           <Typography variant="body1" paragraph style={{ marginTop: '16px' }}>
-            In a Virtual Router, a Network Interface Card (NIC) is crucial for
-            managing network traffic efficiently. By adding a NIC, you unlock
-            the ability to create virtual networks and route traffic between
-            virtual machines, ensuring secure and efficient communication within
-            your cloud environment.
+            {Tr(T.VirtualRouterNICStart1)}
           </Typography>
           <Typography variant="body1" paragraph style={{ marginTop: '16px' }}>
-            Just add a NIC to your configuration, and you&apos;ll gain access to
-            configure network settings for your virtual routers. This includes
-            setting up IP addresses, Security Groups, and more, making your
-            cloud environment more manageable and secure.
+            {Tr(T.VirtualRouterNICStart2)}
           </Typography>
         </Box>
       ) : (
         <FormWithSchema
-          legend={'Network configuration'}
+          legend={Tr(T.VirtualRouterNICNetworkConfiguration)}
           key={`${STEP_ID}-NIC-${activeNic}`}
           cy={STEP_ID}
           fields={FIELDS}

@@ -32,7 +32,8 @@ import {
 } from '@mui/material'
 import { useGetServiceQuery } from 'client/features/OneApi/service'
 import { timeFromMilliseconds } from 'client/models/Helper'
-import { SERVICE_LOG_SEVERITY } from 'client/constants'
+import { SERVICE_LOG_SEVERITY, T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 
 const PAGE_SIZE = 10
 
@@ -125,24 +126,24 @@ const LogTab = ({ id }) => {
       >
         <TextField
           fullWidth
-          label="Search"
+          label={Tr(T.Search)}
           variant="outlined"
           size="small"
           onChange={(e) => setFilter(e.target.value)}
         />
 
         <FormControl fullWidth size="small">
-          <InputLabel id="severity-select-label">Severity</InputLabel>
+          <InputLabel id="severity-select-label">{Tr(T.Severity)}</InputLabel>
           <Select
             labelId="severity-select-label"
-            label="Severity"
+            label={Tr(T.Severity)}
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
           >
-            <MenuItem value="ALL">All Severities</MenuItem>
+            <MenuItem value="ALL">{Tr(T.AllSeverities)}</MenuItem>
             {Object.entries(severityDisplayNames).map(([key, name]) => (
               <MenuItem key={key} value={key}>
-                {name}
+                {Tr(T[name])}
               </MenuItem>
             ))}
           </Select>
@@ -154,7 +155,7 @@ const LogTab = ({ id }) => {
               onClick={() => handleSortChange(key)}
               variant={sortType === key ? 'contained' : 'outlined'}
             >
-              {name}
+              {Tr(T[name])}
             </Button>
           ))}
         </ButtonGroup>
@@ -165,7 +166,7 @@ const LogTab = ({ id }) => {
               onChange={() => setSortAscending(!sortAscending)}
             />
           }
-          label={sortAscending ? 'Asc' : 'Desc'}
+          label={sortAscending ? Tr(T.Asc) : Tr(T.Desc)}
         />
       </Stack>
 

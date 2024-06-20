@@ -64,7 +64,7 @@ const HeaderVmInfo = ({ id, type }) => {
 
   useEffect(() => {
     if (isVMRC && isSuccess && vm && !isVCenter(vm)) {
-      enqueueError(`${vm.ID} - ${vm.NAME} is not located on vCenter Host`)
+      enqueueError(T.ErrorVmNoLocatedVenter, [vm.ID, vm.NAME])
       redirectTo(PATH.DASHBOARD)
     }
   }, [isVMRC, isSuccess])

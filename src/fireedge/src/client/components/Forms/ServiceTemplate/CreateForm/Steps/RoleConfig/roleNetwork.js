@@ -21,6 +21,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import makeStyles from '@mui/styles/makeStyles'
 import { Box, Checkbox, TextField, Autocomplete } from '@mui/material'
 import { T } from 'client/constants'
+import { Tr } from 'client/components/HOC'
 import { Legend } from 'client/components/Forms'
 import { STEP_ID as EXTRA_ID } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
 import _ from 'lodash'
@@ -193,7 +194,7 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         field: 'select',
         disableColumnMenu: true,
         sortable: false,
-        headerName: 'Select',
+        headerName: Tr(T.Select),
         width: 100,
         renderCell: (params) => (
           <Checkbox
@@ -209,14 +210,14 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         field: 'network',
         disableColumnMenu: true,
         flex: 1,
-        headerName: 'Network',
+        headerName: Tr(T.Network),
         width: 150,
       },
       {
         field: 'aliasToggle',
         disableColumnMenu: true,
         sortable: false,
-        headerName: 'NIC Alias',
+        headerName: Tr(T.NICAlias),
         width: 110,
         renderCell: (params) =>
           params?.row?.rowSelected && (
@@ -233,7 +234,7 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         field: 'alias',
         disableColumnMenu: true,
         flex: 1,
-        headerName: 'Alias',
+        headerName: Tr(T.Alias),
         width: 200,
         renderCell: (params) =>
           params?.row?.aliasSelected && (
@@ -281,7 +282,12 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         className={classes.root}
         rows={fields}
         columns={columns}
-        localeText={{ noRowsLabel: 'No networks have been defined' }}
+        localeText={{
+          noRowsLabel: 'No networks have been defined',
+          MuiTablePagination: {
+            labelRowsPerPage: Tr(T.RowsPerPage),
+          },
+        }}
         autoHeight
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
         disableSelectionOnClick

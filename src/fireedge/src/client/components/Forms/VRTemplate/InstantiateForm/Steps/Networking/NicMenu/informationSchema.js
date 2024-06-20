@@ -37,14 +37,14 @@ const NETWORK = {
 
 const RDP = {
   name: 'rdpconnection',
-  label: 'Enable RDP',
+  label: T.RdpConnection,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
   grid: { md: 6 },
 }
 const SSH = {
   name: 'sshconnection',
-  label: 'Enable SSH',
+  label: T.SshConnection,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().default(() => false),
   grid: { md: 6 },
@@ -52,7 +52,7 @@ const SSH = {
 
 const FORCEIPV4 = {
   name: 'IP',
-  label: 'Force IPv4',
+  label: T.VirtualRouterNICForceIpv4,
   type: INPUT_TYPES.TEXT,
   validation: number()
     .min(7) // Shortest possible IPv4
@@ -63,7 +63,7 @@ const FORCEIPV4 = {
 
 const FLOATINGIP = {
   name: 'floating_ip',
-  label: 'Floating IP',
+  label: T.VirtualRouterNICFloatingIP,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().yesOrNo(),
   grid: { md: 6 },
@@ -71,7 +71,7 @@ const FLOATINGIP = {
 
 const FORCEIPV6 = {
   name: 'IP6',
-  label: 'Force IPv6',
+  label: T.VirtualRouterNICForceIpv6,
   type: INPUT_TYPES.TEXT,
   validation: number()
     .min(7)
@@ -82,7 +82,7 @@ const FORCEIPV6 = {
 
 const MANAGEMENINTERFACE = {
   name: 'VROUTER_MANAGEMENT',
-  label: 'Management interface',
+  label: T['nic.card.management'],
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().yesOrNo(),
   grid: { md: 6 },

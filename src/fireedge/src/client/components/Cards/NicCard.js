@@ -104,12 +104,12 @@ const NicCard = memo(
           {
             text: stringToBoolean(RDP) && 'RDP',
             dataCy: `${dataCy}-rdp`,
-            helpText: 'Remote Desktop Protocol',
+            helpText: Tr(T['nic.card.rdp']),
           },
           {
             text: stringToBoolean(SSH) && 'SSH',
             dataCy: `${dataCy}-ssh`,
-            helpText: 'Secure Shell Protocol',
+            helpText: Tr(T['nic.card.ssh']),
           },
           hasAlias && {
             text: `ALIAS: ${aliasLength}`,

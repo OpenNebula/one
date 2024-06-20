@@ -17,6 +17,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { MultiChart } from 'client/components/Charts'
 import { Box } from '@mui/material'
+import { Tr } from 'client/components/HOC'
+import { mapValues } from 'lodash'
 
 const commonStyles = {
   height: '500px',
@@ -88,22 +90,28 @@ export const CustomizedChart = ({
   error,
   isLoading,
   groupBy,
-}) => (
-  <Box style={commonStyles}>
-    <MultiChart
-      datasets={datasets}
-      visibleDatasets={visibleDatasets}
-      chartType={chartType}
-      selectedMetrics={selectedMetrics}
-      ItemsPerPage={7}
-      error={error}
-      isLoading={isLoading}
-      tableColumns={DataGridColumns}
-      metricNames={metricNames}
-      groupBy={groupBy}
-    />
-  </Box>
-)
+}) => {
+  const metricNamesTranslated = mapValues(metricNames, (value, key) =>
+    Tr(value)
+  )
+
+  return (
+    <Box style={commonStyles}>
+      <MultiChart
+        datasets={datasets}
+        visibleDatasets={visibleDatasets}
+        chartType={chartType}
+        selectedMetrics={selectedMetrics}
+        ItemsPerPage={7}
+        error={error}
+        isLoading={isLoading}
+        tableColumns={DataGridColumns}
+        metricNames={metricNamesTranslated}
+        groupBy={groupBy}
+      />
+    </Box>
+  )
+}
 
 CustomizedChart.propTypes = {
   datasets: PropTypes.arrayOf(PropTypes.object).isRequired,

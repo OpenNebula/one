@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { object, string } from 'yup'
 import { getValidationFromFields, arrayToOptions } from 'client/utils'
-import { INPUT_TYPES } from 'client/constants'
+import { INPUT_TYPES, T } from 'client/constants'
 import { SECTION_ID as ADVANCED_SECTION_ID } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig/AdvancedParameters'
 
 const SHUTDOWN_TYPES = {
@@ -31,7 +31,7 @@ const SHUTDOWN_ENUMS_ONEFLOW = {
 
 const SHUTDOWN_TYPE = {
   name: `${ADVANCED_SECTION_ID}.SHUTDOWNTYPE`,
-  label: 'VM Shutdown action',
+  label: T.VMShutdownAction,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(Object.keys(SHUTDOWN_TYPES), {

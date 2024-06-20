@@ -25,6 +25,7 @@ import { DateTime } from 'luxon'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
+import { mapValues } from 'lodash'
 
 const keyMap = {
   VMID: 'OID',
@@ -195,6 +196,13 @@ const generateShowbackInfoTab = ({ groups }) => {
       )
     }
 
+    const topMetricNamesTranslated = mapValues(topMetricNames, (value, key) =>
+      Tr(value)
+    )
+    const metricNamesTranslated = mapValues(metricNames, (value, key) =>
+      Tr(value)
+    )
+
     return (
       <Box padding={2} display="flex" flexDirection="column" height="100%">
         <Box
@@ -230,7 +238,7 @@ const generateShowbackInfoTab = ({ groups }) => {
               chartType={'table'}
               tableColumns={smallTableColumns}
               groupBy={'MONTH'}
-              metricNames={topMetricNames}
+              metricNames={topMetricNamesTranslated}
             />
           </Box>
 
@@ -240,7 +248,7 @@ const generateShowbackInfoTab = ({ groups }) => {
               chartType={'bar'}
               ItemsPerPage={12}
               groupBy={'MONTH'}
-              metricNames={topMetricNames}
+              metricNames={topMetricNamesTranslated}
               selectedMetrics={{ totalCost: true }}
             />
           </Box>
@@ -258,7 +266,7 @@ const generateShowbackInfoTab = ({ groups }) => {
             ItemsPerPage={7}
             tableColumns={DataGridColumns}
             groupBy={'MONTH'}
-            metricNames={metricNames}
+            metricNames={metricNamesTranslated}
           />
         </Box>
       </Box>

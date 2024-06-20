@@ -83,18 +83,18 @@ const TooltipComponent = ({ tooltip, tooltipLink, tooltipprops, children }) => {
           title={
             tooltipLink ? (
               <Typography variant="subtitle2">
-                {tooltip}{' '}
+                {Tr(tooltip)}{' '}
                 <a
                   className={classes.tooltipLink}
                   target="_blank"
                   href={tooltipLink.link}
                   rel="noreferrer"
                 >
-                  {tooltipLink.text}
+                  {Tr(tooltipLink.text)}
                 </a>
               </Typography>
             ) : (
-              <Typography variant="subtitle2">{tooltip}</Typography>
+              <Typography variant="subtitle2">{Tr(tooltip)}</Typography>
             )
           }
           {...tooltipprops}
@@ -127,7 +127,7 @@ const SubmitButton = memo(
           {isSubmitting && (
             <CircularProgress color="secondary" size={progressSize} />
           )}
-          {!isSubmitting && (icon ?? label ?? Tr(T.Submit))}
+          {!isSubmitting && (icon ?? Tr(label) ?? Tr(T.Submit))}
         </ButtonComponent>
       </TooltipComponent>
     )

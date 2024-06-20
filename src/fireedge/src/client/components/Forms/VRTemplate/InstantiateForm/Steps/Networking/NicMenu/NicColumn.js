@@ -21,6 +21,8 @@ import Legend from 'client/components/Forms/Legend'
 import NicCard from './NicCard'
 import { useGetVNetworksQuery } from 'client/features/OneApi/network'
 import { useGetSecGroupsQuery } from 'client/features/OneApi/securityGroup'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 /**
  * Renders a column of NICs with actions to add, remove, and select NICs.
@@ -45,7 +47,7 @@ const NicColumn = ({ nics, addNic, removeNic, selectNic, activeNic } = {}) => {
       height="100%"
       position="relative"
     >
-      <Legend title="Configured NIC's" />
+      <Legend title={Tr(T.VirtualRouterNICConfigured)} />
       <Box
         sx={{
           display: 'flex',
@@ -75,7 +77,7 @@ const NicColumn = ({ nics, addNic, removeNic, selectNic, activeNic } = {}) => {
                             (vnet) => vnet?.ID === nic?.network_id
                           )?.NAME,
                         }
-                      : { network: 'Network Name' }),
+                      : { network: Tr(T.VirtualRouterNICNetworkName) }),
 
                     ...(nic?.secgroup !== ''
                       ? {
@@ -83,7 +85,7 @@ const NicColumn = ({ nics, addNic, removeNic, selectNic, activeNic } = {}) => {
                             (secgroup) => secgroup?.ID === nic?.secgroup
                           )?.NAME,
                         }
-                      : { secgroup: 'Security Group' }),
+                      : { secgroup: 'sadfasd' }),
                   }}
                   removeNic={removeNic}
                   selectNic={selectNic}
@@ -104,7 +106,7 @@ const NicColumn = ({ nics, addNic, removeNic, selectNic, activeNic } = {}) => {
           marginTop: 'auto',
         }}
       >
-        Add NIC
+        {Tr(T.VirtualRouterNICAdd)}
       </Button>
     </Box>
   )

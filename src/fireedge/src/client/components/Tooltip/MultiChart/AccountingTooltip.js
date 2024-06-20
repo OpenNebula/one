@@ -17,6 +17,7 @@
 import PropTypes from 'prop-types'
 import React, { useMemo } from 'react'
 import { Box, Paper, Typography } from '@mui/material'
+import { Tr } from 'client/components/HOC'
 
 export const CustomTooltip = React.memo(
   ({ active, payload, labels, generateColor, formatMetric, metricHues }) => {
@@ -85,7 +86,7 @@ export const CustomTooltip = React.memo(
                     style={{ margin: '0.5px 0' }}
                   >
                     <span style={{ color: metricColor }}>
-                      {formatMetric(entry.metric)}:
+                      {Tr(formatMetric(entry.metric))}:
                     </span>
                     {formattedValue}
                   </Typography>

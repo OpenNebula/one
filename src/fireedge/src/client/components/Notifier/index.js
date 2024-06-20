@@ -48,7 +48,7 @@ const Notifier = () => {
 
   useEffect(() => {
     notifications.forEach(
-      ({ key, message, options = {}, dismissed = false }) => {
+      ({ key, message, options = {}, dismissed = false, values }) => {
         if (dismissed) {
           closeSnackbar(key)
 
@@ -57,7 +57,7 @@ const Notifier = () => {
 
         if (displayed.includes(key)) return
 
-        enqueueSnackbar(<Translate word={message} />, {
+        enqueueSnackbar(<Translate word={message} values={values} />, {
           key,
           ...options,
           action: CloseButton({ handleClick: () => closeSnackbar(key) }),

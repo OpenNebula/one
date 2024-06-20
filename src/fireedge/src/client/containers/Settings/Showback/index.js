@@ -57,9 +57,9 @@ const Settings = () => {
 
     try {
       await calculateShowback(params)
-      enqueueSuccess('Showback calculated')
+      enqueueSuccess(T.SuccessShowbackCalculated)
     } catch (error) {
-      enqueueError(`Error calculating showback: ${error.message}`)
+      enqueueError(T.ErrorShowbackCalculated, error.message)
     }
   }
 

@@ -17,7 +17,8 @@ import PropTypes from 'prop-types'
 import { Component, useState } from 'react'
 import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
 import { Trash } from 'iconoir-react'
-
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 /**
  * @param {object} root0 - Component
  * @param {string} root0.selectedType - Selected Quota type.
@@ -119,18 +120,15 @@ export const ResourceIDAutocomplete = ({
             setInputValue('')
           }}
           variant="outlined"
-          label="Resource IDs"
+          label={Tr(T.ResourceIds)}
           placeholder={
             inputValue || state?.globalIds?.length > 1
               ? ''
-              : 'Select or type a Resource ID'
+              : Tr(T.ResourceIdsConcept)
           }
           fullWidth
           error={!state.isValid}
-          helperText={
-            !state.isValid &&
-            'Invalid format or duplicate ID. Please enter a positive number.'
-          }
+          helperText={!state.isValid && Tr(T.ResourceIdsInvalid)}
           sx={{
             '.MuiOutlinedInput-root': {
               minHeight: '56px',
