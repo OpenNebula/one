@@ -943,7 +943,7 @@ int LibVirtDriver::deployment_description_kvm(
     // CPU SECTION
     // ------------------------------------------------------------------------
     get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
-    get_attribute(vm, nullptr, nullptr, "CPU_MODEL", "FEATURES", cpu_feature);
+    get_attribute(vm, host, cluster, "CPU_MODEL", "FEATURES", cpu_feature);
 
     if (cpu_model == "host-passthrough")
     {
