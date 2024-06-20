@@ -135,6 +135,7 @@ const VNetworksTable = (props) => {
       updateSelectedRows()
     }
   })
+  useEffect(() => refetch(), [])
 
   return (
     <EnhancedTable

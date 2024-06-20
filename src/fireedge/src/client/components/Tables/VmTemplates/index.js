@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 
 import { useViews } from 'client/features/Auth'
 import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
@@ -45,6 +45,7 @@ const VmTemplatesTable = (props) => {
       }),
     [view]
   )
+  useEffect(() => refetch(), [])
 
   return (
     <EnhancedTable
