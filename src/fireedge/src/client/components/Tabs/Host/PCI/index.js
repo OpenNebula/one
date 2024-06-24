@@ -108,20 +108,27 @@ const HostPciTab = ({ id }) => {
           </Select>
         </FormControl>
       </Box>
-      <MultiChart
-        datasets={[
-          {
-            ...transformedDataset.dataset,
-            error: transformedDataset.error,
-            isEmpty: transformedDataset.isEmpty,
-          },
-        ]}
-        metricNames={metricNames}
-        chartType={chartType}
-        ItemsPerPage={10}
-        tableColumns={DataGridColumns}
-        groupBy={'deviceName'}
-      />
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <MultiChart
+          datasets={[
+            {
+              ...transformedDataset.dataset,
+              error: transformedDataset.error,
+              isEmpty: transformedDataset.isEmpty,
+            },
+          ]}
+          metricNames={metricNames}
+          chartType={chartType}
+          ItemsPerPage={10}
+          tableColumns={DataGridColumns}
+          groupBy={'deviceName'}
+        />
+      </Box>
     </>
   )
 }

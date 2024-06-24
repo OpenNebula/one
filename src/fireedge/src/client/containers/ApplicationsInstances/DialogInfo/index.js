@@ -41,28 +41,26 @@ const DialogInfo = ({ info, handleClose }) => {
   const [tabSelected, setTab] = useState(0)
   const { name } = info?.TEMPLATE?.BODY
 
-  const renderTabs = useMemo(
-    () => (
-      <AppBar position="static">
-        <Tabs
-          value={tabSelected}
-          variant="scrollable"
-          scrollButtons="auto"
-          onChange={(_, tab) => setTab(tab)}
-        >
-          {TABS.map(({ name: tabName, icon: Icon }, idx) => (
-            <Tab
-              key={`tab-${tabName}`}
-              id={`tab-${tabName}`}
-              icon={<Icon />}
-              value={idx}
-              label={String(tabName).toUpperCase()}
-            />
-          ))}
-        </Tabs>
-      </AppBar>
-    ),
-    [tabSelected]
+  // Removed memoization, might need to optimize later
+  const renderTabs = (
+    <AppBar position="static">
+      <Tabs
+        value={tabSelected}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, tab) => setTab(tab)}
+      >
+        {TABS.map(({ name: tabName, icon: Icon }, idx) => (
+          <Tab
+            key={`tab-${tabName}`}
+            id={`tab-${tabName}`}
+            icon={<Icon />}
+            value={idx}
+            label={String(tabName).toUpperCase()}
+          />
+        ))}
+      </Tabs>
+    </AppBar>
   )
 
   return (

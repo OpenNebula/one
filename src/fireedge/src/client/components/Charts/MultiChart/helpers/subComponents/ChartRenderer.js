@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import React, { useMemo } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import {
   Area,
@@ -128,20 +128,14 @@ export const ChartRenderer = ({
     return Tr(finalWord)
   })
 
-  const polarDataset = useMemo(
-    () => (coordinateType === 'POLAR' ? FormatPolarDataset(datasets) : null),
-    [coordinateType, datasets]
-  )
+  const polarDataset =
+    coordinateType === 'POLAR' ? FormatPolarDataset(datasets) : null
 
-  const chartConfig = useMemo(
-    () =>
-      GetChartConfig(
-        coordinateType,
-        chartType,
-        coordinateType === 'CARTESIAN' ? datasets : polarDataset,
-        paginatedData
-      ),
-    [coordinateType, chartType, datasets, polarDataset, paginatedData]
+  const chartConfig = GetChartConfig(
+    coordinateType,
+    chartType,
+    coordinateType === 'CARTESIAN' ? datasets : polarDataset,
+    paginatedData
   )
 
   // Translate columns in tables

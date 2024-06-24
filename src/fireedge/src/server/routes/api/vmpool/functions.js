@@ -86,14 +86,17 @@ const accounting = (
       const responseData = value
 
       // Filter if there is not userId and there is a groupId
-      if (!userId && groupId && responseData && responseData.HISTORY_RECORDS) {
+      if (responseData && responseData.HISTORY_RECORDS) {
         // Filter data by group id
         const history = Array.isArray(responseData.HISTORY_RECORDS.HISTORY)
           ? responseData.HISTORY_RECORDS.HISTORY
           : [responseData.HISTORY_RECORDS.HISTORY]
-        responseData.HISTORY_RECORDS.HISTORY = history.filter(
-          (item) => item.VM.GID === groupId
-        )
+
+        if (!userId && groupId) {
+          responseData.HISTORY_RECORDS.HISTORY = history.filter(
+            (item) => item.VM.GID === groupId
+          )
+        }
       }
 
       // Return response

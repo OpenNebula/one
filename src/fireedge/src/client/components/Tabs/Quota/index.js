@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 import { MultiChart } from 'client/components/Charts'
 import { transformApiResponseToDataset } from 'client/components/Charts/MultiChart/helpers/scripts'
@@ -50,17 +50,23 @@ const generateQuotasInfoTab = ({ groups }) => {
 
     const apiData = queryInfo?.data || {}
 
-    useMemo(() => {
+    useEffect(() => {
       if (datastoresResponse.isSuccess && datastoresResponse.data) {
         setDsNameMap(nameMapper(datastoresResponse))
       }
+    }, [datastoresResponse])
+
+    useEffect(() => {
       if (networksResponse.isSuccess && networksResponse.data) {
         setNetNameMap(nameMapper(networksResponse))
       }
+    }, [networksResponse])
+
+    useEffect(() => {
       if (imagesResponse.isSuccess && imagesResponse.data) {
         setImgNameMap(nameMapper(imagesResponse))
       }
-    }, [datastoresResponse, networksResponse, imagesResponse])
+    }, [imagesResponse])
 
     const nameMaps = {
       DATASTORE: dsNameMap,
@@ -207,7 +213,7 @@ const generateQuotasInfoTab = ({ groups }) => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          height: '100%',
+          height: '100vh',
           minWidth: '300px',
           minHeight: '600px',
         }}
