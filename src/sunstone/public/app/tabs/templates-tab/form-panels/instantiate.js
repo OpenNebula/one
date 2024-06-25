@@ -407,10 +407,14 @@ define(function(require) {
 
       var topology = {};
 
-      if (tmp_json && tmp_json.CORES){
+      var vcpu_value = tmp_json.VCPU === undefined? 
+          original_tmpl.TEMPLATE.VCPU === undefined? original_tmpl.TEMPLATE.CPU : original_tmpl.TEMPLATE.VCPU
+        : tmp_json.VCPU
+
+      if (tmp_json && tmp_json.CORES && vcpu_value){
         topology.CORES = tmp_json["CORES"];
-        topology.SOCKETS = parseInt(tmp_json["VCPU"]) / parseInt(tmp_json["CORES"]);
-        topology.THREADS = 1;
+        topology.SOCKETS = tmp_json.SOCKETS !== undefined? tmp_json.SOCKETS : "" + parseInt(vcpu_value) / parseInt(tmp_json["CORES"]);
+        topology.THREADS = "1";
         delete tmp_json["CORES"];
       }
 
