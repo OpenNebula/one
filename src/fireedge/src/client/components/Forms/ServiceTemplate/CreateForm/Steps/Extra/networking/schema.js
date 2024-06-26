@@ -36,7 +36,7 @@ const NETWORK_TYPE = {
     .trim()
     .oneOf([...Object.keys(NETWORK_TYPES), ...Object.values(NETWORK_TYPES)])
     .default(() => Object.values(NETWORK_TYPES)[0]),
-  grid: { sm: 1.5, md: 1.5 },
+  grid: { md: 2 },
 }
 
 // Network Name Field
@@ -45,7 +45,7 @@ const NAME = {
   label: 'Name',
   type: INPUT_TYPES.TEXT,
   validation: string().trim().required(),
-  grid: { sm: 2.5, md: 2.5 },
+  grid: { md: 2.5 },
 }
 
 // Network Description Field
@@ -57,7 +57,7 @@ const DESCRIPTION = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { sm: 2.5, md: 2.5 },
+  grid: { md: 2.5 },
 }
 
 // Network Selection Field (for 'reserve' or 'existing')
@@ -93,7 +93,7 @@ const NETEXTRA = {
     then: string().strip(),
     otherwise: string().notRequired(),
   }),
-  grid: { sm: 2.5, md: 2.5 },
+  grid: { md: 2.5 },
 }
 
 // List of Network Input Fields

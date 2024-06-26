@@ -24,10 +24,9 @@ const MAX_VALUE = 999999
  * Creates fields for minmax vms schema based on a path prefix.
  *
  * @param {string} pathPrefix - Path prefix for field names.
- * @param { number } cardinality - Number of VMs defined in Role Def. step.
  * @returns {object[]} - Array of field definitions for minmax vms.
  */
-export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
+export const createMinMaxVmsFields = (pathPrefix) => {
   const getPath = (fieldName) =>
     pathPrefix ? `${pathPrefix}.${fieldName}` : fieldName
 
@@ -39,11 +38,7 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
       cy: 'elasticity',
       validation: number()
         .integer('Min VMs must be an integer')
-        .min(
-          cardinality,
-          `Min VMs cannot be less than defined cardinality: ${cardinality}`
-        )
-        .default(() => cardinality),
+        .default(() => undefined),
       fieldProps: {
         type: 'number',
       },
@@ -56,9 +51,8 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
       cy: 'elasticity',
       validation: number()
         .integer('Max VMs must be an integer')
-        .min(cardinality, `Max VMs cannot be less than ${cardinality}`)
         .max(MAX_VALUE, `Max VMs cannot exceed ${MAX_VALUE}`)
-        .default(() => cardinality),
+        .default(() => undefined),
       fieldProps: {
         type: 'number',
       },
@@ -73,7 +67,7 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
         .integer('Cooldown must be an integer')
         .min(0, 'Cooldown cannot be less than 0')
         .max(MAX_VALUE, `Cooldown exceed ${MAX_VALUE}`)
-        .default(() => 0),
+        .default(() => undefined),
       fieldProps: {
         type: 'number',
       },
@@ -86,11 +80,10 @@ export const createMinMaxVmsFields = (pathPrefix, cardinality) => {
  * Creates a Yup schema for minmax vms based on a given path prefix.
  *
  * @param {string} pathPrefix - Path prefix for field names in the schema.
- * @param { number } cardinality - Number of VMs defined in Role Def. step.
  * @returns {object} - Yup schema object for minmax vms.
  */
-export const createMinMaxVmsSchema = (pathPrefix, cardinality = 0) => {
-  const fields = createMinMaxVmsFields(pathPrefix, cardinality)
+export const createMinMaxVmsSchema = (pathPrefix) => {
+  const fields = createMinMaxVmsFields(pathPrefix)
 
   return object(getValidationFromFields(fields))
 }

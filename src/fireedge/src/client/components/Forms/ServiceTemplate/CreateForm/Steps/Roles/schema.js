@@ -35,7 +35,7 @@ const CARDINALITY_FIELD = {
 
   validation: number()
     .positive('Number of VMs must be positive')
-    .default(() => 1),
+    .default(() => 0),
 }
 
 const SELECTED_VM_TEMPLATE_ID_FIELD = {

@@ -79,6 +79,8 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
     setPage(0)
   }
 
+  const isDisabled = !roles?.[selectedRoleIndex] || roles?.length <= 0
+
   return (
     <Box
       sx={{
@@ -86,6 +88,8 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
         p: 2,
         borderRadius: 2,
         maxHeight: '40%',
+        pointerEvents: isDisabled ? 'none' : 'auto',
+        opacity: isDisabled ? '50%' : '100%',
       }}
     >
       <Typography variant="h6" gutterBottom>

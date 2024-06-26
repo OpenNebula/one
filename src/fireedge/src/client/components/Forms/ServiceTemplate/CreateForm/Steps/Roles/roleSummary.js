@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import {
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  Divider,
-} from '@mui/material'
+import { Card, CardContent, Typography, Divider } from '@mui/material'
 import PropTypes from 'prop-types'
 import { T } from 'client/constants'
 import { Tr } from 'client/components/HOC'
@@ -166,20 +160,6 @@ const RoleSummary = ({ role, selectedRoleIndex }) => (
           ' ' + Tr(T.RoleAdjustmentTypePositiveNegative)}
       </Typography>
     </CardContent>
-    <CardActions sx={{ p: 2, pt: 0 }}>
-      <Typography
-        variant="subtitle2"
-        color="textSecondary"
-        sx={{ opacity: 0.7 }}
-      >
-        <strong>{Tr(T.VMGroupConfiguration)}:</strong>
-        <ul>
-          <li>{Tr(T.RoleDefineRoles)}</li>
-          <li>{Tr(T.RoleOptimize)}</li>
-          <li>{Tr(T.RoleManageApps)}</li>
-        </ul>
-      </Typography>
-    </CardActions>
   </Card>
 )
 

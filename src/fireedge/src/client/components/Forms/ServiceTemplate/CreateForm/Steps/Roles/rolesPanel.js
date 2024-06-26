@@ -43,6 +43,8 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
     onChange({ ...roles[selectedRoleIndex], [name]: value }) // updated role
   }
 
+  const isDisabled = !roles?.[selectedRoleIndex] || roles?.length <= 0
+
   return (
     <Box p={2}>
       <Box sx={{ flex: 1 }}>
@@ -53,7 +55,7 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
             name="NAME"
             value={roles?.[selectedRoleIndex]?.NAME ?? ''}
             onChange={handleInputChange}
-            disabled={!roles?.[selectedRoleIndex]}
+            disabled={isDisabled}
             inputProps={{ 'data-cy': `role-name-${selectedRoleIndex}` }}
             fullWidth
           />
@@ -63,8 +65,9 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
           <TextField
             type="number"
             label={Tr(T.NumberOfVms)}
-            value={roles?.[selectedRoleIndex]?.CARDINALITY ?? 1}
+            value={roles?.[selectedRoleIndex]?.CARDINALITY ?? 0}
             onChange={handleInputChange}
+            disabled={isDisabled}
             name="CARDINALITY"
             InputProps={{
               inputProps: {
