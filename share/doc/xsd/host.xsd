@@ -47,6 +47,19 @@
                       <xs:element name="FREE_DISK" type="xs:integer"/>
                       <xs:element name="MAX_DISK" type="xs:integer"/>
                       <xs:element name="USED_DISK" type="xs:integer"/>
+                      <xs:element name="DS" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element name="FREE_MB" type="xs:integer"/>
+                            <xs:element name="ID" type="xs:integer"/>
+                            <xs:element name="TOTAL_MB" type="xs:integer"/>
+                            <xs:element name="USED_MB" type="xs:integer"/>
+                            <xs:element name="REPLICA_CACHE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                            <xs:element name="REPLICA_CACHE_SIZE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                            <xs:element name="REPLICA_IMAGES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
                     </xs:all>
                 </xs:complexType>
               </xs:element>
