@@ -94,6 +94,7 @@ const TextController = memo(
             max: fieldProps.max,
             step: fieldProps.step,
           }),
+          ...(multiline && { style: { resize: 'both' } }),
         }}
         error={Boolean(error)}
         helperText={
@@ -101,6 +102,7 @@ const TextController = memo(
         }
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
+        sx={multiline ? { textarea: { resize: 'both' } } : {}}
       />
     )
   },
