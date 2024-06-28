@@ -27,6 +27,12 @@ const { endpointVmrc, defaultPort } = require('server/utils/constants/defaults')
 
 genPathResources()
 
+const logger = (message = '', format = '%s') =>
+  writeInLogger(message, {
+    format,
+    level: 2,
+  })
+
 const appConfig = getFireedgeConfig()
 const port = appConfig.port || defaultPort
 const protocol = validateServerIsSecure() ? 'https' : 'http'
@@ -37,43 +43,68 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   ws: true,
   secure: /^(https):\/\/[^ "]+$/.test(url),
   logLevel: 'debug',
+  logProvider: () => ({
+    log: logger,
+    debug: logger,
+    info: logger,
+    warn: logger,
+    error: logger,
+  }),
   pathRewrite: (path) => path.replace(endpointVmrc, '/ticket'),
-  onProxyReqWs: (proxyReq, __, socket) => {
-    proxyReq.setHeader('Access-Control-Allow-Origin', '*')
-
+  onProxyReqWs: (_, __, socket) => {
     socket.on('error', (err) => {
-      writeInLogger(err?.message || '', {
-        format: 'WebSocket Error connection : %s',
-        level: 2,
-      })
+      logger(err?.message || '', 'WebSocket Error connection : %s')
       socket.end()
     })
   },
-  onError: (err, _, res) => {
-    writeInLogger(err?.message || '', {
-      format: 'Error connection : %s',
-      level: 2,
+  onOpen: (proxySocket) => {
+    const message = `vCenter: ${proxySocket?.remoteAddress}:${proxySocket?.remotePort}`
+    logger(message, 'WebSocket connection openned %s')
+
+    proxySocket.on('error', (err) => {
+      logger(err?.message || '', 'Error connection (onOpen) : %s')
     })
 
-    res.status(500).send('VMRC proxy error')
+    proxySocket.on('close', (hadError) => {
+      logger(hadError || 'cleanly', 'Connection closed (onOpen) : %s')
+    })
+  },
+  onClose: (_, socket) => {
+    socket.on('end', () => {
+      logger('onClose', 'Socket end event (%s)')
+    })
+
+    socket.on('close', (hadError) => {
+      logger(hadError || 'cleanly', 'Connection closed (onClose) : %s')
+    })
+
+    socket.on('error', (err) => {
+      logger(err?.message || '', 'Error connection (onClose) : %s')
+    })
+  },
+  onError: (err, _, res) => {
+    logger(err?.message || '', 'Error connection : %s')
+    res?.status?.(500)?.send?.('VMRC proxy error')
   },
   // eslint-disable-next-line consistent-return
   router: (req) => {
     if (req?.url) {
       const parseURL = parse(req.url)
+
       if (parseURL?.pathname) {
         const ticket = parseURL.pathname.split('/')[3]
-        writeInLogger(ticket, {
-          format: 'Path to VMRC token: %s',
-          level: 2,
-        })
+        logger(ticket, 'Path to VMRC token: %s')
+
         if (global?.vcenterToken?.[ticket]) {
+          const fullUrl = `${protocol}://${req.headers.host}${
+            parseURL.pathname
+          }${parseURL.search || ''}`
+          logger(fullUrl, 'Full URL of incoming request: %s')
+          logger(global.vcenterToken[ticket], 'vCenter token: %s')
+
           return global.vcenterToken[ticket]
         } else {
-          writeInLogger(ticket, {
-            format: 'Non-existent token: %s',
-            level: 2,
-          })
+          logger(ticket, 'Non-existent token: %s')
         }
       }
     }

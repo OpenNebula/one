@@ -314,6 +314,8 @@ define(function(require) {
       paramInfo
     ]).filter(Boolean);
 
+    var params_query = params.length? "?" + params.join("&") : ""
+
     var endpoint = new URL(window.location.href);
     var websocketProtocol = options.protocol === "https:" ? "wss:" : "ws:";
 
@@ -328,7 +330,7 @@ define(function(require) {
     else 
       websocket += endpoint.host;
 
-    websocket += options.extra_path + "?" + params.join("&");
+    websocket += options.extra_path + params_query;
 
     var encoded_socket = btoa(websocket);
 
