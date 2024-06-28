@@ -68,11 +68,14 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
         NAME: role?.name,
         CARDINALITY: role?.cardinality,
         SELECTED_VM_TEMPLATE_ID: [role?.vm_template.toString()],
+        ...(role?.parents ? { PARENTS: role?.parents } : {}),
       }))
 
     const roleDefinitionData = definedRoles?.map((role) => ({
       ...role,
     }))
+
+    const networkDefs = reversedVmTc?.map((rtc) => rtc.networks)
 
     const roleConfigData = {
       ELASTICITYPOLICIES: convertKeysToCase(
@@ -137,7 +140,14 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
           Object.values(role).some((val) => val !== undefined)
         ),
 
-      NETWORKDEFS: reversedVmTc?.map((rtc) => rtc.networks),
+      NETWORKDEFS: networkDefs,
+      RDP: networkDefs?.reduce((acc, nics, idx) => {
+        const rdpRow =
+          nics?.filter((nic) => nic?.RDP)?.[0]?.NETWORK_ID?.slice(1) ?? ''
+        acc[idx] = rdpRow
+
+        return acc
+      }, {}),
     }
 
     const knownTemplate = schema.cast(
@@ -166,72 +176,108 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
       [ROLE_CONFIG_ID]: roleConfigData,
     } = formData
 
-    const formatTemplate = {
-      ...generalData,
-      roles: roleDefinitionData?.map((roleDef, index) => {
-        const scheduledPolicies = roleConfigData?.SCHEDULEDPOLICIES?.[
-          index
-        ]?.map((policy) => {
-          const newPolicy = {
-            ...policy,
-            TYPE: policy?.SCHEDTYPE,
-            ADJUST: +policy?.ADJUST,
-            [policy.TIMEFORMAT?.split(' ')?.join('_')?.toLowerCase()]:
-              policy.TIMEEXPRESSION,
+    const getVmTemplateContents = (index) => {
+      const contents = parseVmTemplateContents({
+        networks: roleConfigData?.NETWORKS?.[index],
+        rdpConfig: roleConfigData?.RDP?.[index],
+        schedActions: extraData?.SCHED_ACTION,
+      })
+
+      return contents || ''
+    }
+
+    const getScheduledPolicies = (index) => {
+      const policies = roleConfigData?.SCHEDULEDPOLICIES?.[index]?.map(
+        (policy) => {
+          const { SCHEDTYPE, ADJUST, TIMEFORMAT, TIMEEXPRESSION, ...rest } =
+            policy
+
+          return {
+            ...rest,
+            TYPE: SCHEDTYPE,
+            ADJUST: Number(ADJUST),
+            [TIMEFORMAT?.split(' ')?.join('_')?.toLowerCase()]: TIMEEXPRESSION,
           }
-          delete newPolicy.SCHEDTYPE
-          delete newPolicy.TIMEFORMAT
-          delete newPolicy.TIMEEXPRESSION
+        }
+      )
 
-          return newPolicy
-        })
+      return policies?.length ? policies : undefined
+    }
 
-        const newRoleDef = {
-          vm_template_contents: parseVmTemplateContents({
-            networks: roleConfigData?.NETWORKS?.[index] ?? undefined,
-            schedActions: extraData?.SCHED_ACTION ?? undefined,
-          }),
-          ...roleDef,
+    const getElasticityPolicies = (index) => {
+      const elasticityPolicies = roleConfigData?.ELASTICITYPOLICIES?.[index]
+      if (!elasticityPolicies || elasticityPolicies.length === 0)
+        return undefined
 
-          ...roleConfigData?.MINMAXVMS?.[index],
-          VM_TEMPLATE: +roleDef?.SELECTED_VM_TEMPLATE_ID?.[0],
-          ...(scheduledPolicies &&
-            scheduledPolicies.length > 0 && {
-              scheduled_policies: scheduledPolicies,
-            }),
-          elasticity_policies: [
-            ...roleConfigData?.ELASTICITYPOLICIES?.[index].flatMap((elap) => ({
-              ...elap,
-              ...(elap?.ADJUST && { adjust: +elap?.ADJUST }),
-            })),
-          ],
+      return elasticityPolicies.map(({ ADJUST, ...rest }) => ({
+        ...rest,
+        ...(ADJUST && { adjust: Number(ADJUST) }),
+      }))
+    }
+
+    const getNetworks = () => {
+      if (!extraData?.NETWORKING?.length) return undefined
+
+      return extraData.NETWORKING.reduce((acc, network) => {
+        if (network?.name) {
+          acc[network.name] = parseNetworkString(network)
         }
 
-        delete newRoleDef.SELECTED_VM_TEMPLATE_ID
-        delete newRoleDef.MINMAXVMS
+        return acc
+      }, {})
+    }
 
-        return newRoleDef
-      }),
-      ...extraData?.ADVANCED,
-      ...(extraData?.NETWORKING?.length && {
-        networks: extraData?.NETWORKING?.reduce((acc, network) => {
-          if (network?.name) {
-            acc[network.name] = parseNetworkString(network)
-          }
+    const getCustomAttributes = () => {
+      if (!extraData?.CUSTOM_ATTRIBUTES?.length) return undefined
 
-          return acc
-        }, {}),
-      }),
-      custom_attrs: extraData?.CUSTOM_ATTRIBUTES?.reduce((acc, cinput) => {
+      return extraData.CUSTOM_ATTRIBUTES.reduce((acc, cinput) => {
         if (cinput?.name) {
           acc[cinput.name] = parseCustomInputString(cinput)
         }
 
         return acc
-      }, {}),
+      }, {})
     }
 
-    return convertKeysToCase(formatTemplate)
+    const getRoleParents = (index) => {
+      if (
+        !roleDefinitionData?.[index]?.PARENTS ||
+        !Array.isArray(roleDefinitionData?.[index]?.PARENTS) ||
+        roleDefinitionData?.[index]?.PARENTS?.length <= 0
+      )
+        return undefined
+
+      return roleDefinitionData?.[index]?.PARENTS
+    }
+
+    try {
+      const formatTemplate = {
+        ...generalData,
+        ...extraData?.ADVANCED,
+        roles: roleDefinitionData?.map((roleDef, index) => {
+          const newRoleDef = {
+            ...roleDef,
+            ...roleConfigData?.MINMAXVMS?.[index],
+            VM_TEMPLATE: Number(roleDef?.SELECTED_VM_TEMPLATE_ID?.[0]),
+            vm_template_contents: getVmTemplateContents(index),
+            parents: getRoleParents(index),
+            scheduled_policies: getScheduledPolicies(index),
+            elasticity_policies: getElasticityPolicies(index),
+          }
+
+          delete newRoleDef.SELECTED_VM_TEMPLATE_ID
+          delete newRoleDef.MINMAXVMS
+
+          return newRoleDef
+        }),
+        networks: getNetworks(),
+        custom_attrs: getCustomAttributes(),
+      }
+
+      const cleanedTemplate = convertKeysToCase(formatTemplate)
+
+      return cleanedTemplate
+    } catch (error) {}
   },
 })
 

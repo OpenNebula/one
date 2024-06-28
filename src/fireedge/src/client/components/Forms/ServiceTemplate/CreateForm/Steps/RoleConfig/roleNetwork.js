@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 
 import PropTypes from 'prop-types'
-import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { useEffect, useState, useRef, useMemo, Component } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import makeStyles from '@mui/styles/makeStyles'
@@ -65,10 +65,16 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
   }, [selectedRoleIndex, SECTION_ID, stepId])
 
   const classes = useStyles()
-  const { getValues, setValue } = useFormContext()
+  const { control, getValues, setValue } = useFormContext()
 
   const { fields, update } = useFieldArray({
     name: fieldArrayLocation,
+  })
+
+  const watchedRdpConfig = useWatch({
+    control,
+    name: `${stepId}.RDP`,
+    defaultValue: {},
   })
 
   useEffect(() => {
@@ -145,12 +151,30 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
     }
   }, [fieldArrayLocation])
 
+  const handleSetRdp = (row) => {
+    const existing = getValues(`${stepId}.RDP`) || {}
+    const updatedRdp = {
+      ...existing,
+      [selectedRoleIndex]:
+        typeof row === 'object' && row !== null ? row?.name : '',
+    }
+    setValue(`${stepId}.RDP`, updatedRdp)
+  }
+
   const handleSelectRow = (row, forceSelect = false) => {
     const fieldArray = getValues(fieldArrayLocation)
     const fieldArrayIndex = fieldArray?.findIndex((f) => f?.idx === row?.idx)
     const rowToggle = forceSelect
       ? true
       : !fieldArray?.[fieldArrayIndex]?.rowSelected
+
+    if (
+      // if rowSelected === true, its being deselected
+      row?.rowSelected &&
+      getValues(`${stepId}.RDP`)?.[selectedRoleIndex] === row?.name
+    ) {
+      handleSetRdp(null) // Deselect
+    }
 
     const updatedFieldArray = fieldArray?.map((f, index) => {
       if (index === fieldArrayIndex) {
@@ -292,6 +316,22 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
         disableSelectionOnClick
       />
+
+      {networks?.length > 0 && (
+        <Box sx={{ mb: 2, mt: 4 }}>
+          <Autocomplete
+            options={(getValues(fieldArrayLocation) || [])?.filter(
+              (row) => row?.rowSelected
+            )}
+            value={watchedRdpConfig?.[selectedRoleIndex] ?? ''}
+            getOptionLabel={(option) => option?.name || option || ''}
+            onChange={(_event, value) => handleSetRdp(value)}
+            renderInput={(params) => (
+              <TextField {...params} name="RDP" placeholder={Tr(T.Rdp)} />
+            )}
+          />
+        </Box>
+      )}
     </Box>
   )
 }

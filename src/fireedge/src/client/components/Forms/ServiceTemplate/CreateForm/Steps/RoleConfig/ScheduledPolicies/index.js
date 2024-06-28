@@ -139,13 +139,15 @@ const ScheduledPoliciesSection = ({ stepId, selectedRoleIndex }) => {
                   { TIMEFORMAT, SCHEDTYPE, ADJUST, MIN, TIMEEXPRESSION },
                   index
                 ) => {
-                  const timeformatTrans = Tr(TIMEFORMAT)
+                  const timeFormatTrans = Tr(TIMEFORMAT)
 
                   const secondaryFields = [
-                    `${Tr(T.TimeExpression)}: ${TIMEEXPRESSION}`,
-                    `${Tr(T.Adjust)}: ${ADJUST}`,
-                    `${Tr(T.TimeFormat)}: ${timeformatTrans}`,
-                  ]
+                    TIMEEXPRESSION &&
+                      `${Tr(T.TimeExpression)}: ${TIMEEXPRESSION}`,
+                    ADJUST && `${Tr(T.Adjust)}: ${ADJUST}`,
+                    timeFormatTrans &&
+                      `${Tr(T.TimeFormat)}: ${timeFormatTrans}`,
+                  ].filter(Boolean)
 
                   if (MIN !== undefined) {
                     secondaryFields?.push(`${Tr(T.Min)}: ${MIN}`)

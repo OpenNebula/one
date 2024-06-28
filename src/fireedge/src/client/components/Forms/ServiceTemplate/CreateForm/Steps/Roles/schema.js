@@ -38,6 +38,14 @@ const CARDINALITY_FIELD = {
     .default(() => 0),
 }
 
+const PARENTS_FIELD = {
+  name: 'parents',
+  label: T.ParentRoles,
+  validation: array()
+    .notRequired()
+    .default(() => []),
+}
+
 const SELECTED_VM_TEMPLATE_ID_FIELD = {
   name: 'selected_vm_template_id',
   validation: array()
@@ -50,6 +58,7 @@ const SELECTED_VM_TEMPLATE_ID_FIELD = {
 const ROLE_SCHEMA = object().shape({
   NAME: ROLE_NAME_FIELD.validation,
   CARDINALITY: CARDINALITY_FIELD.validation,
+  PARENTS: PARENTS_FIELD.validation,
   SELECTED_VM_TEMPLATE_ID: SELECTED_VM_TEMPLATE_ID_FIELD.validation,
 })
 

@@ -15,14 +15,16 @@
  * ------------------------------------------------------------------------- */
 
 /* eslint-disable no-useless-escape */
-const formatNic = (nic, parent) => {
+const formatNic = (nic, parent, rdp) => {
   const [[NIC, NETWORK_ID]] = Object.entries(nic)
 
   return `${
     parent ? 'NIC_ALIAS' : 'NIC'
   } = [\n  NAME = \"${NIC}\",\n  NETWORK_ID = \"$${
     NETWORK_ID !== undefined ? NETWORK_ID.toLowerCase() : ''
-  }\"${parent ? `,\n PARENT = \"${parent}\"` : ''} ]\n`
+  }\"${rdp ? `,\n RDP = \"YES\"` : ''}${
+    parent ? `,\n PARENT = \"${parent}\"` : ''
+  } ]\n`
 }
 
 const formatAlias = (fNics) => {
@@ -130,7 +132,7 @@ const formatVmTemplateContents = (
 
     return { networks: nics, schedActions }
   } else {
-    const { networks, schedActions } = contents
+    const { networks, rdpConfig, schedActions } = contents
     if (!networks) {
       return ''
     }
@@ -141,9 +143,13 @@ const formatVmTemplateContents = (
     const formattedNics = networks
       ?.filter((net) => net?.rowSelected)
       ?.map((nic, index) => ({
-        formatNic: formatNic({
-          [`_NIC${index}`]: nic?.name,
-        }),
+        formatNic: formatNic(
+          {
+            [`_NIC${index}`]: nic?.name,
+          },
+          false,
+          nic?.name === rdpConfig
+        ),
         NIC_ID: `_NIC${index}`,
         NIC_NAME: nic?.name,
         ...(nic?.aliasIdx !== -1 && { alias: networks?.[nic?.aliasIdx] }),

@@ -149,12 +149,12 @@ const ElasticityPoliciesSection = ({ stepId, selectedRoleIndex }) => {
                   index
                 ) => {
                   const secondaryFields = [
-                    `${Tr(T.Expression)}: ${EXPRESSION}`,
-                    `${Tr(T.Adjust)}: ${ADJUST}`,
-                    `${Tr(T.Cooldown)}: ${COOLDOWN}`,
-                    `${Tr(T.Period)}: ${PERIOD}`,
-                    `#: ${PERIOD_NUMBER}`,
-                  ]
+                    EXPRESSION && `${Tr(T.Expression)}: ${EXPRESSION}`,
+                    ADJUST && `${Tr(T.Adjust)}: ${ADJUST}`,
+                    COOLDOWN && `${Tr(T.Cooldown)}: ${COOLDOWN}`,
+                    PERIOD && `${Tr(T.Period)}: ${PERIOD}`,
+                    PERIOD_NUMBER && `#: ${PERIOD_NUMBER}`,
+                  ].filter(Boolean)
                   if (MIN !== undefined && TYPE === 'PERCENTAGE_CHANGE') {
                     secondaryFields.push(`${Tr(T.Min)}: ${MIN}`)
                   }

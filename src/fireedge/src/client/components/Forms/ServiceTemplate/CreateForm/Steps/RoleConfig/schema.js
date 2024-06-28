@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { array, object } from 'yup'
+import { array, object, mixed } from 'yup'
 
 import { ADVANCED_PARAMS_SCHEMA } from './AdvancedParameters/schema'
 import { createElasticityPoliciesSchema } from './ElasticityPolicies/schema'
@@ -35,5 +35,8 @@ export const SCHEMA = object()
   .shape({
     NETWORKS: array(),
     NETWORKDEFS: array(),
+    // Set to mixed, casting wont work for dynamically calculated keys
+    // In reality should be [number()]: string()
+    RDP: mixed(),
   })
   .concat(ADVANCED_PARAMS_SCHEMA)

@@ -29,6 +29,15 @@ const SHUTDOWN_ENUMS_ONEFLOW = {
   [SHUTDOWN_TYPES.terminateHard]: 'shutdown-hard',
 }
 
+const RDP_FIELD = {
+  name: 'rdp',
+  label: T.Rdp,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined),
+}
+
 const SHUTDOWN_TYPE = {
   name: `${ADVANCED_SECTION_ID}.SHUTDOWNTYPE`,
   label: T.VMShutdownAction,
@@ -50,5 +59,5 @@ const SHUTDOWN_TYPE = {
 export const ADVANCED_PARAMS_FIELDS = [SHUTDOWN_TYPE]
 
 export const ADVANCED_PARAMS_SCHEMA = object(
-  getValidationFromFields(ADVANCED_PARAMS_FIELDS)
+  getValidationFromFields([...ADVANCED_PARAMS_FIELDS, RDP_FIELD])
 )

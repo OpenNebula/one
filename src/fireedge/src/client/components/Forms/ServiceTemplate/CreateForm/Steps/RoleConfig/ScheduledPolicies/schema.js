@@ -60,7 +60,7 @@ export const createScheduledPolicyFields = (pathPrefix) => {
       }),
       validation: string()
         .trim()
-        .required()
+        .oneOf(Object.keys(SCHED_TYPES))
         .default(() => Object.keys(SCHED_TYPES)[0]),
       grid: { xs: 12, sm: 6, md: 3.3 },
     },
@@ -71,7 +71,6 @@ export const createScheduledPolicyFields = (pathPrefix) => {
       cy: 'roleconfig-scheduledpolicies',
       validation: string()
         .trim()
-        .required()
         .default(() => ''),
       grid: { xs: 12, sm: 6, md: 3.1 },
     },

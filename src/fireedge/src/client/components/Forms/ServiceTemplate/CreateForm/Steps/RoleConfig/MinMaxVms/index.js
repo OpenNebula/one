@@ -14,15 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { Component, useMemo, useEffect } from 'react'
+import { Component, useMemo } from 'react'
 import { Box, FormControl } from '@mui/material'
 import { createMinMaxVmsFields } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig/MinMaxVms/schema'
 import { FormWithSchema } from 'client/components/Forms'
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
-import { STEP_ID as ROLE_DEFINITION_ID } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Roles'
-import { STEP_ID as ROLE_CONFIG_ID } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 
 export const SECTION_ID = 'MINMAXVMS'
+
 /**
  * @param {object} root0 - props
  * @param {string} root0.stepId - Main step ID
@@ -30,29 +29,7 @@ export const SECTION_ID = 'MINMAXVMS'
  * @returns {Component} - component
  */
 const MinMaxVms = ({ stepId, selectedRoleIndex }) => {
-  const { control, setValue, getValues, setError, clearErrors } =
-    useFormContext()
-
-  const watchedActiveField = useWatch({
-    control,
-    name: `${stepId}.${SECTION_ID}.${selectedRoleIndex}`,
-  })
-
-  const cardinality = useMemo(() => {
-    const baseCardinality =
-      getValues(ROLE_DEFINITION_ID)?.[selectedRoleIndex]?.CARDINALITY
-    const minVms =
-      getValues(ROLE_CONFIG_ID)?.[SECTION_ID]?.[selectedRoleIndex]?.min_vms
-
-    const maxVms =
-      getValues(ROLE_CONFIG_ID)?.[SECTION_ID]?.[selectedRoleIndex]?.max_vms
-
-    return {
-      min_vms: minVms,
-      max_vms: maxVms,
-      default: baseCardinality,
-    }
-  }, [selectedRoleIndex])
+  const { control } = useFormContext()
 
   const fields = createMinMaxVmsFields(
     `${stepId}.${SECTION_ID}.${selectedRoleIndex}`
@@ -66,38 +43,6 @@ const MinMaxVms = ({ stepId, selectedRoleIndex }) => {
   if (fields.length === 0) {
     return null
   }
-
-  useEffect(() => {
-    const validateFields = (activeFields) => {
-      const { min_vms: minVms, max_vms: maxVms } = activeFields
-      if (maxVms < minVms) {
-        ;['min_vms', 'max_vms'].forEach((field) => {
-          setError(`${stepId}.${SECTION_ID}.${selectedRoleIndex}.${field}`, {
-            type: 'manual',
-            message: `Min/Max validation error`,
-          })
-        })
-      } else if (maxVms >= minVms) {
-        ;['min_vms', 'max_vms'].forEach((field) => {
-          clearErrors(`${stepId}.${SECTION_ID}.${selectedRoleIndex}.${field}`)
-        })
-      }
-    }
-
-    watchedActiveField && validateFields(watchedActiveField)
-  }, [watchedActiveField])
-
-  // Set default values
-  useEffect(() => {
-    fields.forEach((field) => {
-      setValue(
-        field.name,
-        cardinality?.[field?.name?.split('.')?.at(-1)] ??
-          cardinality?.default ??
-          0
-      )
-    })
-  }, [cardinality])
 
   return (
     <Box>

@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Component } from 'react'
+import Component from 'react'
+import {
+  Box,
+  TextField,
+  Typography,
+  Checkbox,
+  Autocomplete,
+} from '@mui/material'
 import PropTypes from 'prop-types'
-import { Box, TextField, Typography } from '@mui/material'
 import { T } from 'client/constants'
 import { Tr } from 'client/components/HOC'
 
@@ -29,21 +35,27 @@ import { Tr } from 'client/components/HOC'
  * @returns {Component} The rendered component.
  */
 const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
-  const handleInputChange = (event, passedName = '') => {
-    let value
-    let name = passedName
-    if (typeof event === 'object' && event?.target) {
-      const { name: eventName = '', value: eventValue = '' } =
-        event.target || {}
-      value = eventValue
-      name = passedName || eventName
-    } else {
-      value = event
-    }
-    onChange({ ...roles[selectedRoleIndex], [name]: value }) // updated role
+  const handleInputChange = (name, value) => {
+    const updatedRole = { ...roles[selectedRoleIndex], [name]: value }
+    onChange(updatedRole)
+  }
+
+  const handleTextFieldChange = (event) => {
+    const { name, value } = event.target
+    handleInputChange(name, value)
+  }
+
+  const handleAutocompleteChange = (event, value) => {
+    const parentNames = value.map((option) => option.NAME)
+    handleInputChange('PARENTS', parentNames)
   }
 
   const isDisabled = !roles?.[selectedRoleIndex] || roles?.length <= 0
+  const selectedRole = roles?.[selectedRoleIndex] || {}
+
+  const selectedParentRoles = roles?.filter((role) =>
+    selectedRole?.PARENTS?.includes(role?.NAME)
+  )
 
   return (
     <Box p={2}>
@@ -53,8 +65,8 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
           <TextField
             label={Tr(T.RoleName)}
             name="NAME"
-            value={roles?.[selectedRoleIndex]?.NAME ?? ''}
-            onChange={handleInputChange}
+            value={selectedRole?.NAME || ''}
+            onChange={handleTextFieldChange}
             disabled={isDisabled}
             inputProps={{ 'data-cy': `role-name-${selectedRoleIndex}` }}
             fullWidth
@@ -65,10 +77,10 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
           <TextField
             type="number"
             label={Tr(T.NumberOfVms)}
-            value={roles?.[selectedRoleIndex]?.CARDINALITY ?? 0}
-            onChange={handleInputChange}
-            disabled={isDisabled}
             name="CARDINALITY"
+            value={selectedRole?.CARDINALITY || 0}
+            onChange={handleTextFieldChange}
+            disabled={isDisabled}
             InputProps={{
               inputProps: {
                 min: 0,
@@ -78,6 +90,32 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
             fullWidth
           />
         </Box>
+
+        {roles?.length >= 2 && (
+          <Box sx={{ mb: 2 }}>
+            <Autocomplete
+              multiple
+              options={roles?.filter((_, idx) => idx !== selectedRoleIndex)}
+              disableCloseOnSelect
+              getOptionLabel={(option) => option?.NAME}
+              value={selectedParentRoles}
+              onChange={handleAutocompleteChange}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option?.NAME}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="PARENTS"
+                  placeholder={Tr(T.ParentRoles)}
+                />
+              )}
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   )

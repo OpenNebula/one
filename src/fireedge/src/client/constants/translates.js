@@ -1497,6 +1497,7 @@ module.exports = {
   Roles: 'Roles',
   Cardinality: 'Cardinality',
   Parents: 'Parents',
+  ParentRoles: 'Parent roles',
   AddChartes: 'Add Charters Values Configuration',
   RecoverDelete: 'Recover delete',
   /* Service Template schema - extra */
