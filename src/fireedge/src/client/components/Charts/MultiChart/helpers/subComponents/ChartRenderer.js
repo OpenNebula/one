@@ -42,6 +42,7 @@ import {
   generateColorByMetric,
   GetChartConfig,
   GetChartElementConfig,
+  CustomXAxisTick,
 } from 'client/components/Charts/MultiChart/helpers/scripts'
 import {
   FormatPolarDataset,
@@ -174,7 +175,11 @@ export const ChartRenderer = ({
 
           {coordinateType === 'CARTESIAN' && (
             <>
-              <XAxis interval={0} dataKey={groupBy} />
+              <XAxis
+                interval={0}
+                dataKey={groupBy}
+                tick={<CustomXAxisTick />}
+              />
               <YAxis />
             </>
           )}

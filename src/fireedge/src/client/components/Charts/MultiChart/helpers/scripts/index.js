@@ -23,6 +23,7 @@ import {
   GetChartDefs,
   GetChartConfig,
   GetChartElementConfig,
+  CustomXAxisTick,
 } from 'client/components/Charts/MultiChart/helpers/scripts/chartDefs'
 import { exportDataToPDF } from 'client/components/Charts/MultiChart/helpers/scripts/exportPDF'
 import { exportDataToCSV } from 'client/components/Charts/MultiChart/helpers/scripts/exportCSV'
@@ -35,6 +36,7 @@ export {
   GetChartDefs,
   GetChartConfig,
   GetChartElementConfig,
+  CustomXAxisTick,
   exportDataToPDF,
   exportDataToCSV,
 }

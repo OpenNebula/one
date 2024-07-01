@@ -96,6 +96,8 @@ const accounting = (
           responseData.HISTORY_RECORDS.HISTORY = history.filter(
             (item) => item.VM.GID === groupId
           )
+        } else {
+          responseData.HISTORY_RECORDS.HISTORY = history
         }
       }
 
@@ -179,16 +181,21 @@ const showback = (
       const responseData = value
 
       // Filter if there is not userId and there is a groupId
-      if (!userId && groupId && responseData && responseData.SHOWBACK_RECORDS) {
+      if (responseData && responseData.SHOWBACK_RECORDS) {
         // Filter data by group id
         const showbackHistory = Array.isArray(
           responseData.SHOWBACK_RECORDS.SHOWBACK
         )
           ? responseData.SHOWBACK_RECORDS.SHOWBACK
           : [responseData.SHOWBACK_RECORDS.SHOWBACK]
-        responseData.SHOWBACK_RECORDS.SHOWBACK = showbackHistory.filter(
-          (item) => item.GID === groupId
-        )
+
+        if (!userId && groupId) {
+          responseData.SHOWBACK_RECORDS.SHOWBACK = showbackHistory.filter(
+            (item) => item.GID === groupId
+          )
+        } else {
+          responseData.SHOWBACK_RECORDS.SHOWBACK = showbackHistory
+        }
       }
 
       // Return response

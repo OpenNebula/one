@@ -18,6 +18,44 @@ import { CartesianGrid, PolarAngleAxis, Cell } from 'recharts'
 import { Component, Fragment } from 'react'
 
 /**
+ * Truncate long labels with ellipsis.
+ *
+ * @param {string} label - The label to be truncated.
+ * @param {number} maxLength - The maximum length of the label.
+ * @returns {string} The truncated label.
+ */
+const truncateLabel = (label, maxLength) => {
+  if (label.length > maxLength) {
+    return `${label.substring(0, maxLength)}...`
+  }
+
+  return label
+}
+
+/**
+ * Custom tick component for the XAxis that displays the full label on hover.
+ *
+ * @param {object} props - Props.
+ * @param {number} props.x - The x position of the tick.
+ * @param {number} props.y - The y position of the tick.
+ * @param {object} props.payload - The payload of the tick.
+ * @returns {Component} The rendered tick.
+ */
+export const CustomXAxisTick = ({ x, y, payload }) => {
+  const fullLabel = payload?.value
+  const truncatedLabel = truncateLabel(fullLabel, 10)
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <title>{fullLabel}</title>
+      <text x={0} y={0} dy={16}>
+        {truncatedLabel}
+      </text>
+    </g>
+  )
+}
+
+/**
  * Generates a color based on the metric, datasetId, and theme type.
  *
  * @function
@@ -232,6 +270,12 @@ export const GetChartElementConfig = (
     default:
       throw new Error(`Unsupported coordinateType: ${coordinateType}`)
   }
+}
+
+CustomXAxisTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.object,
 }
 
 GetChartElementConfig.propTypes = {

@@ -69,7 +69,6 @@ const topMetricNames = {
 }
 
 const commonStyles = {
-  minHeight: '250px',
   width: '100%',
   position: 'relative',
   marginTop: 2,
@@ -204,7 +203,15 @@ const generateShowbackInfoTab = ({ groups }) => {
     )
 
     return (
-      <Box padding={2} display="flex" flexDirection="column" height="100%">
+      <Box
+        padding={2}
+        display="flex"
+        flexDirection="column"
+        sx={{
+          height: '100vh',
+          minHeight: '1000px',
+        }}
+      >
         <Box
           display="flex"
           justifyContent="space-between"
@@ -231,8 +238,9 @@ const generateShowbackInfoTab = ({ groups }) => {
           flexDirection="row"
           justifyContent="space-between"
           mb={2}
+          flex={5}
         >
-          <Box flexGrow={1} mr={1} {...commonStyles}>
+          <Box flex={1} mr={1} {...commonStyles}>
             <MultiChart
               datasets={topChartsData}
               chartType={'table'}
@@ -242,7 +250,7 @@ const generateShowbackInfoTab = ({ groups }) => {
             />
           </Box>
 
-          <Box flexGrow={1} ml={1} {...commonStyles}>
+          <Box flex={1} ml={1} {...commonStyles}>
             <MultiChart
               datasets={topChartsData}
               chartType={'bar'}
@@ -254,7 +262,7 @@ const generateShowbackInfoTab = ({ groups }) => {
           </Box>
         </Box>
 
-        <Box flexGrow={1} minHeight="400px" {...commonStyles}>
+        <Box flex={7} {...commonStyles}>
           <MultiChart
             datasets={[
               {
