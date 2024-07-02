@@ -30,7 +30,7 @@ import Sidebar from 'client/components/Sidebar'
 import { _APPS } from 'client/constants'
 import { useAuth, useViews } from 'client/features/Auth'
 import { useGeneralApi } from 'client/features/General'
-import { useCheckOfficialSupportQuery } from 'client/features/OneApi/support'
+import { useLazyCheckOfficialSupportQuery } from 'client/features/OneApi/support'
 import systemApi from 'client/features/OneApi/system'
 import { isDevelopment } from 'client/utils'
 
@@ -53,7 +53,7 @@ const showSupportTab = (routes = [], find = true) => {
  * @returns {ReactElement} App rendered.
  */
 const SunstoneApp = () => {
-  const { isSuccess } = useCheckOfficialSupportQuery()
+  const [getSupport, { isSuccess }] = useLazyCheckOfficialSupportQuery()
   const { changeAppTitle } = useGeneralApi()
   const { isLogged } = useAuth()
   const { views, view } = useViews()
@@ -61,6 +61,13 @@ const SunstoneApp = () => {
   useEffect(() => {
     changeAppTitle(APP_NAME)
   }, [])
+
+  useEffect(() => {
+    if (view) {
+      getSupport()
+    }
+  }, [view, getSupport])
+
   const endpoints = useMemo(() => {
     const fixedEndpoints = [
       ...ENDPOINTS,
