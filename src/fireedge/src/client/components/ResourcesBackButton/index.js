@@ -109,6 +109,10 @@ const ResourcesBackButton = memo(
       tags: selectedRows,
     }
 
+    const translations = {
+      back: Tr(T.Back),
+    }
+
     return (
       <SplitPane gridTemplateRows={propsResize} rowMinSize={heightGutterRow}>
         {({ getGridProps, GutterComponent }) => (
@@ -125,7 +129,7 @@ const ResourcesBackButton = memo(
                 {hasSelectedRows && divided && (
                   <IconButton
                     onClick={() => setSelectedRows([])}
-                    title={Tr(T.Back)}
+                    title={translations.back}
                   >
                     <NavArrowLeft />
                   </IconButton>

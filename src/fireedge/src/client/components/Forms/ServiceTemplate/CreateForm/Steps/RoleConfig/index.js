@@ -281,7 +281,7 @@ export const Content = ({
 }
 
 Content.propTypes = {
-  standaloneModal: PropTypes.Boolean,
+  standaloneModal: PropTypes.bool,
   standaloneModalCallback: PropTypes.func,
 }
 

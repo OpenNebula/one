@@ -212,13 +212,21 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
     })
   }
 
+  // Transalte before useMemo because Tr could not be inside useMemo
+  const columnTranslations = {
+    select: Tr(T.Select),
+    network: Tr(T.Network),
+    nicAlias: Tr(T.NICAlias),
+    alias: Tr(T.Alias),
+  }
+
   const columns = useMemo(
     () => [
       {
         field: 'select',
         disableColumnMenu: true,
         sortable: false,
-        headerName: Tr(T.Select),
+        headerName: columnTranslations.select,
         width: 100,
         renderCell: (params) => (
           <Checkbox
@@ -234,14 +242,14 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         field: 'network',
         disableColumnMenu: true,
         flex: 1,
-        headerName: Tr(T.Network),
+        headerName: columnTranslations.network,
         width: 150,
       },
       {
         field: 'aliasToggle',
         disableColumnMenu: true,
         sortable: false,
-        headerName: Tr(T.NICAlias),
+        headerName: columnTranslations.nicAlias,
         width: 110,
         renderCell: (params) =>
           params?.row?.rowSelected && (
@@ -258,7 +266,7 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
         field: 'alias',
         disableColumnMenu: true,
         flex: 1,
-        headerName: Tr(T.Alias),
+        headerName: columnTranslations.alias,
         width: 200,
         renderCell: (params) =>
           params?.row?.aliasSelected && (

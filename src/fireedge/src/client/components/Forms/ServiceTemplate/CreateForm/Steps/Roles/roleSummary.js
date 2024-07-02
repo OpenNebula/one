@@ -26,142 +26,149 @@ import { Component } from 'react'
  * @param {number} props.selectedRoleIndex - The index of the selected role.
  * @returns {Component} - Role summary component.
  */
-const RoleSummary = ({ role, selectedRoleIndex }) => (
-  <Card
-    elevation={2}
-    sx={{
-      height: '100%',
-      maxHeight: '630px',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'auto',
-    }}
-  >
-    <CardContent
+const RoleSummary = ({ role, selectedRoleIndex }) => {
+  const translations = {
+    template: Tr(T.VMTemplate) + ' ' + Tr(T.ID),
+    selectTemplate: Tr(T.SelectVmTemplate),
+  }
+
+  return (
+    <Card
+      elevation={2}
       sx={{
-        flexGrow: 1,
+        height: '100%',
+        maxHeight: '630px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1em',
+        overflow: 'auto',
       }}
     >
-      <Typography variant="h6" component="div" gutterBottom>
-        #{selectedRoleIndex + 1 ?? 0} {Tr(T.RoleConfiguration)}
-      </Typography>
-
-      <Typography
-        variant="body2"
-        color={role?.NAME ? 'text.primary' : 'text.disabled'}
-        gutterBottom
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1em',
+        }}
       >
-        {Tr(T.Name)}: {role?.NAME || Tr(T.RoleEnterName)}
-      </Typography>
-
-      <Typography
-        variant="body2"
-        color={
-          role?.CARDINALITY === undefined ||
-          role?.CARDINALITY === 'None' ||
-          +role?.CARDINALITY < 1
-            ? 'text.disabled'
-            : 'text.primary'
-        }
-        gutterBottom
-      >
-        {Tr(T.NumberOfVms)}: {role?.CARDINALITY}
-      </Typography>
-
-      {role?.SELECTED_VM_TEMPLATE_ID ? (
-        <>
-          <Typography
-            variant="body2"
-            color={
-              role?.SELECTED_VM_TEMPLATE_ID === undefined ||
-              role?.SELECTED_VM_TEMPLATE_ID === 'None' ||
-              role?.SELECTED_VM_TEMPLATE_ID?.length < 1
-                ? 'text.disabled'
-                : 'text.primary'
-            }
-            gutterBottom
-          >
-            {Tr(T.VMTemplate)} {Tr(T.ID)}: {role?.SELECTED_VM_TEMPLATE_ID}
-          </Typography>
-        </>
-      ) : (
-        <Typography variant="body2" color="text.disabled" gutterBottom>
-          {Tr(T.SelectVmTemplate)}
+        <Typography variant="h6" component="div" gutterBottom>
+          #{selectedRoleIndex + 1 ?? 0} {Tr(T.RoleConfiguration)}
         </Typography>
-      )}
-      <Divider />
-      <Typography
-        variant="body2"
-        color={role?.NETWORKS ? 'text.primary' : 'text.disabled'}
-        gutterBottom
-      >
-        {Tr(T.Networks)}: {role?.NETWORKS || ' ' + Tr(T.RoleSelectNetwork)}
-      </Typography>
 
-      <Typography color={'text.primary'} sx={{ fontSize: 16 }} gutterBottom>
-        {Tr(T.RoleElasticity)}
-      </Typography>
+        <Typography
+          variant="body2"
+          color={role?.NAME ? 'text.primary' : 'text.disabled'}
+          gutterBottom
+        >
+          {Tr(T.Name)}: {role?.NAME || Tr(T.RoleEnterName)}
+        </Typography>
 
-      <Typography
-        variant="body2"
-        color={role?.MINVMS ? 'text.primary' : 'text.disabled'}
-        gutterBottom
-      >
-        {Tr(T.RolesMinVms)}:{role?.MINVMS || ' ' + Tr(T.RoleMinElasticity)}
-      </Typography>
+        <Typography
+          variant="body2"
+          color={
+            role?.CARDINALITY === undefined ||
+            role?.CARDINALITY === 'None' ||
+            +role?.CARDINALITY < 1
+              ? 'text.disabled'
+              : 'text.primary'
+          }
+          gutterBottom
+        >
+          {Tr(T.NumberOfVms)}: {role?.CARDINALITY}
+        </Typography>
 
-      <Typography
-        variant="body2"
-        color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
-        gutterBottom
-      >
-        {Tr(T.RolesMaxVms)}:{role?.MAXVMS || ' ' + Tr(T.RoleMaxElasticity)}
-      </Typography>
+        {role?.SELECTED_VM_TEMPLATE_ID ? (
+          <>
+            <Typography
+              variant="body2"
+              color={
+                role?.SELECTED_VM_TEMPLATE_ID === undefined ||
+                role?.SELECTED_VM_TEMPLATE_ID === 'None' ||
+                role?.SELECTED_VM_TEMPLATE_ID?.length < 1
+                  ? 'text.disabled'
+                  : 'text.primary'
+              }
+              gutterBottom
+            >
+              {translations.template}: {role?.SELECTED_VM_TEMPLATE_ID}
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.disabled" gutterBottom>
+            {translations.selectTemplate}
+          </Typography>
+        )}
+        <Divider />
+        <Typography
+          variant="body2"
+          color={role?.NETWORKS ? 'text.primary' : 'text.disabled'}
+          gutterBottom
+        >
+          {Tr(T.Networks)}: {role?.NETWORKS || ' ' + Tr(T.RoleSelectNetwork)}
+        </Typography>
 
-      <Typography
-        variant="body2"
-        color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
-        gutterBottom
-      >
-        {Tr(T.Cooldown)}:{role?.COOLDOWN || ' ' + Tr(T.RoleDurationScale)}
-      </Typography>
+        <Typography color={'text.primary'} sx={{ fontSize: 16 }} gutterBottom>
+          {Tr(T.RoleElasticity)}
+        </Typography>
 
-      <Typography
-        color={role?.ELASTICITYPOLICIES ? 'text.primary' : 'text.disabled'}
-        sx={{ fontSize: 14 }}
-        gutterBottom
-      >
-        {Tr(T.ElasticityPolicies)}
-      </Typography>
+        <Typography
+          variant="body2"
+          color={role?.MINVMS ? 'text.primary' : 'text.disabled'}
+          gutterBottom
+        >
+          {Tr(T.RolesMinVms)}:{role?.MINVMS || ' ' + Tr(T.RoleMinElasticity)}
+        </Typography>
 
-      <Typography
-        variant="body2"
-        color={
-          role?.ELASTICITYPOLICIES?.TYPE ? 'text.primary' : 'text.disabled'
-        }
-        gutterBottom
-      >
-        {Tr(T.Type)}:
-        {role?.ELASTICITYPOLICIES?.TYPE || ' ' + Tr(T.RoleAdjustmentType)}
-      </Typography>
+        <Typography
+          variant="body2"
+          color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
+          gutterBottom
+        >
+          {Tr(T.RolesMaxVms)}:{role?.MAXVMS || ' ' + Tr(T.RoleMaxElasticity)}
+        </Typography>
 
-      <Typography
-        variant="body2"
-        color={
-          role?.ELASTICITYPOLICIES?.ADJUST ? 'text.primary' : 'text.disabled'
-        }
-        gutterBottom
-      >
-        {Tr(T.Adjust)}:
-        {role?.ELASTICITYPOLICIES?.ADJUST ||
-          ' ' + Tr(T.RoleAdjustmentTypePositiveNegative)}
-      </Typography>
-    </CardContent>
-  </Card>
-)
+        <Typography
+          variant="body2"
+          color={role?.MAXVMS ? 'text.primary' : 'text.disabled'}
+          gutterBottom
+        >
+          {Tr(T.Cooldown)}:{role?.COOLDOWN || ' ' + Tr(T.RoleDurationScale)}
+        </Typography>
+
+        <Typography
+          color={role?.ELASTICITYPOLICIES ? 'text.primary' : 'text.disabled'}
+          sx={{ fontSize: 14 }}
+          gutterBottom
+        >
+          {Tr(T.ElasticityPolicies)}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color={
+            role?.ELASTICITYPOLICIES?.TYPE ? 'text.primary' : 'text.disabled'
+          }
+          gutterBottom
+        >
+          {Tr(T.Type)}:
+          {role?.ELASTICITYPOLICIES?.TYPE || ' ' + Tr(T.RoleAdjustmentType)}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color={
+            role?.ELASTICITYPOLICIES?.ADJUST ? 'text.primary' : 'text.disabled'
+          }
+          gutterBottom
+        >
+          {Tr(T.Adjust)}:
+          {role?.ELASTICITYPOLICIES?.ADJUST ||
+            ' ' + Tr(T.RoleAdjustmentTypePositiveNegative)}
+        </Typography>
+      </CardContent>
+    </Card>
+  )
+}
 
 RoleSummary.propTypes = {
   role: PropTypes.oneOfType([

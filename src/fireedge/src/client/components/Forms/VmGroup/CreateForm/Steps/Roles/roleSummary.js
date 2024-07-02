@@ -187,7 +187,7 @@ RoleSummary.propTypes = {
     PropTypes.object,
   ]),
   selectedRoleIndex: PropTypes.number,
-  onRemoveAffinity: PropTypes.func.isRequired,
+  onRemoveAffinity: PropTypes.func,
 }
 
 export default RoleSummary
