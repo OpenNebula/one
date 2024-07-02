@@ -45,7 +45,7 @@ const getFieldProps = (type) => {
   }
 }
 
-const getValidation = (type, mandatory) => {
+const getValidation = (type, mandatory, defaultValue = undefined) => {
   const isMandatory = mandatory === 'M'
 
   switch (type) {
@@ -55,20 +55,20 @@ const getValidation = (type, mandatory) => {
         ? string()
             .trim()
             .required()
-            .default(() => undefined)
+            .default(() => defaultValue)
         : string()
             .trim()
             .notRequired()
-            .default(() => undefined)
+            .default(() => defaultValue)
     case 'number':
     case 'numberfloat':
       return isMandatory
         ? number()
             .required()
-            .default(() => undefined)
+            .default(() => defaultValue)
         : number()
             .notRequired()
-            .default(() => undefined)
+            .default(() => defaultValue)
     case 'boolean':
       return isMandatory
         ? boolean().yesOrNo().required()
@@ -78,23 +78,23 @@ const getValidation = (type, mandatory) => {
         ? string()
             .trim()
             .required()
-            .default(() => undefined)
+            .default(() => defaultValue)
         : string()
             .trim()
             .notRequired()
-            .default(() => undefined)
+            .default(() => defaultValue)
   }
 }
 
 const generateField = (input) => {
-  const { key, type, defaultValue, mandatory } = input
+  const { key, description, type, defaultValue, mandatory } = input
 
   return {
     name: key.toLowerCase(),
-    label: key,
+    label: description ?? key,
     type: getTypeProp(type),
     fieldProps: getFieldProps(type),
-    validation: getValidation(type, mandatory),
+    validation: getValidation(type, mandatory, defaultValue),
     defaultValue: defaultValue,
     grid: { md: 12 },
   }
