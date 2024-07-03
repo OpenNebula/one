@@ -249,8 +249,6 @@ void VirtualMachineUpdateTemplate::request_execute(int oid,
 
     pool->update(vm.get());
 
-    extra_updates(vm.get());
-
     success_response(oid, att);
 }
 

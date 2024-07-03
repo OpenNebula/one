@@ -3565,7 +3565,6 @@ void VirtualMachineUpdateConf::request_execute(
     }
 
     vmpool->update(vm.get());
-    vmpool->update_search(vm.get());
 
     // Apply the change for running VM
     if (state == VirtualMachine::VmState::ACTIVE &&

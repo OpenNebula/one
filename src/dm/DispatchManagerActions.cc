@@ -1785,8 +1785,6 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
 
         vm->clear_attach_nic();
 
-        vmpool->update_search(vm.get());
-
         time_t the_time = time(0);
 
         vm->set_running_etime(the_time);
@@ -1893,10 +1891,6 @@ int DispatchManager::detach_nic(int vid, int nic_id, const RequestAttributes& ra
     else
     {
         vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
-
-        vmpool->update(vm.get());
-
-        vmpool->update_search(vm.get());
 
         vmpool->delete_attach_nic(std::move(vm));
     }
@@ -2413,7 +2407,6 @@ int DispatchManager::disk_resize(int vid, int did, long long new_size,
     close_cp_history(vmpool, vm.get(), VMActions::DISK_RESIZE_ACTION, ra);
 
     vmpool->update(vm.get());
-    vmpool->update_search(vm.get());
 
     return 0;
 }
@@ -2449,7 +2442,6 @@ int DispatchManager::live_updateconf(std::unique_ptr<VirtualMachine> vm,
     vmm->trigger_update_conf(vm->get_oid());
 
     vmpool->update(vm.get());
-    vmpool->update_search(vm.get());
 
     return 0;
 }
@@ -3116,8 +3108,6 @@ int DispatchManager::attach_pci(int vid, VectorAttribute * pci,
 
     vm->log("DiM", Log::INFO, "PCI device successfully attached.");
 
-    vmpool->update_search(vm.get());
-
     time_t the_time = time(0);
 
     vm->set_running_etime(the_time);
@@ -3188,8 +3178,6 @@ int DispatchManager::detach_pci(int vid, int pci_id, const RequestAttributes& ra
     close_cp_history(vmpool, vm.get(), VMActions::PCI_DETACH_ACTION, ra);
 
     vm->log("DiM", Log::INFO, "PCI device successfully deatached.");
-
-    vmpool->update_search(vm.get());
 
     time_t the_time = time(0);
 

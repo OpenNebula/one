@@ -142,22 +142,6 @@ public:
     ~VirtualMachineUpdateTemplate() = default;
 
 protected:
-    int extra_updates(PoolObjectSQL * obj) override
-    {
-        VirtualMachine * vm;
-
-        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
-
-        if (obj == 0)
-        {
-            return -1;
-        }
-
-        vm = static_cast<VirtualMachine *>(obj);
-
-        return vmpool->update_search(vm);
-    }
-
     void request_execute(int oid,
                          const std::string& templ,
                          int update_type,

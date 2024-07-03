@@ -340,7 +340,7 @@ string& History::to_json(string& json) const
 {
     ostringstream oss;
 
-    oss << "\"HISTORY\": {" <<
+    oss << "{" <<
         "\"OID\": \""      << oid           << "\"," <<
         "\"SEQ\": \""      << seq           << "\"," <<
         "\"HOSTNAME\": \"" << hostname      << "\"," <<
@@ -360,7 +360,7 @@ string& History::to_json(string& json) const
         "\"ACTION\": \""   << action        << "\"," <<
         "\"UID\": \""      << uid           << "\"," <<
         "\"GID\": \""      << gid           << "\"," <<
-        "\"REQUEST_ID\": \"" << req_id      << "\",";
+        "\"REQUEST_ID\": \"" << req_id      << "\"";
 
     oss << "}";
 

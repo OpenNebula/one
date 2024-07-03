@@ -1315,7 +1315,6 @@ void LifeCycleManager::trigger_attach_success(int vid)
             }
 
             vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
         }
         else
         {
@@ -1408,7 +1407,6 @@ void LifeCycleManager::trigger_detach_success(int vid)
             }
 
             vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
         }
         else
         {
@@ -1675,14 +1673,12 @@ void LifeCycleManager::trigger_attach_nic_success(int vid)
             vm->set_state(VirtualMachine::RUNNING);
 
             vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
         }
         else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
         {
             vm->clear_attach_nic();
 
             vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
 
             dm->trigger_poweroff_success(vid);
         }
@@ -1709,18 +1705,9 @@ void LifeCycleManager::trigger_attach_nic_failure(int vid)
 
         if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
         {
-            vmpool->delete_attach_nic(std::move(vm));
-
-            vm = vmpool->get(vid);
-
-            if ( vm == nullptr )
-            {
-                return;
-            }
-
             vm->set_state(VirtualMachine::RUNNING);
 
-            vmpool->update(vm.get());
+            vmpool->delete_attach_nic(std::move(vm));
         }
         else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
         {
@@ -1751,33 +1738,13 @@ void LifeCycleManager::trigger_detach_nic_success(int vid)
 
         if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
         {
-            vmpool->delete_attach_nic(std::move(vm));
-
-            vm = vmpool->get(vid);
-
-            if ( vm == nullptr )
-            {
-                return;
-            }
-
             vm->set_state(VirtualMachine::RUNNING);
 
-            vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
+            vmpool->delete_attach_nic(std::move(vm));
         }
         else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC_POWEROFF )
         {
             vmpool->delete_attach_nic(std::move(vm));
-
-            vm = vmpool->get(vid);
-
-            if ( vm == nullptr )
-            {
-                return;
-            }
-
-            vmpool->update(vm.get());
-            vmpool->update_search(vm.get());
 
             dm->trigger_poweroff_success(vid);
         }

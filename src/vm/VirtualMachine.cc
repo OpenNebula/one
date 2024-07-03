@@ -1907,10 +1907,10 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     string xml_body, short_xml_body, text;
 
-    char * sql_name;
-    char * sql_xml;
-    char * sql_short_xml;
-    char * sql_text;
+    char * sql_name      = nullptr;
+    char * sql_xml       = nullptr;
+    char * sql_short_xml = nullptr;
+    char * sql_text      = nullptr;
 
     sql_name =  db->escape_str(name);
 
@@ -1962,8 +1962,9 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
             << "owner_u = "       <<  owner_u       << ", "
             << "group_u = "       <<  group_u       << ", "
             << "other_u = "       <<  other_u       << ", "
-            << "short_body = '"   <<  sql_short_xml << "' "
-            << "WHERE oid = "    << oid;
+            << "short_body = '"   <<  sql_short_xml << "', "
+            << "body_json = '"    <<  sql_text      << "' "
+            << "WHERE oid = "     <<  oid;
     }
     else
     {
@@ -2656,11 +2657,11 @@ string& VirtualMachine::to_json(string& json) const
 
     if ( hasHistory() )
     {
-        oss << ",\"HISTORY_RECORDS\": [";
+        oss << ",\"HISTORY_RECORDS\": { \"HISTORY\": [";
 
         oss << history->to_json(history_json);
 
-        oss << "]";
+        oss << "] }";
     }
 
     oss << "}}";

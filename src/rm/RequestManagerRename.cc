@@ -106,8 +106,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         }
 
         pool->update(object.get());
-
-        extra_updates(object.get());
     }
     else
     {
