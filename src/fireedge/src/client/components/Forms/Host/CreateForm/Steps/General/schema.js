@@ -47,7 +47,8 @@ const HYPERVISOR_FIELD = {
 /** @type {Field} Name field */
 const INFORMATION_FIELD = {
   name: 'hostname',
-  label: T.Name,
+  label: T['host.form.create.general.name'],
+  tooltip: T['host.form.create.general.name.tooltip'],
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()

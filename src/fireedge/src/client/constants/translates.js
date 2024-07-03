@@ -616,6 +616,10 @@ module.exports = {
     'Datastores can be added to multiple clusters. This means that any host in those clusters is properly configured to run VMs using images from those datastores.',
   'cluster.form.create.datastores.help.paragraph.3':
     'Remember that in order to create a complete environment where the scheduler can deploy VMs, your clusters need to have at least one System Datastore.',
+  'host.form.create.general.name':
+    'FQDN or IP that OpenNebula can use to reach the hypervisor host',
+  'host.form.create.general.name.tooltip':
+    "Please make sure the OpenNebula front-end can ssh passwrodlessly to the host using the 'oneadmin' user",
 
   /* sections - network */
   Network: 'Network',
