@@ -163,6 +163,8 @@ end
 # @param error_msg  [String]  Error message
 # @param error_code [Integer] Http error code
 def internal_error(error_msg, error_code)
+    Log.error LOG_COMP, "Error code #{error_code}: #{error_msg}"
+
     status error_code
     body error_msg
 end
