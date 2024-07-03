@@ -3942,7 +3942,9 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
            lcm_state != VirtualMachine::DISK_RESIZE_UNDEPLOYED &&
            lcm_state != VirtualMachine::HOTPLUG_NIC_POWEROFF &&
            lcm_state != VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED &&
-           lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED ))))
+           lcm_state != VirtualMachine::HOTPLUG_SAVEAS_STOPPED &&
+           lcm_state != VirtualMachine::HOTPLUG_PROLOG_POWEROFF &&
+           lcm_state != VirtualMachine::HOTPLUG_EPILOG_POWEROFF ))))
     {
         std::string memory, cpu;
 
