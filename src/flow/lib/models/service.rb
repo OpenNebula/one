@@ -791,10 +791,7 @@ module OpenNebula
 
                     next if net.nil?
 
-                    role['vm_template_contents'].gsub!(
-                        '$'+key[0],
-                        net[net.keys[0]]['id'].to_s
-                    )
+                    role['vm_template_contents'].gsub!("$#{key[0]}", net[key[0]]['id'].to_s)
                 end
             end
         end
