@@ -86,6 +86,15 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
+    // Init GRPAHICS.TYPE
+    const type = vmTemplate?.TEMPLATE?.GRAPHICS?.TYPE === 'VNC'
+    if (type) {
+      objectSchema[EXTRA_ID].GRAPHICS = {
+        ...vmTemplate?.GRAPHICS,
+        TYPE: type,
+      }
+    }
+
     const knownTemplate = schema.cast(objectSchema, {
       stripUnknown: true,
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },

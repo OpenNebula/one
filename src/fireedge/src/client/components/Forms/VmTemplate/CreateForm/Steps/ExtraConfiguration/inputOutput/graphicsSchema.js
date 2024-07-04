@@ -24,7 +24,7 @@ import {
   getObjectSchemaFromFields,
 } from 'client/utils'
 
-const { vcenter, lxc, kvm } = HYPERVISORS
+const { lxc } = HYPERVISORS
 const CUSTOM_KEYMAP_VALUE = 'custom'
 const KEYMAP_VALUES = {
   ar: T.Arabic,
@@ -68,21 +68,13 @@ const KEYMAP_VALUES = {
 /** @type {Field} Type field */
 export const TYPE = (isUpdate) => ({
   name: 'GRAPHICS.TYPE',
-  type: INPUT_TYPES.TOGGLE,
+  type: INPUT_TYPES.SWITCH,
+  label: T.Vnc,
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
-  values: ([templateHyperv = kvm, hypervisor = templateHyperv] = []) => {
-    const types = {
-      [vcenter]: [T.Vmrc],
-      [lxc]: [T.Vnc],
-    }[hypervisor] ?? [T.Vnc, T.Sdl, T.Spice]
-
-    return arrayToOptions(types)
-  },
-  validation: string()
-    .trim()
+  validation: boolean()
     .notRequired()
-    .uppercase()
-    .default(() => (isUpdate ? undefined : T.Vnc)),
+    .afterSubmit((value, { context }) => (value ? 'VNC' : undefined))
+    .default(() => (isUpdate ? undefined : true)),
   grid: { md: 12 },
 })
 
