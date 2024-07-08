@@ -32,7 +32,7 @@ import {
 import { T } from 'client/constants'
 import { getColorFromString } from 'client/models/Helper'
 
-const Label = memo(({ label, selected, unknown, ...props }) => {
+const Label = memo(({ label, selected, unknown, filterByLabel, ...props }) => {
   const [addLabel, { isLoading }] = useAddLabelMutation()
 
   /**
@@ -80,6 +80,7 @@ Label.propTypes = {
   label: PropTypes.any,
   selected: PropTypes.bool,
   unknown: PropTypes.bool,
+  filterByLabel: PropTypes.func,
 }
 
 Label.displayName = 'Label'
@@ -93,6 +94,7 @@ Label.displayName = 'Label'
  * @param {function()} props.handleClose - Handle close event
  * @param {string[]} props.labels - The list of labels to filter
  * @param {string[]} props.unknownLabels - The list of labels not in the user labels
+ * @param {function()} props.handleFilterByLabel - Handle filter by label
  * @returns {ReactElement} Filter component
  */
 const FilterByLabel = ({
@@ -101,6 +103,7 @@ const FilterByLabel = ({
   pendingValue = [],
   handleChange,
   handleClose,
+  handleFilterByLabel,
 }) => (
   <Autocomplete
     open
@@ -119,6 +122,7 @@ const FilterByLabel = ({
       }
 
       handleChange(newValue)
+      handleFilterByLabel(newValue)
     }}
     disableCloseOnSelect
     PopperComponent={PopperComponent}
@@ -154,6 +158,7 @@ FilterByLabel.propTypes = {
   pendingValue: PropTypes.array,
   handleChange: PropTypes.func,
   handleClose: PropTypes.func,
+  handleFilterByLabel: PropTypes.func,
 }
 
 FilterByLabel.displayName = 'FilterByLabel'

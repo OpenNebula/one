@@ -132,7 +132,7 @@ const GlobalLabel = ({
    * Handle event when user clicks outside of the popover
    */
   const handleClickAwayPopover = useCallback(async () => {
-    if (!enableEditLabel) return setFilter(LABEL_COLUMN_ID, pendingValue)
+    if (!enableEditLabel) return
 
     const [labelsToAdd, labelsToRemove] = pendingValue
 
@@ -152,6 +152,15 @@ const GlobalLabel = ({
       })
     )
   }, [enableEditLabel, selectedRows, pendingValue, update])
+
+  /**
+   * Filter by label when click on a label.
+   *
+   * @param {Array} value - List of labels
+   */
+  const handleFilterByLabel = (value) => {
+    setFilter(LABEL_COLUMN_ID, value)
+  }
 
   return (
     <Stack direction="row" gap="0.5em" flexWrap="wrap">
@@ -190,6 +199,7 @@ const GlobalLabel = ({
               pendingValue={pendingValue}
               handleChange={setPendingValue}
               handleClose={handleClose}
+              handleFilterByLabel={handleFilterByLabel}
             />
           )
         }
