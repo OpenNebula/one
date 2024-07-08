@@ -26,7 +26,7 @@ import {
 
 import { getUserInputParams } from 'client/models/Helper'
 import { Field, arrayToOptions, sentenceCase } from 'client/utils'
-import { T, INPUT_TYPES, HYPERVISORS, USER_INPUT_TYPES } from 'client/constants'
+import { T, INPUT_TYPES, USER_INPUT_TYPES } from 'client/constants'
 
 const { fixed, range, rangeFloat, list } = USER_INPUT_TYPES
 
@@ -120,9 +120,6 @@ const modificationRangeInputs = (fieldName, { type, min, max }) => {
       number()
         .positive()
         .transform((value) => (!isNaN(value) ? value : null))
-        .when('HYPERVISOR', (hypervisor, schema) =>
-          hypervisor === HYPERVISORS.vcenter ? schema.isDivisibleBy(4) : schema
-        )
         .when(`$general.${type}`, {
           is: isRangeType,
           then: thenFn,

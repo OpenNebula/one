@@ -17,7 +17,7 @@ import { string, number } from 'yup'
 import { INPUT_TYPES, T, HYPERVISORS, Field } from 'client/constants'
 import { useDisableInputByUserAndConfig } from 'client/features/Auth'
 
-const { vcenter, firecracker, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 /** @type {Field[]} List of general fields */
 export const GENERAL_FIELDS = [
@@ -26,14 +26,13 @@ export const GENERAL_FIELDS = [
     label: T.TargetDevice,
     tooltip: T.TargetDeviceConcept,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [vcenter, firecracker, lxc],
+    notOnHypervisors: [lxc],
     validation: string().trim().notRequired().default(undefined),
     fieldProps: { placeholder: 'sdc' },
   },
   {
     name: 'READONLY',
     label: T.ReadOnly,
-    notOnHypervisors: [vcenter],
     type: INPUT_TYPES.AUTOCOMPLETE,
     optionsOnly: true,
     values: [
@@ -48,7 +47,7 @@ export const GENERAL_FIELDS = [
   {
     name: 'DEV_PREFIX',
     label: T.Bus,
-    notOnHypervisors: [vcenter, firecracker, lxc],
+    notOnHypervisors: [lxc],
     type: INPUT_TYPES.AUTOCOMPLETE,
     optionsOnly: true,
     values: [
@@ -63,7 +62,7 @@ export const GENERAL_FIELDS = [
   {
     name: 'CACHE',
     label: T.Cache,
-    notOnHypervisors: [vcenter, firecracker, lxc],
+    notOnHypervisors: [lxc],
     type: INPUT_TYPES.AUTOCOMPLETE,
     optionsOnly: true,
     values: [
@@ -79,7 +78,7 @@ export const GENERAL_FIELDS = [
   {
     name: 'IO',
     label: T.IoPolicy,
-    notOnHypervisors: [vcenter, firecracker, lxc],
+    notOnHypervisors: [lxc],
     type: INPUT_TYPES.AUTOCOMPLETE,
     optionsOnly: true,
     values: [
@@ -93,7 +92,7 @@ export const GENERAL_FIELDS = [
   {
     name: 'DISCARD',
     label: T.Discard,
-    notOnHypervisors: [vcenter, firecracker, lxc],
+    notOnHypervisors: [lxc],
     type: INPUT_TYPES.AUTOCOMPLETE,
     optionsOnly: true,
     values: [
@@ -108,7 +107,6 @@ export const GENERAL_FIELDS = [
     label: T.IopsSize,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [vcenter],
     validation: number()
       .min(0)
       .notRequired()
@@ -120,45 +118,10 @@ export const GENERAL_FIELDS = [
     tooltip: T.IoThreadIdConcept,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [vcenter],
     validation: number()
       .min(0)
       .notRequired()
       .default(() => undefined),
-  },
-]
-
-/** @type {Field[]} List of vCenter fields */
-export const VCENTER_FIELDS = [
-  {
-    name: 'VCENTER_ADAPTER_TYPE',
-    label: T.BusAdapterController,
-    onlyOnHypervisors: [vcenter],
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    optionsOnly: true,
-    values: [
-      { text: '', value: '' },
-      { text: 'lsiLogic', value: 'lsiLogic' },
-      { text: 'ide', value: 'ide' },
-      { text: 'busLogic', value: 'busLogic' },
-      { text: 'Custom', value: 'custom' },
-    ],
-    validation: string().trim().notRequired().default(undefined),
-  },
-  {
-    name: 'VCENTER_DISK_TYPE',
-    label: T.DiskProvisioningType,
-    onlyOnHypervisors: [vcenter],
-    type: INPUT_TYPES.AUTOCOMPLETE,
-    optionsOnly: true,
-    values: [
-      { text: '', value: '' },
-      { text: 'Thin', value: 'thin' },
-      { text: 'Thick', value: 'thick' },
-      { text: 'Eager Zeroed Thick', value: 'eagerZeroedThick' },
-      { text: 'Custom', value: 'custom' },
-    ],
-    validation: string().trim().notRequired().default(undefined),
   },
 ]
 
@@ -169,7 +132,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.TotalValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()
@@ -180,7 +143,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.TotalMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()
@@ -191,7 +154,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.TotalMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()
@@ -202,7 +165,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.ReadValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()
@@ -213,7 +176,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.ReadMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()
@@ -224,7 +187,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.ReadMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/READ_BYTES_SEC_MAX_LENGTH'),
     validation: number()
@@ -237,7 +200,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.WriteValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/WRITE_BYTES_SEC'),
     validation: number()
       .min(0)
@@ -249,7 +212,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.WriteMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/WRITE_BYTES_SEC_MAX'),
     validation: number()
@@ -262,7 +225,7 @@ export const THROTTLING_BYTES_FIELDS = [
     label: T.WriteMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/WRITE_BYTES_SEC_MAX_LENGTH'),
     validation: number()
@@ -279,7 +242,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.TotalValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/TOTAL_IOPS_SEC'),
     validation: number()
       .min(0)
@@ -291,7 +254,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.TotalMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/TOTAL_IOPS_SEC_MAX'),
     validation: number()
       .min(0)
@@ -303,7 +266,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.TotalMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/TOTAL_IOPS_SEC_MAX_LENGTH'),
     validation: number()
@@ -316,7 +279,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.ReadValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/READ_IOPS_SEC'),
     validation: number()
       .min(0)
@@ -328,7 +291,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.ReadMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/READ_IOPS_SEC_MAX'),
     validation: number()
       .min(0)
@@ -340,7 +303,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.ReadMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/READ_IOPS_SEC_MAX_LENGTH'),
     validation: number()
@@ -353,7 +316,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.WriteValue,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/WRITE_IOPS_SEC'),
     validation: number()
       .min(0)
@@ -365,7 +328,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.WriteMaximum,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () => useDisableInputByUserAndConfig('DISK/WRITE_IOPS_SEC_MAX'),
     validation: number()
       .min(0)
@@ -377,7 +340,7 @@ export const THROTTLING_IOPS_FIELDS = [
     label: T.WriteMaximumLength,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [lxc, firecracker, vcenter],
+    notOnHypervisors: [lxc],
     fieldProps: () =>
       useDisableInputByUserAndConfig('DISK/WRITE_IOPS_SEC_MAX_LENGTH'),
     validation: number()
@@ -394,7 +357,7 @@ export const EDGE_CLUSTER_FIELDS = [
     label: T.SnapshotFrequency,
     type: INPUT_TYPES.TEXT,
     htmlType: 'number',
-    notOnHypervisors: [firecracker, lxc, vcenter],
+    notOnHypervisors: [lxc],
     validation: number()
       .min(0)
       .notRequired()

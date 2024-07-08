@@ -20,7 +20,7 @@ import { useGetAllImagesQuery } from 'client/features/OneApi/image'
 import { getType } from 'client/models/Image'
 import { Field, clearNames } from 'client/utils'
 
-const { vcenter, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 export const KERNEL_PATH_ENABLED_NAME = 'OS.KERNEL_PATH_ENABLED'
 export const KERNEL_DS_NAME = 'OS.KERNEL_DS'
@@ -35,7 +35,7 @@ const kernelValidation = string()
 export const KERNEL_PATH_ENABLED = {
   name: KERNEL_PATH_ENABLED_NAME,
   label: T.CustomPath,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.SWITCH,
   fieldProps: (context, form) => {
     if (context?.extra?.OS?.KERNEL) {
@@ -52,7 +52,7 @@ export const KERNEL_PATH_ENABLED = {
 export const KERNEL_DS = {
   name: KERNEL_DS_NAME,
   label: T.Kernel,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: KERNEL_PATH_ENABLED.name,
   htmlType: (enabled) => enabled && INPUT_TYPES.HIDDEN,
@@ -90,7 +90,7 @@ export const KERNEL_DS = {
 export const KERNEL = {
   name: KERNEL_NAME,
   label: T.KernelPath,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   dependOf: KERNEL_PATH_ENABLED.name,
   htmlType: (enabled) => !enabled && INPUT_TYPES.HIDDEN,

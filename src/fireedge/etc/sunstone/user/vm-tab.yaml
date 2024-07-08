@@ -34,7 +34,6 @@ actions:
   chgrp: false
   lock: true
   unlock: true
-  vmrc: true
   vnc: true
   ssh: true
   rdp: true
@@ -78,13 +77,6 @@ info-tabs:
       enabled: true
       actions:
         resize: true
-    vcenter_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: false
-        edit: false
-        delete: false
     lxc_panel:
       enabled: true
       actions:
@@ -109,8 +101,6 @@ info-tabs:
     actions:
       disk-attach:
         enabled: true
-        not_on:
-          - firecracker
       disk-detach: true
       disk-snapshot-create: true
       disk-snapshot-delete: true
@@ -119,9 +109,6 @@ info-tabs:
       disk-resize: true
       disk-saveas:
         enabled: true
-        not_on:
-          - vcenter
-          - firecracker
 
   network:
     enabled: true

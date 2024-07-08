@@ -1,7 +1,0 @@
-RUN yum update -y
-RUN yum install -y epel-release
-RUN yum install -y initscripts \
-                    e2fsprogs \
-                    haveged
-RUN yum localinstall -y `find /root/context -type f \( ! -iname "*ec2*" -iname "*el8.noarch.rpm" \)`
-RUN systemctl enable haveged

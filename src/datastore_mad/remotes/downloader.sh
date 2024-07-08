@@ -431,10 +431,6 @@ lxd://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
     ;;
-docker://*|dockerfile://*)
-    file_type="application/octet-stream"
-    command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
-    ;;
 restic://*)
     eval `$VAR_LOCATION/remotes/datastore/restic_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
     ;;

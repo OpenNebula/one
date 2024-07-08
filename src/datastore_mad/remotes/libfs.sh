@@ -255,24 +255,6 @@ function fs_size {
     if [ -d "${SRC}" ]; then
         SIZE=`set -o pipefail; du -sb "${SRC}" | cut -f1`
         error=$?
-    elif (echo "${SRC}" | grep -qe '^docker\?://\|^dockerfile\?://'); then
-        if [[ $SRC == dockerfile* ]]; then
-            url=`echo ${SRC} | grep -oP "^"dockerfile://"\K.*"`
-        elif [[ $SRC == docker* ]]; then
-            url=`echo ${SRC} | grep -oP "^"docker://"\K.*"`
-        fi
-
-        arguments=`echo $url | cut -d '?' -f 2`
-
-        for p in ${arguments//&/ }; do
-            kvp=( ${p/=/ } );
-
-            if [ ${kvp[0]} == 'size' ]; then
-                SIZE=$((${kvp[1]} * 1024 * 1024));
-                error=0
-                break
-            fi
-        done
     elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
         IMAGE=$(mktemp)
 

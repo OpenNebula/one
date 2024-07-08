@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Sanitize cat arguments to run safely under sudo
-# Access container fstab for OpenNebula containers. Example:
-# /var/lib/lxd/storage-pools/default/containers/one-34/rootfs/etc/fstab
-
-echo $1 | grep -q '/[^[:space:]]\+/one-[0-9]\+/rootfs/etc/fstab$' && [ -f $1 ] && cat $1

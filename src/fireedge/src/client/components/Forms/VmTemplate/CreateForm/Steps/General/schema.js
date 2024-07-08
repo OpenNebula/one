@@ -29,7 +29,6 @@ import {
 } from './capacitySchema'
 import { FIELDS as VM_GROUP_FIELDS } from './vmGroupSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from './ownershipSchema'
-import { FIELDS as VCENTER_FIELDS } from './vcenterSchema'
 
 import {
   Section,
@@ -135,16 +134,6 @@ const SECTIONS = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
       legend: T.VMGroup,
       fields: disableFields(
         filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
-        '',
-        oneConfig,
-        adminGroup
-      ),
-    },
-    {
-      id: 'vcenter',
-      legend: T.vCenterDeployment,
-      fields: disableFields(
-        filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
         '',
         oneConfig,
         adminGroup

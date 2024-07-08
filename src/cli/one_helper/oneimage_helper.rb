@@ -22,7 +22,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     # This list contains prefixes that should skip adding user home to the path
     # This must have the same content as the case $FROM in downloader.sh
-    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'vcenter', 'lxd', 'docker', 'dockerfile']
+    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'vcenter', 'lxd']
 
     TEMPLATE_OPTIONS=[
         {

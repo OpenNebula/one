@@ -134,12 +134,8 @@ export const MARKET_TYPES = {
     text: 'marketplace.types.s3',
     value: 's3',
   },
-  DOCKERHUB: {
-    text: 'marketplace.types.dockerhub',
-    value: 'dockerhub',
-  },
-  DOCKER_REGISTRY: {
-    text: 'marketplace.types.dockerRegistry',
-    value: 'docker_registry',
+  LINUX_CONTAINERS: {
+    text: 'marketplace.types.linuxcontainers',
+    value: 'linuxcontainers',
   },
 }

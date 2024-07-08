@@ -20,7 +20,6 @@ import { DatastoresTable } from 'client/components/Tables'
 import {
   COMMON_FIELDS,
   CEPH_FIELDS,
-  VCENTER_FIELDS,
   RESTIC_FIELDS,
   RSYNC_FIELDS,
 } from './Fields'
@@ -55,7 +54,6 @@ const COMPATIBLE_SYSTEM_DATASTORES = {
 export const FIELDS = [
   ...COMMON_FIELDS,
   ...CEPH_FIELDS,
-  ...VCENTER_FIELDS,
   ...RESTIC_FIELDS,
   ...RSYNC_FIELDS,
   COMPATIBLE_SYSTEM_DATASTORES,

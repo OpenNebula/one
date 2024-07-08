@@ -42,7 +42,6 @@ import {
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
-const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG =
   /^(AR|CLUSTERS|SECURITY_GROUPS|INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|OUTBOUND_AVG_BW|OUTBOUND_PEAK_BW|OUTBOUND_PEAK_KB)$/
 
@@ -72,7 +71,6 @@ const VNetTemplateInfoTab = ({ tabProps = {}, id }) => {
     ownership_panel: ownershipPanel,
     qos_panel: qosPanel,
     attributes_panel: attributesPanel,
-    vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
   } = tabProps
 
@@ -83,13 +81,8 @@ const VNetTemplateInfoTab = ({ tabProps = {}, id }) => {
 
   const { UNAME, UID, GNAME, GID, PERMISSIONS, TEMPLATE } = vnetTemplate
 
-  const {
-    attributes,
-    lxc: lxcAttributes,
-    vcenter: vcenterAttributes,
-  } = filterAttributes(TEMPLATE, {
+  const { attributes, lxc: lxcAttributes } = filterAttributes(TEMPLATE, {
     extra: {
-      vcenter: VCENTER_ATTRIBUTES_REG,
       lxc: LXC_ATTRIBUTES_REG,
     },
     hidden: HIDDEN_ATTRIBUTES_REG,
@@ -171,14 +164,6 @@ const VNetTemplateInfoTab = ({ tabProps = {}, id }) => {
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={Tr(T.Attributes)}
-        />
-      )}
-      {vcenterPanel?.enabled && vcenterAttributes && (
-        <AttributePanel
-          {...ATTRIBUTE_FUNCTION}
-          actions={getActions(vcenterPanel?.actions)}
-          attributes={vcenterAttributes}
-          title={`vCenter ${Tr(T.Information)}`}
         />
       )}
       {lxcPanel?.enabled && lxcAttributes && (

@@ -15,14 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { COMMON_FIELDS } from './common'
 import { CEPH_FIELDS } from './ceph'
-import { VCENTER_FIELDS } from './vcenter'
 import { RESTIC_FIELDS } from './restic'
 import { RSYNC_FIELDS } from './rsync'
 
-export {
-  COMMON_FIELDS,
-  CEPH_FIELDS,
-  VCENTER_FIELDS,
-  RESTIC_FIELDS,
-  RSYNC_FIELDS,
-}
+export { COMMON_FIELDS, CEPH_FIELDS, RESTIC_FIELDS, RSYNC_FIELDS }

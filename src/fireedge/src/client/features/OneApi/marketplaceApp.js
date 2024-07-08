@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/marketapp'
 import {
   Actions as ExtraActions,
   Commands as ExtraCommands,
 } from 'server/routes/api/marketapp/routes'
+import { Actions, Commands } from 'server/utils/constants/commands/marketapp'
 
 import {
-  oneApi,
+  FilterFlag,
+  LockLevel,
+  MarketplaceApp,
+  Permission,
+} from 'client/constants'
+import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  oneApi,
 } from 'client/features/OneApi'
 import {
-  updateResourceOnPool,
-  removeResourceOnPool,
-  updateNameOnResource,
-  updateLockLevelOnResource,
   removeLockLevelOnResource,
-  updatePermissionOnResource,
+  removeResourceOnPool,
+  updateLockLevelOnResource,
+  updateNameOnResource,
   updateOwnershipOnResource,
+  updatePermissionOnResource,
+  updateResourceOnPool,
   updateTemplateOnResource,
 } from 'client/features/OneApi/common'
 import { requestConfig } from 'client/utils'
-import {
-  LockLevel,
-  FilterFlag,
-  Permission,
-  MarketplaceApp,
-} from 'client/constants'
 
 const { APP } = ONE_RESOURCES
 const { APP_POOL } = ONE_RESOURCES_POOL
@@ -113,23 +113,6 @@ const marketAppApi = oneApi.injectEndpoints({
             )
           )
         }
-      },
-    }),
-    getDockerHubTags: builder.query({
-      /**
-       * Retrieves DockerHub tags information for marketplace app.
-       *
-       * @param {object} params - Request parameters
-       * @param {string} params.id - App id
-       * @param {string} [params.page] - Number of page
-       * @returns {object[]} List of DockerHub tags
-       * @throws Fails when response isn't code 200
-       */
-      query: (params) => {
-        const name = ExtraActions.MARKETAPP_DOCKERTAGS
-        const command = { name, ...ExtraCommands[name] }
-
-        return { params, command }
       },
     }),
     allocateApp: builder.mutation({
@@ -559,8 +542,6 @@ export const {
   useLazyGetMarketplaceAppQuery,
   useGetMarketplaceAppsQuery,
   useLazyGetMarketplaceAppsQuery,
-  useGetDockerHubTagsQuery,
-  useLazyGetDockerHubTagsQuery,
 
   // Mutations
   useAllocateAppMutation,

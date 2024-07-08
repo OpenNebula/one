@@ -1193,13 +1193,6 @@ get '/marketplaceapp/:id/download' do
 end
 
 ##############################################################################
-# Retrive DockerHub tags
-##############################################################################
-get '/marketplaceapp/:id/tags' do
-    @SunstoneServer.get_docker_tags(params[:id])
-end
-
-##############################################################################
 # Create a marketPlacetApp
 ##############################################################################
 post '/marketplaceapp/:type/create' do

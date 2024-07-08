@@ -1452,33 +1452,6 @@ class ExecDriver < VirtualMachineDriver
 
         steps = [reboot_step]
 
-        if @hypervisor == 'lxd'
-            steps += [
-                {
-                    :driver     => :vnm,
-                    :action     => :clean,
-                    :parameters => [:host]
-                },
-                {
-                    :driver   => :vnm,
-                    :action   => :pre
-                },
-                reboot_step,
-                {
-                    :driver       => :vnm,
-                    :action       => :post,
-                    :parameters   => [:deploy_id, :host],
-                    :fail_actions => [
-                        {
-                            :driver     => :vmm,
-                            :action     => :cancel,
-                            :parameters => [:deploy_id, :host]
-                        }
-                    ]
-                }
-            ]
-        end
-
         action.run(steps)
     end
 

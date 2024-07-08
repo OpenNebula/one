@@ -17,11 +17,10 @@ import PropTypes from 'prop-types'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T, MARKET_TYPES } from 'client/constants'
 import { SCHEMA, FIELDS } from './schema'
-import { Grid, Card, CardContent, Typography, Alert } from '@mui/material'
+import { Grid, Card, CardContent, Typography } from '@mui/material'
 import { Tr } from 'client/components/HOC'
 import { generateDocLink } from 'client/utils'
 import { useFormContext } from 'react-hook-form'
-import makeStyles from '@mui/styles/makeStyles'
 import { find } from 'lodash'
 
 export const STEP_ID = 'configuration'
@@ -30,39 +29,22 @@ export const STEP_ID = 'configuration'
  * Return content of the step.
  *
  * @param {string} version - OpenNebula version
+ * @param {boolean} update - If the user is updating or creating the form
  * @returns {object} - Content of the step
  */
-const Content = (version) => {
-  // Style for info message
-  const useStyles = makeStyles(({ palette }) => ({
-    groupInfo: {
-      '&': {
-        gridColumn: 'span 2',
-        marginTop: '1em',
-        backgroundColor: palette.background.paper,
-      },
-    },
-  }))
-  const classes = useStyles()
-
+const Content = (version, update) => {
   const { getValues } = useFormContext()
-  const isDockerhub =
-    getValues('general.MARKET_MAD') === MARKET_TYPES.DOCKERHUB.value
+
   const type = find(MARKET_TYPES, { value: getValues('general.MARKET_MAD') })
 
   return (
     <Grid mt={2} container>
       <Grid item xs={8}>
-        {isDockerhub && (
-          <Alert
-            severity="info"
-            variant="outlined"
-            className={classes.groupInfo}
-          >
-            {Tr(T['marketplace.form.configuration.dockerhub.info'])}
-          </Alert>
-        )}
-        <FormWithSchema id={STEP_ID} cy={`${STEP_ID}`} fields={FIELDS} />
+        <FormWithSchema
+          id={STEP_ID}
+          cy={`${STEP_ID}`}
+          fields={FIELDS(update)}
+        />
       </Grid>
       <Grid item xs={4}>
         <Card
@@ -192,55 +174,36 @@ const Content = (version) => {
               </>
             )}
 
-            {type?.value === 'dockerhub' && (
+            {type?.value === 'linuxcontainers' && (
               <>
                 <Typography variant="body2" gutterBottom>
-                  <b>{Tr(T['marketplace.types.dockerhub'])}</b>
+                  <b>{Tr(T['marketplace.types.linuxcontainers'])}</b>
                 </Typography>
 
                 <Typography variant="body2" gutterBottom>
                   {Tr(
                     T[
-                      'marketplace.form.configuration.dockerhub.help.paragraph.1'
+                      'marketplace.form.configuration.linuxcontainers.help.paragraph.1.1'
                     ]
                   )}
-                </Typography>
-
-                <Typography variant="body2" gutterBottom>
-                  {Tr(
-                    T[
-                      'marketplace.form.configuration.dockerhub.help.paragraph.2'
-                    ]
-                  )}{' '}
-                </Typography>
-
-                <Typography variant="body2" gutterBottom>
                   <a
                     target="_blank"
-                    href={generateDocLink(
-                      version,
-                      'marketplace/public_marketplaces/dockerhub.html'
-                    )}
+                    href={
+                      T[
+                        'marketplace.form.configuration.linuxcontainers.help.paragraph.1.link'
+                      ]
+                    }
                     rel="noreferrer"
                   >
                     {Tr(
-                      T['marketplace.form.configuration.dockerhub.help.link']
+                      T[
+                        'marketplace.form.configuration.linuxcontainers.help.paragraph.1.2'
+                      ]
                     )}
                   </a>
-                </Typography>
-              </>
-            )}
-
-            {type?.value === 'docker_registry' && (
-              <>
-                <Typography variant="body2" gutterBottom>
-                  <b>{Tr(T['marketplace.types.dockerRegistry'])}</b>
-                </Typography>
-
-                <Typography variant="body2" gutterBottom>
                   {Tr(
                     T[
-                      'marketplace.form.configuration.dockerRegistry.help.paragraph.1'
+                      'marketplace.form.configuration.linuxcontainers.help.paragraph.1.3'
                     ]
                   )}
                 </Typography>
@@ -248,7 +211,7 @@ const Content = (version) => {
                 <Typography variant="body2" gutterBottom>
                   {Tr(
                     T[
-                      'marketplace.form.configuration.dockerRegistry.help.paragraph.2'
+                      'marketplace.form.configuration.linuxcontainers.help.paragraph.2'
                     ]
                   )}{' '}
                 </Typography>
@@ -258,13 +221,13 @@ const Content = (version) => {
                     target="_blank"
                     href={generateDocLink(
                       version,
-                      'marketplace/private_marketplaces/docker_registry.html'
+                      'marketplace/public_marketplaces/lxc.html'
                     )}
                     rel="noreferrer"
                   >
                     {Tr(
                       T[
-                        'marketplace.form.configuration.dockerRegistry.help.link'
+                        'marketplace.form.configuration.linuxcontainers.help.link'
                       ]
                     )}
                   </a>
@@ -283,14 +246,15 @@ const Content = (version) => {
  *
  * @param {object} props - Step props
  * @param {string} props.version - OpenNebula version
+ * @param {boolean} props.update - If the user is updating or creating the form
  * @returns {object} AdvancedOptions configuration step
  */
-const Configuration = ({ version }) => ({
+const Configuration = ({ version, update }) => ({
   id: STEP_ID,
   label: T['marketplace.configuration.title'],
   resolver: SCHEMA,
   optionsValidate: { abortEarly: false },
-  content: () => Content(version),
+  content: () => Content(version, update),
 })
 
 Configuration.propTypes = {

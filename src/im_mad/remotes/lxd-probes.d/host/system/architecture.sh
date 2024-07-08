@@ -1,1 +1,0 @@
-../../../node-probes.d/architecture.sh

@@ -17,7 +17,6 @@ import { ObjectSchema } from 'yup'
 
 import {
   GENERAL_FIELDS,
-  VCENTER_FIELDS,
   EDGE_CLUSTER_FIELDS,
   THROTTLING_BYTES_FIELDS,
   THROTTLING_IOPS_FIELDS,
@@ -43,16 +42,6 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
     legend: T.General,
     fields: disableFields(
       filterFieldsByHypervisor(GENERAL_FIELDS, hypervisor),
-      'DISK',
-      oneConfig,
-      adminGroup
-    ),
-  },
-  {
-    id: 'vcenter',
-    legend: 'vCenter',
-    fields: disableFields(
-      filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
       'DISK',
       oneConfig,
       adminGroup

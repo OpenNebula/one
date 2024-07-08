@@ -30,8 +30,6 @@ import {
   UNITS,
 } from 'client/constants'
 
-const { vcenter } = HYPERVISORS
-
 /** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
@@ -74,17 +72,11 @@ const TYPE = (hypervisor) => ({
   label: T.DiskType,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
-  values:
-    hypervisor === vcenter
-      ? [
-          { text: '-', value: undefined },
-          { text: 'FS', value: 'fs' },
-        ]
-      : [
-          { text: '-', value: undefined },
-          { text: 'FS', value: 'fs' },
-          { text: 'Swap', value: 'swap' },
-        ],
+  values: [
+    { text: '-', value: undefined },
+    { text: 'FS', value: 'fs' },
+    { text: 'Swap', value: 'swap' },
+  ],
   validation: string().trim().required().default(undefined),
 })
 
@@ -99,17 +91,11 @@ const FORMAT = (hypervisor) => ({
   optionsOnly: true,
   dependOf: 'TYPE',
   htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
-  values:
-    hypervisor === vcenter
-      ? [
-          { text: '-', value: undefined },
-          { text: 'Raw', value: 'raw' },
-        ]
-      : [
-          { text: '-', value: undefined },
-          { text: 'Raw', value: 'raw' },
-          { text: 'qcow2', value: 'qcow2' },
-        ],
+  values: [
+    { text: '-', value: undefined },
+    { text: 'Raw', value: 'raw' },
+    { text: 'qcow2', value: 'qcow2' },
+  ],
   validation: string()
     .trim()
     .when('TYPE', (type, schema) =>
@@ -123,7 +109,6 @@ const FORMAT = (hypervisor) => ({
 const FILESYSTEM = {
   name: 'FS',
   label: T.FileSystemType,
-  notOnHypervisors: [vcenter],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   dependOf: 'TYPE',

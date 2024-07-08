@@ -19,14 +19,14 @@ import { string, boolean } from 'yup'
 import { Field } from 'client/utils'
 import { T, INPUT_TYPES, HYPERVISORS } from 'client/constants'
 
-const { kvm, lxc, vcenter, firecracker } = HYPERVISORS
+const { kvm, lxc } = HYPERVISORS
 
 /** @type {Field} Raw type field */
 const TYPE = {
   name: 'RAW.TYPE',
   label: T.Type,
   type: INPUT_TYPES.TEXT,
-  notOnHypervisors: [lxc, vcenter, firecracker],
+  notOnHypervisors: [lxc],
   htmlType: INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
@@ -43,7 +43,7 @@ const DATA = {
   label: T.Data,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  notOnHypervisors: [lxc, vcenter, firecracker],
+  notOnHypervisors: [lxc],
   validation: string()
     .trim()
     .notRequired()
@@ -57,7 +57,7 @@ const VALIDATE = {
   label: T.Validate,
   tooltip: T.RawValidateConcept,
   type: INPUT_TYPES.CHECKBOX,
-  notOnHypervisors: [lxc, vcenter, firecracker],
+  notOnHypervisors: [lxc],
   dependOf: DATA.name,
   htmlType: (data) => !data && INPUT_TYPES.HIDDEN,
   validation: boolean().yesOrNo().default(false),

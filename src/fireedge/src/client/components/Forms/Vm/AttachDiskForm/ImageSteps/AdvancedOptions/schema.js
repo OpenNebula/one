@@ -17,7 +17,6 @@ import { number, ObjectSchema } from 'yup'
 
 import {
   GENERAL_FIELDS,
-  VCENTER_FIELDS,
   EDGE_CLUSTER_FIELDS,
   THROTTLING_BYTES_FIELDS,
   THROTTLING_IOPS_FIELDS,
@@ -31,14 +30,11 @@ import {
   disableFields,
 } from 'client/utils'
 
-const { vcenter } = HYPERVISORS
-
 /** @type {Field} Size field */
 const SIZE = {
   name: 'SIZE',
   label: T.SizeOnInstantiate,
   tooltip: T.SizeOnInstantiateConcept,
-  notOnHypervisors: [vcenter],
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: number()
@@ -58,16 +54,6 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
     legend: T.General,
     fields: disableFields(
       filterFieldsByHypervisor([SIZE, ...GENERAL_FIELDS], hypervisor),
-      'DISK',
-      oneConfig,
-      adminGroup
-    ),
-  },
-  {
-    id: 'vcenter',
-    legend: 'vCenter',
-    fields: disableFields(
-      filterFieldsByHypervisor(VCENTER_FIELDS, hypervisor),
       'DISK',
       oneConfig,
       adminGroup

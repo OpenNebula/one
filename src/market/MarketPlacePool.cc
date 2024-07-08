@@ -48,20 +48,6 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
                 " LXD hosted at linuxcontainers.org\"";
 
-        string tk_market =
-                "NAME=\"TurnKey Linux Containers\"\n"
-                "STATE=DISABLED\n"
-                "MARKET_MAD=turnkeylinux\n"
-                "DESCRIPTION=\"TurnKey linux is a free software repository"
-                " based on Debian images hosted at turnkeylinux.org\"";
-
-        string dh_market =
-                "NAME=\"DockerHub\"\n"
-                "STATE=DISABLED\n"
-                "MARKET_MAD=dockerhub\n"
-                "DESCRIPTION=\"DockerHub is the world's largest library and"
-                "  community for container images hosted at hub.docker.com/\"";
-
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
         auto      oneadmin = upool->get_ro(0);
@@ -70,15 +56,11 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
 
         auto default_tmpl = make_unique<MarketPlaceTemplate>();
         auto lxc_tmpl     = make_unique<MarketPlaceTemplate>();
-        auto tk_tmpl      = make_unique<MarketPlaceTemplate>();
-        auto dh_tmpl      = make_unique<MarketPlaceTemplate>();
 
         char * error_parse;
 
         default_tmpl->parse(default_market, &error_parse);
         lxc_tmpl->parse(lxc_market, &error_parse);
-        tk_tmpl->parse(tk_market, &error_parse);
-        dh_tmpl->parse(dh_market, &error_parse);
 
         MarketPlace * marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -86,7 +68,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                move(default_tmpl));
+                std::move(default_tmpl));
 
         MarketPlace * lxc_marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -94,44 +76,20 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                move(lxc_tmpl));
-
-        MarketPlace * tk_marketplace = new MarketPlace(
-                oneadmin->get_uid(),
-                oneadmin->get_gid(),
-                oneadmin->get_uname(),
-                oneadmin->get_gname(),
-                oneadmin->get_umask(),
-                move(tk_tmpl));
-
-        MarketPlace * dh_marketplace = new MarketPlace(
-                oneadmin->get_uid(),
-                oneadmin->get_gid(),
-                oneadmin->get_uname(),
-                oneadmin->get_gname(),
-                oneadmin->get_umask(),
-                move(dh_tmpl));
+                std::move(lxc_tmpl));
 
         marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
         lxc_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
-        tk_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
-        dh_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
 
         marketplace->zone_id = Nebula::instance().get_zone_id();
         lxc_marketplace->zone_id = Nebula::instance().get_zone_id();
-        tk_marketplace->zone_id = Nebula::instance().get_zone_id();
-        dh_marketplace->zone_id = Nebula::instance().get_zone_id();
 
         marketplace->parse_template(error);
         lxc_marketplace->parse_template(error);
-        tk_marketplace->parse_template(error);
-        dh_marketplace->parse_template(error);
 
         int rc = PoolSQL::allocate(marketplace, error);
 
         rc += PoolSQL::allocate(lxc_marketplace, error);
-        rc += PoolSQL::allocate(tk_marketplace, error);
-        rc += PoolSQL::allocate(dh_marketplace, error);
 
         if (rc < 0)
         {
@@ -173,7 +131,7 @@ int MarketPlacePool::allocate(
     // -------------------------------------------------------------------------
     // Build the marketplace object
     // -------------------------------------------------------------------------
-    mp = new MarketPlace(uid, gid, uname, gname, umask, move(mp_template));
+    mp = new MarketPlace(uid, gid, uname, gname, umask, std::move(mp_template));
 
     mp->get_template_attribute("NAME", name);
 

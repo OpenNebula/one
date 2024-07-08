@@ -46,12 +46,6 @@ import { T } from 'client/constants'
  * @property {string} [TEMPLATE.RESTRICTED_DIRS] - Paths that cannot be used to register images. A space separated list of paths.
  * @property {string} [TEMPLATE.SAFE_DIRS] - If you need to allow a directory listed under RESTRICTED_DIRS. A space separated list of paths.
  * @property {string} [TEMPLATE.ALLOW_ORPHANS] - Safe directories
- * @property {string} [TEMPLATE.VCENTER_DC_NAME] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_DC_REF] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_DS_NAME] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_DS_REF] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_HOST] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
  */
 
 /** @type {STATES.StateInfo[]} Datastore states */
@@ -95,7 +89,6 @@ export const DATASTORE_OPTIONS = {
   FILESYSTEM: { name: T.Filesystem, value: 'fs' },
   CEPH: { name: T.Ceph, value: 'ceph' },
   DEVICES: { name: T.Devices, value: 'dev' },
-  VCENTER: { name: T.Vcenter, value: 'vcenter' },
   RESTIC: { name: T.StorageRestic, value: 'restic' },
   RSYNC: { name: T.StorageRsync, value: 'rsync' },
   CUSTOM: { name: T.Custom, value: 'custom' },
@@ -107,7 +100,6 @@ export const TRANSFER_OPTIONS = {
   FS_LVM: { name: T.FSLVM, value: 'fs_lvm' },
   CEPH: { name: T.Ceph, value: 'ceph' },
   DEVICES: { name: T.Devices, value: 'dev' },
-  VCENTER: { name: T.Vcenter, value: 'vcenter' },
   CUSTOM: { name: T.Custom, value: 'custom' },
 }
 
@@ -116,7 +108,6 @@ export const DS_STORAGE_BACKENDS = {
   FS_SSH: { name: T.FilesystemSSH, value: 'fs-ssh' },
   CEPH: { name: T.Ceph, value: 'ceph-ceph' },
   FS_LVM: { name: T.LVM, value: 'fs-fs_lvm' },
-  VCENTER: { name: T.Vcenter, value: 'vcenter-vcenter' },
   RAW: { name: T.RawDeviceMapping, value: 'dev-dev' },
   RESTIC: { name: T.StorageRestic, value: 'restic' },
   RSYNC: { name: T.StorageRsync, value: 'rsync' },
@@ -135,7 +126,6 @@ export const DISK_TYPES_BY_STORAGE_BACKEND = {
   [DS_STORAGE_BACKENDS.FS_SSH.value]: DS_DISK_TYPES.FILE,
   [DS_STORAGE_BACKENDS.CEPH.value]: DS_DISK_TYPES.RBD,
   [DS_STORAGE_BACKENDS.FS_LVM.value]: DS_DISK_TYPES.FILE,
-  [DS_STORAGE_BACKENDS.VCENTER.value]: DS_DISK_TYPES.FILE,
   [DS_STORAGE_BACKENDS.RAW.value]: DS_DISK_TYPES.FILE,
   [DS_STORAGE_BACKENDS.RESTIC.value]: DS_DISK_TYPES.FILE,
   [DS_STORAGE_BACKENDS.RSYNC.value]: DS_DISK_TYPES.FILE,
@@ -151,7 +141,6 @@ export const DATASTORE_TYPES = {
       DS_STORAGE_BACKENDS.FS_SSH,
       DS_STORAGE_BACKENDS.CEPH,
       DS_STORAGE_BACKENDS.FS_LVM,
-      DS_STORAGE_BACKENDS.VCENTER,
       DS_STORAGE_BACKENDS.RAW,
       DS_STORAGE_BACKENDS.CUSTOM,
     ],
@@ -165,7 +154,6 @@ export const DATASTORE_TYPES = {
       DS_STORAGE_BACKENDS.FS_SSH,
       DS_STORAGE_BACKENDS.CEPH,
       DS_STORAGE_BACKENDS.FS_LVM,
-      DS_STORAGE_BACKENDS.VCENTER,
       DS_STORAGE_BACKENDS.CUSTOM,
     ],
   },

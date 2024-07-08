@@ -20,7 +20,6 @@ import BackupsTable from 'client/components/Tables/Backups'
 import ClustersTable from 'client/components/Tables/Clusters'
 import DataGridTable from 'client/components/Tables/DataGrid'
 import DatastoresTable from 'client/components/Tables/Datastores'
-import DockerHubTagsTable from 'client/components/Tables/DockerHubTags'
 import EnhancedTable from 'client/components/Tables/Enhanced'
 import FilesTable from 'client/components/Tables/Files'
 import GroupsTable from 'client/components/Tables/Groups'
@@ -37,14 +36,14 @@ import SupportTable from 'client/components/Tables/Support'
 import UsersTable from 'client/components/Tables/Users'
 import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
 import VNetworksTable from 'client/components/Tables/VNetworks'
-import VRoutersTable from 'client/components/Tables/VRouters'
 import VRouterTemplatesTable from 'client/components/Tables/VRouterTemplates'
+import VRoutersTable from 'client/components/Tables/VRouters'
 import VDCsTable from 'client/components/Tables/VirtualDataCenters'
 import VirtualizedTable from 'client/components/Tables/Virtualized'
+import VmDisksTable from 'client/components/Tables/VmDisks'
 import VmGroupsTable from 'client/components/Tables/VmGroups'
 import VmTemplatesTable from 'client/components/Tables/VmTemplates'
 import VmsTable from 'client/components/Tables/Vms'
-import VmDisksTable from 'client/components/Tables/VmDisks'
 import ZonesTable from 'client/components/Tables/Zones'
 
 export * from 'client/components/Tables/Enhanced/Utils'
@@ -57,7 +56,6 @@ export {
   ClustersTable,
   DataGridTable,
   DatastoresTable,
-  DockerHubTagsTable,
   EnhancedTable,
   FilesTable,
   GroupsTable,
@@ -75,12 +73,12 @@ export {
   VDCsTable,
   VNetworkTemplatesTable,
   VNetworksTable,
-  VRoutersTable,
   VRouterTemplatesTable,
+  VRoutersTable,
   VirtualizedTable,
+  VmDisksTable,
   VmGroupsTable,
   VmTemplatesTable,
   VmsTable,
-  VmDisksTable,
   ZonesTable,
 }

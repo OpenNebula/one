@@ -25,7 +25,7 @@ import {
   KERNEL_PATH_ENABLED_NAME,
 } from './kernelSchema'
 
-const { vcenter, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 export const RAMDISK_PATH_ENABLED_NAME = 'OS.RAMDISK_PATH_ENABLED'
 export const RAMDISK_DS_NAME = 'OS.INITRD_DS'
@@ -40,7 +40,7 @@ const ramdiskValidation = string()
 export const RAMDISK_PATH_ENABLED = {
   name: RAMDISK_PATH_ENABLED_NAME,
   label: T.CustomPath,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.SWITCH,
   dependOf: [`$extra.${KERNEL_DS_NAME}`, `$extra.${KERNEL_NAME}`],
   htmlType: ([ds, path] = []) => !(ds || path) && INPUT_TYPES.HIDDEN,
@@ -64,7 +64,7 @@ export const RAMDISK_PATH_ENABLED = {
 export const RAMDISK_DS = {
   name: RAMDISK_DS_NAME,
   label: T.Ramdisk,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: [
     RAMDISK_PATH_ENABLED.name,
@@ -119,7 +119,7 @@ export const RAMDISK_DS = {
 export const RAMDISK = {
   name: RAMDISK_NAME,
   label: T.RamdiskPath,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   dependOf: [
     RAMDISK_PATH_ENABLED.name,

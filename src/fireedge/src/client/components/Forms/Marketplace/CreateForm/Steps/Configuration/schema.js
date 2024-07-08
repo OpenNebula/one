@@ -18,14 +18,20 @@ import { getObjectSchemaFromFields } from 'client/utils'
 import { FIELDS as COMMON_FIELDS } from './fieldsCommon'
 import { FIELDS as HTTP_FIELDS } from './fieldsHttp'
 import { FIELDS as S3_FIELDS } from './fieldsS3'
-import { FIELDS as DOCKER_REGISTRY_FIELDS } from './fieldsDockerRegistry'
+import { FIELDS as LXC_FIELDS } from './fieldsLinuxContainters'
 
-const FIELDS = [
+/**
+ * Generate all the fields of the Linux Container Marketplace form.
+ *
+ * @param {boolean} update - If the user is updating or creating the form
+ * @returns {Array} - Fields array
+ */
+const FIELDS = (update) => [
   ...HTTP_FIELDS,
   ...S3_FIELDS,
-  ...DOCKER_REGISTRY_FIELDS,
   ...COMMON_FIELDS,
+  ...LXC_FIELDS(update),
 ]
-const SCHEMA = getObjectSchemaFromFields(FIELDS)
+const SCHEMA = getObjectSchemaFromFields(FIELDS())
 
 export { SCHEMA, FIELDS }

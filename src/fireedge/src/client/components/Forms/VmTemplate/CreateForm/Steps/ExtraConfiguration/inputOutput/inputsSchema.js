@@ -31,7 +31,7 @@ import {
   HYPERVISORS,
 } from 'client/constants'
 
-const { vcenter, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 export const deviceTypeIcons = {
   [DEVICE_TYPES.mouse]: <PcMouse />,
@@ -47,7 +47,7 @@ export const busTypeIcons = {
 const TYPE = {
   name: 'TYPE',
   label: T.Type,
-  notOnHypervisors: [lxc, vcenter],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(Object.values(DEVICE_TYPES)),
@@ -62,7 +62,7 @@ const TYPE = {
 const BUS = {
   name: 'BUS',
   label: T.Bus,
-  notOnHypervisors: [lxc, vcenter],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(Object.values(DEVICE_BUS_TYPES)),

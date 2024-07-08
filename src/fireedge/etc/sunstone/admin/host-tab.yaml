@@ -31,13 +31,6 @@ info-tabs:
       enabled: true
       actions:
         rename: true
-    vcenter_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: true
-        edit: true
-        delete: true
     nsx_panel:
       enabled: true
       actions:
@@ -86,4 +79,3 @@ dialogs:
       not_on:
         - kvm
         - lxc
-        - firecracker

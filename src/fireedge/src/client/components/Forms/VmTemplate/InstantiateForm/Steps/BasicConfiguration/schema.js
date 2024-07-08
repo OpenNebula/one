@@ -21,7 +21,6 @@ import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
 
 // get schemas from VmTemplate/CreateForm
 import { FIELDS as OWNERSHIP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/ownershipSchema'
-import { VCENTER_FOLDER_FIELD } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vcenterSchema'
 import { FIELDS as VM_GROUP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vmGroupSchema'
 
 import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
@@ -82,16 +81,6 @@ const SECTIONS = (vmTemplate, features, oneConfig, adminGroup) => {
       legend: T.VMGroup,
       fields: disableFields(
         filterFieldsByHypervisor(VM_GROUP_FIELDS, hypervisor),
-        '',
-        oneConfig,
-        adminGroup
-      ),
-    },
-    {
-      id: 'vcenter',
-      legend: T.vCenterDeployment,
-      fields: disableFields(
-        filterFieldsByHypervisor([VCENTER_FOLDER_FIELD], hypervisor),
         '',
         oneConfig,
         adminGroup

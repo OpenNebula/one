@@ -26,13 +26,11 @@ const basepath = '/marketapp'
 const MARKETAPP_EXPORT = 'marketapp.export'
 const MARKETAPP_DOWNLOAD = 'marketapp.download'
 const MARKETAPP_IMPORT = 'marketapp.import'
-const MARKETAPP_DOCKERTAGS = 'marketapp.dockertags'
 
 const Actions = {
   MARKETAPP_EXPORT,
   MARKETAPP_DOWNLOAD,
   MARKETAPP_IMPORT,
-  MARKETAPP_DOCKERTAGS,
 }
 
 module.exports = {
@@ -101,19 +99,6 @@ module.exports = {
         },
         vmname: {
           from: postBody,
-        },
-      },
-    },
-    [MARKETAPP_DOCKERTAGS]: {
-      path: `${basepath}/dockertags/:id`,
-      httpMethod: GET,
-      auth: true,
-      params: {
-        id: {
-          from: resource,
-        },
-        page: {
-          from: query,
         },
       },
     },

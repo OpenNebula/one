@@ -48,7 +48,7 @@ const TYPE = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(Object.keys(MARKET_TYPES), {
-    addEmpty: true,
+    addEmpty: false,
     getText: (key) => T[MARKET_TYPES[key].text],
     getValue: (key) => MARKET_TYPES[key].value,
   }),

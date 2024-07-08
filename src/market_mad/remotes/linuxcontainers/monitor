@@ -24,7 +24,7 @@ require 'rexml/document'
 require 'time'
 require 'digest/md5'
 
-require_relative '../common/lxd'
+require_relative 'lxd'
 
 #-------------------------------------------------------------------------------
 #
@@ -134,7 +134,7 @@ class LinuxContainersMarket
             builddate = DateTime.strptime(regtime, '%Y%m%d_%H:%M').to_time.to_i
 
             data = {
-                'NAME'        => "#{distro}_#{version} - LXD",
+                'NAME'        => "#{distro}_#{version} - LXC",
                 'SIZE'        => @options[:sizemb],
                 'PUBLISHER'   => @options[:url],
                 'FORMAT'      => @options[:format],

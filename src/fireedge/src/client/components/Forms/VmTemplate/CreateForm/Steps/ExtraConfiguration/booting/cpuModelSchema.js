@@ -40,13 +40,13 @@ import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { getKvmCpuFeatures, getKvmCpuModels } from 'client/models/Host'
 import { Field, arrayToOptions } from 'client/utils'
 
-const { vcenter, firecracker, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 /** @type {Field} CPU model field */
 export const MODEL = {
   name: 'CPU_MODEL.MODEL',
   label: T.CpuModel,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: () => {
@@ -66,7 +66,7 @@ export const MODEL = {
 export const FEATURES = {
   name: 'CPU_MODEL.FEATURES',
   label: T.CpuFeature,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   multiple: true,

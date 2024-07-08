@@ -19,34 +19,19 @@ import BasicConfiguration, {
 import DatastoresTable, {
   STEP_ID as DATASTORE_ID,
 } from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable'
-import DockerHubTagsTable, {
-  STEP_ID as TAG_ID,
-} from 'client/components/Forms/MarketplaceApp/ExportForm/Steps/DockerHubTagsTable'
 import { createSteps } from 'client/utils'
 
 const Steps = createSteps(
-  (app) => {
-    const isDockerImage = String(app?.MARKETPLACE).toLowerCase() === 'dockerhub'
-
-    return [
-      BasicConfiguration,
-      DatastoresTable,
-      isDockerImage && DockerHubTagsTable,
-    ].filter(Boolean)
-  },
+  (app) => [BasicConfiguration, DatastoresTable].filter(Boolean),
   {
     transformInitialValue: (app, schema) =>
       schema.cast({}, { context: { app } }),
     transformBeforeSubmit: (formData) => {
-      const {
-        [BASIC_ID]: configuration,
-        [DATASTORE_ID]: [datastore] = [],
-        [TAG_ID]: [tag] = [],
-      } = formData
+      const { [BASIC_ID]: configuration, [DATASTORE_ID]: [datastore] = [] } =
+        formData
 
       return {
         datastore: datastore?.ID,
-        tag: tag?.name,
         ...configuration,
       }
     },

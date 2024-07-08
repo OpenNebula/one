@@ -37,7 +37,7 @@ const commonValidation = number()
   .positive()
   .default(() => undefined)
 
-const { vcenter, lxc, firecracker } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 // --------------------------------------------------------
 // MEMORY fields
@@ -48,12 +48,7 @@ export const MEMORY = generateCapacityInput({
   name: 'MEMORY',
   label: T.Memory,
   tooltip: T.MemoryConcept,
-  validation: commonValidation
-    .integer()
-    .required()
-    .when('HYPERVISOR', (hypervisor, schema) =>
-      hypervisor === vcenter ? schema.isDivisibleBy(4) : schema
-    ),
+  validation: commonValidation.integer().required(),
 })
 
 /**
@@ -235,7 +230,7 @@ export const MEMORY_RESIZE_MODE_FIELD = {
   label: T.MemoryResizeMode,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
-  notOnHypervisors: [lxc, firecracker, vcenter],
+  notOnHypervisors: [lxc],
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: arrayToOptions(Object.keys(MEMORY_RESIZE_OPTIONS), {
     addEmpty: true,
@@ -251,7 +246,7 @@ export const MEMORY_SLOTS_FIELD = {
   name: 'MEMORY_SLOTS',
   label: T.MemorySlots,
   type: INPUT_TYPES.TEXT,
-  notOnHypervisors: [lxc, firecracker, vcenter],
+  notOnHypervisors: [lxc],
   dependOf: MEMORY_RESIZE_MODE_FIELD.name,
   htmlType: (resizeMode) =>
     resizeMode === MEMORY_RESIZE_OPTIONS[T.Hotplug]

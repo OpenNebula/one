@@ -20,30 +20,31 @@ import { Field } from 'client/utils'
 /** @type {Field} BASE_URL field */
 const BASE_URL = {
   name: 'BASE_URL',
-  label: (type) => {
-    if (type === MARKET_TYPES.HTTP.value)
-      return T['marketplace.form.configuration.http.url']
-    else if (type === MARKET_TYPES.DOCKER_REGISTRY.value)
-      return T['marketplace.form.configuration.dockerRegistry.url']
-  },
+  label: T['marketplace.form.configuration.url'],
   type: INPUT_TYPES.TEXT,
   dependOf: '$general.MARKET_MAD',
   htmlType: (type) =>
     type !== MARKET_TYPES.HTTP.value &&
-    type !== MARKET_TYPES.DOCKER_REGISTRY.value &&
+    type !== MARKET_TYPES.LINUX_CONTAINERS.value &&
     INPUT_TYPES.HIDDEN,
+  watcher: (type, { formContext }) => {
+    const value = formContext.getValues()?.configuration?.BASE_URL
+
+    if (value) return value
+    else if (type === MARKET_TYPES.LINUX_CONTAINERS.value)
+      return 'https://images.linuxcontainers.org'
+    else return ''
+  },
   validation: string()
     .trim()
     .when('$general.MARKET_MAD', (type, schema) => {
-      if (type)
-        return type !== MARKET_TYPES.HTTP.value &&
-          type !== MARKET_TYPES.DOCKER_REGISTRY.value
-          ? schema.strip()
-          : schema.required()
+      if (type === MARKET_TYPES.HTTP.value) return schema.required()
+      else if (type === MARKET_TYPES.LINUX_CONTAINERS.value)
+        return schema.notRequired()
+      else return schema.strip()
     })
     .default(() => undefined),
   grid: { md: 12 },
-  fieldProps: { placeholder: 'http://frontend.opennebula.org/' },
 }
 
 /** @type {Field} ENDPOINT field */

@@ -77,13 +77,6 @@ info-tabs:
       enabled: true
       actions:
         resize_capacity: true
-    vcenter_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: false
-        edit: false
-        delete: false
     lxc_panel:
       enabled: true
       actions:
@@ -108,8 +101,6 @@ info-tabs:
     actions:
       attach_disk:
         enabled: true
-        not_on:
-          - firecracker
       disk-detach: true
       snapshot_disk_create: true
       snapshot_disk_rename: true
@@ -118,9 +109,6 @@ info-tabs:
       resize_disk: true
       disk_saveas:
         enabled: true
-        not_on:
-          - vcenter
-          - firecracker
 
   network:
     enabled: true

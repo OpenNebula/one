@@ -254,8 +254,6 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/oneprovision \
-            $SHARE_LOCATION/dockerhub \
-            $SHARE_LOCATION/dockerhub/dockerfiles \
             $SHARE_LOCATION/schemas \
             $SHARE_LOCATION/schemas/libvirt \
             $SHARE_LOCATION/schemas/xsd \
@@ -337,15 +335,11 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/im/qemu-probes.d \
-          $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxc-probes.d \
-          $VAR_LOCATION/remotes/etc/im/firecracker-probes.d \
           $VAR_LOCATION/remotes/etc/market/http \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
-          $VAR_LOCATION/remotes/etc/vmm/lxd \
           $VAR_LOCATION/remotes/etc/vmm/lxc \
           $VAR_LOCATION/remotes/etc/vmm/lxc/profiles \
-          $VAR_LOCATION/remotes/etc/vmm/firecracker \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
@@ -371,13 +365,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/lxd.d \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/lxc.d \
           $VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor \
@@ -385,13 +372,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/firecracker.d \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
@@ -428,10 +408,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vmm/one \
-          $VAR_LOCATION/remotes/vmm/lxd \
           $VAR_LOCATION/remotes/vmm/lxc \
           $VAR_LOCATION/remotes/vmm/equinix \
-          $VAR_LOCATION/remotes/vmm/firecracker \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/802.1Q/pre.d \
@@ -504,11 +482,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
           $VAR_LOCATION/remotes/market/s3 \
-          $VAR_LOCATION/remotes/market/common \
           $VAR_LOCATION/remotes/market/linuxcontainers \
-          $VAR_LOCATION/remotes/market/turnkeylinux \
-          $VAR_LOCATION/remotes/market/dockerhub \
-          $VAR_LOCATION/remotes/market/docker_registry \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
           $VAR_LOCATION/remotes/auth/ssh \
@@ -605,9 +579,7 @@ INSTALL_FILES=(
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_QEMU_FILES:$VAR_LOCATION/remotes/im/qemu.d
-    IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
-    IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
     IM_PROBES_LXC_FILES:$VAR_LOCATION/remotes/im/lxc.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
@@ -633,13 +605,6 @@ INSTALL_FILES=(
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
     IM_PROBES_DUMMY_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor
     IM_PROBES_DUMMY_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/status
-    IM_PROBES_LXD_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon
-    IM_PROBES_LXD_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor
-    IM_PROBES_LXD_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/system
-    IM_PROBES_LXD_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor
-    IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
-    IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
-    IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
     IM_PROBES_LXC_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon
     IM_PROBES_LXC_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor
     IM_PROBES_LXC_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/system
@@ -668,12 +633,6 @@ INSTALL_FILES=(
     IM_PROBES_EQUINIX_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/monitor
     IM_PROBES_EQUINIX_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
-    IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
-    IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
-    IM_PROBES_FIRECRACKER_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/system
-    IM_PROBES_FIRECRACKER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor
-    IM_PROBES_FIRECRACKER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status
-    IM_PROBES_ETC_FIRECRACKER_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/firecracker-probes.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -686,17 +645,11 @@ INSTALL_FILES=(
     VMM_EXEC_LIB:$VAR_LOCATION/remotes/vmm/lib
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_KVM_LIB:$VAR_LOCATION/remotes/vmm/kvm
-    VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
-    VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXC_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxc
     VMM_EXEC_LXC_LIB:$VAR_LOCATION/remotes/vmm/lxc
-    VMM_EXEC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/vmm/firecracker
-    VMM_EXEC_FIRECRACKER_LIB:$VAR_LOCATION/remotes/vmm/firecracker
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
-    VMM_EXEC_ETC_LXD_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxd
     VMM_EXEC_ETC_LXC_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxc
     VMM_EXEC_ETC_LXC_PROFILES:$VAR_LOCATION/remotes/etc/vmm/lxc/profiles
-    VMM_EXEC_ETC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/firecracker
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
@@ -732,11 +685,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_ETC_HTTP_SCRIPTS:$VAR_LOCATION/remotes/etc/market/http
     MARKETPLACE_DRIVER_ONE_SCRIPTS:$VAR_LOCATION/remotes/market/one
     MARKETPLACE_DRIVER_S3_SCRIPTS:$VAR_LOCATION/remotes/market/s3
-    MARKETPLACE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/market/common
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
-    MARKETPLACE_DRIVER_TK_SCRIPTS:$VAR_LOCATION/remotes/market/turnkeylinux
-    MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
-    MARKETPLACE_DRIVER_REGISTRY_SCRIPTS:$VAR_LOCATION/remotes/market/docker_registry
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/ipam/equinix
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
@@ -759,7 +708,6 @@ INSTALL_FILES=(
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
     EXAMPLE_EXTERNAL_SCHED_FILES:$SHARE_LOCATION/examples/external_scheduler
-    LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
@@ -783,8 +731,6 @@ INSTALL_FILES=(
     SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
     SSH_SHARE_FILES:$SHARE_LOCATION/ssh
     CONTEXT_SHARE:$SHARE_LOCATION/context
-    DOCKERFILE_TEMPLATE:$SHARE_LOCATION/dockerhub
-    DOCKERFILES_TEMPLATES:$SHARE_LOCATION/dockerhub/dockerfiles
 )
 
 INSTALL_CLIENT_FILES=(
@@ -1009,12 +955,6 @@ BIN_FILES="src/nebula/oned \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------
-# Binary files, to be installed under $SBIN_LOCATION
-#-------------------------------------------------------------------------------
-
-SBIN_FILES="src/vmm_mad/remotes/lib/firecracker/install-firecracker"
-
-#-------------------------------------------------------------------------------
 # C/C++ OpenNebula API Library & Development files
 # Include files, to be installed under $INCLUDE_LOCATION
 # Library files, to be installed under $LIB_LOCATION
@@ -1067,8 +1007,7 @@ RUBY_AUTH_LIB_FILES="src/authm_mad/remotes/ssh/ssh_auth.rb \
 REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu"
 
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
-                src/mad/sh/create_container_image.sh \
-                src/mad/sh/create_docker_image.sh"
+                  src/mad/sh/create_container_image.sh"
 
 MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
 
@@ -1138,7 +1077,6 @@ VMM_EXEC_LIB_VCENTER_FILES="src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb 
 # VMM Lib nsx files, used by the NSX Driver to be installed in
 # $REMOTES_LOCATION/vmm/lib/nsx
 #-------------------------------------------------------------------------------
-
 VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsx_client.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxt_client.rb \
@@ -1162,42 +1100,9 @@ VMM_EXEC_LIB_NSX_FILES="src/vmm_mad/remotes/lib/nsx_driver/logical_switch.rb \
                     src/vmm_mad/remotes/lib/nsx_driver/nsxv_rule.rb"
 
 #-------------------------------------------------------------------------------
-# VMM SH Driver LXD scripts, to be installed under $REMOTES_LOCATION/vmm/lxd
-#-------------------------------------------------------------------------------
-VMM_EXEC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/cancel \
-                    src/vmm_mad/remotes/lxd/deploy \
-                    src/vmm_mad/remotes/lxd/migrate \
-                    src/vmm_mad/remotes/lxd/migrate_local \
-                    src/vmm_mad/remotes/lxd/restore \
-                    src/vmm_mad/remotes/lxd/reboot \
-                    src/vmm_mad/remotes/lxd/reset \
-                    src/vmm_mad/remotes/lxd/save \
-                    src/vmm_mad/remotes/lxd/attach_disk \
-                    src/vmm_mad/remotes/lxd/detach_disk \
-                    src/vmm_mad/remotes/lxd/attach_nic \
-                    src/vmm_mad/remotes/lxd/detach_nic \
-                    src/vmm_mad/remotes/lxd/snapshot_create \
-                    src/vmm_mad/remotes/lxd/snapshot_revert \
-                    src/vmm_mad/remotes/lxd/snapshot_delete \
-                    src/vmm_mad/remotes/lxd/shutdown \
-                    src/vmm_mad/remotes/lxd/reconfigure \
-                    src/vmm_mad/remotes/lxd/prereconfigure \
-                    src/vmm_mad/remotes/lxd/resize_disk"
-
-VMM_EXEC_LXD_LIB="src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb \
-                src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb \
-                src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb \
-                src/vmm_mad/remotes/lib/lxd/mapper/raw.rb \
-                src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb \
-                src/vmm_mad/remotes/lib/lxd/client.rb \
-                src/vmm_mad/remotes/lib/lxd/command.rb \
-                src/vmm_mad/remotes/lib/lxd/container.rb"
-
-#-------------------------------------------------------------------------------
 # VMM SH Driver LXC scripts, to be installed under $REMOTES_LOCATION/vmm/lxc
 #-------------------------------------------------------------------------------
-VMM_EXEC_LXC_SCRIPTS="
-                    src/vmm_mad/remotes/lxc/attach_disk \
+VMM_EXEC_LXC_SCRIPTS="src/vmm_mad/remotes/lxc/attach_disk \
                     src/vmm_mad/remotes/lxc/deploy \
                     src/vmm_mad/remotes/lxc/prereconfigure \
                     src/vmm_mad/remotes/lxc/reset \
@@ -1230,41 +1135,6 @@ VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/storageutils.rb"
 
 #-------------------------------------------------------------------------------
-# VMM SH Driver Firecracker scripts, to be installed under $REMOTES_LOCATION/vmm/firecracker
-#-------------------------------------------------------------------------------
-VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
-                            src/vmm_mad/remotes/firecracker/shutdown \
-                            src/vmm_mad/remotes/firecracker/cancel \
-                            src/vmm_mad/remotes/firecracker/migrate \
-                            src/vmm_mad/remotes/firecracker/migrate_local \
-                            src/vmm_mad/remotes/firecracker/restore \
-                            src/vmm_mad/remotes/firecracker/reboot \
-                            src/vmm_mad/remotes/firecracker/reset \
-                            src/vmm_mad/remotes/firecracker/save \
-                            src/vmm_mad/remotes/firecracker/attach_disk \
-                            src/vmm_mad/remotes/firecracker/detach_disk \
-                            src/vmm_mad/remotes/firecracker/attach_nic \
-                            src/vmm_mad/remotes/firecracker/detach_nic \
-                            src/vmm_mad/remotes/firecracker/snapshot_create \
-                            src/vmm_mad/remotes/firecracker/snapshot_revert \
-                            src/vmm_mad/remotes/firecracker/snapshot_delete \
-                            src/vmm_mad/remotes/firecracker/reconfigure \
-                            src/vmm_mad/remotes/firecracker/prereconfigure \
-                            src/vmm_mad/remotes/firecracker/resize \
-                            src/vmm_mad/remotes/firecracker/resize_disk"
-
-VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
-                        src/vmm_mad/remotes/lib/firecracker/client.rb \
-                        src/vmm_mad/remotes/lib/firecracker/microvm.rb \
-                        src/vmm_mad/remotes/lib/firecracker/map_context \
-                        src/vmm_mad/remotes/lib/firecracker/command.rb"
-#-------------------------------------------------------------------------------
-# VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_ETC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/lxdrc"
-
-#-------------------------------------------------------------------------------
 # VMM configuration LXC scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxc
 #-------------------------------------------------------------------------------
 
@@ -1275,11 +1145,6 @@ VMM_EXEC_ETC_LXC_SCRIPTS="src/vmm_mad/remotes/lxc/lxcrc"
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_ETC_LXC_PROFILES="src/vmm_mad/remotes/lxc/profile_privileged"
-#-------------------------------------------------------------------------------
-# VMM configuration Firecracker scripts, to be installed under $REMOTES_LOCATION/etc/vmm/firecracker
-#-------------------------------------------------------------------------------
-
-VMM_EXEC_ETC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/firecrackerrc"
 
 #-------------------------------------------------------------------------------
 # VMM SH Driver KVM scripts, to be installed under $REMOTES_LOCATION/vmm/kvm
@@ -1436,10 +1301,8 @@ IM_PROBES_FILES="\
 
 IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
-    src/im_mad/remotes/lib/lxd.rb \
     src/im_mad/remotes/lib/lxc.rb \
     src/im_mad/remotes/lib/linux.rb \
-    src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
     src/im_mad/remotes/lib/probe_db.rb \
     src/im_mad/remotes/lib/vcenter_monitor.rb \
@@ -1547,42 +1410,6 @@ IM_PROBES_DUMMY_VM_MONITOR_FILES="\
 
 IM_PROBES_DUMMY_VM_STATUS_FILES=""
 
-# LXD PROBES
-IM_PROBES_LXD_FILES="\
-    src/im_mad/remotes/lxd.d/monitord-client_control.sh \
-    src/im_mad/remotes/lxd.d/monitord-client.rb"
-
-IM_PROBES_LXD_HOST_BEACON_FILES="\
-     src/im_mad/remotes/lxd-probes.d/host/beacon/monitord-client-shepherd.sh \
-     src/im_mad/remotes/lxd-probes.d/host/beacon/date.sh"
-
-IM_PROBES_LXD_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/lxd-probes.d/host/monitor/linux_usage.rb \
-     src/im_mad/remotes/lxd-probes.d/host/monitor/numa_usage.rb"
-
-IM_PROBES_LXD_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/lxd-probes.d/host/system/architecture.sh \
-     src/im_mad/remotes/lxd-probes.d/host/system/cpu.sh \
-     src/im_mad/remotes/lxd-probes.d/host/system/linux_host.rb \
-     src/im_mad/remotes/lxd-probes.d/host/system/monitor_ds.rb \
-     src/im_mad/remotes/lxd-probes.d/host/system/name.sh \
-     src/im_mad/remotes/lxd-probes.d/host/system/numa_host.rb \
-     src/im_mad/remotes/lxd-probes.d/host/system/wild_vm.rb \
-     src/im_mad/remotes/lxd-probes.d/host/system/pci.rb \
-     src/im_mad/remotes/lxd-probes.d/host/system/profiles.sh \
-     src/im_mad/remotes/lxd-probes.d/host/system/version.sh"
-
-IM_PROBES_LXD_VM_MONITOR_FILES="\
-     src/im_mad/remotes/lxd-probes.d/vm/monitor/poll.rb \
-     src/im_mad/remotes/lxd-probes.d/vm/monitor/monitor_ds_vm.rb"
-
-IM_PROBES_LXD_VM_STATUS_FILES="\
-     src/im_mad/remotes/lxd-probes.d/vm/status/state.rb"
-
-IM_PROBES_ETC_LXD_PROBES_FILES="\
-    src/im_mad/remotes/lxd-probes.d/pci.conf \
-    src/im_mad/remotes/lib/probe_db.conf"
-
 # LXC PROBES
 IM_PROBES_LXC_FILES="\
     src/im_mad/remotes/lxc.d/monitord-client_control.sh \
@@ -1614,37 +1441,6 @@ IM_PROBES_LXC_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_LXC_PROBES_FILES="\
     src/im_mad/remotes/lib/probe_db.conf"
-
-# Firecracker PROBES
-IM_PROBES_FIRECRACKER_FILES="\
-    src/im_mad/remotes/firecracker.d/monitord-client_control.sh \
-    src/im_mad/remotes/firecracker.d/monitord-client.rb"
-
-IM_PROBES_FIRECRACKER_HOST_BEACON_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/host/beacon/monitord-client-shepherd.sh \
-     src/im_mad/remotes/firecracker-probes.d/host/beacon/date.sh"
-
-IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/host/monitor/linux_usage.rb \
-     src/im_mad/remotes/firecracker-probes.d/host/monitor/numa_usage.rb"
-
-IM_PROBES_FIRECRACKER_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/host/system/architecture.sh \
-     src/im_mad/remotes/firecracker-probes.d/host/system/cpu.sh \
-     src/im_mad/remotes/firecracker-probes.d/host/system/linux_host.rb \
-     src/im_mad/remotes/firecracker-probes.d/host/system/monitor_ds.rb \
-     src/im_mad/remotes/firecracker-probes.d/host/system/name.sh \
-     src/im_mad/remotes/firecracker-probes.d/host/system/numa_host.rb \
-     src/im_mad/remotes/firecracker-probes.d/host/system/version.sh"
-
-IM_PROBES_FIRECRACKER_VM_MONITOR_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/vm/monitor/poll.rb \
-     src/im_mad/remotes/firecracker-probes.d/vm/monitor/monitor_ds_vm.rb"
-
-IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/vm/status/state.rb"
-
-IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
 
@@ -1770,10 +1566,6 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"
-
-NETWORK_HOOKS_PRE_FILES="src/vnm_mad/remotes/hooks/pre/firecracker"
-
-NETWORK_HOOKS_CLEAN_FILES="src/vnm_mad/remotes/hooks/clean/firecracker"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
@@ -2160,7 +1952,6 @@ TM_ISCSI_FILES="src/tm_mad/iscsi_libvirt/clone \
 DATASTORE_DRIVER_COMMON_SCRIPTS="src/datastore_mad/remotes/xpath.rb \
                              src/datastore_mad/remotes/downloader.sh \
                              src/datastore_mad/remotes/lxd_downloader.sh \
-                             src/datastore_mad/remotes/docker_downloader.sh \
                              src/datastore_mad/remotes/restic_downloader.rb \
                              src/datastore_mad/remotes/rsync_downloader.rb \
                              src/datastore_mad/remotes/vcenter_uploader.rb \
@@ -2279,24 +2070,10 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
             src/market_mad/remotes/s3/monitor \
             src/market_mad/remotes/s3/S3.rb"
 
-MARKETPLACE_DRIVER_COMMON_SCRIPTS="src/market_mad/remotes/common/lxd.rb \
-                                   src/market_mad/remotes/common/docker.rb"
-
 MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
             src/market_mad/remotes/linuxcontainers/delete \
-            src/market_mad/remotes/linuxcontainers/monitor"
-
-MARKETPLACE_DRIVER_TK_SCRIPTS="src/market_mad/remotes/turnkeylinux/import \
-            src/market_mad/remotes/turnkeylinux/delete \
-            src/market_mad/remotes/turnkeylinux/monitor"
-
-MARKETPLACE_DRIVER_DH_SCRIPTS="src/market_mad/remotes/dockerhub/import \
-            src/market_mad/remotes/dockerhub/delete \
-            src/market_mad/remotes/dockerhub/monitor"
-
-MARKETPLACE_DRIVER_REGISTRY_SCRIPTS="src/market_mad/remotes/docker_registry/import \
-                                     src/market_mad/remotes/docker_registry/delete \
-                                     src/market_mad/remotes/docker_registry/monitor"
+            src/market_mad/remotes/linuxcontainers/monitor \
+            src/market_mad/remotes/linuxcontainers/lxd.rb"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
@@ -2373,12 +2150,6 @@ EXAMPLE_EXTERNAL_SCHED_FILES="share/examples/external_scheduler/external_schedul
 #-------------------------------------------------------------------------------
 
 EXAMPLE_HOST_HOOKS_SHARE_FILES="share/examples/host_hooks/error_hook"
-
-#-------------------------------------------------------------------------------
-# LXD network issues vnm hook patches
-#-------------------------------------------------------------------------------
-
-LXD_NETWORK_HOOKS="share/examples/network_hooks/99-lxd_clean.rb"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
@@ -2974,11 +2745,11 @@ FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/vdc-tab.yaml \
-				                src/fireedge/etc/sunstone/admin/user-tab.yaml \
-				                src/fireedge/etc/sunstone/admin/service-tab.yaml \
-				                src/fireedge/etc/sunstone/admin/service-template-tab.yaml \
-				                src/fireedge/etc/sunstone/admin/vrouter-tab.yaml \
-				                src/fireedge/etc/sunstone/admin/vrouter-template-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/user-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/service-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/service-template-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vrouter-tab.yaml \
+                                src/fireedge/etc/sunstone/admin/vrouter-template-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/backupjobs-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/host-tab.yaml \
                                 src/fireedge/etc/sunstone/admin/group-tab.yaml \
@@ -3101,17 +2872,6 @@ ONEHEM_FILES="src/hem/onehem-server.rb"
 ONEHEM_BIN_FILES="src/hem/bin/onehem-server"
 
 ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
-
-#-----------------------------------------------------------------------------
-# Dockerfiles templates
-#-----------------------------------------------------------------------------
-
-DOCKERFILES_TEMPLATES="src/datastore_mad/remotes/dockerhub/dockerfiles/alpine \
-                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos7 \
-                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos8 \
-                       src/datastore_mad/remotes/dockerhub/dockerfiles/debian"
-
-DOCKERFILE_TEMPLATE="src/datastore_mad/remotes/dockerhub/dockerfile"
 
 #-----------------------------------------------------------------------------
 # SSH files

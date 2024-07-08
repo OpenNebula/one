@@ -18,7 +18,7 @@ import { number, string } from 'yup'
 import { HYPERVISORS, INPUT_TYPES, T } from 'client/constants'
 import { Field, OPTION_SORTERS, arrayToOptions } from 'client/utils'
 
-const { vcenter, lxc, firecracker } = HYPERVISORS
+const { lxc } = HYPERVISORS
 
 const commonOptions = arrayToOptions([T.Yes, T.No], {
   getValue: (o) => o.toLowerCase(),
@@ -42,7 +42,7 @@ export const ACPI = {
   name: 'FEATURES.ACPI',
   label: T.Acpi,
   tooltip: T.AcpiConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -54,7 +54,7 @@ export const PAE = {
   name: 'FEATURES.PAE',
   label: T.Pae,
   tooltip: T.PaeConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -66,7 +66,7 @@ export const APIC = {
   name: 'FEATURES.APIC',
   label: T.Apic,
   tooltip: T.ApicConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -78,7 +78,7 @@ export const HYPERV = {
   name: 'FEATURES.HYPERV',
   label: T.Hyperv,
   tooltip: T.HypervConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -90,7 +90,7 @@ export const LOCALTIME = {
   name: 'FEATURES.LOCALTIME',
   label: T.Localtime,
   tooltip: T.LocaltimeConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -102,7 +102,7 @@ export const GUEST_AGENT = {
   name: 'FEATURES.GUEST_AGENT',
   label: T.GuestAgent,
   tooltip: T.GuestAgentConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: commonOptions,
@@ -115,7 +115,7 @@ export const VIRTIO_SCSI_QUEUES = {
   dependOf: '$general.VCPU',
   label: T.VirtioQueues,
   tooltip: T.VirtioQueuesConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: optionsInputsVirtio,
@@ -128,7 +128,7 @@ export const VIRTIO_BLK_QUEUES = {
   dependOf: '$general.VCPU',
   label: T.VirtioBlkQueues,
   tooltip: T.VirtioBlkQueuesConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: optionsInputsVirtio,
@@ -140,7 +140,7 @@ export const IO_THREADS = {
   name: 'FEATURES.IOTHREADS',
   label: T.IoThreads,
   tooltip: T.IoThreadsConcept,
-  notOnHypervisors: [vcenter, lxc, firecracker],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: number()

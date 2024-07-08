@@ -16,8 +16,6 @@
 
 const btoa = require('btoa')
 const { exec } = require('child_process')
-const { sprintf } = require('sprintf-js')
-const { request: axios } = require('axios')
 const { messageTerminal } = require('server/utils/general')
 const { defaults, httpCodes } = require('server/utils/constants')
 const { validateAuth } = require('server/utils/jwt')
@@ -31,7 +29,7 @@ const { httpResponse, executeCommand } = require('server/utils/server')
 const { getSunstoneConfig } = require('server/utils/yml')
 const { writeInLogger } = require('server/utils/logger')
 
-const { defaultEmptyFunction, defaultCommandMarketApp, dockerUrl } = defaults
+const { defaultEmptyFunction, defaultCommandMarketApp } = defaults
 const { ok, internalServerError, badRequest, notFound, unauthorized } =
   httpCodes
 const httpBadRequest = httpResponse(badRequest, '', '')
@@ -233,34 +231,6 @@ const importMarket = (res = {}, next = defaultEmptyFunction, params = {}) => {
 }
 
 /**
- * Request tags docker.
- *
- * @param {string} url - url
- * @param {Function} success - success function
- * @param {Function} error - error function
- */
-const getTagsDocker = (
-  url = '',
-  success = defaultEmptyFunction,
-  error = defaultEmptyFunction
-) => {
-  axios({
-    method: 'GET',
-    url,
-    headers: {
-      'User-Agent': 'OpenNebula',
-    },
-    validateStatus: (status) => status >= 200 && status <= 400,
-  })
-    .then(({ data }) => {
-      success(data || '')
-    })
-    .catch(() => {
-      error()
-    })
-}
-
-/**
  * Get market APP information.
  *
  * @param {object} config - config
@@ -323,66 +293,9 @@ const getMarket = ({
     parseXML,
   })
 
-/**
- * Get Docker Hub Tags.
- *
- * @param {object} res - http response
- * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {number} params.id - market id
- * @param {number} [params.page] - page number
- * @param {object} userData - user data.
- * @param {string} userData.user - ONE username
- * @param {string} userData.password - ONE password
- * @param {Function} oneConnection - xmlrpc function
- */
-const getDockerTags = (
-  res = {},
-  next = defaultEmptyFunction,
-  params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
-) => {
-  const { id, page } = params
-  const { user, password } = userData
-  if (id && user && password) {
-    const oneConnect = oneConnection(user, password)
-
-    const callbackNotfound = () => responseHttp(res, next, httpNotFoundRequest)
-    const callbackBadRequest = () => responseHttp(res, next, httpBadRequest)
-    const market = ({ MARKETPLACE_ID, NAME: MARKETAPP_NAME }) => {
-      Number.isInteger(parseInt(MARKETPLACE_ID, 10)) &&
-        getMarket({
-          oneConnect,
-          id: MARKETPLACE_ID,
-          success: ({ MARKET_MAD }) => {
-            if (MARKET_MAD !== 'dockerhub') {
-              return callbackBadRequest()
-            }
-
-            let url = sprintf(dockerUrl, MARKETAPP_NAME)
-            if (page) {
-              url += `&page=${page}`
-            }
-            getTagsDocker(
-              url,
-              (tags) => responseHttp(res, next, httpResponse(ok, tags)),
-              callbackNotfound
-            )
-          },
-          error: callbackNotfound,
-        })
-    }
-    getMarketApp({ oneConnect, id, success: market, error: callbackNotfound })
-  } else {
-    responseHttp(res, next, httpNotFoundRequest)
-  }
-}
-
 const functionRoutes = {
   exportApp,
   downloadApp,
   importMarket,
-  getDockerTags,
 }
 module.exports = functionRoutes

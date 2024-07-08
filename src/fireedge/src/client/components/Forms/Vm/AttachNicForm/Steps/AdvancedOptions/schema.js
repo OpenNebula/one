@@ -43,7 +43,7 @@ import {
   transformPciToString,
 } from 'client/components/Forms/Vm/AttachPciForm/schema.js'
 
-const { vcenter, firecracker, lxc } = HYPERVISORS
+const { lxc } = HYPERVISORS
 const PCI_TYPE_NAME = 'PCI_TYPE'
 const DEVICE_LIST = 'DEVICE_LIST'
 const VENDOR = 'VENDOR'
@@ -411,7 +411,6 @@ const HARDWARE_FIELDS = (
     dependOf: PCI_TYPE_NAME,
     htmlType: (value) => value !== NIC_HARDWARE.EMULATED && INPUT_TYPES.HIDDEN,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
     fieldProps: {
       disabled: hasAlias || isAlias,
     },
@@ -425,7 +424,6 @@ const HARDWARE_FIELDS = (
     label: T.TransmissionQueue,
     tooltip: T.OnlySupportedForVirtioDriver,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
     fieldProps: {
       disabled: hasAlias || isAlias,
     },
@@ -488,7 +486,7 @@ const HARDWARE_FIELDS = (
     name: VENDOR,
     label: T.Vendor,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [vcenter, lxc, firecracker],
+    notOnHypervisors: [lxc],
     dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
     watcher: fillPCIAtributes(VENDOR),
     htmlType: (_, context) => {
@@ -518,7 +516,7 @@ const HARDWARE_FIELDS = (
     name: DEVICE,
     label: T.Device,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [vcenter, lxc, firecracker],
+    notOnHypervisors: [lxc],
     dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
     watcher: fillPCIAtributes(DEVICE),
     htmlType: (_, context) => {
@@ -548,7 +546,7 @@ const HARDWARE_FIELDS = (
     name: CLASS,
     label: T.Class,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [vcenter, lxc, firecracker],
+    notOnHypervisors: [lxc],
     dependOf: [PCI_TYPE_NAME, DEVICE_LIST],
     watcher: fillPCIAtributes(CLASS),
     htmlType: (_, context) => {
@@ -580,7 +578,7 @@ const HARDWARE_FIELDS = (
     label: T.ShortAddress,
     tooltip: T.ShortAddressConcept,
     type: INPUT_TYPES.AUTOCOMPLETE,
-    notOnHypervisors: [vcenter, lxc, firecracker],
+    notOnHypervisors: [lxc],
     dependOf: PCI_TYPE_NAME,
     htmlType: (value) =>
       value !== NIC_HARDWARE.PCI_PASSTHROUGH_MANUAL && INPUT_TYPES.HIDDEN,
@@ -624,7 +622,6 @@ const GUEST_FIELDS = [
     label: T.GuestMTU,
     tooltip: T.GuestMTUConcept,
     type: INPUT_TYPES.TEXT,
-    notOnHypervisors: [firecracker],
     validation: string()
       .trim()
       .notRequired()

@@ -49,14 +49,6 @@ function isLvm(type) {
 
 /**
  * @param {string} type - Datastore type
- * @returns {boolean} - True if type is vcenter
- */
-function isVcenter(type) {
-  return type === DS_STORAGE_BACKENDS.VCENTER.value
-}
-
-/**
- * @param {string} type - Datastore type
  * @returns {boolean} - True if type is raw
  */
 function isRaw(type) {
@@ -101,7 +93,6 @@ export {
   isSsh,
   isCeph,
   isLvm,
-  isVcenter,
   isRaw,
   isRestic,
   isRsync,

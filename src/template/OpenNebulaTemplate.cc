@@ -127,11 +127,11 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     # s3
     #******
     */
-    set_conf_market("one",  "", "monitor");
+    set_conf_market("one", "", "monitor");
     set_conf_market("http", "BASE_URL,PUBLIC_DIR", "create, delete, monitor");
-    set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET",
+    set_conf_market("s3", "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET",
                     "create, delete, monitor");
-    set_conf_market("docker_registry", "BASE_URL", "monitor");
+    set_conf_market("linuxcontainers", "", "monitor");
 
     register_multiple_conf_default("MARKET_MAD_CONF");
     /*

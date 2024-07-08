@@ -66,12 +66,12 @@ const provision = {
           },
           im_mad: {
             type: 'string',
-            enum: ['kvm', 'firecracker'],
+            enum: ['kvm'],
             required: true,
           },
           vm_mad: {
             type: 'string',
-            enum: ['kvm', 'firecracker'],
+            enum: ['kvm'],
             required: true,
           },
           provision: {

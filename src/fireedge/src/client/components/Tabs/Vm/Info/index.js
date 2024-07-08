@@ -43,7 +43,6 @@ import { getHypervisor } from 'client/models/VirtualMachine'
 import { cloneObject, set } from 'client/utils'
 
 const LXC_ATTRIBUTES_REG = /^LXC_/
-const VCENTER_ATTRIBUTES_REG = /^VCENTER_/
 const HIDDEN_ATTRIBUTES_REG = /^(USER_INPUTS|BACKUP|HOT_RESIZE)$|SCHED_|ERROR/
 const HIDDEN_MONITORING_REG =
   /^(CPU|MEMORY|NETTX|NETRX|STATE|DISK_SIZE|SNAPSHOT_SIZE)$/
@@ -64,7 +63,6 @@ const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
     capacity_panel: capacityPanel,
     permissions_panel: permissionsPanel,
     ownership_panel: ownershipPanel,
-    vcenter_panel: vcenterPanel,
     lxc_panel: lxcPanel,
     monitoring_panel: monitoringPanel,
     attributes_panel: attributesPanel,
@@ -79,13 +77,8 @@ const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
 
   const hypervisor = useMemo(() => getHypervisor(vm), [vm])
 
-  const {
-    attributes,
-    lxc: lxcAttributes,
-    vcenter: vcenterAttributes,
-  } = filterAttributes(USER_TEMPLATE, {
+  const { attributes, lxc: lxcAttributes } = filterAttributes(USER_TEMPLATE, {
     extra: {
-      vcenter: VCENTER_ATTRIBUTES_REG,
       lxc: LXC_ATTRIBUTES_REG,
     },
     hidden: HIDDEN_ATTRIBUTES_REG,
@@ -180,15 +173,6 @@ const VmInfoTab = ({ tabProps = {}, id, oneConfig, adminGroup }) => {
           attributes={attributes}
           actions={getActions(attributesPanel?.actions)}
           title={`${Tr(T.Attributes)}`}
-        />
-      )}
-      {vcenterPanel?.enabled && vcenterAttributes && (
-        <AttributePanel
-          {...ATTRIBUTE_FUNCTION}
-          collapse
-          actions={getActions(vcenterPanel?.actions)}
-          attributes={vcenterAttributes}
-          title={`vCenter ${Tr(T.Information)}`}
         />
       )}
       {lxcPanel?.enabled && lxcAttributes && (

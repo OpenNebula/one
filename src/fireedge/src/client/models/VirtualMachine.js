@@ -24,7 +24,6 @@ import {
   Disk,
   EXTERNAL_IP_ATTRS,
   HISTORY_ACTIONS,
-  HYPERVISORS,
   HistoryRecord,
   NIC_IP_ATTRS,
   Nic,
@@ -92,7 +91,7 @@ export const getHypervisor = (vm) => getLastHistory(vm)?.VM_MAD
  * @param {VM} vm - Virtual machine
  * @returns {boolean} If the hypervisor is vCenter
  */
-export const isVCenter = (vm) => getHypervisor(vm) === HYPERVISORS.vcenter
+export const isVCenter = (vm) => getHypervisor(vm) === 'vcenter'
 
 /**
  * @param {VM} vm - Virtual machine

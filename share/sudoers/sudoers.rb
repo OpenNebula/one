@@ -17,7 +17,7 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :OVS, :LVM, :LXD, :MEM, :VGPU]
+    NODECMDS = [:NET, :OVS, :LVM, :LXC, :MEM, :VGPU]
 
     attr_accessor :cmds
 
@@ -39,11 +39,6 @@ class Sudoers
             ],
             :OVS    => ['ovs-ofctl', 'ovs-vsctl'],
             :CEPH   => ['rbd'],
-            :LXD    => [
-                '/snap/bin/lxc', '/usr/bin/catfstab', 'mount', 'umount', 'mkdir', 'lsblk',
-                'losetup', 'kpartx', 'qemu-nbd', 'blkid', 'e2fsck', 'resize2fs', 'xfs_growfs',
-                'rbd-nbd', 'xfs_admin', 'tune2fs'
-            ],
             :HA => [
                 'systemctl start opennebula-flow',
                 'systemctl stop opennebula-flow',
@@ -62,11 +57,6 @@ class Sudoers
                 'arping',
                 'ip address *'
             ],
-            :MARKET => ["#{lib_location}/sh/create_container_image.sh",
-                        "#{lib_location}/sh/create_docker_image.sh"],
-            :FIRECRACKER => ['/usr/bin/jailer',
-                             '/usr/sbin/one-clean-firecracker-domain',
-                             '/usr/sbin/one-prepare-firecracker-domain'],
             :LXC => [
                 'mount', 'umount', 'bindfs', 'losetup', 'qemu-nbd', 'lxc-attach', 'lxc-config',
                 'lxc-create', 'lxc-destroy', 'lxc-info', 'lxc-ls', 'lxc-start', 'lxc-stop',

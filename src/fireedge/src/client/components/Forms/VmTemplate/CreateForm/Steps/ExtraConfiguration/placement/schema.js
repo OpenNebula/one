@@ -34,7 +34,7 @@ import { transformXmlString } from 'client/models/Helper'
 const addHypervisorRequirement = (schedRequirements, hypervisor) => {
   // Regular expression pattern to match (HYPERVISOR=VALUE)
 
-  const regexPattern = /\(HYPERVISOR=(kvm|dummy|lxc|vcenter|firecracker|qemu)\)/
+  const regexPattern = /\(HYPERVISOR=(kvm|dummy|lxc|qemu)\)/
 
   // If exists a condition with hypervisor, replace the type. If not, add the hypervisor type.
   if (regexPattern.test(schedRequirements)) {

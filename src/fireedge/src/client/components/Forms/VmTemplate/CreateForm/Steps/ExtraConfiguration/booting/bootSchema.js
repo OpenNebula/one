@@ -25,17 +25,16 @@ import {
   SD_DISK_BUSES,
   FIRMWARE_TYPES,
   KVM_FIRMWARE_TYPES,
-  VCENTER_FIRMWARE_TYPES,
   HYPERVISORS,
 } from 'client/constants'
 
-const { vcenter, firecracker, lxc, kvm } = HYPERVISORS
+const { lxc, kvm } = HYPERVISORS
 
 /** @type {Field} CPU architecture field */
 export const ARCH = {
   name: 'OS.ARCH',
   label: T.CpuArchitecture,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: () => arrayToOptions(CPU_ARCHITECTURES),
@@ -49,7 +48,7 @@ export const ARCH = {
 export const SD_DISK_BUS = {
   name: 'OS.SD_DISK_BUS',
   label: T.BusForSdDisks,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(SD_DISK_BUSES, { getText: (o) => o.toUpperCase() }),
@@ -63,7 +62,7 @@ export const SD_DISK_BUS = {
 export const MACHINE_TYPES = {
   name: 'OS.MACHINE',
   label: T.MachineType,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: () => {
@@ -78,29 +77,11 @@ export const MACHINE_TYPES = {
     .default(() => undefined),
 }
 
-// /** @type {Field} CPU Model field */
-// export const CPU_MODEL = {
-//   name: 'OS.MODEL',
-//   label: T.CpuModel,
-//   notOnHypervisors: [vcenter, firecracker, lxc],
-//   type: INPUT_TYPES.SELECT,
-//   values: () => {
-//     const { data: hosts = [] } = useGetHostsQuery()
-//     const kvmCpuModels = getKvmCpuModels(hosts)
-
-//     return arrayToOptions(kvmCpuModels)
-//   },
-//   validation: string()
-//     .trim()
-//     .notRequired()
-//     .default(() => undefined),
-// }
-
 /** @type {Field} Root device field */
 export const ROOT_DEVICE = {
   name: 'OS.ROOT',
   label: T.RootDevice,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -112,7 +93,7 @@ export const ROOT_DEVICE = {
 export const KERNEL_CMD = {
   name: 'OS.KERNEL_CMD',
   label: T.KernelBootParameters,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -125,7 +106,7 @@ export const KERNEL_CMD = {
 export const BOOTLOADER = {
   name: 'OS.BOOTLOADER',
   label: T.PathBootloader,
-  notOnHypervisors: [vcenter, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -139,7 +120,7 @@ export const UUID = {
   name: 'OS.UUID',
   label: T.UniqueIdOfTheVm,
   tooltip: T.UniqueIdOfTheVmConcept,
-  notOnHypervisors: [firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -153,7 +134,7 @@ export const FIRMWARE = {
   name: 'OS.FIRMWARE',
   label: T.Firmware,
   tooltip: T.FirmwareConcept,
-  notOnHypervisors: [firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: false,
   validation: string()
@@ -164,7 +145,6 @@ export const FIRMWARE = {
   values: ([templateHyperv, hypervisor = templateHyperv] = []) => {
     const types =
       {
-        [vcenter]: VCENTER_FIRMWARE_TYPES,
         [kvm]: KVM_FIRMWARE_TYPES,
       }[hypervisor] ?? FIRMWARE_TYPES
 
@@ -180,7 +160,7 @@ export const FIRMWARE = {
 export const FIRMWARE_SECURE = {
   name: 'OS.FIRMWARE_SECURE',
   label: T.FirmwareSecure,
-  notOnHypervisors: [vcenter, firecracker, lxc],
+  notOnHypervisors: [lxc],
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().yesOrNo(),
   grid: { md: 12 },

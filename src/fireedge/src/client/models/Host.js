@@ -256,7 +256,6 @@ export const getHostHypervisors = (options = {}) => {
 
   return [VM_MAD ?? [], includeCustom ? CUSTOM_HOST_HYPERVISOR : []]
     .flat()
-    .filter((hypervisor) => hypervisor.NAME !== HYPERVISORS.vcenter)
     .map((hypervisor) => ({
       displayName: hypervisor.SUNSTONE_NAME,
       driverName: hypervisor.NAME,

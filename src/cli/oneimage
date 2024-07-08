@@ -88,12 +88,6 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'lock all actions'
     }
 
-    NO_CONTEXT = {
-        :name => 'no_context',
-        :large => '--no-context',
-        :description => 'Do not add context when building from Dockerfile'
-    }
-
     NO_IP = {
         :name => 'no_ip',
         :large => '--no_ip',
@@ -141,8 +135,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE,
                       OneImageHelper::IMAGE,
-                      NAME,
-                      NO_CONTEXT]
+                      NAME]
 
     ########################################################################
     # Formatters for arguments
@@ -227,15 +220,6 @@ CommandParser::CmdParser.new(ARGV) do
                         "conflicting options: #{conflicting_opts.join(', ')}."
 
             next -1
-        end
-
-        # Add context information when building image (just working on Docker)
-        if (options.key? :no_context) && options[:path]
-            if options[:path].include?('?')
-                options[:path] << '&context=no'
-            else
-                options[:path] << '?context=no'
-            end
         end
 
         helper.create_resource(options) do |image|
@@ -572,74 +556,5 @@ CommandParser::CmdParser.new(ARGV) do
         puts helper.check_orphans
 
         return 0
-    end
-
-    dockerfile_desc = <<-EOT.unindent
-        Create an image based on a Dockerfile
-    EOT
-
-    command :dockerfile,
-            dockerfile_desc,
-            :options => CREATE_OPTIONS +
-                        OneImageHelper::TEMPLATE_OPTIONS do
-        # Check user options
-        unless options[:datastore]
-            STDERR.puts 'Datastore to save the image is mandatory: '
-            STDERR.puts "\t -d datastore_id"
-            exit(-1)
-        end
-
-        unless options[:name]
-            STDERR.puts 'No name provided'
-            exit(-1)
-        end
-
-        unless options[:size]
-            STDERR.puts 'No size given'
-            exit(-1)
-        end
-
-        # Prepare editor
-        tmp = Tempfile.new('dockerfile')
-
-        if ENV['EDITOR']
-            editor_path = ENV['EDITOR']
-        else
-            editor_path = EDITOR_PATH
-        end
-
-        system("#{editor_path} #{tmp.path}")
-
-        unless $CHILD_STATUS.exitstatus.zero?
-            STDERR.puts('Editor not defined')
-            exit(-1)
-        end
-
-        tmp.close
-
-        # Create image
-        helper.create_resource(options) do |image|
-            begin
-                b64            = Base64.strict_encode64(File.read(tmp.path))
-                options[:path] = "dockerfile:///?fileb64=#{b64}&" \
-                                 "size=#{options[:size]}"
-
-                options[:path] << '&context=no' if options.key?(:no_context)
-
-                res = OneImageHelper.create_image_template(options)
-
-                if res.first != 0
-                    STDERR.puts res.last
-                    next -1
-                end
-
-                template = res.last
-
-                image.allocate(template, options[:datastore], false)
-            rescue StandardError => e
-                STDERR.puts e.message
-                exit(-1)
-            end
-        end
     end
 end

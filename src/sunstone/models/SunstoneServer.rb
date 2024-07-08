@@ -568,54 +568,6 @@ class SunstoneServer < CloudServer
         return [200, rc.to_json]
     end
 
-    def get_docker_tags(app_id)
-        # Get MarketPlaceApp
-        marketapp = retrieve_resource("marketplaceapp", app_id)
-        if OpenNebula.is_error?(marketapp)
-            return [404, marketapp.to_json]
-        end
-
-        # Get MarketPlace
-        market_id = marketapp["MARKETPLACE_ID"]
-        market = retrieve_resource("marketplace", market_id)
-        if OpenNebula.is_error?(market)
-            return [404, market.to_json]
-        end
-
-        # Check market_mad
-        # TODO Change message
-        return [400, "Invalid MARKET_MAD"] if market["MARKET_MAD"] != "dockerhub"
-
-        # Get dockerhub tags
-        url = "https://hub.docker.com/v2/repositories/library/#{marketapp["NAME"]}/tags/?page_size=100"
-        tags_names = []
-        loop  do
-            uri = URI(url)
-            req = Net::HTTP::Get.new(uri.request_uri)
-
-            req['User-Agent'] = "OpenNebula"
-
-            opts = { :use_ssl => true }
-
-            rc = Net::HTTP.start(uri.hostname, uri.port, nil, nil, opts) do |http|
-                http.request(req)
-            end
-
-            return [rc.code.to_i, rc.msg] unless rc.is_a? Net::HTTPSuccess
-
-            body = JSON.parse(rc.body)
-            (tags_names << body["results"].map { |values| {
-                name: values["name"],
-                last_updated: values["last_updated"]
-            } }).flatten!
-            break if body["next"].nil? || body["next"].empty?
-            url = body["next"]
-        end
-
-        return [200, tags_names.to_json]
-    end
-
-
     private
 
     ############################################################################

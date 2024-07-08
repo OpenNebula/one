@@ -103,6 +103,7 @@ function CreateMarketplace() {
       initialValues={marketplace}
       stepProps={{
         version,
+        update: !!marketplaceId,
       }}
       fallback={<SkeletonStepsForm />}
     >

@@ -30,9 +30,6 @@ import { LockInfo, Permissions } from 'client/constants/common'
  * @property {string|number} REGTIME - Registration time
  * @property {object} TEMPLATE - Template information
  * @property {string} [TEMPLATE.CONTEXT] - Context
- * @property {string} [TEMPLATE.VCENTER_CCR_REF] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_INSTANCE_ID] - vCenter information
- * @property {string} [TEMPLATE.VCENTER_TEMPLATE_REF] - vCenter information
  */
 
 /**

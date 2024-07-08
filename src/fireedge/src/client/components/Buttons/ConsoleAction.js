@@ -26,9 +26,8 @@ import { SubmitButton } from 'client/components/FormControl'
 
 import { useViews } from 'client/features/Auth'
 import { useLazyGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
-import { useLazyGetVMRCSessionQuery } from 'client/features/OneApi/vcenter'
+
 import {
-  isVCenter,
   getHypervisor,
   nicsIncludesTheConnectionType,
   isAvailableAction,
@@ -79,38 +78,6 @@ const GuacamoleButton = memo(({ vm, connectionType, onClick }) => {
   )
 })
 
-const VMRCButton = memo(({ vm, onClick }) => {
-  const history = useHistory()
-  const [getSession, { isLoading }] = useLazyGetVMRCSessionQuery()
-
-  const goToConsole = useCallback(
-    async (evt) => {
-      try {
-        evt.stopPropagation()
-
-        const params = { id: vm?.ID }
-        if (typeof onClick === 'function') {
-          const session = await getSession(params).unwrap()
-          onClick(session)
-        } else {
-          openNewBrowserTab(generatePath(PATH.WMKS, params))
-        }
-      } catch {}
-    },
-    [vm?.ID, history, onClick]
-  )
-
-  return (
-    <SubmitButton
-      data-cy={`${vm?.ID}-vmrc`}
-      icon={<VncIcon />}
-      tooltip={<Translate word={T.Vmrc} />}
-      isSubmitting={isLoading}
-      onClick={goToConsole}
-    />
-  )
-})
-
 const PreConsoleButton = memo(
   /**
    * @param {object} props - Props
@@ -143,11 +110,7 @@ const PreConsoleButton = memo(
       return null
     }
 
-    if (connectionType === VM_ACTIONS.VMRC) {
-      return isVCenter(vm) ? <VMRCButton {...props} /> : null
-    }
-
-    return !isVCenter(vm) ? <GuacamoleButton {...props} /> : null
+    return <GuacamoleButton {...props} />
   }
 )
 
@@ -158,11 +121,9 @@ const ButtonPropTypes = {
 }
 
 GuacamoleButton.propTypes = ButtonPropTypes
-VMRCButton.propTypes = ButtonPropTypes
 PreConsoleButton.propTypes = ButtonPropTypes
 
 GuacamoleButton.displayName = 'GuacamoleButton'
-VMRCButton.displayName = 'VMRCButton'
 PreConsoleButton.displayName = 'PreConsoleButton'
 
 export { PreConsoleButton as ConsoleButton }
