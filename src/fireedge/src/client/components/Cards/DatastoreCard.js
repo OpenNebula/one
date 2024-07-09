@@ -48,7 +48,7 @@ import {
   getErrorMessage,
   getUniqueLabels,
 } from 'client/models/Helper'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 
 const DatastoreCard = memo(
   /**
@@ -61,6 +61,7 @@ const DatastoreCard = memo(
    */
   ({ datastore: ds, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const { [RESOURCE_NAMES.DATASTORE]: dsView } = useViews()
 
     const enableEditLabels =
@@ -88,13 +89,19 @@ const DatastoreCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          dataCy: `label-${label}`,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 

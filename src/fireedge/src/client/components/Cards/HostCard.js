@@ -32,6 +32,7 @@ import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 
 import { Host, HOST_THRESHOLD, T } from 'client/constants'
 import { getAllocatedInfo, getState } from 'client/models/Host'
+import { useAuth } from 'client/features/Auth'
 
 const HostCard = memo(
   /**
@@ -45,6 +46,7 @@ const HostCard = memo(
    */
   ({ host, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const {
       ID,
       NAME,
@@ -57,13 +59,19 @@ const HostCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          dataCy: `label-${label}`,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, onClickLabel, onDeleteLabel]
     )
 

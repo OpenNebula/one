@@ -25,7 +25,7 @@ import {
 } from 'iconoir-react'
 import { Box, Stack, Typography, Tooltip } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
 import {
   StatusCircle,
@@ -65,6 +65,7 @@ const NetworkCard = memo(
    */
   ({ network, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
     const enableEditLabels =
@@ -91,12 +92,19 @@ const NetworkCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, enableEditLabels, onDeleteLabel]
     )
 

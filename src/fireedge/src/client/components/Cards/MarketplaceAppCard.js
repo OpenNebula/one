@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Lock, User, Group, Cart } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
@@ -46,6 +46,7 @@ const MarketplaceAppCard = memo(
    */
   ({ app, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
 
     const enableEditLabels =
@@ -72,13 +73,19 @@ const MarketplaceAppCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          dataCy: `label-${label}`,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 

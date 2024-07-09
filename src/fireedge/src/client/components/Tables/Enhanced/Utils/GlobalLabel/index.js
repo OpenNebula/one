@@ -95,7 +95,7 @@ const GlobalLabel = ({
   )
 
   const allFilterLabels = useMemo(() => {
-    const all = [...userLabels, ...unknownPageLabels, ...currentLabelFilters]
+    const all = [...userLabels, ...currentLabelFilters]
     const unique = [...new Set(all)]
 
     return sortByFilteredFirst(unique, currentLabelFilters)

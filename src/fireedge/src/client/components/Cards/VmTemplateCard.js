@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { User, Group, Lock } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
 import Timer from 'client/components/Timer'
 import Image from 'client/components/Image'
@@ -55,6 +55,7 @@ const VmTemplateCard = memo(
   ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM_TEMPLATE]: templateView } = useViews()
+    const { labels: userLabels } = useAuth()
 
     const enableEditLabels =
       templateView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
@@ -81,12 +82,19 @@ const VmTemplateCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 

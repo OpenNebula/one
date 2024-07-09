@@ -33,6 +33,7 @@ import { Group, HighPriority, Lock, User } from 'iconoir-react'
 
 import COLOR from 'client/constants/color'
 import PropTypes from 'prop-types'
+import { useAuth } from 'client/features/Auth'
 
 const haveValues = function (object) {
   return Object.values(object).length > 0
@@ -49,6 +50,7 @@ const BackupJobCard = memo(
    */
   ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
 
     const {
       ID,
@@ -118,13 +120,19 @@ const BackupJobCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          dataCy: `label-${label}`,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, onClickLabel, onDeleteLabel]
     )
 

@@ -26,7 +26,7 @@ import {
 } from 'iconoir-react'
 
 import MultipleTags from 'client/components/MultipleTags'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 
 import { Tr } from 'client/components/HOC'
 import { StatusCircle } from 'client/components/Status'
@@ -50,6 +50,7 @@ const VirtualDataCenterCard = memo(
    */
   ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const { [RESOURCE_NAMES.VDC]: vdcView } = useViews()
 
     const enableEditLabels =
@@ -111,12 +112,19 @@ const VirtualDataCenterCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
       [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 

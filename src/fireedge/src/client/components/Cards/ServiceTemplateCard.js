@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Network, Package } from 'iconoir-react'
 import { Typography } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import MultipleTags from 'client/components/MultipleTags'
 import Timer from 'client/components/Timer'
 import { Tr } from 'client/components/HOC'
@@ -43,6 +43,7 @@ const ServiceTemplateCard = memo(
    */
   ({ template, rootProps, actions, onDeleteLabel }) => {
     const classes = rowStyles()
+    const { labels: userLabels } = useAuth()
     const { [RESOURCE_NAMES.SERVICE_TEMPLATE]: serviceView } = useViews()
 
     const enableEditLabels =
@@ -73,11 +74,19 @@ const ServiceTemplateCard = memo(
 
     const uniqueLabels = useMemo(
       () =>
-        getUniqueLabels(labels).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(labels).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
+
       [labels, enableEditLabels, onDeleteLabel]
     )
 

@@ -33,7 +33,7 @@ import MultipleTags from 'client/components/MultipleTags'
 import { StatusChip, StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 import Timer from 'client/components/Timer'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 
 import { ACTIONS, RESOURCE_NAMES, T, VM } from 'client/constants'
 import {
@@ -66,6 +66,7 @@ const VirtualMachineCard = memo(
   }) => {
     const classes = rowStyles()
     const { [RESOURCE_NAMES.VM]: vmView } = useViews()
+    const { labels: userLabels } = useAuth()
 
     const enableEditLabels =
       vmView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
@@ -129,12 +130,20 @@ const VirtualMachineCard = memo(
 
     const labels = useMemo(
       () =>
-        getUniqueLabels(LABELS).map((label) => ({
-          text: label,
-          stateColor: getColorFromString(label),
-          onClick: onClickLabel,
-          onDelete: enableEditLabels && onDeleteLabel,
-        })),
+        getUniqueLabels(LABELS).reduce((acc, label) => {
+          if (userLabels?.includes(label)) {
+            acc.push({
+              text: label,
+              dataCy: `label-${label}`,
+              stateColor: getColorFromString(label),
+              onClick: onClickLabel,
+              onDelete: enableEditLabels && onDeleteLabel,
+            })
+          }
+
+          return acc
+        }, []),
+
       [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
     )
 

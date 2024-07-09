@@ -28,6 +28,7 @@ import {
 import { Typography } from '@mui/material'
 import MultipleTags from 'client/components/MultipleTags'
 import imageApi, { useUpdateImageMutation } from 'client/features/OneApi/image'
+import { useAuth } from 'client/features/Auth'
 
 import Timer from 'client/components/Timer'
 import { StatusCircle, StatusChip } from 'client/components/Status'
@@ -46,6 +47,8 @@ import * as Helper from 'client/models/Helper'
 
 const Row = ({ original, value, onClickLabel, ...props }) => {
   const [update] = useUpdateImageMutation()
+  const { labels: userLabels } = useAuth()
+
   const classes = rowStyles()
   const {
     id: ID,
@@ -89,12 +92,19 @@ const Row = ({ original, value, onClickLabel, ...props }) => {
 
   const multiTagLabels = useMemo(
     () =>
-      getUniqueLabels(LABELS).map((label) => ({
-        text: label,
-        stateColor: getColorFromString(label),
-        onClick: onClickLabel,
-        onDelete: handleDeleteLabel,
-      })),
+      getUniqueLabels(LABELS).reduce((acc, label) => {
+        if (userLabels?.includes(label)) {
+          acc.push({
+            text: label,
+            dataCy: `label-${label}`,
+            stateColor: getColorFromString(label),
+            onClick: onClickLabel,
+            onDelete: handleDeleteLabel,
+          })
+        }
+
+        return acc
+      }, []),
     [LABELS, handleDeleteLabel, onClickLabel]
   )
 

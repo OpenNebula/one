@@ -129,7 +129,6 @@ const Actions = () => {
             accessor: VN_ACTIONS.INSTANTIATE_DIALOG,
             dataCy: `vnet-${VN_ACTIONS.INSTANTIATE_DIALOG}`,
             tooltip: T.Instantiate,
-            selected: true,
             icon: PlayOutline,
             options: [
               {
