@@ -72,7 +72,7 @@ class LinuxContainersMarket
     # Get container information
     def get(path)
         uri = URI(@options[:url] + path)
-        req = Net::HTTP::Get.new(uri.request_uri, {'User-Agent' => @options[:agent]})
+        req = Net::HTTP::Get.new(uri.request_uri, { 'User-Agent' => @options[:agent] })
 
         response = @http_client.request(req)
 
