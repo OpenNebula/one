@@ -11,9 +11,12 @@
 groups:
     oneadmin:
         - admin
+        - groupadmin
         - user
+        - cloud
 default:
     - user
+    - cloud
 
 # Name and description of each view.
 #
