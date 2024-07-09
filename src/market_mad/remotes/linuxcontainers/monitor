@@ -49,7 +49,7 @@ class LinuxContainersMarket
         :fs            => 'ext4',
         :format        => 'raw',
         :agent         => 'OpenNebula',
-        :tested_apps   => ['alpine', 'alt', 'centos', 'rockylinux', 'almalinux', 'oracle',
+        :tested_apps   => ['alpine', 'alt', 'rockylinux', 'almalinux', 'oracle',
                            'debian', 'ubuntu', 'fedora', 'devuan', 'opensuse', 'amazonlinux'],
         :skip_untested => 'yes',
         :memory        => '768',
@@ -72,9 +72,7 @@ class LinuxContainersMarket
     # Get container information
     def get(path)
         uri = URI(@options[:url] + path)
-
-        req = Net::HTTP::Get.new(uri.request_uri)
-        req['User-Agent'] = @options[:agent]
+        req = Net::HTTP::Get.new(uri.request_uri, {'User-Agent' => @options[:agent]})
 
         response = @http_client.request(req)
 

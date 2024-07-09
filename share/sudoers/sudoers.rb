@@ -62,8 +62,9 @@ class Sudoers
                 'lxc-create', 'lxc-destroy', 'lxc-info', 'lxc-ls', 'lxc-start', 'lxc-stop',
                 'lxc-console', 'e2fsck', 'resize2fs', 'xfs_growfs', 'rbd-nbd'
             ],
-            :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
-            :VGPU => ['sudo', '/var/tmp/one/vgpu']
+            :MARKET => ["#{lib_location}/sh/create_container_image.sh"],
+            :MEM    => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
+            :VGPU   => ['sudo', '/var/tmp/one/vgpu']
         }
     end
 
