@@ -42,11 +42,8 @@
               <xs:element name="VMS_THREAD" type="xs:integer"/>
               <xs:element name="DATASTORES">
                 <xs:complexType>
-                    <xs:all>
+                    <xs:sequence>
                       <xs:element name="DISK_USAGE" type="xs:integer"/>
-                      <xs:element name="FREE_DISK" type="xs:integer"/>
-                      <xs:element name="MAX_DISK" type="xs:integer"/>
-                      <xs:element name="USED_DISK" type="xs:integer"/>
                       <xs:element name="DS" minOccurs="0" maxOccurs="unbounded">
                         <xs:complexType>
                           <xs:sequence>
@@ -60,7 +57,10 @@
                           </xs:sequence>
                         </xs:complexType>
                       </xs:element>
-                    </xs:all>
+                      <xs:element name="FREE_DISK" type="xs:integer"/>
+                      <xs:element name="MAX_DISK" type="xs:integer"/>
+                      <xs:element name="USED_DISK" type="xs:integer"/>
+                    </xs:sequence>
                 </xs:complexType>
               </xs:element>
               <xs:element name="PCI_DEVICES">
