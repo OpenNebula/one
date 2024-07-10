@@ -68,6 +68,21 @@ USER_AGENT = 'CLI'
 # Base Path representing the resource to be used in the requests
 RESOURCE_PATH = '/service_template'
 
+RESOURCE_DOCUMENT_TYPE = '101'
+
+def check_document_type(response)
+    if CloudClient.is_error?(response)
+        return if response.code == '500' # could be wrong document_type; skip this id
+
+        exit_with_code response.code.to_i, response.to_s
+    else
+        document_type = JSON.parse(response.body)['DOCUMENT']['TYPE']
+        if document_type == RESOURCE_DOCUMENT_TYPE
+            yield
+        end
+    end
+end
+
 CommandParser::CmdParser.new(ARGV) do
     MULTIPLE = {
         :name  => 'multiple',
@@ -240,7 +255,10 @@ CommandParser::CmdParser.new(ARGV) do
         body['delete_type'] = delete
 
         Service.perform_actions(args[0]) do |template_id|
-            client.delete("#{RESOURCE_PATH}/#{template_id}", body.to_json)
+            response = client.get("#{RESOURCE_PATH}/#{template_id}")
+            check_document_type response do
+                client.delete("#{RESOURCE_PATH}/#{template_id}", body.to_json)
+            end
         end
     end
 

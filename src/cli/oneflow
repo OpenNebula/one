@@ -61,6 +61,21 @@ USER_AGENT = 'CLI'
 # Base Path representing the resource to be used in the requests
 RESOURCE_PATH = '/service'
 
+RESOURCE_DOCUMENT_TYPE = '100'
+
+def check_document_type(response)
+    if CloudClient.is_error?(response)
+        return if response.code == '500' # could be wrong document_type; skip this id
+
+        exit_with_code response.code.to_i, response.to_s
+    else
+        document_type = JSON.parse(response.body)['DOCUMENT']['TYPE']
+        if document_type == RESOURCE_DOCUMENT_TYPE
+            yield
+        end
+    end
+end
+
 CommandParser::CmdParser.new(ARGV) do
     usage '`oneflow` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
@@ -168,9 +183,11 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :delete, delete_desc, [:range, :service_id_list] do
         client = helper.client(options)
-
         Service.perform_actions(args[0]) do |service_id|
-            client.delete("#{RESOURCE_PATH}/#{service_id}")
+            response = client.get("#{RESOURCE_PATH}/#{service_id}")
+            check_document_type response do
+                client.delete("#{RESOURCE_PATH}/#{service_id}")
+            end
         end
     end
 
@@ -197,7 +214,10 @@ CommandParser::CmdParser.new(ARGV) do
 
             json = Service.build_json_action('recover', params)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+            response = client.get("#{RESOURCE_PATH}/#{service_id}")
+            check_document_type response do
+                client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+            end
         end
     end
 
