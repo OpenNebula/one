@@ -89,7 +89,7 @@ const modificationTypeInput = (fieldName, { type: typeId }) => ({
       // Modification type is not required in template
       .afterSubmit(() => undefined)
   ),
-  grid: { md: 3 },
+  grid: { sm: 12, md: 12 },
 })
 
 /**
@@ -104,7 +104,7 @@ const modificationRangeInputs = (fieldName, { type, min, max }) => {
     dependOf: type,
     htmlType: (modificationType) =>
       isRangeType(modificationType) ? 'number' : INPUT_TYPES.HIDDEN,
-    grid: { md: 3 },
+    grid: { sm: 12, md: 6 },
   }
 
   /**
@@ -185,7 +185,7 @@ const modificationOptionsInput = (fieldName, { type, options: optionsId }) => ({
       })
   ),
   fieldProps: { freeSolo: true },
-  grid: fieldName === 'CPU' ? { md: 6 } : { md: 9 },
+  grid: { sm: 12, md: 12 },
 })
 
 /**
@@ -219,8 +219,7 @@ export const generateHotResizeInputs = (
     label: T.EnableHotResize,
     type: INPUT_TYPES.SWITCH,
     validation: boolean().yesOrNo(),
-    grid: (enabledHr) =>
-      enabledHr ? { xs: 7, sm: 5, md: 3 } : { xs: 12, sm: 9, md: 9 },
+    grid: { sm: 12, md: 5 },
   },
   {
     ...maxField,
@@ -233,7 +232,7 @@ export const generateHotResizeInputs = (
       .when(`HOT_RESIZE.${hrFieldName}`, (enabledHr, schema) =>
         enabledHr ? schema.required() : schema.notRequired()
       ),
-    grid: { xs: 5, sm: 7, md: 6 },
+    grid: { sm: 12, md: 7 },
   },
 ]
 
@@ -268,7 +267,7 @@ export const generateCapacityInput = ({ validation, ...field }) => ({
         return modificationType === list ? schema.oneOf(optionsNumber) : schema
       }
     ),
-  grid: { md: 3 },
+  grid: { sm: 12, md: 12 },
   fieldProps: { min: 0 },
 })
 
@@ -286,5 +285,5 @@ export const generateCostCapacityInput = ({ validation, grid, ...field }) => ({
     typeof validation === 'function'
       ? lazy((_, { context }) => validation(context.extra))
       : validation,
-  grid: { md: 4 },
+  grid: { sm: 12, md: 12 },
 })

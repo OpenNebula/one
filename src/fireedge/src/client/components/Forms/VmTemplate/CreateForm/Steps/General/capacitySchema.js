@@ -61,7 +61,7 @@ export const MEMORYUNIT = () => ({
   tooltip: T.MemoryConceptUnit,
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
-  grid: { md: 3 },
+  grid: { sm: 12, md: 12 },
   values: arrayToOptions([UNITS.MB, UNITS.GB, UNITS.TB], {
     addEmpty: false,
     getText: (type) => type,
@@ -238,7 +238,7 @@ export const MEMORY_RESIZE_MODE_FIELD = {
     getValue: (option) => MEMORY_RESIZE_OPTIONS[option],
   }),
   validation: string().default(() => undefined),
-  grid: { md: 6 },
+  grid: { sm: 12, md: 12 },
 }
 
 /** @type {Field} Memory slots field */
@@ -253,7 +253,7 @@ export const MEMORY_SLOTS_FIELD = {
       ? 'number'
       : INPUT_TYPES.HIDDEN,
   validation: number().default(() => undefined),
-  grid: { md: 6 },
+  grid: { sm: 12, md: 12 },
 }
 
 /**

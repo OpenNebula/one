@@ -15,17 +15,25 @@
  * ------------------------------------------------------------------------- */
 import makeStyles from '@mui/styles/makeStyles'
 
-export default makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: 'auto',
     gap: theme.spacing(1),
     overflow: 'auto',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '1fr',
     },
   },
-  capacity: {
-    gridColumn: '1 / -1',
+  hypervisor: {
+    gridColumn: '1 / span 2',
+    gridRow: '1',
+    padding: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      gridColumn: '1 / -1',
+    },
   },
 }))
+
+export default useStyles

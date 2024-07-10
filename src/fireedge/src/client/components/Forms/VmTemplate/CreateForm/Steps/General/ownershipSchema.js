@@ -39,7 +39,7 @@ export const UID_FIELD = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 },
+  grid: { md: 6 },
 }
 
 /** @type {Field} Group id field */
@@ -61,7 +61,7 @@ export const GID_FIELD = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 12 },
+  grid: { md: 6 },
 }
 
 /** @type {Field[]} List of ownership fields */
