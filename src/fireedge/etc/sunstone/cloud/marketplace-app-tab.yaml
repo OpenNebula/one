@@ -1,0 +1,62 @@
+---
+# This file describes the information and actions available in the App tab
+
+# Resource
+
+resource_name: "MARKETPLACE-APP"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: false
+  export: true
+  download: true
+  chown: false
+  chgrp: false
+  enable: false
+  disable: false
+  delete: false
+  edit_labels: false
+  lock: false
+  unlock: false
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  label: true
+  owner: true
+  group: true
+  state: true
+  type: true
+  marketplace: true
+  zone: true
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+      actions:
+        rename: false
+    permissions_panel:
+      enabled: true
+      actions:
+        chmod: false
+    ownership_panel:
+      enabled: true
+      actions:
+        chown: true
+        chgrp: false
+    attributes_panel:
+      enabled: false
+      actions:
+        copy: false
+        add: false
+        edit: false
+        delete: false
+
+  template:
+    enabled: true
