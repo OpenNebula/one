@@ -2771,16 +2771,23 @@ FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
 FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/image-tab.yaml\
-                                src/fireedge/etc/sunstone/groupadmin/file-tab.yaml\
-                                src/fireedge/etc/sunstone/groupadmin/backup-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vnet-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vnet-template-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \                                
+                                src/fireedge/etc/sunstone/groupadmin/service-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/service-template-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vm-group-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vrouter-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/vrouter-template-tab.yaml \
+                                src/fireedge/etc/sunstone/groupadmin/zone-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/group-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml"
+                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/cloud/service-tab.yaml \
+                                src/fireedge/etc/sunstone/cloud/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/cloud/user-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files
