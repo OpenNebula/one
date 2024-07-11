@@ -11,35 +11,35 @@ actions:
   create_dialog: true
   create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   deploy: false
-  migrate: true
-  migrate_live: true
-  hold: true
-  release: true
-  suspend: true
+  migrate: false
+  migrate_live: false
+  hold: false
+  release: false
+  suspend: false
   resume: true
-  stop: true
-  recover: true
+  stop: false
+  recover: false
   reboot: true
   reboot-hard: true
   poweroff: true
   poweroff-hard: true
-  undeploy: true
-  undeploy-hard: true
+  undeploy: false
+  undeploy-hard: false
   terminate: true
   terminate-hard: true
-  resched: true
-  unresched: true
-  save_as_template: false
+  resched: false
+  unresched: false
+  save_as_template: true
   chown: false
   chgrp: false
-  lock: true
-  unlock: true
+  lock: false
+  unlock: false
   vmrc: true
   vnc: true
   ssh: true
   rdp: true
   edit_labels: false
-  backup: true  
+  backup: false  
 
 # Filters - List of criteria to filter the resources
 
@@ -63,7 +63,7 @@ info-tabs:
     information_panel:
       enabled: true
       actions:
-        rename: true
+        rename: false
     permissions_panel:
       enabled: true
       actions:
@@ -77,19 +77,12 @@ info-tabs:
       enabled: true
       actions:
         resize_capacity: true
-    lxc_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: false
-        edit: false
-        delete: false
     monitoring_panel:
       enabled: true
       actions:
         copy: true
     attributes_panel:
-      enabled: true
+      enabled: false
       actions:
         copy: true
         add: true
@@ -127,10 +120,10 @@ info-tabs:
       snapshot-delete: true
 
   backup:
-    enabled: true
+    enabled: false
 
   history:
-    enabled: true
+    enabled: false
 
   sched_actions:
     enabled: true
@@ -141,9 +134,9 @@ info-tabs:
       charter_create: true
 
   configuration:
-    enabled: true
+    enabled: false
     actions:
-      update_configuration: true
+      update_configuration: false
 
   template:
-    enabled: true
+    enabled: false

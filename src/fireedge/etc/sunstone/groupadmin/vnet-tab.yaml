@@ -12,13 +12,13 @@ actions:
   import_dialog: false
   instantiate_dialog: true
   reserve_dialog: true
-  update_dialog: true
+  update_dialog: false
   change_cluster: false
   chown: false
   chgrp: false
   lock: true
   unlock: true
-  delete: true
+  delete: false
 
 # Filters - List of criteria to filter the resources
 
@@ -38,11 +38,11 @@ info-tabs:
     information_panel:
       enabled: true
       actions:
-        rename: true
+        rename: false
     permissions_panel:
       enabled: true
       actions:
-        chmod: true
+        chmod: false
     ownership_panel:
       enabled: true
       actions:
@@ -53,29 +53,29 @@ info-tabs:
     attributes_panel:
       enabled: true
       actions:
-        copy: true
-        add: true
-        edit: true
-        delete: true
+        copy: false
+        add: false
+        edit: false
+        delete: false
 
   address:
     enabled: true
     actions:
       add_ar: false
-      update_ar: true
-      delete_ar: true
+      update_ar: false
+      delete_ar: false
 
   lease:
     enabled: true
     actions:
-      hold_lease: true
-      release_lease: true
+      hold_lease: false
+      release_lease: false
 
   security:
     enabled: true
     actions:
-      add_secgroup: true
-      delete_secgroup: true
+      add_secgroup: false
+      delete_secgroup: false
 
   virtual_router:
     enabled: true

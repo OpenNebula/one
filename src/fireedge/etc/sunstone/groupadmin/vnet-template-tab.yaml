@@ -1,32 +1,26 @@
 ---
-# This file describes the information and actions available in the IMAGE tab
+# This file describes the information and actions available in the V. NETWORK TEMPLATE tab
 
 # Resource
 
-resource_name: "IMAGE"
+resource_name: "NETWORK-TEMPLATE"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  create_dialog: true
-  import_dialog: true
-  clone: true
-  lock: true
-  unlock: true
-  disable: true
-  enable: true
-  persistent: true
-  nonpersistent: true
+  create_dialog: false
+  instantiate_dialog: true
+  update_dialog: true
+  delete: true
   chown: true
   chgrp: true
-  delete: true
+  lock: true
+  unlock: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
-  state: true
-
 
 # Info Tabs - Which info tabs are used to show extended information
 
@@ -46,6 +40,8 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
+    qos_panel:
+      enabled: true
     attributes_panel:
       enabled: true
       actions:
@@ -53,11 +49,19 @@ info-tabs:
         add: true
         edit: true
         delete: true
-  vms:
-    enabled: true
-  snapshot:
+
+  address:
     enabled: true
     actions:
-      snapshot_flatten: true
-      snapshot_revert: true
-      snapshot_delete: true
+      add_ar: true
+      update_ar: true
+      delete_ar: true
+
+  security:
+    enabled: true
+
+  cluster:
+    enabled: true
+
+  template:
+    enabled: true

@@ -20,14 +20,14 @@ features:
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  create_dialog: true
+  create_dialog: false
   import_dialog: false
   update_dialog: true
   instantiate_dialog: true
   create_app_dialog: false # reference to create_dialog in marketplace-app-tab.yaml
   clone: true
   delete: true
-  chown: false
+  chown: true
   chgrp: false
   lock: true
   unlock: true

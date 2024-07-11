@@ -1,29 +1,39 @@
 ---
-# This file describes the information and actions available in the SECURITY GROUP tab
+# This file describes the information and actions available in the Service Template tab
 
 # Resource
 
-resource_name: "SECURITY-GROUP"
+resource_name: "SERVICE-TEMPLATE"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
   create_dialog: false
+  instantiate_dialog: true
   update_dialog: false
+  deploy_dialog: true
+  create_app_dialog: true # reference to create_dialog in marketplace-app-tab.yaml
   clone: false
-  commit: false
-  chown: false
-  chgrp: false
   delete: false
+  chown: false
+  recover: false
+  chgrp: false
+  share: false
+  unshare: false
+  edit_labels: false
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
+  owner: true
+  group: true
+
 
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
@@ -39,15 +49,15 @@ info-tabs:
       actions:
         chown: false
         chgrp: false
-    rules_panel:
-      enabled: true
-    attributes_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: true
-        edit: true
-        delete: true
 
-  vms:
+  roles:
     enabled: true
+
+  template:
+    enabled: true
+
+# Dialogs
+
+dialogs:
+   deploy_dialog:
+   create_dialog:

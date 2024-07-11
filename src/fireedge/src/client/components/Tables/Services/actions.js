@@ -88,7 +88,7 @@ const Actions = () => {
         filters: getResourceView(RESOURCE_NAMES.SERVICE_TEMPLATE)?.actions,
         actions: [
           {
-            accessor: SERVICE_TEMPLATE_ACTIONS.CREATE_DIALOG,
+            accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
             tooltip: T.Create,
             icon: AddCircledOutline,
             options: [
@@ -100,7 +100,7 @@ const Actions = () => {
                     const classes = useTableStyles()
 
                     const redirectToInstantiate = (template) =>
-                      history.push(PATH.TEMPLATE.SERVICES.INSTANTIATE, template)
+                      history.push(PATH.INSTANCE.SERVICES.INSTANTIATE, template)
 
                     return (
                       <ServiceTemplatesTable

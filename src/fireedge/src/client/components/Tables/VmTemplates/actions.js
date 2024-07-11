@@ -134,7 +134,7 @@ const Actions = () => {
             color: 'secondary',
             action: (rows) => {
               const vmTemplate = rows?.[0]?.original ?? {}
-              const path = PATH.TEMPLATE.VMS.CREATE
+              const path = PATH.TEMPLATE.VMS.UPDATE
 
               history.push(path, vmTemplate)
             },

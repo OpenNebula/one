@@ -1,27 +1,37 @@
 ---
-# This file describes the information and actions available in the IMAGE tab
+# This file describes the information and actions available in the Service tab
 
 # Resource
 
-resource_name: "BACKUP"
+resource_name: "SERVICE"
 
 # Actions - Which buttons are visible to operate over the resources
 
 actions:
-  restore: true
+  instantiate_dialog: true # reference to deploy_dialog in service-template-tab.yaml
+  create_dialog: true
+  recover: true
+  recover_delete: true
+  delete: true
   chown: true
   chgrp: true
-  delete: true
+  share: true
+  unshare: true
+  edit_labels: true
 
 # Filters - List of criteria to filter the resources
 
 filters:
   label: true
   state: true
+  owner: true
+  group: true
+
 
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
@@ -37,14 +47,22 @@ info-tabs:
       actions:
         chown: true
         chgrp: true
-    attributes_panel:
-      enabled: true
-      actions:
-        copy: true
-        add: true
-        edit: true
-        delete: true
-  vms:
+
+  roles:
     enabled: true
-  increments:
+
+  log:
     enabled: true
+
+  scheduler_actions:
+    enabled: true
+    actions:
+      sched_action_create: true
+      sched_action_update: true
+      sched_action_delete: true
+      charter_create: true
+
+# Dialogs
+
+dialogs:
+  # update_dialog:

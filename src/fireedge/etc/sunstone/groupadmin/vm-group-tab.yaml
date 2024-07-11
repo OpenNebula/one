@@ -1,26 +1,27 @@
 ---
-# This file describes the information and actions available in the FILE tab
+# This file describe the information add actions available in the VM GROUP TEMPLATES tab
 
 # Resource
 
-resource_name: "FILE"
+resource_name: "VM-GROUP"
 
-# Actions - Which buttons are visible to operate over the resources
+# Actions - Which buttons are visible to operate over the resource
 
-actions:
+actions: 
   create_dialog: true
-  import_dialog: true
-  disable: true
+  update_dialog: true
   enable: true
-  chown: true
+  disable: true
   chgrp: true
+  chown: true
   delete: true
 
-# Filters - List of criteria to filter the resources
+# Filters -  List of criteria to filter the resource
 
-filters:
+filters: 
   label: true
   state: true
+
 
 
 # Info Tabs - Which info tabs are used to show extended information
@@ -40,11 +41,11 @@ info-tabs:
       enabled: true
       actions:
         chown: true
-        chgrp: true
-    attributes_panel:
+        cgrp: true
+    roles_panel:
       enabled: true
-      actions:
-        copy: true
-        add: true
-        edit: true
-        delete: true
+    roles-affinity_panel:
+      enabled: true
+  vms:
+    enabled: true
+

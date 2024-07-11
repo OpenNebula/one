@@ -9,14 +9,15 @@ resource_name: "SERVICE"
 
 actions:
   instantiate_dialog: true # reference to deploy_dialog in service-template-tab.yaml
+  create_dialog: true
   recover: true
   recover_delete: true
   delete: true
-  chown: true
-  chgrp: true
-  share: true
-  unshare: true
-  edit_labels: true
+  chown: false
+  chgrp: false
+  share: false
+  unshare: false
+  edit_labels: false
 
 # Filters - List of criteria to filter the resources
 
@@ -36,16 +37,16 @@ info-tabs:
     information_panel:
       enabled: true
       actions:
-        rename: true
+        rename: false
     permissions_panel:
       enabled: true
       actions:
-        chmod: true
+        chmod: false
     ownership_panel:
       enabled: true
       actions:
-        chown: true
-        chgrp: true
+        chown: false
+        chgrp: false
 
   roles:
     enabled: true
@@ -54,12 +55,12 @@ info-tabs:
     enabled: true
 
   scheduler_actions:
-    enabled: true
+    enabled: false
     actions:
-      sched_action_create: true
-      sched_action_update: true
-      sched_action_delete: true
-      charter_create: true
+      sched_action_create: false
+      sched_action_update: false
+      sched_action_delete: false
+      charter_create: false
 
 # Dialogs
 
