@@ -12,6 +12,10 @@ module OneDBFsck
         log_time
 
         check_history_retime
+
+        log_error('Removing possibly corrupted records from VM showback '\
+            "please run 'oneshowback calculate` to recalculate "\
+            'the showback') unless @showback_delete.empty?
     end
 
     # Check that etime from non last seq is 0
@@ -149,13 +153,6 @@ module OneDBFsck
                 @db[:history].where(:vid => row[:vid],
                                     :seq => row[:seq]).update(row)
             end
-        end
-
-        # DATA: FIX: Remove possibly corrupte showback values
-        unless @showback_delete.empty?
-            log_error('Removing possibly corrupted records from VM showback '\
-                "please run 'oneshowback calculate` to recalculate "\
-                'the showback')
         end
 
         @db.transaction do

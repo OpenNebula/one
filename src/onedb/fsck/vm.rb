@@ -42,7 +42,9 @@ module OneDBFsck
                 @vms_ports[port][cid] << vm_doc.root.at_xpath('ID').text.to_i
             end
 
-            fix_permissions('VM', row[:oid], vm_doc)
+            error = fix_permissions('VM', row[:oid], vm_doc)
+
+            vms_fix[row[:oid]] = vm_doc.root.to_s if error
 
             # DATA: Images used by this VM
             vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
@@ -186,10 +188,6 @@ module OneDBFsck
                     }
 
                     vms_fix[row[:oid]] = vm_doc.root.to_s
-                else
-                    @db[:vm_pool].where(
-                        :oid => row[:oid]
-                    ).update(:body => vm_doc.root.to_s)
                 end
 
                 # DATA: add resources to host counters
@@ -209,11 +207,15 @@ module OneDBFsck
                 hdoc.root.xpath("VMMMAD").each {|e|
                     e.name = "VM_MAD"
                     found = true
+
+                    log_error("VM #{row[:oid]} history #{hrow[:seq]} changing VMMMAD to VM_MAD")
                 }
 
                 hdoc.root.xpath("TMMAD").each  {|e|
                     e.name = "TM_MAD"
                     found = true
+
+                    log_error("VM #{row[:oid]} history #{hrow[:seq]} changing TMMAD to TM_MAD")
                 }
 
                 # DATA: translate VMMMAD and TMMAD to VM_MAD and TM_MAD

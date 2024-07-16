@@ -39,6 +39,8 @@ module OneDBFsck
 
                 check_ugid(doc)
 
+                error = fix_permissions('IMAGE', row[:oid], doc)
+
                 persistent = ( doc.root.xpath('PERSISTENT').text == "1" )
                 current_state = doc.root.xpath('STATE').text.to_i
 
@@ -53,6 +55,7 @@ module OneDBFsck
                     if e.text != rvms.to_s
                         log_error("Image #{oid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
                         e.text = rvms
+                        error = true
                     end
                 }
 
@@ -69,8 +72,9 @@ module OneDBFsck
                     counters_img[:vms].each do |id|
                         id_elem = vms_elem.xpath("ID[.=#{id}]").remove
 
-                        if id_elem.nil?
+                        if id_elem.empty?
                             log_error("VM #{id} is missing from Image #{oid} VM id list")
+                            error = true
                         end
 
                         i_e = doc.create_element('ID')
@@ -79,6 +83,7 @@ module OneDBFsck
 
                     vms_elem.children.each do |id_elem|
                         log_error("VM #{id_elem.text} is in Image #{oid} VM id list, but it should not")
+                        error = true
                     end
                 end
 
@@ -94,6 +99,7 @@ module OneDBFsck
                     if e.text != n_cloning_ops.to_s
                         log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
                         e.text = n_cloning_ops
+                        error = true
                     end
                 }
 
@@ -109,6 +115,7 @@ module OneDBFsck
 
                     if id_elem.nil?
                         log_error("Image #{id} is missing from Image #{oid} CLONES id list")
+                        error = true
                     end
 
                     i_e = doc.create_element('ID')
@@ -117,6 +124,7 @@ module OneDBFsck
 
                 clones_elem.children.each do |id_elem|
                     log_error("Image #{id_elem.text} is in Image #{oid} CLONES id list, but it should not")
+                    error = true
                 end
 
                 # re-do list of Apps cloning this one
@@ -132,6 +140,7 @@ module OneDBFsck
 
                     if id_elem.nil?
                         log_error("Marketplace App #{id} is missing from Image #{oid} APP_CLONES id list")
+                        error = true
                     end
 
                     i_e = doc.create_element('ID')
@@ -140,6 +149,7 @@ module OneDBFsck
 
                 clones_elem.children.each do |id_elem|
                     log_error("Marketplace App #{id_elem.text} is in Image #{oid} APP_CLONES id list, but it should not")
+                    error = true
                 end
 
 
@@ -176,26 +186,16 @@ module OneDBFsck
                             OpenNebula::Image::IMAGE_STATES[e.text.to_i] <<
                             " \tis\t#{OpenNebula::Image::IMAGE_STATES[state]}")
                         e.text = state
+                        error = true
                     end
                 }
 
-                fix_permissions('IMAGE', row[:oid], doc)
-
-                # row[:body] = doc.root.to_s
-
-                # # commit
-                # @db[:image_pool_new].insert(row)
-
-                @fixes_image[oid] = doc.root.to_s
+                @fixes_image[oid] = doc.root.to_s if error
             end
         end
     end
 
     def fix_image
-        # # Rename table
-        # @db.run("DROP TABLE image_pool")
-        # @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
-
         @fixes_image.each do |oid, body|
             @db[:image_pool].where(oid: oid).update(body: body)
         end

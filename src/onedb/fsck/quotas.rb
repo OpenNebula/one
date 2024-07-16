@@ -2,49 +2,40 @@
 # rubocop:disable Style/FormatStringToken
 module OneDBFsck
 
-    # Check and fix quotas
+    # Check quotas
     #
     # @param resource [String] user/group
-    # @param type     [String] normal/running
-    def check_fix_quotas(resource, type = 'normal')
+    def check_quotas(resource)
+        fix_quotas = @fix_quotas[resource] = {}
+
         table = "#{resource}_quotas"
 
-        @db.run "ALTER TABLE #{table} RENAME TO old_#{table};"
+        query = "SELECT * FROM #{table} WHERE #{resource}_oid>0"
 
-        create_table(table.to_sym)
+        @db.fetch(query) do |row|
+            @error = false
+            doc = nokogiri_doc(row[:body], table)
 
+            # resource[0] = u if user, g if group
+            id_field = "#{resource[0]}id"
+            oid      = row["#{resource}_oid".to_sym]
+            params   = [doc, "#{id_field}=#{oid}", resource.capitalize]
+
+            calculate_running_quotas(*params)
+            calculate_quotas(*params)
+
+            fix_quotas[oid] = doc.root.to_s if @error
+        end
+    end
+
+    def fix_quotas(resource)
         @db.transaction do
-            query = "SELECT * FROM old_#{table} WHERE #{resource}_oid=0"
-
-            # oneadmin does not have quotas
-            @db.fetch(query) do |row|
-                @db[table.to_sym].insert(row)
-            end
-
-            query = "SELECT * FROM old_#{table} WHERE #{resource}_oid>0"
-
-            @db.fetch(query) do |row|
-                doc = nokogiri_doc(row[:body], "old_#{table}")
-
-                # resource[0] = u if user, g if group
-                id_field = "#{resource[0]}id"
-                oid      = row["#{resource}_oid".to_sym]
-                params   = [doc, "#{id_field}=#{oid}", resource.capitalize]
-
-                if type == 'running'
-                    calculate_running_quotas(*params)
-                else
-                    calculate_quotas(*params)
-                end
-
-                object = { "#{resource}_oid".to_sym => oid,
-                           :body => doc.root.to_s }
-
-                @db["#{resource}_quotas".to_sym].insert(object)
+            @fix_quotas[resource].each do |id, body|
+                @db["#{resource}_quotas".to_sym].where("#{resource}_oid".to_sym => id).update(
+                    :body => body
+                )
             end
         end
-
-        @db.run "DROP TABLE old_#{table};"
     end
 
     # Calculate normal quotas
@@ -156,6 +147,8 @@ module OneDBFsck
             ds_elem.xpath('IMAGES_USED').each do |e|
                 next if e.text == images_used.to_s
 
+                @error = true
+
                 log_error("#{resource} #{oid} quotas: Datastore " \
                           "#{ds_id}\tIMAGES_USED has #{e.text} " \
                           "\tis\t#{images_used}")
@@ -165,6 +158,8 @@ module OneDBFsck
             ds_elem.xpath('SIZE_USED').each do |e|
                 next if e.text == size_used.to_s
 
+                @error = true
+
                 log_error("#{resource} #{oid} quotas: Datastore " \
                           "#{ds_id}\tSIZE_USED has #{e.text} " \
                           "\tis\t#{size_used}")
@@ -173,6 +168,8 @@ module OneDBFsck
         end
 
         ds_usage.each do |ds_id, array|
+            @error = true
+
             images_used, size_used = array
 
             log_error("#{resource} #{oid} quotas: Datastore " \
@@ -230,6 +227,8 @@ module OneDBFsck
             img_elem.xpath('RVMS_USED').each do |e|
                 next if e.text == rvms.to_s
 
+                @error = true
+
                 log_error("#{resource} #{oid} quotas: Image " \
                           "#{img_id}\tRVMS has #{e.text} \tis\t#{rvms}")
                 e.content = rvms.to_s
@@ -237,6 +236,8 @@ module OneDBFsck
         end
 
         img_usage.each do |img_id, rvms|
+            @error = true
+
             log_error("#{resource} #{oid} quotas: Image " \
                       "#{img_id}\tRVMS has 0 \tis\t#{rvms}")
 
@@ -328,6 +329,8 @@ module OneDBFsck
         vm_elem.xpath('SYSTEM_DISK_SIZE_USED').each do |e|
             next if e.text == sys_used.to_s
 
+            @error = true
+
             log_error("#{resource} #{oid} quotas: SYSTEM_DISK_SIZE_USED " \
                       "has #{e.text} \tis\t#{sys_used}")
             e.content = sys_used.to_s
@@ -409,6 +412,8 @@ module OneDBFsck
 
             next unless different
 
+            @error = true
+
             log_error("#{resource} #{oid} quotas: #{cpu}_USED has " \
                       "#{e.text} \tis\t#{cpu_used_str}")
             e.content = cpu_used_str
@@ -419,6 +424,8 @@ module OneDBFsck
 
             vm_elem.xpath("#{quota_name}_USED").each do |e|
                 next if e.text.to_i == quotas[quota_name].to_i
+
+                @error = true
 
                 log_error("#{resource} #{oid} quotas: #{quota_name}_USED has " \
                           "#{e.text} \tis\t#{quotas[quota_name]}")
@@ -500,7 +507,7 @@ module OneDBFsck
         net_quota.xpath('NETWORK').each do |net_elem|
             # Check ID exists
             unless net_elem.at_xpath('ID')
-                log_error("#{resource} #{oid} quotas: NETWORK doesn't have ID")
+                log_error("#{resource} #{oid} quotas: NETWORK doesn't have ID", false)
                 next
             end
 
@@ -514,6 +521,8 @@ module OneDBFsck
             net_elem.xpath('LEASES_USED').each do |e|
                 next if e.text == leases_used.to_s
 
+                @error = true
+
                 log_error("#{resource} #{oid} quotas: VNet " \
                           "#{vnet_id}\tLEASES_USED has #{e.text} " \
                           "\tis\t#{leases_used}")
@@ -524,6 +533,8 @@ module OneDBFsck
         end
 
         vnet_usage.each do |vnet_id, leases_used|
+            @error = true
+
             log_error("#{resource} #{oid} quotas: VNet " \
                       "#{vnet_id}\tLEASES_USED has 0 \tis\t#{leases_used}")
 

@@ -61,15 +61,13 @@ module OneDBFsck
                         log_error("Marketplace App #{row[:oid]} has a wrong name for marketplace #{market_id}, #{market_name}. It will be changed to #{market_entry[:name]}")
 
                         doc.root.xpath('MARKETPLACE').each do |e|
-                            e.text = market_entry[:name]
+                            e.content = market_entry[:name]
                         end
 
-                        apps_fix[row[:oid]] = doc.root.to_s
-                    elsif error
-                        @db[:marketplaceapp_pool].where(
-                            :oid => row[:oid]
-                        ).update(:body => doc.root.to_s)
+                        error = true
                     end
+
+                    apps_fix[row[:oid]] = doc.root.to_s if error
 
                     # DATA: Add app to marketplace list. Used in marketplace check
                     market_entry[:apps] << row[:oid]

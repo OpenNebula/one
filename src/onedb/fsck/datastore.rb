@@ -11,55 +11,48 @@ module OneDBFsck
     end
 
     # Check datastores images and fix it
-    def check_fix_datastore
+    def check_datastore
         datastore = @data_datastore
+        @fixes_ds = {}
 
-        create_table(:datastore_pool, :datastore_pool_new)
+        @db.fetch('SELECT oid, body FROM datastore_pool') do |row|
+            ds_id           = row[:oid]
+            doc             = nokogiri_doc(row[:body], 'datastore_pool')
 
-        @db.transaction do
-            @db.fetch('SELECT * from datastore_pool') do |row|
-                ds_id           = row[:oid]
-                doc             = nokogiri_doc(row[:body], 'datastore_pool')
-                images_elem     = doc.root.xpath('IMAGES').remove
-                images_new_elem = doc.create_element('IMAGES')
+            update          = fix_permissions('DATASTORE', row[:oid], doc)
 
-                check_ugid(doc)
+            images_elem     = doc.root.xpath('IMAGES').remove
+            images_new_elem = doc.create_element('IMAGES')
 
-                doc.root.add_child(images_new_elem)
+            check_ugid(doc)
 
-                datastore[ds_id][:images].each do |id|
-                    id_elem = images_elem.xpath("ID[.=#{id}]").remove
+            doc.root.add_child(images_new_elem)
 
-                    if id_elem.nil?
-                        log_error(
-                            "Image #{id} is missing from Datastore #{ds_id} " \
-                            'image id list'
-                        )
-                    end
+            datastore[ds_id][:images].each do |id|
+                id_elem = images_elem.xpath("ID[.=#{id}]").remove
 
-                    i_e = doc.create_element('ID')
-                    images_new_elem.add_child(i_e).content = id.to_s
-                end
-
-                images_elem.children.each do |id_elem|
+                if id_elem.nil?
                     log_error(
-                        "Image #{id_elem.text} is in Datastore #{ds_id} " \
-                        'image id list, but it should not'
+                        "Image #{id} is missing from Datastore #{ds_id} " \
+                        'image id list'
                     )
+                    update = true
                 end
 
-                fix_permissions('DATASTORE', row[:oid], doc)
-
-                row[:body] = doc.root.to_s
-
-                # commit
-                @db[:datastore_pool_new].insert(row)
+                i_e = doc.create_element('ID')
+                images_new_elem.add_child(i_e).content = id.to_s
             end
-        end
 
-        # Rename table
-        @db.run('DROP TABLE datastore_pool')
-        @db.run('ALTER TABLE datastore_pool_new RENAME TO datastore_pool')
+            images_elem.children.each do |id_elem|
+                log_error(
+                    "Image #{id_elem.text} is in Datastore #{ds_id} " \
+                    'image id list, but it should not'
+                )
+                update = true
+            end
+
+            @fixes_ds[ds_id] = doc.root.to_s if update
+        end
     end
 
     # Check datastores clusters
@@ -81,7 +74,7 @@ module OneDBFsck
 
                     e.remove
 
-                    @fixes_datastore_cluster[oid] = { :body => doc.root.to_s }
+                    @fixes_datastore_cluster[oid] = doc.root.to_s
                 else
                     cluster_entry[:datastores] << oid
                 end
@@ -132,11 +125,18 @@ module OneDBFsck
     end
 
     # Fix datastores clusters
+    def fix_datastore
+        @db.transaction do
+            @fixes_ds.each do |id, body|
+                @db[:datastore_pool].where(:oid => id).update(:body => body)
+            end
+        end
+    end
+
+    # Fix datastores clusters
     def fix_datastore_cluster
         @db.transaction do
-            @fixes_datastore_cluster.each do |id, entry|
-                body = entry[:body]
-
+            @fixes_datastore_cluster.each do |id, body|
                 @db[:datastore_pool].where(:oid => id).update(:body => body)
             end
         end

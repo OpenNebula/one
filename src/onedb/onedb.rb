@@ -359,8 +359,11 @@ class OneDB
                         'obtained separately.'
 
             puts
-            puts 'The database will be restored'
-            restore(ops[:backup], :force => true)
+
+            if !ops.include?(:no_backup)
+                puts 'The database will be restored'
+                restore(ops[:backup], :force => true)
+            end
 
             -1
         rescue Exception => e
@@ -462,7 +465,7 @@ class OneDB
 
         if File.exist? file
 
-            one_not_running()
+            one_not_running() if ops[:dry].nil?
 
             load(file)
             @backend.extend OneDBFsck
@@ -472,7 +475,7 @@ class OneDB
             ops[:backup] = @backend.bck_file if ops[:backup].nil?
 
             # FSCK will be executed, make DB backup
-            backup(ops[:backup], ops)
+            backup(ops[:backup], ops) if ops[:dry].nil?
 
             begin
                 puts "  > Running fsck" if ops[:verbose]
@@ -481,7 +484,7 @@ class OneDB
 
                 @backend.read_config
 
-                result = @backend.fsck
+                result = @backend.fsck(ops[:dry] || false)
 
                 if !result
                     raise "Error running fsck version #{ret[:version]}"
@@ -506,7 +509,7 @@ class OneDB
 
                 ops[:force] = true
 
-                restore(ops[:backup], ops)
+                restore(ops[:backup], ops) if ops[:dry].nil?
 
                 return -1
             end

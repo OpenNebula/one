@@ -21,13 +21,13 @@ module OneDBFsck
 
             check_ugid(doc)
 
+            error = fix_permissions('MARKETPLACE', row[:oid], doc)
+
             apps_elem = doc.root.at_xpath("MARKETPLACEAPPS")
             apps_elem.remove if !apps_elem.nil?
 
             apps_new_elem = doc.create_element("MARKETPLACEAPPS")
             doc.root.add_child(apps_new_elem)
-
-            error = false
 
             # DATA: CHECK: are all apps in the marketplace?
             marketplace[market_id][:apps].each do |id|
@@ -70,11 +70,7 @@ module OneDBFsck
                 zone_elem.content = "0"
             end
 
-            error = fix_permissions('MARKETPLACE', row[:oid], doc)
-
-            if (error)
-                @fixes_marketplace[row[:oid]] = doc.root.to_s
-            end
+            @fixes_marketplace[row[:oid]] = doc.root.to_s if error
         end
     end
 

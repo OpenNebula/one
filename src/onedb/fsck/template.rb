@@ -10,7 +10,10 @@ module OneDBFsck
 
             check_ugid(doc)
 
+            error_perm = fix_permissions('VMTEMPLATE', row[:oid], doc)
+
             if boot.nil? || boot.text.downcase.match(/fd|hd|cdrom|network/).nil?
+                templates_fix[row[:oid]] = doc.root.to_s if error_perm
                 next
             end
 
@@ -61,16 +64,12 @@ module OneDBFsck
                 else
                     log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", but it can't be parsed to be fixed automatically", false)
                     error = true
-
                 end
             end
 
             if error
-                error = fix_permissions('VMTEMPLATE', row[:oid], doc)
-
-                next unless error
-
-                templates_fix[row[:oid]] = doc.root.to_s
+                # Unrepairable error detected
+                templates_fix[row[:oid]] = doc.root.to_s if error_perm
 
                 next
             end
@@ -80,8 +79,6 @@ module OneDBFsck
             log_error("VM Template #{row[:oid]} OS/BOOT contains deprecated format \"#{boot.content}\", is was updated to #{new_boot}")
 
             boot.content = new_boot
-
-            fix_permissions('VMTEMPLATE', row[:oid], doc)
 
             templates_fix[row[:oid]] = doc.root.to_s
         end

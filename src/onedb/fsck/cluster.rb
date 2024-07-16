@@ -4,6 +4,11 @@ module OneDBFsck
     # Gather clusters information
     def init_cluster
         cluster = @data_cluster = {}
+        @fix_cluster = {}
+        @add_ds_relation = {}
+        @add_vnet_relation = {}
+        @del_ds_relation = {}
+        @del_vnet_relation = {}
 
         @db.fetch('SELECT oid, name FROM cluster_pool') do |row|
             cluster[row[:oid]] = {}
@@ -16,36 +21,55 @@ module OneDBFsck
     end
 
     # Check and fix clusters information
-    def check_fix_cluster
+    def check_cluster
         cluster = @data_cluster
 
-        create_table(:cluster_pool, :cluster_pool_new)
+        @db.fetch('SELECT oid,body from cluster_pool') do |row|
+            cluster_id = row[:oid]
 
+            doc        = nokogiri_doc(row[:body], 'cluster_pool')
+
+            @error = false
+
+            # Hosts
+            process_hosts(doc, cluster_id, cluster[cluster_id][:hosts])
+
+            # Datastores
+            process_ds(doc, cluster_id, cluster[cluster_id][:datastores])
+
+            # VNets
+            process_vnets(doc, cluster_id, cluster[cluster_id][:vnets])
+
+            @fix_cluster[cluster_id] = doc.root.to_s if @error
+        end
+    end
+
+    def fix_cluster
         @db.transaction do
-            @db.fetch('SELECT * from cluster_pool') do |row|
-                cluster_id = row[:oid]
-
-                doc        = nokogiri_doc(row[:body], 'cluster_pool')
-
-                # Hosts
-                process_hosts(doc, cluster_id, cluster[cluster_id][:hosts])
-
-                # Datastores
-                process_ds(doc, cluster_id, cluster[cluster_id][:datastores])
-
-                # VNets
-                process_vnets(doc, cluster_id, cluster[cluster_id][:vnets])
-
-                row[:body] = doc.root.to_s
-
-                # commit
-                @db[:cluster_pool_new].insert(row)
+            @fix_cluster.each do |id, body|
+                @db[:cluster_pool].where(:oid => id).update(:body => body)
             end
         end
+    end
 
-        # Rename table
-        @db.run('DROP TABLE cluster_pool')
-        @db.run('ALTER TABLE cluster_pool_new RENAME TO cluster_pool')
+    def fix_cluster_relations
+        @db.transaction do
+            @add_ds_relation.each do |cid, oid|
+                @db[:cluster_datastore_relation].insert(:cid => cid, :oid => oid)
+            end
+
+            @add_vnet_relation.each do |cid, oid|
+                @db[:cluster_network_relation].insert(:cid => cid, :oid => oid)
+            end
+
+            @del_ds_relation.each do |cid, oid|
+                @db[:cluster_datastore_relation].where(:cid => cid, :oid => oid).delete
+            end
+
+            @del_vnet_relation.each do |cid, oid|
+                @db[:cluster_network_relation].where(:cid => cid, :oid => oid).delete
+            end
+        end
     end
 
     # Process cluster hosts
@@ -65,6 +89,7 @@ module OneDBFsck
             if id_elem.empty?
                 log_error("Host #{id} is missing from cluster " \
                           "#{cid} host id list")
+                @error = true
             end
 
             aux = doc.create_element('ID')
@@ -77,6 +102,7 @@ module OneDBFsck
 
             log_error("Host #{id} is in cluster #{cid} " \
                       'host id list, but it should not')
+            @error = true
         end
     end
 
@@ -97,6 +123,7 @@ module OneDBFsck
             if id_elem.empty?
                 log_error("Datastore #{id} is missing from cluster " \
                           "#{cid} datastore id list")
+                @error = true
             end
 
             aux = doc.create_element('ID')
@@ -109,7 +136,7 @@ module OneDBFsck
             log_error('Table cluster_datastore_relation is missing relation ' \
                       "cluster #{cid}, datastore #{id}")
 
-            @db[:cluster_datastore_relation].insert(:cid => cid, :oid => id)
+            @add_ds_relation[cid] = id
         end
 
         ds_elem.children.each do |id|
@@ -117,6 +144,8 @@ module OneDBFsck
 
             log_error("Datastore #{id} is in cluster #{cid} datastore id " \
                       'list, but it should not')
+
+            @error = true
         end
     end
 
@@ -137,6 +166,7 @@ module OneDBFsck
             if id_elem.empty?
                 log_error("VNet #{id} is missing from cluster #{cid} " \
                           'vnet id list')
+                @error = true
             end
 
             aux = doc.create_element('ID')
@@ -149,7 +179,7 @@ module OneDBFsck
             log_error('Table cluster_network_relation is missing relation ' \
                       "cluster #{cid}, vnet #{id}")
 
-            @db[:cluster_network_relation].insert(:cid => cid, :oid => id)
+            @add_vnet_relation[cid] = id
         end
 
         vnets_elem.children.each do |id|
@@ -157,55 +187,34 @@ module OneDBFsck
 
             log_error("VNet #{id} is in cluster #{cid} vnet id list, " \
                       'but it should not')
+            @error = true
         end
     end
 
     # Check and fix cluster relations with datastores and VNets
-    def check_fix_cluster_relations
+    def check_cluster_relations
         cluster = @data_cluster
 
-        @db.transaction do
-            create_table(:cluster_datastore_relation,
-                         :cluster_datastore_relation_new)
-
-            @db.fetch('SELECT * from cluster_datastore_relation') do |row|
-                if !cluster[row[:cid]] || cluster[row[:cid]][:datastores].count(
-                    row[:oid]
-                ) != 1
-                    log_error('Table cluster_datastore_relation contains ' \
-                              "relation cluster #{row[:cid]}, datastore " \
-                              "#{row[:oid]}, but it should not")
-                else
-                    @db[:cluster_datastore_relation_new].insert(row)
-                end
+        @db.fetch('SELECT * from cluster_datastore_relation') do |row|
+            if !cluster[row[:cid]] || cluster[row[:cid]][:datastores].count(
+                row[:oid]
+            ) != 1
+                log_error('Table cluster_datastore_relation contains ' \
+                            "relation cluster #{row[:cid]}, datastore " \
+                            "#{row[:oid]}, but it should not")
+                @del_ds_relation[row[:cid]] = row[:oid]
             end
-
-            @db.run('DROP TABLE cluster_datastore_relation')
-            @db.run('ALTER TABLE cluster_datastore_relation_new ' \
-                    'RENAME TO cluster_datastore_relation')
         end
 
-        log_time
-
-        @db.transaction do
-            create_table(:cluster_network_relation,
-                         :cluster_network_relation_new)
-
-            @db.fetch('SELECT * from cluster_network_relation') do |row|
-                if !cluster[row[:cid]] || cluster[row[:cid]][:vnets].count(
-                    row[:oid]
-                ) != 1
-                    log_error('Table cluster_network_relation contains ' \
-                              "relation cluster #{row[:cid]}, " \
-                              "vnet #{row[:oid]}, but it should not")
-                else
-                    @db[:cluster_network_relation_new].insert(row)
-                end
+        @db.fetch('SELECT * from cluster_network_relation') do |row|
+            if !cluster[row[:cid]] || cluster[row[:cid]][:vnets].count(
+                row[:oid]
+            ) != 1
+                log_error('Table cluster_network_relation contains ' \
+                            "relation cluster #{row[:cid]}, " \
+                            "vnet #{row[:oid]}, but it should not")
+                @del_vnet_relation[row[:cid]] = row[:oid]
             end
-
-            @db.run('DROP TABLE cluster_network_relation')
-            @db.run('ALTER TABLE cluster_network_relation_new ' \
-                    'RENAME TO cluster_network_relation')
         end
     end
 

@@ -331,7 +331,7 @@ EXPR= {
 DRY= {
     :name => 'dry',
     :large => '--dry',
-    :description => 'Do not write in the database, output xml'
+    :description => 'Do not write in the database, output on stdout'
 }
 
 DELETE= {
@@ -482,7 +482,7 @@ CommandParser::CmdParser.new(ARGV) do
         Checks the consistency of the DB, and fixes the problems found
     EOT
 
-    command :fsck, fsck_desc, :options=>[FORCE, BACKUP] do
+    command :fsck, fsck_desc, :options=>[FORCE, BACKUP, DRY] do
         begin
             helper = OneDB.new(options)
             helper.fsck(options)
