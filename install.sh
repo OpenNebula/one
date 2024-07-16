@@ -1350,6 +1350,7 @@ IM_PROBES_KVM_VM_SNAPSHOT_FILES="\
 
 IM_PROBES_ETC_KVM_PROBES_FILES="\
     src/im_mad/remotes/kvm-probes.d/pci.conf \
+    src/im_mad/remotes/kvm-probes.d/guestagent.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_QEMU_FILES="\
@@ -2774,7 +2775,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-t
                                 src/fireedge/etc/sunstone/groupadmin/sec-group-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vnet-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vnet-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \                                
+                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/service-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/service-template-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vm-group-tab.yaml \
