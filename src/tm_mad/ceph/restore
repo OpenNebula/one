@@ -96,7 +96,7 @@ begin
     raise 'cannot list backup contents' unless rc.code == 0
 
     disk_urls = JSON.parse(rc.stdout)
-    disk_urls = disk_urls.filter {|id, _url| id.to_i == disk_id } if disk_id != -1
+    disk_urls = disk_urls.select {|id, _url| id.to_i == disk_id } if disk_id != -1
 
     # --------------------------------------------------------------------------
     # Restore disk_urls in Host VM folder
