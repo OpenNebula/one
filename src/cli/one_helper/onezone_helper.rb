@@ -135,7 +135,7 @@ class Replicator
     def fetch_db_config(configs)
         configs.store(:backend, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/BACKEND'])
 
-        if configs[:backend] == 'mysql' || configs[:backend] == 'postgresql'
+        if configs[:backend] == 'mysql'
             configs.store(:server, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/SERVER'])
             configs.store(:user, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/USER'])
             configs.store(:password, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PASSWD'])
@@ -143,7 +143,7 @@ class Replicator
             configs.store(:port, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PORT'])
             configs[:port] = '3306' if configs[:port] == '0'
         else
-            STDERR.puts 'No mysql or postgresql backend configuration found'
+            STDERR.puts 'No mysql backend configuration found'
             exit(-1)
         end
     end

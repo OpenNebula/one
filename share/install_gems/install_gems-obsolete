@@ -27,10 +27,8 @@ end
 
 if !defined?(RUBY_VERSION) || RUBY_VERSION < '2.2.0'
     RACK = 'rack --version "< 2.0.0"'
-    PG = 'pg --version "< 1.2.0"'
 else
     RACK = 'rack'
-    PG = 'pg'
 end
 
 TREETOP = 'treetop --version ">= 1.6.3"'
@@ -57,7 +55,7 @@ GROUPS={
     :ec2_hybrid => 'aws-sdk --version "~> 2.5"',
     :oca        => 'ox',
     :market     => 'aws-sdk',
-    :onedb      => ['mysql2', PG],
+    :onedb      => ['mysql2'],
     :hooks      => %w[zeromq ffi-rzmq],
     :serversync => "augeas",
     :gnuplot    => "gnuplot"
@@ -77,7 +75,6 @@ DISTRIBUTIONS={
         :dependencies => {
             SQLITE      => ['gcc', 'libsqlite3-dev'],
             'mysql2'     => ['gcc', 'libssl-dev', ['default-libmysqlclient-dev', 'libmysqlclient-dev']],
-            PG          => ['gcc', 'postgresql-server-dev-all'],
             'curb'      => ['gcc', 'libcurl4-openssl-dev'],
             $nokogiri   => %w{gcc rake libxml2-dev libxslt1-dev patch},
             'xmlparser' => ['gcc', 'libexpat1-dev'],
@@ -100,7 +97,6 @@ DISTRIBUTIONS={
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
             'mysql2'     => ['gcc', 'mysql-devel', 'openssl-devel'],
-            PG          => ['gcc', 'postgresql-devel'],
             'curb'      => ['gcc', 'curl-devel'],
             $nokogiri   => %w{gcc rubygem-rake libxml2-devel libxslt-devel patch},
             'xmlparser' => ['gcc', 'expat-devel'],

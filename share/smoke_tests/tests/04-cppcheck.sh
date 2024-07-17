@@ -15,7 +15,7 @@
 
 SOURCES="src"
 INCLUDES="-I include -I src/monitor/include -I src/scheduler/include"
-DEFINES="-DSQLITE_DB -DMYSQL_DB -DPOSTGRESQL_DB -DSYSTEMD"
+DEFINES="-DSQLITE_DB -DMYSQL_DB -DSYSTEMD"
 ENABLE="--enable=performance,information,warning,portability,style"
 IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers -i src/vmm/LibVirtDriverKVM.cc"
 SUPRESS="--suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"

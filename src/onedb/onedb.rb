@@ -87,30 +87,8 @@ class OneDB
                 :db_name => ops[:db_name],
                 :encoding=> ops[:encoding]
             )
-        elsif ops[:backend] == :postgresql
-            begin
-                require 'pg'
-            rescue
-                STDERR.puts "Ruby gem pg is needed for this operation:"
-                STDERR.puts "   $ sudo gem install pg"
-                exit -1
-            end
-
-            passwd     = ops[:passwd]
-            passwd     = ENV['ONE_DB_PASSWORD'] unless passwd
-            passwd     = get_password("PostgreSQL Password: ") unless passwd
-            ops[:port] = 5432 if ops[:port] == 0
-
-            @backend = BackEndPostgreSQL.new(
-                :server  => ops[:server],
-                :port    => ops[:port],
-                :user    => ops[:user],
-                :passwd  => passwd,
-                :db_name => ops[:db_name],
-                :encoding=> ops[:encoding]
-            )
         else
-            raise "You need to specify the SQLite, MySQL or PostgreSQL connection options."
+            raise "DB BACKEND must be sqlite or mysql."
         end
     end
 

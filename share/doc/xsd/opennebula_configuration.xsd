@@ -50,7 +50,6 @@
               <xs:element name="BACKEND" minOccurs="0" maxOccurs="1" >
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
-                    <xs:enumeration value="postgresql"/>
                     <xs:enumeration value="mysql"/>
                     <xs:enumeration value="sqlite"/>
                   </xs:restriction>

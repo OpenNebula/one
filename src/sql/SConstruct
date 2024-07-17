@@ -29,9 +29,6 @@ if env['sqlite']=='yes':
 if env['mysql']=='yes':
     source_files.append('MySqlDB.cc')
 
-if env['postgresql']=='yes':
-    source_files.append('PostgreSqlDB.cc')
-
 # Build library
 env.StaticLibrary(lib_name, source_files)
 

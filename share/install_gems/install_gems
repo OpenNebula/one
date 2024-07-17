@@ -63,7 +63,6 @@ case "${TARGET}" in
             ruby-dev make gcc libsqlite3-dev libcurl4-openssl-dev \
             rake libxml2-dev libxslt1-dev patch g++ build-essential \
             libssl-dev libaugeas-dev pkgconf \
-            postgresql-server-dev-all \
             >/dev/null
 
         # default-libmysqlclient-dev OR libmysqlclient-dev
@@ -79,7 +78,7 @@ case "${TARGET}" in
         yum -y install ruby-devel make gcc sqlite-devel mysql-devel \
             openssl-devel curl-devel rubygem-rake libxml2-devel \
             libxslt-devel patch expat-devel gcc-c++ rpm-build augeas-devel \
-            postgresql-devel rubygems \
+            rubygems \
             >/dev/null
         ;;
     *)
