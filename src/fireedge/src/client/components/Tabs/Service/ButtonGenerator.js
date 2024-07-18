@@ -115,7 +115,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
         variant="contained"
         color="primary"
         onClick={(event) => handleClick(event, items.onClick)}
-        startIcon={items.icon ? <items.icon /> : null}
+        startIcon={items.icon || null}
         {...options?.singleButton}
         sx={{
           ...options?.singleButton?.sx,

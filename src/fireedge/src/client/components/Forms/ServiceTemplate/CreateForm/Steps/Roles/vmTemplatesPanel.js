@@ -28,7 +28,6 @@ import {
   Paper,
   useTheme,
 } from '@mui/material'
-import { useLazyGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGeneralApi } from 'client/features/General'
 import { DateTime } from 'luxon'
 import { Tr } from 'client/components/HOC'
@@ -44,28 +43,26 @@ const convertTimestampToDate = (timestamp) =>
  * @param {Array} props.roles - The roles available for selection.
  * @param {number} props.selectedRoleIndex - The index of the currently selected role.
  * @param {Function} props.onChange - Callback to be called when affinity settings are changed.
+ * @param {Array} props.vmTemplates - VM Templates array
+ * @param {object} props.error - Error object
  * @returns {Component} The VmTemplatesPanel component.
  */
-const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
+const VmTemplatesPanel = ({
+  roles,
+  selectedRoleIndex,
+  onChange,
+  vmTemplates,
+  error,
+}) => {
   const theme = useTheme()
   const { enqueueError } = useGeneralApi()
-  const [vmTemplates, setVmTemplates] = useState([])
-  const [fetch, { data, error }] = useLazyGetTemplatesQuery()
   const templateID = roles?.[selectedRoleIndex]?.SELECTED_VM_TEMPLATE_ID ?? []
-
-  useEffect(() => {
-    fetch()
-  }, [fetch])
 
   useEffect(() => {
     if (error) {
       enqueueError(T.ErrorVmTemplateFetching, error?.message ?? error)
     }
   }, [error, enqueueError])
-
-  useEffect(() => {
-    setVmTemplates(data)
-  }, [data])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -155,7 +152,7 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={vmTemplates?.length}
+        count={vmTemplates?.length ?? 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -167,15 +164,11 @@ const VmTemplatesPanel = ({ roles, selectedRoleIndex, onChange }) => {
 }
 
 VmTemplatesPanel.propTypes = {
-  roles: PropTypes.arrayOf(
-    PropTypes.shape({
-      NAME: PropTypes.string,
-      POLICY: PropTypes.string,
-      SELECTED_VM_TEMPLATE_ID: PropTypes.array,
-    })
-  ),
+  roles: PropTypes.array,
   selectedRoleIndex: PropTypes.number,
   onChange: PropTypes.func.isRequired,
+  vmTemplates: PropTypes.array,
+  error: PropTypes.object,
   templateID: PropTypes.array,
 }
 

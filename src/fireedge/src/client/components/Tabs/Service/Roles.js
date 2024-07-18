@@ -24,11 +24,12 @@ import {
   useServiceScaleRoleMutation,
 } from 'client/features/OneApi/service'
 
+import { useLazyGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { VmsTable } from 'client/components/Tables'
 import VmActions from 'client/components/Tables/Vms/actions'
 import { StatusCircle } from 'client/components/Status'
 import { getRoleState } from 'client/models/Service'
-import { Box, Dialog, Typography } from '@mui/material'
+import { Box, Dialog, Typography, CircularProgress } from '@mui/material'
 import { Content as RoleAddDialog } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig'
 import { ScaleDialog } from 'client/components/Tabs/Service/ScaleDialog'
 import {
@@ -56,6 +57,7 @@ const filterActions = ['vm_resume', 'vm-manage', 'vm-host', 'vm-terminate']
  * @returns {ReactElement} Roles tab
  */
 const RolesTab = ({ id }) => {
+  const [fetch, { data, error, isFetching }] = useLazyGetTemplatesQuery()
   const { enqueueError, enqueueSuccess, enqueueInfo } = useGeneralApi()
   // wrapper
   const createApiCallback = (apiFunction) => async (params) => {
@@ -123,6 +125,7 @@ const RolesTab = ({ id }) => {
           handleAddRole(params)
           onClose()
         }}
+        fetchedVmTemplates={{ vmTemplates: data, error: error }}
       />
     </Dialog>
   )
@@ -154,7 +157,8 @@ const RolesTab = ({ id }) => {
     }
   }
 
-  const handleOpenAddRole = () => {
+  const handleOpenAddRole = async () => {
+    await fetch()
     setAddRoleOpen(true)
   }
 
@@ -188,10 +192,11 @@ const RolesTab = ({ id }) => {
               items={{
                 name: T.AddRole,
                 onClick: handleOpenAddRole,
-                icon: Plus,
+                icon: isFetching ? <CircularProgress size={24} /> : <Plus />,
               }}
               options={{
                 singleButton: {
+                  disabled: !!isFetching,
                   sx: {
                     fontSize: '0.95rem',
                     padding: '6px 8px',
@@ -211,7 +216,7 @@ const RolesTab = ({ id }) => {
             items={{
               name: T.Scale,
               onClick: handleOpenScale,
-              icon: Plus,
+              icon: <Plus />,
             }}
             options={{
               singleButton: {
