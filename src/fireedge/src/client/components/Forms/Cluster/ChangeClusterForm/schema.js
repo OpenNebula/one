@@ -29,6 +29,9 @@ const CLUSTER = {
   validation: array(string().trim())
     .required()
     .default(() => undefined),
+  fieldProps: {
+    preserveState: true,
+  },
   grid: { md: 12 },
 }
 
