@@ -14,8 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'shellwords'
+require 'json'
 require 'open3'
+require 'resolv'
+require 'shellwords'
 
 require_relative 'vf'
 
@@ -224,12 +226,18 @@ module VNMMAD
             return if @bridges.key?(nic[:bridge])
 
             OpenNebula.exec_and_log("#{command(:ip)} link add name " \
-                "#{nic[:bridge]} type bridge #{list_bridge_options(nic)}", nil, 2)
+                "'#{nic[:bridge]}' type bridge #{list_bridge_options(nic)}", nil, 2)
 
             @bridges[nic[:bridge]] = []
+        ensure
+            # NOTE: We read here the randomized MAC address that the bridge is created with, then
+            #       we set the same MAC address back again. This prevents automatic change of the
+            #       bridge MAC address when new interfaces are inserted into the bridge.
+            mac = JSON.parse(`#{command(:ip_unpriv)} -j \
+                             link show dev '#{nic[:bridge]}'`).dig(0, 'address')
 
             OpenNebula.exec_and_log("#{command(:ip)} " \
-                                    "link set #{nic[:bridge]} up")
+                                    "link set dev '#{nic[:bridge]}' address #{mac} up")
         end
 
         # Reads config and return str with switches
@@ -280,8 +288,6 @@ module VNMMAD
 
             bridge_options_str.strip
         end
-
-
 
         # Returns a filter object based on the contents of the template
         #

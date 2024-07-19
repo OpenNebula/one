@@ -1,0 +1,272 @@
+#!/usr/bin/env ruby
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# frozen_string_literal: true
+
+# rubocop:disable Lint/MissingCopEnableDirective
+# rubocop:disable Metrics/ParameterLists
+# rubocop:disable Style/Documentation
+# rubocop:disable Style/GlobalVars
+# rubocop:disable Style/ParallelAssignment
+
+RUBY_LIB_LOCATION  = '/usr/lib/one/ruby'
+GEMS_LOCATION      = '/usr/share/one/gems'
+LOG_LOCATION       = '/var/log'
+RUN_LOCATION       = '/var/run'
+REMOTES_LOCATION   = '/var/tmp/one'
+CONFIGURATION_FILE = REMOTES_LOCATION + '/etc/vnm/OpenNebulaNetwork.conf'
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|p| p =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'async/io'
+require 'async/io/stream'
+require 'async/io/trap'
+require 'console'
+require 'daemons'
+require 'json'
+require 'open3'
+require 'socket'
+require 'yaml'
+
+DEFAULT_CONFIG = {
+    :tproxy_debug_level => 2, # 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+    :app_name           => 'one_tproxy'
+}.freeze
+
+LOG_LEVEL_MAP = {
+    0 => 3, # ERROR
+    1 => 2, # WARN
+    2 => 1, # INFO
+    3 => 0  # DEBUG
+}.freeze
+
+$config = DEFAULT_CONFIG.dup
+$logger = nil
+
+module VNMMAD
+
+    module TProxy
+
+        # A single async TCP transparent proxy implementation, it binds to a single port and
+        # marks outgoing packets with SO_MARK.
+        class Single
+
+            def initialize(bport, daddr, dport, smark)
+                @bport, @daddr, @dport, @smark = bport, daddr, dport, smark
+
+                @socket   = setup_socket('127.0.0.1', @bport, @smark)
+                @proxy_ep = Async::IO::Endpoint.socket(@socket)
+            end
+
+            def params
+                [@bport, @daddr, @dport, @smark]
+            end
+
+            def run
+                Async do |task|
+                    glue_peers(@task = task)
+                end
+            end
+
+            def stop
+                $logger.info(self) do
+                    "Stop #{Addrinfo.tcp('127.0.0.1', @bport).inspect}"
+                end
+                @socket.close
+                @task.stop
+            end
+
+            private
+
+            def setup_socket(baddr, bport, smark, listen = Socket::SOMAXCONN)
+                sock = Socket.new Socket::AF_INET, Socket::SOCK_STREAM, 0
+
+                sock.setsockopt Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1
+                sock.setsockopt Socket::SOL_SOCKET, Socket::SO_MARK, smark
+
+                sock.setsockopt Socket::SOL_IP, Socket::IP_TRANSPARENT, 1
+
+                $logger.info(self) do
+                    "Bind #{Addrinfo.tcp(baddr, bport).inspect}"
+                end
+
+                sock.bind Socket.pack_sockaddr_in(bport, baddr)
+                sock.listen listen
+                sock
+            end
+
+            def glue_streams(stream1, stream2, task)
+                task.async do |subtask|
+                    concurrent = []
+                    concurrent << subtask.async do
+                        while (chunk = stream1.read_partial)
+                            stream2.write chunk
+                            stream2.flush
+                        end
+                    end
+                    concurrent << subtask.async do
+                        while (chunk = stream2.read_partial)
+                            stream1.write chunk
+                            stream1.flush
+                        end
+                    end
+                    concurrent.each(&:wait)
+                end
+            end
+
+            def glue_peers(task)
+                @proxy_ep.accept do |client_peer|
+                    $logger.debug(self) do
+                        "Accept #{client_peer.remote_address.inspect}"
+                    end
+
+                    begin
+                        server_ep = Async::IO::Endpoint.tcp @daddr,
+                                                            @dport
+                        server_ep.connect do |server_peer|
+                            client_stream, server_stream = Async::IO::Stream.new(client_peer),
+                                                           Async::IO::Stream.new(server_peer)
+
+                            glue_streams(client_stream, server_stream, task).wait
+                        ensure
+                            $logger.debug(self) do
+                                "Close #{server_peer.remote_address.inspect}"
+                            end
+
+                            server_peer.close
+                        end
+                    rescue Errno::ECONNREFUSED,
+                           Errno::ECONNRESET,
+                           Errno::EHOSTUNREACH,
+                           Errno::ETIMEDOUT => e
+                        $logger.error(self) do
+                            e.message
+                        end
+                    end
+                ensure
+                    $logger.debug(self) do
+                        "Close #{client_peer.remote_address.inspect}"
+                    end
+
+                    client_peer.close
+                end
+            end
+
+        end
+
+        # Combine multiple proxies into one async service.
+        class Multi
+
+            def initialize
+                @single = {}
+                @sighup = Async::IO::Trap.new :HUP
+                @sighup.install!
+            end
+
+            def run
+                Async do
+                    reload
+                    @sighup.wait { reload }
+                end
+            end
+
+            private
+
+            def reload
+                cmd = "nft -j list map ip #{$config[:app_name]} proxies"
+
+                o, e, s = Open3.capture3(*cmd.split(' '))
+
+                unless s.success?
+                    $logger.error(self) do
+                        "Error getting proxy map from nftables: #{e}"
+                    end
+                    return
+                end
+
+                proxies = JSON.parse(o)
+                              &.dig('nftables')
+                              &.find {|item| !item['map'].nil? }
+                              &.dig('map', 'elem')
+                              .to_h {|item| item.map(&:values).map(&:flatten) }
+
+                # Stop and remove cancelled proxies.
+                @single.each do |k, v|
+                    next if proxies.key?(k) && v.params == proxies[k]
+
+                    @single.delete(k)&.stop
+                end
+
+                # Create and start missing proxies.
+                proxies.each do |k, v|
+                    next if @single.key?(k)
+
+                    (@single[k] = Single.new(*v)).run
+                rescue StandardError => e
+                    $logger.error(self) do
+                        e.message
+                    end
+                end
+            end
+
+        end
+
+    end
+
+end
+
+Daemons.run_proc($config[:app_name], :dir => RUN_LOCATION, :log_dir => LOG_LOCATION) do
+    CustomLogger = Console::Filter[:debug => 0, :info => 1, :warn => 2, :error => 3]
+    logfile      = File.open "#{LOG_LOCATION}/#{$config[:app_name]}.log", 'a'
+    logfile.sync = true
+    serialized   = Console::Serialized::Logger.new logfile
+    $logger      = CustomLogger.new serialized, :level => 0
+
+    # The "CONFIGURATION_FILE" is updated during the host sync procedure.
+    begin
+        $config.merge! YAML.load_file(CONFIGURATION_FILE)
+    rescue StandardError => e
+        $logger.error(self) do
+            "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+        end
+        exit(-1)
+    end
+
+    $logger = CustomLogger.new serialized, :level => LOG_LEVEL_MAP[$config[:tproxy_debug_level]]
+
+    VNMMAD::TProxy::Multi.new.run
+end

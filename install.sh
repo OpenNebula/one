@@ -46,7 +46,6 @@ usage() {
  echo "-F: install OpenNebula FireEdge"
  echo "-P: do not install OpenNebula FireEdge non-minified files"
  echo "-G: install only OpenNebula Gate"
- echo "-6: install only OpenNebula Gate Proxy"
  echo "-f: install only OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
@@ -62,7 +61,6 @@ UNINSTALL="no"
 LINK="no"
 CLIENT="no"
 ONEGATE="no"
-ONEGATE_PROXY="no"
 SUNSTONE="no"
 SUNSTONE_DEV="yes"
 FIREEDGE="no"
@@ -80,7 +78,6 @@ while getopts $PARAMETERS opt; do
         l) LINK="yes" ;;
         c) CLIENT="yes"; INSTALL_ETC="no" ;;
         G) ONEGATE="yes" ;;
-        6) ONEGATE_PROXY="yes" ;;
         s) SUNSTONE="yes" ;;
         p) SUNSTONE_DEV="no" ;;
         F) FIREEDGE="yes" ;;
@@ -109,7 +106,6 @@ if [ -z "$ROOT" ] ; then
     LOG_LOCATION="/var/log/one"
     VAR_LOCATION="/var/lib/one"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
-    ONEGATE_PROXY_LOCATION="$LIB_LOCATION/onegate-proxy"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
@@ -152,13 +148,6 @@ if [ -z "$ROOT" ] ; then
         DELETE_DIRS="$MAKE_DIRS"
 
         CHOWN_DIRS=""
-    elif [ "$ONEGATE_PROXY" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $ONEGATE_PROXY_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
-
-        CHOWN_DIRS=""
     elif [ "$ONEFLOW" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION $ONEFLOW_LOCATION \
                     $ETC_LOCATION"
@@ -171,7 +160,7 @@ if [ -z "$ROOT" ] ; then
                    $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEGATE_PROXY_LOCATION $ONEFLOW_LOCATION \
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
                    $SUNSTONE_MAIN_JS_LOCATION $ONEHEM_LOCATION"
 
         DELETE_DIRS="$LIB_LOCATION $ETC_LOCATION $LOG_LOCATION $VAR_LOCATION \
@@ -189,7 +178,6 @@ else
     RUN_LOCATION="$VAR_LOCATION/run"
     LOCK_LOCATION="$VAR_LOCATION/lock"
     ONEGATE_LOCATION="$LIB_LOCATION/onegate"
-    ONEGATE_PROXY_LOCATION="$LIB_LOCATION/onegate-proxy"
     SUNSTONE_LOCATION="$LIB_LOCATION/sunstone"
     FIREEDGE_LOCATION="$LIB_LOCATION/fireedge"
     ONEFLOW_LOCATION="$LIB_LOCATION/oneflow"
@@ -212,11 +200,6 @@ else
                    $ONEGATE_LOCATION $ETC_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
-    elif [ "$ONEGATE_PROXY" = "yes" ]; then
-        MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
-                   $ONEGATE_PROXY_LOCATION"
-
-        DELETE_DIRS="$MAKE_DIRS"
     elif [ "$SUNSTONE" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $VAR_LOCATION \
                    $SUNSTONE_LOCATION $ETC_LOCATION $SUNSTONE_MAIN_JS_LOCATION"
@@ -236,7 +219,7 @@ else
         MAKE_DIRS="$BIN_LOCATION $SBIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
                    $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
-                   $VM_LOCATION $ONEGATE_LOCATION $ONEGATE_PROXY_LOCATION $ONEFLOW_LOCATION \
+                   $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION \
                    $SUNSTONE_MAIN_JS_LOCATION $ONEHEM_LOCATION $LOCK_LOCATION $RUN_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
@@ -534,8 +517,6 @@ if [ "$CLIENT" = "yes" ]; then
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_OCA_CLIENT_DIRS"
-elif [ "$ONEGATE_PROXY" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
   if [ "$SUNSTONE_DEV" = "no" ]; then
@@ -873,15 +854,6 @@ INSTALL_ONEGATE_FILES=(
 
 INSTALL_ONEGATE_ETC_FILES=(
     ONEGATE_ETC_FILES:$ETC_LOCATION
-)
-
-INSTALL_ONEGATE_PROXY_FILES=(
-    ONEGATE_PROXY_FILES:$ONEGATE_PROXY_LOCATION
-    ONEGATE_PROXY_BIN_FILES:$BIN_LOCATION
-)
-
-INSTALL_ONEGATE_PROXY_ETC_FILES=(
-    ONEGATE_PROXY_REMOTES_ETC_FILES:$VAR_LOCATION/remotes/etc
 )
 
 INSTALL_ONEFLOW_FILES=(
@@ -1566,7 +1538,9 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/no_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
-               src/vnm_mad/remotes/lib/nic.rb"
+               src/vnm_mad/remotes/lib/nic.rb \
+               src/vnm_mad/remotes/lib/tproxy \
+               src/vnm_mad/remotes/lib/tproxy.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
@@ -2803,16 +2777,6 @@ ONEGATE_BIN_FILES="src/onegate/bin/onegate-server"
 ONEGATE_ETC_FILES="src/onegate/etc/onegate-server.conf"
 
 #-----------------------------------------------------------------------------
-# OneGateProxy files
-#-----------------------------------------------------------------------------
-
-ONEGATE_PROXY_FILES="src/onegate-proxy/onegate-proxy.rb"
-
-ONEGATE_PROXY_BIN_FILES="src/onegate-proxy/bin/onegate-proxy"
-
-ONEGATE_PROXY_REMOTES_ETC_FILES="src/onegate-proxy/etc/onegate-proxy.conf"
-
-#-----------------------------------------------------------------------------
 # OneFlow files
 #-----------------------------------------------------------------------------
 
@@ -3046,8 +3010,6 @@ if [ "$CLIENT" = "yes" ]; then
     INSTALL_SET=${INSTALL_CLIENT_FILES[@]}
 elif [ "$ONEGATE" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEGATE_FILES[@]}"
-elif [ "$ONEGATE_PROXY" = "yes" ]; then
-    INSTALL_SET="${INSTALL_ONEGATE_PROXY_FILES[@]}"
 elif [ "$SUNSTONE" = "yes" ]; then
   if [ "$SUNSTONE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} \
@@ -3088,7 +3050,6 @@ else
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
                  ${INSTALL_FIREEDGE_FILES[@]} ${INSTALL_FIREEDGE_DEV_DIRS[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
-                 ${INSTALL_ONEGATE_PROXY_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
                  ${INSTALL_ONEPROVISION_FILES[@]} \
@@ -3113,8 +3074,6 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
         INSTALL_ETC_SET="${INSTALL_FIREEDGE_ETC_FILES[@]}"
     elif [ "$ONEGATE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
-    elif [ "$ONEGATE_PROXY" = "yes" ]; then
-        INSTALL_ETC_SET="${INSTALL_ONEGATE_PROXY_ETC_FILES[@]}"
     elif [ "$ONEFLOW" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEFLOW_ETC_FILES[@]}"
     else
@@ -3122,7 +3081,6 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
                          ${INSTALL_FIREEDGE_ETC_FILES[@]} \
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
-                         ${INSTALL_ONEGATE_PROXY_ETC_FILES[@]} \
                          ${INSTALL_ONEHEM_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]}"
     fi

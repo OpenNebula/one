@@ -30,9 +30,13 @@ class Sudoers
                 'ip6tables',
                 'ipset',
                 'ip link *',
-                'ip tuntap *',
+                'ip neighbour *',
                 'ip route *',
-                'ip neighbour *'
+                'ip rule *',
+                'ip tuntap *',
+                'nft',
+                'sysctl net.ipv4.conf.*',
+                '/var/tmp/one/vnm/tproxy'
             ],
             :LVM    => [
                 'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend'
