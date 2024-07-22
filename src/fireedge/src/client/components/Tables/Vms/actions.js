@@ -533,6 +533,7 @@ const Actions = () => {
                 dialogProps: {
                   title: T.RestoreVm,
                   subheader: SubHeader,
+                  dataCy: `modal-${VM_ACTIONS.RESTORE}`,
                 },
                 form: (row) => {
                   const vm = row?.[0]?.original
