@@ -34,6 +34,12 @@ const Content = ({ data, app }) => {
     setValue(STEP_ID, original.ID !== undefined ? [original] : [])
   }
 
+  // Create initial state and only add select rows if there is value in NAME (if not, there is no value selected)
+  const initialState = {
+    filters: [{ id: 'TYPE', value: 'BACKUP_DS' }],
+  }
+  NAME && (initialState.selectedRowIds = { [NAME]: true })
+
   return (
     <DatastoresTable
       singleSelect
@@ -42,10 +48,7 @@ const Content = ({ data, app }) => {
       pageSize={5}
       getRowId={(row) => String(row.NAME)}
       filter={(DATA) => DATA.filter((ds) => ds.TYPE === '3')}
-      initialState={{
-        selectedRowIds: { [NAME]: true },
-        filters: [{ id: 'TYPE', value: 'BACKUP_DS' }],
-      }}
+      initialState={initialState}
       onSelectedRowsChange={handleSelectedRows}
     />
   )
