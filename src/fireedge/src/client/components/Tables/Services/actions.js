@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash, Group, RefreshCircular } from 'iconoir-react'
+import { Box, Typography } from '@mui/material'
+import { PlayOutline, Trash, Group, RefreshCircular } from 'iconoir-react'
 import { makeStyles } from '@mui/styles'
 
 import { useViews } from 'client/features/Auth'
@@ -33,7 +33,7 @@ import {
 } from 'client/components/Tables/Enhanced/Utils'
 
 import ServiceTemplatesTable from 'client/components/Tables/ServiceTemplates'
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, SERVICE_TEMPLATE_ACTIONS, RESOURCE_NAMES } from 'client/constants'
 
@@ -60,11 +60,11 @@ const ListVmTemplateNames = ({ rows = [] }) =>
 const SubHeader = (rows) => <ListVmTemplateNames rows={rows} />
 
 const MessageToConfirmAction = (rows, description) => (
-  <>
+  <Box sx={{ minWidth: '25vw' }}>
     <ListVmTemplateNames rows={rows} />
     {description && <Translate word={description} />}
     <Translate word={T.DoYouWantProceed} />
-  </>
+  </Box>
 )
 
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'
@@ -89,8 +89,8 @@ const Actions = () => {
         actions: [
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
-            tooltip: T.Create,
-            icon: AddCircledOutline,
+            tooltip: T.Instantiate,
+            icon: PlayOutline,
             options: [
               {
                 isConfirmDialog: true,
@@ -171,19 +171,8 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   dataCy: `modal-${SERVICE_TEMPLATE_ACTIONS.RECOVER}`,
-                  title: (rows) => {
-                    const isMultiple = rows?.length > 1
-                    const { ID, NAME } = rows?.[0]?.original ?? {}
-
-                    return [
-                      Tr(
-                        isMultiple ? T.RecoverSeveralServices : T.RecoverService
-                      ),
-                      !isMultiple && `#${ID} ${NAME}`,
-                    ]
-                      .filter(Boolean)
-                      .join(' - ')
-                  },
+                  title: T.RecoverService,
+                  children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -196,19 +185,8 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   dataCy: `modal-${SERVICE_TEMPLATE_ACTIONS.RECOVER}`,
-                  title: (rows) => {
-                    const isMultiple = rows?.length > 1
-                    const { ID, NAME } = rows?.[0]?.original ?? {}
-
-                    return [
-                      Tr(
-                        isMultiple ? T.RecoverSeveralServices : T.RecoverService
-                      ),
-                      !isMultiple && `#${ID} ${NAME}`,
-                    ]
-                      .filter(Boolean)
-                      .join(' - ')
-                  },
+                  title: T.RecoverDelete,
+                  children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
@@ -230,19 +208,8 @@ const Actions = () => {
                 isConfirmDialog: true,
                 dialogProps: {
                   dataCy: `modal-${SERVICE_TEMPLATE_ACTIONS.DELETE}`,
-                  title: (rows) => {
-                    const isMultiple = rows?.length > 1
-                    const { ID, NAME } = rows?.[0]?.original ?? {}
-
-                    return [
-                      Tr(
-                        isMultiple ? T.DeleteSeveralTemplates : T.DeleteTemplate
-                      ),
-                      !isMultiple && `#${ID} ${NAME}`,
-                    ]
-                      .filter(Boolean)
-                      .join(' - ')
-                  },
+                  title: T.Delete,
+                  children: MessageToConfirmAction,
                 },
                 onSubmit: (rows) => async () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)

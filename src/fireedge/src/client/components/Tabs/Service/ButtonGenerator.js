@@ -50,7 +50,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
             aria-controls="customized-menu"
             aria-haspopup="true"
             variant="contained"
-            color="primary"
+            color="secondary"
             onClick={handleClick}
             {...options?.button}
             sx={{
@@ -64,7 +64,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
             aria-controls="customized-menu"
             aria-haspopup="true"
             variant="contained"
-            color="primary"
+            color="secondary"
             onClick={handleClick}
             endIcon={items.length > 1 ? <NavArrowDown /> : null}
             {...options?.button}
@@ -100,9 +100,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
       <IconButton
         aria-controls="customized-menu"
         aria-haspopup="true"
-        variant="contained"
-        color="primary"
-        onClick={handleClick}
+        onClick={(event) => handleClick(event, items.onClick)}
         {...options?.button}
         sx={{
           ...options?.singleButton?.sx,
@@ -113,7 +111,7 @@ export const ButtonGenerator = ({ items, options = {} }) => {
     ) : (
       <Button
         variant="contained"
-        color="primary"
+        color="secondary"
         onClick={(event) => handleClick(event, items.onClick)}
         startIcon={items.icon || null}
         {...options?.singleButton}

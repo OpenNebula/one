@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { AddCircledOutline, Trash, PlayOutline, Group } from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
@@ -55,11 +55,11 @@ const ListServiceTemplateNames = ({ rows = [] }) =>
 const SubHeader = (rows) => <ListServiceTemplateNames rows={rows} />
 
 const MessageToConfirmAction = (rows, description) => (
-  <>
+  <Box sx={{ minWidth: '25vw' }}>
     <ListServiceTemplateNames rows={rows} />
     {description && <Translate word={description} />}
     <Translate word={T.DoYouWantProceed} />
-  </>
+  </Box>
 )
 
 MessageToConfirmAction.displayName = 'MessageToConfirmAction'

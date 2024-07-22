@@ -28,6 +28,7 @@ import {
   Paper,
   useTheme,
 } from '@mui/material'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
 import { useGeneralApi } from 'client/features/General'
 import { DateTime } from 'luxon'
 import { Tr } from 'client/components/HOC'
@@ -57,6 +58,7 @@ const VmTemplatesPanel = ({
   const theme = useTheme()
   const { enqueueError } = useGeneralApi()
   const templateID = roles?.[selectedRoleIndex]?.SELECTED_VM_TEMPLATE_ID ?? []
+  const templates = vmTemplates || (useGetTemplatesQuery()?.data ?? [])
 
   useEffect(() => {
     if (error) {
@@ -105,7 +107,7 @@ const VmTemplatesPanel = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {vmTemplates
+            {templates
               ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               ?.map((vmTemplate) => (
                 <TableRow
@@ -152,7 +154,7 @@ const VmTemplatesPanel = ({
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={vmTemplates?.length ?? 0}
+        count={templates?.length ?? 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

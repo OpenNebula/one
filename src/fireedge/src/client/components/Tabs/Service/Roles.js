@@ -247,12 +247,20 @@ const RolesTab = ({ id }) => {
             options={{
               singleButton: {
                 disabled: !selectedRoles?.length > 0,
-                startIcon: <PlayOutline />,
-                sx: {
-                  fontSize: 20,
-                  padding: '0px 8px',
-                },
+                icon: <PlayOutline />,
+                sx: (theme) => ({
+                  color: theme.palette.text.primary,
+                  padding: '0',
+                  borderRadius: '50%',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                  '&.selected': {
+                    border: `2px solid ${theme.palette.secondary.main}`,
+                  },
+                }),
                 title: null,
+                type: 'icon',
               },
             }}
           />
@@ -261,11 +269,7 @@ const RolesTab = ({ id }) => {
             items={[
               {
                 name: T.Suspend,
-                onClick: () =>
-                  handleAddRoleAction({
-                    perform: 'suspend',
-                    role: roles?.[selectedRoles?.[0]]?.name,
-                  }),
+                onClick: () => handleAddRoleAction('suspend'),
               },
               {
                 name: T.Poweroff,
@@ -284,6 +288,7 @@ const RolesTab = ({ id }) => {
                 sx: {
                   fontSize: 20,
                   padding: '8px 16px',
+                  border: '0',
                 },
                 title: null,
               },
@@ -361,10 +366,12 @@ const RolesTab = ({ id }) => {
                 disabled: !selectedRoles?.length > 0,
                 startIcon: <Trash />,
                 endIcon: <NavArrowDown />,
+                color: 'error',
                 sx: {
                   fontSize: 20,
                   padding: '8px 16px',
                   marginLeft: '2em',
+                  color: 'primary',
                 },
                 title: null,
               },
@@ -390,8 +397,8 @@ const RolesTab = ({ id }) => {
             bgcolor: 'background.paper',
             border: `2px solid ${
               isSelected(idx)
-                ? theme.palette.grey[600]
-                : theme.palette.grey[400]
+                ? theme.palette.secondary.main
+                : theme.palette.divider
             }`,
           })}
           onClick={(event) => handleRoleClick(idx, role, event)}

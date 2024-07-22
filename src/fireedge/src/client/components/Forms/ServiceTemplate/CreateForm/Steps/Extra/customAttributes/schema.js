@@ -90,13 +90,13 @@ const NAME = {
   validation: string()
     .trim()
     .lowercase()
-    .matches(/^[a-z0-9]*$/, {
+    .matches(/^[a-z0-9_]*$/, {
       message:
         'Name must only contain lowercase alphanumeric characters and no spaces',
       excludeEmptyString: true,
     })
     .required()
-    .default(() => undefined),
+    .default(() => ''),
   grid: { sm: 2.5, md: 2.5 },
 }
 

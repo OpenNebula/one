@@ -248,7 +248,7 @@ module.exports = {
   /* questions */
   Yes: 'Yes',
   No: 'No',
-  DoYouWantProceed: 'Do you want proceed?',
+  DoYouWantProceed: 'Do you want to proceed?',
 
   /* Scheduling */
   Action: 'Action',
