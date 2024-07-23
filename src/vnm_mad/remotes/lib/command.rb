@@ -129,40 +129,6 @@ module VNMMAD
                 Open3.capture3(cmd_str)
             end
 
-            # Executes a command (paranoid version)
-            #   @return [String, String, Process::Status] the standard output,
-            #                                             standard error and
-            #                                             status returned by
-            #                                             Open3.capture3
-            def self.no_shell(sym, *args, **opts)
-                terminate = (v = opts.delete(:term)).nil? ? true : v
-
-                args = COMMANDS[sym].split(' ') + args
-
-                o, e, s = Open3.capture3(*args, **opts)
-
-                if s.success?
-                    OpenNebula.log_info "Executed \"#{args.join(' ')}\"."
-                    OpenNebula.log_info Base64.strict_encode64(opts[:stdin_data]) \
-                        unless opts[:stdin_data].nil?
-                else
-                    if terminate
-                        OpenNebula.log_error "Command \"#{args.join(' ')}\" failed."
-                        OpenNebula.log_error Base64.strict_encode64(opts[:stdin_data]) \
-                            unless opts[:stdin_data].nil?
-                        OpenNebula.log_error e
-                        exit(s.exitstatus)
-                    else
-                        OpenNebula.log_error "Command \"#{args.join(' ')}\" failed (recovered)."
-                        OpenNebula.log_error Base64.strict_encode64(opts[:stdin_data]) \
-                            unless opts[:stdin_data].nil?
-                        OpenNebula.log_error e
-                    end
-                end
-
-                [o, e, s]
-            end
-
         end
 
     end
