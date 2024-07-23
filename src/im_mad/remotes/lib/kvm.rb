@@ -141,10 +141,6 @@ end
 #-------------------------------------------------------------------------------
 class Domain < BaseDomain
 
-    KVM::QEMU_GA[:commands].each_key do |ga_info|
-        MONITOR_KEYS << ga_info
-    end
-
     # Gets the information of the domain, fills the @vm hash using ProcessList
     # and virsh dominfo
     def info
@@ -258,6 +254,14 @@ class Domain < BaseDomain
         tmpl
     rescue StandardError
         ''
+    end
+
+    def to_monitor
+        KVM::QEMU_GA[:commands].each_key do |ga_info|
+            MONITOR_KEYS << ga_info
+        end
+
+        super
     end
 
     private
