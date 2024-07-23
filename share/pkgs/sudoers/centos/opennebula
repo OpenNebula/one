@@ -6,7 +6,7 @@ Cmnd_Alias ONE_HA = /usr/bin/systemctl start opennebula-flow, /usr/bin/systemctl
 Cmnd_Alias ONE_LVM = /usr/sbin/lvcreate, /usr/sbin/lvremove, /usr/sbin/lvs, /usr/sbin/vgdisplay, /usr/sbin/lvchange, /usr/sbin/lvscan, /usr/sbin/lvextend
 Cmnd_Alias ONE_LXC = /usr/bin/mount, /usr/bin/umount, /usr/bin/bindfs, /usr/sbin/losetup, /usr/bin/qemu-nbd, /usr/bin/lxc-attach, /usr/bin/lxc-config, /usr/bin/lxc-create, /usr/bin/lxc-destroy, /usr/bin/lxc-info, /usr/bin/lxc-ls, /usr/bin/lxc-start, /usr/bin/lxc-stop, /usr/bin/lxc-console, /usr/sbin/e2fsck, /usr/sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh
-Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip neighbour *, /usr/sbin/ip route *, /usr/sbin/ip rule *, /usr/sbin/ip tuntap *, /usr/sbin/nft, /usr/sbin/sysctl net.ipv4.conf.*, /var/tmp/one/vnm/tproxy
+Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip neighbour *, /usr/sbin/ip route *, /usr/sbin/ip rule *, /usr/sbin/ip tuntap *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl, /usr/bin/ovs-appctl
 Cmnd_Alias ONE_MEM = /usr/sbin/sysctl vm.drop_caches=3 vm.compact_memory=1
 Cmnd_Alias ONE_VGPU = /var/tmp/one/vgpu

@@ -33,10 +33,7 @@ class Sudoers
                 'ip neighbour *',
                 'ip route *',
                 'ip rule *',
-                'ip tuntap *',
-                'nft',
-                'sysctl net.ipv4.conf.*',
-                '/var/tmp/one/vnm/tproxy'
+                'ip tuntap *'
             ],
             :LVM    => [
                 'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend'

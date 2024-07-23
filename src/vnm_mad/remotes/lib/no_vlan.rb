@@ -42,9 +42,6 @@ module VNMMAD
                 # Create the bridge.
                 create_bridge(@nic)
 
-                # Setup transparent proxies.
-                TProxy.setup_tproxy(@nic, :up)
-
                 # Skip if vlan device is already in the bridge.
                 next if !@nic[:phydev] || @nic[:phydev].empty? ||
                         @bridges[@nic[:bridge]].include?(@nic[:phydev])
@@ -98,9 +95,6 @@ module VNMMAD
                     end
 
                     next if keep
-
-                    # Setup transparent proxies.
-                    TProxy.setup_tproxy(@nic, :down)
 
                     # Delete the bridge.
                     OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[:bridge]}")

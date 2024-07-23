@@ -33,7 +33,6 @@ require 'sg_driver'
 require 'vlan'
 require 'no_vlan'
 require 'scripts_common'
-require 'tproxy'
 
 Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
 
@@ -53,10 +52,7 @@ rescue
         :vlan_mtu             => '1500',
         :ipset_maxelem        => '65536',
         :keep_empty_bridge    => false,
-        :datastore_location   => '/var/lib/one/datastores',
-        :tproxy_debug_level   => 2, # 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
-        :tproxy_process_owner => 'oneadmin',
-        :tproxy               => []
+        :datastore_location   => '/var/lib/one/datastores'
     }
 end
 

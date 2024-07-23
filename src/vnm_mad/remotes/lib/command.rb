@@ -35,10 +35,7 @@ module VNMMAD
             :ovs_ofctl  => 'sudo -n ovs-ofctl',
             :ovs_appctl => 'sudo -n ovs-appctl',
             :lsmod      => 'lsmod',
-            :ipset      => 'sudo -n ipset',
-            :nft        => 'sudo -n nft',
-            :sysctl     => 'sudo -n sysctl',
-            :tproxy     => 'sudo -n /var/tmp/one/vnm/tproxy'
+            :ipset      => 'sudo -n ipset'
         }
 
         # Adjust :ip[6]tables commands to work with legacy versions
