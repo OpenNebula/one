@@ -278,18 +278,14 @@ define(function(require) {
           if(infoNode.MEMORY){
             var infoMemory = infoNode.MEMORY;
             memory.append($("<h6/>").text("Memory"));
-            var total = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.TOTAL): 0;
-            var used = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.USED) : 0;
+            var total = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.TOTAL || 0): 0;
+            var used = infoMemory && infoMemory.TOTAL? parseInt(infoMemory.USED || 0) : 0;
             var parser = Humanize.sizeFromKB;
             if (total > 0) {
               var ratio = Math.round((used / total) * 100);
               info_str = parser(used) + ' / ' + parser(total) + ' (' + ratio + '%)';
             } else {
-              if (info.TYPE == 1) {
-                info_str = '- / -';
-              } else {
-                info_str = Humanize.size(used) + ' / -';
-              }
+              info_str = (infoMemory.USED? Humanize.size(used): '-') + ' / -'
             }
             memory.append(ProgressBar.html(used, total, info_str, 'memory-used'));
           }
