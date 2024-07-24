@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import _ from 'lodash'
 
 /* eslint-disable no-useless-escape */
 const formatNic = (nic, parent, rdp) => {
@@ -21,24 +22,23 @@ const formatNic = (nic, parent, rdp) => {
   return `${
     parent ? 'NIC_ALIAS' : 'NIC'
   } = [\n  NAME = \"${NIC}\",\n  NETWORK_ID = \"$${
-    NETWORK_ID !== undefined ? NETWORK_ID.toLowerCase() : ''
+    NETWORK_ID !== undefined ? NETWORK_ID : ''
   }\"${rdp ? `,\n RDP = \"YES\"` : ''}${
     parent ? `,\n PARENT = \"${parent}\"` : ''
   } ]\n`
 }
 
-const formatAlias = (fNics) => {
+const formatAlias = (fNics) =>
   fNics?.map((fnic) => {
-    if (fnic?.alias) {
-      const parent = fNics?.find(
-        (nic) => nic?.NIC_NAME === fnic?.alias?.name
-      )?.NIC_ID
+    if (fnic?.alias || fnic?.PARENT) {
+      const parent =
+        fnic?.PARENT ??
+        fNics?.find((nic) => nic?.NIC_NAME === fnic?.alias?.name)?.NIC_ID
       fnic.formatNic = formatNic({ [fnic?.NIC_ID]: fnic?.NIC_NAME }, parent)
     }
 
     return ''
   })
-}
 
 const formatSchedActions = (schedAction) => {
   const { ACTION, TIME, DAYS, END_TYPE, END_VALUE, REPEAT, ID } = schedAction
@@ -79,15 +79,69 @@ const parseSection = (section) => {
   return { header, content }
 }
 
+const extractSections = (content) => {
+  const sections = []
+  const regex = /(NIC|NIC_ALIAS|SCHED_ACTION)\s*=\s*\[[^\]]+\]/g
+  let match
+  while ((match = regex.exec(content))) {
+    sections.push(match[0])
+  }
+
+  return sections
+}
+
+const extractPropertiesToArray = (content) => {
+  const properties = []
+  const regex = /(\w+\s*=\s*"[^"]*")/g
+  let match
+  while ((match = regex.exec(content))) {
+    properties.push(match[1])
+  }
+
+  return properties
+}
+
 const formatInstantiate = (contents) => {
   const { vmTemplateContents, customAttrsValues } = contents
 
-  const formatUserInputs = Object.entries(customAttrsValues)
-    ?.map(([input, value]) => `${input.toLowerCase()} = "${value}"`)
-    ?.join('\n')
-    ?.concat('\n')
+  const sections = extractSections(vmTemplateContents)
+    .map(parseSection)
+    .filter(Boolean)
 
-  return vmTemplateContents + formatUserInputs
+  const nonNicContent = vmTemplateContents.replace(
+    /(NIC|NIC_ALIAS|SCHED_ACTION)\s*=\s*\[[^\]]+\]/g,
+    ''
+  )
+
+  const templateProperties = extractPropertiesToArray(nonNicContent)
+
+  const customProperties = Object.entries(customAttrsValues).map(
+    ([key, value]) => `${key.toUpperCase()} = "${value}"`
+  )
+
+  const combinedProperties = _.uniqWith(
+    [...templateProperties, ...customProperties],
+    _.isEqual
+  )
+
+  const filteredProperties = combinedProperties.filter(
+    (property) => !property.includes('= ""')
+  )
+
+  const combinedContent = [
+    ...sections.map(({ header, content }) => {
+      const props = Object.entries(content)
+        .map(([key, value]) => `  ${key.toUpperCase()} = "${value}"`)
+        .join(',\n')
+
+      return `${header} = [\n${props} ]`
+    }),
+    ...filteredProperties,
+  ]
+
+  const formattedTemplate = combinedContent.join('\n') + '\n'
+
+  return formattedTemplate
 }
 
 /**
@@ -115,8 +169,11 @@ const formatVmTemplateContents = (
     const sections = contents.match(
       /(NIC_ALIAS|NIC|SCHED_ACTION)\s*=\s*\[[^\]]+\]/g
     )
+    const remainingContent = contents
+      .replace(/(NIC_ALIAS|NIC|SCHED_ACTION)\s*=\s*\[[^\]]+\]/g, '')
+      .trim()
 
-    if (!sections) return { networks: nics, schedActions }
+    if (!sections) return { networks: nics, schedActions, remainingContent }
 
     sections.forEach((section) => {
       const parsedSection = parseSection(section)
@@ -130,37 +187,52 @@ const formatVmTemplateContents = (
       }
     })
 
-    return { networks: nics, schedActions }
+    return { networks: nics, schedActions, remainingContent }
   } else {
-    const { networks, rdpConfig, schedActions } = contents
-    if (!networks) {
-      return ''
-    }
+    const { networks, rdpConfig, schedActions, remainingContent } = contents
+    const preformattedNetworks = networks.every(
+      (network) =>
+        network?.NAME &&
+        network?.NETWORK_ID &&
+        network?.NAME?.replace(/_/g, '')?.startsWith('NIC') &&
+        network?.NETWORK_ID?.includes('$')
+    )
 
     const formattedActions = schedActions?.map((action, index) =>
       formatSchedActions({ ...action, ID: index })
     )
+
     const formattedNics = networks
-      ?.filter((net) => net?.rowSelected)
+      ?.filter((net) => net?.rowSelected || preformattedNetworks)
       ?.map((nic, index) => ({
         formatNic: formatNic(
           {
-            [`_NIC${index}`]: nic?.name,
+            [`_${
+              preformattedNetworks
+                ? nic?.NAME?.replace(/_/g, '')
+                : `NIC${index}`
+            }`]: preformattedNetworks
+              ? nic?.NETWORK_ID?.replace(/\$/g, '')
+              : nic?.name,
           },
           false,
-          nic?.name === rdpConfig
+          preformattedNetworks ? nic?.RDP === 'YES' : nic?.name === rdpConfig
         ),
         NIC_ID: `_NIC${index}`,
-        NIC_NAME: nic?.name,
+        NIC_NAME: preformattedNetworks
+          ? nic?.NETWORK_ID?.replace(/\$/g, '')
+          : nic?.name,
         ...(nic?.aliasIdx !== -1 && { alias: networks?.[nic?.aliasIdx] }),
+        ...(preformattedNetworks && nic?.PARENT ? { PARENT: nic?.PARENT } : {}),
       }))
 
     formatAlias(formattedNics)
 
-    const vmTemplateContents = formattedNics
-      ?.map((nic) => nic.formatNic)
-      .join('')
-      .concat(formattedActions?.join('') ?? '')
+    let vmTemplateContents =
+      formattedNics?.map((nic) => nic.formatNic).join('') ?? ''
+
+    vmTemplateContents += formattedActions?.join('') ?? ''
+    vmTemplateContents += remainingContent ? `\n${remainingContent}` : ''
 
     return vmTemplateContents
   }

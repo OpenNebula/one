@@ -129,6 +129,9 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
           }, []),
         false
       ),
+      vm_template_contents: reversedVmTc?.map(
+        (content) => content?.remainingContent
+      ),
       MINMAXVMS: ServiceTemplate?.TEMPLATE?.BODY?.roles
         ?.filter((role) => role != null)
         ?.map((role) => ({
@@ -162,7 +165,7 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
         [ROLE_DEFINITION_ID]: roleDefinitionData,
         [ROLE_CONFIG_ID]: { ...roleConfigData },
       },
-      { stripUnknown: true }
+      { stripUnknown: false }
     )
 
     return knownTemplate
@@ -178,8 +181,11 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
 
     const getVmTemplateContents = (index) => {
       const contents = parseVmTemplateContents({
-        networks: roleConfigData?.NETWORKS?.[index],
+        networks:
+          roleConfigData?.NETWORKS?.[index] ||
+          roleConfigData?.NETWORKDEFS?.[index],
         rdpConfig: roleConfigData?.RDP?.[index],
+        remainingContent: roleConfigData?.vm_template_contents?.[index],
         schedActions: extraData?.SCHED_ACTION,
       })
 
@@ -274,7 +280,16 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
         custom_attrs: getCustomAttributes(),
       }
 
-      const cleanedTemplate = convertKeysToCase(formatTemplate)
+      const cleanedTemplate = {
+        ...convertKeysToCase(formatTemplate, true, 1),
+        ...(formatTemplate?.roles || formatTemplate?.ROLES
+          ? {
+              roles: convertKeysToCase(
+                formatTemplate?.roles || formatTemplate?.ROLES
+              ),
+            }
+          : {}),
+      }
 
       return cleanedTemplate
     } catch (error) {}

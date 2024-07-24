@@ -66,11 +66,17 @@ function CreateServiceTemplate() {
   const onSubmit = async (jsonTemplate) => {
     try {
       if (!templateId) {
-        const newTemplateId = await allocate({
+        const {
+          DOCUMENT: { ID: newTemplateId, NAME: templateName },
+        } = await allocate({
           template: jsonTemplate,
         }).unwrap()
+
         history.push(PATH.TEMPLATE.SERVICES.LIST)
-        enqueueSuccess(T.SuccessServiceTemplateCreated, [newTemplateId, NAME])
+        enqueueSuccess(T.SuccessServiceTemplateCreated, [
+          newTemplateId,
+          templateName,
+        ])
       } else {
         await update({
           id: templateId,

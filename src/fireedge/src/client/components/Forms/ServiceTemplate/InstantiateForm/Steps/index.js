@@ -67,7 +67,12 @@ const Steps = createSteps([General, UserInputs, Network, Charter], {
     } = formData
 
     const formatTemplate = {
-      custom_attrs_values: { ...userInputsData },
+      custom_attrs_values: Object.fromEntries(
+        Object.entries(userInputsData).map(([key, value]) => [
+          key.toUpperCase(),
+          String(value),
+        ])
+      ),
       networks_values: networkData?.NETWORKS?.map((network) => ({
         [network?.name]: {
           [['existing', 'reserve'].includes(network?.tableType)

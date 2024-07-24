@@ -180,9 +180,6 @@ const RoleNetwork = ({ stepId, selectedRoleIndex }) => {
       if (index === fieldArrayIndex) {
         return { ...f, rowSelected: rowToggle, aliasSelected: false }
       }
-      if (f.aliasIdx === fieldArrayIndex) {
-        return { ...f, aliasIdx: -1 }
-      }
 
       return f
     })
