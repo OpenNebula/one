@@ -17,23 +17,117 @@
 import PropTypes from 'prop-types'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import {
   SCHEMA,
   FIELDS,
 } from 'client/components/Forms/Vm/BackupForm/Steps/BasicConfiguration/schema'
 import { Step } from 'client/utils'
-import { T } from 'client/constants'
+import { BackupsTable, IncrementsTable } from 'client/components/Tables'
+import { Box, Typography, Divider } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useHistory, generatePath } from 'react-router-dom'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
+import { useLazyGetImageQuery } from 'client/features/OneApi/image'
+import { PATH } from 'client/apps/sunstone/routesOne'
 
 export const STEP_ID = 'configuration'
 
-const Content = (props) => (
-  <FormWithSchema
-    cy="restore-configuration"
-    id={STEP_ID}
-    fields={() => FIELDS(props)}
-  />
-)
+const Content = (props) => {
+  const [increments, setIncrements] = useState([])
+  const { vmId: id } = props
+  const {
+    data: vm = {},
+    refetch,
+    isFetching: fetchingVms,
+  } = useGetVmQuery({ id })
+
+  const vmBackupsConfig = vm?.BACKUPS?.BACKUP_CONFIG
+
+  const incrementalBackupImageId = vm?.BACKUPS?.BACKUP_IDS?.ID
+  const incrementalBackups =
+    'LAST_INCREMENT_ID' in vmBackupsConfig &&
+    vmBackupsConfig?.MODE === 'INCREMENT' &&
+    incrementalBackupImageId
+
+  const [fetchBackupImage, { isFetching: fetchingImages }] =
+    useLazyGetImageQuery(
+      { incrementalBackupImageId },
+      {
+        skip: true,
+      }
+    )
+
+  const fetchIncrements = async () => {
+    if (incrementalBackups) {
+      const result = await fetchBackupImage({
+        id: incrementalBackupImageId,
+      }).unwrap()
+      const image = result || {}
+      const fetchedIncrements = image?.BACKUP_INCREMENTS?.INCREMENT
+        ? Array.isArray(image.BACKUP_INCREMENTS.INCREMENT)
+          ? image.BACKUP_INCREMENTS.INCREMENT
+          : [image.BACKUP_INCREMENTS.INCREMENT]
+        : []
+
+      setIncrements(fetchedIncrements)
+    }
+  }
+
+  useEffect(() => {
+    fetchIncrements()
+  }, [incrementalBackups, fetchBackupImage])
+
+  const path = PATH.STORAGE.BACKUPS.DETAIL
+  const history = useHistory()
+
+  const handleRowClick = (rowId) => {
+    history.push(generatePath(path, { id: String(rowId) }))
+  }
+
+  return (
+    <Box>
+      <FormWithSchema
+        cy="restore-configuration"
+        id={STEP_ID}
+        fields={() => FIELDS(props)}
+      />
+      <Divider sx={{ my: 2 }} />
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          {Tr(`${T.Previous} ${T.Backups}`)}
+        </Typography>
+        <Box
+          sx={{
+            padding: '16px',
+          }}
+        >
+          {incrementalBackups ? (
+            <IncrementsTable
+              disableGlobalSort
+              disableRowSelect
+              increments={increments}
+              isLoading={fetchingImages}
+              refetch={fetchIncrements}
+              onRowClick={(row) => handleRowClick(incrementalBackupImageId)}
+            />
+          ) : (
+            <BackupsTable
+              disableRowSelect
+              disableGlobalSort
+              refetchVm={refetch}
+              isFetchingVm={fetchingVms}
+              vm={vm}
+              onRowClick={(row) => handleRowClick(row.ID)}
+            />
+          )}
+        </Box>
+      </Box>
+    </Box>
+  )
+}
 
 /**
  * Step to configure the marketplace app.
@@ -50,6 +144,7 @@ const ConfigurationStep = (isMultiple) => ({
 })
 
 Content.propTypes = {
+  vmId: PropTypes.string,
   data: PropTypes.any,
   setFormData: PropTypes.func,
   nics: PropTypes.array,

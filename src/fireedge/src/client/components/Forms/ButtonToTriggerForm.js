@@ -96,7 +96,7 @@ const ButtonToTriggerForm = ({
           open={open}
           onClose={handleClose}
           TransitionComponent={Grow}
-          sx={{ zIndex: 2 }}
+          sx={(theme) => ({ zIndex: theme.zIndex.tooltip })}
         >
           {options.map(({ cy, disabled, icon: Icon, name, ...option }) => (
             <MenuItem

@@ -517,7 +517,16 @@ const Actions = () => {
                   subheader: SubHeader,
                   dataCy: `modal-${VM_ACTIONS.BACKUP}`,
                 },
-                form: BackupForm,
+                form: (row) => {
+                  const vm = row?.[0]?.original
+                  const vmId = vm?.ID
+
+                  return BackupForm({
+                    stepProps: {
+                      vmId,
+                    },
+                  })
+                },
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
