@@ -4,7 +4,6 @@
     - ddc
     - opennebula-repository
     - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm' }
-    - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
     - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
     - opennebula-ssh
     - role: frr
