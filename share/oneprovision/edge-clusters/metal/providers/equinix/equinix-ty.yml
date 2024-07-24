@@ -14,9 +14,9 @@ connection:
 inputs:
    - name: 'equinix_os'
      type: 'list'
-     default: 'ubuntu_20_04'
+     default: 'ubuntu_22_04'
      options:
-       - 'ubuntu_20_04'
+       - 'ubuntu_22_04'
    - name: 'equinix_plan'
      type: 'list'
      default: 'c2.medium'

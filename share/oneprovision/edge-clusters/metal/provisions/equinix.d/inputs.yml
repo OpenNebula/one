@@ -39,7 +39,7 @@ inputs:
   - name: 'equinix_os'
     type: text
     description: 'Equinix host operating system'
-    default: 'ubuntu_20_04'
+    default: 'ubuntu_22_04'
 
   - name: 'one_hypervisor'
     type: list
