@@ -42,7 +42,7 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
 
   const handleTextFieldChange = (event) => {
     const { name, value } = event.target
-    handleInputChange(name, value)
+    handleInputChange(name, parseInt(value, 10))
   }
 
   const handleAutocompleteChange = (event, value) => {

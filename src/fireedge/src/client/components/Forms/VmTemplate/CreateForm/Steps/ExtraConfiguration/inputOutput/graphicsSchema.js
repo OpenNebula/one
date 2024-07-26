@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema, boolean, lazy, string } from 'yup'
+import { ObjectSchema, boolean, lazy, string, mixed } from 'yup'
 
 import { HYPERVISORS, INPUT_TYPES, T } from 'client/constants'
 import {
@@ -71,10 +71,21 @@ export const TYPE = (isUpdate) => ({
   type: INPUT_TYPES.SWITCH,
   label: T.Vnc,
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
-  validation: boolean()
-    .notRequired()
+  validation: mixed()
+    .default(() => (isUpdate ? undefined : true))
     .afterSubmit((value, { context }) => (value ? 'VNC' : undefined))
-    .default(() => (isUpdate ? undefined : true)),
+    .test('is-valid-type', 'Invalid value', function (value) {
+      if (
+        typeof value === 'boolean' ||
+        value === 'VNC' ||
+        value === undefined
+      ) {
+        return true
+      }
+
+      return false
+    }),
+
   grid: { md: 12 },
 })
 
