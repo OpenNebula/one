@@ -44,7 +44,7 @@ const Content = (props) => {
     isFetching: fetchingVms,
   } = useGetVmQuery({ id })
 
-  const vmBackupsConfig = vm?.BACKUPS?.BACKUP_CONFIG
+  const vmBackupsConfig = vm?.BACKUPS?.BACKUP_CONFIG || {}
 
   const incrementalBackupImageId = vm?.BACKUPS?.BACKUP_IDS?.ID
   const incrementalBackups =
