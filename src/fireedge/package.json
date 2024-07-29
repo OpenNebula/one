@@ -33,7 +33,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.1",
     "cross-env": "7.0.2",
     "eslint": "7.32.0",
-    "eslint-config-opennebula": "2.0.2",
+    "eslint-config-opennebula": "2.0.3",
     "eslint-import-resolver-alias": "1.1.2",
     "eslint-import-resolver-webpack": "0.13.0",
     "opennebula-generatepotfile": "1.0.0",
