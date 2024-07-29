@@ -6915,7 +6915,7 @@ msgstr "Percentuale CPU diviso 100 richiesta per la VM. Ad esempio, mezzo proces
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:217
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:23
 msgid "Virtual CPU"
-msgstr ""
+msgstr "CPU Virtuale"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:218
@@ -7220,7 +7220,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
 #, fuzzy
 msgid "Virtual CPU selected"
-msgstr "Router virtuale creato"
+msgstr "CPU Virtuale"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9557,3 +9557,9 @@ msgstr "Memoria riservata in KB"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
+
+#~ msgid "Priority"
+#~ msgstr "Priorità"
+
+#~ msgid "Virtio"
+#~ msgstr "Virtio"

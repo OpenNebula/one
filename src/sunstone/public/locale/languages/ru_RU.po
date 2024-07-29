@@ -1003,7 +1003,7 @@ msgstr "удалить"
 
 #: ../app/tabs/vnets-tab/buttons.js:118
 msgid "Recovers a stuck Virtual Network after an update operation that didn't finish successfully,                  since updating a Virtual Network implies updating the corresponding Virtual Machine NICs.                   The recovery may be done by failing, succeeding or retrying the current operation; or deleting                   the Virtual Network. <b>You need to manually check the affected VMs and the network resources on                   the infrastructure </b>to decide if the operation was successful or not, or if it can be retried."
-msgstr ""
+msgstr "Восстанавливает застрявшую виртуальную сеть после неудачного завершения операции обновления, поскольку обновление виртуальной сети подразумевает обновление соответствующих сетевых адаптеров виртуальной машины. Восстановление может быть завершено после сбоя, последующего или повторного выполнения текущей операции; или удаление виртуальной сети.  <b>Вам нужно вручную проверить затронутые виртуальные машины и сетевые ресурсы в инфраструктуре </b>, чтобы определить, была ли операция успешной или нет, или можно повторить попытку."
 
 #: ../app/tabs/vnets-tab/dialogs/add-secgroups.js:90
 #: ../app/tabs/vnets-tab/dialogs/add-ar.js:83
@@ -3033,7 +3033,7 @@ msgstr "удалить базу данных"
 
 #: ../app/tabs/vms-tab/buttons.js:192
 msgid "Recovers a stuck VM that is waiting for a driver operation.                     The recovery may be done by failing, succeeding or retrying the current operation.                     <b>You need to manually check the VM status on the host</b>, to decide if the operation                     was successful or not, or if it can be retried.                    <br/>                    <br/>Delete: This will delete the selected VMs                    <br/>Delete-recreate: This will delete and recreate VMs to PENDING state                    <br/>Delete-db: This will delete the selected VMs, but will not perform any action on the hypervisor"
-msgstr ""
+msgstr "Восстанавливает зависшую ВМ которая ждет ответа драйвера. Восстановление проводится через операции отмены, успешного завершения или попытки повтора текущей команды драйверу. <b> Вы должны вручную проверить статус ВМ на узле </b>, что бы определить успешна операция или нет. <br/> <br/> Удалить: Это удалит выбранную ВМ  <br/>Удалить-создать: Это удалит и пересоздаст ВМ в to PENDING состоянии  <br/> Удалить-бд: Это удалит выбранную ВМ но никакие операции на гипервизоре выполнены не будут."
 
 #: ../app/tabs/vms-tab/buttons.js:205 ../app/tabs/vms-tab/buttons.js:229
 msgid "VNC"
@@ -5508,7 +5508,7 @@ msgstr "iSCSI - Libvirt инициатор "
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:36
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:58
 msgid "Backup - Restic (EE Only)"
-msgstr ""
+msgstr "Резервное копирование - Restic (EE)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:37
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:59
@@ -5697,15 +5697,15 @@ msgstr "Кластер vCenter, который имеет доступ к это
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:254
 msgid "Restic Password"
-msgstr ""
+msgstr "Пароль Restic"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:261
 msgid "Restic SFTP Server"
-msgstr ""
+msgstr "Сервер SFTP Restic"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:268
 msgid "Restic SFTP User"
-msgstr ""
+msgstr "Restic SFTP пользователь"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:275
 msgid "Backup I/O Priority"
@@ -5713,15 +5713,15 @@ msgstr "I/O приоритет бэкапа"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:277
 msgid "Run restic operations under a given ionice priority using the best-effort I/O scheduler"
-msgstr ""
+msgstr "Запускает restic операцию с заданным ionic приоритетом используя оптимальный планировщик IO"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:285
 msgid "Backup CPU Priority"
-msgstr ""
+msgstr "Приоритет ЦПУ для резервного копирования"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:287
 msgid "Run restic operations with a given scheduler priority (nice)"
-msgstr ""
+msgstr "Запустить операцию restic с заданными правами планировщика (nice)"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:295
 msgid "Bandwidth Limit"
@@ -5729,7 +5729,7 @@ msgstr "Ограничение полосы"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:297
 msgid "limit download and upload to a  maximum rate in KiB/s"
-msgstr ""
+msgstr "Ограничивает лимит скачивания и отдачи в Кбит/с"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:305
 msgid "Compression level"
@@ -5741,11 +5741,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:312
 msgid "Off"
-msgstr ""
+msgstr "Выкл"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:313
 msgid "Auto"
-msgstr ""
+msgstr "Авто"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:314
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:111
@@ -5758,7 +5758,7 @@ msgstr "Макс."
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:320
 msgid "Number of concurrent connections"
-msgstr ""
+msgstr "Число одновременных соединений"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:322
 msgid "Set the number of concurrent connections to the backup backend (default is 5)"
@@ -6640,7 +6640,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:286
 msgid "Emulated"
-msgstr ""
+msgstr "Эмулируемый"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:287
 msgid "PCI passthrough - Automatic"
@@ -6998,7 +6998,7 @@ msgstr "Мин."
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:140
 msgid "Memory Resize Mode"
-msgstr ""
+msgstr "Режим изменения размера памяти"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:145
 msgid "Ballooning"
@@ -7010,7 +7010,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
 msgid "Memory Slots"
-msgstr ""
+msgstr "Слоты памяти"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7303,7 +7303,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:33
 msgid "FS Freeze"
-msgstr ""
+msgstr "Заморозка ФС"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:34
 msgid "How the FS is freeze for running VMs. When possible backups are crash consistent"
@@ -7323,7 +7323,7 @@ msgstr "Режим"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:55
 msgid "Full"
-msgstr ""
+msgstr "Заполнен"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:56
 msgid "Increment"
@@ -8497,7 +8497,7 @@ msgstr "Разместить виртуальную машину"
 
 #: ../app/tabs/vms-tab/dialogs/update-nic/html.hbs:20
 msgid "Update nic"
-msgstr ""
+msgstr "Обновить nic"
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -8505,7 +8505,7 @@ msgstr "Присоединить диск"
 
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:19
 msgid "Backup VM"
-msgstr ""
+msgstr "Резервная копия ВМ"
 
 #: ../app/tabs/vms-tab/dialogs/disk-saveas/html.hbs:20
 msgid "Disk Saveas"
@@ -9358,7 +9358,7 @@ msgstr "Владелец"
 
 #: ../app/utils/panel/permissions-table/backup.hbs:23
 msgid "Backup IDs"
-msgstr ""
+msgstr "IDs резервных копий"
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
@@ -9498,7 +9498,7 @@ msgstr "№ щелчка"
 #: ../app/utils/schedule_action/perform-action.hbs:33
 #: ../app/utils/schedule_action/html.hbs:37
 msgid "Backup Datastore Id"
-msgstr ""
+msgstr "ID резервного хранилища"
 
 #: ../app/utils/schedule_action/perform-action.hbs:34
 #: ../app/utils/schedule_action/html.hbs:38
@@ -9568,3 +9568,87 @@ msgstr "Зарезервировано памяти, в Кб"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "В следующий цикл наблюдения, значения будут перезаписывать существующие значения мониторинга"
+
+#~ msgid "BackupsJobs"
+#~ msgstr "Задачи резервного копирования"
+
+#~ msgid "Create BackupJob"
+#~ msgstr "Создать задачу резервного копирования"
+
+#~ msgid "Priority"
+#~ msgstr "Приоритет"
+
+#~ msgid "Last Backup"
+#~ msgstr "Последняя резервная копия"
+
+#~ msgid "Please select a Backup job from the list"
+#~ msgstr "Пожалуйста выберите задачу резервного копирования из списка"
+
+#~ msgid "You selected the following backupsjobs:"
+#~ msgstr "Вы выбрали следующие задачи резервного копирования из списка:"
+
+#~ msgid "Please select one or more backupjobs from the list"
+#~ msgstr "Пожалуйста выберите одну или несколько задач резервного копирования из списка:"
+
+#~ msgid "BackupJob Error"
+#~ msgstr "Ошибка задачи резервного копирования"
+
+#~ msgid "BackupJob created"
+#~ msgstr "Задача резервного копирования создана."
+
+#~ msgid "Max Read IOPS"
+#~ msgstr "Максимум IOPS чтения"
+
+#~ msgid "Max Write IOPS"
+#~ msgstr "Максимум IOPS записи"
+
+#~ msgid "CPU Quota"
+#~ msgstr "Квота ЦПУ"
+
+#~ msgid "virtio-blk Queues"
+#~ msgstr "Очереди virtio-blk"
+
+#~ msgid "Agent"
+#~ msgstr "Агент"
+
+#~ msgid "Keep Last"
+#~ msgstr "Сохранить последний"
+
+#~ msgid "Select Vms"
+#~ msgstr "Выбрать ВМs"
+
+#~ msgid "VM List (ordered)"
+#~ msgstr "Список ВМ (отсортированный)"
+
+#~ msgid "Select the Datastore"
+#~ msgstr "Выбрать хранилище"
+
+#~ msgid "Schedule Actions"
+#~ msgstr "Запланировать действие"
+
+#~ msgid "VMs in BackupJob"
+#~ msgstr "ВМ в задании резервного копирования"
+
+#~ msgid "Edit VMs"
+#~ msgstr "Редактируемые ВМ"
+
+#~ msgid "VMs Error"
+#~ msgstr "ВМ с ошибками"
+
+#~ msgid "VMs Backing Up"
+#~ msgstr "ВМ с бэкапами"
+
+#~ msgid "VMs Outdated"
+#~ msgstr "Просроченные ВМ"
+
+#~ msgid "VMs Updated"
+#~ msgstr "Обновленные ВМы"
+
+#~ msgid "Last Backup Duration"
+#~ msgstr "Длительность последнего резервного копирования"
+
+#~ msgid "Select VMs"
+#~ msgstr "Выберите ВМ"
+
+#~ msgid "Increment ID"
+#~ msgstr "Увеличить ID"

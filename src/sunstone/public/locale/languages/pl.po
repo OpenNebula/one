@@ -6,6 +6,7 @@
 # Bartosz Zieba <bartosz@zieba.pro>, 2019,2021
 # Dariusz Duszynski <dariusz.duszynski@gmail.com>, 2015-2016
 # Grzegorz Kocur <gkocur@cloudox.pl>, 2013
+# Jakub Walczak, 2024
 # Jakub Walczak <kubawalczak@gmail.com>, 2020
 # Kamil Szczygieł <k.szczygiel@intratel.pl>, 2013-2014
 # Maczuha Ugabuga <jakpap10@wp.pl>, 2017
@@ -16,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Bartosz Zieba <bartosz@zieba.pro>, 2019,2021\n"
+"Last-Translator: Jakub Walczak, 2024\n"
 "Language-Team: Polish (http://app.transifex.com/opennebula/one/language/pl/)\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
@@ -61,7 +62,7 @@ msgstr "RAZEM"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:54
 msgid "Create Virtual Machine Group"
-msgstr ""
+msgstr "Stwrz grupę maszyn wirtualnych"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:55
 #: ../app/tabs/vnets-tab/form-panels/create.js:65
@@ -104,7 +105,7 @@ msgstr "Stwórz"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:59
 msgid "Update Virtual Machine Group"
-msgstr ""
+msgstr "Zaktualizuj grupę maszyn wirtualnych"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create.js:60
 #: ../app/tabs/vmgroup-tab/buttons.js:35
@@ -151,7 +152,7 @@ msgstr "Rola"
 
 #: ../app/tabs/vmgroup-tab/actions.js:33
 msgid "VM groups"
-msgstr ""
+msgstr "Grupy maszyn wirtualnych"
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:66
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab.js:83
@@ -616,19 +617,19 @@ msgstr "Etykiety"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:79
 msgid "Please select a vm group from the list"
-msgstr ""
+msgstr "Wybierz grupę maszyn wirtualnych z listy"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:80
 msgid "You selected the following vm group:"
-msgstr ""
+msgstr "Wybrałeś następującą grupę maszyn wirtualnych:"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:81
 msgid "Please select one or more vm groups from the list"
-msgstr ""
+msgstr "Wybierz co najmniej jedną grupę maszyn wirtualnych z listy"
 
 #: ../app/tabs/vmgroup-tab/datatable.js:82
 msgid "You selected the following vm groups:"
-msgstr ""
+msgstr "Wybrałeś następujące grupy maszyn wirtualnych:"
 
 #: ../app/tabs/marketplaces-tab.js:48 ../app/tabs/marketplaces-tab.js:52
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:125
@@ -696,7 +697,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/instantiate.js:43
 msgid "Instantiate Virtual Network"
-msgstr ""
+msgstr "Stwórz instancję sieci wirtualnej"
 
 #: ../app/tabs/vnets-tab/actions.js:41
 msgid "Virtual Network created"
@@ -711,7 +712,7 @@ msgstr "Bezpieczeństwo"
 
 #: ../app/tabs/vnets-tab/panels/secgroups.js:144
 msgid "This will remove the security group"
-msgstr ""
+msgstr "Ta operacja usunie grupę bezpieczeństwa"
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
@@ -737,15 +738,15 @@ msgstr "WSTRZYMANY"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:41
 msgid "UPDATED"
-msgstr ""
+msgstr "ZKATUALIZOWANY"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 msgid "OUTDATED"
-msgstr ""
+msgstr "NIEAKTUALNY"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:43
 msgid "UPDATING"
-msgstr ""
+msgstr "W TRAKCIE AKTUALIZACJI"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:44
 #: ../app/tabs/provision-tab/vms/list.js:978
@@ -768,7 +769,7 @@ msgstr "NIEZNANY"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:46
 msgid "RESERVED"
-msgstr ""
+msgstr "ZAREZERWOWANY"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:55
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -1220,7 +1221,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:84
 msgid "Amazon Region"
-msgstr ""
+msgstr "Region Amazon"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:85
 msgid "Only if using public Amazon S3 service."
@@ -1228,7 +1229,7 @@ msgstr "Tylko gdy używana jest publiczna usługa Amazon S3"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:90
 msgid "Total Marketplace size in MB"
-msgstr ""
+msgstr "Całkowity rozmiar marketu w MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:95
 msgid "Signature Version"
@@ -1236,7 +1237,7 @@ msgstr "Wersja sygnatury"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:96
 msgid "Leave blank for Amazon AWS S3 service. If connecting to Ceph S3 it **must** be 's3'."
-msgstr ""
+msgstr "Pozostaw pole puste dla usługi AWS S3. Dla Ceph C3 pole **musi** zawierać 's3'."
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:107
 msgid "Force Path Style"
@@ -1248,7 +1249,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:113
 msgid "Read block length in MB"
-msgstr ""
+msgstr "Odczytaj długość bloku danych w MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:114
 msgid "Split marketapps into chunks of this size (in MB). You should **never** user a quantity larger than 100. Defaults to 32 (MB)."
@@ -1260,7 +1261,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:130
 msgid "Filesystem used for the image"
-msgstr ""
+msgstr "System plików użyty dla obrazu"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:135
 msgid "Image block file format"
@@ -1303,7 +1304,7 @@ msgstr "VCPU"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:160
 msgid "Container security mode"
-msgstr ""
+msgstr "Tryb zabezpieczenia kontenera"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:166
 msgid "DockerHub marketplace url"
@@ -1311,32 +1312,32 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:171
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:174
 msgid "SSL connection"
-msgstr ""
+msgstr "Połączenie SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:188
 msgid "Create MarketPlace"
-msgstr ""
+msgstr "Stwórz market"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:193
 msgid "Update MarketPlace"
-msgstr ""
+msgstr "Zaktualizuj market"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr ""
+msgstr "Utworzono market"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:46
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Enabled"
-msgstr ""
+msgstr "Włączony"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:47
 msgid "Disabled"
-msgstr ""
+msgstr "Wyłączony"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:90
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
@@ -1355,19 +1356,19 @@ msgstr "Strefa"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:100
 msgid "Please select a marketplace from the list"
-msgstr ""
+msgstr "Wybierz market z listy"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:101
 msgid "You selected the following marketplace:"
-msgstr ""
+msgstr "Wybrałaś/eś następujące markety:"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:102
 msgid "Please select one or more marketplaces from the list"
-msgstr ""
+msgstr "Wybierz co najmniej jeden market z listy"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:103
 msgid "You selected the following marketplaces:"
-msgstr ""
+msgstr "Wybrałaś/eś następujące markety"
 
 #: ../app/tabs/vrouters-tab.js:46 ../app/tabs/vrouters-tab.js:50
 #: ../app/tabs/vrouter-templates-tab.js:45
@@ -1397,13 +1398,13 @@ msgstr "Plik"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup.js:55
 #: ../app/utils/panel/permissions-table/backup.hbs:19
 msgid "Backups"
-msgstr ""
+msgstr "Kopie zapasowe"
 
 #: ../app/tabs/backups-tab.js:49 ../app/tabs/vms-tab/buttons.js:284
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:39
 msgid "Backup"
-msgstr ""
+msgstr "Kopia zapasowa"
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -1414,12 +1415,12 @@ msgstr ""
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:111
 #: ../app/utils/nics-section/dd.hbs:217
 msgid "Security Groups"
-msgstr ""
+msgstr "Grupy bezpieczeństwa"
 
 #: ../app/tabs/secgroups-tab.js:50
 #: ../app/tabs/vnets-tab/panels/secgroups/html.hbs:22
 msgid "Security Group"
-msgstr ""
+msgstr "Grupa Bezpieczeństwa"
 
 #: ../app/tabs/oneflow-services-tab.js:50
 #: ../app/tabs/oneflow-services-tab.js:54
@@ -1524,7 +1525,7 @@ msgstr "Uaktualnij szablon Wirtualnego Routera"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:159
 msgid "OS & CPU"
-msgstr ""
+msgstr "System operacyjny i CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general.js:59
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:20
@@ -1558,7 +1559,7 @@ msgstr "Wejście/Wyjście"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs.js:220
 msgid "The value goes out of the allowed limits"
-msgstr ""
+msgstr "Ta wartość przekracza dopuszczalne limity"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:63
 msgid "NUMA"
@@ -1618,7 +1619,7 @@ msgstr "Hybryda"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:180
 msgid "Remote OpenNebula"
-msgstr ""
+msgstr "Zdalna OpenNebula"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:190
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:102
@@ -1675,7 +1676,7 @@ msgstr "Planowanie"
 #: ../app/tabs/provision-tab/vms/html/create.hbs:136
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:135
 msgid "VM Group"
-msgstr ""
+msgstr "Grupa maszyn wyrtualnych"
 
 #: ../app/tabs/templates-tab/panels/template-common.js:43
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
@@ -1806,7 +1807,7 @@ msgstr "Zużyty procesor"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 msgid "Free CPU"
-msgstr ""
+msgstr "Dostępne zasoby CPU"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Used MEMORY"
@@ -1814,7 +1815,7 @@ msgstr ""
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Free MEMORY"
-msgstr ""
+msgstr "Dostępna pamięć"
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
@@ -1847,7 +1848,7 @@ msgstr "Nie można połączyć się z serwerem: upewnij się, że jest uruchomio
 
 #: ../app/tabs/hosts-tab/panels/info.js:236
 msgid "it must not be a negative number"
-msgstr ""
+msgstr "wartość nie może być liczbą ujemną"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:54
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
@@ -1949,7 +1950,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:144
 msgid "Associate VM Group to Service"
-msgstr ""
+msgstr "Skojarz grupę maszyn wirtualnych z usługą"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:37
 #: ../app/tabs/marketplaceapps-tab/actions.js:107
@@ -1966,7 +1967,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:58
 msgid "Delete VM Templates"
-msgstr ""
+msgstr "Usuń szablony maszyn wirtualnych"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:127
 #: ../app/tabs/oneflow-services-tab/actions.js:38
@@ -1975,7 +1976,7 @@ msgstr "Usługa utworzona"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:174
 msgid "Please select one (and just one) Service to export."
-msgstr ""
+msgstr "Proszę wybrać jedną (i tylko jedną) usługę do wyekspotowania."
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:76
 msgid "This will delete the selected templates"
@@ -2053,12 +2054,12 @@ msgstr "Szablon maszyny wirtualnej"
 #: ../app/tabs/oneflow-services-tab/form-panels/create.js:46
 #: ../app/tabs/provision-tab/flows/html/create.hbs:20
 msgid "Create Service"
-msgstr ""
+msgstr "Stwórz usługę"
 
 #: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
 #: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:53
 msgid "Update Service"
-msgstr ""
+msgstr "Zaktualizuj usługę"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:148
 msgid "Purge DONE services"
@@ -2079,7 +2080,7 @@ msgstr "Potwierdź"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:345
 msgid "Are you sure you want to delete the role"
-msgstr ""
+msgstr "Czy jesteś pewna/ny, że chcesz usunąć tę rolę"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:56
 #: ../app/utils/vmgroup-section.js:149
@@ -2096,11 +2097,11 @@ msgstr "Role"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:228
 msgid "The VM is ready"
-msgstr ""
+msgstr "Maszyna wirtualna jest gotowa"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:233
 msgid "Waiting for the VM to be ready"
-msgstr ""
+msgstr "Oczekiwanie aż maszyna wirtualna będzie gotowa"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:272
 #: ../app/tabs/vms-tab/utils/datatable-common.js:39
@@ -2109,7 +2110,7 @@ msgstr "Adresy IP"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:99
 msgid "All Roles"
-msgstr ""
+msgstr "Wszystkie role"
 
 #: ../app/tabs/oneflow-services-tab/panels/log.js:39
 #: ../app/tabs/vms-tab/panels/log.js:42
@@ -2118,15 +2119,15 @@ msgstr "Dziennik"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:193
 msgid "VM: "
-msgstr ""
+msgstr "Maszyna wirtualna:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:195
 msgid "has error: "
-msgstr ""
+msgstr "ma następujące błędy:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:202
 msgid "Dismiss"
-msgstr ""
+msgstr "Odrzuć"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
@@ -2179,7 +2180,7 @@ msgstr "Zakończ"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "Usuń rolę"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:64
 #: ../app/tabs/vms-tab/buttons.js:157 ../app/tabs/vms-tab/buttons.js:165
@@ -2196,7 +2197,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
 msgid "This will delete all services in DONE state to free some space in your database"
-msgstr ""
+msgstr "Ta operacja usunie wszystkie usługi ze statusem WYKONANO, aby zwolnić miejsce w twojej bazie danych"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/images-tab/form-panels/create-common.js:90
@@ -2328,7 +2329,7 @@ msgstr "Utwórz wirtualny router"
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:57
 #: ../app/tabs/vrouters-tab/buttons.js:34
 msgid "Instantiate VMs"
-msgstr ""
+msgstr "Stwórz instancje maszyn wirtualnych"
 
 #: ../app/tabs/vrouters-tab/actions.js:32
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate.js:147
@@ -2378,7 +2379,7 @@ msgstr ""
 
 #: ../app/tabs/groups-tab/utils/views.js:39
 msgid "Full control of the cloud, including virtual and physical resources."
-msgstr ""
+msgstr "Pełna kontrola chmury, włączając wirtualne i fizyczne zasoby."
 
 #: ../app/tabs/groups-tab/utils/views.js:45
 msgid "Users are not able to manage hosts and clusters, although they will be able to create new Images or Virtual Machines."
@@ -2437,11 +2438,11 @@ msgstr "Kokpit"
 
 #: ../app/tabs/backups-tab/actions.js:32
 msgid "Backup created"
-msgstr ""
+msgstr "Kopia zapasowa została utworzona"
 
 #: ../app/tabs/backups-tab/actions.js:57
 msgid "Restored Template"
-msgstr ""
+msgstr "Przywrócone szablony"
 
 #: ../app/tabs/backups-tab/actions.js:61
 msgid "Restored Disk"
@@ -2454,23 +2455,23 @@ msgstr ""
 #: ../app/tabs/backups-tab/buttons.js:30
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:46
 msgid "Restore"
-msgstr ""
+msgstr "Przywróć"
 
 #: ../app/tabs/backups-tab/datatable.js:43
 msgid "Please select a backup from the list"
-msgstr ""
+msgstr "Wybierz kopię zapasową z listy"
 
 #: ../app/tabs/backups-tab/datatable.js:44
 msgid "You selected the following backup:"
-msgstr ""
+msgstr "Wybrałaś/eś następującą kopię zapasową:"
 
 #: ../app/tabs/backups-tab/datatable.js:45
 msgid "Please select one or more backups from the list"
-msgstr ""
+msgstr "Wybierz co najmniej jedną kopię zapasową z listy"
 
 #: ../app/tabs/backups-tab/datatable.js:46
 msgid "You selected the following backups:"
-msgstr ""
+msgstr "Wybrałaś/eś następujące kopie zapasowe z listy:"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:59
 msgid "Create MarketPlace App"
@@ -2513,15 +2514,15 @@ msgstr "Pobierz"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:60
 msgid "Last updated"
-msgstr ""
+msgstr "Ostatnio zaktualizowano"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:66
 msgid "Please select a dockerhub tag from the list (default latest)"
-msgstr ""
+msgstr "Wybierz tag dockerhub z listy (domyślny: latest)"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:67
 msgid "You selected the following dockerhub tags:"
-msgstr ""
+msgstr "Wybrałaś/eś następujące tagi dockerhub"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
 msgid "MarketPlace App created"
@@ -2765,11 +2766,11 @@ msgstr "nie"
 
 #: ../app/tabs/vms-tab/panels/info.js:126
 msgid "Driver Error"
-msgstr ""
+msgstr "Błąd sterownika"
 
 #: ../app/tabs/vms-tab/panels/info.js:140
 msgid "Scheduler Error"
-msgstr ""
+msgstr "Błąd oprogramowania planującego"
 
 #: ../app/tabs/vms-tab/panels/info.js:159
 msgid "Scheduled Action Error"
@@ -2899,7 +2900,7 @@ msgstr "Przepustowość sieci"
 
 #: ../app/tabs/vms-tab/panels/network.js:727
 msgid "Network reception speed"
-msgstr ""
+msgstr "Szybkość pobierania"
 
 #: ../app/tabs/vms-tab/panels/network.js:736
 msgid "Network transmission speed"
@@ -3434,15 +3435,15 @@ msgstr "System"
 
 #: ../app/tabs/vnets-templates-tab.js:52
 msgid "Network Templates"
-msgstr ""
+msgstr "Szablony sieci"
 
 #: ../app/tabs/vnets-templates-tab.js:56
 msgid "Virtual Network Templates"
-msgstr ""
+msgstr "Szablony sieci wirtualnych"
 
 #: ../app/tabs/vnets-templates-tab.js:57
 msgid "Virtual Network Template"
-msgstr ""
+msgstr "Szablon sieci wirtualnej"
 
 #: ../app/tabs/settings-tab.js:52 ../app/tabs/settings-tab.js:53
 #: ../app/sunstone/user_and_zone.hbs:38
@@ -3451,19 +3452,19 @@ msgstr "Ustawienia"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Stwórz szablon sieci wirtualnej"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Zaktualizuj szablon sieci wirtualnej"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:60
 msgid "Instantiate Network Template"
-msgstr ""
+msgstr "Stwórz instancję sieci z szablonu"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:38
 msgid "Virtual Network Template created"
-msgstr ""
+msgstr "Utworzono szablon sieci wirtualnej"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:121
 msgid "VNet created"
@@ -3471,11 +3472,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
 msgid "Please select a network template from the list"
-msgstr ""
+msgstr "Wybierz szablon sieci z listy"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:81
 msgid "You selected the following network template:"
-msgstr ""
+msgstr "Wybrałaś/eś nastepujące szablony sieci:"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:82
 msgid "Please select one or more networks templates from the list"
@@ -3760,7 +3761,7 @@ msgstr "AKTYWNY"
 #: ../app/tabs/oneflow-templates-tab.js:52
 #: ../app/utils/tab-datatable/search-input.hbs:24
 msgid "Service Templates"
-msgstr ""
+msgstr "Szablon usługi"
 
 #: ../app/tabs/oneflow-templates-tab.js:53
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:30
@@ -3903,7 +3904,7 @@ msgstr "BŁĄD"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
-msgstr ""
+msgstr "Instancje"
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:55
 msgid "Create Security Group"
@@ -4804,7 +4805,7 @@ msgstr ""
 
 #: ../app/utils/remote-actions.js:185
 msgid "Client"
-msgstr ""
+msgstr "Klient"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4932,7 +4933,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
 msgid "Network mode"
-msgstr ""
+msgstr "Tryb sieci"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
@@ -5072,11 +5073,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:250
 msgid "Switch name"
-msgstr ""
+msgstr "Zmień nazwę"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:256
 msgid "Number of ports"
-msgstr ""
+msgstr "Liczba portów"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:262
 msgid "Port group type"
@@ -5140,7 +5141,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:206
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 msgid "Network address"
-msgstr ""
+msgstr "Adresy sieci"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:374
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:200
@@ -5175,7 +5176,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:234
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:88
 msgid "Method"
-msgstr ""
+msgstr "Metoda"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:421
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:264
@@ -5201,7 +5202,7 @@ msgstr "IPv4"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:20
 msgid "IPv4/6"
-msgstr ""
+msgstr "IPv4/6"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:21
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
@@ -5219,7 +5220,7 @@ msgstr "Pierwszy adres IPv4"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:31
 msgid "First MAC address"
-msgstr ""
+msgstr "Pierwszy adres MAC"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 msgid "SLAAC"
@@ -5227,7 +5228,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
 msgid "IPv6 Global prefix"
-msgstr ""
+msgstr "Globalny prefiks IPv6"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
 msgid "IPv6 ULA prefix"
@@ -5281,7 +5282,7 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:108
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:113
 msgid "KBytes/s"
-msgstr ""
+msgstr "kB/s"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:80
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:106
@@ -5295,7 +5296,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:87
 msgid "KBytes"
-msgstr ""
+msgstr "kB"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:96
 msgid "Outbound QoS"
@@ -5308,11 +5309,11 @@ msgstr "Zakres"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
-msgstr ""
+msgstr "Pierwszy"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:58
 msgid "Last"
-msgstr ""
+msgstr "Ostatni"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
@@ -5345,11 +5346,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:28
 msgid "Number of addresses"
-msgstr ""
+msgstr "Liczba adresów"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:36
 msgid "Add to a new Virtual Network"
-msgstr ""
+msgstr "Dodaj do nowej sieci wirtualnej"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:40
 msgid "Add to an existing Reservation"
@@ -5361,15 +5362,15 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:59
 msgid "You can select the addresses from an specific Address Range"
-msgstr ""
+msgstr "Możesz wybrać adres z określonegozakresu adresów"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:70
 msgid "First address"
-msgstr ""
+msgstr "Pierwszy adres"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:71
 msgid "IP or MAC"
-msgstr ""
+msgstr "IP albo MAC"
 
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:82
 #: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:34
@@ -5418,11 +5419,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/dialogs/update-ar/html.hbs:22
 msgid "Edit Address Range"
-msgstr ""
+msgstr "Edytuj zakres adresów"
 
 #: ../app/tabs/vnets-tab/dialogs/add-secgroups/html.hbs:22
 msgid "Add Security Group"
-msgstr ""
+msgstr "Dodaj grupę bezpieczeństwa"
 
 #: ../app/tabs/vnets-tab/dialogs/add-secgroups/html.hbs:30
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:30
@@ -5442,7 +5443,7 @@ msgstr "Resetuj"
 
 #: ../app/tabs/vnets-tab/dialogs/add-ar/html.hbs:22
 msgid "New Address Range"
-msgstr ""
+msgstr "Nowa zakres adresów"
 
 #: ../app/tabs/datastores-tab/form-panels/import/html.hbs:22
 msgid "Get Datastores"
@@ -6904,7 +6905,7 @@ msgstr "Procent procesora podzielony przez 100 wymagany dla maszyny wirtualnej. 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:217
 #: ../app/tabs/vms-tab/panels/capacity/html.hbs:23
 msgid "Virtual CPU"
-msgstr ""
+msgstr "Wirtualny CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs/html.hbs:46
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:218
@@ -7209,7 +7210,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:84
 #, fuzzy
 msgid "Virtual CPU selected"
-msgstr "Utowrzono wirtualny router"
+msgstr "Wirtualny CPU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io/html.hbs:20
 msgid "Graphics"
@@ -9247,7 +9248,7 @@ msgstr ""
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:41
 msgid "Clear selection"
-msgstr ""
+msgstr "Wyczyść wybór"
 
 #: ../app/utils/vcenter/common/fieldset-table.hbs:46
 msgid "Toggle advanced sections"
@@ -9340,7 +9341,7 @@ msgstr ""
 
 #: ../app/utils/user-inputs/row.hbs:11
 msgid "text"
-msgstr ""
+msgstr "tekst"
 
 #: ../app/utils/user-inputs/row.hbs:12
 msgid "text (base64)"
@@ -9546,3 +9547,6 @@ msgstr "Zarezerwowana pamięć w KB"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
+
+#~ msgid "Priority"
+#~ msgstr "Priorytet"

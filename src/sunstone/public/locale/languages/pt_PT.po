@@ -9546,3 +9546,6 @@ msgstr ""
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
+
+#~ msgid "Virtio"
+#~ msgstr "Virtio"

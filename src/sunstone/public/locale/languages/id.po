@@ -3,8 +3,9 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
+# Adi Setiawan, 2024
 # Dede Wahyu <dewanu@gmail.com>, 2020
-# Fadjar Tandabawana <fadjar.tandabawana@gmail.com>, 2021
+# Fadjar Tandabawana <fadjar.tandabawana@gmail.com>, 2021,2023
 # Harry Suryapambagya <harsxv@gmail.com>, 2021-2023
 # Harry Suryapambagya <harsxv@gmail.com>, 2021
 # heince <heince@gmail.com>, 2013
@@ -16,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Harry Suryapambagya <harsxv@gmail.com>, 2021-2023\n"
+"Last-Translator: Adi Setiawan, 2024\n"
 "Language-Team: Indonesian (http://app.transifex.com/opennebula/one/language/id/)\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
@@ -1188,7 +1189,7 @@ msgstr "Ujung pranala untuk lokapasar"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:52
 msgid "Base URL for marketapp"
-msgstr "Pranala dasar untuk Marketapp"
+msgstr "Pranala dasar untuk Lokapasar"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:57
 msgid "Marketapp directory path"
@@ -1228,7 +1229,7 @@ msgstr "Hanya jika menggunakan layanan Amazon S3:"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:90
 msgid "Total Marketplace size in MB"
-msgstr "Total ukuran Marketplace dalam MB"
+msgstr "Total ukuran Lokapasar dalam MB"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:95
 msgid "Signature Version"
@@ -1307,7 +1308,7 @@ msgstr "Mode keamanan kontainer"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:166
 msgid "DockerHub marketplace url"
-msgstr "DockerHub marketplace url"
+msgstr "Pranala DockerHub lokapasar"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:171
 msgid "SSL"
@@ -1319,15 +1320,15 @@ msgstr "Koneksi SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:188
 msgid "Create MarketPlace"
-msgstr "Buat MarketPlace"
+msgstr "Buat Lokapasar"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:193
 msgid "Update MarketPlace"
-msgstr "Perbarui MarketPlace"
+msgstr "Perbarui Lokapasar"
 
 #: ../app/tabs/marketplaces-tab/actions.js:30
 msgid "MarketPlace created"
-msgstr "MarketPlace dibuat"
+msgstr "Lokapasar dibuat"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:46
 #: ../app/tabs/users-tab/datatable.js:74
@@ -1456,16 +1457,16 @@ msgstr "Pusat Data Virtual"
 
 #: ../app/tabs/templates-tab/form-panels/import.js:53
 msgid "Import vCenter VM Templates"
-msgstr "Import vCenter VM Templates"
+msgstr "Impor Templat VM vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:72
 msgid "Instantiate VM Template"
-msgstr "Inisiasi Template VM"
+msgstr "Inisiasi Templat VM"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:233
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:101
 msgid "No template selected"
-msgstr "Tidak ada template yang dipilih"
+msgstr "Tidak ada templat yang dipilih"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate.js:662
 #: ../app/tabs/vrouters-tab/form-panels/instantiate.js:116
@@ -1508,19 +1509,19 @@ msgstr "Diska dan NIC akan tampil di sini"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:86
 msgid "Create VM Template"
-msgstr "Buat Template VM"
+msgstr "Buat Templat VM"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:87
 msgid "Update VM Template"
-msgstr "Perbarui Template VM"
+msgstr "Perbarui Templat VM"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:89
 msgid "Create Virtual Router VM Template"
-msgstr "Buat Virtual Router VM Templat"
+msgstr "Buat  Templat VM Virtual Router"
 
 #: ../app/tabs/templates-tab/form-panels/create-common.js:90
 msgid "Update Virtual Router VM Template"
-msgstr "Perbarui Virtual Router VM Templat"
+msgstr "Perbarui Templat VM Virtual Router"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/os.js:159
 msgid "OS & CPU"
@@ -1554,15 +1555,15 @@ msgstr "Pilihlah"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/io.js:52
 msgid "Input/Output"
-msgstr ""
+msgstr "Masukan/Keluaran"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs.js:220
 msgid "The value goes out of the allowed limits"
-msgstr ""
+msgstr "Nilai melebihi batas yang diperbolehkan"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:63
 msgid "NUMA"
-msgstr ""
+msgstr "NUMA"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:56
 #: ../app/tabs/vms-tab/panels/network.js:77
@@ -1584,7 +1585,7 @@ msgstr "Jaringan"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:274
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network.js:320
 msgid "NIC"
-msgstr ""
+msgstr "NIC"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:58
 #: ../app/tabs/vms-tab/panels/storage.js:255
@@ -1610,15 +1611,15 @@ msgstr "Tidak ada"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/context.js:196
 msgid "Set manually"
-msgstr ""
+msgstr "Atur secara manual"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:57
 msgid "Hybrid"
-msgstr ""
+msgstr "Hybrid"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:180
 msgid "Remote OpenNebula"
-msgstr ""
+msgstr "Remote OpenNebula"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:190
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:102
@@ -1630,11 +1631,11 @@ msgstr ""
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:54
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:71
 msgid "Custom"
-msgstr ""
+msgstr "Kustom"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:199
 msgid "PROVIDER"
-msgstr ""
+msgstr "PENYEDIA"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:203
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid.js:225
@@ -1644,7 +1645,7 @@ msgstr "Penyedia"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/other.js:54
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:138
 msgid "Tags"
-msgstr ""
+msgstr "Tag"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage.js:54
 #: ../app/tabs/vms-tab/panels/storage.js:74 ../app/tabs/storage-top-tab.js:23
@@ -1667,7 +1668,7 @@ msgstr "DISKA"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling.js:56
 msgid "Scheduling"
-msgstr ""
+msgstr "Penjadwalan"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/vmgroup.js:49
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:141
@@ -1675,7 +1676,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/html/create.hbs:136
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:135
 msgid "VM Group"
-msgstr ""
+msgstr "Grup VM"
 
 #: ../app/tabs/templates-tab/panels/template-common.js:43
 #: ../app/tabs/oneflow-templates-tab/panels/template.js:45
@@ -1687,7 +1688,7 @@ msgstr ""
 #: ../app/tabs/provision-tab/vms/html/create.hbs:52
 #: ../app/tabs/provision-tab/flows/html/create.hbs:38
 msgid "Template"
-msgstr "Template"
+msgstr "Templat"
 
 #: ../app/tabs/templates-tab/buttons.js:71
 #: ../app/tabs/oneflow-templates-tab/buttons.js:64
@@ -1706,7 +1707,7 @@ msgstr "Bagikan"
 
 #: ../app/tabs/templates-tab/buttons.js:77
 msgid "The template, along with any image referenced by it, will be shared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Templat tersebut beserta gambar apa pun yang dirujuk, akan dibagikan kepada pengguna grup. Izin diubah: PENGGUNAAN GRUP"
 
 #: ../app/tabs/templates-tab/buttons.js:82
 #: ../app/tabs/provision-tab/templates/list.js:165
@@ -1715,33 +1716,33 @@ msgstr "Urung bagikan"
 
 #: ../app/tabs/templates-tab/buttons.js:83
 msgid "The template, along with any image referenced by it, will be unshared with the group's users. Permission changed: GROUP USE"
-msgstr ""
+msgstr "Templat beserta gambar apa pun yang dirujuk olehnya, tidak akan dibagikan kepada pengguna grup. Izin diubah: PENGGUNAAN GRUP"
 
 #: ../app/tabs/templates-tab/actions-common.js:40
 #: ../app/tabs/templates-tab/actions-common.js:233
 #: ../app/tabs/templates-tab/actions-common.js:246
 #: ../app/tabs/marketplaceapps-tab/actions.js:95
 msgid "VM Template created"
-msgstr "VM Template dibuat"
+msgstr "Templat VM terbuat"
 
 #: ../app/tabs/templates-tab/actions-common.js:55
 msgid "This will delete the Template.<br/>You can also delete any Image referenced inside this Template"
-msgstr ""
+msgstr "Ini akan menghapus Templat.<br/> Anda juga dapat menghapus Gambar apa pun yang direferensikan di dalam Templat ini"
 
 #: ../app/tabs/templates-tab/actions-common.js:58
 msgid "Delete all images"
-msgstr ""
+msgstr "Hapus semua images"
 
 #: ../app/tabs/templates-tab/actions-common.js:157
 #: ../app/tabs/templates-tab/actions-common.js:205
 #: ../app/tabs/vms-tab/actions.js:41
 msgid "VM created"
-msgstr ""
+msgstr "VM terbuat"
 
 #: ../app/tabs/templates-tab/actions-common.js:264
 #: ../app/tabs/images-tab/actions.js:77
 msgid "Please select one (and just one) Image to export."
-msgstr ""
+msgstr "Silakan pilih satu (dan hanya satu) Image untuk di eksport"
 
 #: ../app/tabs/templates-tab/datatable-common.js:70
 #: ../app/tabs/oneflow-templates-tab/datatable.js:71
@@ -1752,23 +1753,23 @@ msgstr "Waktu registrasi"
 #: ../app/tabs/templates-tab/datatable-common.js:78
 #: ../app/tabs/oneflow-templates-tab/datatable.js:79
 msgid "Please select a Template from the list"
-msgstr ""
+msgstr "Silakan pilih sebuah Templat dari daftar"
 
 #: ../app/tabs/templates-tab/datatable-common.js:79
 #: ../app/tabs/oneflow-templates-tab/datatable.js:80
 #: ../app/tabs/vrouter-templates-tab/form-panels/instantiate/templateSelection.hbs:20
 msgid "You selected the following Template:"
-msgstr ""
+msgstr "Anda memilih Templat berikut:"
 
 #: ../app/tabs/templates-tab/datatable-common.js:80
 #: ../app/tabs/oneflow-templates-tab/datatable.js:81
 msgid "Please select one or more Templates from the list"
-msgstr ""
+msgstr "Silakan pilih satu atau lebih Templat dari daftar"
 
 #: ../app/tabs/templates-tab/datatable-common.js:81
 #: ../app/tabs/oneflow-templates-tab/datatable.js:82
 msgid "You selected the following Templates:"
-msgstr ""
+msgstr "Anda memilih Templat berikut"
 
 #: ../app/tabs/groups-tab.js:48 ../app/tabs/groups-tab.js:52
 #: ../app/tabs/vdcs-tab/panels/groups.js:39
@@ -1782,62 +1783,62 @@ msgstr "Grup"
 
 #: ../app/tabs/hosts-tab/form-panels/create.js:54
 msgid "Create Host"
-msgstr ""
+msgstr "Membuat Host"
 
 #: ../app/tabs/hosts-tab/actions.js:34
 msgid "Host created"
-msgstr ""
+msgstr "Host terbentuk"
 
 #: ../app/tabs/hosts-tab/actions.js:62
 msgid "Error NSX data credentials, check and try again"
-msgstr ""
+msgstr "Kesalahan pada data kredensial NSX, silakan periksa dan coba lagi"
 
 #: ../app/tabs/hosts-tab/panels/esx.js:46
 msgid "ESX"
-msgstr ""
+msgstr "ESX"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:48
 msgid "Graphs"
-msgstr ""
+msgstr "Grafik"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 msgid "Used CPU"
-msgstr ""
+msgstr "CPU yang dipakai"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:86
 msgid "Free CPU"
-msgstr ""
+msgstr "CPU yang bebas"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Used MEMORY"
-msgstr ""
+msgstr "MEMORY terpakai"
 
 #: ../app/tabs/hosts-tab/panels/monitor.js:93
 msgid "Free MEMORY"
-msgstr ""
+msgstr "MEMORY yang bebas"
 
 #: ../app/tabs/hosts-tab/panels/pci.js:45
 msgid "PCI"
-msgstr ""
+msgstr "PCI"
 
 #: ../app/tabs/hosts-tab/panels/zombies.js:48
 msgid "Zombies"
-msgstr ""
+msgstr "Zombies"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:50
 msgid "Wilds"
-msgstr ""
+msgstr "Wilds"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:173
 #: ../app/tabs/hosts-tab/panels/wilds.js:208
 msgid "VM imported"
-msgstr ""
+msgstr "VM yang ter-impor"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:187
 #: ../app/tabs/hosts-tab/panels/wilds.js:218
 #: ../app/tabs/hosts-tab/panels/wilds/html.hbs:19
 msgid "Import Wilds"
-msgstr ""
+msgstr "Impor Wilds"
 
 #: ../app/tabs/hosts-tab/panels/wilds.js:233
 #: ../app/utils/vcenter/clusters.js:223 ../app/utils/vcenter/clusters.js:268
@@ -1847,44 +1848,44 @@ msgstr "Tidak terhubung degan server: Apakah proses berjalan dan dapat diakses?"
 
 #: ../app/tabs/hosts-tab/panels/info.js:236
 msgid "it must not be a negative number"
-msgstr ""
+msgstr "anka harus tidak bernilai negatif"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:54
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
 msgid "NSX"
-msgstr ""
+msgstr "NSX"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:92
 msgid "NSX Specific Attributes"
-msgstr ""
+msgstr "Atribut khusus NSX"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:166
 msgid "NSX information valid"
-msgstr ""
+msgstr "Informasi NSX sesuai"
 
 #: ../app/tabs/hosts-tab/panels/numa.js:51
 msgid "Numa"
-msgstr ""
+msgstr "Numa"
 
 #: ../app/tabs/hosts-tab/panels/pool.js:42
 msgid "POOL"
-msgstr ""
+msgstr "POOL"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
 msgid "Select the destination cluster"
-msgstr ""
+msgstr "Pilih kluster tujuan"
 
 #: ../app/tabs/hosts-tab/buttons.js:49
 msgid "Offline"
-msgstr ""
+msgstr "Luar jaringan"
 
 #: ../app/tabs/hosts-tab/buttons.js:54
 msgid "Delete host"
-msgstr ""
+msgstr "Hapus host"
 
 #: ../app/tabs/hosts-tab/datatable.js:94
 msgid "RVMs"
-msgstr ""
+msgstr "RVMs"
 
 #: ../app/tabs/hosts-tab/datatable.js:95 ../app/tabs/hosts-tab/datatable.js:245
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:63
@@ -1893,19 +1894,19 @@ msgstr "Alokasi CPU"
 
 #: ../app/tabs/hosts-tab/datatable.js:96
 msgid "Allocated MEM"
-msgstr ""
+msgstr "MEM dialokasikan"
 
 #: ../app/tabs/hosts-tab/datatable.js:98
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:38
 #: ../app/tabs/hosts-tab/datatable/search.hbs:22
 msgid "IM MAD"
-msgstr ""
+msgstr "IM MAD"
 
 #: ../app/tabs/hosts-tab/datatable.js:99
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:43
 #: ../app/tabs/hosts-tab/datatable/search.hbs:28
 msgid "VM MAD"
-msgstr ""
+msgstr "VM MAD"
 
 #: ../app/tabs/hosts-tab/datatable.js:268
 #: ../app/tabs/hosts-tab/panels/info/html.hbs:59
@@ -1914,11 +1915,11 @@ msgstr "Alokasi Memory"
 
 #: ../app/tabs/vrouter-templates-tab.js:49
 msgid "Virtual Router VM Templates"
-msgstr "Perute Virtual VM Templat"
+msgstr "Templat-templat VM Virtual Router"
 
 #: ../app/tabs/vrouter-templates-tab.js:50
 msgid "Virtual Router VM Template"
-msgstr "Perute Virtual VM Templat"
+msgstr "Templat VM Virtual Router"
 
 #: ../app/tabs/zones-tab.js:40 ../app/tabs/zones-tab.js:44
 #: ../app/tabs/acls-tab/datatable.js:177
@@ -1933,53 +1934,53 @@ msgstr "Masuk"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:55
 msgid "Create Service Template"
-msgstr ""
+msgstr "Buat Templat Layanan"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:60
 msgid "Update Service Template"
-msgstr ""
+msgstr "Perbarui Templat Layanan"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create.js:142
 msgid "Can only contain alphanumeric and underscore characters, and be unique"
-msgstr ""
+msgstr "Hanya boleh berisi karakter alfanumerik dan underscore, dan unik"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:64
 msgid "Instantiate Service Template"
-msgstr ""
+msgstr "Inisiasi Templat Layanan"
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/instantiate.js:144
 msgid "Associate VM Group to Service"
-msgstr ""
+msgstr "Kaitkan Grup VM ke Layanan"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:37
 #: ../app/tabs/marketplaceapps-tab/actions.js:107
 msgid "Service Template created"
-msgstr "Templat Layanan dibuat"
+msgstr "Templat Layanan terbuat"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:55
 msgid "This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."
-msgstr ""
+msgstr "Tindakan ini akan menghapus Layanan.<br/> Anda juga dapat menghapus templat atau templat dan gambar yang direferensikan di dalam Layanan ini."
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
 msgid "Delete Images and VM Templates"
-msgstr ""
+msgstr "Hapus Image dan Templat VM"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:58
 msgid "Delete VM Templates"
-msgstr ""
+msgstr "Hapus Templat VM"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:127
 #: ../app/tabs/oneflow-services-tab/actions.js:38
 msgid "Service created"
-msgstr ""
+msgstr "Service terbuat"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:174
 msgid "Please select one (and just one) Service to export."
-msgstr ""
+msgstr "Silakan pilih satu (dan hanya satu) Service untuk diexpor"
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:76
 msgid "This will delete the selected templates"
-msgstr ""
+msgstr "Ini alan menghapus templat yang dipilih"
 
 #: ../app/tabs/templates-top-tab.js:23
 #: ../app/tabs/marketplaceapps-tab/panels/templates.js:50
@@ -2039,7 +2040,7 @@ msgstr "Anda memilih berkas berikut:"
 #: ../app/tabs/templates-tab.js:51 ../app/tabs/acls-tab/datatable.js:159
 #: ../app/utils/tab-datatable/search-input.hbs:22
 msgid "VM Templates"
-msgstr "Template VM"
+msgstr "Templat VM"
 
 #: ../app/tabs/templates-tab.js:52
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:435
@@ -2053,20 +2054,20 @@ msgstr "Templat VM"
 #: ../app/tabs/oneflow-services-tab/form-panels/create.js:46
 #: ../app/tabs/provision-tab/flows/html/create.hbs:20
 msgid "Create Service"
-msgstr ""
+msgstr "Membuat Service"
 
 #: ../app/tabs/oneflow-services-tab/form-panels/update.js:46
 #: ../app/tabs/oneflow-services-tab/form-panels/update/update.js:53
 msgid "Update Service"
-msgstr ""
+msgstr "Perbaharui Layanan"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:148
 msgid "Purge DONE services"
-msgstr ""
+msgstr "Pembersihan Layanan SELESAI"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:149
 msgid "All DONE services has been purged"
-msgstr ""
+msgstr "Seluruh Layanan SELESAI sudah dibersihkan"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:342
 #: ../app/tabs/oneflow-services-tab/actions.js:347
@@ -2075,11 +2076,11 @@ msgstr ""
 #: ../app/utils/dialogs/generic-confirm/html.hbs:20
 #: ../app/utils/dialogs/confirm/html.hbs:19
 msgid "Confirm"
-msgstr ""
+msgstr "Konfirmasi"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:345
 msgid "Are you sure you want to delete the role"
-msgstr ""
+msgstr "Apakah anda yakin menghapus peran ini"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:56
 #: ../app/utils/vmgroup-section.js:149
@@ -2096,11 +2097,11 @@ msgstr "Peran"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:228
 msgid "The VM is ready"
-msgstr ""
+msgstr "VM sudah siap"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:233
 msgid "Waiting for the VM to be ready"
-msgstr ""
+msgstr "Menunggu VM untuk siap digunakan"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:272
 #: ../app/tabs/vms-tab/utils/datatable-common.js:39
@@ -2109,7 +2110,7 @@ msgstr "IPs"
 
 #: ../app/tabs/oneflow-services-tab/panels/sched_actions.js:99
 msgid "All Roles"
-msgstr ""
+msgstr "Semua Peran"
 
 #: ../app/tabs/oneflow-services-tab/panels/log.js:39
 #: ../app/tabs/vms-tab/panels/log.js:42
@@ -2118,11 +2119,11 @@ msgstr "Log"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:193
 msgid "VM: "
-msgstr ""
+msgstr "VM:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:195
 msgid "has error: "
-msgstr ""
+msgstr "kesalahan:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:202
 msgid "Dismiss"
@@ -2132,7 +2133,7 @@ msgstr "Hilangkan"
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:41
 msgid "Scale"
-msgstr ""
+msgstr "Skala"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:29
 #: ../app/tabs/vms-tab/buttons.js:100
@@ -2175,28 +2176,28 @@ msgstr "Batalkan deploy"
 #: ../app/tabs/provision-tab/vms/html/info.hbs:115
 #: ../app/tabs/provision-tab/vms/html/confirm_terminate.hbs:18
 msgid "Terminate"
-msgstr ""
+msgstr "Hapus"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "Menghapus Peran"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:64
 #: ../app/tabs/vms-tab/buttons.js:157 ../app/tabs/vms-tab/buttons.js:165
 msgid "This will remove information from non-persistent hard disks"
-msgstr ""
+msgstr "Ini akan menghapus informasi dari hard disk non-persisten"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:70
 msgid "This will delete the selected services"
-msgstr ""
+msgstr "Ini akan menghapus layanan yang dipilih"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:77
 msgid "Purge done"
-msgstr ""
+msgstr "Pembersihan selesai"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
 msgid "This will delete all services in DONE state to free some space in your database"
-msgstr ""
+msgstr "Ini akan menghapus semua layanan dalam status SELESAI untuk mengosongkan sebagian ruang di database Anda"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/images-tab/form-panels/create-common.js:90
@@ -2251,7 +2252,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:87
 msgid "You selected the following Services:"
-msgstr ""
+msgstr "Anda memilih Layanan berikut:"
 
 #: ../app/tabs/oneflow-services-tab/datatable.js:127
 #: ../app/tabs/vms-tab/utils/datatable-common.js:133
@@ -2437,11 +2438,11 @@ msgstr "Dasbor"
 
 #: ../app/tabs/backups-tab/actions.js:32
 msgid "Backup created"
-msgstr ""
+msgstr "Cadangan terbuat"
 
 #: ../app/tabs/backups-tab/actions.js:57
 msgid "Restored Template"
-msgstr ""
+msgstr "Mengembalikan Templat"
 
 #: ../app/tabs/backups-tab/actions.js:61
 msgid "Restored Disk"
@@ -2454,11 +2455,11 @@ msgstr ""
 #: ../app/tabs/backups-tab/buttons.js:30
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:46
 msgid "Restore"
-msgstr ""
+msgstr "Memulihkan"
 
 #: ../app/tabs/backups-tab/datatable.js:43
 msgid "Please select a backup from the list"
-msgstr ""
+msgstr "Silakan pilih backup dari daftar berikut"
 
 #: ../app/tabs/backups-tab/datatable.js:44
 msgid "You selected the following backup:"
@@ -2474,23 +2475,23 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:59
 msgid "Create MarketPlace App"
-msgstr "Buat Aplikasi Marketplace"
+msgstr "Buat Aplikasi Lokapasar"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:64
 msgid "Create MarketPlace App from Image"
-msgstr "Buat MarketPlace App dari Citra"
+msgstr "Buat Aplikasi Lokapasar dari Citra"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:69
 msgid "Create MarketPlace App from VM Template"
-msgstr "Buat MarketPlace App dari VM Template"
+msgstr "Buat Aplikasi Lokapasar dari VM Templat"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:74
 msgid "Create MarketPlace App from Service"
-msgstr "Buat MarketPlace App dari Layanan"
+msgstr "Buat Aplikasi Lokapasar dari Layanan"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:79
 msgid "Create MarketPlace App from VM"
-msgstr "Buat MarketPlace App dari VM"
+msgstr "Buat Aplikasi Lokapasar dari VM"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
 #: ../app/tabs/vms-tab/actions.js:477
@@ -2513,7 +2514,7 @@ msgstr "Unduh"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:60
 msgid "Last updated"
-msgstr "Update terakhir"
+msgstr "Perubahan terakhir"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:66
 msgid "Please select a dockerhub tag from the list (default latest)"
@@ -2525,7 +2526,7 @@ msgstr "Anda memilih tag dockerhub berikut:"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
 msgid "MarketPlace App created"
-msgstr "MarketPlace App dibuat"
+msgstr "Aplikasi Lokapasar dibuat"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:83
 #: ../app/tabs/images-tab/actions.js:38 ../app/tabs/images-tab/actions.js:134
@@ -2539,7 +2540,7 @@ msgstr "Error"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:187
 msgid "This MarketPlace App resides in Zone "
-msgstr "MarketPlace App ini terletak di Zona"
+msgstr "Aplikasi Lokapasar ini terletak di Zona"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:189
 msgid ". To delete it you need to switch to that Zone from the zone selector in the top-right corner."
@@ -2570,7 +2571,7 @@ msgstr "Waktu Terdaftar"
 #: ../app/tabs/marketplaceapps-tab/datatable.js:100
 #: ../app/tabs/marketplaceapps-tab/datatable/search.hbs:28
 msgid "Marketplace"
-msgstr "Marketplace"
+msgstr "Lokapasar"
 
 #: ../app/tabs/marketplaceapps-tab/datatable.js:110
 msgid "Please select an appliance from the list"
@@ -3111,7 +3112,7 @@ msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create.js:64
 msgid "Update Virtual Data Center"
-msgstr ""
+msgstr "Perbarui Data Center Virtual"
 
 #: ../app/tabs/vdcs-tab/actions.js:33 ../app/tabs/vdcs-tab/actions.js:104
 msgid "VDC created"
@@ -3190,7 +3191,7 @@ msgstr "sistem"
 #: ../app/tabs/provision-tab/vms/vms.js:679
 #: ../app/tabs/provision-tab/flows/flows.js:311
 msgid "You must select at least a template configuration"
-msgstr "Setidaknya Anda harus memilih format konfigurasi"
+msgstr "Setidaknya Anda harus memilih templat konfigurasi"
 
 #: ../app/tabs/provision-tab/vms/list.js:71
 #: ../app/tabs/acls-tab/datatable.js:150
@@ -3386,11 +3387,11 @@ msgstr "Tidak ada label yang ditentukan"
 #: ../app/tabs/provision-tab/vms/html/template_card.hbs:28
 #: ../app/tabs/provision-tab/flows/html/templates_datatable.hbs:26
 msgid "There are no templates available"
-msgstr "Tidak ada templat tersedia"
+msgstr "Tidak ada templat yang tersedia"
 
 #: ../app/tabs/provision-tab/templates/list.js:150
 msgid "Create a template by saving a running Virtual Machine"
-msgstr "Buat templat dengan menyimpan Mesin Virtual yang berjalan"
+msgstr "Buat templae dengan menyimpan Mesin Virtual yang berjalan"
 
 #: ../app/tabs/provision-tab/templates/list.js:166
 msgid "SHARED"
@@ -3451,11 +3452,11 @@ msgstr "Pengaturan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:58
 msgid "Create Virtual Network Template"
-msgstr ""
+msgstr "Buat Templat Jaringan Virtual"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:63
 msgid "Update Virtual Network Template"
-msgstr ""
+msgstr "Perbarui Templat Jaringan Virtual"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate.js:60
 msgid "Instantiate Network Template"
@@ -3463,7 +3464,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/actions.js:38
 msgid "Virtual Network Template created"
-msgstr ""
+msgstr "Templat Jaringan Virtual terbuat"
 
 #: ../app/tabs/vnets-templates-tab/actions.js:121
 msgid "VNet created"
@@ -3471,19 +3472,19 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:80
 msgid "Please select a network template from the list"
-msgstr ""
+msgstr "Silakan pilih templat jaringan dari daftar"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:81
 msgid "You selected the following network template:"
-msgstr ""
+msgstr "Anda memilih templat jaringan sebagai berikut:"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:82
 msgid "Please select one or more networks templates from the list"
-msgstr ""
+msgstr "Silakan pilih satu atau lebih templat jaringan dari daftar"
 
 #: ../app/tabs/vnets-templates-tab/datatable.js:83
 msgid "You selected the following networks templates:"
-msgstr ""
+msgstr "Anda telah memilih templat-templat jaringan berikut:"
 
 #: ../app/tabs/images-tab/form-panels/import.js:54
 msgid "Import vCenter Images"
@@ -3503,7 +3504,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:379
 msgid "Please insert a dockerfile template"
-msgstr ""
+msgstr "Silakan memasukkan templat dockerfile"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:387
 msgid "Please select a size"
@@ -3523,7 +3524,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:148
 msgid "Template restored"
-msgstr ""
+msgstr "Templat dipulihkan"
 
 #: ../app/tabs/images-tab/actions.js:152
 msgid "Disk restored"
@@ -3704,15 +3705,15 @@ msgstr ""
 #: ../app/tabs/groups-tab/form-panels/create/wizard.hbs:219
 #: ../app/tabs/acls-tab/form-panels/create/wizard.hbs:103
 msgid "Documents"
-msgstr ""
+msgstr "Dokumen"
 
 #: ../app/tabs/acls-tab/datatable.js:189
 msgid "Marketplaces"
-msgstr ""
+msgstr "Lokapasar"
 
 #: ../app/tabs/acls-tab/datatable.js:192
 msgid "Marketplace Apps"
-msgstr ""
+msgstr "Lokapasar Aplikasi"
 
 #: ../app/tabs/acls-tab/datatable.js:195 ../app/tabs/vmgroup-tab.js:37
 #: ../app/tabs/vmgroup-tab.js:41 ../app/tabs/vmgroup-tab.js:42
@@ -3721,7 +3722,7 @@ msgstr "Grup VM"
 
 #: ../app/tabs/acls-tab/datatable.js:254
 msgid "Cluster ID"
-msgstr ""
+msgstr "ID Kluster"
 
 #: ../app/tabs/zones-tab/actions.js:31
 msgid "Zone created"
@@ -3750,7 +3751,7 @@ msgstr "Anda memilih Zona berikut:"
 
 #: ../app/tabs/infrastructure-top-tab.js:23
 msgid "Infrastructure"
-msgstr ""
+msgstr "Infrastruktur"
 
 #: ../app/tabs/datastores-tab.js:54 ../app/tabs/hosts-tab.js:56
 #: ../app/opennebula/datastore.js:25 ../app/opennebula/host.js:53
@@ -3760,16 +3761,16 @@ msgstr "NYALA"
 #: ../app/tabs/oneflow-templates-tab.js:52
 #: ../app/utils/tab-datatable/search-input.hbs:24
 msgid "Service Templates"
-msgstr ""
+msgstr "Templat Layanan"
 
 #: ../app/tabs/oneflow-templates-tab.js:53
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:30
 msgid "Service Template"
-msgstr ""
+msgstr "Templat Layanan"
 
 #: ../app/tabs/users-tab/form-panels/create.js:52
 msgid "Create User"
-msgstr ""
+msgstr "Buat Pengguna"
 
 #: ../app/tabs/users-tab/form-panels/create.js:95
 msgid "To define secondary groups you need to also set the main group"
@@ -3777,19 +3778,19 @@ msgstr ""
 
 #: ../app/tabs/users-tab/actions.js:37
 msgid "User created"
-msgstr ""
+msgstr "Pengguna dibuat"
 
 #: ../app/tabs/users-tab/panels/info-common.js:102
 msgid "ascending"
-msgstr ""
+msgstr "urutkan dari atas"
 
 #: ../app/tabs/users-tab/panels/info-common.js:103
 msgid "descending"
-msgstr ""
+msgstr "urutkan dari bawah"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:43
 msgid "Auth"
-msgstr ""
+msgstr "Autentikasi"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:84
 #: ../app/tabs/settings-tab/panels/user-config.js:101
@@ -3799,7 +3800,7 @@ msgstr "Kelola autentikasi dua faktor"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:87
 msgid "Disable all authenticators"
-msgstr ""
+msgstr "Nonaktifkan semua autentikator"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:113
 #: ../app/tabs/users-tab/datatable.js:76
@@ -3809,11 +3810,11 @@ msgstr ""
 #: ../app/tabs/users-tab/panels/auth/html.hbs:48
 #: ../app/tabs/users-tab/datatable/search.hbs:16
 msgid "Password"
-msgstr ""
+msgstr "Kata kunci"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:115
 msgid "Current password"
-msgstr ""
+msgstr "Kata kunci saat ini"
 
 #: ../app/tabs/users-tab/panels/auth-common.js:119
 #: ../app/utils/tab-datatable/search-input.hbs:48
@@ -3822,7 +3823,7 @@ msgstr "Tutup"
 
 #: ../app/tabs/users-tab/buttons.js:32
 msgid "Change primary group"
-msgstr ""
+msgstr "Ubah grup utama"
 
 #: ../app/tabs/users-tab/buttons.js:35
 msgid "This will change the primary group of the selected users. Select the new group"
@@ -3839,11 +3840,11 @@ msgstr ""
 
 #: ../app/tabs/users-tab/datatable.js:80
 msgid "Group ID"
-msgstr ""
+msgstr "ID Grup"
 
 #: ../app/tabs/users-tab/datatable.js:81
 msgid "Hidden User Data"
-msgstr ""
+msgstr "Data Pengguna Tersembunyi"
 
 #: ../app/tabs/users-tab/datatable.js:89
 msgid "Please select a User from the list"
@@ -3893,13 +3894,13 @@ msgstr "TOTAL VM"
 
 #: ../app/tabs/vms-tab.js:76
 msgid "ACTIVE"
-msgstr ""
+msgstr "AKTIF"
 
 #: ../app/tabs/vms-tab.js:79 ../app/tabs/dashboard-tab/hosts.hbs:48
 #: ../app/tabs/dashboard-tab/hosts.hbs:49 ../app/tabs/dashboard-tab/vms.hbs:45
 #: ../app/tabs/dashboard-tab/vms.hbs:46
 msgid "FAILED"
-msgstr ""
+msgstr "GALAT"
 
 #: ../app/tabs/instances-top-tab.js:23
 msgid "Instances"
@@ -3911,7 +3912,7 @@ msgstr ""
 
 #: ../app/tabs/secgroups-tab/form-panels/create.js:60
 msgid "Update Security Group"
-msgstr ""
+msgstr "Perbarui Grup Keamanan"
 
 #: ../app/tabs/secgroups-tab/actions.js:33
 msgid "Security Group created"
@@ -3929,58 +3930,58 @@ msgstr ""
 #: ../app/tabs/secgroups-tab/utils/common.js:44
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:48
 msgid "TCP"
-msgstr ""
+msgstr "TCP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:47
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:49
 msgid "UDP"
-msgstr ""
+msgstr "UDP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:50
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:50
 msgid "ICMP"
-msgstr ""
+msgstr "ICMP"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:53
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:51
 msgid "ICMPv6"
-msgstr ""
+msgstr "ICMPv6"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:56
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:52
 msgid "IPsec"
-msgstr ""
+msgstr "IPsec"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:71
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:41
 msgid "Outbound"
-msgstr ""
+msgstr "Arus keluar"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:74
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:40
 msgid "Inbound"
-msgstr ""
+msgstr "Arus masuk"
 
 #: ../app/tabs/secgroups-tab/utils/common.js:122
 #: ../app/tabs/vms-tab/datatable/search.hbs:30
 msgid "Any"
-msgstr ""
+msgstr "Apa saja"
 
 #: ../app/tabs/secgroups-tab/datatable.js:77
 msgid "Please select a security group from the list"
-msgstr ""
+msgstr "Silakan pilih grup keamanan dari daftar"
 
 #: ../app/tabs/secgroups-tab/datatable.js:78
 msgid "You selected the following security group:"
-msgstr ""
+msgstr "Anda memilih grup keamanan berikut:"
 
 #: ../app/tabs/secgroups-tab/datatable.js:79
 msgid "Please select one or more security groups from the list"
-msgstr ""
+msgstr "Silakan pilih satu atau lebih grup keamanan dari daftar"
 
 #: ../app/tabs/secgroups-tab/datatable.js:80
 msgid "You selected the following security groups:"
-msgstr ""
+msgstr "Anda memilih grup keamanan berikut:"
 
 #: ../app/tabs/vnets-topology-tab.js:52
 msgid "Collapse VMs"
@@ -4005,11 +4006,11 @@ msgstr "CITRA"
 
 #: ../app/opennebula/datastore.js:30
 msgid "SYSTEM"
-msgstr ""
+msgstr "SISTEM"
 
 #: ../app/opennebula/datastore.js:31
 msgid "FILE"
-msgstr ""
+msgstr "BERKAS"
 
 #: ../app/opennebula/role.js:50 ../app/opennebula/service.js:35
 msgid "FAILED_UNDEPLOYING"
@@ -4238,26 +4239,26 @@ msgstr "%1$s Image dipilih."
 
 #: ../app/utils/vcenter/templates.js:79 ../app/utils/vcenter/templates.js:88
 msgid "vCenter Templates"
-msgstr "vCenter Templates"
+msgstr "Template vCenter"
 
 #: ../app/utils/vcenter/templates.js:80
 msgid "No new templates found"
-msgstr "Template baru tidak ditemukan"
+msgstr "Templat baru tidak ditemukan"
 
 #: ../app/utils/vcenter/templates.js:133
 #, javascript-format
 msgid "Select all %1$s Templates"
-msgstr "Pilih semua %1$sTemplate"
+msgstr "Pilih semua %1$sTemplat"
 
 #: ../app/utils/vcenter/templates.js:137
 #, javascript-format
 msgid "All %1$s Templates selected."
-msgstr "Semua %1$sTemplate dipilih."
+msgstr "Semua %1$sTemplat dipilih."
 
 #: ../app/utils/vcenter/templates.js:138
 #, javascript-format
 msgid "%1$s Templates selected."
-msgstr "%1$sTemplate dipilih."
+msgstr "%1$sTemplat dipilih."
 
 #: ../app/utils/vcenter/clusters.js:82 ../app/utils/vcenter/clusters.js:91
 msgid "DataCenter"
@@ -4839,44 +4840,44 @@ msgstr "Keterangan"
 
 #: ../app/tabs/vmgroup-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Machine Group template here"
-msgstr ""
+msgstr "Tulis templat Grup Mesin Virtual disini"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:20
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:20
 msgid "Role name"
-msgstr ""
+msgstr "Nama Peran"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:24
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/html.hbs:22
 #: ../app/tabs/oneflow-services-tab/utils/role-tab/html.hbs:22
 #: ../app/utils/user-inputs/row.hbs:5
 msgid "Can only contain alphanumeric and underscore characters"
-msgstr ""
+msgstr "Hanya boleh berisi karakter alfanumerik dan garis bawah"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:32
 msgid "VM-VM Affinity"
-msgstr ""
+msgstr "VM-VM Affinity"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:36
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:58
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab/html.hbs:19
 msgid "Affined"
-msgstr ""
+msgstr "Terikat"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:37
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:67
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab/html.hbs:26
 msgid "Anti Affined"
-msgstr ""
+msgstr "Tidak Terikat"
 
 #: ../app/tabs/vmgroup-tab/utils/role-tab/html.hbs:46
 msgid "Host-VM Affinity"
-msgstr ""
+msgstr "Host-VM Affinity"
 
 #: ../app/tabs/vmgroup-tab/utils/affinity-role-tab/html.hbs:8
 msgid "Role Affinity"
-msgstr ""
+msgstr "Peran Terikat"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:22
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:22
@@ -4903,7 +4904,7 @@ msgstr "Informasi"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:58
 msgid "Host Affined"
-msgstr ""
+msgstr "Host Terikat"
 
 #: ../app/tabs/vmgroup-tab/panels/info/html.hbs:59
 msgid "Host Anti Affined"
@@ -4920,11 +4921,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/import/html.hbs:22
 msgid "Get Networks"
-msgstr ""
+msgstr "Mendapatkan Jaringan"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:39
 msgid "QoS"
-msgstr ""
+msgstr "QoS"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:82
 msgid "Name of the physical bridge in the nodes to attach VM NICs"
@@ -4932,31 +4933,31 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:91
 msgid "Network mode"
-msgstr ""
+msgstr "Mode jaringan"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:94
 msgid "Bridged"
-msgstr ""
+msgstr "Bridged"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:95
 msgid "Bridged & Security Groups"
-msgstr ""
+msgstr "Bridged & Security Groups"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:96
 msgid "802.1Q"
-msgstr ""
+msgstr "802.1Q"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:97
 msgid "VXLAN"
-msgstr ""
+msgstr "VXLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:98
 msgid "Open vSwitch"
-msgstr ""
+msgstr "Open vSwitch"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:99
 msgid "Open vSwitch - VXLAN"
-msgstr ""
+msgstr "Open vSwitch - VXLAN"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:32
@@ -4967,7 +4968,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:68
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:181
 msgid "vCenter"
-msgstr ""
+msgstr "vCenter"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:119
 msgid "Host Instance"
@@ -5072,19 +5073,19 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:250
 msgid "Switch name"
-msgstr ""
+msgstr "Nama Switch"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:256
 msgid "Number of ports"
-msgstr ""
+msgstr "Jumlah port"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:262
 msgid "Port group type"
-msgstr ""
+msgstr "Tipe grup port"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:264
 msgid "Port group"
-msgstr ""
+msgstr "Grup port"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:265
 msgid "Distributed Port Group"
@@ -5130,7 +5131,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:334
 msgid "Outbound traffic"
-msgstr ""
+msgstr "Arus keluar"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:359
 msgid "These values apply to each VM interface individually, they are not global values for the Virtual Network"
@@ -5140,31 +5141,31 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:206
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:46
 msgid "Network address"
-msgstr ""
+msgstr "Network address"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:374
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:200
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:52
 msgid "Network mask"
-msgstr ""
+msgstr "Network mask"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:382
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:214
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:256
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:60
 msgid "Gateway"
-msgstr ""
+msgstr "Gateway"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:388
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:66
 msgid "IPv6 Gateway"
-msgstr ""
+msgstr "IPv6 Gateway"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:396
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:220
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:74
 msgid "DNS"
-msgstr ""
+msgstr "DNS"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:402
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:80
@@ -5175,13 +5176,13 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:234
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:88
 msgid "Method"
-msgstr ""
+msgstr "Metode"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:421
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:264
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:99
 msgid "IPv6 Method"
-msgstr ""
+msgstr "Metode IPv6"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:434
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:68
@@ -5189,53 +5190,53 @@ msgstr ""
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:112
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:212
 msgid "Custom attributes"
-msgstr ""
+msgstr "Atribut Khusus"
 
 #: ../app/tabs/vnets-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Virtual Network template here"
-msgstr ""
+msgstr "Tulis templat Jaringan Virtual disini"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:19
 msgid "IPv4"
-msgstr ""
+msgstr "IPv4"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:20
 msgid "IPv4/6"
-msgstr ""
+msgstr "IPv4/6"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:21
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:56
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:39
 msgid "IPv6"
-msgstr ""
+msgstr "IPv6"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:22
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:27
 msgid "First IPv4 address"
-msgstr ""
+msgstr "Alamat IPv4 pertama"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:31
 msgid "First MAC address"
-msgstr ""
+msgstr "Alamat MAC pertama"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:39
 msgid "SLAAC"
-msgstr ""
+msgstr "SLAAC"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:46
 msgid "IPv6 Global prefix"
-msgstr ""
+msgstr "IPv6 Global prefix"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:50
 msgid "IPv6 ULA prefix"
-msgstr ""
+msgstr "IPv6 ULA prefix"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:83
 msgid "IPAM"
-msgstr ""
+msgstr "IPAM"
 
 #: ../app/tabs/vnets-tab/utils/ar-tab/html.hbs:66
 #: ../app/tabs/vnets-tab/dialogs/reserve/html.hbs:56
@@ -5244,36 +5245,36 @@ msgstr ""
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:133
 #: ../app/tabs/images-tab/dialogs/clone/html.hbs:34
 msgid "Advanced Options"
-msgstr ""
+msgstr "Opsi Lanjutan"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:25
 msgid "Hold IP"
-msgstr ""
+msgstr "Tahan IP"
 
 #: ../app/tabs/vnets-tab/panels/leases/html.hbs:41
 msgid "IPv6 Link"
-msgstr ""
+msgstr "IPv6 Link"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:44
 msgid "AUTO VLAN ID"
-msgstr ""
+msgstr "AUTO VLAN ID"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:49
 msgid "OUTER VLAN ID"
-msgstr ""
+msgstr "OUTER VLAN ID"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:54
 msgid "AUTO OUTER VLAN ID"
-msgstr ""
+msgstr "AUTO OUTER VLAN ID"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:70
 msgid "Inbound QoS"
-msgstr ""
+msgstr "QoS arus masuk"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:75
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:101
 msgid "Average bandwidth"
-msgstr ""
+msgstr "Rerata bandwidth"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:77
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:82
@@ -5281,12 +5282,12 @@ msgstr ""
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:108
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:113
 msgid "KBytes/s"
-msgstr ""
+msgstr "KBytes/s"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:80
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:106
 msgid "Peak bandwidth"
-msgstr ""
+msgstr "Bandwidth tertinggi"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:85
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:111
@@ -5295,16 +5296,16 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:87
 msgid "KBytes"
-msgstr ""
+msgstr "KBytes"
 
 #: ../app/tabs/vnets-tab/panels/info/html.hbs:96
 msgid "Outbound QoS"
-msgstr ""
+msgstr "QoS ke luar"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:56
 #: ../app/tabs/vms-tab/panels/network/network_sg_datatable.hbs:32
 msgid "Range"
-msgstr ""
+msgstr "Rentang"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:57
 msgid "First"
@@ -5316,15 +5317,15 @@ msgstr "Terakhir"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:76
 msgid "IP6_GLOBAL"
-msgstr ""
+msgstr "IP6_GLOBAL"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:83
 msgid "IP6"
-msgstr ""
+msgstr "IP6"
 
 #: ../app/tabs/vnets-tab/panels/ar/arInfo.hbs:90
 msgid "IP6_ULA"
-msgstr ""
+msgstr "IP6_ULA"
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:33
 #: ../app/tabs/vnets-tab/panels/secgroups/html.hbs:28
@@ -5333,7 +5334,7 @@ msgstr "Buang"
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:47
 msgid "IPv6 Prefix"
-msgstr ""
+msgstr "IPv6 Prefix"
 
 #: ../app/tabs/vnets-tab/panels/ar/html.hbs:75
 msgid "Select an Address Range to see more information"
@@ -5719,11 +5720,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:312
 msgid "Off"
-msgstr ""
+msgstr "Mati"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:313
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:314
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:111
@@ -5732,11 +5733,11 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:275
 #: ../app/utils/user-inputs/row.hbs:61 ../app/utils/user-inputs/row.hbs:78
 msgid "Max"
-msgstr ""
+msgstr "Maks"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:320
 msgid "Number of concurrent connections"
-msgstr ""
+msgstr "Jumlah koneksi bersamaan"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:322
 msgid "Set the number of concurrent connections to the backup backend (default is 5)"
@@ -5791,7 +5792,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/advanced.hbs:26
 msgid "Write the Datastore template here"
-msgstr ""
+msgstr "Tulis templat Datastrore disini"
 
 #: ../app/tabs/datastores-tab/panels/info/html.hbs:42
 msgid "Base path"
@@ -5807,7 +5808,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create/advanced.hbs:20
 msgid "Write the MarketPlace template here"
-msgstr ""
+msgstr "Tulis templat Lokapasar disini"
 
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:22
 #: ../app/tabs/templates-tab/form-panels/instantiate/templateRow.hbs:38
@@ -5933,7 +5934,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/import/html.hbs:22
 msgid "Get Templates"
-msgstr ""
+msgstr "Dapatkan Templat"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/opennebula.hbs:4
 msgid "Remote VM Template ID"
@@ -6131,7 +6132,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:68
 msgid "Defines which OpenNebula host will use this template"
-msgstr ""
+msgstr "Tentukan host Opennebula yang mana yang akan menggunakan templat ini"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/hybrid/ec2.hbs:76
 msgid "Keypair name"
@@ -7033,7 +7034,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:72
 msgid "vCenter Template Ref"
-msgstr ""
+msgstr "Ref Templat vCenter"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:80
 msgid "vCenter Cluster Ref"
@@ -7399,7 +7400,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:19
 msgid "Clone Template"
-msgstr ""
+msgstr "Duplikat Templat"
 
 #: ../app/tabs/templates-tab/dialogs/clone/html.hbs:27
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:27
@@ -7600,7 +7601,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/form-panels/create/advanced.hbs:20
 msgid "Write the Service template here"
-msgstr ""
+msgstr "Tulis templat Layanan disini"
 
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/elasticity-row.hbs:21
 #: ../app/tabs/oneflow-templates-tab/utils/role-tab/sche-row.hbs:21
@@ -7875,7 +7876,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/dialogs/clone/html.hbs:19
 msgid "Clone Service Template"
-msgstr ""
+msgstr "Duplikat Templat Layanan"
 
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:52
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:72
@@ -7885,7 +7886,7 @@ msgstr ""
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:56
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:76
 msgid "Path/URL"
-msgstr ""
+msgstr "Pranala/URL"
 
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:58
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:78
@@ -7895,7 +7896,7 @@ msgstr ""
 #: ../app/tabs/files-tab/form-panels/create/wizard.hbs:65
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:87
 msgid "Path in OpenNebula server or URL"
-msgstr ""
+msgstr "Pranala server OpenNebula atau URL"
 
 #: ../app/tabs/files-tab/form-panels/create/advanced.hbs:26
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/advanced.hbs:26
@@ -7930,7 +7931,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/html.hbs:90
 msgid "Select a role in the table for more information"
-msgstr ""
+msgstr "Pilih peran dalam daftar untuk informasi selanjutnya"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:34
 msgid "Force"
@@ -7942,7 +7943,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:19
 msgid "Add role"
-msgstr ""
+msgstr "Tambah peran"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -8143,7 +8144,7 @@ msgstr ""
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:19
 #: ../app/tabs/users-tab/dialogs/quotas/html.hbs:19
 msgid "Update Quota"
-msgstr ""
+msgstr "Perbarui Kuota"
 
 #: ../app/tabs/groups-tab/dialogs/quotas/html.hbs:30
 #: ../app/tabs/users-tab/panels/groups/html.hbs:51
@@ -8204,12 +8205,12 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:92
 msgid "Templates for the App"
-msgstr ""
+msgstr "Templat untuk App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:96
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:44
 msgid "VM template"
-msgstr ""
+msgstr "Templat VM"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:97
 msgid "VM Template to be created. A DISK element pointing to the App Image will be automatically added when the App is exported"
@@ -8218,7 +8219,7 @@ msgstr ""
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/wizard.hbs:103
 #: ../app/tabs/marketplaceapps-tab/panels/templates/html.hbs:22
 msgid "App template"
-msgstr ""
+msgstr "Templat App"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create/advanced.hbs:19
 msgid "Select the Marketplace where the App will be created"
@@ -8234,7 +8235,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:31
 msgid "VM Template Name"
-msgstr ""
+msgstr "Nama Templat VM"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:33
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks."
@@ -8250,7 +8251,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:54
 msgid "Select the vCenter Template to use"
-msgstr ""
+msgstr "Pilih Template vCenter yang akan digunakan"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export/wizard.hbs:52
 msgid "(Optional) Select an existing VM Template"
@@ -8367,7 +8368,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/panels/conf/html.hbs:22
 msgid "Update Configuration"
-msgstr ""
+msgstr "Perbarui Pengaturan"
 
 #: ../app/tabs/vms-tab/datatable/search.hbs:28
 msgid "VM type"
@@ -8418,7 +8419,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/saveas-template/html.hbs:39
 msgid "Save As Template"
-msgstr ""
+msgstr "Simpan Sebagai Templat"
 
 #: ../app/tabs/vms-tab/dialogs/migrate/html.hbs:20
 msgid "Migrate Virtual Machine"
@@ -8475,7 +8476,7 @@ msgstr ""
 
 #: ../app/tabs/vms-tab/dialogs/update-nic/html.hbs:20
 msgid "Update nic"
-msgstr ""
+msgstr "Perbarui nic"
 
 #: ../app/tabs/vms-tab/dialogs/attach-disk/html.hbs:20
 msgid "Attach new disk"
@@ -8542,7 +8543,7 @@ msgstr ""
 
 #: ../app/tabs/vdcs-tab/form-panels/create/advanced.hbs:20
 msgid "Write the VDC template here"
-msgstr ""
+msgstr "Tulis templat VDC disini"
 
 #: ../app/tabs/vdcs-tab/utils/resources-zone/html.hbs:32
 msgid "Selects all current and future clusters"
@@ -8632,15 +8633,15 @@ msgstr ""
 
 #: ../app/tabs/provision-tab/vms/html/confirm_save_as_template.hbs:7
 msgid "You can then create a new Virtual Machine using this Template."
-msgstr ""
+msgstr "Anda dapat membuat Virtual Mahine dengan menggunakan Templat ini."
 
 #: ../app/tabs/provision-tab/vms/html/confirm_save_as_template.hbs:14
 msgid "Template Name"
-msgstr ""
+msgstr "Nama Templat"
 
 #: ../app/tabs/provision-tab/vms/html/confirm_save_as_template.hbs:19
 msgid "Template Description"
-msgstr ""
+msgstr "Penjelasan Templat"
 
 #: ../app/tabs/provision-tab/vms/html/confirm_save_as_template.hbs:26
 msgid "The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks."
@@ -8743,7 +8744,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:20
 msgid "Network Template"
-msgstr ""
+msgstr "Templat Jaringan"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:33
 msgid "Address Ranges"
@@ -8773,7 +8774,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker/html.hbs:33
 msgid "Write the Dockerfile template here"
-msgstr ""
+msgstr "Tulis templat Dockerfile disini"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/image/html.hbs:38
 msgid "Operating System image"
@@ -9059,7 +9060,7 @@ msgstr ""
 #: ../app/tabs/users-tab/dialogs/password/html.hbs:19
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:89
 msgid "Update Password"
-msgstr ""
+msgstr "Perbarui Kata Sandi"
 
 #: ../app/tabs/users-tab/dialogs/groups/html.hbs:19
 msgid "Select Secondary Groups"
@@ -9075,7 +9076,7 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:41
 msgid "Update Language"
-msgstr ""
+msgstr "Perbarui Bahasa"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:63
 msgid "Change Password"
@@ -9091,7 +9092,7 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:125
 msgid "Update view"
-msgstr ""
+msgstr "Perbarui view"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:150
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:174
@@ -9101,7 +9102,7 @@ msgstr ""
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:151
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:175
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Perbarui Kunci SSH"
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:157
 msgid "Add a public SSH key to your account!"
@@ -9114,7 +9115,7 @@ msgstr ""
 
 #: ../app/tabs/settings-tab/panels/user-config/html.hbs:162
 msgid "Update your public SSH key!"
-msgstr ""
+msgstr "Perbarui Kunci Publik SSH anda!"
 
 #: ../app/tabs/secgroups-tab/form-panels/create/wizard.hbs:33
 #: ../app/tabs/secgroups-tab/panels/info/html.hbs:43
@@ -9509,7 +9510,7 @@ msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:112
 msgid "Never"
-msgstr ""
+msgstr "Tidak pernah"
 
 #: ../app/utils/disks-resize/html.hbs:19
 msgid "Disks"
@@ -9549,3 +9550,6 @@ msgstr ""
 
 #~ msgid "BackupsJobs"
 #~ msgstr "JobPencadangan"
+
+#~ msgid "VMs Updated"
+#~ msgstr "VM-VM yang telah diperbarui"

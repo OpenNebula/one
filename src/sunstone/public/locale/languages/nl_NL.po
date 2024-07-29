@@ -6482,7 +6482,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:29
 #: ../app/utils/nics-section/dd.hbs:37
 msgid "Alias"
-msgstr ""
+msgstr "Alias"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:30
 #: ../app/utils/nics-section/dd.hbs:38
@@ -6512,7 +6512,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:55
 #: ../app/utils/nics-section/dd.hbs:69
 msgid "RDP connection"
-msgstr ""
+msgstr "RDP verbinding"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:63
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:76
@@ -6527,7 +6527,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:68
 #: ../app/utils/nics-section/dd.hbs:86
 msgid "SSH connection"
-msgstr ""
+msgstr "SSH verbinding"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:77
 msgid "SSH will be enable in this network"
@@ -7948,7 +7948,7 @@ msgstr "Forceer de nieuwe kardinaliteit zelfs als het buiten de grenzen ligt"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:19
 msgid "Add role"
-msgstr ""
+msgstr "Voeg een rol toe"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -8757,7 +8757,7 @@ msgstr ""
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:25
 msgid "Network name"
-msgstr ""
+msgstr "Netwerknaam"
 
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/html.hbs:27
 msgid "Defaults to 'template name-<vnetid>' when empty."
@@ -9552,3 +9552,6 @@ msgstr "Gereserveerd geheugen in KB"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
+
+#~ msgid "Priority"
+#~ msgstr "Prioriteit"

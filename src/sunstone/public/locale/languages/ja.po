@@ -9547,17 +9547,14 @@ msgstr ""
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
 
+#~ msgid "Skip network contextualization"
+#~ msgstr "ネットワークコンテクスト化処理をスキップ"
+
 #~ msgid "virtio-blk Queues"
 #~ msgstr "virtio-blkキュー"
 
 #~ msgid "Number of vCPU queues to use in the virtio-blk controller. Leave blank to use the default value."
 #~ msgstr "virtio-blkコントローラーで使用するためのvCPUキュー数です。規定値で使うためには空欄のままにしておきます。"
-
-#~ msgid "Skip network contextualizacion"
-#~ msgstr "ネットワークコンテクスト化処理をスキップ"
-
-#~ msgid "Skip network contextualization"
-#~ msgstr "ネットワークコンテクスト化処理をスキップ"
 
 #~ msgid "Agent"
 #~ msgstr "エージェント"

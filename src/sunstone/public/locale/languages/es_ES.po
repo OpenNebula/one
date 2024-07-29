@@ -8,7 +8,7 @@
 # adriagm <adria@fsfe.org>, 2015
 # Adrián Menéndez <amenendez@asac.as>, 2017-2018
 # Alejandro Huertas Herrero <ahuertas@opennebula.io>, 2020
-# Alejandro Huertas Herrero, 2023
+# Alejandro “Al3xhh” Huertas Herrero, 2023
 # Carlos Albornoz <carlos@albornoz.rocks>, 2020
 # Daniel Molina <dmolina@opennebula.org>, 2012-2013,2015
 # Diego Hernan Marciano <diego.h.marciano@hotmail.com>, 2014
@@ -6695,7 +6695,7 @@ msgstr "Clase"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:327
 msgid "Short address"
-msgstr ""
+msgstr "Dirección corta"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:338
 msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"

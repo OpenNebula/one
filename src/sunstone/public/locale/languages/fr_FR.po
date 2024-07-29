@@ -7,6 +7,7 @@
 # reiatsu <abelendadavid@msn.com>, 2016
 # Aboubacar Fode CAMARA <bacamara@gmail.com>, 2014
 # Alexandre VERCHERE, 2022
+# Alexandre VERCHERE, 2022
 # 751f59914313e5d81a41c0bbdca5af47_180079a <86d68d2ceaf824e2ae38b4855d1df471_95203>, 2013
 # 751f59914313e5d81a41c0bbdca5af47_180079a <86d68d2ceaf824e2ae38b4855d1df471_95203>, 2013
 # berbard.b <bernard.brandl@gmail.com>, 2016
@@ -15,7 +16,7 @@
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
 # Daniel <git@baby-gnu.org>, 2015-2018
-# Daniel <git@baby-gnu.org>, 2019-2022
+# Daniel <git@baby-gnu.org>, 2019-2024
 # Edouard <madko77@gmail.com>, 2016,2018
 # Emmanuel Cohen <atmaniak@gmail.com>, 2013-2014
 # gapany <gapany@icare.ch>, 2012
@@ -26,7 +27,7 @@
 # juanmont <jjmontiel@opennebula.org>, 2017
 # Nadley-Nahir Mohamed <nahirmoha@gmail.com>, 2012
 # Nadley-Nahir Mohamed <nahirmoha@gmail.com>, 2012
-# Olivier Le Monnier <olivier@olsc.org>, 2016,2018
+# 417fdd822daffa6a09872ff90a8ae4e2_cb9e86d <bffbec0b8922f0ad022a4a17b4645454_448356>, 2016,2018
 # Patrice LACHANCE <patlachance@gmail.com>, 2012
 # Patrice LACHANCE <patlachance@gmail.com>, 2012-2013
 # Philippe Caseiro <caseiro.philippe@gmail.com>, 2016
@@ -42,7 +43,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Daniel <git@baby-gnu.org>, 2019-2022\n"
+"Last-Translator: Daniel <git@baby-gnu.org>, 2019-2024\n"
 "Language-Team: French (France) (http://app.transifex.com/opennebula/one/language/fr_FR/)\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -7013,19 +7014,19 @@ msgstr "Min"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:140
 msgid "Memory Resize Mode"
-msgstr ""
+msgstr "Mode de redimensionnement de la mémoire"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:145
 msgid "Ballooning"
-msgstr ""
+msgstr "Ballonnement"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:146
 msgid "Hotplug"
-msgstr ""
+msgstr "Enfichage à chaud"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:155
 msgid "Memory Slots"
-msgstr ""
+msgstr "Emplacements mémoires"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-create/html.hbs:186
 msgid "CPU modification"
@@ -7314,7 +7315,7 @@ msgstr "Pour activer les sauvegardes périodiques veuillez vous référer à l�
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:28
 msgid "Backup volatile disks?"
-msgstr "Sauvegarder les disques volatiles ?"
+msgstr "Sauvegarder les disques volatiles ?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:33
 msgid "FS Freeze"
@@ -7330,7 +7331,7 @@ msgstr "Agent qemu"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:45
 msgid "How many backups do you want to keep?"
-msgstr "Combien de sauvegarde voulez-vous conserver ?"
+msgstr "Combien de sauvegarde voulez-vous conserver ?"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:51
 msgid "Mode"
@@ -9587,3 +9588,204 @@ msgstr "Mémoire réservée en Ko"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr "Ces valeurs écraseront celles des sondes de supervision dans le prochain cycle de supervision"
+
+#~ msgid "BackupsJobs"
+#~ msgstr "TâchesDeSauvegarde"
+
+#~ msgid "Create BackupJob"
+#~ msgstr "Créer TâcheDeSauvegarde"
+
+#~ msgid "Priority"
+#~ msgstr "Priorité"
+
+#~ msgid "Last Backup"
+#~ msgstr "Dernière sauvegarde"
+
+#~ msgid "Please select a Backup job from the list"
+#~ msgstr "Veuillez sélectionner une tâche de sauvegarde de la liste"
+
+#~ msgid "You selected the following backupsjobs:"
+#~ msgstr "Vous avez sélectionné les tâches de sauvegarde suivantes :"
+
+#~ msgid "Please select one or more backupjobs from the list"
+#~ msgstr "Veuillez sélectionner une ou plusieurs tâche de sauvegardes de la liste"
+
+#~ msgid "BackupJob Error"
+#~ msgstr "Erreur TâcheDeSauvegarde"
+
+#~ msgid "BackupJob created"
+#~ msgstr "TâcheDeSauvegarde créée"
+
+#~ msgid "RESTORE"
+#~ msgstr "RESTAURER"
+
+#~ msgid "Skip network contextualization"
+#~ msgstr "Éviter la contextualisation réseau"
+
+#~ msgid "A virtual router can be configured to route SDNAT traffic for this NIC IP address"
+#~ msgstr "Un routeur virtuel peut être configuré à router le trafique SDNAT pour cette adresse IP d’interface"
+
+#~ msgid "Max Read IOPS"
+#~ msgstr "Lecture en IOPS Max"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of read iops"
+#~ msgstr "Exécuter les sauvegardes dans une unité cgroup systemd, limitant le nombre maximal d’IOPS en lecture"
+
+#~ msgid "Max Write IOPS"
+#~ msgstr "Écriture en IOPS Max"
+
+#~ msgid "Run backups in a systemd slice, limiting the max number of write iops"
+#~ msgstr "Exécuter les sauvegardes dans une unité cgroup systemd, limitant le nombre maximal d’IOPS en écriture"
+
+#~ msgid "CPU Quota"
+#~ msgstr "Quota CPU"
+
+#~ msgid "Run backups in a systemd slice with a given cpu quota (percentage). Use > 100 for using several CPUs"
+#~ msgstr "Exécuter les sauvegardes dans une unité cgroups avec un quota CPU donné (en pourcentage). Utiliser > 100 pour utiliser plusieurs CPUs"
+
+#~ msgid "Increment Mode"
+#~ msgstr "Mode incrémental"
+
+#~ msgid "CBT"
+#~ msgstr "CBT"
+
+#~ msgid "node affinity"
+#~ msgstr "Affinité de nœud"
+
+#~ msgid "Node Number"
+#~ msgstr "Numéro de nœud"
+
+#~ msgid "Number of NUMA nodes (node affinity)"
+#~ msgstr "Nombre de nœuds NUMA (affinité de nœud)"
+
+#~ msgid "Video"
+#~ msgstr "Vidéo"
+
+#~ msgid "Select the driver for the virtual video device, auto will be generated by OpenNebula."
+#~ msgstr "Sélectionner le pilote pour le périphérique vidéo virtuel, auto sera généré par OpenNebula."
+
+#~ msgid "Vga"
+#~ msgstr "Vga"
+
+#~ msgid "Cirrus"
+#~ msgstr "Cirrus"
+
+#~ msgid "Virtio"
+#~ msgstr "Virtio"
+
+#~ msgid "VRAM (KB)"
+#~ msgstr "VRAM (Ko)"
+
+#~ msgid "Define the amount of VRAM to assign to the video device in KB. Must be >= 1024"
+#~ msgstr "Définir la quantité de VRAM à attribuer au périphérique vidéo en Ko. Doit être >= 1024"
+
+#~ msgid "Resolution"
+#~ msgstr "Résolution"
+
+#~ msgid "Set the default resolution for the video device"
+#~ msgstr "Défini la résolution par défaut de la carte vidéo"
+
+#~ msgid "1920x1080"
+#~ msgstr "1920x1080"
+
+#~ msgid "1366x768"
+#~ msgstr "1366x768"
+
+#~ msgid "1536x864"
+#~ msgstr "1536x864"
+
+#~ msgid "1440x900"
+#~ msgstr "1440x900"
+
+#~ msgid "1280x720"
+#~ msgstr "1280x720"
+
+#~ msgid "Resolution width"
+#~ msgstr "Résolution horizontale"
+
+#~ msgid "Set the default width resolution for the video device"
+#~ msgstr "Défini la résolution horizontale par défaut de la carte vidéo"
+
+#~ msgid "Resolution height"
+#~ msgstr "Résolution verticale"
+
+#~ msgid "Set the default height resolution for the video device"
+#~ msgstr "Défini la résolution verticale par défaut de la carte vidéo"
+
+#~ msgid "IOMMU"
+#~ msgstr "IOMMU"
+
+#~ msgid "Enable the use of emulated Input/Output Memory Management Unit by the device"
+#~ msgstr "Activer l’utilisation de l’unité de gestion d’Entrée/Sortie mémoire émulée par le périphérique"
+
+#~ msgid "ATS"
+#~ msgstr "ATS"
+
+#~ msgid "Enable Address Translation Service support"
+#~ msgstr "Activer le support du Service de Traduction d’Adresse"
+
+#~ msgid "virtio-blk Queues"
+#~ msgstr "Files virtio-blk"
+
+#~ msgid "Number of vCPU queues to use in the virtio-blk controller. Leave blank to use the default value."
+#~ msgstr "Nombre de files de vCPU utilisées par le contrôleur virtio-blk. Laisser vide pour utiliser la valeur par défaut."
+
+#~ msgid "CPU Features"
+#~ msgstr "Fonctionnalités CPU"
+
+#~ msgid "The number of concurrent backup operations are controlled globally."
+#~ msgstr "Le nombre d’opérations de sauvegardes concurrentes est contrôlé globalement."
+
+#~ msgid "Agent"
+#~ msgstr "Agent"
+
+#~ msgid "Keep Last"
+#~ msgstr "Conserver le dernier"
+
+#~ msgid "Backup Volatile"
+#~ msgstr "Sauvegarde volatile"
+
+#~ msgid "Select Vms"
+#~ msgstr "Sélectionner des VMs"
+
+#~ msgid "VM List (ordered)"
+#~ msgstr "Liste de VM (ordonnée)"
+
+#~ msgid "The order of this list is crucial as it determines the sequence of backup operations."
+#~ msgstr "L’ordre de cette liste est crucial étant donné qu’il détermine l’ordre des opérations de sauvegarde."
+
+#~ msgid "Select the Datastore"
+#~ msgstr "Choisir l’espace de stockage"
+
+#~ msgid "Schedule Actions"
+#~ msgstr "Planifier les actions"
+
+#~ msgid "VMs in BackupJob"
+#~ msgstr "VMs de la TâcheDeBackup"
+
+#~ msgid "Edit VMs"
+#~ msgstr "Modifier les VMs"
+
+#~ msgid "VMs Error"
+#~ msgstr "Erreur de VMs"
+
+#~ msgid "VMs Backing Up"
+#~ msgstr "VMs en sauvegarde"
+
+#~ msgid "VMs Outdated"
+#~ msgstr "VMs obsolètes"
+
+#~ msgid "VMs Updated"
+#~ msgstr "VMs mises à jour"
+
+#~ msgid "Last Backup Duration"
+#~ msgstr "Durée de la dernière sauvegarde"
+
+#~ msgid "Select VMs"
+#~ msgstr "Sélectionner des VMs"
+
+#~ msgid "Reservation/Overcommitment"
+#~ msgstr "Réservation/Sur-allocation"
+
+#~ msgid "Increment ID"
+#~ msgstr "ID d’incrément"

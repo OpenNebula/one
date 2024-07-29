@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the OpenNebula package.
 #
 # Translators:
-# Jens Kristian Søgaard <jens@mermaidconsulting.dk>, 2013-2015,2017
+# Jens Kristian Søgaard <jens@mermaidconsulting.dk>, 2013-2015,2017,2024
 # Jonas J <transifex@ftlog.net>, 2019
 # Patrick Rasmussen <patrickrasmussen1988@gmail.com>, 2020
 msgid ""
@@ -12,7 +12,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-15 18:01+0100\n"
 "PO-Revision-Date: 2012-05-30 07:14+0000\n"
-"Last-Translator: Patrick Rasmussen <patrickrasmussen1988@gmail.com>, 2020\n"
+"Last-Translator: Jens Kristian Søgaard <jens@mermaidconsulting.dk>, 2013-2015,2017,2024\n"
 "Language-Team: Danish (http://app.transifex.com/opennebula/one/language/da/)\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
@@ -667,12 +667,12 @@ msgstr "Opdatér virtuelt netværk"
 #: ../app/tabs/vnets-tab/form-panels/create.js:325
 #: ../app/tabs/vnets-templates-tab/form-panels/create.js:314
 msgid "AR"
-msgstr ""
+msgstr "AR"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:495
 #: ../app/tabs/vnets-tab/form-panels/create.js:566
 msgid "Replication Mode"
-msgstr ""
+msgstr "Replikeringstilstand"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:513
 msgid "Universal Synchronization"
@@ -680,11 +680,11 @@ msgstr "Universal Synkronisering"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:520
 msgid "IP Discovery"
-msgstr ""
+msgstr "IP-opdagelse"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:527
 msgid "MAC Learning"
-msgstr ""
+msgstr "MAC-læring"
 
 #: ../app/tabs/vnets-tab/form-panels/create.js:555
 msgid "Admin Status"
@@ -707,7 +707,7 @@ msgstr "Sikkerhed"
 
 #: ../app/tabs/vnets-tab/panels/secgroups.js:144
 msgid "This will remove the security group"
-msgstr ""
+msgstr "Dette vil fjerne sikkerhedsgruppen"
 
 #: ../app/tabs/vnets-tab/panels/vrouters.js:39
 msgid "V. Routers"
@@ -733,15 +733,15 @@ msgstr "HOLD"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:41
 msgid "UPDATED"
-msgstr ""
+msgstr "OPDATERET"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:42
 msgid "OUTDATED"
-msgstr ""
+msgstr "FORÆLDET"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:43
 msgid "UPDATING"
-msgstr ""
+msgstr "OPDATERER"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:44
 #: ../app/tabs/provision-tab/vms/list.js:978
@@ -764,7 +764,7 @@ msgstr "UKENDT"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:46
 msgid "RESERVED"
-msgstr ""
+msgstr "RESERVERET"
 
 #: ../app/tabs/vnets-tab/panels/leases.js:55
 #: ../app/tabs/vnets-tab/dialogs/reserve/ar-datatable.js:63
@@ -1085,7 +1085,7 @@ msgstr "App"
 
 #: ../app/tabs/datastores-tab/form-panels/import.js:53
 msgid "Import vCenter Datastores"
-msgstr ""
+msgstr "Importér vCenter Datastore"
 
 #: ../app/tabs/datastores-tab/form-panels/create.js:54
 msgid "Create Datastore"
@@ -1220,7 +1220,7 @@ msgstr "Amazon Region"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:85
 msgid "Only if using public Amazon S3 service."
-msgstr ""
+msgstr "Kun hvis den offentlige Amazon S3-service benyttes"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:90
 msgid "Total Marketplace size in MB"
@@ -1256,11 +1256,11 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:130
 msgid "Filesystem used for the image"
-msgstr ""
+msgstr "Filsystem anvendt i diskbilledet"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:135
 msgid "Image block file format"
-msgstr ""
+msgstr "Diskbilledets blok-filformat"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:140
 msgid "Show only auto-contextualized apps"
@@ -1299,7 +1299,7 @@ msgstr "VCPU"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:160
 msgid "Container security mode"
-msgstr ""
+msgstr "Container sikkerhedstilstand"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:166
 msgid "DockerHub marketplace url"
@@ -1307,11 +1307,11 @@ msgstr ""
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:171
 msgid "SSL"
-msgstr ""
+msgstr "SSL"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:174
 msgid "SSL connection"
-msgstr ""
+msgstr "SSL-forbindelse"
 
 #: ../app/tabs/marketplaces-tab/form-panels/create.js:188
 msgid "Create MarketPlace"
@@ -1328,11 +1328,11 @@ msgstr "Markedsplads oprettet"
 #: ../app/tabs/marketplaces-tab/panels/info.js:46
 #: ../app/tabs/users-tab/datatable.js:74
 msgid "Enabled"
-msgstr ""
+msgstr "Slået til"
 
 #: ../app/tabs/marketplaces-tab/panels/info.js:47
 msgid "Disabled"
-msgstr ""
+msgstr "Slået fra"
 
 #: ../app/tabs/marketplaces-tab/datatable.js:90
 #: ../app/tabs/marketplaces-tab/panels/info/html.hbs:32
@@ -1393,13 +1393,13 @@ msgstr "Fil"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup.js:55
 #: ../app/utils/panel/permissions-table/backup.hbs:19
 msgid "Backups"
-msgstr ""
+msgstr "Sikkerhedskopier"
 
 #: ../app/tabs/backups-tab.js:49 ../app/tabs/vms-tab/buttons.js:284
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:100
 #: ../app/tabs/vms-tab/dialogs/backup/html.hbs:39
 msgid "Backup"
-msgstr ""
+msgstr "Sikkerhedskopi"
 
 #: ../app/tabs/secgroups-tab.js:45 ../app/tabs/secgroups-tab.js:49
 #: ../app/tabs/acls-tab/datatable.js:180
@@ -1554,7 +1554,7 @@ msgstr "Input/Output"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs.js:220
 msgid "The value goes out of the allowed limits"
-msgstr ""
+msgstr "Værdien er udenfor de tilladte grænser"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa.js:63
 msgid "NUMA"
@@ -1843,7 +1843,7 @@ msgstr "Kan ikke kontakte server: Kører den og er den tilgængelig?"
 
 #: ../app/tabs/hosts-tab/panels/info.js:236
 msgid "it must not be a negative number"
-msgstr ""
+msgstr "må ikke være et negativt tal"
 
 #: ../app/tabs/hosts-tab/panels/nsx.js:54
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:101
@@ -1864,7 +1864,7 @@ msgstr "Numa"
 
 #: ../app/tabs/hosts-tab/panels/pool.js:42
 msgid "POOL"
-msgstr ""
+msgstr "PULJE"
 
 #: ../app/tabs/hosts-tab/buttons.js:34
 msgid "Select the destination cluster"
@@ -1958,7 +1958,7 @@ msgstr ""
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:57
 msgid "Delete Images and VM Templates"
-msgstr ""
+msgstr "Slet diskbilleder og VM-skabeloner"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:58
 msgid "Delete VM Templates"
@@ -1971,7 +1971,7 @@ msgstr "Service oprettet"
 
 #: ../app/tabs/oneflow-templates-tab/actions.js:174
 msgid "Please select one (and just one) Service to export."
-msgstr ""
+msgstr "Vælg en (og kun en) Service til eksport"
 
 #: ../app/tabs/oneflow-templates-tab/buttons.js:76
 msgid "This will delete the selected templates"
@@ -2075,7 +2075,7 @@ msgstr "Bekræft"
 
 #: ../app/tabs/oneflow-services-tab/actions.js:345
 msgid "Are you sure you want to delete the role"
-msgstr ""
+msgstr "Er du sikker på at du vil slette rollen"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles.js:56
 #: ../app/utils/vmgroup-section.js:149
@@ -2114,15 +2114,15 @@ msgstr "Log"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:193
 msgid "VM: "
-msgstr ""
+msgstr "VM:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:195
 msgid "has error: "
-msgstr ""
+msgstr "har fejl:"
 
 #: ../app/tabs/oneflow-services-tab/panels/info.js:202
 msgid "Dismiss"
-msgstr ""
+msgstr "Luk"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:23
 #: ../app/tabs/oneflow-services-tab/dialogs/scale/html.hbs:19
@@ -2175,7 +2175,7 @@ msgstr "Afbryd"
 
 #: ../app/tabs/oneflow-services-tab/panels/roles/roles-buttons.js:95
 msgid "Remove Role"
-msgstr ""
+msgstr "Fjern rolle"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:64
 #: ../app/tabs/vms-tab/buttons.js:157 ../app/tabs/vms-tab/buttons.js:165
@@ -2188,11 +2188,11 @@ msgstr "Dette sletter de valgte services"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:77
 msgid "Purge done"
-msgstr ""
+msgstr "Udrensning udført"
 
 #: ../app/tabs/oneflow-services-tab/buttons.js:79
 msgid "This will delete all services in DONE state to free some space in your database"
-msgstr ""
+msgstr "Dette vil slette alle services i AFSLUTTET tilstanden for at frigøre plads i databasen"
 
 #: ../app/tabs/oneflow-services-tab/dialogs/scale.js:77
 #: ../app/tabs/images-tab/form-panels/create-common.js:90
@@ -2252,7 +2252,7 @@ msgstr "Du har valgt følgende services:"
 #: ../app/tabs/oneflow-services-tab/datatable.js:127
 #: ../app/tabs/vms-tab/utils/datatable-common.js:133
 msgid "will run in"
-msgstr ""
+msgstr "kan køre i"
 
 #: ../app/tabs/clusters-tab/form-panels/create.js:52
 msgid "Create Cluster"
@@ -2433,15 +2433,15 @@ msgstr "Instrumentbord"
 
 #: ../app/tabs/backups-tab/actions.js:32
 msgid "Backup created"
-msgstr ""
+msgstr "Sikkerhedskopi oprettet"
 
 #: ../app/tabs/backups-tab/actions.js:57
 msgid "Restored Template"
-msgstr ""
+msgstr "Genskabt skabelon"
 
 #: ../app/tabs/backups-tab/actions.js:61
 msgid "Restored Disk"
-msgstr ""
+msgstr "Genskabt disk"
 
 #: ../app/tabs/backups-tab/panels/increments.js:35
 msgid "Increments"
@@ -2450,23 +2450,23 @@ msgstr ""
 #: ../app/tabs/backups-tab/buttons.js:30
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:46
 msgid "Restore"
-msgstr ""
+msgstr "Genskab"
 
 #: ../app/tabs/backups-tab/datatable.js:43
 msgid "Please select a backup from the list"
-msgstr ""
+msgstr "Vælg en sikkerhedskopi fra listen"
 
 #: ../app/tabs/backups-tab/datatable.js:44
 msgid "You selected the following backup:"
-msgstr ""
+msgstr "Du har valgt følgende sikkerhedskopi:"
 
 #: ../app/tabs/backups-tab/datatable.js:45
 msgid "Please select one or more backups from the list"
-msgstr ""
+msgstr "Vælg en eller flere sikkerhedskopier fra listen"
 
 #: ../app/tabs/backups-tab/datatable.js:46
 msgid "You selected the following backups:"
-msgstr ""
+msgstr "Du har valgt følgende sikkerhedskopier:"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:59
 msgid "Create MarketPlace App"
@@ -2478,15 +2478,15 @@ msgstr "Opret markedsplads-app fra diskbillede"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:69
 msgid "Create MarketPlace App from VM Template"
-msgstr ""
+msgstr "Opret MarketPlace App fra VM-skabelon"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:74
 msgid "Create MarketPlace App from Service"
-msgstr ""
+msgstr "Opret MarketPlace App fra Service"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:79
 msgid "Create MarketPlace App from VM"
-msgstr ""
+msgstr "Opret MarketPlace App fra VM"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/create.js:428
 #: ../app/tabs/vms-tab/actions.js:477
@@ -2501,7 +2501,7 @@ msgstr "gemt"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:89
 msgid "Download App To OpenNebula"
-msgstr ""
+msgstr "Hent App til OpenNebula"
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/export.js:90
 msgid "Download"
@@ -2517,7 +2517,7 @@ msgstr ""
 
 #: ../app/tabs/marketplaceapps-tab/form-panels/docker-tags.js:67
 msgid "You selected the following dockerhub tags:"
-msgstr ""
+msgstr "Du har valgt følgende dockerhub mærker:"
 
 #: ../app/tabs/marketplaceapps-tab/actions.js:35
 msgid "MarketPlace App created"
@@ -2548,7 +2548,7 @@ msgstr "OK"
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:34
 msgid "Import into Datastore"
-msgstr ""
+msgstr "Importér til Datastore"
 
 #: ../app/tabs/marketplaceapps-tab/buttons.js:40
 msgid "Download to your desktop"
@@ -2603,12 +2603,12 @@ msgstr "Opdatér VM-konfiguration"
 
 #: ../app/tabs/vms-tab/actions.js:223
 msgid "Data for rdp file isn't correct"
-msgstr ""
+msgstr "Data for rdp-filen er ikke korrekte"
 
 #: ../app/tabs/vms-tab/actions.js:236 ../app/tabs/vms-tab/actions.js:252
 #: ../app/utils/remote-actions.js:51
 msgid "Data for virt-viewer file isn't correct"
-msgstr ""
+msgstr "Data for virt-viewer filen er ikke korrekte"
 
 #: ../app/tabs/vms-tab/actions.js:447
 msgid "Please select one (and just one) VM to export."
@@ -2761,15 +2761,15 @@ msgstr "nej"
 
 #: ../app/tabs/vms-tab/panels/info.js:126
 msgid "Driver Error"
-msgstr ""
+msgstr "Driverfejl"
 
 #: ../app/tabs/vms-tab/panels/info.js:140
 msgid "Scheduler Error"
-msgstr ""
+msgstr "Planlæggerfejl"
 
 #: ../app/tabs/vms-tab/panels/info.js:159
 msgid "Scheduled Action Error"
-msgstr ""
+msgstr "Fejl for planlagt handling"
 
 #: ../app/tabs/vms-tab/panels/conf.js:51
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:24
@@ -2875,7 +2875,7 @@ msgstr "tilkobl/frakobl undervejs"
 
 #: ../app/tabs/vms-tab/panels/network.js:302
 msgid "Attach security group"
-msgstr ""
+msgstr "Tilknyt sikkerhedsgruppe"
 
 #: ../app/tabs/vms-tab/panels/network.js:645
 msgid "This will detach the security group immediately"
@@ -3015,7 +3015,7 @@ msgstr "VNC"
 
 #: ../app/tabs/vms-tab/buttons.js:211
 msgid "VMRC"
-msgstr ""
+msgstr "VMRC"
 
 #: ../app/tabs/vms-tab/buttons.js:217
 msgid "SPICE"
@@ -3023,7 +3023,7 @@ msgstr "SPICE"
 
 #: ../app/tabs/vms-tab/buttons.js:223
 msgid "Virt Viewer"
-msgstr ""
+msgstr "Virt Viewer"
 
 #: ../app/tabs/vms-tab/buttons.js:235
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:71
@@ -3037,7 +3037,7 @@ msgstr "RDP"
 
 #: ../app/tabs/vms-tab/buttons.js:247
 msgid "RDP Client"
-msgstr ""
+msgstr "RDP-klient"
 
 #: ../app/tabs/vms-tab/dialogs/deploy.js:93
 #: ../app/tabs/vms-tab/dialogs/migrate.js:102
@@ -3059,7 +3059,7 @@ msgstr "kører i øjeblikket på Vært"
 
 #: ../app/tabs/vms-tab/dialogs/migrate.js:179
 msgid "and Datastore"
-msgstr ""
+msgstr "og DataStore"
 
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:110
 #: ../app/tabs/vms-tab/dialogs/disk-resize.js:124
@@ -3495,7 +3495,7 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:373
 msgid "Please select a datastore"
-msgstr ""
+msgstr "Vælg et Datastore"
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:379
 msgid "Please insert a dockerfile template"
@@ -3503,11 +3503,11 @@ msgstr ""
 
 #: ../app/tabs/images-tab/form-panels/create-common.js:387
 msgid "Please select a size"
-msgstr ""
+msgstr "Vælg en størrelse"
 
 #: ../app/tabs/images-tab/form-panels/create/wizard-tabs/docker.js:64
 msgid "Dockerfile"
-msgstr ""
+msgstr "Docker-fil"
 
 #: ../app/tabs/images-tab/actions.js:100
 msgid "This Image resides in Datastore "
@@ -3519,11 +3519,11 @@ msgstr ""
 
 #: ../app/tabs/images-tab/actions.js:148
 msgid "Template restored"
-msgstr ""
+msgstr "Skabelon genskabt"
 
 #: ../app/tabs/images-tab/actions.js:152
 msgid "Disk restored"
-msgstr ""
+msgstr "Disk genskabt"
 
 #: ../app/tabs/images-tab/panels/info-common.js:96
 #: ../app/opennebula/image.js:37
@@ -3592,15 +3592,15 @@ msgstr "Mål"
 #: ../app/opennebula/datastore.js:32 ../app/opennebula/image.js:43
 #: ../app/opennebula/vm.js:369 ../app/opennebula/vm.js:370
 msgid "BACKUP"
-msgstr ""
+msgstr "SIKKERHEDSKOPI"
 
 #: ../app/tabs/images-tab/datatable-common.js:112
 msgid "INCREMENTAL"
-msgstr ""
+msgstr "INKREMENTAL"
 
 #: ../app/tabs/images-tab/datatable-common.js:115
 msgid "FULL"
-msgstr ""
+msgstr "FULD"
 
 #: ../app/tabs/images-tab/datatable.js:45
 msgid "Please select an image from the list"
@@ -4659,7 +4659,7 @@ msgstr ""
 
 #: ../app/utils/disks-resize.js:177
 msgid "Image state: "
-msgstr ""
+msgstr "Diskbillede-tilstand:"
 
 #: ../app/utils/lock.js:47
 msgid "Unlocked!"
@@ -4784,23 +4784,23 @@ msgstr ""
 
 #: ../app/utils/remote-actions.js:61 ../app/utils/remote-actions.js:71
 msgid "VNC - Invalid action"
-msgstr ""
+msgstr "VNC - Ugyldig handling"
 
 #: ../app/utils/remote-actions.js:77
 msgid "RDP - Invalid action"
-msgstr ""
+msgstr "RDP - Ugyldig handling"
 
 #: ../app/utils/remote-actions.js:83
 msgid "SSH - Invalid action"
-msgstr ""
+msgstr "SSH - Ugyldig handling"
 
 #: ../app/utils/remote-actions.js:175
 msgid "HTML"
-msgstr ""
+msgstr "HTML"
 
 #: ../app/utils/remote-actions.js:185
 msgid "Client"
-msgstr ""
+msgstr "Klient"
 
 #: ../app/utils/vmgroup-section.js:167
 msgid "Internal server error."
@@ -4971,11 +4971,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:128
 msgid "Host ID"
-msgstr ""
+msgstr "Værts-ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:136
 msgid "Transport"
-msgstr ""
+msgstr "Transport"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:148
 msgid "Network Driver (VN_MAD)"
@@ -5052,7 +5052,7 @@ msgstr "Interfacets MTU"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:235
 msgid "Outer VLAN ID"
-msgstr ""
+msgstr "Ydre VLAN-ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:237
 msgid "First level (outer, service) VLAN ID"
@@ -5060,11 +5060,11 @@ msgstr ""
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:240
 msgid "Automatic Outer VLAN ID"
-msgstr ""
+msgstr "Automatisk ydre VLAN-ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:241
 msgid "Manual Outer VLAN ID"
-msgstr ""
+msgstr "Manuel ydre VLAN-ID"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:250
 msgid "Switch name"
@@ -5171,7 +5171,7 @@ msgstr "MTU for gæste-interfaces"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:234
 #: ../app/tabs/vnets-templates-tab/form-panels/instantiate/templateRow.hbs:88
 msgid "Method"
-msgstr ""
+msgstr "Metode"
 
 #: ../app/tabs/vnets-tab/form-panels/create/wizard.hbs:421
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:264
@@ -5740,11 +5740,11 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:331
 msgid "RSync host"
-msgstr ""
+msgstr "RSync vært"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:338
 msgid "RSync user"
-msgstr ""
+msgstr "RSync bruger"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:348
 msgid "Staging directory for Image registration"
@@ -5772,7 +5772,7 @@ msgstr ""
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:378
 msgid "Ceph keyfile"
-msgstr ""
+msgstr "Ceph nøglefil"
 
 #: ../app/tabs/datastores-tab/form-panels/create/wizard.hbs:380
 msgid "File containing the secret key of user."
@@ -6487,7 +6487,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:40
 #: ../app/utils/nics-section/dd.hbs:50
 msgid "Network selection"
-msgstr ""
+msgstr "Netværksvalg"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:48
 #: ../app/utils/nics-section/dd.hbs:59
@@ -6517,11 +6517,11 @@ msgstr "RDP vil være aktiveret på dette netværk"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:68
 #: ../app/utils/nics-section/dd.hbs:86
 msgid "SSH connection"
-msgstr ""
+msgstr "SSH-forbindelse"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:77
 msgid "SSH will be enable in this network"
-msgstr ""
+msgstr "SSH vil være aktiveret på dette netværk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:83
 #: ../app/utils/nics-section/dd.hbs:104
@@ -6531,17 +6531,17 @@ msgstr "Netværkskrav"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:87
 #: ../app/utils/nics-section/dd.hbs:108
 msgid "Select Vnets "
-msgstr ""
+msgstr "Vælg vnet"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:89
 #: ../app/utils/nics-section/dd.hbs:110
 msgid "Custom expression "
-msgstr ""
+msgstr "Tilpasset udtryk"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:106
 #: ../app/utils/nics-section/dd.hbs:126
 msgid "Network Rank"
-msgstr ""
+msgstr "Netværksrang"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:111
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:75
@@ -6630,7 +6630,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:301
 msgid "Transmission queue"
-msgstr ""
+msgstr "Transmissionskø"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:302
 msgid "Only supported for virtio driver."
@@ -6658,7 +6658,7 @@ msgstr "Klasse"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:327
 msgid "Short address"
-msgstr ""
+msgstr "Kort adresse"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:338
 msgid "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"
@@ -6666,11 +6666,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:343
 msgid "Guest Options"
-msgstr ""
+msgstr "Gæste-valg"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:347
 msgid "Guest MTU"
-msgstr ""
+msgstr "Gæst MTU"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/html.hbs:31
 msgid "VM Templates for Virtual Routers cannot define NICs"
@@ -6686,7 +6686,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:35
 msgid "Storage Options"
-msgstr ""
+msgstr "Lagervalg"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/html.hbs:39
 msgid "Deploy Mode"
@@ -6764,7 +6764,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:199
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:216
 msgid "Maximum"
-msgstr ""
+msgstr "Maksimum"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:130
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:147
@@ -6773,7 +6773,7 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:203
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:220
 msgid "Maximum length"
-msgstr ""
+msgstr "Maksimumslængde"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:137
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:193
@@ -6803,7 +6803,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:247
 msgid "Edge Cluster"
-msgstr ""
+msgstr "Kantklynge"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab/options.hbs:252
 msgid "Snapshot Frequency in Seconds"
@@ -7119,7 +7119,7 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/general/html.hbs:217
 msgid "User / Group"
-msgstr ""
+msgstr "Bruger / Gruppe"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/numa/html.hbs:22
 msgid "NUMA Topology"
@@ -7297,11 +7297,11 @@ msgstr ""
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:55
 msgid "Full"
-msgstr ""
+msgstr "Fuld"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/backup/html.hbs:56
 msgid "Increment"
-msgstr ""
+msgstr "Inkrement"
 
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/scheduling/html.hbs:23
 msgid "Policy"
@@ -7442,15 +7442,15 @@ msgstr "EC2"
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:89
 #: ../app/utils/panel/ec2-tr/html.hbs:2
 msgid "Region name"
-msgstr ""
+msgstr "Regionsnavn"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:95
 msgid "Access key ID"
-msgstr ""
+msgstr "Access key ID"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:99
 msgid "Secret access key"
-msgstr ""
+msgstr "Secret access key"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:107
 msgid "The valid list of instance types can be found in the official Amazon EC2 documentation, please use a value from the Model column of the following table: aws.amazon.com/ ec2/instance-types/"
@@ -7463,23 +7463,23 @@ msgstr "Nøgle"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:144
 msgid "Remote username"
-msgstr ""
+msgstr "Fjern-brugernavn"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:148
 msgid "Remote password"
-msgstr ""
+msgstr "Fjern-kodeord"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:154
 msgid "Remote endpoint"
-msgstr ""
+msgstr "Fjern-endepunkt"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:160
 msgid "Remote capacity"
-msgstr ""
+msgstr "Fjern-kapacitet"
 
 #: ../app/tabs/hosts-tab/form-panels/create/wizard.hbs:198
 msgid "Get Clusters"
-msgstr ""
+msgstr "Hent klynger"
 
 #: ../app/tabs/hosts-tab/utils/datastore-capacity-table/html.hbs:20
 msgid "Datastore ID"
@@ -7938,7 +7938,7 @@ msgstr "Gennemtving den nye kardinalitet selv hvis den overskrider begrænsninge
 
 #: ../app/tabs/oneflow-services-tab/dialogs/add/html.hbs:19
 msgid "Add role"
-msgstr ""
+msgstr "Tilføj rolle"
 
 #: ../app/tabs/clusters-tab/panels/info/html.hbs:52
 #: ../app/utils/dialogs/overcommit/html.hbs:45
@@ -7963,7 +7963,7 @@ msgstr "Afventer"
 
 #: ../app/tabs/support-tab/title.hbs:38
 msgid "Submit a Request"
-msgstr ""
+msgstr "Indsend forespørgsel"
 
 #: ../app/tabs/support-tab/title.hbs:44
 msgid "Not officially supported"
@@ -8151,7 +8151,7 @@ msgstr "Gem ændringer"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:19
 msgid "Restore Backup"
-msgstr ""
+msgstr "Genskab sikkerhedskopi"
 
 #: ../app/tabs/backups-tab/dialogs/restore/html.hbs:25
 msgid "Attributes to restore"
@@ -8855,11 +8855,11 @@ msgstr "ACL-tekst preview"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:41
 msgid "Server Pool"
-msgstr ""
+msgstr "Serverpulje"
 
 #: ../app/tabs/zones-tab/panels/info/html.hbs:48
 msgid "ENDPOINT"
-msgstr ""
+msgstr "ENDEPUNKT"
 
 #: ../app/tabs/zones-tab/dialogs/create/html.hbs:20
 msgid "Create Zone"
@@ -8942,7 +8942,7 @@ msgstr "Du angive SSH-nøgle for denne bruger ved at trykke på Rediger-knappen"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:107
 msgid "Private SSH Key"
-msgstr ""
+msgstr "Privat SSH-nøgle"
 
 #: ../app/tabs/users-tab/panels/auth/html.hbs:122
 msgid "You can provide a Private SSH Key for this User clicking on the edit button"
@@ -9000,15 +9000,15 @@ msgstr ""
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:76
 msgid "Authy"
-msgstr ""
+msgstr "Authy"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:79
 msgid "Google Authenticator"
-msgstr ""
+msgstr "Google Authenticator"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:82
 msgid "Microsoft Authenticator"
-msgstr ""
+msgstr "Microsoft Authenticator"
 
 #: ../app/tabs/users-tab/dialogs/two-factor-auth/html.hbs:86
 msgid "Scan this Barcode."
@@ -9308,7 +9308,7 @@ msgstr "Vælg en række for at få detaljeret information for måneden"
 
 #: ../app/utils/showback/html.hbs:90
 msgid "Running"
-msgstr ""
+msgstr "Kørende"
 
 #: ../app/utils/vmgroup-section/html.hbs:5
 msgid "Clear"
@@ -9493,7 +9493,7 @@ msgstr ""
 
 #: ../app/utils/schedule_action/html.hbs:69
 msgid "Periodic"
-msgstr ""
+msgstr "Periodisk"
 
 #: ../app/utils/schedule_action/html.hbs:74
 msgid "Repeat"
@@ -9501,7 +9501,7 @@ msgstr "Gentag"
 
 #: ../app/utils/schedule_action/html.hbs:81
 msgid "Hourly"
-msgstr ""
+msgstr "Hver time"
 
 #: ../app/utils/schedule_action/html.hbs:112
 msgid "Never"
@@ -9542,3 +9542,30 @@ msgstr "Reserveret Hukommelse i KB"
 #: ../app/utils/dialogs/overcommit/html.hbs:59
 msgid "The values will overwrite the monitoring values in the next monitorization cycle"
 msgstr ""
+
+#~ msgid "BackupsJobs"
+#~ msgstr "Sikkerhedskopieringsjobs"
+
+#~ msgid "Create BackupJob"
+#~ msgstr "Opret sikkerhedskopieringsjob"
+
+#~ msgid "Priority"
+#~ msgstr "Prioritet"
+
+#~ msgid "Last Backup"
+#~ msgstr "Seneste sikkerhedskopi"
+
+#~ msgid "Please select a Backup job from the list"
+#~ msgstr "Vælg et sikkerhedskopierings-job fra listen"
+
+#~ msgid "You selected the following backupsjobs:"
+#~ msgstr "Du har valgt følgende sikkerhedskopierings-jobs:"
+
+#~ msgid "Please select one or more backupjobs from the list"
+#~ msgstr "Vælg et eller flere sikkerhedskopieringsjobs fra listen"
+
+#~ msgid "BackupJob Error"
+#~ msgstr "Fejl ved sikkerhedskopieringsjob"
+
+#~ msgid "BackupJob created"
+#~ msgstr "Sikkerhedskopieringsjob oprettet"
