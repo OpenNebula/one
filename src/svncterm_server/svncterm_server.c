@@ -2,7 +2,7 @@
      Copyright (C) 2006 Universitat Politecnica de Valencia
      * Removing the usage of TLS and the need of patched versions of libraries
 
-     Copyright (C) 2007-2023 Proxmox Server Solutions GmbH
+     Copyright (C) 2007-2024 Proxmox Server Solutions GmbH
 
      Copyright: vzdump is under GNU GPL, the GNU General Public License.
 

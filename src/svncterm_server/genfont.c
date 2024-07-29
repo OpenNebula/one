@@ -20,7 +20,7 @@
 
      Author: Dietmar Maurer <dietmar@proxmox.com>
 
-     Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
+     Copyright 2002-2024, OpenNebula Project, OpenNebula Systems
 
      - Update psf loader to PSFv2
      - Added command line options & usage

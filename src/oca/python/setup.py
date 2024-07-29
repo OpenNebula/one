@@ -1,5 +1,5 @@
 # Copyright 2018 www.privaz.io Valletech AB
-# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ install_requires = [
 if sys.version_info[0] < 3:
     install_requires.append('future')
 
-version = '6.9.80'
+version = '6.10.0'
 
 # mark pre-release
 v1 = int(version.split('.')[1])
