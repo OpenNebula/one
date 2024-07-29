@@ -61,7 +61,7 @@ require 'opennebula/server_cipher_auth'
 
 require 'CommandManager'
 
-require_relative './restic'
+require_relative 'restic'
 require_relative '../../tm/lib/backup'
 
 # ------------------------------------------------------------------------------

@@ -161,7 +161,7 @@ class Restic
     def resticenv_rb(restic_bin = @restic_bin)
         ENV['RESTIC_BIN']      = restic_bin
         ENV['RESTIC_PASSWORD'] = @passwd
-        ENV['GOMAXPROCS']      = "#{@maxproc}" unless @maxproc == -1
+        ENV['GOMAXPROCS']      = @maxproc.to_s unless @maxproc == -1
     end
 
     def [](xpath)
@@ -426,8 +426,11 @@ class Restic
             disk_paths.each do |path|
                 wdir = File.dirname(path) if wdir.nil?
                 file = File.basename(path)
+
+                rcmd = restic("dump '#{snap}' '#{path}'", 'quiet' => nil)
+
                 script << "install -d '#{wdir}/'"
-                script << "#{restic("dump '#{snap}' '#{path}'", 'quiet' => nil)} > '#{wdir}/#{file}'"
+                script << "#{rcmd} > '#{wdir}/#{file}'"
             end
         end
 

@@ -113,7 +113,7 @@ begin
         sync_manager.update_remotes "#{sftp_user}@#{sftp_server}",
                                     nil,
                                     :rsync,
-                                    %w[VERSION datastore/restic/restic]
+                                    ['VERSION', 'datastore/restic/restic']
     end
 rescue StandardError => e
     STDERR.puts e.full_message

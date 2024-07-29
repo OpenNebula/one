@@ -54,7 +54,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'base64'
 
 require_relative '../../tm/lib/backup'
-require_relative './restic'
+require_relative 'restic'
 
 daction64 = STDIN.read
 

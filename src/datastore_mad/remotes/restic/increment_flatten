@@ -56,7 +56,7 @@ require 'date'
 
 require_relative '../../tm/lib/backup'
 require_relative '../../tm/lib/tm_action'
-require_relative './restic'
+require_relative 'restic'
 
 daction64 = STDIN.read
 
@@ -100,11 +100,11 @@ def flatten_chains(rds, image, paths, snapshot)
     # Gather and quote all file paths to be included in the snapshot.
     snap             = snapshot['short_id']
     to_backup        = paths[:disks][:by_snap][snap] + paths[:other][:uniq]
-    to_backup_quoted = to_backup.map {|p| "'#{p.delete(%["'])}'" }
+    to_backup_quoted = to_backup.map {|p| "'#{p.delete(%("'))}'" }
 
     # Gather and quote all file paths to be deleted after.
     to_delete        = paths[:disks][:uniq] + paths[:other][:uniq]
-    to_delete_quoted = to_delete.map {|p| "'#{p.delete(%["'])}'" }
+    to_delete_quoted = to_delete.map {|p| "'#{p.delete(%("'))}'" }
 
     rm_cmd = to_delete_quoted.empty? ? '' : "rm -f #{to_delete_quoted.join(' ')}"
 
