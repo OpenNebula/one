@@ -1,0 +1,117 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'pathname'
+
+require 'CommandManager'
+
+require_relative '../../tm/lib/datastore'
+require_relative '../../tm/lib/tm_action'
+
+TransferManager::Datastore.load_env
+
+dir     = ARGV[0].split(':')
+vm_uuid = ARGV[1]
+
+vm_host = dir[0]
+
+dsrdir = ENV['BACKUP_BASE_PATH']
+vm_dir = if dsrdir
+             Pathname.new("#{dsrdir}/#{File.basename(dir[1])}/backup").cleanpath.to_s
+         else
+             Pathname.new(dir[1]).cleanpath.to_s
+         end
+
+begin
+    # Kill the backup script.
+    script = <<~EOS
+        set -x -e -o pipefail; shopt -qs failglob
+        (ps --no-headers -o pid,cmd -C ruby \
+        | awk '$0 ~ "(pre)?backup(_live)? .*#{vm_uuid} " { print $1 } END { print "\\0" }' || :) \\
+        | (read -d '' PIDS
+           [[ -n "$PIDS" ]] || exit 0                           # empty
+           [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
+           kill -s TERM $PIDS)
+    EOS
+
+    rc = LocalCommand.run '/bin/bash -s', nil, script
+
+    raise StandardError, "Unable to stop restic backup action: #{rc.stderr}" \
+        if rc.code != 0
+
+    # Kill the restic process. This step is a failsafe in case the TERM signal handler
+    # inside the "backup" action fails to properly cleanup all leftover processes.
+    script = <<~EOS
+        set -x -e -o pipefail; shopt -qs failglob
+        (ps --no-headers -o pid,cmd -C restic \
+        | awk '$0 ~ "#{vm_dir}" { print $1 } END { print "\\0" }' || :) \\
+        | (read -d '' PIDS
+           [[ -n "$PIDS" ]] || exit 0                           # empty
+           [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
+           kill -s TERM $PIDS)
+    EOS
+
+    rc = TransferManager::Action.ssh 'backup_cancel',
+                                     :host     => vm_host,
+                                     :cmds     => script,
+                                     :nostdout => true,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to stop leftover restic process: #{rc.stderr}" \
+        if rc.code != 0
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+exit(0)

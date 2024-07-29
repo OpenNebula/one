@@ -461,6 +461,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/vcenter \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/datastore/rsync \
+          $VAR_LOCATION/remotes/datastore/restic \
           $VAR_LOCATION/remotes/market \
           $VAR_LOCATION/remotes/market/http \
           $VAR_LOCATION/remotes/market/one \
@@ -661,6 +662,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/datastore/vcenter
     DATASTORE_DRIVER_ISCSI_SCRIPTS:$VAR_LOCATION/remotes/datastore/iscsi_libvirt
     DATASTORE_DRIVER_RSYNC_SCRIPTS:$VAR_LOCATION/remotes/datastore/rsync
+    DATASTORE_DRIVER_RESTIC_SCRIPTS:$VAR_LOCATION/remotes/datastore/restic
     DATASTORE_DRIVER_ETC_SCRIPTS:$VAR_LOCATION/remotes/etc/datastore
     MARKETPLACE_DRIVER_HTTP_SCRIPTS:$VAR_LOCATION/remotes/market/http
     MARKETPLACE_DRIVER_ETC_HTTP_SCRIPTS:$VAR_LOCATION/remotes/etc/market/http
@@ -2017,6 +2019,23 @@ DATASTORE_DRIVER_RSYNC_SCRIPTS="src/datastore_mad/remotes/rsync/cp \
                          src/datastore_mad/remotes/rsync/export \
                          src/datastore_mad/remotes/rsync/increment_flatten \
                          src/datastore_mad/remotes/rsync/ls"
+
+DATASTORE_DRIVER_RESTIC_SCRIPTS="src/datastore_mad/remotes/restic/cp \
+                                 src/datastore_mad/remotes/restic/mkfs \
+                                 src/datastore_mad/remotes/restic/stat \
+                                 src/datastore_mad/remotes/restic/rm \
+                                 src/datastore_mad/remotes/restic/monitor \
+                                 src/datastore_mad/remotes/restic/snap_delete \
+                                 src/datastore_mad/remotes/restic/snap_revert \
+                                 src/datastore_mad/remotes/restic/snap_flatten \
+                                 src/datastore_mad/remotes/restic/clone \
+                                 src/datastore_mad/remotes/restic/restore \
+                                 src/datastore_mad/remotes/restic/restic.rb \
+                                 src/datastore_mad/remotes/restic/restic \
+                                 src/datastore_mad/remotes/restic/increment_flatten \
+                                 src/datastore_mad/remotes/restic/backup \
+                                 src/datastore_mad/remotes/restic/backup_cancel \
+                                 src/datastore_mad/remotes/restic/ls"
 
 DATASTORE_DRIVER_ETC_SCRIPTS="src/datastore_mad/remotes/datastore.conf"
 

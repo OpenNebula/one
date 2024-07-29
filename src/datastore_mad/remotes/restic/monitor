@@ -1,0 +1,127 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+VERSION_FILE = File.join File.dirname(__FILE__), '..', '..', 'VERSION'
+
+require 'base64'
+require 'rexml/document'
+
+require 'CommandManager'
+require 'HostSyncManager'
+
+daction64 = STDIN.read
+_ds_id    = ARGV[0]
+
+begin
+    action = Base64.decode64 daction64
+
+    doc = REXML::Document.new(action).root
+
+    base_path   = doc.elements['DATASTORE/BASE_PATH'].text
+    sftp_server = doc.elements['DATASTORE/TEMPLATE/RESTIC_SFTP_SERVER'].text
+    sftp_user   = doc.elements['DATASTORE/TEMPLATE/RESTIC_SFTP_USER']&.text || 'oneadmin'
+
+    one_version = File.open(VERSION_FILE, &:gets).strip
+
+    script = <<~EOS
+        set -e -o pipefail; shopt -qs failglob
+
+        mkdir -p '#{base_path}/'
+
+        # Check if the correct restic binary is available.
+        [[ -x /var/tmp/one/datastore/restic/restic ]] && \
+        [[ -f /var/tmp/one/VERSION ]] && \
+        [[ '#{one_version}' = $(head -1 /var/tmp/one/VERSION) ]] && \
+        echo true || echo false
+
+        # Collect filesystem stats.
+        df -PBM '#{base_path}/' | tail -1
+    EOS
+
+    rc = SSHCommand.run '/bin/bash -s',
+                        "#{sftp_user}@#{sftp_server}",
+                        nil,
+                        script,
+                        nil
+
+    raise StandardError, "Error parsing repo stats: #{rc.stderr}" \
+        if rc.code != 0
+
+    stdout_lines = rc.stdout.lines
+
+    raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
+        if stdout_lines.size < 2
+
+    restic_found = stdout_lines[-2].strip
+    stats        = stdout_lines[-1].split
+
+    raise StandardError, "Error parsing repo stats: #{rc.stdout}" \
+        if stats.size < 4
+
+    if restic_found == 'false'
+        sync_manager = HostSyncManager.new
+        sync_manager.update_remotes "#{sftp_user}@#{sftp_server}",
+                                    nil,
+                                    :rsync,
+                                    %w[VERSION datastore/restic/restic]
+    end
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+STDOUT.puts "USED_MB=#{stats[2]}"
+STDOUT.puts "TOTAL_MB=#{stats[1]}"
+STDOUT.puts "FREE_MB=#{stats[3]}"
+
+exit(0)

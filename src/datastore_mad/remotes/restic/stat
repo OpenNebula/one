@@ -1,0 +1,123 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'base64'
+require 'rexml/document'
+
+require 'CommandManager'
+
+require_relative 'restic'
+
+daction64 = STDIN.read
+_ds_id    = ARGV[0]
+
+# Image path in the form:
+#   restic://100/4/cdcf2eb1/var/lib/one/datastores/0/54/backup/disk.0"
+#
+#   datastore_id = 100
+#   backupjob id = 4 (can be empty)
+#   snapshot id  = cdcf2eb1
+#   path         = /var/lib/one/datastores/0/54/backup/disk.0
+
+begin
+    action = Base64.decode64 daction64
+
+    rds = Restic.new action, :prefix =>'DATASTORE/'
+    rds.resticenv_rb
+
+    file      = rds['IMAGE/PATH'].delete_prefix('restic://')
+    parts     = file.split('/')
+    diskid    = parts[-1].match(/disk\.(\d+)/)
+    base_path = "/#{parts[3..-2].join('/')}/"
+
+    if !diskid
+        STDERR.puts "Wrong format for disk filename: #{base_path}"
+        exit(-1)
+    end
+
+    last_snap = parts[2].split(',')[-1].split(':')[-1]
+
+    cmd = rds.restic "dump '#{last_snap}' '#{base_path}vm.xml'", 'quiet' => nil
+rescue StandardError => e
+    STDERR.puts e.message
+    exit(-1)
+end
+
+rc = LocalCommand.run cmd
+
+if rc.code != 0
+    STDERR.puts rc.stderr
+    exit(-1)
+end
+
+vm = REXML::Document.new(Base64.decode64(rc.stdout)).root
+
+# Done in two steps to support all Ruby versions
+xpath = "/VM/TEMPLATE/DISK [ DISK_ID = #{diskid[1]} ]"
+disk  = vm.elements[xpath]
+
+if !disk
+    STDERR.puts "Cannot find disk #{diskid[1]} in VM backup info"
+    exit(-1)
+end
+
+size = disk.elements['//SIZE']
+
+if !size
+    STDERR.puts "Cannot find size for disk #{diskid[1]} in VM backup info"
+    exit(-1)
+end
+
+STDOUT.puts size.text
+
+exit(0)

@@ -1,0 +1,185 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'base64'
+require 'date'
+
+require_relative '../../tm/lib/backup'
+require_relative '../../tm/lib/tm_action'
+require_relative './restic'
+
+daction64 = STDIN.read
+
+# Parse input data.
+begin
+    action = Base64.decode64 daction64
+
+    image = TransferManager::BackupImage.new action
+
+    exit(0) if image.snapshots.size <= image.keep_last
+
+    rds = Restic.new action, :prefix    => 'DATASTORE/',
+                             :repo_type => :local,
+                             :host_type => :hypervisor
+    rds.resticenv_rb
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+def reconstruct_chains(rds, image, disks)
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+    EOS
+
+    disks[:by_index].each do |_, disk_paths|
+        script << image.class.reconstruct_chain(disk_paths)
+    end
+
+    rc = TransferManager::Action.ssh 'reconstruct_chains',
+                                     :host     => "#{rds.user}@#{rds.sftp}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => true,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to rebase qcow2 images: #{rc.stderr}" if rc.code != 0
+end
+
+def flatten_chains(rds, image, paths, snapshot)
+    # Gather and quote all file paths to be included in the snapshot.
+    snap             = snapshot['short_id']
+    to_backup        = paths[:disks][:by_snap][snap] + paths[:other][:uniq]
+    to_backup_quoted = to_backup.map {|p| "'#{p.delete(%["'])}'" }
+
+    # Gather and quote all file paths to be deleted after.
+    to_delete        = paths[:disks][:uniq] + paths[:other][:uniq]
+    to_delete_quoted = to_delete.map {|p| "'#{p.delete(%["'])}'" }
+
+    rm_cmd = to_delete_quoted.empty? ? '' : "rm -f #{to_delete_quoted.join(' ')}"
+
+    script = [<<~EOS]
+        set -e -o pipefail; shopt -qs failglob
+        #{rds.resticenv_sh}
+    EOS
+
+    paths[:disks][:by_index].each do |_, disk_paths|
+        script << image.class.merge_chain(disk_paths, :sparsify => rds.sparsify)
+    end
+
+    snapshot_time = DateTime.parse(snapshot['time']).strftime('%Y-%m-%d %H:%M:%S')
+
+    backup_cmd = rds.restic "backup #{to_backup_quoted.join(' ')}",
+                            'force' => nil,
+                            'json'  => nil,
+                            'tag'   => "one-#{image.vm_id}",
+                            'time'  => snapshot_time
+
+    # Push backup and extract the new snapshot's id.
+    script << <<~EOS
+        RC=`#{backup_cmd}`
+        SNAP=`jq -r 'select(.message_type == "summary").snapshot_id | tostring' <<< "$RC"`
+    EOS
+
+    # Calculate the new snapshot's size (sum of all qcow2 image sizes in the snapshot).
+    script << 'RC=`('
+    paths[:disks][:by_index].each do |_, disk_paths|
+        script << "qemu-img info --output json '#{disk_paths.last}';"
+    end
+    script << ')`'
+    script << <<~EOS
+        SIZE=`jq --slurp 'map(."actual-size" | tonumber) | add' <<< "$RC"`
+    EOS
+
+    # Do final cleanup to remove all temporary files.
+    script << rm_cmd
+
+    script << <<~EOS
+        echo "$SNAP $SIZE"
+    EOS
+
+    rc = TransferManager::Action.ssh 'flatten_chains',
+                                     :host     => "#{rds.user}@#{rds.sftp}",
+                                     :forward  => true,
+                                     :cmds     => script.join("\n"),
+                                     :nostdout => false,
+                                     :nostderr => false
+
+    raise StandardError, "Unable to flatten increments: #{rc.stderr}" if rc.code != 0
+
+    rc.stdout.lines.last.split.map(&:strip)
+end
+
+# Process snapshot files.
+begin
+    snaps = image.snapshots.first(image.snapshots.size - image.keep_last + 1)
+
+    snapshot = rds.query_snapshot(snaps.last)
+
+    paths = rds.pull_snapshots(snaps)
+
+    reconstruct_chains(rds, image, paths[:disks])
+
+    snap, size = flatten_chains(rds, image, paths, snapshot)
+
+    short_snap = snap[0..7] # first 8 chars only
+
+    rds.remove_snapshots(snaps) # NOTE: ONE database is updated later in oned
+
+    STDOUT.puts "#{size.to_i / 1024**2} #{image.chain_keep_last(short_snap)}"
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+exit(0)

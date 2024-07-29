@@ -1,0 +1,220 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'pathname'
+require 'rexml/document'
+
+require 'CommandManager'
+
+require_relative '../../tm/lib/tm_action'
+require_relative '../../tm/lib/datastore'
+require_relative 'restic'
+
+# BACKUP host:remote_dir DISK_ID:...:DISK_ID vm_uuid bj_id vm_id ds_id
+
+TransferManager::Datastore.load_env
+
+ds_xml = STDIN.read
+
+dir      = ARGV[0].split(':')
+_disks   = ARGV[1]
+_vm_uuid = ARGV[2]
+bj_id    = ARGV[3]
+vm_id    = ARGV[4]
+_ds_id   = ARGV[5]
+
+vm_host = dir[0]
+
+dsrdir = ENV['BACKUP_BASE_PATH']
+vm_dir = if dsrdir
+             Pathname.new("#{dsrdir}/#{vm_id}/backup").cleanpath.to_s
+         else
+             Pathname.new("#{dir[1]}/backup").cleanpath.to_s
+         end
+
+repo_id = if bj_id != '-'
+              Restic.mk_repo_id(bj_id)
+          else
+              vm_id
+          end
+
+begin
+    ds = TransferManager::Datastore.from_xml(:ds_xml => ds_xml)
+
+    rds = Restic.new ds_xml, :create_repo => true,
+                             :repo_type   => :sftp,
+                             :host_type   => :hypervisor,
+                             :repo_id     => repo_id
+    rds.resticenv_rb
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# Install cleanup handler (triggered by backup_cancel action)
+pipe_r, pipe_w = IO.pipe
+
+Thread.new do
+    loop do
+        rs, _ws, _es = IO.select([pipe_r])
+        break if rs[0] == pipe_r
+    end
+
+    # Kill the restic process.
+    script = <<~EOS
+        set -x -e -o pipefail; shopt -qs failglob
+        (ps --no-headers -o pid,cmd -C restic \
+        | awk '$0 ~ "#{vm_dir}" { print $1 } END { print "\\0" }' || :) \\
+        | (read -d '' PIDS
+           [[ -n "$PIDS" ]] || exit 0                           # empty
+           [[ -z "${PIDS//[[:space:][:digit:]]/}" ]] || exit -1 # !integers
+           kill -s TERM $PIDS)
+    EOS
+
+    rc = TransferManager::Action.ssh 'backup_cancel',
+                                     :host     => vm_host,
+                                     :cmds     => script,
+                                     :nostdout => true,
+                                     :nostderr => false
+
+    if rc.code != 0
+        STDERR.puts "Unable to stop restic process: #{rc.stderr}"
+        exit(-1)
+    end
+
+    # From the restic help screen:
+    # > The "unlock" command removes stale locks that have been created by other restic processes.
+
+    script = <<~EOS
+        set -e -o pipefail; shopt -qs failglob
+        #{rds.resticenv_sh}
+        #{rds.restic('unlock')}
+    EOS
+
+    rc = TransferManager::Action.ssh 'remove_stale_locks',
+                                     :host     => vm_host,
+                                     :forward  => true,
+                                     :cmds     => script,
+                                     :nostdout => true,
+                                     :nostderr => false
+
+    if rc.code != 0
+        STDERR.puts "Error removing restic stale locks: #{rc.stderr}"
+        exit(-1)
+    end
+
+    STDERR.puts 'Backup cancelled'
+    STDERR.flush
+
+    # Suppress "`read': stream closed in another thread (IOError)"
+    STDOUT.reopen IO::NULL
+    STDERR.reopen IO::NULL
+
+    exit(-1) # fail anyway
+end
+
+Signal.trap(:TERM) do
+    pipe_w.write 'W'
+end
+
+# Execute restic backup in pull mode in the hypervisor using OpenNebula ssh-agent
+# --force (will re-read disk files as will have changed since last backup)
+#
+# Command:
+#     restic \
+#       -r sftp:oneadmin@192.168.150.1:/var/lib/one/datastores/100 \
+#       backup \
+#       --force /var/lib/one/datastores/0/10/backup
+rcmd = rds.restic "backup '#{vm_dir}'/disk.* '#{vm_dir}'/vm.xml",
+                  'force' => nil,
+                  'json' => nil,
+                  'tag' => "one-#{vm_id}"
+
+script = <<~EOS
+    set -e -o pipefail; shopt -qs failglob
+
+    #{rds.resticenv_sh}
+
+    RC=`#{ds.cmd_confinement(rcmd, vm_dir, ['SSH_AUTH_SOCK', 'RESTIC_PASSWORD', 'GOMAXPROCS'])}`
+
+    INFO=`echo "$RC" | jq -r '.snapshot_id + " " + (.total_bytes_processed|tostring) | select ( . != " null" )'`
+
+    echo $INFO
+EOS
+
+rc = TransferManager::Action.ssh 'backup',
+                                 :host     => vm_host,
+                                 :forward  => true,
+                                 :cmds     => script,
+                                 :nostdout => false,
+                                 :nostderr => false
+
+if rc.stdout.empty?
+    STDERR.puts "Cannot find backup information: #{rc.stdout} #{rc.stderr}"
+    exit(-1)
+end
+
+parts = rc.stdout.lines.last.split
+
+if parts.length != 2
+    STDERR.puts "Wrong format for backup action: #{rc.stdout}"
+    exit(-1)
+end
+
+# NOTE: The backup command in restic 0.16.0 returns the long snapshot id, but previously (0.14.0) it
+#       was the short snapshot id. We trim it here to keep it backward compatible.
+id       = parts[0]
+short_id = id[0..7] # first 8 chars only
+
+STDOUT.puts "#{short_id} #{parts[1].to_i / (1024 * 1024)}"
+exit(0)

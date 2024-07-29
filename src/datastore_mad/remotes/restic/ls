@@ -1,0 +1,131 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    VAR_LOCATION      = '/var/lib/one'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+end
+
+SERVERADMIN_AUTH = VAR_LOCATION + '/.one/onegate_auth'
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'opennebula'
+require 'pathname'
+require 'rexml/document'
+require 'getoptlong'
+
+require_relative 'restic'
+require_relative '../../tm/lib/backup'
+require_relative '../../tm/lib/tm_action'
+
+opts = GetoptLong.new(
+    ['--increment', '-i', GetoptLong::REQUIRED_ARGUMENT]
+)
+
+begin
+    # --------------------------------------------------------------------------
+    # Parse input parameters
+    # --------------------------------------------------------------------------
+    increment_id = -1
+
+    opts.each do |opt, arg|
+        case opt
+        when '--increment'
+            increment_id = arg.to_i
+        end
+    end
+
+    action = STDIN.read
+
+    # --------------------------------------------------------------------------
+    # Image and Datastore attributes
+    # --------------------------------------------------------------------------
+    image = TransferManager::BackupImage.new(action)
+    chain = if increment_id == -1
+                image.chain
+            else
+                image.chain_up_to(increment_id)
+            end
+
+    rds = Restic.new action, :prefix    => 'DATASTORE/',
+                             :repo_type => :local,
+                             :host_type => :frontend
+    rds.resticenv_rb
+
+    image = TransferManager::BackupImage.new action
+
+    ds_id = rds['DATASTORE/ID']
+
+    snap = image.selected || image.last
+    burl = "restic://#{ds_id}/#{image.bj_id}/#{chain}"
+
+    # --------------------------------------------------------------------------
+    # Get a list of disk paths stored in the backup
+    # --------------------------------------------------------------------------
+    _vm_xml, paths = rds.read_document(snap, /^vm\.xml$/)
+    disk_paths     = paths[:disks][:by_snap][snap]
+rescue StandardError => e
+    STDERR.puts e.full_message
+    exit(-1)
+end
+
+# ------------------------------------------------------------------------------
+# Out a json with disk PATHS (for downloader):
+# {"0":"restic://103//0:f130ed80,1:1995054d/var/lib/one/datastores/100/22/backup/disk.0.0"}
+# ------------------------------------------------------------------------------
+disks = {}
+
+disk_paths.each do |f|
+    m = f.match(/disk\.([0-9]+)/)
+    next unless m
+
+    disks[m[1]] = "#{burl}#{f}"
+end
+
+puts disks.to_json
