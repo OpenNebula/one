@@ -231,7 +231,7 @@ begin
     kvm_vm.snapshots_redefine(@dst_host, @vm_dir)
 
     # Sync guest time
-    if ENV['SYNC_TIME'].upcase == 'YES'
+    if ENV['SYNC_TIME'].to_s.upcase == 'YES'
         cmds =<<~EOS
             (
               for I in $(seq 4 -1 1); do
