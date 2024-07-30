@@ -99,9 +99,9 @@ const buildTranslationLocale = () => {
 
   setLocale({
     mixed: {
-      default: () => T['validation.mixed.default'],
-      required: () => T['validation.mixed.required'],
-      defined: () => T['validation.mixed.defined'],
+      default: ({ path }) => `${path} ${T['validation.mixed.default']}`,
+      required: ({ path }) => `${path} ${T['validation.mixed.required']}`,
+      defined: ({ path }) => `${path} ${T['validation.mixed.defined']}`,
       oneOf: ({ values }) => ({ word: T['validation.mixed.oneOf'], values }),
       notOneOf: ({ values }) => ({
         word: T['validation.mixed.notOneOf'],

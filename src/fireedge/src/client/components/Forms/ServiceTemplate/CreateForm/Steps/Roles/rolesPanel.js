@@ -40,9 +40,9 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
     onChange(updatedRole)
   }
 
-  const handleTextFieldChange = (event) => {
+  const handleTextFieldChange = (event, number = false) => {
     const { name, value } = event.target
-    handleInputChange(name, parseInt(value, 10))
+    handleInputChange(name, number ? parseInt(value, 10) : value)
   }
 
   const handleAutocompleteChange = (event, value) => {
@@ -79,7 +79,7 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
             label={Tr(T.NumberOfVms)}
             name="CARDINALITY"
             value={selectedRole?.CARDINALITY || 0}
-            onChange={handleTextFieldChange}
+            onChange={(event) => handleTextFieldChange(event, true)}
             disabled={isDisabled}
             InputProps={{
               inputProps: {

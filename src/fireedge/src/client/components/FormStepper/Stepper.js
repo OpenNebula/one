@@ -15,18 +15,28 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-
-import { Box, Button, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  IconButton,
+  Popover,
+} from '@mui/material'
 import Step from '@mui/material/Step'
+import { NavArrowDown, NavArrowUp } from 'iconoir-react'
 import StepButton from '@mui/material/StepButton'
 import StepConnector, {
   stepConnectorClasses,
 } from '@mui/material/StepConnector'
+import { useState } from 'react'
 import StepIcon, { stepIconClasses } from '@mui/material/StepIcon'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { styled } from '@mui/styles'
-
 import { SubmitButton } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
 import { SCHEMES, T } from 'client/constants'
@@ -66,6 +76,25 @@ const ConnectorStyled = styled(StepConnector)(({ theme }) => ({
   },
 }))
 
+const ErrorListContainer = styled(Paper)(({ theme }) => ({
+  maxHeight: 200,
+  overflowY: 'auto',
+  padding: theme.spacing(1),
+  backgroundColor: theme.palette.background.default,
+}))
+
+const ErrorSummaryContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}))
+
 const StepIconStyled = styled(StepIcon)(({ theme }) => ({
   color: theme.palette.text.hint,
   display: 'block',
@@ -97,57 +126,117 @@ const CustomStepper = ({
   handleBack,
   errors,
   isSubmitting,
-}) => (
-  <>
-    <StepperStyled
-      nonLinear
-      activeStep={activeStep}
-      connector={<ConnectorStyled />}
-    >
-      {steps?.map(({ id, label }, stepIdx) => (
-        <Step key={id} completed={activeStep > stepIdx}>
-          <StepButton
-            onClick={() => handleStep(stepIdx)}
-            disabled={activeStep + 1 < stepIdx}
-            optional={
-              errors[id] && (
-                <Typography variant="caption" color="error">
-                  <Translate word={errors[id]?.message} />
-                </Typography>
-              )
-            }
-            data-cy={`step-${id}`}
-          >
-            <StepLabel
-              StepIconComponent={StepIconStyled}
-              error={Boolean(errors[id]?.message)}
-            >
-              <Translate word={label} />
-            </StepLabel>
-          </StepButton>
-        </Step>
-      ))}
-    </StepperStyled>
-    <ButtonsWrapper>
-      <Button
-        data-cy="stepper-back-button"
-        disabled={disabledBack || isSubmitting}
-        onClick={handleBack}
-        size="small"
+}) => {
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [currentStep, setCurrentStep] = useState(null)
+
+  const handleClick = (event, stepIdx) => {
+    setAnchorEl(event.currentTarget)
+    setCurrentStep(stepIdx)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setCurrentStep(null)
+  }
+
+  const open = Boolean(anchorEl)
+
+  return (
+    <>
+      <StepperStyled
+        nonLinear
+        activeStep={activeStep}
+        connector={<ConnectorStyled />}
       >
-        <Translate word={T.Back} />
-      </Button>
-      <SubmitButton
-        color="secondary"
-        data-cy="stepper-next-button"
-        isSubmitting={isSubmitting}
-        onClick={handleNext}
-        size="small"
-        label={<Translate word={activeStep === lastStep ? T.Finish : T.Next} />}
-      />
-    </ButtonsWrapper>
-  </>
-)
+        {steps?.map(({ id, label }, stepIdx) => {
+          const errorData = errors[id]
+          const hasError = Boolean(errorData?.message)
+          const individualMessages = errorData?.individualErrorMessages || []
+
+          return (
+            <Step key={id} completed={activeStep > stepIdx}>
+              <StepButton
+                onClick={() => handleStep(stepIdx)}
+                disabled={activeStep + 1 < stepIdx}
+                data-cy={`step-${id}`}
+              >
+                <StepLabel StepIconComponent={StepIconStyled} error={hasError}>
+                  <Translate word={label} />
+                </StepLabel>
+              </StepButton>
+              {hasError && (
+                <>
+                  <ErrorSummaryContainer
+                    onClick={(event) => handleClick(event, stepIdx)}
+                  >
+                    <Typography variant="caption" color="error">
+                      {`${errorData.message[0].replace(
+                        '%s',
+                        errorData.message[1]
+                      )}`}
+                    </Typography>
+                    <IconButton size="small">
+                      {currentStep === stepIdx && open ? (
+                        <NavArrowUp />
+                      ) : (
+                        <NavArrowDown />
+                      )}
+                    </IconButton>
+                  </ErrorSummaryContainer>
+                  <Popover
+                    id={id}
+                    open={currentStep === stepIdx && open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'center',
+                    }}
+                  >
+                    <ErrorListContainer>
+                      <List>
+                        {individualMessages.flat().map((msg, index) => (
+                          <ListItem key={index}>
+                            <ListItemText primary={msg} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </ErrorListContainer>
+                  </Popover>
+                </>
+              )}
+            </Step>
+          )
+        })}
+      </StepperStyled>
+      <ButtonsWrapper>
+        <Button
+          data-cy="stepper-back-button"
+          disabled={disabledBack || isSubmitting}
+          onClick={handleBack}
+          size="small"
+        >
+          <Translate word={T.Back} />
+        </Button>
+        <SubmitButton
+          color="secondary"
+          data-cy="stepper-next-button"
+          isSubmitting={isSubmitting}
+          onClick={handleNext}
+          size="small"
+          label={
+            <Translate word={activeStep === lastStep ? T.Finish : T.Next} />
+          }
+        />
+      </ButtonsWrapper>
+    </>
+  )
+}
 
 CustomStepper.propTypes = {
   steps: PropTypes.arrayOf(
