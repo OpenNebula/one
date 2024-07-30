@@ -1,0 +1,12 @@
+[Unit]
+Description=OpenNebula Prometheus Node Exporter
+
+[Service]
+User=oneadmin
+Group=oneadmin
+Type=simple
+
+ExecStart=/usr/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target

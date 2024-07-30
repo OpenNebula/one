@@ -1,0 +1,102 @@
+groups:
+- name: AllInstances
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 30s
+    annotations:
+      title: 'Instance {{ $labels.instance }} down'
+      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 30 seconds'
+    labels: { severity: critical }
+
+  - alert: DiskFree
+    expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"} * 100) <= 10
+    for: 30s
+    annotations:
+      title: 'Instance {{ $labels.instance }} has less than 10% of free space in rootfs'
+    labels: { severity: warning }
+
+  - alert: FreeMemory10
+    expr: ((node_memory_MemFree_bytes * 100) / node_memory_MemTotal_bytes) <= 10
+    for: 30s
+    annotations:
+      title: 'Instance {{ $labels.instance }} has less than 10% of free memory'
+    labels: { severity: warning }
+
+  - alert: LoadAverage15
+    expr: node_load15 > count without(cpu, mode) (node_cpu_seconds_total{mode="idle"}) * 0.8
+    for: 30s
+    annotations:
+      title: 'Instance {{ $labels.instance }} has higher load average then 80% CPU count in last 15 minutes'
+    labels: { severity: warning }
+
+  - alert: RebootInLast5Minutes
+    expr: rate(node_boot_time_seconds[5m]) > 0
+    annotations:
+      title: 'Instance {{ $labels.instance }} has has been rebooted in last 5 minutes'
+    labels: { severity: warning }
+
+- name: OpenNebulaHosts
+  rules:
+  - alert: HostDown
+    expr: opennebula_host_state != 2
+    for: 30s
+    annotations:
+      title: "OpenNebula host {{ $labels.one_host_id }} down"
+      description: "OpenNebula host {{ $labels.one_host_id }} of job {{ $labels.job }} has been down for more than 30 seconds"
+    labels: { severity: critical }
+
+  - alert: LibvirtDown
+    expr: opennebula_libvirt_daemon_up == 0
+    for: 30s
+    annotations:
+      title: "Libvirt daemon on host {{ $labels.one_host_id }} down"
+      description: "Libvirt daemon on host {{ $labels.one_host_id }} of job {{ $labels.job }} has been down for more than 30 seconds"
+    labels: { severity: critical }
+
+
+- name: OpenNebulaVirtualMachines
+  rules:
+  - alert: VMFailed
+    expr: >
+      count((opennebula_vm_lcm_state >= 36 and opennebula_vm_lcm_state <=42) or
+        opennebula_vm_lcm_state == 44 or
+        (opennebula_vm_lcm_state >= 46 and opennebula_vm_lcm_state <=50) or
+        opennebula_vm_lcm_state == 61) by (instance, name) > 0
+    for: 30s
+    annotations:
+      title: "OpenNebula VMs in failed state"
+      description: "OpenNebula VMs of job {{ $labels.job }} are in failed state for more than 30 seconds"
+    labels: { severity: critical }
+
+  - alert: VMPending
+    expr: count(opennebula_vm_state == 1) by (instance, name) > 0
+    for: 300s
+    annotations:
+      title: "OpenNebula VMs in pending"
+      description: "OpenNebula VMs of job {{ $labels.job }} are in pending state for more than 300 seconds"
+    labels: { severity: critical }
+
+- name: OpenNebulaServices
+  rules:
+  - alert: OnedDown
+    expr: opennebula_oned_state == 0
+    for: 30s
+    annotations:
+      title: "OpenNebula oned {{ $labels.one_server_fqdn }} down"
+      description: "OpenNebula oned {{ $labels.one_server_fqdn }} of job {{ $labels.job }} has been down for more than 30 seconds"
+    labels: { severity: critical }
+  - alert: SchedulerDown
+    expr: opennebula_scheduler_state == 0
+    for: 30s
+    annotations:
+      title: "OpenNebula scheduler {{ $labels.one_server_fqdn }} down"
+      description: "OpenNebula scheduler {{ $labels.one_server_fqdn }} of job {{ $labels.job }} has been down for more than 30 seconds"
+    labels: { severity: critical }
+  - alert: HookManagerDown
+    expr: opennebula_hem_state == 0
+    for: 30s
+    annotations:
+      title: "OpenNebula hook manager {{ $labels.one_server_fqdn }} down"
+      description: "OpenNebula hook manager {{ $labels.one_server_fqdn }} of job {{ $labels.job }} has been down for more than 30 seconds"
+    labels: { severity: critical }

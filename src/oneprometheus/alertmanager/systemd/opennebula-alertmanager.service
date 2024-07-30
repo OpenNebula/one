@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenNebula Alertmanager
+
+[Service]
+User=oneadmin
+Group=oneadmin
+Type=simple
+
+ExecStart=/usr/bin/alertmanager \
+          --config.file=/etc/one/alertmanager/alertmanager.yml \
+          --storage.path=/var/lib/alertmanager/data/
+
+[Install]
+WantedBy=multi-user.target

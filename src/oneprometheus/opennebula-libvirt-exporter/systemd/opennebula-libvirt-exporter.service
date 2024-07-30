@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenNebula Prometheus Libvirt Exporter
+
+[Service]
+User=oneadmin
+Group=oneadmin
+Type=simple
+
+# Comment out the following line if you don't need VM name labels
+Environment=ONE_PROMETHEUS_VM_NAMES=
+
+ExecStart=/usr/bin/ruby /usr/lib/one/libvirt_exporter/libvirt_exporter.rb
+
+[Install]
+WantedBy=multi-user.target

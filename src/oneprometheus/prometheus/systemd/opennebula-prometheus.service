@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenNebula Prometheus Server
+
+[Service]
+User=oneadmin
+Group=oneadmin
+Type=simple
+
+ExecStart=/usr/bin/prometheus \
+          --config.file=/etc/one/prometheus/prometheus.yml \
+          --storage.tsdb.path=/var/lib/prometheus/data/
+
+[Install]
+WantedBy=multi-user.target

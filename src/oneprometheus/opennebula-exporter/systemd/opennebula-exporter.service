@@ -1,0 +1,12 @@
+[Unit]
+Description=OpenNebula Prometheus Exporter
+
+[Service]
+User=oneadmin
+Group=oneadmin
+Type=simple
+
+ExecStart=/usr/bin/ruby /usr/lib/one/opennebula_exporter/opennebula_exporter.rb
+
+[Install]
+WantedBy=multi-user.target
