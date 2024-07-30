@@ -109,6 +109,10 @@ set :bind, conf[:host]
 set :port, conf[:port]
 set :config, conf
 
+set :dump_errors, true
+set :raise_errors, false
+set :show_exceptions, false
+
 # rubocop:disable Style/MixinUsage
 include CloudLogger
 # rubocop:enable Style/MixinUsage
@@ -156,6 +160,17 @@ before do
     else
         error 401, 'A username and password must be provided'
     end
+end
+
+##############################################################################
+# Error handling
+##############################################################################
+
+error 500 do
+    e = env['sinatra.error']
+    msg_error = { :message => 'Internal server error', :reason => e.message }
+    msg_error[:backtrace] = e.backtrace.join('\n') if settings.config[:log][:level] == 3
+    internal_error(msg_error, 500)
 end
 
 # Set status error and return the error msg
