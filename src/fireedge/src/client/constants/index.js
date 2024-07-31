@@ -86,6 +86,7 @@ export const DEFAULT_SCHEME = Setting.SCHEMES.SYSTEM
 export const CURRENCY = SERVER_CONFIG?.currency ?? 'EUR'
 export const DEFAULT_LANGUAGE = SERVER_CONFIG?.default_lang ?? 'en'
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
+export const VM_EXTENDED_POOL = !!(SERVER_CONFIG?.use_extended_vmpool ?? true)
 export const LANGUAGES = SERVER_CONFIG.langs ?? {
   bg_BG: 'Bulgarian (Bulgaria)',
   bg: 'Bulgarian',

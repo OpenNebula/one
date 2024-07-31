@@ -65,7 +65,7 @@ function SunstoneDashboard() {
         spacing={3}
       >
         <ResourceWidget
-          query={useGetVmsQuery}
+          query={() => useGetVmsQuery({ extended: false })}
           bgColor="#fa7892"
           text={T.VMs}
           icon={VmsIcons}

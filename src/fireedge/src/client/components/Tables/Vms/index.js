@@ -21,7 +21,12 @@ import { useGetVmsQuery } from 'client/features/OneApi/vm'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
-import { RESOURCE_NAMES, STATES, VM_STATES } from 'client/constants'
+import {
+  RESOURCE_NAMES,
+  STATES,
+  VM_EXTENDED_POOL,
+  VM_STATES,
+} from 'client/constants'
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -51,57 +56,61 @@ const VmsTable = (props) => {
 
   const { view, getResourceView } = useViews()
 
-  const { data, refetch, isFetching } = useGetVmsQuery(undefined, {
-    selectFromResult: (result) => ({
-      ...result,
-      data:
-        result?.data
-          ?.filter((vm) => {
-            // this filters data for host
-            if (host?.ID) {
-              if (
-                host?.ERROR_VMS?.ID ||
-                host?.UPDATED_VMS?.ID ||
-                host?.UPDATING_VMS?.ID
-              ) {
-                return [
-                  host?.ERROR_VMS.ID ?? [],
-                  host?.UPDATED_VMS.ID ?? [],
-                  host?.UPDATING_VMS.ID ?? [],
-                ]
-                  .flat()
-                  .includes(vm.ID)
+  const { data, refetch, isFetching } = useGetVmsQuery(
+    { extended: VM_EXTENDED_POOL },
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data:
+          result?.data
+            ?.filter((vm) => {
+              // this filters data for host
+              if (host?.ID) {
+                if (
+                  host?.ERROR_VMS?.ID ||
+                  host?.UPDATED_VMS?.ID ||
+                  host?.UPDATING_VMS?.ID
+                ) {
+                  return [
+                    host?.ERROR_VMS.ID ?? [],
+                    host?.UPDATED_VMS.ID ?? [],
+                    host?.UPDATING_VMS.ID ?? [],
+                  ]
+                    .flat()
+                    .includes(vm.ID)
+                }
+
+                return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
               }
 
-              return [host?.VMS?.ID ?? []].flat().includes(vm.ID)
-            }
-
-            // this filters data for backupjobs
-            if (backupjobs?.ID) {
-              if (backupjobsState) {
-                return [backupjobs?.[backupjobsState]?.ID ?? []]
-                  .flat()
-                  .includes(vm.ID)
-              } else {
-                return [
-                  (backupjobs?.TEMPLATE?.BACKUP_VMS &&
-                    backupjobs?.TEMPLATE?.BACKUP_VMS.split(',')) ??
-                    [],
-                ]
-                  .flat()
-                  .includes(vm.ID)
+              // this filters data for backupjobs
+              if (backupjobs?.ID) {
+                if (backupjobsState) {
+                  return [backupjobs?.[backupjobsState]?.ID ?? []]
+                    .flat()
+                    .includes(vm.ID)
+                } else {
+                  return [
+                    (backupjobs?.TEMPLATE?.BACKUP_VMS &&
+                      backupjobs?.TEMPLATE?.BACKUP_VMS.split(',')) ??
+                      [],
+                  ]
+                    .flat()
+                    .includes(vm.ID)
+                }
               }
-            }
 
-            // This is for return data without filters
-            return true
-          })
-          ?.filter(({ ID }) =>
-            filterData?.length ? filterData?.includes(ID) : filterLoose
-          )
-          ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ?? [],
-    }),
-  })
+              // This is for return data without filters
+              return true
+            })
+            ?.filter(({ ID }) =>
+              filterData?.length ? filterData?.includes(ID) : filterLoose
+            )
+            ?.filter(({ STATE }) => VM_STATES[STATE]?.name !== STATES.DONE) ??
+          [],
+      }),
+    }
+  )
 
   const columns = useMemo(
     () =>
