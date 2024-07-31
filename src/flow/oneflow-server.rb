@@ -167,10 +167,12 @@ end
 ##############################################################################
 
 error 500 do
-    e = env['sinatra.error']
-    msg_error = { :message => 'Internal server error', :reason => e.message }
-    msg_error[:backtrace] = e.backtrace.join('\n') if settings.config[:log][:level] == 3
-    internal_error(msg_error, 500)
+    if env['sinatra.error']
+        e = env['sinatra.error']
+        msg_error = { :message => 'Internal server error', :reason => e.message }
+        msg_error[:backtrace] = e.backtrace.join('\n') if settings.config[:log][:level] == 3
+        internal_error(msg_error.to_json, 500)
+    end
 end
 
 # Set status error and return the error msg
