@@ -15,11 +15,11 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-: "${ALERTMANAGER_VERSION:=0.24.0}"
+: "${ALERTMANAGER_VERSION:=0.27.0}"
 
-: "${NODE_EXPORTER_VERSION:=1.4.0}"
+: "${NODE_EXPORTER_VERSION:=1.8.2}"
 
-: "${PROMETHEUS_VERSION:=2.37.1}"
+: "${PROMETHEUS_VERSION:=2.53.1}"
 
 set -o errexit -o nounset -o pipefail
 
