@@ -480,6 +480,18 @@ AllCops:
     - src/oca/ruby/opennebula/flow/grammar.rb
     - src/oca/ruby/opennebula/flow/validator.rb
     - src/sunstone/OpenNebulaVMRC.rb
+    - src/oneprometheus/grafana/share/patch_dashboards.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_exporter.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_host_collector.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_datastore_collector.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_collector.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_server_collector.rb
+    - src/oneprometheus/opennebula-exporter/src/opennebula_vm_collector.rb
+    - src/oneprometheus/prometheus/share/patch_datasources_spec.rb
+    - src/oneprometheus/prometheus/share/metrics_to_md.rb
+    - src/oneprometheus/prometheus/share/patch_datasources.rb
+    - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_exporter.rb
+    - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_collector.rb
   NewCops: enable
 
 ########
