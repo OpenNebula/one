@@ -2556,7 +2556,12 @@ Bash symbols must be escaped on STDIN passing'
     def self.scheduled_action_table(object)
         CLIHelper::ShowTable.new(nil, object) do
             column :ID, '', :adjust => true do |d|
-                d['ID']
+                warn = d['WARNING'].to_i
+
+                prefix = ''
+                prefix = '*' if d['DONE'].to_i <= 0 && warn != 0 && warn < Time.now.to_i
+
+                prefix + d['ID']
             end
 
             column :ACTION, '', :adjust => true do |d|

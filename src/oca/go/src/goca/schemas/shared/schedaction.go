@@ -42,6 +42,8 @@ const (
 	EndType  SchedActionKeys = "END_TYPE"
 	EndValue SchedActionKeys = "END_VALUE"
 	Done     SchedActionKeys = "DONE"
+	Message  SchedActionKeys = "MESSAGE"
+	Warning  SchedActionKeys = "WARNING"
 )
 
 // AddSchedAction returns a Scheduled Action structure

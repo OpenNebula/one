@@ -168,6 +168,8 @@ private:
 
     std::string _message;
 
+    time_t _warning;
+
     /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string

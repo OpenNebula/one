@@ -65,7 +65,7 @@ ScheduledAction::ScheduledAction(PoolObjectSQL::ObjectType type,
     , _end_type(END_NONE)
     , _end_value(-1)
     , _done(-1)
-    , _message("")
+    , _warning(0)
 {
 }
 
@@ -89,6 +89,7 @@ string& ScheduledAction::to_xml(string& xml) const
         << "<END_VALUE>" << _end_value  << "</END_VALUE>"
         << "<DONE>"    << _done    << "</DONE>"
         << "<MESSAGE>" << _message << "</MESSAGE>"
+        << "<WARNING>" << _warning << "</WARNING>"
         << "</SCHED_ACTION>";
 
     xml = oss.str();
@@ -144,6 +145,17 @@ int ScheduledAction::parse(const VectorAttribute * va, time_t origin, string& er
     if (_time == -1)
     {
         error_str = "Unable to parse the time value or value is empty: " + tmp_str;
+        return -1;
+    }
+
+    if (va->vector_value("WARNING", tmp_str) == 0 && !tmp_str.empty())
+    {
+        _warning = parse_time(tmp_str, origin);
+    }
+
+    if (_warning == -1)
+    {
+        error_str = "Unable to parse the warning value: " + tmp_str;
         return -1;
     }
 
@@ -443,6 +455,8 @@ time_t ScheduledAction::next_action()
 
     _time += delta * 24 * 3600;
 
+    _warning = 0; // Reset warning for repeated action
+
     return _time;
 }
 
@@ -464,6 +478,7 @@ int ScheduledAction::rebuild_attributes()
     rc += xpath(_days, "/SCHED_ACTION/DAYS", "");
     rc += xpath(_message, "/SCHED_ACTION/MESSAGE", "");
     rc += xpath(_end_value, "/SCHED_ACTION/END_VALUE", (time_t)-1);
+    rc += xpath(_warning, "/SCHED_ACTION/WARNING", (time_t)0);
 
     rc += xpath(tmp_str, "/SCHED_ACTION/TYPE", "");
     _type = str_to_type(tmp_str);

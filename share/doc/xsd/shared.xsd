@@ -33,14 +33,15 @@
       <xs:element name="PARENT_ID" type="xs:integer"/>
       <xs:element name="TYPE" type="xs:string"/>
       <xs:element name="ACTION" type="xs:string"/>
-      <xs:element name="ARGS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="ARGS" type="xs:string"/>
       <xs:element name="TIME" type="xs:string"/>
-      <xs:element name="REPEAT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="DAYS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="END_TYPE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="END_VALUE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="DONE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="MESSAGE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="REPEAT" type="xs:integer"/>
+      <xs:element name="DAYS" type="xs:string"/>
+      <xs:element name="END_TYPE" type="xs:integer"/>
+      <xs:element name="END_VALUE" type="xs:integer"/>
+      <xs:element name="DONE" type="xs:integer"/>
+      <xs:element name="MESSAGE" type="xs:string"/>
+      <xs:element name="WARNING" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
