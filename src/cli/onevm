@@ -1498,7 +1498,7 @@ CommandParser::CmdParser.new(ARGV) do
                 rc = helper.schedule_actions([args[0]].flatten,
                                              { :schedule => sched },
                                              action.to_s,
-                                             "+#{time[:warning][:time] + acc_t}")
+                                             "+#{time[:warning][:time].to_i + acc_t}")
 
                 exit(-1) if rc < 0
 
