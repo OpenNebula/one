@@ -112,7 +112,10 @@ const vmApi = oneApi.injectEndpoints({
         return { params, command }
       },
       transformResponse: (data) => data?.VM ?? {},
-      providesTags: (_, __, { id }) => [{ type: VM, id }],
+      providesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         try {
           const { data: resourceFromQuery } = await queryFulfilled
@@ -362,7 +365,11 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        VM_POOL,
+      ],
     }),
     actionVm: builder.mutation({
       /**
@@ -384,7 +391,11 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        VM_POOL,
+      ],
     }),
     migrate: builder.mutation({
       /**
@@ -409,7 +420,11 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }, VM_POOL],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+        VM_POOL,
+      ],
     }),
     saveAsDisk: builder.mutation({
       /**
@@ -432,7 +447,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     createDiskSnapshot: builder.mutation({
       /**
@@ -451,7 +469,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     deleteDiskSnapshot: builder.mutation({
       /**
@@ -470,7 +491,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     revertDiskSnapshot: builder.mutation({
       /**
@@ -489,7 +513,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     renameDiskSnapshot: builder.mutation({
       /**
@@ -509,7 +536,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     attachDisk: builder.mutation({
       /**
@@ -528,7 +558,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     detachDisk: builder.mutation({
       /**
@@ -546,7 +579,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     resizeDisk: builder.mutation({
       /**
@@ -566,7 +602,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     attachNic: builder.mutation({
       /**
@@ -585,7 +624,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     detachNic: builder.mutation({
       /**
@@ -603,7 +645,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     updateNic: builder.mutation({
       /**
@@ -623,7 +668,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     attachSecurityGroup: builder.mutation({
       /**
@@ -643,7 +691,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     detachSecurityGroup: builder.mutation({
       /**
@@ -663,7 +714,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     changeVmPermissions: builder.mutation({
       /**
@@ -690,7 +744,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -723,7 +780,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { getState, dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -754,7 +814,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -796,7 +859,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     revertVmSnapshot: builder.mutation({
       /**
@@ -814,7 +880,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     deleteVmSnapshot: builder.mutation({
       /**
@@ -832,7 +901,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     resize: builder.mutation({
       /**
@@ -851,7 +923,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     updateUserTemplate: builder.mutation({
       /**
@@ -873,7 +948,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -915,7 +993,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     recover: builder.mutation({
       /**
@@ -938,7 +1019,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     backup: builder.mutation({
       /**
@@ -957,7 +1041,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     restore: builder.mutation({
       /**
@@ -977,7 +1064,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     lockVm: builder.mutation({
       /**
@@ -996,7 +1086,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -1037,7 +1130,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const patchVm = dispatch(
@@ -1079,7 +1175,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     updateScheduledAction: builder.mutation({
       /**
@@ -1098,7 +1197,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     deleteScheduledAction: builder.mutation({
       /**
@@ -1116,7 +1218,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     attachPci: builder.mutation({
       /**
@@ -1135,7 +1240,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
     detachPci: builder.mutation({
       /**
@@ -1153,7 +1261,10 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [{ type: VM, id }],
+      invalidatesTags: (_, __, { id }) => [
+        { type: VM, id },
+        { type: VM_POOL, id },
+      ],
     }),
   }),
 })

@@ -20,7 +20,7 @@ import { DatastoresTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/Vm/BackupForm/Steps/DatastoresTable/schema'
 
 import { Step } from 'client/utils'
-import { T } from 'client/constants'
+import { T, VM_EXTENDED_POOL } from 'client/constants'
 
 export const STEP_ID = 'datastore'
 
@@ -66,7 +66,7 @@ const DatastoreStep = (app) => ({
   resolver: SCHEMA,
   defaultDisabled: {
     statePaths: [
-      'oneApi.queries.getVms(undefined).data',
+      `oneApi.queries.getVms({"extended":${VM_EXTENDED_POOL}}).data`,
       'general.selectedIds',
     ],
     condition: (vmsData, selectedIds) =>
