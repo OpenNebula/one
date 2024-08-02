@@ -19,10 +19,12 @@ const { httpMethod } = require('../../../utils/constants/defaults')
 const { GET } = httpMethod
 
 const basepath = '/logo'
-const GET_LOGO = 'get.logo'
+const GET_LOGO = 'logo.brand'
+const GET_TEMPLATE_LOGOS = 'logo.templates'
 
 const Actions = {
   GET_LOGO,
+  GET_TEMPLATE_LOGOS,
 }
 
 module.exports = {
@@ -30,6 +32,11 @@ module.exports = {
   Commands: {
     [GET_LOGO]: {
       path: `${basepath}/`,
+      httpMethod: GET,
+      auth: false,
+    },
+    [GET_TEMPLATE_LOGOS]: {
+      path: `${basepath}/templatelogos`,
       httpMethod: GET,
       auth: false,
     },

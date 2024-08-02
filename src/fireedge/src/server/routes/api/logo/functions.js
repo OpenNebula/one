@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 const {
   getLogo,
+  getAllLogos,
   validateLogo,
   encodeLogo,
 } = require('server/routes/api/logo/utils')
@@ -83,6 +84,50 @@ const getEncodedLogo = async (res = {}, next = defaultEmptyFunction) => {
   next()
 }
 
+/**
+ * Middleware to get and send all logos with their paths.
+ *
+ * @param {object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {void}
+ */
+const getAllLogosHandler = async (res = {}, next = defaultEmptyFunction) => {
+  try {
+    const logos = getAllLogos() ?? {}
+
+    if (!logos) {
+      res.locals.httpCode = httpResponse(notFound, 'No logos found', '')
+
+      return next()
+    }
+
+    const validLogos = {}
+    for (const [name, filePath] of Object?.entries(logos)) {
+      const validate = validateLogo(filePath, true)
+      if (validate.valid) {
+        validLogos[name] = validate.path
+      }
+    }
+
+    if (Object.keys(validLogos)?.length === 0) {
+      res.locals.httpCode = httpResponse(notFound, 'No valid logos found', '')
+    } else {
+      res.locals.httpCode = httpResponse(ok, validLogos)
+    }
+  } catch (error) {
+    const httpError = httpResponse(
+      internalServerError,
+      'Failed to load logos',
+      ''
+    )
+    writeInLogger(httpError)
+    res.locals.httpCode = httpError
+  }
+
+  next()
+}
+
 module.exports = {
   getEncodedLogo,
+  getAllLogosHandler,
 }

@@ -33,6 +33,29 @@ const logoApi = oneApi.injectEndpoints({
       providesTags: (tags) => [{ type: 'LOGO', id: tags?.logoName }],
       keepUnusedDataFor: 600,
     }),
+
+    getTemplateLogos: builder.query({
+      /**
+       * @returns {object} JSON struct of logo names and paths
+       * @throws Fails when response isn't code 200
+       */
+      query: () => {
+        const name = Actions.GET_TEMPLATE_LOGOS
+        const command = { name, ...Commands[name] }
+
+        return { command }
+      },
+      providesTags: (tags) => {
+        const logos = Object.keys(tags).reduce((acc, logo) => {
+          acc.push({ type: 'LOGO', id: logo })
+
+          return acc
+        }, [])
+
+        return logos
+      },
+      keepUnusedDataFor: 600,
+    }),
   }),
 })
 
@@ -40,6 +63,8 @@ export const {
   // Queries
   useGetEncodedLogoQuery,
   useLazyGetEncodedLogoQuery,
+  useGetTemplateLogosQuery,
+  useLazyGetTemplateLogosQuery,
 } = logoApi
 
 export default logoApi

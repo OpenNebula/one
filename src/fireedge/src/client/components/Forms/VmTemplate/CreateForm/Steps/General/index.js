@@ -130,7 +130,13 @@ const General = ({
     },
     optionsValidate: { abortEarly: false },
     content: (props) =>
-      Content({ ...props, isUpdate, oneConfig, adminGroup, isVrouter }),
+      Content({
+        ...props,
+        isUpdate,
+        oneConfig,
+        adminGroup,
+        isVrouter,
+      }),
   }
 }
 

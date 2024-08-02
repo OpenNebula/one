@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const { getSunstoneViewConfig } = require('server/utils/yml')
-const { existsSync } = require('fs')
+const { existsSync, readdirSync } = require('fs')
 const path = require('path')
 const { global } = require('window-or-global')
 const Jimp = require('jimp')
@@ -46,16 +46,19 @@ const getLogo = () => {
  * Validates the specified logo file path.
  *
  * @param {string} logo - The logo file name to validate.
+ * @param {boolean} relativePaths - Return relative paths instead of absolute
  * @returns {string|boolean} Full logo path or false if invalid.
  */
-const validateLogo = (logo) => {
+const validateLogo = (logo, relativePaths = false) => {
   const imagesDirectory = global?.paths?.SUNSTONE_IMAGES
 
   if (!logo || !imagesDirectory) {
     return { valid: false, path: null }
   }
 
-  const filePath = path.join(imagesDirectory, path.normalize(logo))
+  const filePath = path.isAbsolute(logo)
+    ? logo
+    : path.join(imagesDirectory, path.normalize(logo))
 
   if (!filePath?.startsWith(imagesDirectory)) {
     return { valid: false, path: null }
@@ -63,6 +66,12 @@ const validateLogo = (logo) => {
 
   if (!existsSync(filePath)) {
     return { valid: false, path: 'Not found' }
+  }
+
+  if (relativePaths) {
+    const relativePath = path.relative(imagesDirectory, filePath)
+
+    return { valid: true, path: `images/logos/${relativePath}` }
   }
 
   return { valid: true, path: filePath }
@@ -103,4 +112,38 @@ const encodeFavicon = async (filePath) => {
   }
 }
 
-module.exports = { getLogo, validateLogo, encodeLogo, encodeFavicon }
+/**
+ * Retrieves all logo files from the assets directory.
+ *
+ * @returns {object} A JSON object with filename as key and full path as value.
+ */
+const getAllLogos = () => {
+  const imagesDirectory = global?.paths?.SUNSTONE_IMAGES
+  if (!imagesDirectory || !existsSync(imagesDirectory)) {
+    return null
+  }
+
+  const files = readdirSync(imagesDirectory)
+  const validFilenameRegex = /^[a-zA-Z0-9-_]+\.(jpg|jpeg|png|)$/
+
+  const logos = files.reduce((acc, file) => {
+    if (validFilenameRegex.test(file)) {
+      acc[file.replace(/\.(jpg|jpeg|png)$/, '')] = path.join(
+        imagesDirectory,
+        file
+      )
+    }
+
+    return acc
+  }, {})
+
+  return logos
+}
+
+module.exports = {
+  getLogo,
+  getAllLogos,
+  validateLogo,
+  encodeLogo,
+  encodeFavicon,
+}

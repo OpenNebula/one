@@ -15,12 +15,19 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/logo/routes')
-const { getEncodedLogo } = require('server/routes/api/logo/functions')
-const { GET_LOGO } = Actions
+const {
+  getEncodedLogo,
+  getAllLogosHandler,
+} = require('server/routes/api/logo/functions')
+const { GET_LOGO, GET_TEMPLATE_LOGOS } = Actions
 
 module.exports = [
   {
     ...Commands[GET_LOGO],
     action: getEncodedLogo,
+  },
+  {
+    ...Commands[GET_TEMPLATE_LOGOS],
+    action: getAllLogosHandler,
   },
 ]

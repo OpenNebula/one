@@ -44,9 +44,17 @@ import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
  * @param {VmTemplateFeatures} [features] - Features
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
+ * @param {boolean} isVrouter - VRouter template
  * @returns {Section[]} Fields
  */
-const SECTIONS = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
+const SECTIONS = (
+  hypervisor,
+  isUpdate,
+  features,
+  oneConfig,
+  adminGroup,
+  isVrouter
+) =>
   [
     {
       id: 'hypervisor',
@@ -134,11 +142,19 @@ const SECTIONS = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
  * @param {VmTemplateFeatures} [features] - Features
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
+ * @param {boolean} isVrouter - VRouter template
  * @returns {BaseSchema} Step schema
  */
-const SCHEMA = (hypervisor, isUpdate, features, oneConfig, adminGroup) =>
+const SCHEMA = (
+  hypervisor,
+  isUpdate,
+  features,
+  oneConfig,
+  adminGroup,
+  isVrouter
+) =>
   getObjectSchemaFromFields(
-    SECTIONS(hypervisor, isUpdate, features)
+    SECTIONS(hypervisor, isUpdate, features, oneConfig, adminGroup, isVrouter)
       .map(({ fields }) => fields)
       .flat()
   )
