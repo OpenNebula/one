@@ -66,6 +66,7 @@
               <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

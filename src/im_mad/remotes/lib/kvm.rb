@@ -51,7 +51,7 @@ module KVM
     QEMU_GA = {
         :enabled => false,
         :commands => {
-            :vm_crash => "one-$vm_id \'{\"execute\":\"guest-ping\"}\'"
+            :vm_qemu_ping => "one-$vm_id \'{\"execute\":\"guest-ping\"}\'"
         }
     }
 
