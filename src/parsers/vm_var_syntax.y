@@ -25,6 +25,8 @@
 #include <string.h>
 
 #include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "ImagePool.h"
 #include "VirtualMachine.h"
 #include "Nebula.h"
 

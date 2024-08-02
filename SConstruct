@@ -25,6 +25,7 @@ from SCons.Environment import Environment
 from SCons.Script import ARGUMENTS, SConscript
 
 sys.path.append("./share/scons")
+from lex_bison import *
 
 # Get git version
 try:
@@ -57,6 +58,10 @@ if 'LDFLAGS' in os.environ:
     main_env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 else:
     os.environ['LDFLAGS'] = ""
+
+# Add builders for flex and bison
+add_lex(main_env)
+add_bison(main_env)
 
 # Include dirs
 main_env.Append(CPPPATH=[
@@ -194,12 +199,6 @@ else:
 build_parsers = ARGUMENTS.get('parsers', 'no')
 if build_parsers == 'yes':
     main_env.Append(parsers='yes')
-
-    from lex_bison import *
-
-    # Add builders for flex and bison
-    add_lex(main_env)
-    add_bison(main_env)
 else:
     main_env.Append(parsers='no')
 
