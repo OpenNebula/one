@@ -165,7 +165,11 @@ module OneCfg::Patch
         #
         # @param filename [String] path to patch in YAML format
         def parse_yaml(filename)
-            @patches = YAML.load_file(filename)
+            if Psych::VERSION > '4.0'
+                @patches = YAML.load_file(filename, :aliases => true)
+            else
+                @patches = YAML.load_file(filename)
+            end
 
             return if @patches.is_a?(Hash)
 
