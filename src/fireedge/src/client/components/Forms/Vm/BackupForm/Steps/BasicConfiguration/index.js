@@ -46,7 +46,9 @@ const Content = (props) => {
 
   const vmBackupsConfig = vm?.BACKUPS?.BACKUP_CONFIG || {}
 
-  const incrementalBackupImageId = vm?.BACKUPS?.BACKUP_IDS?.ID
+  const incrementalBackupImageId = []
+    .concat(vm?.BACKUPS?.BACKUP_IDS?.ID)
+    ?.at(-1)
   const incrementalBackups =
     'LAST_INCREMENT_ID' in vmBackupsConfig &&
     vmBackupsConfig?.MODE === 'INCREMENT' &&
