@@ -43,7 +43,7 @@ module OneCfg
 
             if ::File.exist?(@name)
                 if Psych::VERSION > '4.0'
-                    @content = YAML.load_file(@name, :alises => true)
+                    @content = YAML.load_file(@name, :aliases => true)
                 else
                     @content = YAML.load_file(@name)
                 end
