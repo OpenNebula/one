@@ -43,6 +43,10 @@ module OneCfg::Config::Type
 
             if Gem::Version.new(Psych.const_get(:VERSION)) >= Gem::Version.new('4.0')
                 @content = YAML.load_file(name, :aliases => true)
+
+                # for backward compatibility with older Psych return `false`
+                # instead of `nil` if the file was empty
+                @content = false if @content.nil?
             else
                 @content = YAML.load_file(name)
             end
