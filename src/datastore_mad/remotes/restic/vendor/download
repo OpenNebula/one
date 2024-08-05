@@ -15,7 +15,7 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-: "${RESTIC_VERSION:=0.16.0}"
+: "${RESTIC_VERSION:=0.16.5}"
 
 set -o errexit -o nounset -o pipefail
 
