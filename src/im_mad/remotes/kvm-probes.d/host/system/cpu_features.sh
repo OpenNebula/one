@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ￼
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
@@ -16,6 +16,6 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 ￼
-FEATURES=$(virsh capabilities | grep '<feature name' | sed -e "s/^.*='//;s/'\/>$//" | xargs | tr ' ' ',')
+FEATURES=$(virsh cpu-baseline <(virsh capabilities) --features | grep '<feature policy' | sed -e "s/^.*='//;s/'\/>$//" | xargs | tr ' ' ',')
 ￼
 echo "KVM_CPU_FEATURES=\"$FEATURES\""
