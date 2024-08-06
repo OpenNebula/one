@@ -1,1 +1,1 @@
-vendor/bin/restic
+./vendor/bin/restic
