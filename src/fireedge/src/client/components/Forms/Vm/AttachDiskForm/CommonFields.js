@@ -53,7 +53,7 @@ export const GENERAL_FIELDS = [
     values: [
       { text: '', value: '' },
       { text: 'Virtio', value: 'vd' },
-      { text: 'CSI/SATA', value: 'sd' },
+      { text: 'SCSI/SATA', value: 'sd' },
       { text: 'Parallel ATA (IDE)', value: 'hd' },
       { text: 'Custom', value: 'custom' },
     ],
