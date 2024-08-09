@@ -181,13 +181,21 @@ define(function(require) {
     return rtn;
   }
 
+  function _fetchOvmfValues() {
+    return $.ajax({
+      url: '/ovmf_uefis',
+      method: 'GET'
+    });
+  }
+
   return {
     "stringToTemplate": _convert_string_to_template,
     "templateToString": _convert_template_to_string,
     "htmlDecode": _htmlDecode,
     "htmlEncode": _htmlEncode,
     "escapeDoubleQuotes": _escapeDoubleQuotes,
-    "removeHTMLTags": _removeHTMLTags
+    "removeHTMLTags": _removeHTMLTags,
+    "fetchOvmfValues": _fetchOvmfValues,
   };
 });
 

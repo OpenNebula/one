@@ -96,11 +96,6 @@ export const COMMON_RESOLUTIONS = {
 
 export const FIRMWARE_TYPES = ['BIOS', 'EFI']
 
-export const KVM_FIRMWARE_TYPES = FIRMWARE_TYPES.concat([
-  '/usr/share/OVMF/OVMF_CODE.fd',
-  '/usr/share/OVMF/OVMF_CODE.secboot.fd',
-])
-
 export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
 
 export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])

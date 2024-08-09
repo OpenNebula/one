@@ -15,6 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/system'
 import {
+  Actions as VmmActions,
+  Commands as VmmCommands,
+} from 'server/routes/api/system/routes'
+import {
   Actions as SunstoneActions,
   Commands as SunstoneCommands,
 } from 'server/routes/api/sunstone/routes'
@@ -117,6 +121,24 @@ const systemApi = oneApi.injectEndpoints({
       providesTags: [{ type: SYSTEM, id: 'sunstone-avalaibles-views' }],
       keepUnusedDataFor: 600,
     }),
+
+    getVmmConfig: builder.query({
+      /**
+       * Returns the hypervisor VMM_EXEC config.
+       *
+       * @param {object} params - Request params
+       * @returns {object} The set config options
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = VmmActions.VMM_CONFIG
+        const command = { name, ...VmmCommands[name] }
+
+        return { params, command }
+      },
+      providesTags: [{ type: SYSTEM, id: 'vmm_config' }],
+      keepUnusedDataFor: 600,
+    }),
   }),
 })
 
@@ -126,6 +148,8 @@ export const {
   useLazyGetOneVersionQuery,
   useGetOneConfigQuery,
   useLazyGetOneConfigQuery,
+  useGetVmmConfigQuery,
+  useLazyGetVmmConfigQuery,
   useGetSunstoneConfigQuery,
   useLazyGetSunstoneConfigQuery,
   useGetSunstoneViewsQuery,

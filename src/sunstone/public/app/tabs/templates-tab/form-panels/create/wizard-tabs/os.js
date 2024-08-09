@@ -24,6 +24,7 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
   var WizardFields = require("utils/wizard-fields");
+  var TemplateUtils = require('utils/template-utils');
   var FilesTable = require("tabs/files-tab/datatable");
   var UniqueId = require("utils/unique-id");
   var OpenNebulaHost = require("opennebula/host");
@@ -136,8 +137,6 @@ define(function(require) {
   var FIRMWARE_VALUES = {
     "BIOS": false,
     "EFI": false,
-    "/usr/share/OVMF/OVMF_CODE.fd": false,
-    "/usr/share/OVMF/OVMF_CODE.secboot.fd": true,
     "custom": true
   };
 
@@ -322,7 +321,18 @@ define(function(require) {
     });
     that.initrdFilesTable.refreshResourceTableSelect();
 
-    $("#firmwareType", context).change(function() {
+    var firmwareTypeSelect = $("#firmwareType", context);
+
+    TemplateUtils.fetchOvmfValues().done(function(response) {
+      var ovmfUefis = response.ovmf_uefis;
+      ovmfUefis.forEach(function(uefi) {
+        firmwareTypeSelect.append('<option value="' + uefi + '" class="only_kvm">UEFI: ' + uefi + '</option>');
+      });
+    }).fail(function() {
+      console.error('Failed to load UEFI options');
+    });
+
+    firmwareTypeSelect.change(function() {
       if (FIRMWARE_VALUES[$(this).val()]){
         $("#firmwareSecure", context).show();
       }

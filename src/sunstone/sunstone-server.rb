@@ -38,6 +38,7 @@ else
 end
 
 VMS_LOCATION = VAR_LOCATION + "/vms"
+VMM_EXEC_CONF = ETC_LOCATION + "/vmm_exec/vmm_exec_kvm.conf"
 
 SUNSTONE_AUTH             = VAR_LOCATION + '/.one/sunstone_auth'
 SUNSTONE_LOG              = LOG_LOCATION + '/sunstone.log'
@@ -354,6 +355,23 @@ helpers do
         end
 
         session[:csrftoken] && session[:csrftoken] == csrftoken
+    end
+
+    def get_ovmf_uefis
+        ovmf_uefis = []
+
+        if File.exist?(VMM_EXEC_CONF)
+            File.foreach(VMM_EXEC_CONF) do |line|
+                if line =~ /^OVMF_UEFIS\s*=\s*"(.+)"$/
+                    ovmf_uefis = $1.split(" ")
+                    break
+                end
+            end
+        else
+            logger.error("Configuration file not found: #{VMM_EXEC_CONF}")
+        end
+
+        ovmf_uefis
     end
 
     def authorized?
@@ -861,6 +879,14 @@ get '/version' do
 
     [200, version.to_json]
 end
+
+get '/ovmf_uefis' do
+    content_type 'application/json', :charset => 'utf-8'
+    ovmf_uefis = {}
+    ovmf_uefis["ovmf_uefis"] = get_ovmf_uefis
+    [200, ovmf_uefis.to_json]
+end
+
 
 ##############################################################################
 # Login

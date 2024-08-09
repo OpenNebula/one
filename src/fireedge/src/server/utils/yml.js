@@ -157,6 +157,7 @@ const getProvisionConfig = (options) =>
   getConfiguration(defaultApps.provision.name, options)
 
 module.exports = {
+  readYAMLFile,
   getFireedgeConfig,
   getSunstoneConfig,
   getSunstoneViewConfig,

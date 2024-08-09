@@ -616,6 +616,9 @@ const genPathResources = () => {
     if (!global.paths.SUNSTONE_VIEWS) {
       global.paths.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
     }
+    if (!global.paths.VMM_EXEC_CONFIG) {
+      global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`
+    }
     if (!global.paths.FIREEDGE_KEY_PATH) {
       global.paths.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }

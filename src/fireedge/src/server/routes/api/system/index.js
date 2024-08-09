@@ -15,13 +15,20 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/system/routes')
-const { getConfig } = require('server/routes/api/system/functions')
+const {
+  getConfig,
+  getVmmConfigHandler,
+} = require('server/routes/api/system/functions')
 
-const { SYSTEM_CONFIG } = Actions
+const { SYSTEM_CONFIG, VMM_CONFIG } = Actions
 
 module.exports = [
   {
     ...Commands[SYSTEM_CONFIG],
     action: getConfig,
+  },
+  {
+    ...Commands[VMM_CONFIG],
+    action: getVmmConfigHandler,
   },
 ]

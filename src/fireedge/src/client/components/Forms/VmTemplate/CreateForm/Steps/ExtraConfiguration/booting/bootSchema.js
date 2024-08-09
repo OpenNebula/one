@@ -16,6 +16,7 @@
 import { string, boolean } from 'yup'
 
 import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { useGetVmmConfigQuery } from 'client/features/OneApi/system'
 import { getKvmMachines } from 'client/models/Host'
 import { Field, arrayToOptions } from 'client/utils'
 import {
@@ -24,7 +25,6 @@ import {
   CPU_ARCHITECTURES,
   SD_DISK_BUSES,
   FIRMWARE_TYPES,
-  KVM_FIRMWARE_TYPES,
   HYPERVISORS,
 } from 'client/constants'
 
@@ -143,10 +143,14 @@ export const FIRMWARE = {
     .default(() => undefined),
   dependOf: ['HYPERVISOR', '$general.HYPERVISOR'],
   values: ([templateHyperv, hypervisor = templateHyperv] = []) => {
-    const types =
-      {
-        [kvm]: KVM_FIRMWARE_TYPES,
-      }[hypervisor] ?? FIRMWARE_TYPES
+    const configurableHypervisors = [kvm]
+    const { data: { OVMF_UEFIS = '' } = {} } =
+      configurableHypervisors?.includes(hypervisor) &&
+      useGetVmmConfigQuery({ hypervisor })
+
+    const types = FIRMWARE_TYPES.concat(
+      OVMF_UEFIS?.replace(/"/g, '')?.split(' ') ?? []
+    )
 
     return arrayToOptions(types)
   },

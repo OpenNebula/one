@@ -18,7 +18,7 @@ const {
   getAllLogos,
   validateLogo,
   encodeLogo,
-} = require('server/routes/api/logo/utils')
+} = require('server/utils/logo')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 const { httpResponse } = require('server/utils/server')
