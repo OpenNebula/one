@@ -176,6 +176,11 @@ void VMGroupXML::set_antiaffinity_requirements(VirtualMachinePoolXML * vmpool,
 
             VMGroupRole * r = roles.get(i);
 
+            if ( r == 0 )
+            {
+                continue;
+            }
+
             const std::set<int>& vms = r->get_vms();
 
             for ( auto vm_id : vms )
