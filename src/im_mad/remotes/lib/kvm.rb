@@ -169,6 +169,8 @@ class Domain < BaseDomain
             @vm[:id] = -1
         end
 
+        return if @vm[:id] == -1 # Skip wild VMs
+
         @vm[:kvm_state] = hash['STATE']
 
         # Domain state
