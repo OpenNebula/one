@@ -15,11 +15,15 @@
  * ------------------------------------------------------------------------- */
 
 const { defaults, httpCodes } = require('server/utils/constants')
-const { httpResponse, getSunstoneAuth } = require('server/utils/server')
-const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
+const { httpResponse } = require('server/utils/server')
+const { defaultEmptyFunction, httpMethod } = defaults
+const { GET } = httpMethod
+const { getServerAdmin } = require('server/routes/api/auth/utils')
+const {
+  getDefaultParamsOfOpennebulaCommand,
+} = require('server/utils/opennebula')
 const { Actions: hostActions } = require('server/utils/constants/commands/host')
 
-const { defaultEmptyFunction } = defaults
 const { HOST_POOL_INFO } = hostActions
 const { ok, badRequest, unauthorized } = httpCodes
 
@@ -30,17 +34,17 @@ const { ok, badRequest, unauthorized } = httpCodes
  * @param {Function} next - express stepper
  * @param {string} params - data response http
  * @param {object} userData - user of http request
- * @param {Function} xmlrpc - XML-RPC function
+ * @param {Function} oneConnection - XML-RPC function
  */
 const show = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
   userData = {},
-  xmlrpc = defaultEmptyFunction
+  oneConnection = defaultEmptyFunction
 ) => {
-  const serverAdmin = getSunstoneAuth() ?? {}
-  const { token: authToken } = createTokenServerAdmin(serverAdmin) ?? {}
+  const serverAdmin = getServerAdmin()
+  const { token: authToken } = serverAdmin
 
   if (!authToken) {
     res.locals.httpCode = httpResponse(badRequest, '')
@@ -50,15 +54,16 @@ const show = (
   }
 
   const { username } = serverAdmin
-  const oneClientServerAdmin = xmlrpc(`${username}:${username}`, authToken)
+  const oneConnect = oneConnection(`${username}:${username}`, authToken?.token)
 
   // get HOSTS information
-  oneClientServerAdmin({
+  oneConnect({
     action: HOST_POOL_INFO,
-    callback: (hostInfoErr, data = {}) => {
-      const { HOST_POOL } = data
-      if (hostInfoErr || !HOST_POOL) {
-        res.locals.httpCode = httpResponse(unauthorized, hostInfoErr)
+    parameters: getDefaultParamsOfOpennebulaCommand(HOST_POOL_INFO, GET),
+    callback: (err, value = {}) => {
+      const { HOST_POOL = [] } = value
+      if (err) {
+        res.locals.httpCode = httpResponse(unauthorized, err)
         next()
 
         return
