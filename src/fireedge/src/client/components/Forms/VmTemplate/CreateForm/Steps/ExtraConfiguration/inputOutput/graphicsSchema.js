@@ -77,7 +77,7 @@ export const TYPE = (isUpdate) => ({
     .test('is-valid-type', 'Invalid value', function (value) {
       if (
         typeof value === 'boolean' ||
-        value === 'VNC' ||
+        value?.toUpperCase() === 'VNC' ||
         value === undefined
       ) {
         return true

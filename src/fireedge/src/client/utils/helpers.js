@@ -559,9 +559,13 @@ export const deepStringify = (obj, depth = 3) => {
     .map(
       ([key, value]) =>
         `${key?.toString() ?? 'UNDEFINED'}:${
-          typeof value === 'object'
+          Array.isArray(value)
+            ? `[${value
+                .map((item) => deepStringify(item, depth - 1))
+                .join(',')}]`
+            : typeof value === 'object'
             ? deepStringify(value, depth - 1)
-            : value?.toString() ?? 'UNDEFINED'
+            : _.toString(value) ?? 'UNDEFINED'
         }`
     )
     .join(',')

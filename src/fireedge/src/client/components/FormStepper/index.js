@@ -35,7 +35,13 @@ import {
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import SkeletonStepsForm from 'client/components/FormStepper/Skeleton'
-import { groupBy, Step, StepsForm, isDevelopment } from 'client/utils'
+import {
+  groupBy,
+  Step,
+  StepsForm,
+  isDevelopment,
+  deepStringify,
+} from 'client/utils'
 import { T } from 'client/constants'
 import get from 'lodash.get'
 import { set, isEmpty } from 'lodash'
@@ -208,15 +214,8 @@ const FormStepper = ({
 
   const setErrors = ({ inner = [], message = { word: 'Error' } } = {}) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
-    const totalErrors = Object.values(errorsByPath).reduce((count, value) => {
-      if (Array.isArray(value)) {
-        const filteredValue = value?.filter(Boolean) || []
-
-        return count + filteredValue?.length || 0
-      }
-
-      return count
-    }, 0)
+    const jsonErrorsByPath = deepStringify(errorsByPath, 6) || ''
+    const totalErrors = (jsonErrorsByPath.match(/\bmessage\b/g) || []).length
 
     const translationError =
       totalErrors > 0 ? [T.ErrorsOcurred, totalErrors] : Object.values(message)
