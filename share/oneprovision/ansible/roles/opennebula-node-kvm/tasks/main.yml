@@ -1,16 +1,18 @@
 ---
+- name: Install OpenNebula node package
+  apt:
+    name: opennebula-node
+    state: latest
+  register: apt_result
+  until: apt_result is success
+  retries: 3
+  delay: 10
 
-- include: centos.yml
-  when: ansible_os_family == "RedHat"
-
-- include: debian.yml
-  when: ansible_os_family == "Debian"
-
-- include: kvm.yml
+- include_tasks: kvm.yml
   when: opennebula_node_kvm_manage_kvm == True
 
-- include: libvirt.yml
-- include: security.yml
+- include_tasks: libvirt.yml
+- include_tasks: security.yml
 
 - name: "create datastore for ONE_LOCATION"
   file: path={{ one_location }}/var/datastores owner=oneadmin group=oneadmin state=directory

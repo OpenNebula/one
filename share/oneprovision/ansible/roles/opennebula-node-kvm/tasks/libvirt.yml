@@ -1,28 +1,6 @@
 ---
-- name: Restart Libvirtd (RedHat)
+- name: Restart Libvirtd
   service:
     name: libvirtd
     state: restarted
     enabled: yes
-  when: ansible_os_family == "RedHat"
-
-- name: Restart Libvirtd (Debian)
-  service:
-    name: libvirtd
-    state: restarted
-    enabled: yes
-  when: ansible_distribution == "Debian"
-
-- name: Restart Libvirt-bin (Ubuntu up to 18.04)
-  service:
-    name: libvirt-bin
-    state: restarted
-    enabled: yes
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version|float < 18.10
-
-- name: Restart Libvirtd (Ubuntu from 18.10)
-  service:
-    name: libvirtd
-    state: restarted
-    enabled: yes
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version|float >= 18.10

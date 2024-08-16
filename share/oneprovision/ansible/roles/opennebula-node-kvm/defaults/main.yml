@@ -2,7 +2,8 @@
 ###############################################################################
 # Valid defaults
 ###############################################################################
+# Enable nested KVM virtualization
+opennebula_node_kvm_param_nested: False
 
-# SELinux booleans to configure
-opennebula_node_selinux_booleans:
-  - { name: 'virt_use_nfs', state: 'yes' }
+# Enable KVM configuration
+opennebula_node_kvm_manage_kvm: True

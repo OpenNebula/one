@@ -1,18 +1,8 @@
 ---
+- name: Check if AppArmor configuration exists
+  stat: path=/etc/apparmor.d/abstractions/libvirt-qemu
+  register: apparmor_libvirt_qemu
 
-# SELinux
-- block:
-  - name: Set SELinux booleans
-    seboolean:
-      name: '{{ item.name }}'
-      state: '{{ item.state }}'
-      persistent: yes
-    with_items: '{{ opennebula_node_selinux_booleans }}'
-  when:
-    - ansible_selinux.status == 'enabled'
-    - ansible_os_family == "RedHat"
-
-# AppArmor
 - block:
   - name: Add permissions to apparmor
     lineinfile:
@@ -27,5 +17,8 @@
       name: apparmor
       state: reloaded
     register: service_result
-    failed_when: "service_result is failed and ('find' not in service_result.msg and 'found' not in service_result.msg)"
-  when: ansible_distribution == "Ubuntu"
+    failed_when:
+      - service_result is failed
+      - "'find' not in service_result.msg and 'found' not in service_result.msg"
+  when:
+    - apparmor_libvirt_qemu.stat.exists == True

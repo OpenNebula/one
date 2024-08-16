@@ -56,6 +56,7 @@
   template:
     src: bgpd_rr.conf.j2
     dest: /etc/frr/bgpd.conf
+  notify: restart frr
   when:
   - vars['ansible_' + frr_iface].ipv4.address is defined
   - vars['ansible_' + frr_iface].ipv4.address in rr_servers
@@ -64,6 +65,7 @@
   template:
     src: bgpd.conf.j2
     dest: /etc/frr/bgpd.conf
+  notify: restart frr
   when:
   - vars['ansible_' + frr_iface].ipv4.address is defined
   - not vars['ansible_' + frr_iface].ipv4.address in rr_servers
@@ -72,27 +74,31 @@
   template:
     src: zebra.conf.j2
     dest: /etc/frr/zebra.conf
+  notify: restart frr
   when: frr_zebra == true
 
 - name: Configure Staticd
   template:
     src: staticd.conf.j2
     dest: /etc/frr/staticd.conf
+  notify: restart frr
   when: frr_zebra == true
 
 - name: Remove frr.conf
   file:
     path: /etc/frr/frr.conf
     state: absent
+  notify: restart frr
 
 - name: Enable BGP daemon
   replace:
     path: /etc/frr/daemons
     regexp: '^bgpd=no'
     replace: 'bgpd=yes'
+  notify: restart frr
 
 - name: Start FRR service
   service:
     name: frr
-    state: restarted
+    state: started
     enabled: yes

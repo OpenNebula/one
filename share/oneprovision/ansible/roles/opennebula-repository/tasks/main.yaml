@@ -1,9 +1,0 @@
----
-- include: centos.yml
-  when: ansible_os_family == "RedHat"
-
-- include: debian.yml
-  when: ansible_os_family == "Debian"
-
-- name: Force all notified handler to run now
-  meta: flush_handlers

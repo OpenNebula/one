@@ -9,10 +9,8 @@
     reload: yes
 
 - block:
-  - include: redhat.yml
-    when: ansible_os_family == "RedHat"
-  - include: debian.yml
+  - include_tasks: debian.yml
     when: ansible_os_family == "Debian"
   when: iptables_manage_persistent
 
-- include: rules.yml
+- include_tasks: rules.yml

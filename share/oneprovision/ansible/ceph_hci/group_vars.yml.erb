@@ -1,16 +1,12 @@
 ---
 # Ceph basics
 ceph_origin: repository
-ceph_repository: uca
+ceph_repository: community
 ceph_rhcs_version: 7
-ceph_stable_release: quincy
-ceph_stable_release_num: 17
+ceph_stable_release: reef
+ceph_stable_release_num: 18
 dashboard_enabled: false
 configure_firewall: false
-ceph_stable_mapping:
-  '20': yoga
-  '22': bobcat
-ceph_stable_openstack_release_uca: "{{ ceph_stable_mapping[ansible_distribution_major_version] }}"
 
 # ceph overrides (applying in ceph.conf)
 ceph_conf_overrides:

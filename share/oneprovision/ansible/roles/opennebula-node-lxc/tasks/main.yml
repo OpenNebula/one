@@ -1,14 +1,4 @@
 ---
-
-# Workaround for non-unified cgroups v2 not supported by Firecracker yet
-# https://github.com/firecracker-microvm/firecracker/issues/841 ?
-- name: Reconfigure cgroups
-  include_role:
-    name: cgroups1
-  when: |
-    (ansible_distribution == 'Fedora') or
-    (ansible_distribution == 'Debian' and ansible_distribution_version is version_compare('11', '>='))
-
 - name: Install OpenNebula node LXC package
   package:
     name: opennebula-node-lxc

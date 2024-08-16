@@ -2,8 +2,8 @@
 - name: open /etc/ceph
   file: path=/etc/ceph mode=0755
 
-- include: pool.yml
+- include_tasks: pool.yml
 
-- include: auth.yml
+- include_tasks: auth.yml
 
-- include: tunables.yml
+- include_tasks: tunables.yml

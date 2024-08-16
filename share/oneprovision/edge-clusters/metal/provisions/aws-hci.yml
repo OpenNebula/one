@@ -41,7 +41,7 @@ extends:
 #-------------------------------------------------------------------------------
 ansible:
   ver_min: 2.12
-  ver_max: 2.13
+  ver_max: 2.17
   playbook:
     - aws
     - ceph_hci/site

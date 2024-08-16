@@ -4,12 +4,12 @@ deprecation_warnings  = False
 display_skipped_hosts = False
 stdout_callback       = yaml
 host_key_checking     = False
-roles_path            = <%= ans_loc %>/roles:/var/lib/one/.ansible/roles:/var/lib/one/.ansible/ceph-7.0/roles
-action_plugins        = /var/lib/one/.ansible/ceph-7.0/plugins/actions
-callback_plugins      = /var/lib/one/.ansible/ceph-7.0/plugins/callback
-filter_plugins        = /var/lib/one/.ansible/ceph-7.0/plugins/filter
-library               = /var/lib/one/.ansible/ceph-7.0/library
-module_utils          = /var/lib/one/.ansible/ceph-7.0/module_utils
+roles_path            = <%= ans_loc %>/roles:/var/lib/one/.ansible/roles:/var/lib/one/.ansible/ceph-8.0/roles
+action_plugins        = /var/lib/one/.ansible/ceph-8.0/plugins/actions
+callback_plugins      = /var/lib/one/.ansible/ceph-8.0/plugins/callback
+filter_plugins        = /var/lib/one/.ansible/ceph-8.0/plugins/filter
+library               = /var/lib/one/.ansible/ceph-8.0/library
+module_utils          = /var/lib/one/.ansible/ceph-8.0/module_utils
 
 [privilege_escalation]
 become = yes

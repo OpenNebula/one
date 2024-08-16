@@ -25,7 +25,7 @@
 
 # configure libvirt secretes
 - name: Include libvirt configuration tasks
-  include: libvirt.yml
+  include_tasks: libvirt.yml
   when: ceph_opennebula_osd_libvirt_enabled
 
 # stop and disable docker on hypervisors

@@ -13,5 +13,3 @@
     masked: yes
     state: stopped
   ignore_errors: yes
-
-- include: clean_netconfigs.yml

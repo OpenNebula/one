@@ -8,11 +8,11 @@
     mode: 0700
     state: directory
 
-- include: sshd.yml
+- include_tasks: sshd.yml
   when: opennebula_ssh_manage_sshd == True
 
-- include: deploy_local.yml
+- include_tasks: deploy_local.yml
   when: opennebula_ssh_deploy_local == True
 
-- include: root_authkeys.yml
+- include_tasks: root_authkeys.yml
   when: opennebula_ssh_keys_import_root_keys == True
