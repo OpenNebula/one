@@ -26,6 +26,8 @@ import {
   CreateSchedActionForm,
 } from 'client/components/Forms/Vm'
 
+import { CreatePerformAction } from 'client/components/Forms/Service'
+
 import { Tr, Translate } from 'client/components/HOC'
 import {
   SERVER_CONFIG,
@@ -226,6 +228,45 @@ const CharterButton = memo(({ relative, onSubmit }) => {
   )
 })
 
+/**
+ * Returns a button to trigger form to perform an action.
+ *
+ * @param {object} props - Props
+ * @param {object} props.service - Service resource
+ * @param {boolean} [props.relative] - Applies to the form relative format
+ * @param {function():Promise} props.onSubmit - Submit function
+ * @returns {ReactElement} Button
+ */
+const PerformActionButton = memo(
+  ({ service, onSubmit, oneConfig, adminGroup, roles }) => {
+    const formConfig = {
+      stepProps: { service, oneConfig, adminGroup, roles },
+    }
+
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          color: 'secondary',
+          'data-cy': VM_ACTIONS.PERFORM_ACTION,
+          label: T.PerformAction,
+          variant: 'outlined',
+        }}
+        options={[
+          {
+            name: T.PerformAction,
+            dialogProps: {
+              title: T.PerformAction,
+              dataCy: 'modal-perform-action',
+            },
+            form: () => CreatePerformAction(formConfig),
+            onSubmit,
+          },
+        ]}
+      />
+    )
+  }
+)
+
 const ButtonPropTypes = {
   vm: PropTypes.object,
   relative: PropTypes.bool,
@@ -234,6 +275,8 @@ const ButtonPropTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
   backupjobs: PropTypes.bool,
+  service: PropTypes.object,
+  roles: PropTypes.object,
 }
 
 CreateSchedButton.propTypes = ButtonPropTypes
@@ -244,10 +287,13 @@ DeleteSchedButton.propTypes = ButtonPropTypes
 DeleteSchedButton.displayName = 'DeleteSchedButton'
 CharterButton.propTypes = ButtonPropTypes
 CharterButton.displayName = 'CharterButton'
+PerformActionButton.propTypes = ButtonPropTypes
+PerformActionButton.displayName = 'PerformActionButton'
 
 export {
   CharterButton,
   CreateSchedButton,
   DeleteSchedButton,
   UpdateSchedButton,
+  PerformActionButton,
 }

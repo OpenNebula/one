@@ -102,7 +102,7 @@ const extractPropertiesToArray = (content) => {
 }
 
 const formatInstantiate = (contents) => {
-  const { vmTemplateContents, customAttrsValues } = contents
+  const { vmTemplateContents, customAttrsValues, schedActions } = contents
 
   const sections = extractSections(vmTemplateContents)
     .map(parseSection)
@@ -139,7 +139,12 @@ const formatInstantiate = (contents) => {
     ...filteredProperties,
   ]
 
-  const formattedTemplate = combinedContent.join('\n') + '\n'
+  const formattedActions = schedActions?.map((action, index) =>
+    formatSchedActions({ ...action, ID: index })
+  )
+
+  const formattedTemplate =
+    combinedContent.join('\n') + formattedActions.join('\n') + '\n'
 
   return formattedTemplate
 }

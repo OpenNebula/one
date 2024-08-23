@@ -54,13 +54,14 @@ info-tabs:
   log:
     enabled: true
 
-  scheduler_actions:
-    enabled: false
+  sched_actions:
+    enabled: true
     actions:
-      sched_action_create: false
-      sched_action_update: false
-      sched_action_delete: false
-      charter_create: false
+      sched-add: true
+      sched-update: false
+      sched-delete: false
+      charter_create: true
+      perform_action: true
 
 # Dialogs
 

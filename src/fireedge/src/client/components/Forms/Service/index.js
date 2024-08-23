@@ -14,37 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
-
-import { useGetServiceQuery } from 'client/features/OneApi/service'
-// import ScheduleActionCard from 'client/components/Cards/ScheduleActionCard'
+import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
+import { CreateStepsCallback } from 'client/utils/schema'
 
 /**
- * Renders the list of schedule actions from a Service.
- *
- * @param {object} props - Props
- * @param {string} props.id - Service id
- * @param {object|boolean} props.tabProps - Tab properties
- * @param {object} [props.tabProps.actions] - Actions from user view yaml
- * @returns {ReactElement} Schedule actions tab
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
  */
-const SchedulingTab = ({ id, tabProps: { actions } = {} }) => {
-  const { data: service = {} } = useGetServiceQuery({ id })
+const CreatePerformAction = (configProps) =>
+  AsyncLoadForm({ formPath: 'Service/PerformAction' }, configProps)
 
-  return (
-    <>
-      <Stack gap="1em" py="0.8em">
-        {service?.NAME}
-        {/* TODO: scheduler actions & form */}
-      </Stack>
-    </>
-  )
-}
-
-SchedulingTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-export default SchedulingTab
+export { CreatePerformAction }

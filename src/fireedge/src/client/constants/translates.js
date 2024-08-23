@@ -151,6 +151,8 @@ module.exports = {
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
   Offline: 'Offline',
+  PerformAction: 'Perform action',
+  AllRoles: 'All roles',
   Pin: 'Pin',
   Poweroff: 'Poweroff',
   PoweroffHard: 'Poweroff hard',
@@ -1515,6 +1517,8 @@ module.exports = {
   RoleManageApps: 'Manage multi-VM applications efficiently.',
   /* Service Template - configuration */
   RoleConfiguration: 'Role Configuration',
+  /* Service Template - schedule actions */
+  ServiceSheduleActionCreated: 'Shedule action added to service',
 
   /* VMGroups - Role definition */
   NewRole: 'New Role',

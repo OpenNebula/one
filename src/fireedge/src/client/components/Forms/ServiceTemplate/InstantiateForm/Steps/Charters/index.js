@@ -31,7 +31,6 @@ import { Tr } from 'client/components/HOC'
 import { Legend } from 'client/components/Forms'
 
 import { mapNameByIndex } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
-import { STEP_ID as EXTRA_ID } from 'client/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
 
 import { Component, useMemo } from 'react'
 
@@ -52,7 +51,7 @@ const ScheduleActionsSection = ({ oneConfig, adminGroup }) => {
     update,
     append,
   } = useFieldArray({
-    name: `${EXTRA_ID}.${TAB_ID}`,
+    name: `charter.${TAB_ID}`,
     keyName: 'ID',
   })
 

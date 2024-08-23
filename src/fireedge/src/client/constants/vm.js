@@ -804,6 +804,7 @@ export const VM_ACTIONS = {
   SCHED_ACTION_UPDATE: 'sched-update',
   SCHED_ACTION_DELETE: 'sched-delete',
   CHARTER_CREATE: 'charter_create',
+  PERFORM_ACTION: 'perform_action',
 
   // CONFIGURATION
   UPDATE_CONF: 'update_configuration',

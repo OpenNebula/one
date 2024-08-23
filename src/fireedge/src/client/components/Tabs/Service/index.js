@@ -23,7 +23,7 @@ import { useGetServiceQuery } from 'client/features/OneApi/service'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
-import Actions from 'client/components/Tabs/Service/Actions'
+import Actions from 'client/components/Tabs/Service/SchedActions'
 import Info from 'client/components/Tabs/Service/Info'
 import Log from 'client/components/Tabs/Service/Log'
 import Roles from 'client/components/Tabs/Service/Roles'
@@ -33,7 +33,7 @@ const getTabComponent = (tabName) =>
     info: Info,
     roles: Roles,
     log: Log,
-    schedulerAction: Actions,
+    sched_actions: Actions,
   }[tabName])
 
 const ServiceTabs = memo(({ id }) => {
