@@ -51,6 +51,7 @@ const AttachAction = memo(
     hasAlias,
     isPci,
     isAlias,
+    disableNetworkAutoMode,
   }) => {
     const { setFieldPath } = useGeneralApi()
     const disableSteps = useDisableStep()
@@ -99,6 +100,7 @@ const AttachAction = memo(
                   isPci,
                   isAlias,
                   disableSteps,
+                  disableNetworkAutoMode,
                 },
                 initialValues: nic,
               })
@@ -388,6 +390,7 @@ const ActionPropTypes = {
   methods: PropTypes.object,
   index: PropTypes.number,
   indexNicAlias: PropTypes.number,
+  disableNetworkAutoMode: PropTypes.bool,
 }
 
 AttachAction.propTypes = ActionPropTypes

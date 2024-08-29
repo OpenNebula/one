@@ -157,6 +157,7 @@ const VmNetworkTab = ({
           oneConfig={oneConfig}
           adminGroup={adminGroup}
           onSubmit={handleAttach}
+          disableNetworkAutoMode={true}
         />
       )}
 

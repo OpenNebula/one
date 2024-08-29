@@ -66,9 +66,13 @@ const fillPCIAtributes =
 /**
  * @param {object} [data] - VM or VM Template data
  * @param {boolean} [data.isAlias] - If it's an alias
+ * @param {boolean} [data.disableNetworkAutoMode] - Disable the switch to enable network auto mode
  * @returns {Field[]} List of general fields
  */
-const GENERAL_FIELDS = ({ isAlias = false } = {}) =>
+const GENERAL_FIELDS = ({
+  isAlias = false,
+  disableNetworkAutoMode = false,
+} = {}) =>
   [
     isAlias && {
       name: 'EXTERNAL',
@@ -78,26 +82,27 @@ const GENERAL_FIELDS = ({ isAlias = false } = {}) =>
       validation: boolean().yesOrNo(),
       grid: { sm: 6 },
     },
-    !isAlias && {
-      name: 'NETWORK_MODE',
-      label: T.AutomaticNetworkMode,
-      tooltip: T.NetworkMoeConcept,
-      type: INPUT_TYPES.SWITCH,
-      validation: boolean()
-        .yesOrNo()
-        .afterSubmit((value) => (value ? 'auto' : '')),
-      grid: { sm: 6 },
-      stepControl: [
-        {
-          condition: (value) => value === true,
-          steps: ['network'],
-        },
-        {
-          condition: (value) => value === false,
-          steps: ['network-auto'],
-        },
-      ],
-    },
+    !isAlias &&
+      !disableNetworkAutoMode && {
+        name: 'NETWORK_MODE',
+        label: T.AutomaticNetworkMode,
+        tooltip: T.NetworkMoeConcept,
+        type: INPUT_TYPES.SWITCH,
+        validation: boolean()
+          .yesOrNo()
+          .afterSubmit((value) => (value ? 'auto' : '')),
+        grid: { sm: 6 },
+        stepControl: [
+          {
+            condition: (value) => value === true,
+            steps: ['network'],
+          },
+          {
+            condition: (value) => value === false,
+            steps: ['network-auto'],
+          },
+        ],
+      },
   ].filter(Boolean)
 
 const GUACAMOLE_CONNECTIONS = [
@@ -640,6 +645,7 @@ const GUEST_FIELDS = [
  * @param {boolean} [data.hasAlias] - If has an alias
  * @param {boolean} [data.isPci] - If it's a PCI
  * @param {boolean} [data.isAlias] - If it's an alias
+ * @param {boolean} [data.disableNetworkAutoMode] - Disable the switch to enable network auto mode
  * @returns {Section[]} Sections
  */
 const SECTIONS = ({
@@ -652,6 +658,7 @@ const SECTIONS = ({
   hasAlias,
   isPci,
   isAlias,
+  disableNetworkAutoMode,
 } = {}) => {
   const filters = { driver, hypervisor }
 
@@ -663,7 +670,13 @@ const SECTIONS = ({
       legend: T.General,
       fields: disableFields(
         filterByHypAndDriver(
-          GENERAL_FIELDS({ nics, hasAlias, isPci, isAlias }),
+          GENERAL_FIELDS({
+            nics,
+            hasAlias,
+            isPci,
+            isAlias,
+            disableNetworkAutoMode,
+          }),
           filters
         ),
         'NIC',
