@@ -15,6 +15,11 @@
  * ------------------------------------------------------------------------- */
 
 import {
+  entrypoint404,
+  entrypointApi,
+  entrypointApp,
+} from './routes/entrypoints'
+import {
   defaultAppName,
   defaultApps,
   defaultEvents,
@@ -22,36 +27,26 @@ import {
   defaultPort,
   defaultWebpackMode,
 } from './utils/constants/defaults'
-import {
-  entrypoint404,
-  entrypointApi,
-  entrypointApp,
-} from './routes/entrypoints'
+import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
   genFireedgeKey,
   genPathResources,
-  getCert,
-  getKey,
-  validateServerIsSecure,
   setDnsResultOrder,
 } from './utils/server'
-import { getLoggerMiddleware, initLogger } from './utils/logger'
 
 import compression from 'compression'
 import cors from 'cors'
-import { env } from 'process'
 import express from 'express'
-import { getFireedgeConfig } from './utils/yml'
-import guacamole from './routes/websockets/guacamole'
 import helmet from 'helmet'
 import http from 'http'
-import https from 'https'
-import { messageTerminal } from './utils/general'
-import opennebulaWebsockets from './routes/websockets/opennebula'
-import { readFileSync } from 'fs-extra'
 import { resolve } from 'path'
-import vmrc from './routes/websockets/vmrc'
+import { env } from 'process'
 import webpack from 'webpack'
+import guacamole from './routes/websockets/guacamole'
+import opennebulaWebsockets from './routes/websockets/opennebula'
+import vmrc from './routes/websockets/vmrc'
+import { messageTerminal } from './utils/general'
+import { getFireedgeConfig } from './utils/yml'
 
 setDnsResultOrder()
 
@@ -65,10 +60,6 @@ genFireedgeKey()
 
 // set logger
 initLogger(appConfig.debug_level, appConfig.truncate_max_length)
-
-// destructure imports
-const unsecureServer = http.createServer
-const secureServer = https.createServer
 
 const app = express()
 const basename = defaultAppName ? `/${defaultAppName}` : ''
@@ -137,15 +128,7 @@ app.get('/*', (_, res) => res.redirect(`/${defaultAppName}/sunstone`))
 // 404 - public
 app.get('*', entrypoint404)
 
-const appServer = validateServerIsSecure()
-  ? secureServer(
-      {
-        key: readFileSync(getKey(), 'utf8'),
-        cert: readFileSync(getCert(), 'utf8'),
-      },
-      app
-    )
-  : unsecureServer(app)
+const appServer = http.createServer(app)
 
 const websockets = opennebulaWebsockets(appServer) || []
 

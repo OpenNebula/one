@@ -23,7 +23,7 @@ const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 const { request: axios } = require('axios')
 const { writeInLogger } = require('server/utils/logger')
-const { MissingRemoteHeaderError } = require('server/utils/errors')
+const { MissingHeaderError } = require('server/utils/errors')
 
 // server
 const {
@@ -37,7 +37,12 @@ const {
   defaultApps,
   defaultAppName,
   defaultHeaderRemote,
+  defaultHeaderx509,
   defaultApiTimeout,
+  defaultProtocol,
+  defaultIP,
+  defaultPort,
+  httpMethod,
 } = require('server/utils/constants/defaults')
 
 // client
@@ -60,6 +65,7 @@ const router = Router()
 const defaultConfig = {
   currentTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 }
+const { POST } = httpMethod
 
 router.get('*', async (req, res) => {
   const remoteJWT = {}
@@ -77,29 +83,45 @@ router.get('*', async (req, res) => {
   const encodedFavIcon = await getEncodedFavicon()
 
   const appConfig = getFireedgeConfig()
-  if (appConfig?.auth === 'remote') {
+  const authType = appConfig?.auth
+  const validAuthTypes = ['remote', 'x509']
+
+  if (validAuthTypes.includes(authType)) {
     remoteJWT.remote = true
     remoteJWT.remoteRedirect = appConfig?.auth_redirect ?? '.'
 
     const finderHeader = () => {
       const headers = Object.keys(req.headers)
 
-      return headers.find((header) => defaultHeaderRemote.includes(header))
+      switch (authType) {
+        case validAuthTypes[1]:
+          return headers.find((header) => defaultHeaderx509.includes(header))
+        default:
+          return headers.find((header) => defaultHeaderRemote.includes(header))
+      }
     }
+
     const findHeader = finderHeader()
     try {
       if (!findHeader) {
-        throw new MissingRemoteHeaderError(JSON.stringify(req.headers))
+        throw new MissingHeaderError(JSON.stringify(req.headers))
       }
+
       const remoteUser = req.get(findHeader)
-      const jwt = await axios({
-        method: 'POST',
-        url: `${req.protocol}://${req.get('host')}/${defaultAppName}/api/auth`,
+
+      const paramsAxios = {
+        method: POST,
+        url: `${defaultProtocol}://${defaultIP}:${
+          appConfig.port || defaultPort
+        }/${defaultAppName}/api/auth`,
         data: {
-          user: req.get(findHeader),
+          user: remoteUser,
         },
         validateStatus: (status) => status >= 200 && status <= 400,
-      })
+      }
+
+      const jwt = await axios(paramsAxios)
+
       if (!global.remoteUsers) {
         global.remoteUsers = {}
       }

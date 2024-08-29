@@ -35,13 +35,13 @@ class JWTError extends OpenNebulaError {
   }
 }
 
-class MissingRemoteHeaderError extends OpenNebulaError {
+class MissingHeaderError extends OpenNebulaError {
   /**
    * @param {string} headers - error message description.
    */
   constructor(headers = '') {
-    super(`missing header: ${defaultHeaderRemote.join()} in ${headers}`)
-    this.name = 'MissingRemoteHeaderError'
+    super(`Missing Header: ${defaultHeaderRemote.join()} in ${headers}`)
+    this.name = 'MissingHeaderError'
   }
 }
 
@@ -55,9 +55,20 @@ class MissingFireEdgeKeyError extends OpenNebulaError {
   }
 }
 
+class InternalLoginError extends OpenNebulaError {
+  /**
+   *
+   */
+  constructor() {
+    super('Internal Login Error')
+    this.name = 'InternalLoginError'
+  }
+}
+
 module.exports = {
   JWTError,
   MissingFireEdgeKeyError,
   OpenNebulaError,
-  MissingRemoteHeaderError,
+  MissingHeaderError,
+  InternalLoginError,
 }

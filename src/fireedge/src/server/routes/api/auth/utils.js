@@ -567,6 +567,44 @@ const remoteLogin = (userData = '') => {
 }
 
 /**
+ * X.509 login route function.
+ *
+ * @param {string} userData - user remote data /DC=es/O=one/CN=user|/DC=us/O=two/CN=user
+ */
+const x509Login = (userData = '') => {
+  const serverAdminData = getServerAdmin()
+  const { username, token } = serverAdminData
+  if (username && token && userData) {
+    const reverseStringFields = (str) =>
+      /,/.test(str) ? str.split(',').reverse().join('/') : str
+    const parsedUserData = reverseStringFields(userData)
+
+    const oneConnect = connectOpennebula(`${username}:${username}`, token.token)
+    oneConnect({
+      action: USER_POOL_INFO,
+      parameters: getDefaultParamsOfOpennebulaCommand(USER_POOL_INFO, GET),
+      callback: (_, value) => {
+        const users = value?.USER_POOL?.USER || []
+        if (users.length) {
+          const userFound = users.find(
+            (data) =>
+              data.PASSWORD.includes(parsedUserData) &&
+              data.AUTH_DRIVER === 'x509'
+          )
+          if (userFound) {
+            setZones()
+            getServerAdminAndWrapUser(userFound)
+          } else {
+            next()
+          }
+        }
+      },
+      fillHookResource: false,
+    })
+  }
+}
+
+/**
  * Login route function.
  *
  * @param {object} userData - opennebula user data
@@ -613,5 +651,6 @@ module.exports = {
   getCreatedTokenOpennebula,
   createTokenServerAdmin,
   remoteLogin,
+  x509Login,
   getServerAdmin,
 }

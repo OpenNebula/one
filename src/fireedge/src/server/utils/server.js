@@ -30,7 +30,6 @@ const {
   createHash,
 } = require('crypto')
 const {
-  existsSync,
   readFileSync,
   createWriteStream,
   readdirSync,
@@ -79,9 +78,6 @@ const {
 const { internalServerError } = httpCodes
 const { POST } = httpMethod
 
-let cert = ''
-let key = ''
-
 /**
  * Sets the default DNS lookup order to prefer IPv4 addresses first
  * if the Node.js version is 16.0.0 or higher.
@@ -96,37 +92,6 @@ const setDnsResultOrder = () => {
 }
 
 setDnsResultOrder()
-
-/**
- * Validate if server app have certs.
- *
- * @returns {boolean} file certs
- */
-const validateServerIsSecure = () => {
-  const folder = 'cert/'
-  const dirCerts =
-    env && env.NODE_ENV === defaultWebpackMode
-      ? ['../', '../', '../', folder]
-      : ['../', folder]
-  const pathfile = resolve(__dirname, ...dirCerts)
-  cert = `${pathfile}/cert.pem`
-  key = `${pathfile}/key.pem`
-
-  return existsSync && key && cert && existsSync(key) && existsSync(cert)
-}
-/**
- * Get certificate SSL.
- *
- * @returns {string} ssl path
- */
-const getCert = () => cert
-
-/**
- * Get key of certificate SSL.
- *
- * @returns {string} key ssl path
- */
-const getKey = () => key
 
 /**
  * Validate the route http method.
@@ -1045,11 +1010,8 @@ module.exports = {
   replaceEscapeSequence,
   createFile,
   httpResponse,
-  validateServerIsSecure,
   genPathResources,
   genFireedgeKey,
-  getCert,
-  getKey,
   parsePostData,
   getRequestFiles,
   getRequestParameters,

@@ -57,6 +57,7 @@ const defaults = {
   defaultSizeRotate: '100k',
   defaultAppName: appName,
   defaultHeaderRemote: ['http_x_auth_username', 'x_auth_username'],
+  defaultHeaderx509: ['x-client-dn'],
   defaultConfigErrorMessage: {
     color: 'red',
     message: 'file not found: %s',
@@ -150,6 +151,7 @@ const defaults = {
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
   defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
   defaultIP: defaultIp,
+  defaultProtocol: protocol,
   defaultSeverities: [
     `${severityPrepend}1`,
     `${severityPrepend}2`,

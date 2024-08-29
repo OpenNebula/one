@@ -28,6 +28,7 @@ const {
   connectOpennebula,
   updaterResponse,
   remoteLogin,
+  x509Login,
 } = require('server/routes/api/auth/utils')
 
 const { defaults, httpCodes } = require('server/utils/constants')
@@ -135,22 +136,35 @@ const coreAuth = (
  * @param {object} res - http response
  * @param {Function} next - express stepper
  * @param {object} params - params of http request
- * @param {object} userData - user of http request
+ * @param {object} _ - user of http request
  * @param {Function} oneConnection - function of xmlrpc
+ * @param {string} typeAuth - auth type
  */
 const remoteAuth = (
   res = {},
   next = defaultEmptyFunction,
   params = {},
-  userData = {},
-  oneConnection = defaultEmptyFunction
+  _,
+  oneConnection = defaultEmptyFunction,
+  typeAuth
 ) => {
   const { user } = params
   setRes(res)
   setNext(next)
   setNodeConnect(oneConnection)
   updaterResponse(new Map(internalServerError).toObject())
-  user ? remoteLogin(user) : next()
+  if (user) {
+    switch (typeAuth) {
+      case 'x509':
+        x509Login(user)
+        break
+      default:
+        remoteLogin(user)
+        break
+    }
+  } else {
+    next()
+  }
 }
 
 /**
@@ -172,12 +186,14 @@ const selectTypeAuth = (
   oneConnection = defaultEmptyFunction
 ) => {
   const appConfig = getFireedgeConfig()
-  switch (appConfig?.auth) {
-    case 'remote':
-      return remoteAuth(res, next, params, userData, oneConnection)
-    default:
-      return coreAuth(res, next, params, userData, oneConnection)
+  const typeAuth = {
+    remote: () => remoteAuth(res, next, params, userData, oneConnection),
+    x509: () => remoteAuth(res, next, params, userData, oneConnection, 'x509'),
+    opennebula: () => coreAuth(res, next, params, userData, oneConnection),
   }
+  const auth = typeAuth[appConfig?.auth] || typeAuth.opennebula
+
+  return auth()
 }
 
 module.exports = {

@@ -18,12 +18,13 @@
 const { parse } = require('url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { getFireedgeConfig } = require('server/utils/yml')
-const {
-  genPathResources,
-  validateServerIsSecure,
-} = require('server/utils/server')
+const { genPathResources } = require('server/utils/server')
 const { writeInLogger } = require('server/utils/logger')
-const { endpointVmrc, defaultPort } = require('server/utils/constants/defaults')
+const {
+  endpointVmrc,
+  defaultPort,
+  defaultProtocol,
+} = require('server/utils/constants/defaults')
 
 genPathResources()
 
@@ -35,7 +36,7 @@ const logger = (message = '', format = '%s') =>
 
 const appConfig = getFireedgeConfig()
 const port = appConfig.port || defaultPort
-const protocol = validateServerIsSecure() ? 'https' : 'http'
+const protocol = defaultProtocol
 const url = `${protocol}://localhost:${port}`
 const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   target: url,
