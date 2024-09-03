@@ -13,7 +13,7 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="POSITION" type="xs:integer"/>
-                    <xs:element name="TYPE" type="xs:string">
+                    <xs:element name="TYPE">
                       <xs:simpleType>
                         <xs:restriction base="xs:string">
                         <xs:enumeration value="IN"/>
@@ -21,7 +21,7 @@
                         </xs:restriction>
                       </xs:simpleType>
                     </xs:element>
-                    <xs:element name="VALUE" type="xs:string"/>
+                    <xs:element name="VALUE" type="xs:anyType"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
