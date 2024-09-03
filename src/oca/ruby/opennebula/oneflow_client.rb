@@ -429,7 +429,7 @@ module Service
             req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
-            if path.start_with?('/service_template') && !@content_type.nil?
+            unless @content_type.nil?
                 req.content_type = @content_type
             end
             do_request(req)

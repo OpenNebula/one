@@ -28,12 +28,14 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
     #
     # @options [Hash] CLI options
     def client(options)
-        Service::Client.new(
+        flow_template_client = Service::Client.new(
             :username => options[:username],
             :password => options[:password],
             :url => options[:server],
             :user_agent => USER_AGENT
         )
+        flow_template_client.set_content_type('application/json')
+        flow_template_client
     end
 
     # Get service template pool
