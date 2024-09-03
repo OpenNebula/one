@@ -1,11 +1,15 @@
-<!-- This schema is followd by the EVENT API message sent by the Hook Manager   -->
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This schema is followed by the EVENT API message sent by the Hook Manager   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="host.xsd"/>
+  <xs:include schemaLocation="vm.xsd"/>
+  <xs:include schemaLocation="image.xsd"/>
+  <xs:include schemaLocation="vnet.xsd"/>
   <xs:element name="HOOK_MESSAGE">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="HOOK_TYPE" type="xs:string" fixed="STATE"/>
-        <xs:element name="HOOK_OBJECT" type="xs:string">
+        <xs:element name="HOOK_OBJECT">
           <xs:simpleType>
             <xs:restriction base="xs:string">
             <xs:enumeration value="VM"/>
@@ -17,6 +21,7 @@
         </xs:element>
         <xs:element name="STATE" type="xs:string"/>
         <xs:element name="LCM_STATE" type="xs:string" maxOccurs="1" minOccurs="0"/>
+        <xs:element name="RESOURCE_ID" type="xs:integer"/>
         <xs:element name="REMOTE_HOST" type="xs:string" maxOccurs="1" minOccurs="0"/>
          <!-- The template of the resource (VM, Host, Image or VNet) is included here -->
          <xs:element ref="HOST" maxOccurs="1" minOccurs="0"/>
