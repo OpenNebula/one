@@ -314,6 +314,12 @@ int Driver<MSG>
 
     rc = read(from_drv, (void *) buffer, sizeof(char) * 31);
 
+    if ( rc < 0 )
+    {
+        error = "Driver initialization failed, unable to read from driver\n";
+        return -1;
+    }
+
     buffer[rc]='\0';
 
     std::istringstream iss(buffer);
@@ -325,7 +331,7 @@ int Driver<MSG>
 
     if ( action != "INIT" || result != "SUCCESS" )
     {
-        error = "Driver initialization failed\n";
+        error = "Driver initialization failed, expected INIT SUCCESS message\n";
         return -1;
     }
 
