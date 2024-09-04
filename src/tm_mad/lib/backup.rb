@@ -174,9 +174,9 @@ module TransferManager
 
         DISK_LIST = ['ALLOW_ORPHANS', 'CLONE', 'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE',
                      'DATASTORE_ID', 'DISK_SNAPSHOT_TOTAL_SIZE', 'DISK_TYPE', 'DRIVER',
-                     'IMAGE', 'IMAGE_ID', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
+                     'IMAGE', 'IMAGE_STATE', 'IMAGE_UID', 'IMAGE_UNAME',
                      'LN_TARGET', 'OPENNEBULA_MANAGED', 'ORIGINAL_SIZE', 'PERSISTENT',
-                     'READONLY', 'SAVE', 'SIZE', 'SOURCE', 'TARGET', 'TM_MAD', 'TYPE', 'FORMAT']
+                     'READONLY', 'SAVE', 'SOURCE', 'TARGET', 'TM_MAD', 'FORMAT']
 
         NIC_LIST = ['AR_ID', 'BRIDGE', 'BRIDGE_TYPE', 'CLUSTER_ID', 'NAME', 'NETWORK_ID', 'NIC_ID',
                     'TARGET', 'VLAN_ID', 'VN_MAD', 'VLAN_TAGGED_ID', 'PHYDEV']
@@ -334,10 +334,24 @@ module TransferManager
 
             disks.each do |d|
                 id = d['DISK_ID']
+                type = d['TYPE'].upcase
                 next unless id
-                next unless bck_disks[id]
 
                 d.delete('DISK_ID')
+
+                if type == 'FS'
+                    # Volatile disk
+                    d.delete('IMAGE_ID')
+
+                    # If not included in backup, keep TYPE and SIZE to create new volatile disk
+                    next unless bck_disks[id]
+                end
+
+                d.delete('TYPE')
+                d.delete('SIZE')
+
+                # CDROM keeps original image_id
+                next if type == 'CDROM'
 
                 d['IMAGE_ID'] = bck_disks[id][:image_id].to_s
             end
