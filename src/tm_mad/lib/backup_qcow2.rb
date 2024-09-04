@@ -726,7 +726,7 @@ class KVMDomain
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
             tgt = d.elements['TARGET'].text
-            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
             ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
             next unless disks.include? did
@@ -798,10 +798,13 @@ class KVMDomain
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
             tgt = d.elements['TARGET'].text
-            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
             ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
-            next unless disks.include? did
+            unless disks.include? did
+                dspec << "#{tgt},snapshot=no"
+                next
+            end
 
             disk_path = "#{@vm_dir}/disk.#{did}"
             disk_opts = {
@@ -941,7 +944,7 @@ class KVMDomain
 
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
-            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
             ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
             next unless disks.include? did
@@ -1028,7 +1031,7 @@ class KVMDomain
 
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
-            per = d.elements['SAVE'].text.casecmp('YES') == 0
+            per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
             ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
 
             next unless disks.include? did
