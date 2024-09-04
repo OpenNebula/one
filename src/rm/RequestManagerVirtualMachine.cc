@@ -3956,6 +3956,7 @@ Request::ErrorCode VirtualMachineBackup::request_execute(RequestAttributes& att,
     Backups::Mode mode;
     int li_id;
     int bk_id = -1;
+    long long backup_size = 0;
 
     // ------------------------------------------------------------------------
     // Get VM & Backup Information
@@ -3964,7 +3965,7 @@ Request::ErrorCode VirtualMachineBackup::request_execute(RequestAttributes& att,
     {
         vm->get_permissions(vm_perms);
 
-        vm->backup_size(quota_tmpl);
+        backup_size = vm->backup_size(quota_tmpl);
 
         mode  = vm->backups().mode();
         li_id = vm->backups().last_increment_id();
@@ -4001,6 +4002,16 @@ Request::ErrorCode VirtualMachineBackup::request_execute(RequestAttributes& att,
         if (ds->get_type() != Datastore::BACKUP_DS)
         {
             att.resp_msg = "Datastore needs to be of type BACKUP";
+
+            return ACTION;
+        }
+
+        long long free_mb;
+        bool check_capacity = ds->get_avail_mb(free_mb);
+
+        if (check_capacity && free_mb < backup_size)
+        {
+            att.resp_msg = "Not enough free space on target datastore";
 
             return ACTION;
         }

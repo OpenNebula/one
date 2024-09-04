@@ -1571,18 +1571,13 @@ long long VirtualMachineDisks::backup_size(Template &ds_quotas, bool do_volatile
 {
     long long size = 0;
 
-    for (const auto disk : *this)
+    vector<int> ids;
+    backup_disk_ids(do_volatile, ids);
+
+    for (int id : ids)
     {
+        auto disk = get_disk(id);
         long long disk_size = 0;
-
-        string type = disk->vector_value("TYPE");
-
-        one_util::toupper(type);
-
-        if ((type == "SWAP") || ((type == "FS") && !do_volatile))
-        {
-            continue;
-        }
 
         disk->vector_value("SIZE", disk_size);
 
