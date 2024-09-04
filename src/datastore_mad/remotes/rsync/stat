@@ -117,7 +117,7 @@ if !disk
     exit(-1)
 end
 
-size = disk.elements['//SIZE']
+size = disk.elements['SIZE']
 
 if !size
     STDERR.puts "Cannot find size for disk  #{diskid[1]} in VM backup info"
