@@ -91,6 +91,12 @@ protected:
 
     static Log::MessageType log_type(char type);
 
+    /**
+     *  Callback called when the driver is reconnected. Override this function
+     *  to perform any actions when the driver is reconnected
+     */
+    virtual void reconnected() {};
+
 private:
     std::map<std::string, std::unique_ptr<D>> drivers;
 
@@ -207,7 +213,10 @@ int DriverManager<D>::start(std::string& error)
 {
     for (auto& driver : drivers)
     {
+        driver.second->set_reconnect_callback(std::bind(&DriverManager<D>::reconnected, this));
+
         auto rc = driver.second->start(error);
+
         if (rc != 0)
         {
             NebulaLog::error("DrM", "Unable to start driver '" + driver.first

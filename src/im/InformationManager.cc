@@ -198,6 +198,16 @@ void InformationManager::raft_status(RaftManager::State state)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void InformationManager::reconnected()
+{
+    auto rftm = Nebula::instance().get_raftm();
+    raft_status(rftm->get_state());
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void InformationManager::_undefined(unique_ptr<im_msg_t> msg)
 {
     NebulaLog::warn("InM", "Received undefined message: " + msg->payload() +

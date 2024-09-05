@@ -86,6 +86,67 @@ using namespace std;
 
 Nebula::~Nebula()
 {
+    // -----------------------------------------------------------
+    // Stop the managers & free resources
+    // -----------------------------------------------------------
+
+    if (rm) rm->finalize();
+
+    if (raftm) raftm->finalize();
+
+    if (!cache)
+    {
+        if (sam) sam->finalize();
+
+        if (vmm) vmm->finalize();
+        if (lcm) lcm->finalize();
+
+        if (tm) tm->finalize();
+        if (dm) dm->finalize();
+
+        if (im) im->finalize();
+        if (hm) hm->finalize();
+
+        if (imagem) imagem->finalize();
+        if (marketm) marketm->finalize();
+
+        if (ipamm) ipamm->finalize();
+
+        //sleep to wait drivers???
+        if (vmm) vmm->join_thread();
+        if (lcm) lcm->join_thread();
+        if (tm) tm->join_thread();
+        if (dm) dm->join_thread();
+
+        if (hm) hm->join_thread();
+        if (ipamm) ipamm->join_thread();
+    }
+
+    if (aclm) aclm->finalize();
+
+    if (authm)
+    {
+        authm->finalize();
+
+        authm->join_thread();
+    }
+
+    if (is_federation_slave() && aclm)
+    {
+        aclm->join_thread();
+    }
+
+
+    //XML Library
+    xmlCleanupParser();
+
+    ssl_util::SSLMutex::finalize();
+
+    if (NebulaLog::initialized())
+    {
+        NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
+    }
+
     delete vmpool;
     delete vnpool;
     delete hpool;
@@ -1201,7 +1262,6 @@ void Nebula::start(bool bootstrap_only)
 
 #ifdef SYSTEMD
     // ---- Notify service manager ----
-
     sd_notify(0, "READY=1");
 #endif
 
@@ -1214,61 +1274,6 @@ void Nebula::start(bool bootstrap_only)
     sigaddset(&mask, SIGTERM);
 
     sigwait(&mask, &signal);
-
-    // -----------------------------------------------------------
-    // Stop the managers & free resources
-    // -----------------------------------------------------------
-
-    rm->finalize();
-
-    raftm->finalize();
-
-    if (!cache)
-    {
-        sam->finalize();
-
-        vmm->finalize();
-        lcm->finalize();
-
-        tm->finalize();
-        dm->finalize();
-
-        im->finalize();
-        hm->finalize();
-
-        imagem->finalize();
-        marketm->finalize();
-
-        ipamm->finalize();
-
-        //sleep to wait drivers???
-        vmm->join_thread();
-        lcm->join_thread();
-        tm->join_thread();
-        dm->join_thread();
-
-        hm->join_thread();
-        ipamm->join_thread();
-    }
-
-    aclm->finalize();
-
-    authm->finalize();
-
-    authm->join_thread();
-
-    if (is_federation_slave())
-    {
-        aclm->join_thread();
-    }
-
-
-    //XML Library
-    xmlCleanupParser();
-
-    ssl_util::SSLMutex::finalize();
-
-    NebulaLog::log("ONE", Log::INFO, "All modules finalized, exiting.\n");
 
     return;
 

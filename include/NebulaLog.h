@@ -156,6 +156,11 @@ public:
         return _log_type;
     };
 
+    static bool initialized()
+    {
+        return (logger != 0);
+    }
+
 private:
     NebulaLog() {};
 
