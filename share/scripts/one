@@ -19,7 +19,6 @@
 if [ -z "$ONE_LOCATION" ]; then
     ONE_PID=/var/run/one/oned.pid
     ONE_SCHEDPID=/var/run/one/sched.pid
-    ONE_HEMPID=/var/run/one/hem.pid
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
     ONE_LOG=/var/log/one/oned.log
@@ -36,7 +35,6 @@ if [ -z "$ONE_LOCATION" ]; then
 else
     ONE_PID=$ONE_LOCATION/var/oned.pid
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
-    ONE_HEMPID=$ONE_LOCATION/var/hem.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
     ONE_LOG=$ONE_LOCATION/var/oned.log
@@ -246,14 +244,19 @@ start_hem()
         [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
 
-    onehem-server start > /dev/null 2>&1
+    HEM_ERROR=$(mktemp /tmp/hem-error.XXXXXX)
+
+    onehem-server start > $HEM_ERROR 2>&1
 
     LASTRC=$?
 
     if [ $LASTRC -ne 0 ]; then
-        echo "Error starting onehem-server"
+        echo "Error starting onehem-server: $(cat $HEM_ERROR)"
+        rm -f $HEM_ERROR
         exit 1
     fi
+
+    rm -f $HEM_ERROR
 }
 
 #------------------------------------------------------------------------------

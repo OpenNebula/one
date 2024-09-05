@@ -128,7 +128,7 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     }
     else
     {
-        NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
+        NebulaLog::log("VMM", Log::INFO, "\tUsing default imported VMs actions");
 
         it = attrs.find("NAME");
 

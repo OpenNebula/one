@@ -115,6 +115,14 @@ public:
         streamer.register_action(t, a);
     };
 
+    /**
+     *  Set a callback to be called when the driver is restarted and reconnects
+     */
+    void set_reconnect_callback(std::function<void()> callback)
+    {
+        reconnect_callback = callback;
+    }
+
 protected:
     Driver() = default;
 
@@ -160,6 +168,11 @@ private:
      *  sync listner thread termination
      */
     std::atomic<bool> terminate = {false};
+
+    /**
+     *  Reconnect callback, called when the driver restarts
+     */
+    std::function<void()> reconnect_callback;
 
     /**
      *  Starts the driver. This function creates a new process and sets up the
@@ -358,6 +371,8 @@ void Driver<MSG>
             start_driver(error);
 
             streamer.fd(from_drv);
+
+            if (reconnect_callback) reconnect_callback();
         }
     });
 }

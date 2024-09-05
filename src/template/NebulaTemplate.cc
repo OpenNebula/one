@@ -38,7 +38,7 @@ int NebulaTemplate::load_configuration()
 
     if ( rc != 0 && error != 0)
     {
-        cout << "\nError while parsing configuration file:\n" << error << endl;
+        cout << "\nError while parsing configuration file: " << error << endl;
 
         free(error);
 

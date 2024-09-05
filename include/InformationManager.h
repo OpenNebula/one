@@ -87,6 +87,11 @@ public:
      */
     void raft_status(RaftManager::State raft);
 
+    /**
+     *  Called when the driver is reconnected
+     */
+    void reconnected() override;
+
 protected:
     /**
      *  Received undefined message -> print error

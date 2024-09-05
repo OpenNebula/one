@@ -2742,6 +2742,7 @@ int VirtualMachineManager::load_drivers(const vector<const VectorAttribute*>& _m
 
         if ( rc != 0 )
         {
+            NebulaLog::error("VMM", "\tDriver already exists, name: " + name);
             return rc;
         }
 

@@ -48,8 +48,7 @@ void Monitor::start()
 
     if (config->load_configuration() != 0)
     {
-        throw runtime_error("Error reading monitor configuration file" +
-                            conf_filename);
+        throw runtime_error("Error reading monitor configuration file " + conf_filename);
     }
 
     string datastore_location;
