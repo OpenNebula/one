@@ -99,9 +99,7 @@ define(function(require) {
     var mode = _getValue(idsElements.mode, context);
     var increment_mode = _getValue(idsElements.increment_mode, context);
 
-    if (backupVolatile){
-      backupConfigJSON['BACKUP_VOLATILE'] = 'YES'
-    }
+    backupConfigJSON['BACKUP_VOLATILE'] = backupVolatile ? 'YES' : 'NO';
 
     if (fsFreeze !== '-' ){
       backupConfigJSON['FS_FREEZE'] = fsFreeze
