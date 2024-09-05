@@ -42,7 +42,11 @@ module OneCfg
             reset
 
             if ::File.exist?(@name)
-                @content = YAML.load_file(@name)
+                if Psych::VERSION > '4.0'
+                    @content = YAML.load_file(@name, :aliases => true)
+                else
+                    @content = YAML.load_file(@name)
+                end
             end
         rescue StandardError => e
             OneCfg::LOG.error("Can't load settings from '#{@name}' " \
