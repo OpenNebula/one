@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { string, boolean, number } from 'yup'
 import { INPUT_TYPES } from 'client/constants'
+import { stringToBoolean } from 'client/models/Helper'
 
 const getTypeProp = (type) => {
   switch (type) {
@@ -71,8 +72,14 @@ const getValidation = (type, mandatory, defaultValue = undefined) => {
             .default(() => defaultValue)
     case 'boolean':
       return isMandatory
-        ? boolean().yesOrNo().required()
-        : boolean().yesOrNo().notRequired()
+        ? boolean()
+            .yesOrNo()
+            .required()
+            .default(() => stringToBoolean(defaultValue))
+        : boolean()
+            .yesOrNo()
+            .notRequired()
+            .default(() => stringToBoolean(defaultValue))
     default:
       return isMandatory
         ? string()
