@@ -326,7 +326,7 @@ export const schemaUserInput = ({
     }
     case USER_INPUT_TYPES.boolean:
       return {
-        type: INPUT_TYPES.CHECKBOX,
+        type: INPUT_TYPES.SWITCH,
         validation: boolean()
           .concat(requiredSchema(mandatory, boolean()))
           .default(() => stringToBoolean(defaultValue))

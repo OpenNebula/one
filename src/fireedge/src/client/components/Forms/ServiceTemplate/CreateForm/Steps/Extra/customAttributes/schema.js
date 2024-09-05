@@ -115,15 +115,25 @@ const DEFAULT_VALUE_TEXT = {
   name: 'defaultvalue',
   label: T.DefaultValue,
   dependOf: CA_TYPE.name,
-
-  htmlType: (type) => type === CA_TYPES.password && INPUT_TYPES.HIDDEN,
-
+  htmlType: (type) =>
+    (type === CA_TYPES.password || type === CA_TYPES.boolean) &&
+    INPUT_TYPES.HIDDEN,
   type: getTypeProp,
-
   fieldProps: getFieldProps,
-
   validation: string(),
+  grid: { sm: 2.5, md: 2.5 },
+}
 
+const DEFAULT_VALUE_BOOLEAN = {
+  name: 'defaultvalue',
+  label: T.DefaultValue,
+  dependOf: CA_TYPE.name,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  htmlType: (type) => ![CA_TYPES.boolean].includes(type) && INPUT_TYPES.HIDDEN,
+  optionsOnly: true,
+  values: () => arrayToOptions(['NO', 'YES']),
+  fieldProps: getFieldProps,
+  validation: string(),
   grid: { sm: 2.5, md: 2.5 },
 }
 
@@ -184,6 +194,7 @@ export const CUSTOM_ATTRIBUTES_FIELDS = [
   NAME,
   DESCRIPTION,
   DEFAULT_VALUE_TEXT,
+  DEFAULT_VALUE_BOOLEAN,
   MANDATORY,
   DEFAULT_VALUE_RANGE_MIN,
   DEFAULT_VALUE_RANGE_MAX,
