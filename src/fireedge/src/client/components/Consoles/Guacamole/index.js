@@ -17,7 +17,6 @@
 /* eslint-disable jsdoc/valid-types */
 import { useRef } from 'react'
 
-import { useGetLatest, reducePlugin } from 'client/components/Consoles/utils'
 import GuacamoleClient, {
   GuacamoleClientType,
 } from 'client/components/Consoles/Guacamole/client'
@@ -26,6 +25,7 @@ import {
   GuacamoleKeyboardPlugin,
   GuacamoleMousePlugin,
 } from 'client/components/Consoles/Guacamole/plugins'
+import { reducePlugin, useGetLatest } from 'client/components/Consoles/utils'
 
 /**
  * Creates guacamole session.
@@ -55,6 +55,6 @@ const useGuacamoleSession = (options, ...plugins) => {
   return getInstance()
 }
 
-export * from 'client/components/Consoles/Guacamole/plugins'
 export * from 'client/components/Consoles/Guacamole/buttons'
+export * from 'client/components/Consoles/Guacamole/plugins'
 export { useGuacamoleSession }

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useRef, useEffect, RefObject } from 'react'
-import { WebSocketTunnel, Tunnel, Client } from 'guacamole-common-js'
+import { Client, Tunnel, WebSocketTunnel } from 'guacamole-common-js'
+import { RefObject, useEffect, useRef, useState } from 'react'
 
-import { useGeneralApi } from 'client/features/General'
-import { useGuacamole, useGuacamoleApi } from 'client/features/Guacamole'
-import { getConnectString, clientStateToString } from 'client/models/Guacamole'
-import { fakeDelay, isDevelopment } from 'client/utils'
 import {
+  GUACAMOLE_STATES_STR,
   GuacamoleSession, // eslint-disable-line no-unused-vars
   SOCKETS,
-  GUACAMOLE_STATES_STR,
   T,
 } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
+import { useGuacamole, useGuacamoleApi } from 'client/features/Guacamole'
+import { clientStateToString, getConnectString } from 'client/models/Guacamole'
+import { fakeDelay } from 'client/utils'
 
 const {
   CONNECTING,
@@ -49,38 +49,40 @@ const {
  * @param {object} options - Client options
  * @param {string} options.id - Session includes type and VM id. Eg: '6-vnc'
  * @param {RefObject} options.display - Session display. Only exists if display plugins is enabled
+ * @param {string} options.zone - zone id
+ * @param {boolean} options.externalZone - is a external zone
  * @returns {GuacamoleClientType} Guacamole client props
  */
-const GuacamoleClient = ({ id, display }) => {
-  const guac = useRef(createGuacamoleClient()).current
+const GuacamoleClient = ({ id, display, zone, externalZone }) => {
+  const [changeConnection, setChangeConnection] = useState(false)
+  const firstZone = useRef(zone).current
+  const guac = useRef(createGuacamoleClient(externalZone))
 
-  // Automatically update the client thumbnail
-  // guac.client.onsync = () => handleUpdateThumbnail()
+  if (`${firstZone}` !== `${zone}` && !changeConnection) {
+    guac.current = createGuacamoleClient(externalZone)
+    setChangeConnection(true)
+  }
 
   const { enqueueError, enqueueInfo, enqueueSuccess } = useGeneralApi()
   const { token, ...session } = useGuacamole(id)
-  const {
-    setConnectionState,
-    setTunnelUnstable,
-    setMultiTouchSupport,
-    // updateThumbnail,
-  } = useGuacamoleApi(id)
+  const { setConnectionState, setTunnelUnstable, setMultiTouchSupport } =
+    useGuacamoleApi(id)
 
   const handleConnect = (width, height, force = false) => {
     if (!session?.isUninitialized && !session.isDisconnected && !force) return
 
-    isDevelopment() && console.log(`connect ${id}  🔵`)
-
     const options = { token, display, width, height }
+
+    zone && (options.zone = zone)
+
     const connectString = getConnectString(options)
 
-    guac.client.connect(connectString)
+    guac.current.client.connect(connectString)
   }
 
   const handleDisconnect = () => {
     try {
-      isDevelopment() && console.log(`disconnect ${id}  🔴`)
-      guac.client?.disconnect()
+      guac.current.client?.disconnect()
     } catch {}
   }
 
@@ -92,64 +94,12 @@ const GuacamoleClient = ({ id, display }) => {
     handleConnect(width, height, true)
   }
 
-  /**
-   * Store the thumbnail of the given managed client within the connection
-   * history under its associated ID. If the client is not connected, this
-   * function has no effect.
-   */
-  /* const handleUpdateThumbnail = () => {
-    const nowTimestamp = new Date().getTime()
-    const lastTimestamp = session?.thumbnail?.timestamp
-
-    if (
-      lastTimestamp &&
-      nowTimestamp - lastTimestamp < THUMBNAIL_UPDATE_FREQUENCY
-    )
-      return
-
-    const clientDisplay = guac.client?.getDisplay()
-
-    if (clientDisplay?.getWidth() <= 0 || clientDisplay?.getHeight() <= 0)
-      return
-
-    // Get screenshot
-    const canvas = clientDisplay.flatten()
-
-    // Calculate scale of thumbnail (max 320x240, max zoom 100%)
-    const scale = Math.min(320 / canvas.width, 240 / canvas.height, 1)
-
-    // Create thumbnail canvas
-    const thumbnail = document.createElement('canvas')
-    thumbnail.width = canvas.width * scale
-    thumbnail.height = canvas.height * scale
-
-    // Scale screenshot to thumbnail
-    const context = thumbnail.getContext('2d')
-    context.drawImage(
-      canvas,
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-      0,
-      0,
-      thumbnail.width,
-      thumbnail.height
-    )
-
-    thumbnail.toBlob((blob) => {
-      const url = URL.createObjectURL(blob)
-      const newThumbnail = { timestamp: nowTimestamp, canvas: url }
-      updateThumbnail({ thumbnail: newThumbnail })
-    }, 'image/webp')
-  } */
-
   useEffect(() => {
-    guac.tunnel.onerror = (status) => {
+    guac.current.tunnel.onerror = (status) => {
       setConnectionState({ state: TUNNEL_ERROR, statusCode: status.code })
     }
 
-    guac.tunnel.onstatechange = (state) => {
+    guac.current.tunnel.onstatechange = (state) => {
       ;({
         [Tunnel.State.CONNECTING]: () => {
           setConnectionState({ state: CONNECTING })
@@ -166,7 +116,7 @@ const GuacamoleClient = ({ id, display }) => {
       }[state]?.())
     }
 
-    guac.client.onstatechange = (state) => {
+    guac.current.client.onstatechange = (state) => {
       const stateString = clientStateToString(state)
       const isDisconnect = [DISCONNECTING, DISCONNECTED].includes(stateString)
       const isDisconnected = DISCONNECTED === stateString
@@ -178,19 +128,19 @@ const GuacamoleClient = ({ id, display }) => {
       !isDisconnect && setConnectionState({ state: stateString })
     }
 
-    guac.client.onerror = (status) => {
+    guac.current.client.onerror = (status) => {
       enqueueError(status.message)
       setConnectionState({ state: CLIENT_ERROR, statusCode: status.code })
     }
 
-    guac.client.onmultitouch = (layer, touches) => {
+    guac.current.client.onmultitouch = (layer, touches) => {
       setMultiTouchSupport({ touches })
     }
 
     return () => {
       handleDisconnect()
     }
-  }, [id])
+  }, [id, zone, externalZone, changeConnection])
 
   useEffect(() => {
     session?.isError && handleDisconnect()
@@ -200,13 +150,14 @@ const GuacamoleClient = ({ id, display }) => {
     !session.isConnected && handleConnect()
   }, [token])
 
-  return { token, ...session, ...guac, handleReconnect }
+  return { token, ...session, ...guac.current, handleReconnect }
 }
 
-const createGuacamoleClient = () => {
+const createGuacamoleClient = (externalZone) => {
   const { protocol, host } = window.location
   const websocketProtocol = protocol === 'https:' ? 'wss:' : 'ws:'
-  const guacamoleWs = `${websocketProtocol}//${host}/fireedge/${SOCKETS.GUACAMOLE}`
+  const endpoint = externalZone ? SOCKETS.EXTERNAL_GUACAMOLE : SOCKETS.GUACAMOLE
+  const guacamoleWs = `${websocketProtocol}//${host}/fireedge/${endpoint}`
 
   const tunnel = new WebSocketTunnel(guacamoleWs)
   const client = new Client(tunnel)

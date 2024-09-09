@@ -365,12 +365,17 @@ const setZones = () => {
                 const parsedURL = rpc && parse(rpc)
                 const parsedHost = parsedURL.hostname || ''
 
-                return {
+                const data = {
                   id: oneZone.ID || '',
                   name: oneZone.NAME || '',
                   rpc: rpc,
                   zeromq: `tcp://${parsedHost}:2101`,
                 }
+
+                oneZone?.TEMPLATE?.FIREEDGE_ENDPOINT &&
+                  (data.fireedge = oneZone?.TEMPLATE?.FIREEDGE_ENDPOINT)
+
+                return data
               })
             }
           },

@@ -144,6 +144,7 @@ const defaults = {
   defaultBaseURL: '',
   endpointVmrc: `${baseUrl}vmrc`,
   endpointGuacamole: `${baseUrl}guacamole`,
+  endpointExternalGuacamole: `${baseUrl}external-guacamole`,
   defaultNamespace: 'one',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,

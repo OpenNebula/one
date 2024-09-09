@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-const { randomBytes, createCipheriv } = require('crypto')
+const { createHash, createCipheriv } = require('crypto')
 
 const { defaults, httpCodes } = require('server/utils/constants')
 const {
@@ -30,7 +30,12 @@ const { USER_INFO } = userActions
 const { VM_INFO } = vmActions
 
 const { ok, unauthorized, internalServerError, badRequest } = httpCodes
-const { defaultEmptyFunction, defaultCommandVM, defaultTypeCrypto } = defaults
+const {
+  defaultEmptyFunction,
+  defaultCommandVM,
+  defaultTypeCrypto,
+  defaultHash,
+} = defaults
 
 const appConfig = getSunstoneConfig()
 const prependCommand = appConfig.sunstone_prepend || ''
@@ -116,63 +121,72 @@ const generateGuacamoleSession = (
   const { username } = serverAdmin
   const oneClient = xmlrpc(`${username}:${username}`, authToken)
 
+  const callbackVmInfo = (vmInfoErr, VM, USER) => {
+    if (vmInfoErr || !VM) {
+      res.locals.httpCode = httpResponse(
+        !VM ? internalServerError : unauthorized,
+        vmInfoErr
+      )
+      next()
+
+      return
+    }
+
+    const settings = {
+      vnc: () => getVncSettings(VM),
+      ssh: () => getSshSettings(VM, USER),
+      rdp: () => getRdpSettings(VM),
+    }[ensuredType]?.() ?? { error: '' }
+
+    if (settings.error) {
+      res.locals.httpCode = httpResponse(badRequest, settings.error)
+      next()
+
+      return
+    }
+
+    const connection = {
+      // expiration,
+      connection: {
+        type: ensuredType,
+        settings: {
+          security: 'any',
+          'ignore-cert': 'true',
+          'enable-drive': 'true',
+          'create-drive-path': 'true',
+          ...settings,
+        },
+      },
+    }
+
+    const wsToken = JSON.stringify(encryptConnection(connection))
+    const encodedWsToken = Buffer.from(wsToken).toString('base64')
+
+    res.locals.httpCode = httpResponse(ok, encodedWsToken)
+    next()
+  }
+
+  const callbackUserInfo = (userInfoErr, { USER } = {}) => {
+    if (userInfoErr || !USER) {
+      res.locals.httpCode = httpResponse(badRequest, userInfoErr)
+      next()
+
+      return
+    }
+
+    // get VM information by id
+    oneClient({
+      action: VM_INFO,
+      parameters: [parseInt(vmId, 10), true],
+      callback: (vmInfoErr, { VM } = {}) => callbackVmInfo(vmInfoErr, VM, USER),
+    })
+  }
+
   // get authenticated user
   oneClient({
     action: USER_INFO,
     parameters: [parseInt(userAuthId, 10), true],
-    callback: (userInfoErr, { USER } = {}) => {
-      if (userInfoErr || !USER) {
-        res.locals.httpCode = httpResponse(badRequest, userInfoErr)
-        next()
-      }
-
-      // get VM information by id
-      oneClient({
-        action: VM_INFO,
-        parameters: [parseInt(vmId, 10), true],
-        callback: (vmInfoErr, { VM } = {}) => {
-          if (vmInfoErr || !VM) {
-            res.locals.httpCode = httpResponse(unauthorized, vmInfoErr)
-            next()
-          }
-
-          const settings = {
-            vnc: () => getVncSettings(VM),
-            ssh: () => getSshSettings(VM, USER),
-            rdp: () => getRdpSettings(VM),
-          }[ensuredType]?.() ?? { error: '' }
-
-          if (settings.error) {
-            res.locals.httpCode = httpResponse(badRequest, settings.error)
-            next()
-          }
-
-          // const minutesToAdd = 1
-          // const currentDate = new Date()
-          // const expiration = currentDate.getTime() + minutesToAdd * 60000
-
-          const connection = {
-            // expiration,
-            connection: {
-              type: ensuredType,
-              settings: {
-                security: 'any',
-                'ignore-cert': 'true',
-                'enable-drive': 'true',
-                'create-drive-path': 'true',
-                ...settings,
-              },
-            },
-          }
-
-          const wsToken = JSON.stringify(encryptConnection(connection))
-          const encodedWsToken = Buffer.from(wsToken).toString('base64')
-
-          res.locals.httpCode = httpResponse(ok, encodedWsToken)
-          next()
-        },
-      })
-    },
+    callback: callbackUserInfo,
   })
 }
 
@@ -296,10 +310,11 @@ const getRdpSettings = (vmInfo) => {
 }
 
 const encryptConnection = (data) => {
-  const iv = randomBytes(16)
+  const { hash, digest } = defaultHash
   const key = global.paths.FIREEDGE_KEY
+  const keyBuffer = Buffer.from(key, digest)
+  const iv = createHash(hash).update(keyBuffer).digest().slice(0, 16)
   const cipher = createCipheriv(defaultTypeCrypto, key, iv)
-
   const ensuredData = typeof data === 'string' ? data : JSON.stringify(data)
   let value = cipher.update(ensuredData, 'utf-8', 'base64')
   value += cipher.final('base64')

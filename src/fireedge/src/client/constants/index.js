@@ -172,6 +172,7 @@ export const SOCKETS = {
   HOOKS: 'hooks',
   PROVISION: 'provision',
   GUACAMOLE: 'guacamole',
+  EXTERNAL_GUACAMOLE: 'external-guacamole',
   VMRC: 'vmrc',
 }
 

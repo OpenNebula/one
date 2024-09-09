@@ -26,6 +26,8 @@ import {
   defaultHost,
   defaultPort,
   defaultWebpackMode,
+  endpointExternalGuacamole,
+  endpointVmrc,
 } from './utils/constants/defaults'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
@@ -43,6 +45,7 @@ import { resolve } from 'path'
 import { env } from 'process'
 import webpack from 'webpack'
 import guacamole from './routes/websockets/guacamole'
+import guacamoleProxy from './routes/websockets/guacamoleProxy'
 import opennebulaWebsockets from './routes/websockets/opennebula'
 import vmrc from './routes/websockets/vmrc'
 import { messageTerminal } from './utils/general'
@@ -137,6 +140,18 @@ let config = {
   message: 'Server could not be started',
 }
 
+guacamole(appServer)
+
+appServer.on('upgrade', (req, socket, head) => {
+  const url = req?.url
+
+  if (url.startsWith(endpointVmrc)) {
+    vmrc.upgrade(req, socket, head)
+  } else if (url.startsWith(endpointExternalGuacamole)) {
+    guacamoleProxy.upgrade(req, socket, head)
+  }
+})
+
 appServer.listen(port, host, (err) => {
   if (!err) {
     config = {
@@ -147,8 +162,6 @@ appServer.listen(port, host, (err) => {
   }
   messageTerminal(config)
 })
-vmrc(appServer)
-guacamole(appServer)
 
 /**
  * Handle sigterm and sigint.

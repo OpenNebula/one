@@ -38,7 +38,7 @@ const appConfig = getFireedgeConfig()
 const port = appConfig.port || defaultPort
 const protocol = defaultProtocol
 const url = `${protocol}://localhost:${port}`
-const vmrcProxy = createProxyMiddleware(endpointVmrc, {
+const vmrc = createProxyMiddleware(endpointVmrc, {
   target: url,
   changeOrigin: false,
   ws: true,
@@ -111,16 +111,5 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
     }
   },
 })
-
-/**
- * VMRC Proxy.
- *
- * @param {object} appServer - express app
- */
-const vmrc = (appServer) => {
-  if (appServer && appServer?.on && appServer?.constructor?.name === 'Server') {
-    appServer.on('upgrade', vmrcProxy.upgrade)
-  }
-}
 
 module.exports = vmrc

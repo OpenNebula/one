@@ -13,33 +13,56 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo, useRef, useEffect } from 'react'
-import { useParams, useHistory } from 'react-router'
-import { Box, Stack, Container, Typography } from '@mui/material'
+import { Box, Container, Stack, Typography } from '@mui/material'
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
+import { useHistory, useParams } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
+import { GuacamoleLogo } from 'client/components/Icons'
 import { useViews } from 'client/features/Auth'
+import { useGeneral, useGeneralApi } from 'client/features/General'
 import { useGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
 
+import { PATH } from 'client/apps/sunstone/routes'
 import {
-  HeaderVmInfo,
-  useGuacamoleSession,
-  GuacamoleDisplay,
-  GuacamoleKeyboard,
-  GuacamoleMouse,
   GuacamoleClipboard,
   GuacamoleCtrlAltDelButton,
-  GuacamoleReconnectButton,
+  GuacamoleDisplay,
   GuacamoleFullScreenButton,
+  GuacamoleKeyboard,
+  GuacamoleMouse,
+  GuacamoleReconnectButton,
   GuacamoleScreenshotButton,
+  HeaderVmInfo,
+  useGuacamoleSession,
 } from 'client/components/Consoles'
-import { GuacamoleLogo } from 'client/components/Icons'
-import { PATH } from 'client/apps/sunstone/routes'
 import { Tr } from 'client/components/HOC'
-import { sentenceCase } from 'client/utils'
 import { RESOURCE_NAMES, T } from 'client/constants'
+import { sentenceCase } from 'client/utils'
 
 /** @returns {ReactElement} Guacamole container */
 const Guacamole = () => {
+  // set default zone for request
+  const [isZoneChanged, setIsZoneChanged] = useState(false)
+
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const zone = searchParams.get('zone')
+
+  const { zone: selectedZone, defaultZone } = useGeneral()
+  const { changeZone } = useGeneralApi()
+
+  useEffect(() => {
+    const handleChangeZone = async () => {
+      if (zone && zone !== selectedZone) {
+        await changeZone(zone)
+      }
+      setIsZoneChanged(true)
+    }
+
+    handleChangeZone()
+  }, [zone, selectedZone, changeZone])
+
   const containerRef = useRef(null)
   const headerRef = useRef(null)
 
@@ -52,14 +75,36 @@ const Guacamole = () => {
     [view]
   )
 
-  const { isError: queryIsError } = useGetGuacamoleSessionQuery(
-    { id, type },
-    { refetchOnMountOrArgChange: false, skip: !isAvailableView }
+  const paramsGetGuacamoleSession = { id, type }
+
+  const { isError: queryIsError, data } = useGetGuacamoleSessionQuery(
+    paramsGetGuacamoleSession,
+    {
+      refetchOnMountOrArgChange: false,
+      skip: !isAvailableView && !isZoneChanged,
+    }
   )
 
   useEffect(() => {
     ;(queryIsError || !isAvailableView) && redirectTo(PATH.DASHBOARD)
   }, [queryIsError])
+
+  const guacamoleOption = useMemo(
+    () => ({
+      id: `${id}-${type}`,
+      container: containerRef.current,
+      header: headerRef.current,
+      zone: selectedZone,
+      externalZone: `${selectedZone}` !== `${defaultZone}`,
+    }),
+    [
+      selectedZone,
+      containerRef.current?.offsetWidth,
+      containerRef.current?.offsetHeight,
+      headerRef.current?.offsetWidth,
+      headerRef.current?.offsetHeight,
+    ]
+  )
 
   const {
     token,
@@ -69,19 +114,7 @@ const Guacamole = () => {
     isConnected,
     ...session
   } = useGuacamoleSession(
-    useMemo(
-      () => ({
-        id: `${id}-${type}`,
-        container: containerRef.current,
-        header: headerRef.current,
-      }),
-      [
-        containerRef.current?.offsetWidth,
-        containerRef.current?.offsetHeight,
-        headerRef.current?.offsetWidth,
-        headerRef.current?.offsetHeight,
-      ]
-    ),
+    guacamoleOption,
     GuacamoleDisplay,
     GuacamoleMouse,
     GuacamoleKeyboard,
@@ -118,7 +151,7 @@ const Guacamole = () => {
         gap="1em"
         padding="1em"
       >
-        <HeaderVmInfo id={id} type={type} />
+        {data && <HeaderVmInfo {...paramsGetGuacamoleSession} />}
         <Stack
           direction={{ sm: 'row', md: 'column' }}
           alignItems={{ sm: 'center', md: 'end' }}
@@ -126,7 +159,7 @@ const Guacamole = () => {
           flexWrap="wrap"
           gap="1em"
         >
-          {connectionState && (
+          {data && connectionState && (
             <Stack
               title={`${Tr(T.GuacamoleState)}: ${connectionState}`}
               flexGrow={1}
@@ -141,15 +174,17 @@ const Guacamole = () => {
               <GuacamoleLogo />
             </Stack>
           )}
-          <Stack direction="row" alignItems="center" gap="1em">
-            <GuacamoleReconnectButton {...session} />
-            <GuacamoleScreenshotButton {...session} />
-            <GuacamoleFullScreenButton {...session} />
-            <GuacamoleCtrlAltDelButton {...session} />
-          </Stack>
+          {data && (
+            <Stack direction="row" alignItems="center" gap="1em">
+              <GuacamoleReconnectButton {...session} />
+              <GuacamoleScreenshotButton {...session} />
+              <GuacamoleFullScreenButton {...session} />
+              <GuacamoleCtrlAltDelButton {...session} />
+            </Stack>
+          )}
         </Stack>
       </Stack>
-      {displayElement}
+      {data && displayElement}
     </Box>
   )
 }

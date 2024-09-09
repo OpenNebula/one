@@ -35,7 +35,7 @@ export const clientStateToString = (clientState) =>
  * @returns {string} A string of connection parameters
  */
 export const getConnectString = (options = {}) => {
-  const { token, display = window, dpi, width, height } = options
+  const { token, display = window, dpi, width, height, zone } = options
 
   // Calculate optimal width/height for display
   const pixelDensity = window.devicePixelRatio || 1
@@ -47,10 +47,14 @@ export const getConnectString = (options = {}) => {
   const displayHeight =
     height || (isWindow(display) ? display?.innerHeight : display?.offsetHeight)
 
-  return [
+  const urlOptions = [
     `token=${encodeURIComponent(token)}`,
     `width=${Math.floor(displayWidth * pixelDensity)}`,
     `height=${Math.floor(displayHeight * pixelDensity)}`,
     `dpi=${Math.floor(optimalDpi)}`,
-  ].join('&')
+  ]
+
+  zone && urlOptions.push(`zone=${zone}`)
+
+  return urlOptions.join('&')
 }

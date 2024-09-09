@@ -21,7 +21,7 @@ const {
 
 const basepath = '/vm'
 const { POST, GET } = httpMethod
-const { resource, postBody } = fromData
+const { resource, postBody, query } = fromData
 
 const VM_SAVEASTEMPLATE = 'vm.saveastemplate'
 const GUACAMOLE = 'vm.guacamole'
@@ -60,6 +60,9 @@ module.exports = {
         },
         type: {
           from: resource,
+        },
+        zone: {
+          from: query,
         },
       },
     },

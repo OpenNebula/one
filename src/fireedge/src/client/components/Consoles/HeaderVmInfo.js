@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo } from 'react'
+import { Avatar, Divider, Skeleton, Stack, Typography } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
-import { Stack, Typography, Divider, Skeleton, Avatar } from '@mui/material'
 
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
-import { useGeneralApi } from 'client/features/General'
-import { StatusBadge } from 'client/components/Status'
+import { PATH } from 'client/apps/sunstone/routes'
+import { Translate } from 'client/components/HOC'
 import { OpenNebulaLogo } from 'client/components/Icons'
 import MultipleTags from 'client/components/MultipleTags'
-import { Translate } from 'client/components/HOC'
-import { getIps, getState, isVCenter } from 'client/models/VirtualMachine'
+import { StatusBadge } from 'client/components/Status'
+import { STATIC_FILES_URL, T, VM_ACTIONS } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
+import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
+import { useGetVmQuery } from 'client/features/OneApi/vm'
 import { timeFromMilliseconds } from 'client/models/Helper'
-import { PATH } from 'client/apps/sunstone/routes'
-import { T, VM_ACTIONS, STATIC_FILES_URL } from 'client/constants'
+import { getIps, getState, isVCenter } from 'client/models/VirtualMachine'
 
 /**
  * @param {object} props - Props
