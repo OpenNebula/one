@@ -62,11 +62,18 @@ function CreateServiceTemplate() {
   useGetDatastoresQuery(undefined, { refetchOnMountOrArgChange: false })
 
   const onSubmit = async (jsonTemplate) => {
+    const { instances = 1 } = jsonTemplate
+
     try {
-      await instantiate({
-        id: templateId,
-        template: jsonTemplate,
-      }).unwrap()
+      await Promise.all(
+        Array.from({ length: instances }, async () =>
+          instantiate({
+            id: templateId,
+            template: jsonTemplate,
+          }).unwrap()
+        )
+      )
+
       history.push(PATH.INSTANCE.SERVICES.LIST)
       enqueueSuccess(T.SuccessServiceTemplateInitiated, [templateId, NAME])
     } catch {}
