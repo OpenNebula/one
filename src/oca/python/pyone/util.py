@@ -18,7 +18,7 @@ import dict2xml
 import xmltodict
 from lxml.etree import tostring
 from collections import OrderedDict
-from aenum import IntEnum
+from enum import IntEnum
 
 # this is a bit hackish way to avoid escaping <,> characters
 # by dict2xml, as it would break <!CDATA[]> which is injected before
