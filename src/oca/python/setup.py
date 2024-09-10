@@ -27,7 +27,7 @@ install_requires = [
     'dict2xml',
     'xmltodict',
     'six',
-    'aenum',
+    'enum',
     'tblib',
     'requests'
 ]

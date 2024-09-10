@@ -22,7 +22,7 @@ import requests
 import requests.utils
 
 from six import string_types
-from aenum import IntEnum
+from enum import IntEnum
 from pyone import bindings
 from .util import cast2one
 
