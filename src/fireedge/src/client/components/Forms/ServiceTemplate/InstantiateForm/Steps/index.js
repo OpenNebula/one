@@ -120,6 +120,7 @@ const Steps = createSteps([General, UserInputs, Network, Charter], {
         ),
       })),
       name: generalData?.NAME,
+      instances: generalData?.INSTANCES,
     }
 
     return formatTemplate

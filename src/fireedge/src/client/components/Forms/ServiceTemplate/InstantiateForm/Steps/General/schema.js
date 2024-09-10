@@ -36,7 +36,9 @@ const INSTANCE_FIELD = {
   name: 'INSTANCES',
   label: T.NumberOfInstances,
   type: INPUT_TYPES.TEXT,
-  validation: number().required(),
+  validation: number()
+    .required()
+    .default(() => 1),
   fieldProps: {
     type: 'number',
   },
