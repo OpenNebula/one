@@ -700,7 +700,7 @@ module.exports = {
   Ceph: 'Ceph',
   LVM: 'LVM',
   RawDeviceMapping: 'Raw device mapping',
-  StorageRestic: 'Backup - Restic (EE only)',
+  StorageRestic: 'Backup - Restic',
   StorageRsync: 'Backup - RSync',
 
   /* datastore */
