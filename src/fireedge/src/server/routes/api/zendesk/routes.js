@@ -70,6 +70,9 @@ module.exports = {
         severity: {
           from: postBody,
         },
+        attachments: {
+          from: 'files',
+        },
       },
     },
     [ZENDESK_UPDATE]: {

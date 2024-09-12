@@ -60,14 +60,14 @@ const CommentBar = ({
     resolver: yupResolver(FORM.SCHEMA),
   })
 
-  const onSubmit = (fields) => {
+  const onSubmit = async (fields) => {
     const commentBody = {
       id: ticket.id,
       body: marked.parse(sanitize`${fields.BODY}`),
-      // attachments: fields.ATTACHMENTS,
+      attachments: fields.ATTACHMENTS,
     }
-    fields.solved && (commentBody.solved = true)
-    update(commentBody)
+    fields.SOLVED && (commentBody.solved = true)
+    await update(commentBody)
     setComments([
       ...comments,
       {

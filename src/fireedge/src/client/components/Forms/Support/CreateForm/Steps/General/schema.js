@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema } from 'yup'
+import { INPUT_TYPES, SEVERITIES, T } from 'client/constants'
 import { Field, arrayToOptions, getValidationFromFields } from 'client/utils'
-import { T, INPUT_TYPES, SEVERITIES } from 'client/constants'
+// eslint-disable-next-line no-unused-vars
+import { ObjectSchema, mixed, object, string } from 'yup'
 
 /** @type {Field} name field */
 export const SUBJECT = {
@@ -51,10 +52,23 @@ export const SEVERITY = {
   grid: { xs: 12, md: 12 },
 }
 
+/** @type {Field} Attachment field */
+export const ATTACHMENTS = {
+  name: 'ATTACHMENTS',
+  label: T.Upload,
+  type: INPUT_TYPES.FILE,
+  validation: mixed()
+    .notRequired()
+    .test('fileSize', T.FileTooLarge, (value) =>
+      value?.size ? value.size <= 50 * 1024 ** 2 : true
+    ),
+  grid: { xs: 12, md: 12 },
+}
+
 /**
  * @returns {Field[]} Fields
  */
-export const FIELDS = [SUBJECT, BODY, SEVERITY]
+export const FIELDS = [SUBJECT, BODY, SEVERITY, ATTACHMENTS]
 
 /**
  * @param {object} [stepProps] - Step props

@@ -516,6 +516,7 @@ module.exports = {
   ResolutionTicket:
     'You should just use this. If you want to place the ticket as solved',
   AddComment: 'Add comment to close the ticket',
+  MarkAsclosed: 'Please consider to this request resolved',
 
   /* sections - system */
   User: 'User',
@@ -655,6 +656,7 @@ module.exports = {
   Images: 'Images',
   File: 'File',
   Files: 'Files',
+  FileTooLarge: 'File too large',
   Marketplace: 'Marketplace',
   Marketplaces: 'Marketplaces',
   App: 'App',

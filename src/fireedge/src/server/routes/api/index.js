@@ -26,11 +26,13 @@ const {
   defaultWebpackMode,
   defaultConfigErrorMessage,
   defaultTmpPath,
+  from: fromData,
 } = require('server/utils/constants/defaults')
 const { writeInLogger } = require('server/utils/logger')
 const { getSunstoneConfig } = require('server/utils/yml')
 
 genPathResources()
+const { postBody } = fromData
 
 const appConfig = getSunstoneConfig()
 const optsMulter = { dest: appConfig.tmpdir || defaultTmpPath }
@@ -121,6 +123,7 @@ routes.forEach((file) => {
                   })
                 }
                 serverDataSource.files = parseFiles(req && req.files)
+                serverDataSource[postBody] = req.body
 
                 return action(
                   res,

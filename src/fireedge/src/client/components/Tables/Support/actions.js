@@ -63,12 +63,14 @@ const Actions = () => {
                     SUBJECT: subject,
                     BODY: body,
                     SEVERITY: severity,
+                    ATTACHMENTS: attachments,
                   } = formData.template
                   await createTicket({
                     subject,
                     body,
                     version,
                     severity,
+                    attachments,
                   })
                 },
               },

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { TicketComment } from 'client/constants'
+import { ONE_RESOURCES_POOL, oneApi } from 'client/features/OneApi'
+import http from 'client/utils/rest'
 import {
   Actions as ActionsSupport,
   Commands as CommandsSupport,
 } from 'server/routes/api/support/routes'
 import { Actions, Commands } from 'server/routes/api/zendesk/routes'
-
-import { TicketComment } from 'client/constants'
-import { ONE_RESOURCES_POOL, oneApi } from 'client/features/OneApi'
 
 const { SUPPORT_POOL } = ONE_RESOURCES_POOL
 
@@ -162,11 +162,29 @@ const authSupportApi = oneApi.injectEndpoints({
        * @returns {object} Response data from request
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
-        const name = Actions.ZENDESK_UPDATE
-        const command = { name, ...Commands[name] }
+      queryFn: async (params) => {
+        const { attachments, id, body, solved } = params
+        try {
+          const data = new FormData()
+          attachments && data.append('attachments', attachments)
+          solved && data.append('solved', solved)
+          data.append('body', body)
 
-        return { params, command }
+          const response = await http.request({
+            url: `/api/zendesk/${id}`,
+            method: 'PUT',
+            data,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+
+          return { data: response.data }
+        } catch (axiosError) {
+          const { response } = axiosError
+
+          return { error: { status: response?.status, data: response?.data } }
+        }
       },
       invalidatesTags: (_, __, { id }) => [{ type: SUPPORT_POOL, id }],
     }),
@@ -182,11 +200,31 @@ const authSupportApi = oneApi.injectEndpoints({
        * @returns {object} Response data from request
        * @throws Fails when response isn't code 200
        */
-      query: (params) => {
-        const name = Actions.ZENDESK_CREATE
-        const command = { name, ...Commands[name] }
+      queryFn: async (params) => {
+        const { attachments, subject, body, version, severity } = params
+        try {
+          const data = new FormData()
+          data.append('subject', subject)
+          data.append('body', body)
+          data.append('version', version)
+          data.append('severity', severity)
+          attachments && data.append('attachments', attachments)
 
-        return { params, command }
+          const response = await http.request({
+            url: `/api/zendesk`,
+            method: 'POST',
+            data,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+
+          return { data: response.data }
+        } catch (axiosError) {
+          const { response } = axiosError
+
+          return { error: { status: response?.status, data: response?.data } }
+        }
       },
       invalidatesTags: [SUPPORT_POOL],
     }),

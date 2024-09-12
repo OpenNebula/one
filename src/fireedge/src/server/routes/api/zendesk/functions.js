@@ -34,6 +34,7 @@ const httpBadRequest = httpResponse(badRequest, '', '')
  * @param {string} configFormatCreate.body - body
  * @param {string} configFormatCreate.version - one version
  * @param {string} configFormatCreate.severity - ticket severity
+ * @param {object} configFormatCreate.attachments - attachment file
  * @returns {object|undefined} format message create ticket
  */
 const formatCreate = ({
@@ -41,10 +42,11 @@ const formatCreate = ({
   body = '',
   version = '',
   severity = '',
+  attachments = [],
 }) => {
   if (!(subject && body && version && severity)) return
 
-  return {
+  const rtn = {
     request: {
       subject,
       comment: {
@@ -58,6 +60,11 @@ const formatCreate = ({
       tags: [severity],
     },
   }
+
+  attachments?.length > 0 &&
+    (rtn.request.comment.uploads = attachments.filter((att) => att))
+
+  return rtn
 }
 
 /**
@@ -313,7 +320,7 @@ const create = (
   params = {},
   userData = {}
 ) => {
-  const { subject, body, version, severity } = params
+  const { subject, body, version, severity, attachments } = params
   const { user, password } = userData
   if (
     subject &&
@@ -326,21 +333,61 @@ const create = (
   ) {
     const session = getSession(user, password)
     if (session.zendesk && session.zendesk.id) {
-      /** CREATE TICKET ZENDESK */
       const zendeskClient = zendesk.createClient(session.zendesk)
-      const ticket = formatCreate(params)
-      zendeskClient.requests.create(ticket, (err, req, result) => {
-        let method = ok
-        let data = ''
-        if (err) {
-          method = internalServerError
-          data = parseBufferError(err)
-        } else if (result) {
-          data = result
-        }
-        response.locals.httpCode = httpResponse(method, data)
-        next()
-      })
+
+      const sendRequest = (requestParams = {}) => {
+        /** CREATE TICKET ZENDESK */
+        const ticket = formatCreate(requestParams)
+        zendeskClient.requests.create(ticket, (err, _, result) => {
+          let method = ok
+          let data = ''
+
+          if (err) {
+            method = internalServerError
+            data = parseBufferError(err)
+          } else if (result) {
+            data = result
+          }
+          response.locals.httpCode = httpResponse(method, data)
+          next()
+        })
+      }
+
+      /** UPLOAD FILES */
+      let uploadedAttachments
+      if (
+        attachments &&
+        typeof zendeskClient?.attachments?.upload === 'function'
+      ) {
+        attachments.forEach((att = {}) => {
+          if (att && att.originalname && att.path) {
+            zendeskClient.attachments.upload(
+              att.path,
+              {
+                filename: att.originalname,
+              },
+              (err, _, result) => {
+                const token =
+                  (result && result.upload && result.upload.token) || ''
+                if (uploadedAttachments) {
+                  uploadedAttachments.push(token)
+                } else {
+                  uploadedAttachments = [token]
+                }
+                if (
+                  !err &&
+                  token &&
+                  uploadedAttachments.length === attachments.length
+                ) {
+                  sendRequest({ ...params, attachments: uploadedAttachments })
+                }
+              }
+            )
+          }
+        })
+      } else {
+        sendRequest({ ...params, attachments })
+      }
     } else {
       response.locals.httpCode = httpResponse(unauthorized)
       next()
@@ -374,6 +421,7 @@ const update = (
 ) => {
   const { id, body, attachments } = params
   const { user, password } = userData
+
   if (Number.isInteger(parseInt(id, 10)) && body && user && password) {
     const session = getSession(userData.user, userData.password)
     if (session.zendesk && session.zendesk.id) {
@@ -401,8 +449,7 @@ const update = (
       let uploadedAttachments
       if (
         attachments &&
-        zendeskClient.attachments &&
-        typeof zendeskClient.attachments.upload === 'function'
+        typeof zendeskClient?.attachments?.upload === 'function'
       ) {
         attachments.forEach((att = {}) => {
           if (att && att.originalname && att.path) {
@@ -411,7 +458,7 @@ const update = (
               {
                 filename: att.originalname,
               },
-              (err, req, result) => {
+              (err, _, result) => {
                 const token =
                   (result && result.upload && result.upload.token) || ''
                 if (uploadedAttachments) {
