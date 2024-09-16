@@ -1290,21 +1290,23 @@ CommandParser::CmdParser.new(ARGV) do
         vm = helper.retrieve_resource(args[0])
         vm.info
 
-        filtered = []
-        vm_hash = vm.to_hash
-        vm_snapshots = [vm_hash['VM']['SNAPSHOTS']].flatten
-
-        vm_snapshots.each do |snap|
-            if snap['DISK_ID'] == args[1]
-                filtered << snap
-            end
-        end
-
-        vm_hash['VM']['SNAPSHOTS'] = filtered
-
         if vm.has_elements?('/VM/SNAPSHOTS')
+            filtered = []
+            vm_hash = vm.to_hash
+            vm_snapshots = [vm_hash['VM']['SNAPSHOTS']].flatten
+
+            vm_snapshots.each do |snap|
+                if snap['DISK_ID'] == args[1]
+                    filtered << snap
+                end
+            end
+
+            vm_hash['VM']['SNAPSHOTS'] = filtered
+
             CLIHelper.print_header('VM DISK SNAPSHOTS'.ljust(80), false)
             helper.format_snapshots(vm_hash)
+        else
+            puts 'No snapshots available in this disk'
         end
         0
     end
