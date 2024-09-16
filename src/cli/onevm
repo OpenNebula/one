@@ -1282,6 +1282,33 @@ CommandParser::CmdParser.new(ARGV) do
         helper.show_resource(args[0], options)
     end
 
+    disk_snapshot_list_desc = <<-EOT.unindent
+        Lists the snapshots of a disk
+    EOT
+
+    command :"disk-snapshot-list", disk_snapshot_list_desc, :vmid, :diskid do
+        vm = helper.retrieve_resource(args[0])
+        vm.info
+
+        filtered = []
+        vm_hash = vm.to_hash
+        vm_snapshots = [vm_hash['VM']['SNAPSHOTS']].flatten
+
+        vm_snapshots.each do |snap|
+            if snap['DISK_ID'] == args[1]
+                filtered << snap
+            end
+        end
+
+        vm_hash['VM']['SNAPSHOTS'] = filtered
+
+        if vm.has_elements?('/VM/SNAPSHOTS')
+            CLIHelper.print_header('VM DISK SNAPSHOTS'.ljust(80), false)
+            helper.format_snapshots(vm_hash)
+        end
+        0
+    end
+
     top_desc = <<-EOT.unindent
         Lists Images continuously
     EOT

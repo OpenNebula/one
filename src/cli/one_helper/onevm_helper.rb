@@ -1398,6 +1398,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         table.show(history)
     end
 
+    public
+
     def format_snapshots(vm)
         table = CLIHelper::ShowTable.new(nil, self) do
             column :AC, 'Is active', :left, :size => 2 do |d|
