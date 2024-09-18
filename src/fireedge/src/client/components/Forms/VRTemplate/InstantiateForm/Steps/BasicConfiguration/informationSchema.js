@@ -34,7 +34,7 @@ const NAME = {
 
 const DESCRIPTION = {
   name: 'description',
-  label: 'Description',
+  label: T.Description,
   type: INPUT_TYPES.TEXT,
   multiline: true,
   validation: string().trim().default(''),
@@ -64,7 +64,7 @@ const KEEPALIVEPASS = {
 const VMNAME = {
   name: 'vmname',
   label: T.VmName,
-  tooltip: T.VmTemplateNameHelper,
+  tooltip: T.VmVrTemplateNameHelper,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
@@ -107,15 +107,6 @@ const HOLD = {
   grid: { md: 12 },
 }
 
-const PERSISTENT = {
-  name: 'persistent',
-  label: T.InstantiateAsPersistent,
-  type: INPUT_TYPES.SWITCH,
-  tooltip: T.InstantiateAsPersistentConcept,
-  validation: boolean().default(() => false),
-  grid: { md: 12 },
-}
-
 export const FIELDS = [
   NAME,
   DESCRIPTION,
@@ -124,7 +115,6 @@ export const FIELDS = [
   VMNAME,
   INSTANCES,
   HOLD,
-  PERSISTENT,
 ]
 
 export const SCHEMA = getObjectSchemaFromFields(FIELDS)

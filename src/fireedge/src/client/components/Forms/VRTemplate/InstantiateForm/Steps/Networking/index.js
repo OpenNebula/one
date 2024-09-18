@@ -42,12 +42,12 @@ const Content = () => {
     append,
     remove,
   } = useFieldArray({
-    name: `${STEP_ID}.NIC`,
+    name: `${STEP_ID}`,
   })
 
   const watchedNicsArray = useWatch({
     control,
-    name: `${STEP_ID}.NIC`,
+    name: `${STEP_ID}`,
   })
 
   const handleAddnewNic = () => {
@@ -92,11 +92,11 @@ const Content = () => {
       ) : (
         <FormWithSchema
           legend={Tr(T.VirtualRouterNICNetworkConfiguration)}
-          key={`${STEP_ID}-NIC-${activeNic}`}
+          key={`${STEP_ID}-${activeNic}`}
           cy={STEP_ID}
           fields={FIELDS}
           saveState={true}
-          id={`${STEP_ID}.NIC.${activeNic}`}
+          id={`${STEP_ID}.${activeNic}`}
         />
       ),
     [nics, activeNic]

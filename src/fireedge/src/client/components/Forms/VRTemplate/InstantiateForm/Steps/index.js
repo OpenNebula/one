@@ -77,23 +77,33 @@ const Steps = createSteps(
       )
     },
     transformBeforeSubmit: (formData, vmTemplate) => {
-      const { [BASIC_ID]: { name, instances, hold, persistent, vmname } = {} } =
+      const { [BASIC_ID]: { name, instances, hold, vmname } = {} } =
         formData ?? {}
 
       const selectedTemplateID = formData?.template_selection?.vmTemplate
 
       delete formData?.template_selection
 
-      const templates = [...new Array(instances)].map((__, idx) => ({
-        id: vmTemplate?.ID ?? selectedTemplateID,
-        vrname: name,
-        name: vmname?.replace(/%idx/gi, idx), // VM NAME
-        number: instances,
-        pending: hold, // start on hold
-        persistent: persistent,
-        ...(selectedTemplateID && { initiateFromSelection: true }),
-        ...formData,
-      }))
+      // Delete nic id
+      formData.networking.forEach((nic) => {
+        delete nic.nicId
+      })
+
+      const templates = [
+        {
+          id: vmTemplate?.ID ?? selectedTemplateID,
+          vrname: name,
+          name: vmname
+            ? vmname.includes('%i')
+              ? vmname
+              : vmname + '-%i'
+            : undefined,
+          number: instances,
+          pending: hold, // start on hold
+          ...(selectedTemplateID && { initiateFromSelection: true }),
+          ...formData,
+        },
+      ]
 
       return templates
     },

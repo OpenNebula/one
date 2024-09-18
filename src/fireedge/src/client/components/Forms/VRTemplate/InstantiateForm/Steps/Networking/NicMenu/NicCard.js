@@ -47,8 +47,8 @@ const NicCard = ({ info = {}, removeNic, selectNic, active } = {}) => {
     nicId,
     VROUTER_MANAGEMENT: management,
     autonetworkselect,
-    sshconnection,
-    rdpconnection,
+    SSH: sshconnection,
+    RDP: rdpconnection,
   } = info
 
   return (

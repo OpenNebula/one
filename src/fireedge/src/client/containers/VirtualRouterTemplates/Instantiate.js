@@ -20,7 +20,6 @@ import { useGeneralApi } from 'client/features/General'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
 import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetTemplateQuery } from 'client/features/OneApi/vmTemplate'
-import { convertKeysToCase } from 'client/utils'
 
 import {
   useInstantiateVRouterTemplateMutation,
@@ -76,20 +75,40 @@ function InstantiateVrTemplate() {
       const promises = templates.map(async (t) => {
         t.template = jsonToXml(t)
 
+        /**
+         * In allocate request template send only the following info:
+         * - Name - Name of the vrouter
+         * - Description - Description of the vrouter
+         * - Keep alive ID
+         * - Keep alive password
+         * - NICS
+         */
         const allocationResult = await allocate({
           template: jsonToXml({
             NAME: t.vrname,
-            ...(t?.networking?.NIC
-              ? { NIC: convertKeysToCase(t.networking.NIC, false) }
-              : {}),
+            DESCRIPTION: t.general?.description,
+            KEEPALIVED_ID: t.general?.keepaliveid,
+            KEEPALIVED_PASSWORD: t.general?.keepalivepass,
+            NIC: t.networking,
           }),
         }).unwrap()
 
+        /**
+         * In instantiate request send only the following info:
+         * - id - If of the vrouter (created in the previous allocate request)
+         * - templateId - Id of the vrouter template
+         * - number - Number of virtual machines that are gonna be instantiated
+         * - pending - Start virtual machines on hold state
+         * - template - XML template only with the user inputs
+         */
         return instantiate({
-          ...t,
+          fromPostbody: t?.initiateFromSelection,
           id: allocationResult,
           templateId: templateId ?? parseInt(t?.id, 10),
-          ...(t?.initiateFromSelection && { fromPostbody: true }),
+          number: t?.number,
+          name: t?.name,
+          pending: t?.pending,
+          template: jsonToXml(t?.user_inputs),
         }).unwrap()
       })
 

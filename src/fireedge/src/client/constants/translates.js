@@ -1107,6 +1107,10 @@ module.exports = {
     Defaults to 'template name-<vmid>' when empty.
     When creating several VMs, the wildcard %%idx will be
     replaced with a number starting from 0`,
+  VmVrTemplateNameHelper: `
+    Defaults to 'template name-<vmid>' when empty.
+    When creating several VMs, the wildcard %%i will be
+    replaced with a number starting from 0`,
   NumberOfInstances: 'Number of instances',
   NumberOfVms: 'Number of VMs',
   MakeTemplateAvailableForVROnly:
