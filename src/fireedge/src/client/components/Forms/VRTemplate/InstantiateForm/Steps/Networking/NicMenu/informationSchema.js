@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { mixed, number, boolean } from 'yup'
+import { mixed, boolean, array, string } from 'yup'
 import { VNetworksTable, SecurityGroupsTable } from 'client/components/Tables'
-import { getObjectSchemaFromFields } from 'client/utils'
-
+import { getObjectSchemaFromFields, REG_V4, REG_V6 } from 'client/utils'
 import { T, INPUT_TYPES } from 'client/constants'
 
 const NETWORK = {
-  name: 'network_id',
+  name: 'NETWORK_ID',
   label: T.Network,
   type: INPUT_TYPES.TABLE,
   cy: 'network',
@@ -36,17 +35,21 @@ const NETWORK = {
 }
 
 const RDP = {
-  name: 'rdpconnection',
+  name: 'RDP',
   label: T.RdpConnection,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
+  validation: boolean()
+    .yesOrNo()
+    .default(() => false),
   grid: { md: 6 },
 }
 const SSH = {
-  name: 'sshconnection',
+  name: 'SSH',
   label: T.SshConnection,
   type: INPUT_TYPES.SWITCH,
-  validation: boolean().default(() => false),
+  validation: boolean()
+    .yesOrNo()
+    .default(() => false),
   grid: { md: 6 },
 }
 
@@ -54,15 +57,15 @@ const FORCEIPV4 = {
   name: 'IP',
   label: T.VirtualRouterNICForceIpv4,
   type: INPUT_TYPES.TEXT,
-  validation: number()
-    .min(7) // Shortest possible IPv4
-    .max(16) // Longest possible
+  validation: string()
+    .trim()
+    .matches(REG_V4, { message: T.InvalidIPv4 })
     .default(() => undefined),
   grid: { md: 6 },
 }
 
 const FLOATINGIP = {
-  name: 'floating_ip',
+  name: 'FLOATING_IP',
   label: T.VirtualRouterNICFloatingIP,
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().yesOrNo(),
@@ -73,9 +76,9 @@ const FORCEIPV6 = {
   name: 'IP6',
   label: T.VirtualRouterNICForceIpv6,
   type: INPUT_TYPES.TEXT,
-  validation: number()
-    .min(7)
-    .max(39)
+  validation: string()
+    .trim()
+    .matches(REG_V6, { message: T.InvalidIPv6 })
     .default(() => undefined),
   grid: { md: 6 },
 }
@@ -89,7 +92,7 @@ const MANAGEMENINTERFACE = {
 }
 
 const SECURITY_GROUPS = {
-  name: 'secgroup',
+  name: 'SECURITY_GROUPS',
   label: T.SecurityGroups,
   type: INPUT_TYPES.TABLE,
   cy: 'secgroup',
@@ -115,4 +118,4 @@ export const FIELDS = [
   SECURITY_GROUPS,
 ]
 
-export const SCHEMA = getObjectSchemaFromFields(FIELDS)
+export const SCHEMA = array().of(getObjectSchemaFromFields(FIELDS))
