@@ -132,4 +132,7 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     gap: '0.8em',
     padding: '1em',
   },
+  cellHeaders: {
+    fontWeight: 'bold',
+  },
 }))

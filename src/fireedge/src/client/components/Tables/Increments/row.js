@@ -16,22 +16,22 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
+import { Typography } from '@mui/material'
 import {
-  HardDrive as SizeIcon,
   RefreshCircular as FullIcon,
   Refresh as IncrementIcon,
+  HardDrive as SizeIcon,
 } from 'iconoir-react'
-import { Typography } from '@mui/material'
 
-import Timer from 'client/components/Timer'
 import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import Timer from 'client/components/Timer'
 import { T } from 'client/constants'
 import { prettyBytes } from 'client/utils'
 
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, headerList, ...props }) => {
   const classes = rowStyles()
   const { ID, TYPE, DATE, SIZE, SOURCE } = value
 
@@ -78,6 +78,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

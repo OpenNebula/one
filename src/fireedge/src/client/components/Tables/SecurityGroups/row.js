@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
-import PropTypes from 'prop-types'
+import { SecurityGroupCard } from 'client/components/Cards'
 import secGroupApi, {
   useUpdateSecGroupMutation,
 } from 'client/features/OneApi/securityGroup'
-import { SecurityGroupCard } from 'client/components/Cards'
 import { jsonToXml } from 'client/models/Helper'
+import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
 const Row = memo(
-  ({ original, value, onClickLabel, ...props }) => {
+  ({ original, value, onClickLabel, headerList, ...props }) => {
     const [update] = useUpdateSecGroupMutation()
 
     const {
@@ -74,6 +74,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'SecurityGroupRow'

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetTicketsQuery } from 'client/features/OneApi/support'
-
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import SupportColumns from 'client/components/Tables/Support/columns'
 import SupportRow from 'client/components/Tables/Support/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetTicketsQuery } from 'client/features/OneApi/support'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'support'
 
@@ -62,6 +61,13 @@ const SupportTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'id' },
+    { header: T.Subject, id: 'subject', accessor: 'subject' },
+    { header: T.Status, id: 'status', accessor: 'status' },
+  ]
+  const { component, header } = WrapperRow(SupportRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -71,8 +77,9 @@ const SupportTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.id)}
-      RowComponent={SupportRow}
       initialState={initialState}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetVNetworksQuery } from 'client/features/OneApi/network'
-
+import { Tr } from 'client/components/HOC'
+import { LinearProgressWithLabel, StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import {
   areArraysEqual,
   sortStateTables,
 } from 'client/components/Tables/Enhanced/Utils/DataTableUtils'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VNetworkColumns from 'client/components/Tables/VNetworks/columns'
 import VNetworkRow from 'client/components/Tables/VNetworks/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T, VNET_THRESHOLD } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetVNetworksQuery } from 'client/features/OneApi/network'
+import { getLeasesInfo, getState } from 'client/models/VirtualNetwork'
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 const DEFAULT_DATA_CY = 'vnets'
@@ -137,6 +139,54 @@ const VNetworksTable = (props) => {
   })
   useEffect(() => refetch(), [])
 
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (template) => {
+        const { color: stateColor, name: stateName } = getState(template)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Clusters,
+      id: 'clusters',
+      accessor: ({ CLUSTERS }) => {
+        const clusters = useMemo(
+          () => [CLUSTERS?.ID ?? []].flat(),
+          [CLUSTERS?.ID]
+        )
+
+        return clusters.length && clusters[0]
+      },
+    },
+    {
+      header: T.Leases,
+      id: 'leases',
+      accessor: (template) => {
+        const leasesInfo = useMemo(() => getLeasesInfo(template), [template])
+        const { percentOfUsed, percentLabel } = leasesInfo
+
+        return (
+          <LinearProgressWithLabel
+            value={percentOfUsed}
+            high={VNET_THRESHOLD.LEASES.high}
+            low={VNET_THRESHOLD.LEASES.low}
+            label={percentLabel}
+            title={`${Tr(T.Used)} / ${Tr(T.TotalLeases)}`}
+          />
+        )
+      },
+    },
+  ]
+
+  const { component, header } = WrapperRow(VNetworkRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -146,8 +196,9 @@ const VNetworksTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VNetworkRow}
       dataDepend={values}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetMarketplaceAppsQuery } from 'client/features/OneApi/marketplaceApp'
-
+import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import MarketplaceAppColumns from 'client/components/Tables/MarketplaceApps/columns'
 import MarketplaceAppRow from 'client/components/Tables/MarketplaceApps/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetMarketplaceAppsQuery } from 'client/features/OneApi/marketplaceApp'
+import { getState, getType } from 'client/models/MarketplaceApp'
+import { prettyBytes } from 'client/utils'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'apps'
 
@@ -56,6 +58,41 @@ const MarketplaceAppsTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (vm) => {
+        const { color: stateColor, name: stateName } = getState(vm)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Size,
+      id: 'Size',
+      accessor: ({ SIZE }) => prettyBytes(+SIZE, 'MB'),
+    },
+    {
+      header: T.Type,
+      id: 'type',
+      accessor: (template) =>
+        useMemo(() => getType(template), [template?.TYPE]),
+    },
+    {
+      header: T.Marketplace,
+      id: 'marketplace',
+      accessor: 'MARKETPLACE',
+    },
+    { header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
+  ]
+
+  const { component, header } = WrapperRow(MarketplaceAppRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -65,7 +102,8 @@ const MarketplaceAppsTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={MarketplaceAppRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

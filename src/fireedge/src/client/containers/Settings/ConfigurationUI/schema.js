@@ -119,6 +119,22 @@ const FULL_SCREEN_INFO_FIELD = {
   grid: { md: 12 },
 }
 
+const ROW_STYLE_FIELD = {
+  name: 'ROW_STYLE',
+  label: T.RowStyle,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: [
+    { text: T.Card, value: 'card' },
+    { text: T.List, value: 'list' },
+  ],
+  validation: string()
+    .trim()
+    .required()
+    .default(() => 'card'),
+  grid: { md: 12 },
+}
+
 /**
  * @param {object} props - Props
  * @param {object} props.views - views.
@@ -131,6 +147,7 @@ export const FIELDS = (props) => [
   LANG_FIELD,
   VIEW_FIELD(props),
   ZONE_ENDPOINT_FIELD(props),
+  ROW_STYLE_FIELD,
   DISABLE_ANIMATIONS_FIELD,
   FULL_SCREEN_INFO_FIELD,
 ]

@@ -14,15 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { useMemo, ReactElement } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetVNTemplatesQuery } from 'client/features/OneApi/networkTemplate'
+import { ReactElement, useMemo } from 'react'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VNetworkTemplateColumns from 'client/components/Tables/VNetworkTemplates/columns'
 import VNetworkTemplateRow from 'client/components/Tables/VNetworkTemplates/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetVNTemplatesQuery } from 'client/features/OneApi/networkTemplate'
 
 const DEFAULT_DATA_CY = 'vnet-templates'
 
@@ -47,6 +47,15 @@ const VNetworkTemplatesTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+  ]
+
+  const { component, header } = WrapperRow(VNetworkTemplateRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -56,7 +65,8 @@ const VNetworkTemplatesTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VNetworkTemplateRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

@@ -29,6 +29,7 @@ import { BoxIso as DownloadIcon } from 'iconoir-react'
 
 import { Tr, Translate } from 'client/components/HOC'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VRouterTemplateColumns from 'client/components/Tables/VRouterTemplates/columns'
 import VRouterTemplateRow from 'client/components/Tables/VRouterTemplates/row'
 import { useStyles } from 'client/components/Tabs/EmptyTab/styles'
@@ -37,6 +38,7 @@ import {
   useExportAppMutation,
   useLazyGetMarketplaceAppsQuery,
 } from 'client/features/OneApi/marketplaceApp'
+import { timeToString } from 'client/models/Helper'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import { debounce } from 'lodash'
 
@@ -262,6 +264,20 @@ const VRouterTemplatesTable = (props) => {
     </>
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.RegistrationTime,
+      id: 'registration-time',
+      accessor: (template) => timeToString(template.REGTIME),
+    },
+  ]
+
+  const { component, header } = WrapperRow(VRouterTemplateRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -271,8 +287,9 @@ const VRouterTemplatesTable = (props) => {
       refetch={refetch}
       isLoading={loading}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VRouterTemplateRow}
       noDataCustomRenderer={<NoDataAvailable />}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

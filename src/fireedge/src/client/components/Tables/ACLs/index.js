@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, Component, useState } from 'react'
-import { useViews } from 'client/features/Auth'
-import { useGetAclsExtendedQuery } from 'client/features/OneApi/acl'
-
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import ACLColumns from 'client/components/Tables/ACLs/columns'
 import ACLRow from 'client/components/Tables/ACLs/row'
-import { RESOURCE_NAMES, ACL_TABLE_VIEWS } from 'client/constants'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
+import { ACL_TABLE_VIEWS, RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetAclsExtendedQuery } from 'client/features/OneApi/acl'
+import { sentenceCase } from 'client/utils'
+import { Component, useMemo, useState } from 'react'
 
 const DEFAULT_DATA_CY = 'acls'
 
@@ -72,23 +73,55 @@ const ACLsTable = (props) => {
     },
   }
 
-  return (
-    data && (
-      <EnhancedTable
-        columns={columns}
-        data={data}
-        rootProps={rootProps}
-        searchProps={searchProps}
-        refetch={refetch}
-        isLoading={isFetching}
-        getRowId={(row) => String(row.ID)}
-        RowComponent={useMemo(() => ACLRow(viewType), [viewType])}
-        singleSelect={singleSelect}
-        tableViews={tableViews}
-        {...rest}
-      />
-    )
-  )
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    {
+      header: T.AppliesTo,
+      id: 'applies',
+      accessor: ({ USER }) =>
+        USER?.type ? sentenceCase(`${USER?.type} ${USER?.name ?? ''}`) : '',
+    },
+    {
+      header: T.AffectedResources,
+      id: 'affected-resources',
+      accessor: ({ RESOURCE }) =>
+        Array.isArray(RESOURCE?.resources)
+          ? sentenceCase(RESOURCE.resources.join(', '))
+          : '',
+    },
+    {
+      header: T.AllowedOperations,
+      id: 'allowed-operations',
+      accessor: ({ RIGHTS }) => sentenceCase(RIGHTS?.string || ''),
+    },
+    {
+      header: T.Zone,
+      id: 'zone',
+      accessor: ({ ZONE }) => ZONE?.name || T.All,
+    },
+  ]
+  const CardStyle = useMemo(() => ACLRow(viewType), [viewType])
+  const { component, header } = WrapperRow(CardStyle)
+
+  const EnhancedTableProps = {
+    columns,
+    data,
+    rootProps,
+    searchProps,
+    refetch,
+    isLoading: isFetching,
+    getRowId: (row) => String(row.ID),
+    singleSelect,
+    RowComponent: component,
+    headerList: header && listHeader,
+    ...rest,
+  }
+  !header && (EnhancedTableProps.tableViews = tableViews)
+
+  return data && <EnhancedTable {...EnhancedTableProps} />
 }
+
+ACLsTable.propTypes = { ...EnhancedTable.propTypes }
+ACLsTable.displayName = 'ACLsTable'
 
 export default ACLsTable

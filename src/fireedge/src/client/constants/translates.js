@@ -427,6 +427,9 @@ module.exports = {
 
   /* sections - settings */
   Settings: 'Settings',
+  AppliesTo: 'Applies To',
+  AllowedOperations: 'Allowed operations',
+  AffectedResources: 'Affected resources',
   Schema: 'Schema',
   Dark: 'Dark',
   Light: 'Light',
@@ -591,6 +594,7 @@ module.exports = {
   Zone: 'Zone',
   Zones: 'Zones',
   Vnet: 'Vnet',
+  Vnets: 'Vnets',
   'cluster.form.create.general.help.title': 'Cluster',
   'cluster.form.create.general.help.paragraph.1.1':
     'Clusters group together hosts, datastores and virtual networks that are configured to work together. A cluster is used to:',
@@ -929,6 +933,7 @@ module.exports = {
   Reconnect: 'Reconnect',
   FullScreen: 'Full screen',
   FullScreenInfo: 'Full screen information in datatables',
+  RowStyle: 'DataTables Row Style',
   Screenshot: 'Screenshot',
   LastConnection: 'Last connection',
   PartOf: 'Part of',
@@ -1485,6 +1490,7 @@ module.exports = {
   AutomaticDeletion: 'Automatic deletion',
   Role: 'Role',
   Roles: 'Roles',
+  Card: 'Card',
   Cardinality: 'Cardinality',
   Parents: 'Parents',
   ParentRoles: 'Parent roles',

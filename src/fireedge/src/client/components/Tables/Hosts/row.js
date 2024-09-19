@@ -20,14 +20,14 @@ import PropTypes from 'prop-types'
 import { memo, useCallback, useMemo } from 'react'
 
 const Row = memo(
-  ({ original, value, onClickLabel, zone, ...props }) => {
+  ({ original, value, onClickLabel, zone, headerList, ...props }) => {
     const [update] = useUpdateHostMutation()
 
     const {
       data: hosts,
       error,
       isLoading,
-    } = hostApi.endpoints.getHosts.useQuery({ zone })
+    } = hostApi.endpoints.getHosts.useQueryState({ zone })
 
     const host = useMemo(
       () => hosts?.find((h) => +h.ID === +original.ID) ?? original,
@@ -71,6 +71,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
   zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'HostRow'

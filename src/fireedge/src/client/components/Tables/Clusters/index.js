@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetClustersQuery } from 'client/features/OneApi/cluster'
-
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetClustersQuery } from 'client/features/OneApi/cluster'
 
 const DEFAULT_DATA_CY = 'clusters'
 
@@ -74,6 +74,29 @@ const ClustersTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    {
+      header: T.Hosts,
+      id: 'hosts',
+      accessor: ({ HOSTS }) => (Array.isArray(HOSTS.ID) ? HOSTS.ID.length : 1),
+    },
+    {
+      header: T.Vnets,
+      id: 'vnets',
+      accessor: ({ VNETS }) => (Array.isArray(VNETS.ID) ? VNETS.ID.length : 1),
+    },
+    {
+      header: T.Datastore,
+      id: 'datastores',
+      accessor: ({ DATASTORES }) =>
+        Array.isArray(DATASTORES.ID) ? DATASTORES.ID.length : 1,
+    },
+  ]
+
+  const { component, header } = WrapperRow(ClusterRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -83,7 +106,8 @@ const ClustersTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={ClusterRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

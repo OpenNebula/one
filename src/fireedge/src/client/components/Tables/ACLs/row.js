@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-/* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
 import {
+  ACLCardCLI,
   ACLCardIcons,
   ACLCardNames,
-  ACLCardCLI,
+  ACLCardReadableRule,
   ACLCardResources,
   ACLCardRule,
-  ACLCardReadableRule,
 } from 'client/components/Cards'
 import { ACL_TABLE_VIEWS } from 'client/constants'
+/* eslint-disable jsdoc/require-jsdoc */
+import PropTypes from 'prop-types'
 
 const Row = (viewType) => {
-  const aclRow = ({ original, value, ...props }) => {
+  const aclRow = ({ original, value, headerList, ...props }) => {
     // Check what view show in the table cards
     if (viewType === ACL_TABLE_VIEWS.NAMES.type) {
       return <ACLCardNames rootProps={props} acl={value} />

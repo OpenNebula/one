@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { memo, ReactElement } from 'react'
 
 import { Typography } from '@mui/material'
 
@@ -28,7 +28,7 @@ import { Row as RowType } from 'react-table'
  * @param {Function} props.handleClick - Action by click
  * @returns {ReactElement} - Table row
  */
-const Row = memo(({ original, ...props }) => {
+const Row = memo(({ original, headerList, ...props }) => {
   const classes = rowStyles()
   const { DEPLOY_ID, VM_NAME } = original
 
@@ -49,6 +49,7 @@ Row.propTypes = {
   original: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'ZombiesRow'

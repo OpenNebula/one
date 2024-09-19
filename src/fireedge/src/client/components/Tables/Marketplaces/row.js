@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
-import marketplaceApi from 'client/features/OneApi/marketplace'
 import { MarketplaceCard } from 'client/components/Cards'
+import marketplaceApi from 'client/features/OneApi/marketplace'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, headerList, ...props }) => {
     const state = marketplaceApi.endpoints.getMarketplaces.useQueryState(
       undefined,
       {
@@ -42,6 +42,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'MarketplaceRow'

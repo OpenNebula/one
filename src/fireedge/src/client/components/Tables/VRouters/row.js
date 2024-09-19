@@ -16,15 +16,15 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
-import { User, Group, EmptyPage, ModernTv } from 'iconoir-react'
 import { Typography } from '@mui/material'
+import { EmptyPage, Group, ModernTv, User } from 'iconoir-react'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, headerList, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, VMS, TEMPLATE_ID } = value
 
@@ -65,6 +65,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

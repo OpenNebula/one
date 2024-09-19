@@ -13,39 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { useAuth } from 'client/features/Auth'
+import imageApi, { useUpdateImageMutation } from 'client/features/OneApi/image'
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { useAuth } from 'client/features/Auth'
-import { useMemo, useCallback } from 'react'
-import imageApi, { useUpdateImageMutation } from 'client/features/OneApi/image'
+import { useCallback, useMemo } from 'react'
 
-import {
-  Lock,
-  User,
-  Group,
-  Db as DatastoreIcon,
-  ModernTv,
-  Pin as PersistentIcon,
-  Archive as DiskTypeIcon,
-} from 'iconoir-react'
 import { Typography } from '@mui/material'
 import MultipleTags from 'client/components/MultipleTags'
 import {
-  jsonToXml,
-  getUniqueLabels,
   getColorFromString,
+  getUniqueLabels,
+  jsonToXml,
 } from 'client/models/Helper'
+import {
+  Db as DatastoreIcon,
+  Archive as DiskTypeIcon,
+  Group,
+  Lock,
+  ModernTv,
+  Pin as PersistentIcon,
+  User,
+} from 'iconoir-react'
 
-import Timer from 'client/components/Timer'
-import { StatusCircle, StatusChip } from 'client/components/Status'
-import { rowStyles } from 'client/components/Tables/styles'
-import { T } from 'client/constants'
 import { Tr } from 'client/components/HOC'
+import { StatusChip, StatusCircle } from 'client/components/Status'
+import { rowStyles } from 'client/components/Tables/styles'
+import Timer from 'client/components/Timer'
+import { T } from 'client/constants'
 
-import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
+import * as ImageModel from 'client/models/Image'
 
-const Row = ({ original, value, onClickLabel, ...props }) => {
+const Row = ({ original, value, onClickLabel, headerList, ...props }) => {
   const [update] = useUpdateImageMutation()
   const { labels: userLabels } = useAuth()
 
@@ -187,6 +187,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

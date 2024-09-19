@@ -16,26 +16,26 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
+import { Typography } from '@mui/material'
 import {
-  Lock,
-  User,
-  Group,
   Db as DatastoreIcon,
+  Archive as DiskTypeIcon,
+  Group,
+  Lock,
   ModernTv,
   Pin as PersistentIcon,
-  Archive as DiskTypeIcon,
+  User,
 } from 'iconoir-react'
-import { Typography } from '@mui/material'
 
-import Timer from 'client/components/Timer'
-import { StatusCircle, StatusChip } from 'client/components/Status'
+import { StatusChip, StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import Timer from 'client/components/Timer'
 import { T } from 'client/constants'
 
-import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
+import * as ImageModel from 'client/models/Image'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, headerList, ...props }) => {
   const classes = rowStyles()
   const {
     ID,
@@ -126,6 +126,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

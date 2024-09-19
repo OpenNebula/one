@@ -15,13 +15,13 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
-
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VmGroupColumns from 'client/components/Tables/VmGroups/columns'
 import VmGroupRow from 'client/components/Tables/VmGroups/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
 
 const DEFAULT_DATA_CY = 'vmgroups'
 
@@ -48,6 +48,15 @@ const VmGroupsTable = (props) => {
 
   useEffect(() => refetch(), [])
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+  ]
+
+  const { component, header } = WrapperRow(VmGroupRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -57,7 +66,8 @@ const VmGroupsTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VmGroupRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )
