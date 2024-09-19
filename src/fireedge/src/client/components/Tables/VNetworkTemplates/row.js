@@ -19,13 +19,13 @@ import PropTypes from 'prop-types'
 import { Typography } from '@mui/material'
 import { Cloud, Group, Lock, User } from 'iconoir-react'
 
-import { rowStyles } from 'client/components/Tables/styles'
 import { Tr } from 'client/components/HOC'
+import { rowStyles } from 'client/components/Tables/styles'
 import { T } from 'client/constants'
 
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, headerList, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, LOCK, REGTIME, PROVISION_ID } = value
 
@@ -68,6 +68,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

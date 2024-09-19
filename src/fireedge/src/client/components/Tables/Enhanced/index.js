@@ -17,7 +17,17 @@
 import PropTypes from 'prop-types'
 import { useEffect, useMemo, useState } from 'react'
 
-import { Alert, Box, Chip, Grid } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Chip,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material'
 import clsx from 'clsx'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import RemoveIcon from 'iconoir-react/dist/RemoveSquare'
@@ -83,6 +93,7 @@ const EnhancedTable = ({
   readOnly = false,
   tableViews,
   zoneId,
+  headerList,
 }) => {
   const styles = EnhancedTableStyles({
     readOnly: readOnly,
@@ -301,6 +312,84 @@ const EnhancedTable = ({
     )
   }
 
+  const DataListPerPage = ({ page: internalPage = [] }) => {
+    if (!internalPage.length) {
+      return ''
+    }
+
+    const valuesPerPages = internalPage.map((row) => {
+      prepareRow(row)
+
+      /** @type {UseRowSelectRowProps} */
+      const { getRowProps, original, values, toggleRowSelected, isSelected } =
+        row
+      const { key, ...rowProps } = getRowProps()
+
+      return (
+        <RowComponent
+          {...rowProps}
+          headerList={headerList}
+          zone={zoneId}
+          key={key}
+          original={original}
+          value={values}
+          {...(messageValues.length && {
+            globalErrors: messageValues,
+          })}
+          className={isSelected ? 'selected' : ''}
+          {...(!cannotFilterByLabel && {
+            onClickLabel: (label) => {
+              const currentFilter =
+                state.filters
+                  ?.filter(({ id }) => id === LABEL_COLUMN_ID)
+                  ?.map(({ value }) => value)
+                  ?.flat() || []
+
+              const nextFilter = [...new Set([...currentFilter, label])]
+              setFilter(LABEL_COLUMN_ID, nextFilter)
+            },
+          })}
+          onClick={(e) => {
+            typeof onRowClick === 'function' && onRowClick(original)
+
+            if (!disableRowSelect && !readOnly) {
+              if (
+                singleSelect ||
+                (!singleSelect && !(e.ctrlKey || e.metaKey))
+              ) {
+                toggleAllRowsSelected?.(false)
+              }
+              toggleRowSelected?.(!isSelected)
+            }
+          }}
+        />
+      )
+    })
+
+    return headerList ? (
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            {headerList.map(({ header = '', id = '' }) => (
+              <TableCell key={id} className={styles.cellHeaders}>
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>{valuesPerPages}</TableBody>
+      </Table>
+    ) : (
+      <>{valuesPerPages}</>
+    )
+  }
+
+  DataListPerPage.propTypes = {
+    page: PropTypes.any,
+  }
+
+  DataListPerPage.displayName = 'DataListPerPage'
+
   return (
     <Box
       {...getTableProps()}
@@ -376,7 +465,7 @@ const EnhancedTable = ({
         }}
       />
 
-      <div className={clsx(styles.body, classes.body)}>
+      <div className={clsx(styles.body, !headerList ? classes.body : '')}>
         {!!messages.length && <MessagesRowsAlerts />}
         {/* NO DATA MESSAGE */}
         {!isLoading &&
@@ -390,58 +479,7 @@ const EnhancedTable = ({
           ))}
 
         {/* DATALIST PER PAGE */}
-        {page.map((row) => {
-          prepareRow(row)
-
-          /** @type {UseRowSelectRowProps} */
-          const {
-            getRowProps,
-            original,
-            values,
-            toggleRowSelected,
-            isSelected,
-          } = row
-          const { key, ...rowProps } = getRowProps()
-
-          return (
-            <RowComponent
-              {...rowProps}
-              zone={zoneId}
-              key={key}
-              original={original}
-              value={values}
-              {...(messageValues.length && {
-                globalErrors: messageValues,
-              })}
-              className={isSelected ? 'selected' : ''}
-              {...(!cannotFilterByLabel && {
-                onClickLabel: (label) => {
-                  const currentFilter =
-                    state.filters
-                      ?.filter(({ id }) => id === LABEL_COLUMN_ID)
-                      ?.map(({ value }) => value)
-                      ?.flat() || []
-
-                  const nextFilter = [...new Set([...currentFilter, label])]
-                  setFilter(LABEL_COLUMN_ID, nextFilter)
-                },
-              })}
-              onClick={(e) => {
-                typeof onRowClick === 'function' && onRowClick(original)
-
-                if (!disableRowSelect && !readOnly) {
-                  if (
-                    singleSelect ||
-                    (!singleSelect && !(e.ctrlKey || e.metaKey))
-                  ) {
-                    toggleAllRowsSelected?.(false)
-                  }
-                  toggleRowSelected?.(!isSelected)
-                }
-              }}
-            />
-          )
-        })}
+        <DataListPerPage page={page} />
       </div>
     </Box>
   )
@@ -490,6 +528,7 @@ EnhancedTable.propTypes = {
   readOnly: PropTypes.bool,
   tableViews: PropTypes.object,
   zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

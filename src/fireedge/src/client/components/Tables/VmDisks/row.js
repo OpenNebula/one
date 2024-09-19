@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
 import { DiskCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, headerList, ...props }) => {
     const memoDisk = useMemo(() => original, [original])
 
     return <DiskCard disk={memoDisk} rootProps={props} />
@@ -33,6 +33,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'VmDiskRow'

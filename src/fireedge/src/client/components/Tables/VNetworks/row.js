@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import { jsonToXml } from 'client/models/Helper'
+import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
-import api, { useUpdateVNetMutation } from 'client/features/OneApi/network'
 import { NetworkCard } from 'client/components/Cards'
+import api, { useUpdateVNetMutation } from 'client/features/OneApi/network'
 
 const Row = memo(
-  ({ original, value, onClickLabel, ...props }) => {
+  ({ original, value, onClickLabel, headerList, ...props }) => {
     const [update] = useUpdateVNetMutation()
     const {
       data: vnetworks,
       error,
       isLoading,
-    } = api.endpoints.getVNetworks.useQuery(undefined)
+    } = api.endpoints.getVNetworks.useQueryState(undefined)
 
     const vnetwork = useMemo(
       () => vnetworks?.find((vnet) => +vnet.ID === +original.ID) ?? original,
@@ -69,6 +69,7 @@ Row.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'VirtualNetworkRow'

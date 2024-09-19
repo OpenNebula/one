@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetMarketplacesQuery } from 'client/features/OneApi/marketplace'
-
+import { Tr } from 'client/components/HOC'
+import { LinearProgressWithLabel, StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { MARKET_THRESHOLD, RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetMarketplacesQuery } from 'client/features/OneApi/marketplace'
+import { getCapacityInfo, getState } from 'client/models/Datastore'
 
 const DEFAULT_DATA_CY = 'marketplaces'
 
@@ -53,6 +56,52 @@ const MarketplacesTable = ({ filter, ...props }) => {
     [view]
   )
 
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (vm) => {
+        const { color: stateColor, name: stateName } = getState(vm)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Capacity,
+      id: 'capacity',
+      accessor: (template) => {
+        const capacity = useMemo(() => getCapacityInfo(template), [template])
+        const { percentOfUsed, percentLabel } = capacity
+
+        return (
+          <LinearProgressWithLabel
+            value={percentOfUsed}
+            label={percentLabel}
+            high={MARKET_THRESHOLD.CAPACITY.high}
+            low={MARKET_THRESHOLD.CAPACITY.low}
+            title={Tr(T.UsedOfTotal)}
+          />
+        )
+      },
+    },
+    {
+      header: T.Apps,
+      id: 'apps',
+      accessor: ({ MARKETPLACEAPPS }) =>
+        useMemo(
+          () => [MARKETPLACEAPPS?.ID ?? []].flat().length || 0,
+          [MARKETPLACEAPPS?.ID]
+        ),
+    },
+    { header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
+  ]
+
+  const { component, header } = WrapperRow(MarketplaceRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -62,7 +111,8 @@ const MarketplacesTable = ({ filter, ...props }) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={MarketplaceRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

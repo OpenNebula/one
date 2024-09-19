@@ -18,17 +18,26 @@ import { ReactElement, useMemo } from 'react'
 import { useViews } from 'client/features/Auth'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
 
+import { ConsoleButton } from 'client/components/Buttons'
+import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
 import {
   RESOURCE_NAMES,
   STATES,
+  T,
+  VM_ACTIONS,
   VM_EXTENDED_POOL,
   VM_STATES,
 } from 'client/constants'
+import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
 
 const DEFAULT_DATA_CY = 'vms'
+
+const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
+const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 /**
  * @param {object} props - Props
@@ -120,6 +129,61 @@ const VmsTable = (props) => {
       }),
     [view]
   )
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (vm) => {
+        const {
+          color: stateColor,
+          name: stateName,
+          displayName: stateDisplayName,
+        } = getState(vm)
+
+        return (
+          <StatusCircle
+            color={stateColor}
+            tooltip={stateDisplayName ?? stateName}
+          />
+        )
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.State,
+      id: 'state',
+      accessor: (vm) => getState(vm)?.name,
+    },
+    {
+      header: T.Hostname,
+      id: 'hostname',
+      accessor: (vm) => getLastHistory(vm)?.HOSTNAME,
+    },
+    {
+      header: T.IP,
+      id: 'ips',
+      accessor: (vm) => getIps(vm).join(),
+    },
+    {
+      header: '',
+      id: 'consoles',
+      accessor: (vm) => (
+        <>
+          {CONNECTION_TYPES.map((connectionType) => (
+            <ConsoleButton
+              key={`${vm}-${connectionType}`}
+              connectionType={connectionType}
+              vm={vm}
+            />
+          ))}
+        </>
+      ),
+    },
+  ]
+  const { component, header } = WrapperRow(VmRow)
 
   return (
     <EnhancedTable
@@ -130,8 +194,9 @@ const VmsTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VmRow}
       initialState={initialState}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

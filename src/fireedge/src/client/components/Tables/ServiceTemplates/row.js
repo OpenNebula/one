@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
+import { ServiceTemplateCard } from 'client/components/Cards'
 import serviceTemplateApi, {
   useUpdateServiceTemplateMutation,
 } from 'client/features/OneApi/serviceTemplate'
-import { ServiceTemplateCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, headerList, ...props }) => {
     const [update] = useUpdateServiceTemplateMutation()
 
     const state =
@@ -63,6 +63,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'ServiceTemplateRow'

@@ -18,6 +18,7 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useViews } from 'client/features/Auth'
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 
+import { LinearProgressWithLabel, StatusCircle } from 'client/components/Status'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
@@ -25,7 +26,9 @@ import {
   areArraysEqual,
   sortStateTables,
 } from 'client/components/Tables/Enhanced/Utils/DataTableUtils'
-import { RESOURCE_NAMES } from 'client/constants'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
+import { DS_THRESHOLD, RESOURCE_NAMES, T } from 'client/constants'
+import { getCapacityInfo, getState, getType } from 'client/models/Datastore'
 import { useFormContext } from 'react-hook-form'
 
 const DEFAULT_DATA_CY = 'datastores'
@@ -135,6 +138,58 @@ const DatastoresTable = (props) => {
     }
   })
 
+  const listHeader = [
+    {
+      header: T.Status,
+      id: 'status',
+      accessor: (template) => {
+        const { color: stateColor, name: stateName } = getState(template)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Capacity,
+      id: 'capacity',
+      accessor: (template) => {
+        const capacity = useMemo(() => getCapacityInfo(template), [template])
+        const { percentOfUsed, percentLabel } = capacity
+
+        return (
+          <LinearProgressWithLabel
+            value={percentOfUsed}
+            label={percentLabel}
+            high={DS_THRESHOLD.CAPACITY.high}
+            low={DS_THRESHOLD.CAPACITY.low}
+            title={T.UsedOfTotal}
+          />
+        )
+      },
+    },
+    {
+      header: T.Cluster,
+      id: 'cluster',
+      accessor: ({ CLUSTERS }) => {
+        const clusters = useMemo(
+          () => [CLUSTERS?.ID ?? []].flat(),
+          [CLUSTERS?.ID]
+        )
+
+        return clusters.length && clusters[0]
+      },
+    },
+    {
+      header: T.Type,
+      id: 'type',
+      accessor: (template) => getType(template),
+    },
+  ]
+  const { component, header } = WrapperRow(DatastoreRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -144,8 +199,9 @@ const DatastoresTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={DatastoreRow}
       dataDepend={values}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

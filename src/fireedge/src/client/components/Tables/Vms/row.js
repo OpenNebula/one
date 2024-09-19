@@ -26,7 +26,7 @@ const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
 const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 const Row = memo(
-  ({ original, value, onClickLabel, globalErrors, ...props }) => {
+  ({ original, value, onClickLabel, globalErrors, headerList, ...props }) => {
     const [update] = useUpdateUserTemplateMutation()
 
     const state = vmApi.endpoints.getVms.useQueryState(
@@ -83,6 +83,7 @@ Row.propTypes = {
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
   globalErrors: PropTypes.array,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'VirtualMachineRow'

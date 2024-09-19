@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
+import VDCColumns from 'client/components/Tables/VirtualDataCenters/columns'
+import VDCRow from 'client/components/Tables/VirtualDataCenters/row'
+import { ALL_SELECTED, RESOURCE_NAMES, T } from 'client/constants'
 import { useViews } from 'client/features/Auth'
 import { useGetVDCsQuery } from 'client/features/OneApi/vdc'
 
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
-import VDCColumns from 'client/components/Tables/VirtualDataCenters/columns'
-import VDCRow from 'client/components/Tables/VirtualDataCenters/row'
-import { RESOURCE_NAMES } from 'client/constants'
-
 const DEFAULT_DATA_CY = 'vdcs'
+
+const isAllSelected = (resourceArray) =>
+  resourceArray.length === 1 && resourceArray[0] === ALL_SELECTED
 
 /**
  * @param {object} props - Props
@@ -46,6 +49,75 @@ const VDCsTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    {
+      header: T.Groups,
+      id: 'group',
+      accessor: ({ GROUPS }) =>
+        useMemo(() => {
+          const { ID: groupsIds = [] } = GROUPS
+          const groupsArray = Array.isArray(groupsIds) ? groupsIds : [groupsIds]
+
+          return groupsArray.length
+        }, [GROUPS.ID]),
+    },
+    {
+      header: T.Clusters,
+      id: 'clusters',
+      accessor: ({ CLUSTERS }) =>
+        useMemo(() => {
+          const { CLUSTER: clustersInfo = [] } = CLUSTERS
+          const clustersArray = (
+            Array.isArray(clustersInfo) ? clustersInfo : [clustersInfo]
+          ).map((cluster) => cluster.CLUSTER_ID)
+
+          return isAllSelected(clustersArray) ? T.All : clustersArray.length
+        }, [CLUSTERS.CLUSTER]),
+    },
+    {
+      header: T.Hosts,
+      id: 'hosts',
+      accessor: ({ HOSTS }) =>
+        useMemo(() => {
+          const { HOST: hostsInfo = [] } = HOSTS
+          const hostsArray = (
+            Array.isArray(hostsInfo) ? hostsInfo : [hostsInfo]
+          ).map((host) => host.HOST_ID)
+
+          return isAllSelected(hostsArray) ? T.All : hostsArray.length
+        }, [HOSTS.HOST]),
+    },
+    {
+      header: T.Vnets,
+      id: 'vnets',
+      accessor: ({ VNETS }) =>
+        useMemo(() => {
+          const { VNET: vnetsInfo = [] } = VNETS
+          const vnetsArray = (
+            Array.isArray(vnetsInfo) ? vnetsInfo : [vnetsInfo]
+          ).map((vnet) => vnet.VNET_ID)
+
+          return isAllSelected(vnetsArray) ? T.All : vnetsArray.length
+        }, [VNETS.VNET]),
+    },
+    {
+      header: T.Datastores,
+      id: 'datastores',
+      accessor: ({ DATASTORES }) =>
+        useMemo(() => {
+          const { DATASTORE: datastoresInfo = [] } = DATASTORES
+          const datastoresArray = (
+            Array.isArray(datastoresInfo) ? datastoresInfo : [datastoresInfo]
+          ).map((ds) => ds.DATASTORE_ID)
+
+          return isAllSelected(datastoresArray) ? T.All : datastoresArray.length
+        }, [DATASTORES.DATASTORE]),
+    },
+  ]
+  const { component, header } = WrapperRow(VDCRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -55,7 +127,8 @@ const VDCsTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VDCRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

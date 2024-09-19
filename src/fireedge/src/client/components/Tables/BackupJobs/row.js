@@ -23,7 +23,7 @@ import backupjobApi, {
 import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, onClickLabel, ...props }) => {
+  ({ original, value, onClickLabel, headerList, ...props }) => {
     const [update] = useUpdateBackupJobMutation()
 
     const state = backupjobApi.endpoints.getBackupJobs.useQueryState(
@@ -67,6 +67,7 @@ Row.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'VirtualDataCenterRow'

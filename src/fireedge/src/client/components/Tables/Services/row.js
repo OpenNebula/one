@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
-import serviceApi from 'client/features/OneApi/service'
 import { ServiceCard } from 'client/components/Cards'
+import serviceApi from 'client/features/OneApi/service'
 
 const Row = memo(
-  ({ original, value, ...props }) => {
+  ({ original, value, headerList, ...props }) => {
     const state = serviceApi.endpoints.getServices.useQueryState(undefined, {
       selectFromResult: ({ data = [] }) =>
         data.find((service) => +service.ID === +original.ID),
@@ -39,6 +39,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'ServiceRow'

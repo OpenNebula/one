@@ -15,13 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
-
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetTemplatesQuery } from 'client/features/OneApi/vmTemplate'
+import { timeToString } from 'client/models/Helper'
 
 const DEFAULT_DATA_CY = 'vm-templates'
 
@@ -47,6 +48,20 @@ const VmTemplatesTable = (props) => {
   )
   useEffect(() => refetch(), [])
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.RegistrationTime,
+      id: 'registration-time',
+      accessor: (vm) => timeToString(vm.REGTIME),
+    },
+  ]
+
+  const { component, header } = WrapperRow(VmTemplateRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -56,7 +71,8 @@ const VmTemplatesTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={VmTemplateRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

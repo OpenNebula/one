@@ -17,15 +17,15 @@
 import PropTypes from 'prop-types'
 
 import { Typography } from '@mui/material'
-import { HomeShield } from 'iconoir-react'
 import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
 import { StatusCircle } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
+import { T } from 'client/constants'
+import { HomeShield } from 'iconoir-react'
 
 import * as ZoneModel from 'client/models/Zone'
 
-const Row = ({ original, value, ...props }) => {
+const Row = ({ original, value, headerList, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, ENDPOINT } = value
 
@@ -57,6 +57,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 export default Row

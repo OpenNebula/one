@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
 import PropTypes from 'prop-types'
+import { memo } from 'react'
 
 import { SupportCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, ...props }) => (
+  ({ original, value, headerList, ...props }) => (
     <SupportCard ticket={original} rootProps={props} />
   ),
   (prev, next) => prev.className === next.className
@@ -31,6 +31,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   className: PropTypes.string,
   onClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'SupportRow'

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
-import { useViews } from 'client/features/Auth'
-import { useGetUsersQuery } from 'client/features/OneApi/user'
-
+import { LinearProgressWithTooltip } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import UserColumns from 'client/components/Tables/Users/columns'
 import UserRow from 'client/components/Tables/Users/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { getQuotaUsage } from 'client/models/User'
 
 const DEFAULT_DATA_CY = 'users'
 
@@ -52,6 +54,76 @@ const UsersTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Enabled,
+      id: 'enabled',
+      accessor: ({ ENABLED }) => (+ENABLED ? T.Yes : T.No),
+    },
+    { header: T.AuthDriver, id: 'auth-driver', accessor: 'AUTH_DRIVER' },
+    {
+      header: T.VMs,
+      id: 'vms',
+      accessor: ({ VM_QUOTA }) => {
+        const vmQuotaUsage = useMemo(
+          () => getQuotaUsage('VM', VM_QUOTA),
+          [VM_QUOTA]
+        )
+
+        return (
+          <LinearProgressWithTooltip
+            value={vmQuotaUsage.vms.percentOfUsed}
+            label={vmQuotaUsage.vms.percentLabel}
+            tooltipTitle={T.VMCount}
+            icon=""
+          />
+        )
+      },
+    },
+    {
+      header: T.Datastores,
+      id: 'datastores',
+      accessor: ({ DATASTORE_QUOTA }) => {
+        const datastoreQuotaUsage = useMemo(
+          () => getQuotaUsage('DATASTORE', DATASTORE_QUOTA),
+          [DATASTORE_QUOTA]
+        )
+
+        return (
+          <LinearProgressWithTooltip
+            value={datastoreQuotaUsage.size.percentOfUsed}
+            label={datastoreQuotaUsage.size.percentLabel}
+            tooltipTitle={T.DatastoreSize}
+            icon=""
+          />
+        )
+      },
+    },
+    {
+      header: T.Networks,
+      id: 'networks',
+      accessor: ({ NETWORK_QUOTA }) => {
+        const networkQuotaUsage = useMemo(
+          () => getQuotaUsage('NETWORK', NETWORK_QUOTA),
+          [NETWORK_QUOTA]
+        )
+
+        return (
+          <LinearProgressWithTooltip
+            value={networkQuotaUsage.leases.percentOfUsed}
+            label={networkQuotaUsage.leases.percentLabel}
+            tooltipTitle={T.NetworkLeases}
+            icon=""
+          />
+        )
+      },
+    },
+  ]
+  const { component, header } = WrapperRow(UserRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -61,7 +133,8 @@ const UsersTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={UserRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

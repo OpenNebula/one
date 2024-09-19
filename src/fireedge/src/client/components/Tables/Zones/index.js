@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetZonesQuery } from 'client/features/OneApi/zone'
+import { ReactElement, useMemo } from 'react'
 
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import ZoneColumns from 'client/components/Tables/Zones/columns'
 import ZoneRow from 'client/components/Tables/Zones/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetZonesQuery } from 'client/features/OneApi/zone'
 
 const DEFAULT_DATA_CY = 'zones'
 
@@ -46,6 +46,13 @@ const ZonesTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Endpoint, id: 'endpoint', accessor: 'TEMPLATE.ENDPOINT' },
+  ]
+  const { component, header } = WrapperRow(ZoneRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -55,7 +62,8 @@ const ZonesTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={ZoneRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

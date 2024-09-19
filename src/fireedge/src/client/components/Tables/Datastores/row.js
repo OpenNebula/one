@@ -13,27 +13,34 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback, useMemo } from 'react'
+import { jsonToXml } from 'client/models/Helper'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useMemo } from 'react'
 
-import {
-  useGetDatastoresQuery,
+import { DatastoreCard } from 'client/components/Cards'
+import api, {
   useUpdateDatastoreMutation,
 } from 'client/features/OneApi/datastore'
-import { DatastoreCard } from 'client/components/Cards'
-import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, onClickLabel, ...props }) => {
-    const { data: datastores } = useGetDatastoresQuery(undefined)
-    const selectedDatastore = datastores?.find(
-      (datastore) => +datastore.ID === +original.ID
-    )
+  ({ original, value, onClickLabel, zone, headerList, ...props }) => {
     const [update] = useUpdateDatastoreMutation()
+    const {
+      data: datastores,
+      error,
+      isLoading,
+    } = api.endpoints.getDatastores.useQueryState({ zone })
+
+    const selectedDatastore = useMemo(
+      () =>
+        datastores?.find((datastore) => +datastore.ID === +original.ID) ??
+        original,
+      [datastores, original]
+    )
 
     const memoDs = useMemo(
       () => selectedDatastore ?? original,
-      [datastores, original]
+      [selectedDatastore, original, update, isLoading, error, datastores]
     )
 
     const handleDeleteLabel = useCallback(
@@ -62,7 +69,10 @@ const Row = memo(
 
 Row.propTypes = {
   original: PropTypes.object,
+  value: PropTypes.object,
   onClickLabel: PropTypes.func,
+  zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
 }
 
 Row.displayName = 'DatastoreRow'

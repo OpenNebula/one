@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
-
+import { StatusCircle } from 'client/components/Status'
 import { useViews } from 'client/features/Auth'
 import { useGetBackupsQuery } from 'client/features/OneApi/image'
+import { ReactElement, useMemo } from 'react'
 
-import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import backupColumns from 'client/components/Tables/Backups/columns'
 import BackupRow from 'client/components/Tables/Backups/row'
-import { RESOURCE_NAMES } from 'client/constants'
+import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { getState, getType } from 'client/models/Image'
 
 const DEFAULT_DATA_CY = 'backups'
 
@@ -87,6 +89,26 @@ const BackupsTable = (props) => {
   const isFetchingAll = () =>
     isFetchingVm ? !!(isFetchingVm && isFetching) : isFetching
 
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (template) => {
+        const { color: stateColor, name: stateName } = getState(template)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
+    { header: T.Type, id: 'type', accessor: (template) => getType(template) },
+  ]
+
+  const { component, header } = WrapperRow(BackupRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -96,7 +118,8 @@ const BackupsTable = (props) => {
       refetch={refetchAll}
       isLoading={isFetchingAll()}
       getRowId={(row) => String(row.ID)}
-      RowComponent={BackupRow}
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )
