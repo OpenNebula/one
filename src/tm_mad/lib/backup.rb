@@ -351,7 +351,7 @@ module TransferManager
                 d.delete('SIZE')
 
                 # CDROM keeps original image_id
-                next if type == 'CDROM'
+                next if ['CDROM', 'RBD_CDROM'].include?(type)
 
                 d['IMAGE_ID'] = bck_disks[id][:image_id].to_s
             end

@@ -35,22 +35,34 @@ module TransferManager
             def initialize(vmid, disk_xml)
                 disk_xml = REXML::Document.new(disk_xml) if disk_xml.is_a?(String)
 
-                @id     = disk_xml.elements['DISK_ID'].text.to_i
-                @vmid   = vmid
-                @source = disk_xml.elements['SOURCE'].text
-                @clone  = disk_xml.elements['CLONE'].text == 'YES'
+                @id   = disk_xml.elements['DISK_ID'].text.to_i
+                @vmid = vmid
+                @type = disk_xml.elements['TYPE'].text
+                @pool = disk_xml.elements['POOL_NAME'].text
 
-                @rbd_image =
-                    if @clone
-                        "#{@source}-#{@vmid}-#{@id}"
-                    else
-                        @source
-                    end
+                if volatile?
+                    @source      = nil
+                    @clone       = nil
+                    @rbd_image   = "#{@pool}/one-sys-#{vmid}-#{id}"
+                else
+                    @source      = disk_xml.elements['SOURCE'].text
+                    @clone       = disk_xml.elements['CLONE'].text == 'YES'
+                    @rbd_image   =
+                        if @clone
+                            "#{@source}-#{@vmid}-#{@id}"
+                        else
+                            @source
+                        end
+                end
 
                 @rbd_cmd = 'rbd'
                 @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_USER', '--id')
                 @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_KEY', '--keyfile')
                 @rbd_cmd += Ceph.xml_opt(disk_xml, 'CEPH_CONF', '--conf')
+            end
+
+            def volatile?
+                ['fs', 'swap'].include?(@type)
             end
 
             # @return [String] Shell definitions for functionality related to this disk
@@ -85,7 +97,7 @@ module TransferManager
             ## CLASS METHODS
 
             # @param vm_xml [String, REXML::Document, REXML::Element]
-            # @return [Array(Disk)] indexed VM disks (disk id = position in array)
+            # @return [Array(Disk), nil] indexed VM disks (disk id = position in array)
             def self.from_vm(vm_xml)
                 vm_xml  = REXML::Document.new(vm_xml) if vm_xml.is_a?(String)
                 vm      = vm_xml.root

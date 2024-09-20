@@ -1629,6 +1629,7 @@ void VirtualMachineDisks::backup_disk_ids(bool do_volatile, std::vector<int>& id
 
         if ((type == "SWAP") ||
             (type == "CDROM") ||
+            (type == "RBD_CDROM") ||
             ((type == "FS") && !do_volatile))
         {
             continue;
