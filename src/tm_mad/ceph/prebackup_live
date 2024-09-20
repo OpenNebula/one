@@ -54,6 +54,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'rexml/document'
 
 require_relative '../lib/tm_action'
+require_relative '../lib/ceph'
 require_relative '../lib/kvm'
 require_relative '../lib/datastore'
 
@@ -92,6 +93,9 @@ vm      = xml_doc.root
 
 ds = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml)
 
+action = TransferManager::Action.new(:action_name => 'prebackup_live',
+                                     :vm_id => vmid)
+
 base_path = ENV['BACKUP_BASE_PATH']
 
 bck_dir = if base_path
@@ -105,22 +109,13 @@ expo_cmd = ''
 conv_cmd = ''
 clup_cmd = ''
 
-vm.elements.each 'TEMPLATE/DISK' do |d|
-    did = d.elements['DISK_ID'].text
-    next unless disks.include? did
+ceph_disks = TransferManager::Ceph::Disk.from_vm(action.vm.template_xml)
+ceph_disks.compact.each do |d|
+    did = d.id
+    next unless disks.include? did.to_s
 
-    src  = d.elements['SOURCE'].text
-    clon = d.elements['CLONE'].text
-
-    rbd_src = if clon == 'NO'
-                  src
-              else
-                  "#{src}-#{vmid}-#{did}"
-              end
-
-    cmd = rbd_append('rbd', d, 'CEPH_USER', '--id')
-    cmd = rbd_append(cmd, d, 'CEPH_KEY', '--keyfile')
-    cmd = rbd_append(cmd, d, 'CEPH_CONF', '--conf')
+    rbd_src = d.rbd_image
+    cmd     = d.rbd_cmd
 
     draw = "#{bck_dir}/disk.#{did}.raw"
     ddst = "#{bck_dir}/disk.#{did}.0"
@@ -173,10 +168,10 @@ script = <<~EOS
     #{clup_cmd}
 EOS
 
-rc = TransferManager::Action.ssh('prebackup_live', :host => rhost,
-                                 :cmds => script,
-                                 :nostdout => false,
-                                 :nostderr => false)
+rc = action.ssh(:host => rhost,
+                :cmds => script,
+                :nostdout => false,
+                :nostderr => false)
 
 if rc.code != 0
     STDERR.puts "Error preparing disk files: #{rc.stdout} #{rc.stderr}"
