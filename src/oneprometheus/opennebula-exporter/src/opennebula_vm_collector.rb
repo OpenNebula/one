@@ -70,7 +70,7 @@ class OpenNebulaVMCollector
         'vm_mem_total_bytes' => {
             :type   => :gauge,
             :docstr => 'Total memory capacity',
-            :value  => ->(v) { Integer(v['TEMPLATE/MEMORY']) * 1024 },
+            :value  => ->(v) { Integer(v['TEMPLATE/MEMORY']) * 1024 * 1024},
             :labels => LABELS
         },
         'vm_cpu_ratio' => {
