@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
 import { Alert } from '@mui/material'
-
-import { useViews } from 'client/features/Auth'
-import { useGetServiceTemplatesQuery } from 'client/features/OneApi/serviceTemplate'
-
+import { Translate } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import ServiceTemplateColumns from 'client/components/Tables/ServiceTemplates/columns'
 import ServiceTemplateRow from 'client/components/Tables/ServiceTemplates/row'
-import { Translate } from 'client/components/HOC'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import Timer from 'client/components/Timer'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGetServiceTemplatesQuery } from 'client/features/OneApi/serviceTemplate'
+import {
+  getColorFromString,
+  getUniqueLabels,
+  timeFromMilliseconds,
+} from 'client/models/Helper'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'service-templates'
 
@@ -53,6 +59,49 @@ const ServiceTemplatesTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    {
+      header: T.StartTime,
+      id: 'start-time',
+      accessor: ({
+        TEMPLATE: { BODY: { registration_time: regTime } = {} },
+      }) => {
+        const time = useMemo(() => timeFromMilliseconds(+regTime), [regTime])
+
+        return <Timer translateWord={T.RegisteredAt} initial={time} />
+      },
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { BODY: { labels: LABELS = {} } = {} } }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
+  ]
+  const { component, header } = WrapperRow(ServiceTemplateRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -62,7 +111,6 @@ const ServiceTemplatesTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={ServiceTemplateRow}
       noDataMessage={
         error?.status === 500 && (
           <Alert severity="error" variant="outlined">
@@ -70,6 +118,8 @@ const ServiceTemplatesTable = (props) => {
           </Alert>
         )
       }
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

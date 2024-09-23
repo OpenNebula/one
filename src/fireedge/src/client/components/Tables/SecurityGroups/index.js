@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-
+import MultipleTags from 'client/components/MultipleTags'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import SecurityGroupColumns from 'client/components/Tables/SecurityGroups/columns'
 import SecurityGroupsRow from 'client/components/Tables/SecurityGroups/row'
 import { RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetSecGroupsQuery } from 'client/features/OneApi/securityGroup'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'secgroup'
 
@@ -56,6 +57,31 @@ const SecurityGroupsTable = (props) => {
     { header: T.Name, id: 'name', accessor: 'NAME' },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(SecurityGroupsRow)

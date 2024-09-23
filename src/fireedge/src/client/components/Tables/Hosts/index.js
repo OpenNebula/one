@@ -16,6 +16,7 @@
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Tr } from 'client/components/HOC'
+import MultipleTags from 'client/components/MultipleTags'
 import { LinearProgressWithLabel, StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import {
@@ -26,8 +27,9 @@ import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
 import { HOST_THRESHOLD, RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getAllocatedInfo, getState } from 'client/models/Host'
 import { useFormContext } from 'react-hook-form'
 
@@ -193,6 +195,31 @@ const HostsTable = (props) => {
             color={colorMem}
           />
         )
+      },
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
       },
     },
   ]

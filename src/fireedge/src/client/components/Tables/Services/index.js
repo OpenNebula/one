@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
 import { Alert } from '@mui/material'
-
-import { useViews } from 'client/features/Auth'
-import { useGetServicesQuery } from 'client/features/OneApi/service'
-
+import { Translate } from 'client/components/HOC'
+import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
+import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import ServiceColumns from 'client/components/Tables/Services/columns'
 import ServiceRow from 'client/components/Tables/Services/row'
-import { Translate } from 'client/components/HOC'
-import { T, RESOURCE_NAMES } from 'client/constants'
+import Timer from 'client/components/Timer'
+import { RESOURCE_NAMES, T } from 'client/constants'
+import { useViews } from 'client/features/Auth'
+import { useGetServicesQuery } from 'client/features/OneApi/service'
+import { timeFromMilliseconds } from 'client/models/Helper'
+import { getState } from 'client/models/Service'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'services'
 
@@ -48,6 +51,35 @@ const ServicesTable = (props) => {
     [view]
   )
 
+  const listHeader = [
+    {
+      header: '',
+      id: 'status-icon',
+      accessor: (service) => {
+        const { color: stateColor, name: stateName } = getState(service)
+
+        return <StatusCircle color={stateColor} tooltip={stateName} />
+      },
+    },
+    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
+    { header: T.Name, id: 'name', accessor: 'NAME' },
+    {
+      header: T.StartTime,
+      id: 'start-time',
+      accessor: ({ TEMPLATE: { BODY: { start_time: startTime } = {} } }) => {
+        const time = useMemo(
+          () => timeFromMilliseconds(+startTime),
+          [startTime]
+        )
+
+        return <Timer translateWord={T.RegisteredAt} initial={time} />
+      },
+    },
+  ]
+  const { component, header } = WrapperRow(ServiceRow)
+
   return (
     <EnhancedTable
       columns={columns}
@@ -57,7 +89,6 @@ const ServicesTable = (props) => {
       refetch={refetch}
       isLoading={isFetching}
       getRowId={(row) => String(row.ID)}
-      RowComponent={ServiceRow}
       noDataMessage={
         error?.status === 500 && (
           <Alert severity="error" variant="outlined">
@@ -65,6 +96,8 @@ const ServicesTable = (props) => {
           </Alert>
         )
       }
+      RowComponent={component}
+      headerList={header && listHeader}
       {...rest}
     />
   )

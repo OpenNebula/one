@@ -15,7 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
+
 import { ConsoleButton } from 'client/components/Buttons'
+import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
@@ -29,9 +33,7 @@ import {
   VM_EXTENDED_POOL,
   VM_STATES,
 } from 'client/constants'
-import { useViews } from 'client/features/Auth'
-import { useGeneral } from 'client/features/General'
-import { useGetVmsQuery } from 'client/features/OneApi/vm'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
 const DEFAULT_DATA_CY = 'vms'
 
@@ -185,8 +187,33 @@ const VmsTable = (props) => {
           ))}
         </>
       ),
-    })
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ USER_TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
 
+              return acc
+            }, []),
+
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
+  ]
   const { component, header } = WrapperRow(VmRow)
 
   return (

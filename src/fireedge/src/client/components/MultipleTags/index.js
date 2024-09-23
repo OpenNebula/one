@@ -14,12 +14,26 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Stack, Tooltip, Typography, styled } from '@mui/material'
-import PropTypes from 'prop-types'
-import { ReactElement, isValidElement, useMemo } from 'react'
-
 import { Translate } from 'client/components/HOC'
 import { StatusChip } from 'client/components/Status'
 import { T } from 'client/constants'
+import PropTypes from 'prop-types'
+import { ReactElement, isValidElement, useMemo } from 'react'
+
+/**
+ * Truncate string.
+ *
+ * @param {string} label - string.
+ * @param {number} [maxLength] - max lenght.
+ * @returns {string} - string truncated
+ */
+const truncateLabel = (label, maxLength) => {
+  if (label.length > maxLength) {
+    return `${label.substring(0, maxLength)}...`
+  }
+
+  return label
+}
 
 const StyledText = styled(Typography)(({ theme }) => ({
   '&': {
@@ -40,9 +54,15 @@ const StyledText = styled(Typography)(({ theme }) => ({
  * @param {string[]|TagType} props.tags - Tags to display
  * @param {number} [props.limitTags] - Limit the number of tags to display
  * @param {boolean} [props.clipboard] - If true, the chip will be clickable
+ * @param {false|number} [props.truncateText] - number by truncate the string
  * @returns {ReactElement} - Tag list
  */
-const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
+const MultipleTags = ({
+  tags,
+  limitTags = 1,
+  clipboard = false,
+  truncateText = false,
+}) => {
   if (tags?.length === 0) {
     return null
   }
@@ -53,6 +73,7 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
         if (isValidElement(tag)) return tag
 
         const text = tag.text ?? tag
+        truncateText && (tag.text = truncateLabel(text, truncateText))
 
         return (
           <StatusChip
@@ -92,9 +113,11 @@ const MultipleTags = ({ tags, limitTags = 1, clipboard = false }) => {
 }
 
 MultipleTags.propTypes = {
-  tags: PropTypes.array,
-  clipboard: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  tags: PropTypes.any,
   limitTags: PropTypes.number,
+  clipboard: PropTypes.bool,
+  truncateText: PropTypes.bool,
 }
+MultipleTags.displayName = 'MultipleTags'
 
 export default MultipleTags

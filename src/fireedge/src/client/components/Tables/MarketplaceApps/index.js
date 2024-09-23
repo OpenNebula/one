@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import MarketplaceAppColumns from 'client/components/Tables/MarketplaceApps/columns'
 import MarketplaceAppRow from 'client/components/Tables/MarketplaceApps/row'
 import { RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetMarketplaceAppsQuery } from 'client/features/OneApi/marketplaceApp'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getState, getType } from 'client/models/MarketplaceApp'
 import { prettyBytes } from 'client/utils'
 import { ReactElement, useMemo } from 'react'
@@ -89,6 +91,30 @@ const MarketplaceAppsTable = (props) => {
       accessor: 'MARKETPLACE',
     },
     { header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(MarketplaceAppRow)

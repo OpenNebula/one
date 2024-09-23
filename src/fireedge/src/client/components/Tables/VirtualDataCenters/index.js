@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-
+import MultipleTags from 'client/components/MultipleTags'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import VDCColumns from 'client/components/Tables/VirtualDataCenters/columns'
 import VDCRow from 'client/components/Tables/VirtualDataCenters/row'
 import { ALL_SELECTED, RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetVDCsQuery } from 'client/features/OneApi/vdc'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'vdcs'
 
@@ -114,6 +115,30 @@ const VDCsTable = (props) => {
 
           return isAllSelected(datastoresArray) ? T.All : datastoresArray.length
         }, [DATASTORES.DATASTORE]),
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
     },
   ]
   const { component, header } = WrapperRow(VDCRow)
