@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 
 import {
   Alert,
@@ -61,6 +61,113 @@ import { T } from 'client/constants'
 import _ from 'lodash'
 
 const RELOAD_STATE = 'RELOAD_STATE'
+
+const DataListPerPage = memo(
+  ({
+    page = [],
+    prepareRow,
+    RowComponent,
+    headerList,
+    messageValues,
+    setFilter,
+    state,
+    disableRowSelect,
+    onRowClick,
+    readOnly,
+    singleSelect,
+    toggleAllRowsSelected,
+    zoneId,
+    cannotFilterByLabel,
+    styles,
+  }) => {
+    if (!page.length) {
+      return ''
+    }
+
+    const valuesPerPages = page.map((row) => {
+      prepareRow(row)
+      /** @type {UseRowSelectRowProps} */
+      const { getRowProps, original, values, toggleRowSelected, isSelected } =
+        row
+      const { key, ...rowProps } = getRowProps()
+
+      return (
+        <RowComponent
+          {...rowProps}
+          headerList={headerList}
+          zone={zoneId}
+          key={key}
+          original={original}
+          value={values}
+          {...(messageValues.length && {
+            globalErrors: messageValues,
+          })}
+          className={isSelected ? 'selected' : ''}
+          {...(!cannotFilterByLabel && {
+            onClickLabel: (label) => {
+              const currentFilter =
+                state.filters
+                  ?.filter(({ id }) => id === LABEL_COLUMN_ID)
+                  ?.map(({ value }) => value)
+                  ?.flat() || []
+              const nextFilter = [...new Set([...currentFilter, label])]
+              setFilter(LABEL_COLUMN_ID, nextFilter)
+            },
+          })}
+          onClick={(e) => {
+            typeof onRowClick === 'function' && onRowClick(original)
+            if (!disableRowSelect && !readOnly) {
+              if (
+                singleSelect ||
+                (!singleSelect && !(e.ctrlKey || e.metaKey))
+              ) {
+                toggleAllRowsSelected?.(false)
+              }
+              toggleRowSelected?.(!isSelected)
+            }
+          }}
+        />
+      )
+    })
+
+    return headerList ? (
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            {headerList.map(({ header = '', id = '' }) => (
+              <TableCell key={id} className={styles.cellHeaders}>
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>{valuesPerPages}</TableBody>
+      </Table>
+    ) : (
+      <>{valuesPerPages}</>
+    )
+  }
+)
+
+DataListPerPage.propTypes = {
+  page: PropTypes.any,
+  prepareRow: PropTypes.func,
+  RowComponent: PropTypes.any,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  messageValues: PropTypes.array,
+  setFilter: PropTypes.func,
+  state: PropTypes.any,
+  disableRowSelect: PropTypes.func,
+  onRowClick: PropTypes.func,
+  readOnly: PropTypes.bool,
+  singleSelect: PropTypes.bool,
+  toggleAllRowsSelected: PropTypes.func,
+  zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  cannotFilterByLabel: PropTypes.any,
+  styles: PropTypes.any,
+}
+
+DataListPerPage.displayName = 'DataListPerPage'
 
 const EnhancedTable = ({
   columns,
@@ -312,84 +419,6 @@ const EnhancedTable = ({
     )
   }
 
-  const DataListPerPage = ({ page: internalPage = [] }) => {
-    if (!internalPage.length) {
-      return ''
-    }
-
-    const valuesPerPages = internalPage.map((row) => {
-      prepareRow(row)
-
-      /** @type {UseRowSelectRowProps} */
-      const { getRowProps, original, values, toggleRowSelected, isSelected } =
-        row
-      const { key, ...rowProps } = getRowProps()
-
-      return (
-        <RowComponent
-          {...rowProps}
-          headerList={headerList}
-          zone={zoneId}
-          key={key}
-          original={original}
-          value={values}
-          {...(messageValues.length && {
-            globalErrors: messageValues,
-          })}
-          className={isSelected ? 'selected' : ''}
-          {...(!cannotFilterByLabel && {
-            onClickLabel: (label) => {
-              const currentFilter =
-                state.filters
-                  ?.filter(({ id }) => id === LABEL_COLUMN_ID)
-                  ?.map(({ value }) => value)
-                  ?.flat() || []
-
-              const nextFilter = [...new Set([...currentFilter, label])]
-              setFilter(LABEL_COLUMN_ID, nextFilter)
-            },
-          })}
-          onClick={(e) => {
-            typeof onRowClick === 'function' && onRowClick(original)
-
-            if (!disableRowSelect && !readOnly) {
-              if (
-                singleSelect ||
-                (!singleSelect && !(e.ctrlKey || e.metaKey))
-              ) {
-                toggleAllRowsSelected?.(false)
-              }
-              toggleRowSelected?.(!isSelected)
-            }
-          }}
-        />
-      )
-    })
-
-    return headerList ? (
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            {headerList.map(({ header = '', id = '' }) => (
-              <TableCell key={id} className={styles.cellHeaders}>
-                {header}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>{valuesPerPages}</TableBody>
-      </Table>
-    ) : (
-      <>{valuesPerPages}</>
-    )
-  }
-
-  DataListPerPage.propTypes = {
-    page: PropTypes.any,
-  }
-
-  DataListPerPage.displayName = 'DataListPerPage'
-
   return (
     <Box
       {...getTableProps()}
@@ -479,7 +508,23 @@ const EnhancedTable = ({
           ))}
 
         {/* DATALIST PER PAGE */}
-        <DataListPerPage page={page} />
+        <DataListPerPage
+          page={page}
+          prepareRow={prepareRow}
+          RowComponent={RowComponent}
+          headerList={headerList}
+          messageValues={messageValues}
+          setFilter={setFilter}
+          state={state}
+          disableRowSelect={disableRowSelect}
+          onRowClick={onRowClick}
+          readOnly={readOnly}
+          singleSelect={singleSelect}
+          toggleAllRowsSelected={toggleAllRowsSelected}
+          zoneId={zoneId}
+          cannotFilterByLabel={cannotFilterByLabel}
+          styles={styles}
+        />
       </div>
     </Box>
   )
