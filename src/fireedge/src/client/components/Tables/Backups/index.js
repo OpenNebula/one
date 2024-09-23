@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
-import { useViews } from 'client/features/Auth'
-import { useGetBackupsQuery } from 'client/features/OneApi/image'
-import { ReactElement, useMemo } from 'react'
-
 import backupColumns from 'client/components/Tables/Backups/columns'
 import BackupRow from 'client/components/Tables/Backups/row'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import { RESOURCE_NAMES, T } from 'client/constants'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGetBackupsQuery } from 'client/features/OneApi/image'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getState, getType } from 'client/models/Image'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'backups'
 
@@ -105,6 +106,30 @@ const BackupsTable = (props) => {
     { header: T.Group, id: 'group', accessor: 'GNAME' },
     { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
     { header: T.Type, id: 'type', accessor: (template) => getType(template) },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: (_, { label: LABELS = [] }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(BackupRow)

@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-
+import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
 import EnhancedTable, { createColumns } from 'client/components/Tables/Enhanced'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import ImageColumns from 'client/components/Tables/Images/columns'
 import ImageRow from 'client/components/Tables/Images/row'
 import { RESOURCE_NAMES, T } from 'client/constants'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getState, getType } from 'client/models/Image'
+import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'images'
 
@@ -65,6 +66,30 @@ const ImagesTable = (props) => {
     { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
     { header: T.Type, id: 'type', accessor: (template) => getType(template) },
     { header: T.VMs, id: 'vms', accessor: 'RUNNING_VMS' },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: (_, onClickLabel, onDeleteLabel, { label: LABELS = [] }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS, onDeleteLabel, onClickLabel]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(ImageRow)

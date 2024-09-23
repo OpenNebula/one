@@ -38,6 +38,7 @@ const RowStyle = memo(
     original,
     value,
     onClickLabel,
+    onDeleteLabel,
     globalErrors,
     headerList = [],
     className,
@@ -52,7 +53,7 @@ const RowStyle = memo(
             case 'string':
               return <TableCell key={id}>{get(original, accessor)}</TableCell>
             case 'function':
-              return <TableCell key={id}>{accessor(original)}</TableCell>
+              return <TableCell key={id}>{accessor(original, value)}</TableCell>
             default:
               return ''
           }
@@ -67,6 +68,7 @@ RowStyle.propTypes = {
   original: PropTypes.object,
   value: PropTypes.object,
   onClickLabel: PropTypes.func,
+  onDeleteLabel: PropTypes.func,
   globalErrors: PropTypes.array,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   className: PropTypes.string,

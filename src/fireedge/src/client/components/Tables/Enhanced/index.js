@@ -157,7 +157,7 @@ DataListPerPage.propTypes = {
   messageValues: PropTypes.array,
   setFilter: PropTypes.func,
   state: PropTypes.any,
-  disableRowSelect: PropTypes.func,
+  disableRowSelect: PropTypes.bool,
   onRowClick: PropTypes.func,
   readOnly: PropTypes.bool,
   singleSelect: PropTypes.bool,

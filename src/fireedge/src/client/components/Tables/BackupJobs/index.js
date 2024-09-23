@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
 import BackupJobsColumns from 'client/components/Tables/BackupJobs/columns'
 import BackupJobsRow from 'client/components/Tables/BackupJobs/row'
@@ -21,9 +22,13 @@ import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import Timer from 'client/components/Timer'
 import { RESOURCE_NAMES, T } from 'client/constants'
 import COLOR from 'client/constants/color'
-import { useViews } from 'client/features/Auth'
+import { useAuth, useViews } from 'client/features/Auth'
 import { useGetBackupJobsQuery } from 'client/features/OneApi/backupjobs'
-import { timeFromMilliseconds } from 'client/models/Helper'
+import {
+  getColorFromString,
+  getUniqueLabels,
+  timeFromMilliseconds,
+} from 'client/models/Helper'
 import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'backupjobs'
@@ -124,6 +129,30 @@ const BackupJobsTable = (props) => {
         } else {
           return ''
         }
+      },
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
       },
     },
   ]

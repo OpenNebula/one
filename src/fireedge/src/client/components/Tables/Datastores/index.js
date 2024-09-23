@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
-
-import { useViews } from 'client/features/Auth'
-import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
-
+import MultipleTags from 'client/components/MultipleTags'
 import { LinearProgressWithLabel, StatusCircle } from 'client/components/Status'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
@@ -28,7 +24,11 @@ import {
 } from 'client/components/Tables/Enhanced/Utils/DataTableUtils'
 import WrapperRow from 'client/components/Tables/Enhanced/WrapperRow'
 import { DS_THRESHOLD, RESOURCE_NAMES, T } from 'client/constants'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
 import { getCapacityInfo, getState, getType } from 'client/models/Datastore'
+import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 const DEFAULT_DATA_CY = 'datastores'
@@ -186,6 +186,30 @@ const DatastoresTable = (props) => {
       header: T.Type,
       id: 'type',
       accessor: (template) => getType(template),
+    },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
+
+              return acc
+            }, []),
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
+      },
     },
   ]
   const { component, header } = WrapperRow(DatastoreRow)
