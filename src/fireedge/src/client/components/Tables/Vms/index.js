@@ -15,9 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 
-import { useAuth, useViews } from 'client/features/Auth'
-import { useGetVmsQuery } from 'client/features/OneApi/vm'
-
 import { ConsoleButton } from 'client/components/Buttons'
 import MultipleTags from 'client/components/MultipleTags'
 import { StatusCircle } from 'client/components/Status'
@@ -33,6 +30,10 @@ import {
   VM_EXTENDED_POOL,
   VM_STATES,
 } from 'client/constants'
+import { useAuth, useViews } from 'client/features/Auth'
+import { useGeneral } from 'client/features/General'
+import { useGetVmsQuery } from 'client/features/OneApi/vm'
+
 import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
 const DEFAULT_DATA_CY = 'vms'
@@ -170,24 +171,6 @@ const VmsTable = (props) => {
       id: 'ips',
       accessor: (vm) => getIps(vm).join(),
     },
-  ]
-
-  zone === defaultZone &&
-    listHeader.push({
-      header: '',
-      id: 'consoles',
-      accessor: (vm) => (
-        <>
-          {CONNECTION_TYPES.map((connectionType) => (
-            <ConsoleButton
-              key={`${vm}-${connectionType}`}
-              connectionType={connectionType}
-              vm={vm}
-            />
-          ))}
-        </>
-      ),
-    },
     {
       header: T.Labels,
       id: 'labels',
@@ -214,6 +197,24 @@ const VmsTable = (props) => {
       },
     },
   ]
+
+  zone === defaultZone &&
+    listHeader.push({
+      header: '',
+      id: 'consoles',
+      accessor: (vm) => (
+        <>
+          {CONNECTION_TYPES.map((connectionType) => (
+            <ConsoleButton
+              key={`${vm}-${connectionType}`}
+              connectionType={connectionType}
+              vm={vm}
+            />
+          ))}
+        </>
+      ),
+    })
+
   const { component, header } = WrapperRow(VmRow)
 
   return (
