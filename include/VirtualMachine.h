@@ -1034,9 +1034,18 @@ public:
 
     /**
      *  Get the VM physical capacity requirements for the host.
-     *    @param sr the HostShareCapacity to store the capacity request.
+     *    @param sr the HostShareCapacity to store the capacity request. The sr
+     *      use pointers to VM template, do not destroy the VM object before sr.
      */
     void get_capacity(HostShareCapacity &sr) const;
+
+    /**
+     *  Get the VM physical capacity from the previous history
+     *    @param sr the HostShareCapacity to store the capacity request.
+     *    @param tmpl temporary object, to hold pointers, do not release the tmpl
+     *      before the HostShareCapacity
+     */
+    void get_previous_capacity(HostShareCapacity &sr, Template &tmpl) const;
 
     /**
      * Adds automatic placement requirements: Datastore and Cluster
