@@ -13,6 +13,8 @@ module OneDBFsck
 
         check_history_retime
 
+        check_history_seq
+
         log_error('Removing possibly corrupted records from VM showback '\
             "please run 'oneshowback calculate` to recalculate "\
             'the showback') unless @showback_delete.empty?
@@ -144,6 +146,26 @@ module OneDBFsck
         end
     end
 
+    def check_history_seq
+        @history_delete = {}
+
+        # Query to select history elements with max seq
+        @db.fetch('SELECT vid, MAX(seq) AS max_seq ' \
+                  'FROM history ' \
+                  'GROUP BY vid') do |row|
+            # Skip iteration if VM doesn't have last seq, it should never happen
+            last_seq = @vms_last_history[row[:vid]]
+            next if last_seq.nil?
+
+            if row[:max_seq] != last_seq
+                log_error("VM #{row[:vid]} history last seq # #{last_seq} "\
+                          "doesn't match last seq in DB # #{row[:max_seq]}")
+
+                @history_delete[row[:vid]] = [last_seq + 1, row[:max_seq]]
+            end
+        end
+    end
+
     # Fix the broken history records
     def fix_history
         # DATA: FIX: update history records with fixed data
@@ -152,6 +174,12 @@ module OneDBFsck
             @fixes_history.each do |row|
                 @db[:history].where(:vid => row[:vid],
                                     :seq => row[:seq]).update(row)
+            end
+        end
+
+        @db.transaction do
+            @history_delete.each do |vid, seq|
+                @db[:history].where(:vid => vid, :seq => seq[0]..seq[1]).delete
             end
         end
 
