@@ -8,6 +8,7 @@ module OneDBFsck
         cluster_vnc = @data_vm[:vnc] = {}
 
         @vms_ports = {}
+        @vms_last_history = Hash.new
 
         # DATA: Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
@@ -17,6 +18,10 @@ module OneDBFsck
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i
+
+            # Get last history record
+            seq = vm_doc.root.at_xpath('HISTORY_RECORDS/HISTORY[last()]/SEQ').text.to_i rescue nil
+            @vms_last_history[row[:oid]] = seq unless seq.nil?
 
             # DATA: VNC ports per cluster
             cid = vm_doc.root.at_xpath("HISTORY_RECORDS/HISTORY[last()]/CID").text.to_i rescue nil
