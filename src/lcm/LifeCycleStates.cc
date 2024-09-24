@@ -54,10 +54,11 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
     vmpool->update_history(vm);
 
-    vm->get_capacity(sr);
-
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
+        Template tmpl;
+        vm->get_previous_capacity(sr, tmpl);
+
         hpool->del_capacity(vm->get_previous_hid(), sr);
 
         vm->release_previous_vnc_port();
@@ -839,6 +840,8 @@ void LifeCycleManager::trigger_prolog_failure(int vid)
                 vm->set_prolog_stime(t);
 
                 hpool->add_capacity(vm->get_hid(), sr);
+
+                vm->set_vm_info();
 
                 vmpool->insert_history(vm.get());
 

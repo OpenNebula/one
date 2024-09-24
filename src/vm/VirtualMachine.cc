@@ -2143,39 +2143,45 @@ void VirtualMachine::cp_previous_history()
 
 void VirtualMachine::get_capacity(HostShareCapacity& sr) const
 {
-    float fcpu;
+    sr.set(oid, *obj_template);
+}
 
-    sr.pci.clear();
-    sr.nodes.clear();
-
-    sr.vmid = oid;
-
-    if ((get_template_attribute("MEMORY", sr.mem) == false) ||
-        (get_template_attribute("CPU", fcpu) == false))
+void VirtualMachine::get_previous_capacity(HostShareCapacity& sr, Template &tmpl) const
+{
+    if (!previous_history)
     {
-        sr.cpu = 0;
-        sr.mem = 0;
-        sr.disk = 0;
+        return;
+    }
 
-        sr.vcpu = 0;
+    const string& vm_info = previous_history->vm_info;
+
+    ObjectXML xml(vm_info);
+
+    vector<xmlNodePtr> content;
+    xml.get_nodes("/VM/TEMPLATE", content);
+
+    if (content.empty())
+    {
+        NebulaLog::error("ONE", "Unable to read capacity from previous history");
 
         return;
     }
 
-    sr.cpu = (int) (fcpu * 100); //%
-    sr.mem = sr.mem * 1024;  //Kb
-    sr.disk = 0;
+    auto rc = tmpl.from_xml_node(content[0]);
 
-    get_template_attribute("VCPU", sr.vcpu);
+    if (rc != 0)
+    {
+        NebulaLog::error("ONE", "Unable to parse capacity from previous history");
 
-    obj_template->get("PCI", sr.pci);
+        return;
+    }
 
-    obj_template->get("NUMA_NODE", sr.nodes);
+    sr.set(oid, tmpl);
 
-    sr.topology = obj_template->get("TOPOLOGY");
+    ObjectXML::free_nodes(content);
 
     return;
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
