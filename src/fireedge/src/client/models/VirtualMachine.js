@@ -62,6 +62,19 @@ export const getHistoryRecords = (vm) =>
 
 /**
  * @param {VM} vm - Virtual machine
+ * @returns {object} Context vars from resource
+ */
+export const getContext = (vm) => [vm?.TEMPLATE?.CONTEXT ?? []].flat()
+
+/**
+ * @param {VM} vm - Virtual machine
+ * @returns {string} VM hostname from resource
+ */
+export const getVmHostname = (vm) =>
+  [getContext(vm)?.pop()?.SET_HOSTNAME ?? []].flat()
+
+/**
+ * @param {VM} vm - Virtual machine
  * @returns {HistoryRecord} Last history record from resource
  */
 export const getLastHistory = (vm) => {

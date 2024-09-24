@@ -24,6 +24,7 @@ import {
   Lock,
   Network,
   User,
+  Internet as HostnameIcon,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
 
@@ -80,13 +81,15 @@ const VirtualMachineCard = memo(
       USER_TEMPLATE: { LABELS } = {},
       GNAME,
       UNAME,
-      TEMPLATE: { VCPU = '-', MEMORY } = {},
+      TEMPLATE: { VCPU = '-', MEMORY, CONTEXT = {} } = {},
     } = vm
 
     const { HOSTNAME = '--', VM_MAD: hypervisor } = useMemo(
       () => getLastHistory(vm) ?? '--',
       [vm.HISTORY_RECORDS]
     )
+
+    const { SET_HOSTNAME: VM_HOSTNAME = '' } = CONTEXT
 
     const [time, timeFormat] = useMemo(() => {
       const fromMill = timeFromMilliseconds(+ETIME || +STIME)
@@ -190,10 +193,16 @@ const VirtualMachineCard = memo(
               <MemoryIcon width={20} height={20} />
               <span data-cy="memory">{memValue}</span>
             </span>
-            <span title={`${Tr(T.Hostname)}: ${HOSTNAME}`}>
+            <span title={`${Tr(T.Host)}: ${HOSTNAME}`}>
               <HardDrive />
               <span data-cy="hostname">{HOSTNAME}</span>
             </span>
+            {!!VM_HOSTNAME && (
+              <span title={`${Tr(T.Hostname)}: ${VM_HOSTNAME}`}>
+                <HostnameIcon />
+                <span>{` ${VM_HOSTNAME}`}</span>
+              </span>
+            )}
             {!!UNAME && (
               <span title={`${Tr(T.Owner)}: ${UNAME}`}>
                 <User />

@@ -21,6 +21,7 @@ import {
   getLastHistory,
   getState,
   getType,
+  getVmHostname,
 } from 'client/models/VirtualMachine'
 
 /** @type {Column[]} VM columns */
@@ -55,6 +56,11 @@ const COLUMNS = [
   },
   {
     Header: T.Hostname,
+    id: 'vmhostname',
+    accessor: (row) => getVmHostname(row)?.pop() ?? '',
+  },
+  {
+    Header: T.Host,
     id: 'hostname',
     accessor: (row) => getLastHistory(row)?.HOSTNAME,
   },

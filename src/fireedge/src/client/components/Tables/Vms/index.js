@@ -35,7 +35,13 @@ import { useGeneral } from 'client/features/General'
 import { useGetVmsQuery } from 'client/features/OneApi/vm'
 
 import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
-import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
+import {
+  getIps,
+  getLastHistory,
+  getState,
+  getVmHostname,
+} from 'client/models/VirtualMachine'
+
 const DEFAULT_DATA_CY = 'vms'
 
 const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
@@ -163,6 +169,11 @@ const VmsTable = (props) => {
     },
     {
       header: T.Hostname,
+      id: 'vmhostname',
+      accessor: (vm) => getVmHostname(vm),
+    },
+    {
+      header: T.Host,
       id: 'hostname',
       accessor: (vm) => getLastHistory(vm)?.HOSTNAME,
     },
