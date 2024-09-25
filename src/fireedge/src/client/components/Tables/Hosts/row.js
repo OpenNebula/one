@@ -20,7 +20,15 @@ import PropTypes from 'prop-types'
 import { memo, useCallback, useMemo } from 'react'
 
 const Row = memo(
-  ({ original, value, onClickLabel, zone, headerList, ...props }) => {
+  ({
+    original,
+    value,
+    onClickLabel,
+    zone,
+    headerList,
+    rowDataCy,
+    ...props
+  }) => {
     const [update] = useUpdateHostMutation()
 
     const {
@@ -72,6 +80,7 @@ Row.propTypes = {
   onClickLabel: PropTypes.func,
   zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'HostRow'

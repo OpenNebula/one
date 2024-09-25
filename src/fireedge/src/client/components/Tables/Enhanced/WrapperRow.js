@@ -35,19 +35,25 @@ const listStyles = makeStyles(({ palette }) => ({
  */
 const RowStyle = memo(
   ({
-    original,
-    value,
+    original = {},
+    value = {},
     onClickLabel,
     onDeleteLabel,
     globalErrors,
     headerList = [],
     className,
+    rowDataCy = '',
     ...props
   }) => {
+    const { ID = '' } = original
     const styles = listStyles()
 
     return (
-      <TableRow {...props} className={`${styles.row} ${className}`}>
+      <TableRow
+        data-cy={`list-${rowDataCy}-${ID}`}
+        {...props}
+        className={`${styles.row} ${className}`}
+      >
         {headerList.map(({ id, accessor }) => {
           switch (typeof accessor) {
             case 'string':
@@ -71,6 +77,7 @@ RowStyle.propTypes = {
   onDeleteLabel: PropTypes.func,
   globalErrors: PropTypes.array,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
   className: PropTypes.string,
 }
 

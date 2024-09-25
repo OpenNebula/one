@@ -45,7 +45,14 @@ import { prettyBytes } from 'client/utils'
 import * as Helper from 'client/models/Helper'
 import * as ImageModel from 'client/models/Image'
 
-const Row = ({ original, value, onClickLabel, headerList, ...props }) => {
+const Row = ({
+  original,
+  value,
+  onClickLabel,
+  headerList,
+  rowDataCy,
+  ...props
+}) => {
   const [update] = useUpdateImageMutation()
   const { labels: userLabels } = useAuth()
 
@@ -168,6 +175,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 export default Row

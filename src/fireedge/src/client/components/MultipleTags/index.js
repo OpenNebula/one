@@ -116,7 +116,7 @@ MultipleTags.propTypes = {
   tags: PropTypes.any,
   limitTags: PropTypes.number,
   clipboard: PropTypes.bool,
-  truncateText: PropTypes.bool,
+  truncateText: PropTypes.number,
 }
 MultipleTags.displayName = 'MultipleTags'
 

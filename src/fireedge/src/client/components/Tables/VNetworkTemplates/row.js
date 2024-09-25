@@ -25,7 +25,7 @@ import { T } from 'client/constants'
 
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ original, value, headerList, ...props }) => {
+const Row = ({ original, value, headerList, rowDataCy, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, LOCK, REGTIME, PROVISION_ID } = value
 
@@ -69,6 +69,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 export default Row

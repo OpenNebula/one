@@ -28,7 +28,7 @@ import { Row as RowType } from 'react-table'
  * @param {Function} props.handleClick - Action by click
  * @returns {ReactElement} - Table row
  */
-const Row = memo(({ original, headerList, ...props }) => {
+const Row = memo(({ original, headerList, rowDataCy, ...props }) => {
   const classes = rowStyles()
   const { DEPLOY_ID, VM_NAME } = original
 
@@ -53,6 +53,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'WildsRow'

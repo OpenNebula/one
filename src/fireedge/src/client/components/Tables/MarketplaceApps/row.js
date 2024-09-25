@@ -23,7 +23,7 @@ import api, {
 import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, onClickLabel, headerList, ...props }) => {
+  ({ original, value, onClickLabel, headerList, rowDataCy, ...props }) => {
     const [update] = useUpdateAppMutation()
 
     const state = api.endpoints.getMarketplaceApps.useQueryState(undefined, {
@@ -65,6 +65,7 @@ Row.propTypes = {
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'MarketplaceAppRow'

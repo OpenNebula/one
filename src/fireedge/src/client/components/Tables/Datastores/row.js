@@ -23,7 +23,15 @@ import api, {
 } from 'client/features/OneApi/datastore'
 
 const Row = memo(
-  ({ original, value, onClickLabel, zone, headerList, ...props }) => {
+  ({
+    original,
+    value,
+    onClickLabel,
+    zone,
+    headerList,
+    rowDataCy,
+    ...props
+  }) => {
     const [update] = useUpdateDatastoreMutation()
     const {
       data: datastores,
@@ -73,6 +81,7 @@ Row.propTypes = {
   onClickLabel: PropTypes.func,
   zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'DatastoreRow'
