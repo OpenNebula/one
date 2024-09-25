@@ -74,8 +74,3 @@ info-tabs:
 dialogs:
   create_dialog:
     information: true # required
-    vcenter:
-      enabled: true
-      not_on:
-        - kvm
-        - lxc

@@ -34,7 +34,6 @@ actions:
   chgrp: false
   lock: false
   unlock: false
-  vmrc: true
   vnc: true
   ssh: true
   rdp: true
