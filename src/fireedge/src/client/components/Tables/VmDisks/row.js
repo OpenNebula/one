@@ -19,7 +19,7 @@ import { memo, useMemo } from 'react'
 import { DiskCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, headerList, ...props }) => {
+  ({ original, value, headerList, rowDataCy, ...props }) => {
     const memoDisk = useMemo(() => original, [original])
 
     return <DiskCard disk={memoDisk} rootProps={props} />
@@ -34,6 +34,7 @@ Row.propTypes = {
   className: PropTypes.string,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'VmDiskRow'

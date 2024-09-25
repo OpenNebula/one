@@ -22,7 +22,7 @@ import serviceTemplateApi, {
 } from 'client/features/OneApi/serviceTemplate'
 
 const Row = memo(
-  ({ original, value, headerList, ...props }) => {
+  ({ original, value, headerList, rowDataCy, ...props }) => {
     const [update] = useUpdateServiceTemplateMutation()
 
     const state =
@@ -64,6 +64,7 @@ Row.propTypes = {
   className: PropTypes.string,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'ServiceTemplateRow'

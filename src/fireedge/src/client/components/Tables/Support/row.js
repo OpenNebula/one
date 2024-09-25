@@ -19,7 +19,7 @@ import { memo } from 'react'
 import { SupportCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, headerList, ...props }) => (
+  ({ original, value, headerList, rowDataCy, ...props }) => (
     <SupportCard ticket={original} rootProps={props} />
   ),
   (prev, next) => prev.className === next.className
@@ -32,6 +32,7 @@ Row.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'SupportRow'

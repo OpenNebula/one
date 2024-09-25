@@ -25,7 +25,7 @@ import { HomeShield } from 'iconoir-react'
 
 import * as ZoneModel from 'client/models/Zone'
 
-const Row = ({ original, value, headerList, ...props }) => {
+const Row = ({ original, value, headerList, rowDataCy, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, ENDPOINT } = value
 
@@ -58,6 +58,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 export default Row

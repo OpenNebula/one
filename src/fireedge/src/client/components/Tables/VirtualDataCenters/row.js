@@ -21,7 +21,7 @@ import vdcApi, { useUpdateVDCMutation } from 'client/features/OneApi/vdc'
 import { jsonToXml } from 'client/models/Helper'
 
 const Row = memo(
-  ({ original, value, onClickLabel, headerList, ...props }) => {
+  ({ original, value, onClickLabel, headerList, rowDataCy, ...props }) => {
     const [update] = useUpdateVDCMutation()
 
     const state = vdcApi.endpoints.getVDCs.useQueryState(undefined, {
@@ -63,6 +63,7 @@ Row.propTypes = {
   onClick: PropTypes.func,
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 Row.displayName = 'VirtualDataCenterRow'

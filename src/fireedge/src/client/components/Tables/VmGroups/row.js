@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 
 import { VmGroupCard } from 'client/components/Cards'
 
-const Row = ({ original, value, headerList, ...props }) => (
+const Row = ({ original, value, headerList, rowDataCy, ...props }) => (
   <VmGroupCard rootProps={props} vmgroup={value} />
 )
 
@@ -28,6 +28,7 @@ Row.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
 }
 
 export default Row

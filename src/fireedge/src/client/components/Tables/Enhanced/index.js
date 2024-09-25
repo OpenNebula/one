@@ -79,6 +79,7 @@ const DataListPerPage = memo(
     zoneId,
     cannotFilterByLabel,
     styles,
+    rootProps: rootPropsTable,
   }) => {
     if (!page.length) {
       return ''
@@ -102,6 +103,7 @@ const DataListPerPage = memo(
           {...(messageValues.length && {
             globalErrors: messageValues,
           })}
+          rowDataCy={rootPropsTable?.['data-cy'] ?? ''}
           className={isSelected ? 'selected' : ''}
           {...(!cannotFilterByLabel && {
             onClickLabel: (label) => {
@@ -165,6 +167,9 @@ DataListPerPage.propTypes = {
   zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   cannotFilterByLabel: PropTypes.any,
   styles: PropTypes.any,
+  rootProps: PropTypes.shape({
+    'data-cy': PropTypes.string,
+  }),
 }
 
 DataListPerPage.displayName = 'DataListPerPage'
@@ -509,6 +514,7 @@ const EnhancedTable = ({
 
         {/* DATALIST PER PAGE */}
         <DataListPerPage
+          rootProps={rootProps}
           page={page}
           prepareRow={prepareRow}
           RowComponent={RowComponent}
