@@ -403,7 +403,9 @@ define(function (require) {
       );
     } else {
       return TemplateUtils.htmlEncode(
-        elementTemplate && elementTemplate[LABELS_ATTR]
+        elementTemplate && 
+        elementTemplate[LABELS_ATTR] &&
+        typeof elementTemplate[LABELS_ATTR] === 'string'
           ? elementTemplate[LABELS_ATTR]
           : ""
       );
