@@ -1,0 +1,28 @@
+--- SunstoneViews.rb	2024-09-05 17:07:42.000000000 +0300
++++ SunstoneViews.rb	2024-09-23 17:34:54.248170982 +0300
+@@ -35,7 +35,11 @@
+ 
+         raise "Sunstone configuration file does not contain default view mode, aborting" if mode.nil?
+ 
+-        @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
++        if Psych::VERSION > '4.0'
++            @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE, aliases: true)
++        else
++            @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
++        end
+ 
+         base_path = SUNSTONE_ROOT_DIR+'/public/js/'
+ 
+@@ -49,7 +53,11 @@
+             reg = VIEWS_CONFIGURATION_DIR + mode + '/'
+             m = p_path.match(/^#{reg}(.*).yaml$/)
+             if m && m[1]
+-                @views[m[1]] = YAML.load_file(p_path)
++                if Psych::VERSION > '4.0'
++                    @views[m[1]] = YAML.load_file(p_path, aliases: true)
++                else
++                    @views[m[1]] = YAML.load_file(p_path)
++                end
+             end
+         end
+     end
