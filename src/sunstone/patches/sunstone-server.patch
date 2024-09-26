@@ -1,0 +1,28 @@
+--- sunstone-server.rb 17:00:40.261753994 +0300
++++ sunstone-server.rb 17:29:04.665081589 +0300
+@@ -158,7 +158,11 @@
+ ##############################################################################
+ 
+ begin
+-    $conf = YAML.load_file(CONFIGURATION_FILE)
++    if Psych::VERSION > '4.0'
++        $conf = YAML.load_file(CONFIGURATION_FILE, aliases: true)
++    else
++        $conf = YAML.load_file(CONFIGURATION_FILE)
++    end
+ rescue Exception => e
+     STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
+     exit 1
+@@ -359,7 +363,11 @@
+     def build_conf_locals
+         logos_conf = nil
+         begin
+-            logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
++            if Psych::VERSION > '4.0'
++                logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE, aliases: true)
++            else
++                logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
++            end
+         rescue Exception => e
+             logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+             error 500, ""
