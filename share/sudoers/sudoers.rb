@@ -17,7 +17,7 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :OVS, :LVM, :LXC, :MEM, :VGPU]
+    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU]
 
     attr_accessor :cmds
 
@@ -33,13 +33,24 @@ class Sudoers
                 'ip neighbour *',
                 'ip route *',
                 'ip rule *',
-                'ip tuntap *'
+                'ip tuntap *',
+                'nft',
+                '/var/tmp/one/vnm/tproxy'
             ],
-            :LVM    => [
+            :NETNS => [
+                'ip netns add *',
+                'ip netns delete *',
+                'ip netns pids *',
+                '/var/tmp/one/vnm/ip_netns_exec ip address *',
+                '/var/tmp/one/vnm/ip_netns_exec ip link *',
+                '/var/tmp/one/vnm/ip_netns_exec ip -j link show *',
+                '/var/tmp/one/vnm/ip_netns_exec ip route *'
+            ],
+            :LVM => [
                 'lvcreate', 'lvremove', 'lvs', 'vgdisplay', 'lvchange', 'lvscan', 'lvextend'
             ],
-            :OVS    => ['ovs-ofctl', 'ovs-vsctl'],
-            :CEPH   => ['rbd'],
+            :OVS => ['ovs-ofctl', 'ovs-vsctl'],
+            :CEPH => ['rbd'],
             :HA => [
                 'systemctl start opennebula-flow',
                 'systemctl stop opennebula-flow',
@@ -64,8 +75,8 @@ class Sudoers
                 'lxc-console', 'e2fsck', 'resize2fs', 'xfs_growfs', 'rbd-nbd'
             ],
             :MARKET => ["#{lib_location}/sh/create_container_image.sh"],
-            :MEM    => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
-            :VGPU   => ['sudo', '/var/tmp/one/vgpu']
+            :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
+            :VGPU => ['sudo', '/var/tmp/one/vgpu']
         }
     end
 

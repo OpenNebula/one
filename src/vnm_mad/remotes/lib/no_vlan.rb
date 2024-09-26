@@ -42,6 +42,9 @@ module VNMMAD
                 # Create the bridge.
                 create_bridge(@nic)
 
+                # Setup transparent proxies.
+                TProxy.setup_tproxy(@nic, :up)
+
                 # Skip if vlan device is already in the bridge.
                 next if !@nic[:phydev] || @nic[:phydev].empty? ||
                         @bridges[@nic[:bridge]].include?(@nic[:phydev])
@@ -82,19 +85,14 @@ module VNMMAD
                     # vlan)
                     next unless @bridges.include? @nic[:bridge]
 
-                    # Skip if we want to keep the empty bridge
-                    next if @nic[:conf][:keep_empty_bridge]
+                    guests = @bridges[@nic[:bridge]] \
+                           - [@nic[:phydev], "#{@nic[:bridge]}b"]
 
-                    # Skip if the phydev device is not the only left device in
-                    # the bridge.A
-                    if @nic[:phydev].nil?
-                        keep = !@bridges[@nic[:bridge]].empty?
-                    else
-                        keep = @bridges[@nic[:bridge]].length > 1 ||
-                            !@bridges[@nic[:bridge]].include?(@nic[:phydev])
-                    end
+                    # Setup transparent proxies.
+                    TProxy.setup_tproxy(@nic, :down) if guests.count < 1
 
-                    next if keep
+                    # Skip the bridge removal (on demand or when still in use).
+                    next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
 
                     # Delete the bridge.
                     OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[:bridge]}")
