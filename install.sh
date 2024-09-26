@@ -1589,7 +1589,10 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/no_vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
-               src/vnm_mad/remotes/lib/nic.rb"
+               src/vnm_mad/remotes/lib/nic.rb \
+               src/vnm_mad/remotes/lib/tproxy \
+               src/vnm_mad/remotes/lib/tproxy.rb \
+               src/vnm_mad/remotes/lib/ip_netns_exec"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \

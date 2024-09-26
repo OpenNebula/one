@@ -1,0 +1,477 @@
+#!/usr/bin/env ruby
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# frozen_string_literal: true
+
+# rubocop:disable Lint/MissingCopEnableDirective
+# rubocop:disable Metrics/ParameterLists
+# rubocop:disable Style/Documentation
+# rubocop:disable Style/GlobalVars
+# rubocop:disable Style/ParallelAssignment
+# rubocop:disable Style/RegexpLiteral
+# rubocop:disable Style/GuardClause
+
+RUBY_LIB_LOCATION  = '/usr/lib/one/ruby'
+GEMS_LOCATION      = '/usr/share/one/gems'
+LOG_LOCATION       = '/var/log'
+RUN_LOCATION       = '/var/run'
+REMOTES_LOCATION   = '/var/tmp/one'
+CONFIGURATION_FILE = REMOTES_LOCATION + '/etc/vnm/OpenNebulaNetwork.conf'
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|p| p =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'async/io'
+require 'async/io/stream'
+require 'async/io/trap'
+require 'async/io/unix_endpoint'
+require 'console'
+require 'ffi'
+require 'json'
+require 'open3'
+require 'socket'
+require 'yaml'
+
+SERVICE_ADDR = '169.254.16.9'
+
+DEFAULT_CONFIG = {
+    :tproxy_debug_level => 2 # 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG
+}.freeze
+
+LOG_LEVEL_MAP = {
+    0 => 3, # ERROR
+    1 => 2, # WARN
+    2 => 1, # INFO
+    3 => 0  # DEBUG
+}.freeze
+
+$config = DEFAULT_CONFIG.dup
+$logger = nil
+
+module VNMMAD
+
+    module TProxy
+
+        extend FFI::Library
+
+        ffi_lib FFI::Library::LIBC
+
+        attach_function :setns, [:int, :int], :int
+
+        class ProxyPeer
+
+            def initialize(daddr, dport)
+                @daddr, @dport = daddr, dport
+            end
+
+            def run
+                Async do |task|
+                    glue_peers(@task = task)
+                end
+            end
+
+            def stop
+                @socket.close
+                @task.stop
+            end
+
+            private
+
+            def glue_peers(task)
+                @local_ep.accept do |client_peer|
+                    $logger.debug(self) do
+                        "Accept #{client_peer.remote_address.inspect}"
+                    end
+
+                    begin
+                        if @remote_peer_type == :unix
+                            daddr     = VNMMAD::TProxy.to_socket_path(@dport)
+                            remote_ep = Async::IO::Endpoint.unix(daddr)
+                        else
+                            remote_ep = Async::IO::Endpoint.tcp(@daddr, @dport)
+                        end
+
+                        remote_ep.connect do |remote_peer|
+                            client_stream, remote_stream = Async::IO::Stream.new(client_peer),
+                                                           Async::IO::Stream.new(remote_peer)
+
+                            glue_streams(client_stream, remote_stream, task).wait
+                        ensure
+                            $logger.debug(self) do
+                                "Close #{remote_peer.remote_address.inspect}"
+                            end
+
+                            remote_peer.close
+                        end
+                    rescue Errno::ECONNREFUSED,
+                           Errno::ECONNRESET,
+                           Errno::EHOSTUNREACH,
+                           Errno::ETIMEDOUT => e
+                        $logger.error(self) do
+                            e.message
+                        end
+                    end
+                ensure
+                    $logger.debug(self) do
+                        "Close #{client_peer.remote_address.inspect}"
+                    end
+
+                    client_peer.close
+                end
+            end
+
+            def glue_streams(stream1, stream2, task)
+                task.async do |subtask|
+                    concurrent = []
+                    concurrent << subtask.async do
+                        while (chunk = stream1.read_partial)
+                            stream2.write chunk
+                            stream2.flush
+                        end
+                    end
+                    concurrent << subtask.async do
+                        while (chunk = stream2.read_partial)
+                            stream1.write chunk
+                            stream1.flush
+                        end
+                    end
+                    concurrent.each(&:wait)
+                end
+            end
+
+        end
+
+        class InnerPeer < ProxyPeer
+
+            def initialize(baddr, bport, daddr, dport)
+                super(daddr, dport)
+
+                @remote_peer_type = :unix
+
+                @local_ep = Async::IO::Endpoint.tcp(baddr, bport, :reuse_address => true)
+                @local_ep.bind do |sock|
+                    (@socket = sock).listen Socket::SOMAXCONN
+                    $logger.info(self) do
+                        "Bind #{Addrinfo.tcp(baddr, bport).inspect}"
+                    end
+                end
+            end
+
+        end
+
+        class InnerProxy
+
+            def initialize(brdev = nil)
+                @brdev = brdev
+                @peers = {}
+                @sighup = Async::IO::Trap.new :HUP
+                @sighup.ignore!
+                @sighup.install!
+            end
+
+            def run
+                Async do
+                    reload
+                    @sighup.wait { reload }
+                end
+            end
+
+            private
+
+            def reload
+                endpoints = VNMMAD::TProxy.load_peer_config(:brdev => @brdev)[:endpoints]
+
+                return if endpoints.empty?
+
+                # Stop and remove cancelled proxies.
+                @peers.keys.each do |k|
+                    brdev, service_port = k
+
+                    next unless endpoints.dig(service_port, :brdev)&.include?(brdev)
+
+                    @peers.delete(k)&.stop
+                end
+
+                # Create and start missing proxies.
+                endpoints.each do |service_port, v|
+                    v[:brdev].each do |brdev|
+                        next unless @peers[k = [brdev, service_port]].nil?
+
+                        (@peers[k] = InnerPeer.new(SERVICE_ADDR, service_port,
+                                                   SERVICE_ADDR, service_port)).run
+                    end
+                rescue StandardError => e
+                    $logger.error(self) do
+                        e.message
+                    end
+                end
+            end
+
+        end
+
+        class OuterPeer < ProxyPeer
+
+            def initialize(bport, daddr, dport)
+                super(daddr, dport)
+
+                @remote_peer_type = :tcp
+
+                baddr = VNMMAD::TProxy.to_socket_path(bport)
+
+                @local_ep = Async::IO::Endpoint.unix(baddr)
+                @local_ep.bind do |sock|
+                    @socket = sock
+                    $logger.info(self) do
+                        "Bind #{baddr}"
+                    end
+                end
+            end
+
+        end
+
+        class OuterProxy
+
+            def initialize
+                @peers = {}
+                @sighup = Async::IO::Trap.new :HUP
+                @sighup.ignore!
+                @sighup.install!
+            end
+
+            def run
+                Async do
+                    reload
+                    @sighup.wait { reload }
+                end
+            end
+
+            private
+
+            def reload
+                endpoints = VNMMAD::TProxy.load_peer_config[:endpoints]
+
+                return if endpoints.empty?
+
+                # Stop and remove cancelled proxies.
+                @peers.keys.each do |k|
+                    next unless endpoints[k].nil?
+
+                    @peers.delete(k)&.stop
+                end
+
+                # Create and start missing proxies.
+                endpoints.each do |service_port, v|
+                    next unless @peers[k = service_port].nil?
+
+                    (@peers[k] = OuterPeer.new(service_port, v[:daddr], v[:dport])).run
+                rescue StandardError => e
+                    $logger.error(self) do
+                        e.message
+                    end
+                end
+            end
+
+        end
+
+        class Daemon
+
+            def initialize(comm)
+                @comm = comm
+            end
+
+            def run(argv = ARGV.dup, &block)
+                pid, cmd = detect
+                if !pid.nil? && argv[0] == 'status'
+                    puts "#{cmd}: #{pid}"
+                    return
+                end
+                if !pid.nil? && argv[0] == 'reload'
+                    Process.kill(:HUP, pid.to_i)
+                    return
+                end
+                if !pid.nil? && ['stop', 'restart'].include?(argv[0])
+                    Process.kill(:TERM, pid.to_i)
+                    pid, = detect # rerun
+                end
+                if pid.nil? && ['start', 'restart'].include?(argv[0])
+                    fork do
+                        $0 = @comm
+
+                        Process.setsid
+
+                        $stdin.reopen '/dev/null'
+
+                        $stdout.reopen "#{LOG_LOCATION}/#{@comm}.log", 'a'
+                        $stdout.sync = true
+
+                        $stderr.reopen $stdout
+                        $stderr.sync = true
+
+                        block.call
+                    end
+                end
+            end
+
+            private
+
+            def detect
+                o, _, s = Open3.capture3 'ps', '--no-headers', '-wwo', 'pid,cmd', '-C', 'ruby'
+                o.lines
+                 .map  {|line| line.strip.split(' ', 2) }
+                 .find {|_, cmd| cmd == @comm } if s.success?
+            end
+
+        end
+
+        def self.load_peer_config(family: 'ip', brdev: nil)
+            if brdev.nil?
+                cmd = "nsenter -n -t 1 /usr/sbin/nft -j list table #{family} one_tproxy"
+            else
+                cmd = "nsenter -n -t 1 /usr/sbin/nft -j list map #{family} one_tproxy ep_#{brdev}"
+            end
+
+            o, _, s = Open3.capture3(*cmd.split(' '))
+
+            if s.success?
+                endpoints = JSON.parse(o)['nftables'].each_with_object({}) do |v, h|
+                    next if v['map'].nil?
+                    next if v['map']['name'] !~ %r{^ep_([^/:\s]+)$}
+                    next if v['map']['elem'].to_a.empty?
+
+                    v['map']['elem'].each do |bport, daddr_dport|
+                        h[bport] ||= { :brdev => [], :daddr => nil, :dport => nil }
+                        h[bport][:brdev] << Regexp.last_match(1)
+                        h[bport][:daddr] = daddr_dport['concat'][0]
+                        h[bport][:dport] = daddr_dport['concat'][1]
+                    end
+                end
+
+                bridges = endpoints.values
+                                   .map {|v| v[:brdev] }
+                                   .flatten
+                                   .uniq
+
+                { :endpoints => endpoints, :bridges => bridges }
+            else
+                { :endpoints => {}, :bridges => [] }
+            end
+        rescue StandardError
+            { :endpoints => {}, :bridges => [] }
+        end
+
+        def self.cancel_spurious_proxies(config = nil)
+            o, _, s = Open3.capture3 'ps', '--no-headers', '-wwo', 'pid,cmd', '-C', 'ruby'
+
+            return unless s.success? # nothing to stop (most likely)
+
+            config ||= load_peer_config
+
+            spurious = o.lines.each_with_object([]) do |line, a|
+                pid, cmd = line.strip.split(' ', 2)
+
+                case cmd.strip
+                when %r{^one_tproxy_([^/:\s]+)$}
+                    a << pid unless config[:bridges].include?(Regexp.last_match(1))
+                when %r{^one_tproxy$}
+                    a << pid if config[:endpoints].empty? && pid.to_i != Process.pid
+                end
+            end
+
+            return if spurious.empty?
+
+            spurious.each {|pid| Process.kill(:TERM, pid.to_i) }
+        end
+
+        def self.use_netns(name)
+            File.open("/run/netns/#{name}", 'rb') do |f|
+                if VNMMAD::TProxy.setns(f.fileno, 0) != 0
+                    raise StandardError, 'Unable to set network namespace'
+                end
+            end
+        end
+
+        def self.to_socket_path(service_port)
+            "#{RUN_LOCATION}/one_tproxy_#{service_port}.socket"
+        end
+
+    end
+
+end
+
+# Architecture of this transparent proxy solution can be roughly visualized as:
+#
+# VM <--tcp--> InnerProxy (multiple processes, 1 per each dedicated netns)
+#                  ^
+#                  |
+#                 unix
+#                  |
+#                  v
+#              OuterProxy (only a single process, default netns) <--tcp--> SVC (like OneGate)
+#
+# To avoid any network related security risks we split TCP streams into "inner" and "outer" parts
+# to glue them back again using unix sockets (that are completely unrelated to TCP/IP stacks).
+# Keeping "inner" parts in dedicated VNET namespaces allows for perfect isolation from any other
+# TCP/IP traffic going through HV machines. Of course, there is an assumption that it is possible to
+# connect to service endpoints from HV machines via the backbone / service network.
+
+if caller.empty?
+    # The "CONFIGURATION_FILE" is updated during the host sync procedure.
+    $config.merge! YAML.load_file(CONFIGURATION_FILE)
+
+    peer_config = VNMMAD::TProxy.load_peer_config
+
+    VNMMAD::TProxy.cancel_spurious_proxies(peer_config)
+
+    # Silently refuse to start if no configuration is discovered.
+    exit if peer_config[:endpoints].empty?
+
+    VNMMAD::TProxy::Daemon.new('one_tproxy').run do
+        CustomLogger = Console::Filter[:debug => 0, :info => 1, :warn => 2, :error => 3]
+        $logger      = CustomLogger.new Console::Serialized::Logger.new($stdout),
+                                        :level => LOG_LEVEL_MAP[$config[:tproxy_debug_level]]
+        VNMMAD::TProxy::OuterProxy.new.run
+    end
+
+    peer_config[:bridges].each do |brdev|
+        VNMMAD::TProxy::Daemon.new("one_tproxy_#{brdev}").run do
+            CustomLogger = Console::Filter[:debug => 0, :info => 1, :warn => 2, :error => 3]
+            $logger      = CustomLogger.new Console::Serialized::Logger.new($stdout),
+                                            :level => LOG_LEVEL_MAP[$config[:tproxy_debug_level]]
+            VNMMAD::TProxy.use_netns("one_tproxy_#{brdev}")
+            VNMMAD::TProxy::InnerProxy.new(brdev).run
+        end
+    end
+end

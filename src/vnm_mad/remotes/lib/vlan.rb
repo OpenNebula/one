@@ -53,6 +53,9 @@ module VNMMAD
                 # Create the bridge.
                 create_bridge(@nic)
 
+                # Setup transparent proxies.
+                TProxy.setup_tproxy(@nic, :up)
+
                 # Check that no other vlans are connected to this bridge
                 validate_vlan_id if @nic[:conf][:validate_vlan_id]
 
@@ -118,13 +121,18 @@ module VNMMAD
                     # vlan)
                     next unless @bridges.include? @nic[:bridge]
 
-                    # Skip if we want to keep the empty bridge
-                    next if @nic[:conf][:keep_empty_bridge]
+                    # Inserting raw phydev into the bridge is incorrect, but
+                    # it is possible some user makes that mistake. This might
+                    # cause that cleanup is not triggered properly, so we do
+                    # not treat phydev as "guest" on purpose here.
+                    guests = @bridges[@nic[:bridge]] \
+                           - [@nic[:phydev], @nic[:vlan_dev], "#{@nic[:bridge]}b"]
 
-                    # Skip if the vlan device is not the only left device in
-                    # the bridge.
-                    next if (@bridges[@nic[:bridge]].length > 1) || \
-                            !@bridges[@nic[:bridge]].include?(@nic[:vlan_dev])
+                    # Setup transparent proxies.
+                    TProxy.setup_tproxy(@nic, :down) if guests.count < 1
+
+                    # Skip the bridge removal (on demand or when still in use).
+                    next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
 
                     # Delete the vlan device.
                     delete_vlan_dev
