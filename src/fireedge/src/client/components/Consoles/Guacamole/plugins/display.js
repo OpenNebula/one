@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { styled } from '@mui/material'
 import {
+  MutableRefObject, // eslint-disable-line no-unused-vars
+  ReactElement, // eslint-disable-line no-unused-vars
   useEffect,
   useMemo,
   useRef,
-  MutableRefObject, // eslint-disable-line no-unused-vars
-  ReactElement, // eslint-disable-line no-unused-vars
 } from 'react'
-import { styled } from '@mui/material'
 
 import { GuacamoleSession } from 'client/constants'
 
@@ -43,8 +43,12 @@ const Viewport = styled('div')({
 
 const Display = styled('div')({
   zIndex: 1,
+  margin: '0 auto',
   overflow: 'hidden',
-  '& > *': { cursor: 'none' },
+  '& > *': {
+    cursor: 'none',
+    margin: '0 auto',
+  },
 })
 
 /**
