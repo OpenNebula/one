@@ -21,11 +21,20 @@ import { SCHEMA } from 'client/components/Forms/Backup/RestoreForm/Steps/VmDisks
 
 import { Step } from 'client/utils'
 import { T } from 'client/constants'
+import { STEP_ID as IMAGE_STEP_ID } from 'client/components/Forms/Backup/RestoreForm/Steps/BackupsTable'
 
 export const STEP_ID = 'vmdisk'
 
 const Content = ({ data, app: { backupDiskIds = [], vmsId = [] } = {} }) => {
-  const { setValue } = useFormContext()
+  const { setValue, getValues } = useFormContext()
+  const BACKUP_IMAGE = getValues(IMAGE_STEP_ID)?.[0]
+  const BACKUP_IMAGE_DISK_IDS = BACKUP_IMAGE?.BACKUP_DISK_IDS?.ID
+
+  const getValidArray = (arr) =>
+    Array.isArray(arr) && arr?.length > 0 ? arr : false
+
+  const formatBackupDiskIds =
+    getValidArray(backupDiskIds) || getValidArray(BACKUP_IMAGE_DISK_IDS) || []
   const selectedRow = data?.[0]
 
   const handleSelectedRows = (rows) => {
@@ -51,7 +60,7 @@ const Content = ({ data, app: { backupDiskIds = [], vmsId = [] } = {} }) => {
       filter={(disks) =>
         disks &&
         disks?.length > 0 &&
-        disks?.filter((disk) => backupDiskIds?.includes(disk?.DISK_ID))
+        disks?.filter((disk) => formatBackupDiskIds?.includes(disk?.DISK_ID))
       }
     />
   )
