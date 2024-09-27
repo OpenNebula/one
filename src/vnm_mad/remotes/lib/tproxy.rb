@@ -99,7 +99,7 @@ module VNMMAD
             # Basically, we short-circuit any 169.254.16.9 communication and
             # forcefully redirect every packet destined to 169.254.16.9 to be handled
             # locally (regardless of the actual ARP resolution in guest VMs).
-            nft(ERB.new(<<~NFT, :trim_mode => '-').result(binding))
+            nft(ERB.new(<<~NFT).result(binding))
                 table bridge one_tproxy {
                     chain ch_<%= brdev %> {
                         type filter hook prerouting priority dstnat; policy accept;
@@ -122,7 +122,7 @@ module VNMMAD
             # defined in nftables, that way users can manually restart tproxy on demand
             # without the need for providing any command line arguments.
             # All maps are managed by the driver, proxies only read their contents.
-            nft(ERB.new(<<~NFT, :trim_mode => '-').result(binding))
+            nft(ERB.new(<<~NFT).result(binding))
                 table ip one_tproxy {
                     map ep_<%= brdev %> {
                         type inet_service : ipv4_addr \\
@@ -132,19 +132,19 @@ module VNMMAD
 
                 flush map ip one_tproxy ep_<%= brdev %>;
 
-                <%- endpoints.each do |ep| -%>
+                <% endpoints.each do |ep| %>
                 add element ip one_tproxy ep_<%= brdev %> {
                     <%= ep[:service_port] %> : <%= ep[:remote_addr] %> \\
                                              . <%= ep[:remote_port] %>
                 }
-                <%- end -%>
+                <% end %>
             NFT
         end
 
         def self.disable_tproxy(nic, endpoints)
             brdev = nic[:bridge]
 
-            nft(ERB.new(<<~NFT, :trim_mode => '-').result(binding))
+            nft(ERB.new(<<~NFT).result(binding))
                 table ip one_tproxy {
                     map ep_<%= brdev %> {
                         type inet_service : ipv4_addr \\
@@ -155,7 +155,7 @@ module VNMMAD
                 delete map ip one_tproxy ep_<%= brdev %>;
             NFT
 
-            nft(ERB.new(<<~NFT, :trim_mode => '-').result(binding))
+            nft(ERB.new(<<~NFT).result(binding))
                 table bridge one_tproxy {
                     chain ch_<%= brdev %> {
                         type filter hook prerouting priority dstnat; policy accept;
