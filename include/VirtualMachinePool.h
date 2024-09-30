@@ -375,6 +375,16 @@ public:
     VirtualMachineMonitorInfo get_monitoring(int vmid);
 
     /**
+     *  Dumps the VM history records in XML format
+     *
+     *  @param oss the output stream to dump the pool contents
+     *  @param vid the Virtual Machine ID
+     *
+     *  @return 0 on success
+     */
+    int dump_history(std::string& oss, int vid);
+
+    /**
      * Processes all the history records, and stores the monthly cost for each
      * VM
      *  @param start_month First month (+year) to process. January is 1.

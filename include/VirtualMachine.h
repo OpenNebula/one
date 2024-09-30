@@ -413,6 +413,11 @@ public:
     // ------------------------------------------------------------------------
     // History
     // ------------------------------------------------------------------------
+    /*
+     *  Loads all VM history recordsfrom the database
+    */
+    int load_history(SqlDB * db);
+
     /**
      *  Adds a new history record an writes it in the database.
      */
@@ -1835,17 +1840,12 @@ private:
     /**
      *  History record, for the current host
      */
-    History *   history;
+    std::unique_ptr<History> history;
 
     /**
      *  History record, for the previous host
      */
-    History *   previous_history;
-
-    /**
-     *  Complete set of history records for the VM
-     */
-    std::vector<History *> history_records;
+    std::unique_ptr<History> previous_history;
 
     /**
      *  VirtualMachine disks
