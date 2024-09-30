@@ -452,6 +452,19 @@ int VirtualMachinePool::dump_monitoring(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::dump_history(std::string& oss, int vid)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT body FROM " << one_db::history_table
+        << " WHERE vid = " << vid << " ORDER BY seq ASC";
+
+    return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 VirtualMachineMonitorInfo VirtualMachinePool::get_monitoring(int vmid)
 {
     ostringstream cmd;
