@@ -125,12 +125,14 @@ one_client = OpenNebula::Client.new token
 # ------------------------------------------------------------------------------
 # Create backup object templates for VM and associated disk images
 # ------------------------------------------------------------------------------
-restorer = TransferManager::BackupRestore.new :vm_xml64  => vm_xml,
-                                              :backup_id => snap,
-                                              :bimage    => image,
-                                              :ds_id     => ds_id,
-                                              :txml      => rds,
-                                              :proto     => 'restic'
+restorer = TransferManager::BackupRestore.new(
+    :vm_xml64  => vm_xml,
+    :backup_id => snap,
+    :bimage    => image,
+    :ds_id     => ds_id,
+    :txml      => rds,
+    :proto     => image.proto('restic')
+)
 
 br_disks = restorer.disk_images disks
 

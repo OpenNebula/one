@@ -75,7 +75,9 @@ begin
     rds = Restic.new action, :prefix =>'DATASTORE/'
     rds.resticenv_rb
 
-    file      = rds['IMAGE/PATH'].delete_prefix('restic://')
+    file = rds['IMAGE/PATH']
+    file.slice! %r{restic(\+[^:]+)?://}
+
     parts     = file.split('/')
     diskid    = parts[-1].match(/disk\.(\d+)/)
     base_path = "/#{parts[3..-2].join('/')}/"

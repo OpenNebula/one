@@ -64,7 +64,7 @@ require_relative 'restic'
 
 TransferManager::Datastore.load_env
 
-ds_xml = STDIN.read
+xml = STDIN.read
 
 dir      = ARGV[0].split(':')
 _disks   = ARGV[1]
@@ -89,12 +89,13 @@ repo_id = if bj_id != '-'
           end
 
 begin
-    ds = TransferManager::Datastore.from_xml(:ds_xml => ds_xml)
+    ds_xml = REXML::Document.new(xml).root.elements['DATASTORE']
+    ds = TransferManager::Datastore.from_xml(:ds_xml => ds_xml.to_s)
 
-    rds = Restic.new ds_xml, :create_repo => true,
-                             :repo_type   => :sftp,
-                             :host_type   => :hypervisor,
-                             :repo_id     => repo_id
+    rds = Restic.new ds_xml.to_s, :create_repo => true,
+                                  :repo_type   => :sftp,
+                                  :host_type   => :hypervisor,
+                                  :repo_id     => repo_id
     rds.resticenv_rb
 rescue StandardError => e
     STDERR.puts e.full_message
@@ -216,5 +217,14 @@ end
 id       = parts[0]
 short_id = id[0..7] # first 8 chars only
 
-STDOUT.puts "#{short_id} #{parts[1].to_i / (1024 * 1024)}"
+vm            = REXML::Document.new(xml).root.elements['VM']
+backup_format =
+    if vm.elements['TEMPLATE/TM_MAD_SYSTEM'].text == 'ceph' &&
+       vm.elements['BACKUPS/BACKUP_CONFIG/MODE']&.text == 'INCREMENT'
+        'rbd'
+    else
+        'raw'
+    end
+
+STDOUT.puts "#{short_id} #{parts[1].to_i / (1024 * 1024)} #{backup_format}"
 exit(0)

@@ -61,7 +61,6 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
@@ -81,7 +80,6 @@ SRC="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 MD5="${XPATH_ELEMENTS[i++]}"
 SHA1="${XPATH_ELEMENTS[i++]}"
-NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
 CEPH_KEY="${XPATH_ELEMENTS[i++]}"
@@ -119,7 +117,7 @@ TMP_DST="$STAGING_DIR/$IMAGE_HASH"
 IMAGE_NAME="one-${ID}"
 RBD_SOURCE="${POOL_NAME}/${IMAGE_NAME}"
 
-DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`
+DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "yes" "$LIMIT_TRANSFER_BW" "$SRC" -`
 
 COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
@@ -153,21 +151,43 @@ fi
 REGISTER_CMD=$(cat <<EOF
     set -e -o pipefail
 
-    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}' || :)
+    if file $TMP_DST | grep -q gzip; then
+        mkdir $TMP_DST.d
+        cd $TMP_DST.d
 
-    if [ "\$FORMAT" != "raw" ] && [ "\$FORMAT" != "luks" ]; then
-        $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
-        mv $TMP_DST.raw $TMP_DST
+        tar zxf $TMP_DST
+
+        # Upload base image and snapshot
+        $RBD import --export-format 2 - $RBD_SOURCE < disk.*.rbd2
+
+        # Apply increments
+        for f in \$(ls disk.*.*.rbdiff | sort -k3 -t.); do
+            $RBD import-diff - $RBD_SOURCE < \$f
+        done
+
+        # Delete all snapshots
+        $RBD snap ls $RBD_SOURCE --format json | jq -r '.[] | select(.protected == "true").name' | xargs -rI{} $RBD snap unprotect $RBD_SOURCE@{}
+        $RBD snap ls $RBD_SOURCE --format json | jq -r '.[].name' | xargs -rI{} $RBD snap rm $RBD_SOURCE@{}
+
+        cd -
+        $RM -rf $TMP_DST $TMP_DST.d
+    else
+        FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print \$3}' || :)
+
+        if [ "\$FORMAT" != "raw" ] && [ "\$FORMAT" != "luks" ]; then
+            $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
+            mv $TMP_DST.raw $TMP_DST
+        fi
+
+        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
+
+        # remove original
+        $RM -f $TMP_DST
     fi
-
-    $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
-
-    # remove original
-    $RM -f $TMP_DST
 EOF
 )
 
-ssh_exec_and_log    "$DST_HOST" "$REGISTER_CMD" \
-                    "Error registering $RBD_SOURCE in $DST_HOST"
+ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" \
+                 "Error registering $RBD_SOURCE in $DST_HOST"
 
 echo "$RBD_SOURCE raw"

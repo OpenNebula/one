@@ -1599,6 +1599,11 @@ bool VirtualMachineDisks::backup_increment(bool do_volatile)
 
         one_util::toupper(type);
 
+        if (type == "RBD")
+        {
+            continue;
+        }
+
         if ((type == "SWAP") || ((type == "FS") && !do_volatile))
         {
             continue;

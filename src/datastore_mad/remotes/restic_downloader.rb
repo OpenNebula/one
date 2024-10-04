@@ -64,11 +64,13 @@ SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
 
 # restic://<datastore_id>/<bj_id>/<id>:<snapshot_id>,.../<file_name>
 restic_url = ARGV[0]
-tokens     = restic_url.delete_prefix('restic://').split('/')
+
+proto, url = restic_url.split(%r{://}, 2)
+tokens     = url.split('/', 4)
 ds_id      = tokens[0].to_i
 bj_id      = tokens[1]
 snaps      = tokens[2].split(',').map {|s| s.split(':')[1] }
-disk_path  = tokens[3..-1].join('/')
+disk_path  = "/#{tokens[3]}"
 disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match('/(\d+)/backup/[^/]+$')[1].to_i
 
@@ -109,52 +111,60 @@ end
 # Prepare image.
 
 begin
-    tmp_dir = "#{rds.tmp_dir}/#{SecureRandom.uuid}"
-
+    tmp_dir    = "#{rds.tmp_dir}/#{SecureRandom.uuid}"
     paths      = rds.pull_chain(snaps, disk_index, rds.sftp, tmp_dir)
-    disk_paths = paths[:disks][:by_index][disk_index]
+    disk_paths = paths[:disks][:by_index][disk_index].map {|d| Pathname.new(d) }
+    tmp_path   = "#{tmp_dir}/#{disk_paths.last.basename}"
 
-    tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
+    if proto == 'restic+rbd'
+        # FULL/INCREMENTAL BACKUP (RBD)
 
-    # FULL BACKUP
-
-    if disk_paths.size == 1
-        # Return shell code snippets according to the downloader's interface.
-        STDOUT.puts <<~EOS
-            command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
-            clean_command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
+        tmp_path = "#{tmp_dir}/disk.#{disk_index}.#{snaps.last[0]}.tar.gz"
+        script = <<~EOS
+            set -e -o pipefail; shopt -qs failglob
+            mkdir -p '#{tmp_dir}/'
+            tar zcvf '#{tmp_path}' -C #{tmp_dir} #{disk_paths.map {|d| d.basename }.join(' ')}
+            rm #{disk_paths.map {|d| "#{tmp_dir}/#{d.basename}" }.join(' ')}
         EOS
-        exit(0)
+
+        rc = TransferManager::Action.ssh('prepare_image',
+                                         :host     => "#{rds.user}@#{rds.sftp}",
+                                         :forward  => true,
+                                         :cmds     => script,
+                                         :nostdout => false,
+                                         :nostderr => false)
+
+        raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+    elsif disk_paths.size == 1
+        # FULL BACKUP (QCOW2)
+
+        # No additional preparation needed
+        true
+    else
+        # INCREMENTAL BACKUP (QCOW2)
+
+        script = [<<~EOS]
+            set -e -o pipefail; shopt -qs failglob
+            #{rds.resticenv_sh}
+            #{TransferManager::BackupImage.reconstruct_chain(disk_paths, :workdir => tmp_dir)}
+            #{TransferManager::BackupImage.merge_chain(disk_paths, :workdir => tmp_dir)}
+        EOS
+
+        rc = TransferManager::Action.ssh('prepare_image',
+                                         :host     => "#{rds.user}@#{rds.sftp}",
+                                         :forward  => true,
+                                         :cmds     => script.join("\n"),
+                                         :nostdout => true,
+                                         :nostderr => false)
+
+        raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
     end
-
-    # INCREMENTAL BACKUP
-
-    script = [<<~EOS]
-        set -e -o pipefail; shopt -qs failglob
-        #{rds.resticenv_sh}
-    EOS
-
-    script << TransferManager::BackupImage.reconstruct_chain(disk_paths,
-                                                             :workdir => tmp_dir)
-
-    script << TransferManager::BackupImage.merge_chain(disk_paths,
-                                                       :workdir => tmp_dir)
-
-    rc = TransferManager::Action.ssh 'prepare_image',
-                                     :host     => "#{rds.user}@#{rds.sftp}",
-                                     :forward  => true,
-                                     :cmds     => script.join("\n"),
-                                     :nostdout => true,
-                                     :nostderr => false
-
-    raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
 
     # Return shell code snippets according to the downloader's interface.
     STDOUT.puts <<~EOS
         command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' cat '#{tmp_path}'"
         clean_command="ssh #{SSH_OPTS} '#{rds.user}@#{rds.sftp}' rm -rf '#{tmp_dir}/'"
     EOS
-    exit(0)
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)

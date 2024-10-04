@@ -98,9 +98,10 @@ begin
     bpath = xml.elements['DATASTORE/BASE_PATH'].text
     ruser = xml.elements['DATASTORE/TEMPLATE/RSYNC_USER']&.text || 'oneadmin'
     rhost = xml.elements['DATASTORE/TEMPLATE/RSYNC_HOST'].text
+    format = xml.elements['IMAGE/FORMAT'].text
 
     snap = image.selected || image.last
-    burl = "rsync://#{ds_id}/#{image.bj_id}/#{chain}"
+    burl = "rsync#{format == 'rbd' ? '+rbd' : ''}://#{ds_id}/#{image.bj_id}/#{chain}"
 
     # --------------------------------------------------------------------------
     # Get a list of disk paths stored in the backup
