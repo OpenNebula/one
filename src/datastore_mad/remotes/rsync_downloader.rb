@@ -64,11 +64,13 @@ SSH_OPTS = '-q -o ControlMaster=no -o ControlPath=none -o ForwardAgent=yes'
 
 # rsync://100/3/0:8a3454,1:f6e63e//var/lib/one/datastores/100/6/8a3454/disk.0.0
 rsync_url  = ARGV[0]
-tokens     = rsync_url.delete_prefix('rsync://').split('/')
+
+proto, url = rsync_url.split(%r{://}, 2)
+tokens     = url.split('/', 4)
 ds_id      = tokens[0].to_i
 _bj_id     = tokens[1]
 increments = tokens[2].split(',').map {|s| s.split(':') }
-disk_path  = "/#{tokens[3..-1].join('/')}"
+disk_path  = "/#{tokens[3]}"
 disk_index = Pathname.new(disk_path).basename.to_s.split('.')[1]
 vm_id      = disk_path.match("/#{ds_id}/(\\d+)/[^/]+/[^/]+$")[1].to_i
 
@@ -93,54 +95,81 @@ end
 # Prepare image.
 
 begin
-    disk_paths = increments.map do |index, snap|
-        raw     = %(#{base_path}/#{vm_id}/#{snap}/disk.#{disk_index}.#{index})
-        cleaned = Pathname.new(raw).cleanpath.to_s
-        cleaned
-    end
+    tmp_dir  = "#{rsync_tmp_dir}/#{SecureRandom.uuid}"
+    if proto == 'rsync+rbd'
+        # FULL/INCREMENTAL BACKUP (RBD)
 
-    # FULL BACKUP
+        disk_paths = increments.map do |index, snap|
+            raw = if index == '0'
+                      "#{base_path}/#{vm_id}/#{snap}/disk.#{disk_index}.rbd2"
+                  else
+                      "#{base_path}/#{vm_id}/#{snap}/disk.#{disk_index}.#{index}.rbdiff"
+                  end
+            Pathname.new(raw).cleanpath
+        end
 
-    if disk_paths.size == 1
-        # Return shell code snippets according to the downloader's interface.
+        tmp_path = "#{tmp_dir}/disk.#{disk_index}.#{increments.last[0]}.tar.gz"
+
+        script = <<~EOS
+            set -e -o pipefail; shopt -qs failglob
+            mkdir -p '#{tmp_dir}/'
+            tar zcvf '#{tmp_path}'#{disk_paths.map {|d| " -C #{d.dirname} #{d.basename}" }.join('')}
+        EOS
+
+        rc = TransferManager::Action.ssh('prepare_image',
+                                         :host     => "#{rsync_user}@#{rsync_host}",
+                                         :forward  => true,
+                                         :cmds     => script,
+                                         :nostdout => false,
+                                         :nostderr => false)
+
+        raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+
+        STDOUT.puts <<~EOS
+            command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{tmp_path}'"
+            clean_command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' rm -rf '#{tmp_dir}/'"
+        EOS
+    elsif increments.size == 1
+        # FULL BACKUP (QCOW2)
+
         STDOUT.puts <<~EOS
             command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{disk_path}'"
             clean_command=""
         EOS
-        exit(0)
+    else
+        # INCREMENTAL BACKUP (QCOW2)
+
+        disk_paths = increments.map do |index, snap|
+            raw     = %(#{base_path}/#{vm_id}/#{snap}/disk.#{disk_index}.#{index})
+            cleaned = Pathname.new(raw).cleanpath.to_s
+            cleaned
+        end
+
+        tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
+
+        script = <<~EOS
+            set -e -o pipefail; shopt -qs failglob
+
+            #{TransferManager::BackupImage.reconstruct_chain(disk_paths)}
+            mkdir -p '#{tmp_dir}/'
+            #{TransferManager::BackupImage.merge_chain(disk_paths,
+                                                       :destdir => tmp_dir)}
+        EOS
+
+        rc = TransferManager::Action.ssh('prepare_image',
+                                         :host     => "#{rsync_user}@#{rsync_host}",
+                                         :forward  => true,
+                                         :cmds     => script,
+                                         :nostdout => false,
+                                         :nostderr => false)
+
+        raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
+
+        STDOUT.puts <<~EOS
+            command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{tmp_path}'"
+            clean_command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' rm -rf '#{tmp_dir}/'"
+        EOS
     end
-
-    # INCREMENTAL BACKUP
-
-    tmp_dir  = "#{rsync_tmp_dir}/#{SecureRandom.uuid}"
-    tmp_path = "#{tmp_dir}/#{Pathname.new(disk_paths.last).basename}"
-
-    script = [<<~EOS]
-        set -e -o pipefail; shopt -qs failglob
-    EOS
-
-    script << TransferManager::BackupImage.reconstruct_chain(disk_paths)
-
-    script << "mkdir -p '#{tmp_dir}/'"
-
-    script << TransferManager::BackupImage.merge_chain(disk_paths,
-                                                       :destdir => tmp_dir)
-
-    rc = TransferManager::Action.ssh 'prepare_image',
-                                     :host     => "#{rsync_user}@#{rsync_host}",
-                                     :forward  => true,
-                                     :cmds     => script.join("\n"),
-                                     :nostdout => false,
-                                     :nostderr => false
-
-    raise StandardError, "Unable to prepare image: #{rc.stderr}" if rc.code != 0
-
-    # Return shell code snippets according to the downloader's interface.
-    STDOUT.puts <<~EOS
-        command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' cat '#{tmp_path}'"
-        clean_command="ssh #{SSH_OPTS} '#{rsync_user}@#{rsync_host}' rm -rf '#{tmp_dir}/'"
-    EOS
-    exit(0)
 rescue StandardError => e
     STDERR.puts e.full_message
     exit(-1)

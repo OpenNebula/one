@@ -55,21 +55,6 @@ require 'rexml/document'
 
 require_relative '../lib/tm_action'
 require_relative '../lib/ceph'
-require_relative '../lib/kvm'
-require_relative '../lib/datastore'
-
-# TODO: fsfreeze for each hypervisor based on VM_MAD
-include TransferManager::KVM
-
-#-------------------------------------------------------------------------------
-# Helper functions
-#-------------------------------------------------------------------------------
-def rbd_append(str, disk, name, opt)
-    opt_val = disk.elements[name].text
-    "#{str} #{opt} #{opt_val}" unless opt_val.empty?
-rescue StandardError
-    str
-end
 
 #-------------------------------------------------------------------------------
 # BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
@@ -88,85 +73,20 @@ _dsid     = ARGV[5]
 rhost     = dir[0]
 rdir      = dir[1]
 
-xml_doc = REXML::Document.new(vm_xml)
-vm      = xml_doc.root
-
-ds = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml)
-
-action = TransferManager::Action.new(:action_name => 'prebackup_live',
-                                     :vm_id => vmid)
-
 base_path = ENV['BACKUP_BASE_PATH']
 
-bck_dir = if base_path
-              "#{base_path}/#{vmid}/backup"
-          else
-              "#{rdir}/backup"
-          end
+backup_dir =
+    if base_path
+        "#{base_path}/#{vmid}/backup"
+    else
+        "#{rdir}/backup"
+    end
 
-snap_cmd = ''
-expo_cmd = ''
-conv_cmd = ''
-clup_cmd = ''
-
-ceph_disks = TransferManager::Ceph::Disk.from_vm(action.vm.template_xml)
-ceph_disks.compact.each do |d|
-    did = d.id
-    next unless disks.include? did.to_s
-
-    rbd_src = d.rbd_image
-    cmd     = d.rbd_cmd
-
-    draw = "#{bck_dir}/disk.#{did}.raw"
-    ddst = "#{bck_dir}/disk.#{did}.0"
-
-    snap_cmd << "#{cmd} snap create #{rbd_src}@backup\n"
-
-    ceph_cmd = "#{cmd} export #{rbd_src}@backup #{draw}\n"
-    expo_cmd << ds.cmd_confinement(ceph_cmd, rdir)
-
-    qemu_cmd = "qemu-img convert -m 4 -O qcow2 #{draw} #{ddst}\n"
-    conv_cmd << ds.cmd_confinement(qemu_cmd, rdir)
-
-    clup_cmd << "#{cmd} snap rm #{rbd_src}@backup\n"
-    clup_cmd << "rm -f #{draw}\n"
-rescue StandardError => e
-    STDERR.puts "Missing configuration attributes in DISK: #{e.message}"
-    exit(1)
-end
-
-freeze, thaw = fsfreeze(vm, deploy_id)
-
-script = <<~EOS
-    set -ex -o pipefail
-
-    # ----------------------
-    # Prepare backup folder
-    # ----------------------
-    [ -d #{bck_dir} ] && rm -rf #{bck_dir}
-
-    mkdir -p #{bck_dir}
-
-    echo "#{Base64.encode64(vm_xml)}" > #{bck_dir}/vm.xml
-
-    # --------------------------------
-    # Create Ceph snapshots for disks
-    # --------------------------------
-    #{freeze}
-
-    #{snap_cmd}
-
-    #{thaw}
-
-    # --------------------------
-    # export, convert & cleanup
-    # --------------------------
-    #{expo_cmd}
-
-    #{conv_cmd}
-
-    #{clup_cmd}
-EOS
+action  = TransferManager::Action.new(:action_name => 'prebackup_live',
+                                      :vm_id => vmid)
+ds      = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml.to_s)
+ceph_vm = TransferManager::Ceph::VM.new(action.vm.to_xml)
+script  = ceph_vm.backup_disks_sh(disks, backup_dir, ds, true, deploy_id)
 
 rc = action.ssh(:host => rhost,
                 :cmds => script,

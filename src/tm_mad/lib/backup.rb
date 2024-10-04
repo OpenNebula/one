@@ -23,7 +23,7 @@ module TransferManager
     # This class includes methods manage backup images
     class BackupImage
 
-        attr_reader :vm_id, :keep_last, :bj_id
+        attr_reader :vm_id, :keep_last, :bj_id, :format
 
         # Given a sorted list of qcow2 files,
         # return a shell recipe that reconstructs the backing chain in-place.
@@ -116,6 +116,18 @@ module TransferManager
             @keep_last = @action.elements['/DS_DRIVER_ACTION_DATA/EXTRA_DATA/KEEP_LAST']&.text.to_i
 
             @incr_id = @action.elements['/DS_DRIVER_ACTION_DATA/TEMPLATE/INCREMENT_ID']&.text.to_i
+
+            @format = @action.elements["#{prefix}/FORMAT"]&.text
+        end
+
+        # Returns the backup protocol to use (e.g. rsync, restic+rbd) based
+        # on backup format
+        def proto(base)
+            if @format == 'rbd'
+                "#{base}+rbd"
+            else
+                base
+            end
         end
 
         def last

@@ -175,6 +175,11 @@ public:
         config.replace("LAST_BACKUP_SIZE", size);
     }
 
+    void last_backup_format(const std::string& format)
+    {
+        config.replace("LAST_BACKUP_FORMAT", format);
+    }
+
     void last_increment_id(int id)
     {
         config.replace("LAST_INCREMENT_ID", id);
@@ -222,6 +227,15 @@ public:
         config.get("LAST_BACKUP_SIZE", sz);
 
         return sz;
+    }
+
+    std::string last_backup_format() const
+    {
+        std::string fmt;
+
+        config.get("LAST_BACKUP_FORMAT", fmt);
+
+        return fmt;
     }
 
     int last_increment_id() const
@@ -283,6 +297,8 @@ public:
 
         config.erase("LAST_BACKUP_ID");
         config.erase("LAST_BACKUP_SIZE");
+
+        config.erase("LAST_BACKUP_FORMAT");
     }
 
     /**

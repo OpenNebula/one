@@ -431,11 +431,17 @@ lxd://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
     ;;
-restic://*)
-    eval `$VAR_LOCATION/remotes/datastore/restic_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
+restic://*|restic+rbd://*)
+    defs=`$VAR_LOCATION/remotes/datastore/restic_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
+    ret=$?
+    [ $ret -ne 0 ] && exit $ret
+    eval "$defs"
     ;;
-rsync://*)
-    eval `$VAR_LOCATION/remotes/datastore/rsync_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
+rsync://*|rsync+rbd://*)
+    defs=`$VAR_LOCATION/remotes/datastore/rsync_downloader.rb "$FROM" | grep -e '^command=' -e '^clean_command='`
+    ret=$?
+    [ $ret -ne 0 ] && exit $ret
+    eval "$defs"
     ;;
 *)
     if [ ! -r $FROM ]; then

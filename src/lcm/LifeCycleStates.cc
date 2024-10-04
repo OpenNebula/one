@@ -2707,6 +2707,12 @@ void LifeCycleManager::trigger_disk_restore_success(int vid)
                 vm->delete_snapshots(vm_quotas_snp);
                 vm->delete_non_persistent_disk_snapshots(vm_quotas_snp, ds_quotas_snp);
 
+                if ( vm->backups().configured() )
+                {
+                    vm->backups().last_increment_id(-1);
+                    vm->backups().incremental_backup_id(-1);
+                }
+
                 vm->set_state(VirtualMachine::POWEROFF);
                 vm->log("LCM", Log::INFO, "VM restore operation completed.");
             }
@@ -2822,7 +2828,7 @@ static int create_backup_image(VirtualMachine * vm, string& msg)
     itmp->add("NAME",   oss.str());
     itmp->add("SOURCE", backups.last_backup_id());
     itmp->add("SIZE",   backups.last_backup_size());
-    itmp->add("FORMAT", "raw");
+    itmp->add("FORMAT", backups.last_backup_format());
     itmp->add("VM_ID",  vm->get_oid());
     itmp->add("TYPE",   Image::type_to_str(Image::BACKUP));
 

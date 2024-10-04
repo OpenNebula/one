@@ -122,10 +122,9 @@ module TransferManager
             unless success
                 err = opt[:err_msg] || "Command failed:\n#{script}"
 
-                @logger.error "#{err.chomp}\nError: #{rc.stdout}"
-                @logger.error "ERROR: #{err.chomp})\n"
-                @logger.error "  [STDOUT] #{rc.stdout.gsub("\n", '\n')}\n" unless opt[:nostdout]
-                @logger.error "  [STDERR] #{rc.stderr.gsub("\n", '\n')}\n" unless opt[:nostderr]
+                @logger.error err.chomp
+                @logger.error "  [STDOUT] \"#{rc.stdout.gsub("\n", '\n')}\"\n" unless opt[:nostdout]
+                @logger.error "  [STDERR] \"#{rc.stderr.gsub("\n", '\n')}\"\n" unless opt[:nostderr]
             end
 
             rc

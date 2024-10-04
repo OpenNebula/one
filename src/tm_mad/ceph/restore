@@ -95,20 +95,21 @@ begin
 
     raise 'cannot list backup contents' unless rc.code == 0
 
+    # e.g.: {"0"=>"rsync://100//0:a47997,1:6ca565/var/lib/one/datastores/100/3/a47997/disk.0.rbd2"}
     disk_urls = JSON.parse(rc.stdout)
     disk_urls = disk_urls.select {|id, _url| id.to_i == disk_id } if disk_id != -1
 
     # --------------------------------------------------------------------------
     # Restore disk_urls in Host VM folder
     # --------------------------------------------------------------------------
-    ceph_disks    = TransferManager::Ceph::Disk.from_vm(action.vm.template_xml)
+    ceph_disks    = TransferManager::Ceph::Disk.from_vm(action.vm.to_xml)
     success_disks = []
 
     info = {}
 
     disk_urls.each do |id, url|
         ceph_disk  = ceph_disks[id.to_i]
-        randsuffix = SecureRandom.hex(5)
+        randsuffix = SecureRandom.hex(4)
 
         ceph_one_ds = OpenNebula::Datastore.new_with_id(
             action.vm["/VM/TEMPLATE/DISK[DISK_ID = #{id}]/DATASTORE_ID"].to_i, action.one
@@ -117,16 +118,24 @@ begin
 
         info[ceph_disk] = {
             :br  => ceph_ds.pick_bridge,
-            :bak => "#{ceph_disk.rbd_image}.backup.#{randsuffix}",
+            :new => "#{ceph_disk.rbd_image}.new.#{randsuffix}",
             :old => "#{ceph_disk.rbd_image}.old.#{randsuffix}"
         }
 
         upload_ceph = <<~EOS
-            tmpimg="$(mktemp -t disk#{id}.XXXX)"
+            tmpdir="$(mktemp -dt disk#{id}.XXXX)"
+            tmpimg=$tmpdir/image
+            trap "rm -rf $tmpdir" EXIT
             #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} $tmpimg && \
-            qemu-img convert -m 4 -O raw $tmpimg $tmpimg.raw && \
-            ssh #{info[ceph_disk][:br]} #{ceph_disk.rbd_cmd} import - #{info[ceph_disk][:bak]} < $tmpimg.raw; \
-            rm $tmpimg $tmpimg.raw
+            if file $tmpimg | grep -q gzip; then
+                cd $tmpdir
+                tar zxf $tmpimg
+                #{ceph_disk.restore_sh(info[ceph_disk][:new], info[ceph_disk][:br])}
+                cd -
+            else
+                qemu-img convert -m 4 -O raw $tmpimg $tmpimg.raw && \
+                ssh #{info[ceph_disk][:br]} #{ceph_disk.rbd_cmd} import - #{info[ceph_disk][:new]} < $tmpimg.raw
+            fi
         EOS
 
         rc = action.ssh(:host => nil,
@@ -144,7 +153,7 @@ begin
     if success_disks.length != disk_urls.length
         success_disks.each do |ceph_disk|
             cleanup = <<~EOS
-                #{ceph_disk.rbd_cmd} rm #{info[ceph_disk][:bak]}
+                #{ceph_disk.rbd_cmd} rm #{info[ceph_disk][:new]}
             EOS
 
             action.ssh(:host => info[ceph_disk][:br],
@@ -165,7 +174,7 @@ begin
             #{ceph_disk.shdefs}
 
             #{ceph_disk.rbd_cmd} mv #{ceph_disk.rbd_image} #{info[ceph_disk][:old]} && \
-            #{ceph_disk.rbd_cmd} mv #{info[ceph_disk][:bak]} #{ceph_disk.rbd_image} && \
+            #{ceph_disk.rbd_cmd} mv #{info[ceph_disk][:new]} #{ceph_disk.rbd_image} && \
             rbd_rm_image #{info[ceph_disk][:old]}
         EOS
 

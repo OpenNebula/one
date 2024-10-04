@@ -165,12 +165,14 @@ one_client = OpenNebula::Client.new token
 # ------------------------------------------------------------------------------
 xml.define_singleton_method('[]') {|xpath| elements[xpath].text }
 
-restorer = TransferManager::BackupRestore.new :vm_xml64  => vm_xml,
-                                              :backup_id => snap,
-                                              :bimage    => image,
-                                              :ds_id     => ds_id,
-                                              :txml      => xml,
-                                              :proto     => 'rsync'
+restorer = TransferManager::BackupRestore.new(
+    :vm_xml64  => vm_xml,
+    :backup_id => snap,
+    :bimage    => image,
+    :ds_id     => ds_id,
+    :txml      => xml,
+    :proto     => image.proto('rsync')
+)
 
 br_disks = restorer.disk_images disk_paths
 

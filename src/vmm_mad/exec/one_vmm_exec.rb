@@ -1373,7 +1373,12 @@ class ExecDriver < VirtualMachineDriver
                 :driver       => :ds,
                 :action       => :backup,
                 :parameters   => ds_command,
-                :stdin        => xml_data.elements['DATASTORE'].to_s,
+                :stdin        => <<~EOF,
+                    <DS_DRIVER_ACTION_DATA>
+                      #{xml_data.elements['DATASTORE']}
+                      #{vm_xml}
+                    </DS_DRIVER_ACTION_DATA>
+                EOF
                 :fail_actions => cleanup_steps
             }
         ] + cleanup_steps
