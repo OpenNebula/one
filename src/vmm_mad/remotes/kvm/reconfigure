@@ -25,8 +25,9 @@ ISO_PATH=$3
 
 if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]] && [[ -n "$ISO_PATH" ]]
 then
+    test -b "$ISO_PATH" && EXTRA_ARGS="--block" || EXTRA_ARGS=""
     CMD="virsh --connect $LIBVIRT_URI \
-        change-media $DOMAIN $TARGET_DEVICE $ISO_PATH --insert"
+        change-media $DOMAIN $TARGET_DEVICE $ISO_PATH --insert $EXTRA_ARGS"
 
     exec_and_log "$CMD" "Could not insert CDROM $ISO_PATH to $TARGET_DEVICE"
 fi
