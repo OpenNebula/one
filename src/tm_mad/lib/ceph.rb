@@ -91,6 +91,9 @@ module TransferManager
         # Ceph disks
         class Disk
 
+            # DON'T CHANGE THIS CONSTANT; will break existing incremental backups
+            INC_SNAP_PREFIX  = 'one_backup_'
+
             attr_reader :id, :vmid, :source, :clone, :rbd_image, :rbd_cmd
 
             # @param vm_xml [String, REXML::Element]
@@ -146,6 +149,28 @@ module TransferManager
                 ['fs', 'swap'].include?(@type)
             end
 
+            # @param filter [nil, {type: [:prefix, :eq], text: String}]
+            def rm_snaps_sh(filter = nil, image = @rbd_image)
+                jqfilter =
+                    if filter.nil?
+                        nil
+                    elsif filter[:type] == :prefix
+                        ".name | startswith(\"#{filter[:text]}\")"
+                    elsif filter[:type] == :eq
+                        ".name == \"#{filter[:text]}\""
+                    end
+                rmfilter = "| select(#{jqfilter})" if jqfilter
+
+                <<~EOF
+                    #{@rbd_cmd} snap ls #{image} --format json | \
+                        jq -r '.[] #{rmfilter} .name' | \
+                        xargs -rn1 sh -c ' \
+                            #{@rbd_cmd} snap unprotect #{image}@$1 > /dev/null 2>&1 || true; \
+                            #{@rbd_cmd} snap rm #{image}@$1; \
+                        ' sh
+                EOF
+            end
+
             # @param backup_dir [String]
             # @param ds [TransferManager::Datastore]
             # @param live [Boolean]
@@ -182,21 +207,19 @@ module TransferManager
                     )
 
                     clup_cmd << "rm -f #{draw}\n"
+
+                    # Remove old incremental snapshots after starting a full one
+                    clup_cmd << rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX })
+
                 elsif @vm_backup_config[:last_increment] == -1
                     # First incremental backup (similar to full but snapshot must be preserved)
                     incid = 0
 
                     dexp     = "#{backup_dir}/disk.#{@id}.rbd2"
-                    sprefix  = 'one_backup_'
-                    snapshot = "#{@rbd_image}@#{sprefix}#{incid}"
+                    snapshot = "#{@rbd_image}@#{INC_SNAP_PREFIX}#{incid}"
 
                     snap_cmd << <<~EOF
-                        #{@rbd_cmd} snap ls #{@rbd_image} --format json | \
-                            jq -r '.[] | select(.protected == "true" and (.name | startswith("#{sprefix}"))).name' | \
-                            xargs -rI{} #{@rbd_cmd} snap unprotect #{@rbd_image}@{}
-                        #{@rbd_cmd} snap ls #{@rbd_image} --format json | \
-                            jq -r '.[] | select(.name | startswith("#{sprefix}")).name' | \
-                            xargs -rI{} #{@rbd_cmd} snap rm #{@rbd_image}@{}
+                        #{rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX })}
                         #{@rbd_cmd} snap create #{snapshot}
                         #{@rbd_cmd} snap protect #{snapshot}
                     EOF
@@ -221,6 +244,9 @@ module TransferManager
                         "#{@rbd_cmd} export-diff --from-snap #{last_snap} #{snapshot} #{dinc}\n",
                         backup_dir
                     )
+
+                    old_snapshot = "one_backup_#{@vm_backup_config[:last_increment]}"
+                    clup_cmd << rm_snaps_sh({ :type => :eq, :text => old_snapshot })
                 end
 
                 {
@@ -231,20 +257,17 @@ module TransferManager
             end
 
             def restore_sh(target, bridge = nil)
-                ssh = bridge ? "ssh #{bridge}" : ''
                 <<~EOF
                     # Upload base image and snapshot
-                    #{ssh} #{@rbd_cmd} import --export-format 2 - #{target} < disk.*.rbd2
+                    #{Disk.sshwrap(bridge, "#{@rbd_cmd} import --export-format 2 - #{target}")} < disk.*.rbd2
 
                     # Apply increments
                     for f in $(ls disk.*.*.rbdiff | sort -k3 -t.); do
-                        #{ssh} #{@rbd_cmd} import-diff - #{target} < $f
+                        #{Disk.sshwrap(bridge, "#{@rbd_cmd} import-diff - #{target}")} < $f
                     done
 
-                    # Protect all snapshots
-                    #{ssh} #{@rbd_cmd} snap ls #{target} --format json | \
-                        jq -r '.[] | select(.protected == "false").name' | \
-                        xargs -I{} #{@rbd_cmd} snap protect #{target}@{}
+                    # Delete snapshots
+                    #{Disk.sshwrap(bridge, rm_snaps_sh({ :type => :prefix, :text => INC_SNAP_PREFIX }, target))}
                 EOF
             end
 
@@ -292,6 +315,23 @@ module TransferManager
                 end
 
                 indexed_disks
+            end
+
+            # TODO: move to Shell.rb (f-5853)
+            def self.sshwrap(host, cmd)
+                cmd << "\n"
+                if host.nil?
+                    cmd
+                else
+                    <<~EOF.strip
+                        ssh '#{host}' '\
+                            script="$(mktemp)"; \
+                            echo "#{Base64.strict_encode64(cmd)}" | base64 -d > "$script"; \
+                            trap "rm $script" EXIT; \
+                            bash "$script"; \
+                        '
+                    EOF
+                end
             end
 
         end
