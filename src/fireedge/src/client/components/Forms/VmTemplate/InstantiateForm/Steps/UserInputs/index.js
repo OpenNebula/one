@@ -13,44 +13,46 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-
 import {
   FIELDS,
   SCHEMA,
 } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs/schema'
 import { T, UserInputObject } from 'client/constants'
-import { FormWithSchema } from 'client/components/Forms'
-
+import { generateTabs } from 'client/utils'
+import { Component } from 'react'
 export const STEP_ID = 'user_inputs'
 
-const Content = ({ userInputs }) => (
-  <FormWithSchema
-    cy="user-inputs"
-    id={STEP_ID}
-    fields={useMemo(() => FIELDS(userInputs), [])}
-    saveState={true}
-  />
-)
+/**
+ * Return the content for the user inputs step.
+ *
+ * @param {object} props - Object with the info about user inputs
+ * @param {object} props.userInputsLayout - Info about user inputs
+ * @param {boolean} props.showMandatoryOnly - Show only mandatory inputs
+ * @returns {Component} React component with the content of the step
+ */
+const Content = ({ userInputsLayout, showMandatoryOnly }) =>
+  generateTabs(userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly)
 
 Content.propTypes = {
-  data: PropTypes.any,
-  userInputs: PropTypes.object,
+  props: PropTypes.any,
+  userInputsLayout: PropTypes.object,
 }
 
 /**
  * User inputs step.
  *
  * @param {UserInputObject[]} userInputs - User inputs
+ * @param {object} userInputsLayout - Info about user inputs
  * @returns {object} User inputs step
  */
-const UserInputsStep = (userInputs) => ({
+const UserInputsStep = (userInputs, userInputsLayout) => ({
   id: STEP_ID,
   label: T.UserInputs,
   optionsValidate: { abortEarly: false },
   resolver: SCHEMA(userInputs),
-  content: (props) => Content({ ...props, userInputs }),
+  enableShowMandatoryOnly: true,
+  content: (props) => Content({ ...props, userInputsLayout }),
 })
 
 export default UserInputsStep

@@ -15,20 +15,17 @@
  * ------------------------------------------------------------------------- */
 import { ObjectSchema } from 'yup'
 
-import { getObjectSchemaFromFields, schemaUserInput } from 'client/utils'
+import {
+  getObjectSchemaFromFields,
+  createFieldsFromUserInputs,
+} from 'client/utils'
 import { Field, UserInputObject } from 'client/constants'
 
 /**
  * @param {UserInputObject[]} userInputs - User inputs
  * @returns {Field[]} User inputs in Field format
  */
-const FIELDS = (userInputs = []) =>
-  userInputs.map(({ name, description, ...restOfUserInput }) => ({
-    name,
-    label: name,
-    ...(description && { tooltip: description }),
-    ...schemaUserInput(restOfUserInput),
-  }))
+const FIELDS = (userInputs = []) => createFieldsFromUserInputs(userInputs)
 
 /**
  * @param {UserInputObject[]} userInputs - User inputs

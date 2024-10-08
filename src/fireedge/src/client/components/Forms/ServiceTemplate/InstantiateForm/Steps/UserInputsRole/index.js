@@ -23,7 +23,7 @@ import { T, UserInputObject } from 'client/constants'
 import { generateTabs } from 'client/utils'
 import { Component } from 'react'
 
-export const STEP_ID = 'user_inputs'
+export const STEP_ID = 'user_inputs_roles'
 
 /**
  * Return the content for the user inputs step.
@@ -48,13 +48,13 @@ Content.propTypes = {
  * @param {object} userInputsLayout - Info about user inputs
  * @returns {object} User inputs step
  */
-const UserInputsStep = (userInputs, userInputsLayout) => ({
+const UserInputsRoleStep = (userInputs, userInputsLayout) => ({
   id: STEP_ID,
-  label: T.UserInputsService,
+  label: T.UserInputsRole,
   optionsValidate: { abortEarly: false },
   resolver: SCHEMA(userInputs),
   enableShowMandatoryOnly: true,
   content: (props) => Content({ ...props, userInputsLayout }),
 })
 
-export default UserInputsStep
+export default UserInputsRoleStep

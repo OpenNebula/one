@@ -21,6 +21,10 @@ import UserInputs, {
   STEP_ID as USERINPUTS_ID,
 } from 'client/components/Forms/ServiceTemplate/InstantiateForm/Steps/UserInputs'
 
+import UserInputsRole, {
+  STEP_ID as USERINPUTSROLE_ID,
+} from 'client/components/Forms/ServiceTemplate/InstantiateForm/Steps/UserInputsRole'
+
 import Network, {
   STEP_ID as NETWORK_ID,
 } from 'client/components/Forms/ServiceTemplate/InstantiateForm/Steps/Network'
@@ -29,102 +33,137 @@ import Charter, {
   STEP_ID as CHARTER_ID,
 } from 'client/components/Forms/ServiceTemplate/InstantiateForm/Steps/Charters'
 
-import { createSteps, parseVmTemplateContents } from 'client/utils'
+import {
+  createSteps,
+  parseVmTemplateContents,
+  groupServiceUserInputs,
+} from 'client/utils'
 
-const Steps = createSteps([General, UserInputs, Network, Charter], {
-  transformInitialValue: (ServiceTemplate, schema) => {
-    const templatePath = ServiceTemplate?.TEMPLATE?.BODY
-    const roles = templatePath?.roles ?? []
+const Steps = createSteps(
+  (data) => {
+    // Get and order user inputs
+    const userInputsData = groupServiceUserInputs(data?.dataTemplate)
 
-    const networks = Object.entries(templatePath?.networks ?? {}).map(
-      ([key, value]) => {
-        const extra = value.split(':').pop()
+    // Two steps for user inputs, one for the user inputs defined in the service template and another for the user inputs defined in role templates and that are not defined in the service template
+    return [
+      General,
+      userInputsData?.service?.userInputs?.length > 0 &&
+        (() =>
+          UserInputs(
+            userInputsData.service.userInputs,
+            userInputsData.service.userInputsLayout
+          )),
+      userInputsData?.roles?.userInputs?.length > 0 &&
+        (() =>
+          UserInputsRole(
+            userInputsData.roles.userInputs,
+            userInputsData.roles.userInputsLayout
+          )),
+      Network,
+      Charter,
+    ].filter(Boolean)
+  },
+  {
+    transformInitialValue: (ServiceTemplate, schema) => {
+      const templatePath = ServiceTemplate?.TEMPLATE?.BODY
+      const roles = templatePath?.roles ?? []
 
-        return {
-          netid: null,
-          extra: extra,
-          name: key,
+      const networks = Object.entries(templatePath?.networks ?? {}).map(
+        ([key, value]) => {
+          const extra = value.split(':').pop()
+
+          return {
+            netid: null,
+            extra: extra,
+            name: key,
+          }
         }
-      }
-    )
+      )
 
-    // Get schedule actions from vm template contents
-    const schedActions = parseVmTemplateContents(
-      ServiceTemplate?.TEMPLATE?.BODY?.roles[0]?.vm_template_contents,
-      true
-    )?.schedActions
-
-    const knownTemplate = schema.cast({
-      [GENERAL_ID]: {},
-      [USERINPUTS_ID]: {},
-      [NETWORK_ID]: { NETWORKS: networks },
-      [CHARTER_ID]: { SCHED_ACTION: schedActions },
-    })
-
-    const newRoles = roles.map((role) => {
-      // Parse vm template content
-      const roleTemplateContent = parseVmTemplateContents(
-        role.vm_template_contents,
+      // Get schedule actions from vm template contents
+      const schedActions = parseVmTemplateContents(
+        ServiceTemplate?.TEMPLATE?.BODY?.roles[0]?.vm_template_contents,
         true
-      )
+      )?.schedActions
 
-      // Delete schedule actions
-      delete roleTemplateContent.schedActions
+      const knownTemplate = schema.cast({
+        [GENERAL_ID]: {},
+        [USERINPUTS_ID]: {},
+        [USERINPUTSROLE_ID]: {},
+        [NETWORK_ID]: { NETWORKS: networks },
+        [CHARTER_ID]: { SCHED_ACTION: schedActions },
+      })
 
-      // Parse content without sched actions
-      const roleTemplateWithoutSchedActions = parseVmTemplateContents(
-        roleTemplateContent,
-        false
-      )
-      role.vm_template_contents = roleTemplateWithoutSchedActions
-
-      // Return content
-      return role
-    })
-
-    return { ...knownTemplate, roles: newRoles }
-  },
-
-  transformBeforeSubmit: (formData) => {
-    const {
-      [GENERAL_ID]: generalData,
-      [USERINPUTS_ID]: userInputsData,
-      [NETWORK_ID]: networkData,
-      [CHARTER_ID]: charterData,
-    } = formData
-
-    const formatTemplate = {
-      custom_attrs_values: Object.fromEntries(
-        Object.entries(userInputsData).map(([key, value]) => [
-          key.toUpperCase(),
-          String(value),
-        ])
-      ),
-      networks_values: networkData?.NETWORKS?.map((network) => ({
-        [network?.name]: {
-          [['existing', 'reserve'].includes(network?.tableType)
-            ? 'id'
-            : 'template_id']: network?.netid,
-        },
-      })),
-      roles: formData?.roles?.map((role) => ({
-        ...role,
-        vm_template_contents: parseVmTemplateContents(
-          {
-            vmTemplateContents: role?.vm_template_contents,
-            customAttrsValues: userInputsData,
-            schedActions: charterData.SCHED_ACTION,
-          },
-          false,
+      const newRoles = roles.map((role) => {
+        // Parse vm template content
+        const roleTemplateContent = parseVmTemplateContents(
+          role.vm_template_contents,
           true
-        ),
-      })),
-      name: generalData?.NAME,
-      instances: generalData?.INSTANCES,
-    }
+        )
 
-    return formatTemplate
-  },
-})
+        // Delete schedule actions
+        delete roleTemplateContent.schedActions
+
+        // Parse content without sched actions
+        const roleTemplateWithoutSchedActions = parseVmTemplateContents(
+          roleTemplateContent,
+          false
+        )
+        role.vm_template_contents = roleTemplateWithoutSchedActions
+
+        // Return content
+        return role
+      })
+
+      return { ...knownTemplate, roles: newRoles }
+    },
+
+    transformBeforeSubmit: (formData) => {
+      const {
+        [GENERAL_ID]: generalData,
+        [USERINPUTS_ID]: userInputsData,
+        [USERINPUTSROLE_ID]: userInputsRoleData,
+        [NETWORK_ID]: networkData,
+        [CHARTER_ID]: charterData,
+      } = formData
+
+      const formatTemplate = {
+        custom_attrs_values: Object.fromEntries(
+          Object.entries({
+            ...userInputsData,
+            ...userInputsRoleData,
+          }).map(([key, value]) => [key.toUpperCase(), String(value)])
+        ),
+        networks_values: networkData?.NETWORKS?.map((network) => ({
+          [network?.name]: {
+            [['existing', 'reserve'].includes(network?.tableType)
+              ? 'id'
+              : 'template_id']: network?.netid,
+          },
+        })),
+        roles: formData?.roles?.map((role) => {
+          delete role.vm_template_id_content
+
+          return {
+            ...role,
+            vm_template_contents: parseVmTemplateContents(
+              {
+                vmTemplateContents: role?.vm_template_contents,
+                customAttrsValues: { ...userInputsData, ...userInputsRoleData },
+                schedActions: charterData.SCHED_ACTION,
+              },
+              false,
+              true
+            ),
+          }
+        }),
+        name: generalData?.NAME,
+        instances: generalData?.INSTANCES,
+      }
+
+      return formatTemplate
+    },
+  }
+)
 
 export default Steps

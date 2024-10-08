@@ -414,7 +414,7 @@ export const getUserInputParams = (userInputString) => {
   return {
     mandatory: params[0] === MANDATORY,
     type: params[1],
-    description: params[2],
+    label: params[2],
     options: options,
     default: params?.[4],
     min: options?.[0],

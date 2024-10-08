@@ -39,7 +39,7 @@ const TemplateTab = ({ id }) => {
 
   return (
     <div>
-      <Accordion variant="outlined">
+      <Accordion variant="outlined" data-cy="tab-accordion-usertemplate">
         <AccordionSummary>
           <Translate word={T.UserTemplate} />
         </AccordionSummary>
@@ -54,7 +54,7 @@ const TemplateTab = ({ id }) => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      <Accordion variant="outlined">
+      <Accordion variant="outlined" data-cy="tab-accordion-template">
         <AccordionSummary>
           <Translate word={T.Template} />
         </AccordionSummary>

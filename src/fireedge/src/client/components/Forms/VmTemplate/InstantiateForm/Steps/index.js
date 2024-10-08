@@ -25,10 +25,11 @@ import {
   parseRangeToArray,
   userInputsToArray,
 } from 'client/models/Helper'
-import { createSteps } from 'client/utils'
+import { createSteps, groupUserInputs } from 'client/utils'
 
 const Steps = createSteps(
   ({ dataTemplateExtended = {}, ...rest }) => {
+    // Get and order user inputs
     const userInputs = userInputsToArray(
       dataTemplateExtended?.TEMPLATE?.USER_INPUTS,
       {
@@ -36,9 +37,21 @@ const Steps = createSteps(
       }
     )
 
+    // Get user inputs metadata
+    const userInputsMetadata = dataTemplateExtended?.TEMPLATE
+      ?.USER_INPUTS_METADATA
+      ? Array.isArray(dataTemplateExtended?.TEMPLATE?.USER_INPUTS_METADATA)
+        ? dataTemplateExtended?.TEMPLATE?.USER_INPUTS_METADATA
+        : [dataTemplateExtended?.TEMPLATE?.USER_INPUTS_METADATA]
+      : undefined
+
+    // Group user inputs
+    const userInputsLayout = groupUserInputs(userInputs, userInputsMetadata)
+
     return [
       () => BasicConfiguration({ vmTemplate: dataTemplateExtended, ...rest }),
-      !!userInputs.length && (() => UserInputs(userInputs)),
+      userInputs?.length > 0 &&
+        (() => UserInputs(userInputs, userInputsLayout)),
       ExtraConfiguration,
     ].filter(Boolean)
   },

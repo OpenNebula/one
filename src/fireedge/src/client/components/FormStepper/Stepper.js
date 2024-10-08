@@ -25,6 +25,8 @@ import {
   Paper,
   IconButton,
   Popover,
+  FormControlLabel,
+  Switch,
 } from '@mui/material'
 import Step from '@mui/material/Step'
 import { NavArrowDown, NavArrowUp } from 'iconoir-react'
@@ -40,6 +42,12 @@ import { styled } from '@mui/styles'
 import { SubmitButton } from 'client/components/FormControl'
 import { Translate } from 'client/components/HOC'
 import { SCHEMES, T } from 'client/constants'
+
+const Label = styled('span')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5em',
+})
 
 const StepperStyled = styled(Stepper)(({ theme }) => ({
   backdropFilter: 'blur(3px)',
@@ -124,6 +132,9 @@ const CustomStepper = ({
   handleStep,
   handleNext,
   handleBack,
+  enableShowMandatoryOnly,
+  handleShowMandatoryOnly,
+  showMandatoryOnly,
   errors,
   isSubmitting,
 }) => {
@@ -215,24 +226,56 @@ const CustomStepper = ({
         })}
       </StepperStyled>
       <ButtonsWrapper>
-        <Button
-          data-cy="stepper-back-button"
-          disabled={disabledBack || isSubmitting}
-          onClick={handleBack}
-          size="small"
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            minHeight: '40px',
+          }}
         >
-          <Translate word={T.Back} />
-        </Button>
-        <SubmitButton
-          color="secondary"
-          data-cy="stepper-next-button"
-          isSubmitting={isSubmitting}
-          onClick={handleNext}
-          size="small"
-          label={
-            <Translate word={activeStep === lastStep ? T.Finish : T.Next} />
+          {
+            enableShowMandatoryOnly && (
+              // <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    onChange={handleShowMandatoryOnly}
+                    name={'aaaaaa'}
+                    checked={showMandatoryOnly}
+                    color="secondary"
+                    inputProps={{ 'data-cy': 'switch-mandatory' }}
+                  />
+                }
+                label={<Label>{T.MandatoryUserInputs}</Label>}
+                labelPlacement="end"
+              />
+            )
+            // </Box>
           }
-        />
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}
+          >
+            <Button
+              data-cy="stepper-back-button"
+              disabled={disabledBack || isSubmitting}
+              onClick={handleBack}
+              size="small"
+            >
+              <Translate word={T.Back} />
+            </Button>
+            <SubmitButton
+              color="secondary"
+              data-cy="stepper-next-button"
+              isSubmitting={isSubmitting}
+              onClick={handleNext}
+              size="small"
+              label={
+                <Translate word={activeStep === lastStep ? T.Finish : T.Next} />
+              }
+            />
+          </Box>
+        </Box>
       </ButtonsWrapper>
     </>
   )
@@ -252,6 +295,9 @@ CustomStepper.propTypes = {
   handleStep: PropTypes.func,
   handleNext: PropTypes.func,
   handleBack: PropTypes.func,
+  enableShowMandatoryOnly: PropTypes.bool,
+  handleShowMandatoryOnly: PropTypes.func,
+  showMandatoryOnly: PropTypes.bool,
   errors: PropTypes.shape({
     message: PropTypes.string,
   }),

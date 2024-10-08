@@ -19,7 +19,7 @@ import { useHistory, useLocation } from 'react-router'
 import { useGeneralApi } from 'client/features/General'
 import {
   useDeployServiceTemplateMutation,
-  useGetServiceTemplateQuery,
+  useGetServiceTemplateExtendedQuery,
 } from 'client/features/OneApi/serviceTemplate'
 import { useGetVMGroupsQuery } from 'client/features/OneApi/vmGroup'
 import { useGetHostsQuery } from 'client/features/OneApi/host'
@@ -34,6 +34,7 @@ import {
 import { InstantiateForm } from 'client/components/Forms/ServiceTemplate'
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T } from 'client/constants'
+import { Typography, Box } from '@mui/material'
 
 const _ = require('lodash')
 
@@ -49,7 +50,7 @@ function CreateServiceTemplate() {
   const { enqueueSuccess } = useGeneralApi()
   const [instantiate] = useDeployServiceTemplateMutation()
 
-  const { data: apiTemplateData } = useGetServiceTemplateQuery({
+  const { data: apiTemplateData } = useGetServiceTemplateExtendedQuery({
     id: templateId,
   })
 
@@ -82,16 +83,40 @@ function CreateServiceTemplate() {
   return templateId && !dataTemplate ? (
     <SkeletonStepsForm />
   ) : (
-    <InstantiateForm
-      initialValues={dataTemplate}
-      stepProps={{
-        dataTemplate,
-      }}
-      onSubmit={onSubmit}
-      fallback={<SkeletonStepsForm />}
-    >
-      {(config) => <DefaultFormStepper {...config} />}
-    </InstantiateForm>
+    <>
+      {dataTemplate?.TEMPLATE?.BODY?.logo && (
+        <Box
+          display="flex"
+          alignItems="center" // Aligns typography and image vertically
+          justifyContent="flex-start" // Ensures alignment to the left
+        >
+          <img
+            src={dataTemplate?.TEMPLATE?.BODY?.logo}
+            alt="Custom Logo"
+            style={{
+              width: 50,
+              objectFit: 'contain',
+              display: 'block',
+              margin: '0.5px',
+              backgroundColor: 'transparent',
+            }}
+          />
+          <Typography variant="h6">
+            {dataTemplate?.TEMPLATE?.BODY?.name}
+          </Typography>
+        </Box>
+      )}
+      <InstantiateForm
+        initialValues={dataTemplate}
+        stepProps={{
+          dataTemplate,
+        }}
+        onSubmit={onSubmit}
+        fallback={<SkeletonStepsForm />}
+      >
+        {(config) => <DefaultFormStepper {...config} />}
+      </InstantiateForm>
+    </>
   )
 }
 

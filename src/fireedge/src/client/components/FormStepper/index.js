@@ -312,10 +312,20 @@ const FormStepper = ({
     [activeStep, steps]
   )
 
-  const { id: stepId, content: Content } = useMemo(
+  const {
+    id: stepId,
+    content: Content,
+    enableShowMandatoryOnly,
+  } = useMemo(
     () => steps[activeStep] || { id: null, content: null },
     [steps, activeStep]
   )
+
+  const [valueShowMandatoryOnly, setShowMandatoryOnly] = useState(false)
+
+  const handleShowMandatoryOnly = useCallback((event) => {
+    setShowMandatoryOnly(event.target.checked)
+  }, [])
 
   return (
     <DisableStepContext.Provider value={disableStep}>
@@ -345,14 +355,28 @@ const FormStepper = ({
                 handleStep={handleStep}
                 handleNext={handleNext}
                 handleBack={handleBack}
+                enableShowMandatoryOnly={enableShowMandatoryOnly}
+                handleShowMandatoryOnly={handleShowMandatoryOnly}
+                valueShowMandatoryOnly={valueShowMandatoryOnly}
                 errors={errors}
               />
             ),
-          [isLoading, isMobile, activeStep, errors[stepId], steps]
+          [
+            isLoading,
+            isMobile,
+            activeStep,
+            errors[stepId],
+            steps,
+            valueShowMandatoryOnly,
+          ]
         )}
         {/* FORM CONTENT */}
         {Content && (
-          <Content data={formData[stepId]} setFormData={setFormData} />
+          <Content
+            data={formData[stepId]}
+            setFormData={setFormData}
+            showMandatoryOnly={valueShowMandatoryOnly}
+          />
         )}
       </>
     </DisableStepContext.Provider>
