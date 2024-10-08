@@ -40,7 +40,9 @@ const InformationPanel = ({ datastore = {}, actions }) => {
 
   const isShared = stringToBoolean(TEMPLATE.SHARED)
   const limit =
-    !isShared && TEMPLATE.LIMIT_MB ? prettyBytes(TEMPLATE.LIMIT_MB, 'MB') : '-'
+    !isShared && TEMPLATE.LIMIT_MB
+      ? prettyBytes(TEMPLATE.LIMIT_MB, 'MB', 1)
+      : '-'
 
   const { percentOfUsed, percentLabel } = getCapacityInfo(datastore)
   const { color: stateColor, name: stateName } = getState(datastore)
