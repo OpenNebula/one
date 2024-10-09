@@ -103,19 +103,17 @@ module VNMMAD
                 table bridge one_tproxy {
                     chain ch_<%= brdev %> {
                         type filter hook prerouting priority dstnat; policy accept;
-                    }
-                }
-
+                    };
+                };
                 flush chain bridge one_tproxy ch_<%= brdev %>;
-
                 table bridge one_tproxy {
                     chain ch_<%= brdev %> {
-                        meta ibrname "<%= brdev %>" \\
-                        ip daddr 169.254.16.9 \\
-                        meta pkttype set host ether daddr set <%= veth_mac %> \\
-                        accept
-                    }
-                }
+                        meta ibrname "<%= brdev %>" \
+                        ip daddr 169.254.16.9 \
+                        meta pkttype set host ether daddr set <%= veth_mac %> \
+                        accept;
+                    };
+                };
             NFT
 
             # The tproxy processes read their config from "ip one_tproxy ep_*" maps
@@ -125,18 +123,13 @@ module VNMMAD
             nft(ERB.new(<<~NFT).result(binding))
                 table ip one_tproxy {
                     map ep_<%= brdev %> {
-                        type inet_service : ipv4_addr \\
-                                          . inet_service;
-                    }
-                }
-
+                        type inet_service : ipv4_addr . inet_service;
+                    };
+                };
                 flush map ip one_tproxy ep_<%= brdev %>;
-
                 <% endpoints.each do |ep| %>
-                add element ip one_tproxy ep_<%= brdev %> {
-                    <%= ep[:service_port] %> : <%= ep[:remote_addr] %> \\
-                                             . <%= ep[:remote_port] %>
-                }
+                add element ip one_tproxy ep_<%= brdev %> \
+                {<%= ep[:service_port] %> : <%= ep[:remote_addr] %> . <%= ep[:remote_port] %>};
                 <% end %>
             NFT
         end
@@ -147,11 +140,9 @@ module VNMMAD
             nft(ERB.new(<<~NFT).result(binding))
                 table ip one_tproxy {
                     map ep_<%= brdev %> {
-                        type inet_service : ipv4_addr \\
-                                          . inet_service;
-                    }
-                }
-
+                        type inet_service : ipv4_addr . inet_service;
+                    };
+                };
                 delete map ip one_tproxy ep_<%= brdev %>;
             NFT
 
@@ -159,9 +150,8 @@ module VNMMAD
                 table bridge one_tproxy {
                     chain ch_<%= brdev %> {
                         type filter hook prerouting priority dstnat; policy accept;
-                    }
-                }
-
+                    };
+                };
                 delete chain bridge one_tproxy ch_<%= brdev %>;
             NFT
 
@@ -234,7 +224,20 @@ module VNMMAD
         end
 
         def self.nft(script, **opts)
-            run(:nft, '-f-', **opts, :stdin_data => script)
+            # Normalize nft scripts to avoid potential segfaults..
+            pass1 = script.lines.each_with_object([]) do |line, a|
+                line.sub!(/\\\n$/, ' ') # undo explicit line breaks
+
+                a << line
+            end.join
+            pass2 = pass1.lines.each_with_object([]) do |line, a|
+                next if line =~ /^\s*$/ # ignore empty lines
+
+                line.gsub!(/([^ ])[ ]+/, '\1 ') # remove redundant spaces
+
+                a << line
+            end.join
+            run(:nft, '-f-', **opts, :stdin_data => pass2)
         end
 
         def self.run_tproxy(cmd)

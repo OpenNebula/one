@@ -112,8 +112,10 @@ module VNMMAD
 
             def glue_peers(task)
                 @local_ep.accept do |client_peer|
+                    client_peer_address = client_peer.remote_address.inspect
+
                     $logger.debug(self) do
-                        "Accept #{client_peer.remote_address.inspect}"
+                        "Accept #{client_peer_address}"
                     end
 
                     begin
@@ -125,13 +127,15 @@ module VNMMAD
                         end
 
                         remote_ep.connect do |remote_peer|
+                            remote_peer_address = remote_peer.remote_address.inspect
+
                             client_stream, remote_stream = Async::IO::Stream.new(client_peer),
                                                            Async::IO::Stream.new(remote_peer)
 
                             glue_streams(client_stream, remote_stream, task).wait
                         ensure
                             $logger.debug(self) do
-                                "Close #{remote_peer.remote_address.inspect}"
+                                "Close #{remote_peer_address}"
                             end
 
                             remote_peer.close
@@ -146,7 +150,7 @@ module VNMMAD
                     end
                 ensure
                     $logger.debug(self) do
-                        "Close #{client_peer.remote_address.inspect}"
+                        "Close #{client_peer_address}"
                     end
 
                     client_peer.close
@@ -161,12 +165,26 @@ module VNMMAD
                             stream2.write chunk
                             stream2.flush
                         end
+                    rescue StandardError => e
+                        $logger.debug(self) do
+                            e.message
+                        end
+                    ensure
+                        stream1.close
+                        stream2.close
                     end
                     concurrent << subtask.async do
                         while (chunk = stream2.read_partial)
                             stream1.write chunk
                             stream1.flush
                         end
+                    rescue StandardError => e
+                        $logger.debug(self) do
+                            e.message
+                        end
+                    ensure
+                        stream2.close
+                        stream1.close
                     end
                     concurrent.each(&:wait)
                 end
