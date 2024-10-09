@@ -69,6 +69,9 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
 
   watcher: (dependencies, { formContext }) => {
     const [hypervisor, clusterHostTable, clusterHostType] = dependencies
+    if (!hypervisor) {
+      return
+    }
     const tableType = clusterHostType?.includes(T.Cluster) ? 'CLUSTER' : 'HOST'
     const regexPattern = new RegExp(`\\b${tableType}_ID\\s*=\\s*(\\d+)`)
 
