@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, string, boolean } from 'yup'
+import { number, string } from 'yup'
 
 import { HYPERVISORS, INPUT_TYPES, T } from 'client/constants'
 import { Field, OPTION_SORTERS, arrayToOptions } from 'client/utils'
