@@ -21,7 +21,6 @@ import { StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
 
 import { getState, getType, getCapacityInfo } from 'client/models/Datastore'
-import { stringToBoolean } from 'client/models/Helper'
 import { prettyBytes } from 'client/utils'
 import { T, Datastore, DATASTORE_ACTIONS, DS_THRESHOLD } from 'client/constants'
 
@@ -38,11 +37,9 @@ const InformationPanel = ({ datastore = {}, actions }) => {
 
   const { ID, NAME, BASE_PATH, TEMPLATE } = datastore
 
-  const isShared = stringToBoolean(TEMPLATE.SHARED)
-  const limit =
-    !isShared && TEMPLATE.LIMIT_MB
-      ? prettyBytes(TEMPLATE.LIMIT_MB, 'MB', 1)
-      : '-'
+  const limit = TEMPLATE.LIMIT_MB
+    ? prettyBytes(TEMPLATE.LIMIT_MB, 'MB', 1)
+    : '-'
 
   const { percentOfUsed, percentLabel } = getCapacityInfo(datastore)
   const { color: stateColor, name: stateName } = getState(datastore)
