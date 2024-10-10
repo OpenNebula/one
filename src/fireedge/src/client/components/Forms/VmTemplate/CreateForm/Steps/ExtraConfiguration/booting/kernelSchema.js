@@ -46,6 +46,8 @@ export const KERNEL_PATH_ENABLED = {
   validation: boolean()
     .strip()
     .default(() => false),
+
+  grid: { md: 4 },
 }
 
 /** @type {Field} Kernel DS field  */
@@ -84,6 +86,8 @@ export const KERNEL_DS = {
       form?.setValue(`extra.${KERNEL_DS_NAME}`, undefined)
     }
   },
+
+  grid: { md: 8 },
 }
 
 /** @type {Field} Kernel path field  */
@@ -104,6 +108,7 @@ export const KERNEL = {
       form?.setValue(`extra.${KERNEL_NAME}`, '')
     }
   },
+  grid: { md: 8 },
 }
 
 /** @type {Field[]} List of Kernel fields */

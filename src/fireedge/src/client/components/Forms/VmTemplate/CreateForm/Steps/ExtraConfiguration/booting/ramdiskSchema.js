@@ -43,7 +43,6 @@ export const RAMDISK_PATH_ENABLED = {
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.SWITCH,
   dependOf: [`$extra.${KERNEL_DS_NAME}`, `$extra.${KERNEL_NAME}`],
-  htmlType: ([ds, path] = []) => !(ds || path) && INPUT_TYPES.HIDDEN,
   fieldProps: (_, form) => {
     const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
     const path = form?.getValues(`extra.${KERNEL_NAME}`)
@@ -58,6 +57,8 @@ export const RAMDISK_PATH_ENABLED = {
   validation: boolean()
     .strip()
     .default(() => false),
+
+  grid: { md: 4 },
 }
 
 /** @type {Field} Ramdisk DS field  */
@@ -72,8 +73,7 @@ export const RAMDISK_DS = {
     `$extra.${KERNEL_NAME}`,
     `$extra.${KERNEL_PATH_ENABLED_NAME}`,
   ],
-  htmlType: ([enabled = false, ds, path] = []) =>
-    (enabled || !(ds || path)) && INPUT_TYPES.HIDDEN,
+  htmlType: ([enabled = false] = []) => enabled && INPUT_TYPES.HIDDEN,
   fieldProps: (_, form) => {
     const ds = form?.getValues(`extra.${KERNEL_DS_NAME}`)
     const path = form?.getValues(`extra.${KERNEL_NAME}`)
@@ -113,6 +113,8 @@ export const RAMDISK_DS = {
       form?.setValue(`extra.${RAMDISK_DS_NAME}`, undefined)
     }
   },
+
+  grid: { md: 8 },
 }
 
 /** @type {Field} Ramdisk path field  */
@@ -143,9 +145,9 @@ export const RAMDISK = {
 
     return ds || path ? {} : { disabled: true }
   },
-  htmlType: ([enabled = false, ds, path] = []) =>
-    (!enabled || !(ds || path)) && INPUT_TYPES.HIDDEN,
+  htmlType: ([enabled = false] = []) => !enabled && INPUT_TYPES.HIDDEN,
   validation: ramdiskValidation,
+  grid: { md: 8 },
 }
 
 /** @type {Field[]} List of Ramdisk fields */

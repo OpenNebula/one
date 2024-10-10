@@ -37,11 +37,13 @@ import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 
 import { useWatch, useFormContext } from 'react-hook-form'
+import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/styles'
 
 export const TAB_ID = 'OS'
 
 const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
   const { setFieldPath } = useGeneralApi()
+  const classes = useStyles()
   useEffect(() => {
     setFieldPath(`extra.OsCpu`)
   }, [])
@@ -61,15 +63,11 @@ const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
   const nicsAlias = getValues(`${EXTRA_ID}.${NIC_ID[1]}`)
 
   return (
-    <Stack
-      display="grid"
-      gap="1em"
-      sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-    >
+    <Stack display="grid" gap="1em" className={classes.root}>
       {(!!disks?.length || !!nics?.length || !!nicsAlias?.length) && (
         <FormControl
           component="fieldset"
-          sx={{ width: '100%', gridColumn: '1 / -1' }}
+          sx={{ width: '100%', gridColumn: '1 / span 2', gridRow: '1' }}
         >
           <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
           <BootOrder />
@@ -81,7 +79,7 @@ const Booting = ({ hypervisor, oneConfig, adminGroup, ...props }) => {
           id={EXTRA_ID}
           saveState={true}
           cy={`${EXTRA_ID}-${id}`}
-          hiddenLegend={id === 'os-ramdisk' && !kernelWatch && !kernelDsWatch}
+          rootProps={{ className: classes[id] }}
           {...section}
         />
       ))}

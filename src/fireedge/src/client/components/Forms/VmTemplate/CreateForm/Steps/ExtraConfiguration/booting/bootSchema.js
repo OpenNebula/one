@@ -100,6 +100,7 @@ export const KERNEL_CMD = {
     .notRequired()
     .default(() => undefined),
   fieldProps: { placeholder: 'ro console=tty1' },
+  grid: { md: 12 },
 }
 
 /** @type {Field} Path bootloader field */
@@ -157,7 +158,7 @@ export const FIRMWARE = {
   fieldProps: {
     freeSolo: true,
   },
-  grid: { md: 12 },
+  grid: { md: 8 },
 }
 
 /** @type {Field} Firmware secure field  */
@@ -167,7 +168,7 @@ export const FIRMWARE_SECURE = {
   notOnHypervisors: [lxc],
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 },
+  grid: { md: 4 },
 }
 
 /** @type {Field[]} List of Boot fields */
@@ -176,9 +177,9 @@ export const BOOT_FIELDS = [
   SD_DISK_BUS,
   MACHINE_TYPES,
   ROOT_DEVICE,
+  FIRMWARE,
+  FIRMWARE_SECURE,
   KERNEL_CMD,
   BOOTLOADER,
   UUID,
-  FIRMWARE,
-  FIRMWARE_SECURE,
 ]
