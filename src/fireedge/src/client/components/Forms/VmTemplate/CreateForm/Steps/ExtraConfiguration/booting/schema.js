@@ -50,18 +50,8 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
     ),
   },
   {
-    id: 'os-features',
-    legend: T.Features,
-    fields: disableFields(
-      filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
-      'OS',
-      oneConfig,
-      adminGroup
-    ),
-  },
-  {
     id: 'os-kernel',
-    legend: T.Kernel,
+    legend: `${T.Kernel}`,
     fields: disableFields(
       filterFieldsByHypervisor(KERNEL_FIELDS, hypervisor),
       'OS',
@@ -71,9 +61,19 @@ const SECTIONS = (hypervisor, oneConfig, adminGroup) => [
   },
   {
     id: 'os-ramdisk',
-    legend: T.Ramdisk,
+    legend: `${T.Ramdisk}`,
     fields: disableFields(
       filterFieldsByHypervisor(RAMDISK_FIELDS, hypervisor),
+      'OS',
+      oneConfig,
+      adminGroup
+    ),
+  },
+  {
+    id: 'os-features',
+    legend: T.Features,
+    fields: disableFields(
+      filterFieldsByHypervisor(FEATURES_FIELDS, hypervisor),
       'OS',
       oneConfig,
       adminGroup

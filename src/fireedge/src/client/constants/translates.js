@@ -1256,7 +1256,7 @@ module.exports = {
   FirmwareSecure: 'Firmware secure',
   CpuModel: 'CPU Model',
   CpuFeature: 'CPU Features',
-  CustomPath: 'Customize with path',
+  CustomPath: 'Custom path',
   /* VM Template schema - OS & CPU - kernel */
   Kernel: 'Kernel',
   KernelExpression: 'Kernel expression',
