@@ -431,7 +431,7 @@ export const getUserInputString = (userInput) => {
     mandatory,
     mandatoryString = mandatory ? MANDATORY : OPTIONAL,
     type,
-    description,
+    label,
     min,
     max,
     range = [min, max].filter(Boolean).join(RANGE_SEPARATOR),
@@ -439,8 +439,8 @@ export const getUserInputString = (userInput) => {
     default: defaultValue,
   } = userInput
 
-  // mandatory|type|description|range/options/' '|defaultValue
-  const uiString = [mandatoryString, type, description]
+  // mandatory|type|label|range/options/' '|defaultValue
+  const uiString = [mandatoryString, type, label]
 
   ;[USER_INPUT_TYPES.range, USER_INPUT_TYPES.rangeFloat].includes(type)
     ? uiString.push(range)

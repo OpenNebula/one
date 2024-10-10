@@ -124,7 +124,7 @@ const TYPE = {
 
 /** @type {Field} Description field */
 const DESCRIPTION = {
-  name: 'description',
+  name: 'label',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
   validation: string()
