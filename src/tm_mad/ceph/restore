@@ -130,7 +130,7 @@ begin
             if file $tmpimg | grep -q gzip; then
                 cd $tmpdir
                 tar zxf $tmpimg
-                #{ceph_disk.restore_sh(info[ceph_disk][:new], info[ceph_disk][:br])}
+                #{ceph_disk.restore_sh(info[ceph_disk][:new], ceph_ds, info[ceph_disk][:br])}
                 cd -
             else
                 qemu-img convert -m 4 -O raw $tmpimg $tmpimg.raw && \
@@ -184,7 +184,7 @@ begin
                         :nostdout => false,
                         :nostderr => false)
 
-        warn 'cannot restore disk backup' if rc.code != 0
+        raise StandardError, 'cannot restore disk backup' if rc.code != 0
     end
 rescue StandardError => e
     STDERR.puts "Error restoring VM disks: #{e.message}"
