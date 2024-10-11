@@ -105,8 +105,14 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+# EC parameters (--data-pool) are only accepted in some `rbd` commands. It's not officially
+# documented but at least the following ones require it:
+# - create
+# - import
+RBDEC="$RBD"
+
 if [ -n "$EC_POOL_NAME" ]; then
-    RBD="$RBD --data-pool ${EC_POOL_NAME}"
+    RBDEC="$RBDEC --data-pool ${EC_POOL_NAME}"
 fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
@@ -158,7 +164,7 @@ REGISTER_CMD=$(cat <<EOF
         tar zxf $TMP_DST
 
         # Upload base image and snapshot
-        $RBD import --export-format 2 - $RBD_SOURCE < disk.*.rbd2
+        $RBDEC import --export-format 2 - $RBD_SOURCE < disk.*.rbd2
 
         # Apply increments
         for f in \$(ls disk.*.*.rbdiff | sort -k3 -t.); do
@@ -179,7 +185,7 @@ REGISTER_CMD=$(cat <<EOF
             mv $TMP_DST.raw $TMP_DST
         fi
 
-        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
+        $RBDEC import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 
         # remove original
         $RM -f $TMP_DST
