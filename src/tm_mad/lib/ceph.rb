@@ -256,10 +256,23 @@ module TransferManager
                 }
             end
 
-            def restore_sh(target, bridge = nil)
+            # @param target [String] the RBD image name where to import
+            # @param ds [TransferManager::Datastore] the target datastore
+            # @param bridge [Boolean, nil] host from where to execute this operation
+            # @return [String] the script
+            def restore_sh(target, ds, bridge = nil)
+                ec_pool_name = ds['TEMPLATE/EC_POOL_NAME']
+
+                # EC parameters (--data-pool) are only accepted in some `rbd` commands. It's not
+                # officially documented but at least the following ones require it:
+                # - create
+                # - import
+                rbdec_cmd = @rbd_cmd.clone
+                rbdec_cmd << " --data-pool #{ec_pool_name}" unless ec_pool_name.empty?
+
                 <<~EOF
                     # Upload base image and snapshot
-                    #{Disk.sshwrap(bridge, "#{@rbd_cmd} import --export-format 2 - #{target}")} < disk.*.rbd2
+                    #{Disk.sshwrap(bridge, "#{rbdec_cmd} import --export-format 2 - #{target}")} < disk.*.rbd2
 
                     # Apply increments
                     for f in $(ls disk.*.*.rbdiff | sort -k3 -t.); do
