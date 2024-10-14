@@ -25,6 +25,7 @@ import General, {
   STEP_ID as GENERAL_ID,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 
+import { T } from 'client/constants'
 import { userInputsToArray } from 'client/models/Helper'
 import { createSteps, getUnknownAttributes, decodeBase64 } from 'client/utils'
 
@@ -95,8 +96,37 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
       }
     }
 
+    // Init placement
+    const schedRequirements = vmTemplate?.TEMPLATE?.SCHED_REQUIREMENTS
+    if (schedRequirements) {
+      objectSchema[EXTRA_ID].SCHED_REQUIREMENTS = schedRequirements
+      const parts = schedRequirements?.split(' | ')
+      const tableIds = parts?.reduce((ids, part) => {
+        if (part?.includes('ID')) {
+          const isCluster = part.toUpperCase().includes(T.Cluster.toUpperCase())
+          const tableId = isCluster ? T.Cluster : T.Host
+          const partId = part?.split(' = ')?.at(-1)?.trim()
+          if (!partId) return ids
+          ;(ids[tableId] ??= []).push(partId)
+        }
+
+        return ids
+      }, {})
+
+      if (tableIds?.[T.Cluster]) {
+        objectSchema[EXTRA_ID].PLACEMENT_CLUSTER_TABLE = tableIds[T.Cluster]
+      }
+
+      if (tableIds?.[T.Host]) {
+        objectSchema[EXTRA_ID].PLACEMENT_HOST_TABLE = tableIds[T.Host]
+      }
+    }
+
+    const defaultType = T.SelectCluster
+    objectSchema[EXTRA_ID].CLUSTER_HOST_TYPE = defaultType
+
     const knownTemplate = schema.cast(objectSchema, {
-      stripUnknown: true,
+      stripUnknown: false,
       context: { ...vmTemplate, [EXTRA_ID]: vmTemplate.TEMPLATE },
     })
 
