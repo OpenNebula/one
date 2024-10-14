@@ -34,15 +34,12 @@ import { transformXmlString } from 'client/models/Helper'
 const addHypervisorRequirement = (schedRequirements, hypervisor) => {
   // Regular expression pattern to match (HYPERVISOR=VALUE)
 
-  const regexPattern = /\(HYPERVISOR=(kvm|dummy|lxc|qemu)\)/
+  const regexPattern = /HYPERVISOR=(kvm|dummy|lxc|qemu)/
 
   // If exists a condition with hypervisor, replace the type. If not, add the hypervisor type.
   if (regexPattern.test(schedRequirements)) {
     // Replace the matched pattern with the new hypervisor
-    return schedRequirements.replace(
-      regexPattern,
-      '(HYPERVISOR=' + hypervisor + ')'
-    )
+    return schedRequirements.replace(regexPattern, 'HYPERVISOR=' + hypervisor)
   } else {
     // Add the condition only
     if (!hypervisor) {
@@ -50,8 +47,8 @@ const addHypervisorRequirement = (schedRequirements, hypervisor) => {
     }
 
     return schedRequirements
-      ? `(${schedRequirements}) & (HYPERVISOR=${hypervisor})`
-      : `(HYPERVISOR=${hypervisor})`
+      ? `${schedRequirements} | HYPERVISOR=${hypervisor}`
+      : `HYPERVISOR=${hypervisor}`
   }
 }
 
@@ -63,21 +60,26 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
   type: INPUT_TYPES.TEXT,
   dependOf: [
     '$general.HYPERVISOR',
-    '$extra.CLUSTER_HOST_TABLE',
+    '$extra.PLACEMENT_CLUSTER_TABLE',
+    '$extra.PLACEMENT_HOST_TABLE',
     '$extra.CLUSTER_HOST_TYPE',
   ],
 
   watcher: (dependencies, { formContext }) => {
-    const [hypervisor, clusterHostTable, clusterHostType] = dependencies
+    const [hypervisor, clusterTable, hostTable, clusterHostType] = dependencies
+
+    const clusterHostTable = clusterHostType?.includes(T.Cluster)
+      ? clusterTable
+      : hostTable
     if (!hypervisor) {
       return
     }
-    const tableType = clusterHostType?.includes(T.Cluster) ? 'CLUSTER' : 'HOST'
-    const regexPattern = new RegExp(`\\b${tableType}_ID\\s*=\\s*(\\d+)`)
+    const tableType = clusterHostType?.includes(T.Cluster) ? 'CLUSTER_' : ''
+    const regexPattern = new RegExp(`\\b${tableType}ID\\s*=\\s*\\d+`)
 
     const actualValue = formContext.getValues('extra.SCHED_REQUIREMENTS')
 
-    const parts = actualValue?.split('&')?.map((part) => part?.trim())
+    const parts = actualValue?.split('|')?.map((part) => part?.trim())
 
     const matchedParts = parts?.filter((part) => regexPattern.test(part))
     const nonMatchedParts = parts?.filter((part) => !regexPattern.test(part))
@@ -98,7 +100,7 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
 
     const newExpressions = clusterHostTable
       ?.filter((id) => !remainingIDs.includes(id))
-      .map((id) => `(${tableType}_ID = ${id})`)
+      .map((id) => `${tableType}ID = ${id}`)
 
     const updatedParts = [
       ...(nonMatchedParts ?? []),
@@ -106,11 +108,11 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
       ...(newExpressions ?? []),
     ]
 
-    const updatedValue = updatedParts?.join(' & ') ?? ''
+    const updatedValue = updatedParts?.join(' | ') ?? ''
 
     // Check if the hypervisor condition already exists in the actualValue
     const hasHypervisorCondition = actualValue?.includes(
-      `(HYPERVISOR=${hypervisor})`
+      `HYPERVISOR=${hypervisor}`
     )
 
     // Add the hypervisor condition only if it doesn't exist
@@ -223,26 +225,47 @@ const DS_RANK_FIELD = {
 const TABLE_TYPE = {
   name: 'CLUSTER_HOST_TYPE',
   type: INPUT_TYPES.TOGGLE,
-  values: () =>
-    arrayToOptions([T.SelectCluster, T.SelectHost], {
-      addEmpty: false,
-    }),
+  values: arrayToOptions([T.SelectCluster, T.SelectHost], {
+    addEmpty: false,
+  }),
   validation: string()
     .trim()
     .required()
-    .default(() => T.Host),
+    .default(() => T.SelectCluster),
   notNull: true,
+  defaultValue: T.SelectCluster,
   grid: { xs: 12, md: 12 },
 }
 
 /** @type {Field} Cluster selection field */
-const CLUSTER_HOST_TABLE = {
-  name: 'CLUSTER_HOST_TABLE',
+const CLUSTER_TABLE = {
+  name: 'PLACEMENT_CLUSTER_TABLE',
   dependOf: 'CLUSTER_HOST_TYPE',
   type: INPUT_TYPES.TABLE,
-  Table: (tableType) =>
-    tableType?.includes(T.Cluster) ? ClustersTable : HostsTable,
+  Table: ClustersTable,
+  htmlType: (tableType) =>
+    !tableType?.includes(T.Cluster) && INPUT_TYPES.HIDDEN,
   singleSelect: false,
+  fieldProps: {
+    preserveState: true,
+  },
+  validation: array(string().trim())
+    .required()
+    .default(() => undefined),
+  grid: { xs: 12, md: 12 },
+}
+
+/** @type {Field} Cluster selection field */
+const HOST_TABLE = {
+  name: 'PLACEMENT_HOST_TABLE',
+  dependOf: 'CLUSTER_HOST_TYPE',
+  type: INPUT_TYPES.TABLE,
+  Table: HostsTable,
+  htmlType: (tableType) => !tableType?.includes(T.Host) && INPUT_TYPES.HIDDEN,
+  singleSelect: false,
+  fieldProps: {
+    preserveState: true,
+  },
   validation: array(string().trim())
     .required()
     .default(() => undefined),
@@ -269,7 +292,8 @@ const SECTIONS = (oneConfig, adminGroup, isUpdate, modifiedFields) => [
     fields: disableFields(
       [
         TABLE_TYPE,
-        CLUSTER_HOST_TABLE,
+        CLUSTER_TABLE,
+        HOST_TABLE,
         HOST_REQ_FIELD(isUpdate, modifiedFields),
         HOST_POLICY_TYPE_FIELD,
         HOST_RANK_FIELD,

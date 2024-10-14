@@ -51,6 +51,7 @@ const ToggleController = memo(
     notNull = false,
     readOnly = false,
     onConditionChange,
+    defaultValue,
   }) => {
     const {
       field: { ref, value: optionSelected, onChange, onBlur },
@@ -75,6 +76,16 @@ const ToggleController = memo(
       },
       [onChange, onConditionChange, readOnly, notNull]
     )
+
+    // Safe loading of default value
+    useEffect(() => {
+      if (
+        defaultValue &&
+        values?.some(({ text, value }) => [text, value]?.includes(defaultValue))
+      ) {
+        onChange(defaultValue)
+      }
+    }, [])
 
     return (
       <FormControl fullWidth margin="dense">
@@ -127,6 +138,7 @@ ToggleController.propTypes = {
   notNull: PropTypes.bool,
   readOnly: PropTypes.bool,
   onConditionChange: PropTypes.func,
+  defaultValue: PropTypes.any,
 }
 
 ToggleController.displayName = 'ToggleController'
