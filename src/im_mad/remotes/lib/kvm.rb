@@ -51,7 +51,7 @@ module KVM
     QEMU_GA = {
         :enabled => false,
         :commands => {
-            :vm_qemu_ping => "one-$vm_id \'{\"execute\":\"guest-ping\"}\'"
+            :vm_qemu_ping => "one-$vm_id \'{\"execute\":\"guest-ping\"}\' --timeout 5"
         }
     }
 
@@ -84,6 +84,10 @@ module KVM
 
         ga_conf_path = "#{__dir__}/../../etc/im/kvm-probes.d/guestagent.conf"
         QEMU_GA.merge!(YAML.load_file(ga_conf_path))
+
+        QEMU_GA[:commands].each_key do |ga_info|
+            Domain::MONITOR_KEYS << ga_info
+        end
     rescue StandardError
     end
 
@@ -256,14 +260,6 @@ class Domain < BaseDomain
         tmpl
     rescue StandardError
         ''
-    end
-
-    def to_monitor
-        KVM::QEMU_GA[:commands].each_key do |ga_info|
-            MONITOR_KEYS << ga_info
-        end
-
-        super
     end
 
     private
