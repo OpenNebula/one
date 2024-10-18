@@ -114,12 +114,13 @@ export const transformApiResponseToDataset = (
   depth = 0,
   dataArrayPath
 ) => {
-  const dataArray =
+  const dataArray = _.castArray(
     (_.isEmpty(apiResponse)
       ? []
       : dataArrayPath
       ? _.get(apiResponse, dataArrayPath)
       : findFirstArray(apiResponse, depth)) ?? []
+  )
 
   const flattenObject = (obj, prefix = '') =>
     Object.keys(obj).reduce((acc, k) => {
