@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line no-unused-vars
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 // eslint-disable-next-line no-unused-vars
 import { useFormContext, FieldErrors } from 'react-hook-form'
@@ -22,6 +23,7 @@ import { useFormContext, FieldErrors } from 'react-hook-form'
 import { useViews } from 'client/features/Auth'
 import { Translate } from 'client/components/HOC'
 
+import { deepmerge, flattenObjectByKeys } from 'client/utils'
 import Tabs from 'client/components/Tabs'
 import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
 import Networking from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
@@ -34,10 +36,18 @@ import InputOutput from 'client/components/Forms/VmTemplate/CreateForm/Steps/Ext
 import Numa from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/numa'
 import Backup from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup'
 
+import {
+  STEP_MAP,
+  T,
+  RESOURCE_NAMES,
+  VmTemplate,
+  TAB_FORM_MAP,
+} from 'client/constants'
 import { STEP_ID as GENERAL_ID } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
+import { useLazyGetOsProfilesQuery } from 'client/features/OneApi/system'
+import { useGeneralApi } from 'client/features/General'
 
 const VROUTER_DISABLED_TABS = ['network', 'pci']
 
@@ -78,8 +88,46 @@ const Content = ({
     watch,
     formState: { errors },
     control,
+    getValues,
+    reset,
   } = useFormContext()
+  const { useLoadOsProfile } = useGeneralApi()
+  const [fetchProfile] = useLazyGetOsProfilesQuery()
   const { view, getResourceView } = useViews()
+  const osProfile = watch('general.OS_PROFILE')
+  const profileIsLoaded =
+    useSelector((state) => state?.general?.loadedOsProfile?.[STEP_ID]) || false
+
+  // Prefill current step based on profile
+  useEffect(async () => {
+    if (!profileIsLoaded && osProfile && osProfile !== '-') {
+      try {
+        const { data: fetchedProfile } = await fetchProfile({ id: osProfile })
+        const currentForm = getValues()
+        const mappedSteps = Object.fromEntries(
+          Object.entries(fetchedProfile).map(([key, value]) => [
+            STEP_MAP[key] || key,
+            value,
+          ])
+        )
+
+        const flattenByKeys = Object.keys(TAB_FORM_MAP)
+        mappedSteps.extra = flattenObjectByKeys(
+          mappedSteps.extra,
+          flattenByKeys
+        )
+
+        const mergedSteps = deepmerge(currentForm, mappedSteps)
+
+        reset(mergedSteps, {
+          shouldDirty: true,
+          shouldTouch: true,
+          keepDefaultValues: true,
+        })
+        useLoadOsProfile({ stepId: STEP_ID })
+      } catch (error) {}
+    }
+  }, [osProfile, profileIsLoaded])
 
   const hypervisor = useMemo(() => watch(`${GENERAL_ID}.HYPERVISOR`), [])
 

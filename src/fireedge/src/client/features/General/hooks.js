@@ -47,6 +47,14 @@ export const useGeneralApi = () => {
     },
     resetModifiedFields: () => dispatch(actions.resetModifiedFields()),
 
+    useLoadOsProfile: (stepId) => {
+      dispatch(actions.setLoadOsProfile(stepId))
+    },
+
+    useResetLoadOsProfile: () => {
+      dispatch(actions.resetLoadOsProfile())
+    },
+
     // dismiss all if no key has been defined
     dismissSnackbar: (key) =>
       dispatch(actions.dismissSnackbar({ key, dismissAll: !key })),

@@ -30,6 +30,7 @@ const initial = {
   isLoading: false,
   isFixMenu: false,
   isUpdateDialog: false,
+  loadedOsProfile: {},
   upload: 0,
   notifications: [],
   selectedIds: [],
@@ -83,6 +84,19 @@ const slice = createSlice({
       })
       .addCase(actions.setUpdateDialog, (state, { payload }) => {
         state.isUpdateDialog = !!payload
+      })
+
+      .addCase(actions.setLoadOsProfile, (state, { payload }) => {
+        const { stepId } = payload
+        const exists = get(state.loadedOsProfile, stepId, false)
+
+        if (!exists) {
+          set(state.loadedOsProfile, stepId, true)
+        }
+      })
+
+      .addCase(actions.resetLoadOsProfile, (state) => {
+        state.loadedOsProfile = {}
       })
 
       /* FIELD MODIFICATIONS */

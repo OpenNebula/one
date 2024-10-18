@@ -17,6 +17,7 @@ import { string, boolean } from 'yup'
 
 import Image from 'client/components/Image'
 import { useGetTemplateLogosQuery } from 'client/features/OneApi/logo'
+import { useGetOsProfilesQuery } from 'client/features/OneApi/system'
 import { Field, arrayToOptions } from 'client/utils'
 import {
   T,
@@ -80,14 +81,11 @@ export const LOGO = {
   values: () => {
     const { data: logos } = useGetTemplateLogosQuery()
 
-    return arrayToOptions(
-      [['-', DEFAULT_TEMPLATE_LOGO], ...Object.entries(logos || {})],
-      {
-        addEmpty: false,
-        getText: ([name]) => name,
-        getValue: ([, logo]) => logo,
-      }
-    )
+    return arrayToOptions([...Object.entries(logos || {})], {
+      addEmpty: true,
+      getText: ([name]) => name,
+      getValue: ([, logo]) => logo,
+    })
   },
   renderValue: (value) => (
     <Image
@@ -111,8 +109,40 @@ export const VROUTER_FIELD = {
   label: T.MakeTemplateAvailableForVROnly,
   type: INPUT_TYPES.SWITCH,
   validation: boolean().yesOrNo(),
-  grid: { md: 12 },
+  grid: { md: 6 },
 }
+
+/* eslint-disable jsdoc/require-jsdoc */
+export const OS_PROFILE = (isUpdate, lastOsProfile) => ({
+  name: 'OS_PROFILE',
+  label: T.Profile,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: () => {
+    const { data: profiles = [] } = useGetOsProfilesQuery()
+
+    return arrayToOptions(profiles, {
+      addEmpty: true,
+      getText: (val) => {
+        try {
+          const parts = val
+            ?.split('_')
+            ?.map((part) => part?.charAt(0).toUpperCase() + part?.slice(1))
+
+          return `${val === lastOsProfile ? '*' : ''}  ${parts?.join(' ')}`
+        } catch (error) {
+          return val
+        }
+      },
+      getValue: (val) => val,
+    })
+  },
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => '-'),
+  grid: { md: 6 },
+})
 
 /**
  * @param {boolean} isUpdate - If `true`, the form is being updated

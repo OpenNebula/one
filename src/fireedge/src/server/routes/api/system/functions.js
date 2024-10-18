@@ -23,6 +23,7 @@ const {
 } = require('server/utils/constants/commands/system')
 const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
 const { getVmmConfig } = require('server/utils/vmm')
+const { getProfiles } = require('server/utils/profiles')
 
 const { defaultEmptyFunction, httpMethod } = defaults
 const { ok, internalServerError, badRequest, notFound } = httpCodes
@@ -163,7 +164,61 @@ const getVmmConfigHandler = async (
   next()
 }
 
+/**
+ *
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @param {object} params - params of http request
+ * @param {object} [params.id="-1"] - fetch [id].yaml profile
+ * @returns {void}
+ */
+const getTemplateProfiles = async (
+  res,
+  next = defaultEmptyFunction,
+  params = {}
+) => {
+  try {
+    const { id } = params
+    const fetchAll = id === '-1'
+    const foundProfiles = await getProfiles(id)
+
+    if (fetchAll) {
+      if (!Array.isArray(foundProfiles) || foundProfiles.length === 0) {
+        ;(res.locals ??= {}).httpCode = httpResponse(
+          notFound,
+          'No OS profiles found',
+          ''
+        )
+
+        return next()
+      }
+    } else {
+      if (!foundProfiles || Object.keys(foundProfiles).length === 0) {
+        ;(res.locals ??= {}).httpCode = httpResponse(
+          notFound,
+          'OS profile not found',
+          ''
+        )
+
+        return next()
+      }
+    }
+
+    ;(res.locals ??= {}).httpCode = httpResponse(ok, foundProfiles)
+  } catch (error) {
+    const httpError = httpResponse(
+      internalServerError,
+      error?.message || 'Error loading OS profiles',
+      ''
+    )
+    writeInLogger(httpError)
+    ;(res.locals ??= {}).httpCode = httpError
+  }
+
+  next()
+}
 module.exports = {
   getConfig,
   getVmmConfigHandler,
+  getTemplateProfiles,
 }

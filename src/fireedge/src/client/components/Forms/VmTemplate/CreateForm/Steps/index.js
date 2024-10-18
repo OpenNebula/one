@@ -124,6 +124,8 @@ const Steps = createSteps([General, ExtraConfiguration, CustomVariables], {
 
     const defaultType = T.SelectCluster
     objectSchema[EXTRA_ID].CLUSTER_HOST_TYPE = defaultType
+    // Do not load a initial profile
+    delete objectSchema.general.OS_PROFILE
 
     const knownTemplate = schema.cast(objectSchema, {
       stripUnknown: false,

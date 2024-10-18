@@ -13,22 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useWatch, useFormContext } from 'react-hook-form'
 import { useViews } from 'client/features/Auth'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import useStyles from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/styles'
+import { useLazyGetOsProfilesQuery } from 'client/features/OneApi/system'
 
 import {
   SCHEMA,
   SECTIONS,
 } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/schema'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { generateKey } from 'client/utils'
-import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
+import {
+  generateKey,
+  deepmerge,
+  flattenObjectByKeys,
+  sentenceCase,
+  isDevelopment,
+} from 'client/utils'
+import {
+  T,
+  RESOURCE_NAMES,
+  VmTemplate,
+  STEP_MAP,
+  TAB_FORM_MAP,
+} from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
 import { set } from 'lodash'
+import { Tr } from 'client/components/HOC'
 
 let generalFeatures
 
@@ -40,17 +54,65 @@ const Content = ({
   adminGroup,
   setFormData,
   isVrouter,
+  lastOsProfile,
 }) => {
+  const [fetchProfile] = useLazyGetOsProfilesQuery()
   const classes = useStyles()
   const { view, getResourceView } = useViews()
   const hypervisor = useWatch({ name: `${STEP_ID}.HYPERVISOR` })
 
-  const { setFieldPath } = useGeneralApi()
+  const { enqueueSuccess, setFieldPath, useResetLoadOsProfile } =
+    useGeneralApi()
+
+  const { getValues, setValue, watch, reset } = useFormContext()
+  const osProfile = watch('general.OS_PROFILE')
+  const currentProfile = useRef(osProfile)
+
+  // Prefill current step based on profile
+  const profileSuccessMsg =
+    Tr(T.Loaded) + ' ' + Tr(T.Profile.toLowerCase()) + ': '
+
+  useEffect(async () => {
+    if (
+      currentProfile.current !== osProfile &&
+      osProfile &&
+      osProfile !== '-'
+    ) {
+      try {
+        const { data: fetchedProfile } = await fetchProfile({ id: osProfile })
+        const currentForm = getValues()
+        const mappedSteps = Object.fromEntries(
+          Object.entries(fetchedProfile).map(([key, value]) => [
+            STEP_MAP[key] || key,
+            value,
+          ])
+        )
+        const flattenByKeys = Object.keys(TAB_FORM_MAP)
+        mappedSteps.extra = flattenObjectByKeys(
+          mappedSteps.extra,
+          flattenByKeys
+        )
+
+        const mergedSteps = deepmerge(currentForm, mappedSteps)
+
+        reset(mergedSteps, {
+          shouldDirty: true,
+          shouldTouch: true,
+          keepDefaultValues: true,
+        })
+
+        useResetLoadOsProfile()
+        currentProfile.current = osProfile
+        enqueueSuccess(profileSuccessMsg + sentenceCase(osProfile))
+      } catch (error) {
+        isDevelopment() && console.error('Failed to load profile: ', error)
+      }
+    }
+  }, [osProfile])
+
   useEffect(() => {
     setFieldPath(`general`)
   }, [])
-
-  const { getValues, setValue } = useFormContext()
 
   // Create watch for vcpu
   const vcpuWatch = useWatch({
@@ -80,7 +142,15 @@ const Content = ({
     generalFeatures = features
 
     return (
-      SECTIONS(hypervisor, isUpdate, features, oneConfig, adminGroup, isVrouter)
+      SECTIONS(
+        hypervisor,
+        isUpdate,
+        features,
+        oneConfig,
+        adminGroup,
+        isVrouter,
+        lastOsProfile
+      )
         .filter(
           ({ id, required }) => required || sectionsAvailable.includes(id)
         )
@@ -119,6 +189,7 @@ const General = ({
 }) => {
   const isUpdate = !!vmTemplate?.NAME
   const initialHypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
+  const lastOsProfile = vmTemplate?.TEMPLATE?.OS_PROFILE || ''
 
   return {
     id: STEP_ID,
@@ -136,6 +207,7 @@ const General = ({
         oneConfig,
         adminGroup,
         isVrouter,
+        lastOsProfile,
       }),
   }
 }
@@ -146,6 +218,7 @@ Content.propTypes = {
   adminGroup: PropTypes.bool,
   setFormData: PropTypes.func,
   isVrouter: PropTypes.bool,
+  lastOsProfile: PropTypes.string,
 }
 
 export default General

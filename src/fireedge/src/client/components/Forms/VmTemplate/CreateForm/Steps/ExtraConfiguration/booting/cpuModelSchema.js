@@ -74,7 +74,7 @@ export const FEATURES = {
     const { data: hosts = [] } = useGetHostsQuery()
     const kvmFeatures = getKvmCpuFeatures(hosts)
 
-    return arrayToOptions(kvmFeatures)
+    return arrayToOptions(kvmFeatures, { addEmpty: false })
   },
   validation: array(string().trim()).default(() => []),
 }

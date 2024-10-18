@@ -26,6 +26,14 @@ const useStyles = makeStyles((theme) => ({
       gridTemplateColumns: '1fr',
     },
   },
+  osprofiles: {
+    gridColumn: '1 / span 2',
+    gridRow: '2',
+    padding: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      gridColumn: '1 / -1',
+    },
+  },
   hypervisor: {
     gridColumn: '1 / span 2',
     gridRow: '1',

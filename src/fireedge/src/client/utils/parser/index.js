@@ -34,19 +34,19 @@ import {
 import parsePayload from 'client/utils/parser/parseTemplatePayload'
 
 export {
-  templateToObject,
+  convertKeysToCase,
+  filterTemplateData,
+  isDeeplyEmpty,
+  parseAcl,
   parseApplicationToForm,
+  parseCustomInputString,
   parseFormToApplication,
   parseFormToDeployApplication,
-  parseAcl,
   parseNetworkString,
-  parseCustomInputString,
-  convertKeysToCase,
-  parseVmTemplateContents,
-  parseTouchedDirty,
-  isDeeplyEmpty,
-  filterTemplateData,
   parsePayload,
+  parseTouchedDirty,
+  parseVmTemplateContents,
+  templateToObject,
   transformActionsCreate,
   transformActionsInstantiate,
 }

@@ -1220,6 +1220,8 @@ module.exports = {
     sort the suitable datastores for this VM`,
   Stripping: 'Stripping',
   LoadAware: 'Load-aware',
+  Loaded: 'Loaded',
+  Loading: 'Loading',
   Packing: 'Packing',
   /* VM Template schema - Backup */
   BackupVolatileDisksQuestion: 'Backup volatile disks?',
@@ -1335,6 +1337,7 @@ module.exports = {
   Inputs: 'Inputs',
   PciDevices: 'PCI Devices',
   Profile: 'Profile',
+  OsProfile: 'Operating System Profile',
   DeviceName: 'Device name',
   Device: 'Device',
   DeviceTooltip:

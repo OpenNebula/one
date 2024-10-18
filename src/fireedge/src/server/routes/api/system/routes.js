@@ -24,9 +24,12 @@ const { GET } = httpMethod
 
 const SYSTEM_CONFIG = 'system.config'
 const VMM_CONFIG = 'vmm.config'
+const PROFILES = 'system.profiles'
+
 const Actions = {
   SYSTEM_CONFIG,
   VMM_CONFIG,
+  PROFILES,
 }
 
 module.exports = {
@@ -44,6 +47,17 @@ module.exports = {
         hypervisor: {
           from: query,
           default: 'kvm',
+        },
+      },
+      auth: true,
+    },
+    [PROFILES]: {
+      path: `${basepath}/profiles`,
+      httpMethod: GET,
+      params: {
+        id: {
+          from: query,
+          default: '-1',
         },
       },
       auth: true,

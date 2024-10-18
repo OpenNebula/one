@@ -19,6 +19,7 @@ import {
   FIELDS as INFORMATION_FIELDS,
   HYPERVISOR_FIELD,
   VROUTER_FIELD,
+  OS_PROFILE,
 } from './informationSchema'
 import {
   MEMORY_FIELDS,
@@ -45,6 +46,7 @@ import { T, HYPERVISORS, VmTemplateFeatures } from 'client/constants'
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
  * @param {boolean} isVrouter - VRouter template
+ * @param {string} lastOsProfile - Last used OS profile
  * @returns {Section[]} Fields
  */
 const SECTIONS = (
@@ -53,7 +55,8 @@ const SECTIONS = (
   features,
   oneConfig,
   adminGroup,
-  isVrouter
+  isVrouter,
+  lastOsProfile
 ) =>
   [
     {
@@ -61,7 +64,18 @@ const SECTIONS = (
       legend: T.Hypervisor,
       required: true,
       fields: disableFields(
-        [HYPERVISOR_FIELD(isUpdate), VROUTER_FIELD],
+        [HYPERVISOR_FIELD(isUpdate)],
+        '',
+        oneConfig,
+        adminGroup
+      ),
+    },
+    {
+      id: 'osprofiles',
+      legend: T.OsProfile,
+      required: true,
+      fields: disableFields(
+        [OS_PROFILE(isUpdate, lastOsProfile), VROUTER_FIELD],
         '',
         oneConfig,
         adminGroup
@@ -143,6 +157,7 @@ const SECTIONS = (
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
  * @param {boolean} isVrouter - VRouter template
+ * @param {string} lastOsProfile - Last used OS profile
  * @returns {BaseSchema} Step schema
  */
 const SCHEMA = (
@@ -151,10 +166,19 @@ const SCHEMA = (
   features,
   oneConfig,
   adminGroup,
-  isVrouter
+  isVrouter,
+  lastOsProfile
 ) =>
   getObjectSchemaFromFields(
-    SECTIONS(hypervisor, isUpdate, features, oneConfig, adminGroup, isVrouter)
+    SECTIONS(
+      hypervisor,
+      isUpdate,
+      features,
+      oneConfig,
+      adminGroup,
+      isVrouter,
+      lastOsProfile
+    )
       .map(({ fields }) => fields)
       .flat()
   )

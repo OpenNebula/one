@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect } from 'react'
+import { STEP_MAP, TAB_FORM_MAP, T } from 'client/constants'
 import { useStore } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 
@@ -28,7 +29,9 @@ import { useGetHostsQuery } from 'client/features/OneApi/host'
 import { useGetImagesQuery } from 'client/features/OneApi/image'
 import { useGetUsersQuery } from 'client/features/OneApi/user'
 import { useGetDatastoresQuery } from 'client/features/OneApi/datastore'
+import { useLazyGetOsProfilesQuery } from 'client/features/OneApi/system'
 
+import { deepmerge, isDevelopment } from 'client/utils'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
@@ -38,7 +41,6 @@ import { PATH } from 'client/apps/sunstone/routesOne'
 
 import { jsonToXml } from 'client/models/Helper'
 import { filterTemplateData, transformActionsCreate } from 'client/utils/parser'
-import { TAB_FORM_MAP, T } from 'client/constants'
 
 import { useSystemData } from 'client/features/Auth'
 
@@ -68,6 +70,7 @@ function CreateVmTemplate() {
     useGeneralApi()
   const [update] = useUpdateTemplateMutation()
   const [allocate] = useAllocateTemplateMutation()
+  const [fetchProfile] = useLazyGetOsProfilesQuery()
   const { adminGroup, oneConfig } = useSystemData()
 
   const { data: apiTemplateDataExtended } = useGetTemplateQuery(
@@ -90,7 +93,35 @@ function CreateVmTemplate() {
     try {
       // Get current state and modified fields
       const currentState = store.getState()
-      const modifiedFields = currentState.general?.modifiedFields
+      const osProfile = rawTemplate?.general?.OS_PROFILE
+      let modifiedFields = currentState.general?.modifiedFields
+      // This loads the OS profile and marks all fields of it as modified so they wont be filtered out
+      if (osProfile && osProfile !== '-') {
+        try {
+          const convertLeafValuesToBoolean = (obj) =>
+            Object.fromEntries(
+              Object.entries(obj).map(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                  return [key, convertLeafValuesToBoolean(value)]
+                }
+
+                return [key, value != null]
+              })
+            )
+
+          const { data: fetchedProfile } = await fetchProfile({ id: osProfile })
+          const mappedSteps = Object.fromEntries(
+            Object.entries(fetchedProfile).map(([step, values]) => [
+              STEP_MAP[step] || step,
+              convertLeafValuesToBoolean(values),
+            ])
+          )
+          modifiedFields = deepmerge(modifiedFields, mappedSteps)
+        } catch (error) {
+          isDevelopment() &&
+            console.error('Failed mapping profile filter: ', error)
+        }
+      }
 
       // Get the original template
       const existingTemplate = {

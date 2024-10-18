@@ -584,6 +584,9 @@ const genPathResources = () => {
     if (!global.paths.VMM_EXEC_CONFIG) {
       global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`
     }
+    if (!global.paths.OS_PROFILES) {
+      global.paths.OS_PROFILES = `${ETC_LOCATION}/${defaultSunstonePath}/profiles`
+    }
     if (!global.paths.FIREEDGE_KEY_PATH) {
       global.paths.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }

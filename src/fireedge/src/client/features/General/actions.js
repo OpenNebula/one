@@ -23,6 +23,8 @@ export const setSelectedIds = createAction('Set selected IDs')
 export const setUpdateDialog = createAction('Set update dialog')
 
 export const updateDisabledSteps = createAction('Set disabled steps')
+export const setLoadOsProfile = createAction('Set load OS profile')
+export const resetLoadOsProfile = createAction('Reset load OS profiles')
 export const dismissSnackbar = createAction('Dismiss snackbar')
 export const deleteSnackbar = createAction('Delete snackbar')
 export const setUploadSnackbar = createAction('Change upload snackbar')

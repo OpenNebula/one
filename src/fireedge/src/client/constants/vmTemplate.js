@@ -165,6 +165,12 @@ export const TAB_FORM_MAP = {
   Backup: ['BACKUP_CONFIG'],
 }
 
+export const STEP_MAP = {
+  'Advanced options': 'extra',
+  General: 'general',
+  'Custom Variables': 'custom-variables',
+}
+
 /** @enum {string} Methods on IP v4 options type */
 export const IPV4_METHODS = {
   [T.Ipv4Static]: 'static',

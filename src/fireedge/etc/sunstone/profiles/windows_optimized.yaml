@@ -1,0 +1,53 @@
+---
+# This profile defines some default windows optimizations
+"General":
+  NAME: "Optimized Windows Profile"
+
+"Advanced options":
+  OsCpu:
+    OS:
+      ARCH: X86_64
+      SD_DISK_BUS: scsi
+      MACHINE: host-passthrough
+      FIRMWARE: BIOS
+    FEATURES:
+      ACPI: "Yes"
+      PAE: "Yes"
+      APIC: "Yes"
+      HYPERV: "Yes"
+      LOCALTIME: "Yes"
+      GUEST_AGENT: "Yes"
+      VIRTIO_SCSI_QUEUES: "auto"
+      VIRTIO_BLK_QUEUES: "auto"
+      # IOTHREADS:
+    CPU_MODEL:
+      MODEL: "host-passthrough"
+        # FEATURES:
+        # - Tunable depending on host CPU support
+        # -
+    RAW:
+      DATA: |-
+        <features>
+          <hyperv>
+            <evmcs state='off'/>
+            <frequencies state='on'/>
+            <ipi state='on'/>
+            <reenlightenment state='off'/>
+            <relaxed state='on'/>
+            <reset state='off'/>
+            <runtime state='on'/>
+            <spinlocks state='on' retries='8191'/>
+            <stimer state='on'/>
+            <synic state='on'/>
+            <tlbflush state='on'/>
+            <vapic state='on'/>
+            <vpindex state='on'/>
+          </hyperv>
+        </features>
+        <clock offset='utc'>
+          <timer name='hpet' present='no'/>
+          <timer name='hypervclock' present='yes'/>
+          <timer name='pit' tickpolicy='delay'/>
+          <timer name='rtc' tickpolicy='catchup'/>
+        </clock>
+      VALIDATE: "Yes"

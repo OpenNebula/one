@@ -18,9 +18,10 @@ const { Actions, Commands } = require('server/routes/api/system/routes')
 const {
   getConfig,
   getVmmConfigHandler,
+  getTemplateProfiles,
 } = require('server/routes/api/system/functions')
 
-const { SYSTEM_CONFIG, VMM_CONFIG } = Actions
+const { SYSTEM_CONFIG, VMM_CONFIG, PROFILES } = Actions
 
 module.exports = [
   {
@@ -30,5 +31,9 @@ module.exports = [
   {
     ...Commands[VMM_CONFIG],
     action: getVmmConfigHandler,
+  },
+  {
+    ...Commands[PROFILES],
+    action: getTemplateProfiles,
   },
 ]

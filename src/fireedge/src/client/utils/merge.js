@@ -127,3 +127,30 @@ deepmerge.all = function deepmergeAll(array, options) {
     return deepmerge(prev, next, options)
   })
 }
+
+/**
+ * Flattens specified keys in an object by one level without mutating the original object.
+ *
+ * @param {object} obj - The object to flatten.
+ * @param {Array} keysToFlatten - The keys whose nested objects should be flattened.
+ * @returns {object} The new flattened object.
+ */
+export const flattenObjectByKeys = (obj, keysToFlatten) => {
+  let result = { ...obj }
+
+  keysToFlatten.forEach((key) => {
+    if (
+      key in result &&
+      typeof result[key] === 'object' &&
+      result[key] !== null
+    ) {
+      result = {
+        ...result,
+        ...result[key],
+      }
+      delete result[key]
+    }
+  })
+
+  return result
+}

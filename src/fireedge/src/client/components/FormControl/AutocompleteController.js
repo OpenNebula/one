@@ -149,7 +149,11 @@ const AutocompleteController = memo(
           typeof option === 'object' ? option.text : option
         }
         isOptionEqualToValue={(option, value) =>
-          typeof option === 'object' ? option.value === value : option === value
+          typeof option === 'object' && typeof value === 'object'
+            ? option?.value === value?.value
+            : typeof option === 'object'
+            ? option?.value === value || option?.text === value
+            : option === value
         }
         renderInput={({ inputProps, ...inputParams }) => (
           <TextField

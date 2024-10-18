@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/system'
 import {
-  Actions as VmmActions,
-  Commands as VmmCommands,
+  Actions as SystemActions,
+  Commands as SystemCommands,
 } from 'server/routes/api/system/routes'
 import {
   Actions as SunstoneActions,
@@ -122,6 +122,30 @@ const systemApi = oneApi.injectEndpoints({
       keepUnusedDataFor: 600,
     }),
 
+    getOsProfiles: builder.query({
+      /**
+       * Returns the OS Profiles or a specific profile's content.
+       *
+       * @param {object} params - Request params
+       * @returns {object} The set config options
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = SystemActions.PROFILES
+        const command = { name, ...SystemCommands[name] }
+
+        return { params, command }
+      },
+      providesTags: (response) => {
+        if (Array.isArray(response) && response?.length > 0) {
+          return response?.map((profile) => ({ type: SYSTEM, id: profile }))
+        } else {
+          return [{ type: SYSTEM, id: 'os_profile' }]
+        }
+      },
+      keepUnusedDataFor: 600,
+    }),
+
     getVmmConfig: builder.query({
       /**
        * Returns the hypervisor VMM_EXEC config.
@@ -131,8 +155,8 @@ const systemApi = oneApi.injectEndpoints({
        * @throws Fails when response isn't code 200
        */
       query: (params) => {
-        const name = VmmActions.VMM_CONFIG
-        const command = { name, ...VmmCommands[name] }
+        const name = SystemActions.VMM_CONFIG
+        const command = { name, ...SystemCommands[name] }
 
         return { params, command }
       },
@@ -150,6 +174,8 @@ export const {
   useLazyGetOneConfigQuery,
   useGetVmmConfigQuery,
   useLazyGetVmmConfigQuery,
+  useGetOsProfilesQuery,
+  useLazyGetOsProfilesQuery,
   useGetSunstoneConfigQuery,
   useLazyGetSunstoneConfigQuery,
   useGetSunstoneViewsQuery,
