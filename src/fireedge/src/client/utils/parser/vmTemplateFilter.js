@@ -767,15 +767,18 @@ const transformActionsCommon = (template) => {
     })
   }
 
-  // If template has RAW attribute
   if (template.RAW) {
-    // // Add type (hypervisor) on RAW data if exists data, if not, delete RAW section.
-    if (template.RAW?.DATA) template.RAW.TYPE = template.HYPERVISOR
-    else delete template.RAW
+    // Clone template.RAW to ensure its mutable
+    template.RAW = { ...template.RAW }
 
-    // ISSUE #6418: Raw data is in XML format, so it needs to be transform before sennding it to the API (otherwise the value of RAW.DATA will be treat as part of the XML template)
-    template?.RAW?.DATA &&
-      (template.RAW.DATA = transformXmlString(template.RAW.DATA))
+    if (template.RAW.DATA) {
+      // DATA exists, so we add TYPE and transform DATA
+      template.RAW.TYPE = template.HYPERVISOR
+      template.RAW.DATA = transformXmlString(template.RAW.DATA)
+    } else {
+      // DATA doesn't exist, remove RAW from template
+      delete template.RAW
+    }
   }
 }
 
