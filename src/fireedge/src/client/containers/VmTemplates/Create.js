@@ -131,7 +131,9 @@ function CreateVmTemplate() {
         history.push(PATH.TEMPLATE.VMS.LIST)
         enqueueSuccess(T.SuccessVMTemplateUpdated, [templateId, NAME])
       }
-    } catch {}
+    } catch (error) {
+      isDevelopment() && console.log('VM Template error: ', error)
+    }
   }
 
   return templateId &&
