@@ -35,7 +35,19 @@ export const clientStateToString = (clientState) =>
  * @returns {string} A string of connection parameters
  */
 export const getConnectString = (options = {}) => {
-  const { token, display = window, dpi, width, height, zone } = options
+  const {
+    token,
+    display = window,
+    dpi,
+    width,
+    height,
+    zone,
+    command,
+    'read-only': readOnly,
+    'color-schema': colorSchema,
+    'font-name': fontName,
+    'font-size': fontSize,
+  } = options
 
   // Calculate optimal width/height for display
   const pixelDensity = window.devicePixelRatio || 1
@@ -52,9 +64,15 @@ export const getConnectString = (options = {}) => {
     `width=${Math.floor(displayWidth * pixelDensity)}`,
     `height=${Math.floor(displayHeight * pixelDensity)}`,
     `dpi=${Math.floor(optimalDpi)}`,
+    'enable-audio=true',
   ]
 
   zone && urlOptions.push(`zone=${zone}`)
+  readOnly && urlOptions.push(`read-only=true`)
+  command && urlOptions.push(`command=${command}`)
+  colorSchema && urlOptions.push(`color-scheme=${colorSchema}`)
+  fontName && urlOptions.push(`font-name=${fontName}`)
+  fontSize && urlOptions.push(`font-size=${fontSize}`)
 
   return urlOptions.join('&')
 }

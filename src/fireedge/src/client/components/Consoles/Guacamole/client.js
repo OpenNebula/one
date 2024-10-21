@@ -57,6 +57,7 @@ const GuacamoleClient = ({ id, display, zone, externalZone }) => {
   const [changeConnection, setChangeConnection] = useState(false)
   const firstZone = useRef(zone).current
   const guac = useRef(createGuacamoleClient(externalZone))
+  const displayRef = useRef(null)
 
   if (`${firstZone}` !== `${zone}` && !changeConnection) {
     guac.current = createGuacamoleClient(externalZone)
@@ -68,12 +69,26 @@ const GuacamoleClient = ({ id, display, zone, externalZone }) => {
   const { setConnectionState, setTunnelUnstable, setMultiTouchSupport } =
     useGuacamoleApi(id)
 
-  const handleConnect = (width, height, force = false) => {
+  const handleConnect = ({
+    width,
+    height,
+    force = false,
+    readOnly = false,
+    command,
+    colorSchema,
+    fontName,
+    fontSize,
+  } = {}) => {
     if (!session?.isUninitialized && !session.isDisconnected && !force) return
 
     const options = { token, display, width, height }
 
     zone && (options.zone = zone)
+    readOnly && (options['read-only'] = true)
+    command && (options.command = command)
+    colorSchema && (options['color-schema'] = colorSchema)
+    fontName && (options['font-name'] = fontName)
+    fontSize && (options['font-size'] = fontSize)
 
     const connectString = getConnectString(options)
 
@@ -86,12 +101,12 @@ const GuacamoleClient = ({ id, display, zone, externalZone }) => {
     } catch {}
   }
 
-  const handleReconnect = async (width, height) => {
+  const handleReconnect = async (params = {}) => {
     session?.isConnected && handleDisconnect()
 
     // sleep to avoid quick reconnection
     await fakeDelay(1500)
-    handleConnect(width, height, true)
+    handleConnect(params)
   }
 
   useEffect(() => {
@@ -150,7 +165,13 @@ const GuacamoleClient = ({ id, display, zone, externalZone }) => {
     !session.isConnected && handleConnect()
   }, [token])
 
-  return { token, ...session, ...guac.current, handleReconnect }
+  return {
+    token,
+    displayRef,
+    ...session,
+    ...guac.current,
+    handleReconnect,
+  }
 }
 
 const createGuacamoleClient = (externalZone) => {

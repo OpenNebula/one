@@ -28,16 +28,19 @@ import {
   GuacamoleClipboard,
   GuacamoleCtrlAltDelButton,
   GuacamoleDisplay,
+  GuacamoleDownloadConButton,
   GuacamoleFullScreenButton,
   GuacamoleKeyboard,
   GuacamoleMouse,
   GuacamoleReconnectButton,
+  GuacamoleReconnectReadOnlyButton,
+  GuacamoleSSHParams,
   GuacamoleScreenshotButton,
   HeaderVmInfo,
   useGuacamoleSession,
 } from 'client/components/Consoles'
 import { Tr } from 'client/components/HOC'
-import { RESOURCE_NAMES, T } from 'client/constants'
+import { RESOURCE_NAMES, T, VM_ACTIONS } from 'client/constants'
 import { sentenceCase } from 'client/utils'
 
 /** @returns {ReactElement} Guacamole container */
@@ -91,6 +94,7 @@ const Guacamole = () => {
 
   const guacamoleOption = useMemo(
     () => ({
+      vmID: id,
       id: `${id}-${type}`,
       container: containerRef.current,
       header: headerRef.current,
@@ -176,6 +180,13 @@ const Guacamole = () => {
           )}
           {data && (
             <Stack direction="row" alignItems="center" gap="1em">
+              {type === VM_ACTIONS.VNC && (
+                <GuacamoleReconnectReadOnlyButton {...session} />
+              )}
+              {type === VM_ACTIONS.SSH && <GuacamoleSSHParams {...session} />}
+              {type === VM_ACTIONS.RDP && (
+                <GuacamoleDownloadConButton {...session} />
+              )}
               <GuacamoleReconnectButton {...session} />
               <GuacamoleScreenshotButton {...session} />
               <GuacamoleFullScreenButton {...session} />

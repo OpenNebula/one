@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, useState } from 'react'
 import {
-  StringReader,
-  StringWriter,
   BlobReader,
   BlobWriter,
+  StringReader,
+  StringWriter,
 } from 'guacamole-common-js'
+import { useEffect, useState } from 'react'
 
 import { GuacamoleSession } from 'client/constants'
 import { isDevelopment } from 'client/utils'
@@ -56,7 +56,7 @@ const GuacamoleClipboard = (session) => {
     try {
       if (pendingRead) return
 
-      const text = await navigator.clipboard.readText()
+      const text = await navigator?.clipboard?.readText?.()
       storeClipboard((prev) => ({ ...prev, data: text, type: 'text/plain' }))
 
       return text
@@ -68,7 +68,7 @@ const GuacamoleClipboard = (session) => {
   const setLocalClipboard = async ({ data, type }) => {
     if (type !== 'text/plain') return
 
-    await navigator.clipboard.writeText(data)
+    await navigator?.clipboard?.writeText?.(data)
     storeClipboard((prev) => ({ ...prev, data, type }))
   }
 
@@ -145,6 +145,7 @@ const GuacamoleClipboard = (session) => {
     }
 
     return () => {
+      client?.onclipboard && (client.onclipboard = null)
       window.removeEventListener('load', resyncClipboard, true)
       window.removeEventListener('copy', resyncClipboard)
       window.removeEventListener('cut', resyncClipboard)

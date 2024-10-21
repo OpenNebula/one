@@ -14,8 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line no-unused-vars
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { Keyboard } from 'guacamole-common-js'
+import { useEffect, useRef } from 'react'
 
 import { GuacamoleSession } from 'client/constants'
 
@@ -29,23 +29,27 @@ import { GuacamoleSession } from 'client/constants'
  * @returns {GuacamoleKeyboardPlugin} Guacamole keyboard plugin
  */
 const GuacamoleKeyboard = (session) => {
-  const { client, isConnected } = session ?? {}
+  const { client, isConnected, displayRef } = session ?? {}
 
   const keyboardRef = useRef(null)
 
   useEffect(() => {
     if (!isConnected) return
 
-    keyboardRef.current = new Keyboard(document)
-
+    keyboardRef.current = new Keyboard(displayRef.current)
+    keyboardRef.current.reset()
     keyboardRef.current.onkeydown = (keySym) => client?.sendKeyEvent(1, keySym)
     keyboardRef.current.onkeyup = (keySym) => client?.sendKeyEvent(0, keySym)
 
     // Release all keys when window loses focus
-    window.addEventListener('blur', keyboardRef.current?.reset)
+    window?.addEventListener('blur', keyboardRef.current?.reset)
 
     return () => {
-      window.removeEventListener('blur', keyboardRef.current?.reset)
+      if (keyboardRef.current) {
+        keyboardRef.current.onkeydown = null
+        keyboardRef.current.onkeyup = null
+      }
+      window?.removeEventListener('blur', keyboardRef.current?.reset)
     }
   }, [isConnected])
 

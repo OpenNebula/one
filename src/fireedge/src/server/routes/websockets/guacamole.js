@@ -48,8 +48,16 @@ const clientOptions = {
   },
   allowedUnencryptedConnectionSettings: {
     rdp: ['width', 'height', 'dpi'],
-    vnc: ['width', 'height', 'dpi'],
-    ssh: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi'],
+    vnc: ['width', 'height', 'dpi', 'read-only', 'enable-audio'],
+    ssh: [
+      'color-scheme',
+      'font-name',
+      'font-size',
+      'width',
+      'height',
+      'dpi',
+      'command',
+    ],
     telnet: [
       'color-scheme',
       'font-name',

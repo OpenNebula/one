@@ -64,6 +64,9 @@ module.exports = {
         zone: {
           from: query,
         },
+        download: {
+          from: query,
+        },
       },
     },
   },

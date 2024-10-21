@@ -56,11 +56,11 @@ const Display = styled('div')({
  * @returns {GuacamoleDisplayPlugin} Guacamole display plugin
  */
 const GuacamoleDisplay = (session) => {
-  const { id, container, header, client, isConnected } = session ?? {}
+  const { id, container, header, client, isConnected, displayRef } =
+    session ?? {}
   const isSSH = useMemo(() => id.includes('ssh'), [id])
 
   const viewportRef = useRef(null)
-  const displayRef = useRef(null)
 
   const containerResized = () => {
     if (!client || !container) return
@@ -140,6 +140,7 @@ const GuacamoleDisplay = (session) => {
     displayElement: (
       <Viewport ref={viewportRef}>
         <Display
+          tabIndex="0"
           ref={displayRef}
           sx={isSSH ? { width: '100%', height: '100%' } : {}}
         />

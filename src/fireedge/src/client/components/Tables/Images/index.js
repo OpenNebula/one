@@ -69,7 +69,12 @@ const ImagesTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: (_, onClickLabel, onDeleteLabel, { label: LABELS = [] }) => {
+      accessor: (
+        _,
+        onClickLabel,
+        onDeleteLabel,
+        { label: LABELS = [] } = {}
+      ) => {
         const { labels: userLabels } = useAuth()
         const labels = useMemo(
           () =>

@@ -939,6 +939,8 @@ module.exports = {
   PartOf: 'Part of',
   GuacamoleState: 'Guacamole State',
   VMRCState: 'VMRC State',
+  FontSize: 'Font Size',
+  FontName: 'Font Name',
   RdpLayout: 'RDP keyboard layout',
   RdpResizeMethod: 'RDP resize method',
   DisableAudio: 'Disable audio',
@@ -1375,6 +1377,7 @@ module.exports = {
   Keymap: 'Keymap',
   GenerateRandomPassword: 'Generate random password',
   Command: 'Command',
+  SSHCommand: 'SSH Command',
   Bus: 'BUS',
   ConnectionAttributes: '%s connection attributes',
   /* VM Template schema - Input/Output - graphics - Remote Connections Keymaps */
@@ -1871,6 +1874,7 @@ module.exports = {
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
   DownloadApp: 'Download App',
+  DownloadConecctionFile: 'Download connection File',
   DownloadDefaultImage: 'Download Default Image',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',

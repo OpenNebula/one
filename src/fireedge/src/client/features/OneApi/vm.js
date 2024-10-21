@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Actions, Commands } from 'server/utils/constants/commands/vm'
 import {
   Actions as ExtraActions,
   Commands as ExtraCommands,
 } from 'server/routes/api/vm/routes'
+import { Actions, Commands } from 'server/utils/constants/commands/vm'
 
 import {
   Actions as ExtraActionsPool,
@@ -25,29 +25,29 @@ import {
 } from 'server/routes/api/vmpool/routes'
 
 import {
-  oneApi,
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
-} from 'client/features/OneApi'
-import {
-  updateResourceOnPool,
-  removeResourceOnPool,
-  updateNameOnResource,
-  updateLockLevelOnResource,
-  removeLockLevelOnResource,
-  updatePermissionOnResource,
-  updateOwnershipOnResource,
-  updateTemplateOnResource,
-} from 'client/features/OneApi/common'
-import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
-import { UpdateFromSocket } from 'client/features/OneApi/socket'
-import http from 'client/utils/rest'
-import {
-  LockLevel,
   FilterFlag,
+  LockLevel,
   Permission,
   VM as VmType,
 } from 'client/constants'
+import { actions as guacamoleActions } from 'client/features/Guacamole/slice'
+import {
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+  oneApi,
+} from 'client/features/OneApi'
+import {
+  removeLockLevelOnResource,
+  removeResourceOnPool,
+  updateLockLevelOnResource,
+  updateNameOnResource,
+  updateOwnershipOnResource,
+  updatePermissionOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from 'client/features/OneApi/common'
+import { UpdateFromSocket } from 'client/features/OneApi/socket'
+import http from 'client/utils/rest'
 
 const { VM } = ONE_RESOURCES
 const { VM_POOL } = ONE_RESOURCES_POOL

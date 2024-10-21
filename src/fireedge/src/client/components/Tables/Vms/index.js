@@ -34,12 +34,7 @@ import {
   VM_STATES,
 } from 'client/constants'
 import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
-import {
-  getIps,
-  getLastHistory,
-  getState,
-  getVmHostname,
-} from 'client/models/VirtualMachine'
+import { getIps, getLastHistory, getState } from 'client/models/VirtualMachine'
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -160,16 +155,6 @@ const VmsTable = (props) => {
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
-      header: T.State,
-      id: 'state',
-      accessor: (vm) => getState(vm)?.name,
-    },
-    {
-      header: T.Hostname,
-      id: 'vmhostname',
-      accessor: (vm) => getVmHostname(vm),
-    },
-    {
       header: T.Host,
       id: 'hostname',
       accessor: (vm) => getLastHistory(vm)?.HOSTNAME,
@@ -177,7 +162,11 @@ const VmsTable = (props) => {
     {
       header: T.IP,
       id: 'ips',
-      accessor: (vm) => getIps(vm).join(),
+      accessor: (vm) => {
+        const ips = useMemo(() => getIps(vm), [vm])
+
+        return <>{!!ips?.length && <MultipleTags tags={ips} />}</>
+      },
     },
     {
       header: '',
