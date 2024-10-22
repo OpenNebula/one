@@ -26,7 +26,15 @@ import { ACL_TABLE_VIEWS } from 'client/constants'
 import PropTypes from 'prop-types'
 
 const Row = (viewType) => {
-  const aclRow = ({ original, value, headerList, rowDataCy, ...props }) => {
+  const aclRow = ({
+    original,
+    value,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     // Check what view show in the table cards
     if (viewType === ACL_TABLE_VIEWS.NAMES.type) {
       return <ACLCardNames rootProps={props} acl={value} />

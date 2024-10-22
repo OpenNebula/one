@@ -24,7 +24,15 @@ import { rowStyles } from 'client/components/Tables/styles'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-const Row = ({ original, value, headerList, rowDataCy, ...props }) => {
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  toggleRowSelected,
+  ...props
+}) => {
   const classes = rowStyles()
   const { ID, NAME, UNAME, GNAME, VMS, TEMPLATE_ID } = value
 
@@ -67,6 +75,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

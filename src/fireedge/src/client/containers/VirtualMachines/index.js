@@ -74,9 +74,11 @@ function VirtualMachines() {
           globalActions={props.actions}
           useUpdateMutation={props.useUpdateMutation}
           zoneId={props.zone}
+          onRowClick={props.resourcesBackButtonClick}
           initialState={{
             selectedRowIds: props.selectedRowsTable,
           }}
+          enabledFullScreen={props.enabledFullScreen}
         />
       )}
       simpleGroupsTags={(props) => {

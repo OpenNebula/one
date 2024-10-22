@@ -51,6 +51,8 @@ const Row = ({
   onClickLabel,
   headerList,
   rowDataCy,
+  isSelected,
+  toggleRowSelected,
   ...props
 }) => {
   const [update] = useUpdateImageMutation()
@@ -196,6 +198,7 @@ Row.propTypes = {
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

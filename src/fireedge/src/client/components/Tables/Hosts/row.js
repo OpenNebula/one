@@ -27,6 +27,8 @@ const Row = memo(
     zone,
     headerList,
     rowDataCy,
+    isSelected,
+    toggleRowSelected,
     ...props
   }) => {
     const [update] = useUpdateHostMutation()
@@ -81,6 +83,7 @@ Row.propTypes = {
   zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'HostRow'

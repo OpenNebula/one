@@ -22,7 +22,16 @@ import PropTypes from 'prop-types'
 import { memo, useCallback, useMemo } from 'react'
 
 const Row = memo(
-  ({ original, value, onClickLabel, headerList, rowDataCy, ...props }) => {
+  ({
+    original,
+    value,
+    onClickLabel,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     const [update] = useUpdateSecGroupMutation()
 
     const {
@@ -76,6 +85,7 @@ Row.propTypes = {
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'SecurityGroupRow'

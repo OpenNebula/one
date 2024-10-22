@@ -20,7 +20,15 @@ import { MarketplaceCard } from 'client/components/Cards'
 import marketplaceApi from 'client/features/OneApi/marketplace'
 
 const Row = memo(
-  ({ original, value, headerList, rowDataCy, ...props }) => {
+  ({
+    original,
+    value,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     const state = marketplaceApi.endpoints.getMarketplaces.useQueryState(
       undefined,
       {
@@ -44,6 +52,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'MarketplaceRow'

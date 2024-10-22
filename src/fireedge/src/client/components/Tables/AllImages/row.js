@@ -35,7 +35,15 @@ import { T } from 'client/constants'
 import * as Helper from 'client/models/Helper'
 import * as ImageModel from 'client/models/Image'
 
-const Row = ({ original, value, headerList, rowDataCy, ...props }) => {
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  toggleRowSelected,
+  ...props
+}) => {
   const classes = rowStyles()
   const {
     ID,
@@ -128,6 +136,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

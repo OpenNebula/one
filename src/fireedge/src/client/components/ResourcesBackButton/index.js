@@ -44,6 +44,17 @@ const heightGutterRow = 40
 
 const defaultPropsResize = `${heightWindowRow}px 1fr ${heightGutterRow}px 1fr`
 
+const Switch = memo(({ valid, invalid, condition }) =>
+  condition ? valid : invalid
+)
+
+Switch.propTypes = {
+  valid: PropTypes.any,
+  invalid: PropTypes.any,
+  condition: PropTypes.bool,
+}
+Switch.displayName = 'Switch'
+
 const ResourcesBackButton = memo(
   ({
     selectedRows = [],
@@ -62,8 +73,17 @@ const ResourcesBackButton = memo(
     const { FULL_SCREEN_INFO } = fireedge
 
     const [divided, setDivided] = useState(() => false)
+    const [showInfo, setShowInfo] = useState(() => false)
     const [propsResize, setPropsResize] = useState(() => defaultPropsResize)
     const [pageIndex, setPageIndex] = useState(() => 0)
+
+    const countSelectedRows = selectedRows?.length
+    const moreThanOneSelected = countSelectedRows > 1
+    const hasSelectedRows = countSelectedRows > 0
+
+    useEffect(() => {
+      FULL_SCREEN_INFO === 'true' && setDivided(true)
+    }, [])
 
     useEffect(() => {
       divided
@@ -74,12 +94,8 @@ const ResourcesBackButton = memo(
     }, [divided])
 
     useEffect(() => {
-      FULL_SCREEN_INFO === 'true' && setDivided(true)
-    }, [])
-
-    const countSelectedRows = selectedRows?.length
-    const moreThanOneSelected = countSelectedRows > 1
-    const hasSelectedRows = countSelectedRows > 0
+      !hasSelectedRows && setShowInfo(false)
+    }, [selectedRows])
 
     const selectedRowsTable = useMemo(
       () =>
@@ -87,6 +103,7 @@ const ResourcesBackButton = memo(
         [],
       [selectedRows]
     )
+
     const handleUnselectRow = useCallback(
       (id) => {
         const newRows = selectedRows.filter((item) => item?.id !== id)
@@ -94,6 +111,11 @@ const ResourcesBackButton = memo(
       },
       [selectedRows]
     )
+
+    const handleBackButton = useCallback(() => {
+      setSelectedRows([])
+      setShowInfo(false)
+    })
 
     const props = {
       ...restProps,
@@ -107,78 +129,122 @@ const ResourcesBackButton = memo(
       unselect: !divided && (() => selectedRows?.[0]?.toggleRowSelected(false)),
       handleUnselectRow,
       tags: selectedRows,
-    }
-
-    const translations = {
-      back: Tr(T.Back),
+      resourcesBackButtonClick: useCallback(() => setShowInfo(true)),
     }
 
     return (
       <SplitPane gridTemplateRows={propsResize} rowMinSize={heightGutterRow}>
         {({ getGridProps, GutterComponent }) => (
-          <Box
-            height={1}
-            sx={{
-              paddingBottom: '3rem',
-              overflow: divided && hasSelectedRows ? 'visible' : 'hidden',
-            }}
-            {...(!divided && hasSelectedRows && getGridProps())}
-          >
-            <StyledRowButtons container>
-              <Grid item xs={8}>
-                {hasSelectedRows && divided && (
-                  <IconButton
-                    onClick={() => setSelectedRows([])}
-                    title={translations.back}
-                  >
-                    <NavArrowLeft />
-                  </IconButton>
-                )}
-              </Grid>
-
-              <StyledWindowButtons item xs={4}>
-                <IconButton
-                  onClick={() => setDivided(!divided)}
-                  title={Tr(T.DivideWindow)}
-                >
-                  {divided ? <OpenInWindow /> : <OpenNewWindow />}
-                </IconButton>
-              </StyledWindowButtons>
-            </StyledRowButtons>
-            {divided ? !hasSelectedRows && table(props) : table(props)}
-            {!divided && <GutterComponent direction="row" track={2} />}
-            {hasSelectedRows && divided && (
-              <div className={styles.toolbar}>
-                <GlobalActions
-                  className={styles.actions}
-                  globalActions={actions}
-                  selectedRows={selectedRows}
+          <Switch
+            condition={divided}
+            valid={
+              <Box
+                height={1}
+                sx={{
+                  paddingBottom: '3rem',
+                  overflow: hasSelectedRows ? 'visible' : 'hidden',
+                }}
+              >
+                <StyledRowButtons container>
+                  <Grid item xs={8}>
+                    <Switch
+                      condition={showInfo && hasSelectedRows}
+                      valid={
+                        <IconButton
+                          onClick={handleBackButton}
+                          title={Tr(T.Back)}
+                        >
+                          <NavArrowLeft />
+                        </IconButton>
+                      }
+                      invalid=""
+                    />
+                  </Grid>
+                  <StyledWindowButtons item xs={4}>
+                    <IconButton
+                      onClick={() => setDivided(!divided)}
+                      title={Tr(T.DivideWindow)}
+                    >
+                      <OpenInWindow />
+                    </IconButton>
+                  </StyledWindowButtons>
+                </StyledRowButtons>
+                <Switch
+                  condition={showInfo && hasSelectedRows}
+                  valid={
+                    <>
+                      <GlobalActions
+                        className={styles.actions}
+                        globalActions={actions}
+                        selectedRows={selectedRows}
+                      />
+                      <Switch
+                        condition={moreThanOneSelected}
+                        valid={
+                          <Pagination
+                            className={styles.pagination}
+                            handleChangePage={(index) => setPageIndex(index)}
+                            count={countSelectedRows}
+                            showPageCount={true}
+                            useTableProps={{
+                              state: {
+                                pageIndex,
+                                pageSize: 1,
+                              },
+                            }}
+                          />
+                        }
+                        invalid=""
+                      />
+                      {info({
+                        ...props,
+                        selectedRows: [selectedRows[pageIndex]],
+                      })}
+                    </>
+                  }
+                  invalid={table({ ...props, enabledFullScreen: divided })}
                 />
-                {moreThanOneSelected && (
-                  <Pagination
-                    className={styles.pagination}
-                    handleChangePage={(index) => setPageIndex(index)}
-                    count={countSelectedRows}
-                    showPageCount={true}
-                    useTableProps={{
-                      state: {
-                        pageIndex,
-                        pageSize: 1,
-                      },
-                    }}
-                  />
-                )}
-              </div>
-            )}
-            {moreThanOneSelected
-              ? divided
-                ? info({
-                    ...props,
-                    selectedRows: [selectedRows[pageIndex]],
-                  })
-                : simpleGroupsTags(props)
-              : hasSelectedRows && info(props)}
-          </Box>
+              </Box>
+            }
+            invalid={
+              <Box
+                height={1}
+                sx={{
+                  paddingBottom: '3rem',
+                }}
+                {...(hasSelectedRows && showInfo && getGridProps())}
+              >
+                <StyledRowButtons container>
+                  <Grid item xs={8} />
+                  <StyledWindowButtons item xs={4}>
+                    <IconButton
+                      onClick={() => setDivided(!divided)}
+                      title={Tr(T.DivideWindow)}
+                    >
+                      <OpenNewWindow />
+                    </IconButton>
+                  </StyledWindowButtons>
+                </StyledRowButtons>
+                {table(props)}
+                <Switch
+                  condition={showInfo}
+                  valid={<GutterComponent direction="row" track={2} />}
+                  invalid=""
+                />
+                <Switch
+                  condition={hasSelectedRows && showInfo}
+                  valid={
+                    <Switch
+                      condition={moreThanOneSelected}
+                      valid={simpleGroupsTags(props)}
+                      invalid={info(props)}
+                    />
+                  }
+                  invalid=""
+                />
+              </Box>
+            }
+          />
         )}
       </SplitPane>
     )

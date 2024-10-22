@@ -80,6 +80,7 @@ const DataListPerPage = memo(
     cannotFilterByLabel,
     styles,
     rootProps: rootPropsTable,
+    enabledFullScreen = false,
   }) => {
     if (!page.length) {
       return ''
@@ -103,6 +104,8 @@ const DataListPerPage = memo(
           {...(messageValues.length && {
             globalErrors: messageValues,
           })}
+          isSelected={isSelected}
+          toggleRowSelected={toggleRowSelected}
           rowDataCy={rootPropsTable?.['data-cy'] ?? ''}
           className={isSelected ? 'selected' : ''}
           {...(!cannotFilterByLabel && {
@@ -136,6 +139,7 @@ const DataListPerPage = memo(
       <Table stickyHeader>
         <TableHead>
           <TableRow>
+            {enabledFullScreen && <TableCell />}
             {headerList.map(({ header = '', id = '' }) => (
               <TableCell key={id} className={styles.cellHeaders}>
                 {header}
@@ -156,6 +160,7 @@ DataListPerPage.propTypes = {
   prepareRow: PropTypes.func,
   RowComponent: PropTypes.any,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  enabledFullScreen: PropTypes.bool,
   messageValues: PropTypes.array,
   setFilter: PropTypes.func,
   state: PropTypes.any,
@@ -206,6 +211,7 @@ const EnhancedTable = ({
   tableViews,
   zoneId,
   headerList,
+  enabledFullScreen,
 }) => {
   const styles = EnhancedTableStyles({
     readOnly: readOnly,
@@ -519,6 +525,7 @@ const EnhancedTable = ({
           prepareRow={prepareRow}
           RowComponent={RowComponent}
           headerList={headerList}
+          enabledFullScreen={enabledFullScreen}
           messageValues={messageValues}
           setFilter={setFilter}
           state={state}
@@ -580,6 +587,7 @@ EnhancedTable.propTypes = {
   tableViews: PropTypes.object,
   zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  enabledFullScreen: PropTypes.bool,
 }
 
 export * from 'client/components/Tables/Enhanced/Utils'

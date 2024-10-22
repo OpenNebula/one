@@ -31,7 +31,15 @@ import { prettyBytes } from 'client/utils'
 
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ original, value, headerList, rowDataCy, ...props }) => {
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  toggleRowSelected,
+  ...props
+}) => {
   const classes = rowStyles()
   const { ID, TYPE, DATE, SIZE, SOURCE } = value
 
@@ -80,6 +88,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

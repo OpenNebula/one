@@ -33,6 +33,8 @@ const Row = memo(
     globalErrors,
     headerList,
     rowDataCy,
+    isSelected,
+    toggleRowSelected,
     ...props
   }) => {
     const [update] = useUpdateUserTemplateMutation()
@@ -93,6 +95,7 @@ Row.propTypes = {
   globalErrors: PropTypes.array,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'VirtualMachineRow'

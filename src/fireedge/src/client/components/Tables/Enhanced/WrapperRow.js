@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { TableCell, TableRow } from '@mui/material'
+import { Checkbox, Grid, TableCell, TableRow } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
+import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 import { SERVER_CONFIG } from 'client/constants'
 import { useAuth } from 'client/features/Auth'
 import get from 'lodash.get'
@@ -23,8 +24,16 @@ import { ReactElement, memo } from 'react'
 
 const listStyles = makeStyles(({ palette }) => ({
   row: {
+    '&': {
+      cursor: 'pointer',
+    },
     '&.selected': {
       boxShadow: `inset 0px -0.5px 0px 2px ${palette.secondary.main}`,
+    },
+  },
+  checkbox: {
+    '&': {
+      color: `${palette.secondary.contrastText} !important`,
     },
   },
 }))
@@ -43,10 +52,19 @@ const RowStyle = memo(
     headerList = [],
     className,
     rowDataCy = '',
+    isSelected = false,
+    toggleRowSelected = () => {},
+    onClick: onClickRow = () => {},
+    enabledFullScreen = false,
     ...props
   }) => {
     const { ID = '' } = original
     const styles = listStyles()
+
+    const handleChange = (event) => {
+      event?.stopPropagation()
+      toggleRowSelected(event.target.checked)
+    }
 
     return (
       <TableRow
@@ -54,12 +72,29 @@ const RowStyle = memo(
         {...props}
         className={`${styles.row} ${className}`}
       >
+        {enabledFullScreen && (
+          <TableCell>
+            <Checkbox
+              checked={isSelected}
+              onChange={handleChange}
+              className={`${styles.checkbox}`}
+            />
+          </TableCell>
+        )}
         {headerList.map(({ id, accessor }) => {
           switch (typeof accessor) {
             case 'string':
-              return <TableCell key={id}>{get(original, accessor)}</TableCell>
+              return (
+                <TableCell onClick={onClickRow} key={id}>
+                  {get(original, accessor)}
+                </TableCell>
+              )
             case 'function':
-              return <TableCell key={id}>{accessor(original, value)}</TableCell>
+              return (
+                <TableCell onClick={onClickRow} key={id}>
+                  {accessor(original, value)}
+                </TableCell>
+              )
             default:
               return ''
           }
@@ -79,15 +114,56 @@ RowStyle.propTypes = {
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
   className: PropTypes.string,
+  isSelected: PropTypes.bool,
+  toggleRowSelected: PropTypes.func,
+  onClick: PropTypes.func,
+  enabledFullScreen: PropTypes.bool,
 }
 
 RowStyle.displayName = 'RowStyle'
 
+const CardWrapper = memo(
+  ({ children, toggleRowSelected = () => {}, isSelected = false }) => {
+    const styles = listStyles()
+    const cardStyles = EnhancedTableStyles()
+
+    const handleChange = (event) => {
+      event?.stopPropagation()
+      toggleRowSelected(event.target.checked)
+    }
+
+    return (
+      <Grid container spacing={1} alignItems="center">
+        <Grid item xs="auto">
+          <Checkbox
+            checked={isSelected}
+            onChange={handleChange}
+            className={`${styles.checkbox}`}
+          />
+        </Grid>
+        <Grid item xs className={`${cardStyles.body}`}>
+          {children}
+        </Grid>
+      </Grid>
+    )
+  },
+  (prev, next) => prev.className === next.className
+)
+
+CardWrapper.propTypes = {
+  children: PropTypes.any,
+  toggleRowSelected: PropTypes.func,
+  isSelected: PropTypes.bool,
+}
+
+CardWrapper.displayName = 'CardWrapper'
+
 /**
  * @param {ReactElement} RowCardComponent - Standard row component (Card).
+ * @param {boolean} enabledFullScreen - to check if the datatable is in full screen mode
  * @returns {ReactElement} Generic Row
  */
-const WrapperRow = (RowCardComponent) => {
+const WrapperRow = (RowCardComponent, enabledFullScreen) => {
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { ROW_STYLE } = fireedge
   const { rowStyle } = SERVER_CONFIG
@@ -95,8 +171,34 @@ const WrapperRow = (RowCardComponent) => {
   const data = ROW_STYLE || rowStyle
   const header = data === 'list'
 
+  const component = memo(
+    (props) => {
+      const internalProps = { ...props }
+      let Component = ''
+
+      if (header) {
+        internalProps.enabledFullScreen = enabledFullScreen
+        Component = <RowStyle {...internalProps} />
+      } else {
+        Component = <RowCardComponent {...internalProps} />
+        if (enabledFullScreen) {
+          Component = (
+            <CardWrapper {...internalProps}>
+              <RowCardComponent {...internalProps} />
+            </CardWrapper>
+          )
+        }
+      }
+
+      return Component
+    },
+    (prev, next) => prev.className === next.className
+  )
+
+  component.displayName = 'component'
+
   return {
-    component: header ? RowStyle : RowCardComponent,
+    component,
     header,
   }
 }

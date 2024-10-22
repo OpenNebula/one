@@ -21,7 +21,16 @@ import { NetworkCard } from 'client/components/Cards'
 import api, { useUpdateVNetMutation } from 'client/features/OneApi/network'
 
 const Row = memo(
-  ({ original, value, onClickLabel, headerList, rowDataCy, ...props }) => {
+  ({
+    original,
+    value,
+    onClickLabel,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     const [update] = useUpdateVNetMutation()
     const {
       data: vnetworks,
@@ -71,6 +80,7 @@ Row.propTypes = {
   onClickLabel: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'VirtualNetworkRow'

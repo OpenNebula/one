@@ -20,7 +20,15 @@ import { ServiceCard } from 'client/components/Cards'
 import serviceApi from 'client/features/OneApi/service'
 
 const Row = memo(
-  ({ original, value, headerList, rowDataCy, ...props }) => {
+  ({
+    original,
+    value,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     const state = serviceApi.endpoints.getServices.useQueryState(undefined, {
       selectFromResult: ({ data = [] }) =>
         data.find((service) => +service.ID === +original.ID),
@@ -41,6 +49,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'ServiceRow'

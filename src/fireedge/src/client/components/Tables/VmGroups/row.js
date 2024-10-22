@@ -18,9 +18,14 @@ import PropTypes from 'prop-types'
 
 import { VmGroupCard } from 'client/components/Cards'
 
-const Row = ({ original, value, headerList, rowDataCy, ...props }) => (
-  <VmGroupCard rootProps={props} vmgroup={value} />
-)
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  ...props
+}) => <VmGroupCard rootProps={props} vmgroup={value} />
 
 Row.propTypes = {
   original: PropTypes.object,

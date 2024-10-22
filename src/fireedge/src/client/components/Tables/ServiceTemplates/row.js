@@ -22,7 +22,15 @@ import serviceTemplateApi, {
 } from 'client/features/OneApi/serviceTemplate'
 
 const Row = memo(
-  ({ original, value, headerList, rowDataCy, ...props }) => {
+  ({
+    original,
+    value,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
     const [update] = useUpdateServiceTemplateMutation()
 
     const state =
@@ -65,6 +73,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'ServiceTemplateRow'

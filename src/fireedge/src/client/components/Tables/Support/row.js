@@ -19,9 +19,15 @@ import { memo } from 'react'
 import { SupportCard } from 'client/components/Cards'
 
 const Row = memo(
-  ({ original, value, headerList, rowDataCy, ...props }) => (
-    <SupportCard ticket={original} rootProps={props} />
-  ),
+  ({
+    original,
+    value,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => <SupportCard ticket={original} rootProps={props} />,
   (prev, next) => prev.className === next.className
 )
 
@@ -33,6 +39,7 @@ Row.propTypes = {
   onClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'SupportRow'

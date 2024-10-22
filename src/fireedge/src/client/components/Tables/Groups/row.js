@@ -14,10 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
 import { GroupCard } from 'client/components/Cards'
+import PropTypes from 'prop-types'
 
-const Row = ({ original, value, ...props }) => (
+const Row = ({ original, value, toggleRowSelected, ...props }) => (
   <GroupCard rootProps={props} group={value} />
 )
 
@@ -26,6 +26,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

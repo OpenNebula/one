@@ -55,6 +55,7 @@ const VmsTable = (props) => {
     backupjobsState,
     filterData = [],
     filterLoose = true,
+    enabledFullScreen = false,
     ...rest
   } = props ?? {}
 
@@ -209,7 +210,7 @@ const VmsTable = (props) => {
       },
     },
   ]
-  const { component, header } = WrapperRow(VmRow)
+  const { component, header } = WrapperRow(VmRow, enabledFullScreen)
 
   return (
     <EnhancedTable
@@ -223,6 +224,7 @@ const VmsTable = (props) => {
       initialState={initialState}
       RowComponent={component}
       headerList={header && listHeader}
+      enabledFullScreen={enabledFullScreen}
       {...rest}
     />
   )

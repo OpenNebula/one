@@ -18,9 +18,15 @@ import PropTypes from 'prop-types'
 
 import { UserCard } from 'client/components/Cards'
 
-const Row = ({ original, value, headerList, rowDataCy, ...props }) => (
-  <UserCard rootProps={props} user={value} />
-)
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  toggleRowSelected,
+  ...props
+}) => <UserCard rootProps={props} user={value} />
 
 Row.propTypes = {
   original: PropTypes.object,
@@ -29,6 +35,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 export default Row

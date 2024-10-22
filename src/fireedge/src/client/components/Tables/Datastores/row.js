@@ -30,6 +30,8 @@ const Row = memo(
     zone,
     headerList,
     rowDataCy,
+    isSelected,
+    toggleRowSelected,
     ...props
   }) => {
     const [update] = useUpdateDatastoreMutation()
@@ -82,6 +84,8 @@ Row.propTypes = {
   zone: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  isSelected: PropTypes.bool,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'DatastoreRow'

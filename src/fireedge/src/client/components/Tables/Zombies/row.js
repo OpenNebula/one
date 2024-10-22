@@ -28,22 +28,31 @@ import { Row as RowType } from 'react-table'
  * @param {Function} props.handleClick - Action by click
  * @returns {ReactElement} - Table row
  */
-const Row = memo(({ original, headerList, rowDataCy, ...props }) => {
-  const classes = rowStyles()
-  const { DEPLOY_ID, VM_NAME } = original
+const Row = memo(
+  ({
+    original,
+    headerList,
+    rowDataCy,
+    isSelected,
+    toggleRowSelected,
+    ...props
+  }) => {
+    const classes = rowStyles()
+    const { DEPLOY_ID, VM_NAME } = original
 
-  return (
-    <div data-cy={`zombie-${DEPLOY_ID}`} {...props}>
-      <div className={classes.main}>
-        <div className={classes.title}>
-          <Typography noWrap component="span">
-            {VM_NAME}
-          </Typography>
+    return (
+      <div data-cy={`zombie-${DEPLOY_ID}`} {...props}>
+        <div className={classes.main}>
+          <div className={classes.title}>
+            <Typography noWrap component="span">
+              {VM_NAME}
+            </Typography>
+          </div>
         </div>
       </div>
-    </div>
-  )
-})
+    )
+  }
+)
 
 Row.propTypes = {
   original: PropTypes.object,
@@ -51,6 +60,7 @@ Row.propTypes = {
   handleClick: PropTypes.func,
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
 Row.displayName = 'ZombiesRow'

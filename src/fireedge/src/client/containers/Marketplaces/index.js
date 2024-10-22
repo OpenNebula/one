@@ -59,6 +59,7 @@ function Marketplaces() {
           onSelectedRowsChange={props.setSelectedRows}
           globalActions={props.actions}
           useUpdateMutation={props.useUpdateMutation}
+          onRowClick={props.resourcesBackButtonClick}
           zoneId={props.zone}
           initialState={{
             selectedRowIds: props.selectedRowsTable,
