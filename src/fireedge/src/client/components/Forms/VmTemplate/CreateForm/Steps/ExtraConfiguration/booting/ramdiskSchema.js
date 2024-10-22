@@ -108,7 +108,9 @@ export const RAMDISK_DS = {
   value: (_, form) => {
     if (
       (form?.getValues(`extra.${RAMDISK_PATH_ENABLED_NAME}`) ||
-        !form?.getValues(`extra.${KERNEL_PATH_ENABLED_NAME}`)) &&
+        !form?.getValues(`extra.${KERNEL_PATH_ENABLED_NAME}`) ||
+        !form?.getValues(`extra.${KERNEL_NAME}`) ||
+        !form?.getValues(`extra.${KERNEL_DS_NAME}`)) &&
       form?.setValue
     ) {
       form?.setValue(`extra.${RAMDISK_DS_NAME}`, undefined)
