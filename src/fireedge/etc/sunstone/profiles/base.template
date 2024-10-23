@@ -1,0 +1,290 @@
+---
+### WARNING ###
+# This profile is not intended for direct use. It serves as a template for creating
+# custom profiles and must be carefully modified to suit individual needs.
+
+"General":
+  NAME: "Base OS profile"
+  LOGO: "images/logos/default.png"
+  HYPERVISOR: "kvm"
+  DESCRIPTION: "Base Template"
+  VROUTER: "Yes"
+  AS_GID: "0"
+  AS_UID: "0"
+  VMGROUP:
+    VMGROUP_ID: "0"
+    ROLE: "role1"
+  DISK_COST: 1
+  CPU_COST: 2
+  MEMORY_COST: 3
+  MEMORY: 1
+  MEMORYUNIT: "GB"
+  HOT_RESIZE:
+    MEMORY_HOT_ADD_ENABLED: "Yes"
+    CPU_HOT_ADD_ENABLED: "Yes"
+  MEMORY_MAX: 3
+  MODIFICATION:
+    MEMORY:
+      min: 1
+      max: 2
+      options:
+        - 1
+        - 2
+        - 3
+      type: "list"
+    CPU:
+      type: "range"
+      options:
+        - 1 
+        - 2 
+        - 3 
+    VCPU:
+      type: "fixed"
+  MEMORY_RESIZE_MODE: "HOTPLUG"
+  MEMORY_SLOTS: 1
+  CPU: 1
+  VCPU: 2
+  VCPU_MAX: 3
+
+"Advanced options":
+  Storage:
+     DISK:
+       - NAME: DISK0
+         CACHE: writeback
+         DISCARD: ignore
+         DISK_ID: "0"
+         FORMAT: qcow2
+         FS: ext4
+         IO: threads
+         SIZE: "123"
+         TYPE: fs
+
+       - NAME: DISK1
+         CACHE: writeback
+         TARGET: "sdc"
+         DEV_PREFIX: "vd"
+         DISCARD: "ignore"
+         IMAGE: "test"
+         IMAGE_ID: 0
+         IO: "threads"
+         IOTHREADS: 2
+         READONLY: "NO"
+         READ_BYTES_SEC: 1
+         READ_BYTES_SEC_MAX: 1
+         READ_BYTES_SEC_MAX_LENGTH: 1
+         READ_IOPS_SEC: 1
+         READ_IOPS_SEC_MAX: 1
+         READ_IOPS_SEC_MAX_LENGTH: 1
+         RECOVERY_SNAPSHOT_FREQ: 1
+         SIZE: 1
+         SIZE_IOPS_SEC: 1
+         TOTAL_BYTES_SEC: 1
+         TOTAL_BYTES_SEC_MAX: 1
+         TOTAL_BYTES_SEC_MAX_LENGTH: 1
+         TOTAL_IOPS_SEC: 1
+         TOTAL_IOPS_SEC_MAX: 1
+         TOTAL_IOPS_SEC_MAX_LENGTH: 1
+         WRITE_BYTES_SEC: 1
+         WRITE_BYTES_SEC_MAX: 1
+         WRITE_BYTES_SEC_MAX_LENGTH: 1
+         WRITE_IOPS_SEC: 1
+         WRITE_IOPS_SEC_MAX_LENGTH: 1
+
+  Network:
+    NIC:
+      - NAME: NIC0
+        NETWORK_MODE: "auto"
+        GATEWAY6: "a.b.c.d"
+        GATEWAY: "0.0.0.0"
+        GUEST_MTU: "1500"
+        INBOUND_AVG_BW: 1
+        INBOUND_PEAK_BW: 2
+        INBOUND_PEAK_KB: 3
+        IP6: "5.6.7.8"
+        IP6_METHOD: "dhcp"
+        IP: "1.2.3.4"
+        MAC: "ABC123"
+        METHOD: "static"
+        MODEL: "ABC"
+        NETWORK: "Some Virtual Network"
+        NETWORK_ADDRESS: "1.2.3.4"
+        NETWORK_MASK: "255.255.255.255"
+        NETWORK_UID: "0"
+        NETWORK_UNAME: "oneadmin"
+        OUTBOUND_AVG_BW: 1
+        OUTBOUND_PEAK_BW: 2
+        OUTBOUND_PEAK_KB: 3
+        PCI_TYPE: "emulated"
+        RDP: "Yes"
+        RDP_DISABLE_AUDIO: "Yes"
+        RDP_DISABLE_BITMAP_CACHING: "Yes"
+        RDP_DISABLE_GLYPH_CACHING: "Yes"
+        RDP_DISABLE_OFFSCREEN_CACHING: "Yes"
+        RDP_ENABLE_AUDIO_INPUT: "Yes"
+        RDP_ENABLE_DESKTOP_COMPOSITION: "Yes"
+        RDP_ENABLE_FONT_SMOOTHING: "Yes"
+        RDP_ENABLE_FULL_WINDOW_DRAG: "Yes"
+        RDP_ENABLE_MENU_ANIMATIONS: "Yes"
+        RDP_ENABLE_THEMING: "Yes"
+        RDP_ENABLE_WALLPAPER: "Yes"
+        RDP_RESIZE_METHOD: "display-update"
+        RDP_SERVER_LAYOUT: "en-us-qwerty"
+        SEARCH_DOMAIN: "some.domain.example"
+        SHORT_ADDRESS: "123ABC"
+        SSH: "Yes"
+        VIRTIO_QUEUES: 8
+        TYPE: "NIC"
+
+  OsCpu:
+    OS:
+      ARCH: X86_64
+      SD_DISK_BUS: scsi
+      MACHINE: host-passthrough
+      FIRMWARE: BIOS
+      BOOT: "disk0,disk1,nic0"
+    FEATURES:
+      ACPI: "Yes"
+      PAE: "Yes"
+      APIC: "Yes"
+      HYPERV: "Yes"
+      LOCALTIME: "Yes"
+      GUEST_AGENT: "Yes"
+      VIRTIO_SCSI_QUEUES: "auto"
+      VIRTIO_BLK_QUEUES: "auto"
+      # IOTHREADS:
+    CPU_MODEL:
+      MODEL: "host-passthrough"
+        # FEATURES:
+        # - Tunable depending on host CPU support
+        # -
+    RAW:
+      DATA: |-
+        <features>
+          <hyperv>
+            <evmcs state='off'/>
+            <frequencies state='on'/>
+            <ipi state='on'/>
+            <reenlightenment state='off'/>
+            <relaxed state='on'/>
+            <reset state='off'/>
+            <runtime state='on'/>
+            <spinlocks state='on' retries='8191'/>
+            <stimer state='on'/>
+            <synic state='on'/>
+            <tlbflush state='on'/>
+            <vapic state='on'/>
+            <vpindex state='on'/>
+          </hyperv>
+        </features>
+        <clock offset='utc'>
+          <timer name='hpet' present='no'/>
+          <timer name='hypervclock' present='yes'/>
+          <timer name='pit' tickpolicy='delay'/>
+          <timer name='rtc' tickpolicy='catchup'/>
+        </clock>
+      VALIDATE: "Yes"
+
+  PciDevices:
+    PCI:
+      - NAME: PCI0
+        CLASS: "0300"
+        DEVICE: "0863"
+        VENDOR: "10de"
+
+      - NAME: PCI1
+        CLASS: "0c03"
+        DEVICE: "0aa7"
+        VENDOR: "10de"
+
+  InputOutput:
+    VIDEO:
+      TYPE: "virtio"
+      VRAM: 20000
+      RESOLUTION: "1280x720"
+      IOMMU: "Yes"
+      ATS: "Yes"
+
+    INPUT:
+      - BUS: "usb"
+        TYPE: "mouse"
+
+      - BUS: "ps2"
+        TYPE: "tablet"
+
+    GRAPHICS:
+      TYPE: "VNC"
+      LISTEN: "0.0.0.0"
+      PORT: 5901
+      KEYMAP: "en-us"
+      PASSWD: "password123"
+      RANDOM_PASSWD: "No"
+      COMMAND: "Some Command"
+
+  Context:
+    CONTEXT:
+      SSH_PUBLIC_KEY: "$USER[SSH_PUBLIC_KEY]"
+      START_SCRIPT: "Some start script"
+      NETWORK: "Yes"
+      TOKEN: "Yes"
+      REPORT_READY: "Yes"
+      INIT_SCRIPTS:
+        - "script1.sh"
+        - "script2.sh"
+      CUSTOM_VAR1: "123"
+      CUSTOM_VAR2: "abc"
+
+    USER_INPUTS:
+      - name: "FeatureSelector1"
+        mandatory: true
+        type: "list"
+        label: "Select a feature"
+        options:
+          - "a"
+          - "b"
+          - "c"
+        default: "a"
+
+      - name: "FeatureSelector2"
+        mandatory: false
+        type: "list"
+        label: "Select a feature"
+        options:
+          - "d"
+          - "e"
+          - "f"
+        default: "f"
+
+  ScheduleAction:
+    SCHED_ACTION:
+      - ACTION: "backup"
+        ARGS: "1"
+        DAYS: "0,1,2,3,4,5,6"
+        END_TYPE: "1"
+        END_VALUE: 2
+        NAME: "SCHED_ACTION0"
+        REPEAT: "0"
+        TIME: "1729760400"
+
+  Placement:
+    SCHED_DS_RANK: "FREE_MB"
+    SCHED_DS_REQUIREMENTS: 'ID="1"'
+    SCHED_RANK: "-RUNNING_VMS"
+    SCHED_REQUIREMENTS: "HYPERVISOR=kvm | ID = 1"
+
+  NUMA:
+    TOPOLOGY:
+      CORES: 8
+      HUGEPAGE_SIZE: "1024"
+      MEMORY_ACCESS: "private"
+      PIN_POLICY: "CORE"
+      SOCKETS: 1
+      THREADS: 2
+
+  BACKUP:
+    BACKUP_CONFIG:
+      BACKUP_VOLATILE: "Yes"
+      FS_FREEZE: "AGENT"
+      INCREMENT_MODE: "CBT"
+      KEEP_LAST: 3
+      MODE: "INCREMENT"
+

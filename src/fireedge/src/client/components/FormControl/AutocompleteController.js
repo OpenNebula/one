@@ -129,8 +129,12 @@ const AutocompleteController = memo(
             {option?.text}
           </li>
         )}
-        renderTags={(tags, getTagProps) =>
-          tags.map((tag, index) => {
+        renderTags={(tags, getTagProps) => {
+          if (!Array.isArray(tags)) {
+            return
+          }
+
+          return tags?.map((tag, index) => {
             const labelTag =
               values.find((item) => item.value === tag)?.text || tag
 
@@ -144,7 +148,7 @@ const AutocompleteController = memo(
               />
             )
           })
-        }
+        }}
         getOptionLabel={(option) =>
           typeof option === 'object' ? option.text : option
         }
