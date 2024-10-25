@@ -280,7 +280,7 @@
       SOCKETS: 1
       THREADS: 2
 
-  BACKUP:
+  Backup:
     BACKUP_CONFIG:
       BACKUP_VOLATILE: "Yes"
       FS_FREEZE: "AGENT"

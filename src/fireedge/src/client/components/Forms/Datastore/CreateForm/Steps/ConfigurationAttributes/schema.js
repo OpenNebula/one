@@ -37,7 +37,7 @@ const COMPATIBLE_SYSTEM_DATASTORES = {
     .default(() => undefined),
   fieldProps: {
     initialState: {
-      filters: [{ id: 'TYPE', value: 'SYSTEM' }],
+      filters: [{ id: 'type', value: 'SYSTEM_DS' }],
     },
   },
   dependOf: ['$general.TYPE', '$general.STORAGE_BACKEND'],
