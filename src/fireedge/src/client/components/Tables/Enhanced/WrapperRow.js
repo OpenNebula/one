@@ -158,6 +158,39 @@ CardWrapper.propTypes = {
 
 CardWrapper.displayName = 'CardWrapper'
 
+const SwitchRowComponent = memo(
+  ({ props, hasHeader, RowCardComponent, enabledFullScreen }) => {
+    const internalProps = { ...props }
+    let Component = ''
+
+    if (hasHeader) {
+      internalProps.enabledFullScreen = enabledFullScreen
+      Component = <RowStyle {...internalProps} />
+    } else {
+      Component = <RowCardComponent {...internalProps} />
+      if (enabledFullScreen) {
+        Component = (
+          <CardWrapper {...internalProps}>
+            <RowCardComponent {...internalProps} />
+          </CardWrapper>
+        )
+      }
+    }
+
+    return Component
+  },
+  (prev, next) => prev.RowCardComponent === next.RowCardComponent
+)
+
+SwitchRowComponent.propTypes = {
+  props: PropTypes.any,
+  RowCardComponent: PropTypes.any,
+  hasHeader: PropTypes.bool,
+  enabledFullScreen: PropTypes.bool,
+}
+
+SwitchRowComponent.displayName = 'SwitchRowComponent'
+
 /**
  * @param {ReactElement} RowCardComponent - Standard row component (Card).
  * @param {boolean} enabledFullScreen - to check if the datatable is in full screen mode
@@ -172,26 +205,14 @@ const WrapperRow = (RowCardComponent, enabledFullScreen) => {
   const header = data === 'list'
 
   const component = memo(
-    (props) => {
-      const internalProps = { ...props }
-      let Component = ''
-
-      if (header) {
-        internalProps.enabledFullScreen = enabledFullScreen
-        Component = <RowStyle {...internalProps} />
-      } else {
-        Component = <RowCardComponent {...internalProps} />
-        if (enabledFullScreen) {
-          Component = (
-            <CardWrapper {...internalProps}>
-              <RowCardComponent {...internalProps} />
-            </CardWrapper>
-          )
-        }
-      }
-
-      return Component
-    },
+    (props) => (
+      <SwitchRowComponent
+        props={props}
+        hasHeader={header}
+        RowCardComponent={RowCardComponent}
+        enabledFullScreen={enabledFullScreen}
+      />
+    ),
     (prev, next) => prev.className === next.className
   )
 
