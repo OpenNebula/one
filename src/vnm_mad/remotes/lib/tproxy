@@ -326,8 +326,8 @@ module VNMMAD
 
         class Daemon
 
-            def initialize(comm)
-                @comm = comm
+            def initialize(cmdline)
+                @cmdline = cmdline
             end
 
             def run(argv = ARGV.dup, &block)
@@ -346,13 +346,13 @@ module VNMMAD
                 end
                 if pid.nil? && ['start', 'restart'].include?(argv[0])
                     fork do
-                        $0 = @comm
+                        $0 = @cmdline
 
                         Process.setsid
 
                         $stdin.reopen '/dev/null'
 
-                        $stdout.reopen "#{LOG_LOCATION}/#{@comm}.log", 'a'
+                        $stdout.reopen "#{LOG_LOCATION}/#{@cmdline}.log", 'a'
                         $stdout.sync = true
 
                         $stderr.reopen $stdout
@@ -369,7 +369,7 @@ module VNMMAD
                 o, _, s = Open3.capture3 'ps', '--no-headers', '-wwo', 'pid,cmd', '-C', 'ruby'
                 o.lines
                  .map  {|line| line.strip.split(' ', 2) }
-                 .find {|_, cmd| cmd == @comm } if s.success?
+                 .find {|_, cmd| cmd == @cmdline } if s.success?
             end
 
         end
