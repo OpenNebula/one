@@ -348,13 +348,6 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
 
             hpool->add_capacity(vm->get_hid(), sr);
 
-            if ( vm->get_hid() != vm->get_previous_hid() )
-            {
-                hpool->del_capacity(vm->get_previous_hid(), sr);
-
-                vm->release_previous_vnc_port();
-            }
-
             vm->set_stime(the_time);
 
             vm->set_prolog_stime(the_time);
@@ -362,6 +355,18 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
             vm->set_vm_info();
 
             vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            if ( vm->get_hid() != vm->get_previous_hid() )
+            {
+                Template tmpl;
+                vm->get_previous_capacity(sr, tmpl);
+
+                hpool->del_capacity(vm->get_previous_hid(), sr);
+
+                vm->release_previous_vnc_port();
+            }
 
             vmpool->update(vm.get());
 
@@ -1038,6 +1043,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
                                    int& image_id, int uid, int gid, int req_id, Template& quota_tmpl)
 {
     HostShareCapacity sr;
+    Template tmpl;
 
     time_t the_time = time(0);
 
@@ -1249,6 +1255,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
                 vm->set_previous_vm_info();
                 vm->set_previous_running_etime(the_time);
 
+                vm->get_previous_capacity(sr, tmpl);
                 hpool->del_capacity(vm->get_previous_hid(), sr);
 
                 vmpool->update_previous_history(vm);
@@ -1272,6 +1279,7 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
                 vm->set_previous_vm_info();
                 vm->set_previous_running_etime(the_time);
 
+                vm->get_previous_capacity(sr, tmpl);
                 hpool->del_capacity(vm->get_previous_hid(), sr);
 
                 vmpool->update_previous_history(vm);
