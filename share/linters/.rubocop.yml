@@ -492,6 +492,10 @@ AllCops:
     - src/oneprometheus/prometheus/share/patch_datasources.rb
     - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_exporter.rb
     - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_collector.rb
+    - src/oneprovision/lib/provision/provision_config.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
   NewCops: enable
 
 ########
