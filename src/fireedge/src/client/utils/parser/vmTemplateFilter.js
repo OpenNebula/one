@@ -295,7 +295,10 @@ const reduceExtra = (
           }
         })
       } else if (section === 'Storage') {
-        handleStorage(formData, correctionMap, newExtra, section, 'DISK')
+        handleStorage(formData, correctionMap, newExtra, section, [
+          'DISK',
+          'TM_MAD_SYSTEM',
+        ])
       } else {
         handleOtherSections(
           formData,
@@ -472,65 +475,76 @@ const handleNetwork = (
  * @param {object} correctionMap - Map with the fields that will be touched and modified by the user
  * @param {object} newExtra - The extra section of the form.
  * @param {string} section - Section of the form (this function will have always Storage)
- * @param {string} type - Section type inside network section
+ * @param {Array} types - Array of section types inside storage section
  */
-const handleStorage = (formData, correctionMap, newExtra, section, type) => {
-  if (!formData.extra[type]) return
-
-  // const sectionModifications = correctionMap.extra[section] || []
-  const existingData = _.cloneDeep(newExtra[type])
-
-  // Delete the items that were deleted by the user to get the correct indexes.
-  const wrappedExistingData = deleteItemsOnExistingData(
-    Array.isArray(existingData) ? existingData : [existingData],
-    correctionMap.extra[section]
-  )
-
-  // Delete the items that were deleted by the user to get the correct indexes.
-  const sectionModifications = deleteItemsOnExistingData(
-    correctionMap.extra[section],
-    correctionMap.extra[section]
-  )
-
-  // Iterate over the final data
-  const modifiedData = formData.extra[type].map((disk, index) => {
-    // Check if the index of the item it's on the modifications map and has value
+const handleStorage = (formData, correctionMap, newExtra, section, types) => {
+  for (const type of types) {
     if (
-      index < sectionModifications.length &&
-      sectionModifications[index] !== null
+      typeof formData?.extra?.[type] === 'string' &&
+      type === 'TM_MAD_SYSTEM'
     ) {
-      // Get the fields where the modifications were done
-      const diskModifications = Object.keys(
-        sectionModifications[index]
-      )?.reduce(
-        (acc, key) => ({ ...acc, ...sectionModifications[index][key] }),
-        {}
-      )
-
-      // Iterate over each field of the item and, if it is one of the field that was modified, add the modification to the new data
-      return Object.keys(disk).reduce((acc, key) => {
-        if (
-          typeof diskModifications[key] === 'boolean' &&
-          diskModifications[key]
-        ) {
-          acc[key] = disk[key]
-        } else if (
-          typeof diskModifications[key] === 'object' &&
-          diskModifications[key].__delete__
-        ) {
-          delete acc[key]
-        } else if (key === 'SIZE' && diskModifications.SIZEUNIT) {
-          acc[key] = disk[key]
-        }
-
-        return acc
-      }, wrappedExistingData?.[index] || {})
+      newExtra[type] = formData?.extra[type]
     }
 
-    return disk
-  })
+    if (!formData.extra[type]) return
 
-  newExtra[type] = modifiedData
+    // const sectionModifications = correctionMap.extra[section] || []
+    const existingData = _.cloneDeep(newExtra[type])
+
+    // Delete the items that were deleted by the user to get the correct indexes.
+    const wrappedExistingData = deleteItemsOnExistingData(
+      Array.isArray(existingData) ? existingData : [existingData],
+      correctionMap.extra[section]
+    )
+
+    // Delete the items that were deleted by the user to get the correct indexes.
+    const sectionModifications = deleteItemsOnExistingData(
+      correctionMap.extra[section],
+      correctionMap.extra[section]
+    )
+
+    // Iterate over the final data
+    if (Array.isArray(formData?.extra[type])) {
+      const modifiedData = formData.extra[type].map((disk, index) => {
+        // Check if the index of the item it's on the modifications map and has value
+        if (
+          index < sectionModifications.length &&
+          sectionModifications[index] !== null
+        ) {
+          // Get the fields where the modifications were done
+          const diskModifications = Object.keys(
+            sectionModifications[index]
+          )?.reduce(
+            (acc, key) => ({ ...acc, ...sectionModifications[index][key] }),
+            {}
+          )
+
+          // Iterate over each field of the item and, if it is one of the field that was modified, add the modification to the new data
+          return Object.keys(disk).reduce((acc, key) => {
+            if (
+              typeof diskModifications[key] === 'boolean' &&
+              diskModifications[key]
+            ) {
+              acc[key] = disk[key]
+            } else if (
+              typeof diskModifications[key] === 'object' &&
+              diskModifications[key].__delete__
+            ) {
+              delete acc[key]
+            } else if (key === 'SIZE' && diskModifications.SIZEUNIT) {
+              acc[key] = disk[key]
+            }
+
+            return acc
+          }, wrappedExistingData?.[index] || {})
+        }
+
+        return disk
+      })
+
+      newExtra[type] = modifiedData
+    }
+  }
 }
 
 /**
