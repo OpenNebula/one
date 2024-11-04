@@ -1181,14 +1181,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if (live)
     {
         action = VMActions::LIVE_MIGRATE_ACTION;
-
-        if ( vm->is_pinned() )
-        {
-            att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
-            failure_response(ACTION, att);
-
-            return;
-        }
     }
     else
     {
