@@ -95,6 +95,8 @@ class VmmAction
 
         # For migration
         get_data(:dest_host, :MIGR_HOST)
+        get_data(:local_mfile, :LOCAL_MIGRATE_FILE)
+        get_data(:remote_mfile, :REMOTE_MIGRATE_FILE)
 
         # For disk hotplugging
         get_data(:disk_target_path)
@@ -536,21 +538,39 @@ class ExecDriver < VirtualMachineDriver
     #
     def save(id, drv_message)
         action = VmmAction.new(self, id, :save, drv_message)
+        steps = []
 
-        steps = [
-            # Save the Virtual Machine state
-            {
-                :driver     => :vmm,
-                :action     => :save,
-                :parameters => [:deploy_id, :checkpoint_file, :host]
-            },
-            # Execute networking clean up operations
-            {
-                :driver      => :vnm,
-                :action      => :clean,
-                :parameters  => [:host]
+        local_mfile = action.data[:local_mfile]
+        is_action_local = action_is_local?(:save)
+
+        if !is_action_local && local_mfile && File.size?(local_mfile)
+            mdata = File.read(local_mfile)
+            mfile = action.data[:remote_mfile]
+
+            # Save migration data to remote location
+            steps << {
+              :driver   => :vmm,
+              :action   => "/bin/cat - >#{mfile}",
+              :is_local => false,
+              :stdin    => mdata,
+              :no_extra_params => true
             }
-        ]
+        end
+
+        steps.concat([
+                        # Save the Virtual Machine state
+                        {
+                          :driver     => :vmm,
+                          :action     => :save,
+                          :parameters => [:deploy_id, :checkpoint_file, :host]
+                        },
+                        # Execute networking clean up operations
+                        {
+                          :driver      => :vnm,
+                          :action      => :clean,
+                          :parameters  => [:host]
+                        }
+        ])
 
         action.run(steps)
     end
@@ -620,7 +640,33 @@ class ExecDriver < VirtualMachineDriver
         post << action.data[:tm_command]
         failed << action.data[:tm_command]
 
-        steps = [
+        steps = []
+
+        is_action_local = action_is_local?(:migrate)
+
+        if !is_action_local
+            local_mfile = action.data[:local_mfile]
+
+            if !local_mfile || File.empty?(local_mfile)
+                send_message(ACTION[:migrate], RESULT[:failure], id,
+                             "Cannot open migrate file #{local_mfile}")
+                return
+            end
+
+            mdata = File.read(local_mfile)
+            mfile = action.data[:remote_mfile]
+
+            # Save migration data to remote location
+            steps << {
+              :driver   => :vmm,
+              :action   => "/bin/cat - >#{mfile}",
+              :is_local => false,
+              :stdin    => mdata,
+              :no_extra_params => true
+            }
+        end
+
+        steps.concat([
             # Execute a pre-migrate TM setup
             {
                 :driver     => :tm,
@@ -674,7 +720,7 @@ class ExecDriver < VirtualMachineDriver
                 :stdin      => action.data[:vm],
                 :no_fail    => true
             }
-        ]
+        ])
 
         action.run(steps)
     end

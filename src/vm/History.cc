@@ -128,6 +128,11 @@ void History::non_persistent_data()
 
     token_file = os.str();
 
+    os.str("");
+    os << vm_lhome << "/migrate." << seq;
+
+    migrate_file = os.str();
+
     // ----------- Remote Locations ------------
     os.str("");
     os << ds_location << "/" << ds_id << "/" << oid;
@@ -141,6 +146,11 @@ void History::non_persistent_data()
     os << system_dir << "/deployment." << seq;
 
     rdeployment_file = os.str();
+
+    os.str("");
+    os << system_dir << "/migrate." << seq;
+
+    rmigrate_file = os.str();
 }
 
 /* -------------------------------------------------------------------------- */

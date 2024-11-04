@@ -16,12 +16,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+DRIVER_PATH=$(dirname $0)
+source "$DRIVER_PATH/../../etc/vmm/kvm/kvmrc"
+source "$DRIVER_PATH/../../scripts_common.sh"
+XPATH="$DRIVER_PATH/../../datastore/xpath.rb"
 
+STDIN=$(cat -)
 deploy_id=$1
 dest_host=$2
 src_host=$3
+
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH -b $STDIN \
+            /VMM_DRIVER_ACTION_DATA/LOCAL_MIGRATE_FILE)
+
+LOCAL_MIGRATE_FILE="${XPATH_ELEMENTS[j++]}"
 
 # migration can't be done with domain snapshots, drop them first
 snaps=$(monitor_and_log \
@@ -42,7 +53,7 @@ fi
 
 # do live migration, but cleanup target host in case of error
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
-    migrate --live $deploy_id $MIGRATE_OPTIONS $QEMU_PROTOCOL://$dest_host/system
+    migrate --live $deploy_id $MIGRATE_OPTIONS --xml $LOCAL_MIGRATE_FILE $QEMU_PROTOCOL://$dest_host/system
 
 RC=$?
 

@@ -376,7 +376,9 @@ private:
             const std::string& tmpl,
             int ds_id,
             int sgid = -1,
-            int nicid = -1);
+            int nicid = -1,
+            const std::string& lmfile = "",
+            const std::string& rmfile = "");
 
 public:
     /**
