@@ -32,6 +32,53 @@
 
 using namespace std;
 
+// Reference
+// https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/naming-conventions-for-computer-domain-site-ou
+static bool hostname_is_valid(const string& hostname, string& error_str)
+{
+    if (hostname.size() < 2 || hostname.size() > 63)
+    {
+        error_str = "Invalid HOSTNAME, HOSTNAME length should be greater than 1, but smaller than 64 characters";
+        return false;
+    }
+
+    const auto firstChar = hostname.front();
+    
+    if (firstChar == '-' || firstChar == '.' || firstChar == '_')
+    {
+        std::stringstream ss;    
+        ss << "Invalid HOSTNAME, first character can't be '" << firstChar << "'";
+        
+        error_str = ss.str();
+        return false;
+    }
+
+    for (const auto ch : hostname)
+    {
+        if (!std::isalnum(ch) && ch != '-' && ch != '.' && ch != '_')
+        {
+            std::stringstream ss;
+            ss << "Invalid HOSTNAME, '" << ch << "' is invalid character for a HOSTNAME";
+        
+            error_str = ss.str();
+            return false;
+        }
+    }
+
+    const auto lastChar = hostname.back();
+        
+    if (lastChar == '-' || lastChar == '.' || lastChar == '_')
+    {
+        std::stringstream ss;
+        ss << "Invalid HOSTNAME, last character can't be '" << lastChar << "'";
+            
+        error_str = ss.str();
+        return false;
+    }
+
+    return true;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -58,7 +105,7 @@ int HostPool::allocate (
 
     int db_oid;
 
-    if ( !PoolObjectSQL::name_is_valid(hostname, error_str) )
+    if ( !hostname_is_valid(hostname, error_str) || !PoolObjectSQL::name_is_valid(hostname, error_str) )
     {
         goto error_name;
     }
