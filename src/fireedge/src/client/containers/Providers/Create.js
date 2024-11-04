@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useEffect, ReactElement } from 'react'
-import { useParams, useHistory, Redirect } from 'react-router'
+import { ReactElement, useEffect } from 'react'
+import { Redirect, useHistory, useParams } from 'react-router'
 
 import { useGeneralApi } from 'client/features/General'
 import {
-  useGetProviderConfigQuery,
   useCreateProviderMutation,
-  useUpdateProviderMutation,
+  useGetProviderConfigQuery,
   useLazyGetProviderConnectionQuery,
   useLazyGetProviderQuery,
+  useUpdateProviderMutation,
 } from 'client/features/OneApi/provider'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
 import { CreateForm } from 'client/components/Forms/Provider'
+import { T } from 'client/constants'
 import {
   getConnectionEditable,
   getConnectionFixed,
   isValidProviderTemplate,
 } from 'client/models/ProviderTemplate'
-import { PATH } from 'client/apps/provision/routes'
 import { deepmerge } from 'client/utils'
-import { T } from 'client/constants'
 
 /**
  * Displays the creation or modification form to a Provider.
@@ -78,14 +78,14 @@ function ProviderCreateForm() {
       } else {
         if (!isValidProviderTemplate(submitData, providerConfig)) {
           enqueueError(T.ErrorProviderTemplateSelected)
-          history.push(PATH.PROVIDERS.LIST)
+          history.push(PATH.INFRASTRUCTURE.PROVIDERS.LIST)
         }
 
         const responseId = await createProvider({ data: submitData }).unwrap()
         responseId && enqueueSuccess(T.SuccessProviderCreated, responseId)
       }
 
-      history.push(PATH.PROVIDERS.LIST)
+      history.push(PATH.INFRASTRUCTURE.PROVIDERS.LIST)
     } catch {}
   }
 
@@ -99,7 +99,7 @@ function ProviderCreateForm() {
   }, [successUpdate])
 
   if (errorConfig || errorConnection || errorProvider) {
-    return <Redirect to={PATH.PROVIDERS.LIST} />
+    return <Redirect to={PATH.INFRASTRUCTURE.PROVIDERS.LIST} />
   }
 
   const getInitialValues = () => {

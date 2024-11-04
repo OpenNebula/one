@@ -19,6 +19,7 @@ const {
   protectedConfigData,
   defaultAppName,
   defaultApps,
+  defaultAppNameProvision,
   defaultEmptyFunction,
 } = require('./constants/defaults')
 const { existsFile, defaultError } = require('server/utils/server')
@@ -29,7 +30,7 @@ const getConfigPathByApp = (app) =>
   ({
     [defaultAppName]: global?.paths?.FIREEDGE_CONFIG,
     [defaultApps.sunstone.name]: global?.paths?.SUNSTONE_CONFIG,
-    [defaultApps.provision.name]: global?.paths?.PROVISION_CONFIG,
+    [defaultAppNameProvision]: global?.paths?.PROVISION_CONFIG,
   }[app])
 
 const getViewConfigPathByApp = (app) =>
@@ -154,7 +155,7 @@ const getSunstoneViewConfig = () =>
  * @returns {object} Provision configuration
  */
 const getProvisionConfig = (options) =>
-  getConfiguration(defaultApps.provision.name, options)
+  getConfiguration(defaultAppNameProvision, options)
 
 module.exports = {
   readYAMLFile,

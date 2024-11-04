@@ -234,7 +234,7 @@ const middlewareValidateAuthWebsocket = (
  */
 const encrypt = (data = '', encryptKey = '', iv = '') => {
   let rtn
-  if (data && encryptKey && iv) {
+  if (data && encryptKey) {
     try {
       const cipher = iv
         ? createCipheriv(defaultTypeCrypto, encryptKey, iv)
@@ -266,7 +266,7 @@ const encrypt = (data = '', encryptKey = '', iv = '') => {
  */
 const decrypt = (data = '', decryptKey = '', iv = '') => {
   let rtn
-  if (data && decryptKey && iv) {
+  if (data && decryptKey) {
     try {
       const cipher = iv
         ? createDecipheriv(defaultTypeCrypto, decryptKey, iv)

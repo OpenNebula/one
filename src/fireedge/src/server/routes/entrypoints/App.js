@@ -71,12 +71,11 @@ router.get('*', async (req, res) => {
   const remoteJWT = {}
 
   const APP_CONFIG = {
-    [defaultApps.provision.name]:
-      { ...defaultConfig, ...getProvisionConfig() } || defaultConfig,
     [defaultApps.sunstone.name]:
       {
         ...defaultConfig,
         ...getSunstoneConfig({ includeProtectedConfig: false }),
+        ...getProvisionConfig(),
       } || defaultConfig,
   }
 

@@ -29,15 +29,12 @@ const apps = {
     name: appNameSunstone,
     assets: true,
   },
-  [appNameProvision]: {
-    name: appNameProvision,
-    theme: appNameProvision,
-  },
 }
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
+  defaultAppNameProvision: appNameProvision,
   defaultTypeCrypto: 'aes-256-cbc',
   /**
    * Empty function.

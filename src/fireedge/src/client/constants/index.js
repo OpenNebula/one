@@ -61,7 +61,7 @@ export const UNITS = {
 }
 
 // should be equal to the apps in src/server/utils/constants/defaults.js
-export const _APPS = { sunstone: 'sunstone', provision: 'provision' }
+export const _APPS = { sunstone: 'sunstone' }
 export const APPS = Object.keys(_APPS)
 
 export const APPS_IN_BETA = []

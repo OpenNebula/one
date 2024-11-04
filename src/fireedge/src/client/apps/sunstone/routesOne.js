@@ -30,6 +30,8 @@ import {
   NetworkAlt as NetworkIcon,
   KeyframesCouple as NetworkTemplateIcon,
   ServerConnection as NetworksIcon,
+  DatabaseSettings as ProvidersIcon,
+  SettingsCloud as ProvisionsIcon,
   HistoricShield as SecurityGroupIcon,
   MultiplePagesEmpty as ServiceTemplateIcon,
   Packages as ServicesIcon,
@@ -332,6 +334,22 @@ const Support = loadable(() => import('client/containers/Support'), {
   ssr: false,
 })
 
+const Providers = loadable(() => import('client/containers/Providers'), {
+  ssr: false,
+})
+const CreateProvider = loadable(
+  () => import('client/containers/Providers/Create'),
+  { ssr: false }
+)
+
+const Provisions = loadable(() => import('client/containers/Provisions'), {
+  ssr: false,
+})
+const CreateProvision = loadable(
+  () => import('client/containers/Provisions/Create'),
+  { ssr: false }
+)
+
 export const PATH = {
   INSTANCE: {
     VMS: {
@@ -433,6 +451,16 @@ export const PATH = {
     },
   },
   INFRASTRUCTURE: {
+    PROVIDERS: {
+      LIST: '/providers',
+      CREATE: '/providers/create',
+      EDIT: '/providers/edit/:id',
+    },
+    PROVISIONS: {
+      LIST: '/provisions',
+      CREATE: '/provisions/create',
+      EDIT: '/provisions/edit/:id',
+    },
     CLUSTERS: {
       LIST: `/${RESOURCE_NAMES.CLUSTER}`,
       DETAIL: `/${RESOURCE_NAMES.CLUSTER}/:id`,
@@ -843,6 +871,46 @@ const ENDPOINTS = [
     title: T.Infrastructure,
     icon: InfrastructureIcon,
     routes: [
+      {
+        title: T.Providers,
+        path: PATH.INFRASTRUCTURE.PROVIDERS.LIST,
+        sidebar: true,
+        icon: ProvidersIcon,
+        Component: Providers,
+        forceShow: true,
+      },
+      {
+        title: T.CreateProvider,
+        path: PATH.INFRASTRUCTURE.PROVIDERS.CREATE,
+        Component: CreateProvider,
+        forceShow: true,
+      },
+      {
+        title: T.UpdateProvider,
+        path: PATH.INFRASTRUCTURE.PROVIDERS.EDIT,
+        Component: CreateProvider,
+        forceShow: true,
+      },
+      {
+        title: T.Provisions,
+        path: PATH.INFRASTRUCTURE.PROVISIONS.LIST,
+        sidebar: true,
+        icon: ProvisionsIcon,
+        Component: Provisions,
+        forceShow: true,
+      },
+      {
+        title: T.CreateProvision,
+        path: PATH.INFRASTRUCTURE.PROVISIONS.CREATE,
+        Component: CreateProvision,
+        forceShow: true,
+      },
+      {
+        title: T.EditProvisionTemplate,
+        path: PATH.INFRASTRUCTURE.PROVISIONS.EDIT,
+        Component: CreateProvision,
+        forceShow: true,
+      },
       {
         title: T.Clusters,
         path: PATH.INFRASTRUCTURE.CLUSTERS.LIST,

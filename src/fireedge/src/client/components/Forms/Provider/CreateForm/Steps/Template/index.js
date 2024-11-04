@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useState, useEffect, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import {
-  Divider,
-  Select,
   Breadcrumbs,
-  InputLabel,
+  Divider,
   FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material'
 import {} from '@mui/material/Link'
 import { NavArrowRight } from 'iconoir-react'
 import { marked } from 'marked'
+import PropTypes from 'prop-types'
+import { memo, useEffect, useMemo, useState } from 'react'
 
-import { useListForm } from 'client/hooks'
+import { ProvisionTemplateCard } from 'client/components/Cards'
+import { ListCards } from 'client/components/List'
+import { T } from 'client/constants'
 import { useGetProviderConfigQuery } from 'client/features/OneApi/provider'
 import { useGetProvisionTemplatesQuery } from 'client/features/OneApi/provision'
-import { ListCards } from 'client/components/List'
-import { ProvisionTemplateCard } from 'client/components/Cards'
-import { Step, sanitize, deepmerge } from 'client/utils'
+import { useListForm } from 'client/hooks'
 import { isValidProviderTemplate } from 'client/models/ProviderTemplate'
-import { T } from 'client/constants'
+import { Step, deepmerge, sanitize } from 'client/utils'
 
 import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provider/CreateForm/Steps/Template/schema'
 
@@ -101,7 +101,7 @@ const Content = ({ data, setFormData }) => {
   const [templatesByProvisionSelected, providerTypes, providerDescription] =
     useMemo(() => {
       const templates = Object.values(
-        provisionTemplates[provisionSelected]?.providers
+        provisionTemplates?.[provisionSelected]?.providers || {}
       ).flat()
       const types = [...new Set(templates.map(({ provider }) => provider))]
       const provisionDescription =

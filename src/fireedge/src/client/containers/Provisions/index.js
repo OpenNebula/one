@@ -15,29 +15,29 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 
-import { useHistory } from 'react-router-dom'
-import { Box, Backdrop, CircularProgress } from '@mui/material'
+import { Backdrop, Box, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
+import { useHistory } from 'react-router-dom'
 
+import { useGeneralApi } from 'client/features/General'
 import {
-  useGetProvisionsQuery,
-  useLazyGetProvisionQuery,
   useConfigureProvisionMutation,
   useDeleteProvisionMutation,
+  useGetProvisionsQuery,
+  useLazyGetProvisionQuery,
 } from 'client/features/OneApi/provision'
-import { useSearch, useDialog } from 'client/hooks'
-import { useGeneralApi } from 'client/features/General'
+import { useDialog, useSearch } from 'client/hooks'
 
-import { DeleteForm, ConfigureForm } from 'client/components/Forms/Provision'
-import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
+import { ConfigureForm, DeleteForm } from 'client/components/Forms/Provision'
 import { Translate } from 'client/components/HOC'
+import { ListCards, ListHeader } from 'client/components/List'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { DialogConfirmation } from 'client/components/Dialogs'
-import DialogInfo from 'client/containers/Provisions/DialogInfo'
-import { PATH } from 'client/apps/provision/routes'
 import { T } from 'client/constants'
+import DialogInfo from 'client/containers/Provisions/DialogInfo'
 
 /**
  * Renders a list of available cluster provisions.
@@ -90,7 +90,7 @@ function Provisions() {
         }}
         addButtonProps={{
           'data-cy': 'create-provision',
-          onClick: () => history.push(PATH.PROVISIONS.CREATE),
+          onClick: () => history.push(PATH.INFRASTRUCTURE.PROVISIONS.CREATE),
         }}
         searchProps={{ handleChange }}
       />

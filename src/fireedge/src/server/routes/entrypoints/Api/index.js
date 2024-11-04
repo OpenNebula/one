@@ -24,7 +24,7 @@ const router = express.Router()
 
 express()
 
-const jsonResponser = (req, res) => {
+const jsonResponser = (_, res) => {
   const { httpCode } = res.locals
   if (httpCode) {
     const { id, file } = httpCode
@@ -52,7 +52,7 @@ xmlrpcRoutes({
 })
 
 /** NOT FOUND */
-router.use((req, res) => {
+router.use((_, res) => {
   res.status(notFound.id).json(notFound)
 })
 

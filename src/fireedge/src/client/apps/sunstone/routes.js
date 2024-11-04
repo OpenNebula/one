@@ -105,6 +105,8 @@ export const getEndpointsByView = (views, endpoints = []) => {
       ?.split('/')
       ?.filter(Boolean)
 
+    if (route?.forceShow) return true
+
     const [resource, ...restOfParams] = splittedPath ?? []
     const hasParams = !!restOfParams.length
 

@@ -93,6 +93,7 @@ module.exports = {
   CreateSecurityGroup: 'Create Security Group',
   CreateServiceTemplate: 'Create Service Template',
   CreateVirtualRouterTemplate: 'Create Virtual Router Template',
+  EditProvisionTemplate: 'Edit Provision template',
   InstantiateServiceTemplate: 'Instantiate Service Template',
   InstantiateVirtualRouterTemplate: 'Instantiate Virtual Router Template',
   InstantiateVirtualRouter: 'Instantiate Virtual Router',

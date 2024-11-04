@@ -64,7 +64,7 @@ function Remote({ data = {} }) {
         sx={{
           p: 2,
           overflow: 'hidden',
-          minHeight: 440,
+          minHeight: 380,
           border: ({ palette }) => ({
             xs: 'none',
             sm: `1px solid ${palette.divider}`,

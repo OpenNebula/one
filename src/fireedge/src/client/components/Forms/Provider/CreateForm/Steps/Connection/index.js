@@ -39,7 +39,7 @@ let fileCredentials = false
 
 const Content = ({ isUpdate }) => {
   const [fields, setFields] = useState([])
-  const { data: providerConfig } = useGetProviderConfigQuery()
+  const { data: providerConfig = {} } = useGetProviderConfigQuery()
   const { watch } = useFormContext()
 
   useEffect(() => {

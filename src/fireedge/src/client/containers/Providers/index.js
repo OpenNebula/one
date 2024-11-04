@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { memo, ReactElement, useEffect } from 'react'
 
-import { useHistory, generatePath } from 'react-router-dom'
-import { Box, Backdrop, CircularProgress } from '@mui/material'
+import { Backdrop, Box, CircularProgress } from '@mui/material'
 import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
+import { generatePath, useHistory } from 'react-router-dom'
 
-import {
-  useGetProviderConfigQuery,
-  useGetProvidersQuery,
-  useDeleteProviderMutation,
-  useGetProviderQuery,
-} from 'client/features/OneApi/provider'
 import { useGeneralApi } from 'client/features/General'
-import { useSearch, useDialog } from 'client/hooks'
+import {
+  useDeleteProviderMutation,
+  useGetProviderConfigQuery,
+  useGetProviderQuery,
+  useGetProvidersQuery,
+} from 'client/features/OneApi/provider'
+import { useDialog, useSearch } from 'client/hooks'
 
-import { ListHeader, ListCards } from 'client/components/List'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
 import { DialogConfirmation } from 'client/components/Dialogs'
 import { Translate } from 'client/components/HOC'
-import Information from 'client/containers/Providers/Sections/info'
-import { PATH } from 'client/apps/provision/routes'
+import { ListCards, ListHeader } from 'client/components/List'
 import { T } from 'client/constants'
+import Information from 'client/containers/Providers/Sections/info'
 
 /**
  * Renders a list of available providers.
@@ -48,7 +48,7 @@ function Providers() {
   const { display, show, hide, values: dialogProps } = useDialog()
 
   const { enqueueSuccess } = useGeneralApi()
-  const { data: providerConfig } = useGetProviderConfigQuery()
+  const { data: providerConfig = {} } = useGetProviderConfigQuery()
   const [
     deleteProvider,
     {
@@ -92,7 +92,7 @@ function Providers() {
         }}
         addButtonProps={{
           'data-cy': 'create-provider',
-          onClick: () => history.push(PATH.PROVIDERS.CREATE),
+          onClick: () => history.push(PATH.INFRASTRUCTURE.PROVIDERS.CREATE),
         }}
         searchProps={{ handleChange }}
       />
@@ -111,7 +111,11 @@ function Providers() {
               actions: [
                 {
                   handleClick: () =>
-                    history.push(generatePath(PATH.PROVIDERS.EDIT, { id: ID })),
+                    history.push(
+                      generatePath(PATH.INFRASTRUCTURE.PROVIDERS.EDIT, {
+                        id: ID,
+                      })
+                    ),
                   icon: <EditIcon />,
                   cy: 'provider-edit',
                 },

@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useState, useEffect, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import {
-  Divider,
-  Select,
   Breadcrumbs,
-  InputLabel,
+  Divider,
   FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material'
 import { NavArrowRight } from 'iconoir-react'
 import { marked } from 'marked'
+import PropTypes from 'prop-types'
+import { memo, useEffect, useMemo, useState } from 'react'
 
-import { useListForm } from 'client/hooks'
+import { ProvisionTemplateCard } from 'client/components/Cards'
+import { ListCards } from 'client/components/List'
+import { T } from 'client/constants'
 import {
-  useGetProvidersQuery,
   useGetProviderConfigQuery,
+  useGetProvidersQuery,
 } from 'client/features/OneApi/provider'
 import { useGetProvisionTemplatesQuery } from 'client/features/OneApi/provision'
-import { ListCards } from 'client/components/List'
-import { ProvisionTemplateCard } from 'client/components/Cards'
-import { Step, sanitize } from 'client/utils'
+import { useListForm } from 'client/hooks'
 import { isValidProvisionTemplate } from 'client/models/ProvisionTemplate'
-import { T } from 'client/constants'
+import { Step, sanitize } from 'client/utils'
 
-import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import { STEP_ID as CONFIGURATION_ID } from 'client/components/Forms/Provision/CreateForm/Steps/BasicConfiguration'
 import { STEP_ID as INPUTS_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
+import { STEP_ID as PROVIDER_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Provider'
 import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provision/CreateForm/Steps/Template/schema'
 
 export const STEP_ID = 'template'
@@ -80,7 +80,7 @@ Description.propTypes = { description: PropTypes.string }
 const Content = ({ data, setFormData }) => {
   const { data: provisionTemplates } = useGetProvisionTemplatesQuery()
   const { data: providers } = useGetProvidersQuery()
-  const { data: providerConfig } = useGetProviderConfigQuery()
+  const { data: providerConfig = {} } = useGetProviderConfigQuery()
   const templateSelected = data?.[0]
 
   const provisionTypes = useMemo(
@@ -104,7 +104,7 @@ const Content = ({ data, setFormData }) => {
   const [templatesByProvisionSelected, providerTypes, providerDescription] =
     useMemo(() => {
       const templates = Object.values(
-        provisionTemplates[provisionSelected]?.provisions
+        provisionTemplates?.[provisionSelected]?.provisions || {}
       ).flat()
       const types = [...new Set(templates.map(({ provider }) => provider))]
       const provisionDescription =

@@ -14,28 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import {
-  Box,
-  Container,
-  LinearProgress,
-  Link,
-  useMediaQuery,
-} from '@mui/material'
-import { ReactElement, useMemo, useState } from 'react'
+import { Box, Container, LinearProgress, useMediaQuery } from '@mui/material'
+import { ReactElement, useState } from 'react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
-import { useGeneral } from 'client/features/General'
 import {
   useChangeAuthGroupMutation,
   useLoginMutation,
 } from 'client/features/OneApi/auth'
 
-import { Translate, Tr } from 'client/components/HOC'
+import { Tr } from 'client/components/HOC'
 import { OpenNebulaLogo } from 'client/components/Icons'
-import { APPS, APPS_WITH_ONE_PREFIX, APP_URL, T } from 'client/constants'
+import { T } from 'client/constants'
 import Form from 'client/containers/Login/Opennebula/Form'
 import * as FORMS from 'client/containers/Login/Opennebula/schema'
-import { sentenceCase } from 'client/utils'
 
 const STEPS = {
   USER_FORM: 0,
@@ -114,7 +106,7 @@ function OpenNebula() {
         sx={{
           p: 2,
           overflow: 'hidden',
-          minHeight: 440,
+          minHeight: 380,
           border: ({ palette }) => ({
             xs: 'none',
             sm: `1px solid ${palette.divider}`,
@@ -175,40 +167,9 @@ function OpenNebula() {
             />
           )}
         </Box>
-
-        {useMemo(() => STEPS.USER_FORM === step && <AppLinks />, [step])}
       </Box>
     </Container>
   )
-}
-
-const AppLinks = () => {
-  const { appTitle } = useGeneral()
-  const otherApps = APPS.filter((app) => app !== `${appTitle}`.toLowerCase())
-
-  if (otherApps?.length === 0) {
-    return null
-  }
-
-  return otherApps.map((app) => (
-    <Link
-      key={app}
-      data-cy={`goto-${app}`.toLowerCase()}
-      href={`${APP_URL}/${app}`.toLowerCase()}
-      variant="caption"
-      color="text.secondary"
-      padding={1}
-    >
-      <Translate
-        word={T.TakeMeToTheAppGui}
-        values={
-          APPS_WITH_ONE_PREFIX.includes(app)
-            ? `One${sentenceCase(app)}`
-            : sentenceCase(app)
-        }
-      />
-    </Link>
-  ))
 }
 
 export default OpenNebula

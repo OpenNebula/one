@@ -17,18 +17,18 @@
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 
-import { useListForm } from 'client/hooks'
-import {
-  useGetProvidersQuery,
-  useGetProviderConfigQuery,
-} from 'client/features/OneApi/provider'
-import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
+import { ListCards } from 'client/components/List'
 import { T } from 'client/constants'
+import {
+  useGetProviderConfigQuery,
+  useGetProvidersQuery,
+} from 'client/features/OneApi/provider'
+import { useListForm } from 'client/hooks'
 
 import { STEP_ID as INPUTS_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Inputs'
-import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Template'
 import { STEP_FORM_SCHEMA } from 'client/components/Forms/Provision/CreateForm/Steps/Provider/schema'
+import { STEP_ID as TEMPLATE_ID } from 'client/components/Forms/Provision/CreateForm/Steps/Template'
 
 export const STEP_ID = 'provider'
 
@@ -38,7 +38,7 @@ const Provider = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: ({ data, setFormData }) => {
     const { data: providers } = useGetProvidersQuery()
-    const { data: providerConfig } = useGetProviderConfigQuery()
+    const { data: providerConfig = {} } = useGetProviderConfigQuery()
 
     const provisionTemplateSelected = useWatch({ name: TEMPLATE_ID })?.[0] ?? {}
 

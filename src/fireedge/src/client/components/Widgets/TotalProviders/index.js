@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import { ReactElement, useMemo } from 'react'
 
+import { CircularProgress, Paper, Typography } from '@mui/material'
 import { PieChart } from 'react-minimal-pie-chart'
-import { Typography, Paper, CircularProgress } from '@mui/material'
 
+import NumberEasing from 'client/components/NumberEasing'
+import { TypographyWithPoint } from 'client/components/Typography'
+import { T } from 'client/constants'
 import {
   useGetProviderConfigQuery,
   useGetProvidersQuery,
 } from 'client/features/OneApi/provider'
-import { TypographyWithPoint } from 'client/components/Typography'
-import NumberEasing from 'client/components/NumberEasing'
 import { groupBy } from 'client/utils'
-import { T } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
@@ -36,7 +36,7 @@ import useStyles from 'client/components/Widgets/TotalProviders/styles'
  */
 const TotalProviders = () => {
   const classes = useStyles()
-  const { data: config } = useGetProviderConfigQuery()
+  const { data: config = {} } = useGetProviderConfigQuery()
   const { data: providers = [], isLoading } = useGetProvidersQuery()
   const totalProviders = providers?.length
 

@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useState, memo, ReactElement } from 'react'
+import { ReactElement, memo, useState } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
-import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
 import { Box, IconButton, Typography } from '@mui/material'
+import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
 
-import { useSocket } from 'client/hooks'
 import { useGeneralApi } from 'client/features/General'
-import { useCreateProvisionMutation } from 'client/features/OneApi/provision'
 import { useGetProvidersQuery } from 'client/features/OneApi/provider'
+import { useCreateProvisionMutation } from 'client/features/OneApi/provision'
+import { useSocket } from 'client/hooks'
 
+import { PATH } from 'client/apps/sunstone/routesOne'
+import DebugLog from 'client/components/DebugLog'
 import {
   DefaultFormStepper,
   SkeletonStepsForm,
 } from 'client/components/FormStepper'
-import DebugLog from 'client/components/DebugLog'
 import { CreateForm } from 'client/components/Forms/Provision'
-import { PATH } from 'client/apps/provision/routes'
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -61,7 +61,7 @@ function ProvisionCreateForm() {
   }
 
   if (error) {
-    return <Redirect to={PATH.PROVISIONS.LIST} />
+    return <Redirect to={PATH.INFRASTRUCTURE.PROVISIONS.LIST} />
   }
 
   return !providers || isLoading ? (
@@ -75,7 +75,8 @@ function ProvisionCreateForm() {
 
 const Title = memo(() => {
   const history = useHistory()
-  const backToProvisionList = () => history.push(PATH.PROVISIONS.LIST)
+  const backToProvisionList = () =>
+    history.push(PATH.INFRASTRUCTURE.PROVISIONS.LIST)
 
   return (
     <Box mb="1em" display="inline-flex" alignItems="center" gap="0.8em">
