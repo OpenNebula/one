@@ -152,7 +152,7 @@ CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
-    set :format, :ar_id, 'Integer' do |arg|
+    set :format, :ar_id, 'Address Range id' do |arg|
         format_int(arg)
     end
 

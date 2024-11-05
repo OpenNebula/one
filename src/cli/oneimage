@@ -149,7 +149,9 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     set :format, :imageid, OneImageHelper.to_id_desc do |arg|
-        helper.to_id(arg)
+        tmp = helper.to_id(arg)
+        @current_image = tmp[1]
+        tmp
     end
 
     set :format, :imageid_list, OneImageHelper.list_to_id_desc do |arg|
@@ -168,6 +170,10 @@ CommandParser::CmdParser.new(ARGV) do
             [1, 'Image type not supported. Must be ' <<
                 Image::IMAGE_TYPES.join(', ') << '.']
         end
+    end
+
+    set :format, :snapshot_id, 'Snapshot name or id' do |arg|
+        helper.retrieve_snapshot_id(@current_image, arg)
     end
 
     ########################################################################

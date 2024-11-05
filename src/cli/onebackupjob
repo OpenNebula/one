@@ -120,6 +120,10 @@ CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
+    set :format, :schedid, 'Scheduled Action id' do |arg|
+        format_int(arg)
+    end
+
     ########################################################################
     # Commands
     ########################################################################

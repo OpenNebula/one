@@ -201,6 +201,22 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         Image::SHORT_IMAGE_TYPES[type_str]
     end
 
+    def retrieve_snapshot_id(image_id, id)
+        return [0, id.to_i] if id =~ /\A\d+\z/
+
+        image = retrieve_resource(image_id)
+        image.info
+
+        ids = image.retrieve_elements(
+            "/IMAGE/SNAPSHOTS/SNAPSHOT[NAME='#{id}']/ID"
+        )
+
+        return [-1, "#{id} not found or duplicated"] \
+                if ids.nil? || ids.size > 1
+
+        [0, ids[0].to_i]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 

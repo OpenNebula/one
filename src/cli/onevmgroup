@@ -121,7 +121,7 @@ CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
-    format :roleid, 'Role identifier' do |arg|
+    set :format, :roleid, 'Role identifier' do |arg|
         helper.retrieve_role_id(@current_vmg, arg)
     end
 

@@ -103,6 +103,10 @@ CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
+    set :format, :execid, 'Hook execution id' do |arg|
+        format_int(arg)
+    end
+
     ########################################################################
     # Hook log Options
     ########################################################################
