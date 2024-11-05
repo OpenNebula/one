@@ -194,7 +194,9 @@ GEM
       polyglot (~> 0.3)
     tzinfo (1.2.11)
       thread_safe (~> 0.1)
-    unf (0.2.0)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.9.1)
     uuidtools (2.2.0)
     vsphere-automation-cis (0.4.7)
       vsphere-automation-runtime (~> 0.4.6)
@@ -269,6 +271,7 @@ DEPENDENCIES
   sqlite3 (<= 1.6.9)
   thin
   treetop (>= 1.6.3)
+  unf (< 0.2.0)
   uuidtools
   vsphere-automation-cis (~> 0.4.6)
   vsphere-automation-vcenter (~> 0.4.6)
