@@ -252,6 +252,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         [0, ids[0].to_i]
     end
 
+    def retrieve_nic_id(vm_id, id)
+        return [0, id.to_i] if id =~ /\A\d+\z/
+
+        vm = retrieve_resource(vm_id)
+        vm.info
+        ids = vm.retrieve_elements("/VM/TEMPLATE/NIC[NAME='#{id}']/NIC_ID")
+
+        return [-1, "NIC #{id} not found or duplicated"] \
+                if ids.nil? || ids.size > 1
+
+        [0, ids[0].to_i]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 

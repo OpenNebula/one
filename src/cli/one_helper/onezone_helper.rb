@@ -506,6 +506,22 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         Zone::SHORT_ZONE_STATES[state_str]
     end
 
+    def retrieve_server_id(zone_id, id)
+        return [0, id.to_i] if id =~ /\A\d+\z/
+
+        zone = retrieve_resource(zone_id)
+        zone.info
+
+        ids = zone.retrieve_elements(
+            "/ZONE/SERVER_POOL/SERVER[NAME='#{id}']/ID"
+        )
+
+        return [-1, "#{id} not found or duplicated"] \
+                if ids.nil? || ids.size > 1
+
+        [0, ids[0].to_i]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 

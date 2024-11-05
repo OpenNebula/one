@@ -828,7 +828,7 @@ module CommandParser
         end
 
         def format_int(arg)
-            arg.match(/^\d+$/) ? [0,arg] : [-1]
+            arg.match(/^\d+$/) ? [0,arg] : [-1, "Argument '#{arg}' is not a valid ID"]
         end
 
         def format_file(arg)

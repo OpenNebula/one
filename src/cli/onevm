@@ -320,7 +320,7 @@ CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
-    set :format, :diskid, 'Integer' do |arg|
+    set :format, :diskid, 'Disk id' do |arg|
         format_int(arg)
     end
 
@@ -328,12 +328,28 @@ CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.size_in_mb(arg)
     end
 
-    format :snapshot_id, 'Snapshot identifier' do |arg|
+    set :format, :snapshot_id, 'Snapshot name or id' do |arg|
         helper.retrieve_snapshot_id(@current_vm, arg)
     end
 
-    format :disk_snapshot_id, 'Disk_snapshot identifier' do |arg|
+    set :format, :disk_snapshot_id, 'Disk_snapshot name or id' do |arg|
         helper.retrieve_disk_snapshot_id(@current_vm, arg)
+    end
+
+    set :format, :nicid, 'NIC name or id' do |arg|
+        helper.retrieve_nic_id(@current_vm, arg)
+    end
+
+    set :format, :pciid, 'PCI id' do |arg|
+        format_int(arg)
+    end
+
+    set :format, :sched_id, 'Scheduled Action id' do |arg|
+        format_int(arg)
+    end
+
+    set :format, :sgid, 'Security Group id' do |arg|
+        format_int(arg)
     end
 
     ########################################################################
