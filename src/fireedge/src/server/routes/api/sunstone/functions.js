@@ -139,11 +139,11 @@ const getViews = (
               // Check that the group has info
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
                 // Check if the user is admin of the group
-                const admins = Array.isArray(vmgroupData.GROUP.ADMINS)
-                  ? vmgroupData.GROUP.ADMINS
-                  : [vmgroupData.GROUP.ADMINS]
+                const admins = Array.isArray(vmgroupData.GROUP?.ADMINS?.ID)
+                  ? vmgroupData.GROUP.ADMINS?.ID
+                  : [vmgroupData.GROUP.ADMINS?.ID]
                 const isAdminGroup = admins.some(
-                  (admin) => admin.ID === dataUser.USER.ID
+                  (admin) => admin === dataUser.USER.ID
                 )
 
                 // Get the views on the group template
