@@ -18,6 +18,7 @@ import {
   Divider,
   FormControl,
   InputLabel,
+  LinearProgress,
   Select,
 } from '@mui/material'
 import { NavArrowRight } from 'iconoir-react'
@@ -78,9 +79,13 @@ Description.propTypes = { description: PropTypes.string }
 // ----------------------------------------------------------
 
 const Content = ({ data, setFormData }) => {
-  const { data: provisionTemplates } = useGetProvisionTemplatesQuery()
+  const {
+    data: provisionTemplates,
+    isSuccess: successRequestProvisionTemplate,
+  } = useGetProvisionTemplatesQuery()
   const { data: providers } = useGetProvidersQuery()
-  const { data: providerConfig = {} } = useGetProviderConfigQuery()
+  const { data: providerConfig = {}, isSuccess: successRequestProviderConfig } =
+    useGetProviderConfigQuery()
   const templateSelected = data?.[0]
 
   const provisionTypes = useMemo(
@@ -91,7 +96,7 @@ const Content = ({ data, setFormData }) => {
           .flat()
       ),
     ],
-    []
+    [providerConfig]
   )
 
   const [providerSelected, setProvider] = useState(
@@ -111,7 +116,7 @@ const Content = ({ data, setFormData }) => {
         provisionTemplates?.[provisionSelected]?.description
 
       return [templates, types, provisionDescription]
-    }, [provisionSelected])
+    }, [provisionSelected, provisionTemplates])
 
   const templatesAvailable = useMemo(
     () =>
@@ -167,6 +172,10 @@ const Content = ({ data, setFormData }) => {
       : handleSelect({ ...template, provision_type: provisionSelected })
   }
 
+  if (!successRequestProviderConfig || !successRequestProvisionTemplate) {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  }
+
   return (
     <>
       {/* -- SELECTORS -- */}
@@ -185,6 +194,7 @@ const Content = ({ data, setFormData }) => {
             value={provisionSelected}
             variant="outlined"
           >
+            <option key="" value=""></option>
             {provisionTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -216,13 +226,7 @@ const Content = ({ data, setFormData }) => {
       </Breadcrumbs>
 
       {/* -- DESCRIPTION -- */}
-      {useMemo(
-        () =>
-          providerDescription && (
-            <Description description={providerDescription} />
-          ),
-        [providerDescription]
-      )}
+      {providerDescription && <Description description={providerDescription} />}
 
       <Divider sx={{ margin: '1rem 0' }} />
 

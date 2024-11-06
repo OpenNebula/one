@@ -14,30 +14,29 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useParams, useLocation } from 'react-router-dom'
+import { memo, useMemo } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 
 import {
   AppBar,
   Box,
-  Toolbar,
-  Typography,
   IconButton,
   Stack,
+  Toolbar,
+  Typography,
 } from '@mui/material'
 import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
+import { Translate } from 'client/components/HOC'
+import Group from 'client/components/Header/Group'
 import User from 'client/components/Header/User'
 import View from 'client/components/Header/View'
-import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
-import { Translate } from 'client/components/HOC'
 import { sentenceCase } from 'client/utils'
-import { APPS_WITH_ONE_PREFIX } from 'client/constants'
 
 const Header = memo(({ route: { title, description } = {} }) => {
   const { isOneAdmin } = useAuth()
@@ -78,7 +77,6 @@ const Header = memo(({ route: { title, description } = {} }) => {
           sx={{ userSelect: 'none' }}
         >
           <Typography variant="h6" data-cy="header-app-title">
-            {APPS_WITH_ONE_PREFIX.includes(appTitle) && 'One'}
             <Typography
               variant={'inherit'}
               color="secondary.800"

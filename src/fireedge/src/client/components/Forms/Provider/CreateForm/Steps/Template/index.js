@@ -18,6 +18,7 @@ import {
   Divider,
   FormControl,
   InputLabel,
+  LinearProgress,
   Select,
 } from '@mui/material'
 import {} from '@mui/material/Link'
@@ -76,8 +77,10 @@ Description.propTypes = { description: PropTypes.string }
 // ----------------------------------------------------------
 
 const Content = ({ data, setFormData }) => {
-  const { data: provisionTemplates = {} } = useGetProvisionTemplatesQuery()
-  const { data: providerConfig = {} } = useGetProviderConfigQuery()
+  const { data: provisionTemplates = {}, isSuccess: successRequestProvision } =
+    useGetProvisionTemplatesQuery()
+  const { data: providerConfig = {}, isSuccess: successRequestProvider } =
+    useGetProviderConfigQuery()
   const templateSelected = data?.[0]
 
   const provisionTypes = useMemo(
@@ -108,7 +111,7 @@ const Content = ({ data, setFormData }) => {
         provisionTemplates?.[provisionSelected]?.description
 
       return [templates, types, provisionDescription]
-    }, [provisionSelected])
+    }, [provisionSelected, provisionTemplates])
 
   const templatesAvailable = useMemo(
     () =>
@@ -159,6 +162,10 @@ const Content = ({ data, setFormData }) => {
     isSelected
       ? handleUnselect(name)
       : handleSelect(deepmerge(template, extraPlainInfo))
+  }
+
+  if (!successRequestProvider || !successRequestProvision) {
+    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
   }
 
   return (
