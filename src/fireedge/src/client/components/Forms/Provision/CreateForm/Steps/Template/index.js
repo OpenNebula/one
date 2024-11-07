@@ -194,7 +194,9 @@ const Content = ({ data, setFormData }) => {
             value={provisionSelected}
             variant="outlined"
           >
-            <option key="" value=""></option>
+            <option key="" value="">
+              --
+            </option>
             {provisionTypes.map((type) => (
               <option key={type} value={type}>
                 {type}

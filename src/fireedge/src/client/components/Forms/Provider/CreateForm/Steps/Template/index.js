@@ -21,7 +21,6 @@ import {
   LinearProgress,
   Select,
 } from '@mui/material'
-import {} from '@mui/material/Link'
 import { NavArrowRight } from 'iconoir-react'
 import { marked } from 'marked'
 import PropTypes from 'prop-types'
@@ -91,7 +90,7 @@ const Content = ({ data, setFormData }) => {
           .flat()
       ),
     ],
-    []
+    [providerConfig]
   )
 
   const [providerSelected, setProvider] = useState(
@@ -186,6 +185,9 @@ const Content = ({ data, setFormData }) => {
             value={provisionSelected}
             variant="outlined"
           >
+            <option key="" value="">
+              --
+            </option>
             {provisionTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
