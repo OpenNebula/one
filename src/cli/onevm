@@ -663,7 +663,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     migrate_desc = <<-EOT.unindent
         Migrates the given running VM to another Host. If used with --live
-        parameter the migration is done without downtime.
+        parameter the migration is done without downtime. Datastore migration is
+        not supported for --live flag.
 
         States: RUNNING
     EOT
