@@ -586,6 +586,19 @@ public:
     }
 
     /**
+     *  Returns the migrate filename. The migrate file is in the form:
+     *          $ONE_LOCATION/var/vms/$VM_ID/migrate.$SEQ
+     *  or, in case that OpenNebula is installed in root
+     *          /var/lib/one/vms/$VM_ID/migrate.$SEQ
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the migrate file path
+     */
+    const std::string & get_migrate_file() const
+    {
+        return history->migrate_file;
+    };
+
+    /**
      *  Returns the remote deployment filename. The file is in the form:
      *          $DS_LOCATION/$SYSTEM_DS/$VM_ID/deployment.$SEQ
      *  The hasHistory() function MUST be called before this one.
@@ -594,6 +607,17 @@ public:
     const std::string & get_remote_deployment_file() const
     {
         return history->rdeployment_file;
+    };
+
+    /**
+     *  Returns the remote migrate filename. The file is in the form:
+     *          $DS_LOCATION/$SYSTEM_DS/$VM_ID/migrate.$SEQ
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the migrate filename
+     */
+    const std::string & get_rmigrate_file() const
+    {
+        return history->rmigrate_file;
     };
 
     /**

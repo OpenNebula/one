@@ -21,11 +21,10 @@ DRIVER_PATH=$(dirname $0)
 source $DRIVER_PATH/../../etc/vmm/kvm/kvmrc
 source $DRIVER_PATH/../../scripts_common.sh
 
+DRV_MESSAGE=$(cat)
+
 DEPLOY_ID=$1
 FILE=$2
-
-VM_ID=$4
-DS_ID=$5
 
 if [ -f "$FILE" ]; then
     log "Moving old checkpoint file $FILE"
@@ -38,9 +37,20 @@ fi
 touch "$FILE"
 chmod 666 "$FILE"
 
-retry_if "active block job" 3 5 \
+# Extracting the migrate file
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+IFS= read -r -d '' MIGRATE_FILE < <(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/REMOTE_MIGRATE_FILE)
+
+# Check if MIGRATE_FILE is not empty and the file exists
+if [ -n "$MIGRATE_FILE" ] && [ -f "$MIGRATE_FILE" ]; then
+    retry_if "active block job" 3 5 \
+    exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE --xml $MIGRATE_FILE" \
+    "Could not save $DEPLOY_ID to $FILE"
+else
+    retry_if "active block job" 3 5 \
     exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
     "Could not save $DEPLOY_ID to $FILE"
+fi
 
 # Compact memory
 if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
@@ -52,12 +62,9 @@ fi
 #-------------------------------------------------------------------------------
 
 # Exit if no stdin data is available
-if [ -t 0 ]; then
+if [ -z "$DRV_MESSAGE" ]; then
     exit 0
 fi
-
-# There is data in stdin, read it
-DRV_MESSAGE=$(cat)
 
 # The data is the driver message. Extracting the System DS TM_MAD
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
