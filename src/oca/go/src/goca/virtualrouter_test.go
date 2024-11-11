@@ -185,6 +185,8 @@ func TestVirtualRouter(t *testing.T) {
 	vn_tmpl.Add(vnkeys.VNMad, "dummy")
 
 	vnet_id, _ := testCtrl.VirtualNetworks().Create(vn_tmpl.String(), 0)
+	vnetC := testCtrl.VirtualNetwork(vnet_id)
+	WaitState(t, vnetC, "READY")
 
 	nic_tmpl := shared.NewNIC()
 	nic_tmpl.Add(shared.Network, "go-net")

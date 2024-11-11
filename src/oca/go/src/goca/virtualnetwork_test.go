@@ -82,6 +82,9 @@ func TestVirtualNetwork(t *testing.T) {
 	}
 
 	vnetC := testCtrl.VirtualNetwork(id)
+	
+	WaitState(t, vnetC, "READY")
+
 	vnet, err = vnetC.Info(false)
 	if err != nil {
 		t.Error(err)
