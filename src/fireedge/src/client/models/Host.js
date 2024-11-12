@@ -104,7 +104,13 @@ export const getHugepageSizes = (host) => {
 
   return numaNodes
     .filter((node) => node?.NODE_ID && node?.HUGEPAGE)
-    .map((node) => node.HUGEPAGE.map(({ SIZE }) => +SIZE))
+    .map((node) => {
+      const hugepages = Array.isArray(node.HUGEPAGE)
+        ? node.HUGEPAGE
+        : [node.HUGEPAGE]
+
+      return hugepages.map(({ SIZE }) => +SIZE)
+    })
     .flat()
 }
 
