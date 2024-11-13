@@ -90,7 +90,7 @@ if [ -n "$CEPH_USER" ]; then
 fi
 
 if [ -n "$CEPH_KEY" ]; then
-    RBD="$RBD --keyfile ${CEPH_USER}"
+    RBD="$RBD --keyfile ${CEPH_KEY}"
     IMPORT_SOURCE="${IMPORT_SOURCE}${IS_JOIN}CEPH_KEY=${CEPH_KEY}"
     IS_JOIN="&"
 fi
