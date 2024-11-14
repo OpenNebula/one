@@ -758,7 +758,7 @@ int LibVirtDriver::deployment_description_kvm(
     topology = vm->get_template_attribute("TOPOLOGY");
     vm->get_template_attribute("NUMA_NODE", nodes);
 
-    get_attribute(nullptr, host, nullptr, "CGROUPS_VERSION", cgversion);
+    get_attribute(nullptr, host, cluster, "CGROUPS_VERSION", cgversion);
 
     int  base = 1024;
     int  min  = 2;
@@ -901,7 +901,7 @@ int LibVirtDriver::deployment_description_kvm(
     bool boot_secure = false;
     string firmware;
 
-    get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE", firmware);
+    get_attribute(vm, host, cluster, "OS", "FIRMWARE", firmware);
 
     bool is_uefi = !firmware.empty() && !one_util::icasecmp(firmware, "BIOS");
 
@@ -909,7 +909,7 @@ int LibVirtDriver::deployment_description_kvm(
     {
         string firmware_secure = "no";
 
-        if ( get_attribute(vm, nullptr, nullptr, "OS", "FIRMWARE_SECURE",
+        if ( get_attribute(vm, host, cluster, "OS", "FIRMWARE_SECURE",
                            boot_secure) && boot_secure)
         {
             firmware_secure = "yes";
@@ -943,7 +943,7 @@ int LibVirtDriver::deployment_description_kvm(
     // CPU SECTION
     // ------------------------------------------------------------------------
     get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
-    get_attribute(vm, nullptr, nullptr, "CPU_MODEL", "FEATURES", cpu_feature);
+    get_attribute(vm, host, cluster, "CPU_MODEL", "FEATURES", cpu_feature);
 
     if (cpu_model == "host-passthrough")
     {
