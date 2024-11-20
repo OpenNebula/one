@@ -37,7 +37,7 @@ func (s *ContextSuite) TestDefaultContext(c *C) {
 
 func (s *ContextSuite) TestContextTimeout(c *C) {
 	// Simple example, which shows the timeout is triggered
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
 	defer cancel()
 
 	userC := testCtrl.User(0)

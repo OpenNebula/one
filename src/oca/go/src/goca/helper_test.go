@@ -19,6 +19,7 @@ package goca
 import (
 	"crypto/md5"
 	"fmt"
+	"math"
 	"strconv"
 	"testing"
 	"time"
@@ -51,15 +52,45 @@ func WaitResource(f func() bool) bool {
 func GetUserGroup(t *testing.T, user string) (string, error) {
 	uid, err := testCtrl.Users().ByName(user)
 	if err != nil {
-        t.Error("Cannot retreive caller user ID")
+		t.Error("Cannot retreive caller user ID")
 	}
 
-    // Get User Info
-    u, err := testCtrl.User(uid).Info(false)
+	// Get User Info
+	u, err := testCtrl.User(uid).Info(false)
 	if err != nil {
-        t.Error("Cannot retreive caller user Info")
+		t.Error("Cannot retreive caller user Info")
 	}
 
-    return u.GName, nil
+	return u.GName, nil
 
+}
+
+// Retries function with exponential backoff until maxRetries are reached
+// * fn: function to retry until returns nil as error
+// * delayMs: base delay time in milliseconds
+// * maxRetries: maximum number of retries
+// * initDelayMs: The initial delay time in milliseconds (before the first function call)
+// * maxDelayMs: The maximum number of milliseconds between retries
+func retryWithExponentialBackoff(fn func() error, delayMs int, maxRetries int, initDelayMs int, maxDelayMs int) error {
+
+	start := time.Now()
+	time.Sleep(time.Duration(initDelayMs) * time.Millisecond)
+
+	delay := float64(delayMs)
+	maxDelay := float64(maxDelayMs)
+
+	for retries := 0; retries <= maxRetries; retries++ {
+		err := fn()
+		if err == nil {
+			return nil
+		}
+		time.Sleep(time.Duration(delay) * time.Millisecond)
+		delay *= math.Pow(2, float64(retries))
+		if delay > maxDelay {
+			delay = maxDelay
+		}
+	}
+	totalTime := time.Since(start)
+
+	return fmt.Errorf("retry limit reached (%d) after (%f) seconds", maxRetries, totalTime.Seconds())
 }

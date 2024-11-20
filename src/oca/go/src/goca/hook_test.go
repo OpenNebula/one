@@ -17,8 +17,8 @@
 package goca
 
 import (
+	"fmt"
 	"testing"
-	"time"
 
 	hk "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
@@ -84,12 +84,17 @@ func TestHook(t *testing.T) {
 	//triger the hook
 	testCtrl.Zones().ServerRaftStatus()
 
-	time.Sleep(2 * time.Second)
+	checkLogExecution := func() error {
+		hook, err = hookC.Info(false)
+		if len(hook.Log.ExecutionRecords) <= currentExecs {
+			return fmt.Errorf("Hook have not been triggered")
+		}
+		return nil
+	}
 
-	hook, err = hookC.Info(false)
-
-	if len(hook.Log.ExecutionRecords) <= currentExecs {
-		t.Errorf("Hook have not been triggered")
+	err = retryWithExponentialBackoff(checkLogExecution, 1000, 5, 2000, 3000)
+	if err != nil {
+		t.Errorf("Hook have not been triggered: %s", err)
 	}
 
 	// Check retry functionality
@@ -97,16 +102,13 @@ func TestHook(t *testing.T) {
 
 	hookC.Retry(hook.Log.ExecutionRecords[0].ExecId)
 
-	time.Sleep(2 * time.Second)
-
-	hook, err = hookC.Info(false)
-
-	if len(hook.Log.ExecutionRecords) <= currentExecs {
-		t.Errorf("Hook execution have not been retried")
+	err = retryWithExponentialBackoff(checkLogExecution, 1000, 5, 2000, 3000)
+	if err != nil {
+		t.Errorf("Hook execution has not been retried: %s", err)
 	}
 
 	if hook.Log.ExecutionRecords[len(hook.Log.ExecutionRecords)-1].Retry != "yes" {
-		t.Errorf("Hook execution have not been retried")
+		t.Errorf("Hook execution has not been retried")
 	}
 
 	// Delete template
