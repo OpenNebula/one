@@ -1,3 +1,4 @@
+//go:build !disabled
 // +build !disabled
 
 /* -------------------------------------------------------------------------- */
@@ -19,9 +20,10 @@
 package goca
 
 import (
-	"testing"
-	"strconv"
+	"fmt"
 	"regexp"
+	"strconv"
+	"testing"
 
 	ds "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore"
 	dskeys "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/datastore/keys"
@@ -67,22 +69,22 @@ func (s *VMSuite) SetUpSuite(c *C) {
 	testCtrl.Datastore(0).Update(tmpl.String(), 1)
 
 	dsTmpl := "NAME = go_backup_ds\n" +
-			  "DS_MAD = dummy\n" +
-			  "TM_MAD = dummy\n" +
-			  "TYPE = BACKUP_DS\n";
+		"DS_MAD = dummy\n" +
+		"TM_MAD = dummy\n" +
+		"TYPE = BACKUP_DS\n"
 
 	s.dsID, _ = testCtrl.Datastores().Create(dsTmpl, 0)
 
 	vnTpl := "NAME = vn_go_test_sg\n" +
-			 "BRIDGE = vbr0\n" +
-			 "VN_MAD = dummy\n" +
-			 "NETWORK_ADDRESS = 192.168.0.0\n"+
-			 "AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = 254 ]\n"
+		"BRIDGE = vbr0\n" +
+		"VN_MAD = dummy\n" +
+		"NETWORK_ADDRESS = 192.168.0.0\n" +
+		"AR = [ TYPE = IP4, IP = 192.168.0.1, SIZE = 254 ]\n"
 	s.vnID, _ = testCtrl.VirtualNetworks().Create(vnTpl, -1)
 
 	sgTpl := "NAME = sg_go_nic_attach\n" +
-			 "DESCRIPTION  = \"test security group\"\n" +
-			 "ATT1 = \"VAL1\"\n"
+		"DESCRIPTION  = \"test security group\"\n" +
+		"ATT1 = \"VAL1\"\n"
 	s.sgID, _ = testCtrl.SecurityGroups().Create(sgTpl)
 }
 
@@ -106,9 +108,20 @@ func (s *VMSuite) TearDownSuite(c *C) {
 	c.Assert(err, IsNil)
 
 	for i := 0; i < len(backupDS.Images.ID); i++ {
-	err := testCtrl.Image(backupDS.Images.ID[i]).Delete()
+		err := testCtrl.Image(backupDS.Images.ID[i]).Delete()
 		c.Assert(err, IsNil)
 	}
+
+	//wait for images to be deleted
+	err = retryWithExponentialBackoff(func() error {
+		backupDS, err := testCtrl.Datastore(s.dsID).Info(false)
+		c.Assert(err, IsNil)
+		if len(backupDS.Images.ID) > 0 {
+			return fmt.Errorf("still exist images")
+		}
+		return nil
+	}, 1000, 5, 0, 3000)
+	c.Assert(err, IsNil)
 
 	err = testCtrl.Template(s.templateID).Delete()
 	c.Assert(err, IsNil)
