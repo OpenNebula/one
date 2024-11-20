@@ -187,7 +187,7 @@ func (t *Template) GetShowback(key keys.Showback) (string, error) {
 
 // OS template part
 
-func (t *Template) AddOS(key keys.OS, value string) error {
+func (t *Template) AddOS(key keys.OS, value interface{}) error {
 	return t.Template.AddPairToVec(keys.OSVec, string(key), value)
 }
 
