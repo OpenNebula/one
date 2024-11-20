@@ -403,6 +403,8 @@ func MakePair(key string, v interface{}) (*Pair, error) {
 		val = fmt.Sprintf("%f", v)
 	case int, uint:
 		val = fmt.Sprintf("%d", v)
+	case bool:
+		val = strconv.FormatBool(v)
 	case string:
 		val = v
 	}
