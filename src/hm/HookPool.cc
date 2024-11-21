@@ -23,45 +23,28 @@ using namespace std;
 
 int HookPool::allocate(unique_ptr<Template> tmpl, string& error_str)
 {
-    Hook * hook;
-    int db_oid;
     string name;
-
-    ostringstream oss;
-
-    int oid = -1;
-
     tmpl->get("NAME", name);
 
     if (!PoolObjectSQL::name_is_valid(name, error_str))
     {
-        goto error_name;
+        error_str = "Invalid name.";
+        return -1;
     }
 
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if ( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by Hook " << db_oid << ".";
+        error_str = oss.str();
+
+        return -1;
     }
 
-    hook = new Hook(move(tmpl));
+    Hook hook {move(tmpl)};
 
-    oid = PoolSQL::allocate(hook, error_str);
-
-    return oid;
-
-error_duplicated:
-    oss << "NAME is already taken by Hook " << db_oid << ".";
-    error_str = oss.str();
-
-    goto error_common;
-error_name:
-    oss << "Invalid name.";
-    error_str = oss.str();
-
-error_common:
-    oid = -1;
-
-    return oid;
+    return PoolSQL::allocate(hook, error_str);
 }

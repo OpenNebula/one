@@ -31,7 +31,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
     if (get_lastOID() == -1)
     {
         // Build the default default security group
-        string default_sg =
+        const string default_sg =
                 "NAME=default\n"
                 "DESCRIPTION=\"The default security group is added to every "
                 "network. Use it to add default filter rules for your networks. "
@@ -40,26 +40,24 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
                 "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]\n"
                 "RULE=[RULE_TYPE=INBOUND,PROTOCOL=ALL]";
 
-        Nebula& nd         = Nebula::instance();
-        UserPool * upool   = nd.get_upool();
-        auto      oneadmin = upool->get_ro(0);
-
-        string error;
+        auto oneadmin = Nebula::instance().get_upool()->get_ro(0);
 
         auto default_tmpl = make_unique<Template>();
         char * error_parse;
 
         default_tmpl->parse(default_sg, &error_parse);
 
-        SecurityGroup * secgroup = new SecurityGroup(
-                oneadmin->get_uid(),
-                oneadmin->get_gid(),
-                oneadmin->get_uname(),
-                oneadmin->get_gname(),
-                oneadmin->get_umask(),
-                move(default_tmpl));
+        SecurityGroup secgroup
+        {
+            oneadmin->get_uid(),
+            oneadmin->get_gid(),
+            oneadmin->get_uname(),
+            oneadmin->get_gname(),
+            oneadmin->get_umask(),
+            move(default_tmpl)};
 
-        secgroup->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        string error;
+        secgroup.set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
 
         if (PoolSQL::allocate(secgroup, error) < 0)
         {
@@ -91,43 +89,35 @@ int SecurityGroupPool::allocate(
         int *           oid,
         string&         error_str)
 {
-    int    db_oid;
-    string name;
-
-    ostringstream oss;
-
-    auto secgroup = new SecurityGroup(uid, gid, uname, gname, umask,
-                                      move(sgroup_template));
+    SecurityGroup secgroup {uid, gid, uname, gname, umask, move(sgroup_template)};
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
 
-    secgroup->get_template_attribute("NAME", name);
+    string name;
+    secgroup.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by SecurityGroup " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
-    *oid = PoolSQL::allocate(move(secgroup), error_str);
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by SecurityGroup " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    delete secgroup;
-    *oid = -1;
+    *oid = PoolSQL::allocate(secgroup, error_str);
 
     return *oid;
 }

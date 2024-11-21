@@ -42,7 +42,7 @@ public:
     /**
      *  Identifier for the oneadmin group
      */
-    static const int ONEADMIN_ID;
+    static constexpr int ONEADMIN_ID = 0;
 
     /**
      *  Default name for the users group
@@ -52,7 +52,7 @@ public:
     /**
      *  Identifier for the user group
      */
-    static const int USERS_ID;
+    static constexpr int USERS_ID = 1;
 
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */

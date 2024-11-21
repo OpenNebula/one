@@ -94,11 +94,6 @@ int VdcPool::allocate(
         int *       oid,
         string&     error_str)
 {
-    int    db_oid;
-    string name;
-
-    ostringstream oss;
-
     if (Nebula::instance().is_federation_slave())
     {
         NebulaLog::log("ONE", Log::ERROR,
@@ -108,37 +103,35 @@ int VdcPool::allocate(
         return -1;
     }
 
-    auto vdc = new Vdc(-1, move(vdc_template));
+    Vdc vdc {-1, move(vdc_template)};
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
 
-    vdc->get_template_attribute("NAME", name);
+    string name;
+    vdc.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by Vdc " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     *oid = PoolSQL::allocate(vdc, error_str);
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by Vdc " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    delete vdc;
-    *oid = -1;
 
     return *oid;
 }

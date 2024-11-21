@@ -35,51 +35,42 @@ int VMTemplatePool::allocate (
         int *                    oid,
         string&                  error_str)
 {
-    int     db_oid;
-    string  name;
-
-    ostringstream oss;
-
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
     // ------------------------------------------------------------------------
-    auto vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask,
-                                      move(template_contents));
+    VMTemplate vm_template {-1, uid, gid, uname, gname, umask, move(template_contents)};
 
     // Check name
-    vm_template->get_template_attribute("NAME", name);
+    string name;
+    vm_template.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
     // Check for duplicates
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by TEMPLATE " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
-    vm_template->encrypt();
+    vm_template.encrypt();
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(move(vm_template), error_str);
-
-    return *oid;
-
-
-error_duplicated:
-    oss << "NAME is already taken by TEMPLATE " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    delete vm_template;
-    *oid = -1;
+    *oid = PoolSQL::allocate(vm_template, error_str);
 
     return *oid;
 }

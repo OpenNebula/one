@@ -34,7 +34,7 @@ const int BackupJob::MAX_USER_PRIO = 49;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-BackupJob::BackupJob(int          uid,
+BackupJob::BackupJob(int                 uid,
                      int                 gid,
                      const std::string&  uname,
                      const std::string&  gname,

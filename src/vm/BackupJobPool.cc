@@ -36,28 +36,31 @@ int BackupJobPool::allocate (
         int *                    oid,
         string&                  error_str)
 {
-    string          name;
-    ostringstream   oss;
-
-    int db_oid;
-
-    BackupJob *bj = new BackupJob(uid, gid, uname, gname, umask, move(templ));
+    BackupJob bj {uid, gid, uname, gname, umask, move(templ)};
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
-    bj->get_template_attribute("NAME", name);
+    string name;
+    bj.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by BACKUP JOB " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     // ---------------------------------------------------------------------
@@ -69,19 +72,6 @@ int BackupJobPool::allocate (
     {
         // todo trigger hook object created
     }
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by BACKUP JOB " << db_oid << ".";
-    error_str = oss.str();
-
-    goto error_common;
-
-error_name:
-error_common:
-    delete bj;
-    *oid = -1;
 
     return *oid;
 }

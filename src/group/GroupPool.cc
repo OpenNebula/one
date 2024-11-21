@@ -32,10 +32,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 const string GroupPool::ONEADMIN_NAME = "oneadmin";
-const int    GroupPool::ONEADMIN_ID   = 0;
-
 const string GroupPool::USERS_NAME    = "users";
-const int    GroupPool::USERS_ID      = 1;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -44,9 +41,6 @@ GroupPool::GroupPool(SqlDB * db, bool is_slave,
                      const vector<const SingleAttribute *>& restricted_attrs)
     : PoolSQL(db, one_db::group_table)
 {
-    ostringstream oss;
-    string        error_str;
-
     //Federation slaves do not need to init the pool
     if (is_slave)
     {
@@ -56,28 +50,36 @@ GroupPool::GroupPool(SqlDB * db, bool is_slave,
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
-        int         rc;
-        Group *     group;
-
         // Build the default oneadmins & users group
-        group = new Group(ONEADMIN_ID, ONEADMIN_NAME);
+        Group group_oneadmin {ONEADMIN_ID, ONEADMIN_NAME};
 
-        rc = PoolSQL::allocate(group, error_str);
+        string error_str;
+        auto rc = PoolSQL::allocate(group_oneadmin, error_str);
 
         if (rc < 0)
         {
-            goto error_groups;
+            ostringstream oss;
+
+            oss << "Error trying to create default group: " << error_str;
+            NebulaLog::log("GROUP", Log::ERROR, oss);
+
+            throw runtime_error(oss.str());
         }
 
-        group = new Group(USERS_ID, USERS_NAME);
+        Group group {USERS_ID, USERS_NAME};
 
-        group->sunstone_views("cloud", "cloud", "groupadmin", "groupadmin,cloud");
+        group.sunstone_views("cloud", "cloud", "groupadmin", "groupadmin,cloud");
 
         rc = PoolSQL::allocate(group, error_str);
 
         if (rc < 0)
         {
-            goto error_groups;
+            ostringstream oss;
+  
+            oss << "Error trying to create default group: " << error_str;
+            NebulaLog::log("GROUP", Log::ERROR, oss);
+
+            throw runtime_error(oss.str());
         }
 
         set_lastOID(99);
@@ -87,12 +89,6 @@ GroupPool::GroupPool(SqlDB * db, bool is_slave,
     GroupTemplate::parse_restricted(restricted_attrs);
 
     return;
-
-error_groups:
-    oss << "Error trying to create default group: " << error_str;
-    NebulaLog::log("GROUP", Log::ERROR, oss);
-
-    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,11 +96,7 @@ error_groups:
 
 int GroupPool::allocate(string name, int * oid, string& error_str)
 {
-    int db_oid;
-
-    Group * group;
-
-    ostringstream   oss;
+    *oid = -1;
 
     if (Nebula::instance().is_federation_slave())
     {
@@ -112,37 +104,33 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
                        "GroupPool::allocate called, but this "
                        "OpenNebula is a federation slave");
 
-        return -1;
+        return *oid;
     }
 
     // Check name
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
     // Check for duplicates
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by GROUP " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     // Build a new Group object
-    group = new Group(-1, name);
+    Group group{-1, name};
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(group, error_str);
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by GROUP " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    *oid = -1;
 
     return *oid;
 }

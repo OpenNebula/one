@@ -55,9 +55,8 @@ public:
                  int *                    oid,
                  std::string&             error_str)
     {
-        *oid = PoolSQL::allocate(
-                       new VirtualRouter(-1, uid, gid, uname, gname, umask, move(template_contents)),
-                       error_str);
+        VirtualRouter vr{-1, uid, gid, uname, gname, umask, move(template_contents)};
+        *oid = PoolSQL::allocate(vr, error_str);
 
         return *oid;
     }

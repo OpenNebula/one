@@ -98,41 +98,32 @@ error_bootstrap:
 
 int ClusterPool::allocate(string name, int * oid, string& error_str)
 {
-    Cluster * cluster;
-
-    ostringstream oss;
-
-    int db_oid;
+    *oid = -1;
 
     // Check name
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
     // Check for duplicates
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by CLUSTER " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     // Build a new Cluster object
-    cluster = new Cluster(-1, name, 0, vnc_conf);
+    Cluster cluster {-1, name, 0, vnc_conf};
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(cluster, error_str);
-
-    return *oid;
-
-
-error_duplicated:
-    oss << "NAME is already taken by CLUSTER " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    *oid = -1;
 
     return *oid;
 }

@@ -36,23 +36,19 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
     if (get_lastOID() == -1)
     {
         // Build the template for the OpenNebula Systems MarketPlace
-        string default_market =
+        const string default_market =
                 "NAME=\"OpenNebula Public\"\n"
                 "MARKET_MAD=one\n"
                 "DESCRIPTION=\"OpenNebula Systems MarketPlace\"";
 
-        string lxc_market =
+        const string lxc_market =
                 "NAME=\"Linux Containers\"\n"
                 "STATE=DISABLED\n"
                 "MARKET_MAD=linuxcontainers\n"
                 "DESCRIPTION=\"MarketPlace for the public image server fo LXC &"
                 " LXD hosted at linuxcontainers.org\"";
 
-        Nebula& nd         = Nebula::instance();
-        UserPool * upool   = nd.get_upool();
-        auto      oneadmin = upool->get_ro(0);
-
-        string error;
+        auto oneadmin = Nebula::instance().get_upool()->get_ro(0);
 
         auto default_tmpl = make_unique<MarketPlaceTemplate>();
         auto lxc_tmpl     = make_unique<MarketPlaceTemplate>();
@@ -62,30 +58,31 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
         default_tmpl->parse(default_market, &error_parse);
         lxc_tmpl->parse(lxc_market, &error_parse);
 
-        MarketPlace * marketplace = new MarketPlace(
+        MarketPlace marketplace {
                 oneadmin->get_uid(),
                 oneadmin->get_gid(),
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                std::move(default_tmpl));
+                std::move(default_tmpl)};
 
-        MarketPlace * lxc_marketplace = new MarketPlace(
+        MarketPlace lxc_marketplace {
                 oneadmin->get_uid(),
                 oneadmin->get_gid(),
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                std::move(lxc_tmpl));
+                std::move(lxc_tmpl)};
 
-        marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
-        lxc_marketplace->set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        string error;
+        marketplace.set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
+        lxc_marketplace.set_permissions(1, 1, 1, 1, 0, 0, 1, 0, 0, error);
 
-        marketplace->zone_id = Nebula::instance().get_zone_id();
-        lxc_marketplace->zone_id = Nebula::instance().get_zone_id();
+        marketplace.zone_id = Nebula::instance().get_zone_id();
+        lxc_marketplace.zone_id = Nebula::instance().get_zone_id();
 
-        marketplace->parse_template(error);
-        lxc_marketplace->parse_template(error);
+        marketplace.parse_template(error);
+        lxc_marketplace.parse_template(error);
 
         int rc = PoolSQL::allocate(marketplace, error);
 
@@ -121,37 +118,37 @@ int MarketPlacePool::allocate(
         int *                 oid,
         std::string&          error_str)
 {
-    MarketPlace * mp;
-
-    int db_oid;
-
-    std::string        name;
-    std::ostringstream oss;
-
     // -------------------------------------------------------------------------
     // Build the marketplace object
     // -------------------------------------------------------------------------
-    mp = new MarketPlace(uid, gid, uname, gname, umask, std::move(mp_template));
+    MarketPlace mp {uid, gid, uname, gname, umask, std::move(mp_template)};
 
-    mp->get_template_attribute("NAME", name);
+    std::string name;
+    mp.get_template_attribute("NAME", name);
 
+    *oid = -1;
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    mp->zone_id = Nebula::instance().get_zone_id();
+    mp.zone_id = Nebula::instance().get_zone_id();
 
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        std::stringstream oss;
+
+        oss << "NAME is already taken by MARKETPLACE " << db_oid;
+        error_str = oss.str();
+
+        return *oid;
     }
 
-    if (mp->parse_template(error_str) != 0)
+    if (mp.parse_template(error_str) != 0)
     {
-        goto error_parse;
+        return *oid;
     }
 
     // -------------------------------------------------------------------------
@@ -164,11 +161,12 @@ int MarketPlacePool::allocate(
         xmlrpc_c::value         result;
         vector<xmlrpc_c::value> values;
 
-        std::string        mp_xml;
+        std::ostringstream oss;
         oss << "Cannot allocate market at federation master: ";
 
-        mp->to_xml(mp_xml);
-        delete mp;
+        std::string mp_xml;
+
+        mp.to_xml(mp_xml);
 
         try
         {
@@ -201,18 +199,7 @@ int MarketPlacePool::allocate(
 
     *oid = PoolSQL::allocate(mp, error_str);
 
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by MARKETPLACE " << db_oid;
-    error_str = oss.str();
-
-error_name:
-error_parse:
-    delete mp;
-    *oid = -1;
-
-    return *oid;
+    return *oid;    
 }
 
 /* -------------------------------------------------------------------------- */

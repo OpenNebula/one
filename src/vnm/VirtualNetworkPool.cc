@@ -126,25 +126,26 @@ int VirtualNetworkPool::allocate (
         const set<int>              &cluster_ids,
         string&                     error_str)
 {
-    VirtualNetwork * vn = nullptr;
-
-    int    db_oid;
     string name;
-
-    ostringstream oss;
-
     vn_template->get("NAME", name);
 
     // Check for duplicates
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by NET " << db_oid << ".";
+        error_str = oss.str();
+
+        *oid = -1;
+
+        return *oid;
     }
 
-    vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
-                            cluster_ids, move(vn_template));
+    VirtualNetwork vn {uid, gid, uname, gname, umask, pvid,
+                       cluster_ids, move(vn_template)};
 
     // Insert the VN in the DB
     *oid = PoolSQL::allocate(vn, error_str);
@@ -179,15 +180,7 @@ int VirtualNetworkPool::allocate (
 
     return *oid;
 
-
-error_duplicated:
-    oss << "NAME is already taken by NET " << db_oid << ".";
-    error_str = oss.str();
-
-    delete vn;
-
 error_common:
-
     *oid = -1;
 
     return *oid;

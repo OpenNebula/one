@@ -23,19 +23,17 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int master_allocate(MarketPlaceApp * mp, string& error)
+static int master_allocate(MarketPlaceApp &mp, string& error)
 {
     Client * client = Client::client();
-
-    xmlrpc_c::value         result;
-    vector<xmlrpc_c::value> values;
-
-    std::string        mp_xml;
+    
     std::ostringstream oss("Cannot allocate marketapp at federation master: ",
                            std::ios::ate);
 
-    mp->to_xml(mp_xml);
+    std::string mp_xml;
+    mp.to_xml(mp_xml);
 
+    xmlrpc_c::value result;
     try
     {
         client->call("one.marketapp.allocatedb", "s", &result, mp_xml.c_str());
@@ -47,22 +45,20 @@ static int master_allocate(MarketPlaceApp * mp, string& error)
 
         return -1;
     }
-
-    values = xmlrpc_c::value_array(result).vectorValueValue();
-
+    
+    const auto values = xmlrpc_c::value_array(result).vectorValueValue();
+    
     if ( xmlrpc_c::value_boolean(values[0]) == false )
     {
         std::string error_xml = xmlrpc_c::value_string(values[1]);
-
+        
         oss << error_xml;
         error = oss.str();
-
+        
         return -1;
     }
-
-    int oid = xmlrpc_c::value_int(values[1]);
-
-    return oid;
+    
+    return xmlrpc_c::value_int(values[1]);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -79,42 +75,41 @@ int MarketPlaceAppPool:: allocate(
         int *              oid,
         std::string&       error_str)
 {
-    MarketPlaceApp * mp;
-
-    int db_oid;
-
-    std::string name;
-
-    std::ostringstream oss;
-
     // -------------------------------------------------------------------------
     // Build the marketplace app object
     // -------------------------------------------------------------------------
-    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, move(apptemplate));
+    MarketPlaceApp mp {uid, gid, uname, gname, umask, move(apptemplate)};
 
-    mp->market_id   = mp_id;
-    mp->market_name = mp_name;
-    mp->zone_id     = Nebula::instance().get_zone_id();
+    mp.market_id   = mp_id;
+    mp.market_name = mp_name;
+    mp.zone_id     = Nebula::instance().get_zone_id();
+    mp.state       = MarketPlaceApp::INIT;
 
-    mp->state = MarketPlaceApp::INIT;
+    std::string name;
+    mp.get_template_attribute("NAME", name);
 
-    mp->get_template_attribute("NAME", name);
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        std::ostringstream oss;
+
+        oss << "NAME is already taken by MARKETPLACEAPP " << db_oid;
+        error_str = oss.str();
+
+        return *oid;
     }
 
-    if ( mp->parse_template(error_str) != 0 )
+    if ( mp.parse_template(error_str) != 0 )
     {
-        goto error_template;
+        return *oid;
     }
 
     // -------------------------------------------------------------------------
@@ -124,23 +119,10 @@ int MarketPlaceAppPool:: allocate(
     {
         *oid = master_allocate(mp, error_str);
 
-        delete mp;
-
         return *oid;
     }
 
     *oid = PoolSQL::allocate(mp, error_str);
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by MARKETPLACEAPP " << db_oid;
-    error_str = oss.str();
-
-error_name:
-error_template:
-    delete mp;
-    *oid = -1;
 
     return *oid;
 }
@@ -198,50 +180,44 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     // -------------------------------------------------------------------------
     // Build the marketplace app object
     // -------------------------------------------------------------------------
-    MarketPlaceApp * app = new MarketPlaceApp(UserPool::ONEADMIN_ID,
-                                              GroupPool::ONEADMIN_ID, UserPool::oneadmin_name, GroupPool::ONEADMIN_NAME
-                                              , 0133, 0);
+    MarketPlaceApp app{UserPool::ONEADMIN_ID,
+                       GroupPool::ONEADMIN_ID, UserPool::oneadmin_name, GroupPool::ONEADMIN_NAME
+                       , 0133, 0};
 
-    if ( app->from_template64(t64, error_str) != 0 )
+    if ( app.from_template64(t64, error_str) != 0 )
     {
-        delete app;
-
         return -1;
     }
 
-    app->market_id   = mp_id;
-    app->market_name = mp_name;
-    app->zone_id     = Nebula::instance().get_zone_id();
+    app.market_id   = mp_id;
+    app.market_name = mp_name;
+    app.zone_id     = Nebula::instance().get_zone_id();
 
-    if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
+    if ( !PoolObjectSQL::name_is_valid(app.name, error_str) )
     {
         std::ostringstream oss;
 
-        oss << "imported-" << app->get_origin_id();
-        app->name = oss.str();
+        oss << "imported-" << app.get_origin_id();
+        app.name = oss.str();
 
-        if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
+        if ( !PoolObjectSQL::name_is_valid(app.name, error_str) )
         {
             error_str = "Cannot generate a valid name for app";
-
-            delete app;
 
             return -1;
         }
     }
 
-    if ( auto mp_aux = get(app->name, 0) ) //Marketplace app already imported
+    if ( auto mp_aux = get(app.name, 0) ) //Marketplace app already imported
     {
         app_id = mp_aux->oid;
 
-        if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 ||
-             mp_aux->source != app->source )
+        if ( mp_aux->version != app.version || mp_aux->md5 != app.md5 ||
+             mp_aux->source != app.source )
         {
             mp_aux->from_template64(t64, error_str);
             update(mp_aux.get());
         }
-
-        delete app;
 
         return -2;
     }
@@ -252,8 +228,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     if (Nebula::instance().is_federation_slave())
     {
         app_id = master_allocate(app, error_str);
-
-        delete app;
 
         return app_id;
     }

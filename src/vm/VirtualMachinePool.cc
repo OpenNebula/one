@@ -139,36 +139,33 @@ int VirtualMachinePool::allocate(
         string&        error_str,
         bool           on_hold)
 {
-    string deploy_id;
-
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    auto vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, move(vm_template));
+    VirtualMachine vm {-1, uid, gid, uname, gname, umask, move(vm_template)};
 
     if ( _submit_on_hold == true || on_hold )
     {
-        vm->state = VirtualMachine::HOLD;
+        vm.state = VirtualMachine::HOLD;
 
-        vm->user_obj_template->replace("SUBMIT_ON_HOLD", true);
+        vm.user_obj_template->replace("SUBMIT_ON_HOLD", true);
     }
     else
     {
-        vm->state = VirtualMachine::PENDING;
+        vm.state = VirtualMachine::PENDING;
     }
 
-    vm->prev_state = vm->state;
+    vm.prev_state = vm.state;
 
-    vm->user_obj_template->get("DEPLOY_ID", deploy_id);
+    string deploy_id;
+    vm.user_obj_template->get("DEPLOY_ID", deploy_id);
 
     if (!deploy_id.empty())
     {
-        vm->state = VirtualMachine::HOLD;
+        vm.state = VirtualMachine::HOLD;
 
         if (insert_index(deploy_id, -1, false) == -1) //Set import in progress
         {
-            delete vm;
-
             error_str = "Virtual Machine " + deploy_id + " already imported.";
             return -1;
         }
