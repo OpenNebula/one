@@ -35,6 +35,8 @@ const {
   defaultCommandVM,
   defaultTypeCrypto,
   defaultHash,
+  keysRDP,
+  keysVNC,
 } = defaults
 
 const appConfig = getSunstoneConfig()
@@ -163,9 +165,29 @@ const generateGuacamoleSession = (
         ...connection.connection.settings,
         protocol: ensuredType,
       }
+
       const encodedData = btoa(
         Object.entries(contentFile)
-          .map(([key, value]) => `${key}=${value}`)
+          .map(([key, value]) => {
+            let rtn
+            const keys = type === 'rdp' ? keysRDP : keysVNC
+            // eslint-disable-next-line no-prototype-builtins
+            if (keys.hasOwnProperty(key)) {
+              const getValue =
+                value !== null && typeof value !== 'undefined'
+                  ? value
+                  : keys[key].value
+              const parseValue =
+                typeof getValue === 'boolean'
+                  ? `${+(keys[key].reverse ? !getValue : getValue)}`
+                  : `${getValue}`
+
+              rtn = `${keys[key].key}${parseValue}`
+            }
+
+            return rtn
+          })
+          .filter(Boolean)
           .join('\n')
       )
 
@@ -318,7 +340,7 @@ const getRdpSettings = (vmInfo) => {
   config['disable-glyph-caching'] =
     nicWithRdp?.RDP_DISABLE_GLYPH_CACHING?.toLowerCase() === 'yes'
 
-  if (config.username && config.password) config.security = 'nla'
+  if (config.username && config.password) config.security = 'rdp'
 
   return config
 }

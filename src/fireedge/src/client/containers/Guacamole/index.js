@@ -184,8 +184,11 @@ const Guacamole = () => {
                 <GuacamoleReconnectReadOnlyButton {...session} />
               )}
               {type === VM_ACTIONS.SSH && <GuacamoleSSHParams {...session} />}
-              {type === VM_ACTIONS.RDP && (
-                <GuacamoleDownloadConButton {...session} />
+              {[VM_ACTIONS.VNC, VM_ACTIONS.RDP].includes(type) && (
+                <GuacamoleDownloadConButton
+                  {...session}
+                  typeConnection={type}
+                />
               )}
               <GuacamoleReconnectButton {...session} />
               <GuacamoleScreenshotButton {...session} />

@@ -40,7 +40,7 @@ import { Translate } from 'client/components/HOC'
 import { GuacamoleSession, T } from 'client/constants'
 import { downloadFile } from 'client/utils'
 
-import { useLazyGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
+import { useLazyGetGuacamoleSessionFileQuery } from 'client/features/OneApi/vm'
 
 const useStyles = makeStyles(({ palette }) => ({
   customPopper: {
@@ -376,22 +376,20 @@ const GuacamoleDownloadConButton = memo(
    * @returns {ReactElement} Button to make screenshot form current session
    */
   (session) => {
-    const [getSession] = useLazyGetGuacamoleSessionQuery()
-
-    const { id, vmID, client } = session
-
+    const [getSession] = useLazyGetGuacamoleSessionFileQuery()
+    const { id, vmID, client, typeConnection } = session
     const handleClick = useCallback(async () => {
       if (!client) return
 
       const res = await getSession({
         id: vmID,
-        type: 'rdp',
+        type: typeConnection,
         download: true,
       }).unwrap()
 
       if (res) {
         const blob = new Blob([atob(res)], { type: 'text/plain' })
-        downloadFile(new File([blob], 'connection.txt'))
+        downloadFile(new File([blob], `${id}.${typeConnection}`))
       }
     }, [client])
 
@@ -402,6 +400,14 @@ const GuacamoleDownloadConButton = memo(
         title={
           <Typography variant="subtitle2">
             <Translate word={T.DownloadConecctionFile} />
+            <br />
+            <Translate
+              word={
+                typeConnection === 'rdp'
+                  ? T.DownloadConnectionRDP
+                  : T.DownloadConnectionVNC
+              }
+            />
           </Typography>
         }
       >

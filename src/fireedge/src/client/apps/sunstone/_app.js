@@ -55,7 +55,7 @@ const showSupportTab = (routes = [], find = true) => {
 const SunstoneApp = () => {
   const [getSupport, { isSuccess }] = useLazyCheckOfficialSupportQuery()
   const { changeAppTitle } = useGeneralApi()
-  const { isLogged } = useAuth()
+  const { isLogged, externalRedirect } = useAuth()
   const { views, view } = useViews()
 
   useEffect(() => {
@@ -95,7 +95,10 @@ const SunstoneApp = () => {
           <NotifierUpload />
         </>
       )}
-      <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />
+      <Router
+        redirectWhenAuth={externalRedirect || PATH.DASHBOARD}
+        endpoints={endpoints}
+      />
     </AuthLayout>
   )
 }

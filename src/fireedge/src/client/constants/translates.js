@@ -1875,7 +1875,9 @@ module.exports = {
   ImportIntoDatastore: 'Import into Datastore',
   DownloadAppToOpenNebula: 'Download App to OpenNebula',
   DownloadApp: 'Download App',
-  DownloadConecctionFile: 'Download connection File',
+  DownloadConecctionFile: 'Download connection file.',
+  DownloadConnectionRDP: 'This file is for the Microsoft remote desktop app',
+  DownloadConnectionVNC: 'This file is for the TigerVNC Viewer app',
   DownloadDefaultImage: 'Download Default Image',
   ExportAppNameConcept:
     'Name that the resource will get for description purposes',

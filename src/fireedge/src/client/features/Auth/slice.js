@@ -25,6 +25,7 @@ const initial = () => ({
   user: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
   isLoginInProgress: false,
+  externalRedirect: '',
 })
 
 const slice = createSlice({
@@ -37,6 +38,9 @@ const slice = createSlice({
       if (isLoginInProgress !== undefined) {
         state.isLoginInProgress = isLoginInProgress
       }
+    },
+    changeExternalRedirect: (state, { payload }) => {
+      state.externalRedirect = payload
     },
     changeJwt: (state, { payload }) => {
       state.jwt = payload

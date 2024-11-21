@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Redirect, Route } from 'react-router-dom'
+import { Redirect, Route, useLocation } from 'react-router-dom'
 
-import { useAuth } from 'client/features/Auth'
+import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useEffect } from 'react'
 
 /**
  * Private route.
@@ -26,6 +27,12 @@ import { useAuth } from 'client/features/Auth'
  */
 const ProtectedRoute = (props) => {
   const { isLogged: isAuthenticated } = useAuth()
+  const { changeExternalRedirect } = useAuthApi()
+  const { pathname, search } = useLocation()
+
+  useEffect(() => {
+    !isAuthenticated && changeExternalRedirect(`${pathname}${search}`)
+  }, [])
 
   return isAuthenticated ? <Route {...props} /> : <Redirect to="/" />
 }

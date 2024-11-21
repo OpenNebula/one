@@ -15,21 +15,21 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { useCallback, useMemo } from 'react'
-import { useDispatch, useSelector, shallowEqual } from 'react-redux'
+import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 
+import { ResourceView } from 'client/apps/sunstone/routes'
+import {
+  DEFAULT_LANGUAGE,
+  DEFAULT_SCHEME,
+  ONEADMIN_ID,
+  RESOURCE_NAMES,
+  _APPS,
+} from 'client/constants'
+import { actions, name as authSlice, logout } from 'client/features/Auth/slice'
 import { name as generalSlice } from 'client/features/General/slice'
-import { name as authSlice, actions, logout } from 'client/features/Auth/slice'
 import groupApi from 'client/features/OneApi/group'
 import systemApi from 'client/features/OneApi/system'
-import { ResourceView } from 'client/apps/sunstone/routes'
 import { areStringEqual } from 'client/models/Helper'
-import {
-  _APPS,
-  RESOURCE_NAMES,
-  ONEADMIN_ID,
-  DEFAULT_SCHEME,
-  DEFAULT_LANGUAGE,
-} from 'client/constants'
 
 const APPS_WITH_VIEWS = [_APPS.sunstone].map((app) => app.toLowerCase())
 
@@ -126,6 +126,8 @@ export const useAuthApi = () => {
     changeJwt: (jwt) => dispatch(actions.changeJwt(jwt)),
     changeAuthUser: (user) => dispatch(actions.changeAuthUser(user)),
     setErrorMessage: (message) => dispatch(actions.setErrorMessage(message)),
+    changeExternalRedirect: (url) =>
+      dispatch(actions.changeExternalRedirect(url)),
   }
 }
 

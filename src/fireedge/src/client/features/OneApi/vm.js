@@ -144,6 +144,23 @@ const vmApi = oneApi.injectEndpoints({
         resource: 'VM',
       }),
     }),
+    getGuacamoleSessionFile: builder.query({
+      /**
+       * Returns a Guacamole session data.
+       *
+       * @param {object} params - Request parameters
+       * @param {string} params.id - Virtual machine id
+       * @param {'vnc'|'ssh'|'rdp'} params.type - Connection type
+       * @returns {string} The session token
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = ExtraActions.GUACAMOLE
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params, command }
+      },
+    }),
     getGuacamoleSession: builder.query({
       /**
        * Returns a Guacamole session.
@@ -1277,6 +1294,8 @@ export const {
   useLazyGetVmQuery,
   useGetGuacamoleSessionQuery,
   useLazyGetGuacamoleSessionQuery,
+  useGetGuacamoleSessionFileQuery,
+  useLazyGetGuacamoleSessionFileQuery,
   useGetMonitoringQuery,
   useLazyGetMonitoringQuery,
   useGetMonitoringPoolQuery,
