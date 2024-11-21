@@ -61,10 +61,10 @@ public:
                  int *                    oid,
                  std::string&             error_str)
     {
-        *oid = PoolSQL::allocate(
-                       new Document(-1, uid, gid, uname, gname, umask, type,
-                                    std::move(template_contents)),
-                       error_str);
+        Document doc {-1, uid, gid, uname, gname, umask, type,
+                      std::move(template_contents)};
+
+        *oid = PoolSQL::allocate(doc, error_str);
 
         return *oid;
     }

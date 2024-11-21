@@ -316,19 +316,7 @@ int UserPool::allocate(
 {
     Nebula& nd = Nebula::instance();
 
-    int db_oid;
-
-    User *      user;
     GroupPool * gpool = nd.get_gpool();
-
-    string auth_driver = auth;
-    string upass       = password;
-
-    string gname;
-    bool driver_managed_group_admin = false;
-    bool password_required          = true;
-
-    ostringstream   oss;
 
     if (nd.is_federation_slave())
     {
@@ -348,32 +336,43 @@ int UserPool::allocate(
         return *oid;
     }
 
-    if (nd.get_auth_conf_attribute(auth_driver, "PASSWORD_REQUIRED",
-                                   password_required) != 0)
+    bool password_required = true;
+    string auth_driver     = auth;
+
+    if (nd.get_auth_conf_attribute(auth_driver, "PASSWORD_REQUIRED", password_required) != 0)
     {
         password_required = true;
     }
 
     // Check username and password
+    *oid = -1;
+
     if (password_required)
     {
         if (!User::pass_is_valid(password, error_str))
         {
-            goto error_pass;
+            error_str += ".";
+            return *oid;
         }
     }
 
     if (!PoolObjectSQL::name_is_valid(uname, User::INVALID_NAME_CHARS, error_str))
     {
-        goto error_name;
+        error_str += ".";
+        return *oid;
     }
 
     // Check for duplicates
-    db_oid = exist(uname);
+    const auto db_oid = exist(uname);
 
     if ( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by USER " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     // Set auth driver and hash password for CORE_AUTH
@@ -382,6 +381,7 @@ int UserPool::allocate(
         auth_driver = UserPool::CORE_AUTH;
     }
 
+    string upass = password;
     if (auth_driver == UserPool::CORE_AUTH)
     {
         upass = one_util::sha256_digest(password);
@@ -389,27 +389,29 @@ int UserPool::allocate(
 
     if (gids.empty())
     {
-        goto error_no_groups;
+        error_str = "The array of groups needs to have at least a valid Group ID.";
+        return *oid;
     }
 
-    gname = gpool->get_name(gid);
+    const auto gname = gpool->get_name(gid);
 
     if (gname.empty())
     {
-        goto error_no_groups;
+        error_str = "The array of groups needs to have at least a valid Group ID.";
+        return *oid;
     }
 
     // Build a new User object
-    user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
+    User user {-1, gid, uname, gname, upass, auth_driver, enabled};
 
     // Add the primary and secondary groups to the collection
     for (auto group_id : gids)
     {
-        user->add_group(group_id);
+        user.add_group(group_id);
     }
 
     // Set a password for the OneGate tokens
-    user->add_template_attribute("TOKEN_PASSWORD", one_util::random_password());
+    user.add_template_attribute("TOKEN_PASSWORD", one_util::random_password());
 
     // Insert the Object in the pool
     *oid = PoolSQL::allocate(user, error_str);
@@ -420,6 +422,8 @@ int UserPool::allocate(
     }
 
     // Add the user to the main and secondary groups
+    bool driver_managed_group_admin = false;
+
     for (auto group_id : gids)
     {
         auto group = gpool->get(group_id);
@@ -433,7 +437,7 @@ int UserPool::allocate(
 
         gpool->update(group.get());
     }
-
+    
     if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
                                    driver_managed_group_admin) != 0)
     {
@@ -461,51 +465,36 @@ int UserPool::allocate(
 
     return *oid;
 
-error_pass:
-    oss << error_str << ".";
-    goto error_common;
-
-error_name:
-    oss << error_str << ".";
-    goto error_common;
-
-error_duplicated:
-    oss << "NAME is already taken by USER " << db_oid << ".";
-    goto error_common;
-
-error_no_groups:
-    oss << "The array of groups needs to have at least a valid Group ID.";
-    goto error_common;
-
 error_group:
-    if ( auto u = get(*oid) )
     {
-        string aux_str;
-
-        drop(u.get(), aux_str);
-    }
-
-    // Remove from all the groups, just in case the user id was added to a any
-    // of them before a non-existing group was found
-    for (auto group_id : gids)
-    {
-        if ( auto group = gpool->get(group_id) )
+        if ( auto u = get(*oid) )
         {
-            group->del_user(*oid);
+            string aux_str;
 
-            gpool->update(group.get());
+            drop(u.get(), aux_str);
         }
+
+        // Remove from all the groups, just in case the user id was added to a any
+        // of them before a non-existing group was found
+        for (auto group_id : gids)
+        {
+            if ( auto group = gpool->get(group_id) )
+            {
+                group->del_user(*oid);
+
+                gpool->update(group.get());
+            }
+        }
+
+        std::stringstream oss;
+        oss << "One or more of the groups "
+            << one_util::join(gids.begin(), gids.end(), ',') << " do not exist.";
+
+        *oid = -1;
+        error_str = oss.str();
+
+        return *oid;
     }
-
-    oss << "One or more of the groups "
-        << one_util::join(gids.begin(), gids.end(), ',') << " do not exist.";
-    goto error_common;
-
-error_common:
-    *oid = -1;
-    error_str = oss.str();
-
-    return *oid;
 }
 
 /* -------------------------------------------------------------------------- */

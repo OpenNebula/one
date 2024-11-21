@@ -91,38 +91,28 @@ PoolSQL::PoolSQL(SqlDB * _db, const char * _table)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-PoolSQL::~PoolSQL()
-{
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 /* PoolSQL public interface                                                   */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
+int PoolSQL::allocate(PoolObjectSQL &objsql, string& error_str)
 {
-    int rc;
-    int lastOID;
-
     lock_guard<mutex> lock(_mutex);
 
-    lastOID = _get_lastOID(db, table);
+    auto lastOID = _get_lastOID(db, table);
 
     if (lastOID == INT_MAX)
     {
         lastOID = -1;
     }
 
-    objsql->oid = ++lastOID;
+    objsql.oid = ++lastOID;
 
     if ( _set_lastOID(lastOID, db, table) == -1 )
     {
         return -1;
     }
 
-    rc = objsql->insert(db, error_str);
+    auto rc = objsql.insert(db, error_str);
 
     if ( rc != 0 )
     {
@@ -132,8 +122,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     {
         rc = lastOID;
     }
-
-    delete objsql;
 
     if( rc == -1 )
     {

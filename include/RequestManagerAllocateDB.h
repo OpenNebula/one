@@ -47,9 +47,9 @@ protected:
             return;
         }
 
-        PoolObjectSQL * obj = create(xml);
+        auto obj = std::unique_ptr<PoolObjectSQL>(create(xml));
 
-        int rc = pool->allocate(obj, att.resp_msg);
+        int rc = pool->allocate(*obj, att.resp_msg);
 
         if (  rc == -1 )
         {

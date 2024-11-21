@@ -98,39 +98,34 @@ int ImagePool::allocate (
         int *                    oid,
         string&                  error_str)
 {
-    Nebula&         nd     = Nebula::instance();
-    ImageManager *  imagem = nd.get_imagem();
-
-    Image *         img;
-    string          name;
-    string          type;
-    ostringstream   oss;
-
-    int db_oid;
-    int rc;
-
-    img = new Image(uid, gid, uname, gname, umask, move(img_template));
+    Image img {uid, gid, uname, gname, umask, move(img_template)};
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
-    img->get_template_attribute("NAME", name);
+    string name;
+    img.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    img->get_template_attribute("TYPE", type);
+    string type;
+    img.get_template_attribute("TYPE", type);
 
-    switch (img->str_to_type(type))
+    switch (img.str_to_type(type))
     {
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
             if ( ds_type != Datastore::IMAGE_DS  )
             {
-                goto error_types_missmatch_file;
+                error_str = "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be"
+                            " registered in a FILE_DS datastore";
+                return *oid;
             }
             break;
 
@@ -139,45 +134,58 @@ int ImagePool::allocate (
         case Image::CONTEXT:
             if ( ds_type != Datastore::FILE_DS  )
             {
-                goto error_types_missmatch_image;
+                error_str = "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
+                            " in an IMAGE_DS datastore";
+                return *oid;
             }
             break;
 
         case Image::BACKUP:
             if ( ds_type != Datastore::BACKUP_DS  )
             {
-                goto error_types_missmatch_backup;
+                error_str = "IMAGES of type BACKUP can only be registered"
+                            " in an BACKUP_DS datastore";
+                return *oid;
             }
             break;
     }
 
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by IMAGE " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
-    img->ds_name = ds_name;
-    img->ds_id   = ds_id;
+    img.ds_name = ds_name;
+    img.ds_id   = ds_id;
 
-    img->disk_type = disk_type;
+    img.disk_type = disk_type;
+
+    ImageManager *imagem = Nebula::instance().get_imagem();
 
     if ( cloning_id != -1 )
     {
+        ostringstream  oss;
+
         if (imagem->can_clone_image(cloning_id, oss) == -1)
         {
             error_str = oss.str();
-            goto error_clone_state;
+            return *oid;
         }
 
-        img->set_cloning_id(cloning_id);
+        img.set_cloning_id(cloning_id);
     }
 
     // ---------------------------------------------------------------------
     // Set TM_MAD to infer FSTYPE if needed
     // ---------------------------------------------------------------------
-    img->replace_template_attribute("TM_MAD", tm_mad);
+    img.replace_template_attribute("TM_MAD", tm_mad);
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository
@@ -186,6 +194,8 @@ int ImagePool::allocate (
 
     if ( *oid != -1 )
     {
+        int rc;
+
         if (cloning_id == -1)
         {
             rc = imagem->register_image(*oid, ds_data, extra_data, error_str);
@@ -210,35 +220,6 @@ int ImagePool::allocate (
         }
 
     }
-
-    return *oid;
-
-error_types_missmatch_file:
-    error_str = "Only IMAGES of type KERNEL, RAMDISK and CONTEXT can be"
-                " registered in a FILE_DS datastore";
-    goto error_common;
-
-error_types_missmatch_image:
-    error_str = "IMAGES of type KERNEL, RAMDISK and CONTEXT cannot be registered"
-                " in an IMAGE_DS datastore";
-    goto error_common;
-
-error_types_missmatch_backup:
-    error_str = "IMAGES of type BACKUP can only be registered"
-                " in an BACKUP_DS datastore";
-    goto error_common;
-
-error_duplicated:
-    oss << "NAME is already taken by IMAGE " << db_oid << ".";
-    error_str = oss.str();
-
-    goto error_common;
-
-error_name:
-error_clone_state:
-error_common:
-    delete img;
-    *oid = -1;
 
     return *oid;
 }

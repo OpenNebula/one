@@ -100,77 +100,63 @@ int HostPool::allocate (
         const string& cluster_name,
         string& error_str)
 {
-    Host *        host_ptr;
-    ostringstream oss;
-
-    int db_oid;
+    *oid = -1;
 
     if ( !hostname_is_valid(hostname, error_str) || !PoolObjectSQL::name_is_valid(hostname, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
     if ( im_mad_name.empty() )
     {
-        goto error_im;
+        error_str = "IM_MAD_NAME cannot be empty.";
+        return *oid;
     }
 
     if ( vmm_mad_name.empty() )
     {
-        goto error_vmm;
+        error_str = "VMM_MAD_NAME cannot be empty.";
+        return *oid;
     }
 
-    db_oid = exist(hostname);
+    const auto db_oid = exist(hostname);
 
     if ( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by HOST " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     // Build a new Host object
 
-    host_ptr = new Host(
+    Host host{
             -1,
             hostname,
             im_mad_name,
             vmm_mad_name,
             cluster_id,
-            cluster_name);
+            cluster_name};
 
     // Insert the Object in the pool
 
-    *oid = PoolSQL::allocate(host_ptr, error_str);
+    *oid = PoolSQL::allocate(host, error_str);
 
     if (*oid >= 0)
     {
-        if ( auto host = get(*oid) )
+        if ( auto host_ptr = get(*oid) )
         {
-            std::string event = HookStateHost::format_message(host.get());
+            std::string event = HookStateHost::format_message(host_ptr.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
 
             auto *im = Nebula::instance().get_im();
-            im->update_host(host.get());
+            im->update_host(host_ptr.get());
         }
     }
-
-    return *oid;
-
-error_im:
-    error_str = "IM_MAD_NAME cannot be empty.";
-    goto error_common;
-
-error_vmm:
-    error_str = "VMM_MAD_NAME cannot be empty.";
-    goto error_common;
-
-error_duplicated:
-    oss << "NAME is already taken by HOST " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-error_common:
-    *oid = -1;
 
     return *oid;
 }

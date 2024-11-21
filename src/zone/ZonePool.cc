@@ -105,13 +105,6 @@ int ZonePool::allocate(
         int *       oid,
         string&     error_str)
 {
-    Zone * zone;
-
-    int    db_oid;
-    string name;
-
-    ostringstream oss;
-
     if (Nebula::instance().is_federation_slave())
     {
         NebulaLog::log("ONE", Log::ERROR,
@@ -121,37 +114,35 @@ int ZonePool::allocate(
         return -1;
     }
 
-    zone = new Zone(-1, move(zone_template));
+    Zone zone {-1, move(zone_template)};
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
     // -------------------------------------------------------------------------
 
-    zone->get_template_attribute("NAME", name);
+    string name;
+    zone.get_template_attribute("NAME", name);
+
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name);
+    const auto db_oid = exist(name);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream oss;
+
+        oss << "NAME is already taken by Zone " << db_oid << ".";
+        error_str = oss.str();
+
+        return *oid;
     }
 
     *oid = PoolSQL::allocate(zone, error_str);
-
-    return *oid;
-
-error_duplicated:
-    oss << "NAME is already taken by Zone " << db_oid << ".";
-    error_str = oss.str();
-
-error_name:
-    delete zone;
-    *oid = -1;
 
     return *oid;
 }

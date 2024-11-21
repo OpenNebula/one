@@ -23,40 +23,31 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
                           const string& gname, int umask, unique_ptr<Template> vmgroup_template,
                           int * oid, string& error_str)
 {
-    VMGroup * vmgrp;
+    VMGroup vmgrp {uid, gid, uname, gname, umask, move(vmgroup_template)};
 
-    int    db_oid;
     string name;
+    vmgrp.get_template_attribute("NAME", name);
 
-    ostringstream os;
-
-    vmgrp = new VMGroup(uid, gid, uname, gname, umask, move(vmgroup_template));
-
-    vmgrp->get_template_attribute("NAME", name);
+    *oid = -1;
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        return *oid;
     }
 
-    db_oid = exist(name, uid);
+    const auto db_oid = exist(name, uid);
 
     if( db_oid != -1 )
     {
-        goto error_duplicated;
+        ostringstream os;
+
+        os << "NAME is already taken by VMGroup " << db_oid << ".";
+        error_str = os.str();
+
+        return *oid;
     }
 
     *oid = PoolSQL::allocate(vmgrp, error_str);
-
-    return *oid;
-
-error_duplicated:
-    os << "NAME is already taken by VMGroup " << db_oid << ".";
-    error_str = os.str();
-
-error_name:
-    delete vmgrp;
-    *oid = -1;
 
     return *oid;
 }

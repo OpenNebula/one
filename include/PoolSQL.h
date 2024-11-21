@@ -43,7 +43,7 @@ public:
      */
     PoolSQL(SqlDB * _db, const char * _table);
 
-    virtual ~PoolSQL();
+    virtual ~PoolSQL() = default;
 
     /**
      *  Allocates a new object, writting it in the pool database. No memory is
@@ -52,7 +52,7 @@ public:
      *   @return the oid assigned to the object or -1 in case of failure
      */
     virtual int allocate(
-            PoolObjectSQL   *objsql,
+            PoolObjectSQL   &objsql,
             std::string&     error_str);
 
     /**
