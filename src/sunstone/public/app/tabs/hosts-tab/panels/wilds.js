@@ -22,7 +22,6 @@ define(function(require) {
   require("datatables.net");
   require("datatables.foundation");
   var Locale = require("utils/locale");
-  var CanImportWilds = require("../utils/can-import-wilds");
   var OpenNebulaHost = require("opennebula/host");
   var OpenNebulaAction = require("opennebula/action");
   var Notifier = require("utils/notifier");
@@ -72,10 +71,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    // Hide the import button if the Wilds cannot be imported
-    if (!CanImportWilds(this.element)) {
-      $("#import_wilds").hide();
-    }
 
     that.dataTableWildHosts = $("#datatable_host_wilds", context).dataTable({
       "bSortClasses" : false,
@@ -121,117 +116,7 @@ define(function(require) {
       return false;
     })
 
-    // Enable the import button when at least a VM is selected
-    $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
-
-    context.off("change", ".import_wild_checker");
-    context.on("change", ".import_wild_checker", function(){
-      if ($(".import_wild_checker:checked", context).length == 0){
-        $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
-      } else {
-        $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-      }
-    });
-
-    // Add event listener for importing WILDS
-    context.off("click", "#import_wilds");
-    context.on("click", "#import_wilds", function () {
-      $("#import_wilds", context).attr("disabled", "disabled").on("click.disable", function(e) { return false; });
-      $("#import_wilds", context).html("<i class=\"fas fa-spinner fa-spin\"></i>");
-
-      if (that.element.TEMPLATE.HYPERVISOR === "vcenter"){
-        var path = "/vcenter/wild";
-        var resource = "Wild";
-        var vcenter_refs = [];
-        var opts = {};
-        $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-          var wild_obj = $(this).attr("import_data");
-          try{
-            var wild_data = JSON.parse(wild_obj);
-            if(wild_data && wild_data.DEPLOY_ID){
-              var ref = wild_data.DEPLOY_ID;
-              vcenter_refs.push(ref);
-              opts[ref] = wild_data;
-            }
-          }catch(error){
-            Notifier.notifyError("Empty data Vm Wild");
-          }
-        });
-
-        $.ajax({
-          url: path,
-          type: "POST",
-          data: {
-            wilds: vcenter_refs.join(","),
-            opts: opts,
-            host: that.element.ID,
-            timeout: false
-          },
-          dataType: "json",
-          success: function(response){
-            $.each(response.success, function(key, value){
-              Notifier.notifyCustom(Locale.tr("VM imported"),
-              Navigation.link(" ID: " + value, "vms-tab", value), false);
-            });
-            VCenterCommon.jGrowlFailure({error : response.error, resource : resource});
-          },
-          error: function (request, error_json) {
-            if (request.responseJSON === undefined){
-              Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
-            } else {
-              Notifier.notifyError(request.responseJSON.error.message);
-            }
-          },
-          complete: function (data) {
-            $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-            $("#import_wilds", context).html(Locale.tr("Import Wilds"));
-          }
-        });
-      } else {
-        $(".import_wild_checker:checked", "#datatable_host_wilds").each(function() {
-          var wild_row = $(this).closest("tr");
-          var aData = that.dataTableWildHosts.fnGetData(wild_row);
-
-          var dataJSON = {
-            "id": that.element.ID,
-            "extra_param": {
-              "name": aData[1]
-            }
-          };
-
-          // Create the VM in OpenNebula
-          OpenNebulaHost.import_wild({
-            timeout: true,
-            data: dataJSON,
-            success: function(request, response) {
-              OpenNebulaAction.clear_cache("VM");
-              Notifier.notifyCustom(Locale.tr("VM imported"),
-              Navigation.link(" ID: " + response.VM.ID, "vms-tab", response.VM.ID), false);
-              // Delete row (shouldn't be there in next monitorization)
-              that.dataTableWildHosts.fnDeleteRow(wild_row);
-            },
-            error: function (request, error_json) {
-              wildsError(error_json, context);
-            },
-            complete: function (data) {
-              $("#import_wilds", context).removeAttr("disabled").off("click.disable");
-              $("#import_wilds", context).html(Locale.tr("Import Wilds"));
-            }
-          });
-        });
-      }
-    });
-
     return false;
   }
 
-  function wildsError(error_json, context){
-    var msg;
-    if (error_json.error.message){
-      msg = error_json.error.message;
-    } else {
-      msg = Locale.tr("Cannot contact server: is it running and reachable?");
-    }
-    Notifier.notifyError(msg);
-  }
 });

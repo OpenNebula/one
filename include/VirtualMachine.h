@@ -1192,26 +1192,6 @@ public:
     void release_vmgroup();
 
     // ------------------------------------------------------------------------
-    // Imported VM interface
-    // ------------------------------------------------------------------------
-    /**
-     *  Check if the VM is imported
-     */
-    bool is_imported() const;
-
-    /**
-     *  Return state of the VM right before import
-     */
-    std::string get_import_state() const;
-
-    /**
-     * Checks if the current VM MAD supports the given action for imported VMs
-     * @param action VM action to check
-     * @return true if the current VM MAD supports the given action for imported VMs
-     */
-    bool is_imported_action_supported(VMActions::Action action) const;
-
-    // ------------------------------------------------------------------------
     // Virtual Router related functions
     // ------------------------------------------------------------------------
     /**

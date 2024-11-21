@@ -700,7 +700,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         format = '%-30.30s %36s %4s %10s'
         CLIHelper.print_header(format(format, 'NAME',
-                                      'IMPORT_ID', 'CPU', 'MEMORY'),
+                                      'DEPLOY_ID', 'CPU', 'MEMORY'),
                                true)
 
         wilds.each do |wild|
@@ -718,8 +718,9 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                              line[/CPU/]
                          end[0].split('=')[1].tr('"', ' ').strip
             else
-                name = wild['DEPLOY_ID']
-                import = memory = cpu = '-'
+                name = wild['VM_NAME']
+                import = wild['DEPLOY_ID']
+                memory = cpu = '-'
             end
 
             puts format(format, name, import, cpu, memory)

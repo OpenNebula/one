@@ -398,14 +398,14 @@ _onehost() {
         pprev="${COMP_WORDS[COMP_CWORD-2]}"
     fi
     opts="create delete enable disable offline update sync list show top flush
-            rename importvm forceupdate monitoring"
+            rename forceupdate monitoring"
     cmd=onehost
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     elif [ "$COMP_CWORD" == 2 ]; then
         case "$prev" in
-        delete|disable|offline|update|sync|show|flush|rename|importvm| \
+        delete|disable|offline|update|sync|show|flush|rename| \
         forceupdate|monitoring)
             _complete $cmd
         ;;

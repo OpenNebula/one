@@ -270,24 +270,6 @@ post '/vcenter/images' do
     end
 end
 
-post '/vcenter/wild' do
-    begin
-        client = one_client
-        vi_client = viclient_from_host(client)
-        importer  = VCenterDriver::VmmImporter.new(client, vi_client).tap do |im|
-            im.list(params["host"], params["opts"])
-        end
-
-        importer.process_import(params["wilds"])
-
-        [200, importer.output.to_json]
-    rescue Exception => e
-        logger.error("[vCenter] " + e.message)
-        error = Error.new(e.message)
-        error 403, error.to_json
-    end
-end
-
 post '/vcenter/register_hooks' do
   VCenterDriver::VcImporter.register_hooks
 end

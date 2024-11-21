@@ -49,19 +49,19 @@ module OneDBFsck
                 rvms          = counters_img[:vms].size
                 n_cloning_ops = counters_img[:clones].size + counters_img[:app_clones].size
 
-                # DATA: CHECK: running vm counter with this image
-                # rewrite running_vms
-                doc.root.xpath("RUNNING_VMS") {|e|
-                    if e.text != rvms.to_s
-                        log_error("Image #{oid} RUNNING_VMS has #{e.text} \tis\t#{rvms}")
-                        e.text = rvms
-                        error = true
-                    end
-                }
-
                 # For non-backup Images check VM references
                 image_type = doc.root.xpath('TYPE').text.to_i
                 if image_type != 6
+                    # DATA: CHECK: running vm counter with this image
+                    # rewrite running_vms
+                    old_rvms = doc.root.at_xpath("RUNNING_VMS")
+
+                    if !old_rvms.nil? && old_rvms.text != rvms.to_s
+                        log_error("Image #{oid} RUNNING_VMS has #{old_rvms.text} \tis\t#{rvms}")
+                        old_rvms.content = rvms
+                        error = true
+                    end
+
                     # re-do list of VM IDs
                     vms_elem = doc.root.xpath("VMS").remove
 
@@ -87,7 +87,6 @@ module OneDBFsck
                     end
                 end
 
-
                 if ( persistent && rvms > 0 )
                     n_cloning_ops = 0
                     counters_img[:clones]     = Set.new
@@ -95,7 +94,7 @@ module OneDBFsck
                 end
 
                 # DATA: CHECK: Check number of clones
-                doc.root.xpath("CLONING_OPS") { |e|
+                doc.root.xpath("CLONING_OPS").each { |e|
                     if e.text != n_cloning_ops.to_s
                         log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
                         e.text = n_cloning_ops
@@ -180,15 +179,17 @@ module OneDBFsck
                     end
                 end
 
-                doc.root.xpath("STATE") { |e|
-                    if e.text != state.to_s
-                        log_error("Image #{oid} has STATE " <<
-                            OpenNebula::Image::IMAGE_STATES[e.text.to_i] <<
-                            " \tis\t#{OpenNebula::Image::IMAGE_STATES[state]}")
-                        e.text = state
-                        error = true
-                    end
-                }
+                # Update state if needed
+                old_state = doc.root.at_xpath("STATE")
+
+                if !old_state.nil? && old_state.text.to_i != state
+                    log_error("Image #{oid} has STATE " <<
+                        OpenNebula::Image::IMAGE_STATES[old_state.text.to_i] <<
+                        " \tis\t#{OpenNebula::Image::IMAGE_STATES[state]}")
+                    old_state.content = state
+                    error = true
+                end
+
 
                 @fixes_image[oid] = doc.root.to_s if error
             end

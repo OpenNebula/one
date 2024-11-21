@@ -136,15 +136,6 @@ public:
     int update(PoolObjectSQL * objsql) override;
 
     /**
-     *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
-     *  in the import_table.
-     *    @param deploy_id to search the id for
-     *    @return -1 if not found or VMID
-     *
-     */
-    int get_vmid(const std::string& deploy_id);
-
-    /**
      *  Function to get the IDs of running VMs
      *   @param oids a vector that contains the IDs
      *   @param vm_limit Max. number of VMs returned
@@ -237,13 +228,7 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        int rc;
-        std::ostringstream oss_import(one_db::vm_import_db_bootstrap);
-
-        rc  = VirtualMachine::bootstrap(_db);
-        rc += _db->exec_local_wr(oss_import);
-
-        return rc;
+        return VirtualMachine::bootstrap(_db);
     };
 
     /**
@@ -421,12 +406,6 @@ public:
      */
     void delete_attach_nic(std::unique_ptr<VirtualMachine> vm);
 
-    /**
-     * Deletes an entry in the HV-2-vmid mapping table for imported VMs
-     *   @param deploy_id of the VM
-     */
-    void drop_index(const std::string& deploy_id);
-
 private:
     /**
      *  Factory method to produce VM objects
@@ -457,20 +436,6 @@ private:
      * note: datastore cost is always counted in poweroff and suspended state
      */
     bool _showback_only_running;
-
-    /**
-     * Callback used to get an int in the DB it is used by VM Pool in:
-     *   - calculate_showback (min_stime)
-     *   - get_vmid (vmid)
-     */
-    int db_int_cb(void * _min_stime, int num, char **values, char **names);
-
-    /**
-     * Insert deploy_id - vmid index.
-     *   @param replace will replace and not insert
-     *   @return 0 on success
-     */
-    int insert_index(const std::string& deploy_id, int vm_id, bool replace);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

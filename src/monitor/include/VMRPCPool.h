@@ -58,13 +58,6 @@ public:
      */
     bool get_monitoring(int vmid, VirtualMachineMonitorInfo& vm);
 
-    /**
-     *  Gets a VM ID by its deploy_id
-     *    @param deploy_id to search the id for
-     *    @return -1 if not found or VMID
-     */
-    int get_vmid(const std::string& deploy_id);
-
 protected:
     void add_object(xmlNodePtr node) override
     {

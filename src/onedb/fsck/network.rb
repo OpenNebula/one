@@ -383,11 +383,11 @@ module OneDBFsck
             addrs    = { :mac => first_mac, :ip => first_ip, :ipv6 => ipv6 }
             counters = { :ar => counter_ar, :no_ar => counter_no_ar }
 
-            error, new_leases = calculate_new_leases(leases,
-                                                     ids,
-                                                     addrs,
-                                                     counters,
-                                                     error)
+            error, new_leases, removed_leases = calculate_new_leases(leases,
+                                                                     ids,
+                                                                     addrs,
+                                                                     counters,
+                                                                     error)
 
             counter_ar.each do |mac, counter_lease|
                 next if mac.nil?
@@ -415,6 +415,14 @@ module OneDBFsck
             unless new_leases.empty?
                 add_cdata(net_ar, 'ALLOCATED', " #{new_leases.join(' ')}")
             end
+
+            next if removed_leases.empty?
+
+            removed = removed_leases.join(',')
+            doc.xpath("VNET/UPDATED_VMS/ID[contains('#{removed}',.)]").remove
+            doc.xpath("VNET/OUTDATED_VMS/ID[contains('#{removed}',.)]").remove
+            doc.xpath("VNET/UPDATING_VMS/ID[contains('#{removed}',.)]").remove
+            doc.xpath("VNET/ERROR_VMS/ID[contains('#{removed}',.)]").remove
         end
 
         [error, new_used_leases]
@@ -462,6 +470,7 @@ module OneDBFsck
     # @return         [Boolean/Leases] The current value of error and new leases
     def calculate_new_leases(leases, ids, addrs, counters, error)
         new_leases = []
+        removed_leases = []
 
         leases.each do |lease_str|
             index        = lease_str[0].to_i
@@ -494,6 +503,8 @@ module OneDBFsck
 
             if counter_lease.nil?
                 if lease[:vm] != HOLD
+                    removed_leases << lease_oid
+
                     log_error("VNet #{ids[:o]} AR #{ids[:ar]} has " \
                               "leased #{lease_to_s(lease)} to #{lease_obj} " \
                               "#{lease_oid}, but it is actually free")
@@ -545,7 +556,7 @@ module OneDBFsck
             end
         end
 
-        [error, new_leases]
+        [error, new_leases, removed_leases]
     end
 
 end

@@ -55,24 +55,6 @@ public:
     int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
-     *  Check if action is supported for imported VMs
-     *    @param mad name of the driver
-     *    @param action
-     *    @return True if it is supported
-     */
-    bool is_imported_action_supported(const std::string& mad, VMActions::Action action)
-    {
-        const VirtualMachineManagerDriver * vmd = get(mad);
-
-        if ( vmd == nullptr )
-        {
-            return false;
-        }
-
-        return vmd->is_imported_action_supported(action);
-    }
-
-    /**
      * Updates firewall rules of a VM
      *   @param vm pointer to VM, needs to be locked
      *   @param sgid the id of the security group

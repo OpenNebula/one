@@ -2252,49 +2252,6 @@ static int parse_memory_mode(string& mem_mode, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_imported() const
-{
-    bool imported = false;
-
-    get_template_attribute("IMPORTED", imported);
-
-    return imported;
-}
-
-string VirtualMachine::get_import_state() const
-{
-    string import_state;
-
-    user_obj_template->get("IMPORT_STATE", import_state);
-    user_obj_template->erase("IMPORT_STATE");
-
-    return import_state;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::is_imported_action_supported(VMActions::Action action) const
-{
-    string vmm_mad;
-
-    if (hasHistory())
-    {
-        vmm_mad = get_vmm_mad();
-    }
-    else
-    {
-        user_obj_template->get("HYPERVISOR", vmm_mad);
-    }
-
-    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
-
-    return vmm->is_imported_action_supported(vmm_mad, action);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::nic_update(int vnid)
 {
     auto vnpool = Nebula::instance().get_vnpool();

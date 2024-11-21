@@ -329,7 +329,6 @@
               <xs:element name="ARGUMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DEFAULT" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="EXECUTABLE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="IMPORTED_VMS_ACTIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SUNSTONE_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>

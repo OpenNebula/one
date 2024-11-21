@@ -352,29 +352,6 @@ void HostMonitorManager::monitor_vm(int oid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostMonitorManager::monitor_wild_vm(const string& deploy_id,
-                                         const Template &tmpl)
-{
-    if (!is_leader)
-    {
-        return;
-    }
-
-    // Wild VM, check if it is imported to OpenNebula
-    int oid = vmpool->get_vmid(deploy_id);
-
-    if (oid < 0)
-    {
-        // Not imported VM, ignore monitoring
-        return;
-    }
-
-    monitor_vm(oid, tmpl);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void HostMonitorManager::start_monitor_failure(int oid)
 {
     if (!is_leader)

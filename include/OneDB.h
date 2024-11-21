@@ -70,16 +70,6 @@ namespace one_db
 
     extern const char * vm_template_table;
 
-    // -------------------------------------------------------------------------
-    // Virtual Machine ID - Deploy ID index for imported VMs
-    // The index is managed by the VirtualMachinePool
-    // -------------------------------------------------------------------------
-    extern const char * vm_import_table;
-
-    extern const char * vm_import_db_names;
-
-    extern const char * vm_import_db_bootstrap;
-
     /* ---------------------------------------------------------------------- */
     /* Cluster tables                                                         */
     /* ---------------------------------------------------------------------- */

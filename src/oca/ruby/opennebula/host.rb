@@ -213,60 +213,6 @@ module OpenNebula
             return call(HOST_METHODS[:rename], @pe_id, name)
         end
 
-        # Imports a wild VM from the host and puts it in running state
-        #
-        # @param name [String] Name of the VM to import
-        # @param ipv4 [Array]  Array with IP4s to set
-        # @param ipv6 [Array]  Array with IP6s to set
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def import_wild(name, ipv4 = nil, ipv6 = nil)
-            vms = importable_wilds.select {|vm| vm['VM_NAME'] == name }
-
-            if vms.length == 0
-                return OpenNebula::Error.new("No importable wilds with name " <<
-                    "'#{name}' found.")
-            elsif vms.length > 1
-                return OpenNebula::Error.new("More than one importable wild " <<
-                    "with name '#{name}' found.")
-            end
-
-            wild = vms.first
-
-            template = Base64.decode64(wild['IMPORT_TEMPLATE'])
-
-            xml = OpenNebula::VirtualMachine.build_xml
-            vm = OpenNebula::VirtualMachine.new(xml, @client)
-
-            # vCenter wild VMs has a different process
-            # image and vnets objects representing existing nics and disks
-            # must be created and referenced
-            vcenter_wild_vm = wild.key? "VCENTER_TEMPLATE"
-            if vcenter_wild_vm
-                require 'vcenter_driver'
-                vi_client = VCenterDriver::VIClient.new_from_host(self["ID"])
-                importer  = VCenterDriver::VmmImporter.new(@client, vi_client)
-
-                return importer.import(
-                    { :wild     => wild,
-                      :template => template,
-                      :one_item => vm,
-                      :host     => self['ID'],
-                      :ipv4     => ipv4,
-                      :ipv6     => ipv6
-                    }
-                )
-            else
-                rc = vm.allocate(template)
-
-                return rc if OpenNebula.is_error?(rc)
-
-                vm.deploy(id, false)
-                return vm.id
-            end
-        end
-
         #######################################################################
         # Helpers to get Host information
         #######################################################################
@@ -295,11 +241,6 @@ module OpenNebula
         # Get wild VMs in the host
         def wilds
             [self.to_hash['HOST']['TEMPLATE']['VM']].flatten.compact
-        end
-
-        # Get importable wild VMs in the host
-        def importable_wilds
-            wilds.select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
         end
 
     private

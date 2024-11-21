@@ -403,7 +403,7 @@ CommandParser::CmdParser.new(ARGV) do
         vmid       = args[0]
         remove_str = "\n        onevm recover --delete-db #{vmid}" \
                      "\n\nAfter a monitoring cycle, the VM will appear "\
-                     'as a Wild VM for reimport.'
+                     'as a Wild VM.'
 
         print 'Extracting information from VM ' + vmid
 

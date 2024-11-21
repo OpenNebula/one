@@ -84,14 +84,6 @@ namespace one_db
             "(vmid INTEGER, year INTEGER, month INTEGER, body MEDIUMTEXT, "
             "PRIMARY KEY(vmid, year, month))";
 
-    const char * vm_import_table = "vm_import";
-
-    const char * vm_import_db_names = "deploy_id, vmid";
-
-    const char * vm_import_db_bootstrap =
-            "CREATE TABLE IF NOT EXISTS vm_import "
-            "(deploy_id VARCHAR(128), vmid INTEGER, PRIMARY KEY(deploy_id))";
-
 
     const char * vm_group_table = "vmgroup_pool";
 

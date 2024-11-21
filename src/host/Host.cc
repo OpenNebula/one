@@ -273,13 +273,6 @@ void Host::update_wilds()
             continue;
         }
 
-        if (vmid == -1) //Check if it is an imported
-        {
-            VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
-
-            vmid = vmpool->get_vmid(vatt->vector_value("DEPLOY_ID"));
-        }
-
         if (vmid == -1)
         {
             if (num_wilds++ > 0)

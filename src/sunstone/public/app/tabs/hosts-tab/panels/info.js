@@ -19,7 +19,6 @@ define(function(require) {
    */
 
   require("foundation");
-  var CanImportWilds = require("../utils/can-import-wilds");
   var CapacityTable = require("utils/custom-tags-table");
   var ClusterTr = require("utils/panel/cluster-tr");
   var CPUBars = require("../utils/cpu-bars");
@@ -65,7 +64,6 @@ define(function(require) {
     this.icon = "fa-info-circle";
 
     this.element = info[XML_ROOT];
-    this.canImportWilds = CanImportWilds(this.element);
 
     return this;
   };
@@ -87,7 +85,7 @@ define(function(require) {
       Sunstone.runAction("Cluster.list");
       cache = OpenNebulaAction.cache("CLUSTER");
     }
-    
+
     var elementAux = Reserved.updateHostTemplate(cache, this.element);
     var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,
@@ -180,7 +178,7 @@ define(function(require) {
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
-    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);    
+    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
     var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,

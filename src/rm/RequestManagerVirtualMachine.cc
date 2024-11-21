@@ -487,15 +487,6 @@ Request::ErrorCode VirtualMachineAction::request_execute(RequestAttributes& att,
         return NO_EXISTS;
     }
 
-    // Check if the action is supported for imported VMs
-    if (vm->is_imported() && !vm->is_imported_action_supported(action))
-    {
-        att.resp_msg = "Action \"" + action_str + "\" is not supported for "
-                       "imported VMs";
-
-        return ACTION;
-    }
-
     switch (action)
     {
         case VMActions::TERMINATE_ACTION:
@@ -1033,17 +1024,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // deploy the VM (import/deploy unlocks the vm object)
+    // deploy the VM (unlocks the vm object)
     // ------------------------------------------------------------------------
 
-    if (vm->is_imported())
-    {
-        dm->import(std::move(vm), att);
-    }
-    else
-    {
-        dm->deploy(std::move(vm), att);
-    }
+    dm->deploy(std::move(vm), att);
 
     success_response(id, att);
 }
@@ -1077,8 +1061,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     bool auth = false;
     bool ds_migr;
-
-    VMActions::Action action;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
@@ -1178,26 +1160,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (live)
+    if (live && vm->is_pinned())
     {
-        action = VMActions::LIVE_MIGRATE_ACTION;
-
-        if ( vm->is_pinned() )
-        {
-            att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
-            failure_response(ACTION, att);
-
-            return;
-        }
-    }
-    else
-    {
-        action = VMActions::MIGRATE_ACTION;
-    }
-
-    if (vm->is_imported() && !vm->is_imported_action_supported(action))
-    {
-        att.resp_msg = "Migration is not supported for imported VMs";
+        att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
         failure_response(ACTION, att);
 
         return;
@@ -1755,17 +1720,6 @@ void VirtualMachineAttach::request_execute(
 
             return;
         }
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_ATTACH_ACTION))
-        {
-            att.resp_msg = "Action \"disk-attach\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
     }
     else
     {
@@ -1951,17 +1905,6 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
 
             return;
         }
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_DETACH_ACTION))
-        {
-            att.resp_msg = "Action \"disk-detach\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
     }
     else
     {
@@ -2073,17 +2016,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /* ---------------------------------------------------------------------- */
     if ( auto vm = vmpool->get_ro(id) )
     {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::RESIZE_ACTION))
-        {
-            att.resp_msg = "Action \"resize\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
-
         vm->get_permissions(vm_perms);
 
         vm->get_template_attribute("MEMORY", omemory);
@@ -2187,15 +2119,6 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
     // Check if the action is supported for imported VMs
     if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::SNAPSHOT_CREATE_ACTION))
-        {
-            att.resp_msg = "Action \"snapshot-create\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-
         auto vm_bck = vm->backups();
 
         if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
@@ -2284,25 +2207,6 @@ Request::ErrorCode VirtualMachineSnapshotRevert::request_execute(
         return auth;
     }
 
-    // Check if the action is supported for imported VMs
-    if (auto vm = pool->get_ro<VirtualMachine>(vid))
-    {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::SNAPSHOT_REVERT_ACTION))
-        {
-            att.resp_msg = "Action \"snapshot-revert\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-    }
-    else
-    {
-        att.resp_id = vid;
-        return NO_EXISTS;
-    }
-
     rc = dm->snapshot_revert(vid, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
@@ -2353,24 +2257,6 @@ Request::ErrorCode VirtualMachineSnapshotDelete::request_execute(
     if (auth != SUCCESS)
     {
         return auth;
-    }
-
-    // Check if the action is supported for imported VMs
-    if (auto vm = pool->get_ro<VirtualMachine>(vid))
-    {
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::SNAPSHOT_DELETE_ACTION))
-        {
-            att.resp_msg = "Action \"snapshot-delete\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-    }
-    else
-    {
-        att.resp_id = vid;
-        return NO_EXISTS;
     }
 
     rc = dm->snapshot_delete(vid, snap_id, att, att.resp_msg);
@@ -2428,17 +2314,6 @@ void VirtualMachineAttachNic::request_execute(
         {
             att.resp_msg = "Action is not supported for virtual router VMs";
             failure_response(Request::ACTION, att);
-
-            return;
-        }
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::NIC_ATTACH_ACTION))
-        {
-            att.resp_msg = "Action \"nic-attach\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
 
             return;
         }
@@ -2633,17 +2508,6 @@ void VirtualMachineDetachNic::request_execute(
             failure_response(Request::ACTION, att);
             return;
         }
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::NIC_DETACH_ACTION))
-        {
-            att.resp_msg = "Action \"nic-detach\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
     }
     else
     {
@@ -2741,17 +2605,6 @@ void VirtualMachineUpdateNic::request_execute(
         {
             att.resp_msg = "Action is not supported for virtual router VMs";
             failure_response(Request::ACTION, att);
-
-            return;
-        }
-
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::NIC_UPDATE_ACTION))
-        {
-            att.resp_msg = "Action \"nic-update\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
 
             return;
         }
@@ -2891,17 +2744,6 @@ void VirtualMachineRecover::request_execute(
         return;
     }
 
-    // Check if the action is supported for imported VMs
-    if (vm->is_imported() &&
-        !vm->is_imported_action_supported(action))
-    {
-        att.resp_msg = "Action \"" + VMActions::action_to_str(action) +
-                       "\" is not supported for imported VMs";
-        failure_response(ACTION, att);
-
-        return;
-    }
-
     switch (op)
     {
         case 0: //recover-failure
@@ -3004,16 +2846,6 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
 
     if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_CREATE_ACTION))
-        {
-            att.resp_msg = "Action \"disk-snapshot-create\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-
         auto vm_bck = vm->backups();
 
         if ( vm_bck.configured() && vm_bck.mode() == Backups::INCREMENT )
@@ -3208,24 +3040,6 @@ Request::ErrorCode VirtualMachineDiskSnapshotRevert::request_execute(
         return auth;
     }
 
-    if (auto vm = pool->get_ro<VirtualMachine>(vid))
-    {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_REVERT_ACTION))
-        {
-            att.resp_msg = "Action \"disk-snapshot-revert\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-    }
-    else
-    {
-        att.resp_id = vid;
-        return NO_EXISTS;
-    }
-
     rc = dm->disk_snapshot_revert(vid, disk_id, snap_id, att, att.resp_msg);
 
     if ( rc != 0 )
@@ -3278,16 +3092,6 @@ Request::ErrorCode VirtualMachineDiskSnapshotDelete::request_execute(
 
     if (auto vm = pool->get_ro<VirtualMachine>(vid))
     {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_DELETE_ACTION))
-        {
-            att.resp_msg = "Action \"disk-snapshot-delete\" is not supported for "
-                           "imported VMs";
-
-            return ACTION;
-        }
-
         disk = vm->get_disk(disk_id);
 
         if (disk == nullptr)
@@ -3407,17 +3211,6 @@ void VirtualMachineDiskSnapshotRename::request_execute(xmlrpc_c::paramList const
         return;
     }
 
-    // Check if the action is supported for imported VMs
-    if (vm->is_imported() &&
-        !vm->is_imported_action_supported(VMActions::DISK_SNAPSHOT_RENAME_ACTION))
-    {
-        att.resp_msg = "Action \"disk-snapshot-rename\" is not supported for "
-                       "imported VMs";
-        failure_response(ACTION, att);
-
-        return;
-    }
-
     disk = vm->get_disk(did);
 
     if (disk == nullptr)
@@ -3498,17 +3291,6 @@ void VirtualMachineUpdateConf::request_execute(
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    // Check if the action is supported for imported VMs
-    if (vm->is_imported() &&
-        !vm->is_imported_action_supported(VMActions::UPDATECONF_ACTION))
-    {
-        att.resp_msg = "Action \"updateconf\" is not supported for "
-                       "imported VMs";
-        failure_response(ACTION, att);
-
         return;
     }
 
@@ -3628,17 +3410,6 @@ void VirtualMachineDiskResize::request_execute(
 
     if ( auto vm = get_vm(id, att) )
     {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() &&
-            !vm->is_imported_action_supported(VMActions::DISK_RESIZE_ACTION))
-        {
-            att.resp_msg = "Action \"disk-resize\" is not supported for "
-                           "imported VMs";
-            failure_response(ACTION, att);
-
-            return;
-        }
-
         VirtualMachineDisk * disk = vm->get_disk(did);
 
         if (disk == nullptr)

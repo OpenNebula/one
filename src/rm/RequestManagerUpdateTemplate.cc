@@ -151,15 +151,6 @@ void VirtualMachineUpdateTemplate::request_execute(int oid,
         return;
     }
 
-    // Check if the action is supported for imported VMs
-    if (vm->is_imported() && !vm->is_imported_action_supported(VMActions::UPDATE_ACTION))
-    {
-        att.resp_msg = "Action \"update\" is not supported for imported VMs";
-        failure_response(ACTION, att);
-
-        return;
-    }
-
     // Apply generic quota deltas
     auto new_tmpl = make_unique<VirtualMachineTemplate>(false, '=', "USER_TEMPLATE");
 

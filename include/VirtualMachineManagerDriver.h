@@ -81,16 +81,6 @@ public:
     }
 
     /**
-     *  Check if action is supported for imported VMs
-     *    @param action
-     *    @return True if it is supported
-     */
-    bool is_imported_action_supported(VMActions::Action action) const
-    {
-        return imported_actions.is_set(action);
-    }
-
-    /**
      *  @return true if system snapshots are preserved
      */
     bool is_keep_snapshots() const
@@ -264,19 +254,10 @@ protected:
 private:
     friend class VirtualMachineManager;
 
-    static const std::string imported_actions_default;
-    static const std::string imported_actions_default_public;
-
     /**
      *  Configuration file for the driver
      */
     Template    driver_conf;
-
-    /**
-     *  List of available actions for imported VMs. Each bit is an action
-     *  as defined in History.h, 1=supported and 0=not supported
-     */
-    ActionSet<VMActions::Action> imported_actions;
 
     /**
      * Set to true if the hypervisor can keep system snapshots across

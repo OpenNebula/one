@@ -354,23 +354,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    importvm_desc = <<-EOT.unindent
-        Import VM to OpenNebula
-    EOT
-
-    command :importvm,
-            importvm_desc,
-            :hostid,
-            :name,
-            :options => [IPV4, IPV6] do
-        helper.perform_action(args[0], options, 'imported') do |o|
-            rc = o.info
-            next rc if OpenNebula.is_error?(rc)
-
-            o.import_wild(args[1], options[:ipv4], options[:ipv6])
-        end
-    end
-
     forceupdate_desc = <<-EOT.unindent
         Forces host monitoring update
         Examples:

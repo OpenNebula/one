@@ -108,82 +108,6 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttributes& ra)
-{
-    string import_state;
-
-    int uid;
-    int gid;
-
-    VirtualMachineTemplate quota_tmpl;
-    bool do_quotas = false;
-
-    string error;
-
-    if ( vm == nullptr )
-    {
-        return -1;
-    }
-
-    if ( vm->get_state() != VirtualMachine::PENDING &&
-         vm->get_state() != VirtualMachine::HOLD )
-    {
-        return -1;
-    }
-
-    time_t the_time = time(0);
-    HostShareCapacity sr;
-
-    vm->get_capacity(sr);
-
-    hpool->add_capacity(vm->get_hid(), sr);
-
-    import_state = vm->get_import_state();
-
-    if (import_state == "POWEROFF")
-    {
-        vm->set_state(VirtualMachine::POWEROFF);
-        vm->set_state(VirtualMachine::LCM_INIT);
-    }
-    else
-    {
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::RUNNING);
-
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-
-        vm->get_quota_template(quota_tmpl, false, true);
-
-        do_quotas = true;
-    }
-
-    vm->set_stime(the_time);
-
-    vm->set_prolog_stime(the_time);
-    vm->set_prolog_etime(the_time);
-
-    vm->set_running_stime(the_time);
-
-    vm->set_vm_info();
-
-    vmpool->update_history(vm.get());
-
-    vmpool->update(vm.get());
-
-    vm.reset(); //force unlock of vm mutex
-
-    if ( do_quotas )
-    {
-        Quotas::vm_check(uid, gid, &quota_tmpl, error);
-    }
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int DispatchManager::migrate(VirtualMachine * vm, int poff_migrate,
                              const RequestAttributes& ra)
 {
@@ -340,11 +264,6 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     uid  = vm->get_uid();
     gid  = vm->get_gid();
 
-    if (vm->is_imported())
-    {
-        deploy_id = vm->get_deploy_id();
-    }
-
     if (vm->is_vrouter())
     {
         vrid = vm->get_vrouter_id();
@@ -359,11 +278,6 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     if ( !ds_quotas.empty() )
     {
         Quotas::ds_del(uid, gid, ds_quotas);
-    }
-
-    if (!deploy_id.empty())
-    {
-        vmpool->drop_index(deploy_id);
     }
 
     if (vrid != -1)

@@ -443,18 +443,6 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         vm_tmpl->vector_value("DEPLOY_ID", deploy_id);
         vm_tmpl->vector_value("STATE", state_str);
 
-        if (id < 0)
-        {
-            // Check wild VMs
-            id = vmpool->get_vmid(deploy_id);
-
-            if (id < 0)
-            {
-                // Not imported wild, ignore VM state
-                continue;
-            }
-        }
-
         hv_ids.insert(id);
 
         NebulaLog::debug("InM", "VM_STATE update from host: " +
