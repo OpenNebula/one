@@ -355,7 +355,8 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     importvm_desc = <<-EOT.unindent
-        Import VM to OpenNebula
+        Import wild VM to OpenNebula. This method is deprecated and will be \
+        removed in a future release.
     EOT
 
     command :importvm,
