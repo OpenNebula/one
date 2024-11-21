@@ -781,7 +781,7 @@ public class VirtualNetwork extends PoolElement{
     /**
      * Returns the state of the Virtual Network.
      * <br>
-     * The method {@link VirtualNetowrk#info()} must be called before.
+     * The method {@link VirtualNetwork#info()} must be called before.
      *
      * @return The state of the Virtual Network.
      */
@@ -794,7 +794,7 @@ public class VirtualNetwork extends PoolElement{
     /**
      * Returns the short string state of the Virtual Network.
      * <br>
-     * The method {@link VirtualNetowrk#info()} must be called before.
+     * The method {@link VirtualNetwork#info()} must be called before.
      *
      * @return The short string state of the Virtual Network.
      */
