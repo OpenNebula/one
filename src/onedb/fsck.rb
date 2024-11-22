@@ -195,6 +195,8 @@ EOT
         aug.context = "/files/#{work_file_name}"
         aug.load
 
+        @zone_id = aug.get('FEDERATION/ZONE_ID').to_i
+
         @generic_quotas = []
 
         i = 0

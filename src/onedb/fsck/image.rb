@@ -94,13 +94,13 @@ module OneDBFsck
                 end
 
                 # DATA: CHECK: Check number of clones
-                doc.root.xpath("CLONING_OPS").each { |e|
-                    if e.text != n_cloning_ops.to_s
-                        log_error("Image #{oid} CLONING_OPS has #{e.text} \tis\t#{n_cloning_ops}")
-                        e.text = n_cloning_ops
-                        error = true
-                    end
-                }
+                cloning_ops = doc.root.at_xpath('CLONING_OPS')
+
+                if cloning_ops.text != n_cloning_ops.to_s
+                    log_error("Image #{oid} CLONING_OPS has #{cloning_ops.text} \tis\t#{n_cloning_ops}")
+                    cloning_ops.content = n_cloning_ops
+                    error = true
+                end
 
                 # re-do list of Images cloning this one
                 clones_elem = doc.root.xpath("CLONES").remove
