@@ -29,16 +29,21 @@ module OneDBFsck
             market_id   = doc.root.xpath('MARKETPLACE_ID').text.to_i
             market_name = doc.root.xpath('MARKETPLACE').text
 
-            ####################################################################
-            # DATA: TODO, BUG: this code will only work for a standalone oned.
-            # In a federation, the image ID will refer to a different image
-            # in each zone
-            ####################################################################
+            if doc.root.xpath('STATE').text.to_i == 2 # LOCKED
+                # Note: This code will only function in the zone, where the DB was created
+                #       It may fail if the DB is transfered to a different zones
+                origin_id = doc.root.xpath('ORIGIN_ID').text.to_i
+                app_zone  = doc.root.xpath('ZONE_ID').text.to_i
 
-            # DATA: get image origin id. Does it work?
-            origin_id = doc.root.xpath('ORIGIN_ID').text.to_i
-            if origin_id >= 0 && doc.root.xpath('STATE').text.to_i == 2 # LOCKED
-                counters[:image][origin_id][:app_clones].add(row[:oid])
+                if origin_id >= 0 && app_zone == @zone_id && !counters[:image][origin_id].nil?
+                    counters[:image][origin_id][:app_clones].add(row[:oid])
+
+                    log_error("Marketplace App #{row[:oid]} is in locked state. "<<
+                         "The App is probably unusable and needs to be deleted or manually fixed:\n"<<
+                         " * Check the App data in the MarketPlace and "<<
+                         "set state to 1 (READY) by executing `onedb update-body marketplaceapp --id #{row[:oid]}`",
+                         false)
+                end
             end
 
             error = fix_permissions('MARKETPLACEAPP', row[:oid], doc)
