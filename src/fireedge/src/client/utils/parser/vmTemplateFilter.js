@@ -77,7 +77,11 @@ const defaultValuesCreate = {
   },
 }
 
-const defaultValuesUpdate = {}
+const defaultValuesUpdate = {
+  extra: {
+    Context: { CONTEXT: { START_SCRIPT: true, START_SCRIPT_BASE64: true } },
+  },
+}
 
 /**
  * Filter the data of the form data with the values that were modified by the user and not adding the ones that could be added by default. The goal is to create the most simplify template that we can.
