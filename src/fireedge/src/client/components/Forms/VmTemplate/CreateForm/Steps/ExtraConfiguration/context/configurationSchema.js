@@ -72,9 +72,10 @@ export const ENCODE_START_SCRIPT = {
   name: 'CONTEXT.ENCODE_START_SCRIPT',
   label: T.EncodeScriptInBase64,
   ...switchField,
+  htmlType: INPUT_TYPES.HIDDEN,
   validation: lazy((_, { context }) =>
     boolean()
-      .default(() => !!context?.CONTEXT?.START_SCRIPT_BASE64)
+      .default(() => true)
       .afterSubmit(() => undefined)
   ),
 }
@@ -91,12 +92,7 @@ export const START_SCRIPT = {
     .trim()
     .ensure()
     .notRequired()
-    .afterSubmit((value, { context }) =>
-      context?.extra?.CONTEXT?.ENCODE_START_SCRIPT ||
-      context?.CONTEXT?.ENCODE_START_SCRIPT
-        ? encodeBase64(value)
-        : value
-    ),
+    .afterSubmit((value, { context }) => encodeBase64(value)),
   grid: { md: 12 },
   fieldProps: { rows: 4 },
 }
