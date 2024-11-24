@@ -59,7 +59,7 @@ module OpenNebula
                     "\t#{ex.backtrace.join("\n\t")}" +
                     "\n*******************************\n")
 
-        OpenNebula.error_message("There is a problem: #{ex.message}")
+        OpenNebula::DriverLogger.report("There is a problem: #{ex.message}")
         exit (-1)
     end
 

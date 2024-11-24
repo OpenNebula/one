@@ -20,8 +20,6 @@ $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'container'
 
-require_relative '../../scripts_common'
-
 xml = STDIN.read
 
 client    = LXCClient.new

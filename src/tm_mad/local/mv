@@ -1,0 +1,115 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# mv: moves images/directories across system_ds in different hosts. When used for the system
+# datastore the script will receive the directory ARGUMENT. This script will be also called for the
+# image TM for each disk to perform setup tasks on the target node.
+# ARGUMENTS: hostA:system_ds/disk.i hostB:system_ds/disk.i vm_id ds_id
+#            OR
+#            hostA:system_ds/ hostB:system_ds/ vm_id ds_id
+#   - hostA is the host the VM is in.
+#   - hostB is the target host to deploy the VM
+#   - system_ds is the path for the system datastore in the host
+#   - vm_id is the id of the VM
+#   - ds_id is the target datastore (the system datastore)
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+
+arg_src  = ARGV[0]
+arg_dst  = ARGV[1]
+arg_vmid = ARGV[2]
+_arg_dsid = ARGV[3]
+
+mv = TransferManager::Action.new(:vm_id => arg_vmid,
+                                 :action_name => 'mv')
+
+src = TransferManager::Action::Location.new(arg_src)
+dst = TransferManager::Action::Location.new(arg_dst)
+
+#-------------------------------------------------------------------------------
+# Return when:
+#   - moving a disk, it will be moved them when moving the whole system_ds folder
+#   - VM is in a Fault Tolerance (FT) state: PROLOG_MIGRATE_UNKNOWN (60) or
+#     PROLOG_MIGRATE_UNKNOWN_FAILURE (61)
+#-------------------------------------------------------------------------------
+exit 0 if dst.disk?
+
+if ['PROLOG_MIGRATE_UNKNOWN',
+    'PROLOG_MIGRATE_UNKNOWN_FAILURE'].include?(mv.vm.lcm_state_str)
+    OpenNebula::DriverLogger.log_info "Not moving files from #{src.host} in FT mode"
+    exit 0
+end
+
+# ------------------------------------------------------------------------------
+# Preserve .monitor content (if any) in the dst host
+# ------------------------------------------------------------------------------
+monitor_cmd = <<~EOF
+    if [ -r '#{src.dir}/.monitor' ]; then
+        cat '#{src.dir}/.monitor' 2>/dev/null || true
+    fi
+EOF
+
+rc = mv.ssh(:host => src.host,
+            :cmds => monitor_cmd,
+            :err_msg => 'Get .monitor',
+            :nostdout => false,
+            :nostderr => false)
+
+exit(rc.code) if rc.code != 0
+
+mv.make_dst_path(dst, false)
+mv.enable_local_monitoring(dst, rc.stdout) unless rc.stdout.empty?
+
+# ------------------------------------------------------------------------------
+# Check src and dst are different. If paths are the same, we will make sure hosts
+# are different by computing and comparing their fingerprints (not only hostnames)
+# ------------------------------------------------------------------------------
+if src.dir == dst.dir
+    fps = [src, dst].map {|loc| mv.host_fingerprint(loc.host) }
+
+    if fps[0] == fps[1]
+        OpenNebula::DriverLogger.log_info "Not moving #{src} to #{dst}, they are the same path"
+        exit 0
+    end
+end
+
+# move folder from src.host to dst.host
+OpenNebula::DriverLogger.log_info "Moving #{src} to #{dst}"
+
+tar_ssh = <<~EOF
+    set -e -o pipefail
+
+    tar -C '#{src.dir}' --sparse -cf - '#{src.base}' |
+        ssh '#{dst.host}' '
+          rm -rf '#{dst.path}';
+          tar -C #{dst.dir} --sparse -xf -;
+        '
+    rm -rf '#{src.path}'
+EOF
+
+rc = mv.ssh(:host => src.host,
+            :cmds => tar_ssh,
+            :forward => true,
+            :err_msg => 'Error copying disk directory to target host',
+            :nostdout => false,
+            :nostderr => false)
+
+exit(rc.code)

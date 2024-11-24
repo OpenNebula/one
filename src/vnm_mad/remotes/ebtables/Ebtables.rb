@@ -30,7 +30,7 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
     end
 
     def ebtables(rule)
-        OpenNebula.exec_and_log("#{command(:ebtables)} -A #{rule}")
+        LocalCommand.run_sh("#{command(:ebtables)} -A #{rule}")
     end
 
     # Activates ebtables rules
@@ -115,7 +115,7 @@ class EbtablesVLAN < VNMMAD::NoVLANDriver
     end
 
     def remove_rule(rule)
-        OpenNebula.exec_and_log("#{command(:ebtables)} -D FORWARD #{rule}")
+        LocalCommand.run_sh("#{command(:ebtables)} -D FORWARD #{rule}")
     end
 
 end

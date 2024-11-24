@@ -51,7 +51,6 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula/x509_auth'
-require 'scripts_common'
 require 'rexml/document'
 require 'opennebula/error'
 require 'opennebula/xml_utils'
@@ -68,7 +67,7 @@ rescue
     exit(-1)
 end
 
-#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+# OpenNebula::DriverLogger.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 begin
     dsecret = Base64::decode64(secret)

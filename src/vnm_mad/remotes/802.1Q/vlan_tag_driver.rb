@@ -66,21 +66,21 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
         # Do not fail if the device exists to prevent race conditions.
         # ip link add returns 2 on "RTNETLINK answers: File exists"
-        OpenNebula.exec_and_log("#{command(:ip)} link add link"\
+        LocalCommand.run_sh("#{command(:ip)} link add link"\
             " #{@nic[:phydev]} name #{@nic[:vlan_dev]} #{mtu} type vlan id"\
-            " #{@nic[:vlan_id]} #{ip_link_conf}", nil, 2)
+            " #{@nic[:vlan_id]} #{ip_link_conf}", :ok_rcs => 2)
 
-        OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
+        LocalCommand.run_sh("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
 
     def delete_vlan_dev
-        OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+        LocalCommand.run_sh("#{command(:ip)} link delete"\
             " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
     end
 
     def list_interface_vlan(name)
-        text = %x(#{command(:ip_unpriv)} -d link show #{name})
-        return nil if $?.exitstatus != 0
+        text = `#{command(:ip_unpriv)} -d link show #{name}`
+        return if $CHILD_STATUS.exitstatus != 0
 
         text.each_line do |line|
             m = line.match(/vlan protocol 802.1Q id (\d+)/)
@@ -90,4 +90,5 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
         nil
     end
+
 end

@@ -71,7 +71,7 @@ DatastorePool::DatastorePool(
 
         oss << "NAME   = " << SYSTEM_DS_NAME << endl
             << "TYPE   = SYSTEM_DS" << endl
-            << "TM_MAD = ssh";
+            << "TM_MAD = local";
 
         auto ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -86,7 +86,7 @@ DatastorePool::DatastorePool(
                  UserPool::oneadmin_name,
                  GroupPool::ONEADMIN_NAME,
                  0137,
-                 move(ds_tmpl),
+                 std::move(ds_tmpl),
                  &rc,
                  cluster_ids,
                  error_str);
@@ -104,7 +104,7 @@ DatastorePool::DatastorePool(
         oss << "NAME   = "   << DEFAULT_DS_NAME << endl
             << "TYPE   = IMAGE_DS" << endl
             << "DS_MAD = fs" << endl
-            << "TM_MAD = ssh";
+            << "TM_MAD = local";
 
         ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -119,7 +119,7 @@ DatastorePool::DatastorePool(
                  UserPool::oneadmin_name,
                  GroupPool::ONEADMIN_NAME,
                  0137,
-                 move(ds_tmpl),
+                 std::move(ds_tmpl),
                  &rc,
                  cluster_ids,
                  error_str);
@@ -137,7 +137,7 @@ DatastorePool::DatastorePool(
         oss << "NAME   = "   << FILE_DS_NAME << endl
             << "TYPE   = FILE_DS" << endl
             << "DS_MAD = fs" << endl
-            << "TM_MAD = ssh";
+            << "TM_MAD = local";
 
         ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
@@ -152,7 +152,7 @@ DatastorePool::DatastorePool(
                  UserPool::oneadmin_name,
                  GroupPool::ONEADMIN_NAME,
                  0137,
-                 move(ds_tmpl),
+                 std::move(ds_tmpl),
                  &rc,
                  cluster_ids,
                  error_str);

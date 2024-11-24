@@ -1,0 +1,176 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# snap_create_live: Creates a disk snapshot of the selected disk while the VM is running in the
+# hypervisor. This is a hypervisor operation.
+# ARGUMENTS: host:remote_system_ds/disk.i snapshot_id vm_id ds_id
+#   - remote_system_ds_dir is the path for the VM directory in the system datastore in the host
+#   - host is the target host where the VM is running
+#   - snapshot_id the id of the snapshot to be created/reverted to/deleted
+#   - vm_id is the id of the VM
+#   - ds_id is the target datastore (the system datastore)
+require_relative '../lib/tm_action'
+require_relative '../lib/kvm'
+require_relative '../lib/shell'
+
+include TransferManager::KVM
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1].to_i
+arg_vmid   = ARGV[2]
+_arg_dsid  = ARGV[3]
+
+snapcl = TransferManager::Action.new(:vm_id => arg_vmid,
+                                     :action_name => 'snap_create_live')
+src    = TransferManager::Action::Location.new(arg_src)
+
+#-------------------------------------------------------------------------------
+# Generate Snapshot command and execute in src host
+#-------------------------------------------------------------------------------
+disk_id  = src.disk_id
+
+snap_cmd =
+    case snapcl.disk_format(disk_id)
+    when :raw
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        deploy_id = snapcl.vm.deploy_id
+
+        # CAREFUL: the REAL_DISK needs to use the original path because libvirt will fail if the VM
+        # was created with a non-normalized path, e.g., with double slashes:
+        # ubuntu2204-kvm-ssh-6-99-65f7-1.test:/var/lib/one//datastores/0/635/disk.0
+        #
+        <<~EOF
+            #{TransferManager::Shell.retry_if_no_error}
+
+            touch "#{snap_path}"
+            if [ -L "#{src.path}" ]; then
+                REAL_DISK="#{src.dir}/$(readlink #{src.path})"
+            else
+                REAL_DISK="#{src.orig_path}"
+            fi
+
+            retry_if_no_error "active block job" 3 5 \
+                #{virsh} -q blockcopy "#{deploy_id}" --path "${REAL_DISK}" \
+                    --dest "#{snap_path}" --wait --finish
+        EOF
+
+    when :qcow2
+        next_snap_id = arg_snapid + 1
+
+        deploy_id = snapcl.vm.deploy_id
+
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{next_snap_id}"
+
+        snap_dir_short  = "#{src.base}.snap"
+        snap_path_short = "#{snap_dir_short}/#{next_snap_id}"
+
+        # virsh snapshot-create by default creates snapshots for all the disks
+        # that are not read only. To snapshot only one of the disks an xml must
+        # be created setting the value snapshot='no' to the disks that are not
+        # going to be snapshotted.
+        #
+        # <domainsnapshot>
+        #   <name>1</name>
+        #   <description>snap 1</description>
+        #   <disks>
+        #     <disk name='vda' snapshot='no'/>
+        #     <disk name='vdb'>
+        #       <source file='/var/lib/one/datastores/1/09eec1c8978600.snap/1'/>
+        #     </disk>
+        #     <disk name='vdc' snapshot='no'/>
+        #   </disks>
+        # </domainsnapshot>
+
+        target  = snapcl.disk_target(disk_id)
+        targets = snapcl.vm.retrieve_xmlelements('/VM/TEMPLATE/DISK/TARGET')
+
+        doc_disks = targets.map do |disk|
+            if disk.text == target
+                <<~DISK
+                    <disk name='#{disk.text}' snapshot='external'>
+                      <source file='#{snap_path}'/>
+                    </disk>
+                DISK
+            else
+                <<~DISK
+                    <disk name='#{disk.text}' snapshot='no'/>
+                DISK
+            end
+        end
+
+        doc = <<~DOC
+            <domainsnapshot>
+              <name>#{disk_id}-#{arg_snapid}</name>
+              <description>snap #{disk_id}-#{arg_snapid}</description>
+              <disks>
+                #{doc_disks.join}
+              </disks>
+            </domainsnapshot>
+        DOC
+
+        <<~EOF
+            PREVIOUS_SNAP=$(readlink #{src.path} | xargs basename)
+
+            # Temporary xml file
+            FILENAME="/tmp/snapshot-#{arg_vmid}-#{disk_id}-#{arg_snapid}"
+            echo "#{doc}" > "$FILENAME"
+
+            # older qemu-img requires relative backing file paths
+            # to be resolvable from the current directory
+            cd "#{snap_dir}"
+
+            if [ -e "#{snap_path}" ]; then
+                echo "Snapshot file '#{snap_path}' already exists." >&2
+                exit 1
+            fi
+
+            qemu-img create -o backing_fmt=qcow2 -b "$PREVIOUS_SNAP" \
+                -f qcow2 "#{snap_path}"
+
+            #{virsh} snapshot-create #{deploy_id} --disk-only \
+                --atomic --no-metadata --reuse-external --xmlfile "$FILENAME"
+
+            rm "$FILENAME"
+
+            ln -sf "#{snap_path_short}" "#{src.path}"
+        EOF
+    end
+
+freeze, thaw = fsfreeze(snapcl.vm, deploy_id)
+
+snap_cmd = <<~EOF
+    set -ex -o pipefail
+    mkdir -p "#{snap_dir}"
+
+    #{freeze}
+    #{snap_cmd}
+    #{thaw}
+EOF
+
+rc = snapcl.ssh(:host => src.host,
+                :cmds => snap_cmd,
+                :error => "Error creating snapshot #{snap_path}",
+                :nostdout => false,
+                :nostderr => false)
+
+exit(rc.code)

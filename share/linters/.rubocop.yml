@@ -20,6 +20,7 @@
 #
 
 AllCops:
+  TargetRubyVersion: 2.7
   Exclude:
     - /**/*.schema
     - src/sunstone/public/node_modules/**/*
@@ -372,7 +373,6 @@ AllCops:
     - src/mad/ruby/CommandManager.rb
     - src/mad/ruby/test_mad.rb
     - src/mad/ruby/OpenNebulaDriver.rb
-    - src/mad/ruby/scripts_common.rb
     - src/ipamm_mad/one_ipam.rb
     - src/cloud/common/CloudClient.rb
     - src/cloud/common/CloudServer.rb

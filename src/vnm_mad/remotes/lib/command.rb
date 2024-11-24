@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'open3'
+require 'DriverLogger'
 
 module VNMMAD
 
@@ -154,21 +155,21 @@ module VNMMAD
                 cmd = cmd.join(' ')
 
                 if s.success?
-                    OpenNebula.log_info "Executed \"#{env}#{cmd}\"."
-                    OpenNebula.log_info Base64.strict_encode64(opts[:stdin_data]) \
+                    OpenNebula::DriverLogger.log_info "Executed \"#{env}#{cmd}\"."
+                    OpenNebula::DriverLogger.log_info Base64.strict_encode64(opts[:stdin_data]) \
                         unless opts[:stdin_data].nil?
                 else
                     if terminate
-                        OpenNebula.log_error "Command \"#{env}#{cmd}\" failed."
-                        OpenNebula.log_error Base64.strict_encode64(opts[:stdin_data]) \
+                        OpenNebula::DriverLogger.log_error "Command \"#{env}#{cmd}\" failed."
+                        OpenNebula::DriverLogger.log_error Base64.strict_encode64(opts[:stdin_data]) \
                             unless opts[:stdin_data].nil?
-                        OpenNebula.log_error e
+                        OpenNebula::DriverLogger.log_error e
                         exit(s.exitstatus)
                     else
-                        OpenNebula.log_error "Command \"#{env}#{cmd}\" failed (recovered)."
-                        OpenNebula.log_error Base64.strict_encode64(opts[:stdin_data]) \
+                        OpenNebula::DriverLogger.log_error "Command \"#{env}#{cmd}\" failed (recovered)."
+                        OpenNebula::DriverLogger.log_error Base64.strict_encode64(opts[:stdin_data]) \
                             unless opts[:stdin_data].nil?
-                        OpenNebula.log_error e
+                        OpenNebula::DriverLogger.log_error e
                     end
                 end
 

@@ -66,7 +66,7 @@ module VNMMAD
                 create_vlan_dev
 
                 # Add vlan device to the bridge.
-                OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                LocalCommand.run_sh("#{command(:ip)} link set " \
                     "#{@nic[:vlan_dev]} master #{@nic[:bridge]}")
 
                 @bridges[@nic[:bridge]] << @nic[:vlan_dev]
@@ -80,7 +80,7 @@ module VNMMAD
         # This function needs to be implemented by any VLAN driver to
         # create the VLAN device. The device MUST be set up by this function
         def create_vlan_dev
-            OpenNebula.log_error('create_vlan_dev function not implemented.')
+            OpenNebula::DriverLogger.log_error('create_vlan_dev function not implemented.')
 
             exit(-1)
         end
@@ -88,7 +88,7 @@ module VNMMAD
         # This function needs to be implemented by any VLAN driver to
         # delete the VLAN device. The device MUST be deleted by this function
         def delete_vlan_dev
-            OpenNebula.log_error('delete_vlan_dev function not implemented.')
+            OpenNebula::DriverLogger.log_error('delete_vlan_dev function not implemented.')
 
             exit(-1)
         end
@@ -140,7 +140,7 @@ module VNMMAD
                     @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
                     # Delete the bridge.
-                    OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+                    LocalCommand.run_sh("#{command(:ip)} link delete"\
                         " #{@nic[:bridge]}")
 
                     @bridges.delete(@nic[:bridge])
@@ -196,15 +196,15 @@ module VNMMAD
                             ####################################################
                             # Add new link to the BRIDGE
                             ####################################################
-                            OpenNebula.exec_and_log("#{command(:ip)} link " \
-                            "set #{@nic[:vlan_dev]} master #{@nic[:bridge]}")
+                            LocalCommand.run_sh("#{command(:ip)} link " \
+                                "set #{@nic[:vlan_dev]} master #{@nic[:bridge]}")
                         elsif changes[:mtu]
                             @nic = nic
                             gen_vlan_dev_name
 
                             # Update only MTU
-                            OpenNebula.exec_and_log("#{command(:ip)} link " \
-                            "set #{@nic[:vlan_dev]} mtu #{@nic[:mtu]}")
+                            LocalCommand.run_sh("#{command(:ip)} link " \
+                                "set #{@nic[:vlan_dev]} mtu #{@nic[:mtu]}")
                         end
 
                         # Changes will affect every VM nic
@@ -236,13 +236,13 @@ module VNMMAD
 
                 next if !vlan || vlan.to_s == @nic[:vlan_id]
 
-                OpenNebula.log_error("The interface #{interface} has "\
+                OpenNebula::DriverLogger.log_error("The interface #{interface} has "\
                     "vlan_id = #{vlan} but the network is configured "\
                     "with vlan_id = #{@nic[:vlan_id]}")
 
                 msg = 'Interface with an incorrect vlan_id is already in '\
                       'the bridge'
-                OpenNebula.error_message(msg)
+                OpenNebula::DriverLogger.report(msg)
 
                 exit(-1)
             end

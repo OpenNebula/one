@@ -68,7 +68,7 @@ begin
 rescue StandardError => e
     message = "Monitoring of VMs on vCenter cluster #{host_id} " \
                  " failed due to \"#{e.message}\"."
-    OpenNebula.log_error(message)
+    OpenNebula::DriverLogger.log_error(message)
     if VCenterDriver::CONFIG[:debug_information]
         STDERR.puts "#{message} #{e.backtrace}"
     end

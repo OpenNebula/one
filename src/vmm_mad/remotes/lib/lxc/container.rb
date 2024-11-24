@@ -211,7 +211,7 @@ class Container
 
         return true if rc.zero?
 
-        OpenNebula.log_error "#{__method__}: #{e}"
+        OpenNebula::DriverLogger.log_error "#{__method__}: #{e}"
         false
     end
 

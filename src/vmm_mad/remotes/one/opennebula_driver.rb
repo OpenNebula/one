@@ -54,7 +54,7 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'CommandManager'
-require 'scripts_common'
+require 'DriverLogger'
 require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'PublicCloudDriver'

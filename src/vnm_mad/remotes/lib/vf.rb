@@ -89,7 +89,7 @@ module VNMMAD::VirtualFunction
                 cmd = "#{command(:ip)} link set #{pf_dev} vf #{vf}"
                 cmd << set_ip_links(pci)
 
-                OpenNebula.exec_and_log(cmd)
+                LocalCommand.run_sh(cmd)
             end
         end
         # rubocop:enable Style/CombinableLoops
@@ -121,7 +121,7 @@ module VNMMAD::VirtualFunction
                 cmd = "#{command(:ip)} link set #{pf_dev} vf #{vf}"
                 cmd << set_ip_links(pci)
 
-                OpenNebula.exec_and_log(cmd)
+                LocalCommand.run_sh(cmd)
             end
         end
 

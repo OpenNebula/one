@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# monitor_ds: monitors a ssh-like system datastore.
+#  - ARGUMENTS: path for the datastore folder
+#  - RETURNS: monitor data for each VM to be sent back to the monitor daemon.
+#    Example: (Note: MONITOR parameter is base64 encoded. Decoded here)
+#         VM = [ ID = ${vm_id}, MONITOR = "\
+#            DISK_SIZE=[ID=${disk_id},SIZE=${disk_size}]
+#            ...
+#            SNAPSHOT_SIZE=[ID=${snap},DISK_ID=${disk_id},SIZE=${snap_size}]
+#            ...
+#            "
+#         ]
+require 'base64'
+require 'pathname'
+
+arg_dir = Pathname.new(ARGV[0])
+
+# ------------------------------------------------------------------------------
+# Function helpers
+# ------------------------------------------------------------------------------
+
+#  Returns an array or [file, sizeMB] for each file in the folder:
+#    @param [String,Pathname] of the folder to scan
+#    @param [RegExp] of files to include
+#
+#    @return [Array]
+#
+# TODO: File.size is number of bytes vs du that takes number of blocks of 1M
+def dir_entries(dir, regex = /.*/)
+    dir     = Pathname.new(dir) unless dir.is_a?(Pathname)
+    entries = Dir.entries(dir).filter {|f| f =~ regex }
+
+    entries.map do |file|
+        [file, File.new(dir + file).size / 1024 / 1024]
+    end
+end
+
+# ------------------------------------------------------------------------------
+
+vms = Dir.entries(arg_dir).filter {|f| f =~ /^[0-9]+$/ }
+
+vms.each do |vm|
+    vmdir = arg_dir + vm
+    disks = dir_entries(vmdir, /^disk\.[0-9]+$/)
+
+    continue if disks.empty?
+
+    vm_monitor = []
+
+    disks.each do |disk, disk_size_mb|
+        disk_id = disk.split('.')[1]
+        vm_monitor << "DISK_SIZE = [ ID=#{disk_id}, SIZE=#{disk_size_mb} ]"
+
+        snap_dir = vmdir + "#{disk}.snap"
+        next unless File.exist?(snap_dir)
+
+        dir_entries(snap_dir, /^[0-9]$/).each do |snap, snap_size_mb|
+            vm_monitor << <<~EOF
+                SNAPSHOT_SIZE = [ ID=#{snap}, DISK_ID=#{disk_id}, SIZE=#{snap_size_mb} ]
+            EOF
+        end
+    rescue StandardError
+        # In case of failure getting disks or snapshots keep going (bug #4517)
+        next
+    end
+
+    vm_monitor64 = Base64.strict_encode64(vm_monitor.join("\n"))
+
+    puts "VM = [ ID = #{vm}, MONITOR = \"#{vm_monitor64}\" ]"
+end

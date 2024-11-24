@@ -75,7 +75,7 @@ module Storage
             # Bind @mountpoint into to the public accesible folder (@bindpoint)
             return true if bind(mountpoint, bindpoint, options)
         rescue StandardError => e
-            OpenNebula.log_error e
+            OpenNebula::DriverLogger.log_error e
         end
 
         umount(bindpoint)

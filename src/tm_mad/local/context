@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# context: creates an ISO that contains all the files passed as an argument.
+# ARGUMENTS: file1 file2 ... fileN host:remote_system_ds/disk.i vm_id ds_id
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vm_id is the id of the VM
+#   - ds_id is the target datastore (the system datastore)
+
+require 'open-uri'
+
+require_relative '../lib/tm_action'
+
+arg_srcs = ARGV[0..-4]
+arg_dst  = ARGV[-3]
+arg_vmid = ARGV[-2]
+_arg_dsid = ARGV[-1]
+
+ISO_DIR  = "#{DS_DIR}/.isofiles/#{arg_vmid}"
+ISO_FILE = "#{arg_vmid}.iso"
+ISO_PATH = "#{ISO_DIR}/#{ISO_FILE}"
+
+# ------------------------------------------------------------------------------
+# Functions
+# ------------------------------------------------------------------------------
+def cleanup(do_exit)
+    FileUtils.rm_rf(ISO_DIR, :secure => true)
+rescue StandardError => e
+    e.die("Could not delete context temporal folder #{ISO_DIR}") if do_exit
+end
+
+#-------------------------------------------------------------------------------
+# Set dst path and dirs
+#-------------------------------------------------------------------------------
+ctx = TransferManager::Action.new(:vm_id => arg_vmid, :action_name => 'context')
+dst = TransferManager::Action::Location.new(arg_dst)
+
+ctx.make_dst_path(dst, false)
+
+#-------------------------------------------------------------------------------
+# Build the Context Block device (locally) and copy it remotely
+#-------------------------------------------------------------------------------
+OpenNebula::DriverLogger.log_info("Generating context block device at #{dst}")
+
+cleanup(true)
+
+begin
+    FileUtils.mkdir_p(ISO_DIR)
+rescue StandardError => e
+    e.die("Could not create context temporal folder #{ISO_DIR}")
+end
+
+arg_srcs.each do |src|
+    case src
+    when %r{^https?://}
+        begin
+            uri  = URI.parse(src)
+            data = uri.read
+
+            dst_path = "#{ISO_DIR}/#{File.basename(uri.path)}"
+
+            File.open(dst_path, 'wb') {|f| f.write(data) }
+        rescue StandardError => e
+            e.die("Error downloading file #{uri} to #{dst_path}")
+        end
+    else
+        # Files get copied to ISO_DIR. Format: "path[:dest]" (dest relative to ISO_DIR)
+        from, to =
+            case src.split(':')
+            in [from]
+                [from, ISO_DIR]
+            in [from, to]
+                [from, "#{ISO_DIR}/#{to}"]
+            end
+
+        begin
+            FileUtils.cp_r(from, to)
+        rescue StandardError => e
+            e.die("Error copying #{from} to #{to}: #{e.message}")
+        end
+    end
+end
+
+# This generates context ISO first into a temporary file and renames to final
+# file, to workaround problem when datastores are on FUSE mounted volume
+# (e.g,. fuse-overlayfs), cached files metadata are not consistent and
+# tar sparse detection algorithm could identify file as empty.
+iso_script = <<~SCRIPT
+    genisoimage -o #{ISO_PATH}.tmp -V CONTEXT -J -R #{ISO_DIR}
+    mv #{ISO_PATH}.tmp #{ISO_PATH}
+SCRIPT
+
+rc = LocalCommand.run_sh(iso_script)
+
+exit(rc.code) unless rc.code == 0
+
+ssh_script = <<~SCRIPT
+    tar -C '#{ISO_DIR}' --transform='flags=r;s|#{ISO_FILE}|#{dst.base}|' -cSf - '#{ISO_FILE}' | \
+        ssh #{dst.host} 'tar -xSf - -C #{dst.dir}'
+SCRIPT
+
+rc = LocalCommand.run_sh(ssh_script)
+
+exit(rc.code) unless rc.code == 0
+
+cleanup(false)

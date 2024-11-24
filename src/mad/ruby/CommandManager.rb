@@ -14,10 +14,13 @@
 # limitations under the License.
 # --------------------------------------------------------------------------
 
-require 'pp'
 require 'open3'
 require 'timeout'
 require 'base64'
+
+require_relative 'DriverLogger'
+
+# rubocop:disable Metrics/ParameterLists
 
 # Generic command executor that holds the code shared by all the command
 # executors.
@@ -35,14 +38,13 @@ require 'base64'
 # * The script will return 0 if it succeded or any other value
 #   if there was a failure
 # * In case of failure the cause of the error will be written to STDERR.
-
 class GenericCommand
 
     attr_reader :code, :stdout, :stderr, :command
 
     # Creates a command and runs it
-    def self.run(command, logger=nil, stdin=nil, timeout=nil)
-        cmd = self.new(command, logger, stdin, timeout)
+    def self.run(command, logger = nil, stdin = nil, timeout = nil, ok_rcs = nil)
+        cmd = new(command, logger, stdin, timeout, ok_rcs)
         cmd.run
         cmd
     end
@@ -50,19 +52,40 @@ class GenericCommand
     # Creates the new command:
     # +command+: string with the command to be executed
     # +logger+: proc that takes a message parameter and logs it
-    def initialize(command, logger=nil, stdin=nil, timeout=nil)
+    def initialize(command, logger = nil, stdin = nil, timeout = nil, ok_rcs = nil)
         @command = command
         @logger  = logger
-        @stdin   = stdin
         @timeout = timeout
+
+        @stdin  = stdin
+        @stdout = ''
+        @stderr = ''
+
+        @ok_rcs  = [0]
+        @ok_rcs << ok_rcs if ok_rcs
+        @ok_rcs.flatten!
+        @ok_rcs.uniq!
     end
 
     # Sends a log message to the logger proc
-    def log(message, all=true)
-        @logger.call(message, all) if @logger
+    def log(message, all = true)
+        return unless @logger
+
+        case @logger.arity
+        when 2
+            @logger.call(message, all)
+        when 1
+            @logger.call(message)
+        end
     end
 
-    # Runs the command
+    # Checks if the execution of the command has been successful. It considers
+    # any return code defined as valid in ok_rcs.
+    def success?
+        @ok_rcs.include?(@code)
+    end
+
+    # Runs the command with the execute method and sets @stdout, @stderr and @code
     def run
         begin
             @stdout, @stderr, status = execute
@@ -73,11 +96,11 @@ class GenericCommand
                 @code = 255
             end
 
-            if @code != 0
+            if !@ok_rcs.include?(@code)
                 log("Command execution failed (exit code: #{@code}): #{command}")
                 log(@stderr)
             end
-        rescue Exception => e
+        rescue StandardError => e
             if e.is_a?(Timeout::Error)
                 error_message = "Timeout executing #{command}"
             else
@@ -93,26 +116,17 @@ class GenericCommand
         return @code
     end
 
-    # Parses error message from +stderr+ output
-    def get_error_message
-        return '-' if @stderr.empty?
-
-        @stderr.tr("\n",' ').strip
-    end
-
+    # Serialize the GenericCommand class into a XML document
     def to_xml
-        stdout = @stdout.nil? ? '' : @stdout
-        stderr = @stderr.nil? ? '' : @stderr
-
         '<EXECUTION_RESULT>' \
             "<COMMAND>#{@command}</COMMAND>" \
-            "<STDOUT>#{Base64.encode64(stdout)}</STDOUT>" \
-            "<STDERR>#{Base64.encode64(stderr)}</STDERR>" \
+            "<STDOUT>#{Base64.encode64(@stdout)}</STDOUT>" \
+            "<STDERR>#{Base64.encode64(@stderr)}</STDERR>" \
             "<CODE>#{@code}</CODE>" \
         '</EXECUTION_RESULT>'
     end
 
-private
+    private
 
     # Low level command execution. This method has to be redefined
     # for each kind of command execution. Returns an array with
@@ -125,16 +139,16 @@ private
     # modified Open3.capture with terminator thread
     # to deal with timeouts
     def capture3_timeout(*cmd)
-        if Hash === cmd.last
+        if cmd.last.is_a?(Hash)
             opts = cmd.pop.dup
         else
             opts = {}
         end
 
         stdin_data = opts.delete(:stdin_data) || ''
-        binmode = opts.delete(:binmode)
+        binmode    = opts.delete(:binmode)
 
-        Open3.popen3(*cmd, opts) {|i, o, e, t|
+        Open3.popen3(*cmd, opts) do |i, o, e, t|
             if binmode
                 i.binmode
                 o.binmode
@@ -146,28 +160,25 @@ private
 
             out_reader = Thread.new { o.read }
             err_reader = Thread.new { e.read }
-            terminator = Thread.new {
-                if @timeout and @timeout>0
+            terminator = Thread.new do
+                if @timeout && @timeout>0
                     begin
                         pid = Process.getpgid(t.pid) * -1
-                    rescue
+                    rescue StandardError => e
                         pid = t.pid
                     end
 
                     if pid
-                        begin
-                            sleep @timeout
+                        sleep @timeout
 
-                            mutex.synchronize do
-                                terminator_e = Timeout::Error
-                            end
-                        ensure
+                        mutex.synchronize do
+                            terminator_e = Timeout::Error
                         end
 
                         Process.kill('TERM', pid)
                     end
                 end
-            }
+            end
 
             begin
                 i.write stdin_data
@@ -193,20 +204,55 @@ private
 
             # return values
             [out_reader.value, err_reader.value, t.value]
-        }
+        end
     end
 
 end
 
 # Executes commands in the machine where it is called. See documentation
-# for GenericCommand
+# for GenericCommand for options on the run method
 class LocalCommand < GenericCommand
-private
+
+    # Variant of the run method that executes the command in a bash shell though
+    # stdin
+    #
+    # @param [Sting] script with the commands to be executed
+    # @param [Hash] options for the execution
+    #   @option options [Integer/Array] :ok_rcs of return codes that are considered non-error
+    #   @option options [Integer] :timeout for command execution
+    #   @option options [Boolean] :exit_fail Abort command execution is the command execution fails
+    #
+    # @return [GenericCommand] includes return code and standard streams
+    def self.run_sh(script, options = {})
+        opt = {
+            :ok_rcs   => nil,
+            :timeout  => nil,
+            :exit_fail=> true
+        }.merge!(options)
+
+        rc = LocalCommand.run('bash -s 1>/dev/null',
+                              OpenNebula::DriverLogger.method(:log_error),
+                              script,
+                              nil,
+                              opt[:ok_rcs])
+
+        if !rc.success? && opt[:exit_fail]
+            exit rc.code
+        end
+
+        OpenNebula::DriverLogger.log_info "Executed \"#{script}\"."
+
+        rc
+    end
+
+    private
 
     def execute
-        capture3_timeout("#{command}",
-                        :pgroup => true, :stdin_data => @stdin)
+        capture3_timeout(command.to_s,
+                         :pgroup => true,
+                         :stdin_data => @stdin)
     end
+
 end
 
 # Executes commands in a remote machine ussing ssh. See documentation
@@ -216,79 +262,80 @@ class SSHCommand < GenericCommand
     attr_accessor :host, :ssh_opts
 
     # Creates a command and runs it
-    def self.run(command, host, logger=nil, stdin=nil, timeout=nil, ssh_opts='')
-        cmd=self.new(command, host, logger, stdin, timeout, ssh_opts)
+    def self.run(command, host, logger = nil, stdin = nil, timeout = nil, ssh_opts = '')
+        cmd=new(command, host, logger, stdin, timeout, ssh_opts)
         cmd.run
         cmd
     end
 
     # This one takes another parameter. +host+ is the machine
     # where the command is going to be executed
-    def initialize(command, host, logger=nil, stdin=nil, timeout=nil, ssh_opts='')
+    def initialize(command, host, logger = nil, stdin = nil, timeout = nil, ssh_opts = '')
         @host=host
         @ssh_opts = ssh_opts
 
         super(command, logger, stdin, timeout)
     end
 
-private
+    private
 
     def execute
         if @stdin
             capture3_timeout("ssh #{@ssh_opts} #{@host} #{@command}",
-                            :pgroup => true, :stdin_data => @stdin)
+                             :pgroup => true, :stdin_data => @stdin)
         else
             capture3_timeout("ssh -n #{@ssh_opts} #{@host} #{@command}",
-                            :pgroup => true)
+                             :pgroup => true)
         end
     end
+
 end
 
+# TODO: Add documentation
+# Placeholder
 class RemotesCommand < SSHCommand
 
     # Creates a command and runs it
-    def self.run(command, host, remote_dir, logger=nil, stdin=nil, retries=0, timeout=nil)
+    def self.run(command, host, remote_dir, logger = nil, stdin = nil, retries = 0, timeout = nil)
         cmd_file = command.split(' ')[0]
 
         cmd_string = "'if [ -x \"#{cmd_file}\" ]; then #{command}; else\
                               exit #{MAGIC_RC}; fi'"
 
-        cmd = self.new(cmd_string, host, logger, stdin, timeout)
+        cmd = new(cmd_string, host, logger, stdin, timeout)
         cmd.run
 
-        while cmd.code != 0 and retries != 0
+        while cmd.code != 0 && retries != 0
             if cmd.code == MAGIC_RC
                 update_remotes(host, remote_dir, logger)
             end
 
             sleep 1
             cmd.run
-            retries = retries - 1
+            retries -= 1
         end
 
         cmd
     end
 
-private
-
-    ONE_LOCATION=ENV["ONE_LOCATION"]
+    ONE_LOCATION=ENV['ONE_LOCATION']
 
     if !ONE_LOCATION
-        REMOTES_LOCATION="/var/lib/one/remotes"
+        REMOTES_LOCATION = '/var/lib/one/remotes'
     else
-        REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+        REMOTES_LOCATION = ONE_LOCATION + '/var/remotes/'
     end
 
     MAGIC_RC = 42
 
-    def self.update_remotes(host, remote_dir, logger=nil)
-        if logger != nil
-            logger.call("Remote worker node files not found")
-            logger.call("Updating remotes")
+    def self.update_remotes(host, remote_dir, logger = nil)
+        if !logger.nil?
+            logger.call('Remote worker node files not found')
+            logger.call('Updating remotes')
         end
 
-        #recreate remote dir structure
-        SSHCommand.run("mkdir -p #{remote_dir}",host,logger)
+        # recreate remote dir structure
+        SSHCommand.run("mkdir -p #{remote_dir}", host, logger)
 
         # Use SCP to sync:
         sync_cmd = "scp -rp #{REMOTES_LOCATION}/* #{host}:#{remote_dir}"
@@ -297,32 +344,7 @@ private
         # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"
         LocalCommand.run(sync_cmd, logger)
     end
+
 end
 
-
-if $0 == __FILE__
-
-    command=GenericCommand.run("uname -a")
-    puts command.stderr
-
-    local_command=LocalCommand.run("uname -a")
-    puts "STDOUT:"
-    puts local_command.stdout
-    puts
-    puts "STDERR:"
-    puts local_command.stderr
-
-    ssh_command=SSHCommand.run("uname -a", "localhost")
-    puts "STDOUT:"
-    puts ssh_command.stdout
-    puts
-    puts "STDERR:"
-    puts ssh_command.stderr
-
-    fd  = File.new("/etc/passwd")
-    str = String.new
-    fd.each {|line| str << line}
-    fd.close
-
-    ssh_in = SSHCommand.run("cat > /tmp/test","localhost",nil,str)
-end
+# rubocop:enable Metrics/ParameterLists

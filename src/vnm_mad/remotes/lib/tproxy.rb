@@ -19,6 +19,7 @@ require 'erb'
 require 'json'
 require 'open3'
 require 'resolv'
+require 'DriverLogger'
 
 module VNMMAD
 
@@ -51,7 +52,7 @@ module VNMMAD
                 # services by picking different service ports. At the same time it significantly
                 # simplifies tproxy implementation on HV machines.
                 if !(a.find {|item| item[:service_port] == opts[:service_port] }).nil?
-                    OpenNebula.log_warning "Ignoring tproxy duplicate: #{opts}"
+                    OpenNebula::DriverLogger.log_warning "Ignoring tproxy duplicate: #{opts}"
                     next
                 end
 

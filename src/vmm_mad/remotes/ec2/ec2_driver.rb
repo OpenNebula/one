@@ -62,7 +62,7 @@ require 'uri'
 require 'resolv'
 
 require 'CommandManager'
-require 'scripts_common'
+require 'DriverLogger'
 require 'rexml/document'
 require 'VirtualMachineDriver'
 require 'PublicCloudDriver'
@@ -889,7 +889,7 @@ class EC2Driver
             end
             cpu = cpu.to_f.round(2).to_s
         rescue StandardError => e
-            OpenNebula.log_error(e.message)
+            OpenNebula::DriverLogger.log_error(e.message)
         end
 
         # NETTX
@@ -908,7 +908,7 @@ class EC2Driver
                 nettx += dp[:sum].to_i
             end
         rescue StandardError => e
-            OpenNebula.log_error(e.message)
+            OpenNebula::DriverLogger.log_error(e.message)
         end
 
         # NETRX
@@ -927,7 +927,7 @@ class EC2Driver
                 netrx += dp[:sum].to_i
             end
         rescue StandardError => e
-            OpenNebula.log_error(e.message)
+            OpenNebula::DriverLogger.log_error(e.message)
         end
 
         "CPU=#{cpu} NETTX=#{nettx} NETRX=#{netrx} "
@@ -965,7 +965,7 @@ class EC2Driver
         user_id = xml['TEMPLATE/CREATED_BY']
 
         if user_id.nil?
-            OpenNebula.log_error("VMID:#{vNid} CREATED_BY not present" \
+            OpenNebula::DriverLogger.log_error("VMID:#{vNid} CREATED_BY not present" \
                 ' in the VM TEMPLATE')
             return
         end
@@ -975,7 +975,7 @@ class EC2Driver
         rc   = user.info
 
         if OpenNebula.is_error?(rc)
-            OpenNebula.log_error("VMID:#{vmid} user.info" \
+            OpenNebula::DriverLogger.log_error("VMID:#{vmid} user.info" \
                 " error: #{rc.message}")
             return
         end
@@ -983,7 +983,7 @@ class EC2Driver
         token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
         if token_password.nil?
-            OpenNebula.log_error(:VMID => "#{vmid} TOKEN_PASSWORD not present"\
+            OpenNebula::DriverLogger.log_error(:VMID => "#{vmid} TOKEN_PASSWORD not present"\
                 " in the USER:#{user_id} TEMPLATE")
             return
         end

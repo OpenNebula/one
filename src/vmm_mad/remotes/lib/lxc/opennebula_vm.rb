@@ -29,7 +29,7 @@ require 'device'
 
 require_relative '../lib/xmlparser'
 require_relative '../lib/opennebula_vm'
-require_relative '../../scripts_common'
+require_relative '../../DriverLogger'
 
 # -----------------------------------------------------------------------------
 # This class reads and holds configuration attributes for the LXC driver
@@ -69,7 +69,7 @@ class LXCConfiguration < Hash
         begin
             merge!(YAML.load_file("#{__dir__}/#{LXCRC}"))
         rescue StandardError => e
-            OpenNebula.log_error e
+            OpenNebula::DriverLogger.log_error e
         end
 
         merge!(FIXED_CONFIGURATION)
@@ -485,7 +485,7 @@ class Disk
             break unless device.empty?
         end
 
-        OpenNebula.log("No block device on #{@mountpoint}") if device.empty?
+        OpenNebula::DriverLogger.log("No block device on #{@mountpoint}") if device.empty?
 
         device
     end

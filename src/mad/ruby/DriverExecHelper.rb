@@ -160,10 +160,10 @@ module DriverExecHelper
             info   = command_exe.stdout
         else
             result = RESULT[:failure]
-            info   = command_exe.get_error_message
+            info   = command_exe.stderr.to_s.tr("\n", ' ').strip
         end
 
-        info = '-' if info.nil? || info.empty?
+        info = '-' if info.empty?
 
         [result, info]
     end

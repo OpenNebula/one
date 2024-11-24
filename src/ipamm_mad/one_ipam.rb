@@ -50,7 +50,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'scripts_common'
+require 'DriverLogger'
 require 'OpenNebulaDriver'
 require 'rexml/document'
 require 'getoptlong'

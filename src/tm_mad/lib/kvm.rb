@@ -63,18 +63,25 @@ module TransferManager
             "virsh --connect #{uri}"
         end
 
+        def blockcopy(deploy_id, disk_target, dest)
+            <<~SCRIPT.chomp
+                #{virsh} blockcopy "#{deploy_id}" "#{disk_target}" "#{dest}" --wait --finish
+            SCRIPT
+        end
+
         # Genetate virsh command to "pause" the VM before excuting any FS related
         # operation. The modes are:
         #   - NONE (no operation)
         #   - AGENT (domfsfreeze - domfsthaw)
         #   - SUSPEND (suspend - resume)
+        #   - TRY (tries to freeze if fails supends the VM)
         #
         # @param [rexml/document] vm xml drescription of the VM
         # @param [String] deploy_id of the VM
         #
         # @return [String, String] freeze and thaw commands
-        def fsfreeze(vm, deploy_id)
-            mode = begin
+        def fsfreeze(vm, deploy_id, mode = nil)
+            mode ||= begin
                 vm.elements['/VM/BACKUPS/BACKUP_CONFIG/FS_FREEZE'].text.upcase
             rescue StandardError
                 'NONE'
@@ -98,6 +105,30 @@ module TransferManager
                 EOS
 
                 [freeze, "#{virsh} resume #{deploy_id} && unset SUSPENDED"]
+
+            when 'TRY'
+
+                freeze = <<~EOS
+                    if #{virsh} domfsfreeze #{deploy_id}; then
+                        export FROZEN="TRUE"
+                        trap '[ -n "${FROZEN}" ] && #{virsh} domfsthaw #{deploy_id}' EXIT
+                    elif #{virsh} suspend #{deploy_id}; then
+                        export SUSPENDED="TRUE"
+                        trap '[ -n "${SUSPENDED}" ] && #{virsh} resume #{deploy_id}' EXIT
+                    fi
+                EOS
+
+                thaw = <<~EOS
+                    if [ -n "${FROZEN}" ]; then
+                        #{virsh} domfsthaw #{deploy_id}
+                        unset FROZEN
+                    elif [ -n "${SUSPENDED}" ]; then
+                        #{virsh} resume #{deploy_id}
+                        unset SUSPENDED
+                    fi
+                EOS
+
+                [freeze, thaw]
 
             else
                 ['', '']

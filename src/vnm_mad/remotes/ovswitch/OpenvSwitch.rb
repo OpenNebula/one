@@ -467,7 +467,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def run(cmd)
-        OpenNebula.exec_and_log(cmd)
+        LocalCommand.run_sh(cmd)
     end
 
     def ports
@@ -560,18 +560,18 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             @nic[:ovs_bridge_conf]['datapath_type'] = 'netdev'
         end
 
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} --may-exist add-br #{@nic[:bridge]}")
+        LocalCommand.run_sh("#{command(:ovs_vsctl)} --may-exist add-br #{@nic[:bridge]}")
 
         set_bridge_options
 
         @bridges[@nic[:bridge]] = []
 
-        OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
+        LocalCommand.run_sh("#{command(:ip)} link set #{@nic[:bridge]} up")
     end
 
     # Delete OvS bridge
     def delete_bridge
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} del-br #{@nic[:bridge]}")
+        LocalCommand.run_sh("#{command(:ovs_vsctl)} del-br #{@nic[:bridge]}")
 
         @bridges.delete(@nic[:bridge])
     end
@@ -587,14 +587,14 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                        " options:vhost-server-path=#{dpdk_path}"
         end
 
-        OpenNebula.exec_and_log(ovs_cmd)
+        LocalCommand.run_sh(ovs_cmd)
 
         @bridges[@nic[:bridge]] << port
     end
 
     # Delete port from OvS bridge
     def del_bridge_port(port)
-        OpenNebula.exec_and_log("#{command(:ovs_vsctl)} --if-exists del-port " \
+        LocalCommand.run_sh("#{command(:ovs_vsctl)} --if-exists del-port " \
                                 "#{@nic[:bridge]} #{port}")
 
         @bridges[@nic[:bridge]].delete(port)
@@ -606,7 +606,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
             cmd = "#{command(:ovs_vsctl)} set bridge " <<
                     "#{@nic[:bridge]} #{option}=#{value}"
 
-            OpenNebula.exec_and_log(cmd)
+            LocalCommand.run_sh(cmd)
         end
     end
 
@@ -629,7 +629,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def validate_vlan_id
-        OpenNebula.log_error('VLAN ID validation not supported for OpenvSwitch, skipped.')
+        OpenNebula::DriverLogger.log_error('VLAN ID validation not supported for OpenvSwitch, skipped.')
     end
 
     def set_vlan_limit(limit)

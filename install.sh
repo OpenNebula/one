@@ -341,6 +341,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
           $VAR_LOCATION/remotes/etc/tm/fs_lvm \
           $VAR_LOCATION/remotes/etc/tm/ssh \
+          $VAR_LOCATION/remotes/etc/tm/local \
           $VAR_LOCATION/remotes/etc/datastore/fs \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
@@ -472,6 +473,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/fs_lvm_ssh \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
+          $VAR_LOCATION/remotes/tm/local \
           $VAR_LOCATION/remotes/tm/ceph \
           $VAR_LOCATION/remotes/tm/dev \
           $VAR_LOCATION/remotes/tm/vcenter \
@@ -673,6 +675,7 @@ INSTALL_FILES=(
     TM_FS_LVM_SSH_FILES:$VAR_LOCATION/remotes/tm/fs_lvm_ssh
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
+    TM_LOCAL_FILES:$VAR_LOCATION/remotes/tm/local
     TM_SSH_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/ssh
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
@@ -993,7 +996,6 @@ LIB_FILES=""
 #-------------------------------------------------------------------------------
 
 RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
-                src/mad/ruby/CommandManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
                 src/mad/ruby/PublicCloudDriver.rb \
@@ -1034,7 +1036,8 @@ REMOTE_FILES="src/vmm_mad/remotes/kvm/vgpu"
 MAD_SH_LIB_FILES="src/mad/sh/scripts_common.sh \
                   src/mad/sh/create_container_image.sh"
 
-MAD_RUBY_LIB_FILES="src/mad/ruby/scripts_common.rb"
+MAD_RUBY_LIB_FILES="src/mad/ruby/DriverLogger.rb \
+                    src/mad/ruby/CommandManager.rb"
 
 #-------------------------------------------------------------------------------
 # Driver executable files, to be installed under $LIB_LOCATION/mads
@@ -1751,6 +1754,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 
 TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
               src/tm_mad/lib/ceph.rb \
+              src/tm_mad/lib/shell.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
               src/tm_mad/lib/datastore.rb \
@@ -1869,6 +1873,31 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/postbackup_live \
               src/tm_mad/ssh/postbackup \
               src/tm_mad/ssh/restore"
+
+TM_LOCAL_FILES="src/tm_mad/local/clone \
+                src/tm_mad/local/delete \
+                src/tm_mad/local/ln \
+                src/tm_mad/local/mkswap \
+                src/tm_mad/local/mkimage \
+                src/tm_mad/local/mv \
+                src/tm_mad/local/context \
+                src/tm_mad/local/premigrate \
+                src/tm_mad/local/postmigrate \
+                src/tm_mad/local/failmigrate \
+                src/tm_mad/local/mvds \
+                src/tm_mad/local/snap_create \
+                src/tm_mad/local/snap_create_live \
+                src/tm_mad/local/snap_delete \
+                src/tm_mad/local/snap_revert \
+                src/tm_mad/local/monitor \
+                src/tm_mad/local/monitor_ds \
+                src/tm_mad/local/cpds \
+                src/tm_mad/local/resize \
+                src/tm_mad/local/prebackup_live \
+                src/tm_mad/local/prebackup \
+                src/tm_mad/local/postbackup_live \
+                src/tm_mad/local/postbackup \
+                src/tm_mad/local/restore"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 

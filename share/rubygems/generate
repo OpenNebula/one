@@ -81,7 +81,6 @@ GEM_DESCRIPTION={
             ['src/mad/ruby/ActionManager.rb', '/lib'],
             ['src/mad/ruby/HostSyncManager.rb', '/lib'],
             ['src/mad/ruby/DriverExecHelper.rb', '/lib'],
-            ['src/mad/ruby/scripts_common.rb', '/lib'],
 
             # other depenencies
             ['src/flow/lib/models.rb', '/lib'],

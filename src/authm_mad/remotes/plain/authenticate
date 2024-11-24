@@ -50,7 +50,6 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'scripts_common'
 require 'rexml/document'
 require 'opennebula/error'
 require 'opennebula/xml_utils'
@@ -67,7 +66,7 @@ rescue
     exit(-1)
 end
 
-#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+# OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 
 if pass == secret
     exit 0

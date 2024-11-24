@@ -104,13 +104,13 @@ class AWSProvider
                   :private_ip_address   => ip }
             )
         else
-            OpenNebula.log_error("Can not find any interface to assign #{ip}")
+            OpenNebula::DriverLogger.log_error("Can not find any interface to assign #{ip}")
             exit 1
         end
 
         0
     rescue StandardError => e
-        OpenNebula.log_error("Error assigning #{ip}:#{e.message}")
+        OpenNebula::DriverLogger.log_error("Error assigning #{ip}:#{e.message}")
         1
     end
 
@@ -133,7 +133,7 @@ class AWSProvider
               :private_ip_addresses => [aws_ip.private_ip_address] }
         )
     rescue StandardError
-        OpenNebula.log_error("Error unassigning #{ip}:#{e.message}")
+        OpenNebula::DriverLogger.log_error("Error unassigning #{ip}:#{e.message}")
     end
 
 end

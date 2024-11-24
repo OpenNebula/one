@@ -1,0 +1,111 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+
+require 'rexml/document'
+require 'json'
+
+#-------------------------------------------------------------------------------
+# RESTORE vm_id img_id inc_id disk_id
+#-------------------------------------------------------------------------------
+dir     = ARGV[0].split ':'
+vm_id   = ARGV[1]
+img_id  = ARGV[2]
+inc_id  = ARGV[3]
+disk_id = ARGV[4].to_i
+
+rhost = dir[0]
+rdir  = dir[1]
+
+begin
+    action = TransferManager::Action.new(:action_name => 'restore',
+                                         :vm_id => vm_id)
+    # --------------------------------------------------------------------------
+    # Image & Datastore information
+    # --------------------------------------------------------------------------
+    image = OpenNebula::Image.new_with_id(img_id.to_i, action.one)
+
+    rc = image.info
+
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+    ds = TransferManager::Datastore.from_image_ds(:image  => image,
+                                                  :client => action.one)
+
+    # --------------------------------------------------------------------------
+    # Backup information
+    # --------------------------------------------------------------------------
+    xml_data = <<~EOS
+        #{action.vm.to_xml}
+        #{image.to_xml}
+    EOS
+
+    rc = ds.action("ls -i #{inc_id}", xml_data)
+
+    raise 'cannot list backup contents' unless rc.code == 0
+
+    disks = JSON.parse(rc.stdout)
+
+    # --------------------------------------------------------------------------
+    # Restore disks in Host VM folder
+    # --------------------------------------------------------------------------
+    dpaths = {}
+    disks.each do |id, url|
+        next if disk_id != -1 && id.to_i != disk_id
+
+        download = <<~EOS
+            #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} - | \
+              ssh #{rhost} dd of=#{rdir}/disk.#{id}.backup bs=64k conv=sparse
+        EOS
+
+        rc = action.ssh(:host => nil,
+                        :cmds => download,
+                        :forward  => false,
+                        :nostdout => false,
+                        :nostderr => false)
+
+        # TODO: cleanup ssh host rm #{rdir}/disk.*.backup if rc.code == 0
+        raise 'cannot download backup disk' unless rc.code == 0
+
+        dpaths[id] = "#{rdir}/disk.#{id}.backup"
+    end
+
+    raise "disk #{disk_id} not found" if dpaths.empty?
+
+    # --------------------------------------------------------------------------
+    # Replace VM disks with backup copies (~prolog)
+    # --------------------------------------------------------------------------
+    dpaths.each do |id, path|
+        copy = <<~EOS
+            [ -d #{rdir}/disk.#{id}.snap ] && rm -rf #{rdir}/disk.#{id}.snap
+            mv #{path} #{rdir}/disk.#{id}
+        EOS
+
+        rc = action.ssh(:host => rhost,
+                        :cmds => copy,
+                        :forward  => false,
+                        :nostdout => false,
+                        :nostderr => false)
+
+        raise 'cannot copy disk backup' unless rc.code == 0
+    end
+rescue StandardError => e
+    STDERR.puts "Error restoring VM disks: #{e.message}"
+    exit(1)
+end

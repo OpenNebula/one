@@ -44,7 +44,7 @@ module VNMMAD
         #   @param xpath_filter [String] to get relevant NICs for the driver
         #   @param deploy_id [String]
         def initialize(vm_tpl, xpath_filter, deploy_id = nil)
-            @locking ||= false
+            @locking = false
 
             @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root,
                                      xpath_filter, deploy_id)
@@ -225,12 +225,12 @@ module VNMMAD
         def create_bridge(nic)
             return if @bridges.key?(nic[:bridge])
 
-            OpenNebula.exec_and_log("#{command(:ip)} link add name " \
-                "'#{nic[:bridge]}' type bridge #{list_bridge_options(nic)}", nil, 2)
+            LocalCommand.run_sh("#{command(:ip)} link add name " \
+                "'#{nic[:bridge]}' type bridge #{list_bridge_options(nic)}", :ok_rcs => 2)
 
             @bridges[nic[:bridge]] = []
 
-            OpenNebula.exec_and_log("#{command(:ip)} " \
+            LocalCommand.run_sh("#{command(:ip)} " \
                                     "link set '#{nic[:bridge]}' up")
         end
 
@@ -330,7 +330,7 @@ module VNMMAD
             return 0 if Dir["#{dir}/*"].empty?
 
             programs(dir).each do |file|
-                OpenNebula.log "Running #{file}"
+                OpenNebula::DriverLogger.log "Running #{file}"
 
                 cmd = "#{file} #{args.join(' ')}"
 
@@ -338,7 +338,7 @@ module VNMMAD
 
                 raise "Error running #{file}\n#{e}" unless s.exitstatus.zero?
 
-                OpenNebula.log o
+                OpenNebula::DriverLogger.log o
             end
 
             0

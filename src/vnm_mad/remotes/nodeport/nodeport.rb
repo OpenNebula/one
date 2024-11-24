@@ -49,7 +49,7 @@ class NodePortDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             unless check_nic(nic)
-                OpenNebula.log_error('NIC information is wrong')
+                OpenNebula::DriverLogger.log_error('NIC information is wrong')
                 break false
             end
 
@@ -89,7 +89,7 @@ class NodePortDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             unless check_nic(nic)
-                OpenNebula.log_error('NIC information is wrong')
+                OpenNebula::DriverLogger.log_error('NIC information is wrong')
                 break false
             end
 

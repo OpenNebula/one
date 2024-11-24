@@ -90,7 +90,7 @@ module OpenNebula
             else
                 element=@xml.elements[key.to_s]
 
-                return "" if element && !element.has_text?
+                return '' if element && !element.has_text?
             end
 
             element.text if element

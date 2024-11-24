@@ -132,7 +132,7 @@ class OpenNebulaVM
             return true
         end
 
-        OpenNebula.log_warning('swap limiting via cgroups not supported')
+        OpenNebula::DriverLogger.log_warning('swap limiting via cgroups not supported')
     end
 
     def location
@@ -163,7 +163,7 @@ class OpenNebulaVM
         rc, _o, e = Command.execute_once(server, true)
 
         unless [nil, 0].include?(rc)
-            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
+            OpenNebula::DriverLogger.log_error("#{__method__}: #{e}\nFailed to start vnc")
             return
         end
 

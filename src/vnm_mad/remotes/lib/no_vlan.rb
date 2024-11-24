@@ -50,7 +50,7 @@ module VNMMAD
                         @bridges[@nic[:bridge]].include?(@nic[:phydev])
 
                 # Add phydev device to the bridge.
-                OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                LocalCommand.run_sh("#{command(:ip)} link set " \
                     "#{@nic[:phydev]} master #{@nic[:bridge]}")
 
                 @bridges[@nic[:bridge]] << @nic[:phydev]
@@ -95,7 +95,7 @@ module VNMMAD
                     next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
 
                     # Delete the bridge.
-                    OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[:bridge]}")
+                    LocalCommand.run_sh("#{command(:ip)} link delete #{@nic[:bridge]}")
 
                     @bridges.delete(@nic[:bridge])
                 end
@@ -123,11 +123,11 @@ module VNMMAD
                     next if @nic[:phydev].empty? || @bridges[@nic[:bridge]].include?(@nic[:phydev])
 
                     # Del old phydev device from the bridge.
-                    OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                    LocalCommand.run_sh("#{command(:ip)} link set " \
                     "nomaster #{changes[:phydev]}")
 
                     # Add new phydev device to the bridge.
-                    OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                    LocalCommand.run_sh("#{command(:ip)} link set " \
                     "#{@nic[:phydev]} master #{@nic[:bridge]}")
 
                     return 0

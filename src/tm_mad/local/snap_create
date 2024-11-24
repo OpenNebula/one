@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# snap_create: Creates a disk snapshot of the selected disk
+# ARGUMENTS: host:remote_system_ds/disk.i snapshot_id vm_id ds_id
+#   - remote_system_ds_dir is the path for the VM directory in the system datastore in the host
+#   - host is the target host where the VM is running
+#   - snapshot_id the id of the snapshot to be created/reverted to/deleted
+#   - vm_id is the id of the VM
+#   - ds_id is the target datastore (the system datastore)
+
+require_relative '../lib/tm_action'
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1].to_i
+arg_vmid   = ARGV[2]
+_arg_dsid  = ARGV[3]
+
+snapc = TransferManager::Action.new(:vm_id => arg_vmid,
+                                    :action_name => 'snap_create')
+src   = TransferManager::Action::Location.new(arg_src)
+
+#-------------------------------------------------------------------------------
+# Generate Snapshot command and execute in src host
+#-------------------------------------------------------------------------------
+snap_cmd =
+    case snapc.disk_format(src.disk_id)
+    when :raw
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        <<~EOF
+            set -ex -o pipefail
+            mkdir -p "#{snap_dir}"
+
+            # Copy current state to a new snapshot
+            cp "#{src.path}" "#{snap_path}"
+        EOF
+    when :qcow2
+        next_snap_id = arg_snapid + 1
+
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{next_snap_id}"
+
+        snap_dir_short  = "#{src.base}.snap"
+        snap_path_short = "#{snap_dir_short}/#{next_snap_id}"
+
+        <<~EOF
+            set -ex -o pipefail
+            mkdir -p "#{snap_dir}"
+
+            PREVIOUS_SNAP="$(readlink "#{src.path}" | xargs basename)"
+
+            cd "#{snap_dir}"
+            if [ -e "#{snap_path}" ]; then
+                echo "Snapshot file #{snap_path} already exists." >&2
+                exit 1
+            fi
+
+            qemu-img create -f qcow2 -o backing_fmt=qcow2 \
+                -b "${PREVIOUS_SNAP}" "#{snap_path}"
+
+            ln -sf #{snap_path_short} #{src.path}
+        EOF
+    end
+
+rc = snapc.ssh(:host => src.host,
+               :cmds => snap_cmd,
+               :error => "Error creating snapshot #{snap_path}",
+               :nostdout => false,
+               :nostderr => false)
+
+exit(rc.code)

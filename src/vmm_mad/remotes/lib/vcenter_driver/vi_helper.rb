@@ -62,11 +62,11 @@ module VCenterDriver
             end
         end
 
-        require 'scripts_common'
+        require 'DriverLogger'
         def self.check_error(rc, message, exit_condition = false)
             return unless OpenNebula.is_error?(rc)
 
-            OpenNebula.error_message("\n    Error #{message}: #{rc.message}\n")
+            OpenNebula::DriverLogger.report("\n    Error #{message}: #{rc.message}\n")
             exit 1 if exit_condition
 
             raise rc.message

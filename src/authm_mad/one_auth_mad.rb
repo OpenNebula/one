@@ -50,7 +50,7 @@ end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 
-require 'scripts_common'
+require 'DriverLogger'
 require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'shellwords'
@@ -125,7 +125,7 @@ class AuthDriver < OpenNebulaDriver
     # @param [String] secret filed of the auth string
     def authN(request_id, user_id, driver, user, password, secret)
 
-        #OpenNebula.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
+        #OpenNebula::DriverLogger.log_debug("authN: #{request_id} #{user_id} #{driver} #{password} #{secret}")
 
         unless @authN_protocols.include?(driver)
             return send_message(
@@ -172,7 +172,7 @@ class AuthDriver < OpenNebulaDriver
 
         requests.flatten!
 
-        #OpenNebula.log_debug("authZ: #{request_id} #{user_id} #{requests}")
+        #OpenNebula::DriverLogger.log_debug("authZ: #{request_id} #{user_id} #{requests}")
 
         if @authZ_cmd == nil
             if requests[-1] == "1"

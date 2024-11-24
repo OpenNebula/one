@@ -16,7 +16,9 @@
 
 require 'ipaddr'
 
+# Methods to create and manage VXLAN interfaces
 module VXLAN
+
     ATTR_VLAN_ID  = :vlan_id
     ATTR_VLAN_DEV = :vlan_dev
 
@@ -67,20 +69,20 @@ module VXLAN
 
         # `ip link add ...` returns 2 when vxlan device already exists
         # allow it to prevent race conditions
-        OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[@attr_vlan_dev]}"\
+        LocalCommand.run_sh("#{command(:ip)} link add #{@nic[@attr_vlan_dev]}"\
             " #{mtu} type vxlan id #{@nic[@attr_vlan_id]} #{group} #{ttl}"\
-            " #{tep} #{ip_link_conf}", nil, 2)
+            " #{tep} #{ip_link_conf}", :ok_rcs => 2)
 
-        OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[@attr_vlan_dev]} up")
+        LocalCommand.run_sh("#{command(:ip)} link set #{@nic[@attr_vlan_dev]} up")
     end
 
     def delete_vlan_dev
-        OpenNebula.exec_and_log("#{command(:ip)} link delete #{@nic[@attr_vlan_dev]}")
+        LocalCommand.run_sh("#{command(:ip)} link delete #{@nic[@attr_vlan_dev]}")
     end
 
     def list_interface_vlan(name)
-        text = %x(#{command(:ip_unpriv)} -d link show #{name})
-        return nil if $?.exitstatus != 0
+        text = `#{command(:ip_unpriv)} -d link show #{name}`
+        return if $CHILD_STATUS.exitstatus != 0
 
         text.each_line do |line|
             m = line.match(/^\s*vxlan id (\d+)/)
@@ -92,18 +94,20 @@ module VXLAN
     end
 
     def get_interface_first_ip(name)
-        text = %x(#{command(:ip_unpriv)} addr show dev #{name})
-        return nil if $?.exitstatus != 0
+        text = `#{command(:ip_unpriv)} addr show dev #{name}`
+        return if $CHILD_STATUS.exitstatus != 0
 
         text.each_line do |line|
             m = line.match(/^\s*inet6? ([a-f:\d\.]+)/i)
-            if m
-                next if m[1].start_with?('127.')
-                next if m[1] == '::1'
-                return m[1]
-            end
+
+            next unless m
+            next if m[1].start_with?('127.')
+            next if m[1] == '::1'
+
+            return m[1]
         end
-        return nil
+
+        nil
     end
 
     def conf_attribute(nic, name, default)
@@ -111,4 +115,5 @@ module VXLAN
 
         nic[:conf][name] || default
     end
+
 end

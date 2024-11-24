@@ -48,7 +48,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         raise rc if OpenNebula.is_error?(rc)
 
         unless @host.has_elements?('TEMPLATE/PROVISION/ID')
-            OpenNebula.log_error("No ID in PROVISION for host #{host_id}")
+            OpenNebula::DriverLogger.log_error("No ID in PROVISION for host #{host_id}")
             exit 1
         end
 
@@ -197,7 +197,7 @@ class ElasticDriver < VNMMAD::VNMDriver
             nil
         end
     rescue StandardError => e
-        OpenNebula.log_error(
+        OpenNebula::DriverLogger.log_error(
             "Error creating provider #{provider.body['provider']}:#{e.message}"
         )
         nil

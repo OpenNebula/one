@@ -533,6 +533,14 @@ class KVMDomain
         @frozen = nil
     end
 
+    # Check if the TM driver is in shared storage
+    #   @param disk [REXML::Element] of the disk
+    #
+    #   @return [Boolean] true if local storage is used
+    def disk_local?(disk)
+        ['SSH', 'LOCAL'].include? disk.elements['TM_MAD'].text.upcase
+    end
+
     #---------------------------------------------------------------------------
     # List the checkpoints defined in the domain
     #    @return[Array]  an array of checkpint ids
@@ -727,7 +735,7 @@ class KVMDomain
             did = d.elements['DISK_ID'].text
             tgt = d.elements['TARGET'].text
             per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
-            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+            ssh = disk_local? d
 
             next unless disks.include? did
 
@@ -799,7 +807,7 @@ class KVMDomain
             did = d.elements['DISK_ID'].text
             tgt = d.elements['TARGET'].text
             per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
-            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+            ssh = disk_local? d
 
             unless disks.include? did
                 dspec << "#{tgt},snapshot=no"
@@ -945,7 +953,7 @@ class KVMDomain
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
             per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
-            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+            ssh = disk_local? d
 
             next unless disks.include? did
 
@@ -1032,7 +1040,7 @@ class KVMDomain
         @vm.elements.each 'TEMPLATE/DISK' do |d|
             did = d.elements['DISK_ID'].text
             per = d.elements['SAVE'].nil? ? false : d.elements['SAVE'].text.casecmp('YES') == 0
-            ssh = d.elements['TM_MAD'].text.casecmp('SSH') == 0
+            ssh = disk_local? d
 
             next unless disks.include? did
 

@@ -16,7 +16,7 @@
 
 require 'CommandManager'
 require 'open3'
-require 'scripts_common'
+require 'DriverLogger'
 
 class SshStream
     attr_reader :stream_out, :stream_err, :stdin

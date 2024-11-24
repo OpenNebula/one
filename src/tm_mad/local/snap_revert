@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# snap_revert: Reverts to the selected snapshot (and discards any changes to the current disk)
+# ARGUMENTS: host:remote_system_ds/disk.i snapshot_id vm_id ds_id
+#   - see `snap_create` operation
+
+require_relative '../lib/tm_action'
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1].to_i
+arg_vmid   = ARGV[2]
+_arg_dsid  = ARGV[3]
+
+snapr = TransferManager::Action.new(:vm_id => arg_vmid,
+                                    :action_name => 'snap_revert')
+src   = TransferManager::Action::Location.new(arg_src)
+
+#-------------------------------------------------------------------------------
+# Generate Snapshot command and execute in src host
+#-------------------------------------------------------------------------------
+snap_cmd =
+    case snapr.disk_format(src.disk_id)
+    when :raw
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        <<~EOF
+            set -e -o pipefail
+            rm "#{src.path}"
+            cp "#{snap_path}" "#{src.path}"
+        EOF
+    when :qcow2
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        <<~EOF
+            set -e -o pipefail
+
+            if [ -f "#{snap_path}.current" ]; then
+                CURRENT_PATH=$(cat "#{snap_path}.current")
+                CURRENT_ID="${CURRENT_PATH##*/}"
+
+                SNAP_PATH="${CURRENT_ID}"
+            else
+                SNAP_PATH="#{arg_snapid}"
+            fi
+
+            cd "#{snap_dir}"
+            qemu-img create -f qcow2 -o backing_fmt=qcow2 \
+                -b "${SNAP_PATH}" "$(readlink -f #{src.path})"
+        EOF
+    end
+
+rc = snapr.ssh(:host => src.host,
+               :cmds => snap_cmd,
+               :error => "Error reverting snapshot to #{snap_path}",
+               :nostdout => false,
+               :nostderr => false)
+
+exit(rc.code)

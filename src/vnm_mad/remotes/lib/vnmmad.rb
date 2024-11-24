@@ -14,8 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), '..')
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'rexml/document'
 require 'base64'
@@ -32,17 +32,19 @@ require 'vnm_driver'
 require 'sg_driver'
 require 'vlan'
 require 'no_vlan'
-require 'scripts_common'
 require 'tproxy'
 
-Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + "/*.rb"].each{ |f| require f }
+require 'CommandManager'
+require 'DriverLogger'
+
+Dir[File.expand_path('vnmmad-load.d', File.dirname(__FILE__)) + '/*.rb'].sort.each {|f| require f }
 
 include OpenNebula
 
 begin
     NAME = File.join(File.dirname(__FILE__), '../etc/vnm/OpenNebulaNetwork.conf')
     CONF = YAML.load_file(NAME)
-rescue
+rescue StandardError
     # Default configuration values
     CONF = {
         :arp_cache_poisoning  => true,

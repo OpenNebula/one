@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# mvds: moves an image back to its datastore (persistent images)
+# ARGUMENTS: host:remote_system_ds/disk.i fe:SOURCE vm_id ds_id
+#   - fe is the front-end hostname
+#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vm_id is the id of the VM
+#   - ds_id is the target datastore (the original datastore for the image)
+
+require_relative '../lib/tm_action'
+
+arg_src  = ARGV[0]
+arg_dst  = ARGV[1]
+arg_vmid = ARGV[2]
+_arg_dsid = ARGV[3]
+
+mvds = TransferManager::Action.new(:vm_id => arg_vmid,
+                                   :action_name => 'mvds')
+
+src = TransferManager::Action::Location.new(arg_src)
+dst = TransferManager::Action::Location.new(arg_dst)
+
+#-------------------------------------------------------------------------------
+# Move the image back to the datastore
+#-------------------------------------------------------------------------------
+
+OpenNebula::DriverLogger.log_info "Moving #{src} to datastore as #{dst.path}"
+
+src_cmd = "tar -C #{src.dir} --transform='flags=r;s|#{src.base}|#{dst.base}|'" \
+          " -cSf - #{src.base}"
+dst_cmd = "tar -xSf - -C #{dst.dir}"
+
+rc = LocalCommand.run_sh(<<~SCRIPT)
+    set -e -o pipefail
+    ssh #{src.host} \"#{src_cmd}\" | #{dst_cmd}
+SCRIPT
+
+exit(rc.code) if mvds.disk_format(src.disk_id) == :raw || rc.code != 0
+
+# In case we bring back a snapshot structure we need to rebuild the symlink, as
+# it has to point to <hash>.snap/<snapid>, instead of disk.<disk_id>.snap/<snapid>
+rc = LocalCommand.run_sh(<<~EOF)
+    rsync -r --delete #{src}.snap/ #{dst}.snap
+
+    if [ -L '#{dst.path}' ] && [ -d '#{dst.path}.snap' ]; then
+        PREVIOUS_SNAP="$(readlink "#{dst.path}" | xargs basename)"
+        ln -sf #{dst.base}.snap/\$PREVIOUS_SNAP #{dst.path}
+    elif [ -f '#{dst.path}' ] && [ ! -e '#{dst.path}.snap' ]; then
+        true
+    else
+        echo 'Invalid qcow2 directory structure' >&2
+        exit 1
+    fi
+EOF
+
+exit(rc.code)

@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+#
+# frozen_string_literal: true
+
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+# snap_delete: Deletes a disk snapshot
+# ARGUMENTS: host:remote_system_ds/disk.i snapshot_id vm_id ds_id
+#   - see `snap_create` operation
+require_relative '../lib/tm_action'
+require_relative '../lib/kvm'
+require_relative '../lib/shell'
+
+include TransferManager::KVM
+
+arg_src    = ARGV[0]
+arg_snapid = ARGV[1].to_i
+arg_vmid   = ARGV[2]
+_arg_dsid  = ARGV[3]
+
+snapd = TransferManager::Action.new(:vm_id => arg_vmid,
+                                    :action_name => 'snap_delete')
+src   = TransferManager::Action::Location.new(arg_src)
+
+#-------------------------------------------------------------------------------
+# Generate Snapshot command and execute in src host
+#-------------------------------------------------------------------------------
+disk_id  = src.disk_id
+
+snap_cmd =
+    case snapd.disk_format(src.disk_id)
+    when :raw
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        <<~EOF
+            rm #{snap_path}
+        EOF
+
+    when :qcow2
+        snap_dir  = "#{src.path}.snap"
+        snap_path = "#{snap_dir}/#{arg_snapid}"
+
+        target    = snapd.disk_target(disk_id)
+        active    = snapd.snapshot_active(arg_snapid)
+
+        deploy_id = snapd.vm.deploy_id
+        lcm_state = snapd.vm.lcm_state
+
+        <<~EOF
+            set -e -o pipefail
+
+            #{TransferManager::Shell.qcow2_snapshot_functions}
+
+            # DISK_RDLN is the path of the active file
+            DISK_RDLN="$(readlink #{src.dir}/disk.#{disk_id})"
+
+            if [ "${DISK_RDLN:0:1}" != "/" ] ; then
+                DISK_RDLN="#{src.dir}/${DISK_RDLN}"
+            fi
+
+            cmd=$(delete_snapshot "${DISK_RDLN}" "#{target}" "#{snap_dir}" \
+                    "#{arg_snapid}" "#{deploy_id}" "#{lcm_state}" "#{active}" \
+                    "#{virsh}" "qemu-img" "YES")
+
+            eval "${cmd}"
+        EOF
+    end
+
+rc = snapd.ssh(:host => src.host,
+               :cmds => snap_cmd,
+               :error => "Error deleting snapshot #{snap_path}",
+               :nostdout => false,
+               :nostderr => false)
+
+exit(rc.code)

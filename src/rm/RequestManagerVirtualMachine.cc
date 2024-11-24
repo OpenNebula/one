@@ -1576,7 +1576,7 @@ void VirtualMachineDiskSaveas::request_execute(
                          att.uname,
                          att.gname,
                          att.umask,
-                         move(itemplate),
+                         std::move(itemplate),
                          ds_id,
                          ds_name,
                          ds_disk_type,

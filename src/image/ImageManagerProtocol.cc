@@ -290,8 +290,7 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     }
     else if (image->get_state() == Image::DELETE)
     {
-        NebulaLog::info("ImM", "Ignoring mkfs callback, image is "
-                        "being deleted");
+        NebulaLog::info("ImM", "Ignoring mkfs callback, image is being deleted");
 
         return;
     }

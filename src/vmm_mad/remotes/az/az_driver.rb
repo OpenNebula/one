@@ -62,7 +62,7 @@ require 'uri'
 require 'tempfile'
 
 require 'CommandManager'
-require 'scripts_common'
+require 'DriverLogger'
 require 'VirtualMachineDriver'
 require 'PublicCloudDriver'
 require 'opennebula'
