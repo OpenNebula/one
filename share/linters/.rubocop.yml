@@ -20,7 +20,7 @@
 #
 
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 2.5.9
   Exclude:
     - /**/*.schema
     - src/sunstone/public/node_modules/**/*

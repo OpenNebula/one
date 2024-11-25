@@ -116,17 +116,36 @@ module TransferManager
                 location = location.split(':') if location.is_a? String
 
                 case location
-                in [path]
-                    @host      = nil
-                    @orig_path = path
-                    @path      = Pathname.new(path).cleanpath
-                in [host, path]
-                    @host      = host
+                when Array
+                    case location.size
+                    when 1
+                        @host       = nil
+                        path        = location[0]
+                    when 2
+                        @host, path = location
+                    else
+                        raise NotALocation, 'Invalid location format'
+                    end
+
                     @orig_path = path
                     @path      = Pathname.new(path).cleanpath
                 else
                     raise NotALocation, 'Invalid location format'
                 end
+
+                # # FIXME: convert ^ to pattern matching once we've dropped Ruby<2.7:
+                # case location
+                # in [path]
+                #     @host      = nil
+                #     @orig_path = path
+                #     @path      = Pathname.new(path).cleanpath
+                # in [host, path]
+                #     @host      = host
+                #     @orig_path = path
+                #     @path      = Pathname.new(path).cleanpath
+                # else
+                #     raise NotALocation, 'Invalid location format'
+                # end
             end
 
             def update(location)

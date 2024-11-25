@@ -83,13 +83,25 @@ arg_srcs.each do |src|
         end
     else
         # Files get copied to ISO_DIR. Format: "path[:dest]" (dest relative to ISO_DIR)
+        parts = src.split(':')
         from, to =
-            case src.split(':')
-            in [from]
+            case parts.size
+            when 1
+                from = parts[0]
                 [from, ISO_DIR]
-            in [from, to]
+            when 2
+                from, to = parts
                 [from, "#{ISO_DIR}/#{to}"]
             end
+
+        # # FIXME: convert ^ to pattern matching once we've dropped Ruby<2.7:
+        # from, to =
+        #     case src.split(':')
+        #     in [from]
+        #         [from, ISO_DIR]
+        #     in [from, to]
+        #         [from, "#{ISO_DIR}/#{to}"]
+        #     end
 
         begin
             FileUtils.cp_r(from, to)
