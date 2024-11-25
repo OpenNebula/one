@@ -703,7 +703,7 @@ module.exports = {
   StorageBackend: 'Storage backend',
   DatastoreType: 'Datastore type',
   FilesystemShared: 'Filesystem - shared mode',
-  FilesystemSSH: 'Filesystem - SSH mode',
+  FilesystemSSH: 'Filesystem - local-SSH mode',
   Ceph: 'Ceph',
   LVM: 'LVM',
   RawDeviceMapping: 'Raw device mapping',

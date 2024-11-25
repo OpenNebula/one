@@ -105,7 +105,7 @@ export const TRANSFER_OPTIONS = {
 
 export const DS_STORAGE_BACKENDS = {
   FS_SHARED: { name: T.FilesystemShared, value: 'fs-shared' },
-  FS_SSH: { name: T.FilesystemSSH, value: 'fs-ssh' },
+  FS_SSH: { name: T.FilesystemSSH, value: 'fs-local' },
   CEPH: { name: T.Ceph, value: 'ceph-ceph' },
   FS_LVM: { name: T.LVM, value: 'fs-fs_lvm' },
   RAW: { name: T.RawDeviceMapping, value: 'dev-dev' },
