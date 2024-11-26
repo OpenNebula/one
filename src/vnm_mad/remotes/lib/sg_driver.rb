@@ -102,6 +102,7 @@ module VNMMAD
             end
 
             # Process the rules for each NIC
+            sg_error = 0
             process do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
@@ -124,9 +125,8 @@ module VNMMAD
                         sg.process_rules
                         sg.run!
                     rescue StandardError => e
-                        unlock
-                        SGIPTables.nic_post(@vm, nic)
-                        raise e
+                        sg_error = e
+                        break
                     end
                 end
 
@@ -141,6 +141,10 @@ module VNMMAD
             end
 
             unlock
+
+            unless sg_error == 0
+                raise sg_error
+            end
 
             0
         end
