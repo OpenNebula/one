@@ -82,7 +82,7 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "NO",  "qcow2");
 
     set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "");
-    set_conf_tm("vmfs", "NONE", "SYSTEM", "YES", "NO",  "");
+    set_conf_tm("local", "SYSTEM", "SYSTEM", "NO", "YES", "");
 
     set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "raw");
     set_conf_tm("dev", "NONE", "NONE", "YES", "NO",  "");
