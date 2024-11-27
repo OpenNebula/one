@@ -350,7 +350,7 @@ module VNMMAD
 
                         Process.setsid
 
-                        $stdin.reopen '/dev/null'
+                        $stdin.reopen File::NULL
 
                         $stdout.reopen "#{LOG_LOCATION}/#{@cmdline}.log", 'a'
                         $stdout.sync = true
