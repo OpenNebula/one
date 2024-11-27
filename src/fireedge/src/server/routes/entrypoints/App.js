@@ -159,7 +159,7 @@ router.get('*', async (req, res) => {
 
   const PRELOAD_STATE = { ...(store.getState() || {}) }
 
-  if (appConfig?.default_zone?.id !== 'undefined' && PRELOAD_STATE?.general) {
+  if (appConfig?.default_zone?.id !== undefined && PRELOAD_STATE?.general) {
     PRELOAD_STATE.general = {
       ...PRELOAD_STATE.general,
       ...{
