@@ -86,13 +86,7 @@ module VCenterDriver
             new(connection)
         end
 
-        def get_or_create_tag(
-            api_client,
-            category_id,
-            tag_name,
-            tag_description
-        )
-
+        def get_or_create_tag(api_client, category_id, tag_name, tag_description)
             tag_api = VSphereAutomation::CIS::TaggingTagApi.new(api_client)
             tag = tag_api.list.value.find do |id|
                 c = tag_api.get(id).value
