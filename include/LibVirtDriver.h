@@ -46,15 +46,15 @@ public:
                           std::string& error) const override;
 
 private:
-    static const int CEPH_DEFAULT_PORT;
+    static constexpr int CEPH_DEFAULT_PORT = 6789;
 
-    static const int GLUSTER_DEFAULT_PORT;
+    static constexpr int GLUSTER_DEFAULT_PORT = 24007;
 
-    static const int ISCSI_DEFAULT_PORT;
+    static constexpr int ISCSI_DEFAULT_PORT = 3260;
 
-    static const int Q35_ROOT_DEFAULT_PORTS;
+    static constexpr int Q35_ROOT_DEFAULT_PORTS = 16;
 
-    static const char * XML_DOMAIN_RNG_PATH;
+    static constexpr auto XML_DOMAIN_RNG_PATH = "/schemas/libvirt/domain.rng";
 
     int deployment_description(const VirtualMachine * vm,
                                const std::string& fn) const override

@@ -16,7 +16,6 @@
 
 #include "LibVirtDriver.h"
 
-#include "Nebula.h"
 #include "HostPool.h"
 #include "ClusterPool.h"
 #include "VirtualNetwork.h"
@@ -25,6 +24,8 @@
 #include "Image.h"
 #include "DatastorePool.h"
 
+#include <regex>
+#include <exception>
 #include <sstream>
 #include <fstream>
 #include <libgen.h>
@@ -32,21 +33,11 @@
 
 using namespace std;
 
-const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
-
-const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
-
-const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
-
-const int LibVirtDriver::Q35_ROOT_DEFAULT_PORTS = 16;
-
-const char * LibVirtDriver::XML_DOMAIN_RNG_PATH = "/schemas/libvirt/domain.rng";
-
 #define set_sec_default(v, dv) if (v.empty() && !dv.empty()){v = dv;}
 
 /**
- *  This function generates the <host> element for network disks
- */
+*  This function generates the <host> element for network disks
+*/
 static void do_network_hosts(ofstream& file,
                              const string& cg_host,
                              const string& transport,
@@ -98,66 +89,73 @@ static void do_network_hosts(ofstream& file,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static int to_i(const string& sval)
+static int to_int(const string& s)
 {
-    int ival;
+    int val;
 
-    istringstream iss(sval);
+    istringstream iss(s);
 
-    iss >> ival;
+    iss >> val;
 
     if (iss.fail() || !iss.eof())
     {
         return -1;
     }
 
-    return ival;
+    return val;
 }
 
+template <class T>
+T to_unsigned(const std::string& str)
+{
+    T value;
+
+    if (std::regex_search(str, std::regex("[^0-9]")))
+    {
+        return 0;
+    }
+
+    std::istringstream iss(str);
+    iss >> value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        value = std::numeric_limits<T>::max();
+    }
+
+    return value;
+}
+
+template<typename T>
 static void insert_sec(ofstream& file, const string& base, const string& s,
                        const string& sm, const string& sml)
 {
-    int s_i = 0;
+    T s_i = 0;
 
     if (!s.empty())
     {
-        s_i = to_i(s);
+        s_i = to_unsigned<T>(s);
 
-        if (s_i < 0)
-        {
-            return;
-        }
-
-        file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(s)
+        file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(std::to_string(s_i))
              << "</" << base << "_sec>\n";
     }
 
     if (!sm.empty())
     {
-        int sm_i = to_i(sm);
+        const auto sm_i = to_unsigned<T>(sm);
 
-        if (sm_i < 0)
-        {
-            return;
-        }
-
-        if ( sm_i > s_i )
+        if ( sm_i > s_i)
         {
             file << "\t\t\t\t<" << base << "_sec_max>"
-                 << one_util::escape_xml(sm)
+                 << one_util::escape_xml(std::to_string(sm_i))
                  << "</" << base << "_sec_max>\n";
 
             if (!sml.empty())
             {
-                int sml_i = to_i(sml);
-
-                if (sml_i < 0)
-                {
-                    return;
-                }
+                const auto sml_i = to_unsigned<T>(sml);
 
                 file << "\t\t\t\t<" << base << "_sec_max_length>"
-                     << one_util::escape_xml(sml)
+                     << one_util::escape_xml(std::to_string(sml_i))
                      << "</" << base << "_sec_max_length>\n";
             }
         }
@@ -421,8 +419,10 @@ static void set_queues(string& queue, const string& vcpu)
     }
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
 
 int LibVirtDriver::validate_raw(const string& raw_section, string& error) const
 {
@@ -988,7 +988,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (nodes.empty() && memory_hotplug)
         {
-            int cpus = to_i(vcpu) - 1;
+            int cpus = to_int(vcpu) - 1;
             if (cpus < 0)
             {
                 cpus = 0;
@@ -1483,7 +1483,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( iothreads > 0 && disk_bus == "virtio" )
         {
-            int iothreadid_i = to_i(iothreadid);
+            int iothreadid_i = to_int(iothreadid);
             if (iothreadid_i > 0 && iothreadid_i <= iothreads)
             {
                 file << " iothread=" << one_util::escape_xml_attr(iothreadid_i);
@@ -1536,36 +1536,36 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( total_bytes_sec.empty() && total_bytes_sec_max.empty() )
             {
-                insert_sec(file, "read_bytes", read_bytes_sec,
-                           read_bytes_sec_max, read_bytes_sec_max_length);
+                insert_sec<unsigned long long>(file, "read_bytes", read_bytes_sec,
+                                               read_bytes_sec_max, read_bytes_sec_max_length);
 
-                insert_sec(file, "write_bytes", write_bytes_sec,
-                           write_bytes_sec_max, write_bytes_sec_max_length);
+                insert_sec<unsigned long long>(file, "write_bytes", write_bytes_sec,
+                                               write_bytes_sec_max, write_bytes_sec_max_length);
             }
             else
             {
-                insert_sec(file, "total_bytes", total_bytes_sec,
-                           total_bytes_sec_max, total_bytes_sec_max_length);
+                insert_sec<unsigned long long>(file, "total_bytes", total_bytes_sec,
+                                               total_bytes_sec_max, total_bytes_sec_max_length);
             }
 
             if ( total_iops_sec.empty() && total_iops_sec_max.empty() )
             {
-                insert_sec(file, "read_iops", read_iops_sec,
-                           read_iops_sec_max, read_iops_sec_max_length);
+                insert_sec<unsigned int>(file, "read_iops", read_iops_sec,
+                                         read_iops_sec_max, read_iops_sec_max_length);
 
-                insert_sec(file, "write_iops", write_iops_sec,
-                           write_iops_sec_max, write_iops_sec_max_length);
+                insert_sec<unsigned int>(file, "write_iops", write_iops_sec,
+                                         write_iops_sec_max, write_iops_sec_max_length);
             }
             else
             {
-                insert_sec(file, "total_iops", total_iops_sec,
-                           total_iops_sec_max, total_iops_sec_max_length);
+                insert_sec<unsigned int>(file, "total_iops", total_iops_sec,
+                                         total_iops_sec_max, total_iops_sec_max_length);
             }
 
             if ( !size_iops_sec.empty() && !(total_iops_sec.empty()
                                              && read_iops_sec.empty() && write_iops_sec.empty()))
             {
-                insert_sec(file, "size_iops", size_iops_sec, "", "");
+                insert_sec<unsigned int>(file, "size_iops", size_iops_sec, "", "");
             }
 
             file << "\t\t\t</iotune>" << endl;
