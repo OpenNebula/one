@@ -287,15 +287,8 @@ namespace ssl_util
             if (!ctx)
                 return -1;
 
-            if (EVP_PKEY_encrypt_init(ctx) < 1)
-            {
-                EVP_PKEY_CTX_free(ctx);
-                EVP_PKEY_free(pub_key);
-                ctx = nullptr;
-                return -1;
-            }
-
-            if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) < 1)
+            if (EVP_PKEY_encrypt_init(ctx) < 1 ||
+                EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) < 1)
             {
                 EVP_PKEY_CTX_free(ctx);
                 EVP_PKEY_free(pub_key);
@@ -335,8 +328,6 @@ namespace ssl_util
 
         std::lock_guard lock(m);
 
-        static std::size_t key_size = 0;
-
         if ( ctx == nullptr) //initialize RSA structure
         {
             FILE * fp = fopen(prik_path.c_str(), "r");
@@ -373,25 +364,21 @@ namespace ssl_util
                 ctx = nullptr;
                 return -1;
             }
-
-            int tmp = EVP_PKEY_get_size(priv_key);
-
-            if (tmp < 0)
-            {
-                EVP_PKEY_CTX_free(ctx);
-                EVP_PKEY_free(priv_key);
-                ctx = nullptr;
-                return -1;
-            }
-
-            key_size = static_cast<std::size_t>(tmp);
         }
 
         const auto in_size = in.size();
 
-        std::size_t index = 0;
+        std::size_t key_size = 0;
+
+        if (EVP_PKEY_decrypt(ctx, nullptr, &key_size, (unsigned char*)in.data(), in.size()) < 1)
+        {
+            return -1;
+        }
+
         std::vector<unsigned char> out_c(key_size, 0);
         std::string result;
+
+        std::size_t index = 0;
 
         while (index < in_size)
         {
