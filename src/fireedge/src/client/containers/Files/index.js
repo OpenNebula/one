@@ -31,7 +31,10 @@ import fileActions from 'client/components/Tables/Files/actions'
 import FileTabs from 'client/components/Tabs/File'
 import { Image, T } from 'client/constants'
 import { useGeneral } from 'client/features/General'
-import { useLazyGetImageQuery } from 'client/features/OneApi/image'
+import {
+  useLazyGetImageQuery,
+  useUpdateImageMutation,
+} from 'client/features/OneApi/image'
 
 /**
  * Displays a list of Files with a split pane between the list and selected row(s).
@@ -47,12 +50,15 @@ function Files() {
     <ResourcesBackButton
       selectedRows={selectedRows}
       setSelectedRows={setSelectedRows}
+      useUpdateMutation={useUpdateImageMutation}
       zone={zone}
       actions={actions}
       table={(props) => (
         <FilesTable
           onSelectedRowsChange={props.setSelectedRows}
           globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
+          onRowClick={props.resourcesBackButtonClick}
           zoneId={props.zone}
           initialState={{
             selectedRowIds: props.selectedRowsTable,
@@ -99,6 +105,8 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
         <Typography color="text.primary" noWrap flexGrow={1}>
           {`#${id} | ${name}`}
         </Typography>
+
+        {/* -- ACTIONS -- */}
         <SubmitButton
           data-cy="detail-refresh"
           icon={<RefreshDouble />}
@@ -122,6 +130,7 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
             onClick={() => unselect()}
           />
         )}
+        {/* -- END ACTIONS -- */}
       </Stack>
       <FileTabs id={id} />
     </Stack>
