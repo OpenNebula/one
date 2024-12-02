@@ -31,7 +31,10 @@ import ServiceTemplateActions from 'client/components/Tables/ServiceTemplates/ac
 import ServiceTemplateTabs from 'client/components/Tabs/ServiceTemplate'
 import { T } from 'client/constants'
 import { useGeneral } from 'client/features/General'
-import { useLazyGetServiceTemplateQuery } from 'client/features/OneApi/serviceTemplate'
+import {
+  useLazyGetServiceTemplateQuery,
+  useUpdateServiceTemplateMutation,
+} from 'client/features/OneApi/serviceTemplate'
 
 /**
  * Displays a list of Service Templates with a split pane between
@@ -48,12 +51,15 @@ function ServiceTemplates() {
     <ResourcesBackButton
       selectedRows={selectedRows}
       setSelectedRows={setSelectedRows}
+      useUpdateMutation={useUpdateServiceTemplateMutation}
       zone={zone}
       actions={actions}
       table={(props) => (
         <ServiceTemplatesTable
           onSelectedRowsChange={props.setSelectedRows}
           globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
+          onRowClick={props.resourcesBackButtonClick}
           zoneId={props.zone}
           initialState={{
             selectedRowIds: props.selectedRowsTable,

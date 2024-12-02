@@ -31,7 +31,10 @@ import ServiceActions from 'client/components/Tables/Services/actions'
 import ServiceTabs from 'client/components/Tabs/Service'
 import { T } from 'client/constants'
 import { useGeneral } from 'client/features/General'
-import { useLazyGetServiceQuery } from 'client/features/OneApi/service'
+import {
+  useLazyGetServiceQuery,
+  useServiceAddActionMutation,
+} from 'client/features/OneApi/service'
 
 /**
  * Displays a list of Service with a split pane between
@@ -48,16 +51,20 @@ function Services() {
     <ResourcesBackButton
       selectedRows={selectedRows}
       setSelectedRows={setSelectedRows}
+      useUpdateMutation={useServiceAddActionMutation}
       zone={zone}
       actions={actions}
       table={(props) => (
         <ServicesTable
           onSelectedRowsChange={props.setSelectedRows}
           globalActions={props.actions}
+          useUpdateMutation={props.useUpdateMutation}
           zoneId={props.zone}
+          onRowClick={props.resourcesBackButtonClick}
           initialState={{
             selectedRowIds: props.selectedRowsTable,
           }}
+          enabledFullScreen={props.enabledFullScreen}
         />
       )}
       simpleGroupsTags={(props) => (
