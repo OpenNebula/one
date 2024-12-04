@@ -21,7 +21,7 @@ import {
   Image,
   DiskSnapshot,
 } from 'client/constants'
-import { prettyBytes } from 'client/utils'
+import { prettyBytes, getLocked } from 'client/utils'
 
 /**
  * Returns the image type.
@@ -48,6 +48,13 @@ export const getState = ({ STATE } = {}) => IMAGE_STATES[+STATE]
  */
 export const getDiskType = ({ DISK_TYPE } = {}) =>
   isNaN(+DISK_TYPE) ? DISK_TYPE : DISK_TYPES[+DISK_TYPE]
+
+/**
+ *
+ * @param {Image} image - Image
+ * @returns {string} - If image is locked/unlocked
+ */
+export const getImageLocked = getLocked
 
 /**
  * Returns the disk name.

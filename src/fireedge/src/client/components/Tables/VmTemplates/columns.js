@@ -16,6 +16,7 @@
 import { Column } from 'react-table'
 
 import { T } from 'client/constants'
+import { getVMTemplateLocked } from 'client/models/VirtualMachineTemplate'
 
 /** @type {Column[]} VM Template columns */
 const COLUMNS = [
@@ -30,7 +31,12 @@ const COLUMNS = [
     accessor: 'TEMPLATE.LABELS',
     filter: 'includesSome',
   },
-  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  {
+    Header: T.Locked,
+    id: 'locked',
+    accessor: getVMTemplateLocked,
+    translation: { true: T.Locked, false: T.Unlocked },
+  },
   { Header: T.Logo, id: 'logo', accessor: 'TEMPLATE.LOGO' },
   { Header: T.VirtualRouter, id: 'vrouter', accessor: 'TEMPLATE.VROUTER' },
 ]

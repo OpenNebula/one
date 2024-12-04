@@ -19,6 +19,7 @@ import { T } from 'client/constants'
 import {
   getIps,
   getLastHistory,
+  getVMLocked,
   getState,
   getType,
   getVmHostname,
@@ -36,7 +37,12 @@ const COLUMNS = [
   { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
   { Header: T.Group, id: 'group', accessor: 'GNAME' },
   { Header: T.StartTime, id: 'time', accessor: 'STIME' },
-  { Header: T.Locked, id: 'locked', accessor: 'LOCK' },
+  {
+    Header: T.Locked,
+    id: 'locked',
+    accessor: getVMLocked,
+    translation: { true: T.Locked, false: T.Unlocked },
+  },
   {
     Header: T.Label,
     id: 'label',

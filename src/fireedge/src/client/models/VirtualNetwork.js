@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { isIPv6, isIPv4, isMAC } from 'client/utils'
+import { isIPv6, isIPv4, isMAC, getLocked } from 'client/utils'
 import {
   VirtualNetwork,
   AddressRange,
@@ -119,3 +119,10 @@ export const isAvailableAction = (action, vnets = []) => {
     return VN_ACTIONS_BY_STATE[action]?.includes(state)
   })
 }
+
+/**
+ *
+ * @param {VirtualNetwork} virtualNetwork - Virtual Machine
+ * @returns {string} - If virtual network is locked/unlocked
+ */
+export const getVirtualNetLocked = getLocked

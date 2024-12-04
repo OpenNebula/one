@@ -685,3 +685,10 @@ export const findKeyWithPath = (() => {
  */
 export const responseDataToArray = (data) =>
   data ? (Array.isArray(data) ? data : [data]) : undefined
+
+/**
+ *
+ * @param {object} OpennebulaObject - OpennebulaObject
+ * @returns {string} - If OpennebulaObject is locked/unlocked
+ */
+export const getLocked = (OpennebulaObject) => !!+OpennebulaObject.LOCK?.LOCKED

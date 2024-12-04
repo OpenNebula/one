@@ -129,7 +129,7 @@ const NetworkCard = memo(
             )}
             <span className={classes.labels}>
               {vnMad && <StatusChip text={vnMad} />}
-              {LOCK && <Lock />}
+              {LOCK && <Lock data-cy="lock" />}
               <MultipleTags tags={labels} />
             </span>
           </div>

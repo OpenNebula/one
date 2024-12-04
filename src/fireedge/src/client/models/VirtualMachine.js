@@ -37,6 +37,8 @@ import {
   VM_STATES,
 } from 'client/constants'
 
+import { getLocked } from 'client/utils'
+
 /**
  * This function removes, from the given list,
  * the Virtual machines in state DONE.
@@ -83,6 +85,12 @@ export const getLastHistory = (vm) => {
   return records.at(-1) ?? {}
 }
 
+/**
+ *
+ * @param {VM} vm - Virtual Machine
+ * @returns {string} - If VM is locked/unlocked
+ */
+export const getVMLocked = getLocked
 /**
  * @param {VM} vm - Virtual machine
  * @returns {string} Resource type: VR, FLOW or VM
