@@ -23,7 +23,12 @@ const COLUMNS = [
   { Header: 'Name', id: 'name', accessor: 'NAME' },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
-  { Header: 'Locked', id: 'locked', accessor: 'LOCK' },
+  {
+    Header: 'Locked',
+    id: 'locked',
+    accessor: ImageModel.getImageLocked,
+    translation: { true: T.Locked, false: T.Unlocked },
+  },
   {
     Header: 'State',
     id: 'STATE',

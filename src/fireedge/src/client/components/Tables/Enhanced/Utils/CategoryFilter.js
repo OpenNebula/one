@@ -55,6 +55,10 @@ const StyledAutocompletePopper = styled(Popper)(
   })
 )
 
+const CustomPopper = (props) => (
+  <StyledAutocompletePopper {...props} data-cy="autocomplete-popper" />
+)
+
 /**
  * Render category filter to table.
  *
@@ -63,23 +67,43 @@ const StyledAutocompletePopper = styled(Popper)(
  * @returns {ReactElement} Component JSX
  */
 const CategoryFilter = ({
-  column: { Header, filterValue = [], setFilter, preFilteredRows, id },
+  column: {
+    Header,
+    filterValue = [],
+    setFilter,
+    preFilteredRows,
+    id,
+    translation,
+  },
 }) => {
   // Calculate the options for filtering using the preFilteredRows
   const options = useMemo(() => {
-    const uniqueOptions = new Set()
+    const uniqueOptions = []
 
     preFilteredRows?.forEach((row) => {
       const rowValue = row.values[id]
 
       // If the row value is an array, we get all the values of the array
-      rowValue !== undefined &&
-        (Array.isArray(rowValue)
-          ? rowValue.forEach((value) => uniqueOptions.add(value))
-          : uniqueOptions.add(rowValue))
+      if (rowValue !== undefined) {
+        if (Array.isArray(rowValue)) {
+          rowValue.forEach((value) => {
+            const newId = translation ? translation[value] : value
+
+            if (!uniqueOptions.some((option) => option.id === newId)) {
+              uniqueOptions.push({ id: newId, label: `${value}` })
+            }
+          })
+        } else {
+          const newId = translation ? translation[rowValue] : rowValue
+
+          if (!uniqueOptions.some((option) => option.id === newId)) {
+            uniqueOptions.push({ id: newId, label: `${rowValue}` })
+          }
+        }
+      }
     })
 
-    return [...uniqueOptions.values()]
+    return uniqueOptions // []
   }, [id, preFilteredRows])
 
   if (options.length === 0) {
@@ -93,11 +117,13 @@ const CategoryFilter = ({
       disableCloseOnSelect
       limitTags={2}
       color="secondary"
-      value={filterValue}
       sx={{ minWidth: 300, position: 'relative' }}
       options={options}
-      onChange={(_, newValue) => setFilter(newValue)}
-      PopperComponent={StyledAutocompletePopper}
+      getOptionLabel={(option) => option.id}
+      onChange={(_, newValue) => {
+        setFilter(newValue[newValue?.length - 1]?.label || '')
+      }}
+      PopperComponent={CustomPopper}
       renderInput={({ inputProps, ...inputParams }) => (
         <TextField
           label={Tr(Header)}
@@ -115,7 +141,7 @@ const CategoryFilter = ({
               key={key}
               variant="outlined"
               size="small"
-              label={option}
+              label={option.id}
               onClick={tagProps.onDelete}
               {...tagProps}
             />

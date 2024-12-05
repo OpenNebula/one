@@ -676,3 +676,19 @@ export const findKeyWithPath = (() => {
 
   return search
 })()
+
+/**
+ * Check if data is an array and if it's only one element, return an array with one element.
+ *
+ * @param {object} data - Object or list
+ * @returns {Array} An array with one element or the same array
+ */
+export const responseDataToArray = (data) =>
+  data ? (Array.isArray(data) ? data : [data]) : undefined
+
+/**
+ *
+ * @param {object} OpennebulaObject - OpennebulaObject
+ * @returns {string} - If OpennebulaObject is locked/unlocked
+ */
+export const getLocked = (OpennebulaObject) => !!+OpennebulaObject.LOCK?.LOCKED

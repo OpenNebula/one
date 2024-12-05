@@ -891,6 +891,7 @@ module.exports = {
   Prolog: 'Prolog',
   EndTime: 'End time',
   Locked: 'Locked',
+  Unlocked: 'Unlocked',
   Attributes: 'Attributes',
   Type: 'Type',
   Data: 'Data',

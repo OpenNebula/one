@@ -142,7 +142,7 @@ const VmTemplateCard = memo(
             </Typography>
             <span className={classes.labels}>
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
-              {LOCK && <Lock />}
+              {LOCK && <Lock data-cy="lock" />}
               {isVR && <StatusChip text={'VROUTER'} />}
             </span>
           </div>

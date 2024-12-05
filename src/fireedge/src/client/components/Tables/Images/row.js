@@ -123,7 +123,7 @@ const Row = ({
           <Typography noWrap component="span" data-cy="name">
             {NAME}
           </Typography>
-          {locked && <Lock />}
+          {locked && <Lock data-cy="lock" />}
           <span className={classes.labels}>
             {labels.map((label) => (
               <StatusChip key={label} text={label} />
