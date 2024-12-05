@@ -38,7 +38,7 @@ const Row = memo(
       data: secgroups,
       error,
       isLoading,
-    } = secGroupApi.endpoints.getSecGroups.useQuery(undefined)
+    } = secGroupApi.endpoints.getSecGroups.useQueryState(undefined)
 
     const secGroup = useMemo(
       () => secgroups?.find((sg) => +sg.ID === +original.ID) ?? original,
