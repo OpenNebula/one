@@ -315,6 +315,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/scaleway \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual \
           $LIB_LOCATION/oneprovision/lib/provision \
@@ -506,6 +507,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
           $VAR_LOCATION/remotes/ipam/equinix \
+          $VAR_LOCATION/remotes/ipam/scaleway \
           $VAR_LOCATION/remotes/ipam/vultr \
           $VAR_LOCATION/remotes/ipam/aws"
 
@@ -701,6 +703,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/ipam/equinix
+    IPAM_DRIVER_SCALEWAY_SCRIPTS:$VAR_LOCATION/remotes/ipam/scaleway
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
     IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
@@ -797,6 +800,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_GOOGLE_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google
     ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean
     ONEPROVISION_LIB_EQUINIX_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix
+    ONEPROVISION_LIB_SCALEWAY_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/scaleway
     ONEPROVISION_LIB_VULTR_METAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal
     ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
@@ -1014,6 +1018,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/remotes/elastic/aws_vnm.rb \
                 src/vnm_mad/remotes/elastic/equinix_vnm.rb \
                 src/vnm_mad/remotes/elastic/equinix.rb \
+                src/vnm_mad/remotes/elastic/scaleway_vnm.rb \
+                src/vnm_mad/remotes/elastic/scaleway.rb \
                 src/vnm_mad/remotes/elastic/vultr_vnm.rb"
 
 #-------------------------------------------------------------------------------
@@ -2513,6 +2519,7 @@ ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.r
                                   src/oneprovision/lib/terraform/providers/onprem.rb \
                                   src/oneprovision/lib/terraform/providers/example \
                                   src/oneprovision/lib/terraform/providers/equinix.rb \
+                                  src/oneprovision/lib/terraform/providers/scaleway.rb \
                                   src/oneprovision/lib/terraform/providers/vultr.rb \
                                   src/oneprovision/lib/terraform/providers/vultr_metal.rb \
                                   src/oneprovision/lib/terraform/providers/vultr_virtual.rb"
@@ -2540,6 +2547,12 @@ ONEPROVISION_LIB_EQUINIX_ERB_FILES="src/oneprovision/lib/terraform/providers/tem
                                    src/oneprovision/lib/terraform/providers/templates/equinix/host.erb \
                                    src/oneprovision/lib/terraform/providers/templates/equinix/network.erb \
                                    src/oneprovision/lib/terraform/providers/templates/equinix/provider.erb"
+
+ONEPROVISION_LIB_SCALEWAY_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/scaleway/cluster.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/scaleway/datastore.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/scaleway/host.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/scaleway/network.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/scaleway/provider.erb"
 
 ONEPROVISION_LIB_VULTR_METAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_metal/cluster.erb \
                                         src/oneprovision/lib/terraform/providers/templates/vultr_metal/datastore.erb \
@@ -2793,6 +2806,7 @@ FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
                                 src/fireedge/etc/provision/providers.d/onprem.yaml \
+                                src/fireedge/etc/provision/providers.d/scaleway.yaml \
                                 src/fireedge/etc/provision/providers.d/equinix.yaml"
 
 FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-extra/digitalocean.yaml \
