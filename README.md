@@ -63,3 +63,11 @@ Copyright 2002-2024, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+## Acknowledgements
+
+Some of the software features included in this repository have been made possible through the funding of the following innovation projects:
+
+- [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/) (Grant Agreement 101092711), through the European Union’s Horizon Europe Research and Innovation Programme.
+- [ONEedge5G](https://opennebula.io/innovation/oneedge5g/) (Grant Agreement TSI-064200-2023-1), supported by the Spanish Ministry for Digital Transformation and Civil Service through the UNICO I+D 6G Program, co-funded by the European Union – NextGenerationEU through the Recovery and Resilience Facility (RRF).
+- [ONEnextgen](http://onenextgen.eu/) (Grant Agreement UNICO IPCEI-2023-003), supported by the Spanish Ministry for Digital Transformation and Civil Service through the UNICO IPCEI Program, co-funded by the European Union – NextGenerationEU through the Recovery and Resilience Facility (RRF).
