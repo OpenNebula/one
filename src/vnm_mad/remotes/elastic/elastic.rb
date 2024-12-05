@@ -193,6 +193,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         when 'vultr_virtual', 'vultr_metal'
             require 'vultr_vnm'
             VultrProvider.new(provider, host)
+        when 'scaleway'
+            require 'scaleway_vnm'
+            ScalewayProvider.new(provider, host)
         else
             nil
         end

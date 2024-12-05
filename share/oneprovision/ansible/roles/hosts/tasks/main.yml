@@ -1,0 +1,5 @@
+- name: Add IP address of all hosts to all hosts
+  ansible.builtin.lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].ansible_hostname }}"
+  with_items: "{{ groups.all }}"

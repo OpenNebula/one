@@ -13,6 +13,12 @@
         - { protocol: 'tcp', port: 179 }
         # TCP/8742 default VXLAN port on Linux (UDP/4789 default IANA)
         - { protocol: 'udp', port: 8472 }
+        # Port 16509 is needed for connecting to the destination host by using TLS.
+        - { protocol: 'tcp', port: 16509 }
+        # Port 16514 is needed for connecting to the destination host by using TCP.
+        - { protocol: 'tcp', port: 16514 }
+        # Ports 49152-49215 are needed by QEMU for transferring the memory and disk migration data.
+        - { protocol: 'tcp', port: '49152:49215' }
     - role: frr
       #bond0_0 is attached to the project private network
       frr_iface: 'bond0_0'

@@ -1,0 +1,31 @@
+resource "scaleway_vpc" "device_<%= obj['ID'] %>" {
+    name           = "<%= obj['NAME'] %>_vpc"
+    enable_routing = true
+    region         = "<%= provision['REGION'] %>"
+}
+
+resource "scaleway_vpc_private_network" "device_<%= obj['ID'] %>" {
+    vpc_id = scaleway_vpc.device_<%= obj['ID'] %>.id
+    name = "<%= obj['NAME'] %>_subnet"
+    ipv4_subnet {
+        subnet = "<%= provision['CIDR'] ? provision['CIDR'] : '172.18.0.0/24'%>"
+    }
+    zone             = "<%= provision['ZONE'] %>"
+}
+
+resource "scaleway_vpc_public_gateway" "device_<%= obj['ID'] %>" {
+    name             = "<%= obj['NAME'] %>_gateway"
+    type             = "VPC-GW-S"
+    bastion_enabled  = true
+    bastion_port     = 61000
+    zone             = "<%= provision['ZONE'] %>"
+}
+
+resource scaleway_vpc_gateway_network "device_<%= obj['ID'] %>" {
+    gateway_id = scaleway_vpc_public_gateway.device_<%= obj['ID'] %>.id
+    private_network_id = scaleway_vpc_private_network.device_<%= obj['ID'] %>.id
+    ipam_config {
+        push_default_route = true
+    }
+    zone             = "<%= provision['ZONE'] %>"
+}

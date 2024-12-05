@@ -1,0 +1,38 @@
+<% obj['user_data'].each_with_index do |key, index| %>
+  resource "scaleway_iam_ssh_key" "ssh_key_<%= obj['ID'] %>_<%= index %>" {
+    name       = "ssh_key_<%= index %>"
+    public_key = "<%= key %>"
+  }
+<% end %>
+
+data "scaleway_baremetal_os" "device_<%= obj['ID'] %>" {
+    name    = "Ubuntu"
+    version = "22.04 LTS (Jammy Jellyfish)"
+    zone    = "<%= provision['ZONE'] %>"
+}
+
+data "scaleway_baremetal_offer" "device_<%= obj['ID'] %>" {
+    name = "<%= provision['OFFER'] %>"
+    zone    = "<%= provision['ZONE'] %>"
+}
+
+resource "scaleway_baremetal_server" "device_<%= obj['ID'] %>" {
+    name = "<%= provision['HOSTNAME'] %>"
+    offer = data.scaleway_baremetal_offer.device_<%= obj['ID'] %>.offer_id
+    os    = data.scaleway_baremetal_os.device_<%= obj['ID'] %>.os_id
+    zone    = "<%= provision['ZONE'] %>"
+
+    ssh_key_ids = [
+<% obj['user_data'].each_with_index do |_, index| %>
+        scaleway_iam_ssh_key.ssh_key_<%= obj['ID'] %>_<%= index %>.id<%= "," unless index == obj['user_data'].size - 1 %>
+<% end %>
+    ]
+}
+
+output "device_<%= obj['ID'] %>_id" {
+  value = scaleway_baremetal_server.device_<%= obj['ID'] %>.id
+}
+
+output "device_<%= obj['ID'] %>_ip" {
+  value = scaleway_baremetal_server.device_<%= obj['ID'] %>.ipv4[0].address
+}
