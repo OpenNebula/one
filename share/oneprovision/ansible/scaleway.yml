@@ -3,10 +3,11 @@
   roles:
     - ddc
     - opennebula-repository
-    - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm'  or oneprovision_hypervisor == 'qemu' }
-    - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
+    - opennebula-node-kvm
     - opennebula-ssh
+    - hosts
     - role: iptables
+      iptables_base_rules_strict: false
       iptables_base_rules_interface: "{{ ansible_default_ipv4.interface }}"
       iptables_base_rules_services:
         - { protocol: 'tcp', port: 22 }
