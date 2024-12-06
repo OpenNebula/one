@@ -150,6 +150,36 @@ EOT
         true
     end
 
+    def read_config
+        begin
+            require 'augeas'
+        rescue Gem::LoadError
+            STDERR.puts(
+                'Augeas gem is not installed, run `gem install ' \
+                'opennebula-augeas` to install it'
+            )
+            exit(-1)
+        end
+
+        work_file_dir  = File.dirname(ONED_CONF)
+        work_file_name = File.basename(ONED_CONF)
+
+        aug = Augeas.create(:no_modl_autoload => true,
+                            :no_load          => true,
+                            :root             => work_file_dir,
+                            :loadpath         => ONED_CONF)
+
+        aug.clear_transforms
+        aug.transform(:lens => 'Oned.lns', :incl => work_file_name)
+        aug.context = "/files/#{work_file_name}"
+        aug.load
+
+        @zone_id = aug.get('FEDERATION/ZONE_ID').to_i
+    rescue StandardError => e
+        STDERR.puts "Unable to parse oned.conf: #{e}"
+        exit(-1)
+    end
+
     ########################################################################
     # Acl
     ########################################################################
