@@ -77,14 +77,15 @@ class AWSProvider
     #   @return 0 on success, 1 on error
     def assign(ip, _external, opts = {})
         instcs = @ec2.describe_instances({ :instance_ids => [@deploy_id] })
-        inst   = instcs[0][0].instances[0]
+        inst   = instcs.reservations[0].instances[0]
 
         # find NIC to which the IP belongs (avoid Ceph network)
         nic_id = nil
         inst.network_interfaces.each do |ec2_nic|
             ec2_subnet = @ec2.describe_subnets(
                 { :subnet_ids => [ec2_nic.subnet_id] }
-            )[0][0]
+            ).subnets[0]
+
             ip_range = IPAddr.new(ec2_subnet.cidr_block)
 
             if ip_range.include?(ip)
