@@ -38,7 +38,6 @@ module OpenNebula::ServiceTemplateExt
             # @param market_id [Integer] Marketplace ID to import app
             # @param name      [String]  Service Template App name
             def mp_import(templates, market_id, name)
-                template = ''
                 name   ||= "#{@body['name']}-#{SecureRandom.hex[0..9]}"
 
                 template = <<-EOT

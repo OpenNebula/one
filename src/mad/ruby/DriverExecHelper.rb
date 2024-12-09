@@ -68,9 +68,7 @@ module DriverExecHelper
     # @param [String, nil] default_name alternative name for the script
     # @param [String, ''] directory to append to the scripts path for actions
     # @return [String] command line needed to execute the action
-    def action_command_line(action, parameters,
-                            default_name = nil, directory = '')
-
+    def action_command_line(action, parameters, default_name = nil, directory = '')
         if action.is_a?(String) && action[0] == '/'
             return action + ' ' + parameters if parameters
 
@@ -111,9 +109,7 @@ module DriverExecHelper
     #
     # Sends a message to the OpenNebula core through stdout
     # rubocop:disable Metrics/ParameterLists
-    def send_message(action = '-', result = RESULT[:failure],
-                     id = '-', info = '-')
-
+    def send_message(action = '-', result = RESULT[:failure], id = '-', info = '-')
         @send_mutex.synchronize do
             STDOUT.puts "#{action} #{result} #{id} #{info}"
             STDOUT.flush

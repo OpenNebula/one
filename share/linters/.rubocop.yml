@@ -507,6 +507,10 @@ AllCops:
     - src/oca/ruby/opennebula/flow/grammar.rb
     - src/oca/ruby/opennebula/flow/validator.rb
     - src/sunstone/OpenNebulaVMRC.rb
+    - src/oneprovision/lib/provision/provision_config.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
   NewCops: enable
 
 ########

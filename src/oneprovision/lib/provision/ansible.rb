@@ -125,7 +125,6 @@ module OneProvision
             # @param only_hosts [Array] Hostames - limit configure to them
             def configure(hosts, datastores = nil, provision = nil,
                           only_hosts = [])
-
                 return if hosts.nil? || hosts.empty?
 
                 Driver.retry_loop('Failed to configure hosts', provision) do

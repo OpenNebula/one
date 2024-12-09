@@ -1117,12 +1117,7 @@ module VCenterDriver
             one_vn
         end
 
-        def import_vcenter_nics(
-            opts,
-            vm_id = nil,
-            dc_name = nil
-        )
-
+        def import_vcenter_nics(opts, vm_id = nil, dc_name = nil)
             vi_client = opts[:vi_client]
             vc_uuid = opts[:vc_uuid]
             npool = opts[:npool]
