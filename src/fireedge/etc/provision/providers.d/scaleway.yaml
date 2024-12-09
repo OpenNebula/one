@@ -1,4 +1,4 @@
-name: 'SCALEWAY'
+name: 'Scaleway'
 image: 'SCALEWAY'
 provision_type:
   - 'metal'
