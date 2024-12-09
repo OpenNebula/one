@@ -26,6 +26,7 @@ actions:
 filters:
   label: true
   state: true
+  locked: true
 
 
 # Info Tabs - Which info tabs are used to show extended information
