@@ -1727,6 +1727,15 @@ IPAM_DRIVER_EQUINIX_SCRIPTS="src/ipamm_mad/remotes/equinix/register_address_rang
                             src/ipamm_mad/remotes/equinix/free_address"
 
 #-------------------------------------------------------------------------------
+# IPAM Scaleway drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_SCALEWAY_SCRIPTS="src/ipamm_mad/remotes/scaleway/register_address_range \
+                            src/ipamm_mad/remotes/scaleway/unregister_address_range \
+                            src/ipamm_mad/remotes/scaleway/allocate_address \
+                            src/ipamm_mad/remotes/scaleway/get_address \
+                            src/ipamm_mad/remotes/scaleway/free_address"
+
+#-------------------------------------------------------------------------------
 # IPAM Vultr drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_VULTR_SCRIPTS="src/ipamm_mad/remotes/vultr/register_address_range \

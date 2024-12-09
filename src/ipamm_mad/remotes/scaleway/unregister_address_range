@@ -94,8 +94,8 @@ begin
     provider = provision.provider
     connect  = provider.body['connection']
 
-    sw_token = connect['token']
-    sw_zone = provider.body['zone']
+    sw_secret_key = connect['secret_key']
+    sw_zone       = connect['zone']
 
     # --------------------------------------------------------------------------
     # Connect to Scaleway and delete the Flexible IP
@@ -108,7 +108,7 @@ begin
         exit(-1)
     end
 
-    sw = Scaleway.new(sw_token)
+    sw = Scaleway.new(sw_secret_key)
     resp = sw.api_call("/flexible-ip/v1alpha1/zones/#{sw_zone}/fips/#{scaleway_id}",
                        Net::HTTP::Delete)
 
