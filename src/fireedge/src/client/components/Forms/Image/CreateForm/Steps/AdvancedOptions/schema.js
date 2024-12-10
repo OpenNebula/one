@@ -28,10 +28,10 @@ import {
 import { useGetSunstoneConfigQuery } from 'client/features/OneApi/system'
 
 export const BUS_TYPES = {
-  VD: T.Vd,
-  SD: T.Sd,
-  HD: T.Hd,
-  CUSTOM: T.Custom,
+  vd: T.Vd,
+  sd: T.Sd,
+  hd: T.Hd,
+  custom: T.Custom,
 }
 
 const FORMAT_TYPES = {
@@ -59,7 +59,7 @@ export const DEV_PREFIX = {
     .afterSubmit((value, { context }) => {
       const notEmptyString = value === '' ? undefined : value
 
-      return BUS_TYPES.CUSTOM === value
+      return value === 'custom'
         ? context?.advanced?.CUSTOM_DEV_PREFIX
         : notEmptyString
     }),
@@ -70,13 +70,13 @@ export const DEV_PREFIX = {
 export const CUSTOM_DEV_PREFIX = {
   name: 'CUSTOM_DEV_PREFIX',
   dependOf: DEV_PREFIX.name,
-  htmlType: htmlType(BUS_TYPES.CUSTOM),
+  htmlType: htmlType('custom'),
   label: T.CustomBus,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
     .when(DEV_PREFIX.name, {
-      is: (location) => location === BUS_TYPES.CUSTOM,
+      is: (location) => location === 'custom',
       then: (schema) => schema.required(),
       otherwise: (schema) => schema.strip(),
     })
