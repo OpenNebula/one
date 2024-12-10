@@ -14,11 +14,11 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import PropTypes from 'prop-types'
-import { VNetworksTable } from 'client/components/Tables'
 import { SCHEMA } from 'client/components/Forms/Vm/AttachNicForm/Steps/NetworksTable/schema'
+import { VNetworksTable } from 'client/components/Tables'
 import { T } from 'client/constants'
 import { useGeneralApi } from 'client/features/General'
+import PropTypes from 'prop-types'
 
 export const STEP_ID = 'network'
 
@@ -32,6 +32,7 @@ const Content = ({ data, setFormData }) => {
       setModifiedFields({
         network: {
           NETWORK: true,
+          NETWORK_ID: true,
           NETWORK_UID: true,
           NETWORK_UNAME: true,
           SECURITY_GROUPS: true,
@@ -42,6 +43,7 @@ const Content = ({ data, setFormData }) => {
         ...prevList,
         [STEP_ID]: {
           NETWORK: original?.NAME,
+          NETWORK_ID: original?.ID,
           NETWORK_UID: original?.UID,
           NETWORK_UNAME: original?.UNAME,
           SECURITY_GROUPS: original?.SECURITY_GROUPS,
