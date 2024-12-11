@@ -63,7 +63,8 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     if (name.empty())
     {
-        goto error_name;
+        error_str = "No NAME in template for Security Group.";
+        return -1;
     }
 
     get_template_attribute("RULE", rules);
@@ -72,7 +73,7 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
     {
         if (!is_valid(rule, error_str))
         {
-            goto error_valid;
+            return -1;
         }
     }
 
@@ -80,19 +81,10 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     if ( insert_replace(db, false, error_str) != 0 )
     {
-        goto error_db;
+        return -1;
     }
 
     return 0;
-
-error_name:
-    error_str = "No NAME in template for Security Group.";
-    goto error_common;
-
-error_valid:
-error_db:
-error_common:
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -302,18 +294,12 @@ void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 
 bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
 {
-    string value, ip, proto;
-
-    unsigned int ivalue;
-
-    int id;
-
     // -------------------------------------------------------------------------
     // Check PROTOCOL and extensions
     //    - RANGE for TCP and UDP
     //    - ICMP_TYPE for ICMP
     // -------------------------------------------------------------------------
-    proto = rule->vector_value("PROTOCOL");
+    auto proto = rule->vector_value("PROTOCOL");
 
     one_util::toupper(proto);
 
@@ -325,7 +311,7 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
         return false;
     }
 
-    value = rule->vector_value("RANGE");
+    auto value = rule->vector_value("RANGE");
 
     if (!value.empty() && proto != "TCP" && proto != "UDP")
     {
@@ -335,24 +321,64 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
 
     if (!value.empty())
     {
-        const char *range_pattern = "^(([[:digit:]]+|[[:digit:]]+:[[:digit:]]+),)*([[:digit:]]+|[[:digit:]]+:[[:digit:]]+)$";
-        if (one_util::regex_match(range_pattern, value.c_str()) != 0)
+        constexpr auto ports_list_pattern =
+                "^(([[:digit:]]+|[[:digit:]]+:[[:digit:]]+),)*([[:digit:]]+|[[:digit:]]+:[[:digit:]]+)$";
+
+        if (one_util::regex_match(ports_list_pattern, value.c_str()) != 0)
         {
             error = "Invalid RANGE specification.";
             return false;
         }
 
-        // Check all port numbers are between 0-65535
-        const char *big_port_pattern = "([1-9][[:digit:]]{5,}|"
-                                       "[7-9][[:digit:]]{4,}|"
-                                       "6[6-9][[:digit:]]{3,}|"
-                                       "65[6-9][[:digit:]]{2,}|"
-                                       "655[4-9][[:digit:]]|"
-                                       "6553[6-9])";
-        if (one_util::regex_match(big_port_pattern, value.c_str()) == 0)
+        std::size_t port_counter = 0;
+
+        const auto port_rules = one_util::split(value, ',');
+
+        for (const auto& port_rule : port_rules)
         {
-            error = "RANGE out of bounds 0-65536.";
-            return false;
+            constexpr auto range_pattern = "([[:digit:]]+:[[:digit:]]+)";
+
+            if (one_util::regex_match(range_pattern, port_rule.c_str()) == 0)
+            {
+                const auto port_values = one_util::split(port_rule, ':');
+                if (port_values.size() != 2)
+                {
+                    error = "Invalid RANGE specification.";
+                    return false;
+                }
+
+                const auto end_value = one_util::string_to_unsigned<std::uint32_t>(port_values[1]);
+
+                if (end_value > 65535)
+                {
+                    error = "RANGE out of bounds 0-65536.";
+                    return false;
+                }
+
+                if (end_value < one_util::string_to_unsigned<std::uint32_t>(port_values[0]))
+                {
+                    error = "RANGE BEGIN value is greater than RANGE END value";
+                    return false;
+                }
+
+                port_counter += 2;
+            }
+            else
+            {
+                if (one_util::string_to_unsigned<std::uint32_t>(port_rule) > 65535)
+                {
+                    error = "RANGE out of bounds 0-65536.";
+                    return false;
+                }
+
+                ++port_counter;
+            }
+
+            if (port_counter > 15)
+            {
+                error = "Not more than 15 ports can be specified in a RULE";
+                return false;
+            }
         }
     }
 
@@ -366,6 +392,7 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
             return false;
         }
 
+        unsigned int ivalue = 0;
         if (rule->vector_value("ICMP_TYPE", ivalue) != 0)
         {
             error = "Wrong ICMP_TYPE, it must be integer";
@@ -383,6 +410,7 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
             return false;
         }
 
+        unsigned int ivalue = 0;
         if (rule->vector_value("ICMPV6_TYPE", ivalue) != 0)
         {
             error = "Wrong ICMPV6_TYPE, it must be integer";
@@ -408,12 +436,13 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
     // Check IP, SIZE and NETWORK_ID
     // -------------------------------------------------------------------------
 
-    ip = rule->vector_value("IP");
+    const auto ip = rule->vector_value("IP");
 
     if (!ip.empty()) //Target as IP & SIZE
     {
         struct in6_addr ip_addr;
 
+        unsigned int ivalue = 0;
         if (rule->vector_value("SIZE", ivalue) != 0)
         {
             error = "Wrong or empty SIZE.";
@@ -431,6 +460,7 @@ bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
     }
     else //Target is ANY or NETWORK_ID
     {
+        int id = 0;
         if (rule->vector_value("NETWORK_ID", value) == 0 &&
             rule->vector_value("NETWORK_ID", id) != 0)
         {

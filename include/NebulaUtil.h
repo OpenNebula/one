@@ -23,6 +23,7 @@
 #include <set>
 #include <algorithm>
 #include <random>
+#include <regex>
 #include <mutex>
 
 #include <openssl/crypto.h>
@@ -141,12 +142,8 @@ namespace one_util
      *
      * @param st string to split
      * @param delim delimiter character
-     * @param clean_empty true to clean empty split parts.
-     *  Example for st "a::b:c"
-     *      clean_empty true will return ["a", "b", "c"]
-     *      clean_empty fase will return ["a", "", "b", "c"]
+     * @param parts where the result will be saved
      *
-     * @return a vector containing the resulting substrings
      */
     template <class T>
     void split(const std::string &st, char delim, std::vector<T> &parts)
@@ -175,6 +172,19 @@ namespace one_util
             parts.push_back(part_t);
         }
     }
+
+    /**
+    * Splits a string, using the given delimiter
+    *
+    * @param st string to split
+    * @param delim delimiter character
+    * @param clean_empty true to clean empty split parts.
+    *  Example for st "a::b:c"
+    *      clean_empty true will return ["a", "b", "c"]
+    *      clean_empty fase will return ["a", "", "b", "c"]
+    *
+    * @return a vector containing the resulting substrings
+    */
 
     std::vector<std::string> split(const std::string& st, char delim,
                                    bool clean_empty = true);
@@ -364,6 +374,34 @@ namespace one_util
     template <>
     bool str_cast(const std::string& str, std::string& value);
 
+    /**
+     * Converts string into unsigned integer type
+     *  @param str Input string
+     *
+     *  @return Unsigned integer value on success, 0 on failure.
+     *  @note If value in string is greater than typename T can hold,
+     *        maximum possible value will be returned
+     */
+    template <typename T>
+    T string_to_unsigned(const std::string& str)
+    {
+        T value;
+
+        if (std::regex_search(str, std::regex("[^0-9]")))
+        {
+            return 0;
+        }
+
+        std::istringstream iss(str);
+        iss >> value;
+
+        if (iss.fail() || !iss.eof())
+        {
+            value = std::numeric_limits<T>::max();
+        }
+
+        return value;
+    }
 } // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */
