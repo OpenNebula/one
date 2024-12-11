@@ -32,7 +32,7 @@ import { Tr } from 'client/components/HOC'
 const HostGraphTab = ({ id }) => {
   const {
     data: { MONITORING_DATA: { MONITORING: monitoring = [] } = {} } = {},
-  } = useGetHostMonitoringQuery(id) || {}
+  } = useGetHostMonitoringQuery({ id: id }) || {}
 
   const cpuMemoryData = (
     Array.isArray(monitoring) ? monitoring : [monitoring]
