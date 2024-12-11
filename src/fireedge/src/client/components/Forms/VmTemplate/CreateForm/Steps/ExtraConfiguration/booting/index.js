@@ -107,4 +107,4 @@ const TAB = {
 
 export default TAB
 
-export { reorderBootAfterRemove, BOOT_ORDER_NAME }
+export { reorderBootAfterRemove, BOOT_ORDER_NAME, BootOrder }

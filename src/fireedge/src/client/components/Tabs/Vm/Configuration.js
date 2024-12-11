@@ -135,7 +135,7 @@ const VmConfigurationTab = ({
               },
               form: () =>
                 UpdateConfigurationForm({
-                  stepProps: { hypervisor, oneConfig, adminGroup },
+                  stepProps: { hypervisor, oneConfig, adminGroup, vm },
                   initialValues: vm,
                 }),
               onSubmit: handleUpdateConf,

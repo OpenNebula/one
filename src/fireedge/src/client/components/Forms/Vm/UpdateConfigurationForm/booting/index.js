@@ -15,20 +15,23 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack } from '@mui/material'
-
+import { Stack, FormControl } from '@mui/material'
+import Legend from 'client/components/Forms/Legend'
+import { BootOrder } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { SECTIONS } from 'client/components/Forms/Vm/UpdateConfigurationForm/booting/schema'
-import { HYPERVISORS } from 'client/constants'
+import { HYPERVISORS, T } from 'client/constants'
 
 /**
  * @param {object} props - Component props
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
  * @param {object} props.oneConfig - Config of oned.conf
  * @param {boolean} props.adminGroup - User is admin or not
+ * @param {object} props.vm - VM template
  * @returns {ReactElement} OS section component
  */
-const OsSection = ({ hypervisor, oneConfig, adminGroup }) => {
+const OsSection = ({ hypervisor, oneConfig, adminGroup, vm }) => {
+  const enableBootOrder = !!vm?.TEMPLATE?.DISK || !!vm?.TEMPLATE?.NIC
   const sections = useMemo(
     () => SECTIONS({ hypervisor, oneConfig, adminGroup }),
     [hypervisor]
@@ -40,6 +43,15 @@ const OsSection = ({ hypervisor, oneConfig, adminGroup }) => {
       gap="1em"
       sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
     >
+      {enableBootOrder && (
+        <FormControl
+          component="fieldset"
+          sx={{ width: '100%', gridColumn: '1 / span 2', gridRow: '1' }}
+        >
+          <Legend title={T.BootOrder} tooltip={T.BootOrderConcept} />
+          <BootOrder />
+        </FormControl>
+      )}
       {sections.map(({ id, ...section }) => (
         <FormWithSchema key={id} cy={id} {...section} />
       ))}
@@ -51,6 +63,7 @@ OsSection.propTypes = {
   hypervisor: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  vm: PropTypes.object,
 }
 
 export default OsSection

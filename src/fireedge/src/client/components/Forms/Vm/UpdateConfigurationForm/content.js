@@ -37,9 +37,10 @@ import { T, HYPERVISORS } from 'client/constants'
  * @param {HYPERVISORS} props.hypervisor - VM hypervisor
  * @param {object} props.oneConfig - OpenNEbula configuration
  * @param {boolean} props.adminGroup - If the user is admin
+ * @param {object} props.vm - VM template
  * @returns {ReactElement} Form content component
  */
-const Content = ({ hypervisor, oneConfig, adminGroup }) => {
+const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
   const {
     formState: { errors },
   } = useFormContext()
@@ -55,6 +56,7 @@ const Content = ({ hypervisor, oneConfig, adminGroup }) => {
             hypervisor={hypervisor}
             oneConfig={oneConfig}
             adminGroup={adminGroup}
+            vm={vm}
           />
         ),
         error: !!errors?.OS,
@@ -107,6 +109,7 @@ Content.propTypes = {
   hypervisor: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  vm: PropTypes.object,
 }
 
 export default Content
