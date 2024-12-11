@@ -16,6 +16,7 @@
 
 require 'vnmmad'
 
+# Implementation of the Open vSwitch driver
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     DRIVER       = 'ovswitch'
@@ -291,8 +292,6 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
                     end
                 end
             end
-        rescue StandardError => e
-            raise e
         ensure
             unlock
         end
@@ -308,9 +307,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def tag_trunk_vlans
-        range = @nic[:vlan_tagged_id]
-
-        return unless range?(range)
+        return unless @nic.vlan_trunk?
 
         ovs_vsctl_cmd = "#{command(:ovs_vsctl)} set Port #{@nic[:tap]}"
 
@@ -318,7 +315,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         # we need to support even older versions. We expand the
         # intervals into the list of values [x,x+1,...,y-1,y],
         # which should work for all.
-        cmd = "#{ovs_vsctl_cmd} trunks='#{expand_range(range)}'"
+        cmd = "#{ovs_vsctl_cmd} trunks='#{@nic.vlan_trunk_to_s}'"
         run cmd
 
         cmd = "#{ovs_vsctl_cmd} vlan_mode=native-untagged"
@@ -326,13 +323,11 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     def tag_qinq
-        range = @nic[:cvlans]
-
         set_vlan_limit(2)
 
         cmd =  "#{command(:ovs_vsctl)} set Port #{@nic[:tap]} "
         cmd << "vlan_mode=dot1q-tunnel tag=#{@nic[:vlan_id]} "
-        cmd << "cvlans=#{expand_range(range)}"
+        cmd << "cvlans=#{@nic.cvlans_to_s}"
 
         run cmd
 
@@ -346,11 +341,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     # Following IP-spoofing rules may be created:
-    # (if ARP Cache Poisoning) in_port=<PORT>,table=20,arp,arp_spa=<IP>,priority=50000,actions=NORMAL
-    # (if ARP Cache Poisoning) in_port=<PORT>,table=20,arp,priority=49000,actions=drop
+    # (if ARP Cache Poisoning)
+    #     in_port=<PORT>,table=20,arp,arp_spa=<IP>,priority=50000,actions=NORMAL
+    #     in_port=<PORT>,table=20,arp,priority=49000,actions=drop
     # in_port=<PORT>,table=20,ip,nw_src=<IP>,priority=45000,actions=NORMAL
     # in_port=<PORT>,table=20,ipv6,ipv6_src=<IP6>,priority=45000,actions=NORMAL
-    # in_port=<PORT>,table=20,udp,nw_src=0.0.0.0,nw_dst=255.255.255.255,tp_src=68,tp_dst=67,priority=44000,actions=NORMAL
+    # in_port=<PORT>,table=20,udp,nw_src=0.0.0.0,nw_dst=255.255.255.255,\
+    #     tp_src=68,tp_dst=67,priority=44000,actions=NORMAL
     # in_port=<PORT>,table=20,icmp6,ipv6_src=::,icmp_type=133,priority=44000,actions=NORMAL
     # in_port=<PORT>,table=20,icmp6,ipv6_src=::,icmp_type=135,priority=44000,actions=NORMAL
     # in_port=<PORT>,table=20,ip,priority=40000,actions=drop
@@ -407,7 +404,8 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     end
 
     # Following MAC-spoofing rules may be created:
-    # (if ARP Cache Poisoning) in_port=<PORT>,table=10,arp,dl_src=<MAC>,priority=50000,actions=resubmit(,20)
+    # (if ARP Cache Poisoning)
+    #     in_port=<PORT>,table=10,arp,dl_src=<MAC>,priority=50000,actions=resubmit(,20)
     # in_port=<PORT>,table=10,dl_src=<MAC>,priority=45000,actions=resubmit(,20)
     # in_port=<PORT>,table=10,priority=40000,actions=drop
     #
@@ -485,36 +483,17 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         end
     end
 
+    # rubocop:disable Style/FormatStringToken
+    # rubocop:disable Style/FormatString
+    # rubocop:disable Style/StringLiterals
     def port_note
         # dot separated hexadecimal VM_ID, NIC_ID twins,
         # e.g. for VM_ID=1, NIC_ID=1: "00.00.00.01.00.01"
         ("%08x%04x" % [@vm['ID'], @nic[:nic_id]]).gsub(/(..)(?=.)/, '\1.')
     end
-
-    def range?(range)
-        !range.to_s.match(/^\d+([,-]\d+)*$/).nil?
-    end
-
-    def expand_range(range)
-        items = []
-
-        range.split(',').each do |i|
-            l, r = i.split('-')
-
-            l = l.to_i
-            r = r.to_i unless r.nil?
-
-            if r.nil?
-                items << l
-            elsif r >= l
-                items.concat((l..r).to_a)
-            else
-                items.concat((r..l).to_a)
-            end
-        end
-
-        items.uniq.join(',')
-    end
+    # rubocop:enable Style/StringLiterals
+    # rubocop:enable Style/FormatString
+    # rubocop:enable Style/FormatStringToken
 
     private
 
@@ -632,6 +611,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         OpenNebula::DriverLogger.log_error('VLAN ID validation not supported for OpenvSwitch, skipped.')
     end
 
+    # rubocop:disable Naming/AccessorMethodName
     def set_vlan_limit(limit)
         vl = `#{command(:ovs_vsctl)} get Open_vSwitch . other_config:vlan-limit`
 
@@ -651,5 +631,6 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         cmd = "#{command(:ovs_appctl)} revalidator/purge"
         run cmd
     end
+    # rubocop:enable Naming/AccessorMethodName
 
 end

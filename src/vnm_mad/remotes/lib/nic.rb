@@ -30,6 +30,7 @@ module VNMMAD
 
             def initialize(hypervisor)
                 @nicClass = HYPERVISORS[hypervisor] || NicKVM
+                super([])
             end
 
             def new_nic
@@ -45,15 +46,65 @@ module VNMMAD
         #   - get_tap to set the [:tap] attribute with the associated NIC
         ########################################################################
 
+        # Base class for Nic objects it includes common operations on NIC
+        # attributes used by different drivers
+        class Nic < Hash
+
+            VLAN_METHODS = {
+                'vlan_trunk' => :vlan_tagged_id,
+                'cvlans'     => :cvlans
+            }
+
+            VLAN_METHODS.each do |prefix, attr|
+                define_method("#{prefix}?".to_sym) do
+                    range?(self[attr])
+                end
+
+                define_method(prefix.to_sym) do
+                    range(self[attr])
+                end
+
+                define_method("#{prefix}_to_s".to_sym) do
+                    range(self[attr]).uniq.join(',')
+                end
+            end
+
+            private
+
+            def range?(r)
+                return !r.to_s.match(/^\d+([,-]\d+)*$/).nil?
+            end
+
+            def range(r)
+                return [] unless range?(r)
+
+                items = []
+
+                r.split(',').each do |i|
+                    l, r = i.split('-')
+
+                    l = l.to_i
+                    r = r.to_i unless r.nil?
+
+                    if r.nil?
+                        items << l
+                    elsif r >= l
+                        items.concat((l..r).to_a)
+                    else
+                        items.concat((r..l).to_a)
+                    end
+                end
+
+                items
+            end
+
+        end
+
         # A NIC using KVM. This class implements functions to get the physical
         # interface that the NIC is using, based on the MAC address
-        class NicKVM < Hash
+        class NicKVM < Nic
 
             VNMNetwork::HYPERVISORS['kvm'] = self
-
-            def initialize
-                super(nil)
-            end
 
             # Get the VM information with virsh dumpxml
             def get_info(vm)
@@ -100,14 +151,16 @@ module VNMMAD
                 self
             end
 
+            # rubocop:disable Naming/AccessorMethodName
+            #
             def set_qos(deploy_id)
                 opts = "domiftune --live #{deploy_id} #{self[:target]} "
 
-                %w[INBOUND OUTBOUND].each do |type|
+                ['INBOUND', 'OUTBOUND'].each do |type|
                     opts << "--#{type.downcase} "
                     vals = []
 
-                    %w[AVG_BW PEAK_BW PEAK_KB].each do |att|
+                    ['AVG_BW', 'PEAK_BW', 'PEAK_KB'].each do |att|
                         vals << (self["#{type}_#{att}".downcase.to_sym] rescue 0)
                     end
 
@@ -118,18 +171,15 @@ module VNMMAD
 
                 raise "Error updating QoS values: #{e}" unless rc.success?
             end
+            # rubocop:enable Naming/AccessorMethodName
 
         end
 
         # A NIC using LXC. This class implements functions to get (by its name)
         # the host network interface that the NIC is using.
-        class NicLXC < Hash
+        class NicLXC < Nic
 
             VNMNetwork::HYPERVISORS['lxc'] = self
-
-            def initialize
-                super(nil)
-            end
 
             def get_info(_vm)
                 nil
@@ -143,9 +193,12 @@ module VNMMAD
                 self
             end
 
+            # rubocop:disable Naming/AccessorMethodName
+            #
             def set_qos(_deploy_id)
                 nil
             end
+            # rubocop:enable Naming/AccessorMethodName
 
         end
 

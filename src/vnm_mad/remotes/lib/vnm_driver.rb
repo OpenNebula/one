@@ -27,6 +27,7 @@ require_relative 'vf'
 #   - VNMNetwork with base classes and main functionality to manage Virtual Nets
 #   - SGIPTables a module with a SG implementation based in iptables/ipset
 ################################################################################
+# rubocop:disable Naming/VariableNumber
 module VNMMAD
 
     ############################################################################
@@ -234,6 +235,25 @@ module VNMMAD
                                     "link set '#{nic[:bridge]}' up")
         end
 
+        # Deletes all vlan filters on bridge ports (VLAN range, 12bits 1-4094)
+        # VLAN 1 is preserved as it is configured by default.
+        def clean_vlan_filters(nic)
+            @bridges[nic[:bridge]].each do |dev|
+                LocalCommand.run_sh("#{command(:bridge)} vlan del dev #{dev}"\
+                            ' vid 2-4094', nil, 2)
+            end
+        end
+
+        def set_vlan_filter(dev, pvid, vlans)
+            LocalCommand.run_sh("#{command(:bridge)} vlan add dev #{dev}"\
+                " vid #{pvid} pvid untagged", nil, 2) if pvid
+
+            vlans.each do |vid|
+                LocalCommand.run_sh("#{command(:bridge)} vlan add dev #{dev}"\
+                    " vid #{vid}", nil, 2)
+            end
+        end
+
         # Reads config and return str with switches
         #   @param nic [REXML::Element] @vm nic
         #
@@ -376,3 +396,4 @@ module VNMMAD
     end
 
 end
+# rubocop:enable Naming/VariableNumber

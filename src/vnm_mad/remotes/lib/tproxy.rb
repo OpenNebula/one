@@ -26,6 +26,11 @@ module VNMMAD
     # Module to handle transparent proxies.
     module TProxy
 
+        # Return the hypervisor facing veth device
+        def self.veth(nic)
+            return "#{nic[:bridge]}b"
+        end
+
         # The entry point for the tproxy feature.
         def self.setup_tproxy(nic, direction)
             # Short-circuit if no tproxy config is provided.
