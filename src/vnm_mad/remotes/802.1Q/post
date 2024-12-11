@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'vlan_tag_driver'
 
@@ -26,6 +26,9 @@ deploy_id    = ARGV[0]
 xpath_filter = VLANTagDriver::XPATH_FILTER
 
 begin
+    hm = VLANTagDriver.from_base64(template64, xpath_filter, deploy_id)
+    hm.vlan_filter
+
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
                                                     xpath_filter,
                                                     deploy_id)
@@ -33,7 +36,7 @@ begin
     filter_driver.activate_vf(filter_driver.vm)
 
     filter_driver.run_hooks(ARGV, template64) if filter_driver.activate == 0
-rescue Exception => e
+rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1

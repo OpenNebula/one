@@ -27,7 +27,7 @@ vn_id        = Integer(ARGV[1])
 xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 
 begin
-    # PRE - Related changes
+    # PRE & POST - Related changes
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.update(vn_id)
 

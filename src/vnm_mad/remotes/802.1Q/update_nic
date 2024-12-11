@@ -34,6 +34,8 @@ begin
     hm.update(vn_id)
 
     # POST - Related changes
+    hm.update_vlan_filter(vn_id)
+
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
                                                     xpath_filter,
                                                     deploy_id)

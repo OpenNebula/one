@@ -95,127 +95,125 @@ module VNMMAD
 
         # Deactivate the driver and delete bridges and tags devices as needed.
         def deactivate
+            lock
+
             # NIC_ALIAS are  not processed, skip
             return 0 if @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-
-            lock
 
             @bridges = list_bridges
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
-            if @bridges
-                process do |nic|
-                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
+            return 0 unless @bridges
 
-                    @nic = nic
+            process do |nic|
+                next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-                    next if @nic[:phydev].nil?
-                    next if @bridges[@nic[:bridge]].nil?
+                @nic = nic
 
-                    # Get the name of the vlan device.
-                    gen_vlan_dev_name
+                next if @nic[:phydev].nil?
+                next if @bridges[@nic[:bridge]].nil?
 
-                    # Skip if the bridge doesn't exist because it was already
-                    # deleted (handles last vm with multiple nics on the same
-                    # vlan)
-                    next unless @bridges.include? @nic[:bridge]
+                # Get the name of the vlan device.
+                gen_vlan_dev_name
 
-                    # Inserting raw phydev into the bridge is incorrect, but
-                    # it is possible some user makes that mistake. This might
-                    # cause that cleanup is not triggered properly, so we do
-                    # not treat phydev as "guest" on purpose here.
-                    guests = @bridges[@nic[:bridge]] \
-                           - [@nic[:phydev], @nic[:vlan_dev], "#{@nic[:bridge]}b"]
+                # Skip if the bridge doesn't exist because it was already
+                # deleted (handles last vm with multiple nics on the same
+                # vlan)
+                next unless @bridges.include? @nic[:bridge]
 
-                    # Setup transparent proxies.
-                    TProxy.setup_tproxy(@nic, :down) if guests.count < 1
+                # Inserting raw phydev into the bridge is incorrect, but
+                # it is possible some user makes that mistake. This might
+                # cause that cleanup is not triggered properly, so we do
+                # not treat phydev as "guest" on purpose here.
+                guests = @bridges[@nic[:bridge]] \
+                       - [@nic[:phydev], @nic[:vlan_dev], "#{@nic[:bridge]}b"]
 
-                    # Skip the bridge removal (on demand or when still in use).
-                    next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
+                # Setup transparent proxies.
+                TProxy.setup_tproxy(@nic, :down) if guests.count < 1
 
-                    # Delete the vlan device.
-                    delete_vlan_dev
+                # Skip the bridge removal (on demand or when still in use).
+                next if @nic[:conf][:keep_empty_bridge] || guests.count > 0
 
-                    @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
+                # Delete the vlan device.
+                delete_vlan_dev
 
-                    # Delete the bridge.
-                    OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-                        " #{@nic[:bridge]}")
+                @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
 
-                    @bridges.delete(@nic[:bridge])
-                end
+                # Delete the bridge.
+                OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+                    " #{@nic[:bridge]}")
+
+                @bridges.delete(@nic[:bridge])
             end
 
-            unlock
-
             0
+        ensure
+            unlock
         end
 
         def update(vnet_id)
             lock
 
-            begin
-                changes = @vm.changes.select do |k, _|
-                    SUPPORTED_UPDATE.include?(k)
-                end
+            changes = @vm.changes.select do |k, _|
+                SUPPORTED_UPDATE.include?(k)
+            end
 
-                return 0 if changes.empty?
+            return 0 if changes.empty?
 
-                @bridges = list_bridges
+            @bridges = list_bridges
 
-                if @bridges
-                    process do |nic|
-                        next unless Integer(nic[:network_id]) == vnet_id
+            return 0 unless @bridges
 
-                        next if nic[:phydev].nil?
+            process do |nic|
+                next unless Integer(nic[:network_id]) == vnet_id
 
-                        # the bridge should already exist as we're updating
-                        next if @bridges[nic[:bridge]].nil?
+                next if nic[:phydev].nil?
 
-                        if !changes[:vlan_id].nil? || !changes[:phydev].nil?
-                            ####################################################
-                            # Remove old VLAN
-                            ####################################################
-                            @nic = nic.merge(changes)
-                            gen_vlan_dev_name
+                # the bridge should already exist as we're updating
+                next if @bridges[nic[:bridge]].nil?
 
-                            if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
-                                delete_vlan_dev
-                            end
+                if !changes[:vlan_id].nil? || !changes[:phydev].nil?
+                    ####################################################
+                    # Remove old VLAN
+                    ####################################################
+                    @nic = nic.merge(changes)
+                    gen_vlan_dev_name
 
-                            ####################################################
-                            # Create new link
-                            ####################################################
-                            @nic = nic
-                            gen_vlan_dev_name
-
-                            # Create vlan device (it ALSO sets the MTU)
-                            create_vlan_dev
-
-                            ####################################################
-                            # Add new link to the BRIDGE
-                            ####################################################
-                            OpenNebula.exec_and_log("#{command(:ip)} link " \
-                            "set #{@nic[:vlan_dev]} master #{@nic[:bridge]}")
-                        elsif changes[:mtu]
-                            @nic = nic
-                            gen_vlan_dev_name
-
-                            # Update only MTU
-                            OpenNebula.exec_and_log("#{command(:ip)} link " \
-                            "set #{@nic[:vlan_dev]} mtu #{@nic[:mtu]}")
-                        end
-
-                        # Changes will affect every VM nic
-                        return
+                    if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+                        delete_vlan_dev
                     end
+
+                    ####################################################
+                    # Create new link
+                    ####################################################
+                    @nic = nic
+                    gen_vlan_dev_name
+
+                    # Create vlan device (it ALSO sets the MTU)
+                    create_vlan_dev
+
+                    ####################################################
+                    # Add new link to the BRIDGE
+                    ####################################################
+                    OpenNebula.exec_and_log("#{command(:ip)} link " \
+                    "set #{@nic[:vlan_dev]} master #{@nic[:bridge]}")
+                elsif changes[:mtu]
+                    @nic = nic
+                    gen_vlan_dev_name
+
+                    # Update only MTU
+                    OpenNebula.exec_and_log("#{command(:ip)} link " \
+                    "set #{@nic[:vlan_dev]} mtu #{@nic[:mtu]}")
                 end
-            ensure
-                unlock
+
+                # Changes will affect every VM nic
+                return
             end
 
             0
+        ensure
+            unlock
         end
 
         private

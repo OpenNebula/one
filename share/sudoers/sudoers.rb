@@ -35,7 +35,8 @@ class Sudoers
                 'ip rule *',
                 'ip tuntap *',
                 'nft',
-                '/var/tmp/one/vnm/tproxy'
+                '/var/tmp/one/vnm/tproxy',
+                'bridge'
             ],
             :NETNS => [
                 'ip netns add *',
