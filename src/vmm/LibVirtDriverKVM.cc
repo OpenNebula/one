@@ -23,6 +23,7 @@
 #include "Nebula.h"
 #include "Image.h"
 #include "DatastorePool.h"
+#include "NebulaUtil.h"
 
 #include <regex>
 #include <exception>
@@ -105,27 +106,6 @@ static int to_int(const string& s)
     return val;
 }
 
-template <class T>
-T to_unsigned(const std::string& str)
-{
-    T value;
-
-    if (std::regex_search(str, std::regex("[^0-9]")))
-    {
-        return 0;
-    }
-
-    std::istringstream iss(str);
-    iss >> value;
-
-    if (iss.fail() || !iss.eof())
-    {
-        value = std::numeric_limits<T>::max();
-    }
-
-    return value;
-}
-
 template<typename T>
 static void insert_sec(ofstream& file, const string& base, const string& s,
                        const string& sm, const string& sml)
@@ -134,7 +114,7 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 
     if (!s.empty())
     {
-        s_i = to_unsigned<T>(s);
+        s_i = one_util::string_to_unsigned<T>(s);
 
         file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(std::to_string(s_i))
              << "</" << base << "_sec>\n";
@@ -142,7 +122,7 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 
     if (!sm.empty())
     {
-        const auto sm_i = to_unsigned<T>(sm);
+        const auto sm_i = one_util::string_to_unsigned<T>(sm);
 
         if ( sm_i > s_i)
         {
@@ -152,7 +132,7 @@ static void insert_sec(ofstream& file, const string& base, const string& s,
 
             if (!sml.empty())
             {
-                const auto sml_i = to_unsigned<T>(sml);
+                const auto sml_i = one_util::string_to_unsigned<T>(sml);
 
                 file << "\t\t\t\t<" << base << "_sec_max_length>"
                      << one_util::escape_xml(std::to_string(sml_i))
