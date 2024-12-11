@@ -131,7 +131,9 @@ const BootOrder = () => {
 
   const nics = useMemo(() => {
     const nicId = `${EXTRA_ID}.${NIC_ID[0]}`
-    const nicValues = getValues([nicId]).flat()
+    const nicValues = getValues([nicId])
+      .flat()
+      .filter((nic) => !!nic) // Strips internal undefined
 
     return (
       nicValues?.map((nic, idx) => ({
@@ -139,7 +141,7 @@ const BootOrder = () => {
         NAME: (
           <>
             <NetworkIcon />
-            {[nic?.NAME, nic.NETWORK].filter(Boolean).join(': ')}
+            {[nic?.NAME, nic?.NETWORK].filter(Boolean).join(': ')}
           </>
         ),
       })) ?? []

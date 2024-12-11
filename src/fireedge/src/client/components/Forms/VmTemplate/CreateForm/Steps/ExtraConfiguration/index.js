@@ -27,7 +27,9 @@ import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraCo
 import Networking from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
 import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement'
 import ScheduleAction from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
-import Booting from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import Booting, {
+  BootOrder,
+} from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
 import Context from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context'
 import Pci from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/pci'
 import InputOutput from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput'
@@ -166,4 +168,5 @@ Content.propTypes = {
   isVrouter: PropTypes.bool,
 }
 
+export { BootOrder }
 export default ExtraConfiguration

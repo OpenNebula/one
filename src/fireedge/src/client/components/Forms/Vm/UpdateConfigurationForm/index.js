@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { reach } from 'yup'
 
+import { set } from 'lodash'
 import { SCHEMA } from 'client/components/Forms/Vm/UpdateConfigurationForm/schema'
 import ContentForm from 'client/components/Forms/Vm/UpdateConfigurationForm/content'
 import {
@@ -30,7 +31,8 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
     const template = vmTemplate?.TEMPLATE ?? {}
     const context = template?.CONTEXT ?? {}
     const backupConfig = vmTemplate?.BACKUPS?.BACKUP_CONFIG ?? {}
-
+    const bootOrder = template?.OS?.BOOT
+    const nics = [].concat(template?.NIC ?? []).flat()
     const knownTemplate = schema.cast(
       { ...vmTemplate, ...template },
       { stripUnknown: true, context: { ...template } }
@@ -72,16 +74,40 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       ...getUnknownAttributes(backupConfig, knownBackupConfig),
     }
 
+    // Easy compatibility with the bootOrder component by specifying the same form paths as in the VM Template
+    !!bootOrder && set(knownTemplate, 'extra.OS.BOOT', bootOrder)
+    !!template?.DISK &&
+      set(
+        knownTemplate,
+        'extra.DISK',
+        template?.DISK?.map((disk) => ({
+          ...disk,
+          NAME: `DISK${disk?.DISK_ID}`,
+        }))
+      )
+    !!nics?.length && set(knownTemplate, 'extra.NIC', nics)
+
     return knownTemplate
   },
   transformBeforeSubmit: (formData) => {
+    const { extra, ...restFormData } = formData
     // Encode script on base 64, if needed, on context section
-    if (isBase64(formData?.CONTEXT?.START_SCRIPT)) {
-      formData.CONTEXT.START_SCRIPT_BASE64 = formData?.CONTEXT?.START_SCRIPT
-      delete formData?.CONTEXT?.START_SCRIPT
-    } else {
-      delete formData?.CONTEXT?.START_SCRIPT_BASE64
+    const updatedFormData = {
+      ...restFormData,
+      OS: {
+        ...restFormData.OS,
+        BOOT: extra?.OS?.BOOT || restFormData.OS?.BOOT,
+      },
     }
+    if (isBase64(updatedFormData?.CONTEXT?.START_SCRIPT)) {
+      updatedFormData.CONTEXT.START_SCRIPT_BASE64 =
+        updatedFormData?.CONTEXT?.START_SCRIPT
+      delete updatedFormData?.CONTEXT?.START_SCRIPT
+    } else {
+      delete updatedFormData?.CONTEXT?.START_SCRIPT_BASE64
+    }
+
+    return updatedFormData
   },
 })
 
