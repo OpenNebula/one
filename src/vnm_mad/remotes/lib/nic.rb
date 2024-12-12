@@ -72,7 +72,7 @@ module VNMMAD
             private
 
             def range?(r)
-                return !r.to_s.match(/^\d+([,-]\d+)*$/).nil?
+                return !r.to_s.match(/^\d+(\s*[,-]\s*\d+)*$/).nil?
             end
 
             def range(r)
