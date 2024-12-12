@@ -66,8 +66,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ## Acknowledgements
 
-Some of the software features included in this repository have been made possible through the funding of the following innovation projects:
-
-- [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/) (Grant Agreement 101092711), through the European Union’s Horizon Europe Research and Innovation Programme.
-- [ONEedge5G](https://opennebula.io/innovation/oneedge5g/) (Grant Agreement TSI-064200-2023-1), supported by the Spanish Ministry for Digital Transformation and Civil Service through the UNICO I+D 6G Program, co-funded by the European Union – NextGenerationEU through the Recovery and Resilience Facility (RRF).
-- [ONEnextgen](http://onenextgen.eu/) (Grant Agreement UNICO IPCEI-2023-003), supported by the Spanish Ministry for Digital Transformation and Civil Service through the UNICO IPCEI Program, co-funded by the European Union – NextGenerationEU through the Recovery and Resilience Facility (RRF).
+Some of the software features included in this repository have been made possible through the funding of the following innovation projects: [SovereignEdge.Cognit](https://cognit.sovereignedge.eu/), [ONEedge5G](https://opennebula.io/innovation/oneedge5g/), and [ONEnextgen](http://onenextgen.eu/)).
