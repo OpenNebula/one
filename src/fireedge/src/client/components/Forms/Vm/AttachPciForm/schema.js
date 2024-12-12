@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { string, ObjectSchema, boolean } from 'yup'
+import { useFormContext } from 'react-hook-form'
 import { useGetHostsAdminQuery } from 'client/features/OneApi/host'
 import { getPciDevices } from 'client/models/Host'
 import {
@@ -86,7 +87,7 @@ const NAME_FIELD = {
     .trim()
     .notRequired()
     .afterSubmit(() => undefined),
-  grid: { sm: 12, md: 3 },
+  grid: { sm: 12, md: 4 },
 }
 
 /** @type {Field} PCI device field */
@@ -113,7 +114,7 @@ const DEVICE_FIELD = {
 
       return type ? schema.notRequired() : schema.required()
     }),
-  grid: { xs: 12, sm: 3, md: 2 },
+  grid: { xs: 12, md: 2 },
 }
 
 /** @type {Field} PCI device field */
@@ -140,7 +141,7 @@ const VENDOR_FIELD = {
 
       return type ? schema.notRequired() : schema.required()
     }),
-  grid: { xs: 12, sm: 3, md: 2 },
+  grid: { xs: 12, md: 2 },
 }
 
 /** @type {Field} PCI device field */
@@ -167,7 +168,7 @@ const CLASS_FIELD = {
 
       return type ? schema.notRequired() : schema.required()
     }),
-  grid: { xs: 12, sm: 3, md: 2 },
+  grid: { xs: 12, md: 2 },
 }
 
 /** @type {Field} PCI device field */
@@ -201,6 +202,47 @@ const SHORT_ADDRESS = {
   }),
 }
 
+/** @type {Field} Name PCI device field */
+const PROFILE_FIELD = {
+  name: 'PROFILE',
+  label: T.Profile,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  values: (dependencies = []) => {
+    const [selectedPciDevice] = dependencies
+    const { data = [] } = useGetHostsAdminQuery({
+      skip: selectedPciDevice === undefined,
+    })
+    if (selectedPciDevice && data) {
+      const pciDevices = data.map(getPciDevices).flat()
+      const [DEVICE, VENDOR, CLASS] = selectedPciDevice?.split(';')
+      const selectedDevice = pciDevices.find(
+        (device) =>
+          device?.DEVICE === DEVICE &&
+          device?.VENDOR === VENDOR &&
+          device?.CLASS === CLASS
+      )
+
+      const profiles = selectedDevice?.PROFILES?.split(',') || []
+
+      if (!profiles?.length) {
+        const { setValue } = useFormContext()
+        setValue(PROFILE_FIELD.name, '')
+      }
+
+      return arrayToOptions(profiles)
+    }
+
+    return arrayToOptions([])
+  },
+  dependOf: [NAME_FIELD.name, SPECIFIC_DEVICE.name],
+  htmlType: ([_, specificDevice] = []) => specificDevice && INPUT_TYPES.HIDDEN,
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => ''),
+  grid: { md: 6 },
+}
+
 /**
  * @param {object} oneConfig - Config of oned.conf
  * @param {boolean} adminGroup - User is admin or not
@@ -215,6 +257,7 @@ export const PCI_FIELDS = (oneConfig, adminGroup) =>
       VENDOR_FIELD,
       CLASS_FIELD,
       SHORT_ADDRESS,
+      PROFILE_FIELD,
     ],
     'PCI',
     oneConfig,
@@ -229,4 +272,5 @@ export const PCI_SCHEMA = getObjectSchemaFromFields([
   VENDOR_FIELD,
   CLASS_FIELD,
   SHORT_ADDRESS,
+  PROFILE_FIELD,
 ])

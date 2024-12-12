@@ -78,6 +78,7 @@ def pci
                TYPE = "10de:0863:0300",
                VENDOR = "10de",
                VENDOR_NAME = "NVIDIA Corporation",
+               PROFILES = "nvidia-908,nvidia-909,nvidia-910,nvidia-911,nvidia-912,nvidia-913,nvidia-914,nvidia-915,nvidia-916,nvidia-917,nvidia-918,nvidia-919,nvidia-920,nvidia-921,nvidia-922,nvidia-923,nvidia-924,nvidia-925",
                NUMA_NODE="1"
        ]
        PCI = [ ADDRESS = "0000:00:06:0",
