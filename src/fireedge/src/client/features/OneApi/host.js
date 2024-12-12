@@ -405,6 +405,7 @@ export const {
   useLazyGetHostQuery,
   useGetHostsQuery,
   useGetHostsAdminQuery,
+  useLazyGetHostsAdminQuery,
   useLazyGetHostsQuery,
   useGetHostMonitoringQuery,
   useLazyGetHostMonitoringQuery,

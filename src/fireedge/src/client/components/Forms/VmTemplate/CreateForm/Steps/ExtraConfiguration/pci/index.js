@@ -100,6 +100,9 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
         CLASS: {
           __delete__: true,
         },
+        PROFILE: {
+          __delete__: true,
+        },
         SHORT_ADDRESS: true,
       })
     } else {
@@ -107,6 +110,7 @@ const PciDevices = ({ oneConfig, adminGroup }) => {
         DEVICE: true,
         VENDOR: true,
         CLASS: true,
+        PROFILE: true,
         SHORT_ADDRESS: {
           __delete__: true,
         },
