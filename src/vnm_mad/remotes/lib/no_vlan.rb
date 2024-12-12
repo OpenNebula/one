@@ -122,7 +122,7 @@ module VNMMAD
 
                     next unless Integer(@nic[:network_id]) == vnet_id
 
-                    if !changes[:pydev].nil?
+                    if !changes[:phydev].nil?
                         OpenNebula.exec_and_log("#{command(:ip)} link set " \
                             "nomaster #{changes[:phydev]}") unless changes[:phydev].empty?
 
