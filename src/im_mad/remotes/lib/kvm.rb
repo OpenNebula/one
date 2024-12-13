@@ -350,7 +350,16 @@ class Domain < BaseDomain
                 if s.exitstatus != 0
                     @vm[ga_info] = e.chomp
                 else
-                    @vm[ga_info] = JSON.parse(text)['return']
+                    begin
+                        info = JSON.parse(text)['return']
+
+                        info = info.join(', ') if info.is_a?(Array)
+                        info = info.to_s.gsub(/["\[\]]/) { |match| "\\#{match}" } if info.is_a?(Hash)
+
+                        @vm[ga_info] = info
+                    rescue JSON::ParserError => e
+                        @vm[ga_info] = "Failed to parse command output: #{e}"
+                    end
                 end
             end
         else
