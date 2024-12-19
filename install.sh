@@ -29,7 +29,7 @@
 usage() {
  echo
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
- echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-r]"
+ echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-a arch] [-r]"
  echo "                  [-s] [-p] [-G] [-6] [-f] [-l] [-e] [-h]"
  echo
  echo "-u: user that will run opennebula, defaults to user executing install.sh"
@@ -50,11 +50,12 @@ usage() {
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
+ echo "-a: architecuture of downloaded vendor artifacts, default: x86_64"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS=":u:g:d:ehkrlcspFPorlfG6"
+PARAMETERS=":u:g:d:a:ehkrlcspFPorlfG6"
 
 INSTALL_ETC="yes"
 UNINSTALL="no"
@@ -69,6 +70,7 @@ ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
 SRC_DIR=$PWD
+ARCH="x86_64"
 
 while getopts $PARAMETERS opt; do
     case $opt in
@@ -85,12 +87,18 @@ while getopts $PARAMETERS opt; do
         f) ONEFLOW="yes" ;;
         u) ONEADMIN_USER="$OPTARG" ;;
         g) ONEADMIN_GROUP="$OPTARG" ;;
+        a) ARCH="$OPTARG" ;;
         d) ROOT="$OPTARG" ;;
         \?) usage; exit 1 ;;
     esac
 done
 
 shift $(($OPTIND - 1))
+
+if [ "$ARCH" != x86_64 ] && [ "$ARCH" != arm64 ]; then
+    echo "Unsupported architecture: $ARCH, only x86_64 or arm64"
+    exit 1
+fi
 
 #-------------------------------------------------------------------------------
 # Definition of locations
@@ -3051,12 +3059,25 @@ CONTEXT_SHARE=$(find share/context/ -type f \( ! -iname "*.sh" ! -iname "SConstr
 # PROMETHEUS
 #-------------------------------------------------------------------------------
 
+ALERTMANAGER_VENDOR_DIR='alertmanager'
+NODE_EXPORTER_VENDOR_DIR='node_exporter'
+PROMETHEUS_VENDOR_DIR='prometheus'
+if [ $ARCH = 'arm64' ]; then
+    ALERTMANAGER_VENDOR_DIR='alertmanager.arm64'
+    NODE_EXPORTER_VENDOR_DIR='node_exporter.arm64'
+    PROMETHEUS_VENDOR_DIR='prometheus.arm64'
+
+    # adjust restic binary symlink
+    rm src/datastore_mad/remotes/restic/restic
+    ln -s ./vendor/bin/restic.arm64 src/datastore_mad/remotes/restic/restic
+fi
+
 # ALERTMANAGER
-ONEPROMETHEUS_ALERTMANAGER_BIN_FILES="src/oneprometheus/vendor/alertmanager/alertmanager \
-                                      src/oneprometheus/vendor/alertmanager/amtool"
-ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES="src/oneprometheus/alertmanager/etc/alertmanager.yml"
-ONEPROMETHEUS_ALERTMANAGER_FILES="src/oneprometheus/vendor/alertmanager/LICENSE \
-                                  src/oneprometheus/vendor/alertmanager/NOTICE"
+ONEPROMETHEUS_ALERTMANAGER_BIN_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/alertmanager \
+                                      src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/amtool"
+ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES="src/oneprometheus/${ALERTMANAGER_VENDOR_DIR}/etc/alertmanager.yml"
+ONEPROMETHEUS_ALERTMANAGER_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/LICENSE \
+                                  src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_ALERTMANAGER_SYSTEMD_FILES="src/oneprometheus/alertmanager/systemd/opennebula-alertmanager.service"
 
 # GRAFANA
@@ -3068,9 +3089,9 @@ ONEPROMETHEUS_LIBVIRT_EXPORTER_FILES="src/oneprometheus/opennebula-libvirt-expor
 ONEPROMETHEUS_LIBVIRT_EXPORTER_SYSTEMD_FILES="src/oneprometheus/opennebula-libvirt-exporter/systemd/opennebula-libvirt-exporter.service"
 
 # NODE-EXPORTER
-ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES="src/oneprometheus/vendor/node_exporter/node_exporter"
-ONEPROMETHEUS_NODE_EXPORTER_FILES="src/oneprometheus/vendor/node_exporter/LICENSE \
-                                   src/oneprometheus/vendor/node_exporter/NOTICE"
+ONEPROMETHEUS_NODE_EXPORTER_BIN_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/node_exporter"
+ONEPROMETHEUS_NODE_EXPORTER_FILES="src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/LICENSE \
+                                   src/oneprometheus/vendor/${NODE_EXPORTER_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_NODE_EXPORTER_SYSTEMD_FILES="src/oneprometheus/node_exporter/systemd/opennebula-node-exporter.service"
 
 # OPENNEBULA-EXPORTER
@@ -3083,14 +3104,14 @@ ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/s
 ONEPROMETHEUS_OPENNEBULA_EXPORTER_SYSTEMD_FILES="src/oneprometheus/opennebula-exporter/systemd/opennebula-exporter.service"
 
 # PROMETHEUS
-ONEPROMETHEUS_PROMETHEUS_BIN_FILES="src/oneprometheus/vendor/prometheus/prometheus \
-                                    src/oneprometheus/vendor/prometheus/promtool"
+ONEPROMETHEUS_PROMETHEUS_BIN_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}prometheus/prometheus \
+                                    src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/promtool"
 ONEPROMETHEUS_PROMETHEUS_CONFIG_FILES="src/oneprometheus/prometheus/etc/prometheus.yml \
                                        src/oneprometheus/prometheus/etc/rules.yml"
-ONEPROMETHEUS_PROMETHEUS_FILES="src/oneprometheus/vendor/prometheus/console_libraries/ \
-                                src/oneprometheus/vendor/prometheus/consoles/ \
-                                src/oneprometheus/vendor/prometheus/LICENSE \
-                                src/oneprometheus/vendor/prometheus/NOTICE"
+ONEPROMETHEUS_PROMETHEUS_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/console_libraries/ \
+                                src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/consoles/ \
+                                src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/LICENSE \
+                                src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_PROMETHEUS_SHARE_FILES="src/oneprometheus/prometheus/share/patch_datasources.rb"
 ONEPROMETHEUS_PROMETHEUS_SYSTEMD_FILES="src/oneprometheus/prometheus/systemd/opennebula-prometheus.service"
 
