@@ -24,8 +24,10 @@ which curl bzip2 dirname realpath xargs 1>/dev/null
 readonly SELF=$(realpath "$0" | xargs dirname) && cd "$SELF/"
 
 readonly RESTIC_URL="https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2"
+readonly RESTIC_URL_ARM64="https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_arm64.bz2"
 
 install -d "$SELF/bin/"
 curl -fsSL "$RESTIC_URL" | bzip2  -d -s > "$SELF/bin/restic"
+curl -fsSL "$RESTIC_URL_ARM64" | bzip2  -d -s > "$SELF/bin/restic.arm64"
 
-chmod ugo+x "$SELF/bin/restic"
+chmod ugo+x "$SELF/bin/restic" "$SELF/bin/restic.arm64"
