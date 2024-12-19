@@ -3160,7 +3160,7 @@ ONEPROMETHEUS_OPENNEBULA_EXPORTER_FILES="src/oneprometheus/opennebula-exporter/s
 ONEPROMETHEUS_OPENNEBULA_EXPORTER_SYSTEMD_FILES="src/oneprometheus/opennebula-exporter/systemd/opennebula-exporter.service"
 
 # PROMETHEUS
-ONEPROMETHEUS_PROMETHEUS_BIN_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}prometheus/prometheus \
+ONEPROMETHEUS_PROMETHEUS_BIN_FILES="src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/prometheus \
                                     src/oneprometheus/vendor/${PROMETHEUS_VENDOR_DIR}/promtool"
 ONEPROMETHEUS_PROMETHEUS_CONFIG_FILES="src/oneprometheus/prometheus/etc/prometheus.yml \
                                        src/oneprometheus/prometheus/etc/rules.yml"
