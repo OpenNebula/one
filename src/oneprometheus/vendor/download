@@ -28,16 +28,22 @@ which curl dirname gzip realpath tar xargs 1>/dev/null
 readonly SELF=$(realpath "$0" | xargs dirname) && cd "$SELF/"
 
 readonly ALERTMANAGER_URL="https://github.com/prometheus/alertmanager/releases/download/v$ALERTMANAGER_VERSION/alertmanager-$ALERTMANAGER_VERSION.linux-amd64.tar.gz"
+readonly ALERTMANAGER_URL_ARM64="https://github.com/prometheus/alertmanager/releases/download/v$ALERTMANAGER_VERSION/alertmanager-$ALERTMANAGER_VERSION.linux-arm64.tar.gz"
 
 readonly NODE_EXPORTER_URL="https://github.com/prometheus/node_exporter/releases/download/v$NODE_EXPORTER_VERSION/node_exporter-$NODE_EXPORTER_VERSION.linux-amd64.tar.gz"
+readonly NODE_EXPORTER_URL_ARM64="https://github.com/prometheus/node_exporter/releases/download/v$NODE_EXPORTER_VERSION/node_exporter-$NODE_EXPORTER_VERSION.linux-arm64.tar.gz"
 
 readonly PROMETHEUS_URL="https://github.com/prometheus/prometheus/releases/download/v$PROMETHEUS_VERSION/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
+readonly PROMETHEUS_URL_ARM64="https://github.com/prometheus/prometheus/releases/download/v$PROMETHEUS_VERSION/prometheus-$PROMETHEUS_VERSION.linux-arm64.tar.gz"
 
-install -d "$SELF/alertmanager/"
+install -d "$SELF/alertmanager/" "$SELF/alertmanager.arm64/"
 curl -fsSL "$ALERTMANAGER_URL" | tar -xzf- --strip-components=1 -C "$SELF/alertmanager/"
+curl -fsSL "$ALERTMANAGER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/alertmanager.arm64/"
 
-install -d "$SELF/node_exporter/"
+install -d "$SELF/node_exporter/" "$SELF/node_exporter.arm64/"
 curl -fsSL "$NODE_EXPORTER_URL" | tar -xzf- --strip-components=1 -C "$SELF/node_exporter/"
+curl -fsSL "$NODE_EXPORTER_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/node_exporter.arm64/"
 
-install -d "$SELF/prometheus/"
+install -d "$SELF/prometheus/" "$SELF/prometheus.arm64/"
 curl -fsSL "$PROMETHEUS_URL" | tar -xzf- --strip-components=1 -C "$SELF/prometheus/"
+curl -fsSL "$PROMETHEUS_URL_ARM64" | tar -xzf- --strip-components=1 -C "$SELF/prometheus.arm64/"
