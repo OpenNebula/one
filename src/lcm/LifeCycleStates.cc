@@ -44,16 +44,6 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
     vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
-    vm->set_previous_etime(the_time);
-
-    vm->set_previous_running_etime(the_time);
-
-    vmpool->update_previous_history(vm);
-
-    vm->set_prolog_stime(the_time);
-
-    vmpool->update_history(vm);
-
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
         Template tmpl;
@@ -63,6 +53,16 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 
         vm->release_previous_vnc_port();
     }
+
+    vm->set_previous_etime(the_time);
+
+    vm->set_previous_running_etime(the_time);
+
+    vmpool->update_previous_history(vm);
+
+    vm->set_prolog_stime(the_time);
+
+    vmpool->update_history(vm);
 
     vmpool->update(vm);
 
@@ -290,6 +290,9 @@ void LifeCycleManager::trigger_deploy_success(int vid)
 
             vm->set_running_stime(the_time);
 
+            Template tmpl;
+            vm->get_previous_capacity(sr, tmpl);
+
             vmpool->update_history(vm.get());
 
             vm->set_previous_etime(the_time);
@@ -297,8 +300,6 @@ void LifeCycleManager::trigger_deploy_success(int vid)
             vm->set_previous_running_etime(the_time);
 
             vmpool->update_previous_history(vm.get());
-
-            vm->get_capacity(sr);
 
             hpool->del_capacity(vm->get_previous_hid(), sr);
 

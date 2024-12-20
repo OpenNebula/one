@@ -221,7 +221,9 @@ string VirtualMachineManager::format_message(
         const string& tmpl,
         int ds_id,
         int sgid,
-        int nicid)
+        int nicid,
+        const string& lmfile,
+        const string& rmfile)
 {
     ostringstream oss;
 
@@ -264,6 +266,17 @@ string VirtualMachineManager::format_message(
     {
         oss << "<LOCAL_DEPLOYMENT_FILE/>";
         oss << "<REMOTE_DEPLOYMENT_FILE/>";
+    }
+
+    if (!lmfile.empty())
+    {
+        oss << "<LOCAL_MIGRATE_FILE>" << lmfile << "</LOCAL_MIGRATE_FILE>";
+        oss << "<REMOTE_MIGRATE_FILE>" << rmfile << "</REMOTE_MIGRATE_FILE>";
+    }
+    else
+    {
+        oss << "<LOCAL_MIGRATE_FILE/>";
+        oss << "<REMOTE_MIGRATE_FILE/>";
     }
 
     if (!cfile.empty())
@@ -495,8 +508,9 @@ void VirtualMachineManager::trigger_save(int vid)
     trigger([this, vid]
     {
         const VirtualMachineManagerDriver * vmd;
+        int rc;
 
-        string   hostname, checkpoint_file;
+        string   hostname, checkpoint_file, migrate_file, rmigrate_file;
         string   vm_tmpl;
         string   drv_msg;
         int      ds_id;
@@ -535,12 +549,31 @@ void VirtualMachineManager::trigger_save(int vid)
             hostname        = vm->get_previous_hostname();
             checkpoint_file = vm->get_previous_checkpoint_file();
             ds_id           = vm->get_previous_ds_id();
+
+            //Generate VM description file
+            os << "Generating migrate file: " << vm->get_migrate_file();
+
+            vm->log("VMM", Log::INFO, os);
+
+            os.str("");
+
+            rc = vmd->deployment_description(vm.get(), vm->get_migrate_file());
+
+            if (rc != 0)
+            {
+                goto error_file;
+            }
+
+            migrate_file = vm->get_migrate_file();
+            rmigrate_file = vm->get_rmigrate_file();
         }
         else
         {
             hostname        = vm->get_hostname();
             checkpoint_file = vm->get_checkpoint_file();
             ds_id           = vm->get_ds_id();
+            migrate_file    = "";
+            rmigrate_file   = "";
         }
 
         // Invoke driver method
@@ -556,7 +589,10 @@ void VirtualMachineManager::trigger_save(int vid)
                           "",
                           vm->to_xml(vm_tmpl),
                           ds_id,
-                          -1);
+                         -1,
+                         -1,
+                         migrate_file,
+                         rmigrate_file);
 
         vmd->save(vid, drv_msg);
 
@@ -568,6 +604,11 @@ error_history:
 
 error_driver:
         os << "save_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
+
+error_file:
+        os << "save_action, error generating migrate file: "
+        << vm->get_migrate_file();
         goto error_common;
 
 error_previous_history:
@@ -1154,10 +1195,12 @@ void VirtualMachineManager::trigger_migrate(int vid)
     trigger([this, vid]
     {
         const VirtualMachineManagerDriver * vmd;
+        int rc;
 
         ostringstream os;
         string   vm_tmpl;
         string   drv_msg;
+        string   tm_command = "";
 
         // Get the VM from the pool
         auto vm = vmpool->get(vid);
@@ -1187,6 +1230,24 @@ void VirtualMachineManager::trigger_migrate(int vid)
 
         Nebula::instance().get_tm()->migrate_transfer_command(vm.get(), os);
 
+        tm_command = os.str();
+
+        os.str("");
+
+        //Generate VM description file
+        os << "Generating migrate file: " << vm->get_migrate_file();
+
+        vm->log("VMM", Log::INFO, os);
+
+        os.str("");
+
+        rc = vmd->deployment_description(vm.get(), vm->get_migrate_file());
+
+        if (rc != 0)
+        {
+            goto error_file;
+        }
+
         // Invoke driver method
         drv_msg = format_message(
                 vm->get_previous_hostname(),
@@ -1195,12 +1256,15 @@ void VirtualMachineManager::trigger_migrate(int vid)
                 "",
                 "",
                 "",
-                os.str(),
+                tm_command,
                 "",
                 vm->get_system_dir(),
                 vm->to_xml(vm_tmpl),
                 vm->get_previous_ds_id(),
-                -1);
+                -1,
+                -1,
+                vm->get_migrate_file(),
+                vm->get_rmigrate_file());
 
         vmd->migrate(vid, drv_msg);
 
@@ -1212,6 +1276,11 @@ error_history:
 
 error_driver:
         os << "migrate_action, error getting driver " << vm->get_vmm_mad();
+        goto error_common;
+
+error_file:
+        os << "migrate_action, error generating migrate file: "
+        << vm->get_migrate_file();
         goto error_common;
 
 error_previous_history:

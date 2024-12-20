@@ -350,7 +350,11 @@ void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
 
             if ( vm->get_hid() != vm->get_previous_hid() )
             {
-                hpool->del_capacity(vm->get_previous_hid(), sr);
+                HostShareCapacity prev_sr;
+                Template tmpl;
+                vm->get_previous_capacity(prev_sr, tmpl);
+
+                hpool->del_capacity(vm->get_previous_hid(), prev_sr);
 
                 vm->release_previous_vnc_port();
             }
@@ -1038,6 +1042,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
                                    int& image_id, int uid, int gid, int req_id, Template& quota_tmpl)
 {
     HostShareCapacity sr;
+    HostShareCapacity prev_sr;
+    Template tmpl;
 
     time_t the_time = time(0);
 
@@ -1245,11 +1251,13 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             case VirtualMachine::MIGRATE:
                 vm->set_running_etime(the_time);
 
+                vm->get_previous_capacity(prev_sr, tmpl);
+
                 vm->set_previous_etime(the_time);
                 vm->set_previous_vm_info();
                 vm->set_previous_running_etime(the_time);
 
-                hpool->del_capacity(vm->get_previous_hid(), sr);
+                hpool->del_capacity(vm->get_previous_hid(), prev_sr);
 
                 vmpool->update_previous_history(vm);
 
@@ -1268,11 +1276,13 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             case VirtualMachine::SAVE_MIGRATE:
                 vm->set_running_etime(the_time);
 
+                vm->get_previous_capacity(prev_sr, tmpl);
+
                 vm->set_previous_etime(the_time);
                 vm->set_previous_vm_info();
                 vm->set_previous_running_etime(the_time);
 
-                hpool->del_capacity(vm->get_previous_hid(), sr);
+                hpool->del_capacity(vm->get_previous_hid(), prev_sr);
 
                 vmpool->update_previous_history(vm);
 
