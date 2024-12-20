@@ -213,16 +213,16 @@ begin
 
     @vm_dir = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH']).cleanpath
     @shared = action_xml['/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED'].casecmp('YES') == 0
-    @migrate_file = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/REMOTE_MIGRATE_FILE']).cleanpath
+    @mig_file = Pathname.new(action_xml['/VMM_DRIVER_ACTION_DATA/REMOTE_MIGRATE_FILE']).cleanpath
 
-    kvm_vm  = KvmDomain.new(@deploy_id)
+    kvm_vm = KvmDomain.new(@deploy_id)
 
     # Migration can't be done with domain snapshots, drop them first
     kvm_vm.snapshots_delete
 
     # Migrate VMs using shared/local storage
     if @shared
-        rc, _out, err = kvm_vm.live_migrate(@dst_host, @migrate_file)
+        rc, _out, err = kvm_vm.live_migrate(@dst_host, @mig_file)
 
         cleanup_host(kvm_vm, err) if rc != 0
     else
