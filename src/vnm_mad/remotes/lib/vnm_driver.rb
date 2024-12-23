@@ -240,17 +240,17 @@ module VNMMAD
         def clean_vlan_filters(nic)
             @bridges[nic[:bridge]].each do |dev|
                 LocalCommand.run_sh("#{command(:bridge)} vlan del dev #{dev}"\
-                            ' vid 2-4094', nil, 2)
+                            ' vid 2-4094', :ok_rcs => 2)
             end
         end
 
         def set_vlan_filter(dev, pvid, vlans)
             LocalCommand.run_sh("#{command(:bridge)} vlan add dev #{dev}"\
-                " vid #{pvid} pvid untagged", nil, 2) if pvid
+                " vid #{pvid} pvid untagged", :ok_rcs => 2) if pvid
 
             vlans.each do |vid|
                 LocalCommand.run_sh("#{command(:bridge)} vlan add dev #{dev}"\
-                    " vid #{vid}", nil, 2)
+                    " vid #{vid}", :ok_rcs => 2)
             end
         end
 

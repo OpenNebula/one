@@ -153,7 +153,7 @@ class VLANTagDriver < VNMMAD::VLANDriver
             tpdev = VNMMAD::TProxy.veth(@nic)
 
             LocalCommand.run_sh("#{command(:ip)} link set dev #{@nic[:bridge]}"\
-                ' type bridge vlan_filtering 1', nil, 2)
+                ' type bridge vlan_filtering 1', :ok_rcs => 2)
 
             set_vlan_filter(tpdev, @nic[:vlan_id], []) if brdev.include? tpdev
 

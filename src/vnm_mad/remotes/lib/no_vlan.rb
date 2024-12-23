@@ -189,7 +189,7 @@ module VNMMAD
 
                 # Configure the Bridge (only once)
                 LocalCommand.run_sh("#{command(:ip)} link set dev #{@nic[:bridge]}"\
-                    ' type bridge vlan_filtering 1', nil, 2)
+                    ' type bridge vlan_filtering 1', :ok_rcs => 2)
 
                 set_vlan_filter(@nic[:phydev], nil, vlan_set)
 
