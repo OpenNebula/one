@@ -69,7 +69,7 @@ const ImagesTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: (_, onClickLabel, onDeleteLabel, { label: LABELS = [] }) => {
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
         const { labels: userLabels } = useAuth()
         const labels = useMemo(
           () =>
@@ -84,7 +84,7 @@ const ImagesTable = (props) => {
 
               return acc
             }, []),
-          [LABELS, onDeleteLabel, onClickLabel]
+          [LABELS]
         )
 
         return <MultipleTags tags={labels} truncateText={10} />
