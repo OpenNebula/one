@@ -89,7 +89,7 @@ public:
      *    @param hostname
      *    @return a pointer to the Host, nullptr if the Host could not be loaded
      */
-    std::unique_ptr<Host> get(std::string name)
+    std::unique_ptr<Host> get(const std::string& name)
     {
         // The owner is set to -1, because it is not used in the key() method
         return PoolSQL::get<Host>(name, -1);
@@ -101,7 +101,7 @@ public:
      *    @param hostname
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
-    std::unique_ptr<Host> get_ro(std::string name)
+    std::unique_ptr<Host> get_ro(const std::string& name)
     {
         // The owner is set to -1, because it is not used in the key() method
         return PoolSQL::get_ro<Host>(name, -1);

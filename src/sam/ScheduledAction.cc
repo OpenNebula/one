@@ -241,8 +241,8 @@ bool ScheduledAction::days_in_range(std::string& error)
         "Hours have to be in [0,168] range"           // HOURLY - 3
     };
 
-    static int fday[] = {0, 1, 0, 1};
-    static int lday[] = {7, 32, 366, 168};
+    static const int fday[] = {0, 1, 0, 1};
+    static const int lday[] = {7, 32, 366, 168};
 
     bool extra_check;
 

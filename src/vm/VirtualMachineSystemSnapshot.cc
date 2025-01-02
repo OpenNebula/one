@@ -99,7 +99,7 @@ VectorAttribute* VirtualMachine::new_snapshot(string& name, int& snap_id)
 /* -------------------------------------------------------------------------- */
 
 int set_active_snapshot(int snap_id, const string& action,
-                        vector<VectorAttribute *>& snaps)
+                        const vector<VectorAttribute *>& snaps)
 {
     int s_id;
 

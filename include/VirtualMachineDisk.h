@@ -544,7 +544,7 @@ public:
      *  @return 0 if success
      */
     int get_images(int vm_id, int uid, const std::string& tm_mad_sys,
-                   std::vector<VectorAttribute *> disks, VectorAttribute * context,
+                   std::vector<VectorAttribute *>& disks, VectorAttribute * context,
                    bool is_q35, std::string& error_str);
 
     /**
@@ -832,7 +832,7 @@ public:
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-                                                int id) const
+                                                int id) const override
     {
         return new VirtualMachineDisk(va, id);
     };

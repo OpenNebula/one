@@ -112,7 +112,7 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
+int AddressRangePool::update_ar(const vector<VectorAttribute *>& ars, bool keep_restricted,
                                 std::set<int>& update_ids, std::unique_ptr<VectorAttribute>& update_attr,
                                 string& error_msg)
 {

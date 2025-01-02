@@ -56,7 +56,7 @@ public:
     /* ---------------------------------------------------------------------- */
     VMGroupRule():policy(VMGroupPolicy::NONE), roles() {};
 
-    VMGroupRule(VMGroupPolicy p, std::set<int> roles_id):policy(p)
+    VMGroupRule(VMGroupPolicy p, const std::set<int>& roles_id):policy(p)
     {
         for ( auto rid : roles_id )
         {

@@ -88,7 +88,7 @@ public:
      *    release the pointer.
      *    @return 0 on success
      */
-    int update_ar(std::vector<VectorAttribute *> ars, bool keep_restricted,
+    int update_ar(const std::vector<VectorAttribute *>& ars, bool keep_restricted,
                   std::set<int>& update_ids, std::unique_ptr<VectorAttribute>& update_attr,
                   std::string& error_msg);
     /**

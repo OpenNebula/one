@@ -373,7 +373,7 @@ public:
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
-    int get_network_leases(int vm_id, int uid, std::vector<Attribute *> nics,
+    int get_network_leases(int vm_id, int uid, std::vector<Attribute *>& nics,
                            VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
                            std::string& estr);
 
@@ -437,7 +437,7 @@ public:
 protected:
 
     VirtualMachineAttribute * attribute_factory(VectorAttribute * va,
-                                                int id) const
+                                                int id) const override
     {
         return new VirtualMachineNic(va, id);
     };

@@ -20,7 +20,7 @@
 
 using namespace std;
 
-static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules);
+static ostream& operator<<(ostream& os, const VMGroupRule::rule_set& rules);
 
 void VMGroupXML::init_attributes()
 {
@@ -449,7 +449,7 @@ void VMGroupXML::set_affinity_requirements(VirtualMachinePoolXML * vmpool,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static ostream& operator<<(ostream& os, VMGroupRule::rule_set rules)
+static ostream& operator<<(ostream& os, const VMGroupRule::rule_set& rules)
 {
     for ( const auto& rit : rules )
     {

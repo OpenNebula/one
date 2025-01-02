@@ -96,7 +96,7 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterPool::allocate(string name, int * oid, string& error_str)
+int ClusterPool::allocate(const string& name, int * oid, string& error_str)
 {
     *oid = -1;
 

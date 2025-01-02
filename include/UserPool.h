@@ -114,7 +114,7 @@ public:
      *    @param username
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    std::unique_ptr<User> get(std::string name)
+    std::unique_ptr<User> get(const std::string& name)
     {
         // The owner is set to -1, because it is not used in the key() method
         auto u = PoolSQL::get<User>(name, -1);
@@ -133,7 +133,7 @@ public:
      *    @param username
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    std::unique_ptr<User> get_ro(std::string name)
+    std::unique_ptr<User> get_ro(const std::string& name)
     {
         // The owner is set to -1, because it is not used in the key() method
         auto u = PoolSQL::get_ro<User>(name, -1);

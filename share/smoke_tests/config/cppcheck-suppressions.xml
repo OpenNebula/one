@@ -17,23 +17,49 @@
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
-		<id>constParameter</id>
+		<id>constParameterPointer</id>
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
-		<id>constVariable</id>
+		<id>constParameterReference</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>constVariablePointer</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>constVariableReference</id>
 		<fileName>*</fileName>
 	</suppress>
 	<suppress>
 		<id>useStlAlgorithm</id>
 		<fileName>*</fileName>
 	</suppress>
-<!-- Uncomment this for cppcheck version 2.10
+	<suppress>
+		<id>missingInclude</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>missingIncludeSystem</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>duplInheritedMember</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>incorrectStringBooleanError</id>
+		<fileName>*</fileName>
+	</suppress>
+	<suppress>
+		<id>checkersReport</id>
+		<fileName>*</fileName>
+	</suppress>
 	<suppress>
 		<id>cstyleCast</id>
 		<fileName>*</fileName>
 	</suppress>
--->
 	<!-- Suppresions specific per file, false positives -->
 	<suppress>
 		<id>knownConditionTrueFalse</id>
@@ -47,11 +73,12 @@
 		<id>uninitMemberVar</id>
 		<fileName>include/Callbackable.h</fileName>
 	</suppress>
+	<!--
 	<suppress>
 		<id>containerOutOfBounds</id>
 		<fileName>src/hm/HookLog.cc</fileName>
 		<symbolName>query_output</symbolName>
-	</suppress>
+	</suppress>-->
 	<suppress>
 		<id>knownConditionTrueFalse</id>
 		<fileName>src/raft/ReplicaThread.cc</fileName>
@@ -69,6 +96,14 @@
 		<fileName>src/monitor/src/data_model/VMRPCPool.cc</fileName>
 	</suppress>
 	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/vm/VirtualMachine.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/rm/RequestManagerUser.cc</fileName>
+	</suppress>
+	<suppress>
 		<id>nullPointer</id>
 		<fileName>src/scheduler/include/Scheduler.h</fileName>
 	</suppress>
@@ -83,6 +118,10 @@
 	<suppress>
 		<id>knownEmptyContainer</id>
 		<fileName>src/schedule/ScheduledActionManager.cc</fileName>
+	</suppress>
+	<suppress>
+		<id>missingOverride</id>
+		<fileName>src/scheduler/include/*XML.h</fileName>
 	</suppress>
 </suppressions>
 

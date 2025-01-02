@@ -56,7 +56,7 @@ BackupJob::BackupJob(int                 uid,
     }
     else
     {
-        obj_template = get_new_template();
+        obj_template = BackupJob::get_new_template();
     }
 
     set_umask(umask);

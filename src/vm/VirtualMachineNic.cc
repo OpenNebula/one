@@ -289,7 +289,7 @@ struct NicAliasID
 };
 
 int VirtualMachineNics::get_network_leases(int vm_id, int uid,
-                                           vector<Attribute *> nics, VectorAttribute * nic_default,
+                                           vector<Attribute *>& nics, VectorAttribute * nic_default,
                                            vector<VectorAttribute*>& sgs, std::string& error_str)
 {
     Nebula& nd = Nebula::instance();

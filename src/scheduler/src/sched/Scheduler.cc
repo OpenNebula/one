@@ -890,7 +890,7 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
-    const map<int, ObjectXML*> users       = upool->get_objects();
+    //const map<int, ObjectXML*> users       = upool->get_objects();
     const map<int, ObjectXML*> nets        = vnetpool->get_objects();
 
     double total_cl_match_time = 0;
