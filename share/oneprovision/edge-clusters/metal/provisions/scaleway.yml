@@ -75,7 +75,7 @@ cluster:
       cidr: '172.18.0.0/24'
 
 #-------------------------------------------------------------------------------
-# AWS provision parameters.
+# Scaleway provision parameters.
 #-------------------------------------------------------------------------------
 # This section is used by provision drivers. DO NOT MODIFY IT
 #
