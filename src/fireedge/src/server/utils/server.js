@@ -73,6 +73,8 @@ const {
   defaultProvisionConfig,
   defaultDownloader,
   defaultEmptyFunction,
+  defaultTabManifestFilename,
+  defaultRemoteModulesConfigFilename,
 } = defaults
 
 const { internalServerError } = httpCodes
@@ -586,6 +588,12 @@ const genPathResources = () => {
     }
     if (!global.paths.OS_PROFILES) {
       global.paths.OS_PROFILES = `${ETC_LOCATION}/${defaultSunstonePath}/profiles`
+    }
+    if (!global.paths.TAB_MANIFEST_CONFIG) {
+      global.paths.TAB_MANIFEST_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultTabManifestFilename}`
+    }
+    if (!global.paths.REMOTE_MODULES_CONFIG) {
+      global.paths.REMOTE_MODULES_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultRemoteModulesConfigFilename}`
     }
     if (!global.paths.FIREEDGE_KEY_PATH) {
       global.paths.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`

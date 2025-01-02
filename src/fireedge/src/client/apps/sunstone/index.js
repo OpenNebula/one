@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
+/* ******* Eagerly consumed dependencies ******** *
+ *                                                 *
+ * These are explicitly imported by the client so
+ * that they can be consumed by the submodules    */
+import '@mui/material'
+/* ---------------------------------------------- */
+
 import 'core-js'
 import PropTypes from 'prop-types'
 import { JSXElementConstructor } from 'react'
-
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter, StaticRouter } from 'react-router-dom'
 import { Store } from 'redux'
 
-import { TranslateProvider } from 'client/components/HOC'
-import MuiProvider from 'client/providers/muiProvider'
-import NotistackProvider from 'client/providers/notistackProvider'
-import PreloadConfigProvider from 'client/providers/preloadConfigProvider'
-
+import {
+  SunstoneTheme as theme,
+  PreloadConfigProvider,
+  MuiProvider,
+  NotiStackProvider,
+} from '@ProvidersModule'
+import { TranslateProvider } from '@ComponentsModule'
 import App, { APP_NAME as SunstoneAppName } from 'client/apps/sunstone/_app'
-import theme from 'client/apps/sunstone/theme'
-import { APP_URL } from 'client/constants'
-import { buildTranslationLocale } from 'client/utils'
+import { APP_URL } from '@ConstantsModule'
+import { buildTranslationLocale } from '@UtilsModule'
 
 buildTranslationLocale()
 
@@ -42,9 +50,9 @@ buildTranslationLocale()
 const Sunstone = ({ store = {}, location = '' }) => (
   <PreloadConfigProvider>
     <ReduxProvider store={store}>
-      <TranslateProvider>
-        <MuiProvider theme={theme}>
-          <NotistackProvider>
+      <MuiProvider theme={theme}>
+        <TranslateProvider>
+          <NotiStackProvider>
             {location ? (
               // server build
               <StaticRouter location={location}>
@@ -56,9 +64,9 @@ const Sunstone = ({ store = {}, location = '' }) => (
                 <App />
               </BrowserRouter>
             )}
-          </NotistackProvider>
-        </MuiProvider>
-      </TranslateProvider>
+          </NotiStackProvider>
+        </TranslateProvider>
+      </MuiProvider>
     </ReduxProvider>
   </PreloadConfigProvider>
 )

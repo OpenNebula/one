@@ -68,6 +68,7 @@ const app = express()
 const basename = defaultAppName ? `/${defaultAppName}` : ''
 
 let frontPath = 'client'
+const remoteModulesPath = 'modules'
 
 // settings
 const host = appConfig.host || defaultHost
@@ -107,6 +108,16 @@ app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(resolve(__dirname, frontPath)))
 app.use(`${basename}/client/*`, express.static(resolve(__dirname, frontPath)))
+
+// Remote modules serving
+app.use(
+  `${basename}/modules`,
+  express.static(resolve(__dirname, remoteModulesPath))
+)
+app.use(
+  `${basename}/modules/*`,
+  express.static(resolve(__dirname, remoteModulesPath))
+)
 
 const loggerMiddleware = getLoggerMiddleware()
 if (loggerMiddleware) {

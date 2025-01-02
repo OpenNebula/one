@@ -26,7 +26,7 @@ const {
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
-  include: path.resolve(__dirname, 'src'),
+  include: path.resolve(__dirname, 'src', 'server'),
 }
 
 const css = {
@@ -77,11 +77,15 @@ module.exports = {
   stats: {
     warnings: false,
   },
+  experiments: {
+    topLevelAwait: true,
+  },
   plugins: [
     new TimeFixPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(defaultProductionWebpackMode),
+        BUILD_TARGET: JSON.stringify(process.env.BUILD_TARGET || 'remote'),
       },
     }),
     new webpack.optimize.LimitChunkCountPlugin({

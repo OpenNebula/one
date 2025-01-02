@@ -161,7 +161,21 @@ const defaults = {
   defaultPort: 2616,
   defaultEvents: ['SIGINT', 'SIGTERM'],
 
+  /** REMOTE MODULES */
+  defaultRemoteModules: [
+    'UtilsModule',
+    'ConstantsModule',
+    'ContainersModule',
+    'ComponentsModule',
+    'FeaturesModule',
+    'ProvidersModule',
+    'ModelsModule',
+    'HooksModule',
+  ],
+
   /** CONFIGURATION FILE */
+  defaultTabManifestFilename: 'tab-manifest.json',
+  defaultRemoteModulesConfigFilename: 'remotes-config.json',
   defaultConfigFile: `${appName}-server.conf`,
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,

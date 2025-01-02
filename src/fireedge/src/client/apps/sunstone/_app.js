@@ -14,25 +14,28 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useEffect, useMemo } from 'react'
-
 import { ENDPOINTS, getEndpointsByView } from 'client/apps/sunstone/routes'
-import {
-  ENDPOINTS as ONE_ENDPOINTS,
-  PATH,
-} from 'client/apps/sunstone/routesOne'
-import Router from 'client/router'
 import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
+import Router from 'client/router'
+import {
+  Notifier,
+  Sidebar,
+  NotifierUpload,
+  PATH,
+  AuthLayout,
+  TranslateProvider,
+} from '@ComponentsModule'
 
-import { AuthLayout } from 'client/components/HOC'
-import Notifier from 'client/components/Notifier'
-import NotifierUpload from 'client/components/Notifier/upload'
-import Sidebar from 'client/components/Sidebar'
-import { _APPS } from 'client/constants'
-import { useAuth, useViews } from 'client/features/Auth'
-import { useGeneralApi } from 'client/features/General'
-import { useLazyCheckOfficialSupportQuery } from 'client/features/OneApi/support'
-import systemApi from 'client/features/OneApi/system'
-import { isDevelopment } from 'client/utils'
+import { _APPS } from '@ConstantsModule'
+import { isDevelopment, processTabManifest } from '@UtilsModule'
+import {
+  useGeneralApi,
+  useAuth,
+  useViews,
+  oneApi,
+  SupportAPI,
+  SystemAPI,
+} from '@FeaturesModule'
 
 export const APP_NAME = _APPS.sunstone
 
@@ -53,10 +56,17 @@ const showSupportTab = (routes = [], find = true) => {
  * @returns {ReactElement} App rendered.
  */
 const SunstoneApp = () => {
-  const [getSupport, { isSuccess }] = useLazyCheckOfficialSupportQuery()
+  const [getSupport, { isSuccess: isSupportSuccess }] =
+    SupportAPI.useLazyCheckOfficialSupportQuery()
   const { changeAppTitle } = useGeneralApi()
   const { isLogged, externalRedirect } = useAuth()
   const { views, view } = useViews()
+
+  const {
+    data: tabManifest = {},
+    isSuccess: isManifestLoaded,
+    isLoading: isManifestLoading,
+  } = SystemAPI.useGetTabManifestQuery()
 
   useEffect(() => {
     changeAppTitle(APP_NAME)
@@ -76,30 +86,38 @@ const SunstoneApp = () => {
 
     if (!view) return fixedEndpoints
 
-    const viewEndpoints = getEndpointsByView(views?.[view], ONE_ENDPOINTS)
+    const viewEndpoints = getEndpointsByView(
+      views?.[view],
+      processTabManifest(tabManifest)
+    )
 
-    return showSupportTab(fixedEndpoints.concat(viewEndpoints), isSuccess)
-  }, [view, isSuccess])
+    return showSupportTab(
+      fixedEndpoints.concat(viewEndpoints),
+      isSupportSuccess
+    )
+  }, [tabManifest, view, isSupportSuccess, isManifestLoaded, isManifestLoading])
 
   return (
-    <AuthLayout
-      subscriptions={[
-        systemApi.endpoints.getOneConfig,
-        systemApi.endpoints.getSunstoneViews,
-      ]}
-    >
-      {isLogged && (
-        <>
-          <Sidebar endpoints={endpoints} />
-          <Notifier />
-          <NotifierUpload />
-        </>
-      )}
-      <Router
-        redirectWhenAuth={externalRedirect || PATH.DASHBOARD}
-        endpoints={endpoints}
-      />
-    </AuthLayout>
+    <TranslateProvider>
+      <AuthLayout
+        subscriptions={[
+          oneApi.endpoints.getOneConfig,
+          oneApi.endpoints.getSunstoneViews,
+        ]}
+      >
+        {isLogged && (
+          <>
+            <Sidebar endpoints={endpoints} />
+            <Notifier />
+            <NotifierUpload />
+          </>
+        )}
+        <Router
+          redirectWhenAuth={externalRedirect || PATH.DASHBOARD}
+          endpoints={endpoints}
+        />
+      </AuthLayout>
+    </TranslateProvider>
   )
 }
 

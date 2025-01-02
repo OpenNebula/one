@@ -16,10 +16,6 @@
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { Router } = require('express')
-const { renderToString } = require('react-dom/server')
-const root = require('window-or-global')
-const { createStore, compose, applyMiddleware } = require('redux')
-const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@mui/styles')
 const { request: axios } = require('axios')
 const { writeInLogger } = require('server/utils/logger')
@@ -31,6 +27,8 @@ const {
   getProvisionConfig,
   getFireedgeConfig,
 } = require('server/utils/yml')
+
+const { getRemotesConfig } = require('server/utils/remoteModules')
 
 const { getEncodedFavicon } = require('server/utils/logo')
 const {
@@ -45,12 +43,12 @@ const {
   httpMethod,
 } = require('server/utils/constants/defaults')
 
-// client
-const rootReducer = require('client/store/reducers')
-const { upperCaseFirst } = require('client/utils')
-const { APP_URL, STATIC_FILES_URL } = require('client/constants')
-
 const APP_NAMES = Object.keys(defaultApps)
+const APP_URL = '/fireedge'
+const STATIC_FILES_URL = `${APP_URL}/client/assets`
+
+const upperCaseFirst = (input) =>
+  input?.charAt(0)?.toUpperCase() + input.substring(1)
 
 const ensuredScriptValue = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c')
@@ -82,6 +80,7 @@ router.get('*', async (req, res) => {
   const encodedFavIcon = await getEncodedFavicon()
 
   const appConfig = getFireedgeConfig()
+  const remotesConfig = getRemotesConfig()
   const authType = appConfig?.auth
   const validAuthTypes = ['remote', 'x509']
 
@@ -140,24 +139,9 @@ router.get('*', async (req, res) => {
     .pathname.split(/\//gi)
     .filter((sub) => sub?.length > 0)
     .find((resource) => APP_NAMES.includes(resource))
-
   const sheets = new ServerStyleSheets()
-  const composeEnhancer =
-    (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
-  // SSR redux store
-  const store = createStore(
-    rootReducer,
-    composeEnhancer(applyMiddleware(thunk))
-  )
-
-  const App = require(`../../../client/apps/${appName}/index.js`).default
-
-  const rootComponent = renderToString(
-    sheets.collect(<App location={req.url} store={store} />)
-  )
-
-  const PRELOAD_STATE = { ...(store.getState() || {}) }
+  const PRELOAD_STATE = {}
 
   if (appConfig?.default_zone?.id !== undefined && PRELOAD_STATE?.general) {
     PRELOAD_STATE.general = {
@@ -178,6 +162,11 @@ router.get('*', async (req, res) => {
       <link rel="icon" type="image/png" sizes="32x32" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-32x32.png">
       <link rel="icon" type="image/png" sizes="16x16" href="${STATIC_FILES_URL}/favicon/${appName}/favicon-16x16.png">
     `
+
+  const remoteModules = `
+    <script id="preload-remotes-config">
+      window.__REMOTES_MODULE_CONFIG__ = ${JSON.stringify(remotesConfig)}
+    </script>`
 
   const config = `
     <script id="preload-server-side">
@@ -209,10 +198,11 @@ router.get('*', async (req, res) => {
       ${css}
     </head>
     <body>
-      <div id="root">${rootComponent}</div>
+      <div id="root"/>
       ${storeRender}
       ${config}
       ${requestTimeOut}
+      ${remoteModules}
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

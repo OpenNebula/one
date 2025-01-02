@@ -1,0 +1,34 @@
+{
+  "UtilsModule": {
+    "name": "UtilsModule",
+    "entry": "http://localhost:2616/fireedge/modules/UtilsModule/remoteEntry.js"
+  },
+  "ConstantsModule": {
+    "name": "ConstantsModule",
+    "entry": "http://localhost:2616/fireedge/modules/ConstantsModule/remoteEntry.js"
+  },
+  "ContainersModule": {
+    "name": "ContainersModule",
+    "entry": "http://localhost:2616/fireedge/modules/ContainersModule/remoteEntry.js"
+  },
+  "ComponentsModule": {
+    "name": "ComponentsModule",
+    "entry": "http://localhost:2616/fireedge/modules/ComponentsModule/remoteEntry.js"
+  },
+  "FeaturesModule": {
+    "name": "FeaturesModule",
+    "entry": "http://localhost:2616/fireedge/modules/FeaturesModule/remoteEntry.js"
+  },
+  "ProvidersModule": {
+    "name": "ProvidersModule",
+    "entry": "http://localhost:2616/fireedge/modules/ProvidersModule/remoteEntry.js"
+  },
+  "ModelsModule": {
+    "name": "ModelsModule",
+    "entry": "http://localhost:2616/fireedge/modules/ModelsModule/remoteEntry.js"
+  },
+  "HooksModule": {
+    "name": "HooksModule",
+    "entry": "http://localhost:2616/fireedge/modules/HooksModule/remoteEntry.js"
+  }
+}

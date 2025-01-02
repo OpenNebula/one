@@ -14,17 +14,40 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
+const moduleName = 'host'
 const path = require('path')
 const webpack = require('webpack')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
+const ExternalRemotesPlugin = require('external-remotes-plugin')
 const {
   defaultApps,
   defaultFileStats,
   defaultAppName,
 } = require('./src/server/utils/constants/defaults')
+const sharedDeps = require('./src/modules/sharedDeps')
+const { ModuleFederationPlugin } = require('webpack').container
+const ONE_LOCATION = process.env.ONE_LOCATION
+const ETC_LOCATION = ONE_LOCATION ? `${ONE_LOCATION}/etc` : '/etc'
+
+const remotesConfigPath =
+  process.env.NODE_ENV === 'production'
+    ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.json`
+    : path.resolve(__dirname, 'etc', 'sunstone', 'remotes-config.json')
+
+const remotesConfig = require(remotesConfigPath)
+
+const configuredRemotes = Object.entries(remotesConfig)
+  .filter(([_, { name }]) => name !== moduleName)
+  .reduce((acc, [module, { name }]) => {
+    acc[
+      `@${module}`
+    ] = `${name}@[window.__REMOTES_MODULE_CONFIG__.${module}.entry]`
+
+    return acc
+  }, {})
 
 const js = {
   test: /\.js$/,
@@ -58,15 +81,16 @@ const images = {
 const bundle = ({ assets = false, name = 'sunstone' }) => {
   const plugins = [
     new TimeFixPlugin(),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-      },
-    }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
     new LoadablePlugin({ filename: name + defaultFileStats }),
+    new ModuleFederationPlugin({
+      name: moduleName,
+      remotes: configuredRemotes,
+      shared: sharedDeps({ eager: true }),
+    }),
+    new ExternalRemotesPlugin(),
   ]
   if (assets) {
     plugins.push(
@@ -83,15 +107,27 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
 
   return {
     mode: 'production',
-    entry: path.resolve(__dirname, 'src', 'client', `${name}.js`),
+    entry: path.resolve(
+      __dirname,
+      'src',
+      'client',
+      `${name === 'sunstone' ? 'bootstrap' : name}.js`
+    ),
     target: 'web',
+    devtool: 'source-map',
+    experiments: {
+      topLevelAwait: true,
+    },
     output: {
       path: path.resolve(__dirname, 'dist', 'client'),
       filename: `bundle.${name}.js`,
+      chunkFilename: '[contenthash].[id].js',
+      uniqueName: moduleName,
       publicPath: `/${defaultAppName}/client/`,
     },
     stats: {
       warnings: false,
+      errorDetails: true,
     },
     resolve: {
       alias: {
@@ -101,6 +137,8 @@ const bundle = ({ assets = false, name = 'sunstone' }) => {
     plugins,
     optimization: {
       minimizer: [new TerserPlugin({ extractComments: false })],
+      moduleIds: 'deterministic',
+      chunkIds: 'deterministic',
     },
     module: {
       rules: [js, css, images],

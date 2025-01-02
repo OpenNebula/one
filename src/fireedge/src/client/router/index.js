@@ -25,8 +25,7 @@ import {
   ENDPOINTS as COMMON_ENDPOINTS,
 } from 'client/router/common'
 
-import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
-import { InternalLayout } from 'client/components/HOC'
+import { ProtectedRoute, NoAuthRoute, InternalLayout } from '@ComponentsModule'
 
 const renderRoute = ({ Component, ...route }) => (
   <ProtectedRoute key={route.path} exact {...route}>

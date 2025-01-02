@@ -25,11 +25,13 @@ const { GET } = httpMethod
 const SYSTEM_CONFIG = 'system.config'
 const VMM_CONFIG = 'vmm.config'
 const PROFILES = 'system.profiles'
+const TAB_CONFIG = 'tab.config'
 
 const Actions = {
   SYSTEM_CONFIG,
   VMM_CONFIG,
   PROFILES,
+  TAB_CONFIG,
 }
 
 module.exports = {
@@ -61,6 +63,11 @@ module.exports = {
         },
       },
       auth: true,
+    },
+    [TAB_CONFIG]: {
+      path: `${basepath}/tab-manifest`,
+      httpMethod: GET,
+      auth: false,
     },
   },
 }

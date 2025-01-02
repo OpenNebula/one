@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { hydrate, render } from 'react-dom'
-
+/* eslint-disable jsdoc/require-jsdoc */
+import { render } from 'react-dom'
 import { createStore } from 'client/store'
 import App from 'client/apps/sunstone'
 
@@ -22,7 +22,6 @@ export const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
 
 delete window.__PRELOADED_STATE__
 
-const rootHTML = document.getElementById('root')?.innerHTML
-const renderMethod = rootHTML !== '' ? hydrate : render
-
-renderMethod(<App store={store} />, document.getElementById('root'))
+export default function initApp() {
+  render(<App store={store} />, document.getElementById('root'))
+}

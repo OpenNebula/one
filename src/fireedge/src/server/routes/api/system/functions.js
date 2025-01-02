@@ -24,7 +24,7 @@ const {
 const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
 const { getVmmConfig } = require('server/utils/vmm')
 const { getProfiles } = require('server/utils/profiles')
-
+const { getTabManifest } = require('server/utils/remoteModules')
 const { defaultEmptyFunction, httpMethod } = defaults
 const { ok, internalServerError, badRequest, notFound } = httpCodes
 const { GET } = httpMethod
@@ -217,8 +217,47 @@ const getTemplateProfiles = async (
 
   next()
 }
+
+/**
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
+ * @returns {object} - Tab manifest
+ */
+const getTabManifestHandler = async (res = {}, next = defaultEmptyFunction) => {
+  try {
+    const tabManifest = (await getTabManifest()) ?? {}
+
+    if (!tabManifest) {
+      res.locals.httpCode = httpResponse(notFound, 'No tab-manifest found', '')
+
+      return next()
+    }
+
+    if (Object.keys(tabManifest)?.length <= 0) {
+      res.locals.httpCode = httpResponse(
+        notFound,
+        'No valid tab manifest found',
+        ''
+      )
+    } else {
+      res.locals.httpCode = httpResponse(ok, tabManifest)
+    }
+  } catch (error) {
+    const httpError = httpResponse(
+      internalServerError,
+      'Failed to load tab-manifest',
+      ''
+    )
+    writeInLogger(httpError)
+    res.locals.httpCode = httpError
+  }
+
+  next()
+}
+
 module.exports = {
   getConfig,
   getVmmConfigHandler,
   getTemplateProfiles,
+  getTabManifestHandler,
 }

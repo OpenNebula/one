@@ -18,22 +18,24 @@ import { setupListeners } from '@reduxjs/toolkit/query/react'
 import storage from 'redux-persist/lib/storage'
 import { persistStore, persistReducer } from 'redux-persist'
 
-import { isDevelopment } from 'client/utils'
+import { isDevelopment } from '@UtilsModule'
 
-import * as Auth from 'client/features/Auth/slice'
-import * as SupportAuth from 'client/features/SupportAuth/slice'
-import * as General from 'client/features/General/slice'
-import * as Persistent from 'client/features/Persistent/slice'
-import * as Guacamole from 'client/features/Guacamole/slice'
-import { oneApi } from 'client/features/OneApi'
-import { unauthenticatedMiddleware } from 'client/features/middleware'
+import {
+  AuthSlice,
+  GeneralSlice,
+  SupportSlice,
+  PersistentSlice,
+  GuacamoleSlice,
+  oneApi,
+  unauthenticatedMiddleware,
+} from '@FeaturesModule'
 
 const persistConfig = {
   key: 'root',
   storage,
 }
 
-const persistedReducer = persistReducer(persistConfig, Persistent.reducer)
+const persistedReducer = persistReducer(persistConfig, PersistentSlice.reducer)
 
 /**
  * @param {object} props - Props
@@ -44,12 +46,12 @@ const persistedReducer = persistReducer(persistConfig, Persistent.reducer)
 export const createStore = ({ initState = {}, extraMiddleware = [] }) => {
   const store = configureStore({
     reducer: {
-      [Auth.name]: Auth.reducer,
-      [SupportAuth.name]: SupportAuth.reducer,
-      [General.name]: General.reducer,
-      [Guacamole.name]: Guacamole.reducer,
+      [AuthSlice.name]: AuthSlice.reducer,
+      [SupportSlice.name]: SupportSlice.reducer,
+      [GeneralSlice.name]: GeneralSlice.reducer,
+      [GuacamoleSlice.name]: GuacamoleSlice.reducer,
       [oneApi.reducerPath]: oneApi.reducer,
-      [Persistent.name]: persistedReducer,
+      [PersistentSlice.name]: persistedReducer,
     },
     devTools: isDevelopment(),
     middleware: (getDefaultMiddleware) =>

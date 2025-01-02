@@ -15,7 +15,10 @@
  * ------------------------------------------------------------------------- */
 import loadable from '@loadable/component'
 
-const Login = loadable(() => import('client/containers/Login'), { ssr: false })
+const Login = loadable(
+  () => import('@ContainersModule').then((module) => module.Login),
+  { ssr: false }
+)
 
 export const PATH = {
   LOGIN: '/',

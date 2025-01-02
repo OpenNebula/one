@@ -20,22 +20,31 @@ import {
 
 import loadable from '@loadable/component'
 
-import { T } from 'client/constants'
+import { T } from '@ConstantsModule'
 
 const Dashboard = loadable(
-  () => import('client/containers/Dashboard/Sunstone'),
+  () => import('@ContainersModule').then((module) => module.SunstoneDashboard),
   { ssr: false }
 )
-const Settings = loadable(() => import('client/containers/Settings'), {
-  ssr: false,
-})
-const Guacamole = loadable(() => import('client/containers/Guacamole'), {
-  ssr: false,
-})
+const Settings = loadable(
+  () => import('@ContainersModule').then((module) => module.Settings),
+  {
+    ssr: false,
+  }
+)
+const Guacamole = loadable(
+  () => import('@ContainersModule').then((module) => module.Guacamole),
+  {
+    ssr: false,
+  }
+)
 
-const WebMKS = loadable(() => import('client/containers/WebMKS'), {
-  ssr: false,
-})
+const WebMKS = loadable(
+  () => import('@ContainersModule').then((module) => module.WebMKS),
+  {
+    ssr: false,
+  }
+)
 
 export const PATH = {
   DASHBOARD: '/dashboard',
