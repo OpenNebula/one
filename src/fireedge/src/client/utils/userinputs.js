@@ -127,6 +127,7 @@ const schemaUserInput = ({
     case USER_INPUT_TYPES.text64: {
       // type
       config.type = INPUT_TYPES.TEXT
+      config.multiline = true
 
       // htmlType
       config.htmlType = (htmlType) => (!htmlType ? INPUT_TYPES.HIDDEN : 'text')
