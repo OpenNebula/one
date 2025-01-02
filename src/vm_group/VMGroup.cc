@@ -431,7 +431,7 @@ int VMGroup::check_rule_consistency(std::string& error)
         return -1;
     }
 
-    for (auto rule : affined)
+    for (const auto& rule : affined)
     {
         const VMGroupRule::role_bitset rs = rule.get_roles();
 

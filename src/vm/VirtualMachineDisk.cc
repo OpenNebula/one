@@ -773,7 +773,7 @@ void VirtualMachineDisks::assign_disk_targets(
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachineDisks::get_images(int vm_id, int uid, const std::string& tsys,
-                                    vector<VectorAttribute *> disks, VectorAttribute * vcontext, bool is_q35,
+                                    vector<VectorAttribute *>& disks, VectorAttribute * vcontext, bool is_q35,
                                     std::string& error_str)
 {
     Nebula&    nd    = Nebula::instance();

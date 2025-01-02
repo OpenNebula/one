@@ -120,7 +120,7 @@ void ScheduledActionManager::scheduled_vm_actions()
 
         auto aname = sa->action();
 
-        sa.release();
+        sa.reset();
 
         run_scheduled_action_vm(vm_id, action.first, aname);
     }

@@ -67,7 +67,7 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(std::string              name,
+    int allocate(const std::string&       name,
                  int *                    oid,
                  std::string&             error_str);
 

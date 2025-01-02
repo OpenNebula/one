@@ -75,7 +75,7 @@ GroupPool::GroupPool(SqlDB * db, bool is_slave,
         if (rc < 0)
         {
             ostringstream oss;
-  
+
             oss << "Error trying to create default group: " << error_str;
             NebulaLog::log("GROUP", Log::ERROR, oss);
 
@@ -94,7 +94,7 @@ GroupPool::GroupPool(SqlDB * db, bool is_slave,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::allocate(string name, int * oid, string& error_str)
+int GroupPool::allocate(const string& name, int * oid, string& error_str)
 {
     *oid = -1;
 
