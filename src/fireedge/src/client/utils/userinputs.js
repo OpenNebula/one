@@ -113,6 +113,7 @@ const schemaUserInput = ({
     case USER_INPUT_TYPES.text: {
       // type
       config.type = INPUT_TYPES.TEXT
+      config.multiline = true
 
       // validation
       config.validation = requiredSchema(mandatory, string()).default(
