@@ -376,9 +376,9 @@ void HostShare::revert_pci(HostShareCapacity &sr)
 
 /* -------------------------------------------------------------------------- */
 
-bool HostShare::test(HostShareCapacity& sr, string& error) const
+bool HostShare::test(HostShareCapacity& sr, string& error, bool enforce) const
 {
-    if ( !test_compute(sr.cpu, sr.mem, error) )
+    if ( enforce && !test_compute(sr.cpu, sr.mem, error) )
     {
         return false;
     }

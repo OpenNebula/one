@@ -99,7 +99,7 @@ public:
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(HostShareCapacity& sr, std::string& error) const;
+    bool test(HostShareCapacity& sr, std::string& error, bool enforce) const;
 
     /**
      *  Function to write a HostShare to an output stream

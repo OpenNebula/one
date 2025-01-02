@@ -363,7 +363,7 @@ bool RequestManagerVirtualMachine::check_host(
 
     if ( enforce )
     {
-        test = host->test_capacity(sr, capacity_error);
+        test = host->test_capacity(sr, capacity_error, enforce);
     }
 
     if (enforce && !test)
@@ -1934,7 +1934,13 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int id = xmlrpc_c::value_int(paramList.getInt(1));
     std::string str_tmpl = xmlrpc_c::value_string(paramList.getString(2));
-    //Argument 3 enforce deprecated to check/re-evaluate NUMA topology
+
+    bool enforce = !att.is_admin();
+
+    if ( paramList.size() > 2 && att.is_admin())
+    {
+        enforce = paramList.getBoolean(3);
+    }
 
     float ncpu, ocpu, dcpu;
     long  nmemory, omemory, dmemory;
@@ -1981,7 +1987,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /* ---------------------------------------------------------------------- */
     /*  Get the resize values                                                 */
     /* ---------------------------------------------------------------------- */
-    ncpu = nvcpu = nmemory = 0;
 
     tmpl.get("CPU", ncpu);
     tmpl.get("VCPU", nvcpu);
@@ -2078,7 +2083,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
     RequestAttributes att_rollback(vm_perms.uid, vm_perms.gid, att);
 
-    if ( dm->resize(id, ncpu, nvcpu, nmemory, att, att.resp_msg) == -1 )
+    if ( dm->resize(id, ncpu, nvcpu, nmemory, enforce, att, att.resp_msg) == -1 )
     {
         quota_rollback(&deltas, Quotas::VM, att_rollback);
 

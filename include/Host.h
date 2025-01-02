@@ -306,9 +306,9 @@ public:
      *
      *    @return true if the share can host the VM
      */
-    bool test_capacity(HostShareCapacity &sr, std::string& error)
+    bool test_capacity(HostShareCapacity &sr, std::string& error, bool enforce)
     {
-        return host_share.test(sr, error);
+        return host_share.test(sr, error, enforce);
     }
 
     /**

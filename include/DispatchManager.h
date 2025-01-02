@@ -530,7 +530,7 @@ public:
      *
      *  @return 0 on success, -1 otherwise
      */
-    int resize(int vid, float cpu, int vcpu, long memory,
+    int resize(int vid, float cpu, int vcpu, long memory, bool enforce,
                const RequestAttributes& ra, std::string& error_str);
 
     /**

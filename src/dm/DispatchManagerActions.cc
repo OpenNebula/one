@@ -2798,7 +2798,7 @@ int DispatchManager::restore(int vid, int img_id, int inc_id, int disk_id,
 /* -------------------------------------------------------------------------- */
 
 static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
-                             string& error)
+                             bool enforce, string& error)
 {
     HostPool * hpool = Nebula::instance().get_hpool();
 
@@ -2831,7 +2831,7 @@ static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
 
         vm->get_capacity(sr);
 
-        if (!host->test_capacity(sr, error))
+        if (!host->test_capacity(sr, error, enforce))
         {
             return -1;
         }
@@ -2848,7 +2848,7 @@ static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
     return rc;
 }
 
-int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
+int DispatchManager::resize(int vid, float cpu, int vcpu, long memory, bool enforce,
                             const RequestAttributes& ra, string& error_str)
 {
     /* ---------------------------------------------------------------------- */
@@ -2874,7 +2874,7 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
         case VirtualMachine::UNDEPLOYED:
         case VirtualMachine::CLONING:
         case VirtualMachine::CLONING_FAILURE:
-            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, error_str);
+            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, enforce, error_str);
             break;
 
         case VirtualMachine::ACTIVE:
@@ -2916,7 +2916,7 @@ int DispatchManager::resize(int vid, float cpu, int vcpu, long memory,
                 break;
             }
 
-            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, error_str);
+            rc = test_set_capacity(vm.get(), cpu, memory, vcpu, enforce, error_str);
 
             if (rc == 0)
             {
