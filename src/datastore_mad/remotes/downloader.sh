@@ -243,7 +243,7 @@ ${HTTP_REQUEST_PAYLOAD_HASH}"
          " -H \"content-type: ${HTTP_REQUEST_CONTENT_TYPE}\"" \
          " -H \"x-amz-content-sha256: ${HTTP_REQUEST_PAYLOAD_HASH}\"" \
          " -H \"x-amz-date: ${CURRENT_DATE_ISO8601}\"" \
-         " \"https://${ENDPOINT}${HTTP_CANONICAL_REQUEST_URI}\""
+         " \"https://${ENDPOINT}/${HTTP_CANONICAL_REQUEST_URI}\""
 }
 
 function get_rbd_cmd
