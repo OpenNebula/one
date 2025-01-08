@@ -16,6 +16,7 @@
 const LOCAL_REMOTES_COPY = 'localRemotesConfig'
 const USING_FALLBACK = 'usingRemotesFallbackConfig'
 const FORCE_LOCAL_FALLBACK = 'usingLocalRemotesFallbackConfig'
+const HOST_RESOLVE_FLAG = '__HOST__'
 
 const showEditor = ({ failedModule = '', error = '' } = {}) =>
   new Promise((resolve) => {
@@ -114,7 +115,6 @@ const showEditor = ({ failedModule = '', error = '' } = {}) =>
       .getElementById('editor-reset-button')
       .addEventListener('click', () => {
         try {
-          const defaultPort = 2616
           const defaultRemoteModules = [
             'UtilsModule',
             'ConstantsModule',
@@ -131,12 +131,12 @@ const showEditor = ({ failedModule = '', error = '' } = {}) =>
               module,
               {
                 name: module,
-                entry: `http://localhost:${defaultPort}/fireedge/modules/${module}/remoteEntry.js`,
+                entry: `${HOST_RESOLVE_FLAG}/fireedge/modules/${module}/remoteEntry.js`,
               },
             ])
           )
           document.getElementById('config-editor').value = JSON.stringify(
-            fallbackConfig,
+            resolveHostFlag(fallbackConfig),
             null,
             2
           )
@@ -163,10 +163,26 @@ const editFallbackConfig = async () => {
 
 const isInitialized = (obj) => !!Object.keys(obj || {}).length
 
+const resolveHostFlag = (config) =>
+  Object.entries(config).reduce((acc, [id, meta]) => {
+    if (meta?.entry?.includes(HOST_RESOLVE_FLAG)) {
+      acc[id] = {
+        ...meta,
+        entry: meta.entry.replace(HOST_RESOLVE_FLAG, window.location.origin),
+      }
+    } else {
+      acc[id] = meta
+    }
+
+    return acc
+  }, {})
+
 const initLocalRemotesConfig = async (forceNoDialog = false) => {
   // Server provided config
-  const { fallback = false, ...remotesConfig } =
+  const { fallback = false, ...serverRemotesConfig } =
     window.__REMOTES_MODULE_CONFIG__
+
+  const remotesConfig = resolveHostFlag(serverRemotesConfig)
 
   const useLocalFallback = !!localStorage.getItem(FORCE_LOCAL_FALLBACK)
 

@@ -17,7 +17,7 @@ const fs = require('fs-extra')
 const { global } = require('window-or-global')
 const { writeInLogger } = require('server/utils/logger')
 const { defaults } = require('server/utils/constants')
-const { defaultRemoteModules, defaultPort } = defaults
+const { defaultRemoteModules } = defaults
 
 /**
  * Reads the tab-manifest.json file from disk.
@@ -75,7 +75,7 @@ const getRemotesConfig = () => {
         module,
         {
           name: module,
-          entry: `http://localhost:${defaultPort}/fireedge/modules/${module}/remoteEntry.js`,
+          entry: `__HOST__/fireedge/modules/${module}/remoteEntry.js`,
         },
       ])
     )
