@@ -175,6 +175,13 @@ export const HOST_ACTIONS = {
   DISABLE: 'disable',
   OFFLINE: 'offline',
   DELETE: 'delete',
+  FLUSH: 'flush',
+}
+
+/** @enum {string} Host errors */
+export const HOST_ERRORS = {
+  err_one_host: T.FlushNotEnoughHost,
+  err_host_is_empty: T.HostIsEmpty,
 }
 
 /** @enum {string} Numa Node CPU Status */

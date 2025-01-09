@@ -20,8 +20,9 @@ import { Field } from '@modules/utils/schema'
 import DOMPurify from 'dompurify'
 import { v4 as uuidv4 } from 'uuid'
 import { BaseSchema, ObjectSchema, object, reach } from 'yup'
-
+import { sentenceCase } from '@modules/utils/string'
 import {
+  ERROR_LOOKUP_TABLE,
   HYPERVISORS,
   UNITS,
   VN_DRIVERS,
@@ -709,3 +710,12 @@ export const responseDataToArray = (data) =>
  * @returns {string} - If OpennebulaObject is locked/unlocked
  */
 export const getLocked = (OpennebulaObject) => !!+OpennebulaObject.LOCK?.LOCKED
+
+/**
+ * @param {string} errorId - Unique error identifier
+ * @param {object} root0 - Options
+ * @param {string} root0.fallback - Optional fallback error message
+ * @returns {string} - Formatted error message
+ */
+export const formatError = (errorId = '', { fallback = '' } = {}) =>
+  sentenceCase(ERROR_LOOKUP_TABLE?.[String(errorId) || ''] ?? fallback)

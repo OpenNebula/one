@@ -31,6 +31,10 @@ const httpCodes = {
     id: 404,
     message: 'Not Found',
   },
+  conflict: {
+    id: 409,
+    message: 'Conflict',
+  },
   methodNotAllowed: {
     id: 405,
     message: 'Method not Allowed',

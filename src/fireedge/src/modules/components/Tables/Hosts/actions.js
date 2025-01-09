@@ -17,16 +17,22 @@ import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AddCircledOutline, Trash } from 'iconoir-react'
 
-import { HostAPI, useViews, ClusterAPI } from '@FeaturesModule'
+import { useDispatch } from 'react-redux'
+import {
+  HostAPI,
+  useViews,
+  ClusterAPI,
+  useGeneralApi,
+  oneApi,
+} from '@FeaturesModule'
 import { Translate } from '@modules/components/HOC'
-
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
-
 import { PATH } from '@modules/components/path'
+import { formatError } from '@UtilsModule'
 import { T, HOST_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
 
 const MessageToConfirmAction = (rows) => {
@@ -53,6 +59,8 @@ MessageToConfirmAction.displayName = 'MessageToConfirmAction'
  * @returns {GlobalAction} - Actions
  */
 const Actions = () => {
+  const dispatch = useDispatch()
+  const { enqueueError, enqueueInfo } = useGeneralApi()
   const history = useHistory()
   const { view, getResourceView } = useViews()
   const [enable] = HostAPI.useEnableHostMutation()
@@ -86,7 +94,7 @@ const Actions = () => {
                   title: T.SelectCluster,
                   dataCy: 'modal-select-cluster',
                 },
-                form: (rows) => ChangeClusterForm(),
+                form: () => ChangeClusterForm(),
                 onSubmit: (rows) => async (formData) => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
@@ -132,6 +140,32 @@ const Actions = () => {
             action: async (rows) => {
               const ids = rows?.map?.(({ original }) => original?.ID)
               await Promise.all(ids.map((id) => offline(id)))
+            },
+          },
+          {
+            accessor: HOST_ACTIONS.FLUSH,
+            color: 'secondary',
+            dataCy: `host_${HOST_ACTIONS.FLUSH}`,
+            label: T.Flush,
+            tooltip: T.Flush,
+            selected: { max: 1 },
+            action: async (rows) => {
+              const ids = rows?.map?.(({ original }) => original?.ID)
+
+              await Promise.all(
+                ids.map(async (id) => {
+                  const result = await dispatch(
+                    oneApi.endpoints.flush.initiate(id)
+                  )
+                  const isError = Object.keys(result?.data).length <= 0
+
+                  !isError
+                    ? enqueueInfo(T.InfoHostFlush, [
+                        result?.data?.HOST?.ID ?? T.NotFound,
+                      ])
+                    : enqueueError(formatError(result?.error?.data?.data))
+                })
+              )
             },
           },
           {

@@ -14,9 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Actions, Commands } from 'server/utils/constants/commands/host'
-
 import { Host } from '@ConstantsModule'
-
 import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
@@ -28,12 +26,10 @@ import {
   updateResourceOnPool,
   updateTemplateOnResource,
 } from '@modules/features/OneApi/common'
-
 import {
   Actions as ExtraActions,
   Commands as ExtraCommands,
 } from 'server/routes/api/host/routes'
-
 import { UpdateFromSocket } from '@modules/features/OneApi/socket'
 
 const { HOST } = ONE_RESOURCES
@@ -288,6 +284,15 @@ const hostApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST_POOL],
     }),
+    flush: builder.mutation({
+      query: (id) => {
+        const name = ExtraActions.HOST_FLUSH
+        const command = { name, ...ExtraCommands[name] }
+
+        return { params: { id: id }, command }
+      },
+      invalidatesTags: () => [HOST_POOL],
+    }),
     disableHost: builder.mutation({
       /**
        * Sets the status of the host to disabled.
@@ -419,6 +424,7 @@ const hostQueries = (({
   useRemoveHostMutation,
   useEnableHostMutation,
   useDisableHostMutation,
+  useFlushMutation,
   useOfflineHostMutation,
   useRenameHostMutation,
 }) => ({
@@ -426,6 +432,7 @@ const hostQueries = (({
   useLazyGetHostQuery,
   useGetHostsQuery,
   useGetHostsAdminQuery,
+  useLazyGetHostsAdminQuery,
   useLazyGetHostsQuery,
   useGetHostMonitoringQuery,
   useLazyGetHostMonitoringQuery,
@@ -436,6 +443,7 @@ const hostQueries = (({
   useRemoveHostMutation,
   useEnableHostMutation,
   useDisableHostMutation,
+  useFlushMutation,
   useOfflineHostMutation,
   useRenameHostMutation,
 }))(hostApi)

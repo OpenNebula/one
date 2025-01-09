@@ -207,14 +207,15 @@ export const RESOURCE_NAMES = {
 }
 export * as T from '@modules/constants/translates'
 
-export * from '@modules/constants/acl'
 export * as ACTIONS from '@modules/constants/actions'
 export * as STATES from '@modules/constants/states'
-
+export * from '@modules/constants/acl'
 export * from '@modules/constants/backupjob'
 export * from '@modules/constants/cluster'
+export * from '@modules/constants/color'
 export * from '@modules/constants/common'
 export * from '@modules/constants/datastore'
+export * from '@modules/constants/errors'
 export * from '@modules/constants/flow'
 export * from '@modules/constants/group'
 export * from '@modules/constants/guacamole'
@@ -240,4 +241,3 @@ export * from '@modules/constants/vm'
 export * from '@modules/constants/vmGroup'
 export * from '@modules/constants/vmTemplate'
 export * from '@modules/constants/zone'
-export * from '@modules/constants/color'

@@ -13,6 +13,7 @@ actions:
   enable: true
   disable: true
   offline: true
+  flush: true
   delete: true
 
 # Filters - List of criteria to filter the resources

@@ -50,9 +50,9 @@ import {
   VM as VmType,
 } from '@ConstantsModule'
 
-const { VM } = ONE_RESOURCES
-const { VM_POOL } = ONE_RESOURCES_POOL
 const { actions: guacamoleActions } = GuacamoleSlice
+const { VM, HOST } = ONE_RESOURCES
+const { VM_POOL, HOST_POOL } = ONE_RESOURCES_POOL
 
 const vmApi = oneApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -384,10 +384,12 @@ const vmApi = oneApi.injectEndpoints({
 
         return { params, command }
       },
-      invalidatesTags: (_, __, { id }) => [
+      invalidatesTags: (_, __, { id, host }) => [
         { type: VM, id },
         { type: VM_POOL, id },
+        { type: HOST, host },
         VM_POOL,
+        HOST_POOL,
       ],
     }),
     actionVm: builder.mutation({

@@ -152,6 +152,7 @@ module.exports = {
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
   Offline: 'Offline',
+  Flush: 'Flush',
   PerformAction: 'Perform action',
   AllRoles: 'All roles',
   Pin: 'Pin',
@@ -393,6 +394,10 @@ module.exports = {
   ErrorUpdatingSecGroups: 'VMs in error. The Update to the latest rules failed',
   PendingUpdatingSecGroups: 'VMs waiting to be updated with the latest rules',
   Unknown: 'Unknown',
+  UnknownError: 'Unknown Error',
+  FlushNotEnoughHost:
+    'There should be at least two hosts enabled in order to flush',
+  HostIsEmpty: 'Host is empty',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',
@@ -2344,4 +2349,5 @@ module.exports = {
   InfoVRTemplateInstantiated: 'VR Template instantiated %s',
   InfoVMTemplateInstantiated: 'VM Template instantiated x%s - %s',
   InfoVNTemplateInstantiated: 'VN Template instantiated - %s',
+  InfoHostFlush: 'Flushing host - %s',
 }

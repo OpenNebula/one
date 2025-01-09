@@ -16,7 +16,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import { enqueueSnackbar } from '@modules/features/General/actions'
-import { http, generateKey, requestConfig } from '@UtilsModule'
+import { http, generateKey, requestConfig, formatError } from '@UtilsModule'
 import { httpCodes } from 'server/utils/constants'
 import {
   DOCUMENT,
@@ -53,7 +53,11 @@ const oneApi = createApi({
       const { message, data = {}, status, statusText } = axiosError
       const { message: messageFromServer, data: errorFromOned } = data
 
-      const error = message ?? errorFromOned ?? messageFromServer ?? statusText
+      const error =
+        message ??
+        formatError(errorFromOned?.type, { fallback: errorFromOned }) ??
+        messageFromServer ??
+        statusText
       if (status === 204) {
         const state = needStateInMeta ? getState() : {}
 

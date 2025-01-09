@@ -101,14 +101,14 @@ const fillViewsInfo = (views, rtn) => {
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
- * @param {object} params - params of http request
+ * @param {object} _params - params of http request
  * @param {object} userData - user of http request
  * @param {Function} oneConnection - xmlrpc function
  */
 const getViews = (
   res = {},
   next = () => undefined,
-  params = {},
+  _params = {},
   userData = {},
   oneConnection = defaultEmptyFunction
 ) => {
@@ -274,14 +274,14 @@ const getViews = (
  *
  * @param {object} res - http response
  * @param {Function} next - express stepper
- * @param {object} params - params of http request
- * @param {object} userData - user of http request
+ * @param {object} _params - params of http request
+ * @param {object} _userData - user of http request
  */
 const getConfig = (
   res = {},
   next = defaultEmptyFunction,
-  params = {},
-  userData = {}
+  _params = {},
+  _userData = {}
 ) => {
   let error
 

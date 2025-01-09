@@ -13,49 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { HOST_ERRORS } from '@modules/constants/host'
 
-const {
-  httpMethod,
-  from: fromData,
-} = require('../../../utils/constants/defaults')
-
-const { GET, POST } = httpMethod
-const { resource, postBody } = fromData
-
-const basepathHostPool = '/hostpool'
-const basepathHost = '/host'
-
-const HOSTPOOL_ADMINSHOW = 'hostpool.adminInfo'
-const HOST_FLUSH = 'host.flush'
-
-const Actions = {
-  HOSTPOOL_ADMINSHOW,
-  HOST_FLUSH,
+export const ERROR_LOOKUP_TABLE = {
+  ...HOST_ERRORS,
 }
 
-module.exports = {
-  Actions,
-  Commands: {
-    [HOSTPOOL_ADMINSHOW]: {
-      path: `${basepathHostPool}/admininfo`,
-      httpMethod: GET,
-      auth: true,
-    },
-    [HOST_FLUSH]: {
-      path: `${basepathHost}/flush/:id`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        id: {
-          from: resource,
-        },
-        destination: {
-          from: postBody,
-        },
-        vms: {
-          from: postBody,
-        },
-      },
-    },
-  },
-}
+export default ERROR_LOOKUP_TABLE
