@@ -91,7 +91,7 @@ export const stringToBoolean = (str) =>
  */
 export const formatNumberByCurrency = (number, options) => {
   try {
-    return Intl.NumberFormat(Settings.defaultLocale, {
+    return Intl.NumberFormat(DateTime.now().locale?.split('-')?.[0], {
       style: 'currency',
       currency: CURRENCY,
       currencyDisplay: 'narrowSymbol',
