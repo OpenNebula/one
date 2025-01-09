@@ -175,6 +175,7 @@ export const HOST_ACTIONS = {
   DISABLE: 'disable',
   OFFLINE: 'offline',
   DELETE: 'delete',
+  FLUSH: 'flush',
 }
 
 /** @enum {string} Numa Node CPU Status */

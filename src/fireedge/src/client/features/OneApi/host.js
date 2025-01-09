@@ -34,6 +34,7 @@ import {
 } from 'server/routes/api/host/routes'
 
 import { UpdateFromSocket } from 'client/features/OneApi/socket'
+import http from 'client/utils/rest'
 
 const { HOST } = ONE_RESOURCES
 const { HOST_POOL } = ONE_RESOURCES_POOL
@@ -287,6 +288,24 @@ const hostApi = oneApi.injectEndpoints({
       },
       invalidatesTags: (_, __, id) => [{ type: HOST, id }, HOST_POOL],
     }),
+    flush: builder.mutation({
+      queryFn: async (id) => {
+        try {
+          const response = await http.request({
+            url: `/api/host/flush/${id}`,
+            method: 'POST',
+            validateStatus: (status) => status >= 200 && status < 400,
+          })
+
+          return { data: response.data }
+        } catch (axiosError) {
+          const { data, status } = axiosError
+
+          return { error: { status, data } }
+        }
+      },
+      invalidatesTags: () => [HOST_POOL],
+    }),
     disableHost: builder.mutation({
       /**
        * Sets the status of the host to disabled.
@@ -418,6 +437,7 @@ export const {
   useRemoveHostMutation,
   useEnableHostMutation,
   useDisableHostMutation,
+  useFlushMutation,
   useOfflineHostMutation,
   useRenameHostMutation,
 } = hostApi

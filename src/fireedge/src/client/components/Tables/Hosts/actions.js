@@ -18,10 +18,12 @@ import { useHistory } from 'react-router-dom'
 import { AddCircledOutline, Trash } from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
+import { useGeneralApi } from 'client/features/General'
 import { useAddHostToClusterMutation } from 'client/features/OneApi/cluster'
 import {
   useDisableHostMutation,
   useEnableHostMutation,
+  useFlushMutation,
   useOfflineHostMutation,
   useRemoveHostMutation,
 } from 'client/features/OneApi/host'
@@ -32,6 +34,8 @@ import {
   createActions,
   GlobalAction,
 } from 'client/components/Tables/Enhanced/Utils'
+
+import { errorHandleTranslation } from './errors'
 
 import { PATH } from 'client/apps/sunstone/routesOne'
 import { T, HOST_ACTIONS, RESOURCE_NAMES } from 'client/constants'
@@ -67,6 +71,8 @@ const Actions = () => {
   const [disable] = useDisableHostMutation()
   const [offline] = useOfflineHostMutation()
   const [changeCluster] = useAddHostToClusterMutation()
+  const [flush] = useFlushMutation()
+  const { enqueueError, enqueueSuccess } = useGeneralApi()
 
   const hostActions = useMemo(
     () =>
@@ -139,6 +145,31 @@ const Actions = () => {
             action: async (rows) => {
               const ids = rows?.map?.(({ original }) => original?.ID)
               await Promise.all(ids.map((id) => offline(id)))
+            },
+          },
+          {
+            accessor: HOST_ACTIONS.FLUSH,
+            color: 'secondary',
+            dataCy: `host_${HOST_ACTIONS.FLUSH}`,
+            label: T.Flush,
+            tooltip: T.Flush,
+            selected: true,
+            action: async (rows) => {
+              const ids = rows?.map?.(({ original }) => original?.ID)
+
+              await Promise.all(
+                ids.map(async (id) => {
+                  const result = await flush(id)
+
+                  result.data
+                    ? enqueueSuccess(
+                        `Flush done succesfully on HOST with ID: ${result.data.HOST.ID}`
+                      )
+                    : enqueueError(
+                        errorHandleTranslation(result.error.data.data.type)
+                      )
+                })
+              )
             },
           },
           {

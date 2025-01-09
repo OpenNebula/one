@@ -151,6 +151,7 @@ module.exports = {
   Migrate: 'Migrate',
   MigrateLive: 'Migrate live',
   Offline: 'Offline',
+  Flush: 'Flush',
   PerformAction: 'Perform action',
   AllRoles: 'All roles',
   Pin: 'Pin',
@@ -392,6 +393,7 @@ module.exports = {
   ErrorUpdatingSecGroups: 'VMs in error. The Update to the latest rules failed',
   PendingUpdatingSecGroups: 'VMs waiting to be updated with the latest rules',
   Unknown: 'Unknown',
+  FlushNotEnoughHost: 'There should be at least two hosts enabled to flush',
 
   /* steps form */
   AdvancedOptions: 'Advanced options',

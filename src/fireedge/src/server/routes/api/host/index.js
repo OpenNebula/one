@@ -15,13 +15,17 @@
  * ------------------------------------------------------------------------- */
 
 const { Actions, Commands } = require('server/routes/api/host/routes')
-const { show } = require('server/routes/api/host/functions')
+const { show, flush } = require('server/routes/api/host/functions')
 
-const { HOSTPOOL_ADMINSHOW } = Actions
+const { HOSTPOOL_ADMINSHOW, HOST_FLUSH } = Actions
 
 module.exports = [
   {
     ...Commands[HOSTPOOL_ADMINSHOW],
     action: show,
+  },
+  {
+    ...Commands[HOST_FLUSH],
+    action: flush,
   },
 ]

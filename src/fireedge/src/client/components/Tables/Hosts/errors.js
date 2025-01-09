@@ -13,49 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { T } from 'client/constants'
 
-const {
-  httpMethod,
-  from: fromData,
-} = require('../../../utils/constants/defaults')
+/**
+ * Getter function of key value translation errors.
+ *
+ * @param {string} type - error type
+ * @returns {string} - translation
+ */
+const errorHandleTranslation = (type) => {
+  const errorsTranslations = {
+    err_one_host: T.FlushNotEnoughHost,
+  }
 
-const { GET, POST } = httpMethod
-const { resource, postBody } = fromData
-
-const basepathHostPool = '/hostpool'
-const basepathHost = '/host'
-
-const HOSTPOOL_ADMINSHOW = 'hostpool.adminInfo'
-const HOST_FLUSH = 'host.flush'
-
-const Actions = {
-  HOSTPOOL_ADMINSHOW,
-  HOST_FLUSH,
+  return errorsTranslations[type]
 }
 
-module.exports = {
-  Actions,
-  Commands: {
-    [HOSTPOOL_ADMINSHOW]: {
-      path: `${basepathHostPool}/admininfo`,
-      httpMethod: GET,
-      auth: true,
-    },
-    [HOST_FLUSH]: {
-      path: `${basepathHost}/flush/:id`,
-      httpMethod: POST,
-      auth: true,
-      params: {
-        id: {
-          from: resource,
-        },
-        destination: {
-          from: postBody,
-        },
-        vms: {
-          from: postBody,
-        },
-      },
-    },
-  },
-}
+export { errorHandleTranslation }
