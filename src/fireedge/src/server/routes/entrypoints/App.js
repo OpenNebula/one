@@ -72,8 +72,8 @@ router.get('*', async (req, res) => {
     [defaultApps.sunstone.name]:
       {
         ...defaultConfig,
-        ...getSunstoneConfig({ includeProtectedConfig: false }),
         ...getProvisionConfig(),
+        ...getSunstoneConfig({ includeProtectedConfig: false }),
       } || defaultConfig,
   }
 

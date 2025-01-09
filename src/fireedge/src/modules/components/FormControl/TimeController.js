@@ -41,7 +41,7 @@ const TimeController = memo(
     readOnly = false,
   }) => {
     // Set language for date picker
-    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const { settings: fireedge = {} } = useAuth()
     const lang = fireedge?.LANG?.substring(0, 2)
     Settings.defaultLocale = lang
 
