@@ -39,7 +39,7 @@ class OneMarket
         end
 
         @url    = url || ONE_MARKET_URL
-        @url   += '/' unless str.end_with?('/')
+        @url   += '/' unless @url.end_with?('/')
         version = File.read(VERSION).strip
 
         if edition && !edition.empty?
