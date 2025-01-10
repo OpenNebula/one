@@ -1041,10 +1041,8 @@ module VCenterDriver
                 :template_id=>           vm_id
             }
 
-            if nic[:pg_type] ==
-                VCenterDriver::Network::NETWORK_TYPE_NSXV ||
-                nic[:pg_type] ==
-                    VCenterDriver::Network::NETWORK_TYPE_NSXT
+            if [VCenterDriver::Network::NETWORK_TYPE_NSXV,
+                VCenterDriver::Network::NETWORK_TYPE_NSXT].include?(nic[:pg_type])
                 import_opts[:nsx_id] = config[:nsx_id]
                 import_opts[:nsx_vni] = config[:nsx_vni]
                 import_opts[:nsx_tz_id] = config[:nsx_tz_id]

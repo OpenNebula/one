@@ -16,6 +16,7 @@
 
 require 'yaml'
 
+# rubocop:disable Lint/ConstantResolution
 # rubocop:disable Style/ClassAndModuleChildren
 module OneCfg::Config::Type
 
@@ -284,8 +285,9 @@ module OneCfg::Config::Type
 
                             if di1 && di2
                                 # skip
+                                # rubocop:disable Lint/void
                                 nil
-
+                                # rubocop:enable Lint/void
                             elsif di1
                                 # delete array item
                                 ret << {
@@ -716,3 +718,4 @@ module OneCfg::Config::Type
 
 end
 # rubocop:enable Style/ClassAndModuleChildren
+# rubocop:enable Lint/ConstantResolution

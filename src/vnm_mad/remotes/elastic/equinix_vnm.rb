@@ -76,7 +76,7 @@ class EquinixProvider
 
         # HTTP 422 is returned if IP already assigned to the device
         # e.g. VM poweroff from inside + onevm resume
-        unless resp.code == '201' || resp.code == '422'
+        unless ['201', '422'].include?(resp.code)
             STDERR.puts "Error assigning #{external}:#{resp.message}"
             return 1
         end

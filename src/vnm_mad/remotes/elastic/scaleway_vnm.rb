@@ -89,7 +89,7 @@ class ScalewayProvider
                             fip_req)
 
         # HTTP 409 is returned if IP is being assigned to the device
-        unless resp.code == '200' || resp.code == '409'
+        unless ['200', '409'].include?(resp.code)
             STDERR.puts "Error assigning #{external}:#{resp.message}"
             return 1
         end
@@ -117,7 +117,7 @@ class ScalewayProvider
                             fip_req)
 
         # HTTP 409 is returned if IP is being unassigned to the device
-        unless resp.code == '200' || resp.code == '409'
+        unless ['200', '409'].include?(resp.code)
             STDERR.puts "Error unassigning #{external}:#{resp.message}"
             return 1
         end

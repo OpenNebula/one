@@ -23,6 +23,7 @@ AllCops:
   TargetRubyVersion: 2.5.9
   Exclude:
     - /**/*.schema
+    - src/onecfg/lib/config/type/yaml.rb
     - src/sunstone/public/node_modules/**/*
     - src/vnm_mad/remotes/vcenter/vnet_create
     - src/vnm_mad/remotes/vcenter/vnet_delete
@@ -800,6 +801,9 @@ Style/SuperArguments:
 ######
 # LINT
 ######
+
+Lint/ConstantResolution:
+    Enabled: false
 
 Lint/IneffectiveAccessModifier:
     Enabled: false
