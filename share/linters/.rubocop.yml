@@ -22,6 +22,7 @@
 AllCops:
   Exclude:
     - /**/*.schema
+    - src/onecfg/lib/config/type/yaml.rb
     - src/sunstone/public/node_modules/**/*
     - src/vnm_mad/remotes/vcenter/vnet_create
     - src/vnm_mad/remotes/vcenter/vnet_delete
