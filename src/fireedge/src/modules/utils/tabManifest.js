@@ -16,30 +16,58 @@
 import * as TabIcons from 'iconoir-react'
 import loadable from '@loadable/component'
 
+const moduleCache = {}
+
 const loadIcon = (iconName = '') => TabIcons[iconName] || TabIcons.NewTab
 
-const loadComponent = (componentName) =>
+const loadComponent = (componentName, moduleId = 'ContainersModule') =>
   loadable(
-    () =>
-      import('@ContainersModule').then((module) => {
-        const Component = module?.[componentName]
-        if (!Component) {
-          console.error(
-            `Component ${componentName} not found in @ContainersModule`
-          )
+    async () => {
+      try {
+        if (!moduleCache[moduleId]) {
+          const remoteModule = window[moduleId]
 
-          return module.SunstoneDashboard
+          if (!remoteModule || typeof remoteModule.get !== 'function') {
+            throw new Error(
+              `Module: ${moduleId} not found or not properly initialized`
+            )
+          }
+
+          // Initialize shared dependencies
+          if (typeof remoteModule.init === 'function') {
+            // eslint-disable-next-line no-undef
+            await remoteModule.init(__webpack_share_scopes__.default)
+          }
+
+          // Get the exposed path from the module
+          // All modules should expose '.', by default, pointing to a global barrel file for all exports
+          const factory = await remoteModule.get('.')
+          moduleCache[moduleId] = factory()
+        }
+
+        const Component = moduleCache[moduleId][componentName]
+        if (!Component) {
+          throw new Error(
+            `Component ${componentName} not found in module ${moduleId}.`
+          )
         }
 
         return Component
-      }),
+      } catch (error) {
+        console.error('Tab-Manifest loading error: ', error)
+
+        window.location.href = '/dashboard'
+
+        return null
+      }
+    },
     { ssr: false }
   )
 
-const processRoute = ({ icon, Component, ...rest }) => ({
+const processRoute = ({ icon, Component, moduleId, ...rest }) => ({
   ...rest,
   icon: loadIcon(icon),
-  ...(Component && { Component: loadComponent(Component) }),
+  ...(Component && { Component: loadComponent(Component, moduleId) }),
 })
 
 /**
@@ -48,10 +76,10 @@ const processRoute = ({ icon, Component, ...rest }) => ({
  */
 export const processTabManifest = (tabManifest = []) =>
   Array.isArray(tabManifest) && tabManifest.length > 0
-    ? tabManifest.map(({ icon, Component, routes, ...entry }) => ({
+    ? tabManifest.map(({ icon, Component, routes, moduleId, ...entry }) => ({
         ...entry,
         icon: loadIcon(icon),
-        ...(Component && { Component: loadComponent(Component) }),
+        ...(Component && { Component: loadComponent(Component, moduleId) }),
         ...(routes && { routes: routes.map(processRoute) }),
       }))
     : []
