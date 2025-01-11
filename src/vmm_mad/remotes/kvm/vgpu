@@ -32,7 +32,7 @@ function get_xpath_val() {
 }
 
 # Get mdev path used to (de)activate mediated device
-function get_mdev_path() {
+function vgpuctl() {
     pci="$(xmllint --format --xpath "/VM/TEMPLATE/PCI[UUID='$1']" "$2" 2>/dev/null)"
 
     # Get specific information about the PCI
@@ -41,22 +41,71 @@ function get_mdev_path() {
     slot=$(get_xpath_val "$pci" "/PCI/SLOT")
     func=$(get_xpath_val "$pci" "/PCI/FUNCTION")
     profile=$(get_xpath_val "$pci" "/PCI/PROFILE")
+    mode=$(get_xpath_val "$pci" "/PCI/MDEV_MODE")
 
-    # Generate mdev path
-    mdev="/sys/class/mdev_bus/$domain:$bus:$slot.$func"
+    if [[ "$mode" == "legacy" || -z "$mode" ]]; then
+        # Generate mdev path
+        mdev="/sys/class/mdev_bus/$domain:$bus:$slot.$func"
 
-    if [[ ! -d $mdev ]]
-    then
-        error_message "Directory '$mdev' does not exist"
-        exit 1
+        if [[ ! -d $mdev ]]; then
+            error_message "Directory '$mdev' does not exist"
+            exit 1
+        fi
+
+        if [ -z "$profile" ]; then
+            profile="$(ls "$mdev/mdev_supported_types" | head -n1)"
+        fi
+
+        mdev="$mdev/mdev_supported_types/$profile/"
+
+        case "$3" in
+        "create")
+            if ! echo "$1" > "$mdev/create"; then
+                error_message "Error creating mediated device"
+                exit 1
+            fi
+            ;;
+        "remove")
+            if ! echo "1" > "$mdev/devices/$1/remove"; then
+                error_message "Error removing mediated device"
+            fi
+            ;;
+        esac
+    else
+        pci="/sys/bus/pci/devices/$domain:$bus:$slot.$func"
+
+        if [[ ! -d "${pci}" ]]; then
+            error_message "Directory '$pci' does not exist"
+            exit 1
+        fi
+
+        ppath="${pci}/nvidia/creatable_vgpu_types"
+
+        if [ -z "$profile" ]; then
+            profile=$(sed -n '2p' ${ppath} | cut -f1 -d':' | tr -d '[:blank:]')
+        else
+            profile=${profile%% *}
+
+            if [[ "$3" == "create" ]] && ! grep -q "${profile}" ${ppath}; then
+                error_message "Profile '$profile' not supported by vGPU"
+                exit 1
+            fi
+        fi
+
+        case "$3" in
+        "create")
+            if ! echo "${profile}" > "${pci}/nvidia/current_vgpu_type"; then
+                error_message "Error activating vgpu with profile ${profile}"
+                exit 1
+            fi
+            ;;
+        "remove")
+            if ! echo "0" > "${pci}/nvidia/current_vgpu_type"; then
+                error_message "Error deactivating vgpu"
+            fi
+            ;;
+        esac
     fi
-
-    if [ -z "$profile" ]
-    then
-        profile="$(ls "$mdev/mdev_supported_types" | head -n1)"
-    fi
-
-    echo "$mdev/mdev_supported_types/$profile/"
 }
 
 # ------------------------------------------------------------------------------
@@ -80,27 +129,17 @@ case "$ACTION" in
 
         if [ -n "$uuids" ]; then
             for uuid in $uuids; do
-                mdev="$(get_mdev_path "$uuid" "$VM")"
-
-                if ! echo "$uuid" > "$mdev/create"; then
-                    error_message "Error creating mediated device"
-                    exit 1
-                fi
+                vgpuctl "$uuid" "$VM" "create"
             done
         fi
     ;;
     "delete")
+        # Not exit with error, just log
         uuids="$(get_uuids "$VM")"
 
         if [ -n "$uuids" ]; then
             for uuid in $uuids; do
-                mdev="$(get_mdev_path "$uuid" "$VM")"
-
-                if ! echo "1" > "$mdev/devices/$uuid/remove"; then
-                    error_message "Error removing mediated device"
-                    # Not exit with error, just log the error
-                    # exit -1
-                fi
+                vgpuctl "$uuid" "$VM" "remove"
             done
         fi
     ;;

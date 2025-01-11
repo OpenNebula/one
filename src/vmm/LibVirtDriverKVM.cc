@@ -2082,6 +2082,9 @@ int LibVirtDriver::deployment_description_kvm(
         vm_func    = pci[i]->vector_value("VM_FUNCTION");
 
         string uuid = pci[i]->vector_value("UUID");
+        string mdev = pci[i]->vector_value("MDEV_MODE");
+
+        one_util::tolower(mdev);
 
         if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
         {
@@ -2091,7 +2094,7 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        if ( !uuid.empty() )
+        if ( !uuid.empty() && (mdev == "legacy" || mdev.empty()) )
         {
             file << "\t\t<hostdev mode='subsystem' type='mdev' model='vfio-pci'>\n";
             file << "\t\t\t<source>\n";
@@ -2102,7 +2105,16 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>\n";
+            file << "\t\t<hostdev mode='subsystem' type='pci' ";
+
+            if ( mdev == "nvidia" )
+            {
+                file << "managed='no'>\n";
+            }
+            else
+            {
+                file << "managed='yes'>\n";
+            }
 
             file << "\t\t\t<source>\n";
             file << "\t\t\t\t<address "

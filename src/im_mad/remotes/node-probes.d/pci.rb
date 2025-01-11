@@ -91,9 +91,61 @@ def get_devices(filter = nil)
     end.flatten
 end
 
+def pci_bus_path(device)
+    "/sys/bus/pci/devices/0000:#{device[:bus]}:#{device[:slot]}.#{device[:function]}"
+end
+
+def mdev_bus_path(device)
+    "/sys/class/mdev_bus/0000:#{device[:bus]}:#{device[:slot]}.#{device[:function]}"
+end
+
 def device_attr?(device, attribute)
-    addr = "0000:#{device[:bus]}:#{device[:slot]}.#{device[:function]}"
-    !`ls -l /sys/bus/pci/devices/#{addr}/ | grep #{attribute}`.empty?
+    File.exist? File.join(pci_bus_path(device), attribute)
+end
+
+def virtfn?(device)
+    device_attr?(device, 'physfn')
+end
+
+# rubocop:disable Naming/PredicateName
+def has_virtfn?(device)
+    device_attr?(device, 'virtfn')
+end
+# rubocop:enable Naming/PredicateName
+
+def legacy?(device)
+    File.exist? File.join mdev_bus_path(device)
+end
+
+def legacy_profiles(device)
+    path = File.join(mdev_bus_path(device), 'mdev_supported_types')
+
+    return [] unless File.exist? path
+
+    `ls #{path}`.split('\n')
+rescue StandardError
+    []
+end
+
+def nvidia_profiles(device)
+    path = File.join(pci_bus_path(device), 'nvidia/creatable_vgpu_types')
+
+    profiles = []
+
+    File.read(path).each_line do |line|
+        id, name = line.split(':')
+
+        id.strip!
+        name.strip!
+
+        next if id.empty? || id.casecmp?('ID') || name.empty?
+
+        profiles << "#{id} (#{name})"
+    end
+
+    profiles
+rescue StandardError
+    []
 end
 
 filter = CONF[:filter]
@@ -117,8 +169,7 @@ devices.each do |dev|
     end
 
     # Skip NVIDIA cards with virtual functions
-    next if CONF[:nvidia_vendors].include?(dev[:vendor]) &&
-        device_attr?(dev, 'virtfn')
+    next if CONF[:nvidia_vendors].include?(dev[:vendor]) && has_virtfn?(dev)
 
     puts 'PCI = ['
     values = [
@@ -139,26 +190,29 @@ devices.each do |dev|
 
     # NVIDIA GPU device
     if CONF[:nvidia_vendors].include?(dev[:vendor])
-        # When having NVIDIA GPU the name is always Device, so we merge
-        # it with vendor name, in this way Sunstone shows a better name
-        values << pval('DEVICE_NAME',
-                       "#{dev[:vendor_name]} #{dev[:device_name]}")
+        # Better name for NVIDIA GPUs
+        values << pval('DEVICE_NAME', "#{dev[:vendor_name]} #{dev[:device_name]}")
 
-        # For vGPU, the uuid is based on the address to get always the same
-        if device_attr?(dev, 'physfn')
+        if virtfn?(dev)
+            # For vGPU, the uuid is based on the address to get always the same
             values << pval(
                 'UUID',
                 `uuidgen --name '#{dev[:address]}' \
                 --namespace '@x500' --sha1`.strip
             )
 
-            # Get profiles
-            addr     = "0000:#{dev[:bus]}:#{dev[:slot]}.#{dev[:function]}"
-            profiles = `ls /sys/class/mdev_bus/#{addr}/mdev_supported_types`
-            profiles = profiles.split("\n")
-
             # Comma separated value with different profiles
+            profiles = legacy_profiles(dev)
+            profiles = nvidia_profiles(dev) if profiles.empty?
+
             values << pval('PROFILES', profiles.join(','))
+
+            mdev_mode = if legacy?(dev)
+                            'legacy'
+                        else
+                            'nvidia'
+                        end
+            values << pval('MDEV_MODE', mdev_mode)
         end
     else
         values << pval('DEVICE_NAME', dev[:device_name])
