@@ -200,7 +200,7 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
                                      "ADDRESS", "SHORT_ADDRESS"
                                     };
 
-    static vector<string> cp_check_attr = {"NUMA_NODE", "UUID"};
+    static vector<string> cp_check_attr = {"NUMA_NODE", "UUID", "MDEV_MODE"};
 
     //Save previous address for migrations, clear on revert - failed migration
     if (set_prev)
@@ -523,7 +523,8 @@ int HostSharePCI::set_pci_address(VectorAttribute * pci_device,
 
     // ------------------- Remove well-known attributes -----------------------
     static vector<string> rm_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
-                                     "ADDRESS", "PREV_ADDRESS", "NUMA_NODE", "UUID"
+                                     "ADDRESS", "PREV_ADDRESS", "NUMA_NODE",
+                                     "UUID", "MDEV_MODE"
                                     };
 
     if (clean)
