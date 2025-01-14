@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { css } from '@emotion/css'
 import {
   Button,
   CircularProgress,
@@ -24,7 +25,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { css } from '@emotion/css'
 import {
   Camera,
   CloudDownload,
@@ -37,17 +37,17 @@ import {
 import PropTypes from 'prop-types'
 import {
   ReactElement,
-  useMemo,
   memo,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from 'react'
 
-import { Translate } from '@modules/components/HOC'
 import { GuacamoleSession, T } from '@ConstantsModule'
-import { downloadFile } from '@UtilsModule'
 import { VmAPI } from '@FeaturesModule'
+import { downloadFile } from '@UtilsModule'
+import { Translate } from '@modules/components/HOC'
 
 const useStyles = ({ palette }) => ({
   customPopper: css({

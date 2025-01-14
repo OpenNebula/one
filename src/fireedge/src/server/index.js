@@ -42,8 +42,6 @@ import express from 'express'
 import helmet from 'helmet'
 import http from 'http'
 import { resolve } from 'path'
-import { env } from 'process'
-import webpack from 'webpack'
 import guacamole from './routes/websockets/guacamole'
 import guacamoleProxy from './routes/websockets/guacamoleProxy'
 import opennebulaWebsockets from './routes/websockets/opennebula'
@@ -68,41 +66,17 @@ const app = express()
 const basename = defaultAppName ? `/${defaultAppName}` : ''
 
 let frontPath = 'client'
-const remoteModulesPath = 'modules'
+let remoteModulesPath = 'modules'
+
+if (process.env.NODE_ENV === defaultWebpackMode) {
+  frontPath = `../../dist/${frontPath}`
+  remoteModulesPath = `../../dist/${remoteModulesPath}`
+}
 
 // settings
 const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 
-if (env?.NODE_ENV === defaultWebpackMode) {
-  try {
-    const webpackConfig = require('../../webpack.config.dev.client')
-    const compiler = webpack(webpackConfig)
-
-    app.use(
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      require('webpack-dev-middleware')(compiler, {
-        publicPath: webpackConfig.output.publicPath,
-      })
-    )
-
-    app.use(
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      require('webpack-hot-middleware')(compiler, {
-        path: '/__webpack_hmr',
-        heartbeat: 10 * 1000,
-      })
-    )
-  } catch (error) {
-    if (error) {
-      messageTerminal({
-        color: 'red',
-        error,
-      })
-    }
-  }
-  frontPath = '../client'
-}
 app.use(helmet.xssFilter())
 app.use(helmet.hidePoweredBy())
 app.use(compression())
@@ -132,7 +106,7 @@ if (appConfig.cors) {
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
-app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
+app.use(`${basename}/api`, entrypointApi) // OpenNebula Api routes
 const frontApps = Object.keys(defaultApps)
 frontApps.forEach((frontApp) => {
   app.get(`${basename}/${frontApp}`, entrypointApp)

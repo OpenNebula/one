@@ -541,12 +541,15 @@ const genPathResources = () => {
     ? defaultSharePath
     : `${ONE_LOCATION}/share`
   const SYSTEM_LOCATION =
-    (devMode && resolve(__dirname, '../../client')) ||
+    (devMode && resolve(__dirname, '..', '..', 'client')) ||
     (!ONE_LOCATION
       ? resolve(defaultSystemPath)
-      : resolve(`${ONE_LOCATION}${defaultSourceSystemPath}`))
+      : resolve(`${ONE_LOCATION}`, `${defaultSourceSystemPath}`))
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
+  const MODULES_LOCATION =
+    (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
+    `${ETC_LOCATION}/${defaultSunstonePath}`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
@@ -587,13 +590,13 @@ const genPathResources = () => {
       global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`
     }
     if (!global.paths.OS_PROFILES) {
-      global.paths.OS_PROFILES = `${ETC_LOCATION}/${defaultSunstonePath}/profiles`
+      global.paths.OS_PROFILES = `${MODULES_LOCATION}/profiles`
     }
     if (!global.paths.TAB_MANIFEST_CONFIG) {
-      global.paths.TAB_MANIFEST_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultTabManifestFilename}`
+      global.paths.TAB_MANIFEST_CONFIG = `${MODULES_LOCATION}/${defaultTabManifestFilename}`
     }
     if (!global.paths.REMOTE_MODULES_CONFIG) {
-      global.paths.REMOTE_MODULES_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultRemoteModulesConfigFilename}`
+      global.paths.REMOTE_MODULES_CONFIG = `${MODULES_LOCATION}/${defaultRemoteModulesConfigFilename}`
     }
     if (!global.paths.FIREEDGE_KEY_PATH) {
       global.paths.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`

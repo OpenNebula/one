@@ -18,19 +18,20 @@ import PropTypes from 'prop-types'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
+import { STATIC_FILES_URL, T, VM_ACTIONS } from '@ConstantsModule'
+import { ServiceAPI, VmAPI, useGeneralApi } from '@FeaturesModule'
+import {
+  getIps,
+  getVirtualMachineState,
+  isVCenter,
+  timeFromMilliseconds,
+} from '@ModelsModule'
+
 import { PATH } from '@modules/components'
 import { Translate, TranslateProvider } from '@modules/components/HOC'
 import { OpenNebulaLogo } from '@modules/components/Icons'
 import MultipleTags from '@modules/components/MultipleTags'
 import { StatusBadge } from '@modules/components/Status'
-import { STATIC_FILES_URL, T, VM_ACTIONS } from '@ConstantsModule'
-import { useGeneralApi, ServiceAPI, VmAPI } from '@FeaturesModule'
-import {
-  timeFromMilliseconds,
-  getIps,
-  getState,
-  isVCenter,
-} from '@ModelsModule'
 
 /**
  * @param {object} props - Props
@@ -56,7 +57,7 @@ const HeaderVmInfo = ({ id, type }) => {
     color: stateColor,
     name: stateName,
     displayName: stateDisplayName,
-  } = getState(vm) ?? {}
+  } = getVirtualMachineState(vm) ?? {}
   const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
   const isVMRC = useMemo(() => type === VM_ACTIONS.VMRC, [type])
   const serviceId = useMemo(() => vm?.USER_TEMPLATE?.SERVICE_ID, [vm])

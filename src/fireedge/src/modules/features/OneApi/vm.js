@@ -27,28 +27,28 @@ import {
 import { oneApi } from '@modules/features/OneApi/oneApi'
 
 import {
-  ONE_RESOURCES,
-  ONE_RESOURCES_POOL,
-} from '@modules/features/OneApi/resources'
-import {
-  updateResourceOnPool,
-  removeResourceOnPool,
-  updateNameOnResource,
-  updateLockLevelOnResource,
-  removeLockLevelOnResource,
-  updatePermissionOnResource,
-  updateOwnershipOnResource,
-  updateTemplateOnResource,
-} from '@modules/features/OneApi/common'
-import { GuacamoleSlice } from '@modules/features/Guacamole/slice'
-import { UpdateFromSocket } from '@modules/features/OneApi/socket'
-import { http } from '@UtilsModule'
-import {
   FilterFlag,
   LockLevel,
   Permission,
   VM as VmType,
 } from '@ConstantsModule'
+import { http } from '@UtilsModule'
+import { GuacamoleSlice } from '@modules/features/Guacamole/slice'
+import {
+  removeLockLevelOnResource,
+  removeResourceOnPool,
+  updateLockLevelOnResource,
+  updateNameOnResource,
+  updateOwnershipOnResource,
+  updatePermissionOnResource,
+  updateResourceOnPool,
+  updateTemplateOnResource,
+} from '@modules/features/OneApi/common'
+import {
+  ONE_RESOURCES,
+  ONE_RESOURCES_POOL,
+} from '@modules/features/OneApi/resources'
+import { UpdateFromSocket } from '@modules/features/OneApi/socket'
 
 const { actions: guacamoleActions } = GuacamoleSlice
 const { VM, HOST } = ONE_RESOURCES
@@ -1361,6 +1361,8 @@ const vmQueries = (({
   useLazyGetVmQuery,
   useGetGuacamoleSessionQuery,
   useLazyGetGuacamoleSessionQuery,
+  useGetGuacamoleSessionFileQuery,
+  useLazyGetGuacamoleSessionFileQuery,
   useGetMonitoringQuery,
   useLazyGetMonitoringQuery,
   useGetMonitoringPoolQuery,

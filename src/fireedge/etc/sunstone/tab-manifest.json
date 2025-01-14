@@ -454,5 +454,11 @@
         "sidebar": true,
         "icon": "HeadsetHelp",
         "Component": "Support"
+    },
+    {
+        "title": "Guacamole",
+        "path": "/guacamole/:id/:type",
+        "sidebar": false,
+        "Component": "Guacamole"
     }
 ]

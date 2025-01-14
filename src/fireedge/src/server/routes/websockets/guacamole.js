@@ -20,6 +20,7 @@ const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey, genPathResources } = require('server/utils/server')
 const { writeInLogger } = require('server/utils/logger')
 const { endpointGuacamole } = require('server/utils/constants/defaults')
+const { create, deleteTunnel } = require('server/utils/sshTunnel')
 
 // set paths
 genPathResources()
@@ -29,7 +30,7 @@ genFireedgeKey()
 
 const formatError = 'Error: %s'
 /**
- * Object http error.
+ * Object console error log.
  *
  * @param {object} error - error message
  * @returns {object} error for terminalMessage function
@@ -48,16 +49,8 @@ const clientOptions = {
   },
   allowedUnencryptedConnectionSettings: {
     rdp: ['width', 'height', 'dpi'],
-    vnc: ['width', 'height', 'dpi', 'read-only', 'enable-audio'],
-    ssh: [
-      'color-scheme',
-      'font-name',
-      'font-size',
-      'width',
-      'height',
-      'dpi',
-      'command',
-    ],
+    vnc: ['width', 'height', 'dpi'],
+    ssh: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi'],
     telnet: [
       'color-scheme',
       'font-name',
@@ -73,12 +66,55 @@ const clientOptions = {
 }
 
 const clientCallbacks = {
-  processConnectionSettings: (settings, callback) => {
+  processConnectionSettings: async (
+    settings,
+    callback,
+    { connections, id }
+  ) => {
     if (settings?.expiration < Date.now()) {
       return callback(new Error('Token expired'))
     }
+    await create(
+      {
+        vmPort: settings?.connection?.port,
+        hostAddr: settings?.connection?.hostname,
+      },
+      {
+        connect: (pidTunnel) => {
+          if (connections && id) {
+            const dataConnection = connections?.get?.(id)
+            dataConnection
+              ? (dataConnection.pidTunnel = pidTunnel)
+              : connections.set(id, { pidTunnel })
+
+            writeInLogger([pidTunnel, id], {
+              format: 'Tunnel SSH created with PID: %1$s to connection: %2$s ',
+              level: 2,
+            })
+          }
+        },
+        error: (err) => {
+          writeInLogger(err, {
+            format: formatError,
+          })
+        },
+      }
+    )
 
     return callback(null, settings)
+  },
+  processConnectionClose: (err, { connections, id }) => {
+    if (connections?.length && id) {
+      const others = [...connections.values()].some(
+        (value) => value.pidTunnel === id
+      )
+      !others && deleteTunnel(id)
+    }
+
+    writeInLogger(err, {
+      format: 'WS connection failed: %s',
+    })
+    messageTerminal(configError(err))
   },
 }
 

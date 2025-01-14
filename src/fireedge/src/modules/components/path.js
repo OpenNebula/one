@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { RESOURCE_NAMES } from '@ConstantsModule'
+import { RESOURCE_NAMES, SOCKETS } from '@ConstantsModule'
 
 export const PATH = {
   INSTANCE: {
@@ -164,6 +164,7 @@ export const PATH = {
     },
   },
   SUPPORT: `/${RESOURCE_NAMES.SUPPORT}`,
+  GUACAMOLE: `/${SOCKETS.GUACAMOLE}/:id/:type`,
 }
 
 export default { PATH }

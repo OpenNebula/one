@@ -244,8 +244,9 @@ const getVncSettings = (vmInfo) => {
   }
 
   if (!config.hostname) {
-    const lastHistory = [vmInfo.HISTORY_RECORDS?.HISTORY ?? []].flat().at(-1)
-    config.hostname = lastHistory?.HOSTNAME ?? 'localhost'
+    const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
+    const lastRecord = data[data.length - 1]
+    config.hostname = lastRecord?.HOSTNAME ?? 'localhost'
   }
 
   config.port = vmInfo.TEMPLATE?.GRAPHICS?.PORT ?? '5900'
@@ -257,17 +258,17 @@ const getVncSettings = (vmInfo) => {
 const getSshSettings = (vmInfo, authUser) => {
   const config = {}
 
-  const nics = [
-    vmInfo.TEMPLATE?.NIC ?? [],
-    vmInfo.TEMPLATE?.NIC_ALIAS ?? [],
-  ].flat()
+  const nics = [].concat(
+    ...[vmInfo.TEMPLATE?.NIC ?? [], vmInfo.TEMPLATE?.NIC_ALIAS ?? []]
+  )
 
   const nicWithExternalPortRange = nics.find((nic) => !nic.EXTERNAL_PORT_RANGE)
   const { EXTERNAL_PORT_RANGE } = nicWithExternalPortRange ?? {}
 
   if (EXTERNAL_PORT_RANGE) {
-    const lastHistory = [vmInfo.HISTORY_RECORDS?.HISTORY ?? []].flat().at(-1)
-    const lastHostname = lastHistory?.HOSTNAME
+    const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
+    const lastRecord = data[data.length - 1]
+    const lastHostname = lastRecord?.HOSTNAME
 
     if (lastHostname) {
       config.hostname = lastHostname
@@ -300,10 +301,9 @@ const getSshSettings = (vmInfo, authUser) => {
 const getRdpSettings = (vmInfo) => {
   const config = {}
 
-  const nics = [
-    vmInfo.TEMPLATE?.NIC ?? [],
-    vmInfo.TEMPLATE?.NIC_ALIAS ?? [],
-  ].flat()
+  const nics = [].concat(
+    ...[vmInfo.TEMPLATE?.NIC ?? [], vmInfo.TEMPLATE?.NIC_ALIAS ?? []]
+  )
 
   const nicWithRdp = nics.find(({ RDP }) => `${RDP}`.toLowerCase() === 'yes')
   config.hostname = nicWithRdp?.EXTERNAL_IP ?? nicWithRdp?.IP
