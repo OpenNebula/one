@@ -42,13 +42,6 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
 {
     ostringstream oss;
     int vid;
-    int uid;
-    int gid;
-
-    string error;
-
-    VirtualMachineTemplate quota_tmpl;
-    bool do_quotas = false;
 
     if ( vm == nullptr )
     {
@@ -65,33 +58,15 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
          vm->get_state() == VirtualMachine::STOPPED ||
          vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
-        do_quotas = vm->get_state() == VirtualMachine::STOPPED ||
-                    vm->get_state() == VirtualMachine::UNDEPLOYED;
-
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm.get());
-
-        if ( do_quotas )
-        {
-            uid = vm->get_uid();
-            gid = vm->get_gid();
-
-            vm->get_quota_template(quota_tmpl, false, true);
-        }
 
         lcm->trigger_deploy(vid);
     }
     else
     {
         goto error;
-    }
-
-    vm.reset(); //force unlock of vm mutex
-
-    if ( do_quotas )
-    {
-        Quotas::vm_check(uid, gid, &quota_tmpl, error);
     }
 
     return 0;
@@ -1191,7 +1166,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
     Template vm_quotas_snp;
 
     VirtualMachineTemplate quota_tmpl;
-    bool do_quotas = false;
 
     vector<Template *> ds_quotas_snp;
 
@@ -1214,10 +1188,15 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
+            vm->get_quota_template(quota_tmpl, false, true);
+
+            if (!Quotas::vm_check(vm_uid, vm_gid, &quota_tmpl, error))
+            {
+                return -1;
+            }
+
             vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
                                                      ds_quotas_snp);
-
-            do_quotas = true;
 
             [[fallthrough]];
 
@@ -1236,10 +1215,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
             vmpool->update(vm.get());
 
-            if ( do_quotas )
-            {
-                vm->get_quota_template(quota_tmpl, false, true);
-            }
             break;
 
         case VirtualMachine::POWEROFF:
@@ -1265,11 +1240,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
     if ( !vm_quotas_snp.empty() )
     {
         Quotas::vm_del(vm_uid, vm_gid, &vm_quotas_snp);
-    }
-
-    if ( do_quotas )
-    {
-        Quotas::vm_check(vm_uid, vm_gid, &quota_tmpl, error);
     }
 
     return rc;

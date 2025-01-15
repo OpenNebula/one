@@ -310,7 +310,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
     }
 }
 
-void Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
+bool Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
                          string& error)
 {
     Nebula&     nd    = Nebula::instance();
@@ -327,6 +327,16 @@ void Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
             {
                 upool->update_quotas(user.get());
             }
+            else
+            {
+                ostringstream oss;
+
+                oss << "User [" << uid << "] " << error;
+
+                error = oss.str();
+
+                return false;
+            }
         }
     }
 
@@ -340,8 +350,19 @@ void Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
             {
                 gpool->update_quotas(group.get());
             }
+            else
+            {
+                ostringstream oss;
+
+                oss << "Group [" << gid << "] " << error;
+
+                error = oss.str();
+                return false;
+            }
         }
     }
+
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */

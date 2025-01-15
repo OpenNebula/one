@@ -1002,8 +1002,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    static_cast<VirtualMachinePool *>(pool)->update(vm.get());
-
     // ------------------------------------------------------------------------
     // Add deployment dependent attributes to VM
     //   - volatile disk (selected system DS driver)
@@ -1011,8 +1009,33 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // ------------------------------------------------------------------------
     set_volatile_disk_info(vm.get(), ds_id);
 
+    VirtualMachineTemplate quota_tmpl;
+    RequestAttributes att_quota(uid, gid, att);
+
+    bool do_running_quota = vm->get_state() == VirtualMachine::STOPPED ||
+                            vm->get_state() == VirtualMachine::UNDEPLOYED;
+
+    // Authorize running quota
+    if (do_running_quota)
+    {
+        vm->get_quota_template(quota_tmpl, false, true);
+
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        {
+            att.resp_msg = att_quota.resp_msg;
+
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+    }
+
     if (set_vnc_port(vm.get(), cluster_id, att) != 0)
     {
+        if (do_running_quota)
+        {
+            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
+
         failure_response(ACTION, att);
         return;
     }
