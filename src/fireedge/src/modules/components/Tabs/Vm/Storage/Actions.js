@@ -144,8 +144,10 @@ const DetachAction = memo(
       await handleDetachDisk({ id: vmId, disk: DISK_ID })
     }
 
+    // Disable action if is a regular user and is dettaching a disk in a template and if the disk has a restricted attribute on the template
     const disabledAction =
       !adminGroup &&
+      !vmId &&
       hasRestrictedAttributes(disk, 'DISK', oneConfig?.VM_RESTRICTED_ATTR)
 
     return (

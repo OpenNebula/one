@@ -139,16 +139,18 @@ const UpdateSchedButton = memo(
  * @param {object} props - Props
  * @param {ScheduleAction} props.schedule - Schedule action
  * @param {function():Promise} props.onSubmit - Submit function
+ * @param {number} props.vmId - VM id
  * @returns {ReactElement} Button
  */
 const DeleteSchedButton = memo(
-  ({ onSubmit, schedule, oneConfig, adminGroup }) => {
+  ({ onSubmit, schedule, oneConfig, adminGroup, vmId }) => {
     const { ID, ACTION } = schedule
     const titleAction = `#${ID} ${sentenceCase(ACTION)}`
 
-    // Disable action if the nic has a restricted attribute on the template
+    // Disable action if is a regular user and is deleting a sched action in a template and if the sched action has a restricted attribute on the template
     const disabledAction =
       !adminGroup &&
+      !vmId &&
       hasRestrictedAttributes(
         schedule,
         'SCHED_ACTION',
@@ -277,6 +279,7 @@ const ButtonPropTypes = {
   backupjobs: PropTypes.bool,
   service: PropTypes.object,
   roles: PropTypes.object,
+  vmId: PropTypes.number,
 }
 
 CreateSchedButton.propTypes = ButtonPropTypes

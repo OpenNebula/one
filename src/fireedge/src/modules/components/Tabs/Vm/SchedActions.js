@@ -161,6 +161,7 @@ const VmSchedulingTab = ({
                   )}
                   {isDeleteEnabled && (
                     <DeleteSchedButton
+                      vmId={id}
                       onSubmit={() => handleRemove(ID)}
                       schedule={schedule}
                       oneConfig={oneConfig}

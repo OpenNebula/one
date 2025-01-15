@@ -109,39 +109,42 @@ const AttachAction = memo(
   }
 )
 
-const DetachAction = memo(({ nic, onSubmit, sx, oneConfig, adminGroup }) => {
-  // Disable action if the nic has a restricted attribute on the template
-  const disabledAction =
-    !adminGroup &&
-    hasRestrictedAttributes(nic, 'NIC', oneConfig?.VM_RESTRICTED_ATTR)
+const DetachAction = memo(
+  ({ nic, onSubmit, sx, oneConfig, adminGroup, vmId }) => {
+    // Disable action if is a regular user and is dettaching a nic in a template and if the nic has a restricted attribute on the template
+    const disabledAction =
+      !adminGroup &&
+      !vmId &&
+      hasRestrictedAttributes(nic, 'NIC', oneConfig?.VM_RESTRICTED_ATTR)
 
-  return (
-    <ButtonToTriggerForm
-      buttonProps={{
-        'data-cy': `detach-nic-${nic.NIC_ID}`,
-        icon: <Trash />,
-        tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
-        sx,
-        disabled: disabledAction,
-      }}
-      options={[
-        {
-          isConfirmDialog: true,
-          dialogProps: {
-            title: (
-              <Translate
-                word={T.DetachSomething}
-                values={`${T.NIC} #${nic.NIC_ID}`}
-              />
-            ),
-            children: <p>{Tr(T.DoYouWantProceed)}</p>,
+    return (
+      <ButtonToTriggerForm
+        buttonProps={{
+          'data-cy': `detach-nic-${nic.NIC_ID}`,
+          icon: <Trash />,
+          tooltip: !disabledAction ? Tr(T.Detach) : Tr(T.DetachRestricted),
+          sx,
+          disabled: disabledAction,
+        }}
+        options={[
+          {
+            isConfirmDialog: true,
+            dialogProps: {
+              title: (
+                <Translate
+                  word={T.DetachSomething}
+                  values={`${T.NIC} #${nic.NIC_ID}`}
+                />
+              ),
+              children: <p>{Tr(T.DoYouWantProceed)}</p>,
+            },
+            onSubmit: onSubmit,
           },
-          onSubmit: onSubmit,
-        },
-      ]}
-    />
-  )
-})
+        ]}
+      />
+    )
+  }
+)
 
 const UpdateAction = memo(({ nic, onSubmit, sx, oneConfig, adminGroup }) => (
   <ButtonToTriggerForm
