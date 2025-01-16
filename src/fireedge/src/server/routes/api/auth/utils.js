@@ -539,8 +539,9 @@ const getServerAdminAndWrapUser = (userData = {}) => {
  * Remote login route function.
  *
  * @param {string} userData - user remote data user:password
+ * @param {object} response - http response
  */
-const remoteLogin = (userData = '') => {
+const remoteLogin = (userData = '', response = {}) => {
   const serverAdminData = getServerAdmin()
   const { username, token } = serverAdminData
   const [usr, pss = usr] = userData.split(':')
@@ -559,11 +560,14 @@ const remoteLogin = (userData = '') => {
               data.AUTH_DRIVER === 'public'
           )
           if (userFound) {
+            setRes(response)
             setZones()
             getServerAdminAndWrapUser(userFound)
           } else {
             next()
           }
+        } else {
+          next()
         }
       },
       fillHookResource: false,
@@ -575,8 +579,9 @@ const remoteLogin = (userData = '') => {
  * X.509 login route function.
  *
  * @param {string} userData - user remote data /DC=es/O=one/CN=user|/DC=us/O=two/CN=user
+ * @param {object} response - http response
  */
-const x509Login = (userData = '') => {
+const x509Login = (userData = '', response = {}) => {
   const serverAdminData = getServerAdmin()
   const { username, token } = serverAdminData
   if (username && token && userData) {
@@ -597,11 +602,14 @@ const x509Login = (userData = '') => {
               data.AUTH_DRIVER === 'x509'
           )
           if (userFound) {
+            setRes(response)
             setZones()
             getServerAdminAndWrapUser(userFound)
           } else {
             next()
           }
+        } else {
+          next()
         }
       },
       fillHookResource: false,
