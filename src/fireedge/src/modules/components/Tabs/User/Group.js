@@ -19,13 +19,13 @@ import { useHistory, generatePath } from 'react-router-dom'
 
 import { PATH } from '@modules/components/path'
 
-import { GroupsTable } from '@modules/components/Tables'
 import { UserAPI, GroupAPI } from '@FeaturesModule'
 
-import { Chip, Box, Grid, Typography } from '@mui/material'
+import { Box, Divider } from '@mui/material'
 
 import { T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
+import { GroupCard } from '@modules/components/Cards'
 
 /**
  * Renders mainly information tab.
@@ -39,84 +39,110 @@ const GroupsInfoTab = ({ id }) => {
   const history = useHistory()
   const { data = [] } = GroupAPI.useGetGroupsQuery()
   const { data: user } = UserAPI.useGetUserQuery({ id })
-  const { GROUPS } = user
+
+  const USER_GROUPS = [].concat(user.GROUPS.ID ?? [])
 
   const handleRowClick = (rowId) => {
     history.push(generatePath(path, { id: String(rowId) }))
   }
 
-  const primaryGroup = GROUPS.ID[0]
-  const secondaryGroups = GROUPS.ID.slice(1)
+  const primaryGroupId = user?.GID ?? USER_GROUPS?.[0]
 
-  const primaryGroupName = useMemo(() => {
-    const primary = data.find(
-      (group) =>
-        group.ID === primaryGroup || String(group.ID) === String(primaryGroup)
-    )
+  const primaryGroup = useMemo(
+    () =>
+      data.find(
+        (group) =>
+          group.ID === primaryGroupId ||
+          String(group.ID) === String(primaryGroupId)
+      ),
+    [data]
+  )
 
-    return primary?.NAME
-  }, [data, primaryGroup])
-
-  const secondaryGroupNames = useMemo(() => {
-    const foundGroups = data.filter((group) =>
-      secondaryGroups.includes(String(group.ID))
-    )
-
-    return foundGroups.map((group) => group.NAME)
-  }, [data, secondaryGroups])
+  const secondaryGroups = useMemo(
+    () =>
+      data.filter(
+        (group) =>
+          group?.ID !== primaryGroupId && USER_GROUPS?.includes(group?.ID)
+      ),
+    [data]
+  )
 
   return (
     <div>
-      <Grid container spacing={2} alignItems="center">
-        {primaryGroupName && (
-          <Grid item xs={12}>
-            <Typography variant="h7">{Tr(T.Primary)}</Typography>
-          </Grid>
-        )}
-
-        {primaryGroupName && (
-          <Grid item>
-            <Chip
-              data-cy="primary-group"
-              label={
-                <Typography variant="subtitle2" component="span">
-                  {primaryGroupName}
-                </Typography>
-              }
-              color="primary"
-            />
-          </Grid>
-        )}
-
-        {secondaryGroupNames.length > 0 && (
-          <Grid item xs={12}>
-            <Typography variant="body2">{Tr(T.Secondary)}</Typography>
-          </Grid>
-        )}
-
-        {secondaryGroupNames.length > 0 &&
-          secondaryGroupNames.map((name, index) => (
-            <Grid item key={index}>
-              <Chip
-                data-cy={`secondary-group-${+index}`}
-                label={
-                  <Typography variant="body2" component="span">
-                    {name}
-                  </Typography>
-                }
-                color="secondary"
-              />
-            </Grid>
-          ))}
-      </Grid>
-
-      <Box mt={2}>
-        <GroupsTable.Table
-          disableRowSelect
-          disableGlobalSort
-          onRowClick={(row) => handleRowClick(row.ID)}
-        />
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRadius: '0.5em',
+          p: 2,
+          mb: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -8,
+            transform: 'translateX(-50%)',
+            left: '50%',
+            backgroundColor: (theme) => theme.palette.primary.main,
+            color: 'white',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            fontWeight: 'bold',
+            fontSize: '16px',
+          }}
+        >
+          {Tr(T.PrimaryGroup)}
+        </Box>
+        <Box onClick={() => handleRowClick(primaryGroup.ID)}>
+          <GroupCard rootProps={{}} group={primaryGroup} />
+        </Box>
       </Box>
+      {secondaryGroups.length > 0 && (
+        <>
+          <Divider />
+          <Box
+            sx={{
+              mt: 7,
+              position: 'relative',
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -8,
+                transform: 'translateX(-50%)',
+                left: '50%',
+                backgroundColor: (theme) => theme.palette.secondary.main,
+                color: 'white',
+                padding: '4px 12px',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                fontSize: '16px',
+              }}
+            >
+              {Tr(T.SecondaryGroups)}
+            </Box>
+            {secondaryGroups.map((group, index) => (
+              <Box
+                key={index}
+                sx={{
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  borderRadius: '0.5em',
+                  mb: 2,
+                  p: 2,
+                }}
+              >
+                <Box onClick={() => handleRowClick(group.ID)}>
+                  <GroupCard group={group} />
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </>
+      )}
     </div>
   )
 }

@@ -25,12 +25,12 @@ import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 
 /**
- * UserCard component to display user details and quota usage.
+ * GroupCard component to display group details and quota usage.
  *
  * @param {object} props - Component props
  * @param {object} props.group - Group details
  * @param {object} props.rootProps - Additional props for the root element
- * @returns {Component} UserCard component
+ * @returns {Component} GroupCard component
  */
 const GroupCard = ({ group, rootProps }) => {
   const {
