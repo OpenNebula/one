@@ -705,6 +705,15 @@ public:
     }
 
     /**
+     *  Set new cluster id. The hasHistory()
+     *  function MUST be called before this one.
+     */
+    void set_cid(int cid)
+    {
+        history->cid = cid;
+    }
+
+    /**
      *  Get cluster id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */

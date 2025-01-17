@@ -16,6 +16,7 @@
 
 #include "RequestManagerCluster.h"
 #include "HostPool.h"
+#include "VirtualMachinePool.h"
 
 using namespace std;
 
@@ -179,8 +180,6 @@ void RequestManagerClusterHost::add_generic(
         int                 host_id,
         RequestAttributes&  att)
 {
-    int rc;
-
     string cluster_name;
     string obj_name;
 
@@ -190,17 +189,10 @@ void RequestManagerClusterHost::add_generic(
     int     old_cluster_id;
     string  old_cluster_name;
 
-    rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
-                  cluster_name, true);
+    set<int> vm_ids;
 
-    if ( rc == -1 )
-    {
-        return;
-    }
-
-    rc = get_info(hpool, host_id, PoolObjectSQL::HOST, att, obj_perms, obj_name, true);
-
-    if ( rc == -1 )
+    if (get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms, cluster_name, true) != 0
+        || get_info(hpool, host_id, PoolObjectSQL::HOST, att, obj_perms, obj_name, true) != 0)
     {
         return;
     }
@@ -247,6 +239,8 @@ void RequestManagerClusterHost::add_generic(
 
         host->set_cluster(cluster_id, cluster_name);
         host->update_reserved_capacity(ccpu, cmem);
+
+        vm_ids = host->get_vm_ids();
 
         hpool->update(host.get());
     }
@@ -310,6 +304,24 @@ void RequestManagerClusterHost::add_generic(
 
         failure_response(INTERNAL, att);
         return;
+    }
+
+    // Update cluster id for VMs running on the host
+    auto vmpool = Nebula::instance().get_vmpool();
+    for (int vm_id : vm_ids)
+    {
+        if (auto vm = vmpool->get(vm_id))
+        {
+            if (!vm->hasHistory())
+            {
+                continue;
+            }
+
+            vm->set_cid(cluster_id);
+
+            vmpool->update_history(vm.get());
+            vmpool->update(vm.get());
+        }
     }
 
     success_response(cluster_id, att);
