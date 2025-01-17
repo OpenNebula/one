@@ -534,8 +534,9 @@ const getServerAdminAndWrapUser = (userData = {}) => {
  * Remote login route function.
  *
  * @param {string} userData - user remote data user:password
+ * @param {object} response - http response
  */
-const remoteLogin = (userData = '') => {
+const remoteLogin = (userData = '', response = {}) => {
   const serverAdminData = getServerAdmin()
   const { username, token } = serverAdminData
   const [usr, pss = usr] = userData.split(':')
@@ -554,11 +555,14 @@ const remoteLogin = (userData = '') => {
               data.AUTH_DRIVER === 'public'
           )
           if (userFound) {
+            setRes(response)
             setZones()
             getServerAdminAndWrapUser(userFound)
           } else {
             next()
           }
+        } else {
+          next()
         }
       },
       fillHookResource: false,

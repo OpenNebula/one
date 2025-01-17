@@ -83,7 +83,6 @@ const coreAuth = (
   oneConnection = defaultEmptyFunction
 ) => {
   const { user, token, type, token2fa, remember } = params
-  setRes(res)
   setNext(next)
   setNodeConnect(oneConnection)
   updaterResponse(new Map(internalServerError).toObject())
@@ -96,6 +95,7 @@ const coreAuth = (
      * @param {object} opennebulaUserData - opennebula user data
      */
     const success = (opennebulaUserData) => {
+      setRes(res)
       setUser(user || '')
       setPass(token || '')
       setType(type || '')
@@ -110,6 +110,7 @@ const coreAuth = (
      * @param {string} err - error.
      */
     const error = (err) => {
+      setRes(res)
       const httpCodeError = err ? internalServerError : unauthorized
       updaterResponse(new Map(httpCodeError).toObject())
       writeInLogger(httpCodeError)
@@ -146,11 +147,10 @@ const remoteAuth = (
   oneConnection = defaultEmptyFunction
 ) => {
   const { user } = params
-  setRes(res)
   setNext(next)
   setNodeConnect(oneConnection)
   updaterResponse(new Map(internalServerError).toObject())
-  user ? remoteLogin(user) : next()
+  user ? remoteLogin(user, res) : next()
 }
 
 /**
