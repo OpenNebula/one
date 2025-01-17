@@ -1192,23 +1192,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts
             CLIHelper.print_header(str_h1 % 'SNAPSHOTS', false)
 
-            CLIHelper::ShowTable.new(nil, self) do
-                column :ID, '', :size => 4 do |d|
-                    d['SNAPSHOT_ID'] unless d.nil?
-                end
-
-                column :TIME, '', :size => 12 do |d|
-                    OpenNebulaHelper.time_to_str(d['TIME'], false) unless d.nil?
-                end
-
-                column :NAME, '', :left, :size => 46 do |d|
-                    d['NAME'] unless d.nil?
-                end
-
-                column :HYPERVISOR_ID, '', :left, :size => 15 do |d|
-                    d['HYPERVISOR_ID'] unless d.nil?
-                end
-            end.show([vm_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
+            format_template_snapshots(vm)
 
             vm.delete_element('/VM/TEMPLATE/SNAPSHOT')
         end
@@ -1499,6 +1483,28 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         table.show(snapshots)
+    end
+
+    def format_template_snapshots(vm)
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :ID, '', :size => 4 do |d|
+                d['SNAPSHOT_ID'] unless d.nil?
+            end
+
+            column :TIME, '', :size => 12 do |d|
+                OpenNebulaHelper.time_to_str(d['TIME'], false) unless d.nil?
+            end
+
+            column :NAME, '', :left, :size => 46 do |d|
+                d['NAME'] unless d.nil?
+            end
+
+            column :HYPERVISOR_ID, '', :left, :size => 15 do |d|
+                d['HYPERVISOR_ID'] unless d.nil?
+            end
+        end
+        vm_hash = vm.to_hash
+        table.show([vm_hash['VM']['TEMPLATE']['SNAPSHOT']].flatten, {})
     end
 
 end
