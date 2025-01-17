@@ -85,8 +85,11 @@ disable_local_monitoring $DST_HOST $DST_DIR
 #-------------------------------------------------------------------------------
 
 if [ -n "$ORIGINAL_SIZE" ] && [ "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-    RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
-    [[ "${SPARSE}" =~ ^(no|NO)$ ]] && RESIZE_CMD="qemu-img resize --preallocation=falloc ${DST_PATH} ${SIZE}M"
+    if [[ "${SPARSE}" =~ ^(no|NO)$ ]]; then
+        RESIZE_CMD="qemu-img resize --preallocation=falloc ${DST_PATH} ${SIZE}M"
+    else
+        RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+    fi
 fi
 
 if [ "$FORMAT" = "qcow2" ] && is_yes "${QCOW2_STANDALONE}"; then
