@@ -58,7 +58,11 @@ class Qcow2Mapper
 
     # Returns the source file for the disk
     def source(disk)
-        "#{disk.sysds_path}/#{disk.vm_id}/disk.#{disk.id}"
+        disk_source = "#{disk.sysds_path}/#{disk.vm_id}/disk.#{disk.id}"
+
+        return File.realpath(disk_source) if File.symlink?(disk_source)
+
+        disk_source
     end
 
     # TODO, check if necessary
