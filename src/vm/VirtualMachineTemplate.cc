@@ -208,7 +208,7 @@ std::map<std::string, std::vector<std::string>> VirtualMachineTemplate::UPDATECO
     },
     {
         "CPU_MODEL",
-        { "MODEL" }
+        { "MODEL", "FEATURES" }
     },
     {
         "BACKUP_CONFIG",
