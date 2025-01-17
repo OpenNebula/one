@@ -69,6 +69,11 @@ module Storage
 
                 resize_xfs(mountpoint)
             else
+                if device_fs.empty?
+                    message = "Could not detect filesystem type on device #{device}"
+                    OpenNebula::DriverLogger.log_warning(message)
+                end
+
                 return false unless mount(device, mountpoint, opts_fs)
             end
 
@@ -206,10 +211,13 @@ module Storage
 
             return '' unless rc
 
+            # modify device string to match lsblk output matching
+            # /dev/vg-one-0/lv-one-4-0 -> vg--one--0-lv--one--4--0
+            # /dev/sda1 -> sda1
+            pattern = device.gsub(%r{/dev/|/|-}, { '/dev/' => '', '/' => '-', '-' => '--' })
+
             # Get filesystem type if defined
-            o.match(/#{device.gsub('/dev/', '')}.*/)[0]
-             .split[1]
-             .strip rescue ''
+            o.match(/#{pattern}.*/)[0].split[1].strip rescue ''
         end
 
         # Resize an extX like device
