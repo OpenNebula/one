@@ -730,10 +730,11 @@ _onevm() {
     opts="create update hold release disk-saveas terminate undeploy poweroff
             reboot deploy migrate stop suspend resume recover disk-attach
             disk-detach nic-attach nic-detach chgrp chown chmod resched unresched
-            rename snapshot-create snapshot-revert snapshot-delete disk-snapshot-create
-            disk-snapshot-revert disk-snapshot-delete disk-snapshot-rename disk-resize
-            list show top resize save updateconf lock unlock create-chart
-            delete-chart update-chart backup restore ssh port-forward backupmode"
+            rename snapshot-create snapshot-revert snapshot-delete snapshot-list 
+            disk-snapshot-create disk-snapshot-revert disk-snapshot-delete
+            disk-snapshot-rename disk-snapshot-list disk-resize list show top
+            resize save updateconf lock unlock create-chart delete-chart
+            update-chart backup restore ssh port-forward backupmode"
     cmd=onevm
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -742,10 +743,10 @@ _onevm() {
         case "$prev" in
         update|hold|release|disk-saveas|terminate|show|delete|resume|recover| \
         disk-attach|disk-detach|nic-attach|nic-detach|chgrp|chown|chmod|resched| \
-        unresched|rename|snapshot-create|snapshot-revert|snapshot-delete| \
+        unresched|rename|snapshot-create|snapshot-revert|snapshot-delete|snapshot-list| \
         disk-snapshot-create|disk-snapshot-delete|disk-snapshot-revert| \
-        disk-snapshot-rename|disk-resize|save|updateconf|lock|unlock|create-chart| \
-        delete-chart|update-chart|backup|restore|ssh|port-forward|backupmode)
+        disk-snapshot-rename|disk-snapshot-list|disk-resize|save|updateconf|lock|unlock| \
+        create-chart|delete-chart|update-chart|backup|restore|ssh|port-forward|backupmode)
             _complete $cmd
         ;;
         undeploy|poweroff|reboot|shutdown|suspend|stop|migrate)

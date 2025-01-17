@@ -1140,6 +1140,24 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    snapshot_list_desc = <<-EOT.unindent
+        Lists the snapshots of a VM
+    EOT
+
+    command :"snapshot-list", snapshot_list_desc, :vmid do
+        vm = helper.retrieve_resource(args[0])
+        vm.info
+
+        if vm.has_elements?('/VM/TEMPLATE/SNAPSHOT')
+            CLIHelper.print_header('SNAPSHOTS'.ljust(80), false)
+
+            helper.format_template_snapshots(vm)
+        else
+            puts 'No snapshots available'
+        end
+        0
+    end
+
     disk_snapshot_create_desc = <<-EOT.unindent
         Takes a new snapshot of the given disk. This operation needs support
         from the Datastore drivers: QCOW2 or Ceph.
