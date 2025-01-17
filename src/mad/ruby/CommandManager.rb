@@ -72,7 +72,7 @@ class GenericCommand
         return unless @logger
 
         case @logger.arity
-        when 2
+        when 2,-2
             @logger.call(message, all)
         when 1
             @logger.call(message)
