@@ -91,7 +91,7 @@ export const SCHEMA = array()
     'valid-characters',
     'Role names can only contain letters and numbers',
     (roles) =>
-      roles.every((role) => role.NAME && /^[a-zA-Z0-9]+$/.test(role.NAME))
+      roles.every((role) => role.NAME && /^[a-zA-Z0-9_]+$/.test(role.NAME))
   )
   .test(
     'has-unique-name',

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import Component from 'react'
+import { Component, useState } from 'react'
 import {
   Box,
   TextField,
@@ -35,17 +35,30 @@ import { Tr } from '@modules/components/HOC'
  * @returns {Component} The rendered component.
  */
 const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
+  const [inputBuffers, setInputBuffers] = useState({})
+
   const handleInputChange = (name, value) => {
     const updatedRole = { ...roles[selectedRoleIndex], [name]: value }
     onChange(updatedRole)
   }
 
-  const handleTextFieldChange = (event, number = false) => {
+  const handleTextFieldChange = (event) => {
     const { name, value } = event.target
-    handleInputChange(name, number ? parseInt(value, 10) : value)
+    setInputBuffers((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleAutocompleteChange = (event, value) => {
+  const handleBlur = (event, number = false) => {
+    const { name } = event.target
+
+    if (inputBuffers[name] !== undefined) {
+      const value = inputBuffers[name]
+      handleInputChange(name, number ? parseInt(value, 10) || 0 : value || '')
+    }
+
+    setInputBuffers((prev) => ({ ...prev, [name]: null }))
+  }
+
+  const handleAutocompleteChange = (_, value) => {
     const parentNames = value.map((option) => option.NAME)
     handleInputChange('PARENTS', parentNames)
   }
@@ -57,6 +70,17 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
     selectedRole?.PARENTS?.includes(role?.NAME)
   )
 
+  const getValue = (fieldName) => {
+    if (
+      inputBuffers[fieldName] !== undefined &&
+      inputBuffers[fieldName] !== null
+    ) {
+      return inputBuffers[fieldName]
+    }
+
+    return selectedRole?.[fieldName] || ''
+  }
+
   return (
     <Box p={2}>
       <Box sx={{ flex: 1 }}>
@@ -65,8 +89,9 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
           <TextField
             label={Tr(T.RoleName)}
             name="NAME"
-            value={selectedRole?.NAME || ''}
+            value={getValue('NAME')}
             onChange={handleTextFieldChange}
+            onBlur={handleBlur}
             disabled={isDisabled}
             inputProps={{ 'data-cy': `role-name-${selectedRoleIndex}` }}
             fullWidth
@@ -78,8 +103,9 @@ const RoleVmVmPanel = ({ roles, onChange, selectedRoleIndex }) => {
             type="number"
             label={Tr(T.NumberOfVms)}
             name="CARDINALITY"
-            value={selectedRole?.CARDINALITY || 0}
-            onChange={(event) => handleTextFieldChange(event, true)}
+            value={getValue('CARDINALITY')}
+            onChange={handleTextFieldChange}
+            onBlur={(event) => handleBlur(event, true)}
             disabled={isDisabled}
             InputProps={{
               inputProps: {
