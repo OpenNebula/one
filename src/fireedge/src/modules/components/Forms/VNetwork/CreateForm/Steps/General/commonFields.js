@@ -97,7 +97,7 @@ const FILTER_MAC_SPOOFING_FIELD = {
   name: 'FILTER_MAC_SPOOFING',
   label: T.MacSpoofingFilter,
   type: INPUT_TYPES.SWITCH,
-  onlyOnHypervisors: [fw],
+  onlyOnHypervisors: [fw, dot1Q, vxlan, ovswitch, openVSwitchVXLAN],
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }
@@ -107,7 +107,7 @@ const FILTER_IP_SPOOFING_FIELD = {
   name: 'FILTER_IP_SPOOFING',
   label: T.IpSpoofingFilter,
   type: INPUT_TYPES.SWITCH,
-  onlyOnHypervisors: [fw],
+  onlyOnHypervisors: [fw, dot1Q, vxlan, ovswitch, openVSwitchVXLAN],
   validation: boolean().yesOrNo(),
   grid: { md: 12 },
 }

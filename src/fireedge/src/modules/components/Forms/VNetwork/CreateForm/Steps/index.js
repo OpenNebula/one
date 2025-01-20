@@ -47,8 +47,6 @@ export const getUnknownVars = (fromAttributes = {}, schema) => {
       !existsOnSchema(schema, `${GENERAL_ID}.${key}`) &&
       !existsOnSchema(schema, `${EXTRA_ID}.${key}`)
     ) {
-      // When the path is not found, it means that
-      // the attribute is correct and we can set it
       unknown[key] = value
     }
   }
@@ -64,7 +62,12 @@ const Steps = createSteps([General, ExtraConfiguration], {
 
     const initialValue = schema.cast(
       {
-        [GENERAL_ID]: { ...vnet, phyDevSwitch, bridgeSwitch },
+        [GENERAL_ID]: {
+          ...vnet,
+          phyDevSwitch,
+          bridgeSwitch,
+          ...TEMPLATE, // Adding template configuration
+        },
         [EXTRA_ID]: { ...TEMPLATE, AR: AR_POOL.AR, ...vnet },
       },
       { stripUnknown: true, context: vnet }
