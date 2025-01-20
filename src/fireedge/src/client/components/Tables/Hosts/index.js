@@ -50,6 +50,7 @@ const HostsTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -223,7 +224,7 @@ const HostsTable = (props) => {
       },
     },
   ]
-  const { component, header } = WrapperRow(HostRow)
+  const { component, header } = WrapperRow(RowComponent ?? HostRow)
 
   return (
     <EnhancedTable

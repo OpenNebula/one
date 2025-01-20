@@ -48,6 +48,7 @@ const DatastoresTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -212,7 +213,7 @@ const DatastoresTable = (props) => {
       },
     },
   ]
-  const { component, header } = WrapperRow(DatastoreRow)
+  const { component, header } = WrapperRow(RowComponent ?? DatastoreRow)
 
   return (
     <EnhancedTable

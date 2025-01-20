@@ -49,6 +49,7 @@ const VNetworksTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -212,7 +213,7 @@ const VNetworksTable = (props) => {
     },
   ]
 
-  const { component, header } = WrapperRow(VNetworkRow)
+  const { component, header } = WrapperRow(RowComponent ?? VNetworkRow)
 
   return (
     <EnhancedTable
