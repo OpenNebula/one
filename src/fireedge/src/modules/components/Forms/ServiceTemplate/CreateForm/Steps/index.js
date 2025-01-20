@@ -165,7 +165,7 @@ const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
         [ROLE_DEFINITION_ID]: roleDefinitionData,
         [ROLE_CONFIG_ID]: { ...roleConfigData },
       },
-      { stripUnknown: false }
+      { stripUnknown: true }
     )
 
     return knownTemplate
