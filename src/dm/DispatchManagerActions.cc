@@ -42,13 +42,6 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
 {
     ostringstream oss;
     int vid;
-    int uid;
-    int gid;
-
-    string error;
-
-    VirtualMachineTemplate quota_tmpl;
-    bool do_quotas = false;
 
     if ( vm == nullptr )
     {
@@ -65,33 +58,15 @@ int DispatchManager::deploy(unique_ptr<VirtualMachine> vm,
          vm->get_state() == VirtualMachine::STOPPED ||
          vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
-        do_quotas = vm->get_state() == VirtualMachine::STOPPED ||
-                    vm->get_state() == VirtualMachine::UNDEPLOYED;
-
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm.get());
-
-        if ( do_quotas )
-        {
-            uid = vm->get_uid();
-            gid = vm->get_gid();
-
-            vm->get_quota_template(quota_tmpl, false, true);
-        }
 
         lcm->trigger_deploy(vid);
     }
     else
     {
         goto error;
-    }
-
-    vm.reset(); //force unlock of vm mutex
-
-    if ( do_quotas )
-    {
-        Quotas::vm_check(uid, gid, &quota_tmpl, error);
     }
 
     return 0;

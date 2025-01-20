@@ -110,24 +110,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = {
-                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"              => "0",
-                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"              => "0",
-                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED"           => "0",
-                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_VMS_USED"      => "0",
-                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_CPU_USED"      => "0",
-                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_MEMORY_USED"   => "0",
-                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "SYSTEM_DISK_SIZE_USED" => "0"
-                        }
-
-                        quotas[d['ID']] = q
+                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     limit = q['VM_QUOTA']['VM']["VMS"]
@@ -153,24 +136,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = {
-                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"              => "0",
-                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"              => "0",
-                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED"           => "0",
-                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_VMS_USED"      => "0",
-                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_CPU_USED"      => "0",
-                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_MEMORY_USED"   => "0",
-                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "SYSTEM_DISK_SIZE_USED" => "0"
-                        }
-
-                        quotas[d['ID']] = q
+                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
@@ -199,24 +165,7 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
-                        q['VM_QUOTA']['VM'] = {
-                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"              => "0",
-                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"              => "0",
-                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED"           => "0",
-                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_VMS_USED"      => "0",
-                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_CPU_USED"      => "0",
-                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
-                            "RUNNING_MEMORY_USED"   => "0",
-                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "SYSTEM_DISK_SIZE_USED" => "0"
-                        }
-
-                        quotas[d['ID']] = q
+                        q['VM_QUOTA']['VM'] = OneQuotaHelper::DEFAULT_VM_QUOTA
                     end
 
                     limit = q['VM_QUOTA']['VM']["CPU"]

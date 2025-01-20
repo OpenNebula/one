@@ -156,17 +156,6 @@ public:
     };
 
     /**
-     *  Lists the Datastore ids
-     *  @param oids a vector with the oids of the objects.
-     *
-     *  @return 0 on success
-     */
-    int list(std::vector<int>& oids)
-    {
-        return PoolSQL::list(oids, one_db::ds_table);
-    }
-
-    /**
      *  Adds to the disk the datastore inherit attributes and conf values
      *    @param ds_id of the datastore to use
      *    @para disk vector attribute for the disk

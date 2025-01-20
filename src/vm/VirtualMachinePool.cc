@@ -187,6 +187,43 @@ int VirtualMachinePool::get_backup(vector<int>& oids)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::get_cluster_vms(int user_id, int group_id, int cid,
+                                        vector<int>& oids)
+{
+    ostringstream   os;
+
+    // Filter user
+    if (user_id >= 0)
+    {
+        os << "uid = " << user_id << " AND ";
+    }
+
+    // Filter group
+    if (group_id >= 0)
+    {
+        os << "gid = " << group_id << " AND ";
+    }
+
+    // Filter VM state
+    os << "state != " << VirtualMachine::DONE << " AND ";
+
+    // Filter cluster
+    if (db->supports(SqlDB::SqlFeature::JSON_QUERY))
+    {
+        os << "JSON_CONTAINS(body_json, '" << cid
+           << "', '$.VM.HISTORY_RECORDS.HISTORY[*].CID') = 1";
+    }
+    else
+    {
+        os << "short_body LIKE '%<CID>" << cid << "</CID>%'";
+    }
+
+    return PoolSQL::search(oids, one_db::vm_table, os.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachinePool::dump_acct(string& oss, const string&  where,
                                   int time_start, int time_end)
 {
@@ -906,17 +943,14 @@ int VirtualMachinePool::calculate_showback(
 
 void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 {
-    int uid;
-    int gid;
-    int oid;
-
     VirtualMachineDisk * disk = nullptr;
 
     disk = vm->delete_attach_disk();
 
-    uid  = vm->get_uid();
-    gid  = vm->get_gid();
-    oid  = vm->get_oid();
+    int uid  = vm->get_uid();
+    int gid  = vm->get_gid();
+    int oid  = vm->get_oid();
+    int cid  = vm->get_cid();
 
     vm->set_vm_info();
 
@@ -946,6 +980,7 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 
     Template tmpl;
 
+    tmpl.add("CLUSTER_ID", cid);
     tmpl.set(disk->vector_attribute());
 
     if (disk->is_volatile())

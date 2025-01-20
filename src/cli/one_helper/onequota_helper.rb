@@ -20,6 +20,22 @@ class OneQuotaHelper
 
     LIMIT_DEFAULT   = "-1"
     LIMIT_UNLIMITED = "-2"
+    DEFAULT_VM_QUOTA = {
+                            "VMS"                   => LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
+                            "SYSTEM_DISK_SIZE"      => LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
+                        }
 
     EDITOR_PATH='/usr/bin/vi'
 
@@ -214,7 +230,7 @@ class OneQuotaHelper
         generic_quotas = get_generic_quotas
 
         # This initializes the VM quotas for users/groups that don't have any
-        # resource usage yet. It not applied to oneamdin
+        # resource usage yet. It not applied to oneadmin
         if vm_quotas[0].nil? && resource_id.to_i != 0
             limit = LIMIT_DEFAULT
 
@@ -245,7 +261,13 @@ class OneQuotaHelper
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
-                column :"VMS", "", :right, :size=>17 do |d|
+                column :"CLUSTERS", "", :right, :size=>8 do |d|
+                    if !d.nil?
+                        d['CLUSTER_IDS']
+                    end
+                end
+
+                column :"VMS", "", :right, :size=>11 do |d|
                     if !d.nil?
                         elem = 'VMS'
                         limit = d[elem]
@@ -253,14 +275,14 @@ class OneQuotaHelper
                             limit, "VM_QUOTA/VM/#{elem}")
 
                         if limit == LIMIT_UNLIMITED
-                            "%7d /       -" % [d["VMS_USED"]]
+                            "%4d /    -" % [d["VMS_USED"]]
                         else
-                            "%7d / %7d" % [d["VMS_USED"], limit]
+                            "%4d / %4d" % [d["VMS_USED"], limit]
                         end
                     end
                 end
 
-                column :"MEMORY", "", :right, :size=>20 do |d|
+                column :"MEMORY", "", :right, :size=>19 do |d|
                     if !d.nil?
                         elem = 'MEMORY'
                         limit = d[elem]
@@ -280,7 +302,7 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"CPU", "", :right, :size=>20 do |d|
+                column :"CPU", "", :right, :size=>19 do |d|
                     if !d.nil?
                         elem = 'CPU'
                         limit = d[elem]
@@ -295,7 +317,7 @@ class OneQuotaHelper
                     end
                 end
 
-                column :"SYSTEM_DISK_SIZE", "", :right, :size=>20 do |d|
+                column :"SYSTEM_DISK_SIZE", "", :right, :size=>19 do |d|
                     if !d.nil?
                         elem = 'SYSTEM_DISK_SIZE'
                         limit = d[elem]
@@ -325,6 +347,11 @@ class OneQuotaHelper
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
+                column :"CLUSTERS", "", :right, :size=>8 do |d|
+                    if !d.nil?
+                        d['CLUSTER_IDS']
+                    end
+                end
                 column :"RUNNING VMS", "", :right, :size=>17 do |d|
                     if !d.nil?
                         elem = 'RUNNING_VMS'

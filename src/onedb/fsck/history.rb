@@ -98,10 +98,11 @@ module OneDBFsck
                   'FROM history ' \
                   'WHERE etime > 0') do |row|
             history_doc = nokogiri_doc(row[:body], 'history')
+            rstime  = history_doc.root.at_xpath('RSTIME')
             retime  = history_doc.root.at_xpath('RETIME')
             estime  = history_doc.root.at_xpath('ESTIME').text.to_i
 
-            if retime.text.to_i == 0
+            if rstime.text.to_i != 0 && retime.text.to_i == 0
                 log_error("History for VM #{row[:vid]} seq # #{row[:seq]} "\
                     'is closed (etime != 0), but retime = 0')
 

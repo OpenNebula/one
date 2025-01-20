@@ -160,6 +160,14 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
+    vector<VectorAttribute*> vm_quotas;
+    quota_tmpl.get("VM", vm_quotas);
+
+    for (auto* va : vm_quotas)
+    {
+        va->replace("UID", user_id);
+    }
+
     auto upool = static_cast<UserPool *>(pool);
     auto user = upool->get(user_id);
 
@@ -170,7 +178,10 @@ int UserSetQuota::user_action(int     user_id,
 
     rc = user->quota.set(&quota_tmpl, error_str);
 
-    upool->update_quotas(user.get());
+    if ( rc == 0 )
+    {
+        upool->update_quotas(user.get());
+    }
 
     return rc;
 }

@@ -74,15 +74,9 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
+void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm, bool live)
 {
-    HostShareCapacity sr;
-
     time_t the_time = time(0);
-
-    //----------------------------------------------------
-    //           RUNNING STATE FROM SAVE_MIGRATE
-    //----------------------------------------------------
 
     vm->set_state(VirtualMachine::RUNNING);
 
@@ -90,22 +84,47 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 
     vmpool->update_history(vm);
 
-    vm->get_capacity(sr);
-
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
+        HostShareCapacity sr;
+
+        vm->get_capacity(sr);
+
         hpool->del_capacity(vm->get_hid(), sr);
 
-        if (!sr.pci.empty())
+        // Revert PCI assignment. Note: live migration is disabled for VMs with PCI devs
+        if (!live && !sr.pci.empty())
         {
             if (auto host = hpool->get(vm->get_previous_hid()))
             {
-                // Revert PCI assignment in sr
                 host->revert_pci(sr);
             }
         }
 
         vm->rollback_previous_vnc_port();
+
+        // Rollback cluster quota
+        int cid_destination = vm->get_cid();
+        int cid_source      = vm->get_previous_cid();
+
+        if (cid_destination != cid_source)
+        {
+            VirtualMachineTemplate quota_tmpl;
+
+            int uid = vm->get_uid();
+            int gid = vm->get_gid();
+
+            vm->get_quota_template(quota_tmpl, true, vm->is_running_quota());
+
+            quota_tmpl.replace("CLUSTER_ID", cid_destination);
+            quota_tmpl.add("SKIP_GLOBAL_QUOTA", true);
+
+            Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
+
+            quota_tmpl.replace("CLUSTER_ID", cid_source);
+
+            Quotas::vm_add(uid, gid, &quota_tmpl);
+        }
     }
 
     vm->set_previous_etime(the_time);
@@ -126,8 +145,16 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
 
     vmpool->update(vm);
 
-    vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
+    if (live)
+    {
+        vm->log("LCM", Log::INFO, "Fail to live migrate VM."
             " Assuming that the VM is still RUNNING.");
+    }
+    else
+    {
+        vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
+            " Assuming that the VM is still RUNNING.");
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -233,7 +260,7 @@ void LifeCycleManager::trigger_save_failure(int vid)
 
         if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
         {
-            revert_migrate_after_failure(vm.get());
+            revert_migrate_after_failure(vm.get(), false);
         }
         else if ( vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
                   vm->get_lcm_state() == VirtualMachine::SAVE_STOP )
@@ -369,44 +396,7 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
 
         if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
         {
-            HostShareCapacity sr;
-
-            //----------------------------------------------------
-            //           RUNNING STATE FROM MIGRATE
-            //----------------------------------------------------
-
-            vm->set_state(VirtualMachine::RUNNING);
-
-            vm->set_etime(the_time);
-
-            vmpool->update_history(vm.get());
-
-            vm->set_previous_etime(the_time);
-
-            vm->set_previous_running_etime(the_time);
-
-            vmpool->update_previous_history(vm.get());
-
-            vm->get_capacity(sr);
-
-            hpool->del_capacity(vm->get_hid(), sr);
-
-            vm->rollback_previous_vnc_port();
-
-            // --- Add new record by copying the previous one
-
-            vm->cp_previous_history();
-
-            vm->set_stime(the_time);
-
-            vm->set_running_stime(the_time);
-
-            vmpool->insert_history(vm.get());
-
-            vmpool->update(vm.get());
-
-            vm->log("LCM", Log::INFO, "Fail to live migrate VM."
-                    " Assuming that the VM is still RUNNING.");
+            revert_migrate_after_failure(vm.get(), true);
 
             return;
         }
@@ -605,7 +595,7 @@ void LifeCycleManager::trigger_shutdown_failure(int vid)
         }
         else if (vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE)
         {
-            revert_migrate_after_failure(vm.get());
+            revert_migrate_after_failure(vm.get(), false);
         }
         else
         {
@@ -1492,7 +1482,7 @@ void LifeCycleManager::trigger_snapshot_create_failure(int vid)
 {
     trigger([this, vid]
     {
-        int vm_uid, vm_gid;
+        int vm_uid, vm_gid, vm_cid;
         VectorAttribute* snap = nullptr;
 
         if ( auto vm = vmpool->get(vid) )
@@ -1501,6 +1491,7 @@ void LifeCycleManager::trigger_snapshot_create_failure(int vid)
             {
                 vm_uid = vm->get_uid();
                 vm_gid = vm->get_gid();
+                vm_cid = vm->get_cid();
 
                 snap = vm->get_active_snapshot();
 
@@ -1529,6 +1520,7 @@ void LifeCycleManager::trigger_snapshot_create_failure(int vid)
         {
             Template quota_tmpl;
 
+            quota_tmpl.add("CLUSTER_ID", vm_cid);
             quota_tmpl.set(snap);
 
             Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
@@ -1582,7 +1574,7 @@ void LifeCycleManager::trigger_snapshot_delete_success(int vid)
 {
     trigger([this, vid]
     {
-        int vm_uid, vm_gid;
+        int vm_uid, vm_gid, vm_cid;
         VectorAttribute* snap = nullptr;
 
         if ( auto vm = vmpool->get(vid) )
@@ -1591,6 +1583,7 @@ void LifeCycleManager::trigger_snapshot_delete_success(int vid)
             {
                 vm_uid = vm->get_uid();
                 vm_gid = vm->get_gid();
+                vm_cid = vm->get_cid();
 
                 snap = vm->get_active_snapshot();
 
@@ -1619,6 +1612,7 @@ void LifeCycleManager::trigger_snapshot_delete_success(int vid)
         {
             Template quota_tmpl;
 
+            quota_tmpl.add("CLUSTER_ID", vm_cid);
             quota_tmpl.set(snap);
 
             Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &quota_tmpl);
@@ -1991,6 +1985,11 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                 snaps = *tmp_snaps;
             }
 
+            if (!vm_quotas.empty())
+            {
+                vm_quotas.add("CLUSTER_ID", vm->get_cid());
+            }
+
             disk->vector_value("IMAGE_ID", img_id);
 
             is_persistent = disk->is_persistent();
@@ -2137,6 +2136,11 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             if (tmp_snaps != nullptr)
             {
                 snaps = *tmp_snaps;
+            }
+
+            if (!vm_quotas.empty())
+            {
+                vm_quotas.add("CLUSTER_ID", vm->get_cid());
             }
 
             disk = vm->get_disk(disk_id);
@@ -2447,6 +2451,11 @@ void LifeCycleManager::trigger_disk_resize_failure(int vid)
 
             disk->resize_quotas(size - size_prev, ds_deltas, vm_deltas, img_quota, vm_quota);
 
+            if (!vm_deltas.empty())
+            {
+                vm_deltas.add("CLUSTER_ID", vm->get_cid());
+            }
+
             disk->clear_resize(true);
 
             vm->set_vm_info();
@@ -2632,6 +2641,7 @@ void LifeCycleManager::trigger_resize_failure(int vid)
                 vattr->vector_value("VCPU", ovcpu);
                 vattr->vector_value("MEMORY", omem);
 
+                deltas.add("CLUSTER_ID", vm->get_cid());
                 deltas.add("MEMORY", nmem - omem);
                 deltas.add("CPU", ncpu - ocpu);
                 deltas.add("VCPU", nvcpu - ovcpu);
@@ -2704,6 +2714,7 @@ void LifeCycleManager::trigger_disk_restore_success(int vid)
             {
                 uid = vm->get_uid();
                 gid = vm->get_gid();
+
                 vm->delete_snapshots(vm_quotas_snp);
                 vm->delete_non_persistent_disk_snapshots(vm_quotas_snp, ds_quotas_snp);
 

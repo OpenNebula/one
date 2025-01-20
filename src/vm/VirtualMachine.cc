@@ -4172,6 +4172,11 @@ bool VirtualMachine::is_running_quota() const
 void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
                                         bool basic_quota, bool running_quota)
 {
+    if (hasHistory())
+    {
+        quota_tmpl.replace("CLUSTER_ID", get_cid());
+    }
+
     if (basic_quota)
     {
         quota_tmpl.replace("VMS", 1);

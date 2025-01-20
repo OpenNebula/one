@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
   targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="shared.xsd"/>
   <xs:element name="USER">
     <xs:complexType>
       <xs:sequence>
@@ -28,118 +29,19 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
-        <xs:element name="DATASTORE_QUOTA" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="DATASTORE" minOccurs="0" maxOccurs="unbounded">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:string"/>
-                  <xs:element name="IMAGES" type="xs:string"/>
-                  <xs:element name="IMAGES_USED" type="xs:string"/>
-                  <xs:element name="SIZE" type="xs:string"/>
-                  <xs:element name="SIZE_USED" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="NETWORK_QUOTA" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="NETWORK" minOccurs="0" maxOccurs="unbounded">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:string"/>
-                  <xs:element name="LEASES" type="xs:string"/>
-                  <xs:element name="LEASES_USED" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="VM_QUOTA" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="VM" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="CPU" type="xs:string"/>
-                    <xs:element name="CPU_USED" type="xs:string"/>
-                    <xs:element name="MEMORY" type="xs:string"/>
-                    <xs:element name="MEMORY_USED" type="xs:string"/>
-                    <xs:element name="RUNNING_CPU" type="xs:string"/>
-                    <xs:element name="RUNNING_CPU_USED" type="xs:string"/>
-                    <xs:element name="RUNNING_MEMORY" type="xs:string"/>
-                    <xs:element name="RUNNING_MEMORY_USED" type="xs:string"/>
-                    <xs:element name="RUNNING_VMS" type="xs:string"/>
-                    <xs:element name="RUNNING_VMS_USED" type="xs:string"/>
-                    <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
-                    <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:string"/>
-                    <xs:element name="VMS" type="xs:string"/>
-                    <xs:element name="VMS_USED" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="IMAGE_QUOTA" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="IMAGE" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ID" type="xs:string"/>
-                    <xs:element name="RVMS" type="xs:string"/>
-                    <xs:element name="RVMS_USED" type="xs:string"/>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="DATASTORE_QUOTA" type="DATASTORE_QUOTA" minOccurs="0"/>
+        <xs:element name="NETWORK_QUOTA" type="NETWORK_QUOTA" minOccurs="0"/>
+        <xs:element name="VM_QUOTA" type="VM_QUOTA" minOccurs="0"/>
+        <xs:element name="IMAGE_QUOTA" type="IMAGE_QUOTA" minOccurs="0"/>
         <xs:element name="DEFAULT_USER_QUOTAS">
           <xs:complexType>
             <xs:sequence>
-                <xs:element name="DATASTORE_QUOTA" minOccurs="0" maxOccurs="1">
+                <xs:element name="DATASTORE_QUOTA" type="DATASTORE_QUOTA" minOccurs="0"/>
+                <xs:element name="NETWORK_QUOTA" type="NETWORK_QUOTA" minOccurs="0"/>
+                <xs:element name="VM_QUOTA" minOccurs="0">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:element name="DATASTORE" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ID" type="xs:string"/>
-                          <xs:element name="IMAGES" type="xs:string"/>
-                          <xs:element name="IMAGES_USED" type="xs:string"/>
-                          <xs:element name="SIZE" type="xs:string"/>
-                          <xs:element name="SIZE_USED" type="xs:string"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                      </xs:element>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="NETWORK_QUOTA" minOccurs="0" maxOccurs="1">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="NETWORK" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ID" type="xs:string"/>
-                          <xs:element name="LEASES" type="xs:string"/>
-                          <xs:element name="LEASES_USED" type="xs:string"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                      </xs:element>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element name="VM_QUOTA" minOccurs="0" maxOccurs="1">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="VM" minOccurs="0" maxOccurs="1">
+                      <xs:element name="VM" minOccurs="0">
                         <xs:complexType>
                           <xs:sequence>
                             <xs:element name="CPU" type="xs:string"/>
@@ -162,21 +64,7 @@
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
-                <xs:element name="IMAGE_QUOTA" minOccurs="0" maxOccurs="1">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="IMAGE" minOccurs="0" maxOccurs="unbounded">
-                        <xs:complexType>
-                          <xs:sequence>
-                            <xs:element name="ID" type="xs:string"/>
-                            <xs:element name="RVMS" type="xs:string"/>
-                            <xs:element name="RVMS_USED" type="xs:string"/>
-                          </xs:sequence>
-                        </xs:complexType>
-                      </xs:element>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
+              <xs:element name="IMAGE_QUOTA" type="IMAGE_QUOTA" minOccurs="0"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

@@ -125,17 +125,6 @@ public:
     };
 
     /**
-     *  Lists the MarketPlace ids
-     *  @param oids a vector with the oids of the objects.
-     *
-     *  @return 0 on success
-     */
-    int list(std::vector<int>& oids)
-    {
-        return PoolSQL::list(oids, one_db::mp_table);
-    }
-
-    /**
      *  Factory method to produce objects
      *    @return a pointer to the new object
      */

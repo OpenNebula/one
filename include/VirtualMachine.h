@@ -705,6 +705,16 @@ public:
     }
 
     /**
+     *  Set new cluster id. The hasHistory()
+     *  function MUST be called before this one.
+     */
+    void set_cid(int cid)
+    {
+        history->cid = cid;
+    }
+
+
+    /**
      *  Get cluster id where the VM was executing. The hasPreviousHistory()
      *  function MUST be called before this one.
      */
@@ -1580,6 +1590,11 @@ public:
     void delete_non_persistent_disk_snapshots(Template& vm_quotas,
                                               std::vector<Template *>& ds_quotas)
     {
+        if (hasHistory())
+        {
+            vm_quotas.replace("CLUSTER_ID", get_cid());
+        }
+
         disks.delete_non_persistent_snapshots(vm_quotas, ds_quotas);
     }
 

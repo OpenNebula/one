@@ -89,7 +89,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
     int zone_id = nd.get_zone_id();
 
-    if ( zpool->list_zones(zone_ids) != 0 )
+    if ( zpool->list(zone_ids) != 0 )
     {
         return;
     }

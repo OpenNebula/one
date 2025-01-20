@@ -353,13 +353,35 @@ void Quota::cleanup_quota(const string& qid)
         return;
     }
 
-    if ( is_default )
+    string cluster_ids;
+
+    q->vector_value("CLUSTER_IDS", cluster_ids);
+
+    bool is_cluster = !cluster_ids.empty();
+
+    if ( is_default || is_cluster )
     {
         implicit_limit = UNLIMITED;
     }
     else
     {
         implicit_limit = DEFAULT;
+    }
+
+    // For cluster quotas replace DEFAULT limit with UNLIMITED
+    if (is_cluster)
+    {
+        for (const string& metric : metrics)
+        {
+            int limit_i = UNLIMITED;
+
+            q->vector_value(metric, limit_i);
+
+            if (limit_i == DEFAULT)
+            {
+                q->replace(metric, UNLIMITED);
+            }
+        }
     }
 
     for (const string& metric : metrics)
@@ -369,7 +391,7 @@ void Quota::cleanup_quota(const string& qid)
         q->vector_value(metric, limit);
         q->vector_value(metrics_used, usage);
 
-        if ( usage != 0 || limit != implicit_limit )
+        if ( (!is_cluster && usage != 0) || limit != implicit_limit )
         {
             return;
         }
@@ -454,7 +476,7 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
             ( is_default && limit_f < 0 && limit_f != UNLIMITED )
            )
         {
-            return 0;
+            return nullptr;
         }
 
         limits.insert(make_pair(metric, one_util::float_to_str(limit_f)));
@@ -466,6 +488,13 @@ VectorAttribute * Quota::new_quota(const VectorAttribute * va)
     if ( !id.empty() )
     {
         limits.insert(make_pair("ID", id));
+    }
+
+    const string& cluster_ids = va->vector_value("CLUSTER_IDS");
+
+    if ( !cluster_ids.empty() )
+    {
+        limits.insert(make_pair("CLUSTER_IDS", cluster_ids));
     }
 
     return new VectorAttribute(template_name, limits);

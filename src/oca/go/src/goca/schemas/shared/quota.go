@@ -29,7 +29,7 @@ type Quotas struct {
 type QuotasList struct {
 	Datastore []DatastoreQuota `xml:"DATASTORE_QUOTA>DATASTORE"`
 	Network   []NetworkQuota   `xml:"NETWORK_QUOTA>NETWORK"`
-	VM        *VMQuota         `xml:"VM_QUOTA>VM"`
+	VM        []VMQuota         `xml:"VM_QUOTA>VM"`
 	Image     []ImageQuota     `xml:"IMAGE_QUOTA>IMAGE"`
 }
 
@@ -51,6 +51,7 @@ type NetworkQuota struct {
 
 // VMQuota keeps quota for all VMs in the group
 type VMQuota struct {
+	CLUSTER_IDS        string  `xml:"CLUSTER_IDS,omitempty"`
 	CPU                float32 `xml:"CPU"`
 	CPUUsed            float32 `xml:"CPU_USED,omitempty"`
 	Memory             int     `xml:"MEMORY"`

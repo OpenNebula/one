@@ -6,7 +6,7 @@
 
 :NAME:
   :desc: Name of the User
-  :size: 15
+  :size: 10
   :left: true
   :expand: true
 
@@ -31,7 +31,7 @@
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 10
+  :size: 17
 
 :CPU:
   :desc: Total CPU allocated to user VMs

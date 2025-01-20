@@ -16,6 +16,7 @@
 
 #include "RequestManagerCluster.h"
 #include "HostPool.h"
+#include "VirtualMachinePool.h"
 
 using namespace std;
 
@@ -179,8 +180,6 @@ void RequestManagerClusterHost::add_generic(
         int                 host_id,
         RequestAttributes&  att)
 {
-    int rc;
-
     string cluster_name;
     string obj_name;
 
@@ -190,17 +189,10 @@ void RequestManagerClusterHost::add_generic(
     int     old_cluster_id;
     string  old_cluster_name;
 
-    rc = get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms,
-                  cluster_name, true);
+    set<int> vm_ids;
 
-    if ( rc == -1 )
-    {
-        return;
-    }
-
-    rc = get_info(hpool, host_id, PoolObjectSQL::HOST, att, obj_perms, obj_name, true);
-
-    if ( rc == -1 )
+    if (get_info(clpool, cluster_id, PoolObjectSQL::CLUSTER, att, c_perms, cluster_name, true) != 0
+        || get_info(hpool, host_id, PoolObjectSQL::HOST, att, obj_perms, obj_name, true) != 0)
     {
         return;
     }
@@ -247,6 +239,8 @@ void RequestManagerClusterHost::add_generic(
 
         host->set_cluster(cluster_id, cluster_name);
         host->update_reserved_capacity(ccpu, cmem);
+
+        vm_ids = host->get_vm_ids();
 
         hpool->update(host.get());
     }
@@ -298,9 +292,7 @@ void RequestManagerClusterHost::add_generic(
 
     if ( cluster == nullptr )
     {
-        // This point should be unreachable.
-        // The old cluster is not empty (at least has the host_id),
-        // so it cannot be deleted
+        // This point should be unreachable as old cluster is not empty (host_id)
         success_response(cluster_id, att);
         return;
     }
@@ -310,6 +302,48 @@ void RequestManagerClusterHost::add_generic(
 
         failure_response(INTERNAL, att);
         return;
+    }
+
+    // Update cluster quotas and cluster ID in VM
+    auto vmpool = Nebula::instance().get_vmpool();
+
+    for (int vm_id : vm_ids)
+    {
+        VirtualMachineTemplate quota_tmpl;
+        int uid = -1, gid = -1;
+
+        if (auto vm = vmpool->get(vm_id))
+        {
+            if (!vm->hasHistory())
+            {
+                continue;
+            }
+
+            uid = vm->get_uid();
+            gid = vm->get_gid();
+
+            vm->get_quota_template(quota_tmpl, true, vm->is_running_quota());
+
+            vm->set_cid(cluster_id);
+
+            vmpool->update_history(vm.get());
+            vmpool->update(vm.get());
+        }
+
+        // Check cluster quotas on new cluster, remove resources from old cluster
+        if (quota_tmpl.empty())
+        {
+            continue;;
+        }
+
+        quota_tmpl.add("SKIP_GLOBAL_QUOTA", true);
+        quota_tmpl.replace("CLUSTER_ID", old_cluster_id);
+
+        Quotas::vm_del(uid, gid, &quota_tmpl);
+
+        quota_tmpl.replace("CLUSTER_ID", cluster_id);
+
+        Quotas::vm_add(uid, gid, &quota_tmpl);
     }
 
     success_response(cluster_id, att);

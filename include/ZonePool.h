@@ -123,16 +123,6 @@ public:
     unsigned int get_zone_servers(int zone_id, std::map<int, std::string>& srv);
 
     /**
-     *  Return the list of zones defined
-     *    @param zone_ids of the zones
-     *    @return 0 on success
-     */
-    int list_zones(std::vector<int>& zone_ids)
-    {
-        return list( zone_ids, one_db::zone_table);
-    }
-
-    /**
      * ID for the special local zone in stand-alone mode
      */
     static const int STANDALONE_ZONE_ID;

@@ -22,6 +22,7 @@
 /**
  *  VM Quotas, defined as:
  *  VM  = [
+ *        CLUSTER_IDS           = Comma separated list of clusters or empty for global quotas
  *        VMS                   = <Max. number of VMs>
  *        RUNNING_VMS           = <Max. number of RUNNING VMS>
  *        MEMORY                = <Max. number of MB requested by VMs>
@@ -53,6 +54,22 @@ public:
     {};
 
     ~QuotaVirtualMachine() {};
+
+    int get_quota(const std::string& id, VectorAttribute **va) override
+    {
+        std::map<std::string, Attribute *>::iterator it;
+        return get_quota(id, va, it);
+    }
+
+    /**
+     *  Set the quotas. If the quota previously exists its limit is updated.
+     *  The quotas are indexed by CLUSTER_IDS
+     *    @param quota_str the quota template in ASCII or XML formats
+     *    @param error describe the error in case of error
+     *
+     *    @return 0 on success -1 otherwise
+     */
+    int set(std::vector<VectorAttribute*> * quotas, std::string& error) override;
 
     /**
      *  Check if the resource allocation will exceed the quota limits. If not
@@ -87,15 +104,6 @@ public:
     void del(Template* tmpl) override;
 
     /**
-     *  Gets a quota, overrides base to not to use ID.
-     *    @param id of the quota, ignored
-     *    @param va The quota
-     *
-     *    @return a pointer to the quota or 0 if not found
-     */
-    int get_quota(const std::string& id, VectorAttribute **va) override;
-
-    /**
      *  Add generic quota to metrics. It adds also RUNNING_ quota attribute
      *    @param metric Name of the quota metri
      *
@@ -119,22 +127,32 @@ public:
 protected:
 
     /**
-     * Gets a quota, overrides base to not to use ID.
+     * Gets a quota, overrides base to use CLUSTER_IDS as id
      *
-     *    @param id of the quota, ignored
+     *    @param cluster_ids Comma separated list of cluster ids
      *    @param va The quota
      *    @param it The quota iterator, if it is found
      *
      *    @return 0 on success, -1 if not found
      */
     int get_quota(
-            const std::string& id,
+            const std::string& cluster_ids,
             VectorAttribute **va,
-            std::map<std::string, Attribute *>::iterator& it) override
-    {
-        it = attributes.begin();
-        return get_quota(id, va);
-    }
+            std::map<std::string, Attribute *>::iterator& it) override;
+
+    /**
+     * Gets a quota for cluster ID (the id is included in cluster_ids)
+     *
+     *    @param cluster_id Cluster ID
+     *    @param va The quota
+     *
+     *    @return 0 on success, -1 if not found
+     */
+    int get_quota(
+            int cluster_id,
+            VectorAttribute **va);
+
+    int get_quota_id(const Template& tmpl, std::string& cluster_ids);
 
     /**
      * Gets the default quota identified by its ID.
@@ -149,6 +167,14 @@ protected:
             const std::string& id,
             Quotas& default_quotas,
             VectorAttribute **va) override;
+
+    /**
+     *  Recomputes VM cluster quota usage for specific user or group.
+     *    @param user_id user ID or -1 if not specified
+     *    @param group_id group ID or -1 if not specified
+     *    @param vm_quota New VM cluster quota to recompute
+     */
+    void recompute_clusters(int user_id, int group_id, VectorAttribute* vm_quota);
 
     static std::vector<std::string> VM_METRICS;
     static std::vector<std::string> VM_GENERIC;

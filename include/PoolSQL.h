@@ -165,10 +165,9 @@ public:
      *   @return 0 on success
      */
     int list(
-            std::vector<int>&   oids,
-            const char *        table)
+            std::vector<int>&   oids)
     {
-        return search(oids, table, "");
+        return search(oids, table.c_str(), "");
     }
 
     /**

@@ -44,4 +44,71 @@
       <xs:element name="WARNING" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="DATASTORE_QUOTA">
+    <xs:sequence>
+      <xs:element name="DATASTORE" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ID" type="xs:string"/>
+          <xs:element name="IMAGES" type="xs:string"/>
+          <xs:element name="IMAGES_USED" type="xs:string"/>
+          <xs:element name="SIZE" type="xs:string"/>
+          <xs:element name="SIZE_USED" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NETWORK_QUOTA">
+    <xs:sequence>
+      <xs:element name="NETWORK" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ID" type="xs:string"/>
+          <xs:element name="LEASES" type="xs:string"/>
+          <xs:element name="LEASES_USED" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="VM_QUOTA">
+    <xs:sequence>
+      <xs:element name="VM" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="CLUSTER_IDS" type="xs:string" minOccurs="0"/>
+            <xs:element name="CPU" type="xs:string"/>
+            <xs:element name="CPU_USED" type="xs:string"/>
+            <xs:element name="MEMORY" type="xs:string"/>
+            <xs:element name="MEMORY_USED" type="xs:string"/>
+            <xs:element name="RUNNING_CPU" type="xs:string"/>
+            <xs:element name="RUNNING_CPU_USED" type="xs:string"/>
+            <xs:element name="RUNNING_MEMORY" type="xs:string"/>
+            <xs:element name="RUNNING_MEMORY_USED" type="xs:string"/>
+            <xs:element name="RUNNING_VMS" type="xs:string"/>
+            <xs:element name="RUNNING_VMS_USED" type="xs:string"/>
+            <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
+            <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:string"/>
+            <xs:element name="VMS" type="xs:string"/>
+            <xs:element name="VMS_USED" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="IMAGE_QUOTA">
+    <xs:sequence>
+      <xs:element name="IMAGE" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="ID" type="xs:string"/>
+            <xs:element name="RVMS" type="xs:string"/>
+            <xs:element name="RVMS_USED" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
 </xs:schema>

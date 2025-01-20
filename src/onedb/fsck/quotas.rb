@@ -40,7 +40,7 @@ module OneDBFsck
 
     # Calculate normal quotas
     #
-    # @param doc      [Nokogiri::XML] xml document with all information
+    # @param doc      [Nokogiri::XML] xml document with all user/group quota information
     # @param filter   [String]        filter for where clause
     # @param resource [String]        OpenNebula object
     def calculate_quotas(doc, filter, resource)
@@ -51,12 +51,12 @@ module OneDBFsck
 
         @generic_quotas.each {|q| resources[q] = q }
 
-        vm_elem = calculate_vm_quotas(doc, query, resource, resources)
+        vm_elems = calculate_vm_quotas(doc, query, resource, resources)
 
         # System quotas
         query = "SELECT body FROM vm_pool WHERE #{filter} AND state<>6"
 
-        datastore_usage = calculate_system_quotas(doc, query, resource, vm_elem)
+        datastore_usage = calculate_system_quotas(doc, query, resource, vm_elems)
 
         # VNet quotas
         queries = []
@@ -255,16 +255,22 @@ module OneDBFsck
     # @param doc      [Nokogiri::XML] xml document with all information
     # @param query    [String]        database query
     # @param resource [String]        OpenNebula object
-    # @param vm_elem  [Object]        VM information
+    # @param vm_elems [Object]        VM quota information in the form {cluster_ids: VM_QUOTA}
     #
     # @return         [Object]        datastore usage
-    def calculate_system_quotas(doc, query, resource, vm_elem)
+    def calculate_system_quotas(doc, query, resource, vm_elems)
         oid             = doc.root.at_xpath('ID').text.to_i
-        sys_used        = 0
+        sys_used        = {}
         datastore_usage = {}
+
+        vm_elems.keys.each {|cid| sys_used[cid] = 0 }
 
         @db.fetch(query) do |vm_row|
             vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
+
+            cid = vmdoc.root.at_xpath('//HISTORY/CID')
+
+            cid = vm_elems.keys.find {|key| key.to_s.split(',').include?(cid.text) } unless cid.nil?
 
             vmdoc.root.xpath('TEMPLATE/DISK').each do |e|
                 type = ''
@@ -278,7 +284,8 @@ module OneDBFsck
                 end
 
                 if ['SWAP', 'FS'].include? type
-                    sys_used += size
+                    sys_used[nil] += size
+                    sys_used[cid] += size unless cid.nil?
 
                     next
                 end
@@ -298,10 +305,12 @@ module OneDBFsck
                 s_path = 'DISK_SNAPSHOT_TOTAL_SIZE'
 
                 if !target.nil? && target == 'SYSTEM'
-                    sys_used += size
+                    sys_used[nil] += size
+                    sys_used[cid] += size unless cid.nil?
 
                     if !e.at_xpath(s_path).nil?
-                        sys_used += e.at_xpath(s_path).text.to_i
+                        sys_used[nil] += e.at_xpath(s_path).text.to_i
+                        sys_used[cid] += e.at_xpath(s_path).text.to_i unless cid.nil?
                     end
                 elsif !target.nil? && target == 'SELF'
                     datastore_id = e.at_xpath('DATASTORE_ID').text
@@ -322,22 +331,85 @@ module OneDBFsck
 
                 size = size_e.text.to_i unless size_e.nil?
 
-                sys_used += size
+                sys_used[nil] += size
+                sys_used[cid] += size unless cid.nil?
             end
         end
 
-        vm_elem.xpath('SYSTEM_DISK_SIZE_USED').each do |e|
-            next if e.text == sys_used.to_s
+        vm_elems.each do |cluster_ids, vm_elem|
+            e = vm_elem.at_xpath('SYSTEM_DISK_SIZE_USED')
+            next if e.nil?
+
+            next if e.text == sys_used[cluster_ids].to_s
 
             @error = true
 
-            log_error("#{resource} #{oid} quotas: SYSTEM_DISK_SIZE_USED " \
-                      "has #{e.text} \tis\t#{sys_used}")
+            log_error("#{resource} #{oid} (clusters #{cluster_ids}) quotas: " \
+                "SYSTEM_DISK_SIZE_USED has #{e.text} \tis\t#{sys_used[cluster_ids]}")
             e.content = sys_used.to_s
         end
 
         datastore_usage
     end
+
+    # From a VM xml update one quota record, could be global or per cluster
+    def calculate_vm_quota(vmdoc, quotas, resources)
+        quotas ||= {}
+
+        resources.each do |att_name, quota_name|
+            if att_name == :CPU
+                cpu = vmdoc.root.at_xpath('TEMPLATE/CPU')
+                cpu = cpu.nil? ? 0 : cpu.text.to_f
+
+                # truncate to 2 decimals
+                value = (cpu * 100)
+            elsif att_name == :VMS
+                value = 1
+            else
+                value = vmdoc.root.at_xpath("TEMPLATE/#{att_name}") ||
+                    vmdoc.root.at_xpath("USER_TEMPLATE/#{att_name}")
+                value = value.text unless value.nil?
+            end
+
+            quotas[quota_name] += value.to_i
+        end
+    end
+
+    # rubocop:disable Metrics/ParameterLists
+    def check_vm_quota(doc, resource, cluster_ids, vm_elem, quotas, resources)
+        oid = doc.root.at_xpath('ID').text.to_i
+
+        resources.each do |att_name, quota_name|
+            value = vm_elem.at_xpath("#{quota_name}_USED")
+            real_value = quotas[quota_name]
+
+            if value.nil?
+                vm_elem.add_child(doc.create_element(quota_name)).content = '-1'
+                value = doc.create_element("#{quota_name}_USED")
+                vm_elem.add_child(value).content = '0'
+            end
+
+            if att_name == :CPU
+                real_value /= 100.0
+
+                different = value.text.to_f != real_value ||
+                ![format('%.2f', real_value),
+                  format('%.1f', real_value),
+                  format('%.0f', real_value)].include?(value.text)
+
+                next unless different
+            else
+                next if value.text.to_i == quotas[quota_name].to_i
+            end
+
+            @error = true
+
+            log_error("#{resource} #{oid} (clusters: #{cluster_ids}) quotas: " \
+                "#{quota_name}_USED has #{value.text} \tis\t#{real_value}")
+            value.content = real_value.to_s
+        end
+    end
+    # rubocop:enable Metrics/ParameterLists
 
     # Calculate VM quotas
     #
@@ -348,92 +420,60 @@ module OneDBFsck
     #
     # @return          [Object]        VM information
     def calculate_vm_quotas(doc, query, resource, resources)
-        oid = doc.root.at_xpath('ID').text.to_i
+        # Read VM QUOTAS from user/group quotas
+        vm_elems = {}
+        doc.root.xpath('VM_QUOTA/VM').each do |q|
+            cluster_ids = q.at_xpath('CLUSTER_IDS')
+            cluster_ids = cluster_ids.text unless cluster_ids.nil?
 
-        cpu_used = 0
+            vm_elems[cluster_ids] = q
+        end
 
-        cpu = resources[:CPU]
-        vms = resources[:VMS]
+        # Add global quota if it doesn't exists
+        if vm_elems[nil].nil?
+            vm_quota = doc.root.add_child(doc.create_element('VM_QUOTA'))
+            vm_elems[nil] = vm_quota.add_child(doc.create_element('VM'))
 
-        quotas = {}
-        resources.each {|_, q| quotas[q] = 0 }
+            vm_elems[nil].add_child(doc.create_element('SYSTEM_DISK_SIZE')).content      = '-1'
+            vm_elems[nil].add_child(doc.create_element('SYSTEM_DISK_SIZE_USED')).content = '0'
+        end
 
+        # Init quota counters
+        quotas = {} # This should count also quotas per cluster
+
+        vm_elems.each do |cluster_ids, _|
+            quotas[cluster_ids] = {}
+
+            resources.each {|_, q| quotas[cluster_ids][q] = 0 }
+        end
+
+        # Calculate real VM quotas from VM instances
         @db.fetch(query) do |vm_row|
             vmdoc = nokogiri_doc(vm_row[:body], 'vm_pool')
 
-            vmdoc.root.xpath('TEMPLATE/CPU').each do |e|
-                # truncate to 2 decimals
-                cpu_used += (e.text.to_f * 100).to_i
-            end
+            calculate_vm_quota(vmdoc, quotas[nil], resources)
 
-            resources.each do |att_name, quota_name|
-                next if [:CPU, :VMS].include?(att_name)
+            cid = vmdoc.root.at_xpath('//HISTORY/CID')
 
-                value = vmdoc.root.at_xpath("TEMPLATE/#{att_name}") ||
-                    vmdoc.root.at_xpath("USER_TEMPLATE/#{att_name}")
-                value = value.text unless value.nil?
+            next if cid.nil?
 
-                quotas[quota_name] += value.to_i
-            end
+            cid = cid.text
 
-            quotas[vms] += 1
-        end
+            vm_elems.each do |cluster_ids, _quota|
+                next if cluster_ids.nil?
 
-        vm_elem = nil
-        doc.root.xpath('VM_QUOTA/VM').each {|e| vm_elem = e }
-
-        if vm_elem.nil?
-            doc.root.xpath('VM_QUOTA').each {|e| e.remove }
-
-            vm_quota  = doc.root.add_child(doc.create_element('VM_QUOTA'))
-            vm_elem   = vm_quota.add_child(doc.create_element('VM'))
-
-            resources.each do |_, quota_name|
-                vm_elem.add_child(doc.create_element(quota_name)).content           = '-1'
-                vm_elem.add_child(doc.create_element("#{quota_name}_USED")).content = '0'
-            end
-
-            system_disk_e      = doc.create_element('SYSTEM_DISK_SIZE')
-            system_disk_used_e = doc.create_element('SYSTEM_DISK_SIZE_USED')
-
-            vm_elem.add_child(system_disk_e).content      = '-1'
-            vm_elem.add_child(system_disk_used_e).content = '0'
-        end
-
-        vm_elem.xpath("#{cpu}_USED").each do |e|
-            cpu_used = (cpu_used / 100.0)
-
-            different = e.text.to_f != cpu_used ||
-                        ![format('%.2f', cpu_used),
-                          format('%.1f', cpu_used),
-                          format('%.0f', cpu_used)].include?(e.text)
-
-            cpu_used_str = format('%.2f', cpu_used)
-
-            next unless different
-
-            @error = true
-
-            log_error("#{resource} #{oid} quotas: #{cpu}_USED has " \
-                      "#{e.text} \tis\t#{cpu_used_str}")
-            e.content = cpu_used_str
-        end
-
-        resources.each do |att_name, quota_name|
-            next if att_name == :CPU
-
-            vm_elem.xpath("#{quota_name}_USED").each do |e|
-                next if e.text.to_i == quotas[quota_name].to_i
-
-                @error = true
-
-                log_error("#{resource} #{oid} quotas: #{quota_name}_USED has " \
-                          "#{e.text} \tis\t#{quotas[quota_name]}")
-                e.content = quotas[quota_name].to_s
+                if cluster_ids.split(',').include?(cid)
+                    calculate_vm_quota(vmdoc, quotas[cluster_ids], resources)
+                end
             end
         end
 
-        vm_elem
+        # Check quotas: Compare stored values with real values
+        vm_elems.each do |cluster_ids, quota|
+            check_vm_quota(doc, resource, cluster_ids, quota, quotas[cluster_ids], resources)
+        end
+
+        vm_elems
     end
 
     # Calculate vnet quotas

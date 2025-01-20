@@ -745,15 +745,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachineTemplate  tmpl;
+    VirtualMachineTemplate  quota_tmpl, quota_tmpl_running;
 
     string hostname;
     string vmm_mad;
-    int    cluster_id;
+    int    cluster_id, old_cid = -1;
     int    uid;
     int    gid;
     bool   is_public_cloud;
 
-    PoolObjectAuth host_perms, ds_perms;
+    PoolObjectAuth host_perms, ds_perms, vm_perms;
     PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
@@ -828,7 +829,22 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         uid = vm->get_uid();
         gid = vm->get_gid();
 
+        vm->get_permissions(vm_perms);
+
         enforce = enforce || vm->is_pinned();
+
+        vm->get_quota_template(quota_tmpl_running, false, true);
+
+        if (vm->hasHistory())
+        {
+            old_cid = vm->get_cid();
+        }
+
+        if (!vm->hasHistory() || (old_cid != -1 && (old_cid != cluster_id)))
+        {
+            vm->get_quota_template(quota_tmpl, true, false);
+            vm->get_quota_template(quota_tmpl_running, false, true);
+        }
     }
     else
     {
@@ -993,7 +1009,63 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    static_cast<VirtualMachinePool *>(pool)->update(vm.get());
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+    bool do_running_quota = vm->get_state() == VirtualMachine::STOPPED ||
+                            vm->get_state() == VirtualMachine::UNDEPLOYED;
+
+    // Authorize running quota (global and cluster)
+    if (do_running_quota)
+    {
+        quota_tmpl_running.replace("CLUSTER_ID", cluster_id);
+
+        if ( !quota_authorization(&quota_tmpl_running, Quotas::VM, att_quota))
+        {
+            att.resp_msg = att_quota.resp_msg;
+
+            failure_response(AUTHORIZATION, att);
+            return;
+        }
+    }
+
+    // Cluster quotas
+    quota_tmpl.replace("CLUSTER_ID", cluster_id);
+    quota_tmpl.add("SKIP_GLOBAL_QUOTA", true);
+    if (old_cid == -1)
+    {
+        // Cluster quota on first deploy
+        quota_tmpl.merge(&quota_tmpl_running);
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        {
+            att.resp_msg = att_quota.resp_msg;
+
+            if (do_running_quota)
+            {
+                quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
+            }
+
+            return;
+        }
+    }
+    else if (old_cid != cluster_id)
+    {
+        // Cluster quota, deploy on different cluster
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        {
+            att.resp_msg = att_quota.resp_msg;
+
+            if (do_running_quota)
+            {
+                quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
+            }
+
+            return;
+        }
+
+        // Remove resources from old cluster
+        quota_tmpl.replace("CLUSTER_ID", old_cid);
+        Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+    }
 
     // ------------------------------------------------------------------------
     // Add deployment dependent attributes to VM
@@ -1047,8 +1119,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int    cluster_id;
     set<int> ds_cluster_ids;
     bool   is_public_cloud;
-    PoolObjectAuth host_perms, ds_perms;
+    PoolObjectAuth host_perms, ds_perms, vm_perms;
     PoolObjectAuth * auth_ds_perms;
+    VirtualMachineTemplate quota_tmpl;
 
     int    c_hid;
     int    c_cluster_id;
@@ -1331,6 +1404,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // -------------------------------------------------------------------------
     // Request a new VNC port in the new cluster
     // -------------------------------------------------------------------------
+    vm->get_permissions(vm_perms);
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
     if ( c_cluster_id != cluster_id )
     {
         if ( set_migrate_vnc_port(vm.get(), cluster_id, live) == -1 )
@@ -1340,6 +1416,21 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
             return;
         }
+
+        // Check cluster quotas on new cluster, remove resources from old cluster
+        vm->get_quota_template(quota_tmpl, true, vm->is_running_quota());
+
+        quota_tmpl.replace("CLUSTER_ID", cluster_id);
+        quota_tmpl.add("SKIP_GLOBAL_QUOTA", true);
+
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        {
+            att.resp_msg = att_quota.resp_msg;
+            return;
+        }
+
+        quota_tmpl.replace("CLUSTER_ID", c_cluster_id);
+        quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
     }
 
     // ------------------------------------------------------------------------
@@ -1358,20 +1449,45 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                     ds_id,
                     att) != 0)
     {
+        vm.reset();
+
+        // quota rollback
+        if (c_cluster_id != cluster_id)
+        {
+            Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+
+            Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+        }
+
+        // failure_response set in add_history
         return;
     }
 
     // ------------------------------------------------------------------------
     // Migrate the VM
     // ------------------------------------------------------------------------
-
     if (live && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        dm->live_migrate(vm.get(), att);
+        rc = dm->live_migrate(vm.get(), att);
     }
     else
     {
-        dm->migrate(vm.get(), poffmgr, att);
+        rc = dm->migrate(vm.get(), poffmgr, att);
+    }
+
+    if (rc != 0)
+    {
+        vm.reset();
+
+        // Cluster quota rollback
+        if (c_cluster_id != cluster_id)
+        {
+            Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+
+            Quotas::vm_del(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+        }
+
+        failure_response(Request::INTERNAL, att);
     }
 
     success_response(id, att);
@@ -1771,12 +1887,21 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
 
     bool   volatile_disk;
 
+    VirtualMachineTemplate deltas(tmpl);
+
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
     if (auto vm = vmpool->get_ro(id))
     {
         vm->get_permissions(vm_perms);
+
+        volatile_disk = set_volatile_disk_info(vm.get(), vm->get_ds_id(), tmpl);
+
+        if (vm->hasHistory())
+        {
+            deltas.add("CLUSTER_ID", vm->get_cid());
+        }
     }
     else
     {
@@ -1808,20 +1933,8 @@ Request::ErrorCode VirtualMachineAttach::request_execute(int id,
         }
     }
 
-    if ( auto vm = vmpool->get(id) )
-    {
-        volatile_disk = set_volatile_disk_info(vm.get(), vm->get_ds_id(), tmpl);
-    }
-    else
-    {
-        att.resp_id  = id;
-        att.resp_obj = PoolObjectSQL::VM;
-        return NO_EXISTS;
-    }
-
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    VirtualMachineTemplate deltas(tmpl);
     VirtualMachineDisks::extended_info(att.uid, &deltas);
 
     if (quota_resize_authorization(&deltas, att_quota, vm_perms) == false)
@@ -2034,6 +2147,11 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
 
         auto state = vm->get_state();
 
+        if (vm->hasHistory())
+        {
+            deltas.add("CLUSTER_ID", vm->get_cid());
+        }
+
         update_running_quota = state == VirtualMachine::PENDING ||
                                state == VirtualMachine::HOLD || (state == VirtualMachine::ACTIVE &&
                                                                  vm->get_lcm_state() == VirtualMachine::RUNNING);
@@ -2108,6 +2226,7 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
 
     int     rc;
     int     snap_id;
+    int     cid = -1;
 
     VectorAttribute* snap = nullptr;
 
@@ -2139,6 +2258,11 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
         snap = snap->clone();
 
         vm->get_permissions(vm_perms);
+
+        if (vm->hasHistory())
+        {
+            cid = vm->get_cid();
+        }
     }
     else
     {
@@ -2148,6 +2272,7 @@ Request::ErrorCode VirtualMachineSnapshotCreate::request_execute(RequestAttribut
 
     Template quota_tmpl;
 
+    quota_tmpl.add("CLUSTER_ID", cid);
     quota_tmpl.set(snap);
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
@@ -2878,6 +3003,10 @@ Request::ErrorCode VirtualMachineDiskSnapshotCreate::request_execute(
 
         // Snapshot accounts as another disk of same size
         disk->resize_quotas(ssize, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+        if (vm->hasHistory() && !vm_deltas.empty())
+        {
+            vm_deltas.add("CLUSTER_ID", vm->get_cid());
+        }
 
         is_volatile = disk->is_volatile();
 
@@ -3437,6 +3566,10 @@ void VirtualMachineDiskResize::request_execute(
 
         /* ------------- Get information about the disk and image --------------- */
         disk->resize_quotas(size - current_size, ds_deltas, vm_deltas, img_ds_quota, vm_ds_quota);
+        if (vm->hasHistory() && !vm_deltas.empty())
+        {
+            vm_deltas.add("CLUSTER_ID", vm->get_cid());
+        }
 
         disk->vector_value("IMAGE_ID", img_id);
 

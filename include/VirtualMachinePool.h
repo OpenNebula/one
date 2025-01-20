@@ -164,6 +164,17 @@ public:
     int get_backup(std::vector<int>& oids);
 
     /**
+     *  Function to get the IDs of VMs deployd on specific cluster
+     *   @param user_id user ID or -1
+     *   @param group_id group ID or -1
+     *   @param cid a cluster ID
+     *   @param oids a vector that contains the IDs
+     *   @return 0 on success
+     */
+    int get_cluster_vms(int user_id, int group_id, int cid,
+                        std::vector<int>& oids);
+
+    /**
      *  Gets the IDs of VMs matching the given SQL where string.
      *    @param oids a vector that contains the IDs
      *    @param where SQL clause

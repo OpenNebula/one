@@ -85,7 +85,7 @@ public:
     // -------------------------------------------------------------------------
     void start_prolog_migrate(VirtualMachine* vm);
 
-    void revert_migrate_after_failure(VirtualMachine* vm);
+    void revert_migrate_after_failure(VirtualMachine* vm, bool live);
 
     void trigger_save_success(int vid);
     void trigger_save_failure(int vid);
