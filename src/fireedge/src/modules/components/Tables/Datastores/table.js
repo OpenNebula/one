@@ -13,6 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { DS_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { DatastoreAPI, useAuth, useViews } from '@FeaturesModule'
+import {
+  getColorFromString,
+  getDatastoreCapacityInfo,
+  getDatastoreState,
+  getDatastoreType,
+  getUniqueLabels,
+} from '@ModelsModule'
 import MultipleTags from '@modules/components/MultipleTags'
 import {
   LinearProgressWithLabel,
@@ -28,15 +37,6 @@ import {
   sortStateTables,
 } from '@modules/components/Tables/Enhanced/Utils/DataTableUtils'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
-import { DS_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useAuth, useViews, DatastoreAPI } from '@FeaturesModule'
-import {
-  getDatastoreCapacityInfo,
-  getDatastoreState,
-  getDatastoreType,
-  getColorFromString,
-  getUniqueLabels,
-} from '@ModelsModule'
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
@@ -57,6 +57,7 @@ const DatastoresTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -225,7 +226,7 @@ const DatastoresTable = (props) => {
       },
     },
   ]
-  const { component, header } = WrapperRow(DatastoreRow)
+  const { component, header } = WrapperRow(RowComponent ?? DatastoreRow)
 
   return (
     <EnhancedTable

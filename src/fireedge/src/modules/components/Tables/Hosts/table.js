@@ -15,6 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { HOST_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { HostAPI, useAuth, useViews } from '@FeaturesModule'
+import {
+  getAllocatedInfo,
+  getColorFromString,
+  getHostState,
+  getUniqueLabels,
+} from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTags'
 import {
@@ -31,14 +39,6 @@ import {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import HostColumns from '@modules/components/Tables/Hosts/columns'
 import HostRow from '@modules/components/Tables/Hosts/row'
-import { HOST_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useAuth, useViews, HostAPI } from '@FeaturesModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  getAllocatedInfo,
-  getHostState,
-} from '@ModelsModule'
 import { useFormContext } from 'react-hook-form'
 
 const DEFAULT_DATA_CY = 'hosts'
@@ -58,6 +58,7 @@ const HostsTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -231,7 +232,7 @@ const HostsTable = (props) => {
       },
     },
   ]
-  const { component, header } = WrapperRow(HostRow)
+  const { component, header } = WrapperRow(RowComponent ?? HostRow)
 
   return (
     <EnhancedTable

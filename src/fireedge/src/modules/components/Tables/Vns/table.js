@@ -13,6 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
+import { VnAPI, useAuth, useViews } from '@FeaturesModule'
+import {
+  getColorFromString,
+  getLeasesInfo,
+  getUniqueLabels,
+  getVirtualNetworkState,
+} from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTags'
 import {
@@ -29,14 +37,6 @@ import {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VNetworkColumns from '@modules/components/Tables/Vns/columns'
 import VNetworkRow from '@modules/components/Tables/Vns/row'
-import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
-import { useAuth, useViews, VnAPI } from '@FeaturesModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  getLeasesInfo,
-  getVirtualNetworkState,
-} from '@ModelsModule'
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
@@ -57,6 +57,7 @@ const VnsTable = (props) => {
     filter,
     reSelectRows,
     value,
+    RowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -221,7 +222,7 @@ const VnsTable = (props) => {
     },
   ]
 
-  const { component, header } = WrapperRow(VNetworkRow)
+  const { component, header } = WrapperRow(RowComponent ?? VNetworkRow)
 
   return (
     <EnhancedTable
