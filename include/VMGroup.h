@@ -218,7 +218,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(std::string& error) override;
+    int post_update_template(std::string& error, Template *_old_tmpl) override;
 
     /**
      *  Factory method for VMGroup templates

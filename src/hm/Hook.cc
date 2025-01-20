@@ -150,7 +150,7 @@ int Hook::from_xml(const std::string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Hook::post_update_template(string& error)
+int Hook::post_update_template(string& error, Template *_old_tmpl)
 {
     std::string new_cmd;
     bool new_remote;

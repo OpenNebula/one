@@ -294,13 +294,13 @@ int PoolObjectSQL::replace_template(
         return -1;
     }
 
-    obj_template = move(new_tmpl);
+    obj_template = std::move(new_tmpl);
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, old_tmpl.get()) == -1)
     {
         if (old_tmpl)
         {
-            obj_template = move(old_tmpl);
+            obj_template = std::move(old_tmpl);
         }
         else
         {
@@ -344,7 +344,9 @@ int PoolObjectSQL::append_template(
             error ="User Template includes a restricted attribute " + rname;
             return -1;
         }
+
         old_tmpl = std::make_unique<Template>(*obj_template);
+
         obj_template->merge(new_tmpl.get());
     }
     else
@@ -354,14 +356,15 @@ int PoolObjectSQL::append_template(
             error ="User Template includes a restricted attribute " + rname;
             return -1;
         }
-        obj_template = move(new_tmpl);
+
+        obj_template = std::move(new_tmpl);
     }
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, old_tmpl.get()) == -1)
     {
         if (old_tmpl)
         {
-            obj_template = move(old_tmpl);
+            obj_template = std::move(old_tmpl);
         }
         else
         {

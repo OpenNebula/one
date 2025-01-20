@@ -212,7 +212,7 @@ int VMTemplate::parse_sched_action(string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int VMTemplate::post_update_template(string& error)
+int VMTemplate::post_update_template(string& error, Template * _old_tmpl)
 {
     int rc = parse_sched_action(error);
 

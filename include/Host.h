@@ -341,7 +341,7 @@ public:
      *  Executed after an update operation to process the new template
      *    - encrypt secret attributes.
      */
-    int post_update_template(std::string& error) override;
+    int post_update_template(std::string& error, Template *_old_tmpl) override;
 
     /**
      *  Read monitoring from DB

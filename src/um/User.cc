@@ -429,7 +429,7 @@ int User::get_default_umask()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int User::post_update_template(string& error)
+int User::post_update_template(string& error, Template *_old_tmpl)
 {
     return vm_actions.set_auth_ops(*obj_template, error);
 }

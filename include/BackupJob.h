@@ -266,7 +266,7 @@ protected:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(std::string& error) override
+    int post_update_template(std::string& error, Template *_old_tmpl) override
     {
         remove_template_attribute("NAME");
         remove_template_attribute("PRIORITY");

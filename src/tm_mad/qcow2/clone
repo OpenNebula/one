@@ -27,6 +27,7 @@
 SRC=$1
 DST=$2
 VMID=$3
+DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -71,11 +72,24 @@ done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/QCOW2_STANDALONE \
                     /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SPARSE)
 
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DSID| $XPATH \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_ENABLE \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_HOST \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_PATH \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_OPTS)
+
 SIZE="${XPATH_ELEMENTS[j++]}"
 FORMAT="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 QCOW2_STANDALONE="${XPATH_ELEMENTS[j++]}"
 SPARSE="${XPATH_ELEMENTS[j++]}"
+
+ANFS_ENABLE="${XPATH_ELEMENTS[j++]}"
+ANFS_HOST="${XPATH_ELEMENTS[j++]}"
+ANFS_PATH="${XPATH_ELEMENTS[j++]}"
+ANFS_OPTS="${XPATH_ELEMENTS[j++]}"
 
 ssh_make_path $DST_HOST $DST_DIR
 disable_local_monitoring $DST_HOST $DST_DIR
@@ -102,6 +116,7 @@ else
 fi
 
 CLONE_RESIZE_CMD=$(cat <<EOF
+    `autonfs_mount_command "$DSID" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
     $CLONE_CMD
     $RESIZE_CMD
 EOF

@@ -946,7 +946,7 @@ int Datastore::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Datastore::post_update_template(string& error_str)
+int Datastore::post_update_template(string& error_str, Template *old_tmpl)
 {
     string new_ds_mad;
     string new_tm_mad;
@@ -959,6 +959,34 @@ int Datastore::post_update_template(string& error_str)
     Image::DiskType old_disk_type = disk_type;
     string          old_tm_mad    = tm_mad;
     string          old_ds_mad    = ds_mad;
+
+    static std::vector<std::string> ro_options = {
+        "NFS_AUTO_ENABLE",
+        "NFS_AUTO_HOST",
+        "NFS_AUTO_PATH",
+        "NFS_AUTO_OPTS"
+    };
+
+    /* ---------------------------------------------------------------------- */
+    /* Check read-only values (for images > 0)                                */
+    /* ---------------------------------------------------------------------- */
+    if ( images_size() > 0 && old_tmpl != nullptr)
+    {
+        for (const auto& opt : ro_options)
+        {
+            string old_v, new_v;
+
+            get_template_attribute(opt, new_v);
+
+            old_tmpl->get(opt, old_v);
+
+            if ( old_v != new_v )
+            {
+                error_str = "Cannot update NFS auto mount options in datastore with existing images";
+                return -1;
+            }
+        }
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */

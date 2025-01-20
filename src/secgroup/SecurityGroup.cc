@@ -506,14 +506,14 @@ void SecurityGroup::remove_duplicates(vector<VectorAttribute*>& rules)
             rule->remove("HASH");
         }
 
-        prev_value = move(value);
+        prev_value = std::move(value);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int SecurityGroup::post_update_template(string& error)
+int SecurityGroup::post_update_template(string& error, Template *_old_tmpl)
 {
     vector<VectorAttribute*> rules;
 

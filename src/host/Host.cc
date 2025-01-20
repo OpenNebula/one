@@ -550,7 +550,7 @@ bool Host::update_reserved_capacity(const string& ccpu, const string& cmem)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Host::post_update_template(string& error)
+int Host::post_update_template(string& error, Template *_old_tmpl)
 {
     string new_im_mad;
     string new_vm_mad;

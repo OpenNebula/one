@@ -841,7 +841,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d['TARGET']
                 end
 
-                # rubocop:disable Metrics/LineLength
                 column :IMAGE, '', :left, :size => 35 do |d|
                     d['IMAGE'] || case d['TYPE'].upcase
                                   when 'FS'
@@ -854,7 +853,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                                   end
                 end
-                # rubocop:enable Metrics/LineLength
 
                 column :SIZE, '', :left, :size => 9 do |d|
                     if d['SIZE']
@@ -1126,8 +1124,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             puts
 
-            # rubocop:disable Metrics/LineLength
+            # rubocop:disable Layout/LineLength
             CLIHelper.print_header(str_h1 % 'SECURITY GROUP   TYPE     PROTOCOL NETWORK                       RANGE          ', false)
+            # rubocop:enable Layout/LineLength
 
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, '', :size => 4 do |d|
@@ -1179,7 +1178,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end.show(
                 [vm_hash['VM']['TEMPLATE']['SECURITY_GROUP_RULE']].flatten, {}
             )
-            # rubocop:enable Metrics/LineLength
 
             if !options[:all]
                 while vm.has_elements?('/VM/TEMPLATE/SECURITY_GROUP_RULE')
@@ -1273,7 +1271,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header('NUMA NODES', false)
         puts
 
-        # rubocop:disable Metrics/LineLength
         table = CLIHelper::ShowTable.new(nil, self) do
             column :ID, 'Node ID', :size => 4, :left => false do |d|
                 d['NODE_ID']
@@ -1293,7 +1290,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             default :ID, :CPUS_IDS, :MEMORY, :TOTAL_CPUS
         end
-        # rubocop:enable Metrics/LineLength
 
         table.show(numa_nodes)
     end

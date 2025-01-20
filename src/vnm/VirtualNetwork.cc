@@ -373,7 +373,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::post_update_template(string& error)
+int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 {
     string new_bridge, new_br_type;
     string sg_str;
@@ -1486,9 +1486,9 @@ int VirtualNetwork::replace_template(const std::string& tmpl_str,
 
     set_updated_attributes(new_tmpl.get(), true);
 
-    obj_template = move(new_tmpl);
+    obj_template = std::move(new_tmpl);
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, nullptr) == -1)
     {
         return -1;
     }
@@ -1537,7 +1537,7 @@ int VirtualNetwork::append_template(
 
     obj_template->merge(new_tmpl.get());
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, nullptr) == -1)
     {
         return -1;
     }

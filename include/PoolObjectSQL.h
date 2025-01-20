@@ -720,7 +720,7 @@ protected:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    virtual int post_update_template(std::string& error)
+    virtual int post_update_template(std::string& error, Template *_old_tmpl)
     {
         return 0;
     };

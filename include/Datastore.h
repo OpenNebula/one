@@ -444,7 +444,7 @@ private:
      *    @return 0 on success
      * - encrypt secret attributes.
      */
-    int post_update_template(std::string& error) override;
+    int post_update_template(std::string& error, Template *old_tmp) override;
 };
 
 #endif /*DATASTORE_H_*/

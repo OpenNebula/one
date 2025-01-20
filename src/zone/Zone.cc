@@ -293,7 +293,7 @@ int Zone::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Zone::post_update_template(string& error)
+int Zone::post_update_template(string& error, Template *_old_tmpl)
 {
     string new_endpoint;
     get_template_attribute("ENDPOINT", new_endpoint);

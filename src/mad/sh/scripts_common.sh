@@ -1301,3 +1301,105 @@ function send_to_monitor {
     echo "$msg_type $msg_result $msg_oid $msg_ts $payload_b64" |
         nc -u -w1 $mon_address $mon_port
 }
+
+######################################################
+# AutoNFS functionality
+######################################################
+
+# For security (to prevent other files from being modified), only this exact command is allowed
+# by sudoers. The sed expression is passed as stdin.
+SUDO_SED_FSTAB='flock -w 5 /etc/fstab sudo sed -i -f /proc/self/fd/0 /etc/fstab'
+if [ -z "$ONE_LOCATION" ]; then
+    DS_DIR=/var/lib/one/datastores
+else
+    DS_DIR=$ONE_LOCATION/var/datastores
+fi
+
+#-------------------------------------------------------------------------------
+# Return a command that upon execution will undo local setup for no-longer-used AutoNFS datastores,
+# that is, which have NFS_AUTO_ENABLE set to 'false', or no longer exist anymore.
+#    @return string representation of the command
+#-------------------------------------------------------------------------------
+function autonfs_cleanup_command {
+    ANFS_DATASTORES="$(onedatastore list --json | jq -r '.DATASTORE_POOL.DATASTORE[] | select(.TEMPLATE.NFS_AUTO_ENABLE // "no" | ascii_downcase == "yes").ID')"
+
+    cat <<EOF
+# Clean no-longer-existing datastores
+NFS_MOUNTED_DSS="\$({ findmnt -nt nfs4; findmnt -nt nfs; } | grep '^$DS_DIR/[0-9]\\+\\s' | cut -f1 -d' ' | awk -F/ '{print \$NF}')"
+for ds in \$NFS_MOUNTED_DSS; do
+    DS_BASE_PATH="$DS_DIR/\$ds"
+    if test -f "\$DS_BASE_PATH/.automounted" && ! echo "$ANFS_DATASTORES" | grep -q "^\$ds$"; then
+        timeout -s KILL 30s sudo umount "\$DS_BASE_PATH" || continue
+        FSTAB_LINE="\\S\\+ \$DS_BASE_PATH nfs .*"
+        # sed cmd must use custom regex delimiters (e.g., |) because FSTAB_LINE contains slashes (/).
+        echo "\|^\${FSTAB_LINE}$|d" | $SUDO_SED_FSTAB
+        rmdir "\$DS_BASE_PATH"
+    fi
+done
+EOF
+}
+
+#-------------------------------------------------------------------------------
+# Return a command that upon execution will mount an AutoNFS datastore, if configured. Configuration
+# is persisted in fstab.
+# Additionally, mount cleanup is performed.
+#    @param $1    - Datastore ID
+#    @param $2-$5 - AutoNFS attributes: NFS_AUTO_{ENABLE,HOST,PATH,OPTS}
+#    @return string representation of the command, empty if AutoNFS not enabled
+#-------------------------------------------------------------------------------
+function autonfs_mount_command {
+    DSID="$1"
+    ANFS_ENABLE="$2"
+    ANFS_HOST="$3"
+    ANFS_PATH="$4"
+    ANFS_OPTS="$5"
+
+    DS_BASE_PATH="$DS_DIR/$DSID"
+    FSTAB_LINE="$ANFS_HOST:$ANFS_PATH $DS_BASE_PATH nfs ${ANFS_OPTS:-defaults} 0 0"
+
+    cat <<EOF
+set -e
+
+# Mount the required datastore
+if [ "${ANFS_ENABLE,,}" = 'yes' ]; then
+    # Add FSTAB_LINE to /etc/fstab using sed's "a" command.
+    grep -qe "^$FSTAB_LINE$" /etc/fstab || echo "\\\$a\\
+    $FSTAB_LINE" | $SUDO_SED_FSTAB
+    mkdir -p "$DS_BASE_PATH"
+    timeout -s KILL 30s sudo mount "$DS_BASE_PATH"
+    touch "$DS_BASE_PATH/.automounted"
+fi
+
+set +e
+
+`autonfs_cleanup_command`
+EOF
+}
+
+#-------------------------------------------------------------------------------
+# Return a command that upon execution will temporarily mount an AutoNFS
+# datastore, if configured.
+#    @param $1    - Datastore base_path
+#    @param $2-$5 - AutoNFS attributes: NFS_AUTO_{ENABLE,HOST,PATH,OPTS}
+#    @return string representation of the command, empty if AutoNFS not enabled
+#-------------------------------------------------------------------------------
+function autonfs_tmpsetup_command {
+    DS_BASE_PATH="$1"
+    ANFS_ENABLE="$2"
+    ANFS_HOST="$3"
+    ANFS_PATH="$4"
+    ANFS_OPTS="$5"
+    if [ -n "$ANFS_OPTS" ]; then
+        ANFS_OPTS="-o '$ANFS_OPTS'"
+    fi
+    if [ "${ANFS_ENABLE,,}" = 'yes' ]; then
+        cat <<EOF
+if ! findmnt --source "$ANFS_HOST:$ANFS_PATH" --mountpoint "$DS_BASE_PATH" > /dev/null; then
+    timeout -s KILL 30s sudo mount $ANFS_OPTS "$ANFS_HOST:$ANFS_PATH" "$DS_BASE_PATH"
+    touch "$DS_BASE_PATH/.automounted"
+fi
+
+`autonfs_cleanup_command`
+EOF
+    fi
+}

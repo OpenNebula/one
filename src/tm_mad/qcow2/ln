@@ -26,6 +26,8 @@
 
 SRC=$1
 DST=$2
+_VMID=$3
+DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -57,6 +59,27 @@ SNAP_NAME="$(basename $SNAP_DIR)"
 SRC_FORMAT="$(image_format "$SRC_PATH")"
 
 #-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DSID| $XPATH \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_ENABLE \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_HOST \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_PATH \
+                    /DATASTORE/TEMPLATE/NFS_AUTO_OPTS)
+
+ANFS_ENABLE="${XPATH_ELEMENTS[j++]}"
+ANFS_HOST="${XPATH_ELEMENTS[j++]}"
+ANFS_PATH="${XPATH_ELEMENTS[j++]}"
+ANFS_OPTS="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
 # Create DST path
 #-------------------------------------------------------------------------------
 
@@ -68,10 +91,16 @@ ssh_make_path $DST_HOST $DST_DIR
 log "Linking $SRC_PATH in $DST"
 
 if [ "$SRC_FORMAT" = "raw" ]; then
-    CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
+    CMD=$(cat <<EOT
+`autonfs_mount_command "$DSID" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
+ln -sf ${SRC_PATH} ${DST_PATH}
+EOT
+)
 else
     CMD=$(cat <<EOT
 set -ex -o pipefail
+
+`autonfs_mount_command "$DSID" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
 
 mkdir -p "${SNAP_DIR}"
 

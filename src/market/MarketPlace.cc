@@ -399,7 +399,7 @@ int MarketPlace::from_xml(const std::string &xml_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int MarketPlace::post_update_template(std::string& error)
+int MarketPlace::post_update_template(std::string& error, Template *_old_tmpl)
 {
     std::string new_market_mad;
 

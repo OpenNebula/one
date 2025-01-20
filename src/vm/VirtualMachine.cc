@@ -2907,7 +2907,7 @@ int VirtualMachine::replace_template(
     auto old_user_tmpl = move(user_obj_template);
     user_obj_template  = move(new_tmpl);
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, old_user_tmpl.get()) == -1)
     {
         user_obj_template = move(old_user_tmpl);
 
@@ -2952,7 +2952,7 @@ int VirtualMachine::append_template(
 
     user_obj_template->merge(new_tmpl.get());
 
-    if (post_update_template(error) == -1)
+    if (post_update_template(error, old_user_tmpl.get()) == -1)
     {
         user_obj_template = move(old_user_tmpl);
 
