@@ -2151,7 +2151,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     std::size_t found = machine.find("q35");
 
-    if (found != std::string::npos)
+    if (found != std::string::npos || arch == "aarch64" )
     {
         int q35_root_ports = 0;
         get_attribute(nullptr, host, cluster, "Q35_ROOT_PORTS", q35_root_ports);
