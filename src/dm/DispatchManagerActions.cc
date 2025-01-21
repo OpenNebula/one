@@ -1080,7 +1080,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
     Template vm_quotas_snp;
 
     VirtualMachineTemplate quota_tmpl;
-    bool do_quotas = false;
 
     vector<Template *> ds_quotas_snp;
 
@@ -1103,10 +1102,15 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
             vm_uid = vm->get_uid();
             vm_gid = vm->get_gid();
 
+            vm->get_quota_template(quota_tmpl, false, true);
+
+            if (!Quotas::vm_check(vm_uid, vm_gid, &quota_tmpl, error))
+            {
+                return -1;
+            }
+
             vm->delete_non_persistent_disk_snapshots(vm_quotas_snp,
                                                      ds_quotas_snp);
-
-            do_quotas = true;
 
             [[fallthrough]];
 
@@ -1125,10 +1129,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
             vmpool->update(vm.get());
 
-            if ( do_quotas )
-            {
-                vm->get_quota_template(quota_tmpl, false, true);
-            }
             break;
 
         case VirtualMachine::POWEROFF:
@@ -1154,11 +1154,6 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
     if ( !vm_quotas_snp.empty() )
     {
         Quotas::vm_del(vm_uid, vm_gid, &vm_quotas_snp);
-    }
-
-    if ( do_quotas )
-    {
-        Quotas::vm_check(vm_uid, vm_gid, &quota_tmpl, error);
     }
 
     return rc;

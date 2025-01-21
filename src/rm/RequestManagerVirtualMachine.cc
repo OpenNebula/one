@@ -1076,6 +1076,26 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (set_vnc_port(vm.get(), cluster_id, att) != 0)
     {
+        if (do_running_quota)
+        {
+            quota_rollback(&quota_tmpl_running, Quotas::VM, att_quota);
+        }
+
+        if (old_cid == -1)
+        {
+            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
+        else if (old_cid != cluster_id)
+        {
+            // Remove resources back to old cluster
+            quota_tmpl.replace("CLUSTER_ID", old_cid);
+            Quotas::vm_add(vm_perms.uid, vm_perms.gid, &quota_tmpl);
+
+            // Remove resources from new cluster
+            quota_tmpl.replace("CLUSTER_ID", cluster_id);
+            quota_rollback(&quota_tmpl, Quotas::VM, att_quota);
+        }
+
         failure_response(ACTION, att);
         return;
     }

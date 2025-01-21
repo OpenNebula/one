@@ -196,9 +196,9 @@ public:
      *    @param tmpl template for the vm with usage
      *    @param error string
      */
-    static void vm_check(int uid, int gid, Template * tmpl, std::string& error)
+    static bool vm_check(int uid, int gid, Template * tmpl, std::string& error)
     {
-        quota_check(VIRTUALMACHINE, uid, gid, tmpl, error);
+        return quota_check(VIRTUALMACHINE, uid, gid, tmpl, error);
     }
 
     /**
@@ -274,7 +274,7 @@ public:
      *    @param gid of the group
      *    @param tmpl template for the image, with usage
      */
-    static void quota_check(QuotaType type, int uid, int gid, Template * tmpl,
+    static bool quota_check(QuotaType type, int uid, int gid, Template * tmpl,
                             std::string& error);
 
 protected:

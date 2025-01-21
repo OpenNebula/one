@@ -1233,7 +1233,7 @@ void LifeCycleManager::trigger_monitor_poweron(int vid)
 
             vm.reset();
 
-            Quotas::vm_check(uid, gid, &quota_tmpl, error);
+            Quotas::vm_add(uid, gid, &quota_tmpl);
         }
         else if ( vm->get_state() == VirtualMachine::ACTIVE )
         {
