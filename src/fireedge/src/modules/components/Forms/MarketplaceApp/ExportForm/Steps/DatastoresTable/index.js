@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
+import { useMemo } from 'react'
 
-import { DatastoresTable } from '@modules/components/Tables'
-import { SCHEMA } from '@modules/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable/schema'
+import { DATASTORE_TYPES, T } from '@ConstantsModule'
+import { useListForm } from '@HooksModule'
 import { Step, decodeBase64 } from '@UtilsModule'
-import { T, DATASTORE_TYPES } from '@ConstantsModule'
+import { SCHEMA } from '@modules/components/Forms/MarketplaceApp/ExportForm/Steps/DatastoresTable/schema'
+import { DatastoresTable } from '@modules/components/Tables'
 
 export const STEP_ID = 'datastore'
 
-const Content = ({ data, app }) => {
-  const { NAME } = data?.[0] ?? {}
-  const { setValue } = useFormContext()
+const Content = ({ data, app, setFormData }) => {
+  const { ID } = data?.[0] ?? {}
+
+  const { handleSelect, handleClear } = useListForm({
+    key: STEP_ID,
+    setList: setFormData,
+  })
 
   const isKernelType = useMemo(() => {
     const appTemplate = String(decodeBase64(app?.TEMPLATE?.APPTEMPLATE64, ''))
@@ -37,7 +41,7 @@ const Content = ({ data, app }) => {
   const handleSelectedRows = (rows) => {
     const { original = {} } = rows?.[0] ?? {}
 
-    setValue(STEP_ID, original.ID !== undefined ? [original] : [])
+    original.ID !== undefined ? handleSelect(original) : handleClear()
   }
 
   return (
@@ -46,9 +50,9 @@ const Content = ({ data, app }) => {
       disableGlobalSort
       displaySelectedRows
       pageSize={5}
-      getRowId={(row) => String(row.NAME)}
+      getRowId={(row) => String(row.ID)}
       initialState={{
-        selectedRowIds: { [NAME]: true },
+        selectedRowIds: { [ID]: true },
         filters: [{ id: 'TYPE', value: isKernelType ? 'FILE' : 'IMAGE' }],
       }}
       onSelectedRowsChange={handleSelectedRows}
