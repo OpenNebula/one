@@ -31,8 +31,8 @@ begin
                                                     xpath_filter,
                                                     deploy_id)
     filter_driver.activate(true)
-rescue Exception => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error(e.message)
+    OpenNebula::DriverLogger.log_error(e.backtrace)
     exit 1
 end

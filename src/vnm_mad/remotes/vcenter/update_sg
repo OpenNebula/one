@@ -105,7 +105,7 @@ unless vm_state == 'POWEROFF'
         dfw.clear_rules(template, false)
         dfw.create_rules(deploy_id, template, false)
     rescue StandardError => e
-        OpenNebula.log_error('Error updating security groups ' \
+        OpenNebula::DriverLogger.log_error('Error updating security groups ' \
             "due to \"#{e.message}\"")
         if VCenterDriver::CONFIG[:debug_information]
             OpenNebula.error_message(e.backtrace)

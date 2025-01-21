@@ -106,7 +106,7 @@ unless nsx_nics.empty?
         dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
         dfw.clear_rules(template, modified?(template))
     rescue StandardError => e
-        OpenNebula.log_error('Error deleting security groups rules ' \
+        OpenNebula::DriverLogger.log_error('Error deleting security groups rules ' \
             "due to \"#{e.message}\"")
         if VCenterDriver::CONFIG[:debug_information]
             OpenNebula.error_message(e.backtrace)

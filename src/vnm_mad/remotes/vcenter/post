@@ -109,7 +109,7 @@ unless nsx_nics.empty? || (vm_state == 'POWEROFF')
         dfw.create_rules(deploy_id, template, is_modified)
     rescue StandardError => e
         dfw.clear_rules(template, is_modified)
-        OpenNebula.log_error('Error creating Security Group rules ' \
+        OpenNebula::DriverLogger.log_error('Error creating Security Group rules ' \
             "due to \"#{e.message}\"")
         if VCenterDriver::CONFIG[:debug_information]
             OpenNebula.error_message(e.backtrace)

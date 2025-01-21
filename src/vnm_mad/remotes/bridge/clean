@@ -28,9 +28,9 @@ xpath_filter = "TEMPLATE/NIC[VN_MAD='bridge']"
 begin
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.run_hooks(ARGV, template64) if hm.deactivate == 0
-rescue Exception => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error(e.message)
+    OpenNebula::DriverLogger.log_error(e.backtrace)
     exit 1
 end
 

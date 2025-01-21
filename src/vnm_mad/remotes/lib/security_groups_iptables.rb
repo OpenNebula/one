@@ -254,34 +254,45 @@ module SGIPTables
     def self.info
         commands = VNMNetwork::Commands.new
 
-        commands.add :iptables, "-S"
+        commands.add :iptables, '-S'
         iptables_s = commands.run!
 
-        commands.add :ip6tables, "-S"
+        commands.add :ip6tables, '-S'
         ip6tables_s = commands.run!
 
-        iptables_forwards = ""
-        ip6tables_forwards = ""
+        iptables_forwards = ''
+        ip6tables_forwards = ''
+
+        iptables_inputs = ''
+        ip6tables_inputs = ''
 
         if iptables_s.match(/^-N #{GLOBAL_CHAIN}$/)
             commands.add :iptables, "-L #{GLOBAL_CHAIN} --line-numbers"
             iptables_forwards = commands.run!
+
+            commands.add :iptables, '-L INPUT --line-numbers'
+            iptables_inputs = commands.run!
         end
 
         if ip6tables_s.match(/^-N #{GLOBAL_CHAIN}$/)
             commands.add :ip6tables, "-L #{GLOBAL_CHAIN} --line-numbers"
             ip6tables_forwards = commands.run!
+
+            commands.add :ip6tables, '-L INPUT --line-numbers'
+            ip6tables_inputs = commands.run!
         end
 
-        commands.add :ipset, "list -name"
+        commands.add :ipset, 'list -name'
         ipset_list = commands.run!
 
         {
-            :iptables_forwards => iptables_forwards,
-            :iptables_s => iptables_s,
+            :iptables_forwards  => iptables_forwards,
+            :iptables_inputs    => iptables_inputs,
+            :iptables_s         => iptables_s,
             :ip6tables_forwards => ip6tables_forwards,
-            :ip6tables_s => ip6tables_s,
-            :ipset_list => ipset_list
+            :ip6tables_inputs   => ip6tables_inputs,
+            :ip6tables_s        => ip6tables_s,
+            :ipset_list         => ipset_list
         }
     end
 
@@ -398,7 +409,8 @@ module SGIPTables
 
         # Send traffic to the NIC chains
         base_br = "-I #{GLOBAL_CHAIN} -m physdev --physdev-is-bridged "
-        nro = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+        nro     = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+        nro_in  = "-I INPUT -m physdev --physdev-in #{nic[:tap]} -j #{chain_out}"
 
         nris = []
         nri6s = []
@@ -434,9 +446,13 @@ module SGIPTables
 
         nris.each {|nri| commands.add :iptables, nri }
         commands.add :iptables, nro
+        commands.add :iptables, nro_in
 
         nri6s.each {|nri| commands.add :ip6tables, nri }
-        commands.add :ip6tables, nro if nri6s.any?
+        if nri6s.any?
+            commands.add :ip6tables, nro
+            commands.add :ip6tables, nro_in
+        end
 
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
@@ -572,9 +588,11 @@ module SGIPTables
         info = self.info
 
         iptables_forwards  = info[:iptables_forwards]
+        iptables_inputs    = info[:iptables_inputs]
         iptables_s         = info[:iptables_s]
 
         ip6tables_forwards = info[:ip6tables_forwards]
+        ip6tables_inputs   = info[:ip6tables_inputs]
         ip6tables_s        = info[:ip6tables_s]
 
         ipset_list = info[:ipset_list]
@@ -589,11 +607,27 @@ module SGIPTables
             end
         end
 
+        iptables_inputs.lines.reverse_each do |line|
+            fields = line.split
+            if [chain_in, chain_out].include?(fields[1])
+                n = fields[0]
+                commands.add :iptables, "-D INPUT #{n}"
+            end
+        end
+
         ip6tables_forwards.lines.reverse_each do |line|
             fields = line.split
             if [chain_in, chain_out].include?(fields[1])
                 n = fields[0]
                 commands.add :ip6tables, "-D #{GLOBAL_CHAIN} #{n}"
+            end
+        end
+
+        ip6tables_inputs.lines.reverse_each do |line|
+            fields = line.split
+            if [chain_in, chain_out].include?(fields[1])
+                n = fields[0]
+                commands.add :ip6tables, "-D INPUT #{n}"
             end
         end
 

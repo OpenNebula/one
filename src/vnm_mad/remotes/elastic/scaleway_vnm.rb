@@ -96,7 +96,7 @@ class ScalewayProvider
 
         return 0
     rescue StandardError => e
-        OpenNebula.log_error("Error assigning #{external}:#{e.message}")
+        OpenNebula::DriverLogger.log_error("Error assigning #{external}:#{e.message}")
         1
     end
 
@@ -124,7 +124,7 @@ class ScalewayProvider
 
         return 0
     rescue StandardError => e
-        OpenNebula.log_error("Error unassigning #{external}:#{e.message}")
+        OpenNebula::DriverLogger.log_error("Error unassigning #{external}:#{e.message}")
         1
     end
 

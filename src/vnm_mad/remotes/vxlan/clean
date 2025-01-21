@@ -34,8 +34,8 @@ begin
                                                     deploy_id)
     filter_driver.deactivate
     filter_driver.run_hooks(ARGV, template64) if filter_driver.deactivate == 0
-rescue Exception => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
+rescue StandardError => e
+    OpenNebula::DriverLogger.log_error(e.message)
+    OpenNebula::DriverLogger.log_error(e.backtrace)
     exit 1
 end

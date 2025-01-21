@@ -39,7 +39,7 @@ begin
                                                     deploy_id)
     filter_driver.update(vn_id)
 rescue StandardError => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
+    OpenNebula::DriverLogger.log_error(e.message)
+    OpenNebula::DriverLogger.log_error(e.backtrace)
     exit 1
 end
