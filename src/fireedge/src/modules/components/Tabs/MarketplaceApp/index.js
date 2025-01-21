@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, LinearProgress } from '@mui/material'
+import { css } from '@emotion/css'
+import { Alert, LinearProgress, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, MarketplaceAppAPI } from '@FeaturesModule'
+import { MarketplaceAppAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
 
+import { GlobalActions } from '@modules/components/Tables/Enhanced/Utils'
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Info from '@modules/components/Tabs/MarketplaceApp/Info'
 import Template from '@modules/components/Tabs/MarketplaceApp/Template'
+
+const useStyles = () => ({
+  actions: css({
+    marginBottom: '0.5rem',
+    gridArea: 'actions',
+  }),
+})
 
 const getTabComponent = (tabName) =>
   ({
@@ -31,7 +40,10 @@ const getTabComponent = (tabName) =>
     template: Template,
   }[tabName])
 
-const MarketplaceAppTabs = memo(({ id }) => {
+const MarketplaceAppTabs = memo(({ id, actions }) => {
+  const theme = useTheme()
+  const styles = useMemo(() => useStyles(theme), [theme])
+
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } =
     MarketplaceAppAPI.useGetMarketplaceAppQuery(
@@ -55,12 +67,35 @@ const MarketplaceAppTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
+    if (actions?.length) {
+      const selectedRows = [
+        {
+          id,
+          original: data,
+        },
+      ]
+
+      return (
+        <>
+          <GlobalActions
+            globalActions={actions}
+            selectedRows={selectedRows}
+            className={styles.actions}
+          />
+          <Tabs addBorder tabs={tabsAvailable ?? []} />
+        </>
+      )
+    }
+
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
   return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
-MarketplaceAppTabs.propTypes = { id: PropTypes.string.isRequired }
+MarketplaceAppTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  actions: PropTypes.array,
+}
 MarketplaceAppTabs.displayName = 'MarketplaceAppTabs'
 
 export default MarketplaceAppTabs

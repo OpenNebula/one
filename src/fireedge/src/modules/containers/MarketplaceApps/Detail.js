@@ -14,9 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 
-import { TranslateProvider, MarketplaceAppsTabs } from '@ComponentsModule'
+import {
+  BackButton,
+  MarketplaceAppsTable,
+  MarketplaceAppsTabs,
+  TranslateProvider,
+} from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Marketplace app.
@@ -25,6 +30,7 @@ import { TranslateProvider, MarketplaceAppsTabs } from '@ComponentsModule'
  */
 export function MarketplaceAppDetail() {
   const { id } = useParams()
+  const actions = MarketplaceAppsTable.Actions()
 
   if (Number.isNaN(+id)) {
     return <Redirect to="/" />
@@ -32,7 +38,8 @@ export function MarketplaceAppDetail() {
 
   return (
     <TranslateProvider>
-      <MarketplaceAppsTabs id={id} />
+      <BackButton />
+      <MarketplaceAppsTabs id={id} actions={actions} />
     </TranslateProvider>
   )
 }
