@@ -14,8 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
-import { useParams, Redirect } from 'react-router-dom'
+import { Redirect, useParams } from 'react-router-dom'
 
+import BackButton from 'client/components/ResourcesBackButton/BackButton'
+import MarketplaceAppActions from 'client/components/Tables/MarketplaceApps/actions'
 import MarketplaceAppTabs from 'client/components/Tabs/MarketplaceApp'
 
 /**
@@ -25,12 +27,18 @@ import MarketplaceAppTabs from 'client/components/Tabs/MarketplaceApp'
  */
 function MarketplaceAppDetail() {
   const { id } = useParams()
+  const actions = MarketplaceAppActions()
 
   if (Number.isNaN(+id)) {
     return <Redirect to="/" />
   }
 
-  return <MarketplaceAppTabs id={id} />
+  return (
+    <>
+      <BackButton />
+      <MarketplaceAppTabs id={id} actions={actions} />
+    </>
+  )
 }
 
 export default MarketplaceAppDetail

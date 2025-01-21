@@ -22,9 +22,18 @@ import { useViews } from 'client/features/Auth'
 import { useGetMarketplaceAppQuery } from 'client/features/OneApi/marketplaceApp'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
+import makeStyles from '@mui/styles/makeStyles'
+import { GlobalActions } from 'client/components/Tables/Enhanced/Utils'
 import Tabs from 'client/components/Tabs'
 import Info from 'client/components/Tabs/MarketplaceApp/Info'
 import Template from 'client/components/Tabs/MarketplaceApp/Template'
+
+const useStyles = makeStyles(() => ({
+  actions: {
+    marginBottom: '0.5rem',
+    gridArea: 'actions',
+  },
+}))
 
 const getTabComponent = (tabName) =>
   ({
@@ -32,7 +41,9 @@ const getTabComponent = (tabName) =>
     template: Template,
   }[tabName])
 
-const MarketplaceAppTabs = memo(({ id }) => {
+const MarketplaceAppTabs = memo(({ id, actions }) => {
+  const styles = useStyles()
+
   const { view, getResourceView } = useViews()
   const { isError, error, status, data } = useGetMarketplaceAppQuery(
     { id },
@@ -55,12 +66,35 @@ const MarketplaceAppTabs = memo(({ id }) => {
   }
 
   if (status === 'fulfilled' || id === data?.ID) {
+    if (actions?.length) {
+      const selectedRows = [
+        {
+          id,
+          original: data,
+        },
+      ]
+
+      return (
+        <>
+          <GlobalActions
+            globalActions={actions}
+            selectedRows={selectedRows}
+            className={styles.actions}
+          />
+          <Tabs addBorder tabs={tabsAvailable ?? []} />
+        </>
+      )
+    }
+
     return <Tabs addBorder tabs={tabsAvailable ?? []} />
   }
 
   return <LinearProgress color="secondary" sx={{ width: '100%' }} />
 })
-MarketplaceAppTabs.propTypes = { id: PropTypes.string.isRequired }
+MarketplaceAppTabs.propTypes = {
+  id: PropTypes.string.isRequired,
+  actions: PropTypes.array,
+}
 MarketplaceAppTabs.displayName = 'MarketplaceAppTabs'
 
 export default MarketplaceAppTabs
