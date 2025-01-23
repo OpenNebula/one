@@ -17,11 +17,13 @@ import { BaseSchema } from 'yup'
 
 import { FIELDS as CAPACITY_FIELDS } from './capacitySchema'
 import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
-// import { FIELDS as DISK_FIELDS, SCHEMA as DISK_SCHEMA } from './diskSchema'
 
 // get schemas from VmTemplate/CreateForm
 import { FIELDS as OWNERSHIP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/ownershipSchema'
 import { FIELDS as VM_GROUP_FIELDS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/General/vmGroupSchema'
+
+// Label
+import { CapacityMemoryLabel } from 'client/components/Forms/VmTemplate/Legend'
 
 import { T, VmTemplate, VmTemplateFeatures } from 'client/constants'
 import {
@@ -55,7 +57,7 @@ const SECTIONS = (vmTemplate, features, oneConfig, adminGroup) => {
     },
     {
       id: 'capacity',
-      legend: T.Capacity,
+      legend: <CapacityMemoryLabel data={vmTemplate} />,
       fields: disableFields(
         filterFieldsByHypervisor(
           CAPACITY_FIELDS(vmTemplate, features),

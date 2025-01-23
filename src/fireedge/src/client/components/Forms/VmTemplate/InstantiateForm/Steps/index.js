@@ -39,7 +39,8 @@ const Steps = createSteps(
     return [
       () => BasicConfiguration({ vmTemplate: dataTemplateExtended, ...rest }),
       !!userInputs.length && (() => UserInputs(userInputs)),
-      ExtraConfiguration,
+      (props) =>
+        ExtraConfiguration({ vmTemplate: dataTemplateExtended, ...props }),
     ].filter(Boolean)
   },
   {

@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
 import { SystemShut as OsIcon } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { useMemo } from 'react'
+import { useFormContext } from 'react-hook-form'
 
-import { useViews } from 'client/features/Auth'
 import { Translate } from 'client/components/HOC'
+import { useViews } from 'client/features/Auth'
 
-import Tabs from 'client/components/Tabs'
 import { TabType } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
+import BootOrder from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
 import Networking from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/networking'
 import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement'
 import Scheduling from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
-import BootOrder from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting/bootOrder'
+import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
+import Tabs from 'client/components/Tabs'
 
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
+import { RESOURCE_NAMES, T, VmTemplate } from 'client/constants'
 import { getActionsAvailable as getSectionsAvailable } from 'client/models/Helper'
-import { T, RESOURCE_NAMES, VmTemplate } from 'client/constants'
 
 export const STEP_ID = 'extra'
 
@@ -50,7 +50,14 @@ export const TABS = [
   },
 ]
 
-const Content = ({ data, setFormData, hypervisor, oneConfig, adminGroup }) => {
+const Content = ({
+  data,
+  setFormData,
+  hypervisor,
+  oneConfig,
+  adminGroup,
+  vmTemplate,
+}) => {
   const {
     formState: { errors },
     control,
@@ -82,6 +89,7 @@ const Content = ({ data, setFormData, hypervisor, oneConfig, adminGroup }) => {
                 control,
                 oneConfig,
                 adminGroup,
+                vmTemplate,
               }}
             />
           ),
@@ -100,7 +108,7 @@ const Content = ({ data, setFormData, hypervisor, oneConfig, adminGroup }) => {
  * @param {VmTemplate} vmTemplate - VM Template
  * @returns {object} Optional configuration step
  */
-const ExtraConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => {
+const ExtraConfiguration = ({ vmTemplate, oneConfig, adminGroup }) => {
   const hypervisor = vmTemplate?.TEMPLATE?.HYPERVISOR
 
   return {
@@ -114,7 +122,7 @@ const ExtraConfiguration = ({ data: vmTemplate, oneConfig, adminGroup }) => {
         hypervisor,
         oneConfig,
         adminGroup,
-        instantiate: true,
+        vmTemplate: vmTemplate,
       }),
   }
 }
@@ -125,6 +133,7 @@ Content.propTypes = {
   hypervisor: PropTypes.string,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  vmTemplate: PropTypes.any,
 }
 
 export default ExtraConfiguration
