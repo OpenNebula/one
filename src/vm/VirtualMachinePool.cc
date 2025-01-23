@@ -210,8 +210,8 @@ int VirtualMachinePool::get_cluster_vms(int user_id, int group_id, int cid,
     // Filter cluster
     if (db->supports(SqlDB::SqlFeature::JSON_QUERY))
     {
-        os << "JSON_CONTAINS(body_json, '" << cid
-           << "', '$.VM.HISTORY_RECORDS.HISTORY[*].CID') = 1";
+        os << "JSON_CONTAINS(body_json, '\"" << cid
+           << "\"', '$.VM.HISTORY_RECORDS.HISTORY[0].CID')";
     }
     else
     {
