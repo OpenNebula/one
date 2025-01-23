@@ -88,12 +88,14 @@ set -e -o pipefail
 
 FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
 
-# Note: #{X,,} = X lowercased
+# This command may fail, leave it here so that failure is propagated via `set -e`
+MKFS_CMD=`mkfs_command $DST $FORMAT $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
+
 MKFS_CMD=$(cat <<EOF
 set -e -o pipefail
 mkdir -p "$DS_BASE_PATH"
 `autonfs_tmpsetup_command "$DS_BASE_PATH" "$ANFS_ENABLE" "$ANFS_HOST" "$ANFS_PATH" "$ANFS_OPTS"`
-`mkfs_command $DST $FORMAT $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
+$MKFS_CMD
 EOF
 )
 
