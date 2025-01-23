@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo } from 'react'
+import { Typography, styled } from '@mui/material'
 import PropTypes from 'prop-types'
-import { styled, Typography } from '@mui/material'
+import { isValidElement, memo } from 'react'
 
 import AdornmentWithTooltip from '@modules/components/FormControl/Tooltip'
 import { Translate } from '@modules/components/HOC'
@@ -35,7 +35,7 @@ const StyledLegend = styled((props) => (
 const Legend = memo(
   ({ 'data-cy': dataCy, title, tooltip, disableGutters }) => (
     <StyledLegend data-cy={dataCy} ownerState={{ tooltip, disableGutters }}>
-      <Translate word={title} />
+      {isValidElement(title) ? title : <Translate word={title} />}
       {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
     </StyledLegend>
   ),

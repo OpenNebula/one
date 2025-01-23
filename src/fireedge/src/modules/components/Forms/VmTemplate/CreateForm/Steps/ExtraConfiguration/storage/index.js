@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 import { Db as DatastoreIcon } from 'iconoir-react'
-import { useFieldArray, useFormContext } from 'react-hook-form'
+import PropTypes from 'prop-types'
 import { useEffect, useMemo } from 'react'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 
-import { FormWithSchema } from '@modules/components/Forms'
 import DiskCard from '@modules/components/Cards/DiskCard'
+import { FormWithSchema } from '@modules/components/Forms'
 import {
   AttachAction,
   DetachAction,
 } from '@modules/components/Tabs/Vm/Storage/Actions'
 
+import { T } from '@ConstantsModule'
+import { useGeneralApi } from '@FeaturesModule'
+import { getDiskName } from '@ModelsModule'
 import {
   STEP_ID as EXTRA_ID,
   TabType,
 } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { mapNameByIndex } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import {
   BOOT_ORDER_NAME,
   reorderBootAfterRemove,
 } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/booting'
+import { mapNameByIndex } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { FIELDS } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage/schema'
-import { getDiskName } from '@ModelsModule'
-import { T } from '@ConstantsModule'
-import { useGeneralApi } from '@FeaturesModule'
+import { CapacityDisksLabel } from '@modules/components/Forms/VmTemplate/Legend'
 
 export const TAB_ID = 'DISK'
 
 const mapNameFunction = mapNameByIndex('DISK')
 
-const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
+const Storage = ({ hypervisor, oneConfig, adminGroup, vmTemplate }) => {
   const { setModifiedFields, setFieldPath, initModifiedFields } =
     useGeneralApi()
 
@@ -108,6 +109,7 @@ const Storage = ({ hypervisor, oneConfig, adminGroup }) => {
         onSubmit={(image) => append(mapNameFunction(image, disks.length))}
         selectDiskId={disks?.length ?? 0}
       />
+      {vmTemplate && <CapacityDisksLabel data={vmTemplate} />}
       <Stack
         pb="1em"
         display="grid"
@@ -168,6 +170,7 @@ Storage.propTypes = {
   control: PropTypes.object,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
+  vmTemplate: PropTypes.any,
 }
 
 /** @type {TabType} */

@@ -23,6 +23,9 @@ import { FIELDS as INFORMATION_FIELDS } from './informationSchema'
 import { FIELDS as OWNERSHIP_FIELDS } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/ownershipSchema'
 import { FIELDS as VM_GROUP_FIELDS } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/vmGroupSchema'
 
+// Label
+import { CapacityMemoryLabel } from '@modules/components/Forms/VmTemplate/Legend'
+
 import { T, VmTemplate, VmTemplateFeatures } from '@ConstantsModule'
 import {
   Field,
@@ -55,7 +58,7 @@ const SECTIONS = (vmTemplate, features, oneConfig, adminGroup) => {
     },
     {
       id: 'capacity',
-      legend: T.Capacity,
+      legend: <CapacityMemoryLabel data={vmTemplate} />,
       fields: disableFields(
         filterFieldsByHypervisor(
           CAPACITY_FIELDS(vmTemplate, features),

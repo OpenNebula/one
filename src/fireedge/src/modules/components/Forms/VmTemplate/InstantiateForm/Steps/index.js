@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import BasicConfiguration, {
-  STEP_ID as BASIC_ID,
-} from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
-import ExtraConfiguration, {
-  STEP_ID as EXTRA_ID,
-} from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
-import UserInputs from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 import {
   getUserInputParams,
   parseRangeToArray,
@@ -27,6 +20,13 @@ import {
 } from '@ModelsModule'
 import { createSteps } from '@UtilsModule'
 import { groupUserInputs } from '@modules/components/Forms/UserInputs'
+import BasicConfiguration, {
+  STEP_ID as BASIC_ID,
+} from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/BasicConfiguration'
+import ExtraConfiguration, {
+  STEP_ID as EXTRA_ID,
+} from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration'
+import UserInputs from '@modules/components/Forms/VmTemplate/InstantiateForm/Steps/UserInputs'
 
 const Steps = createSteps(
   ({ dataTemplateExtended = {}, ...rest }) => {
@@ -53,7 +53,8 @@ const Steps = createSteps(
       () => BasicConfiguration({ vmTemplate: dataTemplateExtended, ...rest }),
       userInputs?.length > 0 &&
         (() => UserInputs(userInputs, userInputsLayout)),
-      ExtraConfiguration,
+      (props) =>
+        ExtraConfiguration({ vmTemplate: dataTemplateExtended, ...props }),
     ].filter(Boolean)
   },
   {
