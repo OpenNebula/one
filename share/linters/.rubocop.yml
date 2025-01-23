@@ -558,6 +558,9 @@ Layout/LineContinuationLeadingSpace:
 # STYLE
 #######
 
+Style/HashSlice:
+    Enabled: false
+
 Style/OpenStructUse:
     Enabled: false
 
