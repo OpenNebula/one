@@ -294,6 +294,8 @@ module OpenNebula
         end
 
         # Returns elements in text form
+        # Known bug: For some older versions of REXML, the xpath expression
+        #            returns more nodes than expected
         # root_element:: _String_ base element
         # indent:: _Boolean_ indents the resulting string, default true
         # xpath_exp:: _String_ filter elements with a XPath
