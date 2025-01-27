@@ -16,37 +16,46 @@
 import ConfigurationsIcon from 'iconoir-react/dist/Settings'
 import PropTypes from 'prop-types'
 
-import {
-  STEP_ID as EXTRA_ID,
-  TabType,
-} from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration'
-import { FIELDS } from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/configuration/schema'
+import { FIELDS } from 'client/components/Forms/Commons/VNetwork/Tabs/configuration/schema'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
 
-const ConfigurationContent = ({ oneConfig, adminGroup }) => (
-  <>
-    <FormWithSchema
-      id={EXTRA_ID}
-      cy="configuration"
-      fields={FIELDS(oneConfig, adminGroup)}
-    />
-  </>
-)
+const ConfigurationContent =
+  (stepId) =>
+  ({ oneConfig, adminGroup, isUpdate, isVnet }) => {
+    const InnerComponent = (
+      <>
+        <FormWithSchema
+          id={stepId}
+          cy="configuration"
+          fields={FIELDS(oneConfig, adminGroup, isUpdate, isVnet)}
+        />
+      </>
+    )
+
+    // InnerComponent.displayName = `InnerComponent`
+
+    return InnerComponent
+  }
+
+ConfigurationContent.displayName = 'ConfigurationContent'
 
 ConfigurationContent.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }
 
-/** @type {TabType} */
-const TAB = {
+/**
+ * @param {string} stepId - Name of the step
+ * @returns {object} - The configuration tab for vnets
+ */
+const TAB = (stepId) => ({
   id: 'configuration',
   name: T.Configuration,
   icon: ConfigurationsIcon,
-  Content: ConfigurationContent,
+  Content: ConfigurationContent(stepId),
   getError: (error) => FIELDS().some(({ name }) => error?.[name]),
-}
+})
 
 export default TAB

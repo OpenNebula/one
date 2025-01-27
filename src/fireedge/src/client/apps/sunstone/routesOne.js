@@ -788,8 +788,8 @@ const ENDPOINTS = [
       {
         title: (_, state) =>
           state?.ID !== undefined
-            ? T.UpdateVirtualNetworkTemplate
-            : T.CreateVirtualNetworkTemplate,
+            ? T.UpdateVirtualNetwork
+            : T.CreateVirtualNetwork,
         description: (_, state) =>
           state?.ID !== undefined && `#${state.ID} ${state.NAME}`,
         path: PATH.NETWORK.VNETS.CREATE,

@@ -17,7 +17,7 @@ import { array, object, ObjectSchema } from 'yup'
 
 import { SCHEMA as CONTEXT_SCHEMA } from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/context/schema'
 import { SCHEMA as QOS_SCHEMA } from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/qos/schema'
-import { SCHEMA as CONFIGURATION_SCHEMA } from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/configuration/schema'
+import { SCHEMA as CONFIGURATION_SCHEMA } from 'client/components/Forms/Commons/VNetwork/Tabs/configuration/schema'
 
 /**
  * Map name attribute if not exists.

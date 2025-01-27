@@ -22,7 +22,7 @@ import { FieldErrors, useFormContext } from 'react-hook-form'
 
 import Addresses from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/addresses'
 import Clusters from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/clusters'
-import Configuration from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/configuration'
+import Configuration from 'client/components/Forms/Commons/VNetwork/Tabs/configuration'
 import Context from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/context'
 import QoS from 'client/components/Forms/VNTemplate/CreateForm/Steps/ExtraConfiguration/qos'
 import { Translate } from 'client/components/HOC'
@@ -45,7 +45,7 @@ import { T, VirtualNetwork } from 'client/constants'
 export const STEP_ID = 'extra'
 
 /** @type {TabType[]} */
-export const TABS = [Configuration, Clusters, Addresses, QoS, Context]
+export const TABS = [Configuration(STEP_ID), Clusters, Addresses, QoS, Context]
 
 const Content = ({ isUpdate, oneConfig, adminGroup }) => {
   const {
