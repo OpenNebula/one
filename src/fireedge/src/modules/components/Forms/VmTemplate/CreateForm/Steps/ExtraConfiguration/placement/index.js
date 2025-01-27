@@ -35,7 +35,6 @@ import { useSelector } from 'react-redux'
 const Placement = ({ oneConfig, adminGroup, isUpdate }) => {
   const { setFieldPath } = useGeneralApi()
 
-  // Get modified fields by the user
   const modifiedFields = useSelector((state) => state.general.modifiedFields)
 
   useEffect(() => {
@@ -43,12 +42,6 @@ const Placement = ({ oneConfig, adminGroup, isUpdate }) => {
   }, [])
 
   return (
-    // TODO - Host requirements: add button to select HOST in list => ID="<id>"
-    // TODO - Host policy options: Packing|Stripping|Load-aware
-
-    // TODO - DS requirements: add button to select DATASTORE in list => ID="<id>"
-    // TODO - DS policy options: Packing|Stripping
-
     <>
       {SECTIONS(oneConfig, adminGroup, isUpdate, modifiedFields).map(
         ({ id, ...section }) => (
