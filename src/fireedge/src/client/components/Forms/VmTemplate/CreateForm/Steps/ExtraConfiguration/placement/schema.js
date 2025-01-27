@@ -47,7 +47,7 @@ const addHypervisorRequirement = (schedRequirements, hypervisor) => {
     }
 
     return schedRequirements
-      ? `${schedRequirements} | HYPERVISOR=${hypervisor}`
+      ? `HYPERVISOR=${hypervisor} & ${schedRequirements}`
       : `HYPERVISOR=${hypervisor}`
   }
 }
@@ -79,7 +79,10 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
 
     const actualValue = formContext.getValues('extra.SCHED_REQUIREMENTS')
 
-    const parts = actualValue?.split('|')?.map((part) => part?.trim())
+    const parts = actualValue
+      ?.split('&')
+      ?.flatMap((part) => part.split('|'))
+      ?.map((part) => part?.trim())
 
     const matchedParts = parts?.filter((part) => regexPattern.test(part))
     const nonMatchedParts = parts?.filter((part) => !regexPattern.test(part))
@@ -108,7 +111,18 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
       ...(newExpressions ?? []),
     ]
 
-    const updatedValue = updatedParts?.join(' | ') ?? ''
+    const updatedValue = `${
+      updatedParts.find((part) => part.includes('HYPERVISOR='))
+        ? `HYPERVISOR=${hypervisor}`
+        : ''
+    }${
+      updatedParts.filter((part) => !part.includes('HYPERVISOR=')).length
+        ? ' & ' +
+          updatedParts
+            .filter((part) => !part.includes('HYPERVISOR='))
+            .join(' | ')
+        : ''
+    }`
 
     // Check if the hypervisor condition already exists in the actualValue
     const hasHypervisorCondition = actualValue?.includes(
