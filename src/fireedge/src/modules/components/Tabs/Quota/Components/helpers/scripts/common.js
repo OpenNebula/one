@@ -40,15 +40,9 @@ export const getExistingValue = (
   selectedType,
   existingData = []
 ) => {
-  if (selectedType === 'VM') {
-    const vmQuotaObject = existingData[0]
+  const resourceData = existingData.find((data) => data.ID === resourceId)
 
-    return vmQuotaObject ? vmQuotaObject[identifier] : ''
-  } else {
-    const resourceData = existingData.find((data) => data.ID === resourceId)
-
-    return resourceData ? resourceData[identifier] : ''
-  }
+  return resourceData ? resourceData[identifier] : ''
 }
 
 const findIdByName = (nameMaps, selectedType, resourceNameOrId) => {
@@ -58,7 +52,7 @@ const findIdByName = (nameMaps, selectedType, resourceNameOrId) => {
 
   const typeMap = nameMaps[selectedType] || {}
   const foundEntry = Object.entries(typeMap).find(
-    ([id, name]) => name === resourceNameOrId
+    ([_, name]) => name === resourceNameOrId
   )
 
   return foundEntry ? foundEntry[0] : resourceNameOrId
@@ -93,18 +87,18 @@ export const handleApplyGlobalQuotas = async (
     const quotaKey = `${quotaType}_QUOTA`
     const quotaData = existingTemplateData[quotaKey]
 
-    if (!Array.isArray(quotaData) && quotaType === 'VM') {
-      return quotaData || {}
-    } else if (Array.isArray(quotaData)) {
-      return (
-        quotaData?.find((q) => q?.ID?.toString() === resourceId.toString()) ||
-        {}
-      )
-    }
+    const isGlobal = resourceId === '@Global'
+
+    const findGlobal = (quota) => !quota?.ID && !quota?.CLUSTER_IDS
+
+    const findById = (quota) =>
+      (quota?.ID || quota?.CLUSTER_IDS || '').toString() ===
+      resourceId.toString()
 
     return (
-      [quotaData]?.find((q) => q?.ID?.toString() === resourceId.toString()) ||
-      {}
+      []
+        .concat(quotaData)
+        ?.find((q) => (isGlobal ? findGlobal(q) : findById(q))) || {}
     )
   }
 
@@ -132,22 +126,19 @@ export const handleApplyGlobalQuotas = async (
       }
       enqueueSuccess(T.SuccessQuotaUpdated, [actualId.toString()])
     } catch (error) {
-      enqueueError(T.ErrorQuotaUpdated, [resourceIdOrName, error.message])
+      if (error?.message) {
+        enqueueError(T.ErrorQuotaUpdated, [resourceIdOrName, error.message])
+      }
     }
   }
 
-  if (selectedType === 'VM') {
-    const vmValue = state.globalValue || ''
-    await applyQuotaChange(0, vmValue)
-  } else {
-    for (const resourceId of state.globalIds) {
-      const isMarkedForDeletion = state.markedForDeletion.includes(resourceId)
-      const value = isMarkedForDeletion ? null : state.values[resourceId]
-      if (value !== undefined && value !== '') {
-        await applyQuotaChange(resourceId, value)
-      } else {
-        enqueueError(T.ErrorQuotaNoValueSpecified, resourceId)
-      }
+  for (const resourceId of state.globalIds) {
+    const isMarkedForDeletion = state.markedForDeletion.includes(resourceId)
+    const value = isMarkedForDeletion ? '-1' : state.values[resourceId]
+    if (value !== undefined && value !== '') {
+      await applyQuotaChange(resourceId, value)
+    } else {
+      enqueueError(T.ErrorQuotaNoValueSpecified, resourceId)
     }
   }
 
@@ -198,7 +189,12 @@ const quotasToXml = (type, resourceId, quota) => {
     innerXml += `<${key.toUpperCase()}>${value}</${key.toUpperCase()}>`
   }
 
-  const finalXml = `<TEMPLATE><${type}><ID>${resourceId}</ID>${innerXml}</${type}></TEMPLATE>`
+  const excludeId = resourceId === '@Global'
+  const idType = type === 'VM' ? 'CLUSTER_IDS' : 'ID'
+
+  const finalXml = `<TEMPLATE><${type}>${
+    excludeId ? '' : `<${idType}>${resourceId}</${idType}>`
+  }${innerXml}</${type}></TEMPLATE>`
 
   return finalXml
 }

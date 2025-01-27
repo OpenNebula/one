@@ -22,34 +22,44 @@ import { Tr } from '@modules/components/HOC'
  * Formats the input data for use in a polar chart.
  *
  * @param {Array|object} input - The data to be formatted.
+ * @param {number} datasetIdx - Index of the dataset to format
  * @returns {Array} The formatted dataset.
  */
-export const FormatPolarDataset = (input) => {
+export const FormatPolarDataset = (input, datasetIdx = 0) => {
   const logError = (message) => {
-    if (isDevelopment) console.error(message)
+    if (isDevelopment()) console.error(`FormatPolarDataset: ${message}`)
   }
 
   if (!Array.isArray(input) || input.length === 0 || !input[0].data) {
-    logError('FormatPolarDataset: Invalid input format.')
+    logError('Invalid input format.')
 
     return []
   }
 
   const dataset = input[0]
 
+  const { metrics } = dataset
+
   if (!Array.isArray(dataset.data) || dataset.data.length === 0) {
-    logError('FormatPolarDataset: No data available.')
+    logError('No data available.')
 
     return []
   }
 
-  const dataPoint = dataset.data[0]
+  const dataPoint = dataset?.data?.[datasetIdx]
+
+  if (!dataPoint) {
+    logError('No data available.')
+
+    return []
+  }
 
   Object.keys(dataPoint).forEach((key) => {
+    // Only check metric keys
+    if (!Object.keys(metrics).includes(key)) return
+
     if (isNaN(parseFloat(dataPoint[key])) && dataPoint[key] !== null) {
-      logError(
-        `FormatPolarDataset: Non-numeric value encountered for key ${key}.`
-      )
+      logError(`Non-numeric value encountered for key ${key}.`)
 
       return []
     }

@@ -549,7 +549,9 @@ module.exports = {
   NetworkQuota: 'Network Quota',
   ImageQuota: 'Image Quota',
   ResourceIds: 'Resource IDs',
+  ClusterIds: 'Cluster ID',
   ResourceIdsConcept: 'Select or type a Resource ID',
+  ClusterIdsConcept: 'Select or type a Cluster ID',
   ResourceIdsInvalid:
     'Invalid format or duplicate ID. Please enter a positive number.',
   QuotaControls: 'Quota Controls',

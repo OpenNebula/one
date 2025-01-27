@@ -25,10 +25,12 @@ import {
   DatastoreAPI,
   VnAPI,
   ImageAPI,
+  ClusterAPI,
 } from '@FeaturesModule'
 import { nameMapper } from '@modules/components/Tabs/Quota/Components/helpers/scripts'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+
 /**
  * Generates a QuotaInfoTab for an user or a group.
  *
@@ -41,9 +43,11 @@ const generateQuotasInfoTab = ({ groups }) => {
     const datastoresResponse = DatastoreAPI.useGetDatastoresQuery()
     const networksResponse = VnAPI.useGetVNetworksQuery()
     const imagesResponse = ImageAPI.useGetImagesQuery()
+    const clustersResponse = ClusterAPI.useGetClustersQuery()
     const [dsNameMap, setDsNameMap] = useState({})
     const [imgNameMap, setImgNameMap] = useState({})
     const [netNameMap, setNetNameMap] = useState({})
+    const [clusterNameMap, setClusterNameMap] = useState({})
     const [selectedType, setSelectedType] = useState('VM')
     const [clickedElement, setClickedElement] = useState(null)
     const queryInfo = groups
@@ -70,36 +74,36 @@ const generateQuotasInfoTab = ({ groups }) => {
       }
     }, [imagesResponse])
 
+    useEffect(() => {
+      if (clustersResponse.isSuccess && clustersResponse.data) {
+        setClusterNameMap(nameMapper(clustersResponse))
+      }
+    }, [clustersResponse])
+
     const nameMaps = {
       DATASTORE: dsNameMap,
       NETWORK: netNameMap,
       IMAGE: imgNameMap,
+      VM: clusterNameMap,
     }
 
     const handleChartElementClick = (data) => {
       setClickedElement(data)
     }
 
-    const generateKeyMap = (data) => {
-      const keyMap = {}
-      if (Array.isArray(data)) {
-        Object.keys(data[0] || {}).forEach((key) => {
-          keyMap[key] = key
-        })
-      } else {
-        Object.keys(data || {}).forEach((key) => {
-          keyMap[key] = key
-        })
-      }
-
-      return keyMap
-    }
+    const generateKeyMap = (data) =>
+      Object.fromEntries(
+        []
+          .concat(data || [])
+          .flatMap((obj) => Object.keys(obj || {}))
+          .map((key) => [key, key])
+      )
 
     const generateMetricKeys = (quotaTypes) => {
       const metricKeys = {}
       quotaTypes.forEach((config) => {
         metricKeys[config.type] = Object.values(config.keyMap).filter(
-          (key) => key !== 'ID'
+          (key) => !['ID', 'CLUSTER_IDS'].includes(key)
         )
       })
 
@@ -131,8 +135,17 @@ const generateQuotasInfoTab = ({ groups }) => {
 
       const newData = dataset.data.map((item) => {
         const newItem = { ...item }
-        if (newItem.ID && nameMaps?.[selectedType]?.[newItem.ID]) {
-          newItem.ID = nameMaps?.[selectedType]?.[newItem.ID]
+        if (
+          (newItem.ID || newItem?.CLUSTER_IDS) &&
+          nameMaps?.[selectedType]?.[newItem.ID ?? newItem?.CLUSTER_IDS]
+        ) {
+          newItem.ID =
+            nameMaps?.[selectedType]?.[newItem.ID ?? newItem?.CLUSTER_IDS]
+        } else if (
+          Object.hasOwn(newItem, 'CLUSTER_IDS') &&
+          newItem?.CLUSTER_IDS == null
+        ) {
+          newItem.ID = '@Global'
         }
         Object.keys(newItem).forEach((key) => {
           const value = parseFloat(newItem[key])
@@ -184,6 +197,7 @@ const generateQuotasInfoTab = ({ groups }) => {
         keyMap: generateKeyMap(apiData.IMAGE_QUOTA),
       },
     ]
+
     const dynamicMetricKeys = generateMetricKeys(quotaTypesConfig)
     const dynamicMetricNames = generateMetricNames(quotaTypesConfig)
 
@@ -292,7 +306,7 @@ const generateQuotasInfoTab = ({ groups }) => {
             <Box sx={{ flex: 1, position: 'relative', mt: 4 }}>
               <MultiChart
                 datasets={[processedDataset]}
-                chartType={selectedType === 'VM' ? 'radialBar' : 'stackedBar'}
+                chartType={'stackedBar'}
                 ItemsPerPage={10}
                 isLoading={queryInfo.isFetching}
                 error={
@@ -301,8 +315,7 @@ const generateQuotasInfoTab = ({ groups }) => {
                     : ''
                 }
                 disableExport={true}
-                coordinateType={selectedType === 'VM' ? 'POLAR' : 'CARTESIAN'}
-                disableNavController={selectedType === 'VM'}
+                coordinateType={'CARTESIAN'}
                 metricNames={dynamicMetricNames}
                 onElementClick={handleChartElementClick}
               />

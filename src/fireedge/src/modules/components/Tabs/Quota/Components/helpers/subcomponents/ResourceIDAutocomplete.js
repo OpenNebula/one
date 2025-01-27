@@ -19,6 +19,7 @@ import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
 import { Trash } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+
 /**
  * @param {object} root0 - Component
  * @param {string} root0.selectedType - Selected Quota type.
@@ -45,7 +46,7 @@ export const ResourceIDAutocomplete = ({
     <Autocomplete
       multiple
       inputValue={inputValue}
-      onInputChange={(event, newInputValue) => {
+      onInputChange={(_, newInputValue) => {
         setInputValue(newInputValue)
       }}
       options={filteredResourceIDs}
@@ -54,7 +55,6 @@ export const ResourceIDAutocomplete = ({
       }
       freeSolo
       value={state.globalIds ?? []}
-      disabled={selectedType === 'VM'}
       onKeyDown={(event) => {
         if (event.key === 'Enter' && event.target.value) {
           event.preventDefault()
@@ -65,7 +65,7 @@ export const ResourceIDAutocomplete = ({
           }
         }
       }}
-      renderOption={(option, { selected }) => (
+      renderOption={(option) => (
         <Box
           key={option?.key}
           display="flex"
@@ -120,11 +120,15 @@ export const ResourceIDAutocomplete = ({
             setInputValue('')
           }}
           variant="outlined"
-          label={Tr(T.ResourceIds)}
+          label={Tr(selectedType === 'VM' ? T.ClusterIds : T.ResourceIds)}
           placeholder={
             inputValue || state?.globalIds?.length > 1
               ? ''
-              : Tr(T.ResourceIdsConcept)
+              : Tr(
+                  selectedType === 'VM'
+                    ? T.ClusterIdsConcept
+                    : T.ResourceIdsConcept
+                )
           }
           fullWidth
           error={!state.isValid}

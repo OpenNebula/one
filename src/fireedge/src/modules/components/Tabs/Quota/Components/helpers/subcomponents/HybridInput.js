@@ -55,14 +55,12 @@ export const HybridInputField = ({
 }) => {
   const isDisabled = () =>
     state.selectedIdentifier === '' ||
-    (selectedType !== 'VM' && state.globalIds?.length === 0) ||
+    state.globalIds?.length === 0 ||
     (state.globalIds?.length === 1 &&
       state.markedForDeletion.includes(state.globalIds[0]))
 
   const getValue = () => {
-    if (selectedType === 'VM') {
-      return state.globalValue
-    } else if (state.globalIds.length > 1) {
+    if (state.globalIds.length > 1) {
       return getConcatenatedValues(
         state.values,
         state.globalIds,
@@ -84,14 +82,12 @@ export const HybridInputField = ({
         onChange={(e) => {
           const value = e.target.value
           if (validateValue(value)) {
-            if (state.globalIds.length === 1 || selectedType === 'VM') {
+            if (state.globalIds.length === 1) {
               actions.setGlobalValue(value)
-              if (selectedType !== 'VM') {
-                actions.setValues({
-                  ...state.values,
-                  [state?.globalIds[0]]: value,
-                })
-              }
+              actions.setValues({
+                ...state.values,
+                [state?.globalIds[0]]: value,
+              })
             } else {
               const updatedValues = { ...state.values }
               state.globalIds.forEach((id) => {

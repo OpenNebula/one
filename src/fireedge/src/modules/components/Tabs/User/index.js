@@ -20,7 +20,6 @@ import { memo, useMemo } from 'react'
 import { RESOURCE_NAMES } from '@ConstantsModule'
 import { useViews, UserAPI } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
-//
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Info from '@modules/components/Tabs/User/Info'
 import Group from '@modules/components/Tabs/User/Group'

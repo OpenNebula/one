@@ -38,7 +38,6 @@ import {
   validateValue,
   useQuotaControlReducer,
   getConcatenatedValues,
-  getExistingValue,
   quotaIdentifiers,
   handleApplyGlobalQuotas,
 } from '@modules/components/Tabs/Quota/Components/helpers/scripts'
@@ -125,14 +124,6 @@ export const QuotaControls = memo(
     useEffect(() => {
       if (!clickedElement) return
 
-      if (selectedType === 'VM' && actions.setSelectedIdentifier) {
-        if (clickedElement.name && state.selectedIdentifier !== undefined) {
-          actions.setSelectedIdentifier(clickedElement.name)
-        }
-
-        return
-      }
-
       if (actions.setGlobalIds && Array.isArray(state.globalIds)) {
         const { ID } = clickedElement
         const isElementSelected = state.globalIds.includes(ID)
@@ -154,54 +145,30 @@ export const QuotaControls = memo(
       actions.setMarkForDeletion([])
     }, [selectedType])
 
-    const getNewValues = useCallback(() => {
-      let newValues
-      if (selectedType === 'VM') {
-        const identifier = state.selectedIdentifier
-        newValues = {
-          [identifier]: getExistingValue(
-            null,
-            identifier,
-            selectedType,
-            existingData
-          ),
-        }
-      } else {
-        newValues = existingData.reduce((acc, item) => {
+    const getNewValues = useCallback(
+      () =>
+        existingData.reduce((acc, item) => {
           const identifier = state.selectedIdentifier
           acc[item.ID] = item[identifier] || ''
 
           return acc
-        }, {})
-      }
-
-      return newValues
-    }, [existingData, selectedType, state.selectedIdentifier])
+        }, {}),
+      [existingData, selectedType, state.selectedIdentifier]
+    )
 
     useEffect(() => {
       const newValues = getNewValues()
       actions.setValues(newValues)
-      if (state.globalIds.length === 1 || selectedType === 'VM') {
-        // const existingValue = getExistingValue(
-        //   selectedType === 'VM' ? null : state.globalIds[0],
-        //   state.selectedIdentifier
-        // )
-        actions.setGlobalValue(newValues?.[state?.selectedIdentifier])
-      }
     }, [getNewValues, state.globalIds, selectedType, state.selectedIdentifier])
 
     useEffect(() => {
-      const isApplyEnabledForVM =
-        selectedType === 'VM' && validateValue(state.globalValue)
-      const isApplyEnabledForOthers =
+      const isApplyEnabled =
         state.isValid &&
         selectedType &&
         state.selectedIdentifier.length > 0 &&
-        (state.globalIds.length > 0 || selectedType === 'VM') &&
+        state.globalIds.length > 0 &&
         validateValue(state.globalValue)
-      const isApplyValid =
-        selectedType === 'VM' ? isApplyEnabledForVM : isApplyEnabledForOthers
-      actions.setIsApplyDisabled(!isApplyValid)
+      actions.setIsApplyDisabled(!isApplyEnabled)
     }, [
       state.isValid,
       selectedType,
@@ -230,13 +197,12 @@ export const QuotaControls = memo(
       ? GroupAPI.useGetGroupQuery({ id: userId })
       : UserAPI.useGetUserQuery({ id: userId })
 
-    const filteredResourceIDs = useMemo(
-      () =>
-        existingData
-          ?.map(({ ID }) => ID)
-          ?.filter((id) => !state.globalIds.includes(id)),
-      [existingData, state.globalIds]
-    )
+    const filteredResourceIDs = [
+      ...existingData
+        ?.map(({ ID, CLUSTER_IDS }) => ID ?? CLUSTER_IDS)
+        ?.filter((id) => !state.globalIds.includes(id))
+        .filter(Boolean),
+    ]
 
     return (
       <Box
@@ -319,7 +285,7 @@ export const QuotaControls = memo(
                   style={{
                     height: '56px',
                     maxHeight: '56px',
-                    overflow: 'auto',
+                    overflow: 'visible',
                   }}
                 />
               )}
