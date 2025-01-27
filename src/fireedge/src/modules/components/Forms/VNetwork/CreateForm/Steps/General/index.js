@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { useFormContext, useWatch } from 'react-hook-form'
 
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'
-import { Legend } from '@modules/components/Forms'
-import { AttributePanel } from '@modules/components/Tabs/Common'
 
 import {
   SCHEMA,
   SECTIONS,
-  IP_LINK_CONF_FIELD,
 } from '@modules/components/Forms/VNetwork/CreateForm/Steps/General/schema'
-import { cleanEmpty, cloneObject, set } from '@UtilsModule'
-import { T, VirtualNetwork, VN_DRIVERS } from '@ConstantsModule'
+import { T, VirtualNetwork } from '@ConstantsModule'
 
 export const STEP_ID = 'general'
-const DRIVER_PATH = `${STEP_ID}.VN_MAD`
-const IP_CONF_PATH = `${STEP_ID}.${IP_LINK_CONF_FIELD.name}`
 
 /**
  * @param {boolean} isUpdate - True if it is an update operation
@@ -40,22 +33,7 @@ const IP_CONF_PATH = `${STEP_ID}.${IP_LINK_CONF_FIELD.name}`
  * @returns {ReactElement} Form content component
  */
 const Content = (isUpdate, oneConfig, adminGroup) => {
-  const { setValue } = useFormContext()
-
-  const driver = useWatch({ name: DRIVER_PATH })
-  const ipConf = useWatch({ name: IP_CONF_PATH }) || {}
-
-  const sections = useMemo(
-    () => SECTIONS(driver, isUpdate, oneConfig, adminGroup),
-    [driver]
-  )
-
-  const handleChangeAttribute = (path, newValue) => {
-    const newConf = cloneObject(ipConf)
-
-    set(newConf, path, newValue)
-    setValue(IP_CONF_PATH, cleanEmpty(newConf))
-  }
+  const sections = SECTIONS(isUpdate, oneConfig, adminGroup)
 
   return (
     <>
@@ -67,25 +45,6 @@ const Content = (isUpdate, oneConfig, adminGroup) => {
           {...section}
         />
       ))}
-      {driver === VN_DRIVERS.vxlan && (
-        <AttributePanel
-          collapse
-          title={
-            <Legend
-              disableGutters
-              data-cy={'ip-conf'}
-              title={T.IpConfiguration}
-              tooltip={T.IpConfigurationConcept}
-            />
-          }
-          allActionsEnabled
-          handleAdd={handleChangeAttribute}
-          handleEdit={handleChangeAttribute}
-          handleDelete={handleChangeAttribute}
-          attributes={ipConf}
-          filtersSpecialAttributes={false}
-        />
-      )}
     </>
   )
 }
@@ -98,13 +57,11 @@ const Content = (isUpdate, oneConfig, adminGroup) => {
  */
 const General = ({ data, oneConfig, adminGroup }) => {
   const isUpdate = data?.NAME !== undefined
-  const initialDriver = data?.VN_MAD
 
   return {
     id: STEP_ID,
     label: T.General,
-    resolver: (formData) =>
-      SCHEMA(formData?.[STEP_ID]?.VN_MAD ?? initialDriver, isUpdate),
+    resolver: () => SCHEMA(isUpdate),
     optionsValidate: { abortEarly: false },
     content: () => Content(isUpdate, oneConfig, adminGroup),
   }

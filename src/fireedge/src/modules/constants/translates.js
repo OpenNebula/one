@@ -1659,10 +1659,25 @@ module.exports = {
   PhysicalDeviceSwitch: 'Use only private host networking',
   PhysicalDeviceSwitchConcept:
     'If enabled, the Virtual Network will not connect to any physical device and hence the Virtual Machines will be able to communicate only with other Virtual Machines in the same virtual network and in the same host.',
+  VLANTagged: 'Specify a range of VLANs that are allowed for the VM traffic',
+  VLANTaggedConcept:
+    'Type a VLAN ID (e.g. 100) or a VLAN range (e.g. 101-104) and press ENTER',
+  VLANTaggedSwitch: 'Perform VLAN filtering and trunking',
+  VLANTaggedSwitchConcept: 'Limit the allowed VLAN to trunk in the VM ports',
   MacSpoofingFilter: ' MAC spoofing filter',
   IpSpoofingFilter: ' IP spoofing filter',
   MTU: 'MTU of the interface',
   MTUConcept: 'Maximum Transmission Unit',
+  QinQ: 'Configure Q-in-Q network',
+  CVLANS: 'Customer VLAN IDs',
+  CVLANSConcept:
+    'Type a Customer VLAN ID (e.g. 100) or a Customer VLAN range (e.g. 101-104) and press ENTER',
+  QinQType: 'Tag Protocol Identifier (TPID)',
+  QinQTypeConcept:
+    'Tag Protocol Identifier (TPID) for the service VLAN tag. Use 802.1ad for TPID 0x88a8 or 802.1q for TPID 0x8100',
+  IPLinkConf: 'Options passed to ip cmd',
+  IPLinkConfConcept:
+    'Type an option and its value with the following format: option=value (e.g. tos=3 or udp6zerocsumrx=) and press ENTER',
   VlanId: 'VLAN ID',
   AutomaticVlanId: 'Automatic VLAN ID',
   VxlanMode: 'VXLAN mode',

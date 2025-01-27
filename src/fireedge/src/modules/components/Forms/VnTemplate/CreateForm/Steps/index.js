@@ -65,11 +65,24 @@ const Steps = createSteps([General, ExtraConfiguration], {
     const bridgeSwitch = !!(
       TEMPLATE.BRIDGE && !TEMPLATE.BRIDGE.startsWith('onebr')
     )
+    const vlanTaggedSwitch = !!TEMPLATE.VLAN_TAGGED_ID
+    const QInQSwitch = !!TEMPLATE.CVLANS
 
     const initialValue = schema.cast(
       {
         [GENERAL_ID]: { ...vnet, DESCRIPTION },
-        [EXTRA_ID]: { ...TEMPLATE, AR, ...vnet, phyDevSwitch, bridgeSwitch },
+        [EXTRA_ID]: {
+          ...TEMPLATE,
+          AR,
+          ...vnet,
+          PHYDEV_SWITCH: phyDevSwitch,
+          BRIDGE_SWITCH: bridgeSwitch,
+          VLAN_TAGGED_ID_SWITCH: vlanTaggedSwitch,
+          Q_IN_Q_SWITCH: QInQSwitch,
+          VLAN_TAGGED_ID: TEMPLATE?.VLAN_TAGGED_ID?.split(','),
+          CVLANS: TEMPLATE?.CVLANS?.split(','),
+          IP_LINK_CONF: TEMPLATE?.IP_LINK_CONF?.split(','),
+        },
       },
       { stripUnknown: true, context: vnet }
     )
@@ -85,13 +98,11 @@ const Steps = createSteps([General, ExtraConfiguration], {
     const { [GENERAL_ID]: general = {}, [EXTRA_ID]: extra = {} } =
       formData ?? {}
 
-    // Delete values of physical device and bridge depending of the value of their switches
-    extra.phyDevSwitch && delete extra.PHYDEV
-    !extra.bridgeSwitch && delete extra.BRIDGE
-
     // Ensure that switches of physical device and bridge are not sent to the API
-    delete extra.phyDevSwitch
-    delete extra.bridgeSwitch
+    delete extra.PHYDEV_SWITCH
+    delete extra.BRIDGE_SWITCH
+    delete extra.VLAN_TAGGED_ID_SWITCH
+    delete extra.Q_IN_Q_SWITCH
 
     return jsonToXml({ ...extra, ...general })
   },

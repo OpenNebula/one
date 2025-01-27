@@ -20,6 +20,7 @@ import PropTypes from 'prop-types'
 import { useFormContext, FieldErrors } from 'react-hook-form'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
+import Configuration from '@modules/components/Forms/Commons/VNetwork/Tabs/configuration'
 import Addresses from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/addresses'
 import Security from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/security'
 import QoS from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/qos'
@@ -43,9 +44,9 @@ import { T, VirtualNetwork } from '@ConstantsModule'
 export const STEP_ID = 'extra'
 
 /** @type {TabType[]} */
-export const TABS = [Addresses, Security, QoS, Context]
+export const TABS = [Configuration(STEP_ID), Addresses, Security, QoS, Context]
 
-const Content = ({ isUpdate, oneConfig, adminGroup }) => {
+const Content = ({ isUpdate, isVnet, oneConfig, adminGroup }) => {
   const {
     watch,
     formState: { errors },
@@ -64,6 +65,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
         renderContent: () => (
           <TabContent
             isUpdate={isUpdate}
+            isVnet={isVnet}
             driver={driver}
             oneConfig={oneConfig}
             adminGroup={adminGroup}
@@ -85,6 +87,7 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
  */
 const ExtraConfiguration = ({ data, oneConfig, adminGroup }) => {
   const isUpdate = data?.NAME !== undefined
+  const isVnet = true
 
   return {
     id: STEP_ID,
@@ -92,7 +95,7 @@ const ExtraConfiguration = ({ data, oneConfig, adminGroup }) => {
     resolver: SCHEMA(isUpdate, oneConfig, adminGroup),
     optionsValidate: { abortEarly: false },
     content: (formProps) =>
-      Content({ ...formProps, isUpdate, oneConfig, adminGroup }),
+      Content({ ...formProps, isUpdate, oneConfig, adminGroup, isVnet }),
   }
 }
 
@@ -100,6 +103,7 @@ Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   isUpdate: PropTypes.bool,
+  isVnet: PropTypes.bool,
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }

@@ -17,6 +17,7 @@ import { array, object, ObjectSchema } from 'yup'
 
 import { SCHEMA as QOS_SCHEMA } from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/qos/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/context/schema'
+import { SCHEMA as CONFIGURATION_SCHEMA } from '@modules/components/Forms/Commons/VNetwork/Tabs/configuration/schema'
 
 /**
  * Map name attribute if not exists.
@@ -46,6 +47,7 @@ const AR_SCHEMA = object({
  */
 export const SCHEMA = (isUpdate, oneConfig, adminGroup) => {
   const schema = object({ SECURITY_GROUPS: array().ensure() })
+    .concat(CONFIGURATION_SCHEMA(oneConfig, adminGroup))
     .concat(CONTEXT_SCHEMA(oneConfig, adminGroup))
     .concat(QOS_SCHEMA(oneConfig, adminGroup))
 
