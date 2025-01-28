@@ -96,7 +96,10 @@ const GroupsInfoTab = ({ id }) => {
         >
           {Tr(T.PrimaryGroup)}
         </Box>
-        <Box onClick={() => handleRowClick(primaryGroup.ID)}>
+        <Box
+          data-cy={'primary-group'}
+          onClick={() => handleRowClick(primaryGroup.ID)}
+        >
           <GroupCard rootProps={{}} group={primaryGroup} />
         </Box>
       </Box>
