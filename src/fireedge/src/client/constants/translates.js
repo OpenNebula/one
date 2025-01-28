@@ -1005,6 +1005,7 @@ module.exports = {
   AsAnAlias: 'Attach as an alias',
   HasAlias: '%s contains %s alias',
   NetworkAuto: 'Network auto',
+  NetworkValues: 'Network values',
   NetReq: 'Network Requirements',
   NetReqTooltip: 'Boolean expression that decides suitable vnets for this VM',
   NetRank: 'Network Rank',
