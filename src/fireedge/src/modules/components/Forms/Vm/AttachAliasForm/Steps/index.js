@@ -20,9 +20,12 @@ import NetworksTable, {
 import AdvancedOptions, {
   STEP_ID as ADVANCED_ID,
 } from '@modules/components/Forms/Vm/AttachNicForm/Steps/AdvancedOptions'
+import NetworkValues, {
+  STEP_ID as NETWORK_VALUES_ID,
+} from '@modules/components/Forms/Vm/AttachNicForm/Steps/NetworkValues'
 import { createSteps } from '@UtilsModule'
 
-const Steps = createSteps([NetworksTable, AdvancedOptions], {
+const Steps = createSteps([NetworksTable, AdvancedOptions, NetworkValues], {
   transformInitialValue: (nic, schema) => {
     const {
       NETWORK,
@@ -38,6 +41,11 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
       { stripUnknown: true }
     )
 
+    const castedNetworkValues = schema.cast(
+      { [NETWORK_VALUES_ID]: rest },
+      { stripUnknown: true }
+    )
+
     return {
       [NETWORK_ID]: {
         NETWORK,
@@ -46,14 +54,20 @@ const Steps = createSteps([NetworksTable, AdvancedOptions], {
         SECURITY_GROUPS,
       },
       [ADVANCED_ID]: castedValue[ADVANCED_ID],
+      [NETWORK_VALUES_ID]: castedNetworkValues[NETWORK_VALUES_ID],
     }
   },
   transformBeforeSubmit: (formData) => {
-    const { [NETWORK_ID]: network, [ADVANCED_ID]: advanced } = formData
+    const {
+      [NETWORK_ID]: network,
+      [ADVANCED_ID]: advanced,
+      [NETWORK_VALUES_ID]: networkValues,
+    } = formData
 
     return {
       ...network,
       ...advanced,
+      ...networkValues,
     }
   },
 })
