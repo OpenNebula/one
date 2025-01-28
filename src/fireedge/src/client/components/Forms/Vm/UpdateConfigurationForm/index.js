@@ -80,7 +80,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       set(
         knownTemplate,
         'extra.DISK',
-        template?.DISK?.map((disk) => ({
+        [].concat(template?.DISK ?? [])?.map((disk) => ({
           ...disk,
           NAME: `DISK${disk?.DISK_ID}`,
         }))
