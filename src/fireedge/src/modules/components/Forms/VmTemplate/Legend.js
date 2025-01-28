@@ -116,7 +116,10 @@ export const CapacityDisksLabel = memo(({ data }) => {
 
   return (
     <>
-      <Typography className={classes.cost}>{`${cost.toFixed(6)}`}</Typography>
+      <Typography
+        className={classes.cost}
+        data-cy="legend-capacity-disks"
+      >{`${cost.toFixed(6)}`}</Typography>
       <Typography className={clsx(classes.cost, classes.costUnit)}>
         {`${T.CostPerHour}`}
       </Typography>
