@@ -1645,6 +1645,8 @@ export const VM_ACTIONS_WITH_SCHEDULE_INTANTIATED = {
   [VM_ACTIONS.SNAPSHOT_DISK_DELETE]: T.DiskSnapshotDelete,
 }
 
+export const PAGINATION_SIZES = [5, 10, 25, 50, 100]
+
 /** @type {string[]} Actions that can be used in charter */
 export const VM_ACTIONS_IN_CHARTER = [
   VM_ACTIONS.TERMINATE,

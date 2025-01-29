@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
+import { PATH } from 'client/apps/sunstone/routesOne'
 import { MarketplaceAppsTable } from 'client/components/Tables'
 import { useGetMarketplaceQuery } from 'client/features/OneApi/marketplace'
-import { useHistory, generatePath } from 'react-router-dom'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
 const _ = require('lodash')
 
 /**
@@ -61,6 +61,7 @@ const MarketplaceApps = ({ id }) => {
           filterData={(dataToFilter) =>
             dataToFilter.filter((app) => _.includes(apps, app.ID))
           }
+          pageSize={5}
           onRowClick={(row) => handleRowClick(row.ID)}
         />
       </Stack>

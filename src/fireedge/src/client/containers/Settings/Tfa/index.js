@@ -157,11 +157,7 @@ const Qr = ({
                 <Translate word={T.GetAuthenticatorApp} />
                 {AUTH_APPS.map(({ text, url }) => (
                   <Fragment key={text}>
-                    <Link
-                      href={url}
-                      color="primary.contrastText"
-                      className={classes.bold}
-                    >
+                    <Link href={url} color="info.main" className={classes.bold}>
                       {text}
                     </Link>{' '}
                   </Fragment>
