@@ -4,7 +4,7 @@
   "description": "Opennebula FireEdge",
   "main": "src/index.js",
   "scripts": {
-    "dev": "npm run build-client && cross-env NODE_ENV=development babel-node ./src/server/index.js",
+    "dev": "NODE_ENV=development npm run build:remotes && NODE_ENV=development npm run build-client && cross-env NODE_ENV=development babel-node ./src/server/index.js",
     "build-client": "rimraf dist/client && webpack --config ./webpack.config.prod.client.js",
     "build-server": "rimraf dist/index.js dist/index.worker.js && webpack --config ./webpack.config.prod.server.js",
     "build:um": "rimraf dist/modules/UtilsModule && BUILD_TARGET=remote webpack --config ./src/modules/utils/webpack.config.prod.utils.js",

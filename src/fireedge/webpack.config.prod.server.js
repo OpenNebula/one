@@ -19,9 +19,7 @@ const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const TerserPlugin = require('terser-webpack-plugin')
 const TimeFixPlugin = require('time-fix-plugin')
-const {
-  defaultProductionWebpackMode,
-} = require('./src/server/utils/constants/defaults')
+const mode = process.env.NODE_ENV || 'production'
 
 const js = {
   test: /\.js$/,
@@ -63,7 +61,7 @@ const worker = {
 }
 
 module.exports = {
-  mode: defaultProductionWebpackMode,
+  mode,
   entry: path.resolve(__dirname, 'src', 'server'),
   target: 'node',
   node: {
@@ -84,8 +82,7 @@ module.exports = {
     new TimeFixPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(defaultProductionWebpackMode),
-        BUILD_TARGET: JSON.stringify(process.env.BUILD_TARGET || 'remote'),
+        NODE_ENV: JSON.stringify(mode),
       },
     }),
     new webpack.optimize.LimitChunkCountPlugin({

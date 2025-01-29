@@ -21,9 +21,10 @@ const sharedDeps = require('../sharedDeps')
 const ExternalRemotesPlugin = require('external-remotes-plugin')
 const ONE_LOCATION = process.env.ONE_LOCATION
 const ETC_LOCATION = ONE_LOCATION ? `${ONE_LOCATION}/etc` : '/etc'
+const mode = process.env.NODE_ENV || 'production'
 
 const remotesConfigPath =
-  process.env.NODE_ENV === 'production'
+  mode === 'production'
     ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.json`
     : path.resolve(
         __dirname,
@@ -47,7 +48,7 @@ const configuredRemotes = Object.entries(remotesConfig)
   }, {})
 
 module.exports = {
-  mode: 'production',
+  mode,
   entry: path.resolve(__dirname, 'index.js'),
   output: {
     path: path.resolve(__dirname, '../../../', 'dist', 'modules', moduleName),
