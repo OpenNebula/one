@@ -15,6 +15,23 @@
  * ------------------------------------------------------------------------- */
 
 import {
+  EnhancedTableStyles,
+  FormWithSchema,
+  Tr,
+  Translate,
+  TranslateProvider,
+} from '@ComponentsModule'
+import { AUTH_APPS, T } from '@ConstantsModule'
+import {
+  TfaAPI,
+  UserAPI,
+  useAuth,
+  useAuthApi,
+  useGeneralApi,
+} from '@FeaturesModule'
+import { css } from '@emotion/css'
+import { FIELDS } from '@modules/containers/Settings/Tfa/schema'
+import {
   Button,
   Grid,
   Link,
@@ -25,28 +42,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import {
-  Tr,
-  Translate,
-  FormWithSchema,
-  TranslateProvider,
-  EnhancedTableStyles,
-} from '@ComponentsModule'
-import { AUTH_APPS, T } from '@ConstantsModule'
-import { FIELDS } from '@modules/containers/Settings/Tfa/schema'
-import {
-  useAuth,
-  useAuthApi,
-  useGeneralApi,
-  TfaAPI,
-  UserAPI,
-} from '@FeaturesModule'
 import { Cancel, Trash } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { Fragment, ReactElement, useCallback, useState, useMemo } from 'react'
+import { Fragment, ReactElement, useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
-import { css } from '@emotion/css'
 
 const useStyles = ({ palette }) => ({
   buttonSubmit: css({
@@ -165,7 +165,7 @@ const Qr = ({
                     <Fragment key={text}>
                       <Link
                         href={url}
-                        color="primary.contrastText"
+                        color="info.main"
                         className={classes.bold}
                       >
                         {text}

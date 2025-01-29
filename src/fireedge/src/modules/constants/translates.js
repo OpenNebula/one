@@ -17,6 +17,7 @@ module.exports = {
   /* pagination / stepper */
   Back: 'Back',
   Previous: 'Previous',
+  NumberPerPage: 'Number of rows per page',
   Of: 'of',
   DivideWindow: 'Divide Window',
   UnDivideWindow: 'Undivide Window',

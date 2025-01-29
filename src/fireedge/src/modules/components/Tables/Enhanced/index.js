@@ -57,8 +57,9 @@ import {
 import Pagination from '@modules/components/Tables/Enhanced/pagination'
 import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
 
-import { Translate } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { useAuth } from '@FeaturesModule'
+import { Translate } from '@modules/components/HOC'
 import _ from 'lodash'
 
 const RELOAD_STATE = 'RELOAD_STATE'
@@ -196,7 +197,7 @@ const EnhancedTable = ({
   disableGlobalLabel,
   disableGlobalSort,
   onSelectedRowsChange,
-  pageSize = 10,
+  pageSize,
   onRowClick,
   RowComponent,
   showPageCount,
@@ -214,6 +215,10 @@ const EnhancedTable = ({
   headerList,
   enabledFullScreen,
 }) => {
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { ROW_SIZE = 10 } = fireedge
+
+  const defaultPageSize = pageSize || Number(ROW_SIZE)
   const theme = useTheme()
   const styles = useMemo(
     () =>
@@ -283,7 +288,7 @@ const EnhancedTable = ({
       autoResetPage: false,
       autoResetGlobalFilter: false,
       // -------------------------------------
-      initialState: { pageSize, ...initialState },
+      initialState: { pageSize: defaultPageSize, ...initialState },
       stateReducer,
     },
     useGlobalFilter,
@@ -315,7 +320,7 @@ const EnhancedTable = ({
   const [filterValue, setFilterValue] = useState(state.globalFilter)
 
   const gotoRowPage = async (row) => {
-    const pageIdx = Math.floor(row.index / pageSize)
+    const pageIdx = Math.floor(row.index / defaultPageSize)
 
     await gotoPage(pageIdx)
 
@@ -398,7 +403,9 @@ const EnhancedTable = ({
     gotoPage(newPage)
 
     const canNextPage =
-      pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
+      pageCount === -1
+        ? page.length >= defaultPageSize
+        : newPage < pageCount - 1
 
     newPage > state.pageIndex && !canNextPage && fetchMore?.()
   }

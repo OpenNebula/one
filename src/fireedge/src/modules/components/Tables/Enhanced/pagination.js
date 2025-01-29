@@ -14,14 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { useMemo } from 'react'
 
-import { Stack, Button, Typography } from '@mui/material'
+import {
+  Button,
+  MenuItem,
+  Select,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
 import { UsePaginationState } from 'react-table'
 
-import { T } from '@ConstantsModule'
+import { PAGINATION_SIZES, T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 
 const Pagination = ({
@@ -34,7 +41,10 @@ const Pagination = ({
   /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
 
-  const pageCount = useMemo(() => Math.ceil(count / pageSize), [count])
+  const pageCount = useMemo(
+    () => Math.ceil(count / pageSize),
+    [count, pageSize]
+  )
 
   const handleBackButtonClick = () => {
     handleChangePage(pageIndex - 1)
@@ -52,6 +62,34 @@ const Pagination = ({
       justifyContent="end"
       gap="1em"
     >
+      {useTableProps?.setPageSize && (
+        <Tooltip
+          title={Tr(T.NumberPerPage)}
+          arrow
+          placement="top"
+          disableInteractive
+        >
+          <Select
+            value={pageSize}
+            size="small"
+            sx={(theme) => ({
+              ...theme.typography.body2,
+              '& .MuiSelect-select': {
+                paddingTop: '0px',
+                paddingBottom: '0px',
+              },
+            })}
+            onChange={(e) => useTableProps.setPageSize(Number(e.target.value))}
+          >
+            {PAGINATION_SIZES.map((size) => (
+              <MenuItem key={size} value={size}>
+                {size}
+              </MenuItem>
+            ))}
+          </Select>
+        </Tooltip>
+      )}
+
       <Button
         aria-label="previous page"
         disabled={pageIndex === 0}

@@ -18,6 +18,7 @@ import {
   DEFAULT_SCHEME,
   INPUT_TYPES,
   LANGUAGES,
+  PAGINATION_SIZES,
   SCHEMES,
   T,
 } from '@ConstantsModule'
@@ -135,6 +136,19 @@ const ROW_STYLE_FIELD = {
   grid: { md: 12 },
 }
 
+const ROW_SIZE_FIELD = {
+  name: 'ROW_SIZE',
+  label: T.NumberPerPage,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: () => PAGINATION_SIZES.map((size) => ({ text: size, value: size })),
+  validation: string()
+    .trim()
+    .required()
+    .default(() => PAGINATION_SIZES[0]),
+  grid: { md: 12 },
+}
+
 /**
  * @param {object} props - Props
  * @param {object} props.views - views.
@@ -148,6 +162,7 @@ export const FIELDS = (props) => [
   VIEW_FIELD(props),
   ZONE_ENDPOINT_FIELD(props),
   ROW_STYLE_FIELD,
+  ROW_SIZE_FIELD,
   DISABLE_ANIMATIONS_FIELD,
   FULL_SCREEN_INFO_FIELD,
 ]
