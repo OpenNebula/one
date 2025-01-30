@@ -1625,6 +1625,8 @@ module.exports = {
   HardwareModelToEmulate: 'Hardware model to emulate',
   TransmissionQueue: 'Transmission queue',
   OnlySupportedForVirtioDriver: 'Only supported for virtio driver',
+  AutoVirtioQueues:
+    'Set Transmission Queues automatically based on the number of vCPUs',
   GuestOptions: 'Guest options',
   GuestMTU: 'MTU of the Guest interfaces',
   GuestMTUConcept: 'Sets the MTU for the NICs in this network',

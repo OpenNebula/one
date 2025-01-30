@@ -68,7 +68,12 @@ const Steps = createSteps(
       rest.NETWORK_MODE = rest.NETWORK_MODE === 'auto' ? 'YES' : 'NO'
 
       const castedValue = schema.cast(
-        { [ADVANCED_ID]: rest },
+        {
+          [ADVANCED_ID]: {
+            ...rest,
+            AUTO_VIRTIO_QUEUES: rest?.VIRTIO_QUEUES === 'auto',
+          },
+        },
         { stripUnknown: true }
       )
 

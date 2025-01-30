@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, number, string, ObjectSchema } from 'yup'
+import { boolean, string, ObjectSchema } from 'yup'
 
 import {
   Field,
@@ -308,21 +308,42 @@ const HARDWARE_FIELDS = (
       .trim()
       .notRequired()
       .default(() => undefined),
+    grid: { md: 5 },
   },
   {
     name: 'VIRTIO_QUEUES',
     label: T.TransmissionQueue,
     tooltip: T.OnlySupportedForVirtioDriver,
     type: INPUT_TYPES.TEXT,
-    fieldProps: {
-      disabled: hasAlias || isAlias,
+    fieldProps: ([_, AUTO] = []) => ({
+      disabled: AUTO || hasAlias || isAlias,
+    }),
+    dependOf: [PCI_TYPE_NAME, 'AUTO_VIRTIO_QUEUES'],
+    value: (_, form) => {
+      if (form?.getValues(`advanced.AUTO_VIRTIO_QUEUES`) && form?.setValue) {
+        form?.setValue(`advanced.VIRTIO_QUEUES`, 'auto')
+      }
     },
+    validation: string()
+      .trim()
+      .default(() => undefined),
+    htmlType: ([value, _] = []) =>
+      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : 'number',
+    grid: { md: 4.5 },
+  },
+  {
+    name: 'AUTO_VIRTIO_QUEUES',
+    label: T.Auto,
+    tooltip: T.AutoVirtioQueues,
+    type: INPUT_TYPES.SWITCH,
     dependOf: PCI_TYPE_NAME,
     htmlType: (value) =>
-      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : 'number',
-    validation: number()
+      value !== NIC_HARDWARE.EMULATED ? INPUT_TYPES.HIDDEN : INPUT_TYPES.SWITCH,
+    validation: boolean()
       .notRequired()
-      .default(() => undefined),
+      .default(() => false)
+      .afterSubmit(() => undefined),
+    grid: { md: 1.5 },
   },
   // PCI Passthrough Automatic mode fields
   {
