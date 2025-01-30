@@ -800,9 +800,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             node['MEMORY']['FREE'] = mon_node['MEMORY']['FREE']
             node['MEMORY']['USED'] = mon_node['MEMORY']['USED']
 
+            node['HUGEPAGE'] = [node['HUGEPAGE']].flatten.compact
+            mon_node['HUGEPAGE'] = [mon_node['HUGEPAGE']].flatten.compact
+
             node['HUGEPAGE'].each do |hp|
                 mon_hp = mon_node['HUGEPAGE'].find {|x| x['SIZE'] == hp['SIZE'] }
-                hp['FREE'] = mon_hp['FREE']
+                hp['FREE'] = mon_hp['FREE'] unless mon_hp.nil?
             end
         end
     end
