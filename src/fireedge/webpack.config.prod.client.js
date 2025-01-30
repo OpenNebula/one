@@ -32,9 +32,10 @@ const { ModuleFederationPlugin } = require('webpack').container
 const ONE_LOCATION = process.env.ONE_LOCATION
 const ETC_LOCATION = ONE_LOCATION ? `${ONE_LOCATION}/etc` : '/etc'
 const mode = process.env.NODE_ENV || 'production'
+const build = process.env.WEBPACK_BUILD_MODE || 'development'
 
 const remotesConfigPath =
-  mode === 'production'
+  build === 'production'
     ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.json`
     : path.resolve(__dirname, 'etc', 'sunstone', 'remotes-config.json')
 

@@ -16,7 +16,7 @@
     "build:hm": "rimraf dist/modules/HooksModule && BUILD_TARGET=remote webpack --config ./src/modules/hooks/webpack.config.prod.hooks.js",
     "build:pm": "rimraf dist/modules/ProvidersModule && BUILD_TARGET=remote webpack --config ./src/modules/providers/webpack.config.prod.providers.js",
     "build:remotes": "npm run build:um && npm run build:cm && npm run build:ctm && npm run build:cpm && npm run build:mm && npm run build:fm && npm run build:hm && npm run build:pm",
-    "build": "npm run build-client && npm run build-server && npm run build:remotes",
+    "build": "NODE_ENV=production npm run build-client && NODE_ENV=production npm run build-server && NODE_ENV=production npm run build:remotes",
     "start": "NODE_ENV=production node ./dist/index.js",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
