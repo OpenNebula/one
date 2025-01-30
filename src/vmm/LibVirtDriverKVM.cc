@@ -1800,11 +1800,11 @@ int LibVirtDriver::deployment_description_kvm(
 
             if (!virtio_queues.empty())
             {
-                set_queues(virtio_queues, vcpu)
+                set_queues(virtio_queues, vcpu);
             }
             else if (!default_virtio_queues.empty())
             {
-                set_queues(default_virtio_queues, vcpu)
+                set_queues(default_virtio_queues, vcpu);
 
                 virtio_queues = default_virtio_queues;
             }
