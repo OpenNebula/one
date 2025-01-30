@@ -1860,15 +1860,13 @@ Bash symbols must be escaped on STDIN passing'
         [0, template]
     end
 
-    def self.create_context(options)
+    def self.create_context_str(options, context_hash)
         context_options = [:ssh, :net_context, :context, :init, :files_ds, :startscript,
                            :report_ready]
         if !(options.keys & context_options).empty?
-            lines=[]
-
             if options[:ssh]
                 if options[:ssh]==true
-                    lines<<'SSH_PUBLIC_KEY="$USER[SSH_PUBLIC_KEY]"'
+                    context_hash['SSH_PUBLIC_KEY'] = "$USER[SSH_PUBLIC_KEY]"
                 else
                     begin
                         key=File.read(options[:ssh]).strip
@@ -1876,30 +1874,24 @@ Bash symbols must be escaped on STDIN passing'
                         STDERR.puts e.message
                         exit(-1)
                     end
-                    lines<<"SSH_PUBLIC_KEY=\"#{key}\""
+                    context_hash['SSH_PUBLIC_KEY'] = key
                 end
             end
-
+            
             if options[:net_context]
-                lines << 'NETWORK = "YES"'
+                context_hash['NETWORK'] = "YES"
             end
-
-            lines+=options[:context] if options[:context]
 
             if options[:files_ds]
-                text='FILES_DS="'
-                text << options[:files_ds].map do |file|
-                    %($FILE[IMAGE=\\"#{file}\\"])
-                end.join(' ')
-                text << '"'
+                files = options[:files_ds].map { |file| %($FILE[IMAGE=\\"#{file}\\"]) }.join(" ")
 
-                lines << text
+                context_hash['FILES_DS'] = files
             end
-
+            
             if options[:init]
-                lines << %(INIT_SCRIPTS="#{options[:init].join(' ')}")
+                context_hash['INIT_SCRIPTS'] = options[:init].join(" ")
             end
-
+            
             if options[:startscript]
                 script = nil
                 begin
@@ -1909,15 +1901,23 @@ Bash symbols must be escaped on STDIN passing'
                     exit(-1)
                 end
                 script = Base64.strict_encode64(script)
-                lines<<"START_SCRIPT_BASE64=\"#{script}\""
+                context_hash['START_SCRIPT_BASE64'] = script
+
             end
 
             if options[:report_ready]
-                lines << 'REPORT_READY = "YES"'
+                context_hash['REPORT_READY'] = "YES"
             end
 
-            if !lines.empty?
-                "CONTEXT=[\n" << lines.map {|l| '  ' << l }.join(",\n") << "\n]\n"
+            if context_hash.any? || options[:context]
+                formatted_context = "CONTEXT=[\n"
+                formatted_context << options[:context].map {|l| ' ' << l }.join(",\n") if options[:context]
+                if context_hash.any?
+                    formatted_context << ",\n" if options[:context]
+                    formatted_context << context_hash.map { |k, v| "  #{k}=\"#{v}\"" }.join(",\n") 
+                end
+                formatted_context << "\n]\n"
+                formatted_context
             else
                 nil
             end
@@ -1999,10 +1999,12 @@ Bash symbols must be escaped on STDIN passing'
         end
 
         template<<"VCENTER_VM_FOLDER=#{options[:vcenter_vm_folder]}\n" if options[:vcenter_vm_folder]
-
-        context=create_context(options)
-        template<<context if context
-
+        context_hash = {}
+        if !template_obj.nil? && template_obj.has_elements?('TEMPLATE/CONTEXT')
+            context_hash = template_obj.to_hash["VMTEMPLATE"]["TEMPLATE"]["CONTEXT"]
+        end
+        context_str=create_context_str(options, context_hash)
+        template<<context_str if context_str
         if options[:userdata] && !template_obj.nil? && template_obj.has_elements?('TEMPLATE/EC2')
             template_obj.add_element(
                 'TEMPLATE/EC2',
