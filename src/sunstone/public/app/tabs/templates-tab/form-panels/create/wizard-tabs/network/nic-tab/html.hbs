@@ -313,7 +313,10 @@
           {{tr "Transmission queue"}}
           {{{tip (tr "Only supported for virtio driver.")}}}
         </label>
-        <input type="number" min="0" wizard_field="VIRTIO_QUEUES" id="VIRTIO_QUEUES" name="VIRTIO_QUEUES" />
+        <select wizard_field="VIRTIO_QUEUES" id="VIRTIO_QUEUES" name="VIRTIO_QUEUES">
+          <option value=""> - </option>
+          <option value="auto">Auto</option>
+        </select>
       </div>
     </div>
     <div class="row pci-row">

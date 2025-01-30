@@ -615,7 +615,8 @@ int LibVirtDriver::deployment_description_kvm(
     string o_peak_kb;
 
     string default_filter;
-    string default_model ;
+    string default_model;
+    string default_virtio_queues;
 
     const VectorAttribute * graphics;
 
@@ -1697,6 +1698,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     get_attribute(nullptr, host, cluster, "NIC", "MODEL", default_model);
 
+    get_attribute(nullptr, host, cluster, "NIC", "VIRTIO_QUEUES", default_virtio_queues);
+
     num = vm->get_template_attribute("NIC", nic);
 
     for (int i=0; i<num; i++)
@@ -1794,6 +1797,17 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
+
+            if (!virtio_queues.empty())
+            {
+                set_queues(virtio_queues, vcpu)
+            }
+            else if (!default_virtio_queues.empty())
+            {
+                set_queues(default_virtio_queues, vcpu)
+
+                virtio_queues = default_virtio_queues;
+            }
 
             if (!virtio_queues.empty() && *the_model == "virtio")
             {
