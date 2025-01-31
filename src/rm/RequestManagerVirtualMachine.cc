@@ -1272,8 +1272,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         ostringstream oss;
 
-        oss << "VM is already running on " << object_name(PoolObjectSQL::HOST)
-            << " [" << c_hid << "]";
+        oss << "VM is already running on host [" << c_hid << "] and datastore [" << c_ds_id << "]";
 
         att.resp_msg = oss.str();
         failure_response(ACTION, att);
