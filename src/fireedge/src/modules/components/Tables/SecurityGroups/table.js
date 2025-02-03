@@ -36,6 +36,7 @@ const SecurityGroupsTable = (props) => {
     rootProps = {},
     searchProps = {},
     useQuery = SecurityGroupAPI.useGetSecGroupsQuery,
+    rowComponent,
     ...rest
   } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
@@ -85,7 +86,7 @@ const SecurityGroupsTable = (props) => {
     },
   ]
 
-  const { component, header } = WrapperRow(SecurityGroupsRow)
+  const { component, header } = WrapperRow(rowComponent ?? SecurityGroupsRow)
 
   return (
     <EnhancedTable

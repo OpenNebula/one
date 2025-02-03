@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export * from '@modules/utils/environments'
-export * from '@modules/utils/helpers'
-export * from '@modules/utils/ip'
-export * from '@modules/utils/merge'
-export * from '@modules/utils/parser'
-export * from '@modules/utils/request'
-export * from '@modules/utils/rest'
-export * from '@modules/utils/schema'
-export * from '@modules/utils/storage'
-export * from '@modules/utils/string'
-export * from '@modules/utils/number'
-export * from '@modules/utils/translation'
-export * from '@modules/utils/units'
-export * from '@modules/utils/restrictedAttributes'
-export * from '@modules/utils/tabManifest'
-export * from '@modules/utils/secgroups'
+import { createForm, bindSecGroupTemplate } from '@UtilsModule'
+import { SCHEMA, FIELDS } from './schema'
+import { jsonToXml } from '@ModelsModule'
+
+const ChangeSecurityGroup = createForm(SCHEMA, FIELDS, {
+  transformInitialValue: (secGroupId, schema) => {
+    const secGroup = Array.isArray(secGroupId) ? secGroupId : [secGroupId]
+
+    return {
+      ...schema.cast({ secGroup }, { stripUnknown: true }),
+    }
+  },
+  transformBeforeSubmit: (formData, vnet) => {
+    const { secgroups } = formData
+
+    const newTemplate = bindSecGroupTemplate(vnet, secgroups)
+
+    return jsonToXml(newTemplate)
+  },
+})
+
+export default ChangeSecurityGroup

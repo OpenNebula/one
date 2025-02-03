@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export * from '@modules/utils/environments'
-export * from '@modules/utils/helpers'
-export * from '@modules/utils/ip'
-export * from '@modules/utils/merge'
-export * from '@modules/utils/parser'
-export * from '@modules/utils/request'
-export * from '@modules/utils/rest'
-export * from '@modules/utils/schema'
-export * from '@modules/utils/storage'
-export * from '@modules/utils/string'
-export * from '@modules/utils/number'
-export * from '@modules/utils/translation'
-export * from '@modules/utils/units'
-export * from '@modules/utils/restrictedAttributes'
-export * from '@modules/utils/tabManifest'
-export * from '@modules/utils/secgroups'
+import { string, object, ObjectSchema, array } from 'yup'
+
+import { SecurityGroupsTable } from '@modules/components/Tables'
+import { T, INPUT_TYPES } from '@ConstantsModule'
+import { Field, getValidationFromFields } from '@UtilsModule'
+
+/** @type {Field} Security group field */
+const SECGROUP = {
+  name: 'secgroups',
+  label: T.SelectNewSecGroup,
+  type: INPUT_TYPES.TABLE,
+  Table: () => SecurityGroupsTable.Table,
+  singleSelect: false,
+  validation: array(string().trim())
+    .required()
+    .default(() => undefined),
+  fieldProps: {
+    preserveState: true,
+  },
+  grid: { md: 12 },
+}
+
+/** @type {Field[]} List of fields */
+export const FIELDS = [SECGROUP]
+
+/** @type {ObjectSchema} Schema */
+export const SCHEMA = object(getValidationFromFields(FIELDS))

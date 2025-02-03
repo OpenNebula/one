@@ -13,36 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from '@modules/components/HOC'
-import { CreateFormCallback } from '@UtilsModule'
+/**
+ * Unbind security group from VNET.
+ *
+ * @param {object} vnet - VNET.
+ * @param {object} secgroup - Security group.
+ * @returns {object} - Object from wich XML will be created.
+ */
+export const unbindSecGroupTemplate = (vnet, secgroup) => {
+  const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
+  const currentSecGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
+
+  const secGroupsUpdated = currentSecGroups.filter((id) => id !== +secgroup.ID)
+
+  return { ...vnet.TEMPLATE, SECURITY_GROUPS: secGroupsUpdated.join(',') }
+}
 
 /**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ * Bind security group to VNET.
+ *
+ * @param {object} vnet - VNET.
+ * @param {object} secgroups - Security group.
+ * @returns {object} - Object from wich XML will be created.
  */
-const CloneForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CloneForm' }, configProps)
+export const bindSecGroupTemplate = (vnet, secgroups) => {
+  const newSecGroup = secgroups.map((secGroup) => +secGroup)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CreateForm' }, configProps)
+  const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
+  const currentSecGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CommitForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/CommitForm' }, configProps)
+  newSecGroup.forEach((newSec) => {
+    !currentSecGroups.includes(newSec) && currentSecGroups.push(newSec)
+  })
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ChangeForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'SecurityGroups/ChangeForm' }, configProps)
-
-export { CloneForm, CreateForm, CommitForm, ChangeForm }
+  return { ...vnet.TEMPLATE, SECURITY_GROUPS: currentSecGroups.join(',') }
+}

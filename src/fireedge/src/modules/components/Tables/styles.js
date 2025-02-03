@@ -16,7 +16,7 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { css } from '@emotion/css'
 
-export const rowStyles = ({ palette, typography, breakpoints, shadows }) => ({
+export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
   root: css({
     padding: '0.8em',
     color: palette.text.primary,
