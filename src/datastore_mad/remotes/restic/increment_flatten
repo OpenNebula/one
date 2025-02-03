@@ -114,7 +114,8 @@ def flatten_chains(rds, image, paths, snapshot)
     EOS
 
     paths[:disks][:by_index].each do |_, disk_paths|
-        script << image.class.merge_chain(disk_paths, :sparsify => rds.sparsify)
+        script << image.class.commit_chain(disk_paths, :sparsify => rds.sparsify)
+        script << "mv '#{disk_paths.first}' '#{disk_paths.last}';"
     end
 
     snapshot_time = DateTime.parse(snapshot['time']).strftime('%Y-%m-%d %H:%M:%S')
