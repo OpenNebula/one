@@ -100,7 +100,7 @@ module TransferManager
 
             opts = {
                 :workdir  => nil,
-                :sparsify => false,
+                :sparsify => false
             }.merge!(opts)
 
             firstdir, firstbase = File.split(paths.first)
