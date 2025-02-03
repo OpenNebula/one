@@ -91,6 +91,33 @@ module TransferManager
 
             script.join("\n")
         end
+
+        # Given a sorted list of qcow2 files with backing chain properly reconstructed,
+        # return a shell recipe that commits all increments to the base image.
+        # rubocop:disable Style/ParallelAssignment, Layout/LineLength
+        def self.commit_chain(paths, opts = {})
+            return '' unless paths.size > 1
+
+            opts = {
+                :workdir  => nil,
+                :sparsify => false,
+            }.merge!(opts)
+
+            firstdir, firstbase = File.split(paths.first)
+            first = "#{opts[:workdir] || firstdir}/#{firstbase}"
+
+            lastdir, lastbase = File.split(paths.last)
+            last = "#{opts[:workdir] || lastdir}/#{lastbase}"
+
+            script = []
+            script << "qemu-img commit -f qcow2 -b '#{first}' '#{last}'"
+
+            if opts[:sparsify]
+                script << "[ $(type -P virt-sparsify) ] && virt-sparsify -q --in-place '#{first}'"
+            end
+
+            script.join("\n")
+        end
         # rubocop:enable Style/ParallelAssignment, Layout/LineLength
 
         def initialize(action_xml)

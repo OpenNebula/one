@@ -160,7 +160,8 @@ begin
     EOS
 
     disks[:by_index].each do |_, disk_paths|
-        script << image.class.merge_chain(disk_paths, :sparsify => rsync_sparsify)
+        script << image.class.commit_chain(disk_paths, :sparsify => rsync_sparsify)
+        script << "mv '#{disk_paths.first}' '#{disk_paths.last}';"
     end
 
     # Calculate the new snapshot's size (sum of all qcow2 image sizes in the snapshot).
