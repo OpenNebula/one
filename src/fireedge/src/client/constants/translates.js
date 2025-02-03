@@ -205,6 +205,7 @@ module.exports = {
   SelectNetwork: 'Select a network',
   SelectVirtualNetworks: 'Select virtual networks',
   SelectNewCluster: 'Select a new Cluster',
+  SelectNewSecGroup: 'Select security group',
   SelectRequest: 'Select request',
   SelectTheNewDatastore: 'Select the new datastore',
   SelectTheNewGroup: 'Select the new group',
@@ -646,6 +647,8 @@ module.exports = {
   SecurityGroups: 'Security groups',
   NoNetworksInMonitoring:
     'There is currently no network monitoring information associated with this VM',
+  UnbindSecurityGroupSuccess: 'Security group deleted from the VNET',
+  BindSecurityGroupSuccess: 'Security group added succesfully to the VNET',
 
   /* sections - vdc */
   Resources: 'Resources',

@@ -41,6 +41,7 @@ const DEFAULT_DATA_CY = 'vnets'
 const VNetworksTable = (props) => {
   const {
     rootProps = {},
+    globalActions,
     searchProps = {},
     useQuery = useGetVNetworksQuery,
     vdcVnets,
@@ -218,6 +219,7 @@ const VNetworksTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
+      globalActions={globalActions}
       data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}

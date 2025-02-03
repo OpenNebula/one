@@ -25,9 +25,12 @@ import {
   DialogForm,
   DialogPropTypes,
 } from 'client/components/Dialogs'
+
 import SubmitButton from 'client/components/FormControl/SubmitButton'
+
 import FormStepper from 'client/components/FormStepper'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+
 import { Translate } from 'client/components/HOC'
 import { useDialog } from 'client/hooks'
 import { isDevelopment } from 'client/utils'

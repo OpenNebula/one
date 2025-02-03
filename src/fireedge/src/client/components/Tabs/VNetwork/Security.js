@@ -13,27 +13,82 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
+import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
 
-import AddIcon from 'iconoir-react/dist/AddCircledOutline'
-import { useHistory } from 'react-router'
-import { generatePath } from 'react-router-dom'
+import {
+  AddCircledOutline as AddIcon,
+  Trash as DeleteIcon,
+} from 'iconoir-react/dist'
 import { Box } from '@mui/material'
 
-import { useViews } from 'client/features/Auth'
 import { useGetSecGroupsQuery } from 'client/features/OneApi/securityGroup'
-import { useGetVNetworkQuery } from 'client/features/OneApi/network'
-// import {} from 'client/components/Tabs/VNetwork/Address/Actions'
+import {
+  useGetVNetworkQuery,
+  useUpdateVNetMutation,
+} from 'client/features/OneApi/network'
+import { unbindSecGroupTemplate } from 'client/utils/secgroup'
 
 import { SecurityGroupsTable, GlobalAction } from 'client/components/Tables'
-import { T, VN_ACTIONS, RESOURCE_NAMES } from 'client/constants'
-import { PATH } from 'client/apps/sunstone/routesOne'
+import { T, VN_ACTIONS } from 'client/constants'
 
 import { isRestrictedAttributes } from 'client/utils'
+import { ChangeForm } from 'client/components/Forms/SecurityGroups'
 
-const { SEC_GROUP } = RESOURCE_NAMES
+import { SecurityGroupCard } from 'client/components/Cards'
+import { SubmitButton } from 'client/components/FormControl'
+
+import { useGeneralApi } from 'client/features/General'
+import { jsonToXml } from 'client/models/Helper'
+
 const { ADD_SECGROUP } = VN_ACTIONS
+
+const RowComponent = ({ secgroup, vnet, updateVNet, extra }) => {
+  const { headerList, onClickLabel, rowDataCy, ...rest } = extra
+
+  const { enqueueSuccess } = useGeneralApi()
+
+  return (
+    <SecurityGroupCard
+      securityGroup={secgroup}
+      rootProps={rest}
+      actions={
+        <>
+          <SubmitButton
+            data-cy={`provision-secgroup-unbind-${secgroup.ID}`}
+            icon={<DeleteIcon />}
+            onClick={async (evt) => {
+              evt.stopPropagation()
+
+              const newTemplate = unbindSecGroupTemplate(vnet, secgroup)
+
+              const xml = jsonToXml(newTemplate)
+
+              const response = await updateVNet({
+                id: vnet.ID,
+                template: xml,
+              })
+              response && enqueueSuccess(T.UnbindSecurityGroupSuccess)
+            }}
+          />
+        </>
+      }
+    />
+  )
+}
+
+RowComponent.propTypes = {
+  secgroup: PropTypes.object,
+  vnet: PropTypes.object,
+  updateVNet: PropTypes.func,
+  extra: PropTypes.shape({
+    headerList: PropTypes.boolean,
+    onClickLabel: PropTypes.func,
+    rowDataCy: PropTypes.string,
+  }),
+}
+
+RowComponent.displayName = 'SecurityTab'
 
 /**
  * Renders the list of security groups from a Virtual Network.
@@ -52,18 +107,14 @@ const SecurityTab = ({
   oneConfig,
   adminGroup,
 }) => {
-  const { push: redirectTo } = useHistory()
   const { data: vnet } = useGetVNetworkQuery({ id })
-
-  const { view, hasAccessToResource } = useViews()
-  const detailAccess = useMemo(() => hasAccessToResource(SEC_GROUP), [view])
 
   const splittedSecGroups = vnet?.TEMPLATE.SECURITY_GROUPS?.split(',') ?? []
   const secGroups = [splittedSecGroups].flat().map((sgId) => +sgId)
 
-  const redirectToSecGroup = (row) => {
-    redirectTo(generatePath(PATH.NETWORK.SEC_GROUPS.DETAIL, { id: row.ID }))
-  }
+  const [updateVNet] = useUpdateVNetMutation()
+
+  const { enqueueSuccess } = useGeneralApi()
 
   const useQuery = () =>
     useGetSecGroupsQuery(undefined, {
@@ -90,9 +141,13 @@ const SecurityTab = ({
             options: [
               {
                 dialogProps: { title: T.SecurityGroup },
-                form: undefined,
-                onSubmit: () => async (formData) => {
-                  console.log({ formData })
+                form: () => ChangeForm({ initialValues: vnet }),
+                onSubmit: () => async (xml) => {
+                  const response = await updateVNet({
+                    id: vnet.ID,
+                    template: xml,
+                  })
+                  response && enqueueSuccess(T.BindSecurityGroupSuccess)
                 },
               },
             ],
@@ -106,7 +161,15 @@ const SecurityTab = ({
         disableGlobalSort
         disableRowSelect
         pageSize={5}
-        onRowClick={detailAccess ? redirectToSecGroup : undefined}
+        rowComponent={({ original: secgroup, handleClick: _, ...props }) => (
+          <RowComponent
+            secgroup={secgroup}
+            vnet={vnet}
+            updateVNet={updateVNet}
+            extra={props}
+          />
+        )}
+        // onRowClick={detailAccess ? redirectToSecGroup : undefined}
         globalActions={globalActions}
         useQuery={useQuery}
       />

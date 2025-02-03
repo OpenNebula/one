@@ -38,4 +38,11 @@ const CreateForm = (configProps) =>
 const CommitForm = (configProps) =>
   AsyncLoadForm({ formPath: 'SecurityGroups/CommitForm' }, configProps)
 
-export { CloneForm, CreateForm, CommitForm }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
+ */
+const ChangeForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'SecurityGroups/ChangeForm' }, configProps)
+
+export { CloneForm, CreateForm, CommitForm, ChangeForm }

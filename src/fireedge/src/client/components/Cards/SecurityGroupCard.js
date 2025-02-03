@@ -25,9 +25,20 @@ import { SecurityGroup, T } from 'client/constants'
 import { getColorFromString, getUniqueLabels } from 'client/models/Helper'
 import { useAuth } from 'client/features/Auth'
 import { Tr } from 'client/components/HOC'
+import makeStyles from '@mui/styles/makeStyles'
+import clsx from 'clsx'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
+
+const useStyles = makeStyles(() => ({
+  internalContainer: {
+    display: 'flex',
+  },
+  actions: {
+    marginLeft: 'auto',
+  },
+}))
 
 const SecurityGroupCard = memo(
   /**
@@ -41,6 +52,7 @@ const SecurityGroupCard = memo(
    */
   ({ securityGroup, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const classes = rowStyles()
+    const internalClasses = useStyles()
     const { labels: userLabels } = useAuth()
 
     const {
@@ -83,38 +95,45 @@ const SecurityGroupCard = memo(
 
     return (
       <div {...rootProps} data-cy={`secgroup-${ID}`}>
-        <div className={classes.main}>
-          <div className={classes.title}>
-            <Typography noWrap component="span">
-              {NAME}
-            </Typography>
+        <div className={clsx(classes.main, internalClasses.internalContainer)}>
+          <div>
+            <div className={classes.title}>
+              <Typography noWrap component="span">
+                {NAME}
+              </Typography>
 
-            <MultipleTags tags={labels} />
+              <MultipleTags tags={labels} />
+            </div>
+            <div className={classes.caption}>
+              <span>{`#${ID}`}</span>
+              <span title={`${Tr(T.Owner)}: ${UNAME}`}>
+                <User />
+                <span data-cy="uname">{` ${UNAME}`}</span>
+              </span>
+              <span title={`${Tr(T.Group)}: ${GNAME}`}>
+                <Group />
+                <span data-cy="gname">{` ${GNAME}`}</span>
+              </span>
+              <span title={`${Tr(T.TotalUpdatedVms)}: ${totalUpdatedVms}`}>
+                <PcCheck />
+                <span>{` ${totalUpdatedVms}`}</span>
+              </span>
+              <span title={`${Tr(T.TotalOutdatedVms)}: ${totalOutdatedVms}`}>
+                <PcNoEntry />
+                <span>{` ${totalOutdatedVms}`}</span>
+              </span>
+              <span title={`${Tr(T.TotalErrorVms)}: ${totalErrorVms}`}>
+                <PcWarning />
+                <span>{` ${totalErrorVms}`}</span>
+              </span>
+            </div>
           </div>
-          <div className={classes.caption}>
-            <span>{`#${ID}`}</span>
-            <span title={`${Tr(T.Owner)}: ${UNAME}`}>
-              <User />
-              <span data-cy="uname">{` ${UNAME}`}</span>
-            </span>
-            <span title={`${Tr(T.Group)}: ${GNAME}`}>
-              <Group />
-              <span data-cy="gname">{` ${GNAME}`}</span>
-            </span>
-            <span title={`${Tr(T.TotalUpdatedVms)}: ${totalUpdatedVms}`}>
-              <PcCheck />
-              <span>{` ${totalUpdatedVms}`}</span>
-            </span>
-            <span title={`${Tr(T.TotalOutdatedVms)}: ${totalOutdatedVms}`}>
-              <PcNoEntry />
-              <span>{` ${totalOutdatedVms}`}</span>
-            </span>
-            <span title={`${Tr(T.TotalErrorVms)}: ${totalErrorVms}`}>
-              <PcWarning />
-              <span>{` ${totalErrorVms}`}</span>
-            </span>
-          </div>
-          {actions && <div className={classes.actions}>{actions}</div>}
+
+          {actions && (
+            <div className={clsx(classes.actions, internalClasses.actions)}>
+              {actions}
+            </div>
+          )}
         </div>
       </div>
     )
