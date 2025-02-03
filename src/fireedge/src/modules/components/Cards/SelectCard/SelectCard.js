@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import clsx from 'clsx'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
 import {
   Card,
   CardActionArea,
-  CardHeader,
   CardActions,
+  CardHeader,
   CardMedia,
   Skeleton,
   useTheme,
@@ -65,6 +65,7 @@ const SelectCard = memo(
         }),
       [theme]
     )
+
     const { isNearScreen, fromRef } = useNearScreen({
       distance: '100px',
     })
@@ -77,9 +78,13 @@ const SelectCard = memo(
         {observerOff || isNearScreen ? (
           <Card
             {...cardProps}
-            className={clsx(classes.root, cardProps?.className, {
-              [classes.actionArea]: !handleClick,
-            })}
+            className={clsx(
+              classes.root({ isSelected }),
+              cardProps?.className,
+              {
+                [classes.actionArea]: !handleClick,
+              }
+            )}
             data-cy={dataCy ? `${dataCy}-card` : undefined}
           >
             {/* CARD ACTION AREA */}

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Checkbox, Grid, TableCell, TableRow, useTheme } from '@mui/material'
-import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
 import { SERVER_CONFIG } from '@ConstantsModule'
 import { useAuth } from '@FeaturesModule'
+import { css } from '@emotion/css'
+import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
+import { Checkbox, Grid, TableCell, TableRow, useTheme } from '@mui/material'
 import get from 'lodash.get'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
-import { css } from '@emotion/css'
 
 const listStyles = ({ palette }) => ({
   row: css({
@@ -180,7 +180,8 @@ const SwitchRowComponent = memo(
 
     return Component
   },
-  (prev, next) => prev.RowCardComponent === next.RowCardComponent
+  (prev, next) =>
+    prev.RowCardComponent === next.RowCardComponent && prev.props === next.props
 )
 
 SwitchRowComponent.propTypes = {

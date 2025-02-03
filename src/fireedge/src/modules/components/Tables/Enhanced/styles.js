@@ -89,7 +89,7 @@ export const EnhancedTableStyles = ({ palette, typography, breakpoints }) => ({
         backgroundColor: palette.action.hover,
       },
       '&.selected': {
-        border: `2px solid ${palette.secondary.main}`,
+        border: `.2rem solid ${palette.secondary.main}`,
       },
     },
   }),
