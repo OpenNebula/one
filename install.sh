@@ -50,7 +50,7 @@ usage() {
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
  echo "    rm -rf \$ONE_LOCATION would do the job"
  echo "-l: creates symlinks instead of copying files, useful for development"
- echo "-a: architecuture of downloaded vendor artifacts, default: x86_64"
+ echo "-a: architecture of downloaded vendor artifacts, default: x86_64"
  echo "-h: prints this help"
 }
 #-------------------------------------------------------------------------------
