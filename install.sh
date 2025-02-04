@@ -3133,7 +3133,7 @@ fi
 # ALERTMANAGER
 ONEPROMETHEUS_ALERTMANAGER_BIN_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/alertmanager \
                                       src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/amtool"
-ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES="src/oneprometheus/${ALERTMANAGER_VENDOR_DIR}/etc/alertmanager.yml"
+ONEPROMETHEUS_ALERTMANAGER_CONFIG_FILES="src/oneprometheus/alertmanager/etc/alertmanager.yml"
 ONEPROMETHEUS_ALERTMANAGER_FILES="src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/LICENSE \
                                   src/oneprometheus/vendor/${ALERTMANAGER_VENDOR_DIR}/NOTICE"
 ONEPROMETHEUS_ALERTMANAGER_SYSTEMD_FILES="src/oneprometheus/alertmanager/systemd/opennebula-alertmanager.service"
