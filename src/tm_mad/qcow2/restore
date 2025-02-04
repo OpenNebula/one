@@ -189,6 +189,25 @@ begin
 
         raise 'cannot copy disk backup' unless rc.code == 0
     end
+
+    # Delete bitmaps from all disks after restore, as the chain will be reset
+    # (see https://github.com/OpenNebula/one/issues/6741)
+    script = []
+    disks.each do |id, _|
+        script << <<~EOF
+            qemu-img info -U #{rdir}/disk.#{id} --output json \
+            | jq -r '(."format-specific".data.bitmaps // [])[].name' \
+            | xargs -rn1 qemu-img bitmap --remove #{rdir}/disk.#{id}
+        EOF
+    end
+
+    rc = action.ssh(:host => rhost,
+                    :cmds => script.join,
+                    :forward  => false,
+                    :nostdout => false,
+                    :nostderr => false)
+
+    raise 'cannot clean bitmaps' unless rc.code == 0
 rescue StandardError => e
     STDERR.puts "Error restoring VM disks: #{e.message}"
     exit(1)

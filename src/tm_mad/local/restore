@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2023, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,11 +15,11 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-require_relative '../lib/tm_action'
-require_relative '../lib/datastore'
-
 require 'rexml/document'
 require 'json'
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
 
 #-------------------------------------------------------------------------------
 # RESTORE vm_id img_id inc_id disk_id
@@ -105,6 +105,25 @@ begin
 
         raise 'cannot copy disk backup' unless rc.code == 0
     end
+
+    # Delete bitmaps from all disks after restore, as the chain will be reset
+    # (see https://github.com/OpenNebula/one/issues/6741)
+    script = []
+    disks.each do |id, _|
+        script << <<~EOF
+            qemu-img info -U #{rdir}/disk.#{id} --output json \
+            | jq -r '(."format-specific".data.bitmaps // [])[].name' \
+            | xargs -rn1 qemu-img bitmap --remove #{rdir}/disk.#{id}
+        EOF
+    end
+
+    rc = action.ssh(:host => rhost,
+                    :cmds => script.join,
+                    :forward  => false,
+                    :nostdout => false,
+                    :nostderr => false)
+
+    raise 'cannot clean bitmaps' unless rc.code == 0
 rescue StandardError => e
     STDERR.puts "Error restoring VM disks: #{e.message}"
     exit(1)
