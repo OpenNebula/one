@@ -22,7 +22,12 @@ import {
   SOCKETS,
   T,
 } from '@ConstantsModule'
-import { useGeneralApi, useGuacamole, useGuacamoleApi } from '@FeaturesModule'
+import {
+  useGeneralApi,
+  useGuacamole,
+  useGuacamoleApi,
+  useSystemData,
+} from '@FeaturesModule'
 import { clientStateToString, getConnectString } from '@ModelsModule'
 import { fakeDelay } from '@UtilsModule'
 
@@ -53,6 +58,18 @@ const {
  * @returns {GuacamoleClientType} Guacamole client props
  */
 const GuacamoleClient = ({ id, display, zone, externalZone }) => {
+  const { oneConfig } = useSystemData()
+  let rangeports
+  if (oneConfig?.VNC_PORTS) {
+    const lastPort = oneConfig.VNC_PORTS.RESERVED
+      ? oneConfig.VNC_PORTS.RESERVED.split(':')[1]
+      : '65535'
+    const startPort = oneConfig.VNC_PORTS.START
+      ? oneConfig.VNC_PORTS.START
+      : '5900'
+    rangeports = `${startPort}:${lastPort}`
+  }
+
   const [changeConnection, setChangeConnection] = useState(false)
   const firstZone = useRef(zone).current
   const guac = useRef(createGuacamoleClient(externalZone))
@@ -88,6 +105,7 @@ const GuacamoleClient = ({ id, display, zone, externalZone }) => {
     colorSchema && (options['color-schema'] = colorSchema)
     fontName && (options['font-name'] = fontName)
     fontSize && (options['font-size'] = fontSize)
+    rangeports && (options.rangeports = rangeports)
 
     const connectString = getConnectString(options)
 

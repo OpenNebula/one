@@ -16,9 +16,53 @@
 const { defaults } = require('server/utils/constants')
 const { defaultEmptyFunction } = defaults
 const { execSync, spawn } = require('child_process')
+const { createServer } = require('net')
 
 let PID = null
 const internalHost = '127.0.0.1'
+
+/**
+ * Check if a port is available.
+ *
+ * @param {number} port - Puert.
+ * @returns {Promise<boolean>} - Resolves to true if the port is available, false if it is not.
+ */
+const isPortAvailable = (port) =>
+  new Promise((resolve) => {
+    const server = createServer()
+    server.once('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        resolve(false) // Port busy
+      } else {
+        console.error(
+          `Unexpected error when checking the port ${port}: ${err.message}`
+        )
+        resolve(false)
+      }
+    })
+    server.once('listening', () => {
+      server.close(() => resolve(true)) // Port enabled
+    })
+    server.listen(port)
+  })
+
+/**
+ * Searches for an available port within a range.
+ *
+ * @param {number} start - Initial Port.
+ * @param {number} end - End Port.
+ * @returns {Promise<number|null>} - Resolves to the first available port or null if there is none.
+ */
+const findAvailablePortInRange = async (start = 5900, end = 6100) => {
+  for (let port = start; port <= end; port++) {
+    const available = await isPortAvailable(port)
+    if (available) {
+      return port
+    }
+  }
+
+  return null
+}
 
 /**
  * Delete a SSH tunnel to guacamole.
@@ -37,15 +81,14 @@ const deleteTunnel = (pid) => {
  * Valid if the tunnel is started.
  *
  * @param {object} vmParams - vm params
- * @param {string} vmParams.srcPort - internal port
  * @param {string} vmParams.dstPort - external port
  * @param {Function} error - callback if exist a error
  * @returns {number | null} if exists returns the PID
  */
-const validateSSHTunnelStarted = ({ srcPort, dstPort }, error) => {
+const validateSSHTunnelStarted = ({ dstPort }, error) => {
   try {
     const output = execSync(
-      `ps -ef | grep "[s]sh.*${srcPort}:${internalHost}:${dstPort}" | awk '{print $2}'`,
+      `ps -ef | grep "[s]sh.*:${internalHost}:${dstPort}" | awk '{print $2}'`,
       { encoding: 'utf-8' }
     )
 
@@ -128,17 +171,19 @@ const startSSHTunnel = async ({ command, args }) =>
   })
 
 /**
- * Create a SSH tunnel to guacamole.
+ * Create a SSH tunnel to Guacamole.
  *
  * @param {object} vmParams - vm params
  * @param {string} vmParams.vmPort - graphics port. vmInfo.TEMPLATE?.GRAPHICS?.PORT
  * @param {string} vmParams.hostAddr - graphics hostname
+ * @param {object} vmParams.settings - settings guacamole console
+ * @param {Array} vmParams.rangePorts - range vnc ports
  * @param {object} callbacks - callbacks
  * @param {Function} callbacks.connect - connect callback
  * @param {Function} callbacks.error - error callback
  */
 const create = async (
-  { vmPort, hostAddr },
+  { vmPort, hostAddr, settings = {}, rangePorts },
   { connect = defaultEmptyFunction, error = defaultEmptyFunction } = {}
 ) => {
   const paramsCommands = {
@@ -149,13 +194,23 @@ const create = async (
 
   const pidTunnelStarted = validateSSHTunnelStarted(paramsCommands, error)
   if (!pidTunnelStarted) {
-    try {
-      const command = createCommand(paramsCommands)
-      const pid = await startSSHTunnel(command)
-      await sleep()
-      connect(pid)
-    } catch (err) {
-      error(err)
+    const availablePort = await findAvailablePortInRange(
+      rangePorts[0],
+      rangePorts[1]
+    )
+    if (availablePort) {
+      paramsCommands.srcPort = availablePort
+      settings.connection.port = availablePort
+      try {
+        const command = createCommand(paramsCommands)
+        const pid = await startSSHTunnel(command)
+        await sleep()
+        connect(pid)
+      } catch (err) {
+        error(err)
+      }
+    } else {
+      error(new Error('No available ports were found in the specified range.'))
     }
   } else {
     connect(pidTunnelStarted)

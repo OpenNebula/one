@@ -17,7 +17,20 @@ import { ReactElement, useMemo } from 'react'
 
 import { useAuth, useViews, VmAPI } from '@FeaturesModule'
 
-import { ConsoleButton } from '@modules/components/Buttons'
+import {
+  RESOURCE_NAMES,
+  STATES,
+  T,
+  VM_EXTENDED_POOL,
+  VM_STATES,
+} from '@ConstantsModule'
+import {
+  getColorFromString,
+  getIps,
+  getLastHistory,
+  getUniqueLabels,
+  getVirtualMachineState,
+} from '@ModelsModule'
 import MultipleTags from '@modules/components/MultipleTags'
 import { StatusCircle } from '@modules/components/Status'
 import EnhancedTable, {
@@ -26,26 +39,9 @@ import EnhancedTable, {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VmColumns from '@modules/components/Tables/Vms/columns'
 import VmRow from '@modules/components/Tables/Vms/row'
-import {
-  RESOURCE_NAMES,
-  STATES,
-  T,
-  VM_ACTIONS,
-  VM_EXTENDED_POOL,
-  VM_STATES,
-} from '@ConstantsModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  getIps,
-  getLastHistory,
-  getVirtualMachineState,
-} from '@ModelsModule'
+import RowAction from '@modules/components/Tables/Vms/rowActions'
 
 const DEFAULT_DATA_CY = 'vms'
-
-const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
-const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
 
 /**
  * @param {object} props - Props
@@ -178,17 +174,7 @@ const VmsTable = (props) => {
     {
       header: '',
       id: 'consoles',
-      accessor: (vm) => (
-        <>
-          {CONNECTION_TYPES.map((connectionType) => (
-            <ConsoleButton
-              key={`${vm}-${connectionType}`}
-              connectionType={connectionType}
-              vm={vm}
-            />
-          ))}
-        </>
-      ),
+      accessor: (vm) => <RowAction vm={vm} />,
     },
     {
       header: T.Labels,

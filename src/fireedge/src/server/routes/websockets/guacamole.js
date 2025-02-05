@@ -48,9 +48,17 @@ const clientOptions = {
     key: global?.paths?.FIREEDGE_KEY || '',
   },
   allowedUnencryptedConnectionSettings: {
-    rdp: ['width', 'height', 'dpi'],
-    vnc: ['width', 'height', 'dpi'],
-    ssh: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi'],
+    rdp: ['width', 'height', 'dpi', 'rangeports'],
+    vnc: ['width', 'height', 'dpi', 'rangeports'],
+    ssh: [
+      'color-scheme',
+      'font-name',
+      'font-size',
+      'width',
+      'height',
+      'dpi',
+      'rangeports',
+    ],
     telnet: [
       'color-scheme',
       'font-name',
@@ -58,6 +66,7 @@ const clientOptions = {
       'width',
       'height',
       'dpi',
+      'rangeports',
     ],
   },
   log: {
@@ -74,10 +83,18 @@ const clientCallbacks = {
     if (settings?.expiration < Date.now()) {
       return callback(new Error('Token expired'))
     }
+
+    let rangePorts = [5900, 65536]
+    if (settings?.connection?.rangeports) {
+      rangePorts = settings?.connection?.rangeports.split(':').map(Number)
+    }
+
     await create(
       {
         vmPort: settings?.connection?.port,
         hostAddr: settings?.connection?.hostname,
+        settings,
+        rangePorts,
       },
       {
         connect: (pidTunnel) => {

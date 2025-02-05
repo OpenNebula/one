@@ -43,6 +43,7 @@ export const getConnectString = (options = {}) => {
     height,
     zone,
     command,
+    rangeports,
     'read-only': readOnly,
     'color-schema': colorSchema,
     'font-name': fontName,
@@ -73,6 +74,7 @@ export const getConnectString = (options = {}) => {
   colorSchema && urlOptions.push(`color-scheme=${colorSchema}`)
   fontName && urlOptions.push(`font-name=${fontName}`)
   fontSize && urlOptions.push(`font-size=${fontSize}`)
+  rangeports && urlOptions.push(`rangeports=${rangeports}`)
 
   return urlOptions.join('&')
 }

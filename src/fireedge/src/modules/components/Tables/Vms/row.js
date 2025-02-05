@@ -16,14 +16,11 @@
 import PropTypes from 'prop-types'
 import { memo, useCallback, useMemo } from 'react'
 
-import { ConsoleButton } from '@modules/components/Buttons'
-import { VirtualMachineCard } from '@modules/components/Cards'
-import { VM_ACTIONS, VM_EXTENDED_POOL } from '@ConstantsModule'
+import { VM_EXTENDED_POOL } from '@ConstantsModule'
 import { VmAPI, oneApi } from '@FeaturesModule'
 import { jsonToXml } from '@ModelsModule'
-
-const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
-const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
+import { VirtualMachineCard } from '@modules/components/Cards'
+import RowAction from '@modules/components/Tables/Vms/rowActions'
 
 const Row = memo(
   ({
@@ -68,17 +65,7 @@ const Row = memo(
         onClickLabel={onClickLabel}
         onDeleteLabel={handleDeleteLabel}
         globalErrors={globalErrors}
-        actions={
-          <>
-            {CONNECTION_TYPES.map((connectionType) => (
-              <ConsoleButton
-                key={`${memoVm}-${connectionType}`}
-                connectionType={connectionType}
-                vm={memoVm}
-              />
-            ))}
-          </>
-        }
+        actions={<RowAction vm={memoVm} />}
       />
     )
   },
