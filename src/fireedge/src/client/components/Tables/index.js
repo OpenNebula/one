@@ -28,6 +28,7 @@ import ImagesTable from 'client/components/Tables/Images'
 import IncrementsTable from 'client/components/Tables/Increments'
 import MarketplaceAppsTable from 'client/components/Tables/MarketplaceApps'
 import MarketplacesTable from 'client/components/Tables/Marketplaces'
+import PcisTable from 'client/components/Tables/Pcis'
 import SecurityGroupsTable from 'client/components/Tables/SecurityGroups'
 import ServiceTemplatesTable from 'client/components/Tables/ServiceTemplates'
 import ServicesTable from 'client/components/Tables/Services'
@@ -64,6 +65,7 @@ export {
   IncrementsTable,
   MarketplaceAppsTable,
   MarketplacesTable,
+  PcisTable,
   SecurityGroupsTable,
   ServiceTemplatesTable,
   ServicesTable,

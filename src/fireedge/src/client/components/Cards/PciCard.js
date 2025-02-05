@@ -18,6 +18,7 @@ import { ReactElement, memo } from 'react'
 import { Box, Paper, Typography } from '@mui/material'
 import { rowStyles } from 'client/components/Tables/styles'
 import { StatusChip } from 'client/components/Status'
+import { ModernTv } from 'iconoir-react'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -43,13 +44,17 @@ const PciCard = memo(
       SHORT_ADDRESS,
       NAME,
       PCI_ID,
+      VMID,
     } = pci
 
-    const name = PCI_ID ? `PCI${PCI_ID}` : `${NAME}`
+    const name = PCI_ID ? `PCI${PCI_ID}` : NAME && `${NAME}`
 
     const title = DEVICE_NAME
-      ? `${name}: ${DEVICE_NAME}`
-      : SHORT_ADDRESS && `${name}: ${SHORT_ADDRESS}`
+      ? name
+        ? `${name}: ${DEVICE_NAME}`
+        : `${DEVICE_NAME}`
+      : SHORT_ADDRESS &&
+        (name ? `${name}: ${SHORT_ADDRESS}` : `${SHORT_ADDRESS}`)
 
     return (
       <Paper
@@ -76,7 +81,7 @@ const PciCard = memo(
             </span>
           </div>
           <div className={classes.caption}>
-            <span>{`#${indexPci}`}</span>
+            {indexPci !== undefined && <span>{`#${indexPci}`}</span>}
             {VENDOR && (
               <span title={`${Tr(T.Vendor)}: ${VENDOR}`}>{`${Tr(
                 T.Vendor
@@ -86,6 +91,12 @@ const PciCard = memo(
               <span title={`${Tr(T.Class)}: ${CLASS}`}>{`${Tr(
                 T.Class
               )}: ${CLASS_NAME}`}</span>
+            )}
+            {VMID && (
+              <span title={`${Tr(T.VM)}: ${VMID}`}>
+                <ModernTv />
+                <span data-cy="vm">{` ${VMID}`}</span>
+              </span>
             )}
           </div>
         </Box>

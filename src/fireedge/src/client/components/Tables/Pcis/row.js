@@ -13,41 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { useGetHostQuery } from 'client/features/OneApi/host'
-import { Stack } from '@mui/material'
-import { PcisTable } from 'client/components/Tables'
-import { getHostPcis } from 'client/models/Host'
 
-/**
- * Renders mainly information tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Host id
- * @returns {ReactElement} Information tab
- */
-const HostPciTab = ({ id }) => {
-  const { data: host = {} } = useGetHostQuery({ id })
-  const pcis = getHostPcis(host)
+import { PciCard } from 'client/components/Cards'
 
-  return (
-    <Stack
-      display="grid"
-      gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
-      padding={{ sm: '0.8em' }}
-    >
-      <PcisTable.Table disableRowSelect disableGlobalSort pcis={pcis} />
-    </Stack>
-  )
+const Row = ({
+  original,
+  value,
+  headerList,
+  rowDataCy,
+  isSelected,
+  toggleRowSelected,
+  ...props
+}) => <PciCard rootProps={props} pci={value} />
+
+Row.propTypes = {
+  original: PropTypes.object,
+  value: PropTypes.object,
+  isSelected: PropTypes.bool,
+  handleClick: PropTypes.func,
+  headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
+  rowDataCy: PropTypes.string,
+  toggleRowSelected: PropTypes.func,
 }
 
-HostPciTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-HostPciTab.displayName = 'HostPciTab'
-
-export default HostPciTab
+export default Row
