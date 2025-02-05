@@ -267,3 +267,15 @@ export const getHostHypervisors = (options = {}, data = {}) => {
       driverName: hypervisor.NAME,
     }))
 }
+
+/**
+ * Returns list of PCIs available from the host.
+ *
+ * @param {Host} host - Host
+ * @returns {object[]} - List of PCIs from host
+ */
+export const getHostPcis = (host = {}) => {
+  const pcis = host?.HOST_SHARE?.PCI_DEVICES?.PCI
+
+  return pcis ? (Array.isArray(pcis) ? pcis : [pcis]) : []
+}

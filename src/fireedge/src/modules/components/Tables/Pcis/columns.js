@@ -13,41 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { ReactElement } from 'react'
-import { HostAPI } from '@FeaturesModule'
-import { Stack } from '@mui/material'
-import { PcisTable } from '@modules/components/Tables'
-import { getHostPcis } from '@ModelsModule'
-
-/**
- * Renders mainly information tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Host id
- * @returns {ReactElement} Information tab
- */
-const HostPciTab = ({ id }) => {
-  const { data: host = {} } = HostAPI.useGetHostQuery({ id })
-  const pcis = getHostPcis(host)
-
-  return (
-    <Stack
-      display="grid"
-      gap="1em"
-      gridTemplateColumns="repeat(auto-fit, minmax(49%, 1fr))"
-      padding={{ sm: '0.8em' }}
-    >
-      <PcisTable.Table disableRowSelect disableGlobalSort pcis={pcis} />
-    </Stack>
-  )
-}
-
-HostPciTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-HostPciTab.displayName = 'HostPciTab'
-
-export default HostPciTab
+export default [
+  {
+    Header: 'VMID',
+    /**
+     * Function to return the value of the column.
+     *
+     * @param {object} props - PCI object
+     * @param {string} props.VMID - Id of the virtual machine where the PCI device is attached
+     * @returns {string} - Id of the virtual machine where the PCI device is attached
+     */
+    accessor: ({ VMID }) => VMID && VMID !== -1 && VMID !== '-1' && VMID,
+  },
+  { Header: 'VENDOR', accessor: 'VENDOR' },
+  { Header: 'VENDOR_NAME', accessor: 'VENDOR_NAME' },
+  { Header: 'CLASS', accessor: 'CLASS' },
+  { Header: 'CLASS_NAME', accessor: 'CLASS_NAME' },
+  { Header: 'DEVICE', accessor: 'DEVICE' },
+  { Header: 'DEVICE_NAME', accessor: 'DEVICE_NAME' },
+  { Header: 'SHORT_ADDRESS', accessor: 'SHORT_ADDRESS' },
+  { Header: 'ADDRESS', accessor: 'ADDRESS' },
+]

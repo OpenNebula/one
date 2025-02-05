@@ -1360,9 +1360,11 @@ module.exports = {
   DeviceTooltip:
     'Select one device of the Device name list to complete this field please.',
   Vendor: 'Vendor',
+  VendorName: 'VendorName',
   VendorTooltip:
     'Select one vendor of the Device name list to complete this field please.',
   Class: 'Class',
+  ClassName: 'Class Name',
   ClassTooltip:
     'Select one class of the Device name list to complete this field please.',
   Video: 'Video',
