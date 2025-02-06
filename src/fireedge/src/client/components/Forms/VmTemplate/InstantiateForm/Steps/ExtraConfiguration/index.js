@@ -27,6 +27,7 @@ import Networking from 'client/components/Forms/VmTemplate/CreateForm/Steps/Extr
 import Placement from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement'
 import Scheduling from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
 import Storage from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
+import Pci from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/pci'
 import Tabs from 'client/components/Tabs'
 
 import { SCHEMA } from 'client/components/Forms/VmTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
@@ -39,6 +40,7 @@ export const STEP_ID = 'extra'
 export const TABS = [
   Storage,
   Networking,
+  Pci,
   Placement,
   Scheduling,
   {
