@@ -152,15 +152,21 @@ const PciTab = ({ tabProps: { actions } = {}, id, oneConfig, adminGroup }) => {
               SHORT_ADDRESS: pci.SHORT_ADDRESS,
             })
 
+            // Complete PCI data (if the PCI is a specific device, the vm doesn't store the data about vendor, device and class)
             const pciCompleted = {
               ...pci,
-              PCI_DEVICE_NAME: transformPciToString(pci),
+              PCI_DEVICE_NAME: pciHostDevice
+                ? transformPciToString(pciHostDevice)
+                : transformPciToString(pci),
+              DEVICE: pciHostDevice ? pciHostDevice?.DEVICE : pci?.DEVICE,
               DEVICE_NAME: pciHostDevice
                 ? pciHostDevice.DEVICE_NAME
                 : pci.DEVICE,
+              VENDOR: pciHostDevice ? pciHostDevice?.VENDOR : pci?.VENDOR,
               VENDOR_NAME: pciHostDevice
                 ? pciHostDevice.VENDOR_NAME
                 : pci.VENDOR,
+              CLASS: pciHostDevice ? pciHostDevice?.CLASS : pci?.CLASS,
               CLASS_NAME: pciHostDevice ? pciHostDevice.CLASS_NAME : pci.CLASS,
               SPECIFIC_DEVICE: !!pci.SHORT_ADDRESS,
             }

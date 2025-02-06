@@ -27,6 +27,7 @@ import Networking from '@modules/components/Forms/VmTemplate/CreateForm/Steps/Ex
 import Placement from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/placement'
 import Scheduling from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/scheduleAction'
 import Storage from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/storage'
+import Pci from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/pci'
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 
 import { RESOURCE_NAMES, T, VmTemplate } from '@ConstantsModule'
@@ -39,6 +40,7 @@ export const STEP_ID = 'extra'
 export const TABS = [
   Storage,
   Networking,
+  Pci,
   Placement,
   Scheduling,
   {
