@@ -19,8 +19,8 @@ import { ConsoleButton } from '@modules/components/Buttons'
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 
-const { VNC, RDP, SSH, VMRC } = VM_ACTIONS
-const CONNECTION_TYPES = [VNC, RDP, SSH, VMRC]
+const { VNC, RDP, SSH } = VM_ACTIONS
+const CONNECTION_TYPES = [VNC, RDP, SSH]
 
 const RowAction = memo(({ vm }) => (
   <>

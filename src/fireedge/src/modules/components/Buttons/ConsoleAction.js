@@ -24,16 +24,17 @@ import {
   AppleImac2021 as VncIcon,
 } from 'iconoir-react'
 
-import { useViews, useGeneral, VmAPI } from '@FeaturesModule'
+import { VmAPI, useGeneral, useViews } from '@FeaturesModule'
 
-import { PATH } from '@modules/components'
-import { Translate } from '@modules/components/HOC'
 import { RESOURCE_NAMES, T, VM, VM_ACTIONS, _APPS } from '@ConstantsModule'
 import {
+  getDisks,
   getHypervisor,
   isVmAvailableAction,
   nicsIncludesTheConnectionType,
 } from '@ModelsModule'
+import { PATH } from '@modules/components'
+import { Translate } from '@modules/components/HOC'
 
 const GUACAMOLE_BUTTONS = {
   [VM_ACTIONS.VNC]: { tooltip: T.Vnc, icon: <VncIcon /> },
@@ -97,8 +98,9 @@ const PreConsoleButton = memo(
       const noAction = vmView?.actions?.[connectionType] !== true
       const noAvailable = !isVmAvailableAction(connectionType, vm)
       const notHypervisor = !getHypervisor(vm)
+      const getDisk = !getDisks(vm)?.length
 
-      return noAction || noAvailable || notHypervisor
+      return noAction || noAvailable || notHypervisor || getDisk
     }, [view, vm])
 
     const needNicConfig = useMemo(
