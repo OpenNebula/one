@@ -14,22 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { Chip, Stack, Typography } from '@mui/material'
-import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
-import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
 import {
-  Tr,
   MultipleTags,
   ResourcesBackButton,
-  VrTemplatesTable,
-  VmTemplateTabs,
   SubmitButton,
+  Tr,
   TranslateProvider,
+  VmTemplateTabs,
+  VrTemplatesTable,
 } from '@ComponentsModule'
 import { T, VmTemplate } from '@ConstantsModule'
 import { VrTemplateAPI, useGeneral } from '@FeaturesModule'
+import { Chip, Stack, Typography } from '@mui/material'
+import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
+import { Row } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).

@@ -14,22 +14,22 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { memo, useMemo } from 'react'
-import { useTheme, Box, CircularProgress } from '@mui/material'
 import { css } from '@emotion/css'
+import { Box, CircularProgress, useTheme } from '@mui/material'
+import { memo, useMemo } from 'react'
 
-import PropTypes from 'prop-types'
 import {
-  useTable,
+  useFlexLayout,
   useGlobalFilter,
   useRowSelect,
-  useFlexLayout,
-} from 'react-table'
+  useTable,
+} from 'opennebula-react-table'
+import PropTypes from 'prop-types'
 
 import { ListVirtualized } from '@modules/components/List'
-import Toolbar from '@modules/components/Tables/Virtualized/toolbar'
 import Header from '@modules/components/Tables/Virtualized/header'
 import Row from '@modules/components/Tables/Virtualized/row'
+import Toolbar from '@modules/components/Tables/Virtualized/toolbar'
 
 const useStyles = (theme) => ({
   root: css({

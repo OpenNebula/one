@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Column } from 'react-table'
+import { Column } from 'opennebula-react-table'
 
-import { getVMTemplateLocked } from '@ModelsModule'
 import { T } from '@ConstantsModule'
+import { getVMTemplateLocked } from '@ModelsModule'
 
 /** @type {Column[]} VM Template columns */
 const COLUMNS = [

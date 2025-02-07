@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
 import { Stack, TextField } from '@mui/material'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { Tr } from '@modules/components/HOC'
 

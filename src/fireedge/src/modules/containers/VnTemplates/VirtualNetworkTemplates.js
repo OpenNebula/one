@@ -14,24 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
+import {
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+  Tr,
+  TranslateProvider,
+  VnTemplateTabs,
+  VnTemplatesTable,
+} from '@ComponentsModule'
+import { T, VNetworkTemplate } from '@ConstantsModule'
+import { VnTemplateAPI, useGeneral } from '@FeaturesModule'
 import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
-import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
-  VnTemplatesTable,
-  VnTemplateTabs,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { T, VNetworkTemplate } from '@ConstantsModule'
-import { VnTemplateAPI, useGeneral } from '@FeaturesModule'
 
 /**
  * Displays a list of VNet Templates with a split pane between the list and selected row(s).

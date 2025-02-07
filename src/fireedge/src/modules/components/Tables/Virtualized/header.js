@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
+import { UseTableInstanceProps } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { UseTableInstanceProps } from 'react-table'
+import { useCallback } from 'react'
 
 const Header = ({ useTableProps }) => {
   /** @type {UseTableInstanceProps} */

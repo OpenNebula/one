@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useCallback, useMemo } from 'react'
+import { css } from '@emotion/css'
 import {
-  useTheme,
   alpha,
   debounce,
-  InputBase,
   FormControl,
+  InputBase,
+  useTheme,
 } from '@mui/material'
-import { css } from '@emotion/css'
+import { ReactElement, useCallback, useMemo } from 'react'
 
-import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { Search as SearchIcon } from 'iconoir-react'
-import { UseGlobalFiltersInstanceProps } from 'react-table'
+import { UseGlobalFiltersInstanceProps } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
 
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { Tr } from '@modules/components/HOC'
 
 const useStyles = ({ spacing, palette, shape, breakpoints }) => ({
   search: css({

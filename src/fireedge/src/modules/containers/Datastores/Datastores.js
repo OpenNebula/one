@@ -14,24 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { Chip, Stack, Typography } from '@mui/material'
-import Cancel from 'iconoir-react/dist/Cancel'
-import GotoIcon from 'iconoir-react/dist/Pin'
-import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
 import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
   DatastoresTable,
   DatastoreTabs,
+  MultipleTags,
+  ResourcesBackButton,
   SubmitButton,
+  Tr,
   TranslateProvider,
 } from '@ComponentsModule'
 import { Datastore, T } from '@ConstantsModule'
 import { DatastoreAPI, useGeneral } from '@FeaturesModule'
+import { Chip, Stack, Typography } from '@mui/material'
+import Cancel from 'iconoir-react/dist/Cancel'
+import GotoIcon from 'iconoir-react/dist/Pin'
+import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
+import { memo, ReactElement, useState } from 'react'
 
 /**
  * Displays a list of Datastores with a split pane between the list and selected row(s).

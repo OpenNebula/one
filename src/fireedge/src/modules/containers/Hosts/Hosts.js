@@ -14,25 +14,25 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
+import {
+  HostsTable,
+  HostTabs,
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+  Tr,
+  TranslateProvider,
+} from '@ComponentsModule'
+import { Host, T } from '@ConstantsModule'
+import { HostAPI, useGeneral } from '@FeaturesModule'
 import { Chip, Stack, Typography } from '@mui/material'
+import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
-import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
-  HostsTable,
-  HostTabs,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
-import { Host, T } from '@ConstantsModule'
-import { HostAPI, useGeneral } from '@FeaturesModule'
+import { memo, ReactElement, useState } from 'react'
 
 /**
  * Displays a list of Hosts with a split pane between the list and selected row(s).

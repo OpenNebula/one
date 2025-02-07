@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, Fragment, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { Fragment, memo, ReactElement, useMemo } from 'react'
 
 import { Stack } from '@mui/material'
 import { Filter } from 'iconoir-react'
-import { UseFiltersInstanceProps, UseFiltersState } from 'react-table'
+import {
+  UseFiltersInstanceProps,
+  UseFiltersState,
+} from 'opennebula-react-table'
 
-import { LABEL_COLUMN_ID } from '@modules/components/Tables/Enhanced/Utils/GlobalLabel'
+import { T } from '@ConstantsModule'
 import HeaderPopover from '@modules/components/Header/Popover'
 import { Translate } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { LABEL_COLUMN_ID } from '@modules/components/Tables/Enhanced/Utils/GlobalLabel'
 
 /**
  * Render all selected filters.

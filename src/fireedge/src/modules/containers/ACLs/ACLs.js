@@ -14,17 +14,17 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { Chip, Stack } from '@mui/material'
 import {
+  ACLsTable,
   MultipleTags,
   ResourcesBackButton,
-  ACLsTable,
   TranslateProvider,
 } from '@ComponentsModule'
 import { useGeneral } from '@FeaturesModule'
+import { Chip, Stack } from '@mui/material'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
 import { ReactElement, useState } from 'react'
-import { Row } from 'react-table'
 
 /**
  * Displays a list of Groups with a split pane between the list and selected row(s).

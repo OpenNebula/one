@@ -14,24 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
+import {
+  MarketplacesTable,
+  MarketplaceTabs,
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+  Tr,
+  TranslateProvider,
+} from '@ComponentsModule'
+import { Marketplace, T } from '@ConstantsModule'
+import { MarketplaceAPI, useGeneral } from '@FeaturesModule'
 import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
-import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
-  MarketplacesTable,
-  MarketplaceTabs,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { Marketplace, T } from '@ConstantsModule'
-import { useGeneral, MarketplaceAPI } from '@FeaturesModule'
+import { memo, ReactElement, useState } from 'react'
 
 /**
  * Displays a list of Marketplaces with a split pane between the list and selected row(s).

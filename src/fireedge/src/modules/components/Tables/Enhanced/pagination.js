@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
-import { UsePaginationState } from 'react-table'
+import { UsePaginationState } from 'opennebula-react-table'
 
 import { PAGINATION_SIZES, T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'

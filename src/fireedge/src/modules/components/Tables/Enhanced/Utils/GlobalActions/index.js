@@ -18,15 +18,18 @@ import { ReactElement } from 'react'
 
 import { Checkbox, Stack } from '@mui/material'
 import { RefreshDouble } from 'iconoir-react'
-import { UseRowSelectInstanceProps, UseTableInstanceProps } from 'react-table'
+import {
+  UseRowSelectInstanceProps,
+  UseTableInstanceProps,
+} from 'opennebula-react-table'
 
+import { T } from '@ConstantsModule'
 import { SubmitButton } from '@modules/components/FormControl'
 import { Tr } from '@modules/components/HOC'
 import {
   Action,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils/GlobalActions/Action'
-import { T } from '@ConstantsModule'
 
 /**
  * Render bulk actions.

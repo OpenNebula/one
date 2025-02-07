@@ -18,17 +18,17 @@ import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
+import { memo, ReactElement, useState } from 'react'
 
 import {
-  Tr,
   MultipleTags,
   ResourcesBackButton,
   ServiceTemplatesTable,
   ServiceTemplateTabs,
   SubmitButton,
+  Tr,
   TranslateProvider,
 } from '@ComponentsModule'
 import { T } from '@ConstantsModule'

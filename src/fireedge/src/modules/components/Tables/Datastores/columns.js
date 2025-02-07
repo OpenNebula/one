@@ -14,10 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { CategoryFilter } from '@modules/components/Tables/Enhanced/Utils'
-import * as DatastoreModel from '@ModelsModule'
-import { Column } from 'react-table'
 import { T } from '@ConstantsModule'
+import * as DatastoreModel from '@ModelsModule'
+import { CategoryFilter } from '@modules/components/Tables/Enhanced/Utils'
+import { Column } from 'opennebula-react-table'
 
 /** @type {Column[]} Datastore columns */
 const COLUMNS = [

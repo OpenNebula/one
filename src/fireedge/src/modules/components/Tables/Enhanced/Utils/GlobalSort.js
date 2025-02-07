@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useEffect, useMemo, memo } from 'react'
 import PropTypes from 'prop-types'
+import { memo, ReactElement, useEffect, useMemo } from 'react'
 
-import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
 import { MenuItem, MenuList, Stack } from '@mui/material'
-import { UseSortByInstanceProps, UseSortByState } from 'react-table'
+import { ArrowDown, ArrowUp, SortDown } from 'iconoir-react'
+import { UseSortByInstanceProps, UseSortByState } from 'opennebula-react-table'
 
+import { T } from '@ConstantsModule'
 import HeaderPopover from '@modules/components/Header/Popover'
 import { Translate } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
 
 /**
  * Render all selected sorters.

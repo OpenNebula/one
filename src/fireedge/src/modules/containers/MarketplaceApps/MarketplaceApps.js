@@ -14,24 +14,24 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
+import {
+  MarketplaceAppsTable,
+  MarketplaceAppsTabs,
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+  Tr,
+  TranslateProvider,
+} from '@ComponentsModule'
+import { MarketplaceApp, T } from '@ConstantsModule'
+import { MarketplaceAppAPI, useGeneral } from '@FeaturesModule'
 import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
-import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
-  MarketplaceAppsTable,
-  MarketplaceAppsTabs,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { MarketplaceApp, T } from '@ConstantsModule'
-import { useGeneral, MarketplaceAppAPI } from '@FeaturesModule'
 
 /**
  * Displays a list of Marketplace Apps with a split pane between the list and selected row(s).

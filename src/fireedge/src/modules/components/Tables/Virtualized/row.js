@@ -14,13 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useCallback } from 'react'
 import { css } from '@emotion/css'
+import { useCallback } from 'react'
 
-import PropTypes from 'prop-types'
-import clsx from 'clsx'
 import { Box } from '@mui/material'
-import { UseTableInstanceProps, UseTableRowProps } from 'react-table'
+import clsx from 'clsx'
+import { UseTableInstanceProps, UseTableRowProps } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
 import { VirtualItem } from 'react-virtual'
 
 const useStyles = () => ({

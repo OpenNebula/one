@@ -42,7 +42,7 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
-} from 'react-table'
+} from 'opennebula-react-table'
 
 import {
   ChangeViewTable,
@@ -330,7 +330,7 @@ const EnhancedTable = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  // React-table bug => https://github.com/TanStack/table/issues/5176
+  // opennebula-react-table bug => https://github.com/TanStack/table/issues/5176
   // This safely deselects rows
   const safeToggleRowSelected =
     (row) =>

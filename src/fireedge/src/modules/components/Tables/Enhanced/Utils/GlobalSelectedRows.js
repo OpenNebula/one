@@ -17,10 +17,10 @@ import PropTypes from 'prop-types'
 import { JSXElementConstructor } from 'react'
 
 import { Alert, Button, Chip, alertClasses, styled } from '@mui/material'
-import { Row, TableProps } from 'react-table'
+import { Row, TableProps } from 'opennebula-react-table'
 
-import { Translate } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { Translate } from '@modules/components/HOC'
 
 const MessageStyled = styled(Alert)({
   width: '100%',

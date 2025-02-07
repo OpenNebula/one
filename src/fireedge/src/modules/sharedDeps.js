@@ -119,10 +119,10 @@ const sharedDeps = ({ eager = false } = {}) => ({
     eager,
     requiredVersion: deps['react-transition-group'],
   },
-  'react-table': {
+  'opennebula-react-table': {
     singleton: true,
     eager,
-    requiredVersion: deps['react-table'],
+    requiredVersion: deps['opennebula-react-table'],
   },
   notistack: {
     singleton: true,

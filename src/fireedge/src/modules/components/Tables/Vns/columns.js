@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Column } from 'react-table'
+import { T } from '@ConstantsModule'
 import {
+  getVirtualNetLocked,
   getVirtualNetworkState,
   getVNManager,
-  getVirtualNetLocked,
 } from '@ModelsModule'
-import { T } from '@ConstantsModule'
+import { Column } from 'opennebula-react-table'
 
 /** @type {Column[]} Virtual Network columns */
 const COLUMNS = [

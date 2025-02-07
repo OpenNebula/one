@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 // eslint-disable-next-line no-unused-vars
 import { ReactElement, memo, useCallback, useMemo } from 'react'
 // eslint-disable-next-line no-unused-vars
-import { Row } from 'react-table'
+import { Row } from 'opennebula-react-table'
 
 import QueryButton from '@modules/components/Buttons/QueryButton'
 import { Action } from '@modules/components/Cards/SelectCard'

@@ -18,21 +18,21 @@ import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
+import { memo, ReactElement, useState } from 'react'
 
 import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
   FilesTable,
   FileTabs,
+  MultipleTags,
+  ResourcesBackButton,
   SubmitButton,
+  Tr,
   TranslateProvider,
 } from '@ComponentsModule'
 import { Image, T } from '@ConstantsModule'
-import { useGeneral, ImageAPI } from '@FeaturesModule'
+import { ImageAPI, useGeneral } from '@FeaturesModule'
 
 /**
  * Displays a list of Files with a split pane between the list and selected row(s).

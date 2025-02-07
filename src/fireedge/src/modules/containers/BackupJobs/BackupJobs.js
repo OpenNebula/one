@@ -14,20 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
-import { Chip, Stack, Typography } from '@mui/material'
-import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
-import PropTypes from 'prop-types'
-import { ReactElement, memo, useState } from 'react'
-import { Row } from 'react-table'
 import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
   BackupJobsTable,
   BackupJobsTabs,
+  MultipleTags,
+  ResourcesBackButton,
   SubmitButton,
+  Tr,
   TranslateProvider,
 } from '@ComponentsModule'
+import { Chip, Stack, Typography } from '@mui/material'
+import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
+import { Row } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useState } from 'react'
 
 import { T } from '@ConstantsModule'
 import { BackupJobAPI, useGeneral } from '@FeaturesModule'

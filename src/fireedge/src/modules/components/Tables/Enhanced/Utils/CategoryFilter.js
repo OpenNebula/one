@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
 
-import { styled, TextField, Popper, Chip } from '@mui/material'
+import { Chip, Popper, styled, TextField } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { Tr } from '@modules/components/HOC'
 

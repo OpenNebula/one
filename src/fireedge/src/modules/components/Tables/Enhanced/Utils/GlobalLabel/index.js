@@ -18,16 +18,16 @@ import { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { Stack } from '@mui/material'
 import SettingsIcon from 'iconoir-react/dist/LabelOutline'
-import { UseFiltersInstanceProps } from 'react-table'
+import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { useAuth } from '@FeaturesModule'
 
+import { T } from '@ConstantsModule'
+import { areStringEqual, jsonToXml } from '@ModelsModule'
 import { Translate } from '@modules/components/HOC'
 import HeaderPopover from '@modules/components/Header/Popover'
 import Allocator from '@modules/components/Tables/Enhanced/Utils/GlobalLabel/Allocator'
 import FilterByLabel from '@modules/components/Tables/Enhanced/Utils/GlobalLabel/Filter'
-import { T } from '@ConstantsModule'
-import { areStringEqual, jsonToXml } from '@ModelsModule'
 
 export const LABEL_COLUMN_ID = 'label'
 

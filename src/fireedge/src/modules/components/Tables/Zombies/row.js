@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
-import { useMemo, memo, ReactElement } from 'react'
-import { useTheme, Typography } from '@mui/material'
 import { rowStyles } from '@modules/components/Tables/styles'
-import { Row as RowType } from 'react-table'
+import { Typography, useTheme } from '@mui/material'
+import { Row as RowType } from 'opennebula-react-table'
+import PropTypes from 'prop-types'
+import { memo, ReactElement, useMemo } from 'react'
 
 /**
  * @param {RowType} props - Props

@@ -14,25 +14,25 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable react/prop-types */
+import {
+  MultipleTags,
+  ResourcesBackButton,
+  SubmitButton,
+  Tr,
+  TranslateProvider,
+  VmsTable,
+  VmTabs,
+} from '@ComponentsModule'
+import { T, VM } from '@ConstantsModule'
+import { setSelectedIds, useGeneral, VmAPI } from '@FeaturesModule'
+import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
 import { Chip, Stack, Typography } from '@mui/material'
 import Cancel from 'iconoir-react/dist/Cancel'
 import GotoIcon from 'iconoir-react/dist/Pin'
 import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useCallback, useEffect, useState } from 'react'
-import { Row } from 'react-table'
-import {
-  Tr,
-  MultipleTags,
-  ResourcesBackButton,
-  VmsTable,
-  VmTabs,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { T, VM } from '@ConstantsModule'
-import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
-import { setSelectedIds, useGeneral, VmAPI } from '@FeaturesModule'
+import { memo, ReactElement, useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 /**

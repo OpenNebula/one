@@ -16,16 +16,19 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
 
+import { Button, useTheme } from '@mui/material'
 import { useMemo } from 'react'
-import { useTheme, Button } from '@mui/material'
 
 import { css } from '@emotion/css'
 import { Filter as FilterIcon } from 'iconoir-react'
-import { UseGlobalFiltersInstanceProps, UseFiltersState } from 'react-table'
+import {
+  UseFiltersState,
+  UseGlobalFiltersInstanceProps,
+} from 'opennebula-react-table'
 
-import { GlobalFilter } from '@modules/components/Tables/Enhanced/Utils'
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
+import { Tr } from '@modules/components/HOC'
+import { GlobalFilter } from '@modules/components/Tables/Enhanced/Utils'
 
 const useToolbarStyles = (theme) => ({
   filterWrapper: css({

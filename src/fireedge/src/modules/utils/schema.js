@@ -20,7 +20,7 @@ import { ReactElement, SetStateAction } from 'react'
 
 import { BaseSchema, array, boolean, number, object, string } from 'yup'
 // eslint-disable-next-line no-unused-vars
-import { Row } from 'react-table'
+import { Row } from 'opennebula-react-table'
 
 // eslint-disable-next-line no-unused-vars
 import { stringToBoolean } from '@modules/utils'
