@@ -38,7 +38,7 @@ const Content = ({ data = [], setFormData, selectDiskId }) => {
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
     setList: setFormData,
-    modifiedFields: ['IMAGE', 'IMAGE_UNAME'],
+    modifiedFields: ['IMAGE', 'IMAGE_UNAME', 'IMAGE_ID'],
     fieldKey: 'general',
   })
 
