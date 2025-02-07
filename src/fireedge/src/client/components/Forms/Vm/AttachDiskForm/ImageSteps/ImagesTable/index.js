@@ -29,7 +29,7 @@ const Content = ({ data, setFormData }) => {
   const { handleSelect, handleClear } = useListForm({
     key: STEP_ID,
     setList: setFormData,
-    modifiedFields: ['IMAGE', 'IMAGE_UNAME'],
+    modifiedFields: ['IMAGE', 'IMAGE_UNAME', 'IMAGE_ID'],
     fieldKey: 'general',
   })
 
