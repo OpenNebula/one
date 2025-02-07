@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, useCallback, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory, generatePath } from 'react-router-dom'
+import { ReactElement, memo, useCallback, useMemo } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
 
-import {
-  AppleImac2021 as VncIcon,
-  TerminalOutline as SshIcon,
-  Windows as RdpIcon,
-} from 'iconoir-react'
 import { SubmitButton } from 'client/components/FormControl'
+import {
+  Windows as RdpIcon,
+  TerminalOutline as SshIcon,
+  AppleImac2021 as VncIcon,
+} from 'iconoir-react'
 
 import { useViews } from 'client/features/Auth'
 import { useLazyGetGuacamoleSessionQuery } from 'client/features/OneApi/vm'
 
-import {
-  getHypervisor,
-  nicsIncludesTheConnectionType,
-  isAvailableAction,
-} from 'client/models/VirtualMachine'
-import { Translate } from 'client/components/HOC'
-import { T, VM, RESOURCE_NAMES, VM_ACTIONS, _APPS } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routes'
+import { Translate } from 'client/components/HOC'
+import { RESOURCE_NAMES, T, VM, VM_ACTIONS, _APPS } from 'client/constants'
+import {
+  getDisks,
+  getHypervisor,
+  isAvailableAction,
+  nicsIncludesTheConnectionType,
+} from 'client/models/VirtualMachine'
 
 const GUACAMOLE_BUTTONS = {
   [VM_ACTIONS.VNC]: { tooltip: T.Vnc, icon: <VncIcon /> },
@@ -94,8 +95,9 @@ const PreConsoleButton = memo(
       const noAction = vmView?.actions?.[connectionType] !== true
       const noAvailable = !isAvailableAction(connectionType, vm)
       const notHypervisor = !getHypervisor(vm)
+      const getDisk = !getDisks(vm)?.length
 
-      return noAction || noAvailable || notHypervisor
+      return noAction || noAvailable || notHypervisor || getDisk
     }, [view, vm])
 
     const needNicConfig = useMemo(
