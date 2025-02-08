@@ -114,11 +114,13 @@ private:
     std::string  deployment_file;
     std::string  context_file;
     std::string  token_file;
+    std::string  migrate_file;
 
     // Remote paths
     std::string  checkpoint_file;
     std::string  rdeployment_file;
     std::string  system_dir;
+    std::string  rmigrate_file;
 
     /**
      *  Writes the history record in the DB

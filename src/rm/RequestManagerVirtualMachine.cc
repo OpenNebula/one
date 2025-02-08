@@ -1253,14 +1253,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (live && vm->is_pinned())
-    {
-        att.resp_msg = "VM with a pinned NUMA topology cannot be live-migrated";
-        failure_response(ACTION, att);
-
-        return;
-    }
-
     // Get System DS information from current History record
     c_ds_id  = vm->get_ds_id();
     c_tm_mad = vm->get_tm_mad();

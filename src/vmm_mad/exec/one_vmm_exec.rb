@@ -95,6 +95,8 @@ class VmmAction
 
         # For migration
         get_data(:dest_host, :MIGR_HOST)
+        get_data(:local_mfile, :LOCAL_MIGRATE_FILE)
+        get_data(:remote_mfile, :REMOTE_MIGRATE_FILE)
 
         # For disk hotplugging
         get_data(:disk_target_path)
@@ -536,8 +538,26 @@ class ExecDriver < VirtualMachineDriver
     #
     def save(id, drv_message)
         action = VmmAction.new(self, id, :save, drv_message)
+        steps = []
 
-        steps = [
+        local_mfile = action.data[:local_mfile]
+        is_action_local = action_is_local?(:save)
+
+        if !is_action_local && local_mfile && File.size?(local_mfile)
+            mdata = File.read(local_mfile)
+            mfile = action.data[:remote_mfile]
+
+            # Save migration data to remote location
+            steps << {
+                :driver   => :vmm,
+                :action   => "/bin/cat - >#{mfile}",
+                :is_local => false,
+                :stdin    => mdata,
+                :no_extra_params => true
+            }
+        end
+
+        steps.concat([
             # Save the Virtual Machine state
             {
                 :driver     => :vmm,
@@ -550,7 +570,7 @@ class ExecDriver < VirtualMachineDriver
                 :action      => :clean,
                 :parameters  => [:host]
             }
-        ]
+        ])
 
         action.run(steps)
     end
@@ -577,32 +597,32 @@ class ExecDriver < VirtualMachineDriver
         action = VmmAction.new(self, id, :restore, drv_message)
 
         steps.concat([
-                         # Execute pre-boot networking setup
-                         {
-                             :driver     => :vnm,
-                             :action     => :pre
-                         },
-                         # Restore the Virtual Machine from checkpoint
-                         {
-                             :driver     => :vmm,
-                             :action     => :restore,
-                             :parameters => [:checkpoint_file, :host,
-                                             :deploy_id]
-                         },
-                         # Execute post-boot networking setup
-                         {
-                             :driver       => :vnm,
-                             :action       => :post,
-                             :parameters   => [:deploy_id, :host],
-                             :fail_actions => [
-                                 {
-                                     :driver     => :vmm,
-                                     :action     => :cancel,
-                                     :parameters => [:deploy_id, :host]
-                                 }
-                             ]
-                         }
-                     ])
+            # Execute pre-boot networking setup
+            {
+                :driver     => :vnm,
+                :action     => :pre
+            },
+            # Restore the Virtual Machine from checkpoint
+            {
+                :driver     => :vmm,
+                :action     => :restore,
+                :parameters => [:checkpoint_file, :host,
+                                :deploy_id]
+            },
+            # Execute post-boot networking setup
+            {
+                :driver       => :vnm,
+                :action       => :post,
+                :parameters   => [:deploy_id, :host],
+                :fail_actions => [
+                    {
+                        :driver     => :vmm,
+                        :action     => :cancel,
+                        :parameters => [:deploy_id, :host]
+                    }
+                ]
+            }
+        ])
 
         action.run(steps)
     end
@@ -620,61 +640,87 @@ class ExecDriver < VirtualMachineDriver
         post << action.data[:tm_command]
         failed << action.data[:tm_command]
 
-        steps = [
-            # Execute a pre-migrate TM setup
-            {
-                :driver     => :tm,
-                :action     => :tm_premigrate,
-                :parameters => pre.split,
-                :stdin      => action.data[:vm]
-            },
-            # Execute pre-boot networking setup on migrating host
-            {
-                :driver      => :vnm,
-                :action      => :pre,
-                :destination => true
-            },
-            # Migrate the Virtual Machine
-            {
-                :driver     => :vmm,
-                :action     => :migrate,
-                :parameters => [:deploy_id, :dest_host, :host],
-                :fail_actions => [
-                    {
-                        :driver     => :tm,
-                        :action     => :tm_failmigrate,
-                        :parameters => failed.split,
-                        :stdin      => action.data[:vm],
-                        :no_fail    => true
-                    }
-                ]
-            },
-            # Execute networking clean up operations
-            # NOTE: VM is now in the new host. If we fail from now on, oned will
-            # assume that the VM is in the previous host but it is in fact
-            # migrated. Log errors will be shown in vm.log
-            {
-                :driver       => :vnm,
-                :action       => :clean,
-                :parameters   => [:host],
-                :no_fail      => true
-            },
-            # Execute post-boot networking setup on migrating host
-            {
-                :driver       => :vnm,
-                :action       => :post,
-                :parameters   => [:deploy_id, :host],
-                :destination  => true,
-                :no_fail      => true
-            },
-            {
-                :driver     => :tm,
-                :action     => :tm_postmigrate,
-                :parameters => post.split,
-                :stdin      => action.data[:vm],
-                :no_fail    => true
+        steps = []
+
+        is_action_local = action_is_local?(:migrate)
+
+        if !is_action_local
+            local_mfile = action.data[:local_mfile]
+
+            if !local_mfile || File.empty?(local_mfile)
+                send_message(ACTION[:migrate], RESULT[:failure], id,
+                             "Cannot open migrate file #{local_mfile}")
+                return
+            end
+
+            mdata = File.read(local_mfile)
+            mfile = action.data[:remote_mfile]
+
+            # Save migration data to remote location
+            steps << {
+                :driver   => :vmm,
+                :action   => "/bin/cat - >#{mfile}",
+                :is_local => false,
+                :stdin    => mdata,
+                :no_extra_params => true
             }
-        ]
+        end
+
+        steps.concat([
+                          # Execute a pre-migrate TM setup
+                          {
+                              :driver     => :tm,
+                              :action     => :tm_premigrate,
+                              :parameters => pre.split,
+                              :stdin      => action.data[:vm]
+                          },
+                          # Execute pre-boot networking setup on migrating host
+                          {
+                              :driver      => :vnm,
+                              :action      => :pre,
+                              :destination => true
+                          },
+                          # Migrate the Virtual Machine
+                          {
+                              :driver     => :vmm,
+                              :action     => :migrate,
+                              :parameters => [:deploy_id, :dest_host, :host],
+                              :fail_actions => [
+                                  {
+                                      :driver     => :tm,
+                                      :action     => :tm_failmigrate,
+                                      :parameters => failed.split,
+                                      :stdin      => action.data[:vm],
+                                      :no_fail    => true
+                                  }
+                              ]
+                          },
+                          # Execute networking clean up operations
+                          # NOTE: VM is now in the new host. If we fail from now on, oned will
+                          # assume that the VM is in the previous host but it is in fact
+                          # migrated. Log errors will be shown in vm.log
+                          {
+                              :driver       => :vnm,
+                              :action       => :clean,
+                              :parameters   => [:host],
+                              :no_fail      => true
+                          },
+                          # Execute post-boot networking setup on migrating host
+                          {
+                              :driver       => :vnm,
+                              :action       => :post,
+                              :parameters   => [:deploy_id, :host],
+                              :destination  => true,
+                              :no_fail      => true
+                          },
+                          {
+                              :driver     => :tm,
+                              :action     => :tm_postmigrate,
+                              :parameters => post.split,
+                              :stdin      => action.data[:vm],
+                              :no_fail    => true
+                          }
+                      ])
 
         action.run(steps)
     end
