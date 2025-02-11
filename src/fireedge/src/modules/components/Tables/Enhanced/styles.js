@@ -16,126 +16,127 @@
 /* eslint-disable jsdoc/require-jsdoc */
 import { css } from '@emotion/css'
 
-export const EnhancedTableStyles = ({ palette, typography, breakpoints }) => ({
-  root: css({
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'auto',
-  }),
-  rootWithoutHeight: css({
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'auto',
-    maxHeight: '14rem',
-    marginTop: '1rem',
-  }),
-  toolbar: css({
-    ...typography.body1,
-    marginBottom: '1em',
-    display: 'grid',
-    gridTemplateRows: 'auto auto',
-    gridTemplateAreas: `
-      'actions actions pagination'
-      'search search filters'`,
-    alignItems: 'start',
-    gap: '1em',
-    [breakpoints.down('md')]: {
+export const EnhancedTableStyles = ({
+  palette,
+  typography,
+  breakpoints,
+  readOnly,
+}) => {
+  const backgroundColor = readOnly
+    ? palette.action.hover
+    : palette.background.paper
+
+  return {
+    root: css({
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'auto',
+    }),
+    rootWithoutHeight: css({
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'auto',
+      maxHeight: '14rem',
+      marginTop: '1rem',
+    }),
+    toolbar: css({
+      ...typography.body1,
+      marginBottom: '1em',
+      display: 'grid',
+      gridTemplateRows: 'auto auto',
       gridTemplateAreas: `
-        'actions actions actions'
-        'pagination pagination pagination'
+        'actions actions pagination'
         'search search filters'`,
-    },
-  }),
-  actions: css({
-    gridArea: 'actions',
-  }),
-  pagination: css({
-    gridArea: 'pagination',
-  }),
-  search: css({
-    gridArea: 'search',
-  }),
-  filters: css({
-    gridArea: 'filters',
-    display: 'flex',
-    alignItems: 'center',
-    justifySelf: 'end',
-    gap: '1em',
-  }),
-  body: css({
-    overflow: 'auto',
-    display: 'grid',
-    gap: '1em',
-    gridTemplateColumns: 'minmax(0, 1fr)',
-    gridAutoRows: 'max-content',
-    '& > [role=row]': {
-      padding: '0.8em',
-      cursor: 'pointer',
-      color: palette.text.primary,
-      /**
-       * @param {object} props - Properties of the styles
-       * @returns {object} - Background color
-       */
-      backgroundColor: (props) =>
-        props.readOnly ? palette.action.hover : palette.background.paper,
-      fontWeight: typography.fontWeightRegular,
-      fontSize: '1em',
-      border: `1px solid ${palette.divider}`,
-      borderRadius: '0.5em',
-      display: 'flex',
+      alignItems: 'start',
       gap: '1em',
-      '&:hover': {
-        backgroundColor: palette.action.hover,
+      [breakpoints.down('md')]: {
+        gridTemplateAreas: `
+          'actions actions actions'
+          'pagination pagination pagination'
+          'search search filters'`,
       },
-      '&.selected': {
-        border: `.2rem solid ${palette.secondary.main}`,
-      },
-    },
-  }),
-  bodyWithoutGap: css({
-    overflow: 'auto',
-    display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr)',
-    gridAutoRows: 'max-content',
-    '& > [role=row]': {
-      padding: '0.8em',
-      cursor: 'pointer',
-      marginBottom: '1rem',
-      color: palette.text.primary,
-      /**
-       * @param {object} props - Properties of the styles
-       * @returns {object} - Background color
-       */
-      backgroundColor: (props) =>
-        props.readOnly ? palette.action.hover : palette.background.paper,
-      fontWeight: typography.fontWeightRegular,
-      fontSize: '1em',
-      border: `1px solid ${palette.divider}`,
-      borderRadius: '0.5em',
+    }),
+    actions: css({
+      gridArea: 'actions',
+    }),
+    pagination: css({
+      gridArea: 'pagination',
+    }),
+    search: css({
+      gridArea: 'search',
+    }),
+    filters: css({
+      gridArea: 'filters',
       display: 'flex',
-      '&:hover': {
-        backgroundColor: palette.action.hover,
+      alignItems: 'center',
+      justifySelf: 'end',
+      gap: '1em',
+    }),
+    body: css({
+      overflow: 'auto',
+      display: 'grid',
+      gap: '1em',
+      gridTemplateColumns: 'minmax(0, 1fr)',
+      gridAutoRows: 'max-content',
+      '& > [role=row]': {
+        padding: '0.8em',
+        cursor: 'pointer',
+        color: palette.text.primary,
+        backgroundColor: backgroundColor,
+        fontWeight: typography.fontWeightRegular,
+        fontSize: '1em',
+        border: `1px solid ${palette.divider}`,
+        borderRadius: '0.5em',
+        display: 'flex',
+        gap: '1em',
+        '&:hover': {
+          backgroundColor: palette.action.hover,
+        },
+        '&.selected': {
+          border: `.15rem solid ${palette.secondary.main}`,
+        },
       },
-      '&.selected': {
-        border: `2px solid ${palette.secondary.main}`,
+    }),
+    bodyWithoutGap: css({
+      overflow: 'auto',
+      display: 'grid',
+      gridTemplateColumns: 'minmax(0, 1fr)',
+      gridAutoRows: 'max-content',
+      '& > [role=row]': {
+        padding: '0.8em',
+        cursor: 'pointer',
+        marginBottom: '1rem',
+        color: palette.text.primary,
+        backgroundColor: backgroundColor,
+        fontWeight: typography.fontWeightRegular,
+        fontSize: '1em',
+        border: `1px solid ${palette.divider}`,
+        borderRadius: '0.5em',
+        display: 'flex',
+        '&:hover': {
+          backgroundColor: palette.action.hover,
+        },
+        '&.selected': {
+          border: `2px solid ${palette.secondary.main}`,
+        },
       },
-    },
-    '& > [role=row] p': {
-      margin: '0rem',
-    },
-  }),
-  noDataMessage: css({
-    ...typography.h6,
-    color: palette.text.hint,
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '0.8em',
-    padding: '1em',
-  }),
-  cellHeaders: css({
-    fontWeight: 'bold',
-  }),
-})
+      '& > [role=row] p': {
+        margin: '0rem',
+      },
+    }),
+    noDataMessage: css({
+      ...typography.h6,
+      color: palette.text.hint,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.8em',
+      padding: '1em',
+    }),
+    cellHeaders: css({
+      fontWeight: 'bold',
+    }),
+  }
+}
 
 export default EnhancedTableStyles
