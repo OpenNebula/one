@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { boolean, string, object } from 'yup'
+import { boolean, object, string } from 'yup'
 
+import { INPUT_TYPES, T } from '@ConstantsModule'
 import { DatastoresTable } from '@modules/components/Tables'
 import { getValidationFromFields } from '@UtilsModule'
-import { T, INPUT_TYPES } from '@ConstantsModule'
 
 const ENFORCE = {
   name: 'enforce',
@@ -33,6 +33,11 @@ const DATASTORE = {
   label: T.SelectTheNewDatastore,
   type: INPUT_TYPES.TABLE,
   Table: () => DatastoresTable.Table,
+  fieldProps: {
+    initialState: {
+      filters: [{ id: 'type', value: 'SYSTEM_DS' }],
+    },
+  },
   validation: string()
     .trim()
     .notRequired()
