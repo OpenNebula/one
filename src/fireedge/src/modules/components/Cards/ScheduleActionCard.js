@@ -14,9 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Paper, Stack, Typography, styled, useTheme } from '@mui/material'
-import { useMemo, memo } from 'react'
 import { WarningTriangleOutline as WarningIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
 import { StatusChip } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
@@ -24,11 +24,11 @@ import Timer from '@modules/components/Timer'
 
 import { T, TEMPLATE_SCHEDULE_TYPE_STRING } from '@ConstantsModule'
 import {
-  timeFromMilliseconds,
   getPeriodicityByTimeInSeconds,
   getRepeatInformation,
   getTypeScheduleAction,
   isRelative,
+  timeFromMilliseconds,
 } from '@ModelsModule'
 import { sentenceCase } from '@UtilsModule'
 import { Tr } from '@modules/components/HOC'
@@ -90,9 +90,11 @@ const ScheduleActionCard = memo(({ schedule, actions }) => {
             {typeScheduleText}
           </StyledTypographyTypeSchedule>
           {repeat && (
-            <StyledTypography variant="caption">{repeat}</StyledTypography>
+            <StyledTypography variant="caption">{Tr(repeat)}</StyledTypography>
           )}
-          {end && <StyledTypography variant="caption">{end}</StyledTypography>}
+          {end && (
+            <StyledTypography variant="caption">{Tr(end)}</StyledTypography>
+          )}
           {DONE && (
             <StyledTypography variant="caption" title={formatDoneTime}>
               <Timer

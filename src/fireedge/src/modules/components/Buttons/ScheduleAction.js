@@ -28,7 +28,6 @@ import {
 
 import { CreatePerformAction } from '@modules/components/Forms/Service'
 
-import { Tr, Translate } from '@modules/components/HOC'
 import {
   SERVER_CONFIG,
   ScheduleAction,
@@ -36,6 +35,7 @@ import {
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
 } from '@ConstantsModule'
+import { Tr, Translate } from '@modules/components/HOC'
 import { hasRestrictedAttributes, sentenceCase } from '@UtilsModule'
 
 /**
@@ -297,6 +297,6 @@ export {
   CharterButton,
   CreateSchedButton,
   DeleteSchedButton,
-  UpdateSchedButton,
   PerformActionButton,
+  UpdateSchedButton,
 }

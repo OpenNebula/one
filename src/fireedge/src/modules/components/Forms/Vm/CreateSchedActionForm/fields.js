@@ -33,14 +33,15 @@ import {
 import { DatastoreAPI } from '@FeaturesModule'
 import {
   dateToMilliseconds,
-  isDate,
-  timeFromMilliseconds,
+  getDisks,
   getPeriodicityByTimeInSeconds,
   getRequiredArgsByAction,
-  isRelative,
-  getDisks,
   getSnapshotList,
+  isDate,
+  isRelative,
+  timeFromMilliseconds,
 } from '@ModelsModule'
+import AlertText from '@modules/components/Forms/Vm/CreateSchedActionForm/AlertText'
 import { Field, arrayToOptions, prettyBytes, sentenceCase } from '@UtilsModule'
 
 // --------------------------------------------------------
@@ -548,6 +549,28 @@ export const PERIOD_FIELD = {
           : schema.strip()
       )
   ),
+}
+
+/** @type {Field} text Periodicity field */
+export const PERIOD_TEXT_FIELD = {
+  name: 'PERIOD_TEXT',
+  type: INPUT_TYPES.TYPOGRAPHY,
+  dependOf: [
+    PERIODIC_FIELD_NAME,
+    REPEAT_FIELD.name,
+    TIME_FIELD.name,
+    END_TYPE_FIELD.name,
+    END_VALUE_FIELD.name,
+    RELATIVE_TIME_FIELD.name,
+    PERIOD_FIELD.name,
+    ACTION_FIELD_NAME,
+    WEEKLY_FIELD.name,
+    MONTHLY_FIELD.name,
+    YEARLY_FIELD.name,
+    HOURLY_FIELD.name,
+  ],
+  grid: { md: 12 },
+  text: AlertText,
 }
 
 // --------------------------------------------------------

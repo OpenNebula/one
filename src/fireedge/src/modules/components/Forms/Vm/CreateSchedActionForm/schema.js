@@ -15,14 +15,15 @@
  * ------------------------------------------------------------------------- */
 import { ObjectSchema, object, string } from 'yup'
 
+import { ARGS_TYPES } from '@ConstantsModule'
+import { getRequiredArgsByAction } from '@ModelsModule'
 import {
   ACTION_FIELD_NAME,
   ACTION_FIELD_VALIDATION,
+  PERIOD_TEXT_FIELD,
   PUNCTUAL_FIELDS,
   RELATIVE_FIELDS,
 } from '@modules/components/Forms/Vm/CreateSchedActionForm/fields'
-import { ARGS_TYPES } from '@ConstantsModule'
-import { getRequiredArgsByAction } from '@ModelsModule'
 import { Field, disableFields, getObjectSchemaFromFields } from '@UtilsModule'
 
 const ARG_SCHEMA = string()
@@ -80,6 +81,7 @@ export const VM_SCHED_FIELDS = ({ vm, oneConfig, adminGroup }) =>
       PUNCTUAL_FIELDS.TIME_FIELD,
       PUNCTUAL_FIELDS.END_TYPE_FIELD,
       PUNCTUAL_FIELDS.END_VALUE_FIELD,
+      PERIOD_TEXT_FIELD,
     ],
     'SCHED_ACTION',
     oneConfig,
@@ -113,6 +115,7 @@ export const TEMPLATE_SCHED_FIELDS = ({ vm, oneConfig, adminGroup }) =>
       RELATIVE_FIELDS.PERIOD_FIELD,
       RELATIVE_FIELDS.END_TYPE_FIELD,
       PUNCTUAL_FIELDS.END_VALUE_FIELD,
+      PERIOD_TEXT_FIELD,
     ],
     'SCHED_ACTION',
     oneConfig,

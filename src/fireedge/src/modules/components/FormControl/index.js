@@ -25,6 +25,7 @@ import TableController from '@modules/components/FormControl/TableController'
 import TextController from '@modules/components/FormControl/TextController'
 import TimeController from '@modules/components/FormControl/TimeController'
 import ToggleController from '@modules/components/FormControl/ToggleController'
+import TypographyController from '@modules/components/FormControl/TypographyController'
 
 import DockerfileController from '@modules/components/FormControl/DockerfileController'
 import ErrorHelper from '@modules/components/FormControl/ErrorHelper'
@@ -53,4 +54,5 @@ export {
   TimeController,
   ToggleController,
   Tooltip,
+  TypographyController,
 }

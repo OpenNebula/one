@@ -17,6 +17,7 @@
 import { isDate, timeToString } from '@modules/models/Helper'
 
 import {
+  ALL_DAYS,
   ARGS_TYPES,
   CharterOptions,
   PERIOD_TYPES,
@@ -24,7 +25,6 @@ import {
   ScheduleAction,
   T,
   VM_ACTIONS,
-  ALL_DAYS,
 } from '@ConstantsModule'
 
 const {
@@ -155,7 +155,8 @@ export const getRepeatInformation = (action) => {
   const { REPEAT, DAYS = '', END_TYPE, END_VALUE = '' } = action ?? {}
 
   const daysOfWeek = [T.Sun, T.Mon, T.Tue, T.Wed, T.Thu, T.Fri, T.Sat]
-  const days = DAYS?.split(',')?.map((day) => daysOfWeek[day]) ?? []
+  const arrayDays = Array.isArray(DAYS) ? DAYS : DAYS?.split(',')
+  const days = arrayDays?.map((day) => daysOfWeek[day]) ?? []
 
   const repeat = {
     0: DAYS === ALL_DAYS ? `${T.Daily}` : `${T.Weekly} ${days.join(',')}`,

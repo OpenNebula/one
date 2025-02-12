@@ -21,22 +21,22 @@ import {
   isValidElement,
   memo,
   useCallback,
-  useMemo,
   useEffect,
+  useMemo,
 } from 'react'
 
 import { Accordion, AccordionSummary, FormControl, Grid } from '@mui/material'
-import { useFormContext, useWatch, useFormState } from 'react-hook-form'
+import { useFormContext, useFormState, useWatch } from 'react-hook-form'
 
+import { INPUT_TYPES } from '@ConstantsModule'
+import { Field, deepStringify, isDeeplyEmpty, simpleHash } from '@UtilsModule'
 import * as FC from '@modules/components/FormControl'
 import { useDisableStep } from '@modules/components/FormStepper'
 import Legend from '@modules/components/Forms/Legend'
-import { INPUT_TYPES } from '@ConstantsModule'
-import { Field, deepStringify, simpleHash, isDeeplyEmpty } from '@UtilsModule'
 
-import { get, set, merge, startsWith } from 'lodash'
-import { useSelector } from 'react-redux'
 import { useGeneralApi } from '@FeaturesModule'
+import { get, merge, set, startsWith } from 'lodash'
+import { useSelector } from 'react-redux'
 
 const NOT_DEPEND_ATTRIBUTES = [
   'watcher',
@@ -44,6 +44,7 @@ const NOT_DEPEND_ATTRIBUTES = [
   'getRowId',
   'renderValue',
   'selectValues',
+  'text',
 ]
 
 const INPUT_CONTROLLER = {
@@ -60,6 +61,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.TOGGLE]: FC.ToggleController,
   [INPUT_TYPES.DOCKERFILE]: FC.DockerfileController,
   [INPUT_TYPES.UNITS]: FC.InformationUnitController,
+  [INPUT_TYPES.TYPOGRAPHY]: FC.TypographyController,
 }
 
 /**

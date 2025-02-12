@@ -157,6 +157,7 @@ export const INPUT_TYPES = {
   DOCKERFILE: 'dockerfile',
   UNITS: 'units',
   LABEL: 'label',
+  TYPOGRAPHY: 'typography',
 }
 
 export const DEBUG_LEVEL = {
