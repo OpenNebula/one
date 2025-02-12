@@ -87,7 +87,7 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
         in={expanded}
         timeout="auto"
         unmountOnExit
-        className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
+        className={clsx({ subItemWrapper: isUpLg && !isFixMenu })}
       >
         <List component="div" disablePadding>
           {routes

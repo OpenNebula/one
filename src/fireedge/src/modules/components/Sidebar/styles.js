@@ -54,7 +54,7 @@ export default (theme) => ({
         '& #logo__text': {
           visibility: 'hidden',
         },
-        '& $subItemWrapper': {
+        '& .subItemWrapper': {
           display: 'none',
         },
       },
@@ -75,7 +75,7 @@ export default (theme) => ({
       '& #logo__text': {
         visibility: 'visible !important',
       },
-      '& $subItemWrapper': {
+      '& .subItemWrapper': {
         display: 'block !important',
       },
     },
@@ -120,5 +120,4 @@ export default (theme) => ({
       backgroundColor: alpha(theme.palette.secondary.main, 0.3),
     },
   }),
-  subItemWrapper: css({}),
 })
