@@ -116,20 +116,21 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
       ...(newExpressions ?? []),
     ]
 
-    const updatedValue = `${
-      updatedParts.find((part) => part.includes('HYPERVISOR='))
-        ? `HYPERVISOR=${hypervisor}`
-        : ''
-    }${
-      updatedParts.filter((part) => !part.includes('HYPERVISOR=')).length
-        ? ' & ' +
-          updatedParts
-            .filter((part) => !part.includes('HYPERVISOR='))
-            .join(' | ')
-        : ''
-    }`
+    const updatedPartsWithoutHypervisor = updatedParts.filter(
+      (part) => !part.includes('HYPERVISOR=')
+    )
 
-    // Check if the hypervisor condition already exists in the actualValue
+    const hypervisorCondition =
+      updatedParts.find((part) => part.includes('HYPERVISOR=')) ??
+      `HYPERVISOR=${hypervisor}`
+
+    const updatedValue =
+      updatedPartsWithoutHypervisor.length > 0
+        ? `${hypervisorCondition} & ${updatedPartsWithoutHypervisor.join(
+            ' | '
+          )}`
+        : hypervisorCondition
+
     const hasHypervisorCondition = actualValue?.includes(
       `HYPERVISOR=${hypervisor}`
     )
