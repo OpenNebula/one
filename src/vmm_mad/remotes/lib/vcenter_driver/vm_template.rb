@@ -1496,7 +1496,7 @@ module VCenterDriver
                 .map {|elem| elem.hex }
                 .map do |elem|
                     int, dec = elem.divmod(1)
-                    bin = int.to_s(2).to_s
+                    bin = int.to_s(2)
 
                     while dec > 0
                         int, dec = (dec * 2).divmod(1)
