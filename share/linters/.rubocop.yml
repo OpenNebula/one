@@ -558,6 +558,9 @@ Layout/LineContinuationLeadingSpace:
 # STYLE
 #######
 
+Style/RedundantFormat:
+    Enabled: false
+
 Style/HashSlice:
     Enabled: false
 
@@ -804,6 +807,9 @@ Style/SuperArguments:
 ######
 # LINT
 ######
+
+Lint/UselessConstantScoping:
+    Enabled: false
 
 Lint/ConstantResolution:
     Enabled: false
