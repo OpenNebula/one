@@ -17,9 +17,9 @@
 import PropTypes from 'prop-types'
 import { useCallback, useMemo } from 'react'
 
-import { Typography, useTheme } from '@mui/material'
+import { ImageAPI, oneApi, useAuth } from '@FeaturesModule'
 import MultipleTags from '@modules/components/MultipleTags'
-import { ImageAPI, useAuth, oneApi } from '@FeaturesModule'
+import { Typography, useTheme } from '@mui/material'
 import {
   Db as DatastoreIcon,
   Group,
@@ -29,18 +29,18 @@ import {
   User,
 } from 'iconoir-react'
 
+import { T } from '@ConstantsModule'
+import {
+  getColorFromString,
+  getImageState,
+  getUniqueLabels,
+  jsonToXml,
+  timeFromMilliseconds,
+} from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
-import { T } from '@ConstantsModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  jsonToXml,
-  getImageState,
-  timeFromMilliseconds,
-} from '@ModelsModule'
 import { prettyBytes } from '@UtilsModule'
 
 const Row = ({
@@ -164,7 +164,6 @@ const Row = ({
           </span>
         </div>
       </div>
-      <div className={classes.secondary}></div>
     </div>
   )
 }

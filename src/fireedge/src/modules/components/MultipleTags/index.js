@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Stack, Tooltip, Typography, styled } from '@mui/material'
+import { T } from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
 import { StatusChip } from '@modules/components/Status'
-import { T } from '@ConstantsModule'
+import { Stack, Tooltip, Typography, styled } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement, isValidElement, useMemo } from 'react'
 

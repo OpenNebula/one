@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import PropTypes from 'prop-types'
 import {
-  useTheme,
   Accordion,
   AccordionDetails,
   AccordionSummary,
@@ -24,19 +22,21 @@ import {
   Stack,
   Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material'
+import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
 
 import { Network } from 'iconoir-react'
 
-import MultipleTags from '@modules/components/MultipleTags'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 import { StatusChip } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 
-import { Translate, Tr } from '@modules/components/HOC'
-import { SecurityGroupRules } from '@modules/components/Tabs/Common/RulesSecGroups'
 import { Nic, NicAlias, T } from '@ConstantsModule'
 import { stringToBoolean } from '@ModelsModule'
+import { Tr, Translate } from '@modules/components/HOC'
+import { SecurityGroupRules } from '@modules/components/Tabs/Common/RulesSecGroups'
 import { groupBy } from '@UtilsModule'
 
 import { find } from 'lodash'

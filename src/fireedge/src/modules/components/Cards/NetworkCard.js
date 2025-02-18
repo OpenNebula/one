@@ -13,42 +13,43 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useMemo, ReactElement } from 'react'
-import { useTheme, Box, Stack, Typography, Tooltip } from '@mui/material'
-import PropTypes from 'prop-types'
+import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
+import clsx from 'clsx'
 import {
-  User,
+  Cloud,
   Group,
   Lock,
   Server,
-  Cloud,
+  User,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { memo, ReactElement, useMemo } from 'react'
 
 import { useAuth, useViews } from '@FeaturesModule'
-import MultipleTags from '@modules/components/MultipleTags'
-import {
-  StatusCircle,
-  StatusChip,
-  LinearProgressWithLabel,
-} from '@modules/components/Status'
 import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import {
+  LinearProgressWithLabel,
+  StatusChip,
+  StatusCircle,
+} from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 
 import {
-  getVirtualNetworkState,
-  getLeasesInfo,
-  getVNManager,
   getColorFromString,
-  getUniqueLabels,
   getErrorMessage,
+  getLeasesInfo,
+  getUniqueLabels,
+  getVirtualNetworkState,
+  getVNManager,
 } from '@ModelsModule'
 
 import {
-  VirtualNetwork,
-  T,
   ACTIONS,
   RESOURCE_NAMES,
+  T,
+  VirtualNetwork,
   VNET_THRESHOLD,
 } from '@ConstantsModule'
 
@@ -160,7 +161,7 @@ const NetworkCard = memo(
             )}
           </div>
         </div>
-        <div className={classes.secondary}>
+        <div className={clsx(classes.secondary, classes.bars)}>
           <LinearProgressWithLabel
             value={percentOfUsed}
             high={VNET_THRESHOLD.LEASES.high}

@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
-import { useTheme, Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 
 import { Network, Package } from 'iconoir-react'
 
 import { useAuth, useViews } from '@FeaturesModule'
-import MultipleTags from '@modules/components/MultipleTags'
-import Timer from '@modules/components/Timer'
 import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 import { rowStyles } from '@modules/components/Tables/styles'
+import Timer from '@modules/components/Timer'
 
+import { ACTIONS, RESOURCE_NAMES, ServiceTemplate, T } from '@ConstantsModule'
 import {
-  timeFromMilliseconds,
-  getUniqueLabels,
   getColorFromString,
+  getUniqueLabels,
+  timeFromMilliseconds,
 } from '@ModelsModule'
-import { T, ServiceTemplate, ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
 
 const ServiceTemplateCard = memo(
   /**

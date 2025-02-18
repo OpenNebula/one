@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, ReactElement, useMemo } from 'react'
-import { useTheme, Box, Typography, Tooltip } from '@mui/material'
+import { Box, Tooltip, Typography, useTheme } from '@mui/material'
+import clsx from 'clsx'
 import PropTypes from 'prop-types'
+import { memo, ReactElement, useMemo } from 'react'
 
 import {
-  User,
   Group,
   Server,
+  User,
   WarningCircledOutline as WarningIcon,
   MinusPinAlt as ZoneIcon,
 } from 'iconoir-react'
 
-import {
-  StatusCircle,
-  StatusChip,
-  LinearProgressWithLabel,
-} from '@modules/components/Status'
 import { Tr } from '@modules/components/HOC'
+import {
+  LinearProgressWithLabel,
+  StatusChip,
+  StatusCircle,
+} from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 
+import { MARKET_THRESHOLD, Marketplace, T } from '@ConstantsModule'
 import {
-  getMarketplaceState,
-  getMarketplaceCapacityInfo,
   getErrorMessage,
+  getMarketplaceCapacityInfo,
+  getMarketplaceState,
 } from '@ModelsModule'
-import { T, Marketplace, MARKET_THRESHOLD } from '@ConstantsModule'
 
 const MarketplaceCard = memo(
   /**
@@ -108,7 +109,7 @@ const MarketplaceCard = memo(
             </span>
           </div>
         </div>
-        <div className={classes.secondary}>
+        <div className={clsx(classes.secondary, classes.bars)}>
           <LinearProgressWithLabel
             value={percentOfUsed}
             label={percentLabel}

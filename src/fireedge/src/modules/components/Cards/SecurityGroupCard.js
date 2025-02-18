@@ -19,13 +19,13 @@ import { memo, ReactElement, useMemo } from 'react'
 import { Typography, useTheme } from '@mui/material'
 import { Group, PcCheck, PcNoEntry, PcWarning, User } from 'iconoir-react'
 
-import { css } from '@emotion/css'
-import { Tr } from '@modules/components/HOC'
-import MultipleTags from '@modules/components/MultipleTags'
-import { rowStyles } from '@modules/components/Tables/styles'
 import { SecurityGroup, T } from '@ConstantsModule'
+import { css } from '@emotion/css'
 import { useAuth } from '@FeaturesModule'
 import { getColorFromString, getUniqueLabels } from '@ModelsModule'
+import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { rowStyles } from '@modules/components/Tables/styles'
 import clsx from 'clsx'
 
 const getTotalOfResources = (resources) =>

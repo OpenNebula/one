@@ -50,11 +50,14 @@ export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
     display: 'flex',
     gap: 6,
     alignItems: 'center',
+    flexShrink: 0,
   }),
   labels: css({
     display: 'inline-flex',
     alignItems: 'center',
     gap: 6,
+    overflow: 'hidden',
+    flexGrow: 1,
   }),
   caption: css({
     ...typography.caption,
@@ -75,7 +78,6 @@ export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
     },
   }),
   secondary: css({
-    width: '25%',
     flexShrink: 0,
     whiteSpace: 'nowrap',
     textAlign: 'right',
@@ -89,5 +91,19 @@ export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
   }),
   actions: css({
     flexShrink: 0,
+  }),
+  bars: css({
+    width: '25%',
+  }),
+  vmActionLayout: css({
+    display: 'flex',
+    paddingTop: '.5rem',
+    alignItems: 'flex-end',
+    '& > *': {
+      flexGrow: 1,
+    },
+  }),
+  vmActions: css({
+    flexGrow: 0,
   }),
 })

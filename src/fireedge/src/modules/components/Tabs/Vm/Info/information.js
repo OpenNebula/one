@@ -18,30 +18,30 @@ import PropTypes from 'prop-types'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { useViews, ClusterAPI, VmAPI } from '@FeaturesModule'
+import { ClusterAPI, useViews, VmAPI } from '@FeaturesModule'
 
-import { Translate } from '@modules/components/HOC'
-import MultipleTags from '@modules/components/MultipleTags'
-import { StatusChip, StatusCircle } from '@modules/components/Status'
-import { List } from '@modules/components/Tabs/Common'
-import { isRestrictedAttributes } from '@UtilsModule'
-import { PATH } from '@modules/components/path'
 import {
   RESOURCE_NAMES,
+  RESTRICTED_ATTRIBUTES_TYPE,
   T,
   VM,
   VM_ACTIONS,
-  RESTRICTED_ATTRIBUTES_TYPE,
 } from '@ConstantsModule'
 import {
   booleanToString,
-  levelLockToString,
-  timeToString,
   getIps,
   getLastHistory,
   getNicWithPortForwarding,
   getVirtualMachineState,
+  levelLockToString,
+  timeToString,
 } from '@ModelsModule'
+import { Translate } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTags'
+import { PATH } from '@modules/components/path'
+import { StatusChip, StatusCircle } from '@modules/components/Status'
+import { List } from '@modules/components/Tabs/Common'
+import { isRestrictedAttributes } from '@UtilsModule'
 
 const { CLUSTER, HOST } = RESOURCE_NAMES
 
@@ -136,7 +136,11 @@ const InformationPanel = ({ vm = {}, actions, oneConfig, adminGroup }) => {
     },
     {
       name: T.IP,
-      value: ips?.length ? <MultipleTags tags={ips} clipboard /> : '--',
+      value: ips?.length ? (
+        <MultipleTags tags={ips} clipboard limitTags={2} />
+      ) : (
+        '--'
+      ),
       dataCy: 'ips',
     },
     EXTERNAL_PORT_RANGE &&

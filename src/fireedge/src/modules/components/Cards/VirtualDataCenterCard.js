@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
-import { useTheme, Typography } from '@mui/material'
 import { ReactElement, memo, useMemo } from 'react'
 
 import {
@@ -25,8 +25,8 @@ import {
   Network as VNetIcon,
 } from 'iconoir-react'
 
-import MultipleTags from '@modules/components/MultipleTags'
 import { useAuth, useViews } from '@FeaturesModule'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 
 import { Tr } from '@modules/components/HOC'
 import { StatusCircle } from '@modules/components/Status'

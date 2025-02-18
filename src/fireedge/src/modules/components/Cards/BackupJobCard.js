@@ -15,24 +15,24 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, memo, useMemo } from 'react'
 
-import { useTheme, Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 
-import { Tr } from '@modules/components/HOC'
-import { StatusCircle } from '@modules/components/Status'
-import { rowStyles } from '@modules/components/Tables/styles'
-import MultipleTags from '@modules/components/MultipleTags'
 import {
   getColorFromString,
   getUniqueLabels,
   timeFromMilliseconds,
 } from '@ModelsModule'
+import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { StatusCircle } from '@modules/components/Status'
+import { rowStyles } from '@modules/components/Tables/styles'
 
+import { COLOR, T } from '@ConstantsModule'
 import Timer from '@modules/components/Timer'
-import { T, COLOR } from '@ConstantsModule'
 import { Group, HighPriority, Lock, User } from 'iconoir-react'
 
-import PropTypes from 'prop-types'
 import { useAuth } from '@FeaturesModule'
+import PropTypes from 'prop-types'
 
 const haveValues = function (object) {
   return Object.values(object).length > 0

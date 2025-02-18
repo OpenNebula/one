@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
+import clsx from 'clsx'
 import PropTypes from 'prop-types'
-import { useTheme, Box, Stack, Tooltip, Typography } from '@mui/material'
 import { memo, ReactElement, useMemo } from 'react'
 
-import MultipleTags from '@modules/components/MultipleTags'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 import {
   Cloud,
   Group,
@@ -37,20 +38,20 @@ import { rowStyles } from '@modules/components/Tables/styles'
 
 import {
   Datastore,
-  DS_THRESHOLD,
-  T,
   DATASTORE_ACTIONS,
+  DS_THRESHOLD,
   RESOURCE_NAMES,
+  T,
 } from '@ConstantsModule'
+import { useAuth, useViews } from '@FeaturesModule'
 import {
+  getColorFromString,
   getDatastoreCapacityInfo,
   getDatastoreState,
   getDatastoreType,
-  getColorFromString,
   getErrorMessage,
   getUniqueLabels,
 } from '@ModelsModule'
-import { useAuth, useViews } from '@FeaturesModule'
 
 const DatastoreCard = memo(
   /**
@@ -157,7 +158,7 @@ const DatastoreCard = memo(
             )}
           </div>
         </div>
-        <div className={classes.secondary}>
+        <div className={clsx(classes.secondary, classes.bars)}>
           <LinearProgressWithLabel
             value={percentOfUsed}
             label={percentLabel}

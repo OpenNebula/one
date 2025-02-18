@@ -28,10 +28,10 @@ import {
   User,
 } from 'iconoir-react'
 
+import { T } from '@ConstantsModule'
 import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
-import { T } from '@ConstantsModule'
 
 import { getImageState, timeFromMilliseconds } from '@ModelsModule'
 
@@ -117,7 +117,6 @@ const Row = ({ original, value, toggleRowSelected, ...props }) => {
           </span>
         </div>
       </div>
-      <div className={classes.secondary}></div>
     </div>
   )
 }

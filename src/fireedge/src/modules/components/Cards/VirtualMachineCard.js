@@ -13,40 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
-import { useTheme, Box, Stack, Tooltip, Typography } from '@mui/material'
 import { ReactElement, memo, useMemo } from 'react'
 
 import {
   Cpu,
   Group,
   HardDrive,
+  Internet as HostnameIcon,
   Lock,
   Network,
   User,
-  Internet as HostnameIcon,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
 
-import { Tr } from '@modules/components/HOC'
-import { MemoryIcon } from '@modules/components/Icons'
-import MultipleTags from '@modules/components/MultipleTags'
-import { StatusChip, StatusCircle } from '@modules/components/Status'
-import { rowStyles } from '@modules/components/Tables/styles'
-import Timer from '@modules/components/Timer'
-import { useAuth, useViews } from '@FeaturesModule'
-
 import { ACTIONS, RESOURCE_NAMES, T, VM } from '@ConstantsModule'
+import { useAuth, useViews } from '@FeaturesModule'
 import {
   getColorFromString,
   getErrorMessage,
-  getUniqueLabels,
-  timeFromMilliseconds,
   getIps,
   getLastHistory,
+  getUniqueLabels,
   getVirtualMachineState,
+  timeFromMilliseconds,
 } from '@ModelsModule'
+import { Tr } from '@modules/components/HOC'
+import { MemoryIcon } from '@modules/components/Icons'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { StatusChip, StatusCircle } from '@modules/components/Status'
+import { rowStyles } from '@modules/components/Tables/styles'
+import Timer from '@modules/components/Timer'
 import { prettyBytes } from '@UtilsModule'
+import clsx from 'clsx'
 
 const VirtualMachineCard = memo(
   /**
@@ -182,53 +182,63 @@ const VirtualMachineCard = memo(
               <MultipleTags tags={labels} />
             </span>
           </div>
-          <div className={classes.caption}>
-            <span data-cy="id">{`#${ID}`}</span>
-            <span title={timeFormat}>
-              {`${+ETIME ? Tr(T.Done) : Tr(T.Started)} `}
-              <Timer initial={time} />
-            </span>
-            <span title={`${Tr(T.VirtualCpu)}: ${VCPU}`}>
-              <Cpu />
-              <span data-cy="vcpu">{VCPU}</span>
-            </span>
-            <span title={`${Tr(T.Memory)}: ${memValue}`}>
-              <MemoryIcon width={20} height={20} />
-              <span data-cy="memory">{memValue}</span>
-            </span>
-            <span title={`${Tr(T.Host)}: ${HOSTNAME}`}>
-              <HardDrive />
-              <span data-cy="hostname">{HOSTNAME}</span>
-            </span>
-            {!!VM_HOSTNAME && (
-              <span title={`${Tr(T.Hostname)}: ${VM_HOSTNAME}`}>
-                <HostnameIcon />
-                <span>{` ${VM_HOSTNAME}`}</span>
+          <div className={classes.vmActionLayout}>
+            <div className={classes.caption}>
+              <span data-cy="id">{`#${ID}`}</span>
+              <span title={timeFormat}>
+                {`${+ETIME ? Tr(T.Done) : Tr(T.Started)} `}
+                <Timer initial={time} />
               </span>
-            )}
-            {!!UNAME && (
-              <span title={`${Tr(T.Owner)}: ${UNAME}`}>
-                <User />
-                <span>{` ${UNAME}`}</span>
+              <span title={`${Tr(T.VirtualCpu)}: ${VCPU}`}>
+                <Cpu />
+                <span data-cy="vcpu">{VCPU}</span>
               </span>
-            )}
-            {!!GNAME && (
-              <span title={`${Tr(T.Group)}: ${GNAME}`}>
-                <Group />
-                <span>{` ${GNAME}`}</span>
+              <span title={`${Tr(T.Memory)}: ${memValue}`}>
+                <MemoryIcon width={20} height={20} />
+                <span data-cy="memory">{memValue}</span>
               </span>
-            )}
-            {!!ips?.length && (
-              <span title={`${Tr(T.IP)}`}>
-                <Network />
-                <Stack direction="row" justifyContent="end" alignItems="center">
-                  <MultipleTags tags={ips} clipboard />
-                </Stack>
+              <span title={`${Tr(T.Host)}: ${HOSTNAME}`}>
+                <HardDrive />
+                <span data-cy="hostname">{HOSTNAME}</span>
               </span>
+              {!!VM_HOSTNAME && (
+                <span title={`${Tr(T.Hostname)}: ${VM_HOSTNAME}`}>
+                  <HostnameIcon />
+                  <span>{` ${VM_HOSTNAME}`}</span>
+                </span>
+              )}
+              {!!UNAME && (
+                <span title={`${Tr(T.Owner)}: ${UNAME}`}>
+                  <User />
+                  <span>{` ${UNAME}`}</span>
+                </span>
+              )}
+              {!!GNAME && (
+                <span title={`${Tr(T.Group)}: ${GNAME}`}>
+                  <Group />
+                  <span>{` ${GNAME}`}</span>
+                </span>
+              )}
+              {!!ips?.length && (
+                <span title={`${Tr(T.IP)}`}>
+                  <Network />
+                  <Stack
+                    direction="row"
+                    justifyContent="end"
+                    alignItems="center"
+                  >
+                    <MultipleTags tags={ips} clipboard limitTags={2} />
+                  </Stack>
+                </span>
+              )}
+            </div>
+            {actions && (
+              <div className={clsx(classes.actions, classes.vmActions)}>
+                {actions}
+              </div>
             )}
           </div>
         </div>
-        {actions && <div className={classes.actions}>{actions}</div>}
       </div>
     )
   }

@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
-import { useTheme, Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 
-import { Lock, User, Group, Cart } from 'iconoir-react'
+import { Cart, Group, Lock, User } from 'iconoir-react'
 
 import { useAuth, useViews } from '@FeaturesModule'
-import MultipleTags from '@modules/components/MultipleTags'
-import { StatusCircle, StatusChip } from '@modules/components/Status'
 import { Tr } from '@modules/components/HOC'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 
 import {
+  MARKETPLACE_APP_ACTIONS,
+  MarketplaceApp,
+  RESOURCE_NAMES,
+  T,
+} from '@ConstantsModule'
+import {
+  getColorFromString,
   getMarketplaceAppState,
   getMarketplaceAppType,
   getUniqueLabels,
-  getColorFromString,
 } from '@ModelsModule'
 import { prettyBytes } from '@UtilsModule'
-import {
-  T,
-  MarketplaceApp,
-  MARKETPLACE_APP_ACTIONS,
-  RESOURCE_NAMES,
-} from '@ConstantsModule'
 
 const MarketplaceAppCard = memo(
   /**

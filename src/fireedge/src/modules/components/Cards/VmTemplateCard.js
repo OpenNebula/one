@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useMemo } from 'react'
-import { useTheme, Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement, memo, useMemo } from 'react'
 
-import { User, Group, Lock } from 'iconoir-react'
+import { Group, Lock, User } from 'iconoir-react'
 
 import { useAuth, useViews } from '@FeaturesModule'
-import MultipleTags from '@modules/components/MultipleTags'
-import Timer from '@modules/components/Timer'
-import Image from '@modules/components/Image'
-import { StatusChip } from '@modules/components/Status'
 import { Tr } from '@modules/components/HOC'
+import Image from '@modules/components/Image'
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { StatusChip } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
+import Timer from '@modules/components/Timer'
 
 import {
-  timeFromMilliseconds,
-  getUniqueLabels,
-  getColorFromString,
-  stringToBoolean,
-} from '@ModelsModule'
-import { isExternalURL } from '@UtilsModule'
-import {
-  T,
-  VM,
   ACTIONS,
+  DEFAULT_TEMPLATE_LOGO,
   RESOURCE_NAMES,
   STATIC_FILES_URL,
-  DEFAULT_TEMPLATE_LOGO,
+  T,
+  VM,
 } from '@ConstantsModule'
+import {
+  getColorFromString,
+  getUniqueLabels,
+  stringToBoolean,
+  timeFromMilliseconds,
+} from '@ModelsModule'
+import { isExternalURL } from '@UtilsModule'
 
 const VmTemplateCard = memo(
   /**
@@ -105,22 +105,10 @@ const VmTemplateCard = memo(
         data-cy={`template-${ID}`}
         style={{
           position: 'relative',
-          padding: 'calc(1vh - 0.3vw)',
           minHeight: '110px',
           minWidth: '400px',
         }}
       >
-        <div
-          className="label-container"
-          style={{
-            position: 'absolute',
-            top: '-9px',
-            right: '-7px',
-            padding: '8px',
-          }}
-        >
-          <MultipleTags tags={labels} />
-        </div>
         <div
           className={classes.figure}
           style={{ flexBasis: '10%', aspectRatio: '1.33/1' }}
@@ -133,10 +121,7 @@ const VmTemplateCard = memo(
             }}
           />
         </div>
-        <div
-          className={classes.main}
-          style={{ paddingTop: labels && labels.length > 0 ? '20px' : '0' }}
-        >
+        <div className={classes.main}>
           <div className={classes.title}>
             <Typography noWrap component="span" title={NAME}>
               {NAME}
@@ -145,6 +130,7 @@ const VmTemplateCard = memo(
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock data-cy="lock" />}
               {isVR && <StatusChip text={'VROUTER'} />}
+              <MultipleTags tags={labels} />
             </span>
           </div>
           <div className={classes.caption}>

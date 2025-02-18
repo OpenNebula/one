@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import MultipleTags from '@modules/components/MultipleTagsCard'
+import { Typography, useTheme } from '@mui/material'
+import clsx from 'clsx'
 import PropTypes from 'prop-types'
-import { useTheme, Typography } from '@mui/material'
 import { memo, ReactElement, useMemo } from 'react'
-import MultipleTags from '@modules/components/MultipleTags'
 
 import { ModernTv, Server } from 'iconoir-react'
 
@@ -29,10 +30,10 @@ import {
 import { rowStyles } from '@modules/components/Tables/styles'
 
 import {
-  getColorFromString,
-  getUniqueLabels,
   getAllocatedInfo,
+  getColorFromString,
   getHostState,
+  getUniqueLabels,
 } from '@ModelsModule'
 
 import { Host, HOST_THRESHOLD, T } from '@ConstantsModule'
@@ -124,7 +125,7 @@ const HostCard = memo(
             </span>
           </div>
         </div>
-        <div className={classes.secondary}>
+        <div className={clsx(classes.secondary, classes.bars)}>
           <LinearProgressWithLabel
             value={percentCpuUsed}
             high={HOST_THRESHOLD.CPU.high}
