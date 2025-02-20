@@ -13,27 +13,38 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { AddCircledOutline, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { AddCircledOutline, Trash } from 'iconoir-react'
 
-import { useDispatch } from 'react-redux'
 import {
-  HostAPI,
-  useViews,
+  HOST_ACTIONS,
+  HOST_STATES,
+  RESOURCE_NAMES,
+  STATES,
+  T,
+} from '@ConstantsModule'
+import {
   ClusterAPI,
-  useGeneralApi,
+  HostAPI,
   oneApi,
+  useGeneralApi,
+  useViews,
 } from '@FeaturesModule'
-import { Translate } from '@modules/components/HOC'
 import { ChangeClusterForm } from '@modules/components/Forms/Cluster'
+import { Translate } from '@modules/components/HOC'
+import { PATH } from '@modules/components/path'
 import {
   createActions,
   GlobalAction,
 } from '@modules/components/Tables/Enhanced/Utils'
-import { PATH } from '@modules/components/path'
 import { formatError } from '@UtilsModule'
-import { T, HOST_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import { useDispatch } from 'react-redux'
+
+const isDisabled = (action) => (rows) =>
+  rows
+    .map(({ original }) => original)
+    .every(({ STATE }) => HOST_STATES[STATE].name === action)
 
 const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -111,6 +122,7 @@ const Actions = () => {
             color: 'secondary',
             dataCy: `host_${HOST_ACTIONS.ENABLE}`,
             label: T.Enable,
+            disabled: isDisabled(STATES.MONITORED),
             tooltip: T.Enable,
             selected: true,
             action: async (rows) => {
@@ -123,6 +135,7 @@ const Actions = () => {
             color: 'secondary',
             dataCy: `host_${HOST_ACTIONS.DISABLE}`,
             label: T.Disable,
+            disabled: isDisabled(STATES.DISABLED),
             tooltip: T.Disable,
             selected: true,
             action: async (rows) => {
