@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { number, string, object, ObjectSchema } from 'yup'
+import { number, object, ObjectSchema, string } from 'yup'
 
 import {
-  Field,
-  getValidationFromFields,
-  filterFieldsByHypervisor,
-  arrayToOptions,
-  disableFields,
-} from '@UtilsModule'
-import {
-  T,
-  INPUT_TYPES,
   HYPERVISORS,
+  INPUT_TYPES,
   SERVER_CONFIG,
+  T,
   UNITS,
 } from '@ConstantsModule'
+import {
+  arrayToOptions,
+  disableFields,
+  Field,
+  filterFieldsByHypervisor,
+  getValidationFromFields,
+} from '@UtilsModule'
 
 /** @type {Field} Size field */
 const SIZE = {
@@ -90,19 +90,13 @@ const FORMAT = (hypervisor) => ({
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   dependOf: 'TYPE',
-  htmlType: (type) => type === 'swap' && INPUT_TYPES.HIDDEN,
+  htmlType: (type) => !['fs', 'swap'].includes(type) && INPUT_TYPES.HIDDEN,
   values: [
     { text: '-', value: undefined },
     { text: 'Raw', value: 'raw' },
     { text: 'qcow2', value: 'qcow2' },
   ],
-  validation: string()
-    .trim()
-    .when('TYPE', (type, schema) =>
-      type === 'swap'
-        ? schema.notRequired().default(undefined)
-        : schema.required().default(undefined)
-    ),
+  validation: string().trim().required().default(undefined),
 })
 
 /** @type {Field} Filesystem field */
