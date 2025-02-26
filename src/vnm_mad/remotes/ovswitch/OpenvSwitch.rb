@@ -445,7 +445,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
         add_flow("table=0, in_port=#{port}, ip, nw_dst=#{int_ip_range}", "resubmit(,10)", 120)
         add_flow("table=0, in_port=#{port}, ip", "ct(commit, nat(src=#{br_ip})), mod_dl_src:#{br_mac}, mod_dl_dst:#{gw_mac}, output:#{nic_ext}", 110)
-        add_flow("table=0, in_port=#{nic_ext}, ip, nw_dst=#{br_ip}", "ct(table=1, nat), resubmit(, 1)", 110)
+        add_flow("table=0, in_port=#{nic_ext}, ip, nw_dst=#{br_ip}", "ct(table=1, nat), NORMAL", 110)
         add_flow("table=1, ip, nw_dst=#{@nic[:ip]}", "mod_dl_src:#{int_mac}, mod_dl_dst:#{@nic[:mac]}, output:#{port}", 110)
     end
 
