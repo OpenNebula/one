@@ -33,7 +33,8 @@
 
 class AuthRequest;
 class Snapshots;
-class HostShareCapacity;
+
+struct HostShareCapacity;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -248,6 +249,11 @@ public:
     {
         resched = do_sched ? 1 : 0;
     };
+
+    bool is_resched()
+    {
+        return resched == 1;
+    }
 
     // -------------------------------------------------------------------------
     // Log & Print
@@ -1157,6 +1163,16 @@ public:
     }
 
     /**
+     * Returns a set of the NIC IDs that uses NETWORK_MODE auto
+     *     @param ids a set of NIC IDs
+     *     @return the number of ids in the set
+     */
+    int get_auto_nics(std::set<int>& ids)
+    {
+        return nics.get_auto_nics(ids);
+    }
+
+    /**
      * Returns a set of the security group IDs in use in this VM.
      *     @param sgs a set of security group IDs
      */
@@ -1200,6 +1216,12 @@ public:
      *  Remove this VM from its role and VM group if any
      */
     void release_vmgroup();
+
+
+    /**
+     *  @return the ID of the VMGroup, -1 if none
+     */
+    int vmgroup_id();
 
     // ------------------------------------------------------------------------
     // Virtual Router related functions

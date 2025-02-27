@@ -111,7 +111,8 @@ main_env.Append(LIBPATH=[
     cwd+'/src/ipamm',
     cwd+'/src/data_model',
     cwd+'/src/protocol',
-    cwd+'/src/sam'
+    cwd+'/src/sam',
+    cwd+'/src/schedm'
 ])
 
 # Compile flags
@@ -291,8 +292,6 @@ else:
     main_env.Replace(mysql='yes')
     shutil.rmtree('.xmlrpc_test', True)
     shutil.rmtree('src/nebula/.xmlrpc_test', True)
-    shutil.rmtree('src/scheduler/.xmlrpc_test', True)
-
 
 # libxml2
 main_env.ParseConfig('xml2-config --libs --cflags')
@@ -323,7 +322,7 @@ build_scripts = [
     'src/im/SConstruct',
     'src/image/SConstruct',
     'src/dm/SConstruct',
-    'src/scheduler/SConstruct',
+    'src/schedm_mad/remotes/rank/SConstruct',
     'src/vnm/SConstruct',
     'src/vn_template/SConstruct',
     'src/hm/SConstruct',
@@ -347,6 +346,7 @@ build_scripts = [
     'src/onedb/SConstruct',
     'src/protocol/SConstruct',
     'src/sam/SConstruct',
+    'src/schedm/SConstruct',
     svncterm_path,
     'share/context/SConstruct'
 ]

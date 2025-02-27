@@ -143,6 +143,16 @@ public:
         return rc == 0 && floating && only;
     }
 
+    /**
+     *  Check if the NIC uses auto mode
+     */
+    bool is_auto() const
+    {
+        std::string net_mode = vector_value("NETWORK_MODE");
+
+        return one_util::icasecmp(net_mode, "AUTO");
+    }
+
     /*
      * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
      */
@@ -359,6 +369,13 @@ public:
      *     @param sgs a set of security group IDs
      */
     void get_security_groups(std::set<int>& sgs);
+
+    /**
+     * Returns a set of the NIC IDs that uses NETWORK_MODE auto
+     *     @param ids a set of NIC IDs
+     *     @return the number of ids in the set
+     */
+    int get_auto_nics(std::set<int>& ids);
 
     /* ---------------------------------------------------------------------- */
     /* Network Manager Interface                                              */

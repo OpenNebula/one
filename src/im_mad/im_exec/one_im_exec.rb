@@ -99,15 +99,15 @@ class InformationManagerDriver < OpenNebulaDriver
             end
         end
 
-        result, info = do_action(input[:im_mad],
+        do_action(input[:im_mad],
                   input[:host_id],
                   input[:hostname],
                   :START_MONITOR,
                   :stdin       => input[:stdin],
                   :script_name => 'run_monitord_client',
-                  :respond     => false)
-
-        write_respond(:START_MONITOR, result, input[:host_id], info)
+                  :respond     => false,
+                  :zip         => true,
+                  :base64      => true)
     end
 
     def stop_monitor(_not_used, _hostid, _timestamp, zaction64)
@@ -115,15 +115,15 @@ class InformationManagerDriver < OpenNebulaDriver
 
         return if rc == -1
 
-        result, info = do_action(input[:im_mad],
+        do_action(input[:im_mad],
                   input[:host_id],
                   input[:hostname],
                   :STOP_MONITOR,
                   :script_name => 'stop_monitord_client',
                   :stdin       => input[:stdin],
-                  :respond     => false)
-
-        write_respond(:STOP_MONITOR, result, input[:host_id], info)
+                  :respond     => false,
+                  :zip         => true,
+                  :base64      => true)
     end
 
     private
@@ -145,11 +145,10 @@ class InformationManagerDriver < OpenNebulaDriver
 
         config_xml.add_element(hid_elem)
 
-        [0, {:im_mad   => im_mad,
-             :host_id  => host_id,
-             :hostname => hostname,
-             :stdin    => config_xml.to_s}]
-
+        [0, { :im_mad   => im_mad,
+              :host_id  => host_id,
+              :hostname => hostname,
+              :stdin    => config_xml.to_s }]
     rescue StandardError => e
         write_respond(msg_type,
                       RESULT[:failure],
@@ -161,42 +160,21 @@ class InformationManagerDriver < OpenNebulaDriver
 
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
-    def log(id, message, not_used=true)
-        msg = message.strip
-
-        msg.each_line do |line|
-            severity = 'I'
-
-            m = line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
-
-            if m
-                line = m[2]
-
-                case m[1]
-                when 'ERROR'
-                    severity = 'E'
-                when 'DEBUG'
-                    severity = 'D'
-                when 'INFO'
-                    severity = 'I'
-                else
-                    severity = 'I'
-                end
-            end
-
-            write_respond('LOG', severity, id, line.strip)
-        end
-    end
-
-    def write_respond(action="-", result=RESULT[:failure], id="-", info="-")
-        info = Zlib::Deflate.deflate(info, Zlib::BEST_COMPRESSION)
-        info = Base64.strict_encode64(info)
-
-        @stdout_mutex.synchronize {
-            STDOUT.puts "#{action} #{result} #{id} #{Time.now.to_i} #{info}"
-            STDOUT.flush
+    def log_method(num, _options = {})
+        lambda {|message, all = true|
+            log(num, message, all, :compress => true, :encode => true)
         }
     end
+
+    # rubocop:disable Metrics/ParameterLists
+    def send_message(action = '-', result = RESULT[:failure], id = '-', info = '-')
+        @send_mutex.synchronize do
+            STDOUT.puts "#{action} #{result} #{id} #{Time.now.to_i} #{info}"
+            STDOUT.flush
+        end
+    end
+    # rubocop:enable Metrics/ParameterLists
+
 end
 
 # Information Manager main program

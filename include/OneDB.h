@@ -88,6 +88,13 @@ namespace one_db
     extern const char * cluster_bitmap_table;
 
     /* ---------------------------------------------------------------------- */
+    /* Plan tables                                                         */
+    /* ---------------------------------------------------------------------- */
+    extern const char * plan_table;
+    extern const char * plan_db_names;
+    extern const char * plan_db_bootstrap;
+
+    /* ---------------------------------------------------------------------- */
     /* ACL tables                                                             */
     /* ---------------------------------------------------------------------- */
     extern const char * acl_table;

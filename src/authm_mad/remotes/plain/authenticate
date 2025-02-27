@@ -71,6 +71,6 @@ end
 if pass == secret
     exit 0
 else
-    OpenNebula.error_message "Invalid credentials"
+    OpenNebula::DriverLogger.report "Invalid credentials"
     exit -1
 end

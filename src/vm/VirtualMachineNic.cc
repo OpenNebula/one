@@ -154,9 +154,7 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     set<int> sgroups;
 
-    string net_mode = this->vector_value("NETWORK_MODE");
-
-    if ( one_util::icasecmp(net_mode, "AUTO") )
+    if ( is_auto() )
     {
         return;
     }
@@ -319,7 +317,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
         {
             VirtualMachineNic * nic = new VirtualMachineNic(vnic, nic_id);
 
-            if (net_mode != "AUTO"  )
+            if (net_mode != "AUTO")
             {
                 if ( nic_default != 0 )
                 {
@@ -343,7 +341,6 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
             }
             else
             {
-                // set nic name for NIC_ALIAS
                 nic->set_nic_name();
 
                 nic->replace("NIC_ID", nic_id);
@@ -444,8 +441,36 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachineNics::get_auto_nics(std::set<int>& ids)
+{
+    int num = 0;
+
+    ids.clear();
+
+    for ( nic_iterator nic = begin() ; nic != end() ; ++nic )
+    {
+        if ( !(*nic)->is_auto() )
+        {
+            continue;
+        }
+
+        ids.insert((*nic)->get_nic_id());
+
+        ++num;
+    }
+
+    return num;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
-                                                VectorAttribute * nic_default, vector<VectorAttribute*>& sgs,
+                                                VectorAttribute * nic_default,
+                                                vector<VectorAttribute*>& sgs,
                                                 std::string& error_str)
 {
     Nebula& nd = Nebula::instance();
@@ -462,9 +487,7 @@ int VirtualMachineNics::get_auto_network_leases(int vm_id, int uid,
     {
         int nic_id;
 
-        std::string net_mode = (*nic)->vector_value("NETWORK_MODE");
-
-        if ( !one_util::icasecmp(net_mode, "AUTO") )
+        if ( !(*nic)->is_auto() )
         {
             continue;
         }

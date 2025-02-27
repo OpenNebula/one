@@ -141,7 +141,7 @@
               <xs:element name="NIC_DEFAULT" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NUMA_NODE" minOccurs="0" maxOccurs="1"/>
               <xs:element name="OS" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="PCI" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="PCI" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="RAW" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SECURITY_GROUP_RULE" minOccurs="0" maxOccurs="unbounded"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
@@ -164,7 +164,7 @@
               <xs:element name="TOPOLOGY" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VCPU_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VMGROUP" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="VMGROUP" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VMID" type="xs:string"/>
               <xs:element name="VROUTER_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="VROUTER_KEEPALIVED_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>

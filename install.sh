@@ -255,11 +255,7 @@ else
     CHOWN_DIRS="$ROOT"
 fi
 
-SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/examples/external_scheduler \
-            $SHARE_LOCATION/examples/host_hooks \
-            $SHARE_LOCATION/examples/network_hooks \
-            $SHARE_LOCATION/websockify \
+SHARE_DIRS="$SHARE_LOCATION/websockify \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/oneprovision \
             $SHARE_LOCATION/schemas \
@@ -294,6 +290,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge/sunstone/groupadmin \
           $ETC_LOCATION/fireedge/sunstone/cloud \
           $ETC_LOCATION/alertmanager \
+          $ETC_LOCATION/schedulers \
           $ETC_LOCATION/prometheus"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
@@ -306,6 +303,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/onedb/local \
           $LIB_LOCATION/ruby/onedb/patches \
           $LIB_LOCATION/ruby/vendors \
+          $LIB_LOCATION/python \
           $LIB_LOCATION/mads \
           $LIB_LOCATION/sh \
           $LIB_LOCATION/sh/override \
@@ -517,7 +515,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/ipam/equinix \
           $VAR_LOCATION/remotes/ipam/scaleway \
           $VAR_LOCATION/remotes/ipam/vultr \
-          $VAR_LOCATION/remotes/ipam/aws"
+          $VAR_LOCATION/remotes/ipam/aws \
+          $VAR_LOCATION/remotes/scheduler/dummy \
+          $VAR_LOCATION/remotes/scheduler/rank \
+          $VAR_LOCATION/remotes/scheduler/one_drs \
+          $VAR_LOCATION/remotes/scheduler/one_drs/lib \
+          $VAR_LOCATION/remotes/scheduler/one_drs/lib/mapper \
+          $VAR_LOCATION/remotes/scheduler/one_drs/lib/models"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -714,6 +718,13 @@ INSTALL_FILES=(
     IPAM_DRIVER_SCALEWAY_SCRIPTS:$VAR_LOCATION/remotes/ipam/scaleway
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
     IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
+    SCHEDULER_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/scheduler/dummy
+    SCHEDULER_DRIVER_RANK_SCRIPTS:$VAR_LOCATION/remotes/scheduler/rank
+    SCHEDULER_DRIVER_ONEDRS_SCRIPTS:$VAR_LOCATION/remotes/scheduler/one_drs
+    SCHEDULER_DRIVER_ONEDRS_LIB:$VAR_LOCATION/remotes/scheduler/one_drs/lib
+    SCHEDULER_DRIVER_ONEDRS_MAPPER:$VAR_LOCATION/remotes/scheduler/one_drs/lib/mapper
+    SCHEDULER_DRIVER_ONEDRS_MODELS:$VAR_LOCATION/remotes/scheduler/one_drs/lib/models
+    SCHEDULER_DRIVER_ONEDRS_VENDOR:$LIB_LOCATION/python
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
     NETWORK_HOOKS_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/hooks/clean
@@ -729,9 +740,6 @@ INSTALL_FILES=(
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     NETWORK_ELASTIC_FILES:$VAR_LOCATION/remotes/vnm/elastic
     NETWORK_NODEPORT_FILES:$VAR_LOCATION/remotes/vnm/nodeport
-    EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
-    EXAMPLE_EXTERNAL_SCHED_FILES:$SHARE_LOCATION/examples/external_scheduler
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
     WEBSOCKIFY_SHARE_MODULE_FILES:$SHARE_LOCATION/websockify/websockify
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
@@ -947,6 +955,7 @@ INSTALL_ONEHEM_ETC_FILES=(
 
 INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
+    SCHED_RANK_ETC_FILES:$ETC_LOCATION/schedulers
     ETC_FILES:$SHARE_LOCATION/conf
     EC2_ETC_FILES:$ETC_LOCATION
     VCENTER_ETC_FILES:$ETC_LOCATION
@@ -962,7 +971,6 @@ INSTALL_ETC_FILES=(
 #-------------------------------------------------------------------------------
 
 BIN_FILES="src/nebula/oned \
-           src/scheduler/src/sched/mm_sched \
            src/cli/onevm \
            src/cli/oneacct \
            src/cli/oneshowback \
@@ -1081,7 +1089,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/market_mad/one_market.rb \
               src/market_mad/one_market \
               src/ipamm_mad/one_ipam \
-              src/ipamm_mad/one_ipam.rb"
+              src/ipamm_mad/one_ipam.rb \
+              src/schedm_mad/one_sched \
+              src/schedm_mad/one_sched.rb"
 
 #-------------------------------------------------------------------------------
 # Common library files for VMM drivers
@@ -2173,6 +2183,56 @@ MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
             src/market_mad/remotes/linuxcontainers/lxd.rb"
 
 #-------------------------------------------------------------------------------
+# Scheduler drivers, to be installed under $REMOTES_LOCATION/sched
+#   - Rank scheduler $REMOTES_LOCATION/scheduler/rank
+#   - OpenNebula DRS, $REMOTES_LOCATION/scheduler/one-drs
+#-------------------------------------------------------------------------------
+
+SCHEDULER_DRIVER_RANK_SCRIPTS="src/schedm_mad/remotes/rank/src/sched/place \
+            src/schedm_mad/remotes/rank/optimize"
+
+SCHEDULER_DRIVER_ONEDRS_SCRIPTS="src/schedm_mad/remotes/one_drs/place \
+            src/schedm_mad/remotes/one_drs/optimize"
+
+SCHEDULER_DRIVER_DUMMY_SCRIPTS="src/schedm_mad/remotes/dummy/place \
+            src/schedm_mad/remotes/dummy/optimize"
+
+SCHEDULER_DRIVER_ONEDRS_VENDOR="src/schedm_mad/remotes/one_drs/vendor/lib/PuLP-2.9.0.dist-info/ \
+            src/schedm_mad/remotes/one_drs/vendor/lib/bin/ \
+            src/schedm_mad/remotes/one_drs/vendor/lib/pulp/ \
+            src/schedm_mad/remotes/one_drs/vendor/lib/typing_extensions-4.12.2.dist-info/ \
+            src/schedm_mad/remotes/one_drs/vendor/lib/typing_extensions.py \
+            src/schedm_mad/remotes/one_drs/vendor/lib/xsdata/ \
+            src/schedm_mad/remotes/one_drs/vendor/lib/xsdata-24.12.dist-info/"
+
+SCHEDULER_DRIVER_ONEDRS_LIB="src/schedm_mad/remotes/one_drs/lib/optimizer_parser.py \
+            src/schedm_mad/remotes/one_drs/lib/optimizer_serializer.py \
+            src/schedm_mad/remotes/one_drs/lib/xsd_parser.sh \
+            src/schedm_mad/remotes/one_drs/lib/__init__.py"
+
+SCHEDULER_DRIVER_ONEDRS_MAPPER="src/schedm_mad/remotes/one_drs/lib/mapper/ilp_optimizer.py \
+            src/schedm_mad/remotes/one_drs/lib/mapper/model.py \
+            src/schedm_mad/remotes/one_drs/lib/mapper/mapper.py \
+            src/schedm_mad/remotes/one_drs/lib/mapper/__init__.py"
+
+SCHEDULER_DRIVER_ONEDRS_MODELS="src/schedm_mad/remotes/one_drs/lib/models/__init__.py \
+            src/schedm_mad/remotes/one_drs/lib/models/cluster.py \
+            src/schedm_mad/remotes/one_drs/lib/models/datastore.py \
+            src/schedm_mad/remotes/one_drs/lib/models/datastore_pool.py \
+            src/schedm_mad/remotes/one_drs/lib/models/host.py \
+            src/schedm_mad/remotes/one_drs/lib/models/host_pool.py \
+            src/schedm_mad/remotes/one_drs/lib/models/plan.py \
+            src/schedm_mad/remotes/one_drs/lib/models/requirements.py \
+            src/schedm_mad/remotes/one_drs/lib/models/scheduler_driver_action.py \
+            src/schedm_mad/remotes/one_drs/lib/models/shared.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vm_group.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vm_group_pool.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vm.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vm_pool_extended.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vnet.py \
+            src/schedm_mad/remotes/one_drs/lib/models/vnet_pool_extended.py"
+
+#-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
 #-------------------------------------------------------------------------------
 
@@ -2196,8 +2256,10 @@ ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
            share/etc/guacd \
            src/tm_mad/tmrc \
-           src/scheduler/etc/sched.conf \
            src/monitor/etc/monitord.conf "
+
+SCHED_RANK_ETC_FILES="src/schedm_mad/remotes/rank/etc/rank.conf \
+                      src/schedm_mad/remotes/one_drs/etc/one_drs.conf"
 
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
                src/vmm_mad/remotes/ec2/ec2_driver.default"
@@ -2228,25 +2290,6 @@ HM_ETC_FILES="src/hm_mad/hmrc"
 AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
                 src/authm_mad/remotes/ldap/ldap_auth.conf \
                 src/authm_mad/remotes/x509/x509_auth.conf"
-
-#-------------------------------------------------------------------------------
-# Sample files, to be installed under $SHARE_LOCATION/examples
-#-------------------------------------------------------------------------------
-
-EXAMPLE_SHARE_FILES="share/examples/vm.template \
-                     share/examples/private.net \
-                     share/examples/public.net"
-
-#-------------------------------------------------------------------------------
-# Sample files, to be installed under $SHARE_LOCATION/examples/external_scheduler
-#-------------------------------------------------------------------------------
-EXAMPLE_EXTERNAL_SCHED_FILES="share/examples/external_scheduler/external_scheduler_server.rb"
-
-#-------------------------------------------------------------------------------
-# Sample files, to be installed under $SHARE_LOCATION/examples/host_hooks
-#-------------------------------------------------------------------------------
-
-EXAMPLE_HOST_HOOKS_SHARE_FILES="share/examples/host_hooks/error_hook"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
@@ -3087,7 +3130,10 @@ XSD_FILES="share/doc/xsd/acct.xsd \
            share/doc/xsd/marketplaceapp_pool.xsd
            share/doc/xsd/monitoring_data.xsd
            share/doc/xsd/opennebula_configuration.xsd
+           share/doc/xsd/plan.xsd
            share/doc/xsd/raftstatus.xsd
+           share/doc/xsd/requirements.xsd
+           share/doc/xsd/scheduler_driver_action.xsd
            share/doc/xsd/security_group.xsd
            share/doc/xsd/security_group_pool.xsd
            share/doc/xsd/shared.xsd
@@ -3100,10 +3146,12 @@ XSD_FILES="share/doc/xsd/acct.xsd \
            share/doc/xsd/vm_group.xsd
            share/doc/xsd/vm_group_pool.xsd
            share/doc/xsd/vm_pool.xsd
+           share/doc/xsd/vm_pool_extended.xsd
            share/doc/xsd/vmtemplate.xsd
            share/doc/xsd/vmtemplate_pool.xsd
            share/doc/xsd/vnet.xsd
            share/doc/xsd/vnet_pool.xsd
+           share/doc/xsd/vnet_pool_extended.xsd
            share/doc/xsd/vntemplate.xsd
            share/doc/xsd/vntemplate_pool.xsd
            share/doc/xsd/vrouter.xsd

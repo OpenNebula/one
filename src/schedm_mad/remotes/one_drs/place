@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+import sys
+
+sys.path.insert(
+    0,
+    "/usr/lib/one/python/",
+)
+import base64
+import time
+from typing import Any
+
+import yaml
+from pulp import COIN_CMD, COINMP_DLL, GLPK_CMD, LpSolver
+
+from lib import OptimizerParser, OptimizerSerializer
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+
+class LogHandler:
+    @staticmethod
+    def log_general(level: str, message: str):
+        # Format: "LEVEL: <message>"
+        sys.stderr.write(f"{level}: {message}\n")
+
+    @staticmethod
+    def log_vm(level: str, vm_id: int, message: str):
+        # Format: "LEVEL: [vm_id] <message>"
+        sys.stderr.write(f"{level}: {vm_id} {message}\n")
+
+
+DEFAULT_CBC_PATH = "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc"
+CONFIG_FILE_PATH = "/etc/one/schedulers/one_drs.conf"
+DEBUG_INPUT_PATH = "/var/tmp/debug_input.sched"
+DEBUG_OPTIMIZER_PATH = "/var/tmp/debug_optimizer.sched"
+DEBUG_OUTPUT_PATH = "/var/tmp/debug_output.sched"
+
+# TODO: move this to the optimizer
+POLICY_MAP = {
+    0: "pack",
+    1: "cpu_allocation",
+    2: "vm_count_balance",
+    3: "cpu_usage_balance",
+    4: "cpu_ratio_balance",
+}
+
+SOLVERS = {"GLPK": GLPK_CMD, "CBC": COIN_CMD, "COINMP": COINMP_DLL}
+
+
+def load_config() -> dict:
+    try:
+        with open(CONFIG_FILE_PATH, "r") as file:
+            config_data = yaml.safe_load(file).get("DEFAULT_SCHED", {})
+    except Exception as e:
+        LogHandler.log_general("ERROR", f"Error loading config: {e}")
+        sys.exit(1)
+
+    # Optimizer policy
+    policy_key = config_data.get("POLICY")
+    if policy_key not in POLICY_MAP:
+        LogHandler.log_general(
+            "WARNING",
+            f"Unknown or missing policy '{policy_key}'. Using default 'pack' policy.",
+        )
+        policy_key = 0
+    policy = POLICY_MAP[policy_key]
+
+    # Optimizer solver
+    solver_name = config_data.get("SOLVER", "CBC").upper()
+    solver_path = config_data.get("SOLVER_PATH", DEFAULT_CBC_PATH)
+    if solver_name not in SOLVERS or not solver_path:
+        LogHandler.log_general(
+            "WARNING",
+            f"Invalid or missing solver '{solver_name}' with path '{solver_path}'. Using default CBC.",
+        )
+        solver_name, solver_path = "CBC", DEFAULT_CBC_PATH
+    solver = SOLVERS[solver_name](msg=False, timeLimit=60, path=solver_path)
+    if not solver.available():
+        LogHandler.log_general("ERROR", f"Solver {solver_name} is not available.")
+        sys.exit(1)
+
+    # Optimizer factor
+    factor = config_data.get("FACTOR")
+    if not factor:
+        LogHandler.log_general("WARNING", "Missing factor. Using default value of 0.")
+        factor = 0
+
+    # Optimizer different vnets
+    different_vnets = config_data.get("DIFFERENT_VNETS")
+    if not different_vnets:
+        LogHandler.log_general(
+            "WARNING", "Missing different_vnets. Using default value of True."
+        )
+        different_vnets = True
+
+    return {
+        "policy": policy,
+        "solver": solver,
+        "factor": factor,
+        "different_vnets": different_vnets,
+    }
+
+
+def write_debug_file(path: str, data: Any, mode: str = "wb") -> None:
+    open_mode = mode if isinstance(data, bytes) else "w"
+    with open(path, open_mode) as f:
+        f.write(data)
+
+
+def main():
+    # Get optimizer config
+    config = load_config()
+
+    # Read from standard input
+    stdin_data = sys.stdin.read()
+    decoded_data = base64.b64decode(stdin_data)
+    write_debug_file(DEBUG_INPUT_PATH, decoded_data, mode="wb")
+
+    # Parse XML input and build Optimizer
+    parser = OptimizerParser(stdin_data=decoded_data, config=config, mode="deploy")
+    optimizer = parser.build_optimizer()
+
+    # Execute Optimizer
+    start_time = time.time()
+    optimizer.map()
+    elapsed = time.time() - start_time
+    placement = optimizer._opt_placement
+    write_debug_file(DEBUG_OPTIMIZER_PATH, str(placement), mode="w")
+
+    # Serialize Optimizer response
+    serializer = OptimizerSerializer(parser)
+    scheduler_output, logs = serializer.build_optimizer_output(opt_placement=placement)
+    xml_output = serializer.render(scheduler_output)
+    write_debug_file(DEBUG_OUTPUT_PATH, xml_output, mode="w")
+    sys.stdout.write(xml_output)
+
+    # VM log messages
+    for vm_id, level, message in logs:
+        LogHandler.log_vm(level, vm_id, message)
+
+    # General log message
+    status = optimizer.report().splitlines()[1].strip().upper()
+    if status == "ERROR" or status == "INFEASIBLE":
+        LogHandler.log_general("ERROR", "Unable to find optimal solution")
+        sys.exit(1)
+    elif any(alloc is None for alloc in placement.values()):
+        LogHandler.log_general("WARN", "Some VMs could not be allocated")
+    else:
+        LogHandler.log_general(
+            "INFO", f"Optimization problem solved in {int(elapsed)}s"
+        )
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

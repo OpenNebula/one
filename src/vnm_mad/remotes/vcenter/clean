@@ -109,7 +109,7 @@ unless nsx_nics.empty?
         OpenNebula::DriverLogger.log_error('Error deleting security groups rules ' \
             "due to \"#{e.message}\"")
         if VCenterDriver::CONFIG[:debug_information]
-            OpenNebula.error_message(e.backtrace)
+            OpenNebula::DriverLogger.report(e.backtrace)
         end
         exit 1
     end

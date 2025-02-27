@@ -14,9 +14,9 @@
 # To disable specific error messages use cppcheck-suppressions.xml file
 
 SOURCES="src"
-INCLUDES="-I include -I src/monitor/include -I src/scheduler/include"
+INCLUDES="-I include -I src/monitor/include"
 DEFINES="-DSQLITE_DB -DMYSQL_DB -DSYSTEMD"
-ENABLE="--enable=performance,information,warning,portability,style"
+ENABLE="--enable=performance,information,warning,portability,style,missingInclude"
 IGNORE="-i .xmlrpc_test/ -i src/sunstone/ -i src/svncterm_server/ -i src/fireedge -i src/parsers -i src/vmm/LibVirtDriverKVM.cc"
 SUPRESS="--suppress-xml=share/smoke_tests/config/cppcheck-suppressions.xml"
 OTHERS="--std=c++17 --error-exitcode=2 -q -j 4"

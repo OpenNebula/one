@@ -33,6 +33,7 @@
 #include "ImagePool.h"
 #include "MarketPlacePool.h"
 #include "MarketPlaceAppPool.h"
+#include "PlanPool.h"
 #include "ScheduledActionPool.h"
 #include "SecurityGroupPool.h"
 #include "UserPool.h"
@@ -56,9 +57,11 @@
 #include "IPAMManager.h"
 #include "LifeCycleManager.h"
 #include "MarketPlaceManager.h"
+#include "PlanManager.h"
 #include "RaftManager.h"
 #include "RequestManager.h"
 #include "ScheduledActionManager.h"
+#include "SchedulerManager.h"
 #include "TransferManager.h"
 #include "VirtualMachineManager.h"
 
@@ -96,6 +99,10 @@ Nebula::~Nebula()
 
     if (!cache)
     {
+        if (planm) planm->finalize();
+
+        if (sm) sm->finalize();
+
         if (sam) sam->finalize();
 
         if (vmm) vmm->finalize();
@@ -180,6 +187,8 @@ Nebula::~Nebula()
     delete raftm;
     delete frm;
     delete sam;
+    delete sm;
+    delete planm;
     delete logdb;
     delete fed_logdb;
     delete system_db;
@@ -187,6 +196,7 @@ Nebula::~Nebula()
     delete hkpool;
     delete bjpool;
     delete sapool;
+    delete plpool;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -583,6 +593,7 @@ void Nebula::start(bool bootstrap_only)
             rc += HookLog::bootstrap(logdb);
             rc += BackupJobPool::bootstrap(logdb);
             rc += ScheduledActionPool::bootstrap(logdb);
+            rc += PlanPool::bootstrap(logdb);
 
             // Create the system tables only if bootstrap went well
             if (rc == 0)
@@ -886,6 +897,8 @@ void Nebula::start(bool bootstrap_only)
 
         sapool = new ScheduledActionPool(logdb);
 
+        plpool = new PlanPool(logdb);
+
         default_user_quota.select();
         default_group_quota.select();
 
@@ -1184,6 +1197,55 @@ void Nebula::start(bool bootstrap_only)
 
         // todo Read settings from Scheduler config file
         sam = new ScheduledActionManager(timer_period, max_backups, max_backups_host);
+    }
+
+    // ---- Scheduler Manager ----
+    if (!cache)
+    {
+        time_t wnd_time;
+        unsigned int wnd_length;
+        time_t retry;
+
+        nebula_configuration->get("SCHED_MAX_WND_TIME", wnd_time);
+        nebula_configuration->get("SCHED_MAX_WND_LENGTH", wnd_length);
+        nebula_configuration->get("SCHED_RETRY_TIME", retry);
+
+        sm = new SchedulerManager(wnd_time, wnd_length, retry, mad_location);
+
+        vector<const VectorAttribute *> sched_mads;
+        nebula_configuration->get("SCHED_MAD", sched_mads);
+
+        if (sm->load_drivers(sched_mads) != 0)
+        {
+            goto error_mad;
+        }
+
+        rc = sm->start();
+
+        if ( rc != 0 )
+        {
+            throw runtime_error("Could not start the Scheduler Manager");
+        }
+    }
+
+    // ---- Plan Manager ----
+    if (!cache)
+    {
+
+        int max_actions_per_host;
+        int max_actions_per_cluster;
+        int live_rescheds;
+        int cold_migrate_mode;
+        int timeout;
+
+        nebula_configuration->get("MAX_ACTIONS_PER_HOST", max_actions_per_host);
+        nebula_configuration->get("MAX_ACTIONS_PER_CLUSTER", max_actions_per_cluster);
+        nebula_configuration->get("LIVE_RESCHEDS", live_rescheds);
+        nebula_configuration->get("COLD_MIGRATE_MODE", cold_migrate_mode);
+        nebula_configuration->get("ACTION_TIMEOUT", timeout);
+
+        planm = new PlanManager(timer_period, max_actions_per_host, max_actions_per_cluster,
+                                live_rescheds, cold_migrate_mode, timeout);
     }
 
     // -----------------------------------------------------------

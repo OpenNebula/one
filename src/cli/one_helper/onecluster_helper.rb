@@ -157,6 +157,54 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         cluster.datastore_ids.each do |id|
             puts format('%-15s', id)
         end
+
+        plan_state = cluster.plan_state
+        return if plan_state == -1
+
+        puts
+        CLIHelper.print_header(format('PLAN: %s', Cluster::PLAN_STATE[plan_state]), false)
+
+        table = CLIHelper::ShowTable.new(nil, self) do
+            column :VM, 'VM ID', :size => 6 do |d|
+                d['VM_ID']
+            end
+
+            column :ACTION, 'Action', :left, :size => 10 do |d|
+                d['OPERATION']
+            end
+
+            column :HOST, 'Host ID', :right, :size => 6 do |d|
+                if d['HOST_ID'] != '-1'
+                    d['HOST_ID']
+                else
+                    '-'
+                end
+            end
+
+            column :DS, 'Datastore ID', :right, :size => 6 do |d|
+                if d['DS_ID'] != '-1'
+                    d['DS_ID']
+                else
+                    '-'
+                end
+            end
+
+            column :STATE, 'Action state', :size => 8 do |d|
+                Cluster::PLAN_STATE[d['STATE'].to_i]
+            end
+
+            column :START_TIME, 'Action start time', :right, :size => 16 do |d|
+                if d['TIMESTAMP'] != '0'
+                    OpenNebulaHelper.time_to_str(d['TIMESTAMP'])
+                else
+                    '-'
+                end
+            end
+
+            default :VM, :ACTION, :HOST, :DS, :STATE, :START_TIME
+        end
+
+        table.show(cluster.plan_actions)
     end
 
 end

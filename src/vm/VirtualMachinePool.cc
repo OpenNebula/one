@@ -21,6 +21,7 @@
 #include "HookStateVM.h"
 #include "HookManager.h"
 #include "ImageManager.h"
+#include "SchedulerManager.h"
 #include "HostPool.h"
 
 #include <sstream>
@@ -96,7 +97,7 @@ int VirtualMachinePool::allocate(
     // ------------------------------------------------------------------------
     VirtualMachine vm {-1, uid, gid, uname, gname, umask, move(vm_template)};
 
-    if ( _submit_on_hold == true || on_hold )
+    if ( _submit_on_hold || on_hold )
     {
         vm.state = VirtualMachine::HOLD;
 
@@ -126,6 +127,11 @@ int VirtualMachinePool::allocate(
             std::string event = HookStateVM::format_message(vm2.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
+        }
+
+        if ( !_submit_on_hold && !on_hold)
+        {
+            Nebula::instance().get_sm()->trigger_place();
         }
     }
 
@@ -163,7 +169,12 @@ int VirtualMachinePool::get_pending(
     ostringstream   os;
     string          where;
 
-    os << "state = " << VirtualMachine::PENDING;
+    // Pending or ((poweroff or running or unknown) and resched))
+    os << "state = " << VirtualMachine::PENDING << " OR "
+       << "((state = " << VirtualMachine::POWEROFF << " OR "
+       << " lcm_state = " << VirtualMachine::RUNNING << " OR "
+       << " lcm_state = " << VirtualMachine::UNKNOWN <<") AND "
+       << " resched = 1 )";
 
     where = os.str();
 

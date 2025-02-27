@@ -136,6 +136,13 @@ class OneDBBacKEnd
                 "search_token MEDIUMTEXT",
             acl: "oid INT PRIMARY KEY, userset BIGINT, resource BIGINT, " <<
                  "rights BIGINT, zone BIGINT, UNIQUE(userset, resource, rights, zone)"
+        },
+        "7.0.0" => {
+            vm_pool: "oid INTEGER PRIMARY KEY, name VARCHAR(128), " <<
+                "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
+                "state INTEGER, lcm_state INTEGER, resched INTEGER," <<
+                "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT, " <<
+                "body_json JSON"
         }
     }
 

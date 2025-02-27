@@ -39,6 +39,7 @@ class HostPool;
 class ImagePool;
 class MarketPlacePool;
 class MarketPlaceAppPool;
+class PlanPool;
 class ScheduledActionPool;
 class SecurityGroupPool;
 class VdcPool;
@@ -61,11 +62,13 @@ class InformationManager;
 class IPAMManager;
 class LifeCycleManager;
 class MarketPlaceManager;
+class PlanManager;
 class RaftManager;
 class RequestManager;
 class ScheduledActionManager;
 class TransferManager;
 class VirtualMachineManager;
+class SchedulerManager;
 
 /**
  *  This is the main class for the OpenNebula daemon oned. It stores references
@@ -194,6 +197,11 @@ public:
         return sapool;
     }
 
+    PlanPool * get_planpool() const
+    {
+        return plpool;
+    }
+
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
@@ -276,6 +284,16 @@ public:
     ScheduledActionManager * get_sam() const
     {
         return sam;
+    }
+
+    SchedulerManager * get_sm() const
+    {
+        return sm;
+    }
+
+    PlanManager * get_planm() const
+    {
+        return planm;
     }
 
     // --------------------------------------------------------------
@@ -636,10 +654,10 @@ public:
         , vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0)
         , dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0)
         , vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0)
-        , vntpool(0), hkpool(0), bjpool(0), sapool(0)
+        , vntpool(0), hkpool(0), bjpool(0), sapool(0), plpool(0)
         , lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0)
         , hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
-        , sam(0)
+        , sam(0), sm(0), planm(0)
     {
     };
 
@@ -713,6 +731,7 @@ private:
     HookPool           * hkpool;
     BackupJobPool      * bjpool;
     ScheduledActionPool* sapool;
+    PlanPool           * plpool;
 
     // ---------------------------------------------------------------
     // Nebula Managers
@@ -734,6 +753,8 @@ private:
     RaftManager *           raftm;
     FedReplicaManager *     frm;
     ScheduledActionManager *sam;
+    SchedulerManager *      sm;
+    PlanManager *           planm;
 
     // ---------------------------------------------------------------
     // Implementation functions

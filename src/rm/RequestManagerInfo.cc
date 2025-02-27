@@ -70,7 +70,7 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         object->decrypt();
     }
 
-    load_monitoring(object.get());
+    load_extended_data(object.get());
 
     to_xml(att, object.get(), str);
 

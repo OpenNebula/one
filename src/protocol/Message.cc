@@ -167,3 +167,14 @@ const EString<HookManagerMessages> hook_msg_t::_type_str(
     {"RETRY", HookManagerMessages::RETRY},
     {"LOG", HookManagerMessages::LOG},
 });
+
+template<>
+const EString<SchedulerManagerMessages> scheduler_msg_t::_type_str(
+{
+    {"UNDEFINED", SchedulerManagerMessages::UNDEFINED},
+    {"INIT", SchedulerManagerMessages::INIT},
+    {"FINALIZE", SchedulerManagerMessages::FINALIZE},
+    {"PLACE", SchedulerManagerMessages::PLACE},
+    {"OPTIMIZE", SchedulerManagerMessages::OPTIMIZE},
+    {"LOG", SchedulerManagerMessages::LOG},
+});

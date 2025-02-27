@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+  targetNamespace="http://opennebula.org/XMLSchema" xmlns="http://opennebula.org/XMLSchema">
+  <xs:include schemaLocation="vm_pool_extended.xsd"/>
+  <xs:include schemaLocation="host_pool.xsd"/>
+  <xs:include schemaLocation="datastore_pool.xsd"/>
+  <xs:include schemaLocation="vnet_pool_extended.xsd"/>
+  <xs:include schemaLocation="vm_group_pool.xsd"/>
+  <xs:include schemaLocation="cluster.xsd"/>
+  <xs:include schemaLocation="requirements.xsd"/>
+  <xs:element name="SCHEDULER_DRIVER_ACTION">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="VM_POOL" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="HOST_POOL" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="DATASTORE_POOL" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="VNET_POOL" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="VM_GROUP_POOL" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="CLUSTER" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="REQUIREMENTS" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

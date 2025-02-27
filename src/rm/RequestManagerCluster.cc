@@ -16,7 +16,10 @@
 
 #include "RequestManagerCluster.h"
 #include "HostPool.h"
+#include "PlanPool.h"
 #include "VirtualMachinePool.h"
+#include "PlanManager.h"
+#include "SchedulerManager.h"
 
 using namespace std;
 
@@ -299,7 +302,6 @@ void RequestManagerClusterHost::add_generic(
 
     if ( clpool->del_from_cluster(PoolObjectSQL::HOST, cluster.get(), host_id, att.resp_msg) < 0 )
     {
-
         failure_response(INTERNAL, att);
         return;
     }
@@ -349,4 +351,111 @@ void RequestManagerClusterHost::add_generic(
     success_response(cluster_id, att);
 
     return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ClusterOptimize::request_execute(xmlrpc_c::paramList const& paramList,
+                                      RequestAttributes& att)
+{
+    int cluster_id = paramList.getInt(1);
+
+    if ( clpool->exist(cluster_id) == -1 )
+    {
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    auto plan = plpool->get_ro(cluster_id);
+
+    if (plan->state() == PlanState::APPLYING)
+    {
+        att.resp_msg = "Can't optimize cluster. A previous plan is currently being applied.";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    Nebula::instance().get_sm()->trigger_optimize(cluster_id);
+
+    success_response(cluster_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ClusterPlanExecute::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    string error_msg;
+
+    int cluster_id = paramList.getInt(1);
+
+    if ( clpool->exist(cluster_id) == -1 )
+    {
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    Nebula& nd = Nebula::instance();
+    auto planm = nd.get_planm();
+
+    if (planm->start_plan(cluster_id, error_msg) != 0)
+    {
+        att.resp_msg = error_msg;
+        failure_response(ACTION, att);
+
+        return;
+    };
+
+    success_response(cluster_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ClusterPlanDelete::request_execute(xmlrpc_c::paramList const& paramList,
+                                        RequestAttributes& att)
+{
+    int cluster_id = paramList.getInt(1);
+
+    auto cluster = clpool->get(cluster_id);
+
+    if (!cluster)
+    {
+        att.resp_obj = PoolObjectSQL::CLUSTER;
+        att.resp_id  = cluster_id;
+        failure_response(NO_EXISTS, att);
+
+        return;
+    }
+
+    auto plan = plpool->get(cluster_id);
+
+    if (plan->state() == PlanState::NONE)
+    {
+        att.resp_msg = "Plan for cluster " + to_string(cluster_id) + "does not exist";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    plan->clear();
+
+    if (plpool->drop(plan.get()) != 0)
+    {
+        att.resp_msg = "Unable to delete plan for cluster " + to_string(cluster_id);
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    success_response(cluster_id, att);
 }

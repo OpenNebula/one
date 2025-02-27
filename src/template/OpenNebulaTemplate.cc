@@ -599,6 +599,34 @@ void OpenNebulaTemplate::set_conf_default()
     vattribute = new VectorAttribute("HOOK_LOG_CONF", vvalue);
 
     conf_default.insert(make_pair(vattribute->name(), vattribute));
+
+    /*/
+    #*******************************************************************************
+    # Scheduler
+    #  SCHED_MAD
+    #  SCHED_MAX_WND_TIME
+    #  SCHED_MAX_WND_LENGTH
+    #  SCHED_RETRY_TIME
+    #*******************************************************************************
+    */
+    vvalue.clear();
+
+    vvalue.insert(make_pair("EXECUTABLE", "one_sched"));
+    vvalue.insert(make_pair("ARGUMENTS", "-t 15 -s rank"));
+    vattribute = new VectorAttribute("SCHED_MAD", vvalue);
+
+    conf_default.insert(make_pair(vattribute->name(), vattribute));
+
+    set_conf_single("SCHED_MAX_WND_TIME", "30");
+    set_conf_single("SCHED_MAX_WND_LENGTH", "7");
+    set_conf_single("SCHED_RETRY_TIME", "60");
+
+    set_conf_single("MAX_ACTIONS_PER_HOST", "2");
+    set_conf_single("MAX_ACTIONS_PER_CLUSTER", "10");
+    set_conf_single("ACTION_TIMEOUT", "120");
+
+    set_conf_single("LIVE_RESCHEDS", "0");
+    set_conf_single("COLD_MIGRATE_MODE", "0");
 }
 
 /* -------------------------------------------------------------------------- */

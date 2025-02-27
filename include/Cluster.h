@@ -22,7 +22,6 @@
 #include "BitMap.h"
 #include "ObjectCollection.h"
 
-
 /**
  *  The Cluster class.
  */
@@ -77,6 +76,34 @@ public:
         get_template_attribute("RESERVED_CPU", cpu);
 
         get_template_attribute("RESERVED_MEM", mem);
+    }
+
+    /**
+     *  Sets an error message in the Cluster template:
+     *    @param mod OpenNebula module to log big error messages
+     *    @param nam of the error message attribute
+     *    @param msg
+     */
+    void set_error_message(const char *mod, const std::string& nam, const std::string& msg);
+
+    // *************************************************************************
+    //  Plan and ONE DRS related attributes
+    // *************************************************************************
+    /**
+     * Load Cluster Plan from DB
+     */
+    void load_plan();
+
+    /**
+     * @return if plans needs to be autoapplied
+     */
+    bool is_autoapply()
+    {
+        bool aaply = false;
+
+        obj_template->get("ONEDRS_AUTOAPPLY", aaply);
+
+        return aaply;
     }
 
     // *************************************************************************
@@ -150,6 +177,8 @@ private:
     ObjectCollection vnets;
 
     BitMap<65536> vnc_bitmap;
+
+    std::string plan_xml;
 
     // *************************************************************************
     // DataBase implementation (Private)

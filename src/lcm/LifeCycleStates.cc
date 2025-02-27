@@ -29,6 +29,8 @@
 #include "ImagePool.h"
 #include "DatastorePool.h"
 #include "VirtualMachinePool.h"
+#include "SchedulerManager.h"
+#include "PlanManager.h"
 
 using namespace std;
 
@@ -304,6 +306,7 @@ void LifeCycleManager::trigger_deploy_success(int vid)
         Template quota_tmpl;
         int uid = vm->get_uid();
         int gid = vm->get_gid();
+        int cid = vm->get_cid();
 
         //----------------------------------------------------
         //                 RUNNING STATE
@@ -375,6 +378,9 @@ void LifeCycleManager::trigger_deploy_success(int vid)
         {
             Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
+
+        auto planm = Nebula::instance().get_planm();
+        planm->action_success(cid, vid);
     });
 }
 
@@ -391,6 +397,8 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
         {
             return;
         }
+
+        int cid = vm->get_cid();
 
         time_t the_time = time(0);
 
@@ -448,6 +456,9 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
         vmpool->update_history(vm.get());
 
         vmpool->update(vm.get());
+
+        auto planm = Nebula::instance().get_planm();
+        planm->action_failure(cid, vid);
     });
 }
 
@@ -470,6 +481,8 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
         Template quota_tmpl;
         int uid = vm->get_uid();
         int gid = vm->get_gid();
+        int cid = vm->get_cid();
+        auto state = vm->get_lcm_state();
 
         if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN )
         {
@@ -557,6 +570,12 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
         {
             Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
+
+        if (state != VirtualMachine::SAVE_MIGRATE)
+        {
+            auto planm = Nebula::instance().get_planm();
+            planm->action_success(cid, vid);
+        }
     });
 }
 
@@ -601,6 +620,13 @@ void LifeCycleManager::trigger_shutdown_failure(int vid)
         {
             vm->log("LCM", Log::ERROR, "shutdown_failure_action, VM in a wrong state");
         }
+
+        int cid = vm->get_cid();
+
+        vm.reset();
+
+        auto planm = Nebula::instance().get_planm();
+        planm->action_failure(cid, vid);
     });
 }
 
@@ -2246,7 +2272,8 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
                 {
                     case Image::USED:
                     case Image::USED_PERS:
-                        ready.push_back(make_tuple(id, image->get_source(), image->get_format()));
+                        ready.push_back(make_tuple(id, image->get_source(),
+                                    image->get_format()));
                         break;
 
                     case Image::ERROR:
@@ -2266,6 +2293,7 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
             }
         }
 
+        bool do_place = false;
 
         for (const auto& rit : ready)
         {
@@ -2287,6 +2315,9 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
                 // Automatic requirements are not recalculated on purpose
 
                 vm->set_state(VirtualMachine::PENDING);
+
+                do_place = true;
+
             }
         }
         else if (error.size() > 0)
@@ -2299,6 +2330,11 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
         }
 
         vmpool->update(vm.get());
+
+        if ( do_place )
+        {
+            Nebula::instance().get_sm()->trigger_place();
+        }
     });
 }
 

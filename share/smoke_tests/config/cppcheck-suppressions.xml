@@ -104,8 +104,8 @@
 		<fileName>src/rm/RequestManagerUser.cc</fileName>
 	</suppress>
 	<suppress>
-		<id>nullPointer</id>
-		<fileName>src/scheduler/include/Scheduler.h</fileName>
+		<id>knownConditionTrueFalse</id>
+		<fileName>src/cluster/ClusterPool.cc</fileName>
 	</suppress>
 	<suppress>
 		<id>uninitMemberVar</id>
@@ -120,8 +120,8 @@
 		<fileName>src/schedule/ScheduledActionManager.cc</fileName>
 	</suppress>
 	<suppress>
-		<id>missingOverride</id>
-		<fileName>src/scheduler/include/*XML.h</fileName>
+		<id>returnDanglingLifetime</id>
+		<fileName>include/SchedulerManagerMatch.h</fileName>
 	</suppress>
 </suppressions>
 

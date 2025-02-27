@@ -75,13 +75,13 @@ begin
 
     rc = server_auth.authenticate(user, pass, dsecret)
 rescue => e
-    OpenNebula.error_message e.message
+    OpenNebula::DriverLogger.report e.message
     exit -1
 end
 
 if rc == true
     exit 0
 else
-    OpenNebula.error_message rc
+    OpenNebula::DriverLogger.report rc
     exit -1
 end

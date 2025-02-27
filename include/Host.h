@@ -348,7 +348,38 @@ public:
      */
     void load_monitoring();
 
+    /**
+     *  Return host montioring information
+     */
+    const HostMonitoringTemplate& get_monitoring() const
+    {
+        return monitoring;
+    }
+
     void update_zombies(const std::set<int>& ids);
+
+        /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *
+     *    @return -1 if the element was not found
+     */
+    int search(const char *name, std::string& value) override
+    {
+        return __search(name, value);
+    }
+
+    int search(const char *name, int& value) override
+    {
+        return __search(name, value);
+    }
+
+    int search(const char *name, float& value) override
+    {
+        return __search(name, value);
+    }
 
 private:
     friend class HostPool;
@@ -400,6 +431,45 @@ private:
     void reserved_capacity(std::string& rcpu, std::string& rmem) const;
 
     void update_wilds();
+
+        /* ---------------------------------------------------------------------- */
+    /* Functions to search for values in the HostXML object                   */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Search the Object for a given attribute in a set of object specific
+     *  routes. Override ObjectXML function to deal with pseudo-attributes
+     *    - CURRENT_VMS. value is the VM ID to search in the set of VMS
+     *    running VMs in the host. If the VM_ID is found value is not modified
+     *    otherwise is set to -1
+     */
+    template<typename T>
+    int __search(const char *name, T& value)
+    {
+        std::string s_name(name);
+
+        if (s_name == "CURRENT_VMS")
+        {
+            std::vector<T> results;
+
+            xpaths(results, "/HOST/VMS/ID");
+
+            for (const auto& vm_id : results)
+            {
+                if (vm_id == value)
+                {
+                    return 0; //VMID found in VMS value is VMID
+                }
+            }
+
+            value = -1; //VMID not found in VMS value is -1
+
+            return 0;
+        }
+        else
+        {
+            return ObjectXML::search(name, value);
+        }
+    }
 
     // *************************************************************************
     // DataBase implementation (Private)

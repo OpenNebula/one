@@ -108,7 +108,7 @@ unless vm_state == 'POWEROFF'
         OpenNebula::DriverLogger.log_error('Error updating security groups ' \
             "due to \"#{e.message}\"")
         if VCenterDriver::CONFIG[:debug_information]
-            OpenNebula.error_message(e.backtrace)
+            OpenNebula::DriverLogger.report(e.backtrace)
         end
         exit 1
     end

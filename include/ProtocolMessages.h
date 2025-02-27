@@ -183,9 +183,8 @@ enum class VMManagerMessages : unsigned short int
 
 using vm_msg_t = Message<VMManagerMessages, false, false, false, false>;
 
-
 /**
- * Virtual Machine Driver messages
+ * Hook Manager Driver messages
  */
 enum class HookManagerMessages : unsigned short int
 {
@@ -200,5 +199,20 @@ enum class HookManagerMessages : unsigned short int
 
 using hook_msg_t = Message<HookManagerMessages, false, false, false, false>;
 
+/**
+ * Hook Manager Driver messages
+ */
+enum class SchedulerManagerMessages : unsigned short int
+{
+    UNDEFINED = 0,
+    INIT,
+    FINALIZE,
+    PLACE,
+    OPTIMIZE,
+    LOG,
+    ENUM_MAX
+};
+
+using scheduler_msg_t = Message<SchedulerManagerMessages, false, true, false, false>;
 
 #endif /*PROTOCOL_MESSAGES_H*/

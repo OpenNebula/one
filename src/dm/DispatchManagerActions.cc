@@ -31,6 +31,7 @@
 #include "VirtualRouterPool.h"
 #include "SecurityGroupPool.h"
 #include "ScheduledActionPool.h"
+#include "SchedulerManager.h"
 
 using namespace std;
 
@@ -575,6 +576,8 @@ int DispatchManager::release(int vid, const RequestAttributes& ra,
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm.get());
+
+        Nebula::instance().get_sm()->trigger_place();
     }
     else
     {
@@ -727,6 +730,8 @@ int DispatchManager::resume(int vid, const RequestAttributes& ra,
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm.get());
+
+        Nebula::instance().get_sm()->trigger_place();
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
@@ -859,7 +864,13 @@ int DispatchManager::resched(int vid, bool do_resched,
         }
 
         vm->set_resched(do_resched);
+
         vmpool->update(vm.get());
+
+        if (do_resched)
+        {
+            Nebula::instance().get_sm()->trigger_place();
+        }
     }
     else
     {
@@ -1129,6 +1140,7 @@ int DispatchManager::delete_recreate(unique_ptr<VirtualMachine> vm,
 
             vmpool->update(vm.get());
 
+            Nebula::instance().get_sm()->trigger_place();
             break;
 
         case VirtualMachine::POWEROFF:

@@ -37,12 +37,7 @@ public:
 
     // ---------------------- Constructors ------------------------------------
 
-    ObjectXML()
-        : paths(nullptr)
-        , num_paths(0)
-        , xml(nullptr)
-        , ctx(nullptr)
-    {}
+    ObjectXML(): xml(nullptr) , ctx(nullptr) {};
 
     /**
      *  Constructs an object using a XML document
@@ -211,7 +206,7 @@ public:
         {
             xpaths(results, name);
         }
-        else if (num_paths == 0)
+        else if (paths.empty())
         {
             results.clear();
         }
@@ -221,7 +216,7 @@ public:
 
             xpath << paths[0] << name;
 
-            for (int i = 1; i < num_paths ; i++)
+            for (size_t i = 1; i < paths.size() ; i++)
             {
                 xpath << '|' << paths[i] << name;
             }
@@ -375,12 +370,7 @@ protected:
     /**
      *  Array of paths to look for attributes in search methods
      */
-    const char **paths;
-
-    /**
-     *  Number of elements in paths array
-     */
-    int num_paths;
+    std::vector<std::string> paths;
 
 private:
     /**

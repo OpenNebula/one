@@ -34,8 +34,13 @@ module OpenNebula
             :addvnet        => "cluster.addvnet",
             :delvnet        => "cluster.delvnet",
             :update         => "cluster.update",
-            :rename         => "cluster.rename"
+            :rename         => "cluster.rename",
+            :optimize       => "cluster.optimize",
+            :planexecute    => "cluster.planexecute",
+            :plandelete     => "cluster.plandelete"
         }
+
+        PLAN_STATE = ['READY', 'APPLYING', 'DONE', 'ERROR', 'TIMEOUT']
 
         # Creates a Cluster description with just its identifier
         # this method should be used to create plain Cluster objects.
@@ -182,6 +187,30 @@ module OpenNebula
             return call(CLUSTER_METHODS[:rename], @pe_id, name)
         end
 
+        # Create optimization plan for the Cluster
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def optimize()
+            return call(CLUSTER_METHODS[:optimize], @pe_id)
+        end
+
+        # Start applying the optimization plan for the Cluster
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def plan_execute()
+            return call(CLUSTER_METHODS[:planexecute], @pe_id)
+        end
+
+        # Delete optimization plan for the Cluster
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def plan_delete()
+            return call(CLUSTER_METHODS[:plandelete], @pe_id)
+        end
+
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
@@ -241,6 +270,20 @@ module OpenNebula
             end
 
             return array
+        end
+
+        # Returns state of optimization plan
+        # @return [Integer] -1 if no plan
+        def plan_state
+            state = self['PLAN/STATE'] || -1
+
+            state.to_i
+        end
+
+        # Returns an array plan actions
+        # @return [Array<PlanAction>]
+        def plan_actions
+            [self.to_hash['CLUSTER']['PLAN']['ACTION']].flatten
         end
 
         private

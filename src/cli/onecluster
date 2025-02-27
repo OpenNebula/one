@@ -233,4 +233,38 @@ CommandParser::CmdParser.new(ARGV) do
             o.rename(args[1])
         end
     end
+
+    optimize_desc = <<-EOT.unindent
+        Create optimization plan for Cluster
+    EOT
+
+    # TODO: Consider optional parameters
+    #  - autostart: Automatically start applying the new optimization plan
+    #  - force: Delete old plan if exists
+    command :optimize, optimize_desc, :clusterid do
+        helper.perform_action(args[0], options, 'creating optimization plan') do |o|
+            o.optimize
+        end
+    end
+
+    planexecute_desc = <<-EOT.unindent
+        Start applying the optimization plan
+    EOT
+
+    command :planexecute, planexecute_desc, :clusterid do
+        helper.perform_action(args[0], options, 'cluster optimization started') do |o|
+            o.plan_execute
+        end
+    end
+
+    plandelete_desc = <<-EOT.unindent
+        Delete the optimization plan
+    EOT
+
+    # TODO: We should allow to delete a placement plan with id -1
+    command :plandelete, plandelete_desc, :clusterid do
+        helper.perform_action(args[0], options, 'plan deleted') do |o|
+            o.plan_delete
+        end
+    end
 end

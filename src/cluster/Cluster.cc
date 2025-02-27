@@ -19,6 +19,7 @@
 #include "Nebula.h"
 #include "OneDB.h"
 #include "DatastorePool.h"
+#include "PlanPool.h"
 
 #include <sstream>
 
@@ -41,7 +42,7 @@ Cluster::Cluster(
 {
     if (cl_template)
     {
-        obj_template = move(cl_template);
+        obj_template = std::move(cl_template);
     }
     else
     {
@@ -241,12 +242,13 @@ string& Cluster::to_xml(string& xml) const
 
     oss <<
         "<CLUSTER>"  <<
-        "<ID>"          << oid          << "</ID>"          <<
-        "<NAME>"        << name         << "</NAME>"        <<
+        "<ID>"       << oid  << "</ID>"      <<
+        "<NAME>"     << name << "</NAME>"    <<
         hosts.to_xml(host_collection_xml)    <<
         datastores.to_xml(ds_collection_xml) <<
         vnets.to_xml(vnet_collection_xml)    <<
         obj_template->to_xml(template_xml)   <<
+        plan_xml                             <<
         "</CLUSTER>";
 
     xml = oss.str();
@@ -297,4 +299,44 @@ int Cluster::from_xml(const string& xml)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Cluster::set_error_message(const char *mod, const string& name, const string& message)
+{
+    static const int MAX_ERROR_MSG_LENGTH = 100;
+
+    SingleAttribute * attr;
+    ostringstream     error_value;
+
+    error_value << one_util::log_time() << ": " << message.substr(0, MAX_ERROR_MSG_LENGTH);
+
+    if (message.length() >= MAX_ERROR_MSG_LENGTH)
+    {
+        error_value << "... see more details in oned.log";
+
+        NebulaLog::error(mod, message);
+    }
+
+    attr = new SingleAttribute(name, error_value.str());
+
+    obj_template->erase(name);
+    obj_template->set(attr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Cluster::load_plan()
+{
+    auto plpool = Nebula::instance().get_planpool();
+
+    auto plan = plpool->get_ro(oid);
+
+    if (plan->state() != PlanState::NONE)
+    {
+        plan_xml = plan->to_xml();
+    }
 }

@@ -65,6 +65,11 @@ public:
         return PoolSQL::get<VMGroup>(oid);
     }
 
+    std::unique_ptr<VMGroup> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<VMGroup>(oid);
+    }
+
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database). The object is locked, other threads can't access the same

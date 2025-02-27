@@ -45,8 +45,8 @@
  *
  */
 template<typename E, //Enum class for the message types
-         bool encode   = false, //Payload is base64 encoded
          bool compress = false, //Payload is compressed
+         bool encode   = false, //Payload is base64 encoded
          bool encrypt  = false, //Payload is encrypted
          bool has_timestamp = false> //Message includes timestamp
 class Message
@@ -235,6 +235,8 @@ int Message<E, compress, encode, encrypt, has_timestamp>
     {
         is >> _timestamp >> std::ws;
     }
+
+    is.clear(); //Clear failbit
 
     getline(is, buffer);
 

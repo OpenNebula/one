@@ -21,7 +21,6 @@
 #include "PoolSQL.h"
 #include "OneDB.h"
 
-
 class ClusterPool : public PoolSQL
 {
 public:

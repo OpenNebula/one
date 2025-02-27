@@ -10,8 +10,6 @@ share/install_gems/Gemfile.lock
 share/man/*
 !share/man/build.sh
 src/im_mad/collectd/collectd
-src/scheduler/src/sched/.xmlrpc_test/
-src/scheduler/src/sched/mm_sched
 src/sunstone/locale/languages/*.js
 src/mad/utils/tty_expect
 src/nebula/.xmlrpc_test/
@@ -21,6 +19,9 @@ share/doc/one/html
 src/svncterm_server/genfont
 src/svncterm_server/svncterm_server
 src/im_mad/remotes/status.db
+
+src/schedm_mad/remotes/rank/src/sched/place
+src/schedm_mad/remotes/one_drs/vendor/lib/
 
 *.class
 src/oca/java/bin

@@ -1930,6 +1930,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
             << "gid = "           <<  gid           << ", "
             << "state = "         <<  state         << ", "
             << "lcm_state = "     <<  lcm_state     << ", "
+            << "resched = "       <<  resched       << ", "
             << "owner_u = "       <<  owner_u       << ", "
             << "group_u = "       <<  group_u       << ", "
             << "other_u = "       <<  other_u       << ", "
@@ -1948,6 +1949,7 @@ int VirtualMachine::insert_replace(SqlDB *db, bool replace, string& error_str)
             <<        gid           << ","
             <<        state         << ","
             <<        lcm_state     << ","
+            <<        resched        << ","
             <<        owner_u       << ","
             <<        group_u       << ","
             <<        other_u       << ","
@@ -2977,7 +2979,13 @@ void VirtualMachine::set_template_error_message(const string& message)
 void VirtualMachine::set_template_error_message(const string& name,
                                                 const string& message)
 {
-    SingleAttribute * attr;
+    user_obj_template->erase(name);
+
+    if (message.empty())
+    {
+        return;
+    }
+
     ostringstream     error_value;
 
     error_value << one_util::log_time() << ": " << message.substr(0, MAX_ERROR_MSG_LENGTH);
@@ -2987,9 +2995,8 @@ void VirtualMachine::set_template_error_message(const string& name,
         error_value << "... see more details in VM log";
     }
 
-    attr = new SingleAttribute(name, error_value.str());
+    auto attr = new SingleAttribute(name, error_value.str());
 
-    user_obj_template->erase(name);
     user_obj_template->set(attr);
 }
 
@@ -3572,8 +3579,6 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
 
     for (auto vattr : vnics)
     {
-        std::string net_mode;
-
         vattr->vector_value("NIC_ID", nic_id);
 
         VirtualMachineNic * nic = get_nic(nic_id);
@@ -3588,11 +3593,9 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
             return -1;
         }
 
-        net_mode = nic->vector_value("NETWORK_MODE");
-
         string network_id = nic->vector_value("NETWORK_ID");
 
-        if (!one_util::icasecmp(net_mode, "AUTO") || !network_id.empty())
+        if (!nic->is_auto() || !network_id.empty())
         {
             std::ostringstream oss;
 
@@ -4054,6 +4057,27 @@ void VirtualMachine::release_vmgroup()
     VMGroupPool * vmgrouppool = Nebula::instance().get_vmgrouppool();
 
     vmgrouppool->del_vm(thegroup, get_oid());
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::vmgroup_id()
+{
+    int vmg_id;
+
+    VectorAttribute * thegroup = obj_template->get("VMGROUP");
+
+    if ( thegroup == nullptr )
+    {
+        return -1;
+    }
+
+    if ( thegroup->vector_value("VMGROUP_ID", vmg_id) == 0 )
+    {
+        return vmg_id;
+    }
+
+    return -1;
 }
 
 /* ------------------------------------------------------------------------ */

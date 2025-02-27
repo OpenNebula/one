@@ -50,7 +50,7 @@ Datastore::Datastore(
 {
     if (ds_template)
     {
-        obj_template = move(ds_template);
+        obj_template = std::move(ds_template);
     }
     else
     {
@@ -60,6 +60,12 @@ Datastore::Datastore(
     set_umask(umask);
 
     group_u = 1;
+
+    //-------------------- Init search xpath routes ---------------------------
+    ObjectXML::paths  = {
+        "/DATASTORE/TEMPLATE/",
+        "/DATASTORE/"
+    };
 }
 
 /* ------------------------------------------------------------------------ */

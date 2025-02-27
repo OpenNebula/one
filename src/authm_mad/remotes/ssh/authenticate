@@ -71,7 +71,7 @@ end
 begin
     ssh_auth = OpenNebula::SshAuth.new(:public_key=>pass)
 rescue Exception => e
-    OpenNebula.error_message e.message
+    OpenNebula::DriverLogger.report e.message
     exit -1
 end
 
@@ -80,6 +80,6 @@ rc = ssh_auth.authenticate(user,secret)
 if rc == true
     exit 0
 else
-    OpenNebula.error_message rc
+    OpenNebula::DriverLogger.report rc
     exit -1
 end

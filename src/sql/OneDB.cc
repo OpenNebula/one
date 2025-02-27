@@ -57,14 +57,14 @@ namespace one_db
     const char * vm_table = "vm_pool";
 
     const char * vm_db_names =
-            "oid, name, body, uid, gid, state, lcm_state, "
+            "oid, name, body, uid, gid, state, lcm_state, resched,"
             "owner_u, group_u, other_u, short_body, body_json";
 
     const char * vm_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-                                   "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
-                                   "uid INTEGER, gid INTEGER, state INTEGER, "
-                                   "lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-                                   "short_body MEDIUMTEXT, body_json JSON)";
+            "vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
+            "uid INTEGER, gid INTEGER, state INTEGER, lcm_state INTEGER, resched INTEGER, "
+            "owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
+            "short_body MEDIUMTEXT, body_json JSON)";
 
     const char * vm_monitor_table = "vm_monitoring";
 
@@ -131,6 +131,19 @@ namespace one_db
             "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
 
     const char * cluster_bitmap_table = "cluster_vnc_bitmap";
+
+    /* ---------------------------------------------------------------------- */
+    /* Plan table                                                             */
+    /* ---------------------------------------------------------------------- */
+    const char * plan_table = "plan_pool";
+
+    const char * plan_db_names = "cid, state, body";
+
+    const char * plan_db_bootstrap =
+            "CREATE TABLE IF NOT EXISTS plan_pool ("
+            "   cid INTEGER PRIMARY KEY,"
+            "   state INTEGER,"
+            "   body MEDIUMTEXT)";
 
     /* ---------------------------------------------------------------------- */
     /* ACL tables                                                             */

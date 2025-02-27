@@ -51,6 +51,17 @@ Host::Host(
 
     replace_template_attribute("IM_MAD", im_mad_name);
     replace_template_attribute("VM_MAD", vmm_mad_name);
+
+    //-------------------- Init search xpath routes ---------------------------
+    ObjectXML::paths = {
+        "/HOST/TEMPLATE/",
+        "/HOST/HOST_SHARE/",
+        "/HOST/HOST_SHARE/DATASTORES/",
+        "/HOST/MONITORING/CAPACITY/",
+        "/HOST/MONITORING/SYSTEM/",
+        "/HOST/",
+        "/HOST/CLUSTER_TEMPLATE/"
+    };
 }
 
 /* ------------------------------------------------------------------------ */

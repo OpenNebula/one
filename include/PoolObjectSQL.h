@@ -110,6 +110,7 @@ public:
             case VNTEMPLATE:     return "VNTEMPLATE"; break;
             case HOOK:           return "HOOK"; break;
             case BACKUPJOB:      return "BACKUPJOB"; break;
+            case SCHEDULEDACTION:return "SCHEDULEDACTION"; break;
             default:             return "";
         }
     };
@@ -137,6 +138,7 @@ public:
         else if ( type == "VNTEMPLATE" )     return VNTEMPLATE;
         else if ( type == "HOOK" )           return HOOK;
         else if ( type == "BACKUPJOB" )      return BACKUPJOB;
+        else if ( type == "SCHEDULEDACTION" )return SCHEDULEDACTION;
         else                                 return NONE;
     };
 

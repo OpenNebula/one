@@ -19,6 +19,7 @@
 #include "NebulaLog.h"
 #include "ClusterTemplate.h"
 #include "DatastorePool.h"
+#include "Plan.h"
 
 #include <stdexcept>
 
@@ -370,7 +371,3 @@ int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* clust
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-

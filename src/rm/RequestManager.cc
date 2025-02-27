@@ -531,6 +531,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr cluster_delds(new ClusterDelDatastore());
     xmlrpc_c::methodPtr cluster_addvnet(new ClusterAddVNet());
     xmlrpc_c::methodPtr cluster_delvnet(new ClusterDelVNet());
+    xmlrpc_c::methodPtr cluster_optimize(new ClusterOptimize());
+    xmlrpc_c::methodPtr cluster_planexecute(new ClusterPlanExecute());
+    xmlrpc_c::methodPtr cluster_plandelete(new ClusterPlanDelete());
 
     // System Methods
     xmlrpc_c::methodPtr system_version(new SystemVersion());
@@ -892,6 +895,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.cluster.deldatastore", cluster_delds);
     RequestManagerRegistry.addMethod("one.cluster.addvnet", cluster_addvnet);
     RequestManagerRegistry.addMethod("one.cluster.delvnet", cluster_delvnet);
+
+    RequestManagerRegistry.addMethod("one.cluster.optimize", cluster_optimize);
+    RequestManagerRegistry.addMethod("one.cluster.planexecute", cluster_planexecute);
+    RequestManagerRegistry.addMethod("one.cluster.plandelete", cluster_plandelete);
 
     RequestManagerRegistry.addMethod("one.clusterpool.info", clusterpool_info);
 

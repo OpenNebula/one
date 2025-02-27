@@ -4,6 +4,8 @@
     <xs:complexType>
       <xs:sequence>
 
+        <xs:element name="ACTION_TIMEOUT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
         <xs:element name="API_LIST_ORDER" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="AUTH_MAD" minOccurs="0" maxOccurs="unbounded">
@@ -29,6 +31,7 @@
         </xs:element>
 
         <xs:element name="CLUSTER_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="COLD_MIGRATE_MODE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="CONTEXT_RESTRICTED_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="CONTEXT_SAFE_DIRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="DATASTORE_CAPACITY_CHECK" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -200,6 +203,7 @@
         <xs:element name="KEEPALIVE_MAX_CONN" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="KEEPALIVE_TIMEOUT" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LISTEN_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LIVE_RESCHEDS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 
         <xs:element name="LOG" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
@@ -243,6 +247,8 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="MAX_ACTIONS_PER_CLUSTER" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MAX_ACTIONS_PER_HOST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MAX_BACKUPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MAX_BACKUPS_HOST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="MAX_CONN" type="xs:integer" minOccurs="0" maxOccurs="1"/>
@@ -272,6 +278,20 @@
         </xs:element>
 
         <xs:element name="RPC_LOG" type="xs:string" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element name="SCHED_MAD" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="SCHED_MAX_WND_LENGTH" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SCHED_MAX_WND_TIME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SCHED_RETRY_TIME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+
         <xs:element name="SCRIPTS_REMOTE_DIR" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="SESSION_EXPIRATION_TIME" type="xs:integer" minOccurs="0" maxOccurs="1"/>
         <xs:element name="SHOWBACK_ONLY_RUNNING" type="xs:string" minOccurs="0" maxOccurs="1"/>

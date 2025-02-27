@@ -61,7 +61,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 {
     if (_vn_template)
     {
-        obj_template = move(_vn_template);
+        obj_template = std::move(_vn_template);
     }
     else
     {
@@ -69,6 +69,12 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
     }
 
     set_umask(_umask);
+
+    //-------------------- Init search xpath routes ---------------------------
+    ObjectXML::paths = {
+        "/VNET/TEMPLATE/",
+        "/VNET/"
+    };
 };
 
 /* -------------------------------------------------------------------------- */

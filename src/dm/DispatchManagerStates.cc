@@ -19,6 +19,7 @@
 #include "Quotas.h"
 #include "Nebula.h"
 #include "VirtualMachinePool.h"
+#include "SchedulerManager.h"
 
 using namespace std;
 
@@ -314,6 +315,8 @@ void DispatchManager::trigger_resubmit(int vid)
             vm->set_deploy_id(""); //reset the deploy-id
 
             vmpool->update(vm.get());
+
+            Nebula::instance().get_sm()->trigger_place();
         }
     });
 }

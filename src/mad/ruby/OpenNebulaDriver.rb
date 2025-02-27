@@ -100,7 +100,7 @@ class OpenNebulaDriver < ActionManager
 
         # if options[:is_local] is not specified (nil)
         # we rely uniquely in actions_is_local?
-        if action_is_local?(aname) or options[:is_local]
+        if action_is_local?(aname) || options[:is_local]
             stdin = Base64.strict_encode64(options[:stdin].to_s)
             execution = LocalCommand.run(command,
                                          log_method(id),
