@@ -158,8 +158,7 @@ module DriverExecHelper
         }
     end
 
-
-    #This methods process the command output:
+    # This methods process the command output:
     #  - Log messages written to STDERR are sent to oned as LOG commands
     #  - In case of error, non log lines in STDERR are merged and returned as info
     #  - In case of success, STDOUT is returned as info
