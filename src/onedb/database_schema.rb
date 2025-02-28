@@ -142,7 +142,8 @@ class OneDBBacKEnd
                 "body MEDIUMTEXT, uid INTEGER, gid INTEGER, " <<
                 "state INTEGER, lcm_state INTEGER, resched INTEGER," <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, short_body MEDIUMTEXT, " <<
-                "body_json JSON"
+                "body_json JSON",
+            plan_pool: "cid INTEGER PRIMARY KEY, state INTEGER, body MEDIUMTEXT"
         }
     }
 
