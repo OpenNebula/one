@@ -1201,7 +1201,6 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
     // - Host capacity if required
     // - Compatibility with PCI devices
     // - New host and current one are in the same cluster
-    // - New or old host are not public cloud
     // ------------------------------------------------------------------------
     auto vm = pool->get<VirtualMachine>(vid);
 

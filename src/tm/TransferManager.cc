@@ -306,15 +306,6 @@ static int test_and_trigger(VirtualMachine * vm,
         return -1;
     }
 
-    if (vm->get_host_is_cloud())
-    {
-        auto lcm = Nebula::instance().get_lcm();
-
-        (lcm->*success)(vm->get_oid());
-
-        return -1;
-    }
-
     return 0;
 }
 
