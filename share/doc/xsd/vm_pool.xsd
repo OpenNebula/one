@@ -68,7 +68,6 @@
                     <xs:element name="SCHED_REQUIREMENTS" type="xs:string" minOccurs="0"/>
                     <xs:element name="SCHED_DS_REQUIREMENTS" type="xs:string" minOccurs="0"/>
                     <xs:element name="USER_PRIORITY" type="xs:string" minOccurs="0"/>
-                    <xs:element name="PUBLIC_CLOUD" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
                           <xs:any processContents="skip"/>

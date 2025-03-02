@@ -77,7 +77,6 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
         /*  - SCHED_DS_REQUIREMENTS                                           */
         /*                                                                    */
         /*  - SCHED_ACTION                                                    */
-        /*  - PUBLIC_CLOUD                                                    */
         /* ------------------------------------------------------------------ */
         if (get("SCHED_RANK", schd_rank))
         {
@@ -107,14 +106,6 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
         {
             oss << "<USER_PRIORITY>" << one_util::escape_xml(user_prio)
                 << "</USER_PRIORITY>";
-        }
-
-        if ( get("PUBLIC_CLOUD", attrs) > 0 )
-        {
-            for (auto vattr : attrs)
-            {
-                vattr->to_xml(oss);
-            }
         }
 
         attrs.clear();

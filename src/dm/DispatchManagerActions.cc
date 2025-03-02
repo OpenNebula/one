@@ -982,30 +982,7 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
 
     HostShareCapacity sr;
 
-    bool is_public_host = false;
-    int  host_id = -1;
-
-    if (vm->hasHistory())
-    {
-        host_id = vm->get_hid();
-    }
-
     int vid = vm->get_oid();
-
-    if (host_id != -1)
-    {
-        if (auto host = hpool->get_ro(host_id))
-        {
-            is_public_host = host->is_public_cloud();
-        }
-        else
-        {
-            oss << "Error getting host " << host_id;
-            error = oss.str();
-
-            return -1;
-        }
-    }
 
     oss << "Deleting VM " << vm->get_oid();
     NebulaLog::log("DiM", Log::DEBUG, oss);
@@ -1018,28 +995,14 @@ int DispatchManager::delete_vm(unique_ptr<VirtualMachine> vm,
 
             hpool->del_capacity(vm->get_hid(), sr);
 
-            if (is_public_host)
-            {
-                vmm->trigger_cleanup(vid, false);
-            }
-            else
-            {
-                tm->trigger_epilog_delete(vm.get());
-            }
+            tm->trigger_epilog_delete(vm.get());
 
             free_vm_resources(std::move(vm), true);
             break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
-            if (is_public_host)
-            {
-                vmm->trigger_cleanup(vid, false);
-            }
-            else
-            {
-                tm->trigger_epilog_delete(vm.get());
-            }
+            tm->trigger_epilog_delete(vm.get());
 
             free_vm_resources(std::move(vm), true);
             break;

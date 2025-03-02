@@ -162,13 +162,7 @@ public:
 
     bool is_resume() const { return resume; }
 
-    bool is_public_cloud() const { return public_cloud; }
-
     bool is_active() const { return active; }
-
-    bool is_only_public_cloud() const { return only_public_cloud; }
-
-    void set_only_public_cloud() { only_public_cloud = true; }
 
     void to_json(nlohmann::json &vm_json);
 
@@ -477,8 +471,6 @@ protected:
 
     ResourceMatch match_datastores;
 
-    bool only_public_cloud;
-
     std::set<int> affined_vms;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
@@ -496,7 +488,6 @@ protected:
     bool resched;
     bool resume;
     bool active;
-    bool public_cloud;
 
     long int    memory;
     float       cpu;

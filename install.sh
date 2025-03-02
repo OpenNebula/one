@@ -29,7 +29,7 @@
 usage() {
  echo
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
- echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-a arch] [-r]"
+ echo "                  [-d ONE_LOCATION] [-c] [-a arch] [-r]"
  echo "                  [-s] [-p] [-G] [-6] [-f] [-l] [-e] [-h]"
  echo
  echo "-u: user that will run opennebula, defaults to user executing install.sh"
@@ -40,7 +40,7 @@ usage() {
  echo "    OpenNebula for the first time"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
- echo "-c: install client utilities: OpenNebula cli and ec2 client files"
+ echo "-c: install client utilities: OpenNebula cli"
  echo "-s: install OpenNebula Sunstone"
  echo "-p: do not install OpenNebula Sunstone non-minified files"
  echo "-F: install OpenNebula FireEdge"
@@ -391,43 +391,11 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/lxc-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/vcenter.d \
-          $VAR_LOCATION/remotes/im/ec2.d \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/az.d \
-          $VAR_LOCATION/remotes/im/az-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/az-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/az-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/one.d \
-          $VAR_LOCATION/remotes/im/one-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/one-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/one-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/one-probes.d/vm/snapshot \
-          $VAR_LOCATION/remotes/im/equinix.d \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/host/beacon \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/host/monitor \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/host/system \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/monitor \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/status \
-          $VAR_LOCATION/remotes/im/equinix-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/vcenter \
-          $VAR_LOCATION/remotes/vmm/ec2 \
-          $VAR_LOCATION/remotes/vmm/az \
-          $VAR_LOCATION/remotes/vmm/one \
           $VAR_LOCATION/remotes/vmm/lxc \
-          $VAR_LOCATION/remotes/vmm/equinix \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/802.1Q/pre.d \
@@ -607,10 +575,6 @@ INSTALL_FILES=(
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXC_FILES:$VAR_LOCATION/remotes/im/lxc.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
-    IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
-    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
-    IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
-    IM_PROBES_EQUINIX_FILES:$VAR_LOCATION/remotes/im/equinix.d
     IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
     IM_PROBES_KVM_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
     IM_PROBES_KVM_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
@@ -637,26 +601,6 @@ INSTALL_FILES=(
     IM_PROBES_LXC_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/vm/status
     IM_PROBES_LXC_PROBES_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d
     IM_PROBES_ETC_LXC_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxc-probes.d
-    IM_PROBES_AZ_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/beacon
-    IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
-    IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
-    IM_PROBES_AZ_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/monitor
-    IM_PROBES_AZ_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/az-probes.d/vm/status
-    IM_PROBES_EC2_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon
-    IM_PROBES_EC2_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/monitor
-    IM_PROBES_EC2_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/host/system
-    IM_PROBES_EC2_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor
-    IM_PROBES_EC2_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/ec2-probes.d/vm/status
-    IM_PROBES_ONE_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/beacon
-    IM_PROBES_ONE_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/monitor
-    IM_PROBES_ONE_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/one-probes.d/host/system
-    IM_PROBES_ONE_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/monitor
-    IM_PROBES_ONE_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/one-probes.d/vm/status
-    IM_PROBES_EQUINIX_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/beacon
-    IM_PROBES_EQUINIX_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/monitor
-    IM_PROBES_EQUINIX_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/host/system
-    IM_PROBES_EQUINIX_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/monitor
-    IM_PROBES_EQUINIX_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/equinix-probes.d/vm/status
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -677,10 +621,6 @@ INSTALL_FILES=(
     VMM_EXEC_ETC_LXC_PROFILES:$VAR_LOCATION/remotes/etc/vmm/lxc/profiles
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
-    VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
-    VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
-    VMM_EXEC_ONE_SCRIPTS:$VAR_LOCATION/remotes/vmm/one
-    VMM_EXEC_EQUINIX_SCRIPTS:$VAR_LOCATION/remotes/vmm/equinix
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_LIB_FILES:$VAR_LOCATION/remotes/tm/lib
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
@@ -957,9 +897,7 @@ INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     SCHED_RANK_ETC_FILES:$ETC_LOCATION/schedulers
     ETC_FILES:$SHARE_LOCATION/conf
-    EC2_ETC_FILES:$ETC_LOCATION
     VCENTER_ETC_FILES:$ETC_LOCATION
-    AZ_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
@@ -1027,10 +965,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/nsx/nsx_driver.rb \
-                src/vmm_mad/remotes/az/az_driver.rb \
-                src/vmm_mad/remotes/ec2/ec2_driver.rb \
-                src/vmm_mad/remotes/one/opennebula_driver.rb \
-                src/vmm_mad/remotes/equinix/equinix_driver.rb \
                 src/vnm_mad/remotes/elastic/aws_vnm.rb \
                 src/vnm_mad/remotes/elastic/equinix_vnm.rb \
                 src/vnm_mad/remotes/elastic/equinix.rb \
@@ -1263,86 +1197,6 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
 
 VMM_EXEC_ETC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/vcenterrc"
 
-#------------------------------------------------------------------------------
-# VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
-#------------------------------------------------------------------------------
-
-VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
-                      src/vmm_mad/remotes/ec2/attach_disk \
-                      src/vmm_mad/remotes/ec2/detach_disk \
-                      src/vmm_mad/remotes/ec2/attach_nic \
-                      src/vmm_mad/remotes/ec2/detach_nic \
-                      src/vmm_mad/remotes/ec2/snapshot_create \
-                      src/vmm_mad/remotes/ec2/snapshot_revert \
-                      src/vmm_mad/remotes/ec2/snapshot_delete \
-                      src/vmm_mad/remotes/ec2/deploy \
-                      src/vmm_mad/remotes/ec2/migrate \
-                      src/vmm_mad/remotes/ec2/restore \
-                      src/vmm_mad/remotes/ec2/reboot \
-                      src/vmm_mad/remotes/ec2/reset \
-                      src/vmm_mad/remotes/ec2/save \
-                      src/vmm_mad/remotes/ec2/shutdown \
-                      src/vmm_mad/remotes/ec2/reconfigure \
-                      src/vmm_mad/remotes/ec2/prereconfigure \
-                      src/vmm_mad/remotes/ec2/resize_disk"
-
-#------------------------------------------------------------------------------
-# VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
-#------------------------------------------------------------------------------
-
-VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
-                     src/vmm_mad/remotes/az/attach_disk \
-                     src/vmm_mad/remotes/az/detach_disk \
-                     src/vmm_mad/remotes/az/attach_nic \
-                     src/vmm_mad/remotes/az/detach_nic \
-                     src/vmm_mad/remotes/az/snapshot_create \
-                     src/vmm_mad/remotes/az/snapshot_revert \
-                     src/vmm_mad/remotes/az/snapshot_delete \
-                     src/vmm_mad/remotes/az/deploy \
-                     src/vmm_mad/remotes/az/migrate \
-                     src/vmm_mad/remotes/az/restore \
-                     src/vmm_mad/remotes/az/reboot \
-                     src/vmm_mad/remotes/az/reset \
-                     src/vmm_mad/remotes/az/save \
-                     src/vmm_mad/remotes/az/shutdown \
-                     src/vmm_mad/remotes/az/reconfigure \
-                     src/vmm_mad/remotes/az/prereconfigure \
-                     src/vmm_mad/remotes/az/resize_disk"
-
-#------------------------------------------------------------------------------
-# VMM Driver opennebula scripts, to be installed under $REMOTES_LOCATION/vmm/one
-#------------------------------------------------------------------------------
-
-VMM_EXEC_ONE_SCRIPTS="src/vmm_mad/remotes/one/cancel \
-                     src/vmm_mad/remotes/one/attach_disk \
-                     src/vmm_mad/remotes/one/detach_disk \
-                     src/vmm_mad/remotes/one/attach_nic \
-                     src/vmm_mad/remotes/one/detach_nic \
-                     src/vmm_mad/remotes/one/snapshot_create \
-                     src/vmm_mad/remotes/one/snapshot_revert \
-                     src/vmm_mad/remotes/one/snapshot_delete \
-                     src/vmm_mad/remotes/one/deploy \
-                     src/vmm_mad/remotes/one/migrate \
-                     src/vmm_mad/remotes/one/migrate_local \
-                     src/vmm_mad/remotes/one/restore \
-                     src/vmm_mad/remotes/one/reboot \
-                     src/vmm_mad/remotes/one/reset \
-                     src/vmm_mad/remotes/one/save \
-                     src/vmm_mad/remotes/one/shutdown \
-                     src/vmm_mad/remotes/one/reconfigure \
-                     src/vmm_mad/remotes/one/prereconfigure"
-
-#------------------------------------------------------------------------------
-# VMM Driver Equinix scripts, to be installed under $REMOTES_LOCATION/vmm/equinix
-#------------------------------------------------------------------------------
-
-VMM_EXEC_EQUINIX_SCRIPTS="src/vmm_mad/remotes/equinix/cancel \
-                     src/vmm_mad/remotes/equinix/deploy \
-                     src/vmm_mad/remotes/equinix/reboot \
-                     src/vmm_mad/remotes/equinix/reset \
-                     src/vmm_mad/remotes/equinix/poll \
-                     src/vmm_mad/remotes/equinix/shutdown"
-
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
@@ -1495,92 +1349,6 @@ IM_PROBES_ETC_LXC_PROBES_FILES="\
     src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client_control.sh"
-
-# EC2 monitord-client
-IM_PROBES_EC2_FILES="\
-    src/im_mad/remotes/ec2.d/monitord-client_control.sh \
-    src/im_mad/remotes/ec2.d/monitord-client.rb"
-
-# EC2 probes
-IM_PROBES_EC2_HOST_BEACON_FILES="\
-     src/im_mad/remotes/ec2-probes.d/host/beacon/monitord-client-shepherd_local.sh"
-
-IM_PROBES_EC2_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/ec2-probes.d/host/monitor/probe_host_monitor.rb"
-
-IM_PROBES_EC2_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/ec2-probes.d/host/system/probe_host_system.rb"
-
-IM_PROBES_EC2_VM_MONITOR_FILES="\
-     src/im_mad/remotes/ec2-probes.d/vm/monitor/probe_vm_monitor.rb"
-
-IM_PROBES_EC2_VM_STATUS_FILES="\
-     src/im_mad/remotes/ec2-probes.d/vm/status/probe_vm_status.rb"
-
-# AZ monitord-client
-IM_PROBES_AZ_FILES="\
-    src/im_mad/remotes/az.d/monitord-client_control.sh \
-    src/im_mad/remotes/az.d/monitord-client.rb"
-
-# AZ probes
-IM_PROBES_AZ_HOST_BEACON_FILES="\
-     src/im_mad/remotes/az-probes.d/host/beacon/monitord-client-shepherd_local.sh"
-
-IM_PROBES_AZ_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/az-probes.d/host/monitor/probe_host_monitor.rb"
-
-IM_PROBES_AZ_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/az-probes.d/host/system/probe_host_system.rb"
-
-IM_PROBES_AZ_VM_MONITOR_FILES="\
-     src/im_mad/remotes/az-probes.d/vm/monitor/probe_vm_monitor.rb"
-
-IM_PROBES_AZ_VM_STATUS_FILES="\
-     src/im_mad/remotes/az-probes.d/vm/status/probe_vm_status.rb"
-
-# ONE monitord-client
-IM_PROBES_ONE_FILES="\
-    src/im_mad/remotes/one.d/monitord-client_control.sh \
-    src/im_mad/remotes/one.d/monitord-client.rb"
-
-# ONE probes
-IM_PROBES_ONE_HOST_BEACON_FILES="\
-     src/im_mad/remotes/one-probes.d/host/beacon/monitord-client-shepherd_local.sh"
-
-IM_PROBES_ONE_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/one-probes.d/host/monitor/probe_host_monitor.rb"
-
-IM_PROBES_ONE_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/one-probes.d/host/system/probe_host_system.rb"
-
-IM_PROBES_ONE_VM_MONITOR_FILES="\
-     src/im_mad/remotes/one-probes.d/vm/monitor/probe_vm_monitor.rb"
-
-IM_PROBES_ONE_VM_STATUS_FILES="\
-     src/im_mad/remotes/one-probes.d/vm/status/probe_vm_status.rb"
-
-IM_PROBES_EQUINIX_FILES="src/im_mad/remotes/equinix.d/poll"
-
-# EQUINIX monitord-client
-IM_PROBES_EQUINIX_FILES="\
-    src/im_mad/remotes/equinix.d/monitord-client_control.sh \
-    src/im_mad/remotes/equinix.d/monitord-client.rb"
-
-# EQUINIX probes
-IM_PROBES_EQUINIX_HOST_BEACON_FILES="\
-     src/im_mad/remotes/equinix-probes.d/host/beacon/monitord-client-shepherd_local.sh"
-
-IM_PROBES_EQUINIX_HOST_MONITOR_FILES="\
-     src/im_mad/remotes/equinix-probes.d/host/monitor/probe_host_monitor.rb"
-
-IM_PROBES_EQUINIX_HOST_SYSTEM_FILES="\
-     src/im_mad/remotes/equinix-probes.d/host/system/probe_host_system.rb"
-
-IM_PROBES_EQUINIX_VM_MONITOR_FILES="\
-     src/im_mad/remotes/equinix-probes.d/vm/monitor/probe_vm_monitor.rb"
-
-IM_PROBES_EQUINIX_VM_STATUS_FILES="\
-     src/im_mad/remotes/equinix-probes.d/vm/status/probe_vm_status.rb"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
@@ -2260,12 +2028,6 @@ ETC_FILES="share/etc/oned.conf \
 
 SCHED_RANK_ETC_FILES="src/schedm_mad/remotes/rank/etc/rank.conf \
                       src/schedm_mad/remotes/one_drs/etc/one_drs.conf"
-
-EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
-               src/vmm_mad/remotes/ec2/ec2_driver.default"
-
-AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
-              src/vmm_mad/remotes/az/az_driver.default"
 
 VCENTER_ETC_FILES="src/vmm_mad/remotes/lib/vcenter_driver/vcenter_driver.default"
 

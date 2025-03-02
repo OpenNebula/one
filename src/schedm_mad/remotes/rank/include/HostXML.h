@@ -168,11 +168,6 @@ public:
         return dispatched_vms.size();
     }
 
-    bool is_public_cloud() const
-    {
-        return public_cloud;
-    }
-
     void get_permissions(PoolObjectAuth& auth);
 
     /* ---------------------------------------------------------------------- */
@@ -270,8 +265,6 @@ private:
     int cluster_id;
 
     HostShareXML share;
-
-    bool public_cloud;
 
     // ---------------------------------------------------------------------- //
     // Scheduling statistics                                                  //

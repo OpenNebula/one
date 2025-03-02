@@ -74,7 +74,6 @@ protected:
             std::string&       name,
             std::string&       vmm,
             int&               cluster_id,
-            bool&              is_public_cloud,
             PoolObjectAuth&    host_perms,
             RequestAttributes& att);
 

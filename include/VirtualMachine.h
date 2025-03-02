@@ -2213,56 +2213,6 @@ private:
      */
     int get_vmgroup(std::string& error);
 
-    // ------------------------------------------------------------------------
-    // Public cloud templates related functions
-    // ------------------------------------------------------------------------
-    /**
-     * Gets the list of public clouds defined in this VM.
-     * @param clouds list to store the cloud hypervisors in the template
-     * @return the number of public cloud hypervisors
-     */
-    int get_public_clouds(std::set<std::string> &clouds) const
-    {
-        get_public_clouds("PUBLIC_CLOUD", clouds);
-
-        return clouds.size();
-    };
-
-    /**
-     * Same as above but specifies the attribute name to handle old versions
-     * @param name Attribute name
-     * @param clouds list to store the cloud hypervisors in the template
-     */
-    void get_public_clouds(const std::string& name,
-                           std::set<std::string> &clouds) const;
-
-    /**
-     *  Parse the public cloud attributes and subsititue variable definition
-     *  for the values in the template, i.e.:
-     *    INSTANCE_TYPE="m1-small"
-     *
-     *    PUBLIC_CLOUD=[ TYPE="ec2", INSTANCE="$INSTANCE_TYPE"...
-     *
-     *  @param error description if any
-     *  @return -1 in case of error
-     */
-    int parse_public_clouds(std::string& error)
-    {
-        int rc = parse_public_clouds("PUBLIC_CLOUD", error);
-
-        if (rc == 0)
-        {
-            rc = parse_public_clouds("EC2", error);
-        }
-
-        return rc;
-    };
-
-    /**
-     * Same as above but specifies the attribute name to handle old versions
-     */
-    int parse_public_clouds(const char *name, std::string& error);
-
     /**
      *  Encrypt all secret attributes
      */

@@ -374,18 +374,6 @@ void Host::error(const string& message)
     set_template_error_message(oss.str());
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-bool Host::is_public_cloud() const
-{
-    bool is_public_cloud = false;
-
-    get_template_attribute("PUBLIC_CLOUD", is_public_cloud);
-
-    return is_public_cloud;
-}
-
 /* ************************************************************************ */
 /* Host :: Misc                                                             */
 /* ************************************************************************ */

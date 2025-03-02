@@ -752,54 +752,6 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_public_clouds(const char * pname, string& error)
-{
-    vector<VectorAttribute *>           attrs;
-
-    string p_vatt;
-
-    int rc  = 0;
-    int num = user_obj_template->remove(pname, attrs);
-
-    for (auto attr : attrs)
-    {
-        string str = attr->marshall();
-
-        if ( str.empty() )
-        {
-            ostringstream oss;
-            oss << "Internal error processing " << pname;
-            error = oss.str();
-            rc    = -1;
-            break;
-        }
-
-        rc = parse_template_attribute(str, p_vatt, error);
-
-        if ( rc != 0 )
-        {
-            rc = -1;
-            break;
-        }
-
-        VectorAttribute * nvatt = new VectorAttribute(pname);
-
-        nvatt->unmarshall(p_vatt);
-
-        user_obj_template->set(nvatt);
-    }
-
-    for (int i = 0; i < num ; i++)
-    {
-        delete attrs[i];
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::parse_cpu_model(Template * tmpl)
 {
     vector<VectorAttribute *> cm_attr;

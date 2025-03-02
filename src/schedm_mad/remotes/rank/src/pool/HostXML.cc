@@ -158,14 +158,9 @@ ostream& operator<<(ostream& o, const HostShareXML& s)
 
 void HostXML::init_attributes()
 {
-    std::string public_cloud_st;
-
     //--------------------- Init host attributes -------------------------------
     xpath(oid,         "/HOST/ID",                     -1);
     xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
-
-    xpath(public_cloud_st, "/HOST/TEMPLATE/PUBLIC_CLOUD", "");
-    public_cloud = (one_util::toupper(public_cloud_st) == "YES");
 
     share.init_attributes(this);
 
@@ -188,7 +183,6 @@ ostream& operator<<(ostream& o, const HostXML& p)
 {
     o << "ID          : " << p.oid        << endl;
     o << "CLUSTER_ID  : " << p.cluster_id << endl;
-    o << "PUBLIC      : " << p.public_cloud << endl;
     o << p.share;
 
     return o;

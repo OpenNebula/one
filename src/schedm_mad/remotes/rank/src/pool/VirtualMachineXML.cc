@@ -258,21 +258,11 @@ void VirtualMachineXML::init_attributes(xmlNodePtr requirement_xml)
         user_template->from_xml_node(nodes[0]);
 
         free_nodes(nodes);
-
-        public_cloud = (user_template->get("PUBLIC_CLOUD", attrs) > 0);
-
-        if (public_cloud == false)
-        {
-            attrs.clear();
-            public_cloud = (user_template->get("EC2", attrs) > 0);
-        }
     }
     else
     {
         user_template = 0;
     }
-
-    only_public_cloud = false;
 
     if (vm_template != 0)
     {

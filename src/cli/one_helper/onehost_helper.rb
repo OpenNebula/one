@@ -306,9 +306,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             vm_mad = host['VM_MAD'].downcase
             state = host['STATE']
 
-            # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
-            next if host['TEMPLATE/PUBLIC_CLOUD'] == 'YES'
-
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
 
@@ -431,9 +428,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             end
 
             state = host['STATE']
-
-            # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
-            next if host['TEMPLATE/PUBLIC_CLOUD'] == 'YES'
 
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'

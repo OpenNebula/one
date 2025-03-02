@@ -139,12 +139,6 @@ public:
     int from_xml(const std::string &xml_str) override;
 
     /**
-     *  Checks if the host is a remote public cloud
-     *    @return true if the host is a remote public cloud
-     */
-    bool is_public_cloud() const;
-
-    /**
      *   Sets the current host offline, it will not be monitored nor used by the
      *   scheduler, manual VM deployment is also restricted
      */

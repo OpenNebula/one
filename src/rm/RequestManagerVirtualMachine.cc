@@ -294,7 +294,6 @@ Request::ErrorCode RequestManagerVirtualMachine::get_ds_information(int ds_id,
         string& name,
         string& vmm,
         int&    cluster_id,
-        bool&   is_public_cloud,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att)
 
@@ -323,8 +322,6 @@ Request::ErrorCode RequestManagerVirtualMachine::get_ds_information(int ds_id,
     vmm  = host->get_vmm_mad();
 
     cluster_id = host->get_cluster_id();
-
-    is_public_cloud = host->is_public_cloud();
 
     host->get_permissions(host_perms);
 
@@ -747,7 +744,6 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
     int    cluster_id, old_cid = -1;
     int    uid;
     int    gid;
-    bool   is_public_cloud;
 
     PoolObjectAuth host_perms, ds_perms, vm_perms;
     PoolObjectAuth * auth_ds_perms;
@@ -772,7 +768,6 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
                                    hostname,
                                    vmm_mad,
                                    cluster_id,
-                                   is_public_cloud,
                                    host_perms,
                                    att);
     if (ec != SUCCESS)
@@ -825,47 +820,38 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
         return NO_EXISTS;
     }
 
-    if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
+    if ( ds_id == -1 ) //Use default system DS for cluster
     {
-        // by VirtualMachine::get_host_is_cloud()
-        ds_id  = -1;
-        tm_mad = "";
-    }
-    else
-    {
-        if ( ds_id == -1 ) //Use default system DS for cluster
+        ec = get_default_ds_information(cluster_id, ds_id, tm_mad, att);
+        if (ec != SUCCESS)
         {
-            ec = get_default_ds_information(cluster_id, ds_id, tm_mad, att);
-            if (ec != SUCCESS)
-            {
-                return ec;
-            }
+            return ec;
         }
-        else //Get information from user selected system DS
+    }
+    else //Get information from user selected system DS
+    {
+        set<int> ds_cluster_ids;
+        bool     ds_migr;
+
+        ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+        if (ec != SUCCESS)
         {
-            set<int> ds_cluster_ids;
-            bool     ds_migr;
+            return ec;
+        }
 
-            ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
-            if (ec != SUCCESS)
-            {
-                return ec;
-            }
+        if (ds_cluster_ids.count(cluster_id) == 0)
+        {
+            ostringstream oss;
 
-            if (ds_cluster_ids.count(cluster_id) == 0)
-            {
-                ostringstream oss;
+            oss << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id
+                << "] and " << object_name(PoolObjectSQL::HOST) << " ["
+                << hid << "] are not in the same "
+                << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
+                << "].";
 
-                oss << object_name(PoolObjectSQL::DATASTORE) << " [" << ds_id
-                    << "] and " << object_name(PoolObjectSQL::HOST) << " ["
-                    << hid << "] are not in the same "
-                    << object_name(PoolObjectSQL::CLUSTER) << " [" << cluster_id
-                    << "].";
+            att.resp_msg = oss.str();
 
-                att.resp_msg = oss.str();
-
-                return ACTION;
-            }
+            return ACTION;
         }
     }
 
@@ -1151,7 +1137,6 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
     string vmm_mad;
     int    cluster_id;
     set<int> ds_cluster_ids;
-    bool   is_public_cloud;
     PoolObjectAuth host_perms, ds_perms, vm_perms;
     PoolObjectAuth * auth_ds_perms;
     VirtualMachineTemplate quota_tmpl;
@@ -1160,7 +1145,6 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
     int    c_cluster_id;
     int    c_ds_id;
     string c_tm_mad, tm_mad;
-    bool   c_is_public_cloud;
 
     set<int> cluster_ids;
     string   error_str;
@@ -1171,7 +1155,6 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
                                    hostname,
                                    vmm_mad,
                                    cluster_id,
-                                   is_public_cloud,
                                    host_perms,
                                    att);
 
@@ -1302,8 +1285,7 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
     // Check we are migrating to a compatible cluster
     if (auto host = nd.get_hpool()->get_ro(c_hid))
     {
-        c_is_public_cloud = host->is_public_cloud();
-        c_cluster_id      = host->get_cluster_id();
+        c_cluster_id = host->get_cluster_id();
     }
     else
     {
@@ -1322,13 +1304,6 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
             << one_util::join(cluster_ids, ',') << "]";
 
         att.resp_msg = oss.str();
-
-        return ACTION;
-    }
-
-    if ( is_public_cloud || c_is_public_cloud )
-    {
-        att.resp_msg = "Cannot migrate to or from a Public Cloud Host";
 
         return ACTION;
     }

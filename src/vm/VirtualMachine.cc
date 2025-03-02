@@ -942,14 +942,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     parse_well_known_attributes();
 
     // ------------------------------------------------------------------------
-    // Parse the Public Cloud specs for this VM
-    // ------------------------------------------------------------------------
-    if (parse_public_clouds(error_str) != 0)
-    {
-        goto error_public;
-    }
-
-    // ------------------------------------------------------------------------
     // Check for EMULATOR attribute
     // ------------------------------------------------------------------------
     user_obj_template->get("EMULATOR", value);
@@ -1307,7 +1299,6 @@ error_os:
 error_pci:
 error_defaults:
 error_vrouter:
-error_public:
 error_name:
 error_mem_mode:
 error_common:
@@ -1749,11 +1740,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
             oss << " | CLUSTER_ID = " << *i;
         }
 
-        oss << ") & !(PUBLIC_CLOUD = YES)";
-    }
-    else
-    {
-        oss << "!(PUBLIC_CLOUD = YES)";
+        oss << ")";
     }
 
     if ( is_pinned() )
@@ -1763,24 +1750,6 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     else
     {
         oss << " & !(PIN_POLICY = PINNED)";
-    }
-
-    int num_public = get_public_clouds(clouds);
-
-    if (num_public != 0)
-    {
-        auto it = clouds.begin();
-
-        oss << " | (PUBLIC_CLOUD = YES & (";
-
-        oss << "HYPERVISOR = " << *it;
-
-        for (++it; it != clouds.end() ; ++it)
-        {
-            oss << " | HYPERVISOR = " << *it;
-        }
-
-        oss << "))";
     }
 
     const VectorAttribute * cpu_model = obj_template->get("CPU_MODEL");
@@ -3010,32 +2979,6 @@ void VirtualMachine::clear_template_error_message()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
-{
-    vector<VectorAttribute *>                 attrs;
-
-    user_obj_template->get(pname, attrs);
-
-    if ( !attrs.empty() && pname == "EC2" )
-    {
-        clouds.insert("ec2");
-    }
-
-    for (const auto* vattr : attrs)
-    {
-        const string& type = vattr->vector_value("TYPE");
-
-        if (!type.empty())
-        {
-            clouds.insert(type);
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 
 /**
  * Replaces the values of a vector value, preserving the existing ones
