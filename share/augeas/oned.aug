@@ -76,7 +76,7 @@ let lns = ( top_level_line | comment_eol | space_comment_eol | section | empty_l
 
 (* Variable: filter *)
 let filter = incl "/etc/one/oned.conf"
-             . incl "/etc/one/sched.conf"
+             . incl "/etc/schedulers/rank.conf"
              . incl "/etc/one/monitord.conf"
              . incl "/etc/one/vmm_exec/vmm_exec_kvm.conf"
 
