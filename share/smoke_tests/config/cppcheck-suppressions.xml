@@ -104,10 +104,6 @@
 		<fileName>src/rm/RequestManagerUser.cc</fileName>
 	</suppress>
 	<suppress>
-		<id>knownConditionTrueFalse</id>
-		<fileName>src/cluster/ClusterPool.cc</fileName>
-	</suppress>
-	<suppress>
 		<id>uninitMemberVar</id>
 		<fileName>include/Callbackable.h</fileName>
 	</suppress>

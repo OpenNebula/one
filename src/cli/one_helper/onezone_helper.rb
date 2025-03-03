@@ -28,22 +28,12 @@ class Replicator
     FED_ATTRS   = %w[MODE ZONE_ID SERVER_ID MASTER_ONED]
 
     FILES = [
-        { :name    => 'az_driver.conf',
-          :service => 'opennebula' },
-        { :name    => 'az_driver.default',
-          :service => 'opennebula' },
-        { :name    => 'ec2_driver.conf',
-          :service => 'opennebula' },
-        { :name    => 'ec2_driver.default',
-          :service => 'opennebula' },
         { :name    => 'monitord.conf',
           :service => 'opennebula' },
         { :name    => 'oneflow-server.conf',
           :service => 'opennebula-flow' },
         { :name    => 'onegate-server.conf',
           :service => 'opennebula-gate' },
-        { :name    => 'sched.conf',
-          :service => 'opennebula' },
         { :name    => 'sunstone-logos.yaml',
           :service => 'opennebula-sunstone' },
         { :name    => 'sunstone-server.conf',
@@ -56,8 +46,8 @@ class Replicator
         { :name => 'sunstone-views', :service => 'opennebula-sunstone' },
         { :name => 'auth', :service => 'opennebula' },
         { :name => 'hm', :service => 'opennebula' },
-        { :name => 'sunstone-views', :service => 'opennebula' },
-        { :name => 'vmm_exec', :service => 'opennebula' }
+        { :name => 'vmm_exec', :service => 'opennebula' },
+        { :name => 'schedulers', :service => 'opennebula' }
     ]
 
     # Class constructor
@@ -166,6 +156,11 @@ class Replicator
     def copy_and_check(file, service)
         puts "Checking #{file}"
 
+        if !File.exist?("/etc/one/#{file}")
+            STDERR.puts "File #{file} not found"
+            exit(-1)
+        end
+
         temp_file = Tempfile.new("#{file}-temp")
 
         scp("/etc/one/#{file}", temp_file.path)
@@ -178,7 +173,7 @@ class Replicator
             @opennebula_services[service] = true
         end
     ensure
-        temp_file.unlink
+        temp_file.unlink if temp_file
     end
 
     # Copy folders
