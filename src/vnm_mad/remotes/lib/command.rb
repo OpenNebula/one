@@ -27,8 +27,8 @@ module VNMMAD
         # with onehost sync command.
         COMMANDS = {
             :ebtables      => 'sudo -n ebtables --concurrent',
-            :iptables      => 'sudo -n iptables -w 3 -W 20000',
-            :ip6tables     => 'sudo -n ip6tables -w 3 -W 20000',
+            :iptables      => 'sudo -n iptables -w 3',
+            :ip6tables     => 'sudo -n ip6tables -w 3',
             :ip            => 'sudo -n ip',
             :ip_unpriv     => 'ip',
             :virsh         => 'virsh -c qemu:///system',

@@ -26,6 +26,8 @@ module VNMMAD
     # Module to handle transparent proxies.
     module TProxy
 
+        LOCK_FILE = '/tmp/onevnm-tproxy-lock'
+
         # Return the hypervisor facing veth device
         def self.veth(nic)
             return "#{nic[:bridge]}b"
@@ -162,21 +164,31 @@ module VNMMAD
         end
 
         def self.ip_link_add_veth(brdev)
+            lockfd = File.open(LOCK_FILE, 'w')
+            lockfd.flock(File::LOCK_EX)
+
             o, e, s = run(:ip, 'link', 'show', "#{brdev}b", :term => false)
             if s.success?
                 [o, e, s]
             else
                 run(:ip, 'link', 'add', "#{brdev}b", 'type', 'veth', 'peer', 'name', "#{brdev}a")
             end
+        ensure
+            lockfd.close
         end
 
         def self.ip_link_delete_veth(brdev)
+            lockfd = File.open(LOCK_FILE, 'w')
+            lockfd.flock(File::LOCK_EX)
+
             o, e, s = run(:ip, 'link', 'show', "#{brdev}b", :term => false)
             if s.success?
                 run(:ip, 'link', 'delete', "#{brdev}b")
             else
                 [o, e, s]
             end
+        ensure
+            lockfd.close
         end
 
         def self.ip_link_set(cmd)
@@ -184,30 +196,45 @@ module VNMMAD
         end
 
         def self.ip_link_set_netns(brdev)
+            lockfd = File.open(LOCK_FILE, 'w')
+            lockfd.flock(File::LOCK_EX)
+
             o, e, s = run(:ip, 'link', 'show', "#{brdev}a", :term => false)
             if s.success?
                 run(:ip, 'link', 'set', "#{brdev}a", 'netns', "one_tproxy_#{brdev}")
             else
                 [o, e, s]
             end
+        ensure
+            lockfd.close
         end
 
         def self.ip_netns_add(brdev)
+            lockfd = File.open(LOCK_FILE, 'w')
+            lockfd.flock(File::LOCK_EX)
+
             o, e, s = run(:ip, 'netns', 'pids', "one_tproxy_#{brdev}", :term => false)
             if s.success?
                 [o, e, s]
             else
                 run(:ip, 'netns', 'add', "one_tproxy_#{brdev}")
             end
+        ensure
+            lockfd.close
         end
 
         def self.ip_netns_delete(brdev)
+            lockfd = File.open(LOCK_FILE, 'w')
+            lockfd.flock(File::LOCK_EX)
+
             o, e, s = run(:ip, 'netns', 'pids', "one_tproxy_#{brdev}", :term => false)
             if s.success?
                 run(:ip, 'netns', 'delete', "one_tproxy_#{brdev}")
             else
                 [o, e, s]
             end
+        ensure
+            lockfd.close
         end
 
         def self.ip_netns_exec(brdev, cmd, expect_json: false)
