@@ -316,6 +316,16 @@ void PlanManager::action_finished(int cid, int vid, PlanState state)
 {
     auto plan = plan_pool->get(cid);
 
+    if (!plan)
+    {
+        if (cid != -1)
+        {
+            action_finished(-1, vid, state);
+        }
+
+        return;
+    }
+
     if (plan->action_finished(vid, state))
     {
         plan->check_completed();
