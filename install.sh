@@ -956,7 +956,6 @@ LIB_FILES=""
 RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/OpenNebulaDriver.rb \
                 src/mad/ruby/VirtualMachineDriver.rb \
-                src/mad/ruby/PublicCloudDriver.rb \
                 src/mad/ruby/HostSyncManager.rb \
                 src/mad/ruby/DriverExecHelper.rb \
                 src/mad/ruby/ssh_stream.rb \
