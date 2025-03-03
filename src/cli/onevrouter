@@ -188,7 +188,7 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         number = options[:multiple] || 1
-        user_inputs = nil
+        user_inputs = options[:user_inputs]
 
         helper.perform_action(args[0], options, 'instantiated') do |vr|
             name = options[:name] || ''
@@ -220,7 +220,16 @@ CommandParser::CmdParser.new(ARGV) do
                 extra_template = res.last
             end
 
-            user_inputs ||= OneTemplateHelper.get_user_inputs(t.to_hash)
+            if !user_inputs
+                user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash)
+            else
+                optionals = OneTemplateHelper.get_user_inputs(
+                    t.to_hash,
+                    options[:user_inputs_keys]
+                )
+
+                user_inputs = user_inputs + "\n" + optionals
+            end
 
             extra_template << "\n" << user_inputs
 
