@@ -742,6 +742,8 @@ void Nebula::start(bool bootstrap_only)
 
         vnc_conf = nebula_configuration->get("VNC_PORTS");
 
+        plpool = new PlanPool(logdb);
+
         clpool = new ClusterPool(logdb, vnc_conf, cluster_encrypted_attrs);
 
         /* --------------------- VirtualMachine Pool ------------------------ */
@@ -896,8 +898,6 @@ void Nebula::start(bool bootstrap_only)
         bjpool = new BackupJobPool(logdb);
 
         sapool = new ScheduledActionPool(logdb);
-
-        plpool = new PlanPool(logdb);
 
         default_user_quota.select();
         default_group_quota.select();

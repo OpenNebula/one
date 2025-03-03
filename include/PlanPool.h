@@ -52,7 +52,19 @@ public:
     static int bootstrap(SqlDB *_db)
     {
         return Plan::bootstrap(_db);
-    };
+    }
+
+    /**
+     *  Creates the Plan in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int insert(Plan *plan)
+    {
+        std::string error_str;
+
+        return plan->insert(db, error_str);
+    }
 
     /**
      *  Updates the plan in the database.

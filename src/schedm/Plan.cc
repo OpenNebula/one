@@ -302,9 +302,18 @@ int Plan::select(SqlDB * db)
     oss << "SELECT body FROM " << one_db::plan_table
         << " WHERE cid = " << _cid;
 
+    // Store id to check if the object is in the DB
+    int tmp_id = _cid;
+    _cid = -2;
+
     int rc = db->exec_rd(oss, this);
 
     unset_callback();
+
+    if ((rc != 0) || (_cid != tmp_id ))
+    {
+        return -1;
+    }
 
     return rc;
 }
@@ -323,11 +332,22 @@ int Plan::insert_replace(SqlDB *db, bool replace)
         return -1;
     }
 
-    oss << "REPLACE INTO " << one_db::plan_table
-        << " (" << one_db::plan_db_names << ") VALUES ("
-        <<        _cid     << ","
-        <<        _state   << ","
-        << "'" << sql_body << "')";
+    if(replace)
+    {
+        oss << "UPDATE " << one_db::plan_table << " SET "
+            << "cid = "       << _cid      << ", "
+            << "state = "     << _state    << ", "
+            << "body =  '"    << sql_body << "' "
+            << "WHERE cid = " << _cid;
+    }
+    else
+    {
+        oss << "INSERT INTO " << one_db::plan_table
+            << " (" << one_db::plan_db_names << ") VALUES ("
+            <<        _cid     << ","
+            <<        _state   << ","
+            << "'" << sql_body << "')";
+    }
 
     int rc = db->exec_wr(oss);
 

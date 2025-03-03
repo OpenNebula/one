@@ -232,6 +232,32 @@ int Cluster::bootstrap(SqlDB * db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Cluster::insert(SqlDB *db, std::string& error_str)
+{
+    int rc;
+
+    rc = insert_replace(db, false, error_str);
+
+    if ( rc != 0 )
+    {
+        return rc;
+    }
+
+    PlanPool * plpool = Nebula::instance().get_planpool();
+
+    Plan plan(oid);
+
+    if (plpool->insert(&plan) != 0)
+    {
+        return -1;
+    }
+
+    return vnc_bitmap.insert(oid, db);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& Cluster::to_xml(string& xml) const
 {
     ostringstream   oss;

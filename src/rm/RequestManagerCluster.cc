@@ -439,9 +439,9 @@ void ClusterPlanDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     auto plan = plpool->get(cluster_id);
 
-    if (plan->state() == PlanState::NONE)
+    if (!plan || plan->state() == PlanState::NONE)
     {
-        att.resp_msg = "Plan for cluster " + to_string(cluster_id) + "does not exist";
+        att.resp_msg = "Plan for cluster " + to_string(cluster_id) + " does not exist";
         failure_response(ACTION, att);
 
         return;
@@ -449,7 +449,7 @@ void ClusterPlanDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     plan->clear();
 
-    if (plpool->drop(plan.get()) != 0)
+    if (plpool->update(plan.get()) != 0)
     {
         att.resp_msg = "Unable to delete plan for cluster " + to_string(cluster_id);
         failure_response(ACTION, att);

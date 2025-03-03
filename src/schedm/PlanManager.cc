@@ -108,9 +108,11 @@ void PlanManager::add_plan(const string& xml)
                 return;
             }
 
-            plan.state(PlanState::APPLYING);
+            cplan->from_xml(xml);
+
+            cplan->state(PlanState::APPLYING);
         }
-        else if (auto cluster = cluster_pool->get(plan.cid()))
+        else if (auto cluster = cluster_pool->get_ro(plan.cid()))
         {
             NebulaLog::info("PLM", "Adding new plan for cluster " + to_string(plan.cid()));
 
@@ -120,13 +122,15 @@ void PlanManager::add_plan(const string& xml)
                 return;
             }
 
+            cplan->from_xml(xml);
+
             if (cluster->is_autoapply())
             {
-                plan.state(PlanState::APPLYING);
+                cplan->state(PlanState::APPLYING);
             }
             else
             {
-                plan.state(PlanState::READY);
+                cplan->state(PlanState::READY);
             }
         }
         else
@@ -134,9 +138,14 @@ void PlanManager::add_plan(const string& xml)
             NebulaLog::error("PLM", "Optimization plan for non-existent cluster " + to_string(plan.cid()));
             return;
         }
-    }
 
-    plan_pool->update(&plan);
+        plan_pool->update(cplan.get());
+    }
+    else
+    {
+        NebulaLog::error("PLM", "Plan not found, unable to update plan for cluster " + to_string(plan.cid()));
+        return;
+    }
 
     // Clear previous scheduling messages for all VM actions
     for (const auto& action : plan.actions())

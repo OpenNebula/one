@@ -16,6 +16,7 @@
 
 #include "PlanPool.h"
 #include "OneDB.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -25,6 +26,18 @@ using namespace std;
 PlanPool::PlanPool(SqlDB * _db)
     : db(_db), table(one_db::plan_table)
 {
+    auto placement_plan = get_ro(-1);
+
+    if (!placement_plan)
+    {
+        placement_plan = make_unique<Plan>(-1);
+
+        string error;
+        if (placement_plan->insert(db, error) != 0)
+        {
+            NebulaLog::error("PLM", "Error bootstraping placement plan: " + error);
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -45,7 +58,12 @@ std::unique_ptr<Plan> PlanPool::get(int id)
 
     plan->_mutex = object_lock;
 
-    plan->select(db);
+    int rc = plan->select(db);
+
+    if ( rc != 0 )
+    {
+        return nullptr;
+    }
 
     return plan;
 }
@@ -64,7 +82,12 @@ std::unique_ptr<Plan> PlanPool::get_ro(int id)
 
     plan->ro = true;
 
-    plan->select(db);
+    int rc = plan->select(db);
+
+    if ( rc != 0 )
+    {
+        return nullptr;
+    }
 
     return plan;
 }

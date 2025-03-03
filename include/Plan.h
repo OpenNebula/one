@@ -262,8 +262,6 @@ private:
      */
     int insert(SqlDB * db, std::string& error_str) override
     {
-        error_str.clear();
-
         return insert_replace(db, false);
     }
 

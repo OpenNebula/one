@@ -204,19 +204,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, std::string& error_str) override
-    {
-        int rc;
-
-        rc = insert_replace(db, false, error_str);
-
-        if ( rc != 0 )
-        {
-            return rc;
-        }
-
-        return vnc_bitmap.insert(oid, db);
-    }
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Cluster's data fields in the database.
