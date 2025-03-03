@@ -1701,9 +1701,7 @@ error_disk:
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
                                            string& error_str)
 {
-    string tm_mad_system;
     ostringstream   oss;
-    set<string>     clouds;
     bool            shareable = false;
     set<int>        datastore_ids;
 
@@ -1740,16 +1738,16 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
             oss << " | CLUSTER_ID = " << *i;
         }
 
-        oss << ")";
+        oss << ") & ";
     }
 
     if ( is_pinned() )
     {
-        oss << " & (PIN_POLICY = PINNED)";
+        oss << "(PIN_POLICY = PINNED)";
     }
     else
     {
-        oss << " & !(PIN_POLICY = PINNED)";
+        oss << "!(PIN_POLICY = PINNED)";
     }
 
     const VectorAttribute * cpu_model = obj_template->get("CPU_MODEL");
@@ -1813,6 +1811,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
         }
 
+        std::string tm_mad_system;
         if ( obj_template->get("TM_MAD_SYSTEM", tm_mad_system) )
         {
             oss << " & (TM_MAD = \"" << one_util::trim(tm_mad_system) << "\")";
