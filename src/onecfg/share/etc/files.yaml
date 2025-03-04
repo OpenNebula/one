@@ -212,14 +212,14 @@
   mode: '0640'
   src: src/scheduler/etc/sched.conf
 
-- name: /etc/schedulers/rank.conf
+- name: /etc/one/schedulers/rank.conf
   class: Augeas::ONE
   owner: root
   group: oneadmin
   mode: '0640'
   src: src/schedm_mad/remotes/rank/etc/rank.conf
 
-- name: /etc/schedulers/one_drs.conf
+- name: /etc/one/schedulers/one_drs.conf
   class: Yaml::Strict
   owner: root
   group: oneadmin
