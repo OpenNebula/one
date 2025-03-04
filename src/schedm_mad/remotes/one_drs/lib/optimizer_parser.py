@@ -1,4 +1,5 @@
 import io
+from dataclasses import replace
 
 from xsdata.formats.dataclass.parsers import XmlParser
 
@@ -57,12 +58,27 @@ class OptimizerParser:
             criteria = cluster_config["policy"]
             allowed_migrations = cluster_config["migration_threshold"]
             self._plan_id = self.scheduler_driver_action.cluster.id
+        vmg, affined_hosts, anti_affined_hosts = self._parse_vm_groups()
+        vm_reqs_dict = self._parse_vm_requirements()
+        for vm_req in self.scheduler_driver_action.requirements.vm:
+            if vm_req.id in affined_hosts:
+                # Available hosts are only the affined hosts
+                new_host_ids = affined_hosts[vm_req.id]
+            elif vm_req.id in anti_affined_hosts:
+                # Remove anti-affined hosts from the available host_ids
+                current_ids = vm_reqs_dict[vm_req.id].host_ids
+                new_host_ids = current_ids - anti_affined_hosts[vm_req.id]
+            else:
+                continue
+            vm_reqs_dict[vm_req.id] = replace(
+                vm_reqs_dict[vm_req.id], host_ids=new_host_ids
+            )
         return ILPOptimizer(
             current_placement=self._parse_current_placement(),
             used_host_dstores=self.used_host_dstores,
             used_shared_dstores=self.used_shared_dstores,
-            vm_requirements=self._parse_vm_requirements(),
-            vm_groups=self._parse_vm_groups(),
+            vm_requirements=list(vm_reqs_dict.values()),
+            vm_groups=vmg,
             host_capacities=self._parse_host_capacities(),
             dstore_capacities=self._parse_datastore_capacities(),
             vnet_capacities=self._parse_vnet_capacities(),
@@ -72,60 +88,143 @@ class OptimizerParser:
             solver=self.config["solver"],
         )
 
-    def _parse_vm_requirements(self) -> list[VMRequirements]:
-        vm_requirements = []
+    def _parse_vm_requirements(self) -> dict[int, VMRequirements]:
+        vm_requirements = {}
         for vm_req in self.scheduler_driver_action.requirements.vm:
             for vm in self.scheduler_driver_action.vm_pool.vm:
                 if vm.id == vm_req.id:
                     storage = self._build_vm_storage(vm, vm_req)
-                    vm_requirements.append(
-                        VMRequirements(
-                            id=int(vm_req.id),
-                            state=self._map_vm_state(vm.state, vm.lcm_state),
-                            memory=int(vm.template.memory),
-                            cpu_ratio=float(vm.template.cpu),
-                            cpu_usage=float(vm.monitoring.cpu or "nan"),
-                            storage=storage,
-                            pci_devices=self._build_pci_devices_requirements(
-                                vm.template.pci
-                            ),
-                            host_ids=set(vm_req.hosts.id),
-                            share_vnets=not self.config["different_vnets"],
-                            nic_matches={nic.id: nic.vnets.id for nic in vm_req.nic},
-                        )
+                    vm_requirements[int(vm_req.id)] = VMRequirements(
+                        id=int(vm_req.id),
+                        state=self._map_vm_state(vm.state, vm.lcm_state),
+                        memory=int(vm.template.memory),
+                        cpu_ratio=float(vm.template.cpu),
+                        cpu_usage=float(vm.monitoring.cpu or "nan"),
+                        storage=storage,
+                        pci_devices=self._build_pci_devices_requirements(
+                            vm.template.pci
+                        ),
+                        host_ids=set(vm_req.hosts.id),
+                        share_vnets=not self.config["different_vnets"],
+                        nic_matches={nic.id: nic.vnets.id for nic in vm_req.nic},
                     )
                 else:
                     self._build_used_dstores(vm)
         return vm_requirements
 
     def _parse_vm_groups(self) -> list[VMGroup]:
+        # OpenNebla VM Groups
+        # groups = {group_id: {role_name: set(vm_ids)}}
         groups = {}
-        req_ids = {vm_req.id for vm_req in self.scheduler_driver_action.requirements.vm}
         for vm in self.scheduler_driver_action.vm_pool.vm:
-            if vm.id not in req_ids or not vm.template.vmgroup:
+            if not vm.template.vmgroup:
                 continue
-            group_attrs = {
+            attrs = {
                 child.qname.upper(): child.text
                 for child in vm.template.vmgroup.children
             }
-            group_id = int(group_attrs.get("VMGROUP_ID"))
-            group_role = group_attrs.get("ROLE")
-            groups.setdefault(group_id, {}).setdefault(group_role, set()).add(vm.id)
-        vm_groups = []
+            gid, role = int(attrs.get("VMGROUP_ID")), attrs.get("ROLE")
+            groups.setdefault(gid, {}).setdefault(role, set()).add(vm.id)
+        # Auxiliar dict for creating role to role affinity
+        aux_vmg = {}
+        # vmg = list[VMGroup]
+        vmg, idx = [], 0
+        # Dicts for Host-VM Affinity
+        # affined_hosts = {vm_id: set(host_ids)}
+        # anti_affined_hosts = {vm_id: set(host_ids)}
+        affined_hosts, anti_affined_hosts = {}, {}
+        # Create VM Groups for VM-VM and Host-VM Affinity
         for group in self.scheduler_driver_action.vm_group_pool.vm_group:
-            group_id = int(group.id)
-            if group_id not in groups:
+            gid = int(group.id)
+            if gid not in groups:
                 continue
             for role_obj in group.roles.role:
-                vm_ids = list(groups[group_id].get(role_obj.name, []))
-                vm_groups.append(
-                    VMGroup(
-                        id=group_id,
-                        affined=(role_obj.policy.upper() == "AFFINED"),
-                        vm_ids=set(vm_ids),
+                if role_obj.name not in groups[gid]:
+                    continue
+                if (
+                    role_obj.host_affined is not None
+                    or role_obj.host_anti_affined is not None
+                ):
+                    target_hosts = (
+                        affined_hosts
+                        if role_obj.host_affined is not None
+                        else anti_affined_hosts
                     )
-                )
-        return vm_groups
+                    host_list = (
+                        role_obj.host_affined or role_obj.host_anti_affined
+                    ).split(",")
+                    for vm_id in groups[gid][role_obj.name]:
+                        target_hosts.setdefault(vm_id, set()).update(
+                            map(int, host_list)
+                        )
+                if role_obj.policy:
+                    vm_group = VMGroup(
+                        id=idx,
+                        affined=role_obj.policy.upper() == "AFFINED",
+                        vm_ids=groups[gid][role_obj.name],
+                    )
+                    vmg.append(vm_group)
+                    aux_vmg[(gid, role_obj.name)] = vm_group
+                    idx += 1
+                else:
+                    # Only for Role-Role affinity or VM-Host affinity
+                    vm_group = VMGroup(
+                        id=idx, affined=False, vm_ids=groups[gid][role_obj.name]
+                    )
+                    aux_vmg[(gid, role_obj.name)] = vm_group
+                    idx += 1
+        # Create VM Groups for Role-Role affinity
+        for group in self.scheduler_driver_action.vm_group_pool.vm_group:
+            gid = int(group.id)
+            if gid not in groups:
+                continue
+            if not group.template:
+                continue
+            template_attr = [
+                {child.qname.upper(): child.text} for child in group.template.children
+            ]
+            for attr in template_attr:
+                # Affined role to role
+                if "AFFINED" in attr:
+                    affined_role = VMGroup(id=idx, affined=True, vm_ids=set())
+                    for role in attr["AFFINED"].split(", "):
+                        if (gid, role) in aux_vmg:
+                            affined_role.vm_ids.update(aux_vmg[(gid, role)].vm_ids)
+                    vmg.append(affined_role)
+                    idx += 1
+                # Anti affined role to role
+                elif "ANTI_AFFINED" in attr:
+                    anti_affined_role = VMGroup(id=idx, affined=False, vm_ids=set())
+                    for role in attr["ANTI_AFFINED"].split(", "):
+                        if (gid, role) in aux_vmg:
+                            # Join anti-affined VMGroups
+                            if not aux_vmg[(gid, role)].affined:
+                                anti_affined_role.vm_ids.update(
+                                    aux_vmg[(gid, role)].vm_ids
+                                )
+                            # Create special anti-affined rules for affined roles
+                            else:
+                                for _role in attr["ANTI_AFFINED"].split(", "):
+                                    if _role == role:
+                                        continue
+                                    for vm_id in aux_vmg[(gid, _role)].vm_ids:
+                                        idx += 1
+                                        extra_vmg = VMGroup(
+                                            idx,
+                                            False,
+                                            {
+                                                sorted(aux_vmg[(gid, role)].vm_ids)[0],
+                                                vm_id,
+                                            },
+                                        )
+                                        vmg.append(extra_vmg)
+                    # Add anti_affined_role only if there are anti_affined roles
+                    if anti_affined_role.vm_ids:
+                        vmg.append(anti_affined_role)
+                        idx += 1
+        # Return a unique list that contain the affined and antiaffined roles
+        # and the dicts with the affined and anti_affined hosts
+        return vmg, affined_hosts, anti_affined_hosts
 
     def _parse_host_capacities(self) -> list[HostCapacity]:
         return [
