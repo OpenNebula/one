@@ -370,19 +370,25 @@ void ClusterOptimize::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    auto plan = plpool->get_ro(cluster_id);
-
-    if (plan->state() == PlanState::APPLYING)
+    if (auto plan = plpool->get_ro(cluster_id))
     {
-        att.resp_msg = "Can't optimize cluster. A previous plan is currently being applied.";
-        failure_response(ACTION, att);
+        if (plan->state() == PlanState::APPLYING)
+        {
+            att.resp_msg = "Can't optimize cluster. A previous plan is currently being applied.";
+            failure_response(ACTION, att);
 
-        return;
+            return;
+        }
+
+        Nebula::instance().get_sm()->trigger_optimize(cluster_id);
+
+        success_response(cluster_id, att);
     }
-
-    Nebula::instance().get_sm()->trigger_optimize(cluster_id);
-
-    success_response(cluster_id, att);
+    else
+    {
+        att.resp_msg = "Can't find plan for existing cluster.";
+        failure_response(INTERNAL, att);
+    }
 }
 
 /* ------------------------------------------------------------------------- */

@@ -359,10 +359,11 @@ void Cluster::load_plan()
 {
     auto plpool = Nebula::instance().get_planpool();
 
-    auto plan = plpool->get_ro(oid);
-
-    if (plan->state() != PlanState::NONE)
+    if (auto plan = plpool->get_ro(oid))
     {
-        plan_xml = plan->to_xml();
+        if (plan->state() != PlanState::NONE)
+        {
+            plan_xml = plan->to_xml();
+        }
     }
 }
