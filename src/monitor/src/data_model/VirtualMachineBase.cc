@@ -52,7 +52,6 @@ string VirtualMachineBase::to_xml() const
 int VirtualMachineBase::init_attributes()
 {
     std::vector<xmlNodePtr> nodes;
-    std::vector<VectorAttribute*> attrs;
 
     int rc;
     int action;

@@ -39,7 +39,6 @@ std::map<std::string, std::string> VirtualMachineXML::external_attributes;
 void VirtualMachineXML::init_attributes(xmlNodePtr requirement_xml)
 {
     std::vector<xmlNodePtr> nodes;
-    std::vector<VectorAttribute*> attrs;
 
     int rc;
     int action;
