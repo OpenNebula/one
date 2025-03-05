@@ -14,6 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const moduleName = 'UtilsModule'
+const fs = require('fs-extra')
+const { parse: yamlToJson } = require('yaml')
 const path = require('path')
 const { ModuleFederationPlugin } = require('webpack').container
 const sharedDeps = require('../sharedDeps')
@@ -25,7 +27,7 @@ const build = process.env.WEBPACK_BUILD_MODE || 'development'
 
 const remotesConfigPath =
   build === 'production'
-    ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.json`
+    ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.yaml`
     : path.resolve(
         __dirname,
         '..',
@@ -33,10 +35,13 @@ const remotesConfigPath =
         '..',
         'etc',
         'sunstone',
-        'remotes-config.json'
+        'remotes-config.yaml'
       )
-const remotesConfig = require(remotesConfigPath)
-const configuredRemotes = Object.entries(remotesConfig)
+
+const remotesConfigContent = fs.readFileSync(remotesConfigPath, 'utf8')
+const parsedConfig = yamlToJson(remotesConfigContent)
+
+const configuredRemotes = Object.entries(parsedConfig)
   .filter(([_, { name }]) => name !== moduleName)
   .reduce((acc, [module, { name }]) => {
     acc[

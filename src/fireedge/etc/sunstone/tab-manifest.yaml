@@ -1,0 +1,294 @@
+- title: Instances
+  icon: Cell2X2
+  routes:
+    - title: VMs
+      path: /vm
+      sidebar: true
+      icon: ModernTv
+      Component: VirtualMachines
+    - title: VMs
+      path: /vm/:id
+      Component: VirtualMachineDetail
+    - title: Virtual Routers
+      path: /vrouter
+      sidebar: true
+      icon: Shuffle
+      Component: VirtualRouters
+    - title: Instantiate Virtual Router
+      path: /vrouter/instantiate
+      Component: InstantiateVrTemplate
+    - title: Virtual Routers
+      path: /vrouter/:id
+      Component: VirtualRouterDetail
+    - title: Services
+      path: /service
+      sidebar: true
+      icon: Packages
+      Component: Services
+    - title: Instantiate Service Template
+      path: /service/instantiate/
+      Component: InstantiateServiceTemplate
+    - title: Service
+      path: /service/:id
+      Component: ServiceDetail
+- title: Templates
+  icon: Archive
+  routes:
+    - title: VM Templates
+      path: /vm-template
+      sidebar: true
+      icon: EmptyPage
+      Component: VmTemplates
+    - title: Instantiate VM Template
+      path: /vm-template/instantiate
+      Component: InstantiateVmTemplate
+    - path: /vm-template/create
+      Component: CreateVmTemplate
+    - path: /vm-template/update
+      Component: CreateVmTemplate
+    - title: VM Template
+      path: /vm-template/:id
+      Component: VmTemplateDetail
+    - title: Instantiate Service Template
+      path: /service-template/instantiate/
+      Component: InstantiateServiceTemplate
+    - title: Service Templates
+      path: /service-template
+      sidebar: true
+      icon: MultiplePagesEmpty
+      Component: ServiceTemplates
+    - path: /service-template/create
+      Component: CreateServiceTemplate
+    - title: Service Template
+      path: /service-template/:id
+      Component: ServiceTemplateDetail
+    - title: Instantiate Virtual Router Template
+      path: /vrouter-template/instantiate/
+      Component: InstantiateVrTemplate
+    - title: Virtual Routers
+      path: /vrouter-template
+      sidebar: true
+      icon: Shuffle
+      Component: VrTemplates
+    - path: /vrouter-template/create
+      Component: CreateVrTemplate
+    - title: Virtual Router Template
+      path: /vrouter-template/:id
+      Component: VrTemplateDetail
+    - path: /vm-group/create
+      Component: CreateVmGroup
+    - title: VM Groups
+      path: /vm-group
+      icon: Folder
+      sidebar: true
+      Component: VmGroups
+- title: Storage
+  icon: Box
+  routes:
+    - title: Datastores
+      path: /datastore
+      sidebar: true
+      icon: Db
+      Component: Datastores
+    - title: Create Datastore
+      path: /datastore/create
+      Component: CreateDatastore
+    - title: Datastore
+      path: /datastore/:id
+      Component: DatastoreDetail
+    - title: Images
+      path: /image
+      sidebar: true
+      icon: BoxIso
+      Component: Images
+    - title: Create Image
+      path: /image/create
+      Component: CreateImage
+    - title: Files
+      path: /file
+      sidebar: true
+      icon: Archive
+      Component: Files
+    - title: Create File
+      path: /file/create
+      Component: CreateFile
+    - title: Backups
+      path: /backup
+      sidebar: true
+      icon: RefreshDouble
+      Component: Backups
+    - title: Backup
+      path: /backup/:id
+      Component: BackupDetail
+    - title: Marketplaces
+      path: /marketplace
+      sidebar: true
+      icon: SimpleCart
+      Component: Marketplaces
+    - path: /marketplace/create
+      Component: CreateMarketplace
+    - title: Apps
+      path: /marketplace-app
+      sidebar: true
+      icon: CloudDownload
+      Component: MarketplaceApps
+    - title: Create Marketplace App
+      path: /marketplace-app/create
+      Component: CreateMarketplaceApp
+    - title: App
+      path: /marketplace-app/:id
+      Component: MarketplaceAppDetail
+    - title: Create BackupJob
+      path: /backupjobs/create
+      Component: CreateBackupJob
+    - title: BackupJobs
+      path: /backupjobs
+      sidebar: true
+      icon: ClockOutline
+      Component: BackupJobs
+    - title: BackupJob
+      path: /backupjobs/:id
+      Component: BackupJobDetail
+- title: Networks
+  icon: ServerConnection
+  routes:
+    - title: Virtual networks
+      path: /virtual-network
+      sidebar: true
+      icon: NetworkAlt
+      Component: VirtualNetworks
+    - title: Instantiate Network Template
+      path: /network-template/instantiate
+      Component: InstantiateVnTemplate
+    - path: /virtual-network/create
+      Component: CreateVirtualNetwork
+    - path: /virtual-network/update
+      Component: CreateVirtualNetwork
+    - title: Virtual networks
+      path: /virtual-network/:id
+      Component: VirtualNetworkDetail
+    - title: Network Templates
+      path: /network-template
+      sidebar: true
+      icon: KeyframesCouple
+      Component: VnTemplates
+    - path: /network-template/create
+      Component: CreateVnTemplate
+    - title: Security groups
+      path: /security-group
+      sidebar: true
+      icon: HistoricShield
+      Component: SecurityGroups
+    - title: Create Security Group
+      path: /security-group/create
+      Component: CreateSecurityGroup
+- title: Infrastructure
+  icon: CloudSync
+  routes:
+    - title: Providers
+      path: /providers
+      sidebar: true
+      forceShow: true
+      icon: DatabaseSettings
+      Component: Providers
+    - title: Create Provider
+      path: /providers/create
+      forceShow: true
+      Component: CreateProvider
+    - title: Update Provider
+      path: /providers/edit/:id
+      forceShow: true
+      Component: CreateProvider
+    - title: Provisions
+      path: /provisions
+      sidebar: true
+      forceShow: true
+      icon: SettingsCloud
+      Component: Provisions
+    - title: Create Provision
+      path: /provisions/create
+      forceShow: true
+      Component: CreateProvision
+    - title: Update Provision
+      path: /provisions/edit/:id
+      forceShow: true
+      Component: CreateProvision
+    - title: Clusters
+      path: /cluster
+      sidebar: true
+      icon: Server
+      Component: Clusters
+    - title: Create Cluster
+      path: /cluster/create
+      Component: CreateCluster
+    - title: Cluster
+      path: /cluster/:id
+      Component: ClusterDetail
+    - title: Hosts
+      path: /host
+      sidebar: true
+      icon: HardDrive
+      Component: Hosts
+    - title: Create Host
+      path: /host/create
+      Component: CreateHost
+    - title: Host
+      path: /host/:id
+      Component: HostDetail
+    - title: Zones
+      path: /zone
+      sidebar: true
+      icon: MinusPinAlt
+      Component: Zones
+- title: System
+  icon: Home
+  routes:
+    - title: Create User
+      path: /user/create
+      Component: CreateUser
+    - title: Users
+      path: /user
+      sidebar: true
+      icon: User
+      Component: Users
+    - title: User
+      path: /user/:id
+      Component: UserDetail
+    - title: Create Group
+      path: /group/create
+      Component: CreateGroup
+    - title: Groups
+      path: /group
+      sidebar: true
+      icon: Group
+      Component: Groups
+    - title: Group
+      path: /group/:id
+      Component: GroupDetail
+    - path: /virtual-data-center/create
+      Component: CreateVDC
+    - title: VDCs
+      path: /virtual-data-center
+      sidebar: true
+      icon: List
+      Component: VDCs
+    - title: VDC
+      path: /virtual-data-center/:id
+      Component: VDCDetail
+    - title: Create ACL
+      path: /acl/create
+      Component: CreateACL
+    - title: ACLs
+      path: /acl
+      sidebar: true
+      icon: KeyAlt
+      Component: ACLs
+- title: Support
+  path: /support
+  sidebar: true
+  icon: HeadsetHelp
+  Component: Support
+- title: Guacamole
+  path: /guacamole/:id/:type
+  sidebar: false
+  Component: Guacamole

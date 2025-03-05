@@ -2640,8 +2640,8 @@ FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-e
 #----------------------------------------------------------------------------
 
 FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
-                       src/fireedge/etc/sunstone/tab-manifest.json \
-                       src/fireedge/etc/sunstone/remotes-config.json \
+                       src/fireedge/etc/sunstone/tab-manifest.yaml \
+                       src/fireedge/etc/sunstone/remotes-config.yaml \
                        src/fireedge/etc/sunstone/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_PROFILES="src/fireedge/etc/sunstone/profiles/windows_optimized.yaml \

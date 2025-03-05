@@ -14,13 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const fs = require('fs-extra')
+const { parse: yamlToJson } = require('yaml')
 const { global } = require('window-or-global')
 const { writeInLogger } = require('server/utils/logger')
 const { defaults } = require('server/utils/constants')
 const { defaultRemoteModules } = defaults
 
 /**
- * Reads the tab-manifest.json file from disk.
+ * Reads the tab-manifest.yaml file from disk.
  *
  * @returns {Promise<object>} - The parsed JSON object from the file.
  * @throws {Error} - Throws if the file cannot be read or parsed.
@@ -34,14 +35,14 @@ const getTabManifest = async () => {
 
     const fileContent = await fs.readFile(tabManifestConfigPath, 'utf8')
 
-    return JSON.parse(fileContent)
+    return yamlToJson(fileContent)
   } catch (error) {
-    throw new Error('Failed to load tab-manifest.json')
+    throw new Error('Failed to load tab-manifest.yaml')
   }
 }
 
 /**
- * Reads the remotes-config.json file from disk.
+ * Reads the remotes-config.yaml file from disk.
  *
  * @returns {Promise<object>} - The parsed JSON object from the file.
  * @throws {Error} - Throws if the file cannot be read or parsed.
@@ -50,24 +51,24 @@ const getRemotesConfig = () => {
   const remotesConfigPath = global?.paths?.REMOTE_MODULES_CONFIG
   if (!remotesConfigPath) {
     const errorMsg =
-      '[CRITICAL] REMOTE_MODULES_CONFIG is not defined. Cannot load remotes-config.json.'
+      '[CRITICAL] REMOTE_MODULES_CONFIG is not defined. Cannot load remotes-config.yaml.'
     writeInLogger(errorMsg)
     console.error(errorMsg)
   }
 
   if (!fs.pathExistsSync(remotesConfigPath)) {
-    const errorMsg = `[CRITICAL] Failed to locate remotes-config.json at: ${remotesConfigPath}`
+    const errorMsg = `[CRITICAL] Failed to locate remotes-config.yaml at: ${remotesConfigPath}`
     writeInLogger(errorMsg)
     console.error(errorMsg)
   }
 
   try {
     const fileContent = fs.readFileSync(remotesConfigPath, 'utf8')
-    const config = JSON.parse(fileContent)
+    const config = yamlToJson(fileContent)
 
     return config
   } catch (error) {
-    const errorMsg = `[CRITICAL] Failed to parse remotes-config.json. Client cannot be loaded. Error: ${error.message}. Attempting fallback to local modules.`
+    const errorMsg = `[CRITICAL] Failed to parse remotes-config.yaml. Client cannot be loaded. Error: ${error.message}. Attempting fallback to local modules.`
     console.error(errorMsg)
     writeInLogger(errorMsg)
     const fallbackConfig = Object.fromEntries(

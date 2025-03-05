@@ -174,8 +174,8 @@ const defaults = {
   ],
 
   /** CONFIGURATION FILE */
-  defaultTabManifestFilename: 'tab-manifest.json',
-  defaultRemoteModulesConfigFilename: 'remotes-config.json',
+  defaultTabManifestFilename: 'tab-manifest.yaml',
+  defaultRemoteModulesConfigFilename: 'remotes-config.yaml',
   defaultConfigFile: `${appName}-server.conf`,
   defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,

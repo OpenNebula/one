@@ -16,6 +16,8 @@
 
 const moduleName = 'host'
 const path = require('path')
+const { parse: yamlToJson } = require('yaml')
+const fs = require('fs-extra')
 const webpack = require('webpack')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
@@ -36,12 +38,13 @@ const build = process.env.WEBPACK_BUILD_MODE || 'development'
 
 const remotesConfigPath =
   build === 'production'
-    ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.json`
-    : path.resolve(__dirname, 'etc', 'sunstone', 'remotes-config.json')
+    ? `${ETC_LOCATION}/one/fireedge/sunstone/remotes-config.yaml`
+    : path.resolve(__dirname, 'etc', 'sunstone', 'remotes-config.yaml')
 
-const remotesConfig = require(remotesConfigPath)
+const remotesConfigContent = fs.readFileSync(remotesConfigPath, 'utf8')
+const parsedConfig = yamlToJson(remotesConfigContent)
 
-const configuredRemotes = Object.entries(remotesConfig)
+const configuredRemotes = Object.entries(parsedConfig)
   .filter(([_, { name }]) => name !== moduleName)
   .reduce((acc, [module, { name }]) => {
     acc[

@@ -67,7 +67,7 @@ const systemApi = oneApi.injectEndpoints({
       /**
        * Returns the Tab Manifest configuration.
        *
-       * @returns {object} The loaded tab-manifest.json file
+       * @returns {object} The loaded tab-manifest.yaml file
        * @throws Fails when response isn't code 200
        */
       query: () => {

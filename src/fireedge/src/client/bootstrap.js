@@ -41,7 +41,7 @@ const showEditor = ({ failedModule = '', error = '' } = {}) =>
             fallback && !success
               ? 'Using fallback configuration. However, a module failed to load. Please review the configuration.'
               : fallback
-              ? 'Using fallback configuration. The server failed to parse the <mark style="background-color: #0099c3; color: #ffffff;">remotes-config.json</mark> file.'
+              ? 'Using fallback configuration. The server failed to parse the <mark style="background-color: #0099c3; color: #ffffff;">remotes-config.yaml</mark> file.'
               : !success
               ? 'You have an error in your remotes configuration file or one of the modules failed to load.'
               : 'Configuration loaded successfully.'
@@ -208,7 +208,7 @@ const initLocalRemotesConfig = async (forceNoDialog = false) => {
     : localStorage.removeItem(USING_FALLBACK)
 }
 
-const testLoadModule = async (scriptUrl, moduleId) =>
+const testLoadModule = async (scriptUrl) =>
   new Promise((resolve, reject) => {
     const script = document.createElement('script')
 
@@ -224,6 +224,20 @@ const testLoadModule = async (scriptUrl, moduleId) =>
     script.onerror = () => {
       reject(new Error(`Failed to load script: ${scriptUrl}`))
     }
+
+    window.addEventListener(
+      'error',
+      (event) => {
+        reject(
+          new Error(
+            `Runtime error in script: ${event?.filename || scriptUrl} - ${
+              event.message
+            }`
+          )
+        )
+      },
+      { once: true }
+    )
 
     document.head.appendChild(script)
   })
@@ -246,17 +260,17 @@ const checkRemotes = async () => {
       }
 
       try {
-        await testLoadModule(module.entry, id)
+        await testLoadModule(module.entry)
       } catch (error) {
-        console.warn(`Module failed to load: ${id}`, error)
         failedModules.push(id)
+        throw new Error(`Script loading error in ${id}: ${error}`)
       }
     }
   )
 
   await Promise.all(loadPromises)
 
-  if (failedModules.length) {
+  if (failedModules?.length > 0) {
     throw new Error(
       `The following modules failed to load: ${failedModules.join(', ')}`
     )
@@ -264,6 +278,7 @@ const checkRemotes = async () => {
 
   return true
 }
+
 const loadClient = async () => {
   // eslint-disable-next-line no-undef
   await __webpack_init_sharing__('default')

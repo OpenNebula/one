@@ -1,0 +1,24 @@
+UtilsModule:
+  name: UtilsModule
+  entry: __HOST__/fireedge/modules/UtilsModule/remoteEntry.js
+ConstantsModule:
+  name: ConstantsModule
+  entry: __HOST__/fireedge/modules/ConstantsModule/remoteEntry.js
+ContainersModule:
+  name: ContainersModule
+  entry: __HOST__/fireedge/modules/ContainersModule/remoteEntry.js
+ComponentsModule:
+  name: ComponentsModule
+  entry: __HOST__/fireedge/modules/ComponentsModule/remoteEntry.js
+FeaturesModule:
+  name: FeaturesModule
+  entry: __HOST__/fireedge/modules/FeaturesModule/remoteEntry.js
+ProvidersModule:
+  name: ProvidersModule
+  entry: __HOST__/fireedge/modules/ProvidersModule/remoteEntry.js
+ModelsModule:
+  name: ModelsModule
+  entry: __HOST__/fireedge/modules/ModelsModule/remoteEntry.js
+HooksModule:
+  name: HooksModule
+  entry: __HOST__/fireedge/modules/HooksModule/remoteEntry.js
