@@ -32,7 +32,6 @@ begin
                                                     false)
     filter_driver.deactivate
 rescue StandardError => e
-    OpenNebula::DriverLogger.log_error(e.message)
-    OpenNebula::DriverLogger.log_error(e.backtrace)
+    OpenNebula::DriverLogger.log_error(e)
     exit 1
 end

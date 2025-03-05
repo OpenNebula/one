@@ -44,7 +44,6 @@ begin
     # VF - Related changes
     filter_driver.update_vf(filter_driver.vm, vn_id)
 rescue StandardError => e
-    OpenNebula::DriverLogger.log_error(e.message)
-    OpenNebula::DriverLogger.log_error(e.backtrace)
+    OpenNebula::DriverLogger.log_error(e)
     exit 1
 end

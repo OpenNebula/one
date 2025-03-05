@@ -28,8 +28,12 @@ module OpenNebula
 
         # Generic log function
         def self.log_function(severity, message)
-            lines = message.lines.map {|l| "#{severity}: #{File.basename $PROGRAM_NAME}: #{l}" }
-            STDERR.puts lines.join
+            lines = if message.is_a?(Exception)
+                        ["#{message.message}\n"] + message.backtrace.map {|l| "  #{l}\n" }
+                    else
+                        message.lines
+                    end
+            STDERR.puts lines.map {|l| "#{severity}: #{File.basename $PROGRAM_NAME}: #{l}" }.join
         end
 
         # Logs an info message

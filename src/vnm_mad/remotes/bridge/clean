@@ -29,8 +29,7 @@ begin
     hm = VNMMAD::NoVLANDriver.from_base64(template64, xpath_filter, deploy_id)
     hm.run_hooks(ARGV, template64) if hm.deactivate == 0
 rescue StandardError => e
-    OpenNebula::DriverLogger.log_error(e.message)
-    OpenNebula::DriverLogger.log_error(e.backtrace)
+    OpenNebula::DriverLogger.log_error(e)
     exit 1
 end
 

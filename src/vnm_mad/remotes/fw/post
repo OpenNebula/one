@@ -33,7 +33,6 @@ begin
 
     filter_driver.run_hooks(ARGV, template64) if filter_driver.activate == 0
 rescue StandardError => e
-    OpenNebula::DriverLogger.log_error(e.message)
-    OpenNebula::DriverLogger.log_error(e.backtrace)
+    OpenNebula::DriverLogger.log_error(e)
     exit 1
 end
