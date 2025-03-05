@@ -64,13 +64,12 @@ SOLVERS = {"GLPK": GLPK_CMD, "CBC": COIN_CMD, "COINMP": COINMP_DLL}
 def load_config() -> dict:
     try:
         with open(CONFIG_FILE_PATH, "r") as file:
-            config_data = yaml.safe_load(file).get("DEFAULT_SCHED", {})
+            config_data = yaml.safe_load(file)
     except Exception as e:
         LogHandler.log_general("ERROR", f"Error loading config: {e}")
         sys.exit(1)
-
     # Optimizer policy
-    policy_key = config_data.get("POLICY")
+    policy_key = config_data.get("DEFAULT_SCHED", {}).get("POLICY")
     if policy_key not in POLICY_MAP:
         LogHandler.log_general(
             "WARNING",
@@ -80,8 +79,10 @@ def load_config() -> dict:
     policy = POLICY_MAP[policy_key]
 
     # Optimizer solver
-    solver_name = config_data.get("SOLVER", "CBC").upper()
-    solver_path = config_data.get("SOLVER_PATH", DEFAULT_CBC_PATH)
+    solver_name = config_data.get("DEFAULT_SCHED", {}).get("SOLVER", "CBC").upper()
+    solver_path = config_data.get("DEFAULT_SCHED", {}).get(
+        "SOLVER_PATH", DEFAULT_CBC_PATH
+    )
     if solver_name not in SOLVERS or not solver_path:
         LogHandler.log_general(
             "WARNING",
@@ -94,16 +95,18 @@ def load_config() -> dict:
         sys.exit(1)
 
     # Optimizer factor
-    factor = config_data.get("FACTOR")
+    factor = config_data.get("MEMORY_SYSTEM_DS_SCALE")
     if not factor:
-        LogHandler.log_general("WARNING", "Missing factor. Using default value of 0.")
+        LogHandler.log_general(
+            "WARNING", "Missing MEMORY_SYSTEM_DS_SCALE. Using default value of 0."
+        )
         factor = 0
 
     # Optimizer different vnets
-    different_vnets = config_data.get("DIFFERENT_VNETS")
-    if not different_vnets:
+    different_vnets = config_data.get("DIFFERENT_VNETS", None)
+    if different_vnets is None:
         LogHandler.log_general(
-            "WARNING", "Missing different_vnets. Using default value of True."
+            "WARNING", "Missing DIFFERENT_VNETS. Using default value of YES."
         )
         different_vnets = True
 
@@ -124,7 +127,6 @@ def write_debug_file(path: str, data: Any, mode: str = "wb") -> None:
 def main():
     # Get optimizer config
     config = load_config()
-
     # Read from standard input
     stdin_data = sys.stdin.read()
     decoded_data = base64.b64decode(stdin_data)
