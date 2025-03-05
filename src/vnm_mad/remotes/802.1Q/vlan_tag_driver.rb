@@ -35,10 +35,10 @@ class VLANTagDriver < VNMMAD::VLANDriver
     # Create driver device operations are locked
     ############################################################################
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
-        @locking = true
-
         xpath_filter ||= XPATH_FILTER
         super(vm, xpath_filter, deploy_id)
+
+        @locking = true
     end
 
     ############################################################################

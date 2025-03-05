@@ -58,14 +58,14 @@ module VNMMAD
         # @param [String] hypervisor (e.g. 'kvm' ...)
         # @param [String] Xpath for the NICs using the SG driver
         def initialize(vm_64, xpath_filter = nil, deploy_id = nil, bridged = true)
-            @locking = true
-
             @bridged = bridged
 
             vm = Base64.decode64(vm_64)
 
             xpath_filter ||= XPATH_FILTER
             super(vm, xpath_filter, deploy_id)
+
+            @locking = true
 
             @commands = VNMNetwork::Commands.new
 
