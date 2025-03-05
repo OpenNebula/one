@@ -119,6 +119,50 @@ int Cluster::get_default_system_ds(const set<int>& ds_set)
 /* Cluster :: Database Access Functions                                       */
 /* ************************************************************************** */
 
+
+int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
+{
+    std::vector<const VectorAttribute*> one_drs_attrs;
+
+    const auto one_drs_num = obj_template->get("ONE_DRS", one_drs_attrs);
+
+    if (one_drs_num <= 0)
+    {
+        return 0;
+    }
+
+    const auto* one_drs = one_drs_attrs.front();
+
+    const auto validate_field = [&](const std::string& field_name, const std::regex& pattern)
+    {
+        const auto& value = one_drs->vector_value(field_name);
+        if (!std::regex_match(value, pattern))
+        {
+            error = "Error cluster template contains invalid " + field_name ;
+            return false;
+        }
+
+        return true;
+    };
+
+    if (!validate_field("POLICY", std::regex("^(Balance|Consolidation|Maintenance)$")))
+    {
+        return -1;
+    }
+
+    if (!validate_field("AUTOMATION", std::regex("^(Manual|Full)$")))
+    {
+        return -1;
+    }
+
+    if (!validate_field("MIGRATION_THRESHOLD", std::regex(R"(^\d+(\.\d+%|%)?$)")))
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
 int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 {
     ostringstream   oss;

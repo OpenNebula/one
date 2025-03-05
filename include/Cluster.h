@@ -194,6 +194,13 @@ private:
     int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
+     * Validates the ONE_DRS attributes.
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(std::string& error, Template *_old_tmpl) override;
+
+    /**
      *  Bootstraps the database table(s) associated to the Cluster
      *    @return 0 on success
      */
