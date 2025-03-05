@@ -91,10 +91,12 @@ class InformationManagerDriver < OpenNebulaDriver
                                               log_method(input[:host_id]))
 
             if rc != 0
-                write_respond(:START_MONITOR,
-                              RESULT[:failure],
-                              input[:host_id],
-                              'Could not update remotes')
+                line = Zlib::Deflate.deflate('Could not update remotes', Zlib::BEST_COMPRESSION)
+                line = Base64.strict_encode64(line)
+                send_message(:START_MONITOR,
+                             RESULT[:failure],
+                             input[:host_id],
+                             line)
                 return
             end
         end
@@ -150,10 +152,12 @@ class InformationManagerDriver < OpenNebulaDriver
               :hostname => hostname,
               :stdin    => config_xml.to_s }]
     rescue StandardError => e
-        write_respond(msg_type,
-                      RESULT[:failure],
-                      host_id,
-                      e.message)
+        line = Zlib::Deflate.deflate(e.message, Zlib::BEST_COMPRESSION)
+        line = Base64.strict_encode64(line)
+        send_message(msg_type,
+                     RESULT[:failure],
+                     host_id,
+                     line)
 
         [-1, {}]
     end

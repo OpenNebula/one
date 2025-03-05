@@ -200,7 +200,7 @@ enum class HookManagerMessages : unsigned short int
 using hook_msg_t = Message<HookManagerMessages, false, false, false, false>;
 
 /**
- * Hook Manager Driver messages
+ * Scheduler Manager Driver messages
  */
 enum class SchedulerManagerMessages : unsigned short int
 {
