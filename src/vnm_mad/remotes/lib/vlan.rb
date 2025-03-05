@@ -31,9 +31,9 @@ module VNMMAD
         ]
 
         def initialize(vm_tpl, xpath_filter, deploy_id = nil)
-            @locking = true
-
             super(vm_tpl, xpath_filter, deploy_id)
+
+            @locking = true
         end
 
         # Activate the driver and creates bridges and tags devices as needed.

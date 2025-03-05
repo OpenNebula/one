@@ -28,9 +28,9 @@ class NodePortDriver < VNMMAD::VNMDriver
 
     # Class constructor
     def initialize(vm)
-        @locking = true
-
         super(Base64.decode64(vm), XPATH_FILTER, nil)
+
+        @locking = true
     end
 
     # Adds the following elements:
