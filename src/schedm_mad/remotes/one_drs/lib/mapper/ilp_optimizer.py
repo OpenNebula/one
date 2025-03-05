@@ -56,6 +56,7 @@ class ILPOptimizer(Mapper):
         "_vnet_caps",
         "_criteria",
         "_migrations",
+        "_balance_constraints",
         "_preemptive",
         "_narrow",
         "_model",
@@ -75,6 +76,7 @@ class ILPOptimizer(Mapper):
         "_x_next_dstore_host",
         "_x_next_dstore_shared",
         "_x_vnet",
+        "_balance",
         "_x_migr",
         "_n_migr",
         "_n_migr_ub",
@@ -95,6 +97,7 @@ class ILPOptimizer(Mapper):
         _vnet_caps: dict[int, VNetCapacity]
         _criteria: Optional[Union[str, Mapping, Callable]]
         _migrations: bool
+        _balance_constraints: dict[str, float]
         _preemptive: bool
         _narrow: bool
         _model: Model
@@ -114,6 +117,7 @@ class ILPOptimizer(Mapper):
         _x_next_dstore_host: dict[tuple[int, int, int, int], Union[Var, float]]
         _x_next_dstore_shared: dict[tuple[int, int, int], Union[Var, float]]
         _x_vnet: dict[tuple[int, int, int], Var]
+        _balance: dict[str, Var]
         _x_migr: dict[tuple[int, int], Union[Var, float]]
         _n_migr: dict[int, Union[LinExpr, float]]
         _n_migr_ub: Optional[int]
@@ -138,6 +142,7 @@ class ILPOptimizer(Mapper):
         criteria: Any,
         # migrations: Optional[bool] = None,
         allowed_migrations: Optional[int] = None,
+        balance_constraints: Optional[Mapping[str, float]] = None,
         preemptive: bool = False,
         **kwargs
     ) -> None:
@@ -215,8 +220,28 @@ class ILPOptimizer(Mapper):
             vnet_cap.id: vnet_cap for vnet_cap in vnet_capacities
         }
 
+        # Balance constraints.
+        balanced_vars = {'cpu_usage', 'cpu_ratio', 'memory'}
+        if balance_constraints is None:
+            self._balance_constraints = {}
+        else:
+            self._balance_constraints = dict(balance_constraints)
+        if not self._balance_constraints.keys() <= balanced_vars:
+            names = self._balance_constraints.keys() - balanced_vars
+            raise ValueError(f"'balance_constraints' {names} are not allowed")
+
         # Mapping criteria.
-        self._criteria = criteria
+        balance_criteria = {f'{name}_balance' for name in balanced_vars}
+        if isinstance(criteria, Mapping):
+            self._criteria: dict[str, float] = {}
+            for var_name, var_weight in criteria.items():
+                if var_name not in balance_criteria:
+                    raise ValueError(f"'criteria' cannot be '{var_name}'")
+                self._criteria[var_name[:-8]] = float(var_weight)
+        elif criteria in balance_criteria:
+            self._criteria = {criteria[:-8]: 1.0}
+        else:
+            self._criteria = criteria
 
         # Whether migrations are allowed.
         # TODO: Add `migrations` as a parameter.
@@ -359,6 +384,10 @@ class ILPOptimizer(Mapper):
         # variable that denotes if the VM NIC will be connected to the
         # VNet.
         self._x_vnet = {}
+        # Dict {quantity_name: max_value}, where quantity_name is
+        # 'cpu_usage', 'cpu_ratio', or 'memory', and max_value is
+        # maximal allowed share for each host.
+        self._balance = {}
         # Dict {(VM ID, host ID): m} that shows if a VM is going to
         # migrate to a particular host (m = 1) or not (m = 0).
         self._x_migr: dict[tuple[int, int], Union[Var, float]] = {}
@@ -832,7 +861,15 @@ class ILPOptimizer(Mapper):
         if self._n_migr_ub is not None:
             model += (
                 sum_(self._n_migr.values()) <= self._n_migr_ub,
-                f"max_number_of_migrations_{self._n_migr_ub}_constraints"
+                f"max_number_of_migrations_{self._n_migr_ub}_constraint"
+            )
+
+        for var_name, bound in self._balance_constraints.items():
+            if var_name not in self._balance:
+                self._add_balance_variable(name=var_name)
+            model += (
+                self._balance[var_name] <= bound,
+                f"{var_name}_bounded_constraint"
             )
 
     def _create_expressions(self) -> None:
@@ -859,9 +896,69 @@ class ILPOptimizer(Mapper):
                 vm_n_migr += migr
                 self._max_n_migr_vms += 1
 
+    def _add_balance_variable(self, name: str) -> Var:
+        model = self._model
+
+        if name.startswith('cpu_'):
+            var_name = 'cpu'
+        elif name == 'memory':
+            var_name = 'memory'
+        else:
+            raise ValueError(f"'name' cannot be '{name}'")
+
+        x_next = self._x_next
+        host_caps = self._host_caps
+        max_host_load = Var(name=f"max_host_load_{name}", lowBound=0)
+        self._balance[name] = max_host_load
+
+        var_sum = {}
+        for host_id, vm_reqs in self._host_vm_matches.items():
+            var_sum[host_id] = sum_(
+                getattr(vm_req, name) * x_next[vm_req.id, host_id]
+                for vm_req in vm_reqs
+            )
+        if self._narrow:
+            for host_id, var in var_sum.items():
+                var += getattr(host_caps[host_id], var_name).usage
+        for host_id, var in var_sum.items():
+            model += (
+                var / getattr(host_caps[host_id], var_name).total
+                <= max_host_load,
+                f"max_{name}_load_for_host_{host_id}",
+            )
+
+        return max_host_load
+
+    def _add_balance_objectives(self, objs: dict[str, float]) -> None:
+        # Minimize the load disbalance accross the hosts.
+        # TODO: Check the approach with both `max_host_load` and
+        # `max_host_free`.
+
+        add_var = self._add_balance_variable
+        balance_vars = self._balance
+        obj = LinExpr()
+        sum_weights = sum(objs.values())
+        for name, weight in objs.items():
+            if name not in balance_vars:
+                add_var(name=name)
+            obj += (weight / sum_weights) * balance_vars[name]
+
+        # TODO: Reconsider the implementation of both penalties.
+        n_pend_vms = sum_(self._x_pend.values())
+        pend_penalty = 1.1 * n_pend_vms
+        n_migr_vms = sum_(self._n_migr.values())
+        migr_penalty = n_migr_vms / (self._max_n_migr_vms * 2 + 1)
+        self._model.sense = _MIN
+        self._model += obj + pend_penalty + migr_penalty * 0.01
+
     def _set_objective(self) -> None:
         model = self._model
-        if self._criteria == "pack":
+        if isinstance(self._criteria, dict):
+            self._add_balance_objectives(self._criteria)
+        elif self._criteria == "migration_count":
+            model.sense = _MIN
+            model += sum_(self._n_migr.values())
+        elif self._criteria == "pack":
             # Minimize the number of used hosts.
             model.sense = _MIN
             n_hosts = sum_(self._y.values())
@@ -886,102 +983,6 @@ class ILPOptimizer(Mapper):
             n_migr_vms = sum_(self._n_migr.values())
             migr_penalty = n_migr_vms / (self._max_n_migr_vms * 2 + 1)
             model += n_hosts + pend_penalty + migr_penalty
-        elif self._criteria == "cpu_allocation":
-            # Minimize the total CPU usage of unallocated CPUs.
-            # NOTE: CPU usage is summed along all cores.
-            model.sense = _MIN
-            vm_reqs_ = self._vm_reqs
-            model += sum_(
-                vm_reqs_[vm_id].cpu_usage * x_pend_var
-                for (vm_id, _), x_pend_var in self._x_pend.items()
-            )
-        elif self._criteria == "vm_count_balance":
-            # Minimize the VM count disbalance accross the hosts.
-            # FIXME: Penalization does not work good here.
-            model.sense = _MIN
-            max_n_vms = Var(name="max_n_vms", lowBound=0)
-            if self._narrow:
-                # TODO: Check this logic again.
-                x_prev = {alloc: 1.0 for alloc in self._x_prev}
-                x_next = self._x_next | x_prev
-            else:
-                x_next = self._x_next
-            n_vms = {host_id: LinExpr() for host_id in self._y}
-            for (_, host_id), x_next_var in x_next.items():
-                n_vms[host_id] += x_next_var
-            for host_id, n_vms_sum in n_vms.items():
-                model += (
-                    n_vms_sum <= max_n_vms,
-                    f"max_n_vms_for_host_{host_id}",
-                )
-            n_pend_vms = sum_(self._x_pend.values())
-            pend_penalty = 1.1 * n_pend_vms
-            n_migr_vms = sum_(self._n_migr.values())
-            migr_penalty = n_migr_vms / (self._max_n_migr_vms * 2 + 1)
-            model += max_n_vms + pend_penalty + migr_penalty
-        elif self._criteria == "cpu_usage_balance":
-            # TODO: Check the new approach with both `max_host_load`
-            # and `max_host_free`.
-            # Minimize the CPU load (usage) disbalance accross the
-            # hosts.
-            model.sense = _MIN
-            x_next = self._x_next
-            host_caps = self._host_caps
-            max_host_load = Var(name="max_host_load", lowBound=0)
-            max_host_free = Var(name="max_host_free", lowBound=0)
-
-            cpu_usage_sum = {}
-            for host_id, vm_reqs in self._host_vm_matches.items():
-                cpu_usage_sum[host_id] = sum_(
-                    vm_req.cpu_usage * x_next[vm_req.id, host_id]
-                    for vm_req in vm_reqs
-                )
-            if self._narrow:
-                for host_id, cpu_usage in cpu_usage_sum.items():
-                    cpu_usage += host_caps[host_id].cpu.usage
-            for host_id, cpu_usage in cpu_usage_sum.items():
-                model += (
-                    cpu_usage / host_caps[host_id].cpu.total
-                    <= max_host_load,
-                    f"max_load_for_host_{host_id}",
-                )
-                model += (
-                    1 - (cpu_usage / host_caps[host_id].cpu.total)
-                    <= max_host_free,
-                    f"min_load_for_host_{host_id}",
-                )
-            n_pend_vms = sum_(self._x_pend.values())
-            pend_penalty = 1.1 * n_pend_vms
-            model += 0.5 * (max_host_load + max_host_free) + pend_penalty
-        elif self._criteria == "cpu_ratio_balance":
-            # Minimize the CPU load (ratio) disbalance accross the
-            # hosts.
-            model.sense = _MIN
-            x_next = self._x_next
-            host_caps = self._host_caps
-            max_host_load = Var(name="max_host_load", lowBound=0)
-
-            cpu_ratio_sum = {}
-            for host_id, vm_reqs in self._host_vm_matches.items():
-                cpu_ratio_sum[host_id] = sum_(
-                    vm_req.cpu_ratio * x_next[vm_req.id, host_id]
-                    for vm_req in vm_reqs
-                )
-            if self._narrow:
-                for host_id, cpu_ratio in cpu_ratio_sum.items():
-                    cpu_ratio += host_caps[host_id].cpu.usage
-            for host_id, cpu_ratio in cpu_ratio_sum.items():
-                model += (
-                    cpu_ratio / host_caps[host_id].cpu.total
-                    <= max_host_load,
-                    f"max_load_for_host_{host_id}",
-                )
-            n_pend_vms = sum_(self._x_pend.values())
-            pend_penalty = 1.1 * n_pend_vms
-            n_migr_vms = sum_(self._n_migr.values())
-            migr_penalty = n_migr_vms / (self._max_n_migr_vms * 2 + 1)
-            # TODO: Reconsider the implementation of both penalties.
-            model += max_host_load + pend_penalty + migr_penalty * 0.01
         else:
             raise NotImplementedError()
 

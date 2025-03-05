@@ -17,7 +17,9 @@ class Mapper(abc.ABC):
         vm_requirements: Collection[VMRequirements],
         host_capacities: Collection[HostCapacity],
         criteria: Any,
-        migrations: Optional[bool] = None,
+        # migrations: Optional[bool] = None,
+        allowed_migrations: Optional[int] = None,
+        balance_constraints: Optional[Mapping[str, float]] = None,
         preemptive: bool = False,
         **kwargs
     ) -> None:
