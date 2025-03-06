@@ -397,6 +397,8 @@ struct SchedRequest
 
     void merge_cluster_to_host()
     {
+        std::map<int, std::string> cluster_templates;
+
         for (auto hid : hpool.ids)
         {
             std::vector<xmlNodePtr> nodes;
@@ -410,17 +412,21 @@ struct SchedRequest
 
             int cid = host->get_cluster_id();
 
-            if (auto cluster = clpool.get(cid))
-            {
-                cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+            std::string& extra = cluster_templates[cid];
 
-                if (!nodes.empty())
+            if (extra.empty())
+            { 
+                auto cluster = clpool.get(cid);
+
+                if (!cluster)
                 {
-                    host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
-
-                    cluster->free_nodes(nodes);
+                    continue;
                 }
+
+                cluster->template_xml(extra);
             }
+
+            host->extra_template(extra);
         }
     }
 };

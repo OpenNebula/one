@@ -375,6 +375,11 @@ public:
         return __search(name, value);
     }
 
+    void extra_template(const std::string& e)
+    {
+        extra_obj_template_xml = e;
+    }
+
 private:
     friend class HostPool;
 
@@ -404,6 +409,12 @@ private:
      *  Stores monitor information for the host
      */
     HostMonitoringTemplate monitoring;
+
+    /**
+     *  Extra template attributes. Added to the Host <TEMPLATE> element in the
+     *  to_xml method
+     */
+    std::string extra_obj_template_xml;
 
     // *************************************************************************
     // Constructor

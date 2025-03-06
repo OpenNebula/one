@@ -398,7 +398,7 @@ string& Host::to_xml(string& xml) const
         "<CLUSTER>"       << cluster          << "</CLUSTER>"         <<
         host_share.to_xml(share_xml)  <<
         vm_collection.to_xml(vm_collection_xml) <<
-        obj_template->to_xml(template_xml) <<
+        obj_template->to_xml(template_xml, extra_obj_template_xml) <<
         monitoring.to_xml() <<
         "</HOST>";
 

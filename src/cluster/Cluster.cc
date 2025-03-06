@@ -343,6 +343,22 @@ string& Cluster::to_xml(string& xml) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+std::string& Cluster::template_xml(std::string& xml) const
+{
+    ostringstream oss;
+
+    obj_template->each_attribute([&oss](const Attribute * a){
+        a->to_xml(oss);
+    });
+
+    xml = oss.str();
+
+    return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Cluster::from_xml(const string& xml)
 {
     int rc = 0;

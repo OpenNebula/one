@@ -116,6 +116,8 @@ public:
      */
     std::string& to_xml(std::string& xml) const override;
 
+    std::string& template_xml(std::string& xml) const;
+
     /**
      *  Rebuilds the object from an xml formatted string
      *    @param xml_str The xml-formatted string
