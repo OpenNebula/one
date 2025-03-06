@@ -69,6 +69,12 @@ public:
             {
                 object = pobj.get();
 
+                if constexpr (std::is_same_v<O, VirtualMachine> ||
+                        std::is_same_v<O, Host>)
+                {
+                    pobj->load_monitoring();
+                }
+
                 objects.insert({id, std::move(pobj)});
             }
             else
@@ -134,6 +140,8 @@ public:
     template <typename C>
     void to_xml(std::ostringstream& oss, const C& dump_ids)
     {
+        std::string tmp;
+
         oss << "<" << name << ">";
 
         for (int id: dump_ids)
@@ -142,7 +150,7 @@ public:
 
             if ( obj != nullptr )
             {
-                oss << *obj;
+                oss << obj->to_xml(tmp);
             }
         }
 
@@ -395,26 +403,15 @@ struct SchedRequest
 
             auto host = hpool.get(hid);
 
-            host->load_monitoring();
-
-            ObjectXML monitoring(host->get_monitoring().to_xml());
-
-            monitoring.get_nodes("/MONITORING", nodes);
-
-            if (!nodes.empty())
+            if (!host)
             {
-                host->remove_nodes("/HOST/MONITORING");
-                host->add_node("/HOST", nodes[0], "MONITORING");
-
-                monitoring.free_nodes(nodes);
+                continue;
             }
 
             int cid = host->get_cluster_id();
 
             if (auto cluster = clpool.get(cid))
             {
-                nodes.clear();
-
                 cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
 
                 if (!nodes.empty())

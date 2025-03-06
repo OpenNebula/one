@@ -135,7 +135,10 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
 
     const auto validate_field = [&](const std::string& field_name, const std::regex& pattern)
     {
-        const auto& value = one_drs->vector_value(field_name);
+        std::string value  = one_drs->vector_value(field_name);
+
+        one_util::tolower(value);
+
         if (!std::regex_match(value, pattern))
         {
             error = "Error cluster template contains invalid " + field_name ;
@@ -145,19 +148,30 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         return true;
     };
 
-    if (!validate_field("POLICY", std::regex("^(Balance|Consolidation|Maintenance)$")))
+    if (!validate_field("POLICY", std::regex("^(pack|balance)$")))
     {
         return -1;
     }
 
-    if (!validate_field("AUTOMATION", std::regex("^(Manual|Full)$")))
+    if (!validate_field("AUTOMATION", std::regex("^(manual|partial|full)$")))
     {
         return -1;
     }
 
-    if (!validate_field("MIGRATION_THRESHOLD", std::regex(R"(^\d+(\.\d+%|%)?$)")))
+    static std::vector<std::string> numeric_attr = {
+        "MIGRATION_THRESHOLD",
+        "CPU_USAGE_WEIGHT",
+        "CPU_RATIO_WEIGHT",
+        "MEMORY_WEIGHT",
+        "PREDICTIVE"
+    };
+
+    for (const auto &i : numeric_attr)
     {
-        return -1;
+        if (!validate_field(i, std::regex(R"(^\d+(\.\d+)?$)")))
+        {
+            return -1;
+        }
     }
 
     return 0;
