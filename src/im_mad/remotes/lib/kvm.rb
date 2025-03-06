@@ -21,6 +21,7 @@ require 'base64'
 require 'json'
 require 'yaml'
 require 'rexml/document'
+require 'sqlite3'
 
 require_relative 'process_list'
 require_relative 'domain'
@@ -197,6 +198,16 @@ class Domain < BaseDomain
 
         @vm[:state]  = state
         @vm[:reason] = reason
+
+        # VM system datastore path
+        xml, _e, s = KVM.virsh(:dumpxml, @name)
+
+        @vm[:system_datastore] = begin
+            doc = REXML::Document.new(xml)
+            doc.elements['/domain/metadata/one:vm/one:system_datastore']&.text
+        rescue 'StandardError'
+            nil
+        end if s.success?
 
         ga_stats
         io_stats
@@ -387,7 +398,8 @@ module DomainList
         domains = KVMDomains.new
 
         domains.info
-        domains.to_monitor
+        domains.to_sql
+        domains.to_monitor_predictions
     end
 
     def self.wilds_info

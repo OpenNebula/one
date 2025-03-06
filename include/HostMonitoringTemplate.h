@@ -35,10 +35,6 @@ public:
     {}
 
     int from_template(const Template &tmpl);
-
-    // todo if needed add attribute getters and setters:
-    // uint64_t used_cpu() const
-    // void set_used_cpu(uint64_t used_cpu)
 };
 
 /**

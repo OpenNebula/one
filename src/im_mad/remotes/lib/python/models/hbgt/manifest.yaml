@@ -1,0 +1,2 @@
+prediction_model_type: pyoneai.ml.HgbtPredictionModel
+model_configuration_file: model.yaml

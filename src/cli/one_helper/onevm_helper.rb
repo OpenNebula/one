@@ -210,14 +210,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
-            external_ip = vm['MONITORING'][attr]
-
-            if !external_ip.nil? && !ips.include?(external_ip)
-                ips.push(external_ip)
-            end
-        end
-
         return '--' if ips.empty?
 
         ips.join(',')
@@ -743,46 +735,84 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         puts
 
-        CLIHelper.print_header(str_h1 % 'VIRTUAL MACHINE MONITORING', false)
-
         vm_monitoring = vm_hash['VM']['MONITORING']
 
-        # Find out if it is a hybrid VM to avoid showing local IPs
-        is_hybrid = false
-        vm_monitoring.each do |key, _value|
-            if VirtualMachine::EXTERNAL_IP_ATTRS.include? key
-                is_hybrid = true
-            end
-        end
+        unit_lambda  = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i, {}) }
+        unitM_lambda = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i / 1024, {}) }
 
-        order_attrs = ['CPU', 'MEMORY', 'NETTX', 'NETRX']
+        order_attrs = {
+          'CPU'         => nil,
+          'MEMORY'      => unit_lambda,
+          'NETTX'       => unitM_lambda,
+          'NETRX'       => unitM_lambda,
+          'DISKRDBYTES' => unit_lambda,
+          'DISKRDIOPS'  => nil,
+          'DISKWRBYTES' => unit_lambda,
+          'DISKWRIOPS'  => nil
+        }
 
         vm_monitoring_sort = []
-        order_attrs.each do |key|
-            if (val = vm_monitoring.delete(key))
-                vm_monitoring_sort << [key, val]
+        order_attrs.each do |key, format|
+            val = vm_monitoring.delete(key)
+
+            next unless val
+
+            val     = format.call(val) if format
+            render  = "#{val}"
+
+            forecast = []
+
+            ["#{key}_FORECAST", "#{key}_FORECAST_FAR"].each do |fk|
+                fv = vm_monitoring.delete(fk)
+                fv = format.call(fv) if format && fv
+
+                fv ||= '-'
+
+                forecast << fv
             end
+
+            vm_monitoring_sort << { 'NAME'  => key,
+                                    'VALUE' => val,
+                                    'FORECAST'     => forecast[0],
+                                    'FORECAST_FAR' => forecast[1] }
         end
 
-        vm_monitoring_sort.sort_by {|a| a[0] }
+        vm_monitoring_sort.sort_by {|a| a['NAME'] }
 
-        filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE']
+        filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE', 'ID', 'TIMESTAMP']
         vm_monitoring.each do |key, val|
             if !filter_attrs.include?(key)
-                vm_monitoring_sort << [key, val]
+                vm_monitoring_sort << { 'NAME'   => key,
+                                        'VALUE'  => val }
             end
         end
 
-        vm_monitoring_sort.each do |k, v|
-            if k == 'MEMORY'
-                puts format(str, k, OpenNebulaHelper.unit_to_str(v.to_i, {}))
-            elsif k =~ /NET.X/
-                puts format(str, k,
-                            OpenNebulaHelper.unit_to_str(v.to_i / 1024, {}))
-            else
-                puts format(str, k, v)
-            end
+        tstamp = begin
+            Time.at(vm_monitoring.delete('TIMESTAMP').to_i).ctime
+        rescue
+            ''
         end
+
+        CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING [#{tstamp}]", false)
+        CLIHelper::ShowTable.new(nil, self) do
+            column :METRIC, '', :left, :size => 15 do |d|
+                d['NAME']
+            end
+
+            column :VALUE, '', :left, :size => 15 do |d|
+                d['VALUE']
+            end
+
+            column :FORECAST, '', :left, :size => 15 do |d|
+                d['FORECAST'] || ''
+            end
+
+            column :FORECAST_FAR, '', :left, :size => 15 do |d|
+                d['FORECAST_FAR'] || ''
+            end
+
+            default :METRIC, :VALUE, :FORECAST, :FORECAST_FAR
+        end.show(vm_monitoring_sort, {})
 
         puts
 
@@ -928,27 +958,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             sg_nics.compact!
         end
 
-        # This variable holds the extra IP's got from monitoring. Right
-        # now it adds GUEST_IP and GUEST_IP_ADDRESSES from vcenter
-        # monitoring. If other variables hold IPs just add them to this
-        # array. Duplicate IPs are not shown.
-        extra_ips = []
-
-        if (val = vm['/VM/MONITORING/GUEST_IP']) && (val && !val.empty?)
-            extra_ips << val
-        end
-
-        if (val = vm['/VM/MONITORING/GUEST_IP_ADDRESSES']) && (val && !val.empty?)
-            extra_ips += val.split(',')
-        end
-
-        extra_ips.uniq!
-
         ['NIC', 'NIC_ALIAS'].each do |type|
             next unless vm.has_elements?("/VM/TEMPLATE/#{type}") ||
                         vm.has_elements?('/VM/TEMPLATE/PCI[NIC_ID>-1]') ||
-                        !extra_ips.empty?
-
             puts
             CLIHelper.print_header(
                 str_h1 % "VM #{type == 'NIC' ? 'NICS' : 'ALIAS'}", false
@@ -958,8 +970,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                             'IP' => '-',
                             'MAC' => '-',
                             'BRIDGE' => '-' }
-
-            shown_ips = []
 
             array_id = 0
             vm_nics = [vm_hash['VM']['TEMPLATE'][type]]
@@ -983,8 +993,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 ['EXTERNAL_IP', 'IP6_LINK', 'IP6_ULA', 'IP6_GLOBAL', 'IP6'].each do |attr|
                     next unless nic.key?(attr)
 
-                    shown_ips << nic[attr]
-
                     ipstr = { 'IP' => nic.delete(attr),
                               'CLI_DONE' => true,
                               'DOUBLE_ENTRY' => true }
@@ -997,8 +1005,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                  'VROUTER_IP6_GLOBAL'].each do |attr|
                     next unless nic.key?(attr)
 
-                    shown_ips << nic[attr]
-
                     ipstr = { 'IP' => nic.delete(attr) + ' (VRouter)',
                               'CLI_DONE' => true,
                               'DOUBLE_ENTRY' => true }
@@ -1007,23 +1013,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     array_id += 1
                 end
 
-                shown_ips << nic['IP'] if nic.key?('IP')
-                shown_ips << nic['EXTERNAL_IP'] if nic.key?('EXTERNAL_IP')
-
                 nic.merge!(nic_default) {|_k, v1, _v2| v1 }
                 array_id += 1
-            end
-
-            extra_ips -= shown_ips
-
-            # Add extra IPs to the VM NICS table
-            extra_ips.each do |ip|
-                vm_nics << {
-                    'NIC_ID' => '-',
-                    'IP' => ip,
-                    'NETWORK' => 'Additional IP',
-                    'BRIDGE' => '-'
-                }
             end
 
             CLIHelper::ShowTable.new(nil, self) do
@@ -1103,7 +1094,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm.delete_element('/VM/TEMPLATE/NIC') while vm.has_elements?('/VM/TEMPLATE/NIC')
         end
 
-        if vm.has_elements?('/VM/TEMPLATE/SECURITY_GROUP_RULE') && !is_hybrid
+        if vm.has_elements?('/VM/TEMPLATE/SECURITY_GROUP_RULE')
             puts
             CLIHelper.print_header(str_h1 % 'SECURITY', false)
             puts

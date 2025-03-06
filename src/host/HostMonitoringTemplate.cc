@@ -28,25 +28,45 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+template <typename T>
+static void get_set(const Template &tmpl, Template *dst,
+        const std::map<std::string, std::string>& key_map)
+{
+    T value;
+
+    for (const auto& [probe_k, monitor_k] : key_map)
+    {
+        if (tmpl.get(probe_k, value))
+        {
+            dst->add(monitor_k, value);
+        }
+    }
+}
+
 int CapacityMonitoring::from_template(const Template &tmpl)
 {
-    unsigned long value;
-    if (tmpl.get("FREECPU", value))
-    {
-        add("FREE_CPU", value);
-    }
-    if (tmpl.get("USEDCPU", value))
-    {
-        add("USED_CPU", value);
-    }
-    if (tmpl.get("FREEMEMORY", value))
-    {
-        add("FREE_MEMORY", value);
-    }
-    if (tmpl.get("USEDMEMORY", value))
-    {
-        add("USED_MEMORY", value);
-    }
+    static std::map<std::string, std::string> capacity_map = {
+        {"FREECPU", "FREE_CPU"},
+        {"USEDCPU", "USED_CPU"},
+        {"FREEMEMORY", "FREE_MEMORY"},
+        {"USEDMEMORY", "USED_MEMORY"},
+    };
+
+    static std::map<std::string, std::string> forecast_map = {
+        {"FREECPU_FORECAST",        "FREE_CPU_FORECAST"},
+        {"FREECPU_FORECAST_FAR",    "FREE_CPU_FORECAST_FAR"},
+        {"USEDCPU_FORECAST",        "USED_CPU_FORECAST"},
+        {"USEDCPU_FORECAST_FAR",    "USED_CPU_FORECAST_FAR"},
+        {"FREEMEMORY_FORECAST",     "FREE_MEMORY_FORECAST"},
+        {"FREEMEMORY_FORECAST_FAR", "FREE_MEMORY_FORECAST_FAR"},
+        {"USEDMEMORY_FORECAST",     "USED_MEMORY_FORECAST"},
+        {"USEDMEMORY_FORECAST_FAR", "USED_MEMORY_FORECAST_FAR"}
+    };
+
+    get_set<unsigned long>(tmpl, this, capacity_map);
+
+    get_set<double>(tmpl, this, forecast_map);
+
     return 0;
 }
 
@@ -55,19 +75,23 @@ int CapacityMonitoring::from_template(const Template &tmpl)
 
 int SystemMonitoring::from_template(const Template &tmpl)
 {
-    unsigned long value;
-    if (tmpl.get("CPUSPEED", value))
-    {
-        add("CPU_SPEED", value);
-    }
-    if (tmpl.get("NETTX", value))
-    {
-        add("NETTX", value);
-    }
-    if (tmpl.get("NETRX", value))
-    {
-        add("NETRX", value);
-    }
+    static std::map<std::string, std::string> system_map = {
+        {"CPUSPEED", "CPU_SPEED"},
+        {"NETTX", "NETTX"},
+        {"NETRX", "NETRX"}
+    };
+
+    static std::map<std::string, std::string> forecast_map = {
+        {"NETTX_FORECAST",     "NETTX_FORECAST"},
+        {"NETTX_FORECAST_FAR", "NETTX_FORECAST_FAR"},
+        {"NETRX_FORECAST",     "NETRX_FORECAST"},
+        {"NETRX_FORECAST_FAR", "NETRX_FORECAST_FAR"}
+    };
+
+    get_set<unsigned long>(tmpl, this, system_map);
+
+    get_set<double>(tmpl, this, forecast_map);
+
     return 0;
 }
 

@@ -1,0 +1,4 @@
+model_class: pyoneai.ml.FourierPredictionModel
+sequence_length: 100
+hyper_params:
+  nbr_freqs_to_keep: 40

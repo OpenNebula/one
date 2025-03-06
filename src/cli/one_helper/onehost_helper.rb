@@ -78,12 +78,24 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     VERSION_XPATH = "#{TEMPLATE_XPATH}/VERSION"
 
     MONITORING = {
-        'FREE_CPU'    => 'CAPACITY',
-        'FREE_MEMORY' => 'CAPACITY',
-        'USED_CPU'    => 'CAPACITY',
-        'USED_MEMORY' => 'CAPACITY',
-        'NETRX'       => 'SYSTEM',
-        'NETTX'       => 'SYSTEM'
+        'FREE_CPU'              => 'CAPACITY',
+        'FREE_CPU_FORECAST'     => 'CAPACITY',
+        'FREE_CPU_FORECAST_FAR' => 'CAPACITY',
+        'FREE_MEMORY'              => 'CAPACITY',
+        'FREE_MEMORY_FORECAST'     => 'CAPACITY',
+        'FREE_MEMORY_FORECAST_FAR' => 'CAPACITY',
+        'USED_CPU'                 => 'CAPACITY',
+        'USED_CPU_FORECAST'        => 'CAPACITY',
+        'USED_CPU_FORECAST_FAR'    => 'CAPACITY',
+        'USED_MEMORY'              => 'CAPACITY',
+        'USED_MEMORY_FORECAST'     => 'CAPACITY',
+        'USED_MEMORY_FORECAST_FAR' => 'CAPACITY',
+        'NETRX'               => 'SYSTEM',
+        'NETRX_FORECAST'      => 'SYSTEM',
+        'NETRX_FORECAST_FAR'  => 'SYSTEM',
+        'NETTX'               => 'SYSTEM',
+        'NETTX_FORECAST'      => 'SYSTEM',
+        'NETTX_FORECAST_FARR' => 'SYSTEM'
     }
 
     def self.rname
@@ -456,9 +468,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         # Different available size units
         units = ['K', 'M', 'G', 'T']
 
-        # Attrs that need units conversion
-        attrs = ['FREE_MEMORY', 'USED_MEMORY']
-
         if unit && !units.include?(unit)
             STDERR.puts "Invalid unit `#{unit}`"
             exit(-1)
@@ -501,7 +510,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         # Parse dcollected data
         x = monitoring_data.collect {|v| Time.at(v[0].to_i).strftime('%H:%M') }
         y = monitoring_data.collect do |v|
-            if attrs.include?(attr)
+            if attr.match(/_MEMORY/)
                 # GB is the default unit
                 v = OpenNebulaHelper.bytes_to_unit(v[1].to_i, unit).round(2)
                 "#{v} #{unit}B"
@@ -512,7 +521,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         title = ''
         title << "Host #{host.id} #{attr} "
-        title << "in #{unit}B " if unit && attrs.include?(attr)
+        title << "in #{unit}B " if unit && attr.match(/_MEMORY/)
         title << "from #{start_d} to #{end_d}"
 
         x = x.last(n_elems)

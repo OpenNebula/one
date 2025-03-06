@@ -16,6 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'open3'
+require 'yaml'
+
 #-------------------------------------------------------------------------------
 #  This class represents a base domain, information includes:
 #-------------------------------------------------------------------------------
@@ -23,9 +26,34 @@ class BaseDomain
 
     attr_reader :vm, :name
 
+    MONITOR_KEYS = [
+      'cpu',
+      'memory',
+      'netrx',
+      'nettx',
+      'diskrdbytes',
+      'diskwrbytes',
+      'diskrdiops',
+      'diskwriops'
+    ]
+
+    DB_MONITOR_KEYS = MONITOR_KEYS.clone
+    DB_MONITOR_KEYS.freeze
+
+    DB_NAME = 'metrics.db'
+
     def initialize(name)
         @name = name
         @vm   = {}
+
+        begin
+            path = "#{__dir__}/../../etc/im/kvm-probes.d/forecast.conf"
+            conf = YAML.load_file(path)
+
+            @db_retention = conf['vm']['db_retention']
+        rescue StandardError
+            @db_retention = 4 # number of weeks
+        end
     end
 
     # Get domain attribute by name.
@@ -64,9 +92,62 @@ class BaseDomain
         Base64.strict_encode64(mon_s)
     end
 
-    MONITOR_KEYS = ['cpu', 'memory', 'netrx', 'nettx', 'diskrdbytes', 'diskwrbytes', 'diskrdiops',
-                    'diskwriops']
+    def store_metric_db(db, vm_id, metric_name, timestamp, value)
+        table_name = "virtualmachine_#{vm_id}_#{metric_name}_monitoring"
 
+        create_table_query = <<-SQL
+            CREATE TABLE IF NOT EXISTS #{table_name} (
+            TIMESTAMP INTEGER PRIMARY KEY,
+            VALUE REAL NOT NULL
+        );
+        SQL
+        db.execute(create_table_query)
+
+        create_trigger_query = <<-SQL
+            CREATE TRIGGER IF NOT EXISTS delete_old_records_#{table_name}
+            AFTER INSERT ON #{table_name}
+            BEGIN
+                DELETE FROM #{table_name}
+                WHERE TIMESTAMP < strftime('%s', 'now', '-#{@db_retention} week');
+            END;
+        SQL
+        db.execute(create_trigger_query)
+
+        insert_query = <<-SQL
+            INSERT INTO #{table_name} (TIMESTAMP, VALUE)
+            VALUES (?, ?);
+        SQL
+        db.execute(insert_query, [timestamp, value])
+    end
+
+    #  Write to metric values to the VM SQL DB (named metrics.db)
+    #  The is stored in the VM folder of the system datastore
+    def to_sql
+        return unless @vm[:system_datastore]
+
+        db = SQLite3::Database.new(File.join(@vm[:system_datastore], DB_NAME))
+
+        timestamp = Time.now.to_i
+
+        DB_MONITOR_KEYS.each do |k|
+            next unless @vm[k.to_sym]
+
+            store_metric_db(db, @vm[:id], k, timestamp, @vm[k.to_sym])
+        end
+
+        db.close
+    rescue StandardError
+    end
+
+    def predictions
+        base = '/var/tmp/one/im/lib/python/prediction.sh'
+        cmd  = "#{base} --entity virtualmachine,#{@vm[:id]},#{@vm[:uuid]},#{@vm[:system_datastore]}"
+
+        o, _e, s = Open3.capture3 cmd
+
+        return o if s.success?
+    rescue StandardError
+    end
 end
 
 #-------------------------------------------------------------------------------
@@ -116,6 +197,24 @@ class BaseDomains
             mon_s << "VM = [ ID=\"#{vm[:id]}\","
             mon_s << " DEPLOY_ID=\"#{vm[:deploy_id]}\","
             mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
+        end
+
+        mon_s
+    end
+
+    # Write VM information into the VM timeseries DB
+    def to_sql
+        @vms.each do |_uuid, vm|
+            vm.to_sql
+        end
+    end
+
+    # Return a message string with VM monitor information and predictions
+    def to_monitor_predictions
+        mon_s = ''
+
+        @vms.each do |_uuid, vm|
+            mon_s << vm.predictions
         end
 
         mon_s

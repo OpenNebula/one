@@ -1,0 +1,6 @@
+model_class: sklearn.ensemble.HistGradientBoostingRegressor
+sequence_length: 30
+training_params:
+  context_length: 200
+  max_iter: 50
+  compute_ci: false

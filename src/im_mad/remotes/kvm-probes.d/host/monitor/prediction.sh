@@ -1,7 +1,7 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require_relative '../../../lib/linux'
+PYTHON_PATH=/var/tmp/one/im/lib/python
 
-LinuxHost.usage('kvm')
-LinuxHost.to_sql('kvm')
+PYTHONPATH=$PYTHON_PATH python3 $PYTHON_PATH/prediction.py --entity host,0,0,/var/tmp/one --pythonpath $PYTHON_PATH

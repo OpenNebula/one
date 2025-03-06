@@ -1,0 +1,9 @@
+model_class: statsmodels.tsa.arima.model.ARIMA
+sequence_length: 200
+hyper_params:
+  order: [0, 0, 0]
+  seasonal_order: [0, 0, 0, 0]
+  enforce_stationarity: true
+  enforce_invertibility: true
+  concentrate_scale: false
+  trend_offset: 1

@@ -362,6 +362,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/vnm \
           $VAR_LOCATION/remotes/im \
           $VAR_LOCATION/remotes/im/lib \
+          $VAR_LOCATION/remotes/im/lib/python \
+          $VAR_LOCATION/remotes/im/lib/python/pyoneai \
           $VAR_LOCATION/remotes/im/kvm.d \
           $VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor \
@@ -570,6 +572,8 @@ INSTALL_FILES=(
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
+    IM_PROBES_LIB_PYTHON_FILES:$VAR_LOCATION/remotes/im/lib/python
+    IM_PROBES_LIB_PYONEAI_FILES:$VAR_LOCATION/remotes/im/lib/python/pyoneai
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
     IM_PROBES_QEMU_FILES:$VAR_LOCATION/remotes/im/qemu.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
@@ -1216,6 +1220,16 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/domain.rb \
     src/im_mad/remotes/lib/process_list.rb"
 
+IM_PROBES_LIB_PYTHON_FILES="\
+    src/im_mad/remotes/lib/python/models/ \
+    src/im_mad/remotes/lib/python/prediction.py \
+    src/im_mad/remotes/lib/python/prediction.sh"
+
+IM_PROBES_LIB_PYONEAI_FILES="\
+    src/im_mad/remotes/lib/python/pyoneai/__init__.py \
+    src/im_mad/remotes/lib/python/pyoneai/core/ \
+    src/im_mad/remotes/lib/python/pyoneai/ml/"
+
 # KVM PROBES
 IM_PROBES_KVM_FILES="\
     src/im_mad/remotes/kvm.d/monitord-client_control.sh \
@@ -1227,6 +1241,7 @@ IM_PROBES_KVM_HOST_BEACON_FILES="\
 
 IM_PROBES_KVM_HOST_MONITOR_FILES="\
      src/im_mad/remotes/kvm-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/kvm-probes.d/host/monitor/prediction.sh \
      src/im_mad/remotes/kvm-probes.d/host/monitor/numa_usage.rb"
 
 IM_PROBES_KVM_HOST_SYSTEM_FILES="\
@@ -1255,6 +1270,7 @@ IM_PROBES_KVM_VM_SNAPSHOT_FILES="\
 IM_PROBES_ETC_KVM_PROBES_FILES="\
     src/im_mad/remotes/kvm-probes.d/pci.conf \
     src/im_mad/remotes/kvm-probes.d/guestagent.conf \
+    src/im_mad/remotes/kvm-probes.d/forecast.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_QEMU_FILES="\

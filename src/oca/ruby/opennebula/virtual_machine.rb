@@ -297,15 +297,6 @@ module OpenNebula
           'restore'
         ]
 
-        EXTERNAL_IP_ATTRS = [
-            'GUEST_IP',
-            'AWS_IP_ADDRESS',
-            'AWS_PUBLIC_IP_ADDRESS',
-            'AWS_PRIVATE_IP_ADDRESS',
-            'AZ_IPADDRESS',
-            'SL_PRIMARYIPADDRESS'
-        ]
-
         # VirtualMachineDriver constants
         module Driver
 
