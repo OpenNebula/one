@@ -113,11 +113,13 @@ class OptimizerParser:
         return vm_requirements
 
     def _parse_vm_groups(self) -> list[VMGroup]:
+        # ID of the required VMs
+        allowed_vm_ids = {vm.id for vm in self.scheduler_driver_action.requirements.vm}
         # OpenNebla VM Groups
         # groups = {group_id: {role_name: set(vm_ids)}}
         groups = {}
         for vm in self.scheduler_driver_action.vm_pool.vm:
-            if not vm.template.vmgroup:
+            if not vm.template.vmgroup or vm.id not in allowed_vm_ids:
                 continue
             attrs = {
                 child.qname.upper(): child.text
@@ -190,8 +192,10 @@ class OptimizerParser:
                     for role in attr["AFFINED"].split(", "):
                         if (gid, role) in aux_vmg:
                             affined_role.vm_ids.update(aux_vmg[(gid, role)].vm_ids)
-                    vmg.append(affined_role)
-                    idx += 1
+                    # Add affined_role only if there are req vm with affined roles
+                    if affined_role.vm_ids:
+                        vmg.append(affined_role)
+                        idx += 1
                 # Anti affined role to role
                 elif "ANTI_AFFINED" in attr:
                     anti_affined_role = VMGroup(id=idx, affined=False, vm_ids=set())
@@ -218,10 +222,16 @@ class OptimizerParser:
                                             },
                                         )
                                         vmg.append(extra_vmg)
-                    # Add anti_affined_role only if there are anti_affined roles
+                    # Add anti_affined_role only if there are req vm with anti_affined roles
                     if anti_affined_role.vm_ids:
                         vmg.append(anti_affined_role)
                         idx += 1
+        # Merge VMGroups that share any vm_id
+        for i in range(len(vmg)):
+            for j in range(i + 1, len(vmg)):
+                if vmg[i].vm_ids.intersection(vmg[j].vm_ids):
+                    vmg[i].vm_ids.update(vmg[j].vm_ids)
+                    vmg.pop(j)
         # Return a unique list that contain the affined and antiaffined roles
         # and the dicts with the affined and anti_affined hosts
         return vmg, affined_hosts, anti_affined_hosts
@@ -231,10 +241,12 @@ class OptimizerParser:
             HostCapacity(
                 id=int(host.id),
                 memory=Capacity(
-                    total=host.host_share.max_mem, usage=host.host_share.mem_usage
+                    total=host.host_share.max_mem / 1000,
+                    usage=host.host_share.mem_usage / 1000,
                 ),
                 cpu=Capacity(
-                    total=host.host_share.max_cpu, usage=host.host_share.cpu_usage
+                    total=host.host_share.max_cpu / 100,
+                    usage=host.host_share.cpu_usage / 100,
                 ),
                 disks=self._build_disk_capacity(host),
                 pci_devices=self._build_pci_devices(host.host_share.pci_devices.pci),

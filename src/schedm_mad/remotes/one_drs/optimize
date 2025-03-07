@@ -10,7 +10,7 @@ import time
 from typing import Any
 
 import yaml
-from pulp import COIN_CMD, COINMP_DLL, GLPK_CMD, LpSolver
+from pulp import COIN_CMD, COINMP_DLL, GLPK_CMD
 
 from lib import OptimizerParser, OptimizerSerializer
 
