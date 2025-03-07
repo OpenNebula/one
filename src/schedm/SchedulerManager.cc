@@ -70,7 +70,7 @@ int SchedulerManager::start()
     }
 
     /**
-     *  Strat timer
+     *  Start timer
      */
     timer_thread.reset(new Timer(timer_period, [this]() {timer_action();}));
 

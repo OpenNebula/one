@@ -144,6 +144,8 @@ private:
     {
         static const int drivers_timeout = 10;
 
+        timer_thread->stop();
+
         DriverManager::stop(drivers_timeout);
     };
 };

@@ -267,7 +267,7 @@ bool PlanManager::start_action(PlanAction& action)
                   << "\"]";
         }
 
-        rc = request.request_execute(ra, action.vm_id(), action.host_id(), false,
+        rc = request.request_execute(ra, action.vm_id(), action.host_id(), true,
                 action.ds_id(), extra.str());
     }
     else if (aname == "migrate")
