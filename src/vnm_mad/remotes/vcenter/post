@@ -60,6 +60,7 @@ require 'nokogiri'
 require 'opennebula'
 require 'vcenter_driver'
 require 'nsx_driver'
+require 'DriverLogger'
 
 def modified?(template)
     template_xml = Nokogiri::XML(template)

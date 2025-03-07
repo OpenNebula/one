@@ -54,6 +54,7 @@ require 'opennebula/server_cipher_auth'
 require 'rexml/document'
 require 'opennebula/error'
 require 'opennebula/xml_utils'
+require 'DriverLogger'
 
 begin
     xml = OpenNebula::XMLElement.new
