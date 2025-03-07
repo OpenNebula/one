@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from lib.models.cluster import Cluster
+from lib.models.cluster_pool import ClusterPool
 from lib.models.datastore_pool import DatastorePool
 from lib.models.host_pool import HostPool
 from lib.models.requirements import Requirements
@@ -55,10 +55,10 @@ class SchedulerDriverAction:
             "required": True,
         },
     )
-    cluster: Optional[Cluster] = field(
+    cluster_pool: Optional[ClusterPool] = field(
         default=None,
         metadata={
-            "name": "CLUSTER",
+            "name": "CLUSTER_POOL",
             "type": "Element",
             "required": True,
         },

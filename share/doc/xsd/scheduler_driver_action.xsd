@@ -6,7 +6,7 @@
   <xs:include schemaLocation="datastore_pool.xsd"/>
   <xs:include schemaLocation="vnet_pool_extended.xsd"/>
   <xs:include schemaLocation="vm_group_pool.xsd"/>
-  <xs:include schemaLocation="cluster.xsd"/>
+  <xs:include schemaLocation="cluster_pool.xsd"/>
   <xs:include schemaLocation="requirements.xsd"/>
   <xs:element name="SCHEDULER_DRIVER_ACTION">
     <xs:complexType>
@@ -16,7 +16,7 @@
         <xs:element ref="DATASTORE_POOL" minOccurs="1" maxOccurs="1"/>
         <xs:element ref="VNET_POOL" minOccurs="1" maxOccurs="1"/>
         <xs:element ref="VM_GROUP_POOL" minOccurs="1" maxOccurs="1"/>
-        <xs:element ref="CLUSTER" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="CLUSTER_POOL" minOccurs="1" maxOccurs="1"/>
         <xs:element ref="REQUIREMENTS" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>

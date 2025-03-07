@@ -111,11 +111,11 @@ class SchedulerDriver < OpenNebulaDriver
     def optimize(id, drv_message)
         cmd = "#{File.join(@local_scripts_path, @scheduler, 'optimize')} #{id}"
 
-        rc  = LocalCommand.run(cmd, log_method(id, true), drv_message, nil)
+        rc  = LocalCommand.run(cmd, log_method(id, :encode => true), drv_message, nil)
 
-        result, info = get_info_from_execution(rc)
+        result, info = get_info_from_execution(rc, :encode => true)
 
-        send_message(ACTION[:optimize], result, id, info)
+        send_message(ACTION[:optimize], result, id, Base64.strict_encode64(info))
     end
 
 end

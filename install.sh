@@ -2000,6 +2000,7 @@ SCHEDULER_DRIVER_ONEDRS_MAPPER="src/schedm_mad/remotes/one_drs/lib/mapper/ilp_op
 
 SCHEDULER_DRIVER_ONEDRS_MODELS="src/schedm_mad/remotes/one_drs/lib/models/__init__.py \
             src/schedm_mad/remotes/one_drs/lib/models/cluster.py \
+            src/schedm_mad/remotes/one_drs/lib/models/cluster_pool.py \
             src/schedm_mad/remotes/one_drs/lib/models/datastore.py \
             src/schedm_mad/remotes/one_drs/lib/models/datastore_pool.py \
             src/schedm_mad/remotes/one_drs/lib/models/host.py \

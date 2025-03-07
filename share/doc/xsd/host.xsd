@@ -169,20 +169,20 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="FREE_CPU" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="FREE_CPU_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="FREE_CPU_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="FREE_CPU_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="FREE_CPU_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <!-- ^^ Percentage, Free CPU as returned by the probes   -->
                     <xs:element name="FREE_MEMORY" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="FREE_MEMORY_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="FREE_MEMORY_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="FREE_MEMORY_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="FREE_MEMORY_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <!-- ^^ KB, Free MEMORY returned by the probes   -->
                     <xs:element name="USED_CPU" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="USED_CPU_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="USED_CPU_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="USED_CPU_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="USED_CPU_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <!-- ^^ Percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
                     <xs:element name="USED_MEMORY" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="USED_MEMORY_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="USED_MEMORY_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="USED_MEMORY_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="USED_MEMORY_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <!-- ^^ KB, Memory used by all host processes (including VMs) over a total of MAX_MEM   -->
                   </xs:sequence>
                 </xs:complexType>
@@ -191,11 +191,11 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="NETRX" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETRX_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETRX_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="NETRX_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="NETRX_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETTX" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETTX_FORECAST" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETTX_FORECAST_FAR" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="NETTX_FORECAST" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="NETTX_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

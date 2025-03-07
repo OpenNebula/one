@@ -1,5 +1,6 @@
 from lib.models.plan import Plan
 from lib.models.cluster import Cluster
+from lib.models.cluster_pool import ClusterPool
 from lib.models.datastore import Datastore
 from lib.models.datastore_pool import DatastorePool
 from lib.models.host import Host
@@ -26,6 +27,7 @@ from lib.models.vnet_pool_extended import VnetPool
 __all__ = [
     "Plan",
     "Cluster",
+    "ClusterPool",
     "Datastore",
     "DatastorePool",
     "Host",

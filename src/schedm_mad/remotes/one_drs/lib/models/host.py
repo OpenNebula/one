@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Optional
 
 
@@ -704,7 +705,20 @@ class Host:
                 metadata={
                     "name": "FREE_CPU",
                     "type": "Element",
-                    "required": True,
+                },
+            )
+            free_cpu_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "FREE_CPU_FORECAST",
+                    "type": "Element",
+                },
+            )
+            free_cpu_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "FREE_CPU_FORECAST_FAR",
+                    "type": "Element",
                 },
             )
             free_memory: Optional[int] = field(
@@ -712,7 +726,20 @@ class Host:
                 metadata={
                     "name": "FREE_MEMORY",
                     "type": "Element",
-                    "required": True,
+                },
+            )
+            free_memory_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "FREE_MEMORY_FORECAST",
+                    "type": "Element",
+                },
+            )
+            free_memory_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "FREE_MEMORY_FORECAST_FAR",
+                    "type": "Element",
                 },
             )
             used_cpu: Optional[int] = field(
@@ -720,7 +747,20 @@ class Host:
                 metadata={
                     "name": "USED_CPU",
                     "type": "Element",
-                    "required": True,
+                },
+            )
+            used_cpu_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "USED_CPU_FORECAST",
+                    "type": "Element",
+                },
+            )
+            used_cpu_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "USED_CPU_FORECAST_FAR",
+                    "type": "Element",
                 },
             )
             used_memory: Optional[int] = field(
@@ -728,7 +768,20 @@ class Host:
                 metadata={
                     "name": "USED_MEMORY",
                     "type": "Element",
-                    "required": True,
+                },
+            )
+            used_memory_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "USED_MEMORY_FORECAST",
+                    "type": "Element",
+                },
+            )
+            used_memory_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "USED_MEMORY_FORECAST_FAR",
+                    "type": "Element",
                 },
             )
 
@@ -741,10 +794,38 @@ class Host:
                     "type": "Element",
                 },
             )
+            netrx_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETRX_FORECAST",
+                    "type": "Element",
+                },
+            )
+            netrx_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETRX_FORECAST_FAR",
+                    "type": "Element",
+                },
+            )
             nettx: Optional[int] = field(
                 default=None,
                 metadata={
                     "name": "NETTX",
+                    "type": "Element",
+                },
+            )
+            nettx_forecast: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETTX_FORECAST",
+                    "type": "Element",
+                },
+            )
+            nettx_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETTX_FORECAST_FAR",
                     "type": "Element",
                 },
             )

@@ -1,6 +1,26 @@
+#!/usr/bin/env python3
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
 import io
+import sys
 from dataclasses import replace
 
+import yaml
+from pulp import COIN_CMD, COINMP_DLL, GLPK_CMD
 from xsdata.formats.dataclass.parsers import XmlParser
 
 from lib.mapper.ilp_optimizer import ILPOptimizer
@@ -20,6 +40,10 @@ from lib.models.scheduler_driver_action import SchedulerDriverAction
 
 
 class OptimizerParser:
+    CONFIG_FILE_PATH = "/etc/one/schedulers/one_drs.conf"
+    DEFAULT_CBC_PATH = "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc"
+    SOLVERS = {"GLPK": GLPK_CMD, "CBC": COIN_CMD, "COINMP": COINMP_DLL}
+
     __slots__ = (
         "parser",
         "scheduler_driver_action",
@@ -30,13 +54,13 @@ class OptimizerParser:
         "used_shared_dstores",
     )
 
-    def __init__(self, stdin_data: bytes, config: dict, mode: str):
+    def __init__(self, stdin_data: bytes, mode: str):
         self.parser = XmlParser()
         self.parser.config.fail_on_unknown_properties = False
         self.scheduler_driver_action: SchedulerDriverAction = self.parser.parse(
             io.BytesIO(stdin_data), SchedulerDriverAction
         )
-        self.config = config
+        self.config = self._load_config(mode)
         self.mode = mode
         self._plan_id = -1
         self.used_host_dstores, self.used_shared_dstores = {}, {}
@@ -45,19 +69,127 @@ class OptimizerParser:
     def plan_id(self) -> int:
         return self._plan_id
 
+    @staticmethod
+    def log_general(level: str, message: str):
+        # Format: "LEVEL: <message>"
+        sys.stderr.write(f"{level}: {message}\n")
+
+    @staticmethod
+    def log_vm(level: str, vm_id: int, message: str):
+        # Format: "LEVEL: [vm_id] <message>"
+        sys.stderr.write(f"{level}: {vm_id} {message}\n")
+
+    @classmethod
+    def _load_config(cls, mode: str) -> dict:
+        try:
+            with open(cls.CONFIG_FILE_PATH, "r") as file:
+                config_data = yaml.safe_load(file)
+        except Exception as e:
+            cls.log_general("ERROR", f"Error loading config: {e}")
+            sys.exit(1)
+
+        # Select Policy based on mode
+        if mode == "optimize":
+            mode_config = config_data.get("OPTIMIZE", None)
+            if (
+                mode_config is None
+                or mode_config.get("POLICY", "").upper() != "BALANCE"
+            ):
+                cls.log_general(
+                    "WARNING",
+                    f"Unknown or missing {mode} configuration. Using default options.",
+                )
+                mode_config = {
+                    "POLICY": "balance",
+                    "WEIGHTS": {
+                        "CPU_USAGE": 0.2,
+                        "CPU": 0.2,
+                        "MEMORY": 0.6,
+                    },
+                    "MIGRATION_THRESHOLD": 10,
+                }
+        elif mode in ("deploy", "place"):
+            mode_config = config_data.get("PLACE", None)
+            if mode_config is None or mode_config.get("POLICY", "").upper() != "PACK":
+                cls.log_general(
+                    "WARNING",
+                    f"Unknown or missing {mode} configuration. Using default options.",
+                )
+                mode_config = {"POLICY": "pack"}
+        else:
+            mode_config = {}
+
+        # Optimizer solver
+        default_sched = config_data.get("DEFAULT_SCHED", {})
+        solver_name = default_sched.get("SOLVER", "CBC").upper()
+        solver_path = default_sched.get("SOLVER_PATH", cls.DEFAULT_CBC_PATH)
+        if solver_name not in cls.SOLVERS or not solver_path:
+            cls.log_general(
+                "WARNING",
+                f"Invalid or missing solver '{solver_name}' with path '{solver_path}'. Using default CBC.",
+            )
+            solver_name, solver_path = "CBC", cls.DEFAULT_CBC_PATH
+        solver = cls.SOLVERS[solver_name](msg=False, timeLimit=60, path=solver_path)
+        if not solver.available():
+            cls.log_general("ERROR", f"Solver {solver_name} is not available.")
+            sys.exit(1)
+
+        # Memory system DS scale
+        factor = config_data.get("MEMORY_SYSTEM_DS_SCALE", None)
+        if factor is None:
+            cls.log_general(
+                "WARNING", "Missing MEMORY_SYSTEM_DS_SCALE. Using default value of 0."
+            )
+            factor = 0
+
+        # Different VNETs flag
+        different_vnets = config_data.get("DIFFERENT_VNETS", None)
+        if different_vnets is None:
+            cls.log_general(
+                "WARNING", "Missing DIFFERENT_VNETS. Using default value of YES."
+            )
+            different_vnets = True
+
+        # PREDICTIVE factor
+        predictive = config_data.get("PREDICTIVE", None)
+        if predictive is None:
+            cls.log_general(
+                "WARNING", "Missing PREDICTIVE. Deactivating predictive mode."
+            )
+            predictive = 0
+
+        return {
+            "MODE": mode_config,
+            "SOLVER": solver,
+            "FACTOR": factor,
+            "DIFFERENT_VNETS": different_vnets,
+            "PREDICTIVE": predictive,
+        }
+
     def build_optimizer(self) -> ILPOptimizer:
         if self.mode == "deploy":
-            criteria = self.config["policy"]
+            criteria = self.config["MODE"]["POLICY"].lower()
             allowed_migrations = None
         else:
-            # TODO: Define default behavior
-            cluster_config = self._parse_cluster() or {
-                "policy": "pack",
-                "migration_threshold": None,
-            }
-            criteria = cluster_config["policy"]
-            allowed_migrations = cluster_config["migration_threshold"]
-            self._plan_id = self.scheduler_driver_action.cluster.id
+            cluster_config = self._parse_cluster()
+            policy = (
+                cluster_config["POLICY"]
+                if "POLICY" in cluster_config
+                else self.config["MODE"]["POLICY"]
+            )
+            allowed_migrations = (
+                cluster_config["MIGRATION_THRESHOLD"]
+                if "MIGRATION_THRESHOLD" in cluster_config
+                else self.config["MODE"]["MIGRATION_THRESHOLD"]
+            )
+            self.config["PREDICTIVE"] = (
+                cluster_config["PREDICTIVE"]
+                if "PREDICTIVE" in cluster_config
+                else self.config["PREDICTIVE"]
+            )
+            if policy.upper() == "BALANCE":
+                criteria = self._normalize_weights(cluster_config["WEIGHTS"])
+            self._plan_id = self.scheduler_driver_action.cluster_pool.cluster[0].id
         vmg, affined_hosts, anti_affined_hosts = self._parse_vm_groups()
         vm_reqs_dict = self._parse_vm_requirements()
         for vm_req in self.scheduler_driver_action.requirements.vm:
@@ -85,7 +217,7 @@ class OptimizerParser:
             criteria=criteria,
             preemptive=False,
             allowed_migrations=allowed_migrations,
-            solver=self.config["solver"],
+            solver=self.config["SOLVER"],
         )
 
     def _parse_vm_requirements(self) -> dict[int, VMRequirements]:
@@ -94,18 +226,26 @@ class OptimizerParser:
             for vm in self.scheduler_driver_action.vm_pool.vm:
                 if vm.id == vm_req.id:
                     storage = self._build_vm_storage(vm, vm_req)
+                    cpu_current = float(vm.monitoring.cpu or 0)
+                    cpu_forecast = float(vm.monitoring.cpu_forecast or 0)
+                    # Predictive factor only for 'optimize'
+                    cpu_usage = (
+                        self._apply_predictive_adjustment(cpu_current, cpu_forecast)
+                        if self.mode == "optimize"
+                        else cpu_current
+                    )
                     vm_requirements[int(vm_req.id)] = VMRequirements(
                         id=int(vm_req.id),
                         state=self._map_vm_state(vm.state, vm.lcm_state),
                         memory=int(vm.template.memory),
                         cpu_ratio=float(vm.template.cpu),
-                        cpu_usage=float(vm.monitoring.cpu or "nan"),
+                        cpu_usage=cpu_usage,
                         storage=storage,
                         pci_devices=self._build_pci_devices_requirements(
                             vm.template.pci
                         ),
                         host_ids=set(vm_req.hosts.id),
-                        share_vnets=not self.config["different_vnets"],
+                        share_vnets=not self.config["DIFFERENT_VNETS"],
                         nic_matches={nic.id: nic.vnets.id for nic in vm_req.nic},
                     )
                 else:
@@ -242,11 +382,19 @@ class OptimizerParser:
                 id=int(host.id),
                 memory=Capacity(
                     total=host.host_share.max_mem / 1000,
-                    usage=host.host_share.mem_usage / 1000,
+                    usage=self._apply_predictive_adjustment(
+                        float(host.monitoring.capacity.used_memory or 0),
+                        float(host.monitoring.capacity.used_memory_forecast or 0),
+                    )
+                    / 1000,
                 ),
                 cpu=Capacity(
                     total=host.host_share.max_cpu / 100,
-                    usage=host.host_share.cpu_usage / 100,
+                    usage=self._apply_predictive_adjustment(
+                        float(host.monitoring.capacity.used_cpu or 0),
+                        float(host.monitoring.capacity.used_cpu_forecast or 0),
+                    )
+                    / 100,
                 ),
                 disks=self._build_disk_capacity(host),
                 pci_devices=self._build_pci_devices(host.host_share.pci_devices.pci),
@@ -297,7 +445,9 @@ class OptimizerParser:
         one_drs = next(
             (
                 child
-                for child in self.scheduler_driver_action.cluster.template.children
+                for child in self.scheduler_driver_action.cluster_pool.cluster[
+                    0
+                ].template.children
                 if child.qname.upper() == "ONE_DRS"
             ),
             None,
@@ -321,17 +471,22 @@ class OptimizerParser:
             ),
             None,
         )
-        # TODO: map policy with ILPOptimizer policies in _set_objective()
-        POLICY_MAP = {
-            "balance": "vm_count_balance",
-            "consolidation": "pack",
-            "maintenance": "pack",
-        }
-        policy = POLICY_MAP.get(policy, "pack")
+        predictive = next(
+            (
+                OptimizerParser._sanity_check(float(child.text))
+                for child in one_drs.children
+                if child.qname.upper() == "PREDICTIVE"
+            ),
+            None,
+        )
+        weights = self._get_weights(one_drs)
+
         # TODO: Consider AUTOMATION and OPTIMIZATION_TARGET attributes
         return {
-            "policy": policy,
-            "migration_threshold": migration_threshold,
+            "POLICY": policy,
+            "MIGRATION_THRESHOLD": migration_threshold,
+            "WEIGHTS": weights,
+            "PREDICTIVE": predictive,
         }
 
     @staticmethod
@@ -373,6 +528,25 @@ class OptimizerParser:
         else:
             return VMState.RUNNING  # TODO: default value
 
+    @staticmethod
+    def _get_weights(one_drs):
+        weights = {}
+        for child in one_drs.children:
+            tag_upper = child.qname.upper()
+            if tag_upper == "CPU_USAGE_WEIGHT":
+                weights["CPU_USAGE"] = OptimizerParser._sanity_check(float(child.text))
+            elif tag_upper == "CPU_WEIGHT":
+                weights["CPU"] = OptimizerParser._sanity_check(float(child.text))
+            elif tag_upper == "MEMORY_WEIGHT":
+                weights["MEMORY"] = OptimizerParser._sanity_check(float(child.text))
+        return weights
+
+    @staticmethod
+    def _sanity_check(value):
+        value = 0 if value < 0 else value
+        value = 1 if value > 1 else value
+        return value
+
     def _build_vm_storage(self, vm, vm_req):
         _, _, host_ds = self.get_ds_map()
         ds_req = {}
@@ -399,8 +573,8 @@ class OptimizerParser:
                     image_ds_usage += size
                 elif st == "SYSTEM":
                     system_ds_usage += size
-            if int(vm.template.memory) > 0 and self.config["factor"] >= 0:
-                system_ds_usage += int(vm.template.memory) * self.config["factor"]
+            if int(vm.template.memory) > 0 and self.config["FACTOR"] >= 0:
+                system_ds_usage += int(vm.template.memory) * self.config["FACTOR"]
             ds_id = (
                 int(disk_attrs["DATASTORE_ID"])
                 if disk_attrs.get("DATASTORE_ID")
@@ -515,3 +689,32 @@ class OptimizerParser:
             ):
                 return int(ds.id)
         return None
+
+    def _apply_predictive_adjustment(
+        self, current: float, forecast: float = None
+    ) -> float:
+        predictive = self.config.get("predictive", 0)
+        if predictive > 0 and forecast > 0:
+            return current * (1 - predictive) + forecast * predictive
+        return current
+
+    def _normalize_weights(self, cluster_config):
+        keys = ["CPU_USAGE", "CPU", "MEMORY"]
+        provided = {k: cluster_config[k] for k in keys if k in cluster_config}
+        n = len(provided)
+        if n == 0:
+            norm = self.config["MODE"]["WEIGHTS"].copy()
+        elif n == 1:
+            v = next(iter(provided.values()))
+            norm = {k: provided.get(k, (1 - v) / 2) for k in keys}
+        elif n == 2:
+            norm = provided.copy()
+            norm[next(k for k in keys if k not in provided)] = 1 - sum(
+                provided.values()
+            )
+        else:
+            norm = provided
+        return {
+            f"{k.lower()}_{'ratio_' if k == 'CPU' else ''}balance": weight
+            for k, weight in norm.items()
+        }
