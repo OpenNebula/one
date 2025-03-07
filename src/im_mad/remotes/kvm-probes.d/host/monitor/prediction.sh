@@ -32,4 +32,4 @@ else
    PYTHON=python3
 fi
 
-PYTHONPATH=$PYTHON_PATH python3 $PYTHON_PATH/prediction.py --entity host,0,0,/var/tmp/one --pythonpath $PYTHON_PATH
+PYTHONPATH=$PYTHON_PATH $PYTHON $PYTHON_PATH/prediction.py --entity host,0,0,/var/tmp/one --pythonpath $PYTHON_PATH
