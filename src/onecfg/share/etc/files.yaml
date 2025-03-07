@@ -149,13 +149,6 @@
   mode: '0640'
   src: src/fireedge/etc/sunstone/sunstone-server.conf
 
-- name: /etc/one/fireedge/sunstone/sunstone-views.yaml
-  class: Yaml
-  owner: root
-  group: oneadmin
-  mode: '0640'
-  src: src/fireedge/etc/sunstone/sunstone-views.yaml
-
 - name: /etc/one/fireedge/sunstone/profiles/base.template
   class: Yaml
   owner: root
@@ -169,6 +162,13 @@
   group: oneadmin
   mode: '0640'
   src: src/fireedge/etc/sunstone/*/*.yaml
+
+- name: /etc/one/fireedge/sunstone/*.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/fireedge/etc/sunstone/*.yaml
 
 - name: /etc/one/monitord.conf
   class: Augeas::ONE
