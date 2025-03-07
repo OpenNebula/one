@@ -166,16 +166,6 @@ def main():
     monitor = {}
     connection = sqlite3.connect(metrics_db)
     for metric_name in METRICS[entity["type"]]:
-        if entity["type"] == 'virtualmachine':
-            # in case of VM we need to add also the monitoring values
-            table_name = f'virtualmachine_{entity["id"]}_{metric_name}_monitoring'
-            cursor = connection.cursor()
-            cursor.execute(
-                f"SELECT VALUE FROM {table_name} ORDER BY TIMESTAMP DESC LIMIT 1"
-            )
-            latest_value = cursor.fetchone()
-            if latest_value:
-                monitor[metric_name.upper()] = latest_value[0]
         try:
             forecast = predictions(
                 entity=entity,
@@ -206,19 +196,13 @@ def main():
 
         if forecast:
             monitor[f"{metric_name.upper()}_FORECAST"] = forecast
-        if forecast_far:        
+        if forecast_far:
             monitor[f"{metric_name.upper()}_FORECAST_FAR"] = forecast_far
 
     if monitor:
         mon_str = "\n".join(f'{key}="{value}"' for key, value in monitor.items())
-        
-        if entity['type'] == 'host':
-            print(mon_str)
-        elif entity['type'] == 'virtualmachine':
-            mon_base64 = base64.b64encode(mon_str.encode("utf-8")).decode("utf-8")
-            print(
-                f'VM = [ ID="{entity["id"]}", DEPLOY_ID="{entity["uuid"]}", MONITOR="{mon_base64}" ]'
-            )
+
+        print(mon_str)
 
 
 if __name__ == "__main__":

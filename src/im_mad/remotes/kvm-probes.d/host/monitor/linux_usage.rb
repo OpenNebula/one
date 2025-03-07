@@ -16,7 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'rexml/document'
+
 require_relative '../../../lib/linux'
 
+xml_txt = STDIN.read
+
 LinuxHost.usage('kvm')
-LinuxHost.to_sql('kvm')
+
+begin
+    config  = REXML::Document.new(xml_txt).root
+    hostid  = config.elements['HOST_ID'].text.to_s
+
+    LinuxHost.to_sql(hostid)
+rescue StandardError
+end

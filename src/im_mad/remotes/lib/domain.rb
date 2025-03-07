@@ -46,14 +46,8 @@ class BaseDomain
         @name = name
         @vm   = {}
 
-        begin
-            path = "#{__dir__}/../../etc/im/kvm-probes.d/forecast.conf"
-            conf = YAML.load_file(path)
-
-            @db_retention = conf['vm']['db_retention']
-        rescue StandardError
-            @db_retention = 4 # number of weeks
-        end
+        @predictions  = false
+        @db_retention = 4 # num
     end
 
     # Get domain attribute by name.
@@ -89,8 +83,36 @@ class BaseDomain
             mon_s << "#{k.upcase}=\"#{@vm[k.to_sym]}\"\n"
         end
 
+        mon_s << predictions if @predictions
+
         Base64.strict_encode64(mon_s)
     end
+
+    #  Write to metric values to the VM SQL DB (named metrics.db)
+    #  The is stored in the VM folder of the system datastore
+    def to_sql
+        return unless @vm[:system_datastore]
+
+        db = SQLite3::Database.new(File.join(@vm[:system_datastore], DB_NAME))
+
+        timestamp = Time.now.to_i
+
+        DB_MONITOR_KEYS.each do |k|
+            next unless @vm[k.to_sym]
+
+            store_metric_db(db, @vm[:id], k, timestamp, @vm[k.to_sym])
+        end
+
+        db.close
+    rescue StandardError
+    end
+
+    # Compute forecast values for the VM metrics
+    def predictions
+        ''
+    end
+
+    private
 
     def store_metric_db(db, vm_id, metric_name, timestamp, value)
         table_name = "virtualmachine_#{vm_id}_#{metric_name}_monitoring"
@@ -120,34 +142,6 @@ class BaseDomain
         db.execute(insert_query, [timestamp, value])
     end
 
-    #  Write to metric values to the VM SQL DB (named metrics.db)
-    #  The is stored in the VM folder of the system datastore
-    def to_sql
-        return unless @vm[:system_datastore]
-
-        db = SQLite3::Database.new(File.join(@vm[:system_datastore], DB_NAME))
-
-        timestamp = Time.now.to_i
-
-        DB_MONITOR_KEYS.each do |k|
-            next unless @vm[k.to_sym]
-
-            store_metric_db(db, @vm[:id], k, timestamp, @vm[k.to_sym])
-        end
-
-        db.close
-    rescue StandardError
-    end
-
-    def predictions
-        base = '/var/tmp/one/im/lib/python/prediction.sh'
-        cmd  = "#{base} --entity virtualmachine,#{@vm[:id]},#{@vm[:uuid]},#{@vm[:system_datastore]}"
-
-        o, _e, s = Open3.capture3 cmd
-
-        return o if s.success?
-    rescue StandardError
-    end
 end
 
 #-------------------------------------------------------------------------------
@@ -207,17 +201,6 @@ class BaseDomains
         @vms.each do |_uuid, vm|
             vm.to_sql
         end
-    end
-
-    # Return a message string with VM monitor information and predictions
-    def to_monitor_predictions
-        mon_s = ''
-
-        @vms.each do |_uuid, vm|
-            mon_s << vm.predictions
-        end
-
-        mon_s
     end
 
     private

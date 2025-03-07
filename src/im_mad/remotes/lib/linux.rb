@@ -40,8 +40,6 @@ class LinuxHost
     DB_PATH = '/var/tmp/one'
     DB_NAME = 'metrics.db'
 
-    HOST_ID = 0
-
     ######
     #  First, get all the posible info out of virsh
     #  TODO : use virsh freecell when available
@@ -202,14 +200,14 @@ class LinuxHost
         db.execute(insert_query, [timestamp, value])
     end
 
-    def self.to_sql(hypervisor)
+    def self.to_sql(host_id)
         linux = new
 
         db = SQLite3::Database.new(File.join(DB_PATH, DB_NAME))
         timestamp = Time.now.to_i
 
         DB_MONITOR_KEYS.each do |k,v|
-            self.store_metric_db(db, HOST_ID, k, timestamp, v.call(linux))
+            self.store_metric_db(db, host_id, k, timestamp, v.call(linux))
         end
 
         db.close

@@ -16,9 +16,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+STDIN=`cat -`
+
 PYTHON_PATH=/var/tmp/one/im/lib/python
 
 PYTHON_VERSION=$(python3 --version | cut -d ' ' -f2)
+
 MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
 MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
 
@@ -32,4 +35,7 @@ else
    PYTHON=python3
 fi
 
-PYTHONPATH=$PYTHON_PATH $PYTHON $PYTHON_PATH/prediction.py --entity host,0,0,/var/tmp/one --pythonpath $PYTHON_PATH
+HOST_ID=$(echo "${STDIN}"  | xmllint --xpath 'string(//HOST_ID)' -)
+ENTITYH="host,${HOST_ID},0,/var/tmp/one"
+
+PYTHONPATH=$PYTHON_PATH $PYTHON $PYTHON_PATH/prediction.py --entity $ENTITYH --pythonpath $PYTHON_PATH
