@@ -161,8 +161,10 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
     static std::vector<std::string> numeric_attr = {
         "MIGRATION_THRESHOLD",
         "CPU_USAGE_WEIGHT",
-        "CPU_RATIO_WEIGHT",
+        "CPU_WEIGHT",
         "MEMORY_WEIGHT",
+        "NET_WEIGHT",
+        "DISK_WEIGHT",
         "PREDICTIVE"
     };
 
