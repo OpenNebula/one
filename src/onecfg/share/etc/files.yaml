@@ -368,6 +368,13 @@
   mode: '0640'
   src: src/im_mad/remotes/kvm-probes.d/guestagent.conf
 
+- name: /var/lib/one/remotes/etc/im/kvm-probes.d/forecast.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  src: src/im_mad/remotes/kvm-probes.d/forecast.conf
+
 - name: /var/lib/one/remotes/etc/im/qemu-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
