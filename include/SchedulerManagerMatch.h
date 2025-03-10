@@ -401,8 +401,6 @@ struct SchedRequest
 
         for (auto hid : hpool.ids)
         {
-            std::vector<xmlNodePtr> nodes;
-
             auto host = hpool.get(hid);
 
             if (!host)
@@ -412,17 +410,28 @@ struct SchedRequest
 
             int cid = host->get_cluster_id();
 
+            auto cluster = clpool.get(cid);
+
+            if (!cluster)
+            {
+                continue;
+            }
+
+            std::vector<xmlNodePtr> nodes;
+
+            cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+
+            if (!nodes.empty())
+            {
+                host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
+
+                cluster->free_nodes(nodes);
+            }
+
             std::string& extra = cluster_templates[cid];
 
             if (extra.empty())
-            { 
-                auto cluster = clpool.get(cid);
-
-                if (!cluster)
-                {
-                    continue;
-                }
-
+            {
                 cluster->template_xml(extra);
             }
 
