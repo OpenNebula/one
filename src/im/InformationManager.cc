@@ -463,7 +463,7 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
             continue;
         }
 
-        if (vm->get_deploy_id() != deploy_id)
+        if (vm->get_deploy_id() != deploy_id && state_str == "RUNNING")
         {
             vm->set_deploy_id(deploy_id);
             vmpool->update(vm.get());
