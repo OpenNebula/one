@@ -253,13 +253,13 @@ class OptimizerParser:
         return vm_requirements
 
     def _parse_vm_groups(self) -> list[VMGroup]:
-        # ID of the required VMs
+        # IDs of the required VMs
         allowed_vm_ids = {vm.id for vm in self.scheduler_driver_action.requirements.vm}
         # OpenNebla VM Groups
         # groups = {group_id: {role_name: set(vm_ids)}}
         groups = {}
         for vm in self.scheduler_driver_action.vm_pool.vm:
-            if not vm.template.vmgroup or vm.id not in allowed_vm_ids:
+            if not vm.template.vmgroup:
                 continue
             attrs = {
                 child.qname.upper(): child.text
@@ -296,6 +296,7 @@ class OptimizerParser:
                         role_obj.host_affined or role_obj.host_anti_affined
                     ).split(",")
                     for vm_id in groups[gid][role_obj.name]:
+                        # Affined or anti-affined host policies
                         target_hosts.setdefault(vm_id, set()).update(
                             map(int, host_list)
                         )
@@ -366,15 +367,41 @@ class OptimizerParser:
                     if anti_affined_role.vm_ids:
                         vmg.append(anti_affined_role)
                         idx += 1
-        # Merge VMGroups that share any vm_id
-        for i in range(len(vmg)):
-            for j in range(i + 1, len(vmg)):
-                if vmg[i].vm_ids.intersection(vmg[j].vm_ids):
-                    vmg[i].vm_ids.update(vmg[j].vm_ids)
-                    vmg.pop(j)
+        # List of VMGroups that conatin only required VMs
+        result, idx = [], 0
+        current_placement = self._parse_current_placement()
+        for vm_group in vmg:
+            target_hosts = affined_hosts if vm_group.affined else anti_affined_hosts
+            new_group = VMGroup(idx, vm_group.affined, set())
+            for vm_id in vm_group.vm_ids:
+                if vm_id in allowed_vm_ids:
+                    for aux_vm_id in vm_group.vm_ids:
+                        if aux_vm_id in current_placement:
+                            # Affined or anti-affined host by the placed VMs
+                            target_hosts.setdefault(vm_id, set()).add(
+                                current_placement[aux_vm_id]
+                            )
+                    # Return only required VMs
+                    # NOTE: If the role has at least 1 running VM, we won't
+                    # create a VMGroup for the requested VMs
+                    if not (vm_group.vm_ids & current_placement.keys()):
+                        new_group.vm_ids.add(vm_id)
+            if new_group.vm_ids:
+                result.append(new_group)
+                idx += 1
+        # Merge affined VMGroups
+        for i in range(len(result)):
+            for j in range(i + 1, len(result)):
+                if (
+                    result[i].vm_ids.intersection(result[j].vm_ids)
+                    and result[i].affined
+                    and result[j].affined
+                ):
+                    result[i].vm_ids.update(result[j].vm_ids)
+                    result.pop(j)
         # Return a unique list that contain the affined and antiaffined roles
         # and the dicts with the affined and anti_affined hosts
-        return vmg, affined_hosts, anti_affined_hosts
+        return result, affined_hosts, anti_affined_hosts
 
     def _parse_host_capacities(self) -> list[HostCapacity]:
         return [
@@ -391,7 +418,7 @@ class OptimizerParser:
                 cpu=Capacity(
                     total=host.host_share.max_cpu / 100,
                     usage=self._apply_predictive_adjustment(
-                        float(host.monitoring.capacity.used_cpu or 0),
+                        float(host.host_share.cpu_usage or 0),
                         float(host.monitoring.capacity.used_cpu_forecast or 0),
                     )
                     / 100,
