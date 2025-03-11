@@ -834,6 +834,7 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
         bool     ds_migr;
 
         ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+
         if (ec != SUCCESS)
         {
             return ec;
@@ -1307,9 +1308,10 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
         return ACTION;
     }
 
-    if (ds_id != -1)
+    if (ds_id != -1 && c_ds_id != ds_id)
     {
         VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+
         const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
 
         if ( vmmd == nullptr )
@@ -1328,6 +1330,7 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
         }
 
         ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+
         if (ec != SUCCESS)
         {
             return ec;
@@ -1335,14 +1338,14 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
 
         if (!ds_migr)
         {
-            att.resp_msg = "System datastore migration not supported by TM driver";
+            att.resp_msg = "System datastore migration not supported by driver";
 
             return ACTION;
         }
 
         if (c_tm_mad != tm_mad)
         {
-            att.resp_msg = "Cannot migrate to a system datastore with a different TM driver";
+            att.resp_msg = "Cannot migrate to a system datastore with a different driver";
 
             return ACTION;
         }
@@ -1352,6 +1355,7 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
         ds_id  = c_ds_id;
 
         ec = get_ds_information(ds_id, ds_cluster_ids, tm_mad, att, ds_migr);
+
         if (ec != SUCCESS)
         {
             return ec;

@@ -27,14 +27,14 @@ class BaseDomain
     attr_reader :vm, :name
 
     MONITOR_KEYS = [
-      'cpu',
-      'memory',
-      'netrx',
-      'nettx',
-      'diskrdbytes',
-      'diskwrbytes',
-      'diskrdiops',
-      'diskwriops'
+        'cpu',
+        'memory',
+        'netrx',
+        'nettx',
+        'diskrdbytes',
+        'diskwrbytes',
+        'diskrdiops',
+        'diskwriops'
     ]
 
     DB_MONITOR_KEYS = MONITOR_KEYS.clone

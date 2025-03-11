@@ -741,14 +741,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         unitM_lambda = ->(v) { OpenNebulaHelper.unit_to_str(v.to_i / 1024, {}) }
 
         order_attrs = {
-          'CPU'         => nil,
-          'MEMORY'      => unit_lambda,
-          'NETTX'       => unitM_lambda,
-          'NETRX'       => unitM_lambda,
-          'DISKRDBYTES' => unit_lambda,
-          'DISKRDIOPS'  => nil,
-          'DISKWRBYTES' => unit_lambda,
-          'DISKWRIOPS'  => nil
+            'CPU'         => nil,
+            'MEMORY'      => unit_lambda,
+            'NETTX'       => unitM_lambda,
+            'NETRX'       => unitM_lambda,
+            'DISKRDBYTES' => unit_lambda,
+            'DISKRDIOPS'  => nil,
+            'DISKWRBYTES' => unit_lambda,
+            'DISKWRIOPS'  => nil
         }
 
         vm_monitoring_sort = []
@@ -757,8 +757,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             next unless val
 
-            val     = format.call(val) if format
-            render  = "#{val}"
+            val = format.call(val) if format
 
             forecast = []
 
@@ -789,7 +788,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         tstamp = begin
             Time.at(vm_monitoring.delete('TIMESTAMP').to_i).ctime
-        rescue
+        rescue StandardError
             ''
         end
 
@@ -960,7 +959,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         ['NIC', 'NIC_ALIAS'].each do |type|
             next unless vm.has_elements?("/VM/TEMPLATE/#{type}") ||
-                        vm.has_elements?('/VM/TEMPLATE/PCI[NIC_ID>-1]') ||
+                        vm.has_elements?('/VM/TEMPLATE/PCI[NIC_ID>-1]')
+
             puts
             CLIHelper.print_header(
                 str_h1 % "VM #{type == 'NIC' ? 'NICS' : 'ALIAS'}", false
