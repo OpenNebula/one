@@ -170,7 +170,7 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
 
     for (const auto &i : numeric_attr)
     {
-        if (!validate_field(i, std::regex(R"(^\d+(\.\d+)?$)")))
+        if (!validate_field(i, std::regex(R"(^(\d+(\.\d+)?|d*)$)")))
         {
             return -1;
         }
