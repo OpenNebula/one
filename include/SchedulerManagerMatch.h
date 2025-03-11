@@ -37,7 +37,7 @@ template <typename P, typename O>
 class SchedPool
 {
 public:
-    SchedPool(P * p, const std::string& n):pool(p), name(n){};
+    SchedPool(P * p, const std::string& n):pool(p), name(n) {};
 
     ~SchedPool() = default;
 
@@ -70,7 +70,7 @@ public:
                 object = pobj.get();
 
                 if constexpr (std::is_same_v<O, VirtualMachine> ||
-                        std::is_same_v<O, Host>)
+                              std::is_same_v<O, Host>)
                 {
                     pobj->load_monitoring();
                 }
@@ -269,7 +269,7 @@ struct SchedMatch
         }
         else
         {
-           jt->second.insert(net_id);
+            jt->second.insert(net_id);
         }
 
         match_net.insert(net_id);
@@ -398,6 +398,7 @@ struct SchedRequest
     void merge_cluster_to_host()
     {
         std::map<int, std::string> cluster_templates;
+        std::map<int, std::vector<xmlNodePtr>> cluster_template_nodes;
 
         for (auto hid : hpool.ids)
         {
@@ -417,15 +418,16 @@ struct SchedRequest
                 continue;
             }
 
-            std::vector<xmlNodePtr> nodes;
+            auto& nodes = cluster_template_nodes[cid];
 
-            cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+            if (nodes.empty())
+            {
+                cluster->get_nodes("/CLUSTER/TEMPLATE", nodes);
+            }
 
             if (!nodes.empty())
             {
                 host->add_node("/HOST", nodes[0], "CLUSTER_TEMPLATE");
-
-                cluster->free_nodes(nodes);
             }
 
             std::string& extra = cluster_templates[cid];
@@ -435,7 +437,12 @@ struct SchedRequest
                 cluster->template_xml(extra);
             }
 
-            host->extra_template(extra);
+            host->cluster_template(extra);
+        }
+
+        for (auto& [cid, nodes] : cluster_template_nodes)
+        {
+            ObjectXML::free_nodes(nodes);
         }
     }
 };

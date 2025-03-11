@@ -375,9 +375,9 @@ public:
         return __search(name, value);
     }
 
-    void extra_template(const std::string& e)
+    void cluster_template(const std::string& e)
     {
-        extra_obj_template_xml = e;
+        cluster_template_xml = e;
     }
 
 private:
@@ -414,7 +414,7 @@ private:
      *  Extra template attributes. Added to the Host <TEMPLATE> element in the
      *  to_xml method
      */
-    std::string extra_obj_template_xml;
+    std::string cluster_template_xml;
 
     // *************************************************************************
     // Constructor
