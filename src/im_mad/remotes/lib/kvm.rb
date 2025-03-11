@@ -146,6 +146,8 @@ end
 #-------------------------------------------------------------------------------
 class Domain < BaseDomain
 
+    DB_PATH = '/var/tmp/one_db'
+
     def initialize(name)
         super(name)
 
@@ -289,7 +291,7 @@ class Domain < BaseDomain
     # Compute forecast values for the VM metrics
     def predictions
         base = '/var/tmp/one/im/lib/python/prediction.sh'
-        cmd  = "#{base} --entity virtualmachine,#{@vm[:id]},#{@vm[:uuid]},#{@vm[:system_datastore]}"
+        cmd  = "#{base} --entity virtualmachine,#{@vm[:id]},#{@vm[:uuid]},#{DB_PATH}"
 
         o, _e, s = Open3.capture3 cmd
 

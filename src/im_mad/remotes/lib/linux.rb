@@ -37,8 +37,8 @@ class LinuxHost
       'nettx'      => ->(m) { m.net[:tx] }
     }
 
-    DB_PATH = '/var/tmp/one'
-    DB_NAME = 'metrics.db'
+    DB_PATH = '/var/tmp/one_db'
+    DB_NAME = 'host.db'
 
     ######
     #  First, get all the posible info out of virsh

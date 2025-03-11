@@ -161,10 +161,13 @@ def main():
     forecast_horizon_far = int(forecast_far/resolution_far)
 
     manifest_path = f"{args.pythonpath}/models/fourier/manifest.yaml"
-    metrics_db = os.path.join(entity["db_dir"], "metrics.db")
+    if entity['type'] == 'host':
+        db_name = 'host.db'
+    elif entity['type'] == 'virtualmachine':
+        db_name = f'{entity["id"]}.db'
+    metrics_db = os.path.join(entity["db_dir"], db_name)
 
     monitor = {}
-    connection = sqlite3.connect(metrics_db)
     for metric_name in METRICS[entity["type"]]:
         try:
             forecast = predictions(

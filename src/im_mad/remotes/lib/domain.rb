@@ -40,7 +40,7 @@ class BaseDomain
     DB_MONITOR_KEYS = MONITOR_KEYS.clone
     DB_MONITOR_KEYS.freeze
 
-    DB_NAME = 'metrics.db'
+    DB_PATH = '/var/tmp/one_db'
 
     def initialize(name)
         @name = name
@@ -93,7 +93,7 @@ class BaseDomain
     def to_sql
         return unless @vm[:system_datastore]
 
-        db = SQLite3::Database.new(File.join(@vm[:system_datastore], DB_NAME))
+        db = SQLite3::Database.new(File.join(DB_PATH, "#{@vm[:id]}.db"))
 
         timestamp = Time.now.to_i
 
