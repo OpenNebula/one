@@ -19,6 +19,8 @@
 require 'open3'
 require 'yaml'
 
+require 'fileutils'
+
 #-------------------------------------------------------------------------------
 #  This class represents a base domain, information includes:
 #-------------------------------------------------------------------------------
@@ -91,7 +93,9 @@ class BaseDomain
     #  Write to metric values to the VM SQL DB (named metrics.db)
     #  The is stored in the VM folder of the system datastore
     def to_sql
-        return unless @vm[:system_datastore]
+        return unless @vm[:id]
+
+        FileUtils.mkdir_p(DB_PATH)
 
         db = SQLite3::Database.new(File.join(DB_PATH, "#{@vm[:id]}.db"))
 

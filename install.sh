@@ -1253,6 +1253,7 @@ IM_PROBES_KVM_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/kvm-probes.d/host/system/monitor_ds.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/name.sh \
      src/im_mad/remotes/kvm-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/kvm-probes.d/host/system/clean_db.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/wild_vm.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/pci.rb \
      src/im_mad/remotes/kvm-probes.d/host/system/version.sh"
@@ -1292,6 +1293,7 @@ IM_PROBES_QEMU_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/qemu-probes.d/host/system/machines_models.rb \
      src/im_mad/remotes/qemu-probes.d/host/system/monitor_ds.rb \
      src/im_mad/remotes/qemu-probes.d/host/system/name.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/clean_db.rb \
      src/im_mad/remotes/qemu-probes.d/host/system/numa_host.rb \
      src/im_mad/remotes/qemu-probes.d/host/system/wild_vm.rb \
      src/im_mad/remotes/qemu-probes.d/host/system/pci.rb \
@@ -1350,6 +1352,7 @@ IM_PROBES_LXC_HOST_SYSTEM_FILES="\
      src/im_mad/remotes/lxc-probes.d/host/system/linux_host.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/monitor_ds.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/name.sh \
+     src/im_mad/remotes/kvm-probes.d/host/system/clean_db.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/numa_host.rb \
      src/im_mad/remotes/lxc-probes.d/host/system/version.sh"
 

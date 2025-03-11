@@ -18,6 +18,7 @@
 
 require 'English'
 require 'sqlite3'
+require 'fileutils'
 
 # Gathers compute and network resource information about the host
 class LinuxHost
@@ -202,6 +203,8 @@ class LinuxHost
 
     def self.to_sql(host_id)
         linux = new
+
+        FileUtils.mkdir_p(DB_PATH)
 
         db = SQLite3::Database.new(File.join(DB_PATH, DB_NAME))
         timestamp = Time.now.to_i
