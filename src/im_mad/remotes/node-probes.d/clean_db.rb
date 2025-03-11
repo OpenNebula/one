@@ -26,9 +26,8 @@ begin
 
     Dir.glob(File.join(DB_DIR_PATH, FILE_PATTERN)).each do |file|
         if File.file?(file) && File.mtime(file) < threshold
-          File.delete(file)
+            File.delete(file)
         end
     end
-
 rescue StandardError
 end
