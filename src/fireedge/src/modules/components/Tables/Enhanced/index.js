@@ -83,6 +83,7 @@ const DataListPerPage = memo(
     styles,
     rootProps: rootPropsTable,
     enabledFullScreen = false,
+    gotoPage,
   }) => {
     if (!page.length) {
       return ''
@@ -119,6 +120,7 @@ const DataListPerPage = memo(
                   ?.flat() || []
               const nextFilter = [...new Set([...currentFilter, label])]
               setFilter(LABEL_COLUMN_ID, nextFilter)
+              gotoPage(0)
             },
           })}
           onClick={(e) => {
@@ -177,6 +179,7 @@ DataListPerPage.propTypes = {
   rootProps: PropTypes.shape({
     'data-cy': PropTypes.string,
   }),
+  gotoPage: PropTypes.func,
 }
 
 DataListPerPage.displayName = 'DataListPerPage'
@@ -319,6 +322,10 @@ const EnhancedTable = ({
   const [stateData, setStateData] = useState(data)
   const [filterValue, setFilterValue] = useState(state.globalFilter)
 
+  useEffect(() => {
+    gotoPage(0)
+  }, [state.filters, state.globalFilter])
+
   const gotoRowPage = async (row) => {
     const pageIdx = Math.floor(row.index / defaultPageSize)
 
@@ -414,6 +421,7 @@ const EnhancedTable = ({
     setGlobalFilter()
     setAllFilters([])
     setSortBy([])
+    gotoPage(0)
   }
 
   const cannotFilterByLabel = useMemo(
@@ -551,6 +559,7 @@ const EnhancedTable = ({
           zoneId={zoneId}
           cannotFilterByLabel={cannotFilterByLabel}
           styles={styles}
+          gotoPage={gotoPage}
         />
       </div>
     </Box>
