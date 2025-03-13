@@ -396,18 +396,18 @@ string& Host::to_xml(string& xml) const
         "<IM_MAD>"        << one_util::escape_xml(im_mad_name)  << "</IM_MAD>" <<
         "<VM_MAD>"        << one_util::escape_xml(vmm_mad_name) << "</VM_MAD>" <<
         "<CLUSTER_ID>"    << cluster_id       << "</CLUSTER_ID>"      <<
-        "<CLUSTER>"       << cluster          << "</CLUSTER>";
-
-    if (!cluster_template_xml.empty())
-    {
-        oss << "<CLUSTER_TEMPLATE>" << cluster_template_xml << "</CLUSTER_TEMPLATE>";
-    }
-
-    oss << host_share.to_xml(share_xml)  <<
+        "<CLUSTER>"       << cluster          << "</CLUSTER>"         <<
+        host_share.to_xml(share_xml)  <<
         vm_collection.to_xml(vm_collection_xml) <<
         obj_template->to_xml(template_xml) <<
-        monitoring.to_xml() <<
-        "</HOST>";
+        monitoring.to_xml();
+
+        if (!cluster_template_xml.empty())
+        {
+            oss << "<CLUSTER_TEMPLATE>" << cluster_template_xml << "</CLUSTER_TEMPLATE>";
+        }
+
+        oss << "</HOST>";
 
     xml = oss.str();
 
