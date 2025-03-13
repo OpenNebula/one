@@ -151,6 +151,8 @@ void VirtualMachineXML::init_attributes(xmlNodePtr requirement_xml)
 
             nic_xml.xpaths(prerequied_nics[nic_id], "/NIC/VNETS/ID");
         }
+
+        free_nodes(nic_nodes);
     }
 
     // ---------------------------------------------------------------------- //

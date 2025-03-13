@@ -121,7 +121,7 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
         case XPATH_NODESET:
             if (obj->nodesetval == 0)
             {
-                return;
+                break;
             }
 
             for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
