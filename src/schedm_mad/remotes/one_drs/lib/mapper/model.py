@@ -44,6 +44,8 @@ class HostCapacity:
     cpu: Capacity
     # The IDs (keys) and capacities (values) for each disk of a host.
     disks: dict[int, Capacity] = field(default_factory=dict)
+    disk_io: Optional[Capacity] = None
+    net: Optional[Capacity] = None
     pci_devices: list[PCIDevice] = field(default_factory=list)
     cluster_id: int = 0
 
@@ -133,12 +135,16 @@ class VMRequirements:
     cpu_ratio: float
     cpu_usage: float = float('nan')
     storage: dict[int, DStoreRequirement] = field(default_factory=dict)
+    # Read and write operations.
+    disk_usage: float = float('nan')
     pci_devices: list[PCIDeviceRequirement] = field(default_factory=list)
     host_ids: Optional[set[int]] = None
     # Whether multiple NICs can be associated to the same VNet.
     share_vnets: bool = False
     # Dict {NIC ID: list of IDs of the VNets that match the NIC}.
     nic_matches: dict[int, list[int]] = field(default_factory=dict)
+    # Net usage.
+    net_usage: float = float('nan')
 
     def find_host_matches(
         self,

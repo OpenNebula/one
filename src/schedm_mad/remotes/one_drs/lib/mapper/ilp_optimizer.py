@@ -221,7 +221,9 @@ class ILPOptimizer(Mapper):
         }
 
         # Balance constraints.
-        balanced_vars = {'cpu_usage', 'cpu_ratio', 'memory'}
+        balanced_vars = {
+            'cpu_usage', 'cpu_ratio', 'memory', 'disk_usage', 'net_usage'
+        }
         if balance_constraints is None:
             self._balance_constraints = {}
         else:
@@ -903,6 +905,10 @@ class ILPOptimizer(Mapper):
             var_name = 'cpu'
         elif name == 'memory':
             var_name = 'memory'
+        elif name == 'disk_usage':
+            var_name = 'disk_io'
+        elif name == 'net_usage':
+            var_name = 'net'
         else:
             raise ValueError(f"'name' cannot be '{name}'")
 
