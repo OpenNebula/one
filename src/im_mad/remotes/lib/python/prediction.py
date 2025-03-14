@@ -197,9 +197,9 @@ def main():
             sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
             forecast_far = None
 
-        if forecast:
+        if forecast is not None:
             monitor[f"{metric_name.upper()}_FORECAST"] = forecast
-        if forecast_far:
+        if forecast_far is not None:
             monitor[f"{metric_name.upper()}_FORECAST_FAR"] = forecast_far
 
     if monitor:
