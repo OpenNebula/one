@@ -707,7 +707,7 @@ module VCenterDriver
                 next unless ip.family == start_ip.family &&
                             ip.family == end_ip.family
 
-                next unless ip >= start_ip && ip <= end_ip
+                next unless ip.between?(start_ip, end_ip)
 
                 ipv4 = ip.to_s if ip.ipv4?
                 ipv6 = ip.to_s if ip.ipv6?
