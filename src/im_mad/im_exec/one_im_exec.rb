@@ -107,7 +107,7 @@ class InformationManagerDriver < OpenNebulaDriver
                   :START_MONITOR,
                   :stdin       => input[:stdin],
                   :script_name => 'run_monitord_client',
-                  :respond     => false,
+                  :respond     => true,
                   :zip         => true,
                   :base64      => true)
     end
@@ -123,7 +123,7 @@ class InformationManagerDriver < OpenNebulaDriver
                   :STOP_MONITOR,
                   :script_name => 'stop_monitord_client',
                   :stdin       => input[:stdin],
-                  :respond     => false,
+                  :respond     => true,
                   :zip         => true,
                   :base64      => true)
     end
