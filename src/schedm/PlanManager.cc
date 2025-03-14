@@ -241,7 +241,7 @@ void PlanManager::timer_action()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool PlanManager::start_action(PlanAction& action)
+bool PlanManager::start_action(int plan_id, PlanAction& action)
 {
     const string& aname = action.operation();
 
@@ -304,6 +304,14 @@ bool PlanManager::start_action(PlanAction& action)
         return false;
     }
 
+    if (auto vm = vm_pool->get(action.vm_id()))
+    {
+        vm->plan_id(plan_id);
+        vm->action_id(action.id());
+
+        vm_pool->update_history(vm.get());
+    }
+
     action.state(PlanState::APPLYING);
 
     return true;
@@ -312,30 +320,20 @@ bool PlanManager::start_action(PlanAction& action)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PlanManager::action_finished(int cid, int vid, PlanState state)
+void PlanManager::action_finished(int plan_id, int action_id, PlanState state)
 {
-    auto plan = plan_pool->get(cid);
+    auto plan = plan_pool->get(plan_id);
 
     if (!plan)
     {
-        if (cid != -1)
-        {
-            action_finished(-1, vid, state);
-        }
-
         return;
     }
 
-    if (plan->action_finished(vid, state))
+    if (plan->action_finished(action_id, state))
     {
         plan->check_completed();
 
         plan_pool->update(plan.get());
-    }
-    else if (cid != -1)
-    {
-        //Not included in cluster plan, it could be in placement plan
-        action_finished(-1, vid, state);
     }
 }
 
@@ -367,7 +365,7 @@ void PlanManager::execute_plan(Plan& plan)
             break;
         }
 
-        if (start_action(*action))
+        if (start_action(plan.cid(), *action))
         {
             host_actions[action->host_id()]++;
             cluster_actions++;

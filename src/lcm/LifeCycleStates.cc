@@ -304,9 +304,12 @@ void LifeCycleManager::trigger_deploy_success(int vid)
         }
 
         Template quota_tmpl;
+
         int uid = vm->get_uid();
         int gid = vm->get_gid();
-        int cid = vm->get_cid();
+  
+        int plan_id   = vm->plan_id();
+        int action_id = vm->action_id();
 
         //----------------------------------------------------
         //                 RUNNING STATE
@@ -379,8 +382,11 @@ void LifeCycleManager::trigger_deploy_success(int vid)
             Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
 
-        auto planm = Nebula::instance().get_planm();
-        planm->action_success(cid, vid);
+        if (plan_id >= -1)
+        {
+            auto planm = Nebula::instance().get_planm();
+            planm->action_success(plan_id, action_id);
+        }
     });
 }
 
@@ -398,7 +404,8 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
             return;
         }
 
-        int cid = vm->get_cid();
+        int plan_id   = vm->plan_id();
+        int action_id = vm->action_id();
 
         time_t the_time = time(0);
 
@@ -457,8 +464,11 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
 
         vmpool->update(vm.get());
 
-        auto planm = Nebula::instance().get_planm();
-        planm->action_failure(cid, vid);
+        if (plan_id >= -1)
+        {
+            auto planm = Nebula::instance().get_planm();
+            planm->action_failure(plan_id, action_id);
+        }
     });
 }
 
@@ -479,9 +489,13 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
         }
 
         Template quota_tmpl;
+
         int uid = vm->get_uid();
         int gid = vm->get_gid();
-        int cid = vm->get_cid();
+
+        int plan_id   = vm->plan_id();
+        int action_id = vm->action_id();
+
         auto state = vm->get_lcm_state();
 
         if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN )
@@ -571,10 +585,10 @@ void LifeCycleManager::trigger_shutdown_success(int vid)
             Quotas::quota_del(Quotas::VM, uid, gid, &quota_tmpl);
         }
 
-        if (state != VirtualMachine::SAVE_MIGRATE)
+        if (state != VirtualMachine::SAVE_MIGRATE && plan_id >= -1)
         {
             auto planm = Nebula::instance().get_planm();
-            planm->action_success(cid, vid);
+            planm->action_success(plan_id, action_id);
         }
     });
 }
@@ -621,12 +635,16 @@ void LifeCycleManager::trigger_shutdown_failure(int vid)
             vm->log("LCM", Log::ERROR, "shutdown_failure_action, VM in a wrong state");
         }
 
-        int cid = vm->get_cid();
+        int plan_id   = vm->plan_id();
+        int action_id = vm->action_id();
 
         vm.reset();
 
-        auto planm = Nebula::instance().get_planm();
-        planm->action_failure(cid, vid);
+        if (plan_id >= -1)
+        {
+            auto planm = Nebula::instance().get_planm();
+            planm->action_failure(plan_id, action_id);
+        }
     });
 }
 

@@ -36,7 +36,12 @@ class PlanAction
 public:
     std::string to_xml() const;
 
-    int from_xml_node(const xmlNodePtr node);
+    int from_xml_node(const xmlNodePtr node, int hint_id);
+
+    int id() const
+    {
+        return _id;
+    }
 
     PlanState state() const
     {
@@ -87,6 +92,8 @@ private:
     std::string _operation;
 
     PlanState _state = PlanState::READY;
+
+    int _id   = -1;
 
     int _vm_id   = -1;
     int _host_id = -1;
@@ -176,7 +183,7 @@ public:
     /**
      * Mark action as finished, return false if the action is not in the plan
      */
-    bool action_finished(int vid, PlanState state);
+    bool action_finished(int id, PlanState state);
 
     /**
      * Set the state of actions to TIMEOUT if they exceed the specified timeout.

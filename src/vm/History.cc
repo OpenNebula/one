@@ -304,6 +304,8 @@ string& History::to_xml(string& xml, bool database) const
         "<VM_MAD>"     << one_util::escape_xml(vmm_mad_name)<<"</VM_MAD>"<<
         "<TM_MAD>"     << one_util::escape_xml(tm_mad_name) <<"</TM_MAD>" <<
         "<DS_ID>"      << ds_id         << "</DS_ID>" <<
+        "<PLAN_ID>"    << plan_id       << "</PLAN_ID>" <<
+        "<ACTION_ID>"  << action_id     << "</ACTION_ID>" <<
         "<PSTIME>"     << prolog_stime  << "</PSTIME>"<<
         "<PETIME>"     << prolog_etime  << "</PETIME>"<<
         "<RSTIME>"     << running_stime << "</RSTIME>"<<
@@ -401,9 +403,13 @@ int History::rebuild_attributes()
 
     rc += xpath(seq, "/HISTORY/SEQ", -1);
     rc += xpath(hid, "/HISTORY/HID", -1);
-    rc += xpath(cid, "/HISTORY/CID", -1);
 
+    rc += xpath(cid, "/HISTORY/CID", -1);
     rc += xpath(ds_id, "/HISTORY/DS_ID", 0);
+
+    // For backward compatibility do not fail if plan or action ID is not found
+    xpath(plan_id, "/HISTORY/PLAN_ID", -2);
+    xpath(action_id, "/HISTORY/ACTION_ID", -1);
 
     rc += xpath(hostname, "/HISTORY/HOSTNAME", "not_found");
 

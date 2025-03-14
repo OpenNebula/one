@@ -23,6 +23,8 @@
         <xs:element name="VM_MAD" type="xs:string"/>
         <xs:element name="TM_MAD" type="xs:string"/>
         <xs:element name="DS_ID" type="xs:integer"/>
+        <xs:element name="PLAN_ID" type="xs:integer"/>
+        <xs:element name="ACTION_ID" type="xs:integer"/>
         <xs:element name="PSTIME" type="xs:integer"/>
         <xs:element name="PETIME" type="xs:integer"/>
         <xs:element name="RSTIME" type="xs:integer"/>

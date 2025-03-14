@@ -23,15 +23,19 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PlanAction::from_xml_node(const xmlNodePtr node)
+int PlanAction::from_xml_node(const xmlNodePtr node, int hint_id)
 {
     Template tmpl;
     int tmp_int;
 
     tmpl.from_xml_node(node);
 
-    auto rc = tmpl.get("VM_ID", _vm_id);
+    if (!tmpl.get("ID", _id))
+    {
+        _id = hint_id;
+    }
 
+    auto rc = tmpl.get("VM_ID", _vm_id);
     rc &= tmpl.get("OPERATION", _operation);
     rc &= tmpl.get("HOST_ID", _host_id);
     rc &= tmpl.get("DS_ID", _ds_id);
@@ -72,6 +76,7 @@ std::string PlanAction::to_xml() const
     ostringstream oss;
 
     oss << "<ACTION>"
+        << "<ID>"         << _id         << "</ID>"
         << "<VM_ID>"      << _vm_id      << "</VM_ID>"
         << "<STATE>"      << _state      << "</STATE>"
         << "<OPERATION>"  << _operation  << "</OPERATION>"
@@ -111,11 +116,11 @@ PlanAction* Plan::get_next_action()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Plan::action_finished(int vid, PlanState state)
+bool Plan::action_finished(int id, PlanState state)
 {
     for (auto& action : _actions)
     {
-        if (action.vm_id() == vid && ( action.state() == PlanState::APPLYING ||
+        if (action.id() == id && ( action.state() == PlanState::APPLYING ||
                 action.state() == PlanState::TIMEOUT))
         {
             action.state(state);
@@ -244,10 +249,11 @@ int Plan::rebuild_attributes()
 
     ObjectXML::get_nodes("/PLAN/ACTION", action_nodes);
 
+    int id = -1;
     for (auto node : action_nodes)
     {
         PlanAction action;
-        rc += action.from_xml_node(node);
+        rc += action.from_xml_node(node, ++id);
 
         if (rc != 0)
         {

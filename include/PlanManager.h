@@ -53,14 +53,14 @@ public:
      */
     int start_plan(int cid, std::string& error);
 
-    void action_success(int cid, int vid)
+    void action_success(int plan_id, int action_id)
     {
-        action_finished(cid, vid, PlanState::DONE);
+        action_finished(plan_id, action_id, PlanState::DONE);
     }
 
-    void action_failure(int cid, int vid)
+    void action_failure(int plan_id, int action_id)
     {
-        action_finished(cid, vid, PlanState::ERROR);
+        action_finished(plan_id, action_id, PlanState::ERROR);
     }
 
 private:
@@ -89,9 +89,9 @@ private:
      */
     void timer_action();
 
-    bool start_action(PlanAction& action);
+    bool start_action(int plan_id, PlanAction& action);
 
-    void action_finished(int cid, int vid, PlanState state);
+    void action_finished(int plan_id, int action_id, PlanState state);
 
     void execute_plan(Plan& plan);
 

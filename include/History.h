@@ -90,6 +90,9 @@ private:
 
     int          ds_id;
 
+    int          plan_id   = -2;
+    int          action_id = -1;
+
     time_t       stime;
     time_t       etime;
 

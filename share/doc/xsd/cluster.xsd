@@ -28,6 +28,27 @@
               </xs:complexType>
         </xs:element>
         <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="PLAN" minOccurs="0" maxOccurs="1">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ID" type="xs:integer"/>
+                  <xs:element name="STATE" type="xs:integer"/>
+                  <xs:element name="ACTION">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:element name="ID" type="xs:integer"/>
+                        <xs:element name="VM_ID" type="xs:integer"/>
+                        <xs:element name="STATE" type="xs:integer"/>
+                        <xs:element name="OPERATION" type="xs:string"/>
+                        <xs:element name="HOST_ID" type="xs:integer"/>
+                        <xs:element name="DS_ID" type="xs:integer"/>
+                        <xs:element name="TIMESTAMP" type="xs:integer"/>
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

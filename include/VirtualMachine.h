@@ -895,6 +895,26 @@ public:
         previous_history->req_id = rid;
     };
 
+    void plan_id(int id)
+    {
+        history->plan_id = id;
+    }
+
+    int plan_id() const
+    {
+        return history->plan_id;
+    }
+
+    void action_id(int id)
+    {
+        history->action_id = id;
+    }
+
+    int action_id() const
+    {
+        return history->action_id;
+    }
+
     /**
      *  Release VNC port
      */
