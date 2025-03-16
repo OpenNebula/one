@@ -39,10 +39,10 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     ]
 
     def initialize(vm, xpath_filter = nil, deploy_id = nil)
-        @locking = false
-
         xpath_filter ||= XPATH_FILTER
         super(vm, xpath_filter, deploy_id)
+
+        @locking = false
     end
 
     def activate
@@ -550,7 +550,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
 
     # Delete OvS bridge
     def delete_bridge
-        LocalCommand.run_sh("#{command(:ovs_vsctl)} del-br #{@nic[:bridge]}")
+        LocalCommand.run_sh("#{command(:ovs_vsctl)} --if-exists del-br #{@nic[:bridge]}")
 
         @bridges.delete(@nic[:bridge])
     end
@@ -576,7 +576,7 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
         LocalCommand.run_sh("#{command(:ovs_vsctl)} --if-exists del-port " \
                                 "#{@nic[:bridge]} #{port}")
 
-        @bridges[@nic[:bridge]].delete(port)
+        @bridges[@nic[:bridge]]&.delete(port)
     end
 
     # Calls ovs-vsctl set bridge to set options stored in ovs_bridge_conf
