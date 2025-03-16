@@ -42,7 +42,10 @@ void SchedulerManagerDriver::place() const
 {
     SchedRequest sr(vmpool, hpool, dspool, vnpool, upool, clpool);
 
-    setup_place_pools(sr);
+    if ( setup_place_pools(sr) == -1 )
+    {
+        return;
+    }
 
     match(sr, "Cannot dispatch VM: ");
 
@@ -57,7 +60,10 @@ void SchedulerManagerDriver::optimize(int cluster_id) const
 {
     SchedRequest sr(vmpool, hpool, dspool, vnpool, upool, clpool);
 
-    setup_optimize_pools(cluster_id, sr);
+    if ( setup_optimize_pools(cluster_id, sr) == -1 )
+    {
+        return;
+    }
 
     match(sr, "Optimize: ");
 
