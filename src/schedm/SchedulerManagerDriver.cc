@@ -157,7 +157,7 @@ int SchedulerManagerDriver::setup_place_pools(SchedRequest &sr) const
     // -------------------------------------------------------------------------
     // Host matching
     // -------------------------------------------------------------------------
-    int rc = hpool->search(sr.hpool.ids, "state = 1 OR state = 2");
+    int rc = hpool->search(sr.hpool.ids, "state = 2");
 
     if ( rc != 0 )
     {
