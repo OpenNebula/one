@@ -1,7 +1,7 @@
-#!/usr/bin/env ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,18 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'rexml/document'
+STDIN=`cat -`
 
-require_relative '../../../lib/linux'
+PYTHON_PATH=/var/tmp/one/im/lib/python
 
-xml_txt = STDIN.read
+PYTHON_VERSION=$(python3 --version | cut -d ' ' -f2)
 
-host = LinuxHost.usage('kvm')
+MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
+MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
 
-begin
-    config  = REXML::Document.new(xml_txt).root
-    hostid  = config.elements['HOST_ID'].text.to_s
+if [[ "$MAJOR" -lt 3 ]] || [[ "$MAJOR" -eq 3 && "$MINOR" -lt 9 ]]; then
+    if command -v python3.9 &>/dev/null; then
+        PYTHON=python3.9
+    else
+        exit 0
+    fi
+else
+   PYTHON=python3
+fi
 
-    host.to_sql(hostid)
-rescue StandardError
-end
+HOST_ID=$(echo "${STDIN}"  | xmllint --xpath 'string(//HOST_ID)' -)
+ENTITYH="host,${HOST_ID},0,/var/tmp/one_db"
+
+PYTHONPATH=$PYTHON_PATH $PYTHON $PYTHON_PATH/prediction.py --entity $ENTITYH --pythonpath $PYTHON_PATH

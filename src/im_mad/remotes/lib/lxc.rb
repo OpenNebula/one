@@ -21,6 +21,7 @@ $LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../../vmm/lxc/"
 require 'json'
 require 'base64'
 require 'client'
+require 'sqlite3'
 
 require_relative 'process_list'
 require_relative 'domain'
@@ -136,6 +137,21 @@ end
 #-------------------------------------------------------------------------------
 class Domain < BaseDomain
 
+    DB_PATH = '/var/tmp/one_db'
+
+    def initialize(name)
+        super(name)
+
+        @predictions = true
+
+        path = "#{__dir__}/../../etc/im/lxc-probes.d/forecast.conf"
+        conf = YAML.load_file(path)
+
+        @db_retention = Integer(conf['vm']['db_retention'])
+    rescue StandardError
+        @db_retention = 4
+    end
+
     # Gets the information of the domain, fills the @vm hash using ProcessList
     # and ps command
     def info
@@ -169,6 +185,22 @@ class Domain < BaseDomain
         @vm[:ignore] = true if @vm[:state] == STATE_MAP['STOPPED']
 
         io_stats(hash)
+    end
+
+    # Compute forecast values for the VM metrics
+    def predictions
+        base = '/var/tmp/one/im/lib/python/prediction.sh'
+        cmd  = "#{base} --entity virtualmachine,#{@vm[:id]},#{@vm[:uuid]},#{DB_PATH}"
+
+        o, _e, s = Open3.capture3 cmd
+
+        if s.success?
+            o
+        else
+            ''
+        end
+    rescue StandardError
+        ''
     end
 
     private
@@ -226,6 +258,7 @@ module DomainList
         domains = LXCDomains.new
 
         domains.info
+        domains.to_sql
         domains.to_monitor
     end
 

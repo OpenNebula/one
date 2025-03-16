@@ -171,9 +171,23 @@ class LinuxHost
 
         print_info('NETRX', linux.net[:rx])
         print_info('NETTX', linux.net[:tx])
+
+        linux
     end
 
-    def self.store_metric_db(db, host_id, metric_name, timestamp, value)
+    def self.config(hypervisor)
+        linux = new
+
+        print_info('HYPERVISOR', hypervisor)
+
+        print_info('TOTALCPU', linux.cpu[:total])
+        print_info('CPUSPEED', linux.cpu[:speed])
+
+        print_info('TOTALMEMORY', linux.memory[:total])
+        print_info('CGROUPS_VERSION', linux.cgversion) unless linux.cgversion.empty?
+    end
+
+    def store_metric_db(db, host_id, metric_name, timestamp, value)
         table_name = "host_#{host_id}_#{metric_name}_monitoring"
 
         create_table_query = <<-SQL
@@ -201,31 +215,17 @@ class LinuxHost
         db.execute(insert_query, [timestamp, value])
     end
 
-    def self.to_sql(host_id)
-        linux = new
-
+    def to_sql(host_id)
         FileUtils.mkdir_p(DB_PATH)
 
         db = SQLite3::Database.new(File.join(DB_PATH, DB_NAME))
         timestamp = Time.now.to_i
 
         DB_MONITOR_KEYS.each do |k,v|
-            self.store_metric_db(db, host_id, k, timestamp, v.call(linux))
+            store_metric_db(db, host_id, k, timestamp, v.call(self))
         end
 
         db.close
-    end
-
-    def self.config(hypervisor)
-        linux = new
-
-        print_info('HYPERVISOR', hypervisor)
-
-        print_info('TOTALCPU', linux.cpu[:total])
-        print_info('CPUSPEED', linux.cpu[:speed])
-
-        print_info('TOTALMEMORY', linux.memory[:total])
-        print_info('CGROUPS_VERSION', linux.cgversion) unless linux.cgversion.empty?
     end
 
 end

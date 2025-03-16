@@ -1344,6 +1344,7 @@ IM_PROBES_LXC_HOST_BEACON_FILES="\
 
 IM_PROBES_LXC_HOST_MONITOR_FILES="\
      src/im_mad/remotes/lxc-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/lxc-probes.d/host/monitor/prediction.sh \
      src/im_mad/remotes/lxc-probes.d/host/monitor/numa_usage.rb"
 
 IM_PROBES_LXC_HOST_SYSTEM_FILES="\
@@ -1364,6 +1365,7 @@ IM_PROBES_LXC_VM_STATUS_FILES="\
      src/im_mad/remotes/lxc-probes.d/vm/status/state.rb"
 
 IM_PROBES_ETC_LXC_PROBES_FILES="\
+    src/im_mad/remotes/lxc-probes.d/forecast.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/monitord-client_control.sh"

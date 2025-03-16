@@ -16,6 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'rexml/document'
+
 require_relative '../../../lib/linux'
 
-LinuxHost.usage('lxc')
+xml_txt = STDIN.read
+
+host = LinuxHost.usage('lxc')
+
+begin
+    config  = REXML::Document.new(xml_txt).root
+    hostid  = config.elements['HOST_ID'].text.to_s
+
+    host.to_sql(hostid)
+rescue StandardError
+end
