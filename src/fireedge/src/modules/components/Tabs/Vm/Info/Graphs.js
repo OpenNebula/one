@@ -44,19 +44,23 @@ const Graphs = ({ id }) => {
         legendNames={[T.CPU, T.CpuForecast, T.CpuForecastFar]}
         clusterFactor={10}
         clusterThreshold={1000}
-        interpolationY={(val) => (val ? val?.toFixed(2) : val)}
+        interpolationY={(val) => (val ? +val?.toFixed(2) : +val)}
         zoomFactor={0.95}
       />
 
       <Chartist
         name={Tr(T.RealMemory)}
-        filter={['MEMORY']}
+        filter={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
         data={monitoring}
-        y="MEMORY"
+        y={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
         x="TIMESTAMP"
-        interpolationY={(value) => (value ? prettyBytes(value) : value)}
-        clusterFactor={30}
-        clusterThreshold={1200}
+        interpolationY={(value) =>
+          value ? prettyBytes(value, 'KB', 2) : value
+        }
+        lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+        legendNames={[T.Memory, T.MemoryForecast, T.MemoryForecastFar]}
+        clusterFactor={10}
+        clusterThreshold={1000}
         zoomFactor={0.95}
       />
     </>

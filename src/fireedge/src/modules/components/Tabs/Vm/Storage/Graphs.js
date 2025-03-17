@@ -23,8 +23,8 @@ import { Tr } from '@modules/components/HOC'
 import { prettyBytes } from '@UtilsModule'
 import { T } from '@ConstantsModule'
 
-const interpolationBytes = (value) => prettyBytes(value)
-const interpolationY = (value) => value / 1000
+const interpolationBytes = (value) =>
+  value ? prettyBytes(value, 'KB', 2) : value
 
 /**
  * Render Graphs Capacity.
@@ -41,43 +41,89 @@ const Graphs = ({ id }) => {
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.DiskReadBytes)}
-          filter={['DISKRDBYTES']}
+          filter={[
+            'DISKRDBYTES',
+            'DISKRDBYTES_FORECAST',
+            'DISKRDBYTES_FORECAST_FAR',
+          ]}
           data={monitoring}
-          y="DISKRDBYTES"
+          y={[
+            'DISKRDBYTES',
+            'DISKRDBYTES_FORECAST',
+            'DISKRDBYTES_FORECAST_FAR',
+          ]}
           x="TIMESTAMP"
+          legendNames={[
+            T.DiskReadBytes,
+            T.DiskReadForecast,
+            T.DiskReadForecastFar,
+          ]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.DiskWriteBytes)}
-          filter={['DISKWRBYTES']}
           data={monitoring}
-          y="DISKWRBYTES"
+          filter={[
+            'DISKWRBYTES',
+            'DISKWRBYTES_FORECAST',
+            'DISKWRBYTES_FORECAST_FAR',
+          ]}
+          y={[
+            'DISKWRBYTES',
+            'DISKWRBYTES_FORECAST',
+            'DISKWRBYTES_FORECAST_FAR',
+          ]}
           x="TIMESTAMP"
+          legendNames={[
+            T.DiskWriteBytes,
+            T.DiskWriteForecast,
+            T.DiskWriteForecastFar,
+          ]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.DiskReadIOPS)}
-          filter={['DISKRDIOPS']}
           data={monitoring}
-          y="DISKRDIOPS"
+          filter={[
+            'DISKRDIOPS',
+            'DISKRDIOPS_FORECAST',
+            'DISKRDIOPS_FORECAST_FAR',
+          ]}
+          y={['DISKRDIOPS', 'DISKRDIOPS_FORECAST', 'DISKRDIOPS_FORECAST_FAR']}
           x="TIMESTAMP"
           derivative={true}
-          interpolationY={interpolationY}
+          legendNames={[
+            T.DiskReadIOPS,
+            T.DiskReadIOPSForecast,
+            T.DiskReadIOPSForecastFar,
+          ]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.DiskWriteIOPS)}
-          filter={['DISKWRIOPS']}
           data={monitoring}
-          y="DISKWRIOPS"
+          filter={[
+            'DISKWRIOPS',
+            'DISKWRIOPS_FORECAST',
+            'DISKWRIOPS_FORECAST_FAR',
+          ]}
+          y={['DISKWRIOPS', 'DISKWRIOPS_FORECAST', 'DISKWRIOPS_FORECAST_FAR']}
           x="TIMESTAMP"
           derivative={true}
-          interpolationY={interpolationY}
+          legendNames={[
+            T.DiskWriteIOPS,
+            T.DiskWriteIOPSForecast,
+            T.DiskWriteIOPSForecastFar,
+          ]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
         />
       </Grid>
     </Grid>

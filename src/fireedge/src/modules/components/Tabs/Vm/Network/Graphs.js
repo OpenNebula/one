@@ -46,42 +46,50 @@ const Graphs = ({ id }) => {
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetRX)}
-          filter={['NETRX']}
           data={monitoring}
-          y="NETRX"
+          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
+          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
           x="TIMESTAMP"
           interpolationY={interpolationBytes}
+          legendNames={[T.NetRX, T.NetRXForecast, T.NetRXForecastFar]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetTX)}
-          filter={['NETTX']}
+          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
+          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
           data={monitoring}
-          y="NETTX"
           x="TIMESTAMP"
+          legendNames={[T.NetTX, T.NetTXForecast, T.NetTXForecastFar]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetDownloadSpeed)}
-          filter={['NETRX']}
           data={monitoring}
-          y="NETRX"
+          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
+          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
           x="TIMESTAMP"
           derivative={true}
+          legendNames={[T.NetRX, T.NetRXForecast, T.NetRXForecastFar]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytesSeg}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetUploadSpeed)}
-          filter={['NETTX']}
           data={monitoring}
-          y="NETTX"
+          filter={['NETTX', 'NETTX_FORECAST', 'NETTX_FORECAST_FAR']}
+          y={['NETTX', 'NETTX_FORECAST', 'NETTX_FORECAST_FAR']}
           x="TIMESTAMP"
           derivative={true}
+          legendNames={[T.NetTX, T.NetTXForecast, T.NetTXForecastFar]}
+          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytesSeg}
         />
       </Grid>

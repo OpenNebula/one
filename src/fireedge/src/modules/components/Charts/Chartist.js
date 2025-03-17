@@ -56,17 +56,23 @@ const useStyles = ({ palette, typography }) => ({
   }),
 })
 
-const calculateDerivative = (data) =>
+const calculateDerivative = (data, filter) =>
   data
     .map((point, i, array) => {
       if (i === array.length - 1) {
         return null
       }
       const nextPoint = array[i + 1]
+      const yValues = Object.fromEntries(
+        filter.map((key) => [
+          key,
+          (nextPoint?.[key] - point?.[key]) / ((nextPoint.x - point.x) / 1000),
+        ])
+      )
 
       return {
         x: point.x,
-        y: (nextPoint.y - point.y) / ((nextPoint.x - point.x) / 1000),
+        ...yValues,
       }
     })
     .filter((point) => point)
@@ -201,7 +207,7 @@ const Chartist = ({
       finalData = clusterData(dataChart, clusterThreshold, clusterFactor)
     }
 
-    return derivative ? calculateDerivative(finalData) : finalData
+    return derivative ? calculateDerivative(finalData, filter) : finalData
   }, [dataChart, clusterThreshold, clusterFactor, derivative])
 
   const chartData = useMemo(() => {
@@ -217,6 +223,7 @@ const Chartist = ({
     () => ({
       ...chartDimensions,
       drag: false,
+      padding: [20, 40, 0, 40], // Pad top / left / right
       plugins: [wheelZoomPlugin({ factor: zoomFactor })],
       cursor: {
         bind: {
@@ -229,6 +236,7 @@ const Chartist = ({
         },
         y: { auto: true },
       },
+
       axes: [
         {
           grid: { show: true },
