@@ -22,10 +22,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :name  => "timezone",
         :short => "-t TZ",
         :large => "--timezone TZ",
-        :description => "Current Time Zone. If empty it takes UTC",
+        :description => "User defined Time Zone",
         :format => String
     }
-    
+
     START_TIME_ACCT = {
         :name   => "start_time",
         :short  => "-s TIME",
