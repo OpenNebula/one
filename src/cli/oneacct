@@ -97,6 +97,13 @@ CommandParser::CmdParser.new(ARGV) do
             end_time = t.to_i
         end
 
+        if options[:timezone]
+            # Use defined timezone, if empty it takes UTC
+            ENV['TZ'] = options[:timezone]
+        else
+            ENV['TZ'] = 'UTC'
+        end
+
         common_opts = {
             :start_time => start_time,
             :end_time => end_time,
