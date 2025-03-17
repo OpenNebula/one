@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
 import PropTypes from 'prop-types'
+
+import { timeFromSeconds } from '@ModelsModule'
 import {
   useTheme,
   CircularProgress,
@@ -24,36 +27,30 @@ import {
   Typography,
 } from '@mui/material'
 import { css } from '@emotion/css'
-import { useMemo, JSXElementConstructor } from 'react'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  Brush,
-  ResponsiveContainer,
-} from 'recharts'
+import { Component, useMemo, useState, useRef, useEffect } from 'react'
+import UplotReact from 'uplot-react'
+import 'uplot/dist/uPlot.min.css'
+import { wheelZoomPlugin } from '@modules/components/Charts/Plugins'
 
 const useStyles = ({ palette, typography }) => ({
-  graphStyle: css({
-    '&': {
-      width: '100% !important',
-    },
+  graphContainer: css({
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    boxSizing: 'border-box',
   }),
-  box: css({
-    paddingBottom: '0px',
+  chart: css({
+    height: '500px',
+    width: '100%',
   }),
   title: css({
     fontWeight: typography.fontWeightBold,
     borderBottom: `1px solid ${palette.divider}`,
   }),
   center: css({
-    fontWeight: typography.fontWeightBold,
-    borderBottom: `1px solid ${palette.divider}`,
     justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
     height: '100%',
     width: '100%',
   }),
@@ -74,6 +71,46 @@ const calculateDerivative = (data) =>
     })
     .filter((point) => point)
 
+const clusterData = (data, threshold = 1000, clusterFactor = 10) => {
+  if (data.length <= threshold) return data
+
+  const clusters = []
+  let cluster = {}
+  let count = 0
+
+  for (const [idx, chunk] of data.entries()) {
+    for (const [key, value] of Object.entries(chunk)) {
+      cluster[key] = (cluster[key] ?? 0) + value
+    }
+
+    if (++count === clusterFactor || idx === data.length - 1) {
+      clusters.push(
+        Object.fromEntries(
+          Object.entries(cluster).map(([key, sum]) => [key, sum / count])
+        )
+      )
+      cluster = {}
+      count = 0
+    }
+  }
+
+  return clusters
+}
+
+const minMaxTick = (ticks, formatter) => {
+  const minTick = Math.min(...ticks)
+  const maxTick = Math.max(...ticks)
+
+  const minLabel = formatter(minTick)
+  const maxLabel = formatter(maxTick)
+
+  const res = [minLabel]
+    .concat(Array.from({ length: ticks?.length - 2 || 0 }, () => '')) // -2 for min/max label
+    .concat([maxLabel])
+
+  return res
+}
+
 /**
  * Represents a Chartist Graph.
  *
@@ -85,10 +122,13 @@ const calculateDerivative = (data) =>
  * @param {Array|string} props.y - Chartist Y
  * @param {Function} props.interpolationY - Chartist interpolation Y
  * @param {boolean} props.derivative - Display delta values
- * @param {boolean} props.enableLegend - Enable graph legend
+ * @param {number} props.clusterFactor - Number of chunks per cluster
+ * @param {number} props.clusterThreshold - Start clustering past this threshold
+ * @param {boolean} props.shouldFill - Display line shadows/gradients
  * @param {Array} props.legendNames - List of legend names
  * @param {Array} props.lineColors - Array of line colors
- * @returns {JSXElementConstructor} Chartist component
+ * @param {number} props.zoomFactor - Grapg zooming factor
+ * @returns {Component} Chartist component
  */
 const Chartist = ({
   data = [],
@@ -96,48 +136,209 @@ const Chartist = ({
   filter = [],
   x = '',
   y = '',
+  zoomFactor = 0.95,
   interpolationY = (value) => value,
   derivative = false,
-  enableLegend = false,
+  shouldFill = false,
+  clusterFactor = 10,
+  clusterThreshold = 10000,
   legendNames = [],
   lineColors = [],
 }) => {
+  const dateFormat = 'MM-dd HH:mm'
+  const dateFormatHover = 'MMM dd HH:mm:ss'
+
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
 
-  const dataChart = filter?.length
-    ? useMemo(() => {
-        let filteredData = data
-        if (filter.length) {
-          filteredData = data.filter((point) =>
-            Object.keys(point).some((key) => filter.includes(key))
-          )
-        }
+  const chartRef = useRef(null)
+  const [chartDimensions, setChartDimensions] = useState({
+    width: 0,
+    height: 0,
+  })
 
-        return filteredData.map((point) => ({
-          x:
-            x === 'TIMESTAMP'
-              ? new Date(+point[x] * 1000).getTime()
-              : +point[x],
-          ...(Array.isArray(y)
-            ? Object.fromEntries(y.map((pt) => [pt, Math.round(+point[pt])]))
-            : { y: Math.round(+point[y]) }),
-        }))
-      }, [data, filter, x, y])
-    : []
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (chartRef.current) {
+        const { width, height } = chartRef.current.getBoundingClientRect()
+        setChartDimensions({
+          width: width - 50,
+          height: height - 150,
+        })
+      }
+    })
 
-  const processedData = derivative ? calculateDerivative(dataChart) : dataChart
+    if (chartRef.current) {
+      observer.observe(chartRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const dataChart = useMemo(() => {
+    if (!filter.length) return []
+
+    let filteredData = data
+    if (filter.length) {
+      filteredData = data.filter((point) =>
+        Object.keys(point).some((key) => filter.includes(key))
+      )
+    }
+
+    return filteredData.map((point) => ({
+      x: x === 'TIMESTAMP' ? new Date(+point[x] * 1000).getTime() : +point[x],
+      ...(Array.isArray(y)
+        ? Object.fromEntries(y.map((pt) => [pt, +point[pt]]))
+        : { y: +point[y] }),
+    }))
+  }, [data, filter, x, y])
+
+  const processedData = useMemo(() => {
+    let finalData = dataChart
+    if (dataChart.length > clusterThreshold) {
+      finalData = clusterData(dataChart, clusterThreshold, clusterFactor)
+    }
+
+    return derivative ? calculateDerivative(finalData) : finalData
+  }, [dataChart, clusterThreshold, clusterFactor, derivative])
+
+  const chartData = useMemo(() => {
+    const xValues = processedData.map((point) => point.x)
+    const yValuesArray = Array.isArray(y)
+      ? y.map((yValue) => processedData.map((point) => point[yValue] ?? null))
+      : [processedData.map((point) => point.y)]
+
+    return [xValues, ...yValuesArray]
+  }, [processedData, y])
+
+  const chartOptions = useMemo(
+    () => ({
+      ...chartDimensions,
+      drag: false,
+      plugins: [wheelZoomPlugin({ factor: zoomFactor })],
+      cursor: {
+        bind: {
+          mousedown: () => () => {}, // Clear original 'annotating' handler
+        },
+      },
+      scales: {
+        x: {
+          time: true,
+        },
+        y: { auto: true },
+      },
+      axes: [
+        {
+          grid: { show: true },
+          ticks: { show: true },
+          values: (_, ticks) =>
+            minMaxTick(ticks, (label) =>
+              timeFromSeconds(label).toFormat(dateFormat)
+            ),
+        },
+        {
+          grid: { show: true },
+          ticks: { show: true },
+          values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
+        },
+      ],
+      series: [
+        {
+          label: 'Time',
+          value: (_, timestamp) =>
+            timestamp
+              ? timeFromSeconds(timestamp).toFormat(dateFormatHover)
+              : '--',
+        },
+        ...(Array.isArray(y)
+          ? y.map((yValue, index) => ({
+              label: legendNames?.[index] || yValue,
+              value: (_, yV) => interpolationY(yV) || yV,
+              stroke: lineColors?.[index] || '#40B3D9',
+              ...(shouldFill
+                ? {
+                    fill: (u) => {
+                      const ctx = u.ctx
+                      const plotHeight = u.bbox?.height || u.over.clientHeight
+                      const gradient = ctx.createLinearGradient(
+                        0,
+                        0,
+                        0,
+                        plotHeight
+                      )
+                      gradient.addColorStop(
+                        0,
+                        (lineColors?.[index] || '#40B3D9') + '66'
+                      )
+                      gradient.addColorStop(
+                        1,
+
+                        (lineColors?.[index] || '#40B3D9') + '00'
+                      )
+
+                      return gradient
+                    },
+                  }
+                : {}),
+
+              focus: true,
+            }))
+          : [
+              {
+                label: name,
+                stroke: lineColors?.[0] || '#40B3D9',
+                value: (_, yV) => interpolationY(yV),
+                focus: true,
+                ...(shouldFill
+                  ? {
+                      fill: (u) => {
+                        const ctx = u.ctx
+                        const plotHeight = u.bbox?.height || u.over.clientHeight
+                        const gradient = ctx.createLinearGradient(
+                          0,
+                          0,
+                          0,
+                          plotHeight
+                        )
+                        gradient.addColorStop(
+                          0,
+                          (lineColors?.[0] || '#40B3D9') + '66'
+                        )
+                        gradient.addColorStop(
+                          1,
+
+                          (lineColors?.[0] || '#40B3D9') + '00'
+                        )
+
+                        return gradient
+                      },
+                    }
+                  : {}),
+              },
+            ]),
+      ],
+    }),
+    [
+      chartData,
+      chartDimensions,
+      processedData,
+      name,
+      y,
+      legendNames,
+      lineColors,
+      interpolationY,
+    ]
+  )
 
   return (
-    <Paper
-      variant="outlined"
-      sx={{ width: '100%', height: '100%', boxSizing: 'border-box' }}
-    >
+    <Paper variant="outlined" className={classes.graphContainer}>
       <List className={classes.box} sx={{ width: '100%', height: '100%' }}>
         <ListItem className={classes.title}>
           <Typography noWrap>{name}</Typography>
         </ListItem>
-        <ListItem className={classes.center}>
+        <ListItem ref={chartRef} className={classes.center}>
           {!data?.length ? (
             <Stack
               direction="row"
@@ -148,55 +349,8 @@ const Chartist = ({
               <CircularProgress color="secondary" />
             </Stack>
           ) : (
-            <div style={{ width: '100%', height: '500px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  className={classes.graphStyle}
-                  data={processedData}
-                  margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="x"
-                    type="number"
-                    domain={['dataMin', 'dataMax']}
-                    scale="time"
-                    axisLine={true}
-                    tickFormatter={(val) => new Date(val).toLocaleString()}
-                  />
-                  <YAxis
-                    axisLine={true}
-                    tickFormatter={(val) => interpolationY(val)}
-                  />
-                  <Tooltip
-                    labelFormatter={(val) => new Date(val).toLocaleString()}
-                  />
-                  {Array.isArray(y) ? (
-                    y.map((yValue, index) => (
-                      <Line
-                        key={`${yValue}-${index}`}
-                        name={legendNames?.[index] ?? ''}
-                        dataKey={yValue}
-                        stroke={lineColors?.[index] ?? '#039be5'}
-                        dot={false}
-                        type="linear"
-                      />
-                    ))
-                  ) : (
-                    <Line
-                      name={name}
-                      dataKey="y"
-                      stroke={lineColors?.[0] ?? '#039be5'}
-                      dot={false}
-                      type="linear"
-                    />
-                  )}
-                  {enableLegend && (
-                    <Legend verticalAlign="bottom" height={36} />
-                  )}
-                  <Brush dataKey="x" height={30} stroke="#757575" />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className={classes.chart}>
+              <UplotReact options={chartOptions} data={chartData} />
             </div>
           )}
         </ListItem>
@@ -216,7 +370,11 @@ Chartist.propTypes = {
   ]),
   interpolationY: PropTypes.func,
   derivative: PropTypes.bool,
+  shouldFill: PropTypes.bool,
   enableLegend: PropTypes.bool,
+  zoomFactor: PropTypes.number,
+  clusterFactor: PropTypes.number,
+  clusterThreshold: PropTypes.number,
   legendNames: PropTypes.arrayOf(PropTypes.string),
   lineColors: PropTypes.arrayOf(PropTypes.string),
 }

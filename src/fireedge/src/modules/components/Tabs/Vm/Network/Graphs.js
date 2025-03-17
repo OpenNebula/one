@@ -21,9 +21,11 @@ import Chartist from '@modules/components/Charts/Chartist'
 import { Tr, Translate } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
+import { prettyBytes } from '@UtilsModule'
 
-const interpolationBytesSeg = (value) => `${value}B/s`
-const interpolationBytes = (value) => `${value}B`
+const interpolationBytesSeg = (value) =>
+  value ? `${prettyBytes(value)}/s` : value
+const interpolationBytes = (value) => (value ? prettyBytes(value) : value)
 
 /**
  * Render Graphs Capacity.

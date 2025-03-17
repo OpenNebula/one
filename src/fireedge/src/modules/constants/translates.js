@@ -1771,6 +1771,9 @@ module.exports = {
   AllocatedCpu: 'Allocated CPU',
   RealMemory: 'Real Memory',
   RealCpu: 'Real CPU',
+  Cpu: 'CPU',
+  CpuForecast: 'CPU Forecast',
+  CpuForecastFar: 'CPU Forecast (Far)',
   Overcommitment: 'Overcommitment',
   /* Host schema - template */
   ISOLCPUS: 'Isolated CPUS',

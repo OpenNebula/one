@@ -166,6 +166,14 @@ export const timeToString = (time) =>
 export const timeFromMilliseconds = (time) => DateTime.fromMillis(+time * 1000)
 
 /**
+ * Converts the given time into DateTime luxon type.
+ *
+ * @param {number|string} time - Time to convert
+ * @returns {DateTime} - DateTime object.
+ */
+export const timeFromSeconds = (time) => DateTime.fromMillis(+time)
+
+/**
  * Returns the epoch milliseconds of the date.
  *
  * @param {number|string} date - JS Date

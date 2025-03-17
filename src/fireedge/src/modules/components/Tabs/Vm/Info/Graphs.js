@@ -36,10 +36,16 @@ const Graphs = ({ id }) => {
     <>
       <Chartist
         name={Tr(T.RealCpu)}
-        filter={['CPU']}
+        filter={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
         data={monitoring}
-        y="CPU"
+        y={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
         x="TIMESTAMP"
+        lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+        legendNames={[T.CPU, T.CpuForecast, T.CpuForecastFar]}
+        clusterFactor={10}
+        clusterThreshold={1000}
+        interpolationY={(val) => (val ? val?.toFixed(2) : val)}
+        zoomFactor={0.95}
       />
 
       <Chartist
@@ -48,7 +54,10 @@ const Graphs = ({ id }) => {
         data={monitoring}
         y="MEMORY"
         x="TIMESTAMP"
-        interpolationY={(value) => prettyBytes(value)}
+        interpolationY={(value) => (value ? prettyBytes(value) : value)}
+        clusterFactor={30}
+        clusterThreshold={1200}
+        zoomFactor={0.95}
       />
     </>
   )
