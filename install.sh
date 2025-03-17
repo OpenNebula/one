@@ -2716,7 +2716,6 @@ FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-t
                                 src/fireedge/etc/sunstone/groupadmin/vm-group-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vrouter-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/vrouter-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/zone-tab.yaml \
                                 src/fireedge/etc/sunstone/groupadmin/group-tab.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
