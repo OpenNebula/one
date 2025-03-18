@@ -315,7 +315,7 @@ public:
     /**
      * @return monitor info
      */
-    VirtualMachineMonitorInfo& get_info()
+    const VirtualMachineMonitorInfo& get_monitoring() const
     {
         return monitoring;
     }

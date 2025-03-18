@@ -409,6 +409,23 @@ struct SchedRequest
                 continue;
             }
 
+            // Get the host monitoring information
+            auto monitoring = host->get_monitoring();
+
+            ObjectXML mon(monitoring.to_xml());
+
+            std::vector<xmlNodePtr> mon_nodes;
+
+            mon.get_nodes("/MONITORING", mon_nodes);
+
+            if (!mon_nodes.empty())
+            {
+                host->add_node("/HOST", mon_nodes[0], "MONITORING");
+
+                ObjectXML::free_nodes(mon_nodes);
+            }
+
+            // Merge Cluster template to Host
             int cid = host->get_cluster_id();
 
             auto cluster = clpool.get(cid);

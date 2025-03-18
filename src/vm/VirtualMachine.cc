@@ -2011,8 +2011,8 @@ void VirtualMachine::add_history(
 
     to_xml_extended(vm_xml, 0, false);
 
-    history = make_unique<History>(oid, seq, hid, hostname, cid, vmm_mad, tm_mad, ds_id,
-                          vm_xml);
+    history = make_unique<History>(oid, seq, hid, hostname, cid, vmm_mad, tm_mad,
+                                   ds_id, -2, -1, vm_xml);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -2037,6 +2037,8 @@ void VirtualMachine::cp_history()
                        history->vmm_mad_name,
                        history->tm_mad_name,
                        history->ds_id,
+                       history->plan_id,
+                       history->action_id,
                        vm_xml);
 
     previous_history = move(history);
@@ -2065,6 +2067,8 @@ void VirtualMachine::cp_previous_history()
                        previous_history->vmm_mad_name,
                        previous_history->tm_mad_name,
                        previous_history->ds_id,
+                       previous_history->plan_id,
+                       previous_history->action_id,
                        vm_xml);
 
     previous_history = move(history);

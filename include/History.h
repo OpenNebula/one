@@ -39,7 +39,9 @@ public:
             int cid,
             const std::string& vmm,
             const std::string& tmm,
-            int           ds_id,
+            int ds_id,
+            int plan_id,
+            int action_id,
             const std::string& vm_info);
 
     ~History() {};
