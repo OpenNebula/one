@@ -380,6 +380,7 @@ public:
         cluster_template_xml = e;
     }
 
+    bool is_pinned() const;
 private:
     friend class HostPool;
 

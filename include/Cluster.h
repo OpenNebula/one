@@ -29,6 +29,13 @@ class Cluster : public PoolObjectSQL
 {
 public:
 
+    enum DrsAutomation
+    {
+        MANUAL          = 0,
+        PARTIAL         = 1,
+        FULL            = 2
+    };
+
     virtual ~Cluster() = default;
 
     // *************************************************************************
@@ -95,16 +102,9 @@ public:
     void load_plan();
 
     /**
-     * @return if plans needs to be autoapplied
+     * @return Plan automation <manual|partial|full>
      */
-    bool is_autoapply()
-    {
-        bool aaply = false;
-
-        obj_template->get("ONEDRS_AUTOAPPLY", aaply);
-
-        return aaply;
-    }
+    DrsAutomation automation() const;
 
     // *************************************************************************
     // DataBase implementation (Public)

@@ -249,6 +249,8 @@ int Plan::rebuild_attributes()
 
     ObjectXML::get_nodes("/PLAN/ACTION", action_nodes);
 
+    _actions.clear();
+
     int id = -1;
     for (auto node : action_nodes)
     {

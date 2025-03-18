@@ -20,6 +20,7 @@
 #include "OneDB.h"
 #include "DatastorePool.h"
 #include "PlanPool.h"
+#include "HostPool.h"
 
 #include <sstream>
 
@@ -122,7 +123,7 @@ int Cluster::get_default_system_ds(const set<int>& ds_set)
 
 int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
 {
-    std::vector<const VectorAttribute*> one_drs_attrs;
+    std::vector<VectorAttribute*> one_drs_attrs;
 
     const auto one_drs_num = obj_template->get("ONE_DRS", one_drs_attrs);
 
@@ -131,11 +132,11 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         return 0;
     }
 
-    const auto* one_drs = one_drs_attrs.front();
+    auto* one_drs = one_drs_attrs.front();
 
     const auto validate_field = [&](const std::string& field_name, const std::regex& pattern)
     {
-        std::string value  = one_drs->vector_value(field_name);
+        std::string value = one_util::trim(one_drs->vector_value(field_name));
 
         one_util::tolower(value);
 
@@ -143,6 +144,12 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         {
             error = "Error cluster template contains invalid " + field_name ;
             return false;
+        }
+
+        if (!value.empty())
+        {
+            // Store normalized value
+            one_drs->replace(field_name, value);
         }
 
         return true;
@@ -173,6 +180,20 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         if (!validate_field(i, std::regex(R"(^(\d+(\.\d+)?|d*)$)")))
         {
             return -1;
+        }
+    }
+
+    // Check Cluster doesn't contains pinned hosts
+    auto hpool = Nebula::instance().get_hpool();
+    for (const auto& host_id : hosts.get_collection())
+    {
+        if (auto host = hpool->get_ro(host_id))
+        {
+            if (host->is_pinned())
+            {
+                error = "Error cluster contains pinned host " + std::to_string(host_id);
+                return -1;
+            }
         }
     }
 
@@ -442,4 +463,32 @@ void Cluster::load_plan()
             plan_xml = plan->to_xml();
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+Cluster::DrsAutomation Cluster::automation() const
+{
+    auto *vattr = obj_template->get("ONE_DRS");
+
+    if (!vattr)
+    {
+        return DrsAutomation::MANUAL;
+    }
+
+    string str = vattr->vector_value("AUTOMATION");
+
+    one_util::tolower(str);
+
+    if ( str == "partial" )
+    {
+        return Cluster::PARTIAL;
+    }
+    else if ( str == "full" )
+    {
+        return Cluster::FULL;
+    }
+
+    return Cluster::MANUAL;
 }

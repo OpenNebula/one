@@ -1237,15 +1237,17 @@ void Nebula::start(bool bootstrap_only)
         int live_rescheds;
         int cold_migrate_mode;
         int timeout;
+        int drs_interval;
 
         nebula_configuration->get("MAX_ACTIONS_PER_HOST", max_actions_per_host);
         nebula_configuration->get("MAX_ACTIONS_PER_CLUSTER", max_actions_per_cluster);
         nebula_configuration->get("LIVE_RESCHEDS", live_rescheds);
         nebula_configuration->get("COLD_MIGRATE_MODE", cold_migrate_mode);
         nebula_configuration->get("ACTION_TIMEOUT", timeout);
+        nebula_configuration->get("DRS_INTERVAL", drs_interval);
 
         planm = new PlanManager(timer_period, max_actions_per_host, max_actions_per_cluster,
-                                live_rescheds, cold_migrate_mode, timeout);
+                                live_rescheds, cold_migrate_mode, timeout, drs_interval);
     }
 
     // -----------------------------------------------------------

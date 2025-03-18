@@ -39,7 +39,8 @@ public:
                 int     _max_actions_per_cluster,
                 int     _live_resched,
                 int     _cold_migrate_mode,
-                int     _timeout);
+                int     _timeout,
+                int     _drs_interval);
 
     void finalize();
 
@@ -83,6 +84,9 @@ private:
     int  cold_migrate_mode;
 
     int  action_timeout;
+
+    int    drs_interval;
+    time_t drs_last;
 
     /**
      * Periodically called method to start the placement actions.

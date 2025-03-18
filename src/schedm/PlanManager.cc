@@ -18,6 +18,7 @@
 #include "Nebula.h"
 #include "NebulaLog.h"
 #include "RaftManager.h"
+#include "SchedulerManager.h"
 #include "RequestManagerVirtualMachine.h"
 #include "ClusterPool.h"
 #include "PlanPool.h"
@@ -33,13 +34,16 @@ PlanManager::PlanManager(time_t timer,
                          int    _max_actions_per_cluster,
                          int    _live_resched,
                          int    _cold_migrate_mode,
-                         int    _timeout)
+                         int    _timeout,
+                         int    _drs_interval)
     : timer_thread(timer, [this]() {timer_action();})
     , max_actions_per_host(_max_actions_per_host)
     , max_actions_per_cluster(_max_actions_per_cluster)
     , live_resched(_live_resched == 1)
     , cold_migrate_mode(_cold_migrate_mode)
     , action_timeout(_timeout)
+    , drs_interval(_drs_interval)
+    , drs_last(time(0))
 {
     NebulaLog::info("PLM", "Staring Plan Manager...");
 
@@ -124,7 +128,7 @@ void PlanManager::add_plan(const string& xml)
 
             cplan->from_xml(xml);
 
-            if (cluster->is_autoapply())
+            if (cluster->automation() == Cluster::DrsAutomation::FULL)
             {
                 cplan->state(PlanState::APPLYING);
             }
@@ -226,7 +230,8 @@ int PlanManager::start_plan(int cid, std::string& error)
 
 void PlanManager::timer_action()
 {
-    RaftManager * raftm = Nebula::instance().get_raftm();
+    auto& nd = Nebula::instance();
+    RaftManager * raftm = nd.get_raftm();
 
     if (!raftm || (!raftm->is_leader() && !raftm->is_solo()))
     {
@@ -236,6 +241,36 @@ void PlanManager::timer_action()
     NebulaLog::info("PLM", "Starting Plan Manager timer action...");
 
     execute_plans();
+
+    // Periodically run DRS (Cluster optimization) for all clusters
+    if (drs_interval > 0 && time(0) - drs_last >= drs_interval)
+    {
+        drs_last = time(0);
+
+        vector<int> clusters;
+        cluster_pool->list(clusters);
+
+        for (auto cid : clusters)
+        {
+            if (auto cluster = cluster_pool->get_ro(cid))
+            {
+                if (cluster->automation() == Cluster::DrsAutomation::MANUAL)
+                {
+                    continue;
+                }
+
+                if (auto plan = plan_pool->get_ro(cid))
+                {
+                    if (plan->state() == PlanState::APPLYING)
+                    {
+                        continue;
+                    }
+
+                    nd.get_sm()->trigger_optimize(cid);
+                }
+            }
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */

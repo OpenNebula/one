@@ -595,3 +595,15 @@ void Host::load_monitoring()
     auto hpool = Nebula::instance().get_hpool();
     monitoring = hpool->get_monitoring(oid);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Host::is_pinned() const
+{
+    string pin_policy;
+
+    obj_template->get("PIN_POLICY", pin_policy);
+
+    return one_util::tolower(pin_policy) == "pinned";
+}
