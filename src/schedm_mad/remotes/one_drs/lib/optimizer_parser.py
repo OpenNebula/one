@@ -41,8 +41,30 @@ from lib.models.scheduler_driver_action import SchedulerDriverAction
 
 class OptimizerParser:
     CONFIG_FILE_PATH = "/etc/one/schedulers/one_drs.conf"
-    DEFAULT_CBC_PATH = "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc"
     SOLVERS = {"GLPK": GLPK_CMD, "CBC": COIN_CMD, "COINMP": COINMP_DLL}
+    DEFAULT_CONFIG = {
+        "DEFAULT_SCHED": {
+            "SOLVER": "CBC",
+            "SOLVER_PATH": "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc",
+        },
+        "PLACE": {
+            "POLICY": "PACK",
+        },
+        "OPTIMIZE": {
+            "POLICY": "BALANCE",
+            "MIGRATION_THRESHOLD": 10,
+            "WEIGHTS": {
+                "CPU_USAGE": 0.2,
+                "CPU": 0.2,
+                "MEMORY": 0.4,
+                "DISK": 0.1,
+                "NET": 0.1,
+            },
+        },
+        "PREDICTIVE": 0.3,
+        "MEMORY_SYSTEM_DS_SCALE": 0,
+        "DIFFERENT_VNETS": True,
+    }
 
     __slots__ = (
         "parser",
@@ -89,79 +111,64 @@ class OptimizerParser:
             sys.exit(1)
 
         # Select Policy based on mode
-        if mode == "optimize":
-            mode_config = config_data.get("OPTIMIZE", {})
-            if mode_config.get("POLICY", "").upper() != "BALANCE":
-                cls.log_general(
-                    "WARNING",
-                    f"Unknown or missing {mode} configuration. Using default options.",
-                )
-                mode_config = {}
+        mode_config = config_data.get(mode.upper(), {})
+        default_mode_config = cls.DEFAULT_CONFIG.get(mode.upper(), {})
 
-            mode_config.setdefault(
-                "WEIGHTS",
-                {
-                    "CPU_USAGE": 0.2,
-                    "CPU": 0.2,
-                    "MEMORY": 0.4,
-                    "DISK": 0.1,
-                    "NET": 0.1,
-                },
+        if not mode_config or mode_config.get(
+            "POLICY", ""
+        ).upper() != default_mode_config.get("POLICY", ""):
+            cls.log_general(
+                "WARNING",
+                f"Unknown or missing {mode} configuration. Using default options.",
             )
-            mode_config.setdefault("MIGRATION_THRESHOLD", 10)
-            mode_config.setdefault("POLICY", "balance")
-        elif mode in ("deploy", "place"):
-            mode_config = config_data.get("PLACE", {})
-            if mode_config.get("POLICY", "").upper() != "PACK":
-                cls.log_general(
-                    "WARNING",
-                    f"Unknown or missing {mode} configuration. Using default options.",
-                )
-                mode_config = {"POLICY": "pack"}
+            mode_config = default_mode_config.copy()
         else:
-            mode_config = {}
+            for key, value in default_mode_config.items():
+                if key == "WEIGHTS":
+                    if sum(mode_config[key].values()) > 1:
+                        mode_config[key] = default_mode_config[key]
+                    continue
+                mode_config.setdefault(key, value)
 
         # Optimizer solver
+        default_solver = cls.DEFAULT_CONFIG["DEFAULT_SCHED"]
         default_sched = config_data.get("DEFAULT_SCHED", {})
-        solver_name = default_sched.get("SOLVER", "CBC").upper()
-        solver_path = default_sched.get("SOLVER_PATH", cls.DEFAULT_CBC_PATH)
+        solver_name = default_sched.get("SOLVER", "").upper()
+        solver_path = default_sched.get("SOLVER_PATH", None)
         if solver_name not in cls.SOLVERS or not solver_path:
             cls.log_general(
                 "WARNING",
-                f"Invalid or missing solver '{solver_name}' with path '{solver_path}'. Using default CBC.",
+                f"Invalid or missing solver '{solver_name}' at '{solver_path}'. Using default.",
             )
-            solver_name, solver_path = "CBC", cls.DEFAULT_CBC_PATH
+            solver_name, solver_path = (
+                default_solver["SOLVER"],
+                default_solver["SOLVER_PATH"],
+            )
         solver = cls.SOLVERS[solver_name](msg=False, timeLimit=60, path=solver_path)
         if not solver.available():
             cls.log_general("ERROR", f"Solver {solver_name} is not available.")
             sys.exit(1)
 
         # Schedule configuration
-        config_defaults = {
-            "MEMORY_SYSTEM_DS_SCALE": 0,
-            "DIFFERENT_VNETS": True,
-            "PREDICTIVE": 0,
-        }
-
-        config_values = {
-            key: config_data.get(key, default)
-            for key, default in config_defaults.items()
-        }
-
-        for key, default in config_defaults.items():
-            if key not in config_data:
-                cls.log_general(
-                    "WARNING", f"Missing {key}. Using default value of {default}."
-                )
+        sched_config = {}
+        sched_config["MEMORY_SYSTEM_DS_SCALE"] = config_data.get(
+            "MEMORY_SYSTEM_DS_SCALE", cls.DEFAULT_CONFIG["MEMORY_SYSTEM_DS_SCALE"]
+        )
+        sched_config["DIFFERENT_VNETS"] = config_data.get(
+            "DIFFERENT_VNETS", cls.DEFAULT_CONFIG["DIFFERENT_VNETS"]
+        )
+        sched_config["PREDICTIVE"] = config_data.get(
+            "PREDICTIVE", cls.DEFAULT_CONFIG["PREDICTIVE"]
+        )
 
         return {
             "MODE": mode_config,
             "SOLVER": solver,
-            **config_values,
+            **sched_config,
         }
 
     def build_optimizer(self) -> ILPOptimizer:
-        if self.mode == "deploy":
+        if self.mode == "place":
             criteria = self.config["MODE"]["POLICY"].lower()
             allowed_migrations = None
         else:
@@ -495,7 +502,10 @@ class OptimizerParser:
             None,
         )
         if one_drs is None:
-            return None
+            return {
+                **self.config["MODE"].copy(),
+                "PREDICTIVE": self.config["PREDICTIVE"],
+            }
 
         migration_threshold = next(
             (
@@ -523,7 +533,7 @@ class OptimizerParser:
         )
         weights = self._get_weights(one_drs)
 
-        # TODO: Consider AUTOMATION and OPTIMIZATION_TARGET attributes
+        # TODO: Consider AUTOMATION attribute
         return {
             "POLICY": policy,
             "MIGRATION_THRESHOLD": migration_threshold,
@@ -581,9 +591,7 @@ class OptimizerParser:
         }
 
         return {
-            weight_map[child.qname.upper()]: OptimizerParser._sanity_check(
-                float(child.text)
-            )
+            weight_map[child.qname.upper()]: float(child.text)
             for child in one_drs.children
             if child.qname.upper() in weight_map
         }
@@ -608,7 +616,16 @@ class OptimizerParser:
             else:
                 clone_attr = disk_attrs.get("CLONE")
                 if clone_attr is None:
-                    break
+                    host_ds, share_ds, allow = self._build_dstores(vm_req, host_ds)
+                    ds_req[req_id] = DStoreRequirement(
+                        id=req_id,
+                        vm_id=int(vm.id),
+                        size=0,
+                        allow_host_dstores=allow,
+                        host_dstore_ids=host_ds,
+                        shared_dstore_ids=share_ds,
+                    )
+                    continue
                 st = (
                     disk_attrs.get("CLONE_TARGET")
                     if clone_attr.upper() == "YES"
@@ -630,7 +647,6 @@ class OptimizerParser:
                 if disk_attrs.get("DATASTORE_ID")
                 else None
             )
-
             # image DS req
             if image_ds_usage > 0:
                 ds_req[req_id] = DStoreRequirement(
@@ -752,7 +768,7 @@ class OptimizerParser:
         keys = ["CPU_USAGE", "CPU", "MEMORY", "DISK", "NET"]
         provided = {k: cluster_config[k] for k in keys if k in cluster_config}
         if sum(provided.values()) > 1:
-            return self.config["MODE"]["WEIGHTS"].copy()
+            provided = self.config["MODE"]["WEIGHTS"].copy()
         result = {}
         for key, weight in provided.items():
             lower_key = key.lower()
