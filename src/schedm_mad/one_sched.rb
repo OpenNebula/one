@@ -67,7 +67,7 @@ class SchedulerDriver < OpenNebulaDriver
     }
 
     # Init the driver
-    def initialize(scheduler, options = {})
+    def initialize(placer, optimizer, options = {})
         @options={
             :concurrency   => 15,
             :threaded      => false,
@@ -80,11 +80,16 @@ class SchedulerDriver < OpenNebulaDriver
 
         super('scheduler', @options)
 
-        @scheduler = scheduler
+        @placer = placer
+        @optimizer = optimizer
 
-        path = File.join(@local_scripts_path, @scheduler)
+        placer_path = File.join(@local_scripts_path, @placer)
 
-        raise "Scheduler #{scheduler} not avialable" unless File.directory?(path)
+        raise "Scheduler place #{placer} not avialable" unless File.directory?(placer_path)
+
+        optimizer_path = File.join(@local_scripts_path, @optimizer)
+
+        raise "Scheduler optimize #{optimizer} not avialable" unless File.directory?(optimizer_path)
 
         register_action(ACTION[:place].to_sym, method('place'))
 
@@ -96,7 +101,7 @@ class SchedulerDriver < OpenNebulaDriver
     #       <drv_message>
     #   STDIN
     def place(_id, drv_message)
-        cmd = File.join(@local_scripts_path, @scheduler, 'place')
+        cmd = File.join(@local_scripts_path, @placer, 'place')
         rc  = LocalCommand.run(cmd, log_method(0, :encode => true), drv_message, nil)
 
         result, info = get_info_from_execution(rc, :encode => true)
@@ -109,7 +114,7 @@ class SchedulerDriver < OpenNebulaDriver
     #       <drv_message>
     #   STDIN
     def optimize(id, drv_message)
-        cmd = "#{File.join(@local_scripts_path, @scheduler, 'optimize')} #{id}"
+        cmd = "#{File.join(@local_scripts_path, @optimizer, 'optimize')} #{id}"
 
         rc  = LocalCommand.run(cmd, log_method(id, :encode => true), drv_message, nil)
 
@@ -125,23 +130,27 @@ end
 ################################################################################
 opts = GetoptLong.new(
     ['--threads', '-t', GetoptLong::OPTIONAL_ARGUMENT],
-    ['--scheduler', '-s', GetoptLong::REQUIRED_ARGUMENT]
+    ['--placer', '-p', GetoptLong::REQUIRED_ARGUMENT],
+    ['--optimizer', '-o', GetoptLong::REQUIRED_ARGUMENT]
 )
 
-scheduler = 'rank'
+placer    = 'rank'
+optimizer = 'one_drs'
 threads   = 1
 
 begin
     opts.each do |opt, arg|
         case opt
-        when '--scheduler'
-            scheduler = arg
+        when '--placer'
+            placer = arg
+        when '--optimizer'
+            optimizer = arg
         when '--threads'
             threads = arg.to_i
         end
     end
 
-    SchedulerDriver.new(scheduler, :concurrency => threads).start_driver
+    SchedulerDriver.new(placer, optimizer, :concurrency => threads).start_driver
 rescue StandardError => e
     STDERR.puts "Error starting driver: #{e.message}"
     exit(-1)

@@ -612,7 +612,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
 
     vvalue.insert(make_pair("EXECUTABLE", "one_sched"));
-    vvalue.insert(make_pair("ARGUMENTS", "-t 15 -s rank"));
+    vvalue.insert(make_pair("ARGUMENTS", "-t 15 -p rank -o one_drs"));
     vattribute = new VectorAttribute("SCHED_MAD", vvalue);
 
     conf_default.insert(make_pair(vattribute->name(), vattribute));
