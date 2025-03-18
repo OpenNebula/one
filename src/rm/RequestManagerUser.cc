@@ -74,7 +74,7 @@ int UserChangePassword::user_action(int     user_id,
 
     if (!allowed && !att.is_admin())
     {
-        error_str = "Password for driver " + user->get_auth_driver() +
+        error_str = "Password for driver " + driver +
                     " cannot be changed.";
         return -1;
     }

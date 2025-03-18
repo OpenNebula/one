@@ -26,6 +26,40 @@ using namespace std;
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
 const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 
+namespace
+{
+    bool validate_password_length(const std::string& driver, const std::string& password, std::string& error_str)
+    {
+        static const std::unordered_map<std::string, size_t> max_length_constraints =
+        {
+            {"ssh", 16 * 1024},             // SSH private key (16 KB)
+            {"x509", 64 * 1024},            // X.509 certificate (64 KB)
+            {"ldap", 256},                  // LDAP password (256 characters)
+            {"server_cipher", 4096},        // Encrypted key (4 KB)
+            {"server_x509", 64 * 1024},     // Server X.509 certificate (64 KB)
+            {"core",  256},                 // Core authentication (256 characters)
+            {"sunstone", 256}               // Sunstone authentication (256 characters)
+        };
+
+        if (max_length_constraints.find(driver) == max_length_constraints.end())
+        {
+            return true;
+        }
+
+        const auto max_len = max_length_constraints.at(driver);
+
+        if (password.size() > max_len)
+        {
+            error_str = "Password is longer than max allowed length. Max allowed length for the driver " +
+                        driver + " : " + std::to_string(max_len) + " bytes";
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
 /* ************************************************************************** */
@@ -335,7 +369,7 @@ int User::set_password(const string& passwd, string& error_str)
 {
     int rc = 0;
 
-    if (pass_is_valid(passwd, error_str))
+    if (pass_is_valid(passwd, auth_driver, error_str))
     {
         if (auth_driver == UserPool::CORE_AUTH)
         {
@@ -361,11 +395,16 @@ int User::set_password(const string& passwd, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool User::pass_is_valid(const string& pass, string& error_str)
+bool User::pass_is_valid(const string& pass, const std::string& auth_driver, string& error_str)
 {
     if ( pass.empty() )
     {
         error_str = "Invalid password, it cannot be empty";
+        return false;
+    }
+
+    if (!validate_password_length(auth_driver, pass, error_str))
+    {
         return false;
     }
 

@@ -349,7 +349,7 @@ int UserPool::allocate(
 
     if (password_required)
     {
-        if (!User::pass_is_valid(password, error_str))
+        if (!User::pass_is_valid(password, auth_driver, error_str))
         {
             error_str += ".";
             return *oid;
@@ -437,7 +437,7 @@ int UserPool::allocate(
 
         gpool->update(group.get());
     }
-    
+
     if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
                                    driver_managed_group_admin) != 0)
     {

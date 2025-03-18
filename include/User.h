@@ -107,7 +107,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return true if the string is valid
      */
-    static bool pass_is_valid(const std::string& pass, std::string& error_str);
+    static bool pass_is_valid(const std::string& pass, const std::string& auth_driver, std::string& error_str);
 
     /**
      *  Sets user password. It checks that the new password does not contain
