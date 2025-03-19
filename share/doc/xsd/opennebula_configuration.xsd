@@ -104,6 +104,8 @@
 
         <xs:element name="DOCUMENT_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+        <xs:element name="DRS_INTERVAL" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
         <xs:element name="DS_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:all>
