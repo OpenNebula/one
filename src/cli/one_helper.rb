@@ -421,22 +421,17 @@ Bash symbols must be escaped on STDIN passing'
         {
             :name   => 'user_inputs',
             :large  => '--user-inputs ui1,ui2,ui3',
-            :format => Array,
+            :format => String,
             :description => 'Specify the user inputs values when instantiating',
-            :proc => lambda do |o, options|
-                # Store user inputs that has been already processed
-                options[:user_inputs_keys] = []
+            :proc => lambda do |_o, options|
+                keys   = options[:user_inputs].scan(/(?:^|,)([^,=]+)=/).flatten
+                values = options[:user_inputs].scan(/=(.+?)(?=,[^,]+=|$)/).flatten
 
-                # escape values
-                options[:user_inputs].map! do |user_input|
-                    user_input_split = user_input.split('=')
+                options[:user_inputs_keys] = keys
 
-                    options[:user_inputs_keys] << user_input_split[0]
-
-                    "#{user_input_split[0]}=\"#{user_input_split[1]}\""
-                end
-
-                options[:user_inputs] = o.join("\n")
+                options[:user_inputs] = keys.zip(values).map do |k, v|
+                    %[#{k}="#{v}"]
+                end.join("\n")
             end
         },
         {
