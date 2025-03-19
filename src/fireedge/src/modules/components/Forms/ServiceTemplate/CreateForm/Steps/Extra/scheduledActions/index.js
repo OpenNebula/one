@@ -13,135 +13,213 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Stack, Divider } from '@mui/material'
-import { useFieldArray } from 'react-hook-form'
-import { array, object } from 'yup'
-
-import { ScheduleActionCard } from '@modules/components/Cards'
-import {
-  CreateSchedButton,
-  CharterButton,
-  UpdateSchedButton,
-  DeleteSchedButton,
-} from '@modules/components/Buttons/ScheduleAction'
-
 import PropTypes from 'prop-types'
-import { T } from '@ConstantsModule'
-import { Legend } from '@modules/components/Forms'
+import { useState, useEffect } from 'react'
+import { useFormContext, useFieldArray } from 'react-hook-form'
+import { ServerConnection as NetworkIcon, Cancel } from 'iconoir-react'
 
-import { mapNameByIndex } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
-import { Component } from 'react'
+import { FormWithSchema } from '@modules/components/Forms'
 
-export const TAB_ID = 'SCHED_ACTION'
+import { VM_SCHED_FIELDS } from '@modules/components/Forms/Vm/CreateSchedActionForm/schema'
 
-const mapNameFunction = mapNameByIndex('SCHED_ACTION')
+import { Tr } from '@modules/components/HOC'
+import { Stack, Button, Grid, List, ListItem, IconButton } from '@mui/material'
+import { T } from '@ConstantsModule'
 
-export const SCHED_ACTION_SCHEMA = object({
-  SCHED_ACTION: array()
-    .ensure()
-    .transform((actions) => actions.map(mapNameByIndex('SCHED_ACTION'))),
-})
+export const TAB_ID = 'sched_actions'
 
-/**
- * @param {object} root0 - Props
- * @param {object} root0.oneConfig - One config
- * @param {object} root0.adminGroup - oneadmin group
- * @returns {Component} - Scheduled actions component
- */
-const ScheduleActionsSection = ({ oneConfig, adminGroup }) => {
+const Content = () => {
+  const [selectedSchedAction, setSelectedSchedAction] = useState(0)
+  const [shift, setShift] = useState(0)
+
+  const { watch } = useFormContext()
+
+  const wSchedActions = watch(`${EXTRA_ID}.${TAB_ID}`)
+
   const {
-    fields: scheduleActions,
+    fields: schedActions,
     remove,
-    update,
     append,
   } = useFieldArray({
     name: `${EXTRA_ID}.${TAB_ID}`,
-    keyName: 'ID',
   })
 
-  const handleCreateAction = (action) => {
-    append(mapNameFunction(action, scheduleActions.length))
+  const handleRemove = (event, idx) => {
+    event.stopPropagation()
+
+    // Calculates shift & releases current reference in case it goes oob
+    setSelectedSchedAction((prev) => {
+      setShift(
+        prev + (schedActions?.length === 2 ? -+prev : idx < prev ? -1 : 0)
+      )
+
+      return null
+    })
+
+    remove(idx)
   }
 
-  const handleCreateCharter = (actions) => {
-    const mappedActions = actions?.map((action, idx) =>
-      mapNameFunction(action, scheduleActions.length + idx)
-    )
+  const handleAppend = (event) => {
+    event?.stopPropagation?.()
 
-    append(mappedActions)
+    setSelectedSchedAction(() => {
+      setShift(null)
+
+      return null
+    })
+
+    append({
+      ACTION: '',
+      PERIODIC: '',
+      TIME: '',
+    })
   }
 
-  const handleUpdate = (action, index) => {
-    update(index, mapNameFunction(action, index))
-  }
-
-  const handleRemove = (index) => {
-    remove(index)
-  }
+  useEffect(() => {
+    if (selectedSchedAction === null) {
+      if (shift === null) {
+        setSelectedSchedAction(schedActions?.length - 1)
+      } else {
+        setSelectedSchedAction(shift)
+      }
+    }
+  }, [schedActions])
 
   return (
     <>
-      <Legend title={T.ScheduledActions} />
-      <Box sx={{ width: '100%', gridColumn: '1 / -1' }}>
-        <Stack flexDirection="row" gap="1em">
-          <CreateSchedButton
-            relative
-            onSubmit={handleCreateAction}
-            oneConfig={oneConfig}
-            adminGroup={adminGroup}
-          />
-          <CharterButton relative onSubmit={handleCreateCharter} />
-        </Stack>
+      <Grid
+        container
+        direction="row"
+        columnSpacing={1}
+        rowSpacing={2}
+        sx={{
+          justifyContent: 'flex-start',
+          alignItems: 'stretch',
+          height: '100%',
+        }}
+      >
+        <Grid item md={3} sx={{ borderRight: 1, padding: 1 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            type="submit"
+            size="large"
+            data-cy={'extra-add-userinput'}
+            onClick={handleAppend}
+          >
+            {Tr(T.AddScheduleAction)}
+          </Button>
+          <List
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+            }}
+          >
+            {schedActions?.map((userinput, idx) => {
+              const schedActionType = watch(
+                `${EXTRA_ID}.${TAB_ID}.${idx}.ACTION`
+              )
 
-        <Stack
-          pb="1em"
-          display="grid"
-          gridTemplateColumns="repeat(auto-fit, minmax(300px, 0.5fr))"
-          gap="1em"
-          mt="1em"
-        >
-          {scheduleActions?.map((schedule, index) => {
-            const { ID, NAME } = schedule
-            const fakeValues = { ...schedule, ID: index }
+              return (
+                <ListItem
+                  key={`${idx}-${userinput?.id}-${userinput?.name}`}
+                  onClick={() => setSelectedSchedAction(idx)}
+                  sx={{
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: '4px',
+                    minHeight: '70px',
+                    my: 0.5,
+                    overflowX: 'hidden',
+                    padding: 2,
 
-            return (
-              <ScheduleActionCard
-                key={ID ?? NAME}
-                schedule={fakeValues}
-                actions={
-                  <>
-                    <UpdateSchedButton
-                      relative
-                      vm={{}}
-                      schedule={fakeValues}
-                      onSubmit={(newAction) => handleUpdate(newAction, index)}
-                      oneConfig={oneConfig}
-                      adminGroup={adminGroup}
-                    />
-                    <DeleteSchedButton
-                      schedule={fakeValues}
-                      onSubmit={() => handleRemove(index)}
-                      oneConfig={oneConfig}
-                      adminGroup={adminGroup}
-                    />
-                  </>
-                }
+                    bgcolor:
+                      idx === selectedSchedAction
+                        ? 'action.selected'
+                        : 'inherit',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                >
+                  <IconButton
+                    aria-label="delete"
+                    onClick={(event) => handleRemove(event, idx)}
+                    sx={{ mr: 1.5, size: 'small' }}
+                  >
+                    <Cancel />
+                  </IconButton>
+                  <Stack
+                    direction="column"
+                    alignItems="flex-start"
+                    gap="0.2rem"
+                    width="100%"
+                  >
+                    <div
+                      style={{
+                        display: 'inline-block',
+                        maxWidth: '100%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: '1em',
+                      }}
+                    >
+                      {`${T.ScheduleAction}#${idx}`}
+                    </div>
+                    <div
+                      style={{
+                        display: 'inline-block',
+                        maxWidth: '100%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: '0.85em',
+                        opacity: '0.8',
+                      }}
+                    >
+                      {schedActionType || `${T.No} ${T.Type}`}
+                    </div>
+                  </Stack>
+                </ListItem>
+              )
+            })}
+          </List>
+        </Grid>
+        <Grid item md={9}>
+          {selectedSchedAction != null && wSchedActions?.length > 0 && (
+            <Stack
+              direction="column"
+              alignItems="flex-start"
+              gap="0.5rem"
+              component="form"
+              width="100%"
+            >
+              <FormWithSchema
+                id={`${EXTRA_ID}.${TAB_ID}.${selectedSchedAction}`}
+                key={`inputs-${selectedSchedAction}`}
+                fields={VM_SCHED_FIELDS({ vm: {} })}
               />
-            )
-          })}
-        </Stack>
-        <Divider />
-      </Box>
+            </Stack>
+          )}
+        </Grid>
+      </Grid>
     </>
   )
 }
 
-ScheduleActionsSection.propTypes = {
-  data: PropTypes.any,
-  setFormData: PropTypes.func,
-  oneConfig: PropTypes.object,
-  adminGroup: PropTypes.bool,
+Content.propTypes = {
+  stepId: PropTypes.string,
 }
 
-export default ScheduleActionsSection
+const TAB = {
+  id: TAB_ID,
+  name: T.ScheduledActions,
+  icon: NetworkIcon,
+  Content,
+  getError: (error) => !!error?.[TAB_ID],
+}
+
+export default TAB

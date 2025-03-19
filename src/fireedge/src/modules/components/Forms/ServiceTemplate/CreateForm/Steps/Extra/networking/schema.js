@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string } from 'yup'
+import { lazy, string, object, number } from 'yup'
 import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
 import { INPUT_TYPES } from '@ConstantsModule'
-import { VnAPI } from '@FeaturesModule'
+import { VnsTable, VnTemplatesTable } from '@modules/components/Tables'
 
 // Define the network types
 export const NETWORK_TYPES = {
-  create: 'Create',
-  reserve: 'Reserve',
-  existing: 'Existing',
+  template_id: 'Create',
+  reserve_from: 'Reserve',
+  id: 'Existing',
 }
 
 // Network Type Field
 const NETWORK_TYPE = {
   name: 'type',
-  label: 'Type',
-  type: INPUT_TYPES.AUTOCOMPLETE,
+  type: INPUT_TYPES.TOGGLE,
   optionsOnly: true,
-  values: arrayToOptions(Object.values(NETWORK_TYPES), { addEmpty: false }),
+  values: arrayToOptions(Object.keys(NETWORK_TYPES), {
+    addEmpty: false,
+    getText: (key) => NETWORK_TYPES?.[key],
+    getValue: (key) => key,
+  }),
   validation: string()
     .trim()
-    .oneOf([...Object.keys(NETWORK_TYPES), ...Object.values(NETWORK_TYPES)])
-    .default(() => Object.values(NETWORK_TYPES)[0]),
-  grid: { md: 2 },
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
 // Network Name Field
@@ -45,7 +48,7 @@ const NAME = {
   label: 'Name',
   type: INPUT_TYPES.TEXT,
   validation: string().trim().required(),
-  grid: { md: 2.5 },
+  grid: { md: 12 },
 }
 
 // Network Description Field
@@ -57,53 +60,47 @@ const DESCRIPTION = {
     .trim()
     .notRequired()
     .default(() => undefined),
-  grid: { md: 2.5 },
+  grid: { md: 12 },
+}
+
+const SIZE = {
+  name: 'SIZE',
+  label: 'Size',
+  dependOf: NETWORK_TYPE.name,
+  type: INPUT_TYPES.TEXT,
+  htmlType: (TYPE) => (!TYPE || TYPE !== 'reserve_from') && INPUT_TYPES.HIDDEN,
+  validation: lazy((_, { parent } = {}) => {
+    const isRequired = parent?.type === 'reserve_from'
+
+    return number()?.[isRequired ? 'required' : 'notRequired']?.()
+  }),
+  fieldProps: {
+    type: 'number',
+  },
+  grid: { md: 12 },
 }
 
 // Network Selection Field (for 'reserve' or 'existing')
 const NETWORK_SELECTION = {
-  name: 'network',
+  name: 'value',
   label: 'Network',
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  values: () => {
-    const { data: vnets = [] } = VnAPI.useGetVNetworksQuery()
-    const networks = vnets
-      .map((vnet) => ({ NAME: vnet?.NAME, ID: vnet?.ID }))
-      .flat()
-
-    return arrayToOptions(networks, {
-      getText: (network = '') => network?.NAME,
-      getValue: (network) => network?.ID,
-    })
+  type: INPUT_TYPES.TABLE,
+  Table: (TYPE) =>
+    TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
+  dependOf: NETWORK_TYPE.name,
+  validation: string().trim().required(),
+  grid: { md: 12 },
+  singleSelect: true,
+  fieldProps: {
+    preserveState: true,
   },
-  dependOf: NETWORK_TYPE.name,
-  validation: string().trim().notRequired(),
-  grid: { sm: 2, md: 2 },
-}
-
-// NetExtra Field
-const NETEXTRA = {
-  name: 'netextra',
-  label: 'Extra',
-  type: INPUT_TYPES.TEXT,
-  dependOf: NETWORK_TYPE.name,
-  validation: string().trim().when(NETWORK_TYPE.name, {
-    is: 'existing',
-    then: string().strip(),
-    otherwise: string().notRequired(),
-  }),
-  grid: { md: 2.5 },
 }
 
 // List of Network Input Fields
-export const NETWORK_INPUT_FIELDS = [
-  NETWORK_TYPE,
-  NAME,
-  DESCRIPTION,
-  NETWORK_SELECTION,
-  NETEXTRA,
-]
+export const NETWORK_INPUT_FIELDS = [NETWORK_TYPE, NAME, DESCRIPTION, SIZE]
 
-export const NETWORK_INPUT_SCHEMA =
-  getObjectSchemaFromFields(NETWORK_INPUT_FIELDS)
+export const NETWORK_INPUT_SCHEMA = object().concat(
+  getObjectSchemaFromFields([...NETWORK_INPUT_FIELDS, NETWORK_SELECTION])
+)
+
+export { NETWORK_SELECTION }

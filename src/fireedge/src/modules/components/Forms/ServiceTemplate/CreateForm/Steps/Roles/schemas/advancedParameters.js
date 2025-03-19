@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { array, object, mixed } from 'yup'
+import { string } from 'yup'
+import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
+import { INPUT_TYPES, T } from '@ConstantsModule'
 
-import { ADVANCED_PARAMS_SCHEMA } from './AdvancedParameters/schema'
-import { createElasticityPoliciesSchema } from './ElasticityPolicies/schema'
-import { createScheduledPoliciesSchema } from './ScheduledPolicies/schema'
-import { createMinMaxVmsSchema } from './MinMaxVms/schema'
+const SHUTDOWN_TYPES = {
+  terminate: 'Terminate',
+  'terminate-hard': 'Terminate hard',
+}
 
-export const SCHEMA = object()
-  .shape({
-    MINMAXVMS: array().of(createMinMaxVmsSchema()),
-  })
-  .shape({
-    ELASTICITYPOLICIES: array().of(
-      array().of(createElasticityPoliciesSchema())
-    ),
-  })
-  .shape({
-    SCHEDULEDPOLICIES: array().of(array().of(createScheduledPoliciesSchema())),
-  })
-  .shape({
-    NETWORKS: array(),
-    NETWORKDEFS: array(),
-    // Set to mixed, casting wont work for dynamically calculated keys
-    // In reality should be [number()]: string()
-    RDP: mixed(),
-  })
-  .concat(ADVANCED_PARAMS_SCHEMA)
+const SHUTDOWN_TYPE = {
+  name: 'shutdown',
+  label: T.VMShutdownAction,
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  optionsOnly: true,
+  values: arrayToOptions(Object.keys(SHUTDOWN_TYPES), {
+    addEmpty: false,
+    getText: (key) => SHUTDOWN_TYPES[key],
+    getValue: (key) => key,
+  }),
+  validation: string()
+    .trim()
+    .notRequired()
+    .default(() => undefined)
+    .afterSubmit((value) => (value === '' ? undefined : value)),
+  grid: { md: 12 },
+}
+
+export const ADVANCED_PARAMS_FIELDS = [SHUTDOWN_TYPE]
+
+export const ADVANCED_PARAMS_SCHEMA = getObjectSchemaFromFields(
+  ADVANCED_PARAMS_FIELDS
+)

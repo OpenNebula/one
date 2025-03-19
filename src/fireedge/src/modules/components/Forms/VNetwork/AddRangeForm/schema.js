@@ -223,7 +223,7 @@ const MUTABLE_FIELDS = (oneConfig, adminGroup) =>
  * @param {boolean} stepProps.adminGroup - If the user belongs to oneadmin group
  * @returns {BaseSchema} Schema
  */
-const SCHEMA = ({ isUpdate, oneConfig, adminGroup }) =>
+const SCHEMA = ({ isUpdate, oneConfig, adminGroup } = {}) =>
   getObjectSchemaFromFields([
     ...(isUpdate
       ? MUTABLE_FIELDS(oneConfig, adminGroup)

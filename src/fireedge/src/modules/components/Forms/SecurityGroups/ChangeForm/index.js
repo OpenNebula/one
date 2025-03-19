@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createForm, bindSecGroupTemplate } from '@UtilsModule'
+import { createForm } from '@UtilsModule'
 import { SCHEMA, FIELDS } from './schema'
-import { jsonToXml } from '@ModelsModule'
 
 const ChangeSecurityGroup = createForm(SCHEMA, FIELDS, {
   transformInitialValue: (secGroupId, schema) => {
@@ -25,13 +24,7 @@ const ChangeSecurityGroup = createForm(SCHEMA, FIELDS, {
       ...schema.cast({ secGroup }, { stripUnknown: true }),
     }
   },
-  transformBeforeSubmit: (formData, vnet) => {
-    const { secgroups } = formData
-
-    const newTemplate = bindSecGroupTemplate(vnet, secgroups)
-
-    return jsonToXml(newTemplate)
-  },
+  transformBeforeSubmit: (formData) => formData,
 })
 
 export default ChangeSecurityGroup

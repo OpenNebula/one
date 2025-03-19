@@ -54,6 +54,7 @@ const StepperStyled = styled(Stepper)(({ theme }) => ({
   position: 'sticky',
   top: -15,
   minHeight: 100,
+  borderRadius: '8px 8px 0 0',
   zIndex: theme.zIndex.mobileStepper,
   backgroundColor: theme.palette.action.hover,
 }))
@@ -234,25 +235,21 @@ const CustomStepper = ({
             minHeight: '40px',
           }}
         >
-          {
-            enableShowMandatoryOnly && (
-              // <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    onChange={handleShowMandatoryOnly}
-                    name={'aaaaaa'}
-                    checked={showMandatoryOnly}
-                    color="secondary"
-                    inputProps={{ 'data-cy': 'switch-mandatory' }}
-                  />
-                }
-                label={<Label>{T.MandatoryUserInputs}</Label>}
-                labelPlacement="end"
-              />
-            )
-            // </Box>
-          }
+          {enableShowMandatoryOnly && (
+            <FormControlLabel
+              control={
+                <Switch
+                  onChange={handleShowMandatoryOnly}
+                  name={'aaaaaa'}
+                  checked={showMandatoryOnly}
+                  color="secondary"
+                  inputProps={{ 'data-cy': 'switch-mandatory' }}
+                />
+              }
+              label={<Label>{T.MandatoryUserInputs}</Label>}
+              labelPlacement="end"
+            />
+          )}
           <Box
             sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}
           >

@@ -40,7 +40,7 @@ const TabContent = styled('div')(({ hidden, border, theme }) => ({
     backgroundColor: theme.palette.background.paper,
     border: `thin solid ${theme.palette.secondary.main}`,
     borderTop: 'none',
-    borderRadius: `8px 8px 0 0`,
+    borderRadius: `0 0 8px 8px`,
   }),
 }))
 

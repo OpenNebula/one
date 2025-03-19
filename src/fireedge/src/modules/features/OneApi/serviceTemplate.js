@@ -119,7 +119,7 @@ const basicEndpoints = (builder) => ({
      * @param {object} params - Request params
      * @param {string} params.id - Service template id
      * @param {object} params.template - The new template contents
-     * @param {boolean} [params.append]
+     * @param {boolean} [params.merge]
      * - ``true``: Merge new template with the existing one.
      * - ``false``: Replace the whole template.
      *
@@ -127,10 +127,10 @@ const basicEndpoints = (builder) => ({
      * @returns {number} Service template id
      * @throws Fails when response isn't code 200
      */
-    query: ({ template = {}, append = true, ...params }) => {
+    query: ({ template = {}, merge = true, ...params }) => {
       params.action = {
         perform: 'update',
-        params: { template_json: JSON.stringify(template), append },
+        params: { template_json: JSON.stringify(template), append: merge },
       }
 
       const name = Actions.SERVICE_TEMPLATE_ACTION
@@ -336,7 +336,7 @@ const extendedEnpoints = (builder) => ({
           serviceTemplate?.TEMPLATE?.BODY?.roles?.map(async (role) => {
             const vmTemplate = await dispatch(
               oneApi.endpoints.getTemplate.initiate(
-                { id: role?.vm_template },
+                { id: role?.template_id },
                 { forceRefetch: true }
               )
             ).unwrap()

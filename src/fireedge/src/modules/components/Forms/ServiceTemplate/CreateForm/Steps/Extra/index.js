@@ -14,49 +14,46 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Component, useMemo } from 'react'
+import { useFormContext } from 'react-hook-form'
 import PropTypes from 'prop-types'
-import { SCHEMA } from './schema'
-import { Stack, FormControl, Divider } from '@mui/material'
-import NetworkingSection from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking'
+import { SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/schema'
 
-import CustomAttributesSection from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/customAttributes'
+import Networking from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking'
 
-import ScheduleActionsSection from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/scheduledActions'
+import UserInputs from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/userInputs'
 
-import { FormWithSchema } from '@modules/components/Forms'
+import ScheduledActions from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/scheduledActions'
+
+import AdvancedOptions from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams'
 
 import { T } from '@ConstantsModule'
-import { ADVANCED_PARAMS_FIELDS } from './advancedParams/schema'
+import { BaseTab as Tabs } from '@modules/components/Tabs'
 
 export const STEP_ID = 'extra'
 
-const Content = () =>
-  useMemo(
-    () => (
-      <Stack
-        display="grid"
-        gap="1em"
-        sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-      >
-        <NetworkingSection stepId={STEP_ID} />
-        <CustomAttributesSection stepId={STEP_ID} />
-        <FormControl
-          component="fieldset"
-          sx={{ width: '100%', gridColumn: '1 / -1' }}
-        >
-          <FormWithSchema
-            id={STEP_ID}
-            legend={T.AdvancedParams}
-            fields={ADVANCED_PARAMS_FIELDS}
-            rootProps={{ sx: { m: 0 } }}
+export const TABS = [Networking, UserInputs, ScheduledActions, AdvancedOptions]
+
+const Content = () => {
+  const { control } = useFormContext()
+  const tabs = useMemo(
+    () =>
+      TABS.map(({ Content: TabContent, name, getError, ...section } = {}) => ({
+        ...section,
+        name,
+        label: name,
+        renderContent: () => (
+          <TabContent
+            {...{
+              control,
+            }}
           />
-          <Divider />
-        </FormControl>
-        <ScheduleActionsSection />
-      </Stack>
-    ),
+        ),
+      })),
     [STEP_ID]
   )
+
+  return <Tabs tabs={tabs} />
+}
 
 Content.propTypes = {
   data: PropTypes.any,

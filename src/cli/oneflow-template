@@ -296,13 +296,13 @@ CommandParser::CmdParser.new(ARGV) do
             params['merge_template'] = {}
             body = JSON.parse(response.body)['DOCUMENT']['TEMPLATE']['BODY']
 
-            # Check global custom attributes
-            custom_attrs = helper.custom_attrs(body['custom_attrs'])
-            params['merge_template'].merge!(custom_attrs) unless custom_attrs.nil?
+            # Check global user inputs
+            user_inputs = helper.user_inputs(body['user_inputs'])
+            params['merge_template'].merge!(user_inputs) unless user_inputs.nil?
 
-            # Check role level custom attributes
-            custom_role_attrs = helper.custom_role_attrs(body['roles'])
-            params['merge_template'].merge!(custom_role_attrs) unless custom_role_attrs.nil?
+            # Check role level user inputs
+            user_inputs_attrs = helper.role_user_inputs(body['roles'])
+            params['merge_template'].merge!(user_inputs_attrs) unless user_inputs_attrs.nil?
 
             # Check vnets attributes
             vnets = helper.networks(body['networks'])

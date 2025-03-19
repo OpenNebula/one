@@ -27,12 +27,24 @@ const role = {
       default: 1,
       minimum: 0,
     },
-    vm_template: {
+    template_id: {
       type: 'integer',
       required: true,
     },
-    vm_template_contents: {
+    type: {
       type: 'string',
+      required: true,
+    },
+    ha_mode: {
+      type: 'boolean',
+      required: false,
+    },
+    floating_ip: {
+      type: 'string',
+      required: false,
+    },
+    template_contents: {
+      type: 'object',
       required: false,
     },
     parents: {
@@ -178,12 +190,7 @@ const service = {
       items: { $ref: '/Role' },
       required: true,
     },
-    custom_attrs: {
-      type: 'object',
-      properties: {},
-      required: false,
-    },
-    custom_attrs_values: {
+    user_inputs: {
       type: 'object',
       properties: {},
       required: false,

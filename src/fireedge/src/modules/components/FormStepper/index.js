@@ -123,6 +123,7 @@ const FormStepper = ({
     reset,
     formState: { errors },
     setError,
+    setFocus,
   } = useFormContext()
   const { setModifiedFields } = useGeneralApi()
   const { isLoading } = useGeneral()
@@ -211,12 +212,22 @@ const FormStepper = ({
   const setErrors = ({ inner = [], message = { word: 'Error' } } = {}) => {
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const jsonErrorsByPath = deepStringify(errorsByPath, 6) || ''
-    const totalErrors = (jsonErrorsByPath.match(/\bmessage\b/g) || []).length
+    const individualErrorMessages = [
+      ...new Set(
+        [message]
+          .concat(inner.map((error) => error?.message ?? ''))
+          .filter(Boolean)
+      ),
+    ]
+
+    const extractedErrors = (jsonErrorsByPath.match(/\bmessage\b/g) || [])
+      .length
+    const individualErrors = individualErrorMessages?.length
+
+    const totalErrors = extractedErrors || individualErrors || 0
 
     const translationError =
       totalErrors > 0 ? [T.ErrorsOcurred, totalErrors] : Object.values(message)
-
-    const individualErrorMessages = inner.map((error) => error?.message ?? '')
 
     setError(stepId, {
       type: 'manual',
@@ -224,9 +235,15 @@ const FormStepper = ({
       individualErrorMessages,
     })
 
-    inner?.forEach(({ path, type, errors: innerMessage }, index) => {
+    inner?.forEach(({ path, type, errors: innerMessage }) => {
       setError(`${stepId}.${path}`, { type, message: innerMessage })
     })
+
+    const firstErrorPath = inner?.find((error) => error?.path)?.path
+
+    if (firstErrorPath) {
+      setFocus(`${stepId}.${firstErrorPath}`)
+    }
   }
 
   const handleStep = (stepToAdvance) => {
@@ -289,6 +306,7 @@ const FormStepper = ({
         setActiveStep((prevActiveStep) => prevActiveStep + 1)
       }
     } catch (validateError) {
+      console.error(validateError)
       setErrors(validateError)
     }
   }

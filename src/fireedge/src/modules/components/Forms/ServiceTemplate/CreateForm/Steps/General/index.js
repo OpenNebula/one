@@ -38,7 +38,7 @@ const Content = ({ isUpdate }) => (
  * @returns {object} General configuration step
  */
 const General = (data) => {
-  const isUpdate = data?.ID
+  const isUpdate = data?.dataTemplate?.ID
 
   return {
     id: STEP_ID,

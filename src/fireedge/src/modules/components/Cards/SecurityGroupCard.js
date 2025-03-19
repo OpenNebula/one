@@ -96,7 +96,7 @@ const SecurityGroupCard = memo(
     )
 
     return (
-      <div {...rootProps} data-cy={`secgroup-${ID}`}>
+      <div {...rootProps} className={classes.root} data-cy={`secgroup-${ID}`}>
         <div className={clsx(classes.main, internalClasses.internalContainer)}>
           <div>
             <div className={classes.title}>

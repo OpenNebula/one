@@ -15,17 +15,30 @@
  * ------------------------------------------------------------------------- */
 import { array, object } from 'yup'
 
-import { NETWORK_INPUT_SCHEMA } from './networking/schema'
-import { CUSTOM_ATTRIBUTES_SCHEMA } from './customAttributes/schema'
-import { SCHED_ACTION_SCHEMA } from './scheduledActions'
-import { ADVANCED_PARAMS_SCHEMA } from './advancedParams/schema'
+import { NETWORK_INPUT_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/schema'
 
-export const SCHEMA = object()
-  .shape({
-    NETWORKING: array().of(NETWORK_INPUT_SCHEMA),
+import { TAB_ID as NETWORK_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking'
+
+import { NETWORKS_EXTRA_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown/schema'
+
+import { SECTION_ID as NETWORK_DROPDOWN_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown'
+
+import { USER_INPUTS_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/userInputs/schema'
+import { TAB_ID as USER_INPUT_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/userInputs'
+
+import { TAB_ID as SCHED_ACTION_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/scheduledActions'
+
+import { VM_SCHED_SCHEMA as SCHED_ACTION_SCHEMA } from '@modules/components/Forms/Vm/CreateSchedActionForm/schema'
+
+import { ADVANCED_PARAMS_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams/schema'
+import { TAB_ID as ADVANCED_PARAMS_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams'
+
+export const SCHEMA = object().concat(
+  object().shape({
+    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA),
+    [NETWORK_DROPDOWN_ID]: array().of(NETWORKS_EXTRA_SCHEMA),
+    [USER_INPUT_ID]: array().of(USER_INPUTS_SCHEMA),
+    [SCHED_ACTION_ID]: array().of(SCHED_ACTION_SCHEMA),
+    [ADVANCED_PARAMS_ID]: ADVANCED_PARAMS_SCHEMA,
   })
-  .shape({
-    CUSTOM_ATTRIBUTES: array().of(CUSTOM_ATTRIBUTES_SCHEMA),
-  })
-  .concat(ADVANCED_PARAMS_SCHEMA)
-  .concat(SCHED_ACTION_SCHEMA)
+)

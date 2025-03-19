@@ -417,15 +417,11 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
         key={`user-inputs`}
         cy={`user-inputs`}
         id={STEP_ID}
-        fields={
-          showMandatoryOnly
-            ? FIELDS(
-                userInputsLayout[0].groups[0].userInputs.filter(
-                  (userInput) => userInput.mandatory
-                )
-              )
-            : FIELDS(userInputsLayout[0].groups[0].userInputs)
-        }
+        fields={FIELDS(
+          userInputsLayout[0].groups[0].userInputs.filter(
+            (userInput) => !showMandatoryOnly || userInput.mandatory
+          )
+        )}
       />
     )
   }
@@ -477,13 +473,18 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
  * @param {Array} userInputs - List of user inputs.
  * @returns {Array} - List of fields.
  */
-const createFieldsFromUserInputs = (userInputs = []) =>
-  userInputs.map(({ name, description, label, ...restOfUserInput }) => ({
-    name,
-    label: label || name,
-    ...(description && { tooltip: description }),
-    ...schemaUserInput(restOfUserInput),
-  }))
+const createFieldsFromUserInputs = (userInputs = []) => {
+  const res = userInputs.map(
+    ({ name, description, label, ...restOfUserInput }) => ({
+      name,
+      label: label || name,
+      ...(description && { tooltip: description }),
+      ...schemaUserInput(restOfUserInput),
+    })
+  )
+
+  return res
+}
 
 /**
  * Groups the user inputs by app and group using the following convetion: ONEAPP_<APP_NAME>_<GROUP_NAME>_<FIELD_NAME>.
@@ -610,13 +611,14 @@ const groupUserInputs = (userInputs, userInputsMetadata, prefix) => {
 const groupServiceUserInputs = (service) => {
   // Get and order service user inputs
   const serviceUserInputs = userInputsToArray(
-    service?.TEMPLATE?.BODY?.custom_attrs
+    service?.TEMPLATE?.BODY?.user_inputs
   )
 
   // Get service user inputs metadata
   const serviceUserInputsMetadata = responseDataToArray(
-    service?.TEMPLATE?.BODY?.custom_attrs_metadata
+    service?.TEMPLATE?.BODY?.user_inputs_metadata
   )
+
   const serviceUserInputsLayout = groupUserInputs(
     serviceUserInputs,
     serviceUserInputsMetadata

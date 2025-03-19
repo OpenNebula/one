@@ -35,6 +35,7 @@ const AutocompleteController = memo(
     fieldProps: { separators, ...fieldProps } = {},
     readOnly = false,
     optionsOnly = false,
+    clearInvalid = false,
     onConditionChange,
     watcher,
     dependencies,
@@ -99,6 +100,27 @@ const AutocompleteController = memo(
 
       watcherValue !== undefined && onChange(watcherValue)
     }, [watch, watcher, dependencies])
+
+    useEffect(() => {
+      if (clearInvalid && optionsOnly) {
+        if (multiple) {
+          if (renderValue?.length) {
+            const filteredValues =
+              renderValue?.filter((val) =>
+                values.some((option) => option.value === val)
+              ) || []
+            if (filteredValues?.length !== renderValue?.length) {
+              onChange(filteredValues)
+            }
+          }
+        } else {
+          const isValid = values.some((option) => option.value === renderValue)
+          if (!isValid) {
+            onChange('')
+          }
+        }
+      }
+    }, [clearInvalid, optionsOnly, renderValue, values, multiple, onChange])
 
     return (
       <Autocomplete
@@ -216,6 +238,7 @@ AutocompleteController.propTypes = {
   fieldProps: PropTypes.object,
   readOnly: PropTypes.bool,
   optionsOnly: PropTypes.bool,
+  clearInvalid: PropTypes.bool,
   onConditionChange: PropTypes.func,
   watcher: PropTypes.func,
   dependencies: PropTypes.oneOfType([

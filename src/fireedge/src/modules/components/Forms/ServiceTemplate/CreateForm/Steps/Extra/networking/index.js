@@ -14,139 +14,230 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { Component, useMemo } from 'react'
-import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { useEffect, useState } from 'react'
+import { useFormContext, useFieldArray } from 'react-hook-form'
+import { ServerConnection as NetworkIcon, Cancel } from 'iconoir-react'
 import {
   NETWORK_INPUT_FIELDS,
-  NETWORK_INPUT_SCHEMA,
+  NETWORK_SELECTION,
 } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/schema'
-import { FormWithSchema, Legend } from '@modules/components/Forms'
-import { Translate, Tr } from '@modules/components/HOC'
-import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
-import { Stack, FormControl, Divider, Button, Box } from '@mui/material'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import SubmitButton from '@modules/components/FormControl/SubmitButton'
+import {
+  ExtraDropdown,
+  SECTION_ID as NETWORKS_VALUES_ID,
+} from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown'
+import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
+
+import { FormWithSchema } from '@modules/components/Forms'
+
+import { Tr } from '@modules/components/HOC'
+import { Stack, Button, Grid, List, ListItem, IconButton } from '@mui/material'
 import { T } from '@ConstantsModule'
-import { sentenceCase } from '@UtilsModule'
 
-export const SECTION_ID = 'NETWORKING'
+import {
+  AR,
+  SG,
+} from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown/sections'
 
-/**
- * @param {object} root0 - Params
- * @param {string} root0.stepId - Step identifier
- * @returns {Component} - Networking sub-section
- */
-const NetworkingSection = ({ stepId }) => {
-  const fields = useMemo(() => NETWORK_INPUT_FIELDS)
+export const TAB_ID = 'networks'
+
+const Content = () => {
+  const { watch } = useFormContext()
+
+  // Updates in real-time compared to the snapshot from the fieldArray hook
+  const wNetworks = watch(`${EXTRA_ID}.${TAB_ID}`)
+  const wNetworksValues = watch(`${EXTRA_ID}.${NETWORKS_VALUES_ID}`)
 
   const {
     fields: networks,
-    append,
-    remove,
+    append: appendNet,
+    remove: rmNet,
   } = useFieldArray({
-    name: useMemo(
-      () => [stepId, SECTION_ID].filter(Boolean).join('.'),
-      [stepId]
-    ),
+    name: `${EXTRA_ID}.${TAB_ID}`,
   })
 
-  const methods = useForm({
-    defaultValues: NETWORK_INPUT_SCHEMA.default(),
-    resolver: yupResolver(NETWORK_INPUT_SCHEMA),
+  const { append: appendNetv, remove: rmNetv } = useFieldArray({
+    name: `${EXTRA_ID}.${NETWORKS_VALUES_ID}`,
   })
 
-  const onSubmit = async (newNetwork) => {
-    const isValid = await methods.trigger()
-    if (isValid) {
-      append(newNetwork)
-      methods.reset()
+  const [selectedNetwork, setSelectedNetwork] = useState(0)
+  const [shift, setShift] = useState(0)
+
+  const handleRemove = (event, idx) => {
+    event.stopPropagation()
+
+    // Calculates shift & releases current reference in case it goes oob
+    setSelectedNetwork((prev) => {
+      setShift(prev + (networks?.length === 2 ? -+prev : idx < prev ? -1 : 0))
+
+      return null
+    })
+
+    // Remove corresponding entry from networks_values array
+    rmNetv(idx)
+    rmNet(idx)
+  }
+
+  // Very important, define all fields or else RHF uses previous input data
+  const handleAppend = (event) => {
+    event?.stopPropagation?.()
+    setSelectedNetwork(() => {
+      setShift(null)
+
+      return null
+    })
+
+    appendNet({
+      name: '',
+      description: '',
+      network: null,
+      size: null,
+      type: null,
+    })
+
+    appendNetv({
+      [AR.id]: [],
+      [SG.id]: [],
+    })
+  }
+
+  // Shifts selected index after networks array has been updated
+  useEffect(() => {
+    if (selectedNetwork === null) {
+      if (shift === null) {
+        setSelectedNetwork(networks?.length - 1)
+      } else {
+        setSelectedNetwork(shift)
+      }
     }
-  }
-
-  if (fields.length === 0) {
-    return null
-  }
+  }, [networks])
 
   return (
-    <FormControl
-      component="fieldset"
-      sx={{ width: '100%', gridColumn: '1 / -1' }}
-    >
-      <Legend title={T.Networks} />
-      <FormProvider {...methods}>
-        <Stack
-          direction="row"
-          alignItems="flex-start"
-          gap="0.5rem"
-          component="form"
-          onSubmit={methods.handleSubmit(onSubmit)}
-        >
-          <FormWithSchema
-            cy={'extra-networking'}
-            fields={fields}
-            rootProps={{ sx: { m: 0 } }}
-          />
+    <>
+      <Grid
+        container
+        direction="row"
+        columnSpacing={1}
+        rowSpacing={2}
+        sx={{
+          justifyContent: 'flex-start',
+          alignItems: 'stretch',
+          height: '100%',
+        }}
+      >
+        <Grid item md={3} sx={{ borderRight: 1, padding: 1 }}>
           <Button
-            variant="contained"
+            variant="outlined"
+            color="primary"
             type="submit"
-            color="secondary"
-            startIcon={<AddCircledOutline />}
-            data-cy={'extra-networking'}
-            sx={{ mt: '1em' }}
+            size="large"
+            data-cy={'extra-add-network'}
+            onClick={handleAppend}
           >
-            <Translate word={T.Add} />
+            {Tr(T.AddNetwork)}
           </Button>
-        </Stack>
-      </FormProvider>
-      <Divider />
-      <List>
-        {networks?.map(
-          ({ name, description, netextra, id, network, type }, index) => {
-            const secondaryFields = [
-              description && `${Tr(T.Description)}: ${description}`,
-              type && `${Tr(T.Type)}: ${Tr(sentenceCase(type))}`,
-              network && `${Tr(T.Network)}: ${network}`,
-              netextra && `${Tr(T.Extra)}: ${netextra}`,
-            ].filter(Boolean)
+          <List
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+            }}
+          >
+            {networks?.map((network, idx) => {
+              const networkName = watch(`${EXTRA_ID}.${TAB_ID}.${idx}.name`)
 
-            return (
-              <Box
-                key={id}
-                sx={{
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  marginBottom: '8px',
-                }}
-              >
+              return (
                 <ListItem
-                  secondaryAction={
-                    <SubmitButton
-                      onClick={() => remove(index)}
-                      icon={<DeleteCircledOutline />}
-                    />
-                  }
-                  sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+                  key={`item-${idx}-${network.id}`}
+                  onClick={() => setSelectedNetwork(idx)}
+                  sx={{
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: '4px',
+                    minHeight: '70px',
+                    my: 0.5,
+                    overflowX: 'hidden',
+                    padding: 2,
+
+                    bgcolor:
+                      idx === selectedNetwork ? 'action.selected' : 'inherit',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
                 >
-                  <ListItemText
-                    primary={name}
-                    primaryTypographyProps={{ variant: 'body1' }}
-                    secondary={secondaryFields.join(' | ')}
-                  />
+                  <IconButton
+                    aria-label="delete"
+                    onClick={(event) => handleRemove(event, idx)}
+                    sx={{ mr: 1.5, size: 'small' }}
+                  >
+                    <Cancel />
+                  </IconButton>
+                  <div
+                    style={{
+                      display: 'inline-block',
+                      maxWidth: '100%',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      fontSize: '1em',
+                    }}
+                  >
+                    {networkName || T.NewNetwork}
+                  </div>
                 </ListItem>
-              </Box>
-            )
-          }
-        )}
-      </List>
-    </FormControl>
+              )
+            })}
+          </List>
+        </Grid>
+        <Grid item md={9}>
+          {selectedNetwork != null && wNetworks?.length > 0 && (
+            <>
+              <Stack
+                key={`inputs-${networks?.[selectedNetwork]?.id}`}
+                direction="column"
+                alignItems="flex-start"
+                gap="0.5rem"
+                component="form"
+                width="100%"
+              >
+                <FormWithSchema
+                  legend={T.Type}
+                  id={`${EXTRA_ID}.${TAB_ID}.${selectedNetwork}`}
+                  cy={`${TAB_ID}`}
+                  fields={NETWORK_INPUT_FIELDS}
+                />
+              </Stack>
+
+              <ExtraDropdown
+                networksValues={wNetworksValues}
+                key={`extra-${networks?.[selectedNetwork]?.id}`}
+                selectedNetwork={selectedNetwork}
+              />
+
+              <FormWithSchema
+                key={`network-table-${networks?.[selectedNetwork]?.id}`}
+                cy={`${TAB_ID}-${NETWORK_SELECTION?.name}`}
+                id={`${EXTRA_ID}.${TAB_ID}.${selectedNetwork}`}
+                fields={[NETWORK_SELECTION]}
+              />
+            </>
+          )}
+        </Grid>
+      </Grid>
+    </>
   )
 }
 
-NetworkingSection.propTypes = {
+Content.propTypes = {
   stepId: PropTypes.string,
 }
 
-export default NetworkingSection
+const TAB = {
+  id: TAB_ID,
+  name: T.Networks,
+  icon: NetworkIcon,
+  Content,
+  getError: (error) => !!error?.[TAB_ID],
+}
+
+export default TAB

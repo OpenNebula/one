@@ -13,51 +13,57 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, string } from 'yup'
-import { getValidationFromFields, arrayToOptions } from '@UtilsModule'
+import { number } from 'yup'
+import { getObjectSchemaFromFields } from '@UtilsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
-import { SECTION_ID as ADVANCED_SECTION_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig/AdvancedParameters'
 
-const SHUTDOWN_TYPES = {
-  none: '',
-  terminate: 'Terminate',
-  terminateHard: 'Terminate hard',
-}
-
-const SHUTDOWN_ENUMS_ONEFLOW = {
-  [SHUTDOWN_TYPES.terminate]: 'shutdown',
-  [SHUTDOWN_TYPES.terminateHard]: 'shutdown-hard',
-}
-
-const RDP_FIELD = {
-  name: 'rdp',
-  label: T.Rdp,
-  validation: string()
-    .trim()
+const min = {
+  name: 'min_vms',
+  label: T.RolesMinVms,
+  type: INPUT_TYPES.TEXT,
+  cy: 'elasticity',
+  validation: number()
+    .min(0)
     .notRequired()
     .default(() => undefined),
+  fieldProps: {
+    type: 'number',
+  },
+  grid: { md: 4 },
 }
 
-const SHUTDOWN_TYPE = {
-  name: `${ADVANCED_SECTION_ID}.SHUTDOWNTYPE`,
-  label: T.VMShutdownAction,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  optionsOnly: true,
-  values: arrayToOptions(Object.keys(SHUTDOWN_TYPES), {
-    addEmpty: false,
-    getText: (key) => SHUTDOWN_TYPES[key],
-    getValue: (key) => SHUTDOWN_ENUMS_ONEFLOW[key],
-  }),
-  validation: string()
-    .trim()
+const max = {
+  name: 'max_vms',
+  label: T.RolesMaxVms,
+  type: INPUT_TYPES.TEXT,
+  dependOf: 'cardinality',
+
+  cy: 'elasticity',
+  validation: number()
+    .min(0)
     .notRequired()
-    .oneOf(Object.values(SHUTDOWN_TYPES))
-    .default(() => Object.values(SHUTDOWN_TYPES)[0]),
-  grid: { xs: 12, sm: 12, md: 12 },
+    .default(() => undefined),
+  fieldProps: {
+    type: 'number',
+  },
+  grid: { md: 4 },
 }
 
-export const ADVANCED_PARAMS_FIELDS = [SHUTDOWN_TYPE]
+const cooldown = {
+  name: 'cooldown',
+  label: T.Cooldown,
+  type: INPUT_TYPES.TEXT,
+  cy: 'elasticity',
+  validation: number()
+    .min(0)
+    .notRequired()
+    .default(() => undefined),
+  fieldProps: {
+    type: 'number',
+  },
+  grid: { md: 4 },
+}
 
-export const ADVANCED_PARAMS_SCHEMA = object(
-  getValidationFromFields([...ADVANCED_PARAMS_FIELDS, RDP_FIELD])
-)
+export const MIN_MAX_FIELDS = [min, max, cooldown]
+
+export const MIN_MAX_SCHEMA = getObjectSchemaFromFields(MIN_MAX_FIELDS)

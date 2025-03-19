@@ -182,35 +182,35 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    # Get custom attributes values from user
+    # Get user inputs values from user
     #
-    # @param custom_attrs [Hash] Custom attributes from template
+    # @param user_inputs [Hash] User inputs from template
     #
-    # @return [Hash] Custom attributes values
-    def custom_attrs(custom_attrs)
+    # @return [Hash] User Input values
+    def user_inputs(user_inputs)
         # rubocop:disable Layout/LineLength
-        return if custom_attrs.nil? || custom_attrs.empty?
+        return if user_inputs.nil? || user_inputs.empty?
 
         ret = {}
-        ret['custom_attrs_values'] = OpenNebulaHelper.parse_user_inputs(custom_attrs)
+        ret['user_inputs_values'] = OpenNebulaHelper.parse_user_inputs(user_inputs)
 
         # rubocop:enable Layout/LineLength
         ret
     end
 
-    # Get custom role attributes values from user
+    # Get user input values from user
     #
-    # @param role [Hash] Service role with custom attributes
+    # @param role [Hash] Service role with user inputs
     #
-    # @return [Hash] Role with custom attributes values
-    def custom_role_attrs(roles)
+    # @return [Hash] Role with user inputs values
+    def role_user_inputs(roles)
         return if roles.nil? || roles.empty?
 
         ret = {}
-        role_with_custom_attrs = false
+        role_with_user_inputs = false
 
         roles.each do |role|
-            next unless role.key?('custom_attrs')
+            next unless role.key?('user_inputs')
 
             ####################################################################
             # Display Role Information
@@ -218,11 +218,11 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
             header = "> Please insert the user inputs for the role \"#{role['name']}\""
             puts header
 
-            role.merge!(custom_attrs(role['custom_attrs']))
-            role_with_custom_attrs = true
+            role.merge!(user_inputs(role['user_inputs']))
+            role_with_user_inputs = true
         end
 
-        ret['roles'] = roles if role_with_custom_attrs
+        ret['roles'] = roles if role_with_user_inputs
 
         ret
     end

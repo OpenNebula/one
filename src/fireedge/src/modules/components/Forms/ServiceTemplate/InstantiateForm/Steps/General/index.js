@@ -20,40 +20,30 @@ import { SCHEMA, NAME_FIELD, INSTANCE_FIELD } from './schema'
 
 export const STEP_ID = 'general'
 
-const Content = ({ isUpdate }) => (
+const Content = () => (
   <FormWithSchema
     id={STEP_ID}
     cy={`${STEP_ID}`}
-    fields={[
-      { ...NAME_FIELD, fieldProps: { disabled: !!isUpdate } },
-      INSTANCE_FIELD,
-    ]}
+    fields={[NAME_FIELD, INSTANCE_FIELD]}
   />
 )
 
 /**
  * General Service Template configuration.
  *
- * @param {object} data - Service Template data
  * @returns {object} General configuration step
  */
-const General = (data) => {
-  const isUpdate = data?.ID
-
-  return {
-    id: STEP_ID,
-    label: T.General,
-    resolver: SCHEMA,
-    optionsValidate: { abortEarly: false },
-    content: () => Content({ isUpdate }),
-  }
-}
+const General = () => ({
+  id: STEP_ID,
+  label: T.General,
+  resolver: SCHEMA,
+  optionsValidate: { abortEarly: false },
+  content: () => Content(),
+})
 
 General.propTypes = {
   data: PropTypes.object,
   setFormData: PropTypes.func,
 }
-
-Content.propTypes = { isUpdate: PropTypes.bool }
 
 export default General

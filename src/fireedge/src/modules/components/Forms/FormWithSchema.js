@@ -24,6 +24,7 @@ import {
   useEffect,
   useMemo,
 } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Accordion, AccordionSummary, FormControl, Grid } from '@mui/material'
 import { useFormContext, useFormState, useWatch } from 'react-hook-form'
@@ -309,13 +310,14 @@ const FieldComponent = memo(
 
     const currentState = useSelector((state) => state)
 
+    // Potentially prefixes form ID + split ID
     const addIdToName = useCallback(
-      (n) => {
-        // removes character '$' and returns
-        if (n?.startsWith('$')) return n.slice(1)
+      (fieldName, formId, split = 0) => {
+        if (fieldName?.startsWith('$')) return fieldName.slice(1)
 
-        // concat form ID if exists
-        return id ? `${id}.${n}` : n
+        return `${formId ? `${formId}.` : ''}${fieldName}${
+          split > 0 ? `_${split}` : ''
+        }`
       },
       [id]
     )
@@ -324,8 +326,8 @@ const FieldComponent = memo(
       if (!dependOf) return null
 
       return Array.isArray(dependOf)
-        ? dependOf.map(addIdToName)
-        : addIdToName(dependOf)
+        ? dependOf.map((fieldName) => addIdToName(fieldName, id))
+        : addIdToName(dependOf, id)
     }, [dependOf, addIdToName])
 
     const valueOfDependField = useWatch({
@@ -335,12 +337,7 @@ const FieldComponent = memo(
 
     const handleConditionChange = useCallback(
       (value) => {
-        // Ensure step control as an array
-        const ensureStepControl = Array.isArray(stepControl)
-          ? stepControl
-          : stepControl
-          ? [stepControl]
-          : []
+        const ensureStepControl = [].concat(stepControl)
 
         // Iterate over each step control to evaluate it
         ensureStepControl.forEach((stepControlItem) => {
@@ -360,62 +357,70 @@ const FieldComponent = memo(
       [stepControl, disableSteps, currentState]
     )
 
-    const { name, type, htmlType, grid, condition, ...fieldProps } =
-      Object.entries(attributes).reduce((field, attribute) => {
-        const [attrKey, value] = attribute
-        const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(attrKey)
+    const {
+      name,
+      type,
+      htmlType,
+      grid,
+      condition,
+      splits = 1,
+      ...fieldProps
+    } = Object.entries(attributes).reduce((field, [attrKey, attrValue]) => {
+      const isNotDependAttribute = NOT_DEPEND_ATTRIBUTES.includes(attrKey)
 
-        const finalValue =
-          typeof value === 'function' &&
-          !isNotDependAttribute &&
-          !isValidElement(value())
-            ? value(valueOfDependField, formContext)
-            : value
+      const finalValue =
+        typeof attrValue === 'function' &&
+        !isNotDependAttribute &&
+        !isValidElement(attrValue())
+          ? attrValue(valueOfDependField, formContext)
+          : attrValue
 
-        return { ...field, [attrKey]: finalValue }
-      }, {})
+      return { ...field, [attrKey]: finalValue }
+    }, {})
 
     const dataCy = useMemo(
       () => `${cy}-${name ?? ''}`.replaceAll('.', '-'),
       [cy]
     )
-    const inputName = useMemo(() => addIdToName(name), [addIdToName, name])
     const isHidden = useMemo(() => htmlType === INPUT_TYPES.HIDDEN, [htmlType])
     // Key is computed in first hand based on it's type, meaning we re-render if type changes.
     const key = useMemo(
       () =>
-        fieldProps
-          ? `${name}-${simpleHash(
-              deepStringify(
-                fieldProps?.type ??
-                  fieldProps?.values ??
-                  Object.values(fieldProps),
-                3 // Max object depth
-              )
-            )}`
-          : undefined,
-      [fieldProps]
+        `${name}_${simpleHash(
+          deepStringify(
+            fieldProps?.type ??
+              fieldProps?.identifier ??
+              fieldProps?.values ??
+              Object.values(fieldProps),
+            3 // Max object depth
+          )
+        )}` || uuidv4(),
+      [(name, type, htmlType, condition, fieldProps)]
     )
 
     if (isHidden) return null
 
-    return (
-      INPUT_CONTROLLER[type] && (
-        <Grid item xs={12} md={6} {...grid}>
-          {createElement(INPUT_CONTROLLER[type], {
-            key,
-            control: formContext.control,
-            cy: dataCy,
-            dependencies: nameOfDependField,
-            name: inputName,
-            type: htmlType === false ? undefined : htmlType,
-            dependOf,
-            onConditionChange: handleConditionChange,
-            ...fieldProps,
-          })}
-        </Grid>
-      )
-    )
+    function* generateInputs() {
+      for (let i = 0; i < splits; i++) {
+        yield (
+          <Grid key={`split-${i}`} item xs={12} md={6} {...grid}>
+            {createElement(INPUT_CONTROLLER[type], {
+              key: `${key}-${i}`,
+              control: formContext.control,
+              cy: dataCy,
+              dependencies: nameOfDependField,
+              name: addIdToName(name, id, i),
+              type: htmlType === false ? undefined : htmlType,
+              dependOf,
+              onConditionChange: handleConditionChange,
+              ...fieldProps,
+            })}
+          </Grid>
+        )
+      }
+    }
+
+    return INPUT_CONTROLLER[type] && <>{[...generateInputs()]}</>
   }
 )
 

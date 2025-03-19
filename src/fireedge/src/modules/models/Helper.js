@@ -485,7 +485,6 @@ export const parseRangeToArray = (start, end) => {
  *
  * @param {object} userInputs - List of user inputs in string format
  * @param {object} [options] - Options to filter user inputs
- * @param {boolean} [options.filterCapacityInputs]
  * - If false, will not filter capacity inputs: MEMORY, CPU, VCPU. By default `true`
  * @param {string} [options.order] - List separated by comma of input names
  * @example
@@ -512,10 +511,7 @@ export const parseRangeToArray = (start, end) => {
  * }]
  * @returns {UserInputObject[]} User input object
  */
-export const userInputsToArray = (
-  userInputs = {},
-  { filterCapacityInputs = true, order } = {}
-) => {
+export const userInputsToArray = (userInputs = {}, { order } = {}) => {
   const orderedList = order?.split(',') ?? []
   const userInputsArray = Object.entries(userInputs)
 
@@ -523,11 +519,6 @@ export const userInputsToArray = (
     name: `${name}`.toUpperCase(),
     ...(typeof ui === 'string' ? getUserInputParams(ui) : ui),
   }))
-
-  if (filterCapacityInputs) {
-    const capacityInputs = ['MEMORY', 'CPU', 'VCPU']
-    list = list.filter((ui) => !capacityInputs.includes(ui.name))
-  }
 
   if (orderedList.length) {
     list = list.sort((a, b) => {

@@ -20,8 +20,8 @@ import {
 import { jsonToXml } from '@ModelsModule'
 import { createForm } from '@UtilsModule'
 
-const AddRangeForm = createForm(SCHEMA, FIELDS, {
+const ReserveForm = createForm(SCHEMA, FIELDS, {
   transformBeforeSubmit: (formData) => jsonToXml({ ...formData }),
 })
 
-export default AddRangeForm
+export default ReserveForm

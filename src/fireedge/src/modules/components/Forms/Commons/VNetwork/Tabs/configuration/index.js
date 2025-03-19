@@ -21,29 +21,30 @@ import { FIELDS } from '@modules/components/Forms/Commons/VNetwork/Tabs/configur
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import { T } from '@ConstantsModule'
 
-const ConfigurationContent =
-  (stepId) =>
-  ({ oneConfig, adminGroup, isUpdate, isVnet }) => {
-    const InnerComponent = (
-      <>
-        <FormWithSchema
-          id={stepId}
-          cy="configuration"
-          fields={FIELDS(oneConfig, adminGroup, isUpdate, isVnet)}
-        />
-      </>
-    )
+const ConfigurationContent = (stepId) => {
+  const ConfigurationComponent = ({
+    oneConfig,
+    adminGroup,
+    isUpdate,
+    isVnet,
+  }) => (
+    <FormWithSchema
+      id={stepId}
+      cy="configuration"
+      fields={FIELDS(oneConfig, adminGroup, isUpdate, isVnet)}
+    />
+  )
 
-    InnerComponent.displayName = `InnerComponent`
+  ConfigurationComponent.displayName = 'ConfigurationComponent'
 
-    return InnerComponent
+  ConfigurationComponent.propTypes = {
+    oneConfig: PropTypes.object,
+    adminGroup: PropTypes.bool,
+    isUpdate: PropTypes.bool,
+    isVnet: PropTypes.bool,
   }
 
-ConfigurationContent.displayName = 'ConfigurationContent'
-
-ConfigurationContent.propTypes = {
-  oneConfig: PropTypes.object,
-  adminGroup: PropTypes.bool,
+  return ConfigurationComponent
 }
 
 /**

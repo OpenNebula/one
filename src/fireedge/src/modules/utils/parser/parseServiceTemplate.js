@@ -13,60 +13,156 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+/* eslint-disable jsdoc/require-jsdoc */
 
 import _ from 'lodash'
 
-const NETWORK_TYPE = {
-  template_id: 'create',
-  id: 'existing',
-  reserve_from: 'reserve',
+export const toUserInputString = ({
+  name,
+  type,
+  mandatory,
+  description = '',
+  options = '',
+  // eslint-disable-next-line camelcase
+  options_1 = '',
+  default: def,
+} = {}) => {
+  const opts = Array.isArray(options)
+    ? options?.join(',')
+    : // eslint-disable-next-line camelcase
+      [options, options_1]?.filter(Boolean)?.join('..')
+
+  return [
+    name,
+    `${mandatory ? 'M' : 'O'}|${type}|${description}|${opts}|${
+      Array?.isArray(def) ? def?.join(',') : def
+    }`,
+  ]
 }
 
-/**
- * Parses a formatted network string back into an object.
- *
- * @param {string} networkString - The formatted network string to parse.
- * @returns {object | null} An object with properties describing the network, or null if the string is invalid.
- */
-const formatNetworkString = (networkString) => {
-  const parts = networkString?.split('|')
-  const [netType, id, extra] = parts?.slice(-1)[0]?.split(':')
+export const fromUserInputString = (userInput) => {
+  const [name, userInputString] = userInput
 
-  const networkType = NETWORK_TYPE?.[netType]
-  if (parts.length < 3 || !networkType) {
-    return null
+  const [mandatory, type, description, opts, def] = userInputString.split('|')
+
+  // eslint-disable-next-line camelcase
+  const [options, options_1] = opts.split(/\.{2}|,/)
+
+  return {
+    name,
+    mandatory: mandatory === 'M',
+    type,
+    description,
+    options,
+    options_1,
+    default: def,
+  }
+}
+
+export const toNetworkString = ({ name, description, type, value } = {}) => [
+  name,
+  `M|network|${description}||${type}:${value}`,
+]
+
+export const toNetworksValueString = (
+  { name, SIZE: size },
+  { AR = [], SECURITY_GROUPS = [] } = {}
+) => {
+  if (!name) return
+
+  let extra = []
+
+  if (AR?.length) {
+    const ARs = AR?.map(
+      (ar) =>
+        `AR=[${Object.entries(ar)
+          .map(([key, value]) => `${key}=${value}`)
+          .join(',')}]`
+    )
+
+    extra.push(ARs)
+  }
+
+  if (SECURITY_GROUPS?.length) {
+    const SGs = `SECURITY_GROUPS="${SECURITY_GROUPS.map((sg) => sg?.ID).join(
+      ','
+    )}"`
+
+    extra.push(SGs)
+  }
+
+  if (size) {
+    const SIZE = `SIZE=${size}`
+    extra.push(SIZE)
+  }
+
+  extra = extra?.join(',')
+
+  if (!extra?.length) {
+    return
   }
 
   return {
-    type: networkType,
-    name: parts[0],
-    description: parts[3],
-    ...(id && { network: id }),
-    ...(extra && { netextra: extra }),
+    [name]: {
+      extra,
+    },
   }
 }
 
-/**
- * Formats a network object into a string or reverses the operation based on the reverse flag.
- *
- * @param {object | string} network - The network object to format or the network string to parse.
- * @param {boolean} [reverse=false] - Reverse operation flag.
- * @returns {string | object | null} A formatted network string or an object representing the network, or null for invalid input in reverse mode.
- */
-export const parseNetworkString = (network, reverse = false) => {
-  if (reverse) {
-    return formatNetworkString(typeof network === 'string' ? network : '')
-  }
+export const fromNetworksValueString = (nv) => {
+  const [valueString] = nv
+  const { extra } = valueString
 
-  const type = Object.keys(NETWORK_TYPE).find(
-    (key) => NETWORK_TYPE[key] === network?.type?.toLowerCase()
+  let conf = []
+
+  const SECURITY_GROUPS = extra
+    ?.match(/SECURITY_GROUPS="([^"]+)"/)
+    ?.pop()
+    ?.split(',')
+    ?.map((id) => ({ ID: id }))
+
+  const AR = extra?.match(/AR=\[([^\]]+)\]/g)?.map((ar) =>
+    Object.fromEntries(
+      ar
+        .replace(/^AR=\[|\]$/g, '')
+        ?.split(',')
+        ?.map((arg) => arg?.split('='))
+    )
   )
 
-  const result = `M|network|${network?.description ?? ''}| |${type ?? ''}:${
-    network?.network ?? ''
-  }:${network?.netextra ?? ''}`
+  const SIZE = [
+    extra?.match(/(?:^|,)(SIZE=\d+)(?=,|$)/)?.[1]?.split('=')?.[1],
+  ]?.filter(Boolean)
 
-  return result
+  if (SECURITY_GROUPS?.length) {
+    conf?.push(['SECURITY_GROUPS', SECURITY_GROUPS])
+  }
+
+  if (AR?.length) {
+    conf?.push(['AR', AR])
+  }
+
+  if (SIZE?.length) {
+    conf?.push(['SIZE', ...SIZE])
+  }
+
+  conf = Object.fromEntries(conf)
+
+  return conf
+}
+
+export const fromNetworkString = (network) => {
+  const [name, networkString] = network
+
+  const [description, , tv] = networkString?.split('|').slice(2)
+  const [type, value] = tv.split(':')
+
+  return {
+    name,
+    description,
+    type,
+    value,
+  }
 }
 
 /**

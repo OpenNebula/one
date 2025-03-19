@@ -15,16 +15,21 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, memo, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
+import { object } from 'yup'
 
 import { ButtonGenerator } from '@modules/components/Tabs/Service/ButtonGenerator'
-import { ServiceAPI, VmTemplateAPI, useGeneralApi } from '@FeaturesModule'
+import { ServiceAPI, useGeneralApi } from '@FeaturesModule'
+
+import { deepClean } from '@UtilsModule'
 
 import { VmsTable } from '@modules/components/Tables'
 import { StatusCircle } from '@modules/components/Status'
 import { getRoleState } from '@ModelsModule'
-import { Box, Dialog, Typography, CircularProgress } from '@mui/material'
-import { Content as RoleAddDialog } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig'
+import { Button, Box, Dialog, Typography } from '@mui/material'
+import RoleStep from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles'
 import { ScaleDialog } from '@modules/components/Tabs/Service/ScaleDialog'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 import {
   Plus,
   Trash,
@@ -41,6 +46,38 @@ import { Tr } from '@modules/components/HOC'
 // Filters actions based on the data-cy key
 const filterActions = ['vm_resume', 'vm-manage', 'vm-host', 'vm-terminate']
 
+const { resolver: rolesResolver, content: RoleAddDialog } = RoleStep()
+
+/* eslint-disable react/prop-types */
+const AddRoleDialog = ({ open, onClose, onSubmit }) => {
+  const methods = useForm({
+    mode: 'onSubmit',
+    defaultValues: rolesResolver.default(),
+    resolver: yupResolver(object().shape({ roles: rolesResolver })),
+  })
+
+  const { handleSubmit } = methods
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <FormProvider {...methods}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <RoleAddDialog standaloneModal />
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{ mt: 2, width: '100%' }}
+          >
+            {T.Submit}
+          </Button>
+        </Box>
+      </FormProvider>
+    </Dialog>
+  )
+}
+/* eslint-enable react/prop-types */
+
 /**
  * Renders template tab.
  *
@@ -49,8 +86,6 @@ const filterActions = ['vm_resume', 'vm-manage', 'vm-host', 'vm-terminate']
  * @returns {ReactElement} Roles tab
  */
 const RolesTab = ({ id }) => {
-  const [fetch, { data, error, isFetching }] =
-    VmTemplateAPI.useLazyGetTemplatesQuery()
   const { enqueueError, enqueueSuccess, enqueueInfo } = useGeneralApi()
   // wrapper
   const createApiCallback = (apiFunction) => async (params) => {
@@ -59,12 +94,20 @@ const RolesTab = ({ id }) => {
 
     return response
   }
+
   // api calls
   const [addRole] = ServiceAPI.useServiceAddRoleMutation()
   const [addRoleAction] = ServiceAPI.useServiceRoleActionMutation()
   const [scaleRole] = ServiceAPI.useServiceScaleRoleMutation()
-  // api handlers
-  const handleAddRole = createApiCallback(addRole)
+
+  const handleAddRole = async (data) => {
+    const cleanedRole = deepClean(data?.roles?.[0])
+    const result = await addRole({ id, role: cleanedRole })
+
+    handleCloseAddRole()
+
+    return result
+  }
 
   const handleAddRoleAction = async (actionType) => {
     for (const roleIdx of selectedRoles) {
@@ -88,7 +131,6 @@ const RolesTab = ({ id }) => {
   const handleScaleRole = createApiCallback(scaleRole)
 
   const [activeRole, setActiveRole] = useState({ idx: null, roleName: null })
-
   const [isAddRoleOpen, setAddRoleOpen] = useState(false)
   const [isScaleDialogOpen, setScaleDialogOpen] = useState(false)
 
@@ -108,21 +150,6 @@ const RolesTab = ({ id }) => {
       }, {}),
     [roles]
   )
-
-  /* eslint-disable react/prop-types */
-  const AddRoleDialog = ({ open, onClose }) => (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <RoleAddDialog
-        standaloneModal
-        standaloneModalCallback={(params) => {
-          handleAddRole(params)
-          onClose()
-        }}
-        fetchedVmTemplates={{ vmTemplates: data, error: error }}
-      />
-    </Dialog>
-  )
-  /* eslint-enable react/prop-types */
 
   const handleRoleClick = (idx, role, event) => {
     event.stopPropagation()
@@ -150,8 +177,7 @@ const RolesTab = ({ id }) => {
     }
   }
 
-  const handleOpenAddRole = async () => {
-    await fetch()
+  const handleOpenAddRole = () => {
     setAddRoleOpen(true)
   }
 
@@ -185,11 +211,10 @@ const RolesTab = ({ id }) => {
               items={{
                 name: T.AddRole,
                 onClick: handleOpenAddRole,
-                icon: isFetching ? <CircularProgress size={24} /> : <Plus />,
+                icon: <Plus />,
               }}
               options={{
                 singleButton: {
-                  disabled: !!isFetching,
                   sx: {
                     fontSize: '0.95rem',
                     padding: '6px 8px',
@@ -202,7 +227,11 @@ const RolesTab = ({ id }) => {
                 },
               }}
             />
-            <AddRoleDialog open={isAddRoleOpen} onClose={handleCloseAddRole} />
+            <AddRoleDialog
+              open={isAddRoleOpen}
+              onClose={handleCloseAddRole}
+              onSubmit={handleAddRole}
+            />
           </>
 
           <ButtonGenerator
@@ -414,7 +443,7 @@ const RolesTab = ({ id }) => {
               minHeight="500px"
               onClick={(event) => event.stopPropagation()}
             >
-              <VmsTable
+              <VmsTable.Table
                 globalActions={filteredActions}
                 filterData={roleVms?.[activeRole?.roleName]}
                 filterLoose={false}
@@ -431,7 +460,7 @@ RolesTab.propTypes = { tabProps: PropTypes.object, id: PropTypes.string }
 RolesTab.displayName = 'RolesTab'
 
 const RoleComponent = memo(({ role, selected, status }) => {
-  const { name, cardinality, vm_template: templateId } = role
+  const { name, cardinality, template_id: templateId } = role
 
   return (
     <Box

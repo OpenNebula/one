@@ -25,15 +25,11 @@ import UserInputsRole, {
   STEP_ID as USERINPUTSROLE_ID,
 } from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/UserInputsRole'
 
-import Network, {
-  STEP_ID as NETWORK_ID,
-} from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/Network'
-
 import Charter, {
   STEP_ID as CHARTER_ID,
 } from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/Charters'
 
-import { createSteps, parseVmTemplateContents } from '@UtilsModule'
+import { createSteps } from '@UtilsModule'
 import { groupServiceUserInputs } from '@modules/components/Forms/UserInputs'
 
 const Steps = createSteps(
@@ -56,106 +52,44 @@ const Steps = createSteps(
             userInputsData.roles.userInputs,
             userInputsData.roles.userInputsLayout
           )),
-      Network,
       Charter,
     ].filter(Boolean)
   },
   {
     transformInitialValue: (ServiceTemplate, schema) => {
-      const templatePath = ServiceTemplate?.TEMPLATE?.BODY
-      const roles = templatePath?.roles ?? []
-
-      const networks = Object.entries(templatePath?.networks ?? {}).map(
-        ([key, value]) => {
-          const extra = value.split(':').pop()
-
-          return {
-            netid: null,
-            extra: extra,
-            name: key,
-          }
-        }
-      )
-
-      // Get schedule actions from vm template contents
-      const schedActions = parseVmTemplateContents(
-        ServiceTemplate?.TEMPLATE?.BODY?.roles[0]?.vm_template_contents,
-        true
-      )?.schedActions
+      const { NAME } = ServiceTemplate
+      const {
+        TEMPLATE: { BODY: { sched_actions: schedActions = [] } = {} } = {},
+      } = ServiceTemplate
 
       const knownTemplate = schema.cast({
-        [GENERAL_ID]: {},
+        [GENERAL_ID]: { NAME },
         [USERINPUTS_ID]: {},
         [USERINPUTSROLE_ID]: {},
-        [NETWORK_ID]: { NETWORKS: networks },
         [CHARTER_ID]: { SCHED_ACTION: schedActions },
       })
 
-      const newRoles = roles.map((role) => {
-        // Parse vm template content
-        const roleTemplateContent = parseVmTemplateContents(
-          role.vm_template_contents,
-          true
-        )
-
-        // Delete schedule actions
-        delete roleTemplateContent.schedActions
-
-        // Parse content without sched actions
-        const roleTemplateWithoutSchedActions = parseVmTemplateContents(
-          roleTemplateContent,
-          false
-        )
-        role.vm_template_contents = roleTemplateWithoutSchedActions
-
-        // Return content
-        return role
-      })
-
-      return { ...knownTemplate, roles: newRoles }
+      return { ...knownTemplate }
     },
 
     transformBeforeSubmit: (formData) => {
       const {
         [GENERAL_ID]: generalData,
         [USERINPUTS_ID]: userInputsData,
-        [USERINPUTSROLE_ID]: userInputsRoleData,
-        [NETWORK_ID]: networkData,
         [CHARTER_ID]: charterData,
       } = formData
 
-      const formatTemplate = {
-        custom_attrs_values: Object.fromEntries(
-          Object.entries({
-            ...userInputsData,
-            ...userInputsRoleData,
-          }).map(([key, value]) => [key.toUpperCase(), String(value)])
-        ),
-        networks_values: networkData?.NETWORKS?.map((network) => ({
-          [network?.name]: {
-            [['existing', 'reserve'].includes(network?.tableType)
-              ? 'id'
-              : 'template_id']: network?.netid,
-          },
-        })),
-        roles: formData?.roles?.map((role) => {
-          delete role.vm_template_id_content
+      const userInputsValues = Object.fromEntries(
+        Object.entries({
+          ...userInputsData,
+        }).map(([key, value]) => [key.toUpperCase(), String(value)])
+      )
 
-          return {
-            ...role,
-            vm_template_contents: parseVmTemplateContents(
-              {
-                vmTemplateContents: role?.vm_template_contents,
-                customAttrsValues: { ...userInputsData, ...userInputsRoleData },
-                schedActions: charterData.SCHED_ACTION,
-              },
-              false,
-              true
-            ),
-          }
-        }),
+      const formatTemplate = {
+        user_inputs_values: userInputsValues, // Applied across all roles
         name: generalData?.NAME,
         instances: generalData?.INSTANCES,
+        ...charterData,
       }
 
       return formatTemplate

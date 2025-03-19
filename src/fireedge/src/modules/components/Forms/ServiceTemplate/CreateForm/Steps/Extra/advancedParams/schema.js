@@ -25,14 +25,17 @@ const STRATEGY_TYPES = {
 
 const VM_SHUTDOWN_TYPES = {
   terminate: 'Terminate',
-  terminateHard: 'Terminate hard',
+  'terminate-hard': 'Terminate hard',
+  shutdown: 'Shutdown',
+  'shutdown-hard': 'Shutdown hard',
 }
 
 const STRATEGY_TYPE = {
   label: T.Strategy,
-  name: 'ADVANCED.DEPLOYMENT',
+  name: 'deployment',
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
+  tooltip: T.StraightStrategyConcept,
   values: arrayToOptions(Object.keys(STRATEGY_TYPES), {
     addEmpty: false,
     getText: (key) => STRATEGY_TYPES[key],
@@ -41,40 +44,44 @@ const STRATEGY_TYPE = {
 
   validation: string()
     .trim()
-    .required()
+    .notRequired()
     .oneOf(Object.keys(STRATEGY_TYPES))
-    .default(() => Object.keys(STRATEGY_TYPES)[0]),
-  grid: { sm: 2, md: 2 },
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
 const VM_SHUTDOWN_TYPE = {
   label: T.VMShutdownAction,
-  name: 'ADVANCED.VMSHUTDOWN',
+  name: 'shutdown_action',
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
-  values: arrayToOptions(Object.values(VM_SHUTDOWN_TYPES), { addEmpty: false }),
+  values: arrayToOptions(Object.keys(VM_SHUTDOWN_TYPES), {
+    addEmpty: false,
+    getText: (key) => VM_SHUTDOWN_TYPES[key],
+    getValue: (key) => key,
+  }),
   validation: string()
     .trim()
-    .required()
-    .oneOf(Object.values(VM_SHUTDOWN_TYPES))
-    .default(() => Object.values(VM_SHUTDOWN_TYPES)[0]),
-  grid: { sm: 2, md: 2 },
+    .notRequired()
+    .oneOf(Object.keys(VM_SHUTDOWN_TYPES))
+    .default(() => undefined),
+  grid: { md: 12 },
 }
 
 const WAIT_VMS = {
   label: T.WaitVmsReport,
-  name: 'ADVANCED.READY_STATUS_GATE',
+  name: 'ready_status_gate',
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
-  grid: { sd: 4, md: 4 },
+  grid: { md: 12 },
 }
 
 const AUTO_DELETE = {
   label: T.ServiceAutoDelete,
-  name: 'ADVANCED.AUTOMATIC_DELETION',
+  name: 'automatic_deletion',
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
-  grid: { sd: 4, md: 4 },
+  grid: { md: 12 },
 }
 
 export const ADVANCED_PARAMS_FIELDS = [

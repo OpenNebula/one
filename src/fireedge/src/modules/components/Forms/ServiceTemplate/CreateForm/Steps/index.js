@@ -16,283 +16,188 @@
 import General, {
   STEP_ID as GENERAL_ID,
 } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/General'
+
 import Extra, {
   STEP_ID as EXTRA_ID,
 } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
-import RoleDefinition, {
-  STEP_ID as ROLE_DEFINITION_ID,
+
+import { TAB_ID as ADVANCED_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams'
+
+import { TAB_ID as NETWORK_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking'
+
+import { SECTION_ID as NETWORKS_VALUES_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown'
+
+import Roles, {
+  STEP_ID as ROLE_ID,
 } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles'
 
-import RoleConfig, {
-  STEP_ID as ROLE_CONFIG_ID,
-} from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/RoleConfig'
+import { TAB_ID as USER_INPUT_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/userInputs'
+
+import { TAB_ID as SCHED_ACTION_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/scheduledActions'
 
 import {
-  parseNetworkString,
-  parseCustomInputString,
-  parseVmTemplateContents,
-  convertKeysToCase,
+  toNetworkString,
+  fromNetworkString,
+  toNetworksValueString,
+  toUserInputString,
+  fromUserInputString,
+  fromNetworksValueString,
   createSteps,
+  deepClean,
 } from '@UtilsModule'
 
-const Steps = createSteps([General, Extra, RoleDefinition, RoleConfig], {
+const Steps = createSteps([General, Extra, Roles], {
   transformInitialValue: (ServiceTemplate, schema) => {
-    const definedNetworks = Object.entries(
-      ServiceTemplate?.TEMPLATE?.BODY?.networks || {}
-    )
-      ?.map(([name, networkString]) =>
-        parseNetworkString(`${name}|${networkString}`, true)
-      )
-      .filter(Boolean)
+    const { NAME: name, DESCRIPTION: description } = ServiceTemplate
 
-    const customAttributes = Object.entries(
-      ServiceTemplate?.TEMPLATE?.BODY?.custom_attrs || {}
-    )
-      ?.map(([name, customInputString]) =>
-        parseCustomInputString(`${name}|${customInputString}`, true)
-      )
-      .filter(Boolean)
+    const template = ServiceTemplate?.TEMPLATE?.BODY ?? {}
 
-    const reversedVmTc = ServiceTemplate?.TEMPLATE?.BODY?.roles?.map((role) =>
-      parseVmTemplateContents(role?.vm_template_contents, true)
-    )
+    /* eslint-disable camelcase */
+    const {
+      networks = {},
+      user_inputs = {},
+      networks_values = [],
+      [SCHED_ACTION_ID]: sched_actions = [], // FireEdge only prop
+      roles,
+    } = template
+    /* eslint-enable camelcase */
 
-    const generalData = {
-      NAME: ServiceTemplate?.TEMPLATE?.BODY?.name,
-      DESCRIPTION: ServiceTemplate?.TEMPLATE?.BODY.description,
-    }
+    const networkParse = Object.entries(networks)?.reduce(
+      (acc, network, idx) => {
+        const res = []
+        const parsedNetwork = fromNetworkString(network)
 
-    const definedRoles = ServiceTemplate?.TEMPLATE?.BODY?.roles
-      ?.filter((role) => role != null)
-      ?.map((role) => ({
-        NAME: role?.name,
-        CARDINALITY: role?.cardinality,
-        SELECTED_VM_TEMPLATE_ID: [role?.vm_template.toString()],
-        ...(role?.parents ? { PARENTS: role?.parents } : {}),
-      }))
+        const matchingNetworksValue = networks_values?.find(
+          (nv) => Object.keys(nv)?.pop() === parsedNetwork?.name
+        )
 
-    const roleDefinitionData = definedRoles?.map((role) => ({
-      ...role,
-    }))
+        if (matchingNetworksValue) {
+          // Size goes to parsedNetworks...
+          const { SIZE, ...parsedNetworksValue } = fromNetworksValueString(
+            Object.values(matchingNetworksValue)
+          )
 
-    const networkDefs = reversedVmTc?.map((rtc) => rtc.networks)
+          // Order matters
+          res.push([{ ...parsedNetwork, SIZE }])
+          res.push([parsedNetworksValue])
+        } else {
+          res.push([parsedNetwork])
+        }
 
-    const roleConfigData = {
-      ELASTICITYPOLICIES: convertKeysToCase(
-        ServiceTemplate?.TEMPLATE?.BODY?.roles
-          ?.filter((role) => role != null)
-          ?.reduce((acc, role, index) => {
-            if (role?.elasticity_policies) {
-              acc[index] = role.elasticity_policies.reduce(
-                (policyAcc, policy) => {
-                  policyAcc.push({
-                    ...policy,
-                    COOLDOWN: +policy.cooldown,
-                    ...(policy?.min && { MIN: +policy.min }),
-                    PERIOD: +policy.period,
-                    PERIOD_NUMBER: +policy.period_number,
-                  })
-
-                  return policyAcc
-                },
-                []
-              )
-            }
-
-            return acc
-          }, []),
-        false
-      ),
-      SCHEDULEDPOLICIES: convertKeysToCase(
-        ServiceTemplate?.TEMPLATE?.BODY?.roles
-          ?.filter((role) => role != null)
-          ?.reduce((acc, role, index) => {
-            if (role?.scheduled_policies) {
-              acc[index] = role.scheduled_policies.reduce(
-                (policyAcc, policy) => {
-                  policyAcc.push({
-                    ...(+policy?.min && { MIN: policy?.min }),
-                    SCHEDTYPE: policy?.type,
-                    TIMEFORMAT: policy?.recurrence
-                      ? 'Recurrence'
-                      : 'Start time',
-                    TIMEEXPRESSION: policy?.recurrence || policy?.start_time,
-                  })
-
-                  return policyAcc
-                },
-                []
-              )
-            }
-
-            return acc
-          }, []),
-        false
-      ),
-      vm_template_contents: reversedVmTc?.map(
-        (content) => content?.remainingContent
-      ),
-      MINMAXVMS: ServiceTemplate?.TEMPLATE?.BODY?.roles
-        ?.filter((role) => role != null)
-        ?.map((role) => ({
-          min_vms: role.min_vms,
-          max_vms: role.max_vms,
-          cooldown: role.cooldown,
-        }))
-        ?.filter((role) =>
-          Object.values(role).some((val) => val !== undefined)
-        ),
-
-      NETWORKDEFS: networkDefs,
-      RDP: networkDefs?.reduce((acc, nics, idx) => {
-        const rdpRow =
-          nics?.filter((nic) => nic?.RDP)?.[0]?.NETWORK_ID?.slice(1) ?? ''
-        acc[idx] = rdpRow
+        acc[idx] = res
 
         return acc
-      }, {}),
-    }
-
-    const knownTemplate = schema.cast(
-      {
-        [EXTRA_ID]: {
-          NETWORKING: definedNetworks,
-          CUSTOM_ATTRIBUTES: customAttributes,
-          // Sched actions are same for all roles, so just grab the first one
-          SCHED_ACTION: reversedVmTc?.[0]?.schedActions,
-        },
-        [GENERAL_ID]: { ...generalData },
-        [ROLE_DEFINITION_ID]: roleDefinitionData,
-        [ROLE_CONFIG_ID]: { ...roleConfigData },
       },
-      { stripUnknown: true }
+      []
     )
 
-    return knownTemplate
+    const [parsedNetworks, parsedNetworksValues] = [
+      networkParse.map(([pn]) => pn).flat(),
+      networkParse.map(([, pnv]) => pnv).flat(),
+    ]
+
+    return schema.cast(
+      {
+        [GENERAL_ID]: { name, description },
+        [EXTRA_ID]: {
+          [NETWORK_ID]: parsedNetworks,
+          [NETWORKS_VALUES_ID]: parsedNetworksValues,
+          [USER_INPUT_ID]: Object.entries(user_inputs).map(fromUserInputString),
+          [SCHED_ACTION_ID]: sched_actions,
+          [ADVANCED_ID]: { ...template }, // strips unknown keys so this is fine
+        },
+        roles,
+      },
+
+      { stripUnknown: true }
+    )
   },
 
   transformBeforeSubmit: (formData) => {
     const {
       [GENERAL_ID]: generalData,
-      [ROLE_DEFINITION_ID]: roleDefinitionData,
       [EXTRA_ID]: extraData,
-      [ROLE_CONFIG_ID]: roleConfigData,
+      [ROLE_ID]: roleData,
     } = formData
 
-    const getVmTemplateContents = (index) => {
-      const contents = parseVmTemplateContents({
-        networks:
-          roleConfigData?.NETWORKS?.[index] ||
-          roleConfigData?.NETWORKDEFS?.[index],
-        rdpConfig: roleConfigData?.RDP?.[index],
-        remainingContent: roleConfigData?.vm_template_contents?.[index],
-        schedActions: extraData?.SCHED_ACTION,
-      })
+    const {
+      [ADVANCED_ID]: extraParams = {},
+      [NETWORK_ID]: networks,
+      [NETWORKS_VALUES_ID]: networksValues,
+      [USER_INPUT_ID]: userInputs,
+      [SCHED_ACTION_ID]: schedActions,
+    } = extraData
 
-      return contents || ''
-    }
+    const formatRole = roleData?.map((role) => {
+      const { NIC = [] } = role?.template_contents || {}
 
-    const getScheduledPolicies = (index) => {
-      const policies = roleConfigData?.SCHEDULEDPOLICIES?.[index]?.map(
-        (policy) => {
-          const { SCHEDTYPE, ADJUST, TIMEFORMAT, TIMEEXPRESSION, ...rest } =
-            policy
+      return {
+        ...role,
+        template_contents: {
+          ...role.template_contents,
+          NIC: NIC?.filter(
+            // Filter out stale NIC's
+            ({ NETWORK_ID: NIC_ID } = {}) =>
+              networks?.some(
+                ({ name: NETWORK_NAME }) => `$${NETWORK_NAME}` === NIC_ID
+              )
+          )
+            ?.map(
+              // Filter out stale aliases
+              ({
+                NIC_ALIAS: { NETWORK_ID: ALIAS_ID, ...alias } = {},
+                ...nic
+              } = {}) => {
+                const validAlias = networks?.some(
+                  ({ name: NETWORK_NAME }) => `$${NETWORK_NAME}` === ALIAS_ID
+                )
 
-          return {
-            ...rest,
-            TYPE: SCHEDTYPE,
-            ADJUST: Number(ADJUST),
-            [TIMEFORMAT?.split(' ')?.join('_')?.toLowerCase()]: TIMEEXPRESSION,
-          }
-        }
-      )
-
-      return policies?.length ? policies : undefined
-    }
-
-    const getElasticityPolicies = (index) => {
-      const elasticityPolicies = roleConfigData?.ELASTICITYPOLICIES?.[index]
-      if (!elasticityPolicies || elasticityPolicies.length === 0)
-        return undefined
-
-      return elasticityPolicies.map(({ ADJUST, ...rest }) => ({
-        ...rest,
-        ...(ADJUST && { adjust: Number(ADJUST) }),
-      }))
-    }
-
-    const getNetworks = () => {
-      if (!extraData?.NETWORKING?.length) return undefined
-
-      return extraData.NETWORKING.reduce((acc, network) => {
-        if (network?.name) {
-          acc[network.name] = parseNetworkString(network)
-        }
-
-        return acc
-      }, {})
-    }
-
-    const getCustomAttributes = () => {
-      if (!extraData?.CUSTOM_ATTRIBUTES?.length) return undefined
-
-      return extraData.CUSTOM_ATTRIBUTES.reduce((acc, cinput) => {
-        if (cinput?.name) {
-          acc[cinput.name] = parseCustomInputString(cinput)
-        }
-
-        return acc
-      }, {})
-    }
-
-    const getRoleParents = (index) => {
-      if (
-        !roleDefinitionData?.[index]?.PARENTS ||
-        !Array.isArray(roleDefinitionData?.[index]?.PARENTS) ||
-        roleDefinitionData?.[index]?.PARENTS?.length <= 0
-      )
-        return undefined
-
-      return roleDefinitionData?.[index]?.PARENTS
-    }
-
-    try {
-      const formatTemplate = {
-        ...generalData,
-        ...extraData?.ADVANCED,
-        roles: roleDefinitionData?.map((roleDef, index) => {
-          const newRoleDef = {
-            ...roleDef,
-            ...roleConfigData?.MINMAXVMS?.[index],
-            VM_TEMPLATE: Number(roleDef?.SELECTED_VM_TEMPLATE_ID?.[0]),
-            vm_template_contents: getVmTemplateContents(index),
-            parents: getRoleParents(index),
-            scheduled_policies: getScheduledPolicies(index),
-            elasticity_policies: getElasticityPolicies(index),
-          }
-
-          delete newRoleDef.SELECTED_VM_TEMPLATE_ID
-          delete newRoleDef.MINMAXVMS
-
-          return newRoleDef
-        }),
-        networks: getNetworks(),
-        custom_attrs: getCustomAttributes(),
+                if (validAlias) {
+                  return {
+                    ...nic,
+                    NIC_ALIAS: {
+                      ...alias,
+                      NETWORK_ID: ALIAS_ID,
+                    },
+                  }
+                } else {
+                  return {
+                    ...nic,
+                  }
+                }
+              }
+            )
+            // Explicitly remove any id's left from fieldArray
+            ?.map(
+              ({ id, NIC_ALIAS: { id: aliasId, ...alias } = {}, ...nic }) => ({
+                ...nic,
+                ...(alias ? { NIC_ALIAS: alias } : {}),
+              })
+            ),
+        },
       }
+    })
 
-      const cleanedTemplate = {
-        ...convertKeysToCase(formatTemplate, true, 1),
-        ...(formatTemplate?.roles || formatTemplate?.ROLES
-          ? {
-              roles: convertKeysToCase(
-                formatTemplate?.roles || formatTemplate?.ROLES
-              ),
-            }
-          : {}),
-      }
+    const formatTemplate = {
+      ...generalData,
+      ...extraParams,
+      roles: formatRole,
+      networks: Object.fromEntries(networks?.map(toNetworkString)) ?? [],
+      networks_values: networks
+        ?.map((network, idx) =>
+          toNetworksValueString(network, networksValues[idx])
+        )
+        ?.filter(Boolean),
 
-      return cleanedTemplate
-    } catch (error) {}
+      user_inputs: userInputs
+        ? Object.fromEntries(userInputs?.map(toUserInputString))
+        : [],
+      [SCHED_ACTION_ID]: schedActions, // FireEdge only prop
+    }
+
+    const cleanedTemplate = deepClean(formatTemplate)
+
+    return cleanedTemplate
   },
 })
 

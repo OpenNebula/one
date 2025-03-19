@@ -15,6 +15,11 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
+import {
+  bindSecGroupTemplate,
+  isRestrictedAttributes,
+  unbindSecGroupTemplate,
+} from '@UtilsModule'
 
 import { Box } from '@mui/material'
 import {
@@ -26,8 +31,6 @@ import { SecurityGroupAPI, VnAPI, useGeneralApi } from '@FeaturesModule'
 
 import { T, VN_ACTIONS } from '@ConstantsModule'
 import { GlobalAction, SecurityGroupsTable } from '@modules/components/Tables'
-
-import { isRestrictedAttributes, unbindSecGroupTemplate } from '@UtilsModule'
 
 import { ChangeForm } from '@modules/components/Forms/SecurityGroups'
 
@@ -137,7 +140,13 @@ const SecurityTab = ({
               {
                 dialogProps: { title: T.SecurityGroup },
                 form: () => ChangeForm({ initialValues: vnet }),
-                onSubmit: () => async (xml) => {
+                onSubmit: () => async (formData) => {
+                  const { secgroups } = formData
+
+                  const newTemplate = bindSecGroupTemplate(vnet, secgroups)
+
+                  const xml = jsonToXml(newTemplate)
+
                   const response = await update({
                     id: vnet.ID,
                     template: xml,

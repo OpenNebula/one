@@ -15,7 +15,12 @@
  * ------------------------------------------------------------------------- */
 import templateToObject from '@modules/utils/parser/templateToObject'
 import {
-  parseNetworkString,
+  toNetworkString,
+  fromNetworkString,
+  toNetworksValueString,
+  fromNetworksValueString,
+  toUserInputString,
+  fromUserInputString,
   parseCustomInputString,
   convertKeysToCase,
 } from '@modules/utils/parser/parseServiceTemplate'
@@ -37,7 +42,12 @@ export {
   parseAcl,
   parseCustomInputString,
   templateToObject,
-  parseNetworkString,
+  toNetworkString,
+  toNetworksValueString,
+  fromNetworksValueString,
+  toUserInputString,
+  fromNetworkString,
+  fromUserInputString,
   parsePayload,
   parseTouchedDirty,
   parseVmTemplateContents,

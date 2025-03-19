@@ -69,14 +69,49 @@ export function InstantiateServiceTemplate() {
   })
 
   const onSubmit = async (jsonTemplate) => {
-    const { instances = 1 } = jsonTemplate
+    const { instances = 1, SCHED_ACTION = [] } = jsonTemplate
+
+    const {
+      TEMPLATE: {
+        BODY: { roles, networks_values: networksValues, networks },
+      },
+    } = apiTemplateData
+
+    const formatNetworkValues = networksValues?.map((network) => {
+      const [key, values] = Object.entries(network)?.pop()
+
+      const [, networkString] = Object.entries(networks)?.find(
+        ([net]) => net === key
+      )
+
+      const [type, value] = networkString?.split('|')?.[4]?.trim()?.split(':')
+
+      return {
+        [key]: {
+          ...values,
+          ...(type && value ? { [type]: value } : {}),
+        },
+      }
+    })
+
+    // eslint-disable-next-line camelcase
+    const formatRoles = roles?.map(({ vm_template_id_content, ...role }) => ({
+      ...role,
+      ...(SCHED_ACTION?.length > 0
+        ? { template_contents: { SCHED_ACTION } }
+        : {}),
+    }))
 
     try {
       await Promise.all(
         Array.from({ length: instances }, async () =>
           instantiate({
             id: templateId,
-            template: jsonTemplate,
+            template: {
+              ...jsonTemplate,
+              networks_values: formatNetworkValues,
+              roles: formatRoles,
+            },
           }).unwrap()
         )
       )

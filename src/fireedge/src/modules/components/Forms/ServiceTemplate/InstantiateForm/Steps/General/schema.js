@@ -24,9 +24,8 @@ const NAME_FIELD = {
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .min(3, 'Service name less than 3 characters')
-    .max(128, 'Service name over 128 characters')
-    .required('Name cannot be empty')
+    .min(3)
+    .required()
     .default(() => undefined),
   grid: { md: 12 },
 }

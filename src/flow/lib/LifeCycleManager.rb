@@ -229,9 +229,9 @@ class ServiceLCM
                                service.report_ready?)
 
             if !OpenNebula.is_error?(rc)
-                service.set_state(Service::STATE['DEPLOYING'])
+                service.state = Service::STATE['DEPLOYING']
             else
-                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                service.state = Service::STATE['FAILED_DEPLOYING']
             end
 
             service.update
@@ -259,14 +259,14 @@ class ServiceLCM
                 rc = service.deploy_networks
 
                 if OpenNebula.is_error?(rc)
-                    service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                    service.state = Service::STATE['FAILED_DEPLOYING']
                     service.update
 
                     break rc
                 end
             end
 
-            service.set_state(Service::STATE['DEPLOYING_NETS'])
+            service.state = Service::STATE['DEPLOYING_NETS']
 
             @event_manager.trigger_action(
                 :wait_deploy_nets_action,
@@ -292,7 +292,7 @@ class ServiceLCM
     # @return [OpenNebula::Error] Error if any
     def undeploy_nets_action(external_user, service_id)
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.set_state(Service::STATE['UNDEPLOYING_NETS'])
+            service.state = Service::STATE['UNDEPLOYING_NETS']
 
             @event_manager.trigger_action(
                 :wait_undeploy_nets_action,
@@ -320,12 +320,22 @@ class ServiceLCM
         rc = @srv_pool.get(service_id, external_user) do |service|
             set_deploy_strategy(service)
 
+            # Replace all variables and attributes in the template
+            rc = service.fill_template
+
+            if OpenNebula.is_error?(rc)
+                service.state = Service::STATE['FAILED_DEPLOYING']
+                service.update
+
+                break rc
+            end
+
             roles = service.roles_deploy
 
             # Maybe roles.empty? because are being deploying in other threads
             if roles.empty?
                 if service.all_roles_running?
-                    service.set_state(Service::STATE['RUNNING'])
+                    service.state = Service::STATE['RUNNING']
                     service.update
 
                     @wd.add_service(service)
@@ -343,11 +353,11 @@ class ServiceLCM
                               service.report_ready?)
 
             if !OpenNebula.is_error?(rc) & service.on_hold?
-                service.set_state(Service::STATE['HOLD'])
+                service.state = Service::STATE['HOLD']
             elsif !OpenNebula.is_error?(rc) & !service.on_hold?
-                service.set_state(Service::STATE['DEPLOYING'])
+                service.state = Service::STATE['DEPLOYING']
             else
-                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                service.state = Service::STATE['FAILED_DEPLOYING']
             end
 
             service.update
@@ -396,9 +406,9 @@ class ServiceLCM
                                 :wait_undeploy_action)
 
             if !OpenNebula.is_error?(rc)
-                service.set_state(Service::STATE['UNDEPLOYING'])
+                service.state = Service::STATE['UNDEPLOYING']
             else
-                service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
+                service.state = Service::STATE['FAILED_UNDEPLOYING']
             end
 
             service.update
@@ -477,9 +487,9 @@ class ServiceLCM
             end
 
             if !OpenNebula.is_error?(rc)
-                service.set_state(Service::STATE['SCALING'])
+                service.state = Service::STATE['SCALING']
             else
-                service.set_state(Service::STATE['FAILED_SCALING'])
+                service.state = Service::STATE['FAILED_SCALING']
             end
 
             service.update
@@ -520,10 +530,10 @@ class ServiceLCM
             elsif service.can_recover_undeploy_nets?
                 recover_nets(:wait_undeploy_nets_action, external_user, service)
             elsif Service::STATE['COOLDOWN'] == service.state
-                service.set_state(Service::STATE['RUNNING'])
+                service.state = Service::STATE['RUNNING']
 
                 service.roles.each do |_, role|
-                    role.set_state(Role::STATE['RUNNING'])
+                    role.state = Role::STATE['RUNNING']
                 end
             else
                 break OpenNebula::Error.new(
@@ -625,15 +635,24 @@ class ServiceLCM
             end
 
             role = service.add_role(role)
-
             break role if OpenNebula.is_error?(role)
+
+            # Replace all variables and attributes in the template
+            rc = service.fill_template
+
+            if OpenNebula.is_error?(rc)
+                service.state = Service::STATE['FAILED_DEPLOYING']
+                service.update
+
+                break rc
+            end
 
             service.update
 
             rc = service.deploy_networks(false)
 
             if OpenNebula.is_error?(rc)
-                service.set_state(Service::STATE['FAILED_DEPLOYING'])
+                service.state = Service::STATE['FAILED_DEPLOYING']
                 service.update
 
                 break rc
@@ -684,7 +703,7 @@ class ServiceLCM
         undeploy = false
 
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+            service.roles[role_name].state = Role::STATE['RUNNING']
 
             service.roles[role_name].nodes.delete_if do |node|
                 if nodes[node] && service.roles[role_name].cardinality > 0
@@ -698,7 +717,7 @@ class ServiceLCM
             undeploy = service.check_role(service.roles[role_name])
 
             if service.all_roles_running?
-                service.set_state(Service::STATE['RUNNING'])
+                service.state = Service::STATE['RUNNING']
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -731,10 +750,8 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_DEPLOYING'])
-            service.roles[role_name].set_state(
-                Role::STATE['FAILED_DEPLOYING']
-            )
+            service.state = Service::STATE['FAILED_DEPLOYING']
+            service.roles[role_name].state = Role::STATE['FAILED_DEPLOYING']
 
             service.update
         end
@@ -751,7 +768,7 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_DEPLOYING_NETS'])
+            service.state = Service::STATE['FAILED_DEPLOYING_NETS']
             service.update
         end
 
@@ -762,7 +779,7 @@ class ServiceLCM
         undeploy_nets = false
 
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.roles[role_name].set_state(Role::STATE['DONE'])
+            service.roles[role_name].state = Role::STATE['DONE']
 
             service.roles[role_name].nodes.delete_if do |node|
                 !nodes[:failure].include?(node['deploy_id']) &&
@@ -811,7 +828,7 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING_NETS'])
+            service.state = Service::STATE['FAILED_UNDEPLOYING_NETS']
             service.update
         end
 
@@ -823,10 +840,8 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
-            service.roles[role_name].set_state(
-                Role::STATE['FAILED_UNDEPLOYING']
-            )
+            service.state                  = Service::STATE['FAILED_UNDEPLOYING']
+            service.roles[role_name].state = Role::STATE['FAILED_UNDEPLOYING']
 
             service.roles[role_name].nodes.delete_if do |node|
                 !nodes[:failure].include?(node['deploy_id']) &&
@@ -849,8 +864,8 @@ class ServiceLCM
                 nodes[node]
             end
 
-            service.set_state(Service::STATE['COOLDOWN'])
-            service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
+            service.state                  = Service::STATE['COOLDOWN']
+            service.roles[role_name].state = Role::STATE['COOLDOWN']
 
             @event_manager.trigger_action(
                 :wait_cooldown_action,
@@ -871,8 +886,8 @@ class ServiceLCM
 
     def scaledown_cb(external_user, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.set_state(Service::STATE['COOLDOWN'])
-            service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
+            service.state                  = Service::STATE['COOLDOWN']
+            service.roles[role_name].state = Role::STATE['COOLDOWN']
 
             service.roles[role_name].nodes.delete_if do |node|
                 !nodes[:failure].include?(node['deploy_id']) &&
@@ -901,10 +916,8 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_SCALING'])
-            service.roles[role_name].set_state(
-                Role::STATE['FAILED_SCALING']
-            )
+            service.state                  = Service::STATE['FAILED_SCALING']
+            service.roles[role_name].state = Role::STATE['FAILED_SCALING']
 
             service.update
         end
@@ -919,8 +932,8 @@ class ServiceLCM
 
             role = service.roles[role_name]
 
-            service.set_state(Service::STATE['FAILED_SCALING'])
-            role.set_state(Role::STATE['FAILED_SCALING'])
+            service.state = Service::STATE['FAILED_SCALING']
+            role.state    = Role::STATE['FAILED_SCALING']
 
             role.nodes.delete_if do |node|
                 !nodes[:failure].include?(node['deploy_id']) &&
@@ -937,8 +950,8 @@ class ServiceLCM
         undeploy = false
 
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.set_state(Service::STATE['RUNNING'])
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+            service.state                  = Service::STATE['RUNNING']
+            service.roles[role_name].state = Role::STATE['RUNNING']
 
             service.update
 
@@ -959,9 +972,8 @@ class ServiceLCM
 
     def add_cb(external_user, service_id, role_name, _)
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
-
-            service.set_state(Service::STATE['RUNNING'])
+            service.roles[role_name].state = Role::STATE['RUNNING']
+            service.state                  = Service::STATE['RUNNING']
 
             rc = service.update
 
@@ -978,10 +990,8 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_DEPLOYING'])
-            service.roles[role_name].set_state(
-                Role::STATE['FAILED_DEPLOYING']
-            )
+            service.state                  = Service::STATE['FAILED_DEPLOYING']
+            service.roles[role_name].state = Role::STATE['FAILED_DEPLOYING']
 
             service.update
         end
@@ -1003,7 +1013,7 @@ class ServiceLCM
 
                 service.delete
             else
-                service.set_state(Service::STATE['RUNNING'])
+                service.state = Service::STATE['RUNNING']
 
                 rc = service.update
 
@@ -1021,10 +1031,8 @@ class ServiceLCM
             # stop actions for the service if deploy fails
             @event_manager.cancel_action(service_id)
 
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
-            service.roles[role_name].set_state(
-                Role::STATE['FAILED_UNDEPLOYING']
-            )
+            service.state                  = Service::STATE['FAILED_UNDEPLOYING']
+            service.roles[role_name].state = Role::STATE['FAILED_UNDEPLOYING']
 
             service.roles[role_name].nodes.delete_if do |node|
                 !nodes[:failure].include?(node['deploy_id']) &&
@@ -1040,12 +1048,11 @@ class ServiceLCM
     def hold_cb(external_user, service_id, role_name)
         rc = @srv_pool.get(service_id, external_user) do |service|
             if service.roles[role_name].state != Role::STATE['HOLD']
-                service.roles[role_name].set_state(Role::STATE['HOLD'])
+                service.roles[role_name].state = Role::STATE['HOLD']
             end
 
-            if service.all_roles_hold? &&
-                service.state != Service::STATE['HOLD']
-                service.set_state(Service::STATE['HOLD'])
+            if service.all_roles_hold? && service.state != Service::STATE['HOLD']
+                service.state = Service::STATE['HOLD']
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -1071,7 +1078,7 @@ class ServiceLCM
         undeploy = false
 
         rc = @srv_pool.get(service_id, external_user) do |service|
-            service.roles[role_name].set_state(Role::STATE['RUNNING'])
+            service.roles[role_name].state = Role::STATE['RUNNING']
 
             service.roles[role_name].nodes.delete_if do |node|
                 if nodes[node] && service.roles[role_name].cardinality > 0
@@ -1085,7 +1092,7 @@ class ServiceLCM
             undeploy = service.check_role(service.roles[role_name])
 
             if service.all_roles_running?
-                service.set_state(Service::STATE['RUNNING'])
+                service.state = Service::STATE['RUNNING']
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -1122,11 +1129,11 @@ class ServiceLCM
     def error_wd_cb(external_user, service_id, role_name, _node)
         rc = @srv_pool.get(service_id, external_user) do |service|
             if service.state != Service::STATE['WARNING']
-                service.set_state(Service::STATE['WARNING'])
+                service.state = Service::STATE['WARNING']
             end
 
             if service.roles[role_name].state != Role::STATE['WARNING']
-                service.roles[role_name].set_state(Role::STATE['WARNING'])
+                service.roles[role_name].state = Role::STATE['WARNING']
             end
 
             service.update
@@ -1179,12 +1186,12 @@ class ServiceLCM
             role = service.roles[role_name]
 
             if service.roles[role_name].state != Role::STATE['RUNNING']
-                service.roles[role_name].set_state(Role::STATE['RUNNING'])
+                service.roles[role_name].state = Role::STATE['RUNNING']
             end
 
             if service.all_roles_running? &&
             service.state != Service::STATE['RUNNING']
-                service.set_state(Service::STATE['RUNNING'])
+                service.state = Service::STATE['RUNNING']
             end
 
             # If the role has 0 nodes, delete role
@@ -1252,27 +1259,24 @@ class ServiceLCM
         # rubocop:enable Metrics/ParameterLists
         rc = roles.each do |name, role|
             # Only applies to new services (pending)
-            if role.state == Role::STATE['PENDING']
+            if role.state == Role::STATE['PENDING'] &&
+               (role.service_on_hold? || role.any_parent_on_hold?)
                 # Set all roles on hold if the on_hold option
                 # is set at service level
-                if role.service_on_hold?
-                    role.hold(true)
-                elsif role.any_parent_on_hold?
-                    role.hold(true)
-                end
+                role.on_hold = true
             end
 
             rc = role.deploy
 
             if !rc[0]
-                role.set_state(Role::STATE[error_state])
+                role.state = Role::STATE[error_state]
                 break OpenNebula::Error.new(
                     "Error deploying role #{name}: #{rc[1]}"
                 )
             end
 
             if role.on_hold? && role.state == Role::STATE['PENDING']
-                role.set_state(Role::STATE['HOLD'])
+                role.state = Role::STATE['HOLD']
                 @event_manager.trigger_action(:wait_hold_action,
                                               role.service.id,
                                               external_user,
@@ -1280,7 +1284,7 @@ class ServiceLCM
                                               role.name,
                                               rc[0])
             else
-                role.set_state(Role::STATE[success_state])
+                role.state = Role::STATE[success_state]
                 @event_manager.trigger_action(action,
                                               role.service.id,
                                               external_user,
@@ -1302,13 +1306,13 @@ class ServiceLCM
             rc = role.shutdown(false)
 
             if !rc[0]
-                role.set_state(Role::STATE[error_state])
+                role.state = Role::STATE[error_state]
                 break OpenNebula::Error.new(
                     "Error undeploying role #{name}: #{rc[1]}"
                 )
             end
 
-            role.set_state(Role::STATE[success_state])
+            role.state = Role::STATE[success_state]
 
             # TODO, take only subset of nodes which needs to
             # be undeployed (new role.nodes_undeployed_ids ?)
@@ -1329,13 +1333,13 @@ class ServiceLCM
             rc = role.release
 
             if !rc[1]
-                role.set_state(Role::STATE[error_state])
+                role.state = Role::STATE[error_state]
                 break OpenNebula::Error.new(
                     "Error releasing role #{name}: #{rc[1]}"
                 )
             end
 
-            role.set_state(Role::STATE[success_state])
+            role.state = Role::STATE[success_state]
 
             @event_manager.trigger_action(action,
                                           role.service.id,
@@ -1440,9 +1444,9 @@ class ServiceLCM
                           service.report_ready?)
 
         if !OpenNebula.is_error?(rc)
-            service.set_state(Service::STATE['DEPLOYING'])
+            service.state = Service::STATE['DEPLOYING']
         else
-            service.set_state(Service::STATE['FAILED_DEPLOYING'])
+            service.state = Service::STATE['FAILED_DEPLOYING']
         end
 
         service.update
@@ -1464,9 +1468,9 @@ class ServiceLCM
                             :wait_remove_action)
 
         if !OpenNebula.is_error?(rc)
-            service.set_state(Service::STATE['UNDEPLOYING'])
+            service.state = Service::STATE['UNDEPLOYING']
         else
-            service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
+            service.state = Service::STATE['FAILED_UNDEPLOYING']
         end
 
         service.update

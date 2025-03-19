@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { string, object, ObjectSchema, mixed } from 'yup'
+import { string, object, mixed } from 'yup'
 import {
   Field,
   arrayToOptions,
@@ -146,7 +146,7 @@ export const RANGE_TYPE = {
   }),
   validation: string()
     .trim()
-    .afterSubmit((value) => undefined),
+    .afterSubmit(() => undefined),
   grid: { xs: 12 },
 }
 
@@ -179,7 +179,7 @@ export const TARGET = {
   ),
   validation: string()
     .trim()
-    .afterSubmit((value) => undefined),
+    .afterSubmit(() => undefined),
   grid: { xs: 12 },
 }
 
@@ -248,6 +248,6 @@ export const FIELDS = [
 
 /**
  * @param {object} [stepProps] - Step props
- * @returns {ObjectSchema} Schema
+ * @returns {object} Schema
  */
 export const SCHEMA = object(getValidationFromFields(FIELDS))

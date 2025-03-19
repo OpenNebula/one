@@ -75,6 +75,7 @@ require 'LifeCycleManager'
 require 'EventManager'
 
 DEFAULT_VM_NAME_TEMPLATE = '$ROLE_NAME_$VM_NUMBER_(service_$SERVICE_ID)'
+DEFAULT_VR_NAME_TEMPLATE = '$ROLE_NAME(service_$SERVICE_ID)'
 
 ##############################################################################
 # Configuration
@@ -99,6 +100,7 @@ conf[:shutdown_action]     ||= 'terminate'
 conf[:action_number]       ||= 1
 conf[:action_period]       ||= 60
 conf[:vm_name_template]    ||= DEFAULT_VM_NAME_TEMPLATE
+conf[:vr_name_template]    ||= DEFAULT_VR_NAME_TEMPLATE
 conf[:wait_timeout]        ||= 30
 conf[:concurrency]         ||= 10
 conf[:auth]                  = 'opennebula'
@@ -204,24 +206,24 @@ def one_error_to_http(error)
     end
 end
 
-# Check if the custom_attrs and their respective values are correct
+# Check if the user_inputs and their respective values are correct
 #
-# @param custom_attrs        [Hash] Custom attrs of the service/role
-# @param custom_attrs_values [Hash] Custom attrs values to check
-def check_custom_attrs(custom_attrs, custom_attrs_values)
-    return if custom_attrs.nil? || custom_attrs.empty?
+# @param user_inputs        [Hash] User inputs of the service/role
+# @param user_inputs_values [Hash] User inputs values to check
+def check_user_inptus(user_inputs, user_inputs_values)
+    return if user_inputs.nil? || user_inputs.empty?
 
-    if custom_attrs_values.nil?
-        raise 'The Service template specifies custom attributes but no values have been found'
+    if user_inputs_values.nil?
+        raise 'The Service template specifies User Inputs but no values have been found'
     end
 
-    if !custom_attrs.is_a?(Hash) || !custom_attrs_values.is_a?(Hash)
-        raise 'Wrong custom_attrs or custom_attrs_values format'
+    if !user_inputs.is_a?(Hash) || !user_inputs_values.is_a?(Hash)
+        raise 'Wrong User Inputs or User Inputs Values format'
     end
 
-    return if (custom_attrs.keys - custom_attrs_values.keys).empty?
+    return if (user_inputs.keys - user_inputs_values.keys).empty?
 
-    raise 'Verify that every custom attribute have its corresponding value defined'
+    raise 'Verify that every User Input have its corresponding value defined'
 end
 
 ##############################################################################
@@ -232,6 +234,7 @@ Role.init_default_cooldown(conf[:default_cooldown])
 Role.init_default_shutdown(conf[:shutdown_action])
 Role.init_force_deletion(conf[:force_deletion])
 Role.init_default_vm_name_template(conf[:vm_name_template])
+Role.init_default_vr_name_template(conf[:vr_name_template])
 
 ServiceTemplate.init_default_vn_name_template(conf[:vn_name_template])
 
@@ -671,34 +674,44 @@ post '/service_template/:id/action' do
         body = service_json['DOCUMENT']['TEMPLATE']['BODY']
 
         begin
-            # Check service custom_attrs
-            custom_attrs = body['custom_attrs']
-            custom_attrs_values = merge_template['custom_attrs_values']
-            check_custom_attrs(custom_attrs, custom_attrs_values)
+            # Check service user_inputs
+            user_inputs = body['user_inputs']
+            user_inputs_values = merge_template['user_inputs_values']
+            check_user_inptus(user_inputs, user_inputs_values)
 
-            # Check custom attrs in each role
             body['roles'].each do |role|
-                next if role['custom_attrs'].nil?
+                # Check that the JSON template_contents is valid for each role
+                template_contents = role.fetch('template_contents', {})
+
+                unless template_contents.is_a?(Hash)
+                    raise 'Error validating template_contents object for the' \
+                          "role #{role['name']}. The object must be a valid hash."
+                end
+
+                # Check that user inputs for each role are correct if they exist
+                next if role['user_inputs'].nil?
 
                 roles_merge_template = merge_template['roles']
 
-                # merge_template must have 'role' key if role has custom attributes
+                # merge_template must have 'role' key if role has user inputs
                 if roles_merge_template.nil?
-                    raise 'The Service template specifies custom attributes for the role ' \
+                    raise 'The Service template specifies user inputs for the role ' \
                           "#{role['name']} but no values have been found"
                 end
 
                 if !roles_merge_template.is_a?(Array) || roles_merge_template.empty?
-                    raise 'The role custom attributes are empty or do not have a valid format'
+                    raise 'The role user inputs are empty or do not have a valid format'
                 end
 
                 # Select role from merge_template by role name
                 merge_role = roles_merge_template.find {|item| item['name'] == role['name'] }
 
-                role_custom_attrs = role['custom_attrs']
-                role_custom_attrs_values = merge_role['custom_attrs_values']
+                next unless merge_role
 
-                check_custom_attrs(role_custom_attrs, role_custom_attrs_values)
+                role_user_inputs = role['user_inputs']
+                role_user_inputs_values = merge_role['user_inputs_values']
+
+                check_user_inptus(role_user_inputs, role_user_inputs_values)
             end
         rescue StandardError => e
             return internal_error(e.message, VALIDATION_EC)

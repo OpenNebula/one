@@ -81,6 +81,7 @@ module.exports = {
   Close: 'Close',
   Collapse: 'Collapse',
   Configuration: 'Configuration',
+  Definition: 'Definition',
   CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
   CreateDatastore: 'Create Datastore',
@@ -304,7 +305,7 @@ module.exports = {
   DayOfWeek: 'Day of week',
   DayOfMonth: 'Day of month',
   DayOfYear: 'Day of year',
-  EachXHours: "Each 'x' hours",
+  EachXHours: "Every 'x' hours",
   EndType: 'End type',
   DaysBetween0_6: 'Days should be between 0 (Sunday) and 6 (Saturday)',
   DaysBetween1_31: 'Days should be between 1 and 31',
@@ -421,6 +422,7 @@ module.exports = {
   ProviderTemplate: 'Provider template',
   ProvisionTemplate: 'Provision template',
   ConfigureInputs: 'Configure inputs',
+  UserInputs: 'User inputs',
   Log: 'Log',
   AddIP: 'Add IP',
   AddHost: 'Add Host',
@@ -847,6 +849,8 @@ module.exports = {
   Services: 'Services',
   ServiceTemplate: 'Service Template',
   ServiceTemplates: 'Service Templates',
+  StraightStrategyConcept:
+    'Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.',
   VirtualRouterTemplate: 'Virtual Router Template',
   VirtualRouterTemplates: 'Virtual Router Templates',
   VirtualRouterNICStart: 'Add a NIC to Start Configuring',
@@ -1215,6 +1219,7 @@ module.exports = {
   ElasticityPolicies: 'Elasticity Policies',
   ScheduledPolicy: 'Scheduled Policy',
   ScheduledPolicies: 'Scheduled Policies',
+  AddPolicy: 'Add Policy',
   AssociateToVMGroup: 'Associate VM to a VM Group',
   /* VM Template schema - placement */
   HostRequirements: 'Host Requirements',
@@ -1322,6 +1327,9 @@ module.exports = {
   Context: 'Context',
   SshPublicKey: 'SSH public key',
   AddUserSshPublicKey: 'Add user SSH public key',
+  AddNetwork: 'Add Network',
+  AddUserInput: 'Add User input',
+  AddScheduleAction: 'Add Schedule action',
   AddNetworkContextualization: 'Add Network contextualization',
   AddNetworkContextualizationConcept: `
     Add network contextualization parameters. For each NIC defined in
@@ -1997,7 +2005,6 @@ module.exports = {
   AuthDriver: 'Auth Driver',
   PasswordHash: 'Password Hash',
   TokenPasswordHash: 'Token Password Hash',
-  UserInputs: 'User Inputs',
   UserInputsService: 'Service Inputs',
   UserInputsRole: 'Roles Inputs',
   UserInputsConcept: `
@@ -2036,6 +2043,8 @@ module.exports = {
   ManualNetwork: 'Manual Network',
   OpennebulaVirtualNetwork: 'OpenNebula Virtual Network',
   SelectNewNetwork: 'Please select a network from the list',
+  NewNetwork: 'New Network',
+  NewUserInput: 'New User input',
   MessageAddSecGroupDefault:
     'The default Security Group 0 is automatically added to new Virtual Networks',
   NotVmsCurrentySecGroups:
@@ -2056,7 +2065,7 @@ module.exports = {
   /* Validation - mixed */
   'validation.mixed.default': 'Is invalid',
   'validation.mixed.required': 'Is a required field',
-  'validation.mixed.oneOf': 'Must be one of the following values: %s',
+  'validation.mixed.oneOf': 'Must be one of the following values',
   'validation.mixed.notOneOf': 'Must not be one of the following values: %s',
   'validation.mixed.notType': 'Invalid type',
   'validation.mixed.notType.string': 'Must be a string type',
@@ -2079,14 +2088,16 @@ module.exports = {
   'validation.string.uppercase': 'Must be a upper case string',
   'validation.string.invalidFormat': 'File has invalid format',
   /* Validation - number */
-  'validation.number.min': 'Must be greater than or equal to %s',
-  'validation.number.max': 'Must be less than or equal to %s',
-  'validation.number.lessThan': 'Must be less than %s',
+  'validation.number.min': 'Must be greater than or equal to',
+  'validation.number.max': 'Must be less than or equal to',
+  'validation.number.lessThan': 'Must be less than',
   'validation.number.moreThan': 'Must be greater than %s',
   'validation.number.positive': 'Must be a positive number',
   'validation.number.negative': 'Must be a negative number',
   'validation.number.integer': 'Must be an integer',
   'validation.number.isDivisible': 'Should be divisible by %s',
+  'validation.number.isFinite': 'Must be a valid number',
+  'validation.number.isFloat': 'Must be a floating point number',
   /* Validation - date  */
   'validation.date.min': 'Must be later than %s',
   'validation.date.max': 'Must be at earlier than %s',

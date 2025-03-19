@@ -98,14 +98,7 @@ const AddressRangeCard = memo(
     ].filter(Boolean)
 
     return (
-      <Box
-        data-cy="ar"
-        className={classes.root}
-        sx={{
-          '&:hover': { bgcolor: 'action.hover' },
-          border: `1px solid ${theme.palette.divider}`,
-        }}
-      >
+      <Box data-cy="ar" className={classes.root}>
         <div className={classes.main}>
           <div className={classes.title}>
             <Typography noWrap component="span" data-cy="id">

@@ -104,8 +104,8 @@ module OpenNebula
 
         # List of attributes that can't be changed in update operation
         #
-        # custom_attrs: it only has sense when deploying, not in running
-        # custom_attrs_values: it only has sense when deploying, not in running
+        # user_inputs: it only has sense when deploying, not in running
+        # user_inputs_values: it only has sense when deploying, not in running
         # deployment: changing this, changes the undeploy operation
         # log: this is just internal information, no sense to change it
         # name: this has to be changed using rename operation
@@ -115,8 +115,8 @@ module OpenNebula
         # state: this is internal information managed by OneFlow server
         # start_time: this is internal information managed by OneFlow server
         IMMUTABLE_ATTRS = [
-            'custom_attrs',
-            'custom_attrs_values',
+            'user_inputs',
+            'user_inputs_values',
             'deployment',
             'log',
             'name',
@@ -128,6 +128,12 @@ module OpenNebula
         ]
 
         LOG_COMP = 'SER'
+
+        # Returns the service name
+        # @return [String] the service name
+        def name
+            @body['name']
+        end
 
         # Returns the service state
         # @return [Integer] the service state
@@ -214,6 +220,10 @@ module OpenNebula
             self['UNAME']
         end
 
+        def uid
+            self['UID'].to_i
+        end
+
         def gid
             self['GID'].to_i
         end
@@ -224,8 +234,9 @@ module OpenNebula
             @body['on_hold']
         end
 
-        def hold?
-            state_str == 'HOLD'
+        # Change the `on_hold` option value
+        def on_hold=(on_hold)
+            @body['on_hold'] = on_hold
         end
 
         # Replaces this object's client with a new one
@@ -237,20 +248,14 @@ module OpenNebula
         # Sets a new state
         # @param [Integer] the new state
         # @return [true, false] true if the value was changed
-        # rubocop:disable Naming/AccessorMethodName
-        def set_state(state)
-            # rubocop:enable Naming/AccessorMethodName
-            if state < 0 || state > STATE_STR.size
-                return false
-            end
+        def state=(state)
+            return if state < 0 || state > STATE_STR.size
 
             @body['state'] = state.to_i
 
             msg = "New state: #{STATE_STR[state]}"
             Log.info LOG_COMP, msg, id
             log_info(msg)
-
-            true
         end
 
         # Returns true if all the nodes are correctly deployed
@@ -323,9 +328,6 @@ module OpenNebula
 
             template['start_time'] = Integer(Time.now)
 
-            # Replace $attibute by the corresponding value
-            resolve_attributes(template)
-
             super(template.to_json, template['name'])
         end
 
@@ -336,38 +338,38 @@ module OpenNebula
             if [Service::STATE['FAILED_DEPLOYING']].include?(state)
                 @roles.each do |_name, role|
                     if role.state == Role::STATE['FAILED_DEPLOYING']
-                        role.set_state(Role::STATE['PENDING'])
+                        role.state = Role::STATE['PENDING']
                     end
                 end
 
-                set_state(Service::STATE['DEPLOYING'])
+                self.state = Service::STATE['DEPLOYING']
 
             elsif state == Service::STATE['FAILED_SCALING']
                 @roles.each do |_name, role|
                     if role.state == Role::STATE['FAILED_SCALING']
-                        role.set_state(Role::STATE['SCALING'])
+                        role.state = Role::STATE['SCALING']
                     end
                 end
 
-                set_state(Service::STATE['SCALING'])
+                self.state = Service::STATE['SCALING']
 
             elsif state == Service::STATE['FAILED_UNDEPLOYING']
                 @roles.each do |_name, role|
                     if role.state == Role::STATE['FAILED_UNDEPLOYING']
-                        role.set_state(Role::STATE['RUNNING'])
+                        role.state = Role::STATE['RUNNING']
                     end
                 end
 
-                set_state(Service::STATE['UNDEPLOYING'])
+                self.state = Service::STATE['UNDEPLOYING']
 
             elsif state == Service::STATE['COOLDOWN']
                 @roles.each do |_name, role|
                     if role.state == Role::STATE['COOLDOWN']
-                        role.set_state(Role::STATE['RUNNING'])
+                        role.state = Role::STATE['RUNNING']
                     end
                 end
 
-                set_state(Service::STATE['RUNNING'])
+                self.state = Service::STATE['RUNNING']
 
             elsif state == Service::STATE['WARNING']
                 @roles.each do |_name, role|
@@ -396,7 +398,7 @@ module OpenNebula
             if @body['roles']
                 @body['roles'].each do |elem|
                     elem['state'] ||= Role::STATE['PENDING']
-                    role = Role.new(elem, self)
+                    role = Role.for(elem, self)
                     @roles[role.name] = role
                 end
             end
@@ -411,7 +413,7 @@ module OpenNebula
         # @return [OpenNebula::Role] New role
         def add_role(template)
             template['state'] ||= Role::STATE['PENDING']
-            role                = Role.new(template, self)
+            role                = Role.for(template, self)
 
             if @roles[role.name]
                 return OpenNebula::Error.new("Role #{role.name} already exists")
@@ -444,7 +446,7 @@ module OpenNebula
             if @body['roles']
                 @body['roles'].each do |elem|
                     elem['state'] ||= Role::STATE['PENDING']
-                    role = Role.new(elem, self)
+                    role = Role.for(elem, self)
                     @roles[role.name] = role
                 end
             end
@@ -540,11 +542,11 @@ module OpenNebula
             # TODO: The update may not change the cardinality, only
             # the max and min vms...
 
-            role.set_state(Role::STATE['SCALING'])
+            role.state = Role::STATE['SCALING']
 
             role.set_default_cooldown_duration
 
-            set_state(Service::STATE['SCALING'])
+            self.state = Service::STATE['SCALING']
 
             update
         end
@@ -634,6 +636,19 @@ module OpenNebula
             [true, nil]
         end
 
+        # Fills the service template with the provided values.
+        #
+        # This method replaces placeholders in the service template with corresponding values
+        # Placeholders are expected to be in the format $key.
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error otherwise
+        def fill_template
+            generate_template_contents
+        rescue StandardError => e
+            Log.error LOG_COMP, "Error generating VM template contents: #{e.message}"
+            OpenNebula::Error('Error generating VM template contents')
+        end
+
         def deploy_networks(deploy = true)
             body = if deploy
                        JSON.parse(self['TEMPLATE/BODY'])
@@ -658,9 +673,6 @@ module OpenNebula
                     net['id'] = rc
                 end
             end if deploy
-
-            # Replace $attibute by the corresponding value
-            resolve_networks(body)
 
             # @body = template.to_hash
 
@@ -726,7 +738,7 @@ module OpenNebula
             if @body['roles']
                 @body['roles'].each do |elem|
                     elem['state'] ||= Role::STATE['PENDING']
-                    role = Role.new(elem, self)
+                    role = Role.for(elem, self)
                     @roles[role.name] = role
                 end
             end
@@ -779,60 +791,124 @@ module OpenNebula
             "#{net}-#{id}"
         end
 
-        # rubocop:disable Layout/LineLength
-        def resolve_networks(template)
-            template['roles'].each do |role|
-                next unless role['vm_template_contents']
+        # Generates and updates the `template_contents` for each role within a service.
+        # This method handles VM attributes (like MEMORY, CPU, etc.) and CONTEXT attributes
+        # within `template_contents` for each role. The contents are generated by combining
+        # the `user_inputs_values` from both the service and the individual role, with the
+        # role inputs taking precedence over the service inputs.
+        #
+        # The method also resolves network configurations for each role by mapping network
+        # IDs from the service-level `networks_values` to the NICs defined in the role's
+        # `template_contents`.
+        #
+        # @example
+        #   Given the following input data:
+        #   template_contents = {
+        #     'MEMORY' => '1024',
+        #     'NIC'   => [
+        #       {
+        #         'NAME' => 'NIC_0',
+        #         'NETWORK_ID' => '$private'
+        #       }
+        #     ]
+        #   }
+        #
+        #   networks_values    = [{"private": {"id":"0"}}]
+        #   user_inputs_values = {"ATT_A": "VALUE_A"}
+        #
+        #   After executing `generate_template_contents`, the result would be:
+        #   {
+        #     'ATT_A'   => 'VALUE_A',
+        #     'MEMORY' => '1024',
+        #     'NIC' => [
+        #       {
+        #         'NAME' => 'NIC_0',
+        #         'NETWORK_ID' => '0'
+        #       }
+        #     ],
+        #     'CONTEXT' => {
+        #       'ATT_A' => '$VALUE_A',
+        #     }
+        #   }
+        #
+        def generate_template_contents
+            service_inputs   = @body['user_inputs_values'] || {}
+            service_networks = @body['networks_values'] || []
 
-                # $CUSTOM1_VAR Any word character
-                # (letter, number, underscore)
-                role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
-                    net = template['networks_values'].find {|att| att.key? key[0] }
+            @body['roles'].each do |role|
+                template_contents = role['template_contents'] || {}
+                role_inputs      = role['user_inputs_values'] || {}
+                role_nets        = template_contents['NIC'] || []
 
-                    next if net.nil?
-
-                    role['vm_template_contents'].gsub!("$#{key[0]}", net[key[0]]['id'].to_s)
+                # Resolve networks
+                unless role_nets.empty?
+                    template_contents['NIC'] = resolve_networks(role_nets, service_networks)
                 end
-            end
-        end
 
-        def resolve_attributes(template)
-            template['roles'].each do |role|
-                if role['vm_template_contents']
-                    # $CUSTOM1_VAR Any word character
-                    # (letter, number, underscore)
-                    role['vm_template_contents'].scan(/\$(\w+)/).each do |key|
-                        # Check if $ var value is in custom_attrs_values within the role
-                        if !role['custom_attrs_values'].nil? && \
-                            role['custom_attrs_values'].key?(key[0])
-                            role['vm_template_contents'].gsub!(
-                                '$'+key[0],
-                                role['custom_attrs_values'][key[0]]
-                            )
-                            next
-                        end
+                # Resolve inputs
+                unless service_inputs.empty? && role_inputs.empty?
+                    # role inputs have precedence over service inputs
+                    role_inputs = service_inputs.deep_merge(role_inputs)
 
-                        # Check if $ var value is in custom_attrs_values
+                    # Add the role inputs to the template_contents,
+                    # creating the CONTEXT section in case it doesn't exist
+                    template_contents['CONTEXT'] = {} unless template_contents.key?('CONTEXT')
 
-                        next unless !template['custom_attrs_values'].nil? && \
-                                     template['custom_attrs_values'].key?(key[0])
-
-                        role['vm_template_contents'].gsub!(
-                            '$'+key[0],
-                            template['custom_attrs_values'][key[0]]
-                        )
+                    role_inputs.each do |key, value|
+                        template_contents[key] = value
+                        template_contents['CONTEXT'][key] = "$#{key}"
                     end
                 end
 
-                next unless role['user_inputs_values']
-
-                role['vm_template_contents'] ||= ''
-                role['user_inputs_values'].each do |key, value|
-                    role['vm_template_contents'] += "\n#{key}=\"#{value}\""
-                end
+                role['template_contents'] = template_contents
             end
         end
-        # rubocop:enable Layout/LineLength
+
+        # Replaces the `NETWORK_ID` placeholders in the given NICs with their corresponding
+        # network IDs based on the provided `networks_values`. This method is used to resolve
+        # dynamic network references (e.g., `$private`) in the role's NIC configuration with
+        # the actual network IDs.
+        #
+        # @param nics [Array<Hash>] An array of NIC hashes for a role. Each NIC hash should
+        #                           contain a  `NETWORK_ID` key, which may have a value that
+        #                           is a placeholder in the form `$network_name`.
+        # @param networks_values [Array<Hash>] An array of network values, where each value
+        #                                      is a hash containing a network name as the key
+        #                                      and a network configuration as the value. The network
+        #                                      configuration should include an `id` key with the
+        #                                      actual network ID.
+        #
+        # @return [Array<Hash>] An array of NIC hashes with the `NETWORK_ID` placeholders replaced
+        #                       by the corresponding network IDs from `networks_values`.
+        #
+        # @example
+        #   Given the following input data:
+        #   nics = [
+        #     { 'NAME' => 'NIC_0', 'NETWORK_ID' => '$private' },
+        #     { 'NAME' => 'NIC_1', 'NETWORK_ID' => '1' }
+        #   ]
+        #
+        #   networks_values = [{ 'private' => { 'id' => '0' } }]
+        #
+        #   After calling `resolve_networks(nics, networks_values)`, the result would be:
+        #   [
+        #     { 'NAME' => 'NIC_0', 'NETWORK_ID' => '0' },
+        #     { 'NAME' => 'NIC_1', 'NETWORK_ID' => '1' }
+        #   ]
+        def resolve_networks(nics, networks_values)
+            nics.each do |nic|
+                next unless nic['NETWORK_ID']
+
+                match = nic['NETWORK_ID'].match(/\$(\w+)/)
+                next unless match
+
+                net_name          = match[1]
+                network           = networks_values.find {|att| att.key?(net_name) }
+                nic['NETWORK_ID'] = network[net_name]['id'] if network
+            end
+
+            nics
+        end
 
     end
 

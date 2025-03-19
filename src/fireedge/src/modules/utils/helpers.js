@@ -533,17 +533,16 @@ export const extractIDValues = (arr = []) => {
  * Generates a simple hash from a string.
  *
  * @param {string} str - The string to hash.
- * @returns {number} The hash value.
+ * @returns {string} The hash value in hex.
  */
 export const simpleHash = (str) => {
-  let hash = 0
+  let hash = 2166136261
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash |= 0
+    hash ^= str.charCodeAt(i)
+    hash = (hash * 16777619) >>> 0
   }
 
-  return hash
+  return hash.toString(16)
 }
 
 /**
@@ -719,3 +718,20 @@ export const getLocked = (OpennebulaObject) => !!+OpennebulaObject.LOCK?.LOCKED
  */
 export const formatError = (errorId = '', { fallback = '' } = {}) =>
   sentenceCase(ERROR_LOOKUP_TABLE?.[String(errorId) || ''] ?? fallback)
+
+/**
+ * @param {object} obj - Dirty object
+ * @returns {object} - Object with falsy values removed
+ */
+export const deepClean = (obj) => {
+  if (_.isArray(obj)) {
+    return obj.map(deepClean)
+  } else if (_.isObject(obj)) {
+    return _.pickBy(
+      _.mapValues(obj, deepClean),
+      (value) => !_.isEmpty(value) || _.isNumber(value) || _.isBoolean(value)
+    )
+  }
+
+  return obj
+}

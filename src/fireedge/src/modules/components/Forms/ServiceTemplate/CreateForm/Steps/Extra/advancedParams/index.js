@@ -13,52 +13,50 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useForm, FormProvider } from 'react-hook-form'
-import { useMemo, memo } from 'react'
-import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  ADVANCED_PARAMS_FIELDS,
-  ADVANCED_PARAMS_SCHEMA,
-} from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams/schema'
-import { FormWithSchema, Legend } from '@modules/components/Forms'
-import { Stack, Divider, FormControl } from '@mui/material'
+/* eslint-disable jsdoc/require-jsdoc */
+import PropTypes from 'prop-types'
+import { ADVANCED_PARAMS_FIELDS } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/advancedParams/schema'
+import { FormWithSchema } from '@modules/components/Forms'
+import { Box, Stack, Divider } from '@mui/material'
+import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
+
+import { ServerConnection as NetworkIcon } from 'iconoir-react'
 
 import { T } from '@ConstantsModule'
 
-export const SECTION_ID = 'ADVANCED'
+export const TAB_ID = 'advanced'
 
-const AdvancedParamsSection = () => {
-  const fields = useMemo(() => ADVANCED_PARAMS_FIELDS, [])
-
-  const { handleSubmit, ...methods } = useForm({
-    defaultValues: ADVANCED_PARAMS_SCHEMA?.default(),
-    mode: 'all',
-    resolver: yupResolver(ADVANCED_PARAMS_SCHEMA),
-  })
-
-  return (
-    <FormControl
-      component="fieldset"
-      sx={{ width: '100%', gridColumn: '1 / -1' }}
+const Content = () => (
+  <Box sx={{ width: '100%', height: '100%' }}>
+    <Stack
+      key={`inputs-${TAB_ID}`}
+      direction="column"
+      alignItems="flex-start"
+      gap="0.5rem"
+      component="form"
+      width="100%"
     >
-      <Legend title={T.AdvancedParams} />
-      <FormProvider {...methods}>
-        <Stack
-          direction="row"
-          alignItems="flex-start"
-          gap="0.5rem"
-          component="form"
-        >
-          <FormWithSchema
-            cy={SECTION_ID}
-            fields={fields}
-            rootProps={{ sx: { m: 0 } }}
-          />
-        </Stack>
-      </FormProvider>
-      <Divider />
-    </FormControl>
-  )
+      <FormWithSchema
+        cy={TAB_ID}
+        legend={T.AdvancedParams}
+        id={`${EXTRA_ID}.${TAB_ID}`}
+        fields={ADVANCED_PARAMS_FIELDS}
+      />
+    </Stack>
+    <Divider />
+  </Box>
+)
+
+Content.propTypes = {
+  stepId: PropTypes.string,
 }
 
-export default memo(AdvancedParamsSection)
+const TAB = {
+  id: TAB_ID,
+  name: T.AdvancedOptions,
+  icon: NetworkIcon,
+  Content,
+  getError: (error) => !!error?.[TAB_ID],
+}
+
+export default TAB

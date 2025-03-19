@@ -19,26 +19,24 @@ import { string } from 'yup'
 
 /** @type {Field} Name field */
 const NAME_FIELD = {
-  name: 'NAME',
+  name: 'name',
   label: T.Name,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .min(3, 'Template name less than 3 characters')
-    .max(128, 'Template name over 128 characters')
-    .required('Name cannot be empty')
+    .min(3)
+    .required()
     .default(() => undefined),
   grid: { md: 12 },
 }
 
 /** @type {Field} Description field */
 const DESCRIPTION_FIELD = {
-  name: 'DESCRIPTION',
+  name: 'description',
   label: T.Description,
   type: INPUT_TYPES.TEXT,
   validation: string()
     .trim()
-    .max(128, 'Description over 128 characters')
     .test(
       'is-not-numeric',
       'Description should not be a numeric value',

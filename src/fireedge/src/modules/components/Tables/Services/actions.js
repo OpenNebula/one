@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import { useTheme, Box, Typography } from '@mui/material'
 import { css } from '@emotion/css'
 import { useHistory } from 'react-router-dom'
-import { PlayOutline, Trash, Group, RefreshCircular } from 'iconoir-react'
+import { AddCircledOutline, Trash, Group, RefreshCircular } from 'iconoir-react'
 
 import { useViews, ServiceAPI } from '@FeaturesModule'
 
@@ -85,7 +85,7 @@ const Actions = () => {
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
             tooltip: T.Instantiate,
-            icon: PlayOutline,
+            icon: AddCircledOutline,
             options: [
               {
                 isConfirmDialog: true,

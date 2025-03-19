@@ -437,9 +437,10 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
         styleOverrides: {
           root: {
             backgroundColor: background.paper,
-            borderRadius: `8px 8px 0 0`,
+            borderRadius: `0 0 8px 8px`,
             border: `thin solid ${secondary.main}`,
             paddingInline: '1rem',
+            marginBottom: '0.5rem',
           },
           flexContainer: {
             height: '100%',

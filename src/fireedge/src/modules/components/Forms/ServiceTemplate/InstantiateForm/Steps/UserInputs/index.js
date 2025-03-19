@@ -36,11 +36,6 @@ export const STEP_ID = 'user_inputs'
 const Content = ({ userInputsLayout, showMandatoryOnly }) =>
   generateTabs(userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly)
 
-Content.propTypes = {
-  props: PropTypes.any,
-  userInputsLayout: PropTypes.object,
-}
-
 /**
  * User inputs step.
  *
@@ -56,5 +51,10 @@ const UserInputsStep = (userInputs, userInputsLayout) => ({
   enableShowMandatoryOnly: true,
   content: (props) => Content({ ...props, userInputsLayout }),
 })
+
+Content.propTypes = {
+  props: PropTypes.any,
+  userInputsLayout: PropTypes.object,
+}
 
 export default UserInputsStep

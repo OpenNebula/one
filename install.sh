@@ -2759,6 +2759,8 @@ ONEFLOW_LIB_FILES="src/flow/lib/grammar.treetop \
 ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
 
 ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
+			  src/flow/lib/models/vmrole.rb \
+			  src/flow/lib/models/vrrole.rb \
                           src/flow/lib/models/service.rb"
 
 #-----------------------------------------------------------------------------

@@ -63,14 +63,10 @@ export const ACTION_FIELD_NAME = 'ACTION'
 const createArgField = (argName, htmlType) => ({
   name: `ARGS.${argName}`,
   dependOf: ACTION_FIELD_NAME,
-  htmlType: (action) => {
-    const prueba = getRequiredArgsByAction(action)
-    console.log(argName, prueba.includes(argName))
-
-    return !getRequiredArgsByAction(action)?.includes(argName)
+  htmlType: (action) =>
+    !getRequiredArgsByAction(action)?.includes(argName)
       ? INPUT_TYPES.HIDDEN
-      : htmlType
-  },
+      : htmlType,
 })
 
 /** @type {Field} Snapshot name field */

@@ -23,7 +23,7 @@ import { Translate } from '@modules/components/HOC'
 import { T, Role } from '@ConstantsModule'
 import { PATH } from '@modules/components/path'
 
-const COLUMNS = [T.Name, T.Cardinality, T.VMTemplate, T.Parents]
+const COLUMNS = [T.Name, T.Type, T.Cardinality, T.VMTemplate, T.Parents]
 
 /**
  * Renders roles tab.
@@ -41,7 +41,7 @@ const RolesTab = ({ id }) => {
   return (
     <Box
       display="grid"
-      gridTemplateColumns="repeat(4, 1fr)"
+      gridTemplateColumns="repeat(5, 1fr)"
       padding="1em"
       bgcolor="background.default"
     >
@@ -70,7 +70,7 @@ RolesTab.displayName = 'RolesTab'
 
 const RoleComponent = memo(({ role }) => {
   /** @type {Role} */
-  const { name, cardinality, vm_template: templateId, parents } = role
+  const { name, type, cardinality, template_id: templateId, parents } = role
 
   const { data: template, isLoading } = VmTemplateAPI.useGetTemplatesQuery(
     undefined,
@@ -93,6 +93,9 @@ const RoleComponent = memo(({ role }) => {
     <>
       <Typography {...commonProps} data-cy="name">
         {name}
+      </Typography>
+      <Typography {...commonProps} data-cy="type">
+        {type}
       </Typography>
       <Typography {...commonProps} data-cy="cardinality">
         {cardinality}

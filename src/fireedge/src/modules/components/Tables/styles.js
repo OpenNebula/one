@@ -25,6 +25,8 @@ export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
     fontSize: '1em',
     borderRadius: 6,
     display: 'flex',
+    '&:hover': { bgcolor: 'action.hover' },
+    border: `1px solid ${palette.divider}`,
     gap: 8,
     [breakpoints.down('md')]: {
       flexWrap: 'wrap',

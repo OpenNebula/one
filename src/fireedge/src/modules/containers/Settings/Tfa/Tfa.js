@@ -48,7 +48,7 @@ import { Fragment, ReactElement, useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 
-const useStyles = ({ palette }) => ({
+const useStyles = () => ({
   buttonSubmit: css({
     width: '100%',
     marginTop: '1rem',

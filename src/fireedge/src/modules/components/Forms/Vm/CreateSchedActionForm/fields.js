@@ -99,6 +99,7 @@ const createArgField = (argName) => ({
   dependOf: ACTION_FIELD_NAME,
   htmlType: (action) =>
     !getRequiredArgsByAction(action)?.includes(argName) && INPUT_TYPES.HIDDEN,
+  grid: { md: 12 },
 })
 
 /**
@@ -122,7 +123,7 @@ const ACTION_FIELD = (vm) => ({
     }
   ),
   validation: ACTION_FIELD_VALIDATION,
-  grid: { xs: 12 },
+  grid: { md: 12 },
 })
 
 /** @type {Field} Action name field */
@@ -148,6 +149,7 @@ const ARGS_DS_ID_FIELD = {
     return arrayToOptions(
       datastores.filter(({ TEMPLATE }) => TEMPLATE.TYPE === 'BACKUP_DS'),
       {
+        addEmpty: false,
         getText: ({ NAME, ID } = {}) => `${ID}: ${NAME}`,
         getValue: ({ ID } = {}) => ID,
       }
@@ -165,6 +167,7 @@ const ARGS_DISK_ID_FIELD = (vm) => ({
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(getDisks(vm), {
+    addEmpty: false,
     getText: ({ IMAGE_ID, IMAGE, TARGET, SIZE } = {}) => {
       const isVolatile = !IMAGE && !IMAGE_ID
       const diskImage = isVolatile
@@ -194,6 +197,7 @@ const ARGS_SNAPSHOT_ID_FIELD = (vm) => ({
   type: INPUT_TYPES.AUTOCOMPLETE,
   optionsOnly: true,
   values: arrayToOptions(getSnapshotList(vm), {
+    addEmpty: false,
     getText: ({ NAME } = {}) => NAME,
     getValue: ({ SNAPSHOT_ID } = {}) => SNAPSHOT_ID,
   }),
@@ -248,6 +252,7 @@ const TIME_FIELD = {
   fieldProps: {
     minDateTime: getNow(),
   },
+  grid: { md: 12 },
 }
 // --------------------------------------------------------
 // Periodic fields
@@ -274,7 +279,7 @@ const REPEAT_FIELD = {
         ? schema.required()
         : schema
     ),
-  grid: { md: 6 },
+  grid: { md: 12 },
   notNull: true,
 }
 
@@ -311,7 +316,7 @@ const WEEKLY_FIELD = {
       )
       .afterSubmit((value) => value?.join?.(','))
   ),
-  grid: { md: 6 },
+  grid: { md: 12 },
 }
 
 /** @type {Field} Monthly field */
@@ -330,7 +335,7 @@ const MONTHLY_FIELD = {
       ) && INPUT_TYPES.HIDDEN
     )
   },
-  grid: { md: 6 },
+  grid: { md: 12 },
   validation: lazy((_, { context }) =>
     string()
       .trim()
@@ -360,7 +365,7 @@ const YEARLY_FIELD = {
       ) && INPUT_TYPES.HIDDEN
     )
   },
-  grid: { md: 6 },
+  grid: { md: 12 },
   validation: lazy((_, { context }) =>
     string()
       .trim()
@@ -378,7 +383,7 @@ const HOURLY_FIELD = {
   dependOf: [PERIODIC_FIELD_NAME, REPEAT_FIELD.name],
   type: INPUT_TYPES.TEXT,
   label: T.EachXHours,
-  grid: { md: 6 },
+  grid: { md: 12 },
   htmlType: (_, context) => {
     const values = context?.getValues() || {}
 
@@ -453,6 +458,7 @@ const END_TYPE_FIELD = {
     getValue: (value) => END_TYPE_VALUES[value],
   }),
   validation: mixed().notRequired(),
+  grid: { md: 12 },
 }
 
 /** @type {Field} End value field */
@@ -467,11 +473,11 @@ const END_VALUE_FIELD = {
     typeAction === SCHEDULE_TYPE.PERIODIC && endType === END_TYPE_VALUES.DATE
       ? INPUT_TYPES.TIME
       : INPUT_TYPES.TEXT,
-  htmlType: (_, context) => {
-    const values = context?.getValues() || {}
+  htmlType: (depends = []) => {
+    const [PERIODIC, END_TYPE] = depends
 
-    return values?.PERIODIC === SCHEDULE_TYPE.PERIODIC &&
-      values?.END_TYPE !== END_TYPE_VALUES.NEVER
+    return PERIODIC === SCHEDULE_TYPE.PERIODIC &&
+      END_TYPE !== END_TYPE_VALUES.NEVER
       ? 'number'
       : INPUT_TYPES.HIDDEN
   },
@@ -493,6 +499,7 @@ const END_VALUE_FIELD = {
       }
     }
   ),
+  grid: { md: 12 },
   fieldProps: ([_, endType] = []) =>
     endType === END_TYPE_VALUES.DATE && { defaultValue: getNextWeek() },
 }

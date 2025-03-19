@@ -73,6 +73,20 @@ const buildMethods = () => {
       (value) => isDivisibleBy(value, divisor)
     )
   })
+  addMethod(number, 'isFinite', function () {
+    return this.test(
+      'is-valid-number',
+      T['validation.number.isFinite'],
+      (value) => !isNaN(value) && typeof value === 'number' && isFinite(value)
+    )
+  })
+  addMethod(number, 'isFloat', function () {
+    return this.test(
+      'is-floating-point-number',
+      T['validation.number.isFloat'],
+      (value) => Number(value) === value && value % 1 !== 0
+    )
+  })
   addMethod(string, 'isBase64', function () {
     return this.test(
       'is-base64',

@@ -29,4 +29,6 @@ require 'opennebula/flow/service_template'
 require 'opennebula/flow/validator'
 
 require 'models/role'
+require 'models/vmrole'
+require 'models/vrrole'
 require 'models/service'

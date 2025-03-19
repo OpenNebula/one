@@ -48,9 +48,14 @@ const TableController = memo(
     onConditionChange,
     zoneId,
     dependOf,
-    fieldProps: { initialState, preserveState, ...fieldProps } = {},
+    fieldProps: {
+      initialState,
+      preserveState,
+      onRowsChange,
+      ...fieldProps
+    } = {},
   }) => {
-    const { clearErrors } = useFormContext()
+    const formContext = useFormContext()
 
     const {
       field: { value, onChange },
@@ -84,15 +89,19 @@ const TableController = memo(
         const rowValues = rows?.map(({ original }) => getRowId(original))
 
         onChange(singleSelect ? rowValues?.[0] : rowValues)
-        clearErrors(name)
+        formContext.clearErrors(name)
 
         if (typeof onConditionChange === 'function') {
           onConditionChange(singleSelect ? rowValues?.[0] : rowValues)
         }
+
+        if (typeof onRowsChange === 'function') {
+          onRowsChange(rows, { name, formContext })
+        }
       },
       [
         onChange,
-        clearErrors,
+        formContext.clearErrors,
         name,
         onConditionChange,
         readOnly,

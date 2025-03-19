@@ -19,11 +19,7 @@ import BasicConfiguration, {
 import Networking from '@modules/components/Forms/VrTemplate/InstantiateForm/Steps/Networking'
 import TemplateSelection from '@modules/components/Forms/VrTemplate/InstantiateForm/Steps/TemplateSelection'
 import UserInputs from '@modules/components/Forms/VrTemplate/InstantiateForm/Steps/UserInputs'
-import {
-  getUserInputParams,
-  parseRangeToArray,
-  userInputsToArray,
-} from '@ModelsModule'
+import { userInputsToArray } from '@ModelsModule'
 import { createSteps } from '@UtilsModule'
 import { groupUserInputs } from '@modules/components/Forms/UserInputs'
 
@@ -56,39 +52,13 @@ const Steps = createSteps(
     ].filter(Boolean)
   },
   {
-    transformInitialValue: (vmTemplate, schema) => {
-      if (vmTemplate?.TEMPLATE?.USER_INPUTS) {
-        ;['MEMORY', 'CPU', 'VCPU'].forEach((element) => {
-          if (vmTemplate?.TEMPLATE?.USER_INPUTS?.[element]) {
-            const valuesOfUserInput = getUserInputParams(
-              vmTemplate.TEMPLATE.USER_INPUTS[element]
-            )
-            if (valuesOfUserInput?.default) {
-              let options = valuesOfUserInput?.options
-              valuesOfUserInput?.type === 'range' &&
-                (options = parseRangeToArray(options[0], options[1]))
-
-              if (!options.includes(valuesOfUserInput.default)) {
-                delete vmTemplate?.TEMPLATE?.USER_INPUTS?.[element]
-              } else {
-                vmTemplate?.TEMPLATE?.[element] &&
-                  delete vmTemplate?.TEMPLATE?.[element]
-              }
-            } else {
-              vmTemplate?.TEMPLATE?.[element] &&
-                delete vmTemplate?.TEMPLATE?.[element]
-            }
-          }
-        })
-      }
-
-      return schema.cast(
+    transformInitialValue: (vmTemplate, schema) =>
+      schema.cast(
         {
           [BASIC_ID]: vmTemplate?.TEMPLATE,
         },
         { stripUnknown: true }
-      )
-    },
+      ),
     transformBeforeSubmit: (formData, vmTemplate) => {
       const { [BASIC_ID]: { name, instances, hold, vmname } = {} } =
         formData ?? {}
