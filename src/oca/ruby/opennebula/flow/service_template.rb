@@ -320,6 +320,12 @@ module OpenNebula
         def allocate(template_json)
             template = JSON.parse(template_json)
 
+            # Compability mode v<7.0
+            rc = ServiceTemplate.convert_template(template) \
+                 if ServiceTemplate.old_format?(template)
+
+            return rc if OpenNebula.is_error?(rc)
+
             ServiceTemplate.validate(template)
 
             template['registration_time'] = Integer(Time.now)
@@ -766,6 +772,107 @@ module OpenNebula
             extra_template.delete('roles')
 
             template
+        end
+
+        def self.old_format?(body)
+            body.key?('roles') && body['roles'].all? do |role|
+                role.key?('vm_template') || role.key?('vm_template_contents')
+            end
+        end
+
+        # Compatibility function to translate a service template from the old format
+        # to the new one with vRouters with other data model changes
+        #
+        # @param template [String] Hash body of the service template to translate
+        def self.convert_template(body)
+            body['roles'].each do |role|
+                # Mandatory
+                role['template_id'] = role['vm_template']
+                role['type']        = 'vm'
+
+                # Optional attributes
+                role['user_inputs']        = role['custom_attrs'] if role['custom_attrs']
+                body['user_inputs_values'] = role['custom_attrs_values'] \
+                                             if body['custom_attrs_values']
+
+                # Change name and type (string -> object)
+                role['template_contents'] = ServiceTemplate.upgrade_template_contents(
+                    role['vm_template_contents']
+                ) if role['vm_template_contents']
+
+                # Remove old attributes
+                role.delete('vm_template')
+                role.delete('vm_template_contents') if role['vm_template_contents']
+                role.delete('custom_attrs') if role['custom_attrs']
+                role.delete('custom_attrs_values') if role['custom_attrs_values']
+            end
+
+            body['user_inputs'] = body['custom_attrs'] if body['custom_attrs']
+            body['user_inputs_values'] = body['custom_attrs_values'] if body['custom_attrs_values']
+
+            body.delete('custom_attrs') if body['custom_attrs']
+            body.delete('custom_attrs_values') if body['custom_attrs_values']
+        rescue StandardError => e
+            return OpenNebula::Error.new(
+                'An old service template format (OpenNebula v6.x) was detected and could not be ' \
+                'automatically converted. Update it manually to the new format. Error: ' + e.message
+            )
+        end
+
+        # Converts a RAW string in the form KEY = VAL to a hash
+        #
+        # @param template [String]          Raw string content in the form KEY = VAL,
+        #                                   representing vm_template_contents
+        # @return [Hash, OpenNebula::Error] Hash representation of the raw content,
+        #                                   or an OpenNebula Error if the conversion fails
+        def self.upgrade_template_contents(vm_template_contents)
+            return {} if vm_template_contents.nil? || vm_template_contents.empty?
+
+            result = {}
+
+            vm_template_contents.split(/\n(?![^\[]*\])/).each do |line|
+                next unless line.include?('=')
+
+                key, value = line.split('=', 2).map(&:strip)
+                value = value.tr('"', '')
+
+                # If the value is an array (e.g., NIC = [ ... ]),
+                # process the content inside the brackets
+                if value.start_with?('[') && value.end_with?(']')
+                    # Split the elements inside the brackets by commas
+                    array_elements = value[1..-2].split(/\s*,\s*/)
+
+                    # Create a hash combining all key-value pairs in the array
+                    array_result = {}
+                    array_elements.each do |element|
+                        sub_key, sub_value = element.split('=', 2).map(&:strip)
+                        array_result[sub_key] = sub_value
+                    end
+
+                    value = [array_result]
+                else
+                    value = [value]
+                end
+
+                # If the key already exists in the result hash, add the new value
+                if result[key]
+                    if result[key].is_a?(Array)
+                        result[key] << value.first
+                    else
+                        result[key] = [result[key], value.first]
+                    end
+                else
+                    result[key] = value.first
+                end
+            end
+
+            result.each do |key, val|
+                if val.is_a?(Hash)
+                    result[key] = [val]
+                end
+            end
+
+            result
         end
 
     end

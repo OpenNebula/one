@@ -149,9 +149,8 @@ module OpenNebula
             # @return [Role] Role object type
             def for(body, service)
                 role_type = body.fetch('type', 'vm')
-                # role_type = template['type'].downcase
 
-                case role_type
+                case role_type.downcase
                 when 'vm'
                     VMRole.new(body, service)
                 when 'vr'
