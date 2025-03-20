@@ -52,10 +52,11 @@ type Service struct {
 type Role struct {
     Name                string             `json:"name,omitempty"`
     Cardinality         int                `json:"cardinality"`
-    VMTemplate          int                `json:"vm_template,omitempty"`
+    Type                string             `json:"type,omitempty"`
+    TemplateID          int                `json:"template_id,omitempty"`
     ShutdownAction      string             `json:"shutdown_action,omitempty"`
     Parents             []string           `json:"parents,omitempty"`
-    VMTemplateContents  string             `json:"vm_template_contents,omitempty"`
+    TemplateContents    map[string]string  `json:"template_contents,omitempty"`
     MinVMs              int                `json:"min_vms,omitempty"`
     MaxVMS              int                `json:"max_vms,omitempty"`
     Cooldown            int                `json:"cooldown,omitempty"`

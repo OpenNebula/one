@@ -42,7 +42,8 @@ func main() {
                             {
                                 Name: "master",
                                 Cardinality: 1,
-                                VMTemplate: 0, //VM Template 0 needs to exists
+                                Type: "vm",
+                                TemplateID: 0, //VM Template 0 needs to exists
                                 MinVMs: 1,
                             },
                         },

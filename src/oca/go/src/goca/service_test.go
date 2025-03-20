@@ -36,7 +36,8 @@ func createService(t *testing.T) (*sv.Service, int) {
 					{
 						Name: "master",
 						Cardinality: 1,
-						VMTemplate: vmtmpl_id,
+						Type: "vm",
+						TemplateID: vmtmpl_id,
 						MinVMs: 1,
 					},
 				},

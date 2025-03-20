@@ -35,7 +35,8 @@ func createServiceTemplate(t *testing.T) (*srv_tmpl.ServiceTemplate, int) {
 					{
 						Name: "master",
 						Cardinality: 1,
-						VMTemplate: vmtmpl_id,
+						Type: "vm",
+						TemplateID: vmtmpl_id,
 						MinVMs: 1,
 					},
 				},
@@ -115,6 +116,8 @@ func TestServiceTemplate(t *testing.T) {
 				Roles: []srv_tmpl.Role {
 					{
 						Name: "masterRenamed",
+						Type: "vm",
+						TemplateID: tmpl_id,
 					},
 				},
 			},
