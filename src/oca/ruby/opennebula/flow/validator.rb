@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'uri'
+require 'json'
 
 # Overwriting hash class with new methods
 class Hash
@@ -172,7 +173,7 @@ module Validator
             when :integer then validate_integer(body, schema, key)
             when :null    then validate_null(body, schema, key)
             when :boolean then validate_boolean(body, schema, key)
-            else raise SchemaException, "type #{schema[:type]} is not a valid type"
+            else raise SchemaException, "Unsupported type #{schema[:type]}"
             end
         end
 
@@ -211,7 +212,7 @@ module Validator
         #
         def validate_object(body, schema_object, key)
             unless body.is_a?(Hash)
-                raise ParseException, "KEY: #{key} must be a Hash; SCHEMA:"
+                raise ParseException, "KEY: '#{key}' must be an Object;"
             end
 
             return body if schema_object[:properties].empty?
@@ -225,7 +226,8 @@ module Validator
                     body[schema_key] = validate!(body_value, schema_value, schema_key)
                 else
                     if schema_value[:required]
-                        raise ParseException, "KEY: '#{schema_key}' is required;"
+                        raise ParseException,
+                              "Mandatory document key '#{schema_key} (#{schema_value[:type]})' is missing from #{JSON.dump(body)}"
                     end
 
                     if @opts[:default_values] && schema_value[:default]
@@ -241,7 +243,7 @@ module Validator
                 else
                     return body if @opts[:allow_extra_properties]
 
-                    raise ParseException, "KEY: #{new_body.keys.join(', ')} not allowed;"
+                    raise ParseException, "The following keys are not allowed: #{new_body.keys.join(', ')};"
                 end
             end
 
