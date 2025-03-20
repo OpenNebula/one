@@ -6,4 +6,4 @@ not include the headers (namespace, schema location).
 
 To learn more, please read the API reference documentation:
 
-    https://docs.opennebula.io/6.3/integration_and_development/system_interfaces/api.html
+    https://docs.opennebula.io/stable/integration_and_development/system_interfaces/api.html
