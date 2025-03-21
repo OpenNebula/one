@@ -48,20 +48,17 @@ class OptimizerParser:
             "SOLVER_PATH": "/usr/lib/one/python/pulp/solverdir/cbc/linux/64/cbc",
         },
         "PLACE": {
-            "POLICY": "PACK",
+            "POLICY": "BALANCE",
+            "WEIGHTS": {"CPU": 0.5, "MEMORY": 0.5},
         },
         "OPTIMIZE": {
             "POLICY": "BALANCE",
-            "MIGRATION_THRESHOLD": 10,
+            "MIGRATION_THRESHOLD": -1,
             "WEIGHTS": {
-                "CPU_USAGE": 0.2,
-                "CPU": 0.2,
-                "MEMORY": 0.4,
-                "DISK": 0.1,
-                "NET": 0.1,
+                "CPU_USAGE": 1,
             },
         },
-        "PREDICTIVE": 0.3,
+        "PREDICTIVE": 0,
         "MEMORY_SYSTEM_DS_SCALE": 0,
         "DIFFERENT_VNETS": True,
     }
@@ -114,19 +111,15 @@ class OptimizerParser:
         mode_config = config_data.get(mode.upper(), {})
         default_mode_config = cls.DEFAULT_CONFIG.get(mode.upper(), {})
 
-        if not mode_config or mode_config.get(
-            "POLICY", ""
-        ).upper() != default_mode_config.get("POLICY", ""):
+        if not mode_config:
             cls.log_general(
                 "WARNING",
-                f"Unknown or missing {mode} configuration. Using default options.",
+                f"Missing {mode} configuration. Using default options.",
             )
             mode_config = default_mode_config.copy()
         else:
             for key, value in default_mode_config.items():
                 if key == "WEIGHTS":
-                    if sum(mode_config[key].values()) > 1:
-                        mode_config[key] = default_mode_config[key]
                     continue
                 mode_config.setdefault(key, value)
 
@@ -168,9 +161,14 @@ class OptimizerParser:
         }
 
     def build_optimizer(self) -> ILPOptimizer:
-        if self.mode == "place":
+        if self.mode.upper() == "PLACE":
             criteria = self.config["MODE"]["POLICY"].lower()
-            allowed_migrations = None
+            if criteria.upper() == "BALANCE":
+                weights = self.config["MODE"].get(
+                    "WEIGHTS", self.DEFAULT_CONFIG[self.mode.upper()]["WEIGHTS"]
+                )
+                criteria = self._normalize_weights(weights)
+            allowed_migrations = -1
         else:
             cluster_config = self._parse_cluster()
             policy = cluster_config.get("POLICY", self.config["MODE"]["POLICY"])
@@ -212,7 +210,7 @@ class OptimizerParser:
             vnet_capacities=self._parse_vnet_capacities(),
             criteria=criteria,
             preemptive=False,
-            allowed_migrations=allowed_migrations,
+            allowed_migrations=allowed_migrations if allowed_migrations != -1 else None,
             solver=self.config["SOLVER"],
         )
 
@@ -239,17 +237,17 @@ class OptimizerParser:
                     # Predictive factor only for 'optimize'
                     cpu_usage = (
                         self._apply_predictive_adjustment(cpu_current, cpu_forecast)
-                        if self.mode == "optimize"
+                        if self.mode.upper() == "OPTIMIZE"
                         else cpu_current
                     )
                     net_usage = (
                         self._apply_predictive_adjustment(net_current, net_forecast)
-                        if self.mode == "optimize"
+                        if self.mode.upper() == "OPTIMIZE"
                         else net_current
                     )
                     disk_usage = (
                         self._apply_predictive_adjustment(disk_current, disk_forecast)
-                        if self.mode == "optimize"
+                        if self.mode.upper() == "OPTIMIZE"
                         else disk_current
                     )
                     vm_requirements[int(vm_req.id)] = VMRequirements(
@@ -513,7 +511,7 @@ class OptimizerParser:
                 for child in one_drs.children
                 if child.qname.upper() == "MIGRATION_THRESHOLD"
             ),
-            None,
+            -1,
         )
         policy = next(
             (
@@ -533,7 +531,6 @@ class OptimizerParser:
         )
         weights = self._get_weights(one_drs)
 
-        # TODO: Consider AUTOMATION attribute
         return {
             "POLICY": policy,
             "MIGRATION_THRESHOLD": migration_threshold,
@@ -768,7 +765,7 @@ class OptimizerParser:
         keys = ["CPU_USAGE", "CPU", "MEMORY", "DISK", "NET"]
         provided = {k: cluster_config[k] for k in keys if k in cluster_config}
         if sum(provided.values()) > 1:
-            provided = self.config["MODE"]["WEIGHTS"].copy()
+            provided = self.DEFAULT_CONFIG[self.mode.upper()]["WEIGHTS"].copy()
         result = {}
         for key, weight in provided.items():
             lower_key = key.lower()
