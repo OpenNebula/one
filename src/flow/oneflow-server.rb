@@ -676,7 +676,14 @@ post '/service_template/:id/action' do
         begin
             # Check service user_inputs
             user_inputs = body['user_inputs']
-            user_inputs_values = merge_template['user_inputs_values']
+
+            # Compability mode v<7.0
+            if merge_template['user_inputs_values'].nil?
+                user_inputs_values = merge_template['custom_attrs_values']
+            else
+                user_inputs_values = merge_template['user_inputs_values']
+            end
+
             check_user_inptus(user_inputs, user_inputs_values)
 
             body['roles'].each do |role|
@@ -709,7 +716,13 @@ post '/service_template/:id/action' do
                 next unless merge_role
 
                 role_user_inputs = role['user_inputs']
-                role_user_inputs_values = merge_role['user_inputs_values']
+
+                # Compability mode v<7.0
+                if merge_role['user_inputs_values'].nil?
+                    role_user_inputs_values = merge_role['custom_attrs_values']
+                else
+                    role_user_inputs_values = merge_role['user_inputs_values']
+                end
 
                 check_user_inptus(role_user_inputs, role_user_inputs_values)
             end
