@@ -53,7 +53,7 @@ type Role struct {
     Name                string             `json:"name,omitempty"`
     Cardinality         int                `json:"cardinality"`
     Type                string             `json:"type,omitempty"`
-    TemplateID          int                `json:"template_id,omitempty"`
+    TemplateID          int                `json:"template_id"`
     ShutdownAction      string             `json:"shutdown_action,omitempty"`
     Parents             []string           `json:"parents,omitempty"`
     TemplateContents    map[string]string  `json:"template_contents,omitempty"`
