@@ -14,6 +14,7 @@
 
 import pytest
 from pytest_mock import MockerFixture
+import numpy as np
 
 from pyoneai.core import (
     AccessorType,
@@ -80,7 +81,9 @@ class TestPredictorAccessor:
             metric=self.mock_observator_accessor.get_timeseries.return_value,
             horizon=1,
         )
-        assert result is self.mock_model.predict.return_value
+        assert np.array_equal(
+            result._data, self.mock_model.predict.return_value._data
+        )
 
     def test_get_timeseries_period(self, mocker: MockerFixture):
         result = self.accessor.get_timeseries(
@@ -116,4 +119,6 @@ class TestPredictorAccessor:
             metric=self.mock_observator_accessor.get_timeseries.return_value,
             horizon=len(self.period.values),
         )
-        assert result is self.mock_model.predict.return_value
+        assert np.array_equal(
+            result._data, self.mock_model.predict.return_value._data
+        )

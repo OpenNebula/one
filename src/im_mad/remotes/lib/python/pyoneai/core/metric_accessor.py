@@ -16,14 +16,15 @@ from __future__ import annotations
 
 __all__ = ["MetricAccessor"]
 from numbers import Number
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from .base_accessor import BaseAccessor
-from .entity_uid import EntityUID
-from .metric import MetricAttributes
 from .time import Instant, Period
 from .tsnumpy.timeseries import Timeseries
 
+if TYPE_CHECKING:
+    from .entity_uid import EntityUID
+    from .metric import MetricAttributes
 
 class MetricAccessor:
     __slots__ = ("_observator_accessor", "_predictor_accessor")

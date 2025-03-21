@@ -42,6 +42,7 @@ class ArimaPredictionModel(BasePredictionModel):
     __SUPPORTS_CI__ : bool
         Whether the model supports confidence intervals.
     """
+
     __SUPPORTS_CI__: ClassVar[bool] = False
 
     def fit(
@@ -91,7 +92,7 @@ class ArimaPredictionModel(BasePredictionModel):
         model_class = get_class(self.model_config.model_class)
         predictions = []
 
-        last_ts = metric.time_index.values[-1]
+        last_ts = metric.time_index[-1]
 
         for name in metric.names:
             act_metric = metric[name]

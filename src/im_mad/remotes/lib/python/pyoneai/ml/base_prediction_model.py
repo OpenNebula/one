@@ -18,14 +18,14 @@ import os
 import warnings
 from abc import ABCMeta, abstractmethod
 from dataclasses import asdict
-import numpy as np
 from pathlib import Path
 from typing import Any, ClassVar
 
+import numpy as np
 import yaml
 
-from ..core.time import Period, Instant
-from ..core.tsnumpy.timeseries import Timeseries, TimeIndex
+from ..core.time import Instant, Period
+from ..core.tsnumpy.timeseries import TimeIndex, Timeseries
 from .model_config import ModelConfig
 from .utils import get_class
 
@@ -82,20 +82,12 @@ class BasePredictionModel(metaclass=ABCMeta):
     def _forecast_time_index(
         self, metric: Timeseries, horizon: int
     ) -> TimeIndex:
-        time_index = metric.time_index
-        if isinstance(time_index, Instant):
-            last_time = time_index.value
-        elif isinstance(time_index, Period):
-            last_time = time_index.values[-1]
-        else:
-            raise ValueError("Unknown time index type")
-            
+        last_time = metric.time_index[-1]
         freq = metric._time_idx.frequency
-            
-        return TimeIndex(np.array(
-            [last_time + (i + 1) * freq for i in range(horizon)])
-        )
 
+        return TimeIndex(
+            np.array([last_time + (i + 1) * freq for i in range(horizon)])
+        )
 
     @abstractmethod
     def fit(

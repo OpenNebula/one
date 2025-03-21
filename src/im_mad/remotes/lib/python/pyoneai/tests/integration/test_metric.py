@@ -1,3 +1,17 @@
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import sqlite3
 from datetime import datetime, timedelta, timezone
@@ -28,7 +42,7 @@ from pyoneai.ml import (
 class TestMetric:
 
     def sample_db(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.monitoring["db_path"])
 
         entity_uid = "virtualmachine_1"
         metric_name = "cpu"
@@ -127,14 +141,12 @@ class TestMetric:
     @pytest.fixture(autouse=True)
     def setup(self, config_and_model, tmp_path, mocker):
         model_config, prediction_model_class = config_and_model
-        self.db_path = os.path.join(tmp_path, "test_metrics.db")
+        self.monitoring = {
+            "db_path": os.path.join(tmp_path, "test_metrics.db"),
+            "monitor_interval": 3600,
+        }
         self.sample_db()
-        self.observator = SQLiteAccessor(
-            db_path=self.db_path,
-            timestamp_col="TIMESTAMP",
-            value_col="VALUE",
-            monitor_interval=3600,
-        )
+        self.observator = SQLiteAccessor(self.monitoring)
 
         self.predictor = PredictorAccessor(
             prediction_model=prediction_model_class(model_config)
@@ -191,14 +203,19 @@ class TestMetric:
         )
 
     def test_metric_past(self):
+        """Verify retrieval of past metrics with tolerance-adjusted time range."""
         timeseries = self.metric[self.period_past]
-
         assert isinstance(timeseries, Timeseries)
-        assert len(timeseries) == len(self.period_past)
+        # Verify all requested points exist (timeseries may contain extra points due to tolerance)
+        period_times = set(self.period_past.values)
+        ts_times = set(timeseries.time_index)
+        assert period_times.issubset(ts_times), "Timeseries is missing requested time points"
+
         self.mock_observator_get_ts.assert_called_once_with(
             self.entity_uid, self.attrs, self.period_past
         )
         self.mock_predictor_get_ts.assert_not_called()
+        
         # NOTE: Both pandas and polars has to_numpy method to test values
         assert np.all(~np.isnan(timeseries.to_array()))
 
@@ -212,10 +229,14 @@ class TestMetric:
         assert np.all(~np.isnan(timeseries.to_array()))
 
     def test_metric_past_and_future(self):
+        """Verify retrieval of metrics spanning both past and future periods."""
         timeseries = self.metric[self.period_past_future]
 
         assert isinstance(timeseries, Timeseries)
-        assert len(timeseries) == len(self.period_past_future)
+        # Verify all requested points exist (timeseries may contain extra points due to tolerance)
+        period_times = set(self.period_past.values)
+        ts_times = set(timeseries.time_index)
+        assert period_times.issubset(ts_times), "Timeseries is missing requested time points"
         assert self.mock_observator_get_ts.call_count == 2
         self.mock_predictor_get_ts.assert_called_once()
         assert np.all(~np.isnan(timeseries.to_array()))

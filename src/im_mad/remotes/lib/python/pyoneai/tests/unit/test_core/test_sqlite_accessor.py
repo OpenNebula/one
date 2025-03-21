@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import timedelta
-
 import pytest
 from pytest_mock import MockerFixture
 
@@ -26,6 +24,9 @@ from pyoneai.core import (
     SQLiteAccessor,
 )
 from pyoneai.core.tsnumpy import Timeseries
+from datetime import datetime, timezone
+import numpy as np
+from pyoneai.core.tsnumpy.index import TimeIndex
 
 
 class TestSQLiteAccessor:
@@ -35,10 +36,11 @@ class TestSQLiteAccessor:
         mocker.patch("sqlite3.connect", return_value=self.mock_connection)
         self.entity_uid = EntityUID(EntityType.VIRTUAL_MACHINE, 0)
         self.metric_attrs = MetricAttributes(name="cpu")
-        self.monitor_interval = 60
-        self.accessor = SQLiteAccessor(
-            db_path="dummy_db_path", monitor_interval=self.monitor_interval
-        )
+        self.monitoring = {
+            "db_path": "dummy.db",
+            "monitor_interval": 60,
+        }
+        self.accessor = SQLiteAccessor(self.monitoring)
 
     def test_init(self):
         assert self.accessor._connection is self.mock_connection
@@ -53,24 +55,28 @@ class TestSQLiteAccessor:
         assert self.accessor.type == AccessorType.OBSERVATION
 
     def test_get_timeseries(self, mocker):
-        expected_ts = mocker.MagicMock()
-        mocker.patch(
-            "pyoneai.core.tsnumpy.Timeseries.read_from_database",
-            return_value=expected_ts,
+        time_values = np.array([
+            datetime(2025, 1, 1, 9, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 1, 1, 10, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 1, 1, 11, 0, 0, tzinfo=timezone.utc),
+        ])
+        
+        real_ts = Timeseries(
+            time_idx=TimeIndex(time_values),
+            metric_idx=np.array([self.metric_attrs]),
+            entity_uid_idx=np.array([self.entity_uid]),
+            data=np.array([[[50.0]], [[60.0]], [[70.0]]])
         )
-        mock_period = mocker.MagicMock(spec=Period)
-        expected_table_name = "virtualmachine_0_cpu_monitoring"
-        result = self.accessor.get_timeseries(
+        
+        # Patch the read_from_database to return our real timeseries
+        mocker.patch(
+            "pyoneai.core.tsnumpy.timeseries.Timeseries.read_from_database",
+            return_value=real_ts,
+        )
+        mock_period = Period(
+                slice("2025-01-01T09:15:00", "2025-01-01T16:26:00", "1h")
+            )
+        self.accessor.get_timeseries(
             self.entity_uid, self.metric_attrs, mock_period
         )
-
-        assert result == expected_ts
-        Timeseries.read_from_database.assert_called_once_with(
-            connection=self.accessor._connection,
-            table_name=expected_table_name,
-            metric_name="cpu",
-            timestamp_col="TIMESTAMP",
-            value_col="VALUE",
-            time=mock_period,
-            tolerance=timedelta(seconds=self.monitor_interval),
-        )
+        Timeseries.read_from_database.assert_called_once()

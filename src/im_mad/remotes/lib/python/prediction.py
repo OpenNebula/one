@@ -13,108 +13,131 @@
 # limitations under the License.
 
 import sys
-import yaml
 
-import argparse
-import base64
-import json
-import os
-import sqlite3
-
-from datetime import timedelta
-
-
-METRICS = {
-    'host':
-        ["usedcpu", "freecpu", "usedmemory", "freememory", "netrx", "nettx"],
-    'virtualmachine':
-        [
-            "cpu",
-            "memory",
-            "netrx",
-            "nettx",
-            "diskrdbytes",
-            "diskwrbytes",
-            "diskrdiops",
-            "diskwriops",
-        ]
-}
-
-def predictions(
-    entity, manifest_path, metric_name, metrics_db, forecast_horizon, resolution, 
-    sequence_length
-):
-    """
-    Generates predictions for a given Host metric using a trained ML model.
-
-    Parameters
-    ----------
-    entity : dict
-        Entity information.
-    manifest_path : str
-        Path to the ML artifact manifest file.
-    metric_name : str
-        Name of the metric to predict.
-    metrics_db : str
-        Path to SQLite metrics database.
-    forecast_horizon : int
-        Number of prediction steps.
-    resolution : int
-        Time resolution in minutes or hours.
-    sequence_length: int
-        Number of observations according to the resolution
-
-    Returns
-    -------
-    str
-        String of predictions in key:value format.
-    """
+try:
+    import numpy as np
 
     from pyoneai.core import (
+        Entity,
         EntityType,
         EntityUID,
+        Float,
         Instant,
-        Metric,
-        MetricAccessor,
         MetricAttributes,
+        MetricType,
         Period,
-        PredictorAccessor,
-        SQLiteAccessor,
+        UInt,
     )
-    from pyoneai.ml import ArtifactManager
+except ImportError as e:
+    print(f"Error: {e} ({type(e).__name__})", file=sys.stderr)
+    sys.exit(1)
 
-    if forecast_horizon == 1:
+import argparse
+import os
+from datetime import timedelta
+
+import yaml
+
+HOST_METRICS = {
+    "usedcpu": MetricAttributes(
+        name="usedcpu",
+        type=MetricType.GAUGE,
+        dtype=Float(
+            0.0, np.inf
+        ),  # TODO: inf should be replaced by the CPU ratio * 100 of the VM
+    ),
+    "freecpu": MetricAttributes(
+        name="freecpu", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    ),
+    "usedmemory": MetricAttributes(
+        name="usedmemory", type=MetricType.GAUGE, dtype=UInt()
+    ),
+    "freememory": MetricAttributes(
+        name="freememory", type=MetricType.GAUGE, dtype=UInt()
+    ),
+    "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
+    "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
+    "netrx_bw": MetricAttributes(
+        name="netrx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
+    ),
+    "nettx_bw": MetricAttributes(
+        name="nettx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
+    ),
+}
+
+VM_METRICS = {
+    "cpu": MetricAttributes(
+        name="cpu", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    ),
+    "memory": MetricAttributes(name="memory", type=MetricType.GAUGE, dtype=UInt()),
+    "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
+    "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
+    "netrx_bw": MetricAttributes(
+        name="netrx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
+    ),
+    "nettx_bw": MetricAttributes(
+        name="nettx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
+    ),
+    "diskrdbytes": MetricAttributes(
+        name="diskrdbytes", type=MetricType.COUNTER, dtype=UInt()
+    ),
+    "diskwrbytes": MetricAttributes(
+        name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt()
+    ),
+    "diskrd_bw": MetricAttributes(
+        name="diskrdbytes", type=MetricType.COUNTER, dtype=UInt(), operator="rate"
+    ),
+    "diskwr_bw": MetricAttributes(
+        name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt(), operator="rate"
+    ),
+    "diskrdiops": MetricAttributes(
+        name="diskrdiops", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    ),
+    "diskwriops": MetricAttributes(
+        name="diskwriops", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+    ),
+}
+
+DERIVED_METRICS = [
+    "netrx_bw",
+    "nettx_bw",
+    "diskrd_bw",
+    "diskwr_bw",
+]
+
+
+def get_horizon(period: int, resolution: timedelta):
+    horizon = int(period / resolution)
+    if horizon == 1:
         time = Instant(resolution)
     else:
         time = Period(
             slice(
                 resolution,
-                resolution * forecast_horizon,
+                resolution * horizon,
                 resolution,
             )
         )
+    return time
 
-    ml_model = ArtifactManager.load(manifest_path)
-    ml_model.model_config.sequence_length = sequence_length
-    metric = Metric(
-        entity_uid=EntityUID(type=EntityType(entity["type"]), id=entity["id"]),
-        attrs=MetricAttributes(name=metric_name),
-        accessor=MetricAccessor(
-            SQLiteAccessor(metrics_db), PredictorAccessor(ml_model)
-        ),
-    )
-    return round(metric[time].values[-1][0][0], 2)
+
+DB_MONITOR_INTERVAL = {
+    "host": 120,  # default value for the HOST monitoring interval
+    "virtualmachine": 30,  # default values for the VM monitoring interval
+}
+
 
 def parse_entity(entity_str):
     try:
-        type,id,uuid,db_dir = entity_str.split(",")
-        return {"type":type,"id": id, "uuid": uuid, "db_dir": db_dir}
+        type, id, uuid, db_dir = entity_str.split(",")
+        return {"type": type, "id": id, "uuid": uuid, "db_dir": db_dir}
     except ValueError:
         raise argparse.ArgumentTypeError(
-            f"VM must be in the format 'id,db_dir'. Got: {entity_str}"
+            f"entity must be in the format 'type,id,uuid,db_dir'. Got: {entity_str}"
         )
 
-def main():
+
+def parse_args():
     parser = argparse.ArgumentParser(description="Prediction probe")
 
     parser.add_argument(
@@ -131,77 +154,110 @@ def main():
         help="Specify the path to python libs and configs",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main():
+
+    args = parse_args()
     entity = args.entity
 
     # load configuration file
-    config_file = '/var/tmp/one/etc/im/kvm-probes.d/forecast.conf'
-    with open(config_file, 'r') as file:
+    config_file = "/var/tmp/one/etc/im/kvm-probes.d/forecast.conf"
+    with open(config_file, "r") as file:
         config = yaml.load(file, Loader=yaml.FullLoader)
 
     # db retention is in weeks
-    db_retention = timedelta(weeks=int(config[entity["type"]]['db_retention']))
+    db_retention = timedelta(weeks=int(config[entity["type"]]["db_retention"]))
 
-    # forecast is given in minutes
-    forecast = timedelta(minutes=int(config[entity["type"]]['forecast_period']))
+    # Short-Term Forecast
+    near = {}
+    near["period"] = timedelta(minutes=int(config[entity["type"]]["forecast_period"]))
+    near["resolution"] = timedelta(minutes=1)
+    near["sequence_length"] = 60  # last 1 hour: this should be adaptive
+    near["horizon"] = get_horizon(near["period"], near["resolution"])
 
-    # forecast_far is given in hours
-    forecast_far = timedelta(hours=int(config[entity["type"]]['forecast_far_period']))
+    # Long-Term Forecast
+    far = {}
+    far["period"] = timedelta(hours=int(config[entity["type"]]["forecast_far_period"]))
+    far["resolution"] = timedelta(hours=1)
+    far["sequence_length"] = 48  # last 2 days of data: this should be adaptive
+    far["horizon"] = get_horizon(far["period"], far["resolution"])
 
-    resolution = timedelta(minutes=5)
-    resolution_far = timedelta(hours=1)
-    
-    # TODO: since resolution is in minutes the sequence length could be really big
-    # In this case, we should define a smaller sequence length
-    sequence_length =int(db_retention/resolution)
-    sequence_length_far =int(db_retention/resolution_far)
-    
-    forecast_horizon = int(forecast/resolution)
-    forecast_horizon_far = int(forecast_far/resolution_far)
-
-    manifest_path = f"{args.pythonpath}/models/fourier/manifest.yaml"
-    if entity['type'] == 'host':
-        db_name = 'host.db'
-    elif entity['type'] == 'virtualmachine':
-        db_name = f'{entity["id"]}.db'
-    metrics_db = os.path.join(entity["db_dir"], db_name)
+    if entity["type"] == "host":
+        monitoring = {
+            "db_path": os.path.join(entity["db_dir"], "host.db"),
+            "monitor_interval": DB_MONITOR_INTERVAL["host"],
+        }
+        entity = Entity(
+            uid=EntityUID(type=EntityType.HOST, id=entity["id"]),
+            metrics=HOST_METRICS,
+            monitoring=monitoring,
+        )
+    elif entity["type"] == "virtualmachine":
+        monitoring = {
+            "db_path": os.path.join(entity["db_dir"], f'{entity["id"]}.db'),
+            "monitor_interval": DB_MONITOR_INTERVAL["virtualmachine"],
+        }
+        entity = Entity(
+            uid=EntityUID(type=EntityType.VIRTUAL_MACHINE, id=entity["id"]),
+            metrics=VM_METRICS,
+            monitoring=monitoring,
+        )
 
     monitor = {}
-    for metric_name in METRICS[entity["type"]]:
+    for name, m in entity.metrics.items():
+        #
+        # Get the latest observation for derived metrics
+        #
+        if name in DERIVED_METRICS:
+            try:
+                end = near["horizon"].origin
+                step = timedelta(seconds=DB_MONITOR_INTERVAL[entity.uid.type.value])
+                start = end - step
+                obs = round(m[Period(slice(start, end, step))].values[-1][0][0], 2)
+            except Exception as e:
+                sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
+                obs = None
+        else:
+            obs = None
+
+        #
+        # Compute Short Term Forecast
+        #
         try:
-            forecast = predictions(
-                entity=entity,
-                manifest_path=manifest_path,
-                metric_name=metric_name,
-                metrics_db=metrics_db,
-                forecast_horizon=forecast_horizon,
-                resolution=resolution,
-                sequence_length=sequence_length
-            )
+            entity._pred._prediction_model.model_config.sequence_length = near[
+                "sequence_length"
+            ]
+            ts = m[near["horizon"]].values
+            forecast = round(ts[-1][0][0], 2)
         except Exception as e:
             sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
             forecast = None
+            obs = None
 
+        #
+        # Compute Long Term Forecast
+        #
         try:
-            forecast_far = predictions(
-                entity=entity,
-                manifest_path=manifest_path,
-                metric_name=metric_name,
-                metrics_db=metrics_db,
-                forecast_horizon=forecast_horizon_far,
-                resolution=resolution_far,
-                sequence_length=sequence_length_far
-            )
+            entity._pred._prediction_model.model_config.sequence_length = far[
+                "sequence_length"
+            ]
+            forecast_far = round(m[far["horizon"]].values[-1][0][0], 2)
         except Exception as e:
             sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
             forecast_far = None
 
+        if obs is not None:
+            monitor[name.upper()] = obs
         if forecast is not None:
-            monitor[f"{metric_name.upper()}_FORECAST"] = forecast
+            monitor[f"{name.upper()}_FORECAST"] = forecast
         if forecast_far is not None:
-            monitor[f"{metric_name.upper()}_FORECAST_FAR"] = forecast_far
+            monitor[f"{name.upper()}_FORECAST_FAR"] = forecast_far
 
+    #
+    # Print on stdout predictions and derived metrics
+    #
     if monitor:
         mon_str = "\n".join(f'{key}="{value}"' for key, value in monitor.items())
 

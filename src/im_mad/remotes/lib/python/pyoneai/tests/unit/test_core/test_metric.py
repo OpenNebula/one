@@ -27,6 +27,7 @@ from pyoneai.core import (
     Period,
 )
 from pyoneai.core.tsnumpy import Timeseries
+from pyoneai.core.metric_types import UInt
 
 
 class TestMetric:

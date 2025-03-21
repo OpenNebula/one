@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .base_accessor import (
-    AccessorType,
-    BaseAccessor,
-)
+from .base_accessor import AccessorType, BaseAccessor
+from .entity import Entity
 from .entity_uid import EntityType, EntityUID
-from .metric import Metric, MetricAttributes, MetricType
+from .metric import Metric
 from .metric_accessor import MetricAccessor
+from .metric_types import MetricAttributes, MetricType, Float, UInt
 from .predictor_accessor import PredictorAccessor
 from .sqlite_accessor import SQLiteAccessor
 from .time import Instant, Period

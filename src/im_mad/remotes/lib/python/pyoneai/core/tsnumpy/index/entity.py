@@ -67,8 +67,7 @@ class EntityIndex(BaseIndex[EntityUID]):
                 f"Invalid entity types at indices {invalid}: {types}"
             )
 
-        entity_pairs = [(e.type, e.id) for e in self.values]
-        if len(set(entity_pairs)) != len(entity_pairs):
+        if not self.is_unique:
             raise ValueError("Duplicate entities not allowed")
 
     def get_loc(
@@ -140,3 +139,9 @@ class EntityIndex(BaseIndex[EntityUID]):
         if isinstance(selection, int):
             return np.array([self.values[selection]])
         return self.values[selection]
+
+    @property
+    def is_unique(self) -> bool:
+        """Check if the index contains unique entities."""
+        entity_pairs = [(e.type, e.id) for e in self.values]
+        return len(set(entity_pairs)) == len(entity_pairs)

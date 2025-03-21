@@ -14,38 +14,23 @@
 
 from __future__ import annotations
 
-import importlib
 import os
 import pickle
 from pathlib import Path
 from typing import Any, ClassVar
+from warnings import warn
 
 import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 
+
+from ..core.metric_types import MetricAttributes
+from ..core.entity_uid import EntityUID
 from ..core.time import Period
 from ..core.tsnumpy.timeseries import Timeseries
 from .base_prediction_model import BasePredictionModel
 from .model_config import ModelConfig
 from .utils import get_class
-
-__HAS_PANDAS__ = False
-__HAS_POLARS__ = False
-
-if importlib.util.find_spec("pandas"):
-    import pandas as pd
-    from pandas import Series
-
-    __HAS_PANDAS__ = True
-elif importlib.util.find_spec("polars"):
-    import polars as pl
-    from polars import Series
-
-    __HAS_POLARS__ = True
-else:
-    raise ImportError(
-        "Neither 'polars' nor 'pandas' is installed. Please install at least one of them."
-    )
 
 
 class HgbtPredictionModel(BasePredictionModel):
@@ -55,7 +40,9 @@ class HgbtPredictionModel(BasePredictionModel):
     The HGBT model is fit on-the-fly during each call of the
     `predict` method.
     """
-    __SUPPORTS_CI__: ClassVar[bool] = True
+
+    # NOTE: does not support CI until CI are enabled in Timeseries class
+    __SUPPORTS_CI__: ClassVar[bool] = False
     MIN_N_SPLITS: ClassVar[int] = 200
 
     is_fit: bool
@@ -73,7 +60,13 @@ class HgbtPredictionModel(BasePredictionModel):
         self._context_length = self.model_config.training_params.get(
             "context_length", 200
         )
-        self._compute_ci = self.model_config.compute_ci
+        # TODO: change when CI are enabled in Timeseries class
+        if self.model_config.compute_ci:
+            warn(
+                "HgbtPredictionModel does not currently support computation "
+                "of confidence intervals. That option will be ignored."
+            )
+        self._compute_ci = False
         self.gbrt_mean, self.gbrt_q5, self.gbrt_q95 = (
             self._configure_regressors()
         )
@@ -92,7 +85,7 @@ class HgbtPredictionModel(BasePredictionModel):
         return (gbrt_mean, gbrt_q5, gbrt_q95)
 
     def _validate_fit_metric(self, metric: Timeseries):
-        index = metric.time_index
+        index = metric._time_idx
         if not index.is_monotonic_increasing:
             raise ValueError("Time series must be monotonic " "increasing.")
         if not index.is_unique:
@@ -112,7 +105,7 @@ class HgbtPredictionModel(BasePredictionModel):
                 "Histogram-based Gradient Boosting Tree can be "
                 "trained for univariate time series only."
             )
-        if any(np.isnan(metric)):
+        if any(np.isnan(metric.values)):
             raise ValueError("Time series cannot contain NaN values.")
 
     def _validate_forecast_metric(self, metric: Timeseries):
@@ -139,38 +132,22 @@ class HgbtPredictionModel(BasePredictionModel):
         self, metric: Timeseries, horizon: int = 1
     ) -> np.ndarray:
 
-        last_ts = metric.time_index.values[-1]
+        last_ts = metric.time_index[-1]
+        freq = metric._time_idx.frequency
 
         return Period(
             slice(
-                last_ts, last_ts + horizon * metric.frequency, metric.frequency
+                last_ts,
+                last_ts + horizon * freq,
+                freq,
             )
         ).values[1:]
 
     def _fit(self, metric: Timeseries) -> None:
         self._validate_fit_metric(metric)
         splits = self._prepare_splits(metric)
-        data = metric.to_dataframe()
-        if __HAS_PANDAS__:
-            x = np.array(
-                [data.iloc[idx[0]].values for idx in splits]
-            ).squeeze()
-            y = np.array(
-                [data.iloc[idx[1]].values for idx in splits]
-            ).squeeze()
-        elif __HAS_POLARS__:
-            x = np.array(
-                [
-                    data[idx[0]].select(data.columns[1]).to_numpy()
-                    for idx in splits
-                ]
-            ).squeeze()
-            y = np.array(
-                [
-                    data[idx[1]].select(data.columns[1]).to_numpy()
-                    for idx in splits
-                ]
-            ).squeeze()
+        x = np.array([metric.isel(idx[0]).values for idx in splits]).squeeze()
+        y = np.array([metric.isel(idx[1]).values for idx in splits]).squeeze()
         self.gbrt_mean.fit(x, y)
         if self._compute_ci:
             self.gbrt_q5.fit(x, y)
@@ -200,8 +177,9 @@ class HgbtPredictionModel(BasePredictionModel):
 
     def _forecast_with_ci(
         self,
-        name: str,
-        x: Series,
+        metric: MetricAttributes,
+        entity_uid: EntityUID,
+        x: Timeseries,
         forecast_index: np.ndarray,
         horizon: int,
     ) -> Timeseries:
@@ -209,10 +187,7 @@ class HgbtPredictionModel(BasePredictionModel):
         preds_q5 = []
         preds_q95 = []
 
-        if __HAS_PANDAS__:
-            x_feed = x.values.reshape(1, -1)
-        elif __HAS_POLARS__:
-            x_feed = x.to_numpy().reshape(1, -1)
+        x_feed = x.values.reshape(1, -1)
         for _ in range(horizon):
             preds_mean.append(self.gbrt_mean.predict(x_feed))
             preds_q5.append(self.gbrt_q5.predict(x_feed))
@@ -223,28 +198,25 @@ class HgbtPredictionModel(BasePredictionModel):
             # replaces all values to preds_mean[-1]
             np.put(x_feed, -1, preds_mean[-1])
 
+        # TODO: to be refactored
         return Timeseries(
-            time_index=forecast_index,
-            data={
-                name: np.array(preds_mean).squeeze(),
-                f"{name}_lower": np.array(preds_q5).squeeze(),
-                f"{name}_upper": np.array(preds_q95).squeeze(),
-            },
+            time_idx=forecast_index,
+            metric_idx=metric,
+            entity_uid_idx=entity_uid,
+            data=None,
         )
 
     def _forecast_without_ci(
         self,
-        name: str,
-        x: Series,
+        metric: MetricAttributes,
+        entity_uid: EntityUID,
+        x: Timeseries,
         forecast_index: np.ndarray,
         horizon: int,
     ) -> Timeseries:
         preds_mean = []
 
-        if __HAS_PANDAS__:
-            x_feed = x.values.reshape(1, -1)
-        elif __HAS_POLARS__:
-            x_feed = x.to_numpy().reshape(1, -1)
+        x_feed = x.values.reshape(1, -1)
         for _ in range(horizon):
             preds_mean.append(self.gbrt_mean.predict(x_feed))
             x_feed = np.roll(x_feed, -1)
@@ -254,10 +226,10 @@ class HgbtPredictionModel(BasePredictionModel):
             np.put(x_feed, -1, preds_mean[-1])
 
         return Timeseries(
-            time_index=forecast_index,
-            data={
-                name: np.array(preds_mean).squeeze(),
-            },
+            time_idx=forecast_index,
+            metric_idx=np.array([metric]),
+            entity_uid_idx=np.array([entity_uid]),
+            data=np.array(preds_mean).reshape(-1, 1, 1),
         )
 
     def predict(self, metric: Timeseries, horizon: int = 1) -> Timeseries:
@@ -282,31 +254,27 @@ class HgbtPredictionModel(BasePredictionModel):
             HGBT model.
         """
         self._validate_forecast_metric(metric)
-        if __HAS_PANDAS__:
-            all_x = metric.to_dataframe(copy=True).iloc[
-                -self._context_length :
-            ]
-        elif __HAS_POLARS__:
-            all_x = metric.to_dataframe(copy=True)[-self._context_length :]
+        all_x = metric.isel(slice(-self._context_length, None))
         multivariate = []
-        for name in metric.names:
-            x = all_x[name]
-            if not self._is_fit:
-                # NOTE: fit on the fly
-                self._fit(metric[name])
+        for mattr in metric.metrics:
+            for entity_uid in metric.entity_uids:
+                x = all_x[mattr]
+                if not self._is_fit:
+                    # NOTE: fit on the fly
+                    self._fit(metric[(mattr, entity_uid)])
 
-            forecast_index = self._get_forecast_index(metric, horizon)
+                forecast_index = self._get_forecast_index(metric, horizon)
 
-            if self._compute_ci:
-                forecast_ts = self._forecast_with_ci(
-                    name, x, forecast_index, horizon
-                )
-            else:
-                forecast_ts = self._forecast_without_ci(
-                    name, x, forecast_index, horizon
-                )
-            multivariate.append(forecast_ts)
-        return Timeseries.multivariate(multivariate)
+                if self._compute_ci:
+                    forecast_ts = self._forecast_with_ci(
+                        mattr, entity_uid, x, forecast_index, horizon
+                    )
+                else:
+                    forecast_ts = self._forecast_without_ci(
+                        mattr, entity_uid, x, forecast_index, horizon
+                    )
+                multivariate.append(forecast_ts)
+        return Timeseries.merge(*multivariate)
 
     @classmethod
     def load(

@@ -16,17 +16,17 @@ from __future__ import annotations
 
 __all__ = ["PredictorAccessor"]
 
-import importlib.util
 import sqlite3
 from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+from typing import Union
 
 import numpy as np
 
 from .base_accessor import AccessorType, BaseAccessor
 from .entity_uid import EntityUID
-from .metric import MetricAttributes
+from .metric_types import MetricAttributes, MetricType
 from .time import Instant, Period
+from .tsnumpy.index import TimeIndex
 from .tsnumpy.timeseries import Timeseries
 
 
@@ -36,14 +36,13 @@ class SQLiteAccessor(BaseAccessor):
 
     Parameters
     ----------
-    db_path : str
-        Path to the SQLite database.
-    timestamp_col : str, default=TIMESTAMP
-        Name of the timestamp column.
-    value_col : str, default=VALUE
-        Name of the metric value column.
-    monitor_interval : int, default=60
-        Interval (seconds) at which the data is stored in the database.
+    monitoring : dict[str, Union[str, int]]
+        Dictionary containing the monitoring configuration.
+        - "db_path": Path to the SQLite database.
+        - "timestamp_col": Name of the timestamp column.
+        - "value_col": Name of the metric value column.
+        - "monitor_interval": Interval (seconds) at which the data is stored in the database.
+        - "table_name_template": Template for the table name.
     """
 
     __slots__ = (
@@ -56,16 +55,13 @@ class SQLiteAccessor(BaseAccessor):
 
     def __init__(
         self,
-        db_path: str,
-        timestamp_col: str = "TIMESTAMP",
-        value_col: str = "VALUE",
-        monitor_interval: int = 60,
+        monitoring: dict[str, Union[str, int]],
     ) -> None:
-        self._connection = sqlite3.connect(db_path)
-        self._timestamp_col = timestamp_col
-        self._value_col = value_col
-        self._table_name_template = "{entityUID}_{metric_name}_monitoring"
-        self._monitor_interval = monitor_interval
+        self._connection = sqlite3.connect(monitoring["db_path"])
+        self._timestamp_col = monitoring.get("timestamp_col", "TIMESTAMP")
+        self._value_col = monitoring.get("value_col", "VALUE")
+        self._table_name_template = monitoring.get("table_name_template", "{entityUID}_{metric_name}_monitoring")
+        self._monitor_interval = monitoring.get("monitor_interval", 60)
 
     @property
     def type(self) -> AccessorType:
@@ -98,12 +94,52 @@ class SQLiteAccessor(BaseAccessor):
         table_name = self._table_name_template.format(
             entityUID=entity_uid, metric_name=metric_attrs.name
         )
-        return Timeseries.read_from_database(
+
+        tolerance = timedelta(seconds=self._monitor_interval)
+
+        if isinstance(time, Period):
+            start = (time.start - tolerance).timestamp()
+            end = (time.end + tolerance).timestamp()
+        elif isinstance(time, Instant):
+            start = (time.value - tolerance).timestamp()
+            end = (time.value + tolerance).timestamp()
+
+        ts = Timeseries.read_from_database(
             connection=self._connection,
             table_name=table_name,
-            metric_name=metric_attrs.name,
+            metric_attrs=metric_attrs,
             timestamp_col=self._timestamp_col,
             value_col=self._value_col,
-            time=time,
-            tolerance=timedelta(seconds=self._monitor_interval),
+            start_epoch=start,
+            end_epoch=end,
         )
+        if ts is None:
+            return Timeseries(
+                time_idx=time,
+                metric_idx=np.array([metric_attrs]),
+                entity_uid_idx=np.array([entity_uid]),
+                data=np.full((len(time), 1, 1), np.nan),
+            )
+
+        if metric_attrs.type == MetricType.COUNTER:
+            ts = ts.restore_counter()
+
+        # Fill gaps
+        # TODO: Add a method for the Timeseries
+        # NEEDS TO BE FIXED: it is slow with long timeseries
+        if isinstance(time, Period): # Instant doesn't have a start and end
+             p = Period(slice(time.start, time.end, ts._time_idx.frequency))
+             ts = ts.interpolate(TimeIndex(p.values))
+
+        if TimeIndex(time.values).frequency > ts._time_idx.frequency:
+            ts = ts.resample(TimeIndex(time.values).frequency)
+
+        ts = ts.interpolate(TimeIndex(time.values))
+
+        if isinstance(time, Instant):
+            return ts[time]
+
+        if metric_attrs.operator == "rate":
+            ts = ts.rate()
+
+        return ts.clip()

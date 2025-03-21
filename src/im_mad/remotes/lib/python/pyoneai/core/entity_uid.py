@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class EntityType(Enum):
@@ -25,8 +26,16 @@ class EntityType(Enum):
 
 @dataclass
 class EntityUID:
-    type: type[EntityType]
+    type: EntityType
     id: int
 
     def __str__(self) -> str:
         return f"{self.type.value}_{self.id}"
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, EntityUID):
+            return False
+        return self.type == other.type and self.id == other.id
+
+    def __hash__(self):
+        return hash((self.type, self.id))

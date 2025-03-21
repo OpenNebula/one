@@ -16,35 +16,19 @@ from __future__ import annotations
 
 __all__ = [
     "Metric",
-    "MetricAttributes",
-    "MetricType",
 ]
-import enum
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Union, overload
+
+from typing import TYPE_CHECKING, Union
+
 
 from .entity_uid import EntityUID
 from .time import Instant, Period
-from .tsnumpy.timeseries import Timeseries
+
 
 if TYPE_CHECKING:
     from .metric_accessor import MetricAccessor
-
-
-@enum.unique
-class MetricType(enum.Enum):
-    COUNTER = "counter"
-    GAUGE = "gauge"
-    RATE = "rate"
-
-
-@dataclass
-class MetricAttributes:
-    name: Union[str, None] = None
-    type: Union[MetricType, None] = None
-    instant_resolution: Union[str, None] = None
-    instant_hist_steps: Union[int, None] = None
-
+    from .metric_types import MetricAttributes
+    from .tsnumpy.timeseries import Timeseries
 
 class Metric:
     __slots__ = ("_entity_uid", "_attrs", "_accessor")

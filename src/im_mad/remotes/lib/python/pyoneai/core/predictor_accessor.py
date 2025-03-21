@@ -16,12 +16,11 @@ from __future__ import annotations
 
 __all__ = ["PredictorAccessor"]
 
-import importlib.util
 from typing import TYPE_CHECKING, Any
 
 from .base_accessor import AccessorType, BaseAccessor
 from .entity_uid import EntityUID
-from .metric import MetricAttributes
+from .metric_types import MetricAttributes
 from .time import Instant, Period
 from .tsnumpy.timeseries import Timeseries
 
@@ -68,15 +67,18 @@ class PredictorAccessor(BaseAccessor):
             entity_uid, metric_attrs, hist_period
         )
         if isinstance(time, Instant):
-            return self._prediction_model.predict(metric=obs, horizon=1)
+            predicted_values = self._prediction_model.predict(
+                metric=obs, horizon=1
+            )
         elif isinstance(time, Period):
-            return self._prediction_model.predict(
+            predicted_values = self._prediction_model.predict(
                 metric=obs, horizon=len(time.values)
             )
         else:
             raise TypeError(
                 "'time' must be an instance of 'Instant' or 'Period'"
             )
+        return predicted_values.clip()
 
     @property
     def type(self) -> AccessorType:

@@ -17,25 +17,28 @@
 This module provides metric-specific indexing functionality for timeseries data,
 handling case-sensitive metric name lookups and selections.
 """
+from __future__ import annotations
 
 from typing import List, Union
 
 import numpy as np
 
+from pyoneai.core.metric_types import MetricAttributes
+
 from .base import BaseIndex
 
 
-class MetricIndex(BaseIndex[str]):
+class MetricIndex(BaseIndex[MetricAttributes]):
     """Metric-specific index handling for timeseries data.
 
-    This class handles metric name indexing with case-sensitive matching.
+    This class handles metric attributes indexing with case-sensitive matching.
     Metric names must be unique in a case-sensitive manner (e.g., 'cpu' and 'CPU'
     are considered different metrics).
 
     Parameters
     ----------
     values : numpy.ndarray
-        Array of metric names as strings.
+        Array of MetricAttributes.
 
     Raises
     ------
@@ -44,7 +47,11 @@ class MetricIndex(BaseIndex[str]):
 
     Examples
     --------
-    >>> metric_idx = MetricIndex(np.array(['cpu', 'CPU', 'memory']))
+    >>> metric_idx = MetricIndex(np.array([
+    ...     MetricAttributes('cpu', type=MetricType.GAUGE, dtype=MetricDType.FLOAT),
+    ...     MetricAttributes('CPU', type=MetricType.GAUGE, dtype=MetricDType.FLOAT),
+    ...     MetricAttributes('memory', type=MetricType.GAUGE, dtype=MetricDType.FLOAT),
+    ... ]))
     >>> metric_idx.get_loc('cpu')  # Returns index for 'cpu'
     0
     >>> metric_idx.get_loc('CPU')  # Returns index for 'CPU'
@@ -52,6 +59,16 @@ class MetricIndex(BaseIndex[str]):
     >>> metric_idx.get_loc('Cpu')  # Raises KeyError - case sensitive match
     KeyError: "Metric 'Cpu' not found"
     """
+
+    @property
+    def names(self) -> np.ndarray[str]:
+        """Array of metric names."""
+        return np.sort(np.array(list(map(lambda x: x.name, self.values))))
+
+    @property
+    def is_unique(self) -> bool:
+        """Check if the index contains unique MetricAttributes."""
+        return len(set(self.values)) == len(self.values)
 
     def validate(self) -> None:
         """Validate metric names are unique in a case-sensitive manner.
@@ -65,32 +82,26 @@ class MetricIndex(BaseIndex[str]):
         ValueError
             If duplicate metric names are found.
         """
-        # Ensure we have a numpy array
-        if not isinstance(self.values, np.ndarray):
-            self.values = np.array(self.values, dtype=str)
-        elif isinstance(self.values, np.str_):
-            # Handle single string value
-            self.values = np.array([str(self.values)], dtype=str)
-
-        # Check for duplicates
-        if len(self.values.shape) == 0:
-            # Single value case
-            self.values = np.array([str(self.values)], dtype=str)
-        elif not self.is_unique:
+        self.values = np.array(self.values, ndmin=1)
+        if not self.is_unique:
             raise ValueError(
                 "Duplicate metric names not allowed (case-sensitive)"
             )
 
-    def get_loc(self, key: Union[str, List[str]]) -> Union[int, List[int]]:
-        """Get location(s) for the given metric name(s).
+    def get_loc(
+        self,
+        key: Union[str, List[str], MetricAttributes, List[MetricAttributes]],
+    ) -> Union[int, List[int]]:
+        """Get location(s) for the given metric attributes or name(s).
 
-        This method performs case-sensitive matching. For example, 'cpu' and 'CPU'
+        This method performs case-sensitive matching.
+        For example, 'cpu' and 'CPU'
         are treated as different metrics.
 
         Parameters
         ----------
-        key : Union[str, List[str]]
-            Single metric name or list of metric names to locate.
+        key : Union[str, List[str], MetricAttributes, List[MetricAttributes]]
+            Key to get the location.
 
         Returns
         -------
@@ -104,9 +115,15 @@ class MetricIndex(BaseIndex[str]):
 
         Examples
         --------
-        >>> metric_idx = MetricIndex(np.array(['cpu', 'memory', 'disk']))
+        >>> metric_idx = MetricIndex(np.array([
+        ...     MetricAttributes('cpu'),
+        ...     MetricAttributes('memory'),
+        ...     MetricAttributes('disk'),
+        ... ]))
         >>> # Single metric
         >>> metric_idx.get_loc('cpu')
+        0
+        >>> metric_idx.get_loc(MetricAttributes('cpu'))
         0
         >>> # Multiple metrics
         >>> metric_idx.get_loc(['cpu', 'memory'])
@@ -115,14 +132,15 @@ class MetricIndex(BaseIndex[str]):
         >>> metric_idx.get_loc('Cpu')  # Raises KeyError
         KeyError: "Metric 'Cpu' not found"
         """
-        if isinstance(key, str):
-            # Case-sensitive exact match
-            loc = np.where(self.values == key)[0]
-            if len(loc) == 0:
-                available = "', '".join(self.values)
-                raise KeyError(
-                    f"Metric '{key}' not found. Available metrics (case-sensitive): '{available}'"
-                )
+        if isinstance(key, MetricAttributes):
+            loc = [i for i, e in enumerate(self.values) if e == key]
+            if not loc:
+                raise KeyError(f"Metric {key} not found")
+            return loc[0]
+        elif isinstance(key, str):
+            loc = [i for i, e in enumerate(self.values) if e.name == key]
+            if not loc:
+                raise KeyError(f"Metric '{key}' not found")
             return loc[0]
         return [self.get_loc(k) for k in key]
 
@@ -154,5 +172,5 @@ class MetricIndex(BaseIndex[str]):
         selected = self.values[selection]
         # Ensure we return a numpy array
         if isinstance(selection, int):
-            return np.array([selected], dtype=str)
-        return np.array(selected, dtype=str)
+            return np.array([selected])
+        return np.array(selected)

@@ -19,7 +19,7 @@ from typing import ClassVar
 
 import numpy as np
 
-from ..core import EntityUID, EntityType
+from ..core.entity_uid import EntityUID, EntityType
 from ..core.tsnumpy.timeseries import Timeseries
 from .base_prediction_model import BasePredictionModel
 from .model_config import ModelConfig
@@ -36,12 +36,12 @@ class PersistencePredictionModel(BasePredictionModel):
         predictions = []
         time_index = self._forecast_time_index(metric, horizon)
 
-        for name in metric.names:
-            last_value = metric[name].to_array()[-1]
+        for mattr in metric.metrics:
+            last_value = metric[mattr].to_array()[-1]
             
             predicted_metric = Timeseries(
                 time_idx=time_index,
-                metric_idx=np.array([name]),
+                metric_idx=np.array([mattr]),
                 entity_uid_idx=np.array([EntityUID(EntityType.VIRTUAL_MACHINE, -1)]),
                 data=np.repeat(last_value, horizon).reshape(-1, 1, 1)
             )
@@ -51,7 +51,7 @@ class PersistencePredictionModel(BasePredictionModel):
         # Combine predictions into a single multivariate timeseries
         # All predictions should have the same time index since they use the same horizon
         time_idx = predictions[0]._time_idx
-        metric_names = np.array([p.names[0] for p in predictions])
+        metric_attributes = np.array([p.metrics[0] for p in predictions])
         entity_uid_idx = predictions[0]._entity_idx.values
         
         # Combine data arrays along the metric dimension (axis=1)
@@ -59,7 +59,7 @@ class PersistencePredictionModel(BasePredictionModel):
         combined_data = np.concatenate(data_arrays, axis=1)
         return Timeseries(
             time_idx=time_idx,
-            metric_idx=metric_names,
+            metric_idx=metric_attributes,
             entity_uid_idx=entity_uid_idx,
             data=combined_data
         )

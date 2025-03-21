@@ -76,7 +76,7 @@ def _to_utc_datetime(dt: Union[str, datetime, np.datetime64]) -> datetime:
     return dt.astimezone(timezone.utc)
 
 
-class TimeIndex(BaseIndex[Union[np.datetime64, Period, Instant]]):
+class TimeIndex(BaseIndex):
     """Time-specific index handling for timeseries data.
 
     This class provides functionality for indexing timeseries data by time,
@@ -93,6 +93,41 @@ class TimeIndex(BaseIndex[Union[np.datetime64, Period, Instant]]):
         If the time index contains duplicate timestamps or is not strictly monotonic increasing.
     """
 
+    def __eq__(self, other) -> bool:
+        """Check if this TimeIndex is equal to another TimeIndex.
+
+        Two TimeIndex objects are considered equal if they have the same length
+        and all their timestamp values are equal.
+
+        Parameters
+        ----------
+        other : Any
+            The object to compare with.
+
+        Returns
+        -------
+        bool
+            True if the TimeIndex objects are equal, False otherwise.
+        """
+        if not isinstance(other, TimeIndex) or len(self) != len(other):
+            return False
+            
+        if len(self) == 0 and len(other) == 0:
+            return True
+            
+        return np.array_equal(self.values, other.values)
+
+    @property
+    def origin(self) -> datetime:
+        """Get the origin of the time index.
+
+        Returns
+        -------
+        datetime
+            The origin of the time index.
+        """
+        return self.get_sliced_index(0)
+    
     @property
     def tz(self) -> str:
         """Get the timezone of the time index.
@@ -124,12 +159,17 @@ class TimeIndex(BaseIndex[Union[np.datetime64, Period, Instant]]):
             [t2 - t1 for t1, t2 in zip(self.values[:-1], self.values[1:])]
         )
 
-        # Check if all differences are equal
+        # Check if all differences are within 10% of the first difference
         first_diff = time_diffs[0]
-        if not np.all([td == first_diff for td in time_diffs]):
+        tolerance = first_diff*0.1
+        if not np.all([(first_diff - tolerance) <= td <= (first_diff + tolerance) for td in time_diffs]):
             return default_freq
 
         return first_diff
+    
+    def as_timestamp(self) -> np.ndarray:
+        """Get TimeIndex values as timestamps."""
+        return np.array([int(t.timestamp()) for t in self.values])
 
     def validate(self) -> None:
         """Validate time index has no duplicates and is ordered.
@@ -231,3 +271,21 @@ class TimeIndex(BaseIndex[Union[np.datetime64, Period, Instant]]):
         array(['2024-01-01', '2024-01-02'], dtype='datetime64[ns]')
         """
         return self.values[selection]
+
+    def get_time_deltas_from_origin(self, origin: datetime, time_points: np.ndarray) -> np.ndarray:
+        """
+        Converts datetime arrays to time deltas from a reference origin.
+
+        Parameters
+        ----------
+        origin : datetime
+            The origin of the time index.
+        time_points : numpy.ndarray[datetime]
+            Array of datetime values.
+
+        Returns
+        -------
+        numpy.ndarray[np.float64]
+            Array of time deltas in seconds from the origin.
+        """
+        return np.array(list(map(lambda x: x.timestamp() - origin.timestamp(), time_points)))

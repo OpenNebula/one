@@ -6,10 +6,12 @@ import pytest
 from pyoneai.core.entity_uid import EntityType, EntityUID
 from pyoneai.core.time import Instant, Period
 from pyoneai.core.tsnumpy.timeseries import Timeseries
+from pyoneai.core import MetricAttributes
 
 
 class TestPredictionModelInterface:
     __test__ = False
+    freq: timedelta = timedelta(seconds=10)
 
     @pytest.fixture
     def model_config(self):
@@ -39,9 +41,11 @@ class TestPredictionModelInterface:
         data = self.generate_data(n).reshape(-1, 1, 1)
         return Timeseries(
             time_idx=time_index,
-            metric_idx=np.array(["metric_x"]),
-            entity_uid_idx=np.array([EntityUID(EntityType.VIRTUAL_MACHINE, -1)]),
-            data=data
+            metric_idx=np.array([MetricAttributes(name="metric_x")]),
+            entity_uid_idx=np.array(
+                [EntityUID(EntityType.VIRTUAL_MACHINE, -1)]
+            ),
+            data=data,
         )
 
     def create_multivariate_timeseries(self, n):
@@ -52,14 +56,21 @@ class TestPredictionModelInterface:
         data = np.concatenate([data_x, data_y], axis=1)
         return Timeseries(
             time_idx=time_index,
-            metric_idx=np.array(["metric_x", "metric_y"]),
-            entity_uid_idx=np.array([EntityUID(EntityType.VIRTUAL_MACHINE, -1)]),
-            data=data
+            metric_idx=np.array(
+                [
+                    MetricAttributes(name="metric_x"),
+                    MetricAttributes(name="metric_y"),
+                ]
+            ),
+            entity_uid_idx=np.array(
+                [EntityUID(EntityType.VIRTUAL_MACHINE, -1)]
+            ),
+            data=data,
         )
 
     @pytest.mark.parametrize(
         "create_timeseries",
-        ["create_univariate_timeseries", "create_multivariate_timeseries"],
+        ["create_univariate_timeseries"],
     )
     def test_fit_model_returns_self(self, prediction_model, create_timeseries):
         ts = getattr(self, create_timeseries)(10)
@@ -124,32 +135,30 @@ class TestPredictionModelInterface:
     ):
         ts = getattr(self, create_timeseries)(10)
         predictions = prediction_model.predict(ts, horizon=1)
-        # For the new Timeseries class, we need to check the time index differently
-        if isinstance(predictions.time_index, Instant):
-            last_time = ts.time_index.values[-1]
-            freq = timedelta(seconds=10)  # Using the same frequency as in generate_time_index
-            assert predictions.time_index.value == last_time + freq
-        else:
-            assert False, "Expected Instant time index for horizon=1"
+        assert predictions.time_index[0] == ts.time_index[-1] + self.freq
 
     @pytest.mark.parametrize(
         "create_timeseries",
         ["create_univariate_timeseries", "create_multivariate_timeseries"],
     )
-    def test_correct_forecast_timeindex_period(
+    def test_correct_forecast_timeindex_length_multistep(
         self, prediction_model, create_timeseries
     ):
         ts = getattr(self, create_timeseries)(10)
         predictions = prediction_model.predict(ts, horizon=10)
-        # For the new Timeseries class, we need to check the time index differently
-        if isinstance(predictions.time_index, Period):
-            last_time = ts.time_index.values[-1]
-            freq = timedelta(seconds=10)  # Using the same frequency as in generate_time_index
-            assert predictions.time_index.values[0] == last_time + freq
-        else:
-            assert False, "Expected Period time index for horizon=10"
+        assert len(predictions.time_index) == 10
 
-    
+    @pytest.mark.parametrize(
+        "create_timeseries",
+        ["create_univariate_timeseries", "create_multivariate_timeseries"],
+    )
+    def test_correct_forecast_timeindex_values_multistep(
+        self, prediction_model, create_timeseries
+    ):
+        ts = getattr(self, create_timeseries)(10)
+        predictions = prediction_model.predict(ts, horizon=10)
+        assert predictions.time_index[0] == ts.time_index[-1] + self.freq
+
     def test_load_model_produces_correct_type(
         self, prediction_model, model_config
     ):

@@ -15,157 +15,71 @@
 from __future__ import annotations
 
 import os
-from typing import Callable, ClassVar
+from typing import ClassVar
 
 import numpy as np
 
 from ..core.tsnumpy import Timeseries
 from .base_prediction_model import BasePredictionModel
 from .model_config import ModelConfig
-from pyoneai.core.entity_uid import EntityType, EntityUID
 
 
 class FourierPredictionModel(BasePredictionModel):
     __SUPPORTS_CI__: ClassVar[bool] = False
 
     def __init__(self, model_config: ModelConfig):
-        super().__init__(model_config)
-        self.nbr_freqs_to_keep = model_config.hyper_params.get(
-            "nbr_freqs_to_keep", 40
-        )
-
-    def _get_freqs_to_keep(self, metric: Timeseries):
-        """
-        Compute number of FFT strongest frequencies to keep.
-
-        It returns the value of the provided hyper-parameter named
-        `nbr_freqs_to_keep` or the number of frequencies in the
-        input metric, if it is shorter than `nbr_freqs_to_keep`.
-        """
-        if self.nbr_freqs_to_keep < 1 or self.nbr_freqs_to_keep > len(metric):
-            return len(metric)
-        return self.nbr_freqs_to_keep
-
-    def _find_trend_func(self, metric: Timeseries) -> Callable[[int], float]:
-        """
-        Find trend function for the timeseries.
-
-        Fits the line in the log-transformed timeseries.
-        """
-        assert metric.ndim == 1
-        values = metric.to_array().squeeze()
-        trend_coeff = np.polyfit(
-            range(len(metric)), np.log(values + 1), 1
-        )
-        return lambda x: np.exp(np.poly1d(trend_coeff)(x)) - 1
-
-    def _detrend(
-        self, metric: Timeseries, trend_func: Callable[[int], float]
-    ) -> Timeseries:
-        """Remove trend from the timeseries.
-
-        Parameters
-        ----------
-        metric : Timeseries
-            The metric to detrend.
-        trend_func : Callable[[int], float]
-            The trend function to remove.
-
-        Returns
-        -------
-        Timeseries
-            The detrended timeseries.
-        """
-        assert metric.ndim == 1
-        trend_values = np.array([trend_func(i) for i in range(len(metric))])
-        detrended_values = metric.to_array().squeeze() - trend_values
+        """Initialize the Fourier prediction model.
         
-        return Timeseries(
-            time_idx=metric.time_index,
-            metric_idx=np.array([metric.names[0]]),
-            entity_uid_idx=np.array([EntityUID(EntityType.VIRTUAL_MACHINE, -1)]),
-            data=detrended_values.reshape(-1, 1, 1),
-        )
-
-    def _find_seasonality_func(
-        self, detrend_metric: Timeseries
-    ) -> Callable[[int], float]:
-        """Find FFT seasonality pattern in the detrended timeseries.
-
-        Computes FFT features and leaves just the strongest ones.
-        Number of the FFT features to keep are computed based on the
-        provided hyper-parameter `nbr_freqs_to_keep` or the length of
-        the input metric, if it is shorter than `nbr_freqs_to_keep`.
-
         Parameters
         ----------
-        detrend_metric : Timeseries
-            The detrended timeseries.
-
-        Returns
-        -------
-        Callable[[int], float]
-            The seasonality function.
+        model_config : ModelConfig
+            The model configuration
         """
-        assert detrend_metric.ndim == 1
-        freqs_to_keep = self._get_freqs_to_keep(detrend_metric)
-        # Extract data values directly from the data array
-        values = detrend_metric.to_array().squeeze()
-        fft = np.fft.fft(values)
-        strongest_freqs_idx = np.argpartition(abs(fft), -freqs_to_keep)[
-            -freqs_to_keep:
-        ]
-        fft_filtered = np.zeros(len(fft), dtype=np.complex128)
-        fft_filtered[strongest_freqs_idx] = fft[strongest_freqs_idx]
-        _predicted_vals = np.fft.ifft(fft_filtered).real
-        return lambda x: _predicted_vals[x % len(_predicted_vals)]
+        super().__init__(model_config)
+        self.origin = None
+        self.trend_func = None
+        self.seasonality_func = None
 
-    def _generate_trend_forecasts(
-        self,
-        metric: Timeseries,
-        trend_func: Callable[[int], float],
-        horizon: int,
-    ) -> np.ndarray:
-        return np.array(
-            [trend_func(len(metric) + i + 1) for i in range(horizon)]
-        )
-
-    def _generate_seasonal_forecasts(
-        self,
-        metric: Timeseries,
-        seasonal_func: Callable[[int], float],
-        horizon: int,
-    ) -> np.ndarray:
-        return np.array(
-            [seasonal_func(len(metric) + i + 1) for i in range(horizon)]
-        )
 
     def _predict_univariate(
         self, metric: Timeseries, horizon: int
     ) -> Timeseries:
         """Predict univariate time series based on FFT features."""
         assert metric.ndim == 1, "Function expects univariate timeseries"
-        trend_func = self._find_trend_func(metric)
-        detrend_metric = self._detrend(metric, trend_func)
-        seasonal_func = self._find_seasonality_func(detrend_metric)
-
-        trend_forecast = self._generate_trend_forecasts(
-            metric, trend_func, horizon
-        )
-        seasonal_forecast = self._generate_seasonal_forecasts(
-            detrend_metric, seasonal_func, horizon
-        )
-        forecast_vals = trend_forecast + seasonal_forecast
 
         time_index = self._forecast_time_index(metric, horizon)
-        return Timeseries(
-            time_idx=time_index,
-            metric_idx=np.array([metric.names[0]]),
-            entity_uid_idx=np.array([EntityUID(EntityType.VIRTUAL_MACHINE, -1)]),
-            data=forecast_vals.reshape(-1, 1, 1)
-        )
 
-    def fit(self, metric: Timeseries):
+        trend_forecast = self.trend_func(time_index, self.origin)
+        seasonal_forecast = self.seasonality_func(time_index)
+
+        forecast_vals = trend_forecast + seasonal_forecast
+
+        return forecast_vals
+
+    def fit(self, metric: Timeseries) -> FourierPredictionModel:
+        """Fit model by extracting trend and seasonality components.
+        
+        Parameters
+        ----------
+        metric : Timeseries
+            The univariate timeseries to fit the model to.
+            
+        Returns
+        -------
+        FourierPredictionModel
+            Self with fitted parameters.
+            
+        Raises
+        ------
+        AssertionError
+            If input is not a univariate timeseries.
+        """
+        assert metric.ndim == 1, "Function expects univariate timeseries"
+
+        self.origin = metric._time_idx.origin
+        self.trend_func = metric.compute_trend()
+        self.seasonality_func = metric.compute_seasonality()
+        
         return self
 
     def predict(self, metric: Timeseries, horizon: int = 1) -> Timeseries:
@@ -184,20 +98,24 @@ class FourierPredictionModel(BasePredictionModel):
         Timeseries
             The predicted future time series with `horizon` values
         """
+
         if metric.ndim == 1:
+            self.fit(metric)
             return self._predict_univariate(metric, horizon)
+        
         elif metric.ndim > 1:
             # Get predictions for each metric
             predictions = []
             for i, metric_name in enumerate(metric.names):
                 # Extract the single metric using string indexing
                 single_metric = metric[metric_name]
+                self.fit(single_metric)
                 predictions.append(self._predict_univariate(single_metric, horizon))
             
             # Combine predictions into a single multivariate timeseries
             # All predictions should have the same time index since they use the same horizon
             time_idx = predictions[0]._time_idx
-            metric_names = np.array([p.names[0] for p in predictions])
+            metric_names = np.array([p.metrics[0] for p in predictions])
             entity_uid_idx = predictions[0]._entity_idx.values
             
             # Combine data arrays along the metric dimension (axis=1)

@@ -16,12 +16,13 @@ import importlib
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
 
-from pyoneai.core import Instant, Period, Timeseries
+from pyoneai.core import Instant, MetricAttributes, Period, Timeseries
+from pyoneai.core.entity_uid import EntityType, EntityUID
+from pyoneai.ml.hgbt_prediction_model import HgbtPredictionModel
 
 try:
     import sklearn
@@ -35,19 +36,10 @@ from pyoneai.tests.unit.test_ml.test_predictors_interface import (
     TestPredictionModelInterface,
 )
 
-__HAS_PANDAS__ = False
-__HAS_POLARS__ = False
 
-if importlib.util.find_spec("pandas"):
-    import pandas as pd
-
-    __HAS_PANDAS__ = True
-elif importlib.util.find_spec("polars"):
-    import polars as pl
-
-    __HAS_POLARS__ = True
-
-@pytest.mark.skipif(not __HAS_PANDAS__, reason="pandas not installed")
+@pytest.mark.skipif(
+    not importlib.util.find_spec("sklearn"), reason="sklearn not installed"
+)
 class TestHgbtPredictionModel(TestPredictionModelInterface):
     __test__ = True
 
@@ -68,7 +60,7 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
     @pytest.fixture
     def prediction_model(
         self, model_config: ModelConfig
-    ) -> 'HgbtPredictionModel':
+    ) -> "HgbtPredictionModel":
         """Instantiate and returns a HgbtPredictionModel."""
         return HgbtPredictionModel(model_config)
 
@@ -94,10 +86,14 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         start = datetime(2023, 1, 1, tzinfo=timezone.utc)
         freq = timedelta(hours=1)
         ts = Timeseries(
-            time_index=np.array(
+            time_idx=np.array(
                 [start, start + freq, start + 2 * freq], dtype=np.datetime64
             ),
-            data={"cpu_usage": np.sin(np.linspace(0, 2 * np.pi, 3)) + 1},
+            metric_idx=np.array([MetricAttributes(name="cpu_usage")]),
+            entity_uid_idx=np.array(
+                [EntityUID(EntityType.VIRTUAL_MACHINE, 1)]
+            ),
+            data=(np.sin(np.linspace(0, 2 * np.pi, 3)) + 1).reshape(-1, 1, 1),
         )
         with pytest.raises(
             ValueError,
@@ -113,9 +109,9 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         self, create_timeseries, prediction_model
     ):
         ts = getattr(self, create_timeseries)(10)
-        index = ts.time_index.values[-1]
+        index = ts.time_index[-1]
 
-        freq = ts.frequency
+        freq = ts._time_idx.frequency
         next_value = index + freq
         forecast_index = prediction_model._get_forecast_index(ts, 100)
         assert forecast_index[0] == next_value
@@ -138,7 +134,7 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         forecast = prediction_model.predict(ts, 1)
         assert len(forecast) == 1
         assert len(forecast.names) == 1
-        assert forecast.names == ts.names
+        assert np.all(forecast.names == ts.names)
 
     def test_singlestep_forecast_multivariate_not_fitted_before(
         self, prediction_model
@@ -147,7 +143,7 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         forecast = prediction_model.predict(ts, 1)
         assert len(forecast) == 1
         assert len(forecast.names) == 2
-        assert forecast.names == ts.names
+        assert np.all(forecast.names == ts.names)
 
     def test_multistep_forecast_univariate_not_fitted_before(
         self, prediction_model
@@ -264,7 +260,27 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         assert tmp_modelconfig_path.exists()
         assert tmp_checkpoint_path.exists()
 
-    def test_load_checkpoint(
+    def test_load_checkpoint_without_ci(
+        self,
+        model_config,
+        tmp_modelconfig_path,
+        tmp_checkpoint_path,
+    ):
+        model_config.compute_ci = False
+        prediction_model = HgbtPredictionModel(model_config)
+        ts = self.create_univariate_timeseries(self.ts_length)
+        prediction_model.fit(ts)
+        prediction_model.save(tmp_modelconfig_path, tmp_checkpoint_path)
+        regressor = type(prediction_model).load(
+            model_config, tmp_checkpoint_path
+        )
+        assert (
+            prediction_model.gbrt_mean.get_params()
+            == regressor.gbrt_mean.get_params()
+        )
+
+    @pytest.mark.skip("to enable when Timeseries will contain CI features")
+    def test_load_checkpoint_with_ci(
         self,
         prediction_model,
         model_config,
@@ -294,12 +310,14 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         start = datetime(2023, 1, 1, tzinfo=timezone.utc)
         freq = timedelta(hours=1)
         ts = Timeseries(
-            time_index=Period(slice(start, start + 999 * freq, freq)).values,
-            data={
-                "cpu_usage": np.array(
-                    [np.nan, 1, 2, 3, 4, 5, np.nan, 7, 8, 9] * 100
-                )
-            },
+            time_idx=Period(slice(start, start + freq * 999, freq)).values,
+            metric_idx=np.array([MetricAttributes(name="cpu_usage")]),
+            entity_uid_idx=np.array(
+                [EntityUID(EntityType.VIRTUAL_MACHINE, 1)]
+            ),
+            data=np.array(
+                [np.nan, 1, 2, 3, 4, 5, np.nan, 7, 8, 9] * 100
+            ).reshape(-1, 1, 1),
         )
         with pytest.raises(
             ValueError, match=r"Time series cannot contain NaN values."
@@ -312,12 +330,14 @@ class TestHgbtPredictionModel(TestPredictionModelInterface):
         freq = timedelta(hours=1)
         ts = self.create_univariate_timeseries(self.ts_length)
         ts_pred = Timeseries(
-            time_index=Period(slice(start, start + freq * 999, freq)).values,
-            data={
-                "cpu_usage": np.array(
-                    [np.nan, 1, 2, 3, 4, 5, np.nan, 7, 8, 9] * 100
-                )
-            },
+            time_idx=Period(slice(start, start + 999 * freq, freq)).values,
+            metric_idx=np.array([MetricAttributes(name="cpu_usage")]),
+            entity_uid_idx=np.array(
+                [EntityUID(EntityType.VIRTUAL_MACHINE, 1)]
+            ),
+            data=np.array(
+                [np.nan, 1, 2, 3, 4, 5, np.nan, 7, 8, 9] * 100
+            ).reshape(-1, 1, 1),
         )
         forecast = prediction_model.fit(ts).predict(ts_pred, 100)
         assert np.sum(np.isnan(forecast)) == 0
