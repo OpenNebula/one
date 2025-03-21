@@ -436,9 +436,11 @@ int VirtualNetwork::post_update_template(string& error, Template *_old_tmpl)
 
     erase_template_attribute("BRIDGE_TYPE", new_br_type);
 
-    if (str_to_bridge_type(new_br_type) != UNDEFINED)
+    auto rc = parse_bridge_type(vn_mad, error);
+
+    if (rc != 0)
     {
-        bridge_type = new_br_type;
+        return rc;
     }
 
     add_template_attribute("BRIDGE_TYPE", bridge_type);
