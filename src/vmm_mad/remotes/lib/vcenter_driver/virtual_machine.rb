@@ -3423,7 +3423,6 @@ end
 
             src_id = pool["/HOST_POOL/HOST[NAME='#{src_host}']/ID"].to_i
 
-            return if src_id == 0
 
             dst_id = pool["/HOST_POOL/HOST[NAME='#{dst_host}']/ID"].to_i
 
