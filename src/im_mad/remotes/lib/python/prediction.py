@@ -16,7 +16,6 @@ import sys
 
 try:
     import numpy as np
-
     from pyoneai.core import (
         Entity,
         EntityType,
@@ -184,26 +183,30 @@ def main():
     far["sequence_length"] = 48  # last 2 days of data: this should be adaptive
     far["horizon"] = get_horizon(far["period"], far["resolution"])
 
-    if entity["type"] == "host":
-        monitoring = {
-            "db_path": os.path.join(entity["db_dir"], "host.db"),
-            "monitor_interval": DB_MONITOR_INTERVAL["host"],
-        }
-        entity = Entity(
-            uid=EntityUID(type=EntityType.HOST, id=entity["id"]),
-            metrics=HOST_METRICS,
-            monitoring=monitoring,
-        )
-    elif entity["type"] == "virtualmachine":
-        monitoring = {
-            "db_path": os.path.join(entity["db_dir"], f'{entity["id"]}.db'),
-            "monitor_interval": DB_MONITOR_INTERVAL["virtualmachine"],
-        }
-        entity = Entity(
-            uid=EntityUID(type=EntityType.VIRTUAL_MACHINE, id=entity["id"]),
-            metrics=VM_METRICS,
-            monitoring=monitoring,
-        )
+    try:
+        if entity["type"] == "host":
+            monitoring = {
+                "db_path": os.path.join(entity["db_dir"], "host.db"),
+                "monitor_interval": DB_MONITOR_INTERVAL["host"],
+            }
+            entity = Entity(
+                uid=EntityUID(type=EntityType.HOST, id=entity["id"]),
+                metrics=HOST_METRICS,
+                monitoring=monitoring,
+            )
+        elif entity["type"] == "virtualmachine":
+            monitoring = {
+                "db_path": os.path.join(entity["db_dir"], f'{entity["id"]}.db'),
+                "monitor_interval": DB_MONITOR_INTERVAL["virtualmachine"],
+            }
+            entity = Entity(
+                uid=EntityUID(type=EntityType.VIRTUAL_MACHINE, id=entity["id"]),
+                metrics=VM_METRICS,
+                monitoring=monitoring,
+            )
+    except Exception as e:
+        sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
+        sys.exit(0)
 
     monitor = {}
     for name, m in entity.metrics.items():

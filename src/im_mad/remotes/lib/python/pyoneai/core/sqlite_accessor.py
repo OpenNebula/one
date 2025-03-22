@@ -57,10 +57,14 @@ class SQLiteAccessor(BaseAccessor):
         self,
         monitoring: dict[str, Union[str, int]],
     ) -> None:
-        self._connection = sqlite3.connect(monitoring["db_path"])
+        self._connection = sqlite3.connect(
+            f'file:{monitoring["db_path"]}?mode=ro', uri=True
+        )
         self._timestamp_col = monitoring.get("timestamp_col", "TIMESTAMP")
         self._value_col = monitoring.get("value_col", "VALUE")
-        self._table_name_template = monitoring.get("table_name_template", "{entityUID}_{metric_name}_monitoring")
+        self._table_name_template = monitoring.get(
+            "table_name_template", "{entityUID}_{metric_name}_monitoring"
+        )
         self._monitor_interval = monitoring.get("monitor_interval", 60)
 
     @property
@@ -127,9 +131,9 @@ class SQLiteAccessor(BaseAccessor):
         # Fill gaps
         # TODO: Add a method for the Timeseries
         # NEEDS TO BE FIXED: it is slow with long timeseries
-        if isinstance(time, Period): # Instant doesn't have a start and end
-             p = Period(slice(time.start, time.end, ts._time_idx.frequency))
-             ts = ts.interpolate(TimeIndex(p.values))
+        if isinstance(time, Period):  # Instant doesn't have a start and end
+            p = Period(slice(time.start, time.end, ts._time_idx.frequency))
+            ts = ts.interpolate(TimeIndex(p.values))
 
         if TimeIndex(time.values).frequency > ts._time_idx.frequency:
             ts = ts.resample(TimeIndex(time.values).frequency)
