@@ -45,7 +45,7 @@ class ProbeRunner
     # rubocop:disable Lint/SuppressedException
     def run_probes
         data = ''
-        dpro = Dir.new(@path)
+        dpro = Dir.new(@path).entries.sort
 
         dpro.each do |probe|
             probe_path = File.join(@path, probe)
