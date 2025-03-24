@@ -130,10 +130,19 @@ class SQLiteAccessor(BaseAccessor):
 
         # Fill gaps
         # TODO: Add a method for the Timeseries
-        # NEEDS TO BE FIXED: it is slow with long timeseries
         if isinstance(time, Period):  # Instant doesn't have a start and end
-            p = Period(slice(time.start, time.end, ts._time_idx.frequency))
-            ts = ts.interpolate(TimeIndex(p.values))
+            if np.any(np.isnan(ts.values)) or np.any(
+                np.diff(ts._time_idx.values)
+                > timedelta(seconds=self._monitor_interval)
+            ):
+                p = Period(
+                    slice(
+                        ts._time_idx.values[0],
+                        ts._time_idx.values[-1],
+                        ts._time_idx.frequency,
+                    )
+                )
+                ts = ts.interpolate(TimeIndex(p.values))
 
         if TimeIndex(time.values).frequency > ts._time_idx.frequency:
             ts = ts.resample(TimeIndex(time.values).frequency)

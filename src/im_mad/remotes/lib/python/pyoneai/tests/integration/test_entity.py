@@ -42,11 +42,10 @@ from pyoneai.ml import (
 class TestEntity:
 
     def sample_db(self):
-        entity = self.entity
         conn = sqlite3.connect(self.monitoring["db_path"])
 
-        for name, metric in entity.metrics.items():
-            table_name = f"{entity.uid}_{name}_monitoring"
+        for name, metric in self.metrics.items():
+            table_name = f"{self.entity_uid}_{name}_monitoring"
 
             conn.execute(
                 f"""         
@@ -69,8 +68,8 @@ class TestEntity:
 
             data = []
             period = 24 * 3600
-            min_value = metric.attributes.dtype.limits[0]
-            max_value = metric.attributes.dtype.limits[1]
+            min_value = metric.dtype.limits[0]
+            max_value = metric.dtype.limits[1]
             amplitude = (max_value - min_value) / 2
             offset = (max_value + min_value) / 2
             time_seconds = np.array(
@@ -122,9 +121,8 @@ class TestEntity:
             "db_path": os.path.join(tmp_path, "test_metrics.db"),
             "monitor_interval": 60,
         }
-
-        uid = EntityUID(type=EntityType.VIRTUAL_MACHINE, id=1)
-        metrics = {
+        self.entity_uid = EntityUID(type=EntityType.VIRTUAL_MACHINE, id=1)
+        self.metrics = {
             "cpu": MetricAttributes(
                 name="cpu",
                 type=MetricType.COUNTER,
@@ -134,14 +132,16 @@ class TestEntity:
                 name="memory", type=MetricType.GAUGE, dtype=UInt(0, 1000000)
             ),
         }
+
+        self.sample_db()
+
         self.entity = Entity(
-            uid=uid,
-            metrics=metrics,
+            uid=self.entity_uid,
+            metrics=self.metrics,
             monitoring=self.monitoring,
             artifact=self.prediction_model_class(self.model_config),
         )
 
-        self.sample_db()
         self.period_past_future = Period(
             slice("-1d", "+1d", "1h"),
             origin="2024-10-31T10:00+00:00",

@@ -90,10 +90,22 @@ VM_METRICS = {
         name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt(), operator="rate"
     ),
     "diskrdiops": MetricAttributes(
-        name="diskrdiops", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+        name="diskrdiops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
     ),
     "diskwriops": MetricAttributes(
-        name="diskwriops", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
+        name="diskwriops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
+    ),
+    "diskrdiops_bw": MetricAttributes(
+        name="diskrdiops",
+        type=MetricType.COUNTER,
+        dtype=Float(0.0, np.inf),
+        operator="rate",
+    ),
+    "diskwriops_bw": MetricAttributes(
+        name="diskwriops",
+        type=MetricType.COUNTER,
+        dtype=Float(0.0, np.inf),
+        operator="rate",
     ),
 }
 
@@ -102,6 +114,8 @@ DERIVED_METRICS = [
     "nettx_bw",
     "diskrd_bw",
     "diskwr_bw",
+    "diskrdiops_bw",
+    "diskwriops_bw"
 ]
 
 
