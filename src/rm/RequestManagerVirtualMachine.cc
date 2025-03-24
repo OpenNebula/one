@@ -973,7 +973,7 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
     {
         quota_tmpl_running.replace("CLUSTER_ID", cluster_id);
 
-        if ( !quota_authorization(&quota_tmpl_running, Quotas::VM, att_quota))
+        if ( !quota_authorization(&quota_tmpl_running, Quotas::VM, att_quota, att_quota.resp_msg))
         {
             att.resp_msg = att_quota.resp_msg;
 
@@ -988,7 +988,7 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
     {
         // Cluster quota on first deploy
         quota_tmpl.merge(&quota_tmpl_running);
-        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg))
         {
             att.resp_msg = att_quota.resp_msg;
 
@@ -1003,7 +1003,7 @@ Request::ErrorCode VirtualMachineDeploy::request_execute(RequestAttributes& att,
     else if (old_cid != cluster_id)
     {
         // Cluster quota, deploy on different cluster
-        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg))
         {
             att.resp_msg = att_quota.resp_msg;
 
@@ -1397,7 +1397,7 @@ Request::ErrorCode VirtualMachineMigrate::request_execute(RequestAttributes& att
         quota_tmpl.replace("CLUSTER_ID", cluster_id);
         quota_tmpl.add("SKIP_GLOBAL_QUOTA", true);
 
-        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota))
+        if ( !quota_authorization(&quota_tmpl, Quotas::VM, att_quota, att_quota.resp_msg))
         {
             att.resp_msg = att_quota.resp_msg;
             return AUTHORIZATION;
