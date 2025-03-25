@@ -26,7 +26,7 @@ import { T } from '@ConstantsModule'
 import { jsonToXml, getActionsAvailable, filterAttributes } from '@ModelsModule'
 import { cloneObject, set } from '@UtilsModule'
 
-const HIDDEN_ATTRIBUTES_REG = /^(HOST|RESERVED_CPU|RESERVED_MEM)$/
+const HIDDEN_ATTRIBUTES_REG = /^(HOST|RESERVED_CPU|RESERVED_MEM|ONE_DRS)$/
 
 /**
  * Renders mainly information tab.

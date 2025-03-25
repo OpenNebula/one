@@ -71,5 +71,6 @@ Vnets.propTypes = {
 }
 
 Vnets.displayName = 'Vnets'
+Vnets.label = 'VNet'
 
 export default Vnets

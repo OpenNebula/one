@@ -21,6 +21,8 @@ export const EnhancedTableStyles = ({
   typography,
   breakpoints,
   readOnly,
+  disableGlobalActions,
+  disableGlobalSort,
 }) => {
   const backgroundColor = readOnly
     ? palette.action.hover
@@ -45,15 +47,38 @@ export const EnhancedTableStyles = ({
       marginBottom: '1em',
       display: 'grid',
       gridTemplateRows: 'auto auto',
-      gridTemplateAreas: `
-        'actions actions pagination'
-        'search search filters'`,
+      gridTemplateAreas:
+        disableGlobalActions && disableGlobalSort
+          ? `
+          'search search pagination'`
+          : disableGlobalActions
+          ? `
+          'search search pagination'
+          'search search filters'`
+          : disableGlobalSort
+          ? `
+          'actions actions pagination'
+          'search search pagination'`
+          : `
+          'actions actions pagination'
+          'search search filters'`,
       alignItems: 'start',
       gap: '1em',
       [breakpoints.down('md')]: {
-        gridTemplateAreas: `
-          'actions actions actions'
-          'pagination pagination pagination'
+        gridTemplateAreas:
+          disableGlobalActions && disableGlobalSort
+            ? `
+          'search search pagination'`
+            : disableGlobalActions
+            ? `
+          'search search pagination'
+          'search search filters'`
+            : disableGlobalSort
+            ? `
+          'actions actions pagination'
+          'search search pagination'`
+            : `
+          'actions actions pagination'
           'search search filters'`,
       },
     }),

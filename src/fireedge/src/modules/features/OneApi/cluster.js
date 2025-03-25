@@ -104,6 +104,57 @@ const clusterApi = oneApi.injectEndpoints({
         }
       },
     }),
+    optimizeCluster: builder.mutation({
+      /**
+       * Generates a cluster optimization plan and potentially executes it, depending on AUTOMATION.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.id - Cluster id
+       * @returns {object} Optimization plan
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.CLUSTER_OPTIMIZE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+    }),
+    deletePlan: builder.mutation({
+      /**
+       * Deletes a cluster optimization plan.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.id - Cluster id
+       * @returns {number} Cluster ID
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.CLUSTER_PLANDELETE
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+    }),
+    applyPlan: builder.mutation({
+      /**
+       * Applies a cluster optimization plan.
+       *
+       * @param {object} params - Request params
+       * @param {string} params.id - Cluster id
+       * @returns {number} Cluster ID
+       * @throws Fails when response isn't code 200
+       */
+      query: (params) => {
+        const name = Actions.CLUSTER_PLANAPPLY
+        const command = { name, ...Commands[name] }
+
+        return { params, command }
+      },
+      invalidatesTags: (_, __, { id }) => [{ type: CLUSTER, id }],
+    }),
     getClusterAdmin: builder.query({
       /**
        * Retrieve the information as serveradmin.
@@ -389,6 +440,9 @@ const clusterQueries = (({
   useAddNetworkToClusterMutation,
   useRemoveNetworkFromClusterMutation,
   useRenameClusterMutation,
+  useOptimizeClusterMutation,
+  useDeletePlanMutation,
+  useApplyPlanMutation,
 }) => ({
   // Queries
   useGetClustersQuery,
@@ -409,6 +463,9 @@ const clusterQueries = (({
   useAddNetworkToClusterMutation,
   useRemoveNetworkFromClusterMutation,
   useRenameClusterMutation,
+  useOptimizeClusterMutation,
+  useDeletePlanMutation,
+  useApplyPlanMutation,
 }))(clusterApi)
 
 export default clusterQueries

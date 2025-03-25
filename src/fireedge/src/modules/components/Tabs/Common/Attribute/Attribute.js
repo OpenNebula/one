@@ -78,7 +78,9 @@ const Attribute = memo(
     unit,
     unitParser = false,
     title = '',
+    titleOnly = false,
     fullWidth = false,
+    isDisabled = false,
   }) => {
     const numberOfParents = useMemo(() => path.split('.').length - 1, [path])
 
@@ -114,6 +116,31 @@ const Attribute = memo(
       }
     }
 
+    if (name && titleOnly) {
+      return (
+        <>
+          <Typography
+            variant="body2"
+            component="span"
+            flexGrow={1}
+            sx={{
+              ...(numberOfParents > 0 && { pl: `${numberOfParents}em` }),
+              ...(icon && {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5em',
+              }),
+              ...(isDisabled && { color: 'gray', opacity: 0.7 }),
+              ...(fullWidth && { width: '100%' }),
+            }}
+          >
+            {icon}
+            {name}
+          </Typography>
+        </>
+      )
+    }
+
     return (
       <>
         <Column>
@@ -129,6 +156,7 @@ const Attribute = memo(
                 alignItems: 'center',
                 gap: '0.5em',
               }),
+              ...(isDisabled && { color: 'gray', opacity: 0.7 }),
             }}
           >
             {icon}
@@ -147,6 +175,7 @@ const Attribute = memo(
                   initialValue={valueInOptionList}
                   ref={inputRef}
                   options={options}
+                  disabled={isDisabled}
                 />
               ) : min && max ? (
                 <Inputs.SliderInput
@@ -188,6 +217,9 @@ const Attribute = memo(
                 flexGrow={1}
                 title={typeof value === 'string' ? value : undefined}
                 data-cy={dataCy}
+                sx={{
+                  ...(isDisabled && { color: 'gray', opacity: 0.8 }),
+                }}
               >
                 {link ? (
                   <Link color="secondary" component={RouterLink} to={link}>
@@ -258,6 +290,8 @@ export const AttributePropTypes = {
   unitParser: PropTypes.bool,
   title: PropTypes.string,
   fullWidth: PropTypes.bool,
+  isDisabled: PropTypes.bool,
+  titleOnly: PropTypes.bool,
 }
 
 Attribute.propTypes = AttributePropTypes

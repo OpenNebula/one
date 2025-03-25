@@ -45,3 +45,5 @@ info-tabs:
     enabled: true
   datastore:
     enabled: true
+  drs:
+    enabled: true

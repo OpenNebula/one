@@ -33,8 +33,12 @@ const StyledLegend = styled((props) => (
 }))
 
 const Legend = memo(
-  ({ 'data-cy': dataCy, title, tooltip, disableGutters }) => (
-    <StyledLegend data-cy={dataCy} ownerState={{ tooltip, disableGutters }}>
+  ({ 'data-cy': dataCy, title, tooltip, disableGutters, ...rest }) => (
+    <StyledLegend
+      data-cy={dataCy}
+      ownerState={{ tooltip, disableGutters }}
+      {...rest}
+    >
       {isValidElement(title) ? title : <Translate word={title} />}
       {!!tooltip && <AdornmentWithTooltip title={tooltip} />}
     </StyledLegend>

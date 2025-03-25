@@ -86,15 +86,29 @@ const clusterData = (data, threshold = 1000, clusterFactor = 10) => {
 
   for (const [idx, chunk] of data.entries()) {
     for (const [key, value] of Object.entries(chunk)) {
-      cluster[key] = (cluster[key] ?? 0) + value
+      cluster[key] = Array.isArray(value)
+        ? value.map((val, vIdx) => cluster?.[key]?.[vIdx] ?? 0 + val ?? 0)
+        : (cluster[key] ?? 0) + value
     }
 
     if (++count === clusterFactor || idx === data.length - 1) {
       clusters.push(
         Object.fromEntries(
-          Object.entries(cluster).map(([key, sum]) => [key, sum / count])
+          Object.entries(cluster).map(([key, sum]) => {
+            if (key === 'x') {
+              return [key, sum]
+            }
+
+            if (Array.isArray(sum)) {
+              return [key, sum.map((val) => val / count)]
+            }
+
+            return [key, sum / count]
+          })
         )
       )
+
+      // Reset cluster and count
       cluster = {}
       count = 0
     }
@@ -117,6 +131,20 @@ const minMaxTick = (ticks, formatter) => {
   return res
 }
 
+const createFill = (u, color) => {
+  const ctx = u.ctx
+  const plotHeight = u.bbox?.height || u.over.clientHeight
+  const gradient = ctx.createLinearGradient(0, 0, 0, plotHeight)
+  gradient.addColorStop(0, (color || '#40B3D9') + '66')
+  gradient.addColorStop(
+    1,
+
+    (color || '#40B3D9') + '00'
+  )
+
+  return gradient
+}
+
 /**
  * Represents a Chartist Graph.
  *
@@ -124,16 +152,22 @@ const minMaxTick = (ticks, formatter) => {
  * @param {object[]} props.data - Chart data
  * @param {string} props.name - Chartist name
  * @param {string} props.filter - Chartist filter
- * @param {string} props.x - Chartist X
+ * @param {Array} props.x - Chartist X
  * @param {Array|string} props.y - Chartist Y
  * @param {Function} props.interpolationY - Chartist interpolation Y
  * @param {boolean} props.derivative - Display delta values
  * @param {number} props.clusterFactor - Number of chunks per cluster
  * @param {number} props.clusterThreshold - Start clustering past this threshold
  * @param {boolean} props.shouldFill - Display line shadows/gradients
+ * @param {boolean} props.clampForecast - Clamp X-axis range to forecast range
+ * @param {boolean} props.sortX - Sort X-axis ascending order
+ * @param {boolean} props.shouldPadY - Padds Y-axis with the length of the previous Y-series, creating a continuous line
  * @param {Array} props.legendNames - List of legend names
+ * @param {Array} props.trendLineOnly - Array of Y values to only draw a trend line between
  * @param {Array} props.lineColors - Array of line colors
  * @param {number} props.zoomFactor - Grapg zooming factor
+ * @param {string} props.dateFormat - Labels timestamp format
+ * @param {string} props.dateFormatHover - Legend timestamp format
  * @returns {Component} Chartist component
  */
 const Chartist = ({
@@ -146,14 +180,17 @@ const Chartist = ({
   interpolationY = (value) => value,
   derivative = false,
   shouldFill = false,
+  clampForecast = false,
+  sortX = false,
+  shouldPadY = [],
   clusterFactor = 10,
   clusterThreshold = 10000,
+  trendLineOnly = [],
   legendNames = [],
   lineColors = [],
+  dateFormat = 'MM-dd HH:mm',
+  dateFormatHover = 'MMM dd HH:mm:ss',
 }) => {
-  const dateFormat = 'MM-dd HH:mm'
-  const dateFormatHover = 'MMM dd HH:mm:ss'
-
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
 
@@ -162,6 +199,9 @@ const Chartist = ({
     width: 0,
     height: 0,
   })
+
+  const [trendLineIdxs, setTrendLineIdxs] = useState([])
+  const [shouldPad, setShouldPad] = useState([])
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -194,7 +234,13 @@ const Chartist = ({
     }
 
     return filteredData.map((point) => ({
-      x: x === 'TIMESTAMP' ? new Date(+point[x] * 1000).getTime() : +point[x],
+      x: Array.isArray(x)
+        ? x.map((xVal) =>
+            typeof xVal === 'function' ? xVal(point) : +point[xVal]
+          )
+        : typeof x === 'function'
+        ? x(point)
+        : +point[x],
       ...(Array.isArray(y)
         ? Object.fromEntries(y.map((pt) => [pt, +point[pt]]))
         : { y: +point[y] }),
@@ -211,13 +257,55 @@ const Chartist = ({
   }, [dataChart, clusterThreshold, clusterFactor, derivative])
 
   const chartData = useMemo(() => {
-    const xValues = processedData.map((point) => point.x)
+    let xValues = processedData.map((point) => point.x).flat()
+
+    xValues = sortX ? xValues?.sort((a, b) => a - b) : xValues
+
     const yValuesArray = Array.isArray(y)
-      ? y.map((yValue) => processedData.map((point) => point[yValue] ?? null))
+      ? y.map((yValue, yIdx) => {
+          if (trendLineOnly?.includes(yValue)) {
+            setTrendLineIdxs((prev) => [...prev, yIdx])
+          }
+          if (shouldPadY?.includes(yValue)) {
+            setShouldPad((prev) => [...prev, yIdx])
+          }
+
+          return processedData.map((point) => point[yValue] ?? null)
+        })
       : [processedData.map((point) => point.y)]
 
-    return [xValues, ...yValuesArray]
-  }, [processedData, y])
+    if (!shouldPad?.length && !trendLineIdxs?.length) {
+      return [xValues, ...yValuesArray]
+    }
+
+    const paddedArray = yValuesArray.map((_, idx) => {
+      let arr = []
+
+      if (trendLineIdxs?.includes(idx)) {
+        arr = yValuesArray[idx].slice(0, 1)
+        while (arr.length < xValues?.length - 1) {
+          arr.push(null)
+        }
+        arr.push(yValuesArray[idx]?.slice(-1).pop())
+      } else {
+        if (!shouldPad?.includes(idx)) return yValuesArray[idx]
+
+        // Exclude trendline padding
+        const paddLength = yValuesArray?.filter(
+          (_y, yIdx) => !trendLineIdxs?.includes(yIdx)
+        )?.[idx > 0 ? idx - 1 : 0]?.length
+
+        while (arr.length < paddLength) {
+          arr.push(null)
+        }
+        arr = [...arr, ...yValuesArray[idx]]
+      }
+
+      return arr
+    })
+
+    return [xValues, ...paddedArray]
+  }, [processedData, y, shouldPadY])
 
   const chartOptions = useMemo(
     () => ({
@@ -233,6 +321,12 @@ const Chartist = ({
       scales: {
         x: {
           time: true,
+          ...(clampForecast
+            ? {
+                min: processedData?.[0]?.x?.[0],
+                max: processedData?.[processedData?.length - 1]?.x?.[1],
+              }
+            : {}),
         },
         y: { auto: true },
       },
@@ -265,29 +359,17 @@ const Chartist = ({
               label: legendNames?.[index] || yValue,
               value: (_, yV) => interpolationY(yV) || yV,
               stroke: lineColors?.[index] || '#40B3D9',
+              points: { show: true },
+              ...(trendLineIdxs?.includes(index)
+                ? {
+                    dash: [5, 5],
+                    points: { show: false },
+                  }
+                : {}),
+              spanGaps: true,
               ...(shouldFill
                 ? {
-                    fill: (u) => {
-                      const ctx = u.ctx
-                      const plotHeight = u.bbox?.height || u.over.clientHeight
-                      const gradient = ctx.createLinearGradient(
-                        0,
-                        0,
-                        0,
-                        plotHeight
-                      )
-                      gradient.addColorStop(
-                        0,
-                        (lineColors?.[index] || '#40B3D9') + '66'
-                      )
-                      gradient.addColorStop(
-                        1,
-
-                        (lineColors?.[index] || '#40B3D9') + '00'
-                      )
-
-                      return gradient
-                    },
+                    fill: (u) => createFill(u, lineColors?.[index]),
                   }
                 : {}),
 
@@ -301,27 +383,7 @@ const Chartist = ({
                 focus: true,
                 ...(shouldFill
                   ? {
-                      fill: (u) => {
-                        const ctx = u.ctx
-                        const plotHeight = u.bbox?.height || u.over.clientHeight
-                        const gradient = ctx.createLinearGradient(
-                          0,
-                          0,
-                          0,
-                          plotHeight
-                        )
-                        gradient.addColorStop(
-                          0,
-                          (lineColors?.[0] || '#40B3D9') + '66'
-                        )
-                        gradient.addColorStop(
-                          1,
-
-                          (lineColors?.[0] || '#40B3D9') + '00'
-                        )
-
-                        return gradient
-                      },
+                      fill: (u) => createFill(u, lineColors?.[0]),
                     }
                   : {}),
               },
@@ -329,6 +391,7 @@ const Chartist = ({
       ],
     }),
     [
+      trendLineIdxs,
       chartData,
       chartDimensions,
       processedData,
@@ -371,7 +434,7 @@ Chartist.propTypes = {
   name: PropTypes.string,
   filter: PropTypes.arrayOf(PropTypes.string),
   data: PropTypes.array,
-  x: PropTypes.string,
+  x: PropTypes.arrayOf(PropTypes.func),
   y: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.string,
@@ -379,12 +442,18 @@ Chartist.propTypes = {
   interpolationY: PropTypes.func,
   derivative: PropTypes.bool,
   shouldFill: PropTypes.bool,
+  clampForecast: PropTypes.bool,
+  sortX: PropTypes.bool,
+  shouldPadY: PropTypes.bool,
   enableLegend: PropTypes.bool,
   zoomFactor: PropTypes.number,
   clusterFactor: PropTypes.number,
   clusterThreshold: PropTypes.number,
   legendNames: PropTypes.arrayOf(PropTypes.string),
+  trendLineOnly: PropTypes.arrayOf(PropTypes.string),
   lineColors: PropTypes.arrayOf(PropTypes.string),
+  dateFormat: PropTypes.string,
+  dateFormatHover: PropTypes.string,
 }
 
 Chartist.displayName = 'Chartist'

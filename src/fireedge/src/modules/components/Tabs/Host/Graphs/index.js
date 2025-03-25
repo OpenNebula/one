@@ -34,6 +34,10 @@ const HostGraphTab = ({ id }) => {
     data: { MONITORING_DATA: { MONITORING: monitoring = [] } = {} } = {},
   } = HostAPI.useGetHostMonitoringQuery({ id: id }) || {}
 
+  const { data: { IM_MAD: driver = 'kvm' } = {} } = HostAPI.useGetHostQuery({
+    id,
+  })
+
   const cpuMemoryData = useMemo(
     () =>
       (Array.isArray(monitoring) ? monitoring : [monitoring]).map(
@@ -45,31 +49,134 @@ const HostGraphTab = ({ id }) => {
     [monitoring]
   )
 
+  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const {
+    [driver]: { host = {} },
+  } = forecastConfig
+  const {
+    forecast_period: forecastPeriod = 5, // Minutes
+    forecast_far_period: forecastFarPeriod = 48, // Hours
+  } = host
+
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} sm={12}>
         <Chartist
           name={'CPU'}
-          filter={['FREE_CPU', 'USED_CPU']}
+          filter={[
+            'FREE_CPU',
+            'FREE_CPU_FORECAST',
+            'FREE_CPU_FORECAST_FAR',
+            'USED_CPU',
+            'USED_CPU_FORECAST',
+            'USED_CPU_FORECAST_FAR',
+          ]}
           data={cpuMemoryData}
-          y={['FREE_CPU', 'USED_CPU']}
-          x="TIMESTAMP"
-          enableLegend={true}
-          legendNames={[Tr(T.FreeCPU), Tr(T.UsedCPU)]}
-          lineColors={['#039be5', '#757575']}
+          y={[
+            'FREE_CPU',
+            'FREE_CPU_FORECAST',
+            'FREE_CPU_FORECAST_FAR',
+            'USED_CPU',
+            'USED_CPU_FORECAST',
+            'USED_CPU_FORECAST_FAR',
+          ]}
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
+          lineColors={[
+            '#B8CF49',
+            '#00A76A',
+            '#66CAA6',
+            '#80CDE6',
+            '#0098C3',
+            '#66C1DB',
+          ]}
+          clusterFactor={6}
+          clusterThreshold={100}
+          zoomFactor={0.95}
+          trendLineOnly={['USED_CPU_FORECAST_FAR', 'FREE_CPU_FORECAST_FAR']}
+          shouldPadY={['FREE_CPU_FORECAST', 'USED_CPU_FORECAST']}
+          interpolationY={(val) => (val ? val?.toFixed(2) : val)}
+          legendNames={[
+            T.FreeCPU,
+            `${T.FreeCPU} ${T.Forecast}`,
+            `${T.FreeCPU} ${T.ForecastFar}`,
+            T.UsedCPU,
+            `${T.UsedCPU} ${T.Forecast}`,
+            `${T.UsedCPU} ${T.ForecastFar}`,
+          ]}
+          clampForecast
+          sortX
         />
       </Grid>
       <Grid item xs={12} sm={12}>
         <Chartist
           name={Tr(T.Memory)}
-          filter={['FREE_MEMORY', 'USED_MEMORY']}
           data={cpuMemoryData}
-          y={['FREE_MEMORY', 'USED_MEMORY']}
-          x="TIMESTAMP"
-          enableLegend={true}
-          lineColors={['#039be5', '#757575']}
-          legendNames={[Tr(T.FreeMemory), Tr(T.UsedMemory)]}
-          interpolationY={(value) => prettyBytes(value)}
+          filter={[
+            'FREE_MEMORY',
+            'FREE_MEMORY_FORECAST',
+            'FREE_MEMORY_FORECAST_FAR',
+            'USED_MEMORY',
+            'USED_MEMORY_FORECAST',
+            'USED_MEMORY_FORECAST_FAR',
+          ]}
+          y={[
+            'FREE_MEMORY',
+            'FREE_MEMORY_FORECAST',
+            'FREE_MEMORY_FORECAST_FAR',
+            'USED_MEMORY',
+            'USED_MEMORY_FORECAST',
+            'USED_MEMORY_FORECAST_FAR',
+          ]}
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
+          lineColors={[
+            '#B8CF49',
+            '#00A76A',
+            '#66CAA6',
+            '#80CDE6',
+            '#0098C3',
+            '#66C1DB',
+          ]}
+          clusterFactor={6}
+          clusterThreshold={100}
+          zoomFactor={0.95}
+          trendLineOnly={[
+            'USED_MEMORY_FORECAST_FAR',
+            'FREE_MEMORY_FORECAST_FAR',
+          ]}
+          shouldPadY={['FREE_MEMORY_FORECAST', 'USED_MEMORY_FORECAST']}
+          interpolationY={(val) => (val ? prettyBytes(val, 'KB', 2) : val)}
+          legendNames={[
+            T.FreeMemory,
+            `${T.FreeMemory} ${T.Forecast}`,
+            `${T.FreeMemory} ${T.ForecastFar}`,
+            T.UsedMemory,
+            `${T.UsedMemory} ${T.Forecast}`,
+            `${T.UsedMemory} ${T.ForecastFar}`,
+          ]}
+          clampForecast
+          sortX
         />
       </Grid>
     </Grid>

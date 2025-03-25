@@ -20,7 +20,7 @@ import {
   X2jOptions,
 } from 'fast-xml-parser'
 import { DateTime, Settings } from 'luxon'
-import { isEmpty } from 'lodash'
+import { isEmpty, isNaN } from 'lodash'
 
 import { sentenceCase } from '@UtilsModule'
 
@@ -200,6 +200,8 @@ export const isoDateToMilliseconds = (date) =>
  * @returns {string} - Duration time with format.
  */
 export const timeDiff = (start, end) => {
+  if (isNaN(start) || isNaN(end)) return
+
   const startTime = timeFromMilliseconds(start)
   const endTime = timeFromMilliseconds(end)
 

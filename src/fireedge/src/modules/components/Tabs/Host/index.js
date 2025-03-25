@@ -43,17 +43,21 @@ const getTabComponent = (tabName) =>
 
 const HostTabs = memo(({ id }) => {
   const { view, getResourceView } = useViews()
-  const { isError, error, status, data } = HostAPI.useGetHostQuery(
-    { id },
-    { refetchOnMountOrArgChange: 10 }
-  )
+  const {
+    isError,
+    error,
+    status,
+    data = {},
+  } = HostAPI.useGetHostQuery({ id }, { refetchOnMountOrArgChange: 10 })
+
+  const { IM_MAD } = data
 
   const tabsAvailable = useMemo(() => {
     const resource = RESOURCE_NAMES.HOST
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
     return getAvailableInfoTabs(infoTabs, getTabComponent, id)
-  }, [view, id])
+  }, [view, id, IM_MAD])
 
   if (isError) {
     return (

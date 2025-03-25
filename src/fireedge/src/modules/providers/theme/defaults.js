@@ -30,7 +30,7 @@ const bgBlueGrey = '#f2f4f8'
 
 const defaultPrimary = {
   light: '#2a2d3d',
-  main: '#222431',
+  main: '#007099',
   dark: '#191924',
   contrastText: '#ffffff',
 }

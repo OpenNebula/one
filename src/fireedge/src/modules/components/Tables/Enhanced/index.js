@@ -21,6 +21,7 @@ import {
   Alert,
   Box,
   Chip,
+  CircularProgress,
   Grid,
   Table,
   TableBody,
@@ -199,6 +200,7 @@ const EnhancedTable = ({
   disableRowSelect,
   disableGlobalLabel,
   disableGlobalSort,
+  disableGlobalActions = false,
   onSelectedRowsChange,
   pageSize,
   onRowClick,
@@ -227,6 +229,8 @@ const EnhancedTable = ({
     () =>
       EnhancedTableStyles({
         ...theme,
+        disableGlobalSort,
+        disableGlobalActions,
         readOnly: readOnly,
       }),
     [theme]
@@ -460,17 +464,19 @@ const EnhancedTable = ({
     >
       <div className={styles.toolbar}>
         {/* ACTIONS */}
-        <GlobalActions
-          className={styles.actions}
-          refetch={refetch}
-          isLoading={isLoading}
-          singleSelect={singleSelect}
-          disableRowSelect={disableRowSelect || readOnly}
-          globalActions={globalActions}
-          selectedRows={selectedRows}
-          onSelectedRowsChange={onSelectedRowsChange}
-          useTableProps={useTableProps}
-        />
+        {!disableGlobalActions && (
+          <GlobalActions
+            className={styles.actions}
+            refetch={refetch}
+            isLoading={isLoading}
+            singleSelect={singleSelect}
+            disableRowSelect={disableRowSelect || readOnly}
+            globalActions={globalActions}
+            selectedRows={selectedRows}
+            onSelectedRowsChange={onSelectedRowsChange}
+            useTableProps={useTableProps}
+          />
+        )}
 
         {/* PAGINATION */}
         <Pagination
@@ -489,20 +495,22 @@ const EnhancedTable = ({
           value={filterValue}
           setValue={setFilterValue}
         />
-
         {/* FILTERS */}
-        <div className={styles.filters}>
-          {!cannotFilterByLabel && (
-            <GlobalLabel
-              {...useTableProps}
-              selectedRows={selectedRows}
-              useUpdateMutation={useUpdateMutation}
-            />
-          )}
-          <GlobalFilter {...useTableProps} />
-          {!disableGlobalSort && <GlobalSort {...useTableProps} />}
-          {tableViews && <ChangeViewTable tableViews={tableViews} />}
-        </div>
+        {!disableGlobalSort && (
+          <div className={styles.filters}>
+            {!cannotFilterByLabel && (
+              <GlobalLabel
+                {...useTableProps}
+                selectedRows={selectedRows}
+                useUpdateMutation={useUpdateMutation}
+              />
+            )}
+            <GlobalFilter {...useTableProps} />
+            {!disableGlobalSort && <GlobalSort {...useTableProps} />}
+            {tableViews && <ChangeViewTable tableViews={tableViews} />}
+          </div>
+        )}
+
         {/* SELECTED ROWS */}
         {displaySelectedRows && !readOnly && (
           <div>
@@ -515,22 +523,34 @@ const EnhancedTable = ({
       </div>
 
       {/* RESET FILTERS */}
-      <Chip
-        label={<Translate word={T.ResetFilters} />}
-        onClick={canResetFilter ? handleResetFilters : undefined}
-        icon={<RemoveIcon />}
-        sx={{
-          visibility: canResetFilter ? 'visible' : 'hidden',
-          width: 'fit-content',
-          padding: '0.75em',
-          marginBottom: '0.5em',
-        }}
-      />
+      {!disableGlobalSort && (
+        <Chip
+          label={<Translate word={T.ResetFilters} />}
+          onClick={canResetFilter ? handleResetFilters : undefined}
+          icon={<RemoveIcon />}
+          sx={{
+            visibility: canResetFilter ? 'visible' : 'hidden',
+            width: 'fit-content',
+            padding: '0.75em',
+            marginBottom: '0.5em',
+          }}
+        />
+      )}
 
       <div className={clsx(styles.body, !headerList ? classes.body : '')}>
         {!!messages.length && <MessagesRowsAlerts />}
         {/* NO DATA MESSAGE */}
-        {!isLoading &&
+        {isLoading && !refetch ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          !isLoading &&
           !isUninitialized &&
           page?.length === 0 &&
           (noDataCustomRenderer || noDataMessage || (
@@ -538,7 +558,8 @@ const EnhancedTable = ({
               <InfoEmpty />
               <Translate word={T.NoDataAvailable} />
             </span>
-          ))}
+          ))
+        )}
 
         {/* DATALIST PER PAGE */}
         <DataListPerPage
@@ -589,6 +610,7 @@ EnhancedTable.propTypes = {
   isLoading: PropTypes.bool,
   disableGlobalLabel: PropTypes.bool,
   disableGlobalSort: PropTypes.bool,
+  disableGlobalActions: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
   displaySelectedRows: PropTypes.bool,
   useUpdateMutation: PropTypes.func,

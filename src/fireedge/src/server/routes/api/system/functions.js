@@ -32,6 +32,7 @@ const { writeInLogger } = require('server/utils/logger')
 
 const ALLOWED_KEYS_ONED_CONF = [
   'DEFAULT_COST',
+  'DRS_INTERVAL',
   'DS_MAD_CONF',
   'MARKET_MAD_CONF',
   'VM_MAD',

@@ -17,43 +17,58 @@ import { ReactElement, memo, useCallback, useMemo } from 'react'
 import { useTheme, Typography, Paper, Stack, Divider } from '@mui/material'
 import PropTypes from 'prop-types'
 
-import { Folder, User, Group, InfoEmpty } from 'iconoir-react'
+import { Folder, User, Group, InfoEmpty, ModernTv } from 'iconoir-react'
 
-import { DatastoreAPI, UserAPI, GroupAPI } from '@FeaturesModule'
+import {
+  DatastoreAPI,
+  UserAPI,
+  GroupAPI,
+  HostAPI,
+  VmAPI,
+} from '@FeaturesModule'
 import { Tr, Translate } from '@modules/components/HOC'
 import { rowStyles } from '@modules/components/Tables/styles'
 import { getHistoryAction, timeFromMilliseconds, timeDiff } from '@ModelsModule'
-import { T, HistoryRecord } from '@ConstantsModule'
+import { T } from '@ConstantsModule'
 
 const HistoryRecordCard = memo(
   /**
    * Renders history record card.
    *
-   * @param {object} props - Props
-   * @param {HistoryRecord} props.history - History
+   * @param {object} input - Input data, either HistoryRecord or row data
    * @returns {ReactElement} History record card component
    */
-  ({ history }) => {
+  (input) => {
+    const { history, original } = input
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
 
     const {
       SEQ,
+      ID,
       UID,
       GID,
       REQUEST_ID,
       HOSTNAME,
       HID,
+      HOST_ID,
       DS_ID,
       ACTION,
+      OPERATION,
+      TIMESTAMP,
+      VM_ID,
       STIME,
       ETIME,
       PSTIME,
       PETIME,
-    } = history
+    } = history || original
 
     const now = Math.round(Date.now() / 1000)
-    const startTime = timeFromMilliseconds(+STIME)
+    const startTime = STIME
+      ? timeFromMilliseconds(+STIME)
+      : +TIMESTAMP > 0
+      ? timeFromMilliseconds(+TIMESTAMP)
+      : null
 
     const monitorEndTime = +ETIME === 0 ? now : +ETIME
     const monitorDiffTime = timeDiff(+STIME, monitorEndTime)
@@ -72,6 +87,14 @@ const HistoryRecordCard = memo(
 
     const { name: dsName } = DatastoreAPI.useGetDatastoresQuery(undefined, {
       selectFromResult: ({ data }) => getNameFromResult(DS_ID, data),
+    })
+
+    const { name: vmName } = VmAPI.useGetVmsQuery(undefined, {
+      selectFromResult: ({ data }) => getNameFromResult(VM_ID, data),
+    })
+
+    const { name: hostName } = HostAPI.useGetHostsQuery(undefined, {
+      selectFromResult: ({ data }) => getNameFromResult(HID || HOST_ID, data),
     })
 
     const { name: userName } = UserAPI.useGetUsersQuery(undefined, {
@@ -93,7 +116,9 @@ const HistoryRecordCard = memo(
         <div className={classes.main}>
           <div className={classes.title}>
             <Typography noWrap component="span" data-cy="record-data">
-              {`${SEQ} | ${HID} ${HOSTNAME} | ${Tr(T.Action)}: ${action}`}
+              {`${SEQ || ID || ''} | ${HID || HOST_ID} | ${
+                HOSTNAME || hostName || ''
+              } | ${Tr(T.Action)}: ${ACTION ? action : OPERATION}`}
             </Typography>
           </div>
           <div className={classes.caption}>
@@ -101,7 +126,13 @@ const HistoryRecordCard = memo(
               <Folder />
               <span data-cy="datastore">{dsName}</span>
             </span>
-            {+UID !== -1 && (
+            {VM_ID != null && (
+              <span title={`${Tr(T.VM)}: ${VM_ID} ${vmName}`}>
+                <ModernTv />
+                <span data-cy="vm">{vmName}</span>
+              </span>
+            )}
+            {+UID !== -1 && UID != null && (
               <>
                 <span title={`${Tr(T.Owner)}: ${UID} ${userName}`}>
                   <User />
@@ -122,20 +153,27 @@ const HistoryRecordCard = memo(
               component="span"
               divider={<Divider orientation="vertical" flexItem />}
             >
-              <span title={Tr(T.TimeWhenTheStateChanged)}>
-                <Translate
-                  word={T.StartedOnTime}
-                  values={[startTime.toFormat('ff')]}
-                />
-              </span>
-              <span title={Tr(T.TotalTimeInThisState)}>
-                <Translate word={T.Total} />
-                {` ${monitorDiffTime}`}
-              </span>
-              <span title={Tr(T.PrologTimeForThisState)}>
-                <Translate word={T.Prolog} />
-                {` ${prologDiffTime}`}
-              </span>
+              {startTime != null && (
+                <span title={Tr(T.TimeWhenTheStateChanged)}>
+                  <Translate
+                    word={T.StartedOnTime}
+                    values={[startTime.toFormat('ff')]}
+                  />
+                </span>
+              )}
+              {monitorDiffTime != null && (
+                <span title={Tr(T.TotalTimeInThisState)}>
+                  <Translate word={T.Total} />
+                  {` ${monitorDiffTime}`}
+                </span>
+              )}
+
+              {prologDiffTime != null && (
+                <span title={Tr(T.PrologTimeForThisState)}>
+                  <Translate word={T.Prolog} />
+                  {` ${prologDiffTime}`}
+                </span>
+              )}
             </Stack>
           </div>
         </div>

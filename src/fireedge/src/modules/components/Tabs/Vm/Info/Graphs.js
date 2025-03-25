@@ -32,6 +32,13 @@ import { prettyBytes } from '@UtilsModule'
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
 
+  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const { virtualmachine = {} } = forecastConfig
+  const {
+    forecast_period: forecastPeriod = 5, // Minutes
+    forecast_far_period: forecastFarPeriod = 48, // Hours
+  } = virtualmachine
+
   return (
     <>
       <Chartist
@@ -39,13 +46,33 @@ const Graphs = ({ id }) => {
         filter={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
         data={monitoring}
         y={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
-        x="TIMESTAMP"
-        lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
-        legendNames={[T.CPU, T.CpuForecast, T.CpuForecastFar]}
+        x={[
+          (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+          (point) =>
+            new Date(
+              parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+            ).getTime(),
+          (point) =>
+            new Date(
+              parseInt(point.TIMESTAMP) * 1000 +
+                forecastFarPeriod * 60 * 60 * 1000
+            ).getTime(),
+        ]}
+        lineColors={['#40B3D9', '#393945', '#7a7c83']}
+        legendNames={[
+          T.CPU,
+          `${T.CPU} ${T.Forecast}`,
+          `${T.CPU} ${T.ForecastFar}`,
+        ]}
         clusterFactor={10}
         clusterThreshold={1000}
         interpolationY={(val) => (val ? +val?.toFixed(2) : +val)}
         zoomFactor={0.95}
+        shouldPadY={['CPU_FORECAST']}
+        trendLineOnly={['CPU_FORECAST_FAR']}
+        shouldFill
+        clampForecast
+        sortX
       />
 
       <Chartist
@@ -53,15 +80,36 @@ const Graphs = ({ id }) => {
         filter={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
         data={monitoring}
         y={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
-        x="TIMESTAMP"
+        x={[
+          (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+          (point) =>
+            new Date(
+              parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+            ).getTime(),
+          (point) =>
+            new Date(
+              parseInt(point.TIMESTAMP) * 1000 +
+                forecastFarPeriod * 60 * 60 * 1000
+            ).getTime(),
+        ]}
         interpolationY={(value) =>
           value ? prettyBytes(value, 'KB', 2) : value
         }
         lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
-        legendNames={[T.Memory, T.MemoryForecast, T.MemoryForecastFar]}
+        legendNames={[
+          T.Memory,
+          `${T.Memory} ${T.Forecast}`,
+          `${T.Memory} ${T.ForecastFar}`,
+        ]}
+        shouldPadY={['MEMORY_FORECAST']}
+        trendLineOnly={['MEMORY_FORECAST_FAR']}
         clusterFactor={10}
-        clusterThreshold={1000}
+        clusterThreshold={100}
         zoomFactor={0.95}
+        shouldFill
+        clampForecast
+        applyYPadding
+        sortX
       />
     </>
   )

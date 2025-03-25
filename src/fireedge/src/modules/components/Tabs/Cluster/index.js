@@ -26,6 +26,7 @@ import Info from '@modules/components/Tabs/Cluster/Info'
 import Hosts from '@modules/components/Tabs/Cluster/Hosts'
 import Vnets from '@modules/components/Tabs/Cluster/Vnets'
 import Datastores from '@modules/components/Tabs/Cluster/Datastores'
+import PlanOptimization from '@modules/components/Tabs/Cluster/Drs'
 
 const getTabComponent = (tabName) =>
   ({
@@ -33,6 +34,7 @@ const getTabComponent = (tabName) =>
     host: Hosts,
     vnet: Vnets,
     datastore: Datastores,
+    drs: PlanOptimization,
   }[tabName])
 
 const ClusterTabs = memo(({ id }) => {

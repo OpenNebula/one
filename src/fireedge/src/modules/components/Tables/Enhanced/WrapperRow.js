@@ -196,14 +196,15 @@ SwitchRowComponent.displayName = 'SwitchRowComponent'
 /**
  * @param {ReactElement} RowCardComponent - Standard row component (Card).
  * @param {boolean} enabledFullScreen - to check if the datatable is in full screen mode
+ * @param {string} forceView - Force row into list or card view
  * @returns {ReactElement} Generic Row
  */
-const WrapperRow = (RowCardComponent, enabledFullScreen) => {
+const WrapperRow = (RowCardComponent, enabledFullScreen, forceView) => {
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { ROW_STYLE } = fireedge
   const { rowStyle } = SERVER_CONFIG
 
-  const data = ROW_STYLE || rowStyle
+  const data = forceView || ROW_STYLE || rowStyle
   const header = data === 'list'
 
   const component = memo(

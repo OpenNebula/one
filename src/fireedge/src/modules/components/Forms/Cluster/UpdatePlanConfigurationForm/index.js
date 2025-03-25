@@ -13,32 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from '@modules/components/HOC'
-import { CreateFormCallback } from '@UtilsModule'
+import {
+  SCHEMA,
+  FIELDS,
+} from '@modules/components/Forms/Cluster/UpdatePlanConfigurationForm/schema'
+import { createForm } from '@UtilsModule'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const UpdatePlanConfigurationForm = (configProps) =>
-  AsyncLoadForm(
-    { formPath: 'Cluster/UpdatePlanConfigurationForm' },
-    configProps
-  )
+const UpdatePlanConfigurationForm = createForm(SCHEMA, FIELDS, {
+  transformInitialValue: (clusterTemplate, schema) => {
+    const knownTemplate = schema.cast(clusterTemplate)
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const ChangeClusterForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/ChangeClusterForm' }, configProps)
+    return knownTemplate
+  },
+  transformBeforeSubmit: (formData) => ({
+    ONE_DRS: formData,
+  }),
+})
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateFormCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Cluster/CreateForm' }, configProps)
-
-export { ChangeClusterForm, CreateForm, UpdatePlanConfigurationForm }
+export default UpdatePlanConfigurationForm

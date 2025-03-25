@@ -148,7 +148,18 @@ const AutocompleteController = memo(
         freeSolo={!optionsOnly}
         renderOption={(props, option) => (
           <li {...props} data-value={option?.value ?? option?.text}>
-            {option?.text}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{ fontWeight: option?.description ? 'bold' : 'inherit' }}
+              >
+                {option?.text}
+              </span>
+              {option?.description && (
+                <span style={{ fontSize: '0.8rem', color: 'gray' }}>
+                  {option.description}
+                </span>
+              )}
+            </div>
           </li>
         )}
         renderTags={(tags, getTagProps) => {

@@ -410,9 +410,11 @@ export const mapUserInputs = (userInputs = {}) =>
 export const arrayToOptions = (list = [], options = {}) => {
   const {
     addEmpty = true,
+    addDescription = false,
     addEmptyValue = '',
     getText = (o) => `${o}`,
     getValue = (o) => `${o}`,
+    getDescription = () => ``,
     sorter = OPTION_SORTERS.default,
   } = options
 
@@ -420,6 +422,7 @@ export const arrayToOptions = (list = [], options = {}) => {
     .map((item, idx) => ({
       text: getText(item, idx),
       value: getValue(item, idx),
+      ...(addDescription ? { description: getDescription(item, idx) } : {}),
     }))
     .sort(sorter)
 

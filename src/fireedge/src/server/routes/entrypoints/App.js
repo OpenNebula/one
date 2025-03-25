@@ -29,6 +29,7 @@ const {
 } = require('server/utils/yml')
 
 const { getRemotesConfig } = require('server/utils/remoteModules')
+const { getForecastConfig } = require('server/utils/oned')
 
 const { getEncodedFavicon } = require('server/utils/logo')
 const {
@@ -81,6 +82,7 @@ router.get('*', async (req, res) => {
 
   const appConfig = getFireedgeConfig()
   const remotesConfig = getRemotesConfig()
+  const forecastConfig = getForecastConfig()
   const authType = appConfig?.auth
   const validAuthTypes = ['remote', 'x509']
 
@@ -168,6 +170,11 @@ router.get('*', async (req, res) => {
       window.__REMOTES_MODULE_CONFIG__ = ${JSON.stringify(remotesConfig)}
     </script>`
 
+  const forecastConf = `
+    <script id="preload-forecast-config">
+      window.__FORECAST_CONFIG__ = ${JSON.stringify(forecastConfig)}
+    </script>`
+
   const config = `
     <script id="preload-server-side">
       window.__PRELOADED_CONFIG__ = ${ensuredScriptValue(APP_CONFIG[appName])}
@@ -203,6 +210,7 @@ router.get('*', async (req, res) => {
       ${config}
       ${requestTimeOut}
       ${remoteModules}
+      ${forecastConf}
       <script src='${APP_URL}/client/bundle.${appName}.js'></script>
     </body>
     </html>

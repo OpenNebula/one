@@ -36,6 +36,13 @@ const interpolationBytes = (value) =>
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
 
+  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const { virtualmachine = {} } = forecastConfig
+  const {
+    forecast_period: forecastPeriod = 5, // Minutes
+    forecast_far_period: forecastFarPeriod = 48, // Hours
+  } = virtualmachine
+
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} sm={6}>
@@ -52,14 +59,33 @@ const Graphs = ({ id }) => {
             'DISKRDBYTES_FORECAST',
             'DISKRDBYTES_FORECAST_FAR',
           ]}
-          x="TIMESTAMP"
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
           legendNames={[
             T.DiskReadBytes,
-            T.DiskReadForecast,
-            T.DiskReadForecastFar,
+            `${T.DiskReadBytes} ${T.Forecast}`,
+            `${T.DiskReadBytes} ${T.ForecastFar}`,
           ]}
           lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['DISKRDBYTES_FORECAST']}
+          trendLineOnly={['DISKRDBYTES_FORECAST_FAR']}
+          shouldFill
+          clampForecast
+          sortX
         />
       </Grid>
       <Grid item xs={12} sm={6}>
@@ -76,14 +102,33 @@ const Graphs = ({ id }) => {
             'DISKWRBYTES_FORECAST',
             'DISKWRBYTES_FORECAST_FAR',
           ]}
-          x="TIMESTAMP"
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
           legendNames={[
             T.DiskWriteBytes,
-            T.DiskWriteForecast,
-            T.DiskWriteForecastFar,
+            `${T.DiskWriteBytes} ${T.Forecast}`,
+            `${T.DiskWriteBytes} ${T.ForecastFar}`,
           ]}
           lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['DISKWRBYTES_FORECAST']}
+          trendLineOnly={['DISKWRBYTES_FORECAST_FAR']}
+          shouldFill
+          clampForecast
+          sortX
         />
       </Grid>
       <Grid item xs={12} sm={6}>

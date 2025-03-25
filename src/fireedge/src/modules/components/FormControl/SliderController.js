@@ -108,6 +108,7 @@ const SliderController = memo(
             type="number"
             error={Boolean(error)}
             label={labelCanBeTranslated(label) ? Tr(label) : label}
+            InputLabelProps={{ shrink: true }}
             InputProps={{
               readOnly,
               endAdornment: tooltip && <Tooltip title={tooltip} />,

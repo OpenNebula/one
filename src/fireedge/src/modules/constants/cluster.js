@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import * as ACTIONS from '@modules/constants/actions'
+import { COLOR } from '@modules/constants/color'
 
 /**
  * @typedef Cluster
@@ -34,4 +35,65 @@ export const CLUSTER_ACTIONS = {
   DELETE: 'delete',
 
   RENAME: ACTIONS.RENAME,
+}
+
+/**
+ * @enum {string} DRS Plan Optimization POLICY
+ * @readonly
+ */
+export const DRS_POLICY = {
+  PACK: 'pack',
+  BALANCE: 'balance',
+}
+
+/**
+ * @enum {string} DRS Plan Optimization AUTOMATION
+ * @readonly
+ */
+export const DRS_AUTOMATION = {
+  MANUAL: 'manual',
+  PARTIAL: 'partial',
+  FULL: 'full',
+}
+
+/** @enum {string} DRS Plan Optimization Configuration */
+export const DRS_CONFIG_ATTRIBUTES = {
+  MIGRATION_THRESHOLD: 'MIGRATION_THRESHOLD',
+  CPU_USAGE_WEIGHT: 'CPU_USAGE_WEIGHT',
+  CPU_WEIGHT: 'CPU_WEIGHT',
+  MEMORY_WEIGHT: 'MEMORY_WEIGHT',
+  NET_WEIGHT: 'NET_WEIGHT',
+  DISK_WEIGHT: 'DISK_WEIGHT',
+  PREDICTIVE: 'PREDICTIVE',
+  POLICY: 'POLICY',
+  AUTOMATION: 'AUTOMATION',
+}
+
+/** @enum {string} DRS Plan states */
+export const PLAN_STATE = {
+  '-1': {
+    name: 'NONE',
+    color: COLOR.debug.light,
+  },
+  0: {
+    name: 'READY',
+    color: COLOR.debug.main,
+  },
+  1: {
+    name: 'APPLYING',
+    color: COLOR.info.main,
+  },
+  2: {
+    name: 'DONE',
+    color: COLOR.success.main,
+  },
+  3: {
+    name: 'ERROR',
+    color: COLOR.error.main,
+  },
+
+  4: {
+    name: 'TIMEOUT',
+    color: COLOR.warning.main,
+  },
 }

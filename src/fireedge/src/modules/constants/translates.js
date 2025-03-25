@@ -118,6 +118,8 @@ module.exports = {
   DeleteVirtualRouter: 'Delete Virtual Router',
   DeleteSeveralVirtualRouters: 'Delete several Virtual Routers',
   DeleteSomething: 'Delete: %s',
+  DeletePlan: 'Delete',
+  ApplyPlan: 'Apply',
   DeleteAddressRange: 'Delete Address Range',
   DeleteTemplate: 'Delete Template',
   DeleteVirtualNetwork: 'Delete Virtual Network',
@@ -249,6 +251,7 @@ module.exports = {
   UpdateVirtualNetwork: 'Update Virtual Network',
   UpdateVirtualNetworkTemplate: 'Update Virtual Network Template',
   UpdateVmConfiguration: 'Update VM Configuration',
+  UpdatePlanConfiguration: 'Update OneDRS Configuration',
   UpdateVmTemplate: 'Update VM Template',
   UpdateMarketplace: 'Update Marketplace',
 
@@ -256,6 +259,9 @@ module.exports = {
   Yes: 'Yes',
   No: 'No',
   DoYouWantProceed: 'Do you want to proceed?',
+  DoYouWantDeleteOp: 'Do you want to delete the optimization plan?',
+  DoYouWantApplyOp: 'Do you want to apply the optimization plan?',
+  DoYouWantDisableDRS: 'Do you want to disable OneDRS?',
 
   /* Scheduling */
   Action: 'Action',
@@ -294,6 +300,7 @@ module.exports = {
   Days: 'days',
   Hours: 'hours',
   Minutes: 'minutes',
+  Seconds: 'seconds',
   EachHours: 'Each %s hours',
   AfterTimes: 'After %s times',
   Today: 'Today',
@@ -597,10 +604,43 @@ module.exports = {
   PastePrivateSSHKey: 'Paste your Private SSH Key here...',
   EnterPassphrase: 'Enter your passphrase...',
 
+  /* DRS */
+  Drs: 'OneDRS',
+  DrsRecommendations: 'OneDRS Recommendations',
+  DrsInterval: 'Cluster is optimized every',
+  DrsManualInterval: 'Cluster has to be manually optimized.',
+  EnableDrs: 'Enable OneDRS',
+  DisableDrs: 'Disable OneDRS',
+  BalanceWeights: 'Balance Weights',
+  AutomationManual:
+    'OneDRS will not move VMs, you will need to manage moving and distributing your VMs independently.',
+  AutomationPartial:
+    'OneDRS provides migration recommendations -- user interaction is required to apply those recommendations.',
+  AutomationFull:
+    'OneDRS will automatically move VMs without your validation, based on the load on the hosts.',
+  PolicyBalance:
+    'Minimize contention and balance computing capacity by cluster to deliver optimized performance for hosts and virtual machines',
+  PolicyPack:
+    'Optimize power consumption or hybrid cloud cost dynamically. If the overall workload decreases, some of the physical servers can be temporarily powered-down (stopped if hybrid) and the workload consolidated.',
+  AutomationEnabled: 'Automation is enabled. Manual actions are disabled.',
+  /* Balance Weight Tooltips */
+  CpuUsageWeightConcept:
+    'Relative importance of the CPU usage across the hosts.',
+  CpuWeightConcept: 'Relative importance of the requested CPU across the hosts',
+  MemoryWeightConcept:
+    'Relative importance of the requested memory across the hosts',
+  DiskWeightConcept: 'Relative importance of the disk usage across the hosts',
+  NetWeightConcept: 'Relative importance of the network usage across the hosts',
+  PredictiveWeightConcept:
+    'Weight of forecasted resource usage in the scheduling process. For example, the value 0.3 means that the predicted resource usage is accounted with 30% and current usage with 70%.',
+  MigrationThresholdConcept:
+    'Specifies the maximal allowed number of virtual machine migrations, can be set to unlimited or a absolute number.',
+
   /* sections - infrastructure */
   Cluster: 'Cluster',
   Clusters: 'Clusters',
   Host: 'Host',
+  HostId: 'Host ID',
   Hosts: 'Hosts',
   Infrastructure: 'Infrastructure',
   Zone: 'Zone',
@@ -782,6 +822,7 @@ module.exports = {
   RsyncUser: 'Rsync user',
   VolumeGroupName: 'Volume group name',
   GlusterHost: 'Gluster host',
+  LoadBalanceWeights: 'Load Balance Weights',
   GlusterHostConcept:
     'Host and port of one (and only one) Gluster server (host:port)',
   GlusterVolume: 'Gluster volume',
@@ -890,6 +931,7 @@ module.exports = {
 
   /* general schema */
   ID: 'ID',
+  Timestamp: 'Timestamp',
   Name: 'Name',
   State: 'State',
   Size: 'Size',
@@ -1046,6 +1088,8 @@ module.exports = {
   Emulated: 'Emulated',
   PCIPassthroughAutomatic: 'PCI Passthrough - Automatic',
   PCIPassthroughManual: 'PCI Passthrough - Manual',
+  Manual: 'Manual',
+
   AttachPci: 'Attach PCI device',
   AttachPciSuccess: 'PCI attached successfully - Virtual machine #%s',
   DetachPci: 'Detach PCI device',
@@ -1212,6 +1256,8 @@ module.exports = {
   Affined: 'Affined',
   AntiAffined: 'Anti-Affined',
   Policy: 'Policy',
+  Automation: 'Automation',
+  MigrationThreshold: 'Migration threshold',
   VmAffinity: 'VM Affinity',
   RolesAffinity: 'Roles Affinity',
   RoleElasticity: 'Role Elasticity',
@@ -1325,6 +1371,7 @@ module.exports = {
     Enable or disable validation of the RAW data against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
+  OptimizationPlanConfiguration: 'OneDRS Configuration',
   SshPublicKey: 'SSH public key',
   AddUserSshPublicKey: 'Add user SSH public key',
   AddNetwork: 'Add Network',
@@ -1447,28 +1494,15 @@ module.exports = {
   Thai: 'Thai',
   Turkish: 'Turkish',
   /* VM graphs */
-  CpuForecast: 'CPU Forecast',
-  CpuForecastFar: 'CPU Forecast (Far)',
-  MemoryForecast: 'Memory Forecast',
-  MemoryForecastFar: 'Memory Forecast (Far)',
+  Forecast: 'Forecast',
+  ForecastFar: 'Forecast (Far)',
+  Predictive: 'Predictive',
   DiskReadBytes: 'Disk read bytes',
-  DiskReadForecast: 'Disk read forecast',
-  DiskReadForecastFar: 'Disk read forecast (Far)',
   DiskWriteBytes: 'Disk write bytes',
-  DiskWriteForecast: 'Disk write forecast',
-  DiskWriteForecastFar: 'Disk write forecast (Far)',
   DiskReadIOPS: 'Disk read IOPS',
-  DiskReadIOPSForecast: 'Disk read IOPS forecast',
-  DiskReadIOPSForecastFar: 'Disk read IOPS forecast (Far)',
   DiskWriteIOPS: 'Disk write IOPS',
-  DiskWriteIOPSForecast: 'Disk write IOPS forecast',
-  DiskWriteIOPSForecastFar: 'Disk write IOPS forecast (Far)',
   NetRX: 'Net RX',
-  NetRXForecast: 'Net RX forecast',
-  NetRXForecastFar: 'Net RX forecast (Far)',
   NetTX: 'Net TX',
-  NetTXForecast: 'Net TX forecast',
-  NetTXForecastFar: 'Net TX forecast (Far)',
   NetDownloadSpeed: 'Net download speed',
   NetUploadSpeed: 'Net upload speed',
   Graphs: 'Graphs',
@@ -1573,6 +1607,8 @@ module.exports = {
   VMGroupConfiguration: 'VM Group Configuration',
   RoleDefineRoles: 'Define roles and placement constraints.',
   RoleOptimize: 'Optimize performance and fault tolerance.',
+  Optimize: 'Optimize',
+  OptimizationPlanGenerated: 'Optimization plan generated',
   RoleManageApps: 'Manage multi-VM applications efficiently.',
   /* Service Template - configuration */
   RoleConfiguration: 'Role Configuration',
@@ -1801,6 +1837,7 @@ module.exports = {
   ISOLCPUS: 'Isolated CPUS',
   FreeCPU: 'Free CPU',
   UsedCPU: 'Used CPU',
+  CpuUsage: 'CPU Usage',
   FreeMemory: 'Free Memory',
   UsedMemory: 'Used memory',
   TemplateToIsolateCpus:

@@ -303,7 +303,7 @@ FormWithSchema.propTypes = {
 }
 
 const FieldComponent = memo(
-  ({ id, cy, dependOf, stepControl, ...attributes }) => {
+  ({ id, cy, dependOf, stepControl, legend, ...attributes }) => {
     const formContext = useFormContext()
 
     const disableSteps = useDisableStep()
@@ -403,19 +403,29 @@ const FieldComponent = memo(
     function* generateInputs() {
       for (let i = 0; i < splits; i++) {
         yield (
-          <Grid key={`split-${i}`} item xs={12} md={6} {...grid}>
-            {createElement(INPUT_CONTROLLER[type], {
-              key: `${key}-${i}`,
-              control: formContext.control,
-              cy: dataCy,
-              dependencies: nameOfDependField,
-              name: addIdToName(name, id, i),
-              type: htmlType === false ? undefined : htmlType,
-              dependOf,
-              onConditionChange: handleConditionChange,
-              ...fieldProps,
-            })}
-          </Grid>
+          <>
+            {legend && (
+              <Legend
+                data-cy={`legend-${cy}`}
+                title={legend}
+                disableGutters={false}
+                marginTop="1em"
+              />
+            )}
+            <Grid key={`split-${i}`} item xs={12} md={6} {...grid}>
+              {createElement(INPUT_CONTROLLER[type], {
+                key: `${key}-${i}`,
+                control: formContext.control,
+                cy: dataCy,
+                dependencies: nameOfDependField,
+                name: addIdToName(name, id, i),
+                type: htmlType === false ? undefined : htmlType,
+                dependOf,
+                onConditionChange: handleConditionChange,
+                ...fieldProps,
+              })}
+            </Grid>
+          </>
         )
       }
     }
@@ -431,6 +441,7 @@ FieldComponent.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  legend: PropTypes.string,
   stepControl: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.shape({

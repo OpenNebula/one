@@ -14,39 +14,48 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 const fs = require('fs-extra')
-const path = require('path')
 const { global } = require('window-or-global')
+const path = require('path')
 
-const { parseConfigFile } = require('server/utils/general')
+const { parse: yamlToJson } = require('yaml')
 
 /**
  * Get the configuration for a specific hypervisor.
  *
- * @param {string} hypervisor - The hypervisor type.
  * @returns {Promise<object>} Parsed configuration object.
  */
-const getVmmConfig = async (hypervisor) => {
-  const vmmExecConfigDirectory = global?.paths?.VMM_EXEC_CONFIG
+const getForecastConfig = () => {
+  const remotesImPath = global?.paths?.REMOTES_IM_PATH
 
-  const configFilePath = path.join(
-    vmmExecConfigDirectory,
-    `vmm_exec_${hypervisor}.conf`
-  )
+  const dirs = fs
+    .readdirSync(remotesImPath, { withFileTypes: true })
+    .filter((dir) => dir.isDirectory() && dir.name.endsWith('-probes.d'))
+    .map((dir) => dir.name)
 
-  if (!(await fs.pathExists(configFilePath))) {
-    throw new Error(`Configuration file not found: ${configFilePath}`)
+  if (!dirs?.length) {
+    throw new Error(`No forecast configuration files found`)
   }
 
-  try {
-    const fileContent = await fs.readFile(configFilePath, 'utf-8')
-    const config = parseConfigFile(fileContent)
+  const forecastConf = {}
 
-    return config
-  } catch (error) {
-    throw new Error(`Error parsing config file: ${configFilePath}`)
-  }
+  dirs.forEach((dir) => {
+    const forecastConfigPath = path.join(remotesImPath, dir, 'forecast.conf')
+    if (fs.pathExistsSync(forecastConfigPath)) {
+      try {
+        const fileContent = fs.readFileSync(forecastConfigPath, 'utf-8')
+        const config = yamlToJson(fileContent)
+
+        const driverName = dir.replace('-probes.d', '')
+        forecastConf[driverName] = config
+      } catch (error) {
+        throw new Error(`Error parsing config file: ${forecastConfigPath}`)
+      }
+    }
+  })
+
+  return forecastConf
 }
 
 module.exports = {
-  getVmmConfig,
+  getForecastConfig,
 }

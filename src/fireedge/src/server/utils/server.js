@@ -589,6 +589,9 @@ const genPathResources = () => {
     if (!global.paths.VMM_EXEC_CONFIG) {
       global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`
     }
+    if (!global.paths.REMOTES_IM_PATH) {
+      global.paths.REMOTES_IM_PATH = `${VAR_LOCATION}/remotes/etc/im/`
+    }
     if (!global.paths.OS_PROFILES) {
       global.paths.OS_PROFILES = `${MODULES_LOCATION}/profiles`
     }
@@ -791,7 +794,7 @@ const parsePostData = (postData = {}) => {
   const rtn = {}
   Object.entries(postData).forEach(([postKey, value]) => {
     try {
-      rtn[postKey] = JSON.parse(value, (k, val) => {
+      rtn[postKey] = JSON.parse(value, (_k, val) => {
         try {
           return JSON.parse(val)
         } catch (error) {

@@ -30,7 +30,7 @@ import {
   VM_ACTIONS,
 } from '@ConstantsModule'
 import {
-  getCapacityInfo,
+  getDatastoreCapacityInfo,
   jsonToXml,
   getAllocatedInfo,
   getDatastores,
@@ -179,7 +179,7 @@ const InformationPanel = ({ host = {}, actions }) => {
   ]
 
   const infoFromDatastores = getDatastores(host).map((dsHost) => {
-    const { percentOfUsed, percentLabel } = getCapacityInfo(dsHost)
+    const { percentOfUsed, percentLabel } = getDatastoreCapacityInfo(dsHost)
     const dsName = datastores.find((ds) => +ds.ID === +dsHost.ID)?.NAME ?? '--'
 
     return {
