@@ -78,6 +78,8 @@ gem 'ffi-rzmq', '~> 2.0.7'
 gem 'net-ldap'
 gem 'nokogiri', nokogiri
 gem 'public_suffix', ps
+gem 'aws-sdk-ec2', '>=1.151'
+gem 'aws-sdk-s3'
 
 group :cli do
     gem 'gnuplot'
@@ -105,18 +107,6 @@ end
 
 group :onecfg do
     gem 'git', '~> 1.5'
-end
-
-group :hybrid do
-    gem 'aws-sdk-ec2', '>=1.151'
-    gem 'aws-sdk-s3'
-    gem 'aws-sdk-cloudwatch'
-    gem 'azure_mgmt_compute'
-    gem 'azure_mgmt_monitor'
-    gem 'azure_mgmt_network'
-    gem 'azure_mgmt_resources'
-    gem 'azure_mgmt_storage'
-    gem 'configparser'
 end
 
 group :packethost do
