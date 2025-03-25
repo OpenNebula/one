@@ -51,7 +51,7 @@ module OpenNebula::ServiceTemplateExt
                 @body['roles'].each do |role|
                     # Find role template into templates to get the name to use
                     t = templates.find do |_, v|
-                        v[:template]['ID'].to_i == role['vm_template']
+                        v[:template]['ID'].to_i == role['template_id']
                     end
 
                     next if t.nil? || t[1].nil? || t[1][:name].nil?
@@ -62,7 +62,7 @@ module OpenNebula::ServiceTemplateExt
                     ROLE = [ NAME="#{role['name']}", APP="#{app_name}"]
                     EOT
 
-                    role.delete('vm_template')
+                    role.delete('template_id')
                 end
 
                 xml = MarketPlaceApp.build_xml

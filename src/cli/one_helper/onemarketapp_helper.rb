@@ -581,7 +581,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
             # Do not ask for marketplaces, just fill templates information
             body['roles'].each do |role|
                 # Read role VM template information from OpenNebula
-                template = Template.new_with_id(role['vm_template'], @client)
+                template = Template.new_with_id(role['template_id'], @client)
                 rc       = template.info
 
                 return rc if OpenNebula.is_error?(rc)
