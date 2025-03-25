@@ -39,7 +39,6 @@ COMMANDS=(
     'bin/onevdc'            'manages OpenNebula Virtual DataCenters'
     'bin/onecluster'        'manages OpenNebula clusters'
     'bin/onedatastore'      'manages OpenNebula datastores'
-    'bin/onevcenter'        'vCenter import tool'
     'bin/oneshowback'       'OpenNebula Showback Tool'
     'bin/onesecgroup'       'manages OpenNebula security groups'
     'bin/onevrouter'        'manages OpenNebula Virtual Routers'

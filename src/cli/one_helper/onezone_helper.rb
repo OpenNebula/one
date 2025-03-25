@@ -33,17 +33,10 @@ class Replicator
         { :name    => 'oneflow-server.conf',
           :service => 'opennebula-flow' },
         { :name    => 'onegate-server.conf',
-          :service => 'opennebula-gate' },
-        { :name    => 'sunstone-logos.yaml',
-          :service => 'opennebula-sunstone' },
-        { :name    => 'sunstone-server.conf',
-          :service => 'opennebula-sunstone' },
-        { :name    => 'vcenter_driver.default',
-          :service => 'opennebula' }
+          :service => 'opennebula-gate' }
     ]
 
     FOLDERS = [
-        { :name => 'sunstone-views', :service => 'opennebula-sunstone' },
         { :name => 'auth', :service => 'opennebula' },
         { :name => 'hm', :service => 'opennebula' },
         { :name => 'vmm_exec', :service => 'opennebula' },
@@ -90,7 +83,6 @@ class Replicator
 
         # Set OpenNebula services to not restart
         @opennebula_services = { 'opennebula'          => false,
-                                 'opennebula-sunstone' => false,
                                  'opennebula-gate'     => false,
                                  'opennebula-flow'     => false }
     end

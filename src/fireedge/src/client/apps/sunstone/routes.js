@@ -39,18 +39,10 @@ const Guacamole = loadable(
   }
 )
 
-const WebMKS = loadable(
-  () => import('@ContainersModule').then((module) => module.WebMKS),
-  {
-    ssr: false,
-  }
-)
-
 export const PATH = {
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
   GUACAMOLE: '/guacamole/:id/:type',
-  WMKS: '/wmks/:id',
 }
 
 export const ENDPOINTS = [
@@ -75,12 +67,6 @@ export const ENDPOINTS = [
     disableLayout: true,
     path: PATH.GUACAMOLE,
     Component: Guacamole,
-  },
-  {
-    title: 'WebMKS', // no need to translate
-    disableLayout: true,
-    path: PATH.WMKS,
-    Component: WebMKS,
   },
 ]
 

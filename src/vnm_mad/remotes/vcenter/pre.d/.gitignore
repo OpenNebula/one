@@ -1,3 +1,0 @@
-# Do not track files in this directory except for .gitignore file
-*
-!.gitignore

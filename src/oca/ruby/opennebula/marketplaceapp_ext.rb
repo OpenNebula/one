@@ -97,7 +97,7 @@ module OpenNebula::MarketPlaceAppExt
             #     :f_dsid [String] Files Datastore id
             #     :notemplate [Bool] if true do not create vm_template (if any)
             #     :template [Integer] Template id to use with image
-            #     :default_template [String] Default template id for vCenter
+            #     :default_template [String] Default template id
             #   @return [Hash]
             #     :image [Array] of the new image
             #     :image_type [String] of the new image (CONTEXT, KERNEL, CDROM)
@@ -144,16 +144,6 @@ module OpenNebula::MarketPlaceAppExt
                     end
                 end
 
-                ds = OpenNebula::Datastore.new_with_id(dsid, @client)
-                rc = ds.info
-
-                is_vcenter = !OpenNebula.is_error?(rc) &&
-                             (ds['TEMPLATE/DRIVER'] == 'vcenter')
-
-                if is_vcenter && options[:template].nil?
-                    options = update_options_with_template(options)
-                end
-
                 #---------------------------------------------------------------
                 # Allocate the image in OpenNebula
                 #---------------------------------------------------------------
@@ -170,34 +160,11 @@ module OpenNebula::MarketPlaceAppExt
 
                 image.delete_element('TEMPLATE/FORMAT')
                 image.delete_element('TEMPLATE/DRIVER')
-                image.delete_element('TEMPLATE/DEV_PREFIX') if is_vcenter
 
                 image.update(image.template_xml)
 
                 rc_info[:image] = [image.id]
                 rc_info[:image_type] = image.type_str
-
-                #---------------------------------------------------------------
-                # Created an associated VMTemplate if needed
-                #---------------------------------------------------------------
-                if is_vcenter &&
-                    !options[:notemplate] &&
-                    (!options[:template] || options[:template] == -1)
-                    tmpl = create_vcenter_template(
-                        ds,
-                        options,
-                        self['TEMPLATE/VMTEMPLATE64'],
-                        image
-                    )
-
-                    if OpenNebula.is_error?(tmpl)
-                        rc_info[:vmtemplate] = [tmpl]
-                    else
-                        rc_info[:vmtemplate] = [tmpl.id]
-                    end
-
-                    return rc_info
-                end
 
                 if self['TEMPLATE/VMTEMPLATE64'].nil? ||
                    options[:notemplate] ||
@@ -300,139 +267,6 @@ module OpenNebula::MarketPlaceAppExt
                 rc
             end
 
-            # Create a VM template in vCenter in order to use it when
-            # deploying an app from the marketplace
-            #
-            # @param ds       [OpenNebula::Datastore] Datastore information
-            # @param options  [Hash]                  Export options
-            # @param template [String]                App template
-            # @param image    [OpenNebula::Image]     Image information
-            def create_vcenter_template(ds, options, template, image = nil)
-                ret  = {}
-                keys = ['VCENTER_TEMPLATE_REF',
-                        'VCENTER_CCR_REF',
-                        'VCENTER_INSTANCE_ID']
-
-                if ds['//VCENTER_TEMPLATE_REF']
-                    keys.each do |key|
-                        ret[key] = ds["//#{key}"]
-                    end
-                else
-                    require 'vcenter_driver'
-
-                    # Get vi client for current datastore
-                    vi_client = VCenterDriver::VIClient.new_from_datastore(
-                        ds.id
-                    )
-
-                    # Get datastore object
-                    ds_ref    = ds['//VCENTER_DS_REF']
-                    datastore = VCenterDriver::Datastore.new_from_ref(
-                        ds_ref,
-                        vi_client
-                    )
-
-                    # Get resource pool
-                    host_ref          = datastore['host'].first.key.parent._ref
-                    vi_client.ccr_ref = host_ref
-
-                    host = VCenterDriver::ClusterComputeResource.new_from_ref(
-                        host_ref,
-                        vi_client
-                    )
-
-                    rp = host.resource_pools.first
-
-                    # Get vCentrer instance ID
-                    uuid = vi_client.vim.serviceContent.about.instanceUuid
-
-                    # Create VM folder it not exists
-                    dc        = datastore.obtain_dc.item
-                    vm_folder = dc.find_folder('one_default_template')
-
-                    if vm_folder.nil?
-                        dc.vmFolder.CreateFolder(
-                            :name => 'one_default_template'
-                        )
-                        vm_folder = dc.find_folder('one_default_template')
-                    end
-
-                    # Define default VM config
-                    vm_cfg = { :name     => "one_app_template-#{ds.id}",
-                            :guestId  => 'otherGuest',
-                            :numCPUs  => 1,
-                            :memoryMB => 128,
-                            :files    => {
-                                :vmPathName => "[#{datastore.item.name}]"
-                            } }
-
-                    # Create the VM
-                    vm = vm_folder.CreateVM_Task(
-                        :config => vm_cfg,
-                        :pool   => rp
-                    ).wait_for_completion
-
-                    # Create the VM template
-                    vm.MarkAsTemplate
-
-                    ret['VCENTER_TEMPLATE_REF'] = vm._ref
-                    ret['VCENTER_CCR_REF']      = host_ref
-                    ret['VCENTER_INSTANCE_ID']  = uuid
-
-                    ret.each do |key, value|
-                        ds.update("#{key}=\"#{value}\"", true)
-                    end
-                end
-
-                tmpl = <<-EOT
-                NAME = "#{options[:vmtemplate_name] || options[:name]}"
-                HYPERVISOR = "vcenter"
-                EOT
-
-                tmpl << "DISK = [ IMAGE_ID = \"#{image.id}\" ]" if image
-
-                template ||= ''
-                template   = Base64.decode64(template)
-
-                template.split("\n").each do |line|
-                    # Legacy, some apps in the marketplace have the sched
-                    # requirement to just be run on KVM, with this
-                    # the template cannot be run on vCenter, so don't add
-                    # it in the final VM template
-                    next if line =~ /SCHED_REQUIREMENTS/ || line.empty?
-
-                    tmpl << "#{line}\n"
-                end
-
-                ret.each do |key, value|
-                    tmpl << "#{key}=\"#{value}\"\n"
-                end
-
-                vmtpl = Template.new(Template.build_xml, @client)
-
-                rc = vmtpl.allocate(tmpl)
-
-                if OpenNebula.is_error?(rc)
-                    rc
-                else
-                    Template.new_with_id(vmtpl.id, @client)
-                end
-            end
-
-            def update_options_with_template(options)
-                path = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
-
-                return options unless File.file?(path)
-
-                config = YAML.load_file(path)
-
-                return options unless config.key?(:default_template)
-
-                options[:template] = config[:default_template]
-
-                options
-            end
-
             # Creates a VM template based on the APPTEMPLATE64 attribute
             #    @param [Hash] options
             #       :export_name [String] name of the vm template
@@ -441,52 +275,21 @@ module OpenNebula::MarketPlaceAppExt
             #
             #    @return [Integer, OpenNebula::Error] template id or error
             def create_vm_template(options, disks)
-                dsid = options[:dsid]
-                ds = OpenNebula::Datastore.new_with_id(dsid, @client)
-                rc = ds.info
-
-                is_vcenter = !OpenNebula.is_error?(rc) && ds['TEMPLATE/DRIVER'] == 'vcenter'
-
-                if is_vcenter
-                    if options[:template].nil?
-                        options = update_options_with_template(options)
-                    end
-
-                    if !options[:template] || options[:template] == -1
-                        vmtpl = create_vcenter_template(
-                            ds,
-                            options,
-                            self['TEMPLATE/VMTEMPLATE64']
-                        )
-                    else
-                        template_id = options[:template]
-                        template    = Template.new_with_id(template_id, @client)
-
-                        vmtpl_id = template.clone(
-                            options[:vmtemplate_name] || options[:name]
-                        )
-
-                        vmtpl = Template.new_with_id(vmtpl_id, @client)
-                    end
-
-                    rc = vmtpl.info
-                else
-                    # ----------------------------------------------------------
-                    # Allocate Template
-                    # ----------------------------------------------------------
-                    if self['TEMPLATE/APPTEMPLATE64'].nil?
-                        return Error.new(
-                            "Missing APPTEMPLATE64 for App #{id}"
-                        )
-                    end
-
-                    tmpl = Base64.decode64(self['TEMPLATE/APPTEMPLATE64'])
-
-                    tmpl << "\nNAME=\"#{options[:name]}\"\n"
-
-                    vmtpl = Template.new(Template.build_xml, @client)
-                    rc    = vmtpl.allocate(tmpl)
+                # ----------------------------------------------------------
+                # Allocate Template
+                # ----------------------------------------------------------
+                if self['TEMPLATE/APPTEMPLATE64'].nil?
+                    return Error.new(
+                        "Missing APPTEMPLATE64 for App #{id}"
+                    )
                 end
+
+                tmpl = Base64.decode64(self['TEMPLATE/APPTEMPLATE64'])
+
+                tmpl << "\nNAME=\"#{options[:name]}\"\n"
+
+                vmtpl = Template.new(Template.build_xml, @client)
+                rc    = vmtpl.allocate(tmpl)
 
                 return rc if OpenNebula.is_error?(rc)
 

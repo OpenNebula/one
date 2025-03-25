@@ -1736,7 +1736,6 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 case VirtualNetwork::UNDEFINED:
                 case VirtualNetwork::LINUX:
-                case VirtualNetwork::VCENTER_PORT_GROUPS:
                 case VirtualNetwork::BRNONE:
                     file << "\t\t<interface type='bridge'>\n"
                          << "\t\t\t<source bridge="

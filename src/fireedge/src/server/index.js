@@ -27,7 +27,6 @@ import {
   defaultPort,
   defaultWebpackMode,
   endpointExternalGuacamole,
-  endpointVmrc,
 } from './utils/constants/defaults'
 import { getLoggerMiddleware, initLogger } from './utils/logger'
 import {
@@ -45,7 +44,6 @@ import { resolve } from 'path'
 import guacamole from './routes/websockets/guacamole'
 import guacamoleProxy from './routes/websockets/guacamoleProxy'
 import opennebulaWebsockets from './routes/websockets/opennebula'
-import vmrc from './routes/websockets/vmrc'
 import { messageTerminal } from './utils/general'
 import { getFireedgeConfig } from './utils/yml'
 
@@ -130,9 +128,7 @@ guacamole(appServer)
 appServer.on('upgrade', (req, socket, head) => {
   const url = req?.url
 
-  if (url.startsWith(endpointVmrc)) {
-    vmrc.upgrade(req, socket, head)
-  } else if (url.startsWith(endpointExternalGuacamole)) {
+  if (url.startsWith(endpointExternalGuacamole)) {
     guacamoleProxy.upgrade(req, socket, head)
   }
 })

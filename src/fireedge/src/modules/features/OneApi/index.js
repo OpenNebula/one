@@ -37,7 +37,6 @@ import SupportAPI from '@modules/features/OneApi/support'
 import SystemAPI from '@modules/features/OneApi/system'
 import TfaAPI from '@modules/features/OneApi/tfa'
 import UserAPI from '@modules/features/OneApi/user'
-import VcenterAPI from '@modules/features/OneApi/vcenter'
 import VdcAPI from '@modules/features/OneApi/vdc'
 import VmAPI from '@modules/features/OneApi/vm'
 import VmGroupAPI from '@modules/features/OneApi/vmGroup'
@@ -83,7 +82,6 @@ export {
   SystemAPI,
   TfaAPI,
   UserAPI,
-  VcenterAPI,
   VdcAPI,
   VmAPI,
   VmGroupAPI,

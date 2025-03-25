@@ -1,8 +1,0 @@
-{
-  "image": {
-    "name": "second_image",
-    "type": "CDROM",
-    "path": "/etc/hosts"
-  },
-  "ds_id": "1"
-}

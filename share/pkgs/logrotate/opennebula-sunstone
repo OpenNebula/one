@@ -1,9 +1,0 @@
-/var/log/one/sunstone.log {
-    dateext
-    dateformat -%Y%m%d-%s
-    weekly
-    rotate 52
-    missingok
-    notifempty
-    copytruncate
-}

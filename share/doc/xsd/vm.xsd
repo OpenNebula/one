@@ -72,14 +72,6 @@
               <xs:element name="NETTX_FORECAST_FAR" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
               <!-- Exact time when monitoring info were retieved -->
               <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-              <!-- vCetner information -->
-              <xs:element name="VCENTER_ESX_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_GUEST_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_RP_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_RUNNING_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>
@@ -99,8 +91,6 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                   </xs:sequence>
                 </xs:complexType>
@@ -132,9 +122,6 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -146,9 +133,6 @@
                     <xs:element name="PARENT" type="xs:string" minOccurs="1" maxOccurs="1"/>
                     <xs:element name="PARENT_ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -191,9 +175,6 @@
           <xs:complexType>
              <xs:sequence>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>

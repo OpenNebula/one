@@ -32,44 +32,4 @@ fi
 
 export DRIVER_NAME="one_im_sh_${BASH_ARGV##* }"
 
-#-------------------------------------------------------------------------------
-#  vCenter Monitor Service startup routine
-#-------------------------------------------------------------------------------
-# Explicitly execute the vCenter monitor driver initialization and run it in the
-# background. This way we don't have to wait until OpenNebula issues the
-# add_hosts commands to know about missing hosts
-#-------------------------------------------------------------------------------
-if [ "${BASH_ARGV##* }" = "vcenter" ]; then
-
-    LOCK_FILE="$LOCK_LOCATION/vcenter_monitor"
-    FIFO_PATH="$RUN_LOCATION/vcenter_monitor.fifo"
-    VMON_PATH="$VAR_LOCATION/remotes/im/lib/vcenter_monitor.rb"
-    LOG="$LOG_LOCATION/vcenter_monitor.log"
-
-    # Sanitize previous instances
-    VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
-
-    if [ -n "$VMON_PIDS" ]; then
-        kill -9 $VMON_PIDS
-    fi
-
-    # Create server FIFO & lockfile
-    rm -f $FIFO_PATH > /dev/null 2>&1
-    mkfifo $FIFO_PATH
-
-    touch $LOCK_FILE
-
-    # Start & check vcenter monitor service
-    /usr/bin/env ruby $VMON_PATH </dev/null &>$LOG &
-
-    sleep 3
-
-    VMON_PIDS=$(ps axuww | grep "ruby[^ ]* $VMON_PATH" | grep -v grep | awk '{print $2}')
-
-    if [ -z "$VMON_PIDS" ]; then
-        echo "Cannot start vcenter_monitor service"
-        exit 1
-    fi
-fi
-
 exec $MAD_LOCATION/one_im_exec -l $*

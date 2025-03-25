@@ -315,14 +315,10 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
-            vm_mad = host['VM_MAD'].downcase
             state = host['STATE']
 
             # Skip this host from remote syncing if it's OFFLINE
             next if Host::HOST_STATES[state.to_i] == 'OFFLINE'
-
-            # Skip this host if it is a vCenter cluster
-            next if vm_mad == 'vcenter'
 
             host_version = host['TEMPLATE/VERSION']
 

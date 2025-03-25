@@ -39,9 +39,6 @@
           <xs:complexType>
              <xs:sequence>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_TEMPLATE_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>

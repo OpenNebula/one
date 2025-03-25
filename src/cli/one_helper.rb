@@ -412,13 +412,6 @@ Bash symbols must be escaped on STDIN passing'
             :description => 'Sends READY=YES to OneGate, useful for OneFlow'
         },
         {
-            :name   => 'vcenter_vm_folder',
-            :large  => '--vcenter_vm_folder path',
-            :format => String,
-            :description => 'In a vCenter environment sets the the VMs and Template folder where the VM will be placed in.' \
-            ' The path uses slashes to separate folders. For example: --vcenter_vm_folder "/Management/VMs"'
-        },
-        {
             :name   => 'user_inputs',
             :large  => '--user-inputs ui1,ui2,ui3',
             :format => String,
@@ -1872,7 +1865,7 @@ Bash symbols must be escaped on STDIN passing'
                     context_hash['SSH_PUBLIC_KEY'] = key
                 end
             end
-            
+
             if options[:net_context]
                 context_hash['NETWORK'] = "YES"
             end
@@ -1882,11 +1875,11 @@ Bash symbols must be escaped on STDIN passing'
 
                 context_hash['FILES_DS'] = files
             end
-            
+
             if options[:init]
                 context_hash['INIT_SCRIPTS'] = options[:init].join(" ")
             end
-            
+
             if options[:startscript]
                 script = nil
                 begin
@@ -1909,7 +1902,7 @@ Bash symbols must be escaped on STDIN passing'
                 formatted_context << options[:context].map {|l| ' ' << l }.join(",\n") if options[:context]
                 if context_hash.any?
                     formatted_context << ",\n" if options[:context]
-                    formatted_context << context_hash.map { |k, v| "  #{k}=\"#{v}\"" }.join(",\n") 
+                    formatted_context << context_hash.map { |k, v| "  #{k}=\"#{v}\"" }.join(",\n")
                 end
                 formatted_context << "\n]\n"
                 formatted_context
@@ -1993,7 +1986,6 @@ Bash symbols must be escaped on STDIN passing'
             template<<' ]' << "\n"
         end
 
-        template<<"VCENTER_VM_FOLDER=#{options[:vcenter_vm_folder]}\n" if options[:vcenter_vm_folder]
         context_hash = {}
         if !template_obj.nil? && template_obj.has_elements?('TEMPLATE/CONTEXT')
             context_hash = template_obj.to_hash["VMTEMPLATE"]["TEMPLATE"]["CONTEXT"]
@@ -2103,107 +2095,6 @@ Bash symbols must be escaped on STDIN passing'
         conflicting_opts.replace(options.keys & template_options)
 
         !conflicting_opts.empty?
-    end
-
-    def self.sunstone_url
-        if (one_sunstone = ENV['ONE_SUNSTONE'])
-            one_sunstone
-        elsif (one_xmlrpc = ENV['ONE_XMLRPC'])
-            uri = URI(one_xmlrpc)
-            "#{uri.scheme}://#{uri.host}:9869"
-        else
-            'http://localhost:9869'
-        end
-    end
-
-    def self.download_resource_sunstone(kind, id, path, _force)
-        client = OneHelper.client
-        user, password = client.one_auth.split(':', 2)
-
-        # Step 1: Build Session to get Cookie
-        uri = URI(File.join(sunstone_url, 'login'))
-
-        req = Net::HTTP::Post.new(uri)
-        req.basic_auth user, password
-
-        begin
-            res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-                http.request(req)
-            end
-        rescue StandardError
-            return OpenNebula::Error.new("Error connecting to '#{uri}'.")
-        end
-
-        cookie = res.response['set-cookie'].split('; ')[0]
-
-        if cookie.nil?
-            return OpenNebula::Error.new('Unable to get Cookie. Is OpenNebula running?')
-        end
-
-        # Step 2: Open '/' to get the csrftoken
-        uri = URI(sunstone_url)
-
-        req = Net::HTTP::Get.new(uri)
-        req['Cookie'] = cookie
-
-        begin
-            res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-                http.request(req)
-            end
-        rescue StandardError
-            return OpenNebula::Error.new("Error connecting to '#{uri}'.")
-        end
-
-        m = res.body.match(/var csrftoken = '(.*)';/)
-        csrftoken = m[1] rescue nil
-
-        if csrftoken.nil?
-            return OpenNebula::Error.new('Unable to get csrftoken.')
-        end
-
-        # Step 3: Download resource
-        uri = URI(File.join(sunstone_url,
-                            kind.to_s,
-                            id.to_s,
-                            "download?csrftoken=#{csrftoken}"))
-
-        req = Net::HTTP::Get.new(uri)
-
-        req['Cookie'] = cookie
-        req['User-Agent'] = 'OpenNebula CLI'
-
-        begin
-            File.open(path, 'wb') do |f|
-                Net::HTTP.start(uri.hostname, uri.port) do |http|
-                    http.request(req) do |res|
-                        res.read_body do |chunk|
-                            f.write(chunk)
-                        end
-                    end
-                end
-            end
-        rescue Errno::EACCES
-            return OpenNebula::Error.new('Target file not writable.')
-        end
-
-        error_message = nil
-
-        File.open(path, 'rb') do |f|
-            begin
-                f.seek(-1024, IO::SEEK_END)
-            rescue Errno::EINVAL
-            end
-
-            tail = f.read
-
-            m = tail.match(/@\^_\^@ (.*) @\^_\^@/m)
-            error_message = m[1] if m
-        end
-
-        return unless error_message
-
-        File.unlink(path)
-        OpenNebula::Error.new("Remote server error: #{error_message}")
     end
 
     def self.level_lock_to_str(str)

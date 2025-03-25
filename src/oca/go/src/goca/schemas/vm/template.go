@@ -27,7 +27,7 @@ import (
 )
 
 // Available template parts and keys are listed here: https://docs.opennebula.io/5.8/operation/references/template.html
-// Some specific part are not defined: vCenter, Public Cloud, Hypervisor, User Inputs
+// Some specific part are not defined: Public Cloud, Hypervisor, User Inputs
 
 // Template is a structure allowing to parse VM templates.
 // It's defined in a semi-static way to guide the user among the bunch of values

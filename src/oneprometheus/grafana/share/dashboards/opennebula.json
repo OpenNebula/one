@@ -72,7 +72,7 @@
       "title": "Sunstone Web UI",
       "tooltip": "",
       "type": "link",
-      "url": "http://localhost:9869"
+      "url": "http://localhost:2616"
     }
   ],
   "liveNow": false,

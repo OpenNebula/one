@@ -1,8 +1,0 @@
-{
-  "image": {
-    "name": "first_image",
-    "type": "OS",
-    "path": "/etc/hosts"
-  },
-  "ds_id": "1"
-}

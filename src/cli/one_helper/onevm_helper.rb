@@ -832,8 +832,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm_disks = [vm_hash['VM']['TEMPLATE']['DISK']].flatten
         end
 
-        if vm.has_elements?('/VM/TEMPLATE/CONTEXT') \
-                && vm['/VM/HISTORY_RECORDS/HISTORY[1]/VM_MAD'] != 'vcenter'
+        if vm.has_elements?('/VM/TEMPLATE/CONTEXT')
             context_disk = vm_hash['VM']['TEMPLATE']['CONTEXT']
 
             context_disk['IMAGE']     = 'CONTEXT'

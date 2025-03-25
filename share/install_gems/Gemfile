@@ -53,6 +53,7 @@ elsif ruby_version < Gem::Version.new('2.3.0')
     nokogiri = '< 1.10'
 end
 
+
 ps = '< 3.0.0' if ruby_version < Gem::Version.new('2.1.0')
 
 if ruby_version < Gem::Version.new('2.2.0')
@@ -98,7 +99,7 @@ group :onecfg, :cli do
     gem 'opennebula-augeas', '>= 0.6.6.pre'
 end
 
-group :onecfg, :cloud, :oneflow, :sunstone do
+group :onecfg, :cloud, :oneflow do
     gem 'json', '>= 2.0'
 end
 
@@ -127,7 +128,7 @@ group :packethost do
     gem 'i18n', '~> 0.9'
 end
 
-group :cloud, :oneflow, :sunstone do
+group :cloud, :oneflow do
     gem 'rack', rack
     gem 'sinatra', '< 4.0.0'
 end
@@ -138,7 +139,7 @@ group :cloud do
     gem 'curb'
 end
 
-group :oneflow, :sunstone do
+group :oneflow do
     gem 'ipaddress', '~> 0.8.3'
 end
 
@@ -147,33 +148,8 @@ group :oneflow do
     gem 'parse-cron'
 end
 
-group :sunstone do
-    if ruby_version >= Gem::Version.new('2.4.0')
-        gem 'webauthn'
-    end
-
-    gem 'zendesk_api', zendesk
-    gem 'rqrcode', rq
-    gem 'memcache-client'
-    gem 'dalli', '<3.0'  # https://github.com/OpenNebula/one/issues/5584
-    gem 'rotp'
-end
-
 group :oca do
     gem 'ox'
-end
-
-group :vmware do
-    gem 'addressable'
-
-    if ruby_version >= Gem::Version.new('2.3.0')
-        gem 'vsphere-automation-cis', '~> 0.4.6'
-        gem 'vsphere-automation-vcenter', '~> 0.4.6'
-    end
-
-    if ruby_version >= Gem::Version.new('2.4.1')
-        gem 'rbvmomi2', '~> 3.7.0'
-    end
 end
 
 group :prometheus do

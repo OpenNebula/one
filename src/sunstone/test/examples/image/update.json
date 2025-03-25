@@ -1,9 +1,0 @@
-{
-  "action": {
-    "params": {
-      "name": "FOO",
-      "value": "mock"
-    },
-    "perform": "update"
-  }
-}

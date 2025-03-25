@@ -139,7 +139,6 @@ vars.Add('mysql', 'Build with MySQL support', 'no')
 vars.Add('parsers', 'Rebuild flex/bison files', 'no')
 vars.Add('xmlrpc', 'Path to xmlrpc directory', '')
 vars.Add('new_xmlrpc', 'Use xmlrpc-c version >=1.31', 'no')
-vars.Add('sunstone', 'Build Sunstone', 'no')
 vars.Add('fireedge', 'Build FireEdge', 'no')
 vars.Add('systemd', 'Build with systemd support', 'no')
 vars.Add('rubygems', 'Generate Ruby gems', 'no')
@@ -229,9 +228,6 @@ main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 
 # Enterprise Edition
 main_env.Append(enterprise=ARGUMENTS.get('enterprise', 'no'))
-
-# Sunstone minified files generation
-main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
 
 # FireEdge minified files generation
 main_env.Append(fireedge=ARGUMENTS.get('fireedge', 'no'))
@@ -337,8 +333,6 @@ build_scripts = [
     'src/vrouter/SConstruct',
     'src/market/SConstruct',
     'src/ipamm/SConstruct',
-    'src/sunstone/public/locale/languages/SConstruct',
-    'src/sunstone/public/SConstruct',
     'src/fireedge/SConstruct',
     'share/rubygems/SConstruct',
     'src/client/SConstruct',

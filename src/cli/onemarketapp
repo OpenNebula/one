@@ -314,18 +314,6 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    download_desc = <<-EOT.unindent
-        Downloads a MarketApp to a file
-    EOT
-
-    command :download, download_desc, :appid, :path,
-            :options => [OpenNebulaHelper::FORCE] do
-        helper.perform_action(args[0], options, 'downloading') do
-            download_args = [:marketplaceapp, args[0], args[1], options[:force]]
-            OpenNebulaHelper.download_resource_sunstone(*download_args)
-        end
-    end
-
     delete_desc = <<-EOT.unindent
         Deletes the given marketplace app
     EOT

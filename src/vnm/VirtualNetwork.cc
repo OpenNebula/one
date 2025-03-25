@@ -123,7 +123,6 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 +----------------+---------+--------+--------------------------+----------------+
 |    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
 +----------------+---------+--------+--------------------------+----------------+
-| vcenter        | no      | no     | no                       |                |
 | dummy          | no      | yes    | no                       |                |
 | bridge         | no      | no     | no                       |                |
 | ebtables       | no      | no     | no                       |                |
@@ -159,7 +158,6 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
             check_outer  = true;
 
         case VirtualNetwork::BRIDGE:
-        case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
         case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:

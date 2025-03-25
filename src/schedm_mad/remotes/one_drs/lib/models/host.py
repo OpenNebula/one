@@ -596,69 +596,6 @@ class Host:
                 "process_contents": "skip",
             },
         )
-        vcenter_ccr_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_CCR_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_ds_ref: list[str] = field(
-            default_factory=list,
-            metadata={
-                "name": "VCENTER_DS_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_host: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_HOST",
-                "type": "Element",
-            },
-        )
-        vcenter_instance_id: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_INSTANCE_ID",
-                "type": "Element",
-            },
-        )
-        vcenter_name: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_NAME",
-                "type": "Element",
-            },
-        )
-        vcenter_password: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_PASSWORD",
-                "type": "Element",
-            },
-        )
-        vcenter_resource_pool_info: list[object] = field(
-            default_factory=list,
-            metadata={
-                "name": "VCENTER_RESOURCE_POOL_INFO",
-                "type": "Element",
-            },
-        )
-        vcenter_user: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_USER",
-                "type": "Element",
-            },
-        )
-        vcenter_version: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_VERSION",
-                "type": "Element",
-            },
-        )
 
     @dataclass
     class Monitoring:

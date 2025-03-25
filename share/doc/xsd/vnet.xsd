@@ -104,11 +104,6 @@
               <xs:element name="NETWORK_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NETWORK_MASK" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SEARCH_DOMAIN" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_FROM_WILD" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_TEMPLATE_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
             </xs:sequence>
           </xs:complexType>

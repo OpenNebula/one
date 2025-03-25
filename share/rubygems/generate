@@ -67,21 +67,6 @@ GEM_DESCRIPTION={
         :files => [
             ['src/oca/ruby/opennebula.rb', '/lib'],
 
-            # Needed for onevcenter
-            # TODO: respect source dir. hierarchy, this is terrible mess!
-            ['src/vmm_mad/remotes/vcenter/vcenter_driver.rb', '/lib'],
-            ['src/vmm_mad/remotes/lib/vcenter_driver/**/*.rb', '/lib'],
-            ['src/vmm_mad/remotes/nsx/nsx_driver.rb', '/lib'],
-            ['src/vmm_mad/remotes/lib/nsx_driver/*.rb', '/lib'],
-
-            # vcenter_driver.rb dependencies
-            ['src/mad/ruby/VirtualMachineDriver.rb', '/lib'],
-            ['src/mad/ruby/OpenNebulaDriver.rb', '/lib'],
-            ['src/mad/ruby/CommandManager.rb', '/lib'],
-            ['src/mad/ruby/ActionManager.rb', '/lib'],
-            ['src/mad/ruby/HostSyncManager.rb', '/lib'],
-            ['src/mad/ruby/DriverExecHelper.rb', '/lib'],
-
             # other depenencies
             ['src/flow/lib/models.rb', '/lib'],
             ['src/flow/lib/models/*.rb', '/lib/models'],

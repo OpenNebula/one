@@ -52,7 +52,6 @@ const routes = [
   'logo',
   'marketapp',
   'oneflow',
-  'vcenter',
   'vm',
   'vmpool',
   'zendesk',

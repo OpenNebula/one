@@ -61,9 +61,7 @@ SERVICES = {
     'novnc'    => { :log => 'novnc.log' },
     'oned'     => { :log => 'oned.log' },
     'onehem'   => { :log => 'onehem.log', :error => 'onehem.error' },
-    'sched'    => { :log => 'sched.log' },
-    'sunstone' => { :log => 'sunstone.log', :error => 'sunstone.error' },
-    'vcenter'  => { :log => 'vcenter_monitor.log' }
+    'sched'    => { :log => 'sched.log' }
 }
 
 require 'command_parser'

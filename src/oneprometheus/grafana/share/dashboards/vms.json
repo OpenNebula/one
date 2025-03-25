@@ -66,7 +66,7 @@
       "title": "Sunstone VM Panel",
       "tooltip": "",
       "type": "link",
-      "url": "http://localhost:9869/#vms-tab/${one_vm_id}"
+      "url": "http://localhost:2616/fireedge/sunstone/vm/${one_vm_id}"
     }
   ],
   "liveNow": false,

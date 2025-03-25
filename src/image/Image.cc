@@ -827,7 +827,6 @@ std::unique_ptr<ImageTemplate> Image::clone_template(const string& new_name) con
     tmpl->replace("PATH",   source);
     tmpl->replace("FORMAT", format);
     tmpl->replace("SIZE",   size_mb);
-    tmpl->erase("VCENTER_IMPORTED");
 
     if ( is_persistent() )
     {

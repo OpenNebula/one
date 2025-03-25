@@ -424,9 +424,6 @@ s3://*)
 rbd://*)
     command="$(get_rbd_cmd "$FROM")"
     ;;
-vcenter://*)
-    command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
-    ;;
 lxd://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""

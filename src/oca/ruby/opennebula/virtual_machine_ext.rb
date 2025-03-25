@@ -95,35 +95,6 @@ module OpenNebula::VirtualMachineExt
                 end
 
                 # --------------------------------------------------------------
-                # Ask if source VM is linked clone
-                # --------------------------------------------------------------
-                use_linked_clones = self['USER_TEMPLATE/VCENTER_LINKED_CLONES']
-
-                if use_linked_clones && use_linked_clones.downcase == 'yes'
-                    # Delay the require until it is strictly needed
-                    # This way we can avoid the vcenter driver dependency
-                    # in no vCenter deployments
-                    require 'vcenter_driver'
-
-                    deploy_id = self['DEPLOY_ID']
-                    vm_id = self['ID']
-                    host_id = self['HISTORY_RECORDS/HISTORY[last()]/HID']
-                    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-                    vm = VCenterDriver::VirtualMachine.new(
-                        vi_client,
-                        deploy_id,
-                        vm_id
-                    )
-
-                    error, vm_template_ref = vm.save_as_linked_clones(name)
-
-                    raise error unless error.nil?
-
-                    return vm_template_ref
-                end
-
-                # --------------------------------------------------------------
                 # Clone the source template
                 # --------------------------------------------------------------
                 vm_template = OpenNebula::Template.new_with_id(tid, @client)

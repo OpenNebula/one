@@ -68,10 +68,6 @@ const defaults = {
       path: `${baseUrl}${baseUrlWebsockets}${appNameProvision}`,
       methods: ['GET', 'POST'],
     },
-    vcenter: {
-      path: `${baseUrl}${baseUrlWebsockets}vcenter`,
-      methods: ['GET', 'POST'],
-    },
   },
   defaultApps: apps,
   httpMethod: {

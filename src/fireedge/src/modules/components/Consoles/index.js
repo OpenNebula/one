@@ -14,5 +14,4 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/components/Consoles/Guacamole'
-export * from '@modules/components/Consoles/WebMKS'
 export { default as HeaderVmInfo } from '@modules/components/Consoles/HeaderVmInfo'

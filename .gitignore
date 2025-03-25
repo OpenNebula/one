@@ -10,7 +10,6 @@ share/install_gems/Gemfile.lock
 share/man/*
 !share/man/build.sh
 src/im_mad/collectd/collectd
-src/sunstone/locale/languages/*.js
 src/mad/utils/tty_expect
 src/nebula/.xmlrpc_test/
 src/nebula/oned
@@ -40,14 +39,6 @@ src/docker_machine/pkg
 src/docker_machine/src/docker_machine/bin/docker-machine-driver-opennebula
 src/docker_machine/src/docker_machine/vendor/
 
-src/sunstone/public/.sass-cache
-src/sunstone/public/node_modules
-src/sunstone/public/bower_components
-src/sunstone/public/css/app.css
-src/sunstone/public/css/app.min.css
-src/sunstone/public/dist/
-src/sunstone/public/locale/languages/*.js
-src/sunstone/public/package-lock.json
 .tx/config
 
 src/fireedge/node_modules

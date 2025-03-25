@@ -72,56 +72,13 @@ require 'uri'
 require 'yaml'
 
 require 'opennebula'
-require 'vcenter_driver'
 
 # Include OpenNebula to avoid having to use OpenNebula:: namespace
 include OpenNebula
 
 ################################################################################
-# vCenter helper functions
-################################################################################
-
-# Get VIClient object from host
-#
-# @param id [Integer] Host ID
-def vi_client_host(id)
-    VCenterDriver::VIClient.new_from_host(id)
-end
-
-# Get VM vCenter object
-#
-# @param id [Integer] VM ID
-def vm(id)
-    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, id)
-
-    did = one_vm['DEPLOY_ID']
-    hid = one_vm.retrieve_xmlelements(
-        'HISTORY_RECORDS/HISTORY/HID'
-    ).last.text.to_i
-
-    VCenterDriver::VirtualMachine.new_one(vi_client_host(hid), did, one_vm)
-end
-
-# Get host vCenter object
-#
-# @param id [Integer] Host ID
-def host(id)
-    vi_client = vi_client_host(id)
-    one_h     = VCenterDriver::VIHelper.one_item(OpenNebula::Host, hid)
-
-    VCenterDriver::ClusterComputeResource.new_from_ref(
-        one_h['TEMPLATE/VCENTER_CCR_REF'],
-        vi_client
-    )
-end
-
-################################################################################
 # Open irb session
 ################################################################################
-
-puts '* You can use the function vi_client_host(id) to get vCenter client'
-puts '* You can use the function vm(id) to get vCenter VM'
-puts '* You can use the function host(id) to get vCenter host'
 
 @client = Client.new
 version = '>= 0'

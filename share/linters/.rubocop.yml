@@ -24,10 +24,6 @@ AllCops:
   Exclude:
     - /**/*.schema
     - src/onecfg/lib/config/type/yaml.rb
-    - src/sunstone/public/node_modules/**/*
-    - src/vnm_mad/remotes/vcenter/vnet_create
-    - src/vnm_mad/remotes/vcenter/vnet_delete
-    - src/vnm_mad/remotes/vcenter/virtual_network_xml.rb
     - src/tm_mad
     - share/onegate/onegate
     - share/scons/get_xmlrpc_config
@@ -47,8 +43,6 @@ AllCops:
     - src/authm_mad/remotes/server_cipher/authenticate
     - src/authm_mad/remotes/x509/authenticate
     - src/authm_mad/remotes/ssh/authenticate
-    - src/sunstone/bin/novnc-server
-    - src/sunstone/config.ru
     - src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb
     - src/im_mad/remotes/dummy.d/monitord-client.rb
     - src/im_mad/remotes/dummy.d/monitord-client.rb
@@ -64,7 +58,6 @@ AllCops:
     - src/im_mad/remotes/kvm-probes.d/host/system/pci.rb
     - src/im_mad/remotes/kvm-probes.d/pci.rb
     - src/im_mad/remotes/kvm.d/monitord-client.rb
-    - src/im_mad/remotes/lib/vcenter_cluster.rb
     - src/vnm_mad/remotes/ovswitch/post
     - src/vnm_mad/remotes/ovswitch/clean
     - src/vnm_mad/remotes/ovswitch/pre
@@ -149,44 +142,6 @@ AllCops:
     - src/authm_mad/remotes/server_x509/server_x509_auth.rb
     - src/authm_mad/remotes/server_cipher/server_cipher_auth.rb
     - src/authm_mad/remotes/x509/x509_auth.rb
-    - src/sunstone/sunstone-server.rb
-    - src/sunstone/test/spec/spec_helper.rb
-    - src/sunstone/test/spec/vnet_spec.rb
-    - src/sunstone/test/spec/image_spec.rb
-    - src/sunstone/test/spec/vm_spec.rb
-    - src/sunstone/test/spec/host_spec.rb
-    - src/sunstone/test/spec/user_spec.rb
-    - src/sunstone/OpenNebulaAddons.rb
-    - src/sunstone/models/sunstone_vnc.rb
-    - src/sunstone/models/sunstone_vmrc.rb
-    - src/sunstone/models/sunstone_vm_helper.rb
-    - src/sunstone/models/OpenNebulaJSON.rb
-    - src/sunstone/models/SunstoneViews.rb
-    - src/sunstone/models/SunstoneServer.rb
-    - src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/HostJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/PoolJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/UserJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/AclJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/JSONUtils.rb
-    - src/sunstone/models/OpenNebulaJSON/MarketPlaceAppJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/ImageJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/MarketPlaceJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/VirtualRouterJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/VirtualNetworkTemplateJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/GroupJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/VMGroupJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/BackupJobJSON.rb
-    - src/sunstone/models/OpenNebulaJSON/VdcJSON.rb
-    - src/sunstone/public/config.rb
-    - src/sunstone/routes/oneflow.rb
-    - src/sunstone/routes/vcenter.rb
-    - src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb
     - src/onegate/onegate-server.rb
     - src/datastore_mad/remotes/xpath.rb
     - src/datastore_mad/remotes/url.rb
@@ -333,8 +288,6 @@ AllCops:
     - src/onedb/patches/marketapps_clean.rb
     - src/onedb/patches/4.14_monitoring.rb
     - src/onedb/patches/next_snapshot.rb
-    - src/onedb/vcenter_one54_pre.rb
-    - src/onedb/vcenter_one54.rb
     - src/onedb/onedb.rb
     - src/onedb/shared/4.2.0_to_4.3.80.rb
     - src/onedb/shared/5.3.80_to_5.4.0.rb
@@ -405,7 +358,6 @@ AllCops:
     - src/tm_mad/one_tm.rb
     - src/oca/ruby/opennebula/flow/grammar.rb
     - src/oca/ruby/opennebula/flow/validator.rb
-    - src/sunstone/OpenNebulaVMRC.rb
     - src/oneprometheus/grafana/share/patch_dashboards.rb
     - src/oneprometheus/opennebula-exporter/src/opennebula_exporter.rb
     - src/oneprometheus/opennebula-exporter/src/opennebula_host_collector.rb
@@ -419,9 +371,6 @@ AllCops:
     - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_exporter.rb
     - src/oneprometheus/opennebula-libvirt-exporter/src/libvirt_collector.rb
     - src/oneprovision/lib/provision/provision_config.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/datastore.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
   NewCops: enable
 
 ########

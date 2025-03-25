@@ -489,22 +489,6 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     ###########################################################################
-    # Migrate vcenter 54
-    ###########################################################################
-    vcenter_one54_desc = <<-EOT.unindent
-        Migrate VM and templates so they can be used by OpenNebula 5.4
-    EOT
-
-    command :"vcenter-one54", vcenter_one54_desc, :options=>[FORCE, BACKUP] do
-        begin
-            helper = OneDB.new(options)
-            helper.vcenter_one54(options)
-        rescue StandardError => e
-            [-1, e.message]
-        end
-    end
-
-    ###########################################################################
     # Patch
     ###########################################################################
     patch_desc = <<-EOT.unindent

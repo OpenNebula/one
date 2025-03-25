@@ -111,9 +111,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_ds("shared",         "",                     "NO");
     set_conf_ds("ssh",            "",                     "NO");
     set_conf_ds("vmfs",           "BRIDGE_LIST",          "NO");
-    set_conf_ds("vcenter",
-                "VCENTER_INSTANCE_ID, VCENTER_DS_REF, VCENTER_DC_REF, VCENTER_HOST, VCENTER_USER, VCENTER_PASSWORD",
-                "NO");
     set_conf_ds("ceph",
                 "DISK_TYPE,BRIDGE_LIST,CEPH_HOST,CEPH_USER,CEPH_SECRET",
                 "NO");
@@ -167,7 +164,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     #fw
     #ovswitch
     #vxlan
-    #vcenter
     #ovswitch_vxlan
     #bridge
     #elastic
@@ -181,7 +177,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_vn("fw", "linux");
     set_conf_vn("ovswitch", "openvswitch");
     set_conf_vn("vxlan", "linux");
-    set_conf_vn("vcenter", "vcenter_port_groups");
     set_conf_vn("ovswitch_vxlan", "openvswitch");
     set_conf_vn("bridge", "linux");
     set_conf_vn("elastic", "linux");
@@ -392,7 +387,6 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("HOST_ENCRYPTED_ATTR", "EC2_SECRET");
     set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_ID");
     set_conf_single("HOST_ENCRYPTED_ATTR", "AZ_CERT");
-    set_conf_single("HOST_ENCRYPTED_ATTR", "VCENTER_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "NSX_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "ONE_PASSWORD");
     set_conf_single("SHOWBACK_ONLY_RUNNING", "NO");

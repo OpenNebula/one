@@ -143,23 +143,7 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-              <xs:element name="VCENTER_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_RESOURCE_POOL_INFO" minOccurs="0" maxOccurs="unbounded"/>
-              <xs:element name="VCENTER_USER" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:element name="VCENTER_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+		<xs:element name="TEMPLATE"/>
         <xs:element name="MONITORING">
           <xs:complexType>
             <xs:sequence>

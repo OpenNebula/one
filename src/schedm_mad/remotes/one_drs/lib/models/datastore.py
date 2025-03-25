@@ -256,48 +256,6 @@ class Datastore:
 
     @dataclass
     class Template:
-        vcenter_dc_name: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_DC_NAME",
-                "type": "Element",
-            },
-        )
-        vcenter_dc_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_DC_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_ds_name: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_DS_NAME",
-                "type": "Element",
-            },
-        )
-        vcenter_ds_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_DS_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_host: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_HOST",
-                "type": "Element",
-            },
-        )
-        vcenter_instance_id: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_INSTANCE_ID",
-                "type": "Element",
-            },
-        )
         any_element: list[object] = field(
             default_factory=list,
             metadata={

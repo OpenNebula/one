@@ -508,7 +508,6 @@ int VirtualNetworkPool::set_vlan_id(VirtualNetwork * vn)
             break;
 
         case VirtualNetwork::VLAN:
-        case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
             rc = set_8021Q_id(vn->get_oid(), vn->vlan_id, vn->vlan_id_automatic);
 
@@ -565,7 +564,6 @@ void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
     switch (VirtualNetwork::str_to_driver(vn->vn_mad))
     {
         case VirtualNetwork::VLAN:
-        case VirtualNetwork::VCENTER:
         case VirtualNetwork::OVSWITCH:
         case VirtualNetwork::OVSWITCH_VXLAN:
             if ( bitmap.select(VLAN_BITMAP_ID, db) != 0 )

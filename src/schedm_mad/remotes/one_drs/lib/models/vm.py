@@ -383,55 +383,6 @@ class Vm:
                 "type": "Element",
             },
         )
-        vcenter_esx_host: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_ESX_HOST",
-                "type": "Element",
-            },
-        )
-        vcenter_guest_state: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_GUEST_STATE",
-                "type": "Element",
-            },
-        )
-        vcenter_rp_name: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_RP_NAME",
-                "type": "Element",
-            },
-        )
-        vcenter_vmwaretools_running_status: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_VMWARETOOLS_RUNNING_STATUS",
-                "type": "Element",
-            },
-        )
-        vcenter_vmwaretools_version: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_VMWARETOOLS_VERSION",
-                "type": "Element",
-            },
-        )
-        vcenter_vmwaretools_version_status: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_VMWARETOOLS_VERSION_STATUS",
-                "type": "Element",
-            },
-        )
-        vcenter_vm_name: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_VM_NAME",
-                "type": "Element",
-            },
-        )
         any_element: list[object] = field(
             default_factory=list,
             metadata={
@@ -774,20 +725,6 @@ class Vm:
                     "process_contents": "skip",
                 },
             )
-            vcenter_ds_ref: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_DS_REF",
-                    "type": "Element",
-                },
-            )
-            vcenter_instance_id: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_INSTANCE_ID",
-                    "type": "Element",
-                },
-            )
 
         @dataclass
         class Video:
@@ -836,27 +773,6 @@ class Vm:
                     "process_contents": "skip",
                 },
             )
-            vcenter_instance_id: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_INSTANCE_ID",
-                    "type": "Element",
-                },
-            )
-            vcenter_net_ref: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_NET_REF",
-                    "type": "Element",
-                },
-            )
-            vcenter_portgroup_type: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_PORTGROUP_TYPE",
-                    "type": "Element",
-                },
-            )
 
         @dataclass
         class NicAlias:
@@ -889,27 +805,6 @@ class Vm:
                     "name": "PARENT_ID",
                     "type": "Element",
                     "required": True,
-                },
-            )
-            vcenter_instance_id: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_INSTANCE_ID",
-                    "type": "Element",
-                },
-            )
-            vcenter_net_ref: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_NET_REF",
-                    "type": "Element",
-                },
-            )
-            vcenter_portgroup_type: Optional[str] = field(
-                default=None,
-                metadata={
-                    "name": "VCENTER_PORTGROUP_TYPE",
-                    "type": "Element",
                 },
             )
 
@@ -977,27 +872,6 @@ class Vm:
             metadata={
                 "type": "Wildcard",
                 "process_contents": "skip",
-            },
-        )
-        vcenter_ccr_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_CCR_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_ds_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_DS_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_instance_id: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_INSTANCE_ID",
-                "type": "Element",
             },
         )
 

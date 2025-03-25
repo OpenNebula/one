@@ -483,41 +483,6 @@ class Vnet:
                 "type": "Element",
             },
         )
-        vcenter_from_wild: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_FROM_WILD",
-                "type": "Element",
-            },
-        )
-        vcenter_instance_id: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_INSTANCE_ID",
-                "type": "Element",
-            },
-        )
-        vcenter_net_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_NET_REF",
-                "type": "Element",
-            },
-        )
-        vcenter_portgroup_type: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_PORTGROUP_TYPE",
-                "type": "Element",
-            },
-        )
-        vcenter_template_ref: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "VCENTER_TEMPLATE_REF",
-                "type": "Element",
-            },
-        )
 
     @dataclass
     class ArPool:

@@ -22,7 +22,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
     # This list contains prefixes that should skip adding user home to the path
     # This must have the same content as the case $FROM in downloader.sh
-    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'vcenter', 'lxd']
+    PREFIXES = ['http', 'https', 'ssh', 's3', 'rbd', 'lxd']
 
     TEMPLATE_OPTIONS=[
         {
@@ -109,23 +109,6 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => "Type of the image \n"<<
                 ' ' * 31 << "BLOCK, CDROM, RBD or FILE \n" \
                 '(for others, check the documentation) ',
-            :format => String
-        },
-        {
-            :name => 'vcenter_disk_type',
-            :large => '--vcenter_disk_type vcenter_disk_type',
-            :description => "The vCenter Disk Type of the image \n"<<
-                ' ' * 31 <<
-                'for vCenter: THIN, THICK, ZEROEDTHICK ' \
-                '(for others, check the documentation) ',
-            :format => String
-        },
-        {
-            :name => 'vcenter_adapter_type',
-            :large => '--vcenter_adapter_type vcenter_adapter_type',
-            :description => 'Controller that will handle this image in ' \
-                'vCenter (lsiLogic, ide, busLogic). For other '\
-                'values check the documentation',
             :format => String
         },
         {

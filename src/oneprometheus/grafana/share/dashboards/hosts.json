@@ -78,7 +78,7 @@
       "title": "Sunstone Host Panel",
       "tooltip": "",
       "type": "link",
-      "url": "http://localhost:9869/#hosts-tab/${one_host_id}"
+      "url": "http://localhost:2616/fireedge/sunstone/host/${one_host_id}"
     }
   ],
   "liveNow": false,
