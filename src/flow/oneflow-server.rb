@@ -674,15 +674,14 @@ post '/service_template/:id/action' do
         body = service_json['DOCUMENT']['TEMPLATE']['BODY']
 
         begin
-            # Check service user_inputs
-            user_inputs = body['user_inputs']
-
             # Compability mode v<7.0
-            if merge_template['user_inputs_values'].nil?
-                user_inputs_values = merge_template['custom_attrs_values']
-            else
-                user_inputs_values = merge_template['user_inputs_values']
+            if merge_template.key?('custom_attrs_values')
+                merge_template['user_inputs_values'] = merge_template.delete('custom_attrs_values')
             end
+
+            # Check service user_inputs and values
+            user_inputs        = body['user_inputs']
+            user_inputs_values = merge_template['user_inputs_values']
 
             check_user_inptus(user_inputs, user_inputs_values)
 
@@ -715,14 +714,14 @@ post '/service_template/:id/action' do
 
                 next unless merge_role
 
-                role_user_inputs = role['user_inputs']
-
                 # Compability mode v<7.0
-                if merge_role['user_inputs_values'].nil?
-                    role_user_inputs_values = merge_role['custom_attrs_values']
-                else
-                    role_user_inputs_values = merge_role['user_inputs_values']
+                if merge_role.key?('custom_attrs_values')
+                    merge_role['user_inputs_values'] = merge_role.delete('custom_attrs_values')
                 end
+
+                # Check role user_inputs and values
+                role_user_inputs        = role['user_inputs']
+                role_user_inputs_values = merge_role['user_inputs_values']
 
                 check_user_inptus(role_user_inputs, role_user_inputs_values)
             end
