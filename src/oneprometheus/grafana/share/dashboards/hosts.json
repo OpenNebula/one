@@ -490,7 +490,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "((node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} - node_memory_MemFree_bytes{one_host_id=\"$one_host_id\"}) / (node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} )) * 100",
+          "expr": "((node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} - node_memory_MemAvailable_bytes{one_host_id=\"$one_host_id\"}) / (node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} )) * 100",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 1,
@@ -1699,7 +1699,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "RAM_Free"
+              "options": "RAM_Available"
             },
             "properties": [
               {
@@ -1875,7 +1875,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "RAM Free"
+              "options": "RAM Available"
             },
             "properties": [
               {
@@ -1963,7 +1963,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} - node_memory_MemFree_bytes{one_host_id=\"$one_host_id\"} - (node_memory_Cached_bytes{one_host_id=\"$one_host_id\"} + node_memory_Buffers_bytes{one_host_id=\"$one_host_id\"} + node_memory_SReclaimable_bytes{one_host_id=\"$one_host_id\"})",
+          "expr": "node_memory_MemTotal_bytes{one_host_id=\"$one_host_id\"} - node_memory_MemAvailable_bytes{one_host_id=\"$one_host_id\"} - (node_memory_Cached_bytes{one_host_id=\"$one_host_id\"} + node_memory_Buffers_bytes{one_host_id=\"$one_host_id\"} + node_memory_SReclaimable_bytes{one_host_id=\"$one_host_id\"})",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -1992,10 +1992,10 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemFree_bytes{one_host_id=\"$one_host_id\"}",
+          "expr": "node_memory_MemAvailable_bytes{one_host_id=\"$one_host_id\"}",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "RAM Free",
+          "legendFormat": "RAM Available",
           "range": true,
           "refId": "D",
           "step": 240
