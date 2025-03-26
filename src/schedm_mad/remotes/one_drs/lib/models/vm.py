@@ -967,6 +967,22 @@ class Vm:
                     "required": True,
                 },
             )
+            plan_id: Optional[int] = field(
+                default=None,
+                metadata={
+                    "name": "PLAN_ID",
+                    "type": "Element",
+                    "required": True,
+                },
+            )
+            action_id: Optional[int] = field(
+                default=None,
+                metadata={
+                    "name": "ACTION_ID",
+                    "type": "Element",
+                    "required": True,
+                },
+            )
             pstime: Optional[int] = field(
                 default=None,
                 metadata={

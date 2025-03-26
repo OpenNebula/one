@@ -88,12 +88,11 @@ class Host:
             "required": True,
         },
     )
-    template: Optional["Host.Template"] = field(
+    template: Optional[object] = field(
         default=None,
         metadata={
             "name": "TEMPLATE",
             "type": "Element",
-            "required": True,
         },
     )
     monitoring: Optional["Host.Monitoring"] = field(
@@ -584,16 +583,6 @@ class Host:
             metadata={
                 "name": "ID",
                 "type": "Element",
-            },
-        )
-
-    @dataclass
-    class Template:
-        any_element: list[object] = field(
-            default_factory=list,
-            metadata={
-                "type": "Wildcard",
-                "process_contents": "skip",
             },
         )
 
