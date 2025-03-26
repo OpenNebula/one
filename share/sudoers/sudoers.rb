@@ -25,7 +25,6 @@ class Sudoers
         # Commands required to be used as root, without password, by oneadmin
         @cmds = {
             :NET => [
-                'ebtables',
                 'iptables',
                 'ip6tables',
                 'ipset',
