@@ -154,7 +154,7 @@ xml_txt = STDIN.read
 begin
     hyperv = ARGV[0].split(' ')[0]
 
-    config  = REXML::Document.new(xml_txt).root
+    config = REXML::Document.new(xml_txt).root
 
     host   = config.elements['NETWORK/MONITOR_ADDRESS'].text.to_s
     port   = config.elements['NETWORK/PORT'].text.to_s
