@@ -27,10 +27,7 @@
 
 ## Taking OpenNebula for a Test Drive
 
-You can quickly and easily try out OpenNebula’s functionality by installing:
-
-- [miniONE](https://github.com/OpenNebula/minione) for infrastructures based on open-source hypervisors.
-- [vOneCloud](http://docs.opennebula.org/vonecloud) for infrastructures based on Broadcom VMware.
+You can quickly and easily try out OpenNebula’s functionality by installing [miniONE](https://github.com/OpenNebula/minione).
 
 ## Installation
 
