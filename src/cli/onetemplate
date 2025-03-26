@@ -108,7 +108,6 @@ CommandParser::CmdParser.new(ARGV) do
     instantiate_options = [
         OneTemplateHelper::VM_NAME,
         OneTemplateHelper::MULTIPLE,
-        OneTemplateHelper::USERDATA,
         OneVMHelper::HOLD,
         OneTemplateHelper::PERSISTENT,
         PREFIX
