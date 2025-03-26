@@ -58,7 +58,6 @@ DEFAULT_PAGER = 'less'
 SERVICES = {
     'fireedge' => { :log => 'fireedge.log', :error => 'fireedge.error' },
     'monitor'  => { :log => 'monitor.log' },
-    'novnc'    => { :log => 'novnc.log' },
     'oned'     => { :log => 'oned.log' },
     'onehem'   => { :log => 'onehem.log', :error => 'onehem.error' },
     'sched'    => { :log => 'sched.log' }
