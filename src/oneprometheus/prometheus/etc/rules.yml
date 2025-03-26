@@ -16,8 +16,8 @@ groups:
       title: 'Instance {{ $labels.instance }} has less than 10% of free space in rootfs'
     labels: { severity: warning }
 
-  - alert: FreeMemory10
-    expr: ((node_memory_MemFree_bytes * 100) / node_memory_MemTotal_bytes) <= 10
+  - alert: AvailableMemory10
+    expr: ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes) <= 10
     for: 30s
     annotations:
       title: 'Instance {{ $labels.instance }} has less than 10% of free memory'
