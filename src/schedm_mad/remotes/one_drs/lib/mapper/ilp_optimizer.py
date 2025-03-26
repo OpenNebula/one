@@ -927,11 +927,12 @@ class ILPOptimizer(Mapper):
             for host_id, var in var_sum.items():
                 var += getattr(host_caps[host_id], var_name).usage
         for host_id, var in var_sum.items():
-            model += (
-                var / getattr(host_caps[host_id], var_name).total
-                <= max_host_load,
-                f"max_{name}_load_for_host_{host_id}",
-            )
+            total = getattr(host_caps[host_id], var_name).total
+            if total != 0.0:
+                model += (
+                    var / total <= max_host_load,
+                    f"max_{name}_load_for_host_{host_id}",
+                )
 
         return max_host_load
 
