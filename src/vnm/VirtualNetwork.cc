@@ -125,7 +125,6 @@ LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
 +----------------+---------+--------+--------------------------+----------------+
 | dummy          | no      | yes    | no                       |                |
 | bridge         | no      | no     | no                       |                |
-| ebtables       | no      | no     | no                       |                |
 | fw             | no      | no     | no                       |                |
 | 802.1q         | yes     | no     | yes or AUTOMATIC         |                |
 | vxlan          | yes     | no     | yes or AUTOMATIC         |                |
@@ -159,7 +158,6 @@ int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_ma
 
         case VirtualNetwork::BRIDGE:
         case VirtualNetwork::OVSWITCH:
-        case VirtualNetwork::EBTABLES:
         case VirtualNetwork::FW:
             break;
 

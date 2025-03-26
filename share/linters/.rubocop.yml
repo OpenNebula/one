@@ -65,10 +65,6 @@ AllCops:
     - src/vnm_mad/remotes/802.1Q/update_sg
     - src/vnm_mad/remotes/802.1Q/clean
     - src/vnm_mad/remotes/802.1Q/pre
-    - src/vnm_mad/remotes/ebtables/post
-    - src/vnm_mad/remotes/ebtables/update_sg
-    - src/vnm_mad/remotes/ebtables/clean
-    - src/vnm_mad/remotes/ebtables/pre
     - src/vnm_mad/remotes/bridge/clean
     - src/vnm_mad/remotes/bridge/pre
     - src/vnm_mad/remotes/vxlan/post
@@ -154,7 +150,6 @@ AllCops:
     - src/hm_mad/one_hm.rb
     - src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb
     - src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb
-    - src/vnm_mad/remotes/ebtables/Ebtables.rb
     - src/vnm_mad/remotes/vxlan/vxlan.rb
     - src/vnm_mad/remotes/vxlan/vxlan_driver.rb
     - src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb

@@ -160,7 +160,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     #*******************************************************************************
     #dummy
     #802.1Q
-    #ebtables
     #fw
     #ovswitch
     #vxlan
@@ -173,7 +172,6 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 
     set_conf_vn("dummy", "linux");
     set_conf_vn("802.1Q", "linux");
-    set_conf_vn("ebtables", "linux");
     set_conf_vn("fw", "linux");
     set_conf_vn("ovswitch", "openvswitch");
     set_conf_vn("vxlan", "linux");

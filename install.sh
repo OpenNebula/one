@@ -382,10 +382,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/bridge/pre.d \
           $VAR_LOCATION/remotes/vnm/bridge/post.d \
           $VAR_LOCATION/remotes/vnm/bridge/clean.d \
-          $VAR_LOCATION/remotes/vnm/ebtables \
-          $VAR_LOCATION/remotes/vnm/ebtables/pre.d \
-          $VAR_LOCATION/remotes/vnm/ebtables/post.d \
-          $VAR_LOCATION/remotes/vnm/ebtables/clean.d \
           $VAR_LOCATION/remotes/vnm/fw \
           $VAR_LOCATION/remotes/vnm/fw/pre.d \
           $VAR_LOCATION/remotes/vnm/fw/post.d \
@@ -604,7 +600,6 @@ INSTALL_FILES=(
     NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
     NETWORK_BRIDGE_FILES:$VAR_LOCATION/remotes/vnm/bridge
-    NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
@@ -1222,14 +1217,6 @@ NETWORK_BRIDGE_FILES="src/vnm_mad/remotes/bridge/clean \
                     src/vnm_mad/remotes/bridge/update_nic \
                     src/vnm_mad/remotes/bridge/vnet_create \
                     src/vnm_mad/remotes/bridge/vnet_delete"
-
-NETWORK_EBTABLES_FILES="src/vnm_mad/remotes/ebtables/clean \
-                    src/vnm_mad/remotes/ebtables/post \
-                    src/vnm_mad/remotes/ebtables/pre \
-                    src/vnm_mad/remotes/ebtables/update_sg \
-                    src/vnm_mad/remotes/ebtables/Ebtables.rb \
-                    src/vnm_mad/remotes/ebtables/vnet_create \
-                    src/vnm_mad/remotes/ebtables/vnet_delete"
 
 NETWORK_FW_FILES="src/vnm_mad/remotes/fw/post \
                   src/vnm_mad/remotes/fw/pre \

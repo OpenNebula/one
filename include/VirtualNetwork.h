@@ -51,11 +51,11 @@ public:
         NONE           = 0,
         DUMMY          = 1,
         VLAN           = 2,
-        EBTABLES       = 3,
+        //EBTABLES     = 3,
         FW             = 4,
         OVSWITCH       = 5,
         VXLAN          = 6,
-        VCENTER        = 7,
+        //VCENTER        = 7,
         OVSWITCH_VXLAN = 8,
         BRIDGE         = 9
     };
@@ -66,7 +66,7 @@ public:
         LINUX               = 1,
         OPENVSWITCH         = 2,
         OPENVSWITCH_DPDK    = 3,
-        VCENTER_PORT_GROUPS = 4,
+        //VCENTER_PORT_GROUPS = 4,
         BRNONE              = 5
     };
 
@@ -88,11 +88,9 @@ public:
             case NONE:           return "";
             case DUMMY:          return "dummy";
             case VLAN:           return "802.1Q";
-            case EBTABLES:       return "ebtables";
             case FW:             return "fw";
             case OVSWITCH:       return "ovswitch";
             case VXLAN:          return "vxlan";
-            case VCENTER:        return "vcenter";
             case OVSWITCH_VXLAN: return "ovswitch_vxlan";
             case BRIDGE:         return "bridge";
             default:             return "";
@@ -109,10 +107,6 @@ public:
         {
             return VLAN;
         }
-        else if ( ob == "ebtables" )
-        {
-            return EBTABLES;
-        }
         else if ( ob == "fw" )
         {
             return FW;
@@ -124,10 +118,6 @@ public:
         else if ( ob == "vxlan" )
         {
             return VXLAN;
-        }
-        else if ( ob == "vcenter" )
-        {
-            return VCENTER;
         }
         else if ( ob == "ovswitch_vxlan" )
         {
@@ -154,8 +144,6 @@ public:
                 return "openvswitch";
             case OPENVSWITCH_DPDK:
                 return "openvswitch_dpdk";
-            case VCENTER_PORT_GROUPS:
-                return "vcenter_port_groups";
             case BRNONE:
                 return "none";
             default:
@@ -176,10 +164,6 @@ public:
         else if ( ob == "openvswitch_dpdk" )
         {
             return OPENVSWITCH_DPDK;
-        }
-        else if ( ob == "vcenter_port_groups" )
-        {
-            return VCENTER_PORT_GROUPS;
         }
         else if (ob == "none")
         {
