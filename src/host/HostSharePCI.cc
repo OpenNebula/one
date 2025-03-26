@@ -26,6 +26,7 @@
 
 #include "HostSharePCI.h"
 #include "Host.h"
+#include "HostShare.h"
 
 using namespace std;
 
@@ -408,15 +409,82 @@ void HostSharePCI::revert(vector<VectorAttribute *> &devs)
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
-void HostSharePCI::set_monitorization(Template& ht)
+static bool is_filter_match(const vector<std::array<string, 3>>& filters, VectorAttribute * pci)
 {
-    string address;
+    for (const auto& filter : filters)
+    {
+        if (filter[0] != "*" && filter[0] != pci->vector_value("VENDOR"))
+        {
+            return false;
+        }
 
-    std::set<string> missing;
+        if (filter[1] != "*" && filter[1] != pci->vector_value("DEVICE"))
+        {
+            return false;
+        }
 
+        if (filter[2] != "*" && filter[2] != pci->vector_value("CLASS"))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool is_address_match(const vector<string>& saddr, VectorAttribute *pci)
+{
+    if (saddr.empty())
+    {
+        return true;
+    }
+
+    string address = pci->vector_value("SHORT_ADDRESS");
+
+    return std::find(saddr.begin(), saddr.end(), address) != saddr.end();
+}
+
+
+void HostSharePCI::set_monitorization(Template& ht, const HostShareConf& hconf)
+{
     vector<VectorAttribute*> pci_att;
 
     ht.remove("PCI", pci_att);
+
+    vector<std::array<string,3 >> filters;
+    vector<string> short_address;
+
+    if (!hconf.pci_filter.empty())
+    {
+        istringstream iss(hconf.pci_filter);
+
+        std::string filter_str;
+
+        while (getline(iss, filter_str, ','))
+        {
+            filters.emplace_back(std::array<std::string, 3>{"*", "*", "*"});
+            auto& filter = filters.back();
+
+            std::istringstream filter_stream(filter_str);
+
+            std::string token;
+
+            for (int i = 0; i < 3 && getline(filter_stream, token, ':'); ++i)
+            {
+                if (!token.empty())
+                {
+                    filter[i] = one_util::trim(token);
+                }
+            }
+        }
+    }
+
+    if (!hconf.pci_short_address.empty())
+    {
+        one_util::split(hconf.pci_short_address,',', short_address);
+    }
+
+    std::set<string> missing;
 
     for (auto pci_it = pci_devices.begin(); pci_it != pci_devices.end(); pci_it++)
     {
@@ -425,9 +493,11 @@ void HostSharePCI::set_monitorization(Template& ht)
 
     for (auto pci : pci_att)
     {
-        address = pci->vector_value("ADDRESS");
+        const auto address = pci->vector_value("ADDRESS");
 
-        if (address.empty())
+        if (address.empty() ||
+                !is_filter_match(filters, pci) ||
+                !is_address_match(short_address, pci))
         {
             delete pci;
             continue;

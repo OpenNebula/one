@@ -436,6 +436,14 @@ private:
      */
     void reserved_capacity(std::string& rcpu, std::string& rmem) const;
 
+    /**
+     *  Gets a host template attribuet, if not defined it look for it in the
+     *  cluster template.
+     *    @param name of the attribute
+     *    @param value of the attribute
+     */
+    void get_hostcluster_attr(const std::string& name, std::string& value) const;
+
     void update_wilds();
 
         /* ---------------------------------------------------------------------- */

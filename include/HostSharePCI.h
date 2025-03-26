@@ -43,6 +43,8 @@
  *  The monitor probe may report additional information such as VENDOR_NAME,
  *  DEVICE_NAME, CLASS_NAME...
  */
+class HostShareConf;
+
 class HostSharePCI : public Template
 {
 public:
@@ -100,7 +102,7 @@ public:
      *  Updates the PCI list with monitor data, it will create or
      *  remove PCIDevices as needed.
      */
-    void set_monitorization(Template& ht);
+    void set_monitorization(Template& ht, const HostShareConf& hconf);
 
     void clear() override;
 

@@ -204,24 +204,27 @@ static void set_reserved_metric(long long& value, long long mvalue,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void HostShare::set_monitorization(Template& ht, string& rcpu, string& rmem)
+void HostShare::set_monitorization(Template& ht, HostShareConf &conf)
 {
-    ht.get("TOTALCPU", total_cpu);
-    ht.erase("TOTALCPU");
-    set_reserved_metric(max_cpu, total_cpu, rcpu);
+    if (!conf.rcpu.empty())
+    {
+        ht.get("TOTALCPU", total_cpu);
+        ht.erase("TOTALCPU");
 
-    ht.get("TOTALMEMORY", total_mem);
-    ht.erase("TOTALMEMORY");
-    set_reserved_metric(max_mem, total_mem, rmem);
+        set_reserved_metric(max_cpu, total_cpu, conf.rcpu);
+    }
 
-    set_monitorization(ht);
-}
+    if (!conf.rmem.empty())
+    {
+        ht.get("TOTALMEMORY", total_mem);
+        ht.erase("TOTALMEMORY");
 
-void HostShare::set_monitorization(Template& ht)
-{
+        set_reserved_metric(max_mem, total_mem, conf.rmem);
+    }
+
     ds.set_monitorization(ht);
 
-    pci.set_monitorization(ht);
+    pci.set_monitorization(ht, conf);
 
     numa.set_monitorization(ht, vms_thread);
 }

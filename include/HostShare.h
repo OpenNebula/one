@@ -29,6 +29,19 @@
 /* -------------------------------------------------------------------------- */
 
 /**
+ * This class is used to pass monitor configuration form the Host/Cluster
+ * to the HostShare class
+ */
+struct HostShareConf
+{
+    std::string rcpu;
+    std::string rmem;
+
+    std::string pci_filter;
+    std::string pci_short_address;
+};
+
+/**
  *  The HostShare class. It represents a logical partition of a host...
  */
 class HostShare : public ObjectXML
@@ -114,6 +127,7 @@ public:
      */
     std::string& to_xml(std::string& xml) const;
 
+
     /**
      * Set the capacity attributes of the share. CPU and Memory may reserve some
      * capacity according to RESERVED_CPU and RESERVED_MEM. These values can be
@@ -125,19 +139,12 @@ public:
      * probes. The values are removed from the template.
      *
      *   @param ht template for the host
-     *   @param rcpu, reserved cpu for the host
-     *   @param rmem, reserved mem for the host
+     *   @param host_conf vector of monitor atributes from the host
      *
      * NOTE: reserved strings will be modified
      */
-    void set_monitorization(Template& ht, std::string& rcpu, std::string& rmem);
 
-
-    /**
-     * Set the capacity attributes of the share.
-     * Same as the 3 parameter method, except it does not update reserved CPU and Memory
-     */
-    void set_monitorization(Template& ht);
+    void set_monitorization(Template& ht, HostShareConf &conf);
 
     /**
      *  Resets capaity values of the share
