@@ -37,13 +37,6 @@ EOT
         :description => "Instance multiple VMs"
     }
 
-    USERDATA={
-        :name  => "userdata",
-        :large => "--userdata userdata",
-        :format => String,
-        :description => "Integrate userdata into the EC2 section"
-    }
-
     EXTENDED={
         :name => "extended",
         :large => "--extended",

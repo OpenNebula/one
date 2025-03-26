@@ -203,9 +203,6 @@ CommandParser::CmdParser.new(ARGV) do
 
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
         helper.create_resource(options) do |host|
-            if !options[:type].nil?
-                str = helper.set_hybrid(options[:type], args[1])
-            end
             rc = host.allocate(args[0], options[:im], options[:vm], cid)
             if !OpenNebula.is_error?(rc) && !options[:type].nil?
                 host.update(str, true)

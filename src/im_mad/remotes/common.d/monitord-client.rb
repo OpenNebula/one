@@ -147,15 +147,6 @@ class ProbeRunner
 end
 
 #-------------------------------------------------------------------------------
-#  Script helper functions and gLobals
-#-------------------------------------------------------------------------------
-LOCAL_HYPERVISOR = ['az', 'ec2', 'one', 'equinix'].freeze
-
-def local?(hypervisor)
-    LOCAL_HYPERVISOR.include?(hypervisor)
-end
-
-#-------------------------------------------------------------------------------
 # Configuration (from monitord)
 #-------------------------------------------------------------------------------
 xml_txt = STDIN.read
@@ -163,7 +154,6 @@ xml_txt = STDIN.read
 begin
     hyperv = ARGV[0].split(' ')[0]
 
-    xml_txt = Base64.decode64(xml_txt) if local? hyperv
     config  = REXML::Document.new(xml_txt).root
 
     host   = config.elements['NETWORK/MONITOR_ADDRESS'].text.to_s
@@ -172,7 +162,7 @@ begin
     hostid = config.elements['HOST_ID'].text.to_s
 
     if host == 'auto'
-        if local?(hyperv) || hyperv == 'dummy'
+        if hyperv == 'dummy'
             host = '127.0.0.1'
         else
             begin

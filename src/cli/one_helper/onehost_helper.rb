@@ -24,57 +24,6 @@ require 'time'
 class OneHostHelper < OpenNebulaHelper::OneHelper
 
     TEMPLATE_XPATH = '//HOST/TEMPLATE'
-    HYBRID = {
-        :ec2 => {
-            :help => <<-EOT.unindent
-                #-----------------------------------------------------------------------
-                # Supported EC2 AUTH ATTRIBUTTES:
-                #
-                #  REGION_NAME = <the name of the ec2 region>
-                #
-                #  EC2_ACCESS = <Your ec2 access key id>
-                #  EC2_SECRET = <Your ec2 secret key>
-                #
-                #  CAPACITY = [
-                #    M1_SMALL  = <number of machines m1.small>,
-                #    M1_XLARGE = <number of machines m1.xlarge>,
-                #    M1_LARGE  = <number of machines m1.large>
-                #  ]
-                #
-                # You can set any machine type supported by ec2
-                # See your ec2_driver.conf for more information
-                #
-                #-----------------------------------------------------------------------
-            EOT
-        },
-        :az => {
-            :help => <<-EOT.unindent
-                #-----------------------------------------------------------------------
-                # Mandatory AZURE ATTRIBUTTES:
-                #
-                # AZ_SUB    = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                # AZ_CLIENT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                # AZ_SECRET = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                # AZ_TENANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                # AZ_REGION = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                #
-                # CAPACITY=[
-                #   STANDARD_B1LS =<number of machines Standard_B1ls>,
-                #   STANDARD_A1_V2=<number of machines Standard_A1_v2>
-                # ]
-                #
-                # Optional AZURE ATTRIBUTES:
-                #
-                # AZ_RGROUP = ""
-                #
-                # You can set any machine type supported by azure
-                # See your az_driver.conf for more information
-                #
-                #-----------------------------------------------------------------------
-            EOT
-        }
-    }
-
     VERSION_XPATH = "#{TEMPLATE_XPATH}/VERSION"
 
     MONITORING = {
@@ -242,16 +191,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             default :ID, :NAME, :CLUSTER, :TVM,
                     :ALLOCATED_CPU, :ALLOCATED_MEM, :STAT
         end
-    end
-
-    def set_hybrid(type, path)
-        k = type.to_sym
-
-        return unless HYBRID.key?(k)
-
-        return OpenNebulaHelper.editor_input(HYBRID[k][:help]) if path.nil?
-
-        File.read(path)
     end
 
     NUM_THREADS = 15

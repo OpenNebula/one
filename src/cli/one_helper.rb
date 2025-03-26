@@ -1992,16 +1992,6 @@ Bash symbols must be escaped on STDIN passing'
         end
         context_str=create_context_str(options, context_hash)
         template<<context_str if context_str
-        if options[:userdata] && !template_obj.nil? && template_obj.has_elements?('TEMPLATE/EC2')
-            template_obj.add_element(
-                'TEMPLATE/EC2',
-                'USERDATA' => options[:userdata]
-            )
-
-            template << template_obj.template_like_str(
-                'TEMPLATE', false, 'EC2'
-            )
-        end
 
         [0, template]
     end
