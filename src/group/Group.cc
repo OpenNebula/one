@@ -504,6 +504,7 @@ void Group::del_admin_rules(int user_id)
                  PoolObjectSQL::SECGROUP |
                  PoolObjectSQL::VROUTER |
                  PoolObjectSQL::VMGROUP |
+                 PoolObjectSQL::BACKUPJOB |
                  AclRule::GROUP_ID |
                  oid,
 
