@@ -38,6 +38,9 @@ public class Cluster extends PoolElement{
     private static final String ADDVNET         = METHOD_PREFIX + "addvnet";
     private static final String DELVNET         = METHOD_PREFIX + "delvnet";
     private static final String RENAME          = METHOD_PREFIX + "rename";
+    private static final String OPTIMIZE        = METHOD_PREFIX + "optimize";
+    private static final String PLANEXECUTE     = METHOD_PREFIX + "planexecute";
+    private static final String PLANDELETE      = METHOD_PREFIX + "plandelete";
 
     /**
      * Creates a new Cluster representation.
@@ -218,13 +221,46 @@ public class Cluster extends PoolElement{
      * Renames this Cluster.
      *
      * @param client XML-RPC Client.
-     * @param id The image id of the target host we want to modify.
+     * @param id The cluster id.
      * @param name New name for the Cluster
      * @return If successful the message contains the cluster id.
      */
     public static OneResponse rename(Client client, int id, String name)
     {
         return client.call(RENAME, id, name);
+    }
+
+    /**
+     * Optimize Cluster
+     *
+     * @param client XML-RPC Client.
+     * @param id The cluster id.
+     */
+    public static OneResponse optimize(Client client, int id)
+    {
+        return client.call(OPTIMIZE, id);
+    }
+
+    /**
+     * Execute Plan
+     *
+     * @param client XML-RPC Client.
+     * @param id The cluster id.
+     */
+    public static OneResponse planExecute(Client client, int id)
+    {
+        return client.call(PLANEXECUTE, id);
+    }
+
+    /**
+     * Delete Plan
+     *
+     * @param client XML-RPC Client.
+     * @param id The cluster id.
+     */
+    public static OneResponse planDelete(Client client, int id)
+    {
+        return client.call(PLANDELETE, id);
     }
 
     // =================================
@@ -352,6 +388,36 @@ public class Cluster extends PoolElement{
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Optimize Cluster
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse optimize()
+    {
+        return optimize(client, id);
+    }
+
+    /**
+     * Execute Plan
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse planExecute()
+    {
+        return planExecute(client, id);
+    }
+
+    /**
+     * Delete Plan
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse planDelete()
+    {
+        return planDelete(client, id);
     }
 
     // =================================

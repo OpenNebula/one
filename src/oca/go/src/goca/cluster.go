@@ -257,3 +257,39 @@ func (cc *ClusterController) RenameContext(ctx context.Context, newName string) 
 	_, err := cc.c.Client.CallContext(ctx, "one.cluster.rename", cc.ID, newName)
 	return err
 }
+
+// Optimize creates optimization plan for a cluster.
+func (cc *ClusterController) Optimize() error {
+	return cc.OptimizeContext(context.Background())
+}
+
+// OptimizeContext creates optimization plan for a cluster..
+// * ctx: context for cancelation
+func (cc *ClusterController) OptimizeContext(ctx context.Context) error {
+	_, err := cc.c.Client.CallContext(ctx, "one.cluster.optimize", cc.ID)
+	return err
+}
+
+// PlanExecute executes optimization plan for cluster a cluster.
+func (cc *ClusterController) PlanExecute() error {
+	return cc.PlanExecuteContext(context.Background())
+}
+
+// PlanExecuteContext executes optimization plan for cluster a cluster.
+// * ctx: context for cancelation
+func (cc *ClusterController) PlanExecuteContext(ctx context.Context) error {
+	_, err := cc.c.Client.CallContext(ctx, "one.cluster.planexecute", cc.ID)
+	return err
+}
+
+// PlanDelete renames a cluster.
+func (cc *ClusterController) PlanDelete() error {
+	return cc.PlanDeleteContext(context.Background())
+}
+
+// PlanDeleteContext renames a cluster.
+// * ctx: context for cancelation
+func (cc *ClusterController) PlanDeleteContext(ctx context.Context) error {
+	_, err := cc.c.Client.CallContext(ctx, "one.cluster.plandelete", cc.ID)
+	return err
+}
