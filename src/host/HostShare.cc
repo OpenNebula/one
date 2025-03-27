@@ -206,19 +206,15 @@ static void set_reserved_metric(long long& value, long long mvalue,
 
 void HostShare::set_monitorization(Template& ht, HostShareConf &conf)
 {
-    if (!conf.rcpu.empty())
+    if (conf.total_cpu != -1)
     {
-        ht.get("TOTALCPU", total_cpu);
-        ht.erase("TOTALCPU");
-
+        total_cpu = conf.total_cpu;
         set_reserved_metric(max_cpu, total_cpu, conf.rcpu);
     }
 
-    if (!conf.rmem.empty())
+    if (conf.total_mem != -1)
     {
-        ht.get("TOTALMEMORY", total_mem);
-        ht.erase("TOTALMEMORY");
-
+        total_mem = conf.total_mem;
         set_reserved_metric(max_mem, total_mem, conf.rmem);
     }
 

@@ -34,6 +34,9 @@
  */
 struct HostShareConf
 {
+    long long total_cpu;
+    long long total_mem;
+
     std::string rcpu;
     std::string rmem;
 

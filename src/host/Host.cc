@@ -193,18 +193,16 @@ int Host::update_info(Template &tmpl)
     update_wilds();
 
     // Update host_share
-    HostShareConf hconf = {"", "", "", ""};
+    HostShareConf hconf = {-1, -1, "", "", "", ""};
 
-    long long total_cpu, total_mem;
+    obj_template->get("TOTALCPU", hconf.total_cpu);
+    obj_template->get("TOTALMEMORY", hconf.total_mem);
 
-    obj_template->get("TOTALCPU", total_cpu);
-    obj_template->get("TOTALMEMORY", total_mem);
-
-    if (host_share.get_total_cpu() == total_cpu &&
-        host_share.get_total_mem() == total_mem)
+    if (host_share.get_total_cpu() == hconf.total_cpu &&
+        host_share.get_total_mem() == hconf.total_mem)
     {
-        obj_template->erase("TOTALCPU");
-        obj_template->erase("TOTALMEMORY");
+        hconf.total_cpu = -1;
+        hconf.total_mem = -1;
     }
     else
     {
