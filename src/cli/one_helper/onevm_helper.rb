@@ -936,11 +936,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         # array. Duplicate IPs are not shown.
         extra_ips = []
 
-        if (val = vm['/VM/MONITORING/GUEST_IP']) && (val && !val.empty?)
+        if (val = vm['/VM/MONITORING/GUEST_IP']) && val && !val.empty?
             extra_ips << val
         end
 
-        if (val = vm['/VM/MONITORING/GUEST_IP_ADDRESSES']) && (val && !val.empty?)
+        if (val = vm['/VM/MONITORING/GUEST_IP_ADDRESSES']) && val && !val.empty?
             extra_ips += val.split(',')
         end
 
