@@ -262,7 +262,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
                 type, resource_id, extra = initial.split(':', -1)
             end
 
-            if (!type || !resource_id) && (initial && !initial.empty?)
+            if (!type || !resource_id) && initial && !initial.empty?
                 STDERR.puts 'Wrong type for user input default value:'
                 STDERR.puts "  #{key}: #{val}"
                 exit(-1)
