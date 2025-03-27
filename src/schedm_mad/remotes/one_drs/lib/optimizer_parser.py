@@ -49,7 +49,9 @@ class OptimizerParser:
         },
         "PLACE": {
             "POLICY": "BALANCE",
-            "WEIGHTS": {"CPU": 0.5, "MEMORY": 0.5},
+            "WEIGHTS": {
+                "CPU": 1
+            },
         },
         "OPTIMIZE": {
             "POLICY": "BALANCE",
@@ -457,9 +459,9 @@ class OptimizerParser:
                 size=Capacity(
                     total=next(
                         (
-                            int(e.text)
-                            for e in store.template.any_element
-                            if e.qname.upper() == "LIMIT_MB"
+                            int(c.text)
+                            for c in store.template.children
+                            if c.qname.upper() == "LIMIT_MB"
                         ),
                         store.total_mb,
                     ),
@@ -719,8 +721,8 @@ class OptimizerParser:
         shared_ds, image_ds = set(), set()
         for ds in self.scheduler_driver_action.datastore_pool.datastore:
             ds_attrs = {
-                elem.qname.upper(): elem.text.upper()
-                for elem in ds.template.any_element
+                child.qname.upper(): child.text.upper()
+                for child in ds.template.children
             }
             if ds_attrs.get("TYPE") == "IMAGE_DS":
                 image_ds.add(int(ds.id))
@@ -743,8 +745,8 @@ class OptimizerParser:
             return None
         for ds in self.scheduler_driver_action.datastore_pool.datastore:
             ds_attrs = {
-                elem.qname.upper(): elem.text.upper()
-                for elem in ds.template.any_element
+                child.qname.upper(): child.text.upper()
+                for child in ds.template.children
             }
             if (
                 ds_attrs.get("TYPE") == "SYSTEM_DS"
