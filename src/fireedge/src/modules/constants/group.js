@@ -41,4 +41,6 @@ export const GROUP_ACTIONS = {
   QUOTAS_DIALOG: 'quotas_dialog',
   DELETE: 'delete',
   EDIT_ADMINS: 'edit_admins',
+  ADD_USERS: 'add_users',
+  REMOVE_USERS: 'remove_users',
 }

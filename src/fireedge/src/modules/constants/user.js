@@ -14,10 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line prettier/prettier, no-unused-vars
-import { VmQuota, NetworkQuota, DatastoreQuota, ImageQuota } from '@modules/constants/quota'
 import * as ACTIONS from '@modules/constants/actions'
-import * as STATES from '@modules/constants/states'
 import { COLOR } from '@modules/constants/color'
+import {
+  DatastoreQuota,
+  ImageQuota,
+  NetworkQuota,
+  VmQuota,
+} from '@modules/constants/quota'
+import * as STATES from '@modules/constants/states'
 
 /**
  * @typedef LoginToken
@@ -77,6 +82,9 @@ export const USER_ACTIONS = {
   CHANGE_AUTH: 'change_authentication',
   ENABLE: 'enable',
   DISABLE: 'disable',
+  ADD_TO_GROUP: 'add_to_group',
+  REMOVE_FROM_GROUP: 'remove_from_group',
+  CHANGE_PRIMARY_GROUP: 'change_primary_group',
 }
 
 export const AUTH_DRIVER = {

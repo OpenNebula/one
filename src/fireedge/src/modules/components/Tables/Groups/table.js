@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { GroupAPI, useViews } from '@FeaturesModule'
+import { getGroupQuotaUsage } from '@ModelsModule'
 import { LinearProgressWithTooltip } from '@modules/components/Status'
 import EnhancedTable, {
   createColumns,
@@ -20,9 +23,6 @@ import EnhancedTable, {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import GroupColumns from '@modules/components/Tables/Groups/columns'
 import GroupRow from '@modules/components/Tables/Groups/row'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, GroupAPI } from '@FeaturesModule'
-import { getGroupQuotaUsage } from '@ModelsModule'
 import { Component, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'groups'
@@ -51,7 +51,16 @@ const GroupsTable = (props) => {
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = GroupAPI.useGetGroupsQuery()
+  const {
+    data: groups = [],
+    isFetching,
+    refetch,
+  } = GroupAPI.useGetGroupsQuery()
+
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(groups)
+      : groups
 
   const columns = useMemo(
     () =>
@@ -133,7 +142,7 @@ const GroupsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={data}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

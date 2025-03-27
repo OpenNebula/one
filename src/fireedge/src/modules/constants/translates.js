@@ -2203,8 +2203,11 @@ module.exports = {
     'See OpenNebula documentation to get more details about views on Fireedge Sunstone.',
   'groups.actions.edit.admins': 'Edit administrators',
   'groups.actions.edit.admins.form': 'Select the administrators',
+  'groups.actions.edit.users.form': 'Select the users',
   'groups.actions.edit.admins.success': 'Administrators updated',
-
+  'groups.actions.add.user.success': 'Users updated',
+  'groups.actions.add.user': 'Add users',
+  'groups.actions.remove.user': 'Remove users',
   'groups.view.admin.name': 'Admin view',
   'groups.view.admin.description': 'View used by admin users',
   'groups.view.user.name': 'User view',
@@ -2214,6 +2217,12 @@ module.exports = {
   'groups.view.groupadmin.name': 'Admin group view',
   'groups.view.groupadmin.description':
     'View used by the admin users of the group',
+
+  /* User */
+  'users.actions.add.to.group': 'Add to group',
+  'users.actions.remove.from.group': 'Remove from group',
+  'user.actions.edit.group.success': 'Group updated',
+  'users.actions.change.primary.group': 'Change primary group',
 
   /* Showback */
   'showback.title': 'Showback',

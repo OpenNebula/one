@@ -16,27 +16,22 @@
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 
-import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
-
-import { EditAdminsForm, EditUsersForm } from '@modules/components/Forms/Group'
-
 import { T } from '@ConstantsModule'
+import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
+import { EditGroupForm } from '@modules/components/Forms/User'
 
-/**
- * Action to edit administrators of a group
- */
-const EditAdminsActions = memo(({ admins, filterData, submit }) => {
+const AddToGroup = memo(({ groups, filterData, submit }) => {
   // Handle submit form
-  const handleEditAdmins = (formData) => {
-    submit(formData.adminsToAdd, formData.adminsToRemove)
+  const habdleSubmit = (formData) => {
+    submit(formData.groups)
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         color: 'secondary',
-        'data-cy': 'edit-admins',
-        label: T['groups.actions.edit.admins'],
+        'data-cy': 'add-to-group',
+        label: T['users.actions.add.to.group'],
         variant: 'outlined',
         sx: {
           m: '1em',
@@ -44,38 +39,37 @@ const EditAdminsActions = memo(({ admins, filterData, submit }) => {
       }}
       options={[
         {
-          cy: 'edit-admins',
-          name: T['groups.actions.edit.admins'],
+          cy: 'add-to-group',
+          name: T['users.actions.add.to.group'],
           dialogProps: {
-            title: T['groups.actions.edit.admins'],
-            dataCy: 'modal-edit-admins',
+            title: T['users.actions.add.to.group'],
+            dataCy: 'modal-add-to-group',
           },
           form: () =>
-            EditAdminsForm({
-              initialValues: admins,
+            EditGroupForm({
+              initialValues: groups,
               stepProps: {
                 filterData,
               },
             }),
-          onSubmit: handleEditAdmins,
+          onSubmit: habdleSubmit,
         },
       ]}
     />
   )
 })
 
-const AddUsersAction = memo(({ users, filterData, submit }) => {
-  // Handle submit form
-  const handleEditAdmins = (formData) => {
-    submit(formData.users)
+const RemoveFromGroup = memo(({ groups, filterData, submit }) => {
+  const handleSubmit = (formData) => {
+    submit(formData.groups)
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         color: 'secondary',
-        'data-cy': 'add-user',
-        label: T['groups.actions.add.user'],
+        'data-cy': 'remove-from-group',
+        label: T['users.actions.remove.from.group'],
         variant: 'outlined',
         sx: {
           m: '1em',
@@ -83,38 +77,37 @@ const AddUsersAction = memo(({ users, filterData, submit }) => {
       }}
       options={[
         {
-          cy: 'add-user',
-          name: T['groups.actions.add.user'],
+          cy: 'remove-from-group',
+          name: T['users.actions.remove.from.group'],
           dialogProps: {
-            title: T['groups.actions.add.user'],
-            dataCy: 'modal-add-user',
+            title: T['users.actions.remove.from.group'],
+            dataCy: 'modal-remove-from-group',
           },
           form: () =>
-            EditUsersForm({
-              initialValues: users,
+            EditGroupForm({
+              initialValues: groups,
               stepProps: {
                 filterData,
               },
             }),
-          onSubmit: handleEditAdmins,
+          onSubmit: handleSubmit,
         },
       ]}
     />
   )
 })
 
-const RemoveUsersAction = memo(({ users, filterData, submit }) => {
-  // Handle submit form
-  const handleEditAdmins = (formData) => {
-    submit(formData.users)
+const ChangePrimaryGroup = memo(({ groups, filterData, submit }) => {
+  const handleSubmit = (formData) => {
+    submit(formData.groups)
   }
 
   return (
     <ButtonToTriggerForm
       buttonProps={{
         color: 'secondary',
-        'data-cy': 'remove-user',
-        label: T['groups.actions.remove.user'],
+        'data-cy': 'change-primary-group',
+        label: T['users.actions.change.primary.group'],
         variant: 'outlined',
         sx: {
           m: '1em',
@@ -122,45 +115,45 @@ const RemoveUsersAction = memo(({ users, filterData, submit }) => {
       }}
       options={[
         {
-          cy: 'remove-user',
-          name: T['groups.actions.remove.user'],
+          cy: 'change-primary-group',
+          name: T['users.actions.change.primary.group'],
           dialogProps: {
-            title: T['groups.actions.remove.user'],
-            dataCy: 'modal-remove-user',
+            title: T['users.actions.change.primary.group'],
+            dataCy: 'modal-change-primary-group',
           },
           form: () =>
-            EditUsersForm({
-              initialValues: users,
+            EditGroupForm({
+              initialValues: groups,
               stepProps: {
                 filterData,
               },
             }),
-          onSubmit: handleEditAdmins,
+          onSubmit: handleSubmit,
         },
       ]}
     />
   )
 })
 
-EditAdminsActions.propTypes = {
-  admins: PropTypes.array,
+AddToGroup.propTypes = {
+  groups: PropTypes.array,
   filterData: PropTypes.func,
   submit: PropTypes.func,
 }
-EditAdminsActions.displayName = 'EditAdminsActions'
+AddToGroup.displayName = 'AddToGroupAction'
 
-AddUsersAction.propTypes = {
-  users: PropTypes.array,
+RemoveFromGroup.propTypes = {
+  groups: PropTypes.array,
   filterData: PropTypes.func,
   submit: PropTypes.func,
 }
-AddUsersAction.displayName = 'AddUsersAction'
+RemoveFromGroup.displayName = 'RemoveFromGroupAction'
 
-RemoveUsersAction.propTypes = {
-  users: PropTypes.array,
+ChangePrimaryGroup.propTypes = {
+  groups: PropTypes.array,
   filterData: PropTypes.func,
   submit: PropTypes.func,
 }
-RemoveUsersAction.displayName = 'RemoveUsersAction'
+ChangePrimaryGroup.displayName = 'ChangePrimaryGroupAction'
 
-export { AddUsersAction, EditAdminsActions, RemoveUsersAction }
+export { AddToGroup, ChangePrimaryGroup, RemoveFromGroup }

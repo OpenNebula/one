@@ -13,34 +13,45 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { useHistory, generatePath } from 'react-router-dom'
+import { ReactElement, useMemo } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
 
 import { PATH } from '@modules/components/path'
 
-import { UserAPI, GroupAPI } from '@FeaturesModule'
+import { GroupAPI, UserAPI, useGeneralApi } from '@FeaturesModule'
+import { getActionsAvailable } from '@ModelsModule'
 
 import { Box, Divider } from '@mui/material'
 
-import { T } from '@ConstantsModule'
-import { Tr } from '@modules/components/HOC'
+import { AddToGroup, ChangePrimaryGroup, RemoveFromGroup } from './Action'
+
+import { T, USER_ACTIONS } from '@ConstantsModule'
 import { GroupCard } from '@modules/components/Cards'
+import { Tr } from '@modules/components/HOC'
 
 /**
  * Renders mainly information tab.
  *
  * @param {object} props - Props
  * @param {string} props.id - Datastore id
+ * @param props.tabProps
+ * @param props.tabProps.actions
  * @returns {ReactElement} Information tab
  */
-const GroupsInfoTab = ({ id }) => {
+const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
   const path = PATH.SYSTEM.GROUPS.DETAIL
   const history = useHistory()
-  const { data = [] } = GroupAPI.useGetGroupsQuery()
-  const { data: user } = UserAPI.useGetUserQuery({ id })
+  const { enqueueSuccess } = useGeneralApi()
+  const { data: groups = [], refetch } = GroupAPI.useGetGroupsQuery()
+  const { data: user } = UserAPI.useGetUserQuery({ id: userId })
+  const [addUser] = UserAPI.useAddGroupMutation()
+  const [removeUser] = UserAPI.useRemoveFromGroupMutation()
+  const [changeGroup] = UserAPI.useChangeGroupMutation()
 
   const USER_GROUPS = [].concat(user.GROUPS.ID ?? [])
+
+  const actionsAvailable = getActionsAvailable(actions)
 
   const handleRowClick = (rowId) => {
     history.push(generatePath(path, { id: String(rowId) }))
@@ -50,25 +61,98 @@ const GroupsInfoTab = ({ id }) => {
 
   const primaryGroup = useMemo(
     () =>
-      data.find(
+      groups.find(
         (group) =>
           group.ID === primaryGroupId ||
           String(group.ID) === String(primaryGroupId)
       ),
-    [data]
+    [groups]
   )
 
   const secondaryGroups = useMemo(
     () =>
-      data.filter(
+      groups.filter(
         (group) =>
           group?.ID !== primaryGroupId && USER_GROUPS?.includes(group?.ID)
       ),
-    [data]
+    [groups]
   )
+
+  /* Filter groups showing only the ones the user is not linked into */
+  const filterGroupsNotLinked = (data) =>
+    data.filter(
+      (group) => !USER_GROUPS.some((userGroup) => userGroup === group.ID)
+    )
+
+  /* Filter groups showing only the ones the user is linked into and it's not its primary group */
+  const filterGroupsLinked = (data) =>
+    data.filter(
+      (group) =>
+        USER_GROUPS.some((userGroup) => userGroup === group.ID) &&
+        group.ID !== primaryGroupId
+    )
+
+  /* Filter groups showing only the ones the user has not as primary group */
+  const filterByNotPrimaryGroup = (data) =>
+    data.filter((group) => group.ID !== primaryGroupId)
+
+  const submitAddToGroup = async (groupsToAdd) => {
+    await Promise.all(
+      groupsToAdd.map((groupId) => addUser({ id: userId, group: groupId }))
+    )
+
+    refetch()
+
+    // Success message
+    enqueueSuccess(T['user.actions.edit.group.success'])
+  }
+
+  const submitRemoveFromGroup = async (groupsToAdd) => {
+    await Promise.all(
+      groupsToAdd.map((groupId) => removeUser({ id: userId, group: groupId }))
+    )
+
+    refetch()
+
+    // Success message
+    enqueueSuccess(T['user.actions.edit.group.success'])
+  }
+
+  const changePrimaryGroup = (group) => {
+    changeGroup({ id: userId, group: group })
+
+    refetch()
+
+    // Success message
+    enqueueSuccess(T['user.actions.edit.group.success'])
+  }
 
   return (
     <div>
+      {actionsAvailable?.includes?.(USER_ACTIONS.ADD_TO_GROUP) && (
+        <AddToGroup
+          groups={groups}
+          filterData={filterGroupsNotLinked}
+          submit={submitAddToGroup}
+        />
+      )}
+
+      {actionsAvailable?.includes?.(USER_ACTIONS.REMOVE_FROM_GROUP) && (
+        <RemoveFromGroup
+          groups={groups}
+          filterData={filterGroupsLinked}
+          submit={submitRemoveFromGroup}
+        />
+      )}
+
+      {actionsAvailable?.includes?.(USER_ACTIONS.CHANGE_PRIMARY_GROUP) && (
+        <ChangePrimaryGroup
+          groups={groups}
+          filterData={filterByNotPrimaryGroup}
+          submit={changePrimaryGroup}
+        />
+      )}
+
       <Box
         sx={{
           position: 'relative',

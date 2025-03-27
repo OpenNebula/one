@@ -39,6 +39,8 @@ info-tabs:
     enabled: true
     actions:
       edit_admins: true
+      add_users: true
+      remove_users: true
 
   quota:
     enabled: true

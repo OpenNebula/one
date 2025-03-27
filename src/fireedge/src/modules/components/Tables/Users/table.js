@@ -15,6 +15,9 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
 
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { UserAPI, useViews } from '@FeaturesModule'
+import { getUserQuotaUsage } from '@ModelsModule'
 import { LinearProgressWithTooltip } from '@modules/components/Status'
 import EnhancedTable, {
   createColumns,
@@ -22,9 +25,6 @@ import EnhancedTable, {
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import UserColumns from '@modules/components/Tables/Users/columns'
 import UserRow from '@modules/components/Tables/Users/row'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, UserAPI } from '@FeaturesModule'
-import { getUserQuotaUsage } from '@ModelsModule'
 
 const DEFAULT_DATA_CY = 'users'
 

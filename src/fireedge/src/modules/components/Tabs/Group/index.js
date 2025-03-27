@@ -23,7 +23,7 @@ import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Info from '@modules/components/Tabs/Group/Info'
-import Users from '@modules/components/Tabs/Group/Users'
+import GroupUsersTab from '@modules/components/Tabs/Group/Users'
 import generateQuotasInfoTab from '@modules/components/Tabs/Quota'
 import generateAccountingInfoTab from '@modules/components/Tabs/Accounting'
 import generateShowbackInfoTab from '@modules/components/Tabs/Showback'
@@ -31,7 +31,7 @@ import generateShowbackInfoTab from '@modules/components/Tabs/Showback'
 const getTabComponent = (tabName) =>
   ({
     info: Info,
-    user: Users,
+    user: GroupUsersTab,
     quota: generateQuotasInfoTab({ groups: true }),
     accounting: generateAccountingInfoTab({ groups: true }),
     showback: generateShowbackInfoTab({ groups: true }),

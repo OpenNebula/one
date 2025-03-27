@@ -15,8 +15,8 @@
  * ------------------------------------------------------------------------- */
 import { createForm } from '@UtilsModule'
 import {
-  SCHEMA,
   FIELDS,
+  SCHEMA,
 } from '@modules/components/Forms/Group/EditAdminsForm/schema'
 
 const EditAdminsForm = createForm(SCHEMA, FIELDS, {

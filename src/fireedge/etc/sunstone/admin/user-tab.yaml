@@ -42,6 +42,9 @@ info-tabs:
     enabled: true
     actions:
       chgrp: true
+      add_to_group: true
+      remove_from_group: true
+      change_primary_group: true
 
   quota:
     enabled: true
