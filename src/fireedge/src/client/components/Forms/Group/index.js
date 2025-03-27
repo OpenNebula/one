@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
 import { CreateStepsCallback } from 'client/utils/schema'
+import { ReactElement } from 'react'
 
 /**
  * @param {ConfigurationProps} configProps - Configuration
@@ -38,4 +38,11 @@ const UpdateForm = (configProps) =>
 const EditAdminsForm = (configProps) =>
   AsyncLoadForm({ formPath: 'Group/EditAdminsForm' }, configProps)
 
-export { CreateForm, UpdateForm, EditAdminsForm }
+/**
+ * @param {ConfigurationProps} configProps - Configuration
+ * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ */
+const EditUsersForm = (configProps) =>
+  AsyncLoadForm({ formPath: 'Group/EditUsersForm' }, configProps)
+
+export { CreateForm, EditAdminsForm, EditUsersForm, UpdateForm }

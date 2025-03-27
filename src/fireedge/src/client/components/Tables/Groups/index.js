@@ -50,7 +50,12 @@ const GroupsTable = (props) => {
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
-  const { data = [], isFetching, refetch } = useGetGroupsQuery()
+  const { data: groups = [], isFetching, refetch } = useGetGroupsQuery()
+
+  const data =
+    props?.filterData && typeof props?.filterData === 'function'
+      ? props?.filterData(groups)
+      : groups
 
   const columns = useMemo(
     () =>
@@ -132,7 +137,7 @@ const GroupsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={data}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}

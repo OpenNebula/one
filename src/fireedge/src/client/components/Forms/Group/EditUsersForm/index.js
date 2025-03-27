@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateStepsCallback } from 'client/utils/schema'
-import { ReactElement } from 'react'
+import {
+  FIELDS,
+  SCHEMA,
+} from 'client/components/Forms/Group/EditUsersForm/schema'
+import { createForm } from 'client/utils'
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'User/CreateForm' }, configProps)
+const EditUsersForm = createForm(SCHEMA, FIELDS, {
+  transformInitialValue: (users, schema) => ({
+    ...schema.cast({ users }, { stripUnknown: false }),
+  }),
+  transformBeforeSubmit: (formData, initialValues) => {},
+})
 
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const EditGroupForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'User/EditGroupForm' }, configProps)
-
-export { CreateForm, EditGroupForm }
+export default EditUsersForm

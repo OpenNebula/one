@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createForm } from 'client/utils'
 import {
-  SCHEMA,
   FIELDS,
+  SCHEMA,
 } from 'client/components/Forms/Group/EditAdminsForm/schema'
+import { createForm } from 'client/utils'
 
 const EditAdminsForm = createForm(SCHEMA, FIELDS, {
   transformInitialValue: (admins, schema) => ({

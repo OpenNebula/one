@@ -15,10 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { string } from 'yup'
 
-import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { INPUT_TYPES, T } from 'client/constants'
 import { useGetGroupsQuery } from 'client/features/OneApi/group'
-import { OPTION_SORTERS, Field, arrayToOptions } from 'client/utils'
-import { T, INPUT_TYPES } from 'client/constants'
+import { useGetUsersQuery } from 'client/features/OneApi/user'
+import { Field, OPTION_SORTERS, arrayToOptions } from 'client/utils'
 
 /** @type {Field} User id field */
 export const UID_FIELD = {

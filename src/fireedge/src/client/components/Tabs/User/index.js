@@ -23,12 +23,12 @@ import { useGetUserQuery } from 'client/features/OneApi/user'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
-import Info from 'client/components/Tabs/User/Info'
-import Group from 'client/components/Tabs/User//Group'
 import generateQuotasInfoTab from 'client/components/Tabs//Quota'
 import generateAccountingInfoTab from 'client/components/Tabs/Accounting'
 import generateShowbackInfoTab from 'client/components/Tabs/Showback'
 import Authentication from 'client/components/Tabs/User//Authentication'
+import Group from 'client/components/Tabs/User/Group'
+import Info from 'client/components/Tabs/User/Info'
 
 const getTabComponent = (tabName) =>
   ({

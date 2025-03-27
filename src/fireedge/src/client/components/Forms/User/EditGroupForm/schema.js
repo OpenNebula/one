@@ -13,22 +13,40 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AsyncLoadForm, ConfigurationProps } from 'client/components/HOC'
-import { CreateStepsCallback } from 'client/utils/schema'
-import { ReactElement } from 'react'
+import { array, object, string } from 'yup'
+
+import { GroupsTable } from 'client/components/Tables'
+import { INPUT_TYPES, T } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
+
+const GROUPS = (props) => ({
+  name: 'groups',
+  label: T['user.actions.edit.group.form'],
+  type: INPUT_TYPES.TABLE,
+  Table: () => GroupsTable,
+  fieldProps: {
+    filterData: props.filterData,
+    preserveState: true,
+  },
+  singleSelect: false,
+  validation: array(string())
+    .required()
+    .default(() => undefined),
+  grid: { md: 12 },
+})
 
 /**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ * Fields of the form.
+ *
+ * @param {object} props - Object to get filterData function
+ * @returns {object} Fields
  */
-const CreateForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'User/CreateForm' }, configProps)
+export const FIELDS = (props) => [GROUPS(props)]
 
 /**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
+ * Schema of the form.
+ *
+ * @param {object} props - Object to get filterData function
+ * @returns {object} Schema
  */
-const EditGroupForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'User/EditGroupForm' }, configProps)
-
-export { CreateForm, EditGroupForm }
+export const SCHEMA = (props) => object(getValidationFromFields(FIELDS(props)))

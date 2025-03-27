@@ -23,16 +23,16 @@ import { useGetGroupQuery } from 'client/features/OneApi/group'
 import { getAvailableInfoTabs } from 'client/models/Helper'
 
 import Tabs from 'client/components/Tabs'
-import Info from 'client/components/Tabs/Group/Info'
-import Users from 'client/components/Tabs/Group/Users'
 import generateQuotasInfoTab from 'client/components/Tabs//Quota'
 import generateAccountingInfoTab from 'client/components/Tabs/Accounting'
+import Info from 'client/components/Tabs/Group/Info'
+import GroupUsersTab from 'client/components/Tabs/Group/Users'
 import generateShowbackInfoTab from 'client/components/Tabs/Showback'
 
 const getTabComponent = (tabName) =>
   ({
     info: Info,
-    user: Users,
+    user: GroupUsersTab,
     quota: generateQuotasInfoTab({ groups: true }),
     accounting: generateAccountingInfoTab({ groups: true }),
     showback: generateShowbackInfoTab({ groups: true }),
