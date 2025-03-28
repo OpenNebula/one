@@ -614,7 +614,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("LIVE_RESCHEDS", "0");
     set_conf_single("COLD_MIGRATE_MODE", "0");
 
-    set_conf_single("DRS_INTERVAL", "-1");
+    set_conf_single("DRS_INTERVAL", "600");
 }
 
 /* -------------------------------------------------------------------------- */

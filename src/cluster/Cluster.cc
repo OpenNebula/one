@@ -165,7 +165,7 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
         return -1;
     }
 
-    if (!validate_field("MIGRATION_THRESHOLD", std::regex(R"(^(-1|\d+(\.\d+)?)$)")))
+    if (!validate_field("MIGRATION_THRESHOLD", std::regex(R"(^(-1||\d+(\.\d+)?)$)")))
     {
         return -1;
     }
@@ -181,7 +181,7 @@ int Cluster::post_update_template(std::string& error, Template *_old_tmpl)
 
     for (const auto &i : numeric_attr)
     {
-        if (!validate_field(i, std::regex(R"(^(\d+(\.\d+)?|\d*)$)")))
+        if (!validate_field(i, std::regex(R"(^(\d+(\.\d+)?|)$)")))
         {
             return -1;
         }
