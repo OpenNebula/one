@@ -19,6 +19,7 @@ require 'base64'
 require 'yaml'
 require 'open3'
 require 'openssl'
+require 'fileutils'
 
 require 'rexml/document'
 
@@ -149,12 +150,20 @@ end
 #-------------------------------------------------------------------------------
 # Configuration (from monitord)
 #-------------------------------------------------------------------------------
+DB_PATH = '/var/tmp/one_db'
+
+FileUtils.mkdir_p(DB_PATH)
+
 xml_txt = STDIN.read
 
 begin
     hyperv = ARGV[0].split(' ')[0]
 
     config = REXML::Document.new(xml_txt).root
+
+    File.open(File.join(DB_PATH, 'config'), "w") do |file|
+        file.write(xml_txt)
+    end
 
     host   = config.elements['NETWORK/MONITOR_ADDRESS'].text.to_s
     port   = config.elements['NETWORK/PORT'].text.to_s

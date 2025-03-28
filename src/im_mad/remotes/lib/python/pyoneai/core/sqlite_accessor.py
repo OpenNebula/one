@@ -66,6 +66,8 @@ class SQLiteAccessor(BaseAccessor):
             "table_name_template", "{entityUID}_{metric_name}_monitoring"
         )
         self._monitor_interval = monitoring.get("monitor_interval", 60)
+        self._window_size = monitoring.get("window_size", 5)
+        self._fill_gaps_tol = 2 * self._monitor_interval
 
     @property
     def type(self) -> AccessorType:
@@ -128,26 +130,33 @@ class SQLiteAccessor(BaseAccessor):
         if metric_attrs.type == MetricType.COUNTER:
             ts = ts.restore_counter()
 
+        ts_p = Period(
+            slice(
+                ts._time_idx.values[0],
+                ts._time_idx.values[-1],
+                ts._time_idx.frequency,
+            )
+        )
+
+        ts.hampel_filter(self._window_size)
+
         # Fill gaps
         # TODO: Add a method for the Timeseries
         if isinstance(time, Period):  # Instant doesn't have a start and end
             if np.any(np.isnan(ts.values)) or np.any(
                 np.diff(ts._time_idx.values)
-                > timedelta(seconds=self._monitor_interval)
+                > self._fill_gaps_tol
+                * timedelta(seconds=self._monitor_interval)
             ):
-                p = Period(
-                    slice(
-                        ts._time_idx.values[0],
-                        ts._time_idx.values[-1],
-                        ts._time_idx.frequency,
-                    )
-                )
-                ts = ts.interpolate(TimeIndex(p.values))
+                ts = ts.interpolate(TimeIndex(ts_p.values))
 
-        if TimeIndex(time.values).frequency > ts._time_idx.frequency:
+        if TimeIndex(time.values).frequency > timedelta(
+            seconds=self._monitor_interval
+        ):
             ts = ts.resample(TimeIndex(time.values).frequency)
-
-        ts = ts.interpolate(TimeIndex(time.values))
+            ts = ts.interpolate(TimeIndex(time.values))
+        else:  # TimeIndex(time.values).frequency == ts._time_idx.frequency
+            ts = ts.interpolate(TimeIndex(ts_p.values), kind="nearest")
 
         if isinstance(time, Instant):
             return ts[time]

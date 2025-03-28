@@ -676,8 +676,20 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(vm, options = {})
+        max_value = 80
+
         str_h1 = '%-80s'
-        str = '%-20s: %-20s'
+        str    = "%-20s: %-#{max_value}s"
+
+        trunc = ->(str, max = max_value) do
+            return '' unless str
+
+            if str.length > max
+                str[0, max_value - 3] + "..."
+            else
+                str
+            end
+        end
 
         cluster = nil
 
@@ -744,10 +756,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             'CPU'         => nil,
             'MEMORY'      => unit_lambda,
             'NETTX'       => unitM_lambda,
+            'NETTX_BW'    => unitM_lambda,
             'NETRX'       => unitM_lambda,
+            'NETRX_BW'    => unitM_lambda,
             'DISKRDBYTES' => unit_lambda,
+            'DISKRDBYTES_BW' => unit_lambda,
             'DISKRDIOPS'  => nil,
+            'DISKRDIOPS_BW'  => nil,
             'DISKWRBYTES' => unit_lambda,
+            'DISKWRBYTES_BW' => unit_lambda,
+            'DISKWRIOPS_BW'  => nil,
             'DISKWRIOPS'  => nil
         }
 
@@ -755,7 +773,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         order_attrs.each do |key, format|
             val = vm_monitoring.delete(key)
 
-            next unless val
+            if !val
+                vm_monitoring_sort << { 'NAME'  => key,
+                                        'VALUE' => '-',
+                                        'FORECAST'     => '-',
+                                        'FORECAST_FAR' => '-' }
+                next
+            end
 
             val = format.call(val) if format
 
@@ -778,23 +802,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         vm_monitoring_sort.sort_by {|a| a['NAME'] }
 
-        filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE', 'ID', 'TIMESTAMP']
-        vm_monitoring.each do |key, val|
-            if !filter_attrs.include?(key)
-                vm_monitoring_sort << { 'NAME'   => key,
-                                        'VALUE'  => val }
-            end
-        end
-
         tstamp = begin
-            Time.at(vm_monitoring.delete('TIMESTAMP').to_i).ctime
+            Time.at(Integer(vm_monitoring.delete('TIMESTAMP'))).ctime
         rescue StandardError
-            ''
+            '-'
         end
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING [#{tstamp}]", false)
         CLIHelper::ShowTable.new(nil, self) do
-            column :METRIC, '', :left, :size => 15 do |d|
+            column :METRIC, '', :left, :size => 20 do |d|
                 d['NAME']
             end
 
@@ -812,6 +828,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             default :METRIC, :VALUE, :FORECAST, :FORECAST_FAR
         end.show(vm_monitoring_sort, {})
+
+        puts
+
+        filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE', 'ID', 'TIMESTAMP']
+        vm_monitoring.each do |key, val|
+            next if filter_attrs.include?(key)
+            puts format(str, trunc.call(key, 20), trunc.call(value))
+        end
 
         puts
 

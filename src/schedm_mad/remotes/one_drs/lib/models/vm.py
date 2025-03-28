@@ -236,17 +236,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        diskrdbytes_forecast: Optional[Decimal] = field(
+        diskrdbytes_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKRDBYTES_FORECAST",
+                "name": "DISKRDBYTES_BW",
                 "type": "Element",
             },
         )
-        diskrdbytes_forecast_far: Optional[Decimal] = field(
+        diskrdbytes_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKRDBYTES_FORECAST_FAR",
+                "name": "DISKRDBYTES_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        diskrdbytes_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "DISKRDBYTES_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )
@@ -257,17 +264,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        diskrdiops_forecast: Optional[Decimal] = field(
+        diskrdiops_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKRDIOPS_FORECAST",
+                "name": "DISKRDIOPS_BW",
                 "type": "Element",
             },
         )
-        diskrdiops_forecast_far: Optional[Decimal] = field(
+        diskrdiops_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKRDIOPS_FORECAST_FAR",
+                "name": "DISKRDIOPS_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        diskrdiops_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "DISKRDIOPS_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )
@@ -278,17 +292,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        diskwrbytes_forecast: Optional[Decimal] = field(
+        diskwrbytes_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKWRBYTES_FORECAST",
+                "name": "DISKWRBYTES_BW",
                 "type": "Element",
             },
         )
-        diskwrbytes_forecast_far: Optional[Decimal] = field(
+        diskwrbytes_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKWRBYTES_FORECAST_FAR",
+                "name": "DISKWRBYTES_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        diskwrbytes_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "DISKWRBYTES_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )
@@ -299,17 +320,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        diskwriops_forecast: Optional[Decimal] = field(
+        diskwriops_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKWRIOPS_FORECAST",
+                "name": "DISKWRIOPS_BW",
                 "type": "Element",
             },
         )
-        diskwriops_forecast_far: Optional[Decimal] = field(
+        diskwriops_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "DISKWRIOPS_FORECAST_FAR",
+                "name": "DISKWRIOPS_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        diskwriops_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "DISKWRIOPS_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )
@@ -341,17 +369,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        netrx_forecast: Optional[Decimal] = field(
+        netrx_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "NETRX_FORECAST",
+                "name": "NETRX_BW",
                 "type": "Element",
             },
         )
-        netrx_forecast_far: Optional[Decimal] = field(
+        netrx_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "NETRX_FORECAST_FAR",
+                "name": "NETRX_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        netrx_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "NETRX_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )
@@ -362,17 +397,24 @@ class Vm:
                 "type": "Element",
             },
         )
-        nettx_forecast: Optional[Decimal] = field(
+        nettx_bw: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "NETTX_FORECAST",
+                "name": "NETTX_BW",
                 "type": "Element",
             },
         )
-        nettx_forecast_far: Optional[Decimal] = field(
+        nettx_bw_forecast: Optional[Decimal] = field(
             default=None,
             metadata={
-                "name": "NETTX_FORECAST_FAR",
+                "name": "NETTX_BW_FORECAST",
+                "type": "Element",
+            },
+        )
+        nettx_bw_forecast_far: Optional[Decimal] = field(
+            default=None,
+            metadata={
+                "name": "NETTX_BW_FORECAST_FAR",
                 "type": "Element",
             },
         )

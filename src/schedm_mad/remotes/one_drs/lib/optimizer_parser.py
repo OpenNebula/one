@@ -224,18 +224,18 @@ class OptimizerParser:
                     storage = self._build_vm_storage(vm, vm_req)
                     cpu_current = float(vm.monitoring.cpu or 0)
                     cpu_forecast = float(vm.monitoring.cpu_forecast or 0)
-                    net_current = float(vm.monitoring.nettx or 0) + float(
-                        vm.monitoring.netrx or 0
+                    net_current = float(vm.monitoring.nettx_bw or 0) + float(
+                        vm.monitoring.netrx_bw or 0
                     )
-                    net_forecast = float(vm.monitoring.nettx_forecast or 0) + float(
-                        vm.monitoring.netrx_forecast or 0
+                    net_forecast = float(vm.monitoring.nettx_bw_forecast or 0) + float(
+                        vm.monitoring.netrx_bw_forecast or 0
                     )
-                    disk_current = float(vm.monitoring.diskrdbytes or 0) + float(
-                        vm.monitoring.diskwrbytes or 0
+                    disk_current = float(vm.monitoring.diskrdbytes_bw or 0) + float(
+                        vm.monitoring.diskwrbytes_bw or 0
                     )
                     disk_forecast = float(
-                        vm.monitoring.diskrdbytes_forecast or 0
-                    ) + float(vm.monitoring.diskwrbytes_forecast or 0)
+                        vm.monitoring.diskrdbytes_bw_forecast or 0
+                    ) + float(vm.monitoring.diskwrbytes_bw_forecast or 0)
                     # Predictive factor only for 'optimize'
                     cpu_usage = (
                         self._apply_predictive_adjustment(cpu_current, cpu_forecast)
@@ -794,8 +794,8 @@ class OptimizerParser:
             return 0.0
 
         disk_io = sum(
-            float(vm.monitoring.diskrdbytes or 0)
-            + float(vm.monitoring.diskwrbytes or 0)
+            float(vm.monitoring.diskrdbytes_bw or 0)
+            + float(vm.monitoring.diskwrbytes_bw or 0)
             for vm in self.scheduler_driver_action.vm_pool.vm
             if str(vm.id) in map(str, cluster_placement[host.cluster_id])
         )
@@ -807,7 +807,7 @@ class OptimizerParser:
             return 0.0
 
         net = sum(
-            float(vm.monitoring.nettx or 0) + float(vm.monitoring.netrx or 0)
+            float(vm.monitoring.nettx_bw or 0) + float(vm.monitoring.netrx_bw or 0)
             for vm in self.scheduler_driver_action.vm_pool.vm
             if str(vm.id) in map(str, cluster_placement[host.cluster_id])
         )

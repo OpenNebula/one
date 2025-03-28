@@ -720,17 +720,24 @@ class Host:
                     "type": "Element",
                 },
             )
-            netrx_forecast: Optional[Decimal] = field(
+            netrx_bw: Optional[int] = field(
                 default=None,
                 metadata={
-                    "name": "NETRX_FORECAST",
+                    "name": "NETRX_BW",
                     "type": "Element",
                 },
             )
-            netrx_forecast_far: Optional[Decimal] = field(
+            netrx_bw_forecast: Optional[Decimal] = field(
                 default=None,
                 metadata={
-                    "name": "NETRX_FORECAST_FAR",
+                    "name": "NETRX_BW_FORECAST",
+                    "type": "Element",
+                },
+            )
+            netrx_bw_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETRX_BW_FORECAST_FAR",
                     "type": "Element",
                 },
             )
@@ -741,17 +748,24 @@ class Host:
                     "type": "Element",
                 },
             )
-            nettx_forecast: Optional[Decimal] = field(
+            nettx_bw: Optional[int] = field(
                 default=None,
                 metadata={
-                    "name": "NETTX_FORECAST",
+                    "name": "NETTX_BW",
                     "type": "Element",
                 },
             )
-            nettx_forecast_far: Optional[Decimal] = field(
+            nettx_bw_forecast: Optional[Decimal] = field(
                 default=None,
                 metadata={
-                    "name": "NETTX_FORECAST_FAR",
+                    "name": "NETTX_BW_FORECAST",
+                    "type": "Element",
+                },
+            )
+            nettx_bw_forecast_far: Optional[Decimal] = field(
+                default=None,
+                metadata={
+                    "name": "NETTX_BW_FORECAST_FAR",
                     "type": "Element",
                 },
             )

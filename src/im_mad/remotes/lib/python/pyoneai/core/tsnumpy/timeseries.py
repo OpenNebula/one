@@ -31,6 +31,7 @@ from typing import (
     List,
     Literal,
     Mapping,
+    Optional,
     Union,
 )
 
@@ -850,10 +851,13 @@ class Timeseries:
         return Timeseries.merge(*variates)
 
     def interpolate(
-        self, time_idx: TimeIndex, kind: Literal["linear"] = "linear"
+        self,
+        time_idx: TimeIndex,
+        kind: Literal["linear", "nearest"] = "linear",
     ) -> Timeseries:
         """
         Interpolate for the provided time index.
+
         Parameters
         ----------
         time_idx : TimeIndex
@@ -861,6 +865,8 @@ class Timeseries:
         kind : str
             The kind of interpolation. At the moment supported are:
             1. `linear` (piece-wise linear)
+            2. `nearest`
+
         Returns
         -------
         Timeseries
@@ -870,25 +876,37 @@ class Timeseries:
             raise TypeError(
                 "The `time_idx` argument must be of `TimeIndex` " "type."
             )
-        if kind != "linear":
+        if kind not in {"linear", "nearest"}:
             raise ValueError(
-                "At the moment only 'linear' interpolation method "
-                "is supported."
+                "At the moment only following interpolation methods "
+                "are supported: ['linear', 'nearest']."
             )
         variates = []
         for _, _, ts in self.iter_over_variates():
             query_vals = time_idx.as_timestamp()
             current_vals = ts._time_idx.as_timestamp()
-            interp_data = np.interp(
-                query_vals, current_vals, ts._data.squeeze()
-            ).reshape(-1, 1, 1)
+            if kind == "nearest":
+                idx = np.searchsorted(current_vals, query_vals)
+                idx = np.clip(idx, 1, len(current_vals) - 1)
+                left_neighbour = current_vals[idx - 1]
+                right_neighbour = current_vals[idx]
+                data = ts._data.squeeze()
+                interp_data = np.where(
+                    np.abs(query_vals - left_neighbour)
+                    <= np.abs(query_vals - right_neighbour),
+                    data[idx - 1],
+                    data[idx],
+                ).reshape(-1, 1, 1)
+            elif kind == "linear":
+                interp_data = np.interp(
+                    query_vals, current_vals, ts._data.squeeze()
+                ).reshape(-1, 1, 1)
             variates.append(
                 Timeseries(
                     time_idx.values, ts.metrics, ts.entity_uids, interp_data
                 )
             )
         return Timeseries.merge(*variates)
-
     #
     # Cleaning
     #
@@ -1257,16 +1275,25 @@ class Timeseries:
             data=y_pred.reshape(-1, 1, 1),
         )
 
-    def _detrend(self) -> Timeseries:
+    def _detrend(self, trend_func: Optional[Callable[[TimeIndex, datetime], Timeseries]] = None) -> Timeseries:
         """
         Detrend the timeseries by subtracting the trend values.
+
+        Parameters
+        ----------
+        trend_func : Optional[Callable[[TimeIndex, datetime], Timeseries]], optional
+            The trend function to be subtracted from the timeseries, by default None
+            resulting in running compute_trend()
 
         Returns
         -------
         Timeseries
             A new timeseries with the trend values subtracted.
         """
-        trend_transformer = self.compute_trend()
+        if trend_func is not None:
+            trend_transformer = trend_func
+        else:
+            trend_transformer = self.compute_trend()
 
         trend_ts = trend_transformer(
             input_time=self._time_idx, fitted_origin=self._time_idx.origin
@@ -1290,7 +1317,7 @@ class Timeseries:
         return magnitude > np.percentile(magnitude, _SCREENING_QUANTILE)
 
     def compute_seasonality(
-        self,
+        self, trend_func : Optional[Callable[[TimeIndex, datetime], Timeseries]] = None
     ) -> Callable[
         [TimeIndex],
         Timeseries,
@@ -1342,7 +1369,7 @@ class Timeseries:
 
         _predicted_vals = {}
         for metric_name, entity_uid, ts in self.iter_over_variates():
-            detrend = ts._detrend()
+            detrend = ts._detrend(trend_func)
             fft = np.fft.fft(detrend.values.squeeze())
             freqs_mask = self._compute_freqs_to_keep_mask(fft)
             fft_filtered = np.zeros(len(fft), dtype=np.complex128)
@@ -2429,3 +2456,52 @@ class Timeseries:
         if legend:
             ax.legend()
         return ax
+
+    # Applies the Hampel Filter for outlier detection and smooths data
+    # in place.
+    @staticmethod
+    def _hampel_filter(
+        data: np.ndarray, window_size: int, threshold: float
+    ) -> None:
+        n_vals = int(window_size)
+        n_pads = n_vals // 2
+        padded_data = np.pad(
+            data,
+            pad_width=[n_pads, n_pads],
+            mode='constant',
+            # TODO: Reconsider the values on the padded positions, i.e.
+            # consider using zero or NaN.
+            # constant_values=data[[0, -1]]
+            constant_values=np.nan
+        )
+        windows = np.lib.stride_tricks.sliding_window_view(padded_data, n_vals)
+        median = np.nanmedian(windows, axis=-1)
+        diff = np.abs(data - median)
+        # Median absolute deviation.
+        # See: https://en.wikipedia.org/wiki/Median_absolute_deviation.
+        mad = np.nanmedian(np.abs(windows - median.reshape(-1, 1)), axis=-1)
+        bound = 1.4826 * float(threshold) * mad
+        mask = (diff > bound) & (mad != 0)
+        data[mask] = median[mask]
+
+    def hampel_filter(
+        self,
+        window_size: int = 5,
+        threshold: int | float = 3.5,
+        inplace: bool = True
+    ):
+        full_data = self._data if inplace else self._data.copy()
+        _, n_metrics, n_entities = full_data.shape
+        for metric_idx in range(n_metrics):
+            for entity_idx in range(n_entities):
+                data = full_data[:, metric_idx, entity_idx]
+                self._hampel_filter(data, window_size, threshold)
+
+        if inplace:
+            return self
+        return type(self)(
+            time_idx=self._time_idx,
+            metric_idx=self._metric_idx.values,
+            entity_uid_idx=self._entity_idx.values,
+            data=full_data
+        )

@@ -27,13 +27,16 @@ try:
         Period,
         UInt,
     )
+    from pyoneai.ml import ArtifactManager
 except ImportError as e:
     print(f"Error: {e} ({type(e).__name__})", file=sys.stderr)
-    sys.exit(1)
+    sys.exit(0)
 
 import argparse
 import os
 from datetime import timedelta
+import time
+import xml.etree.ElementTree as ET
 
 import yaml
 
@@ -54,8 +57,8 @@ HOST_METRICS = {
     "freememory": MetricAttributes(
         name="freememory", type=MetricType.GAUGE, dtype=UInt()
     ),
-    "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
-    "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
+    # "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
+    # "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
     "netrx_bw": MetricAttributes(
         name="netrx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
     ),
@@ -69,32 +72,32 @@ VM_METRICS = {
         name="cpu", type=MetricType.GAUGE, dtype=Float(0.0, np.inf)
     ),
     "memory": MetricAttributes(name="memory", type=MetricType.GAUGE, dtype=UInt()),
-    "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
-    "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
+    # "netrx": MetricAttributes(name="netrx", type=MetricType.COUNTER, dtype=UInt()),
+    # "nettx": MetricAttributes(name="nettx", type=MetricType.COUNTER, dtype=UInt()),
     "netrx_bw": MetricAttributes(
         name="netrx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
     ),
     "nettx_bw": MetricAttributes(
         name="nettx", type=MetricType.COUNTER, dtype=Float(0.0, np.inf), operator="rate"
     ),
-    "diskrdbytes": MetricAttributes(
-        name="diskrdbytes", type=MetricType.COUNTER, dtype=UInt()
-    ),
-    "diskwrbytes": MetricAttributes(
-        name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt()
-    ),
-    "diskrd_bw": MetricAttributes(
+    # "diskrdbytes": MetricAttributes(
+    #     name="diskrdbytes", type=MetricType.COUNTER, dtype=UInt()
+    # ),
+    # "diskwrbytes": MetricAttributes(
+    #     name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt()
+    # ),
+    "diskrdbytes_bw": MetricAttributes(
         name="diskrdbytes", type=MetricType.COUNTER, dtype=UInt(), operator="rate"
     ),
-    "diskwr_bw": MetricAttributes(
+    "diskwrbytes_bw": MetricAttributes(
         name="diskwrbytes", type=MetricType.COUNTER, dtype=UInt(), operator="rate"
     ),
-    "diskrdiops": MetricAttributes(
-        name="diskrdiops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
-    ),
-    "diskwriops": MetricAttributes(
-        name="diskwriops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
-    ),
+    # "diskrdiops": MetricAttributes(
+    #     name="diskrdiops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
+    # ),
+    # "diskwriops": MetricAttributes(
+    #     name="diskwriops", type=MetricType.COUNTER, dtype=Float(0.0, np.inf)
+    # ),
     "diskrdiops_bw": MetricAttributes(
         name="diskrdiops",
         type=MetricType.COUNTER,
@@ -112,10 +115,10 @@ VM_METRICS = {
 DERIVED_METRICS = [
     "netrx_bw",
     "nettx_bw",
-    "diskrd_bw",
-    "diskwr_bw",
+    "diskrdbytes_bw",
+    "diskwrbytes_bw",
     "diskrdiops_bw",
-    "diskwriops_bw"
+    "diskwriops_bw",
 ]
 
 
@@ -134,11 +137,33 @@ def get_horizon(period: int, resolution: timedelta):
     return time
 
 
-DB_MONITOR_INTERVAL = {
+DB_MONITOR_INTERVAL_DEFAULT = {
     "host": 120,  # default value for the HOST monitoring interval
     "virtualmachine": 30,  # default values for the VM monitoring interval
 }
 
+
+def get_monitor_interval(config_file):
+    monitor_probes = {}
+    probes_period = None
+
+    try:
+        root = ET.parse(config_file).getroot()
+        probes_period = root.find("PROBES_PERIOD")
+    except:
+        pass
+
+    if probes_period is not None:
+        monitor_probes = {child.tag: child.text for child in probes_period}
+
+    db_monitor_interval = {}
+    db_monitor_interval["host"] = int(monitor_probes.get(
+        "MONITOR_HOST", DB_MONITOR_INTERVAL_DEFAULT["host"]
+    ))
+    db_monitor_interval["virtualmachine"] = int(monitor_probes.get(
+        "MONITOR_VM", DB_MONITOR_INTERVAL_DEFAULT["virtualmachine"]
+    ))
+    return db_monitor_interval
 
 def parse_entity(entity_str):
     try:
@@ -178,92 +203,140 @@ def main():
     # load configuration file
     config_file = "/var/tmp/one/etc/im/kvm-probes.d/forecast.conf"
     with open(config_file, "r") as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
+        config = yaml.load(file, Loader=yaml.FullLoader)[entity["type"]]
 
-    # db retention is in weeks
-    db_retention = timedelta(weeks=int(config[entity["type"]]["db_retention"]))
+    # load monitor interval
+    db_monitor_interval = get_monitor_interval('/var/tmp/one_db/config')
+
+    db_retention = timedelta(weeks=config["db_retention"])
+
+    manifest_path = os.path.join(args.pythonpath, "models", "default", "manifest.yaml")
+    try:
+        artifact = ArtifactManager.load(manifest_path)
+    except Exception as e:
+        print(f"Error: {e} ({type(e).__name__})", file=sys.stderr)
+        sys.exit(0)
 
     # Short-Term Forecast
     near = {}
-    near["period"] = timedelta(minutes=int(config[entity["type"]]["forecast_period"]))
-    near["resolution"] = timedelta(minutes=1)
-    near["sequence_length"] = 60  # last 1 hour: this should be adaptive
+    near["enabled"] = config["forecast"].get("enabled", True)
+    near["period"] = timedelta(minutes=int(config["forecast"]["period"]))
+    near["resolution"] = timedelta(seconds=db_monitor_interval[entity["type"]])
+    near["sequence_length"] = config["forecast"].get(
+        "lookback", db_retention / near["resolution"]
+    )
     near["horizon"] = get_horizon(near["period"], near["resolution"])
 
     # Long-Term Forecast
     far = {}
-    far["period"] = timedelta(hours=int(config[entity["type"]]["forecast_far_period"]))
-    far["resolution"] = timedelta(hours=1)
-    far["sequence_length"] = 48  # last 2 days of data: this should be adaptive
+    far["enabled"] = config["forecast_far"].get("enabled", False)
+    far["period"] = timedelta(minutes=int(config["forecast_far"]["period"]))
+    if far["period"].total_seconds() > 7200:  # greater then 2 hours
+        far["resolution"] = timedelta(hours=1)
+        lookback = timedelta(
+            minutes=config["forecast_far"].get(
+                "lookback", db_retention / far["resolution"]
+            )
+        )
+        far["sequence_length"] = lookback / far["resolution"]
+    else:
+        far["resolution"] = max(
+            timedelta(minutes=1), timedelta(seconds=db_monitor_interval[entity["type"]])
+        )
+        far["sequence_length"] = config["forecast_far"].get(
+            "lookback", db_retention / far["resolution"]
+        )
     far["horizon"] = get_horizon(far["period"], far["resolution"])
+
+    if not near["enabled"] and not far["enabled"]:
+        sys.exit(0)
 
     try:
         if entity["type"] == "host":
             monitoring = {
                 "db_path": os.path.join(entity["db_dir"], "host.db"),
-                "monitor_interval": DB_MONITOR_INTERVAL["host"],
+                "monitor_interval": db_monitor_interval["host"],
             }
             entity = Entity(
                 uid=EntityUID(type=EntityType.HOST, id=entity["id"]),
                 metrics=HOST_METRICS,
                 monitoring=monitoring,
+                artifact=artifact,
             )
         elif entity["type"] == "virtualmachine":
             monitoring = {
                 "db_path": os.path.join(entity["db_dir"], f'{entity["id"]}.db'),
-                "monitor_interval": DB_MONITOR_INTERVAL["virtualmachine"],
+                "monitor_interval": db_monitor_interval["virtualmachine"],
             }
             entity = Entity(
                 uid=EntityUID(type=EntityType.VIRTUAL_MACHINE, id=entity["id"]),
                 metrics=VM_METRICS,
                 monitoring=monitoring,
+                artifact=artifact,
             )
     except Exception as e:
         sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
         sys.exit(0)
+
+    # compute the slot for the forecast far
+    # we set the larger interval to 60 minutes by default
+    #
+    if far["enabled"]:
+        monitor_interval = timedelta(seconds=db_monitor_interval[entity.uid.type.value])
+        far["interval"] = min(
+            timedelta(minutes=60), far["sequence_length"] * far["resolution"] / 10
+        )
+        far["interval"] = max(far["interval"], monitor_interval)
+        total_slots = int(far["interval"] / monitor_interval)
+        slot = (
+            int(time.time()) // db_monitor_interval[entity.uid.type.value]
+        ) % total_slots
+        entity_slot = int(int(entity.uid.id) % total_slots)
 
     monitor = {}
     for name, m in entity.metrics.items():
         #
         # Get the latest observation for derived metrics
         #
+        obs = None
         if name in DERIVED_METRICS:
             try:
                 end = near["horizon"].origin
-                step = timedelta(seconds=DB_MONITOR_INTERVAL[entity.uid.type.value])
+                step = timedelta(seconds=db_monitor_interval[entity.uid.type.value])
                 start = end - step
                 obs = round(m[Period(slice(start, end, step))].values[-1][0][0], 2)
             except Exception as e:
                 sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
-                obs = None
-        else:
-            obs = None
 
         #
         # Compute Short Term Forecast
         #
+        forecast = None
         try:
-            entity._pred._prediction_model.model_config.sequence_length = near[
-                "sequence_length"
-            ]
-            ts = m[near["horizon"]].values
-            forecast = round(ts[-1][0][0], 2)
+            if near["enabled"]:
+                entity._pred._prediction_model.model_config.sequence_length = near[
+                    "sequence_length"
+                ]
+                ts = m[near["horizon"]].values
+                forecast = round(ts[-1][0][0], 2)
         except Exception as e:
             sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
-            forecast = None
-            obs = None
 
         #
         # Compute Long Term Forecast
         #
+        forecast_far = None
         try:
-            entity._pred._prediction_model.model_config.sequence_length = far[
-                "sequence_length"
-            ]
-            forecast_far = round(m[far["horizon"]].values[-1][0][0], 2)
+            #
+            # Long term forecast is computed at larger intervals
+            #
+            if far["enabled"] and (entity_slot == slot):
+                entity._pred._prediction_model.model_config.sequence_length = far[
+                    "sequence_length"
+                ]
+                forecast_far = round(m[far["horizon"]].values[-1][0][0], 2)
         except Exception as e:
             sys.stderr.write(f"Error: {e} ({type(e).__name__})\n")
-            forecast_far = None
 
         if obs is not None:
             monitor[name.upper()] = obs

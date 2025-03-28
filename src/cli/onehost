@@ -101,14 +101,6 @@ CommandParser::CmdParser.new(ARGV) do
                         'deleted in the hosts.'
     }
 
-    TYPE = {
-        :name => 'type',
-        :short => '-t remote_provider',
-        :large => '--type remote_provider',
-        :description => 'Use type to create a host using Cloud Bursting',
-        :format => String
-    }
-
     IPV4 = {
         :name  => 'ipv4',
         :large => '--ipv4 ip1,ip2',
@@ -123,7 +115,7 @@ CommandParser::CmdParser.new(ARGV) do
         :format => Array
     }
 
-    CREAT_OPTIONS = [IM, VMM, OneClusterHelper::CLUSTER, TYPE]
+    CREAT_OPTIONS = [IM, VMM, OneClusterHelper::CLUSTER]
     SYNC_OPTIONS  = [OneClusterHelper::CLUSTER, FORCE, SSH]
 
     ########################################################################
@@ -204,6 +196,7 @@ CommandParser::CmdParser.new(ARGV) do
         cid = options[:cluster] || ClusterPool::NONE_CLUSTER_ID
         helper.create_resource(options) do |host|
             rc = host.allocate(args[0], options[:im], options[:vm], cid)
+
             if !OpenNebula.is_error?(rc) && !options[:type].nil?
                 host.update(str, true)
             end

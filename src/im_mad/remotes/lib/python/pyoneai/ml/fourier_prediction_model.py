@@ -78,7 +78,7 @@ class FourierPredictionModel(BasePredictionModel):
 
         self.origin = metric._time_idx.origin
         self.trend_func = metric.compute_trend()
-        self.seasonality_func = metric.compute_seasonality()
+        self.seasonality_func = metric.compute_seasonality(self.trend_func)
         
         return self
 

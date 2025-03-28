@@ -1536,6 +1536,29 @@ class TestTimeseries:
         res = seasonality(TimeIndex(query_time_idx))
         assert res.shape == (len(query_time_idx), 2, 1)
 
+    def test_compute_seasonality_not_compute_trend(
+        self, sample_timeseries: Timeseries, mocker
+    ):
+        ts = sample_timeseries[
+            EntityUID(EntityType.VIRTUAL_MACHINE, 1),
+            MetricAttributes(name="cpu"),
+        ]
+        trend_func = ts.compute_trend()
+        compute_trend_mock = mocker.patch("pyoneai.core.tsnumpy.Timeseries.compute_trend", wraps=ts.compute_trend)
+        ts.compute_seasonality(trend_func)
+        compute_trend_mock.assert_not_called()
+
+    def test_compute_seasonality_compute_trend_if_not_passed(
+        self, sample_timeseries: Timeseries, mocker
+    ):
+        ts = sample_timeseries[
+            EntityUID(EntityType.VIRTUAL_MACHINE, 1),
+            MetricAttributes(name="cpu"),
+        ]
+        compute_trend_mock = mocker.patch("pyoneai.core.tsnumpy.Timeseries.compute_trend", wraps=ts.compute_trend)
+        ts.compute_seasonality()
+        compute_trend_mock.assert_called_once()        
+
     def test_trend_method(self, trend_detection_timeseries):
         """Test that trend method correctly identifies best trend function and returns a proper transformer."""
         ts_increasing = trend_detection_timeseries["increasing"]
@@ -1887,7 +1910,25 @@ class TestTimeseries:
     def test_interpolate_for_same_time_index(self, sample_timeseries):
         new_ts = sample_timeseries.interpolate(sample_timeseries._time_idx)
         for m_attr, entity_uid, ts in sample_timeseries.iter_over_variates():
-            assert np.array_equal(ts._data, new_ts[(m_attr, entity_uid)]._data)        
+            assert np.array_equal(ts._data, new_ts[(m_attr, entity_uid)]._data)   
+
+    def test_interpolate_by_nearest(self, sample_timeseries):
+        query_tidx = TimeIndex(
+            np.array(
+                [
+                    sample_timeseries.time_index[-1],
+                    sample_timeseries.time_index[-1] + timedelta(hours=8),
+                    sample_timeseries.time_index[-1] + timedelta(hours=16),
+                ]
+            )
+        )
+        target_vals = sample_timeseries[
+            Instant(sample_timeseries.time_index[-1])
+        ].values.squeeze()
+        new_ts = sample_timeseries.interpolate(
+            query_tidx, "nearest"
+        ).values.squeeze()
+        assert np.all(new_ts == target_vals)
 
     def test_resample_correct_length_with_not_complete_periods(self):
         data = np.array([[[1]], [[2]], [[3]], [[4]], [[5]]])
@@ -2177,6 +2218,53 @@ class TestTimeseries:
             match="Cannot calculate rate with fewer than 2 time points",
         ):
             single_time_ts.rate()
+
+    def test_hampel_filter(self):
+        """Test Hampel filter."""
+
+        time_idx = np.arange(
+            "2025-01-01T00", "2025-01-01T05", dtype="datetime64[h]"
+        )
+        n = time_idx.size
+        metrics = [
+            MetricAttributes(name="cpu"), MetricAttributes(name="memory")
+        ]
+        entities = [
+            EntityUID(EntityType.VIRTUAL_MACHINE, 1),
+            EntityUID(EntityType.VIRTUAL_MACHINE, 2)
+        ]
+        data = np.empty(
+            shape=(n, len(metrics), len(entities)), dtype=np.float64
+        )
+        vals = np.arange(n)
+        data[:, 0, 0] = vals.copy()
+        data[1, 0, 0] = 2000.0
+        data[:, 0, 1] = 2 + 8 * vals
+        data[2, 0, 1] = 1000.0
+        data[:, 1, 0] = np.sin(vals)
+        data[0, 1, 0] = 15.0
+        data[:, 1, 1] = np.cos(vals)
+        data[-1, 1, 1] = 25.0
+        ts = Timeseries(
+            time_idx=time_idx,
+            metric_idx=np.array(metrics),
+            entity_uid_idx=np.array(entities),
+            data=data.copy()
+        )
+
+        result = ts.hampel_filter(inplace=False)
+        assert np.allclose(ts._data, data)
+        assert isinstance(result, Timeseries)
+        assert result._data[1, 0, 0] == 2.5
+        assert result._data[2, 0, 1] == 26.0
+        assert round(result._data[0, 1, 0], 4) == 0.9093
+        assert round(result._data[-1, 1, 1], 4) == -0.4161
+
+        ts.hampel_filter(window_size=5, threshold=5)
+        assert ts._data[1, 0, 0] == 2.5
+        assert ts._data[2, 0, 1] == 26.0
+        assert round(ts._data[0, 1, 0], 4) == 0.9093
+        assert round(ts._data[-1, 1, 1], 4) == -0.4161
 
 
 class TestMetricIndex:
