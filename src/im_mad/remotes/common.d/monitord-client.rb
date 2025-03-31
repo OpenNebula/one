@@ -161,7 +161,7 @@ begin
 
     config = REXML::Document.new(xml_txt).root
 
-    File.open(File.join(DB_PATH, 'config'), "w") do |file|
+    File.open(File.join(DB_PATH, 'config'), 'w') do |file|
         file.write(xml_txt)
     end
 

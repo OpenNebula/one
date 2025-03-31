@@ -681,11 +681,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1 = '%-80s'
         str    = "%-20s: %-#{max_value}s"
 
-        trunc = ->(str, max = max_value) do
+        trunc = lambda do |str, max = max_value|
             return '' unless str
 
             if str.length > max
-                str[0, max_value - 3] + "..."
+                str[0, max_value - 3] + '...'
             else
                 str
             end
@@ -834,7 +834,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         filter_attrs = ['STATE', 'DISK_SIZE', 'SNAPSHOT_SIZE', 'ID', 'TIMESTAMP']
         vm_monitoring.each do |key, val|
             next if filter_attrs.include?(key)
-            puts format(str, trunc.call(key, 20), trunc.call(value))
+
+            puts format(str, trunc.call(key, 20), trunc.call(val))
         end
 
         puts
