@@ -681,13 +681,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1 = '%-80s'
         str    = "%-20s: %-#{max_value}s"
 
-        trunc = lambda do |str, max = max_value|
-            return '' unless str
+        trunc = lambda do |tvalue, max = max_value|
+            return '' unless tvalue
 
-            if str.length > max
-                str[0, max_value - 3] + '...'
+            if tvalue.length > max
+                tvalue[0, max - 3] + '...'
             else
-                str
+                tvalue
             end
         end
 
