@@ -122,7 +122,7 @@ def legacy_profiles(device)
 
     return [] unless File.exist? path
 
-    `ls #{path}`.split('\n')
+    `ls #{path}`.split("\n")
 rescue StandardError
     []
 end
