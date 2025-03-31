@@ -2537,7 +2537,7 @@ elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
 elif [ "$FIREEDGE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
-                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}\
+                 ${INSTALL_FIREEDGE_FILES[@]} \
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
