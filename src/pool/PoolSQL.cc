@@ -334,6 +334,15 @@ void PoolSQL::usr_filter(int                uid,
     else if ( filter_flag == RequestManagerPoolInfoFilter::GROUP )
     {
         uid_filter << "gid = " << gid;
+
+        if ( !all )
+        {
+            uid_filter << " AND ( other_u = 1 OR ( uid = " << uid
+                       << " ) OR ( gid = " << gid << " AND group_u = 1 )";
+
+            uid_filter << acl_str << ")";
+        }
+
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
     {
