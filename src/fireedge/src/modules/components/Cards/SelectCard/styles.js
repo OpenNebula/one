@@ -29,11 +29,11 @@ const styles = (theme) => ({
         boxShadow: theme.shadows['5'],
       },
       ...(isSelected && {
-        color: theme.palette.secondary.contrastText,
-        backgroundColor: theme.palette.secondary.main,
+        color: theme.palette.primary.contrastText,
+        backgroundColor: theme.palette.primary.main,
         '& .badge': {
-          color: theme.palette.secondary.main,
-          backgroundColor: theme.palette.secondary.contrastText,
+          color: theme.palette.primary.main,
+          backgroundColor: theme.palette.primary.contrastText,
         },
       }),
     }),
@@ -44,7 +44,7 @@ const styles = (theme) => ({
   }),
   mediaActionArea: css({
     '&:hover': {
-      backgroundColor: theme.palette.secondary.contrastText,
+      backgroundColor: theme.palette.primary.contrastText,
       '& $media': { filter: 'none' },
     },
   }),
@@ -79,7 +79,7 @@ const styles = (theme) => ({
     display: 'flex',
     color: ({ isSelected }) =>
       isSelected
-        ? theme.palette.secondary.contrastText
+        ? theme.palette.primary.contrastText
         : theme.palette.text.primary,
   }),
   subheader: css({

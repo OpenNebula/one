@@ -579,6 +579,10 @@ export const disableFields = (
 
   // Get restricted attributes
   const listRestrictedAttributes = oneConfig[type]
+    ? Array.isArray(oneConfig[type])
+      ? oneConfig[type]
+      : [oneConfig[type]]
+    : []
   const restrictedAttributes = listRestrictedAttributes
     .filter((item) =>
       nameParentAttribute !== ''

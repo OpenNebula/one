@@ -25,14 +25,13 @@ import { SupportAPI, SystemAPI } from '@FeaturesModule'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
 
 const FooterBox = styled('footer')(({ theme }) => ({
-  color: theme.palette.primary.contrastText,
-  backgroundColor: theme.palette.primary.light,
+  color: theme.palette.footer?.color,
+  backgroundColor: theme?.palette?.footer?.backgroundColor,
   position: 'absolute',
   width: '100%',
   left: 'auto',
   bottom: 0,
   right: 0,
-  // zIndex: theme.zIndex.appBar,
   textAlign: 'center',
   padding: theme.spacing(0.6),
 }))
@@ -45,9 +44,10 @@ const HeartIcon = styled('span')(({ theme }) => ({
   },
 }))
 
-const useStyles = () => ({
+const useStyles = (theme) => ({
   links: css({
     textDecoration: 'none',
+    color: theme.palette.footer?.color,
   }),
 })
 
@@ -58,17 +58,22 @@ const Footer = memo(() => {
   const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   return (
-    <FooterBox>
+    <FooterBox
+      sx={{
+        backgroundColor: (themeSunstone) =>
+          themeSunstone.palette?.topbar?.background,
+      }}
+    >
       <Typography variant="body2">
         <Translate word={T.MadeWith} />
         <HeartIcon role="img" aria-label="heart-emoji" />
-        <Link href={BY.url} color="primary.contrastText">
+        <Link href={BY.url} className={classes.links}>
           {BY.text}
         </Link>
         {version && (
           <StatusChip
-            forceWhiteColor
-            stateColor="secondary"
+            // forceWhiteColor
+            // stateColor="primary"
             text={version}
             mx={0.5}
           />
@@ -81,8 +86,8 @@ const Footer = memo(() => {
             className={classes.links}
           >
             <StatusChip
-              forceWhiteColor
-              stateColor="error"
+              // forceWhiteColor
+              // stateColor="error"
               text={T.NotOfficiallySupport}
               dataCy="notOfficialSupport"
               mx={0.5}

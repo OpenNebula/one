@@ -22,7 +22,7 @@ import { PATH } from '@modules/components/path'
 import { GroupAPI, UserAPI, useGeneralApi } from '@FeaturesModule'
 import { getActionsAvailable } from '@ModelsModule'
 
-import { Box, Divider } from '@mui/material'
+import { Box, Divider, Stack } from '@mui/material'
 
 import { AddToGroup, ChangePrimaryGroup, RemoveFromGroup } from './Action'
 
@@ -35,8 +35,8 @@ import { Tr } from '@modules/components/HOC'
  *
  * @param {object} props - Props
  * @param {string} props.id - Datastore id
- * @param props.tabProps
- * @param props.tabProps.actions
+ * @param {string} props.tabProps - Tab properties
+ * @param {string} props.tabProps.actions - Actions for tab
  * @returns {ReactElement} Information tab
  */
 const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
@@ -118,8 +118,8 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
     enqueueSuccess(T['user.actions.edit.group.success'])
   }
 
-  const changePrimaryGroup = (group) => {
-    changeGroup({ id: userId, group: group })
+  const changePrimaryGroup = async (group) => {
+    await changeGroup({ id: userId, group: group })
 
     refetch()
 
@@ -128,30 +128,38 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
   }
 
   return (
-    <div>
-      {actionsAvailable?.includes?.(USER_ACTIONS.ADD_TO_GROUP) && (
-        <AddToGroup
-          groups={groups}
-          filterData={filterGroupsNotLinked}
-          submit={submitAddToGroup}
-        />
-      )}
+    <Stack direction="column">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="start"
+        gap="1rem"
+        marginBottom="1rem"
+      >
+        {actionsAvailable?.includes?.(USER_ACTIONS.ADD_TO_GROUP) && (
+          <AddToGroup
+            groups={groups}
+            filterData={filterGroupsNotLinked}
+            submit={submitAddToGroup}
+          />
+        )}
 
-      {actionsAvailable?.includes?.(USER_ACTIONS.REMOVE_FROM_GROUP) && (
-        <RemoveFromGroup
-          groups={groups}
-          filterData={filterGroupsLinked}
-          submit={submitRemoveFromGroup}
-        />
-      )}
+        {actionsAvailable?.includes?.(USER_ACTIONS.REMOVE_FROM_GROUP) && (
+          <RemoveFromGroup
+            groups={groups}
+            filterData={filterGroupsLinked}
+            submit={submitRemoveFromGroup}
+          />
+        )}
 
-      {actionsAvailable?.includes?.(USER_ACTIONS.CHANGE_PRIMARY_GROUP) && (
-        <ChangePrimaryGroup
-          groups={groups}
-          filterData={filterByNotPrimaryGroup}
-          submit={changePrimaryGroup}
-        />
-      )}
+        {actionsAvailable?.includes?.(USER_ACTIONS.CHANGE_PRIMARY_GROUP) && (
+          <ChangePrimaryGroup
+            groups={groups}
+            filterData={filterByNotPrimaryGroup}
+            submit={changePrimaryGroup}
+          />
+        )}
+      </Stack>
 
       <Box
         sx={{
@@ -187,6 +195,7 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
           <GroupCard rootProps={{}} group={primaryGroup} />
         </Box>
       </Box>
+
       {secondaryGroups.length > 0 && (
         <>
           <Divider />
@@ -230,7 +239,7 @@ const GroupsInfoTab = ({ tabProps: { actions } = {}, id: userId }) => {
           </Box>
         </>
       )}
-    </div>
+    </Stack>
   )
 }
 

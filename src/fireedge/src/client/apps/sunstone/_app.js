@@ -91,8 +91,25 @@ const SunstoneApp = () => {
       processTabManifest(tabManifest)
     )
 
+    // Temporary patch to 7.0. Remove when 7.0.0.1 with OneForm is released
+    const routesToRemove = [
+      'Providers',
+      'Create Provider',
+      'Update Provider',
+      'Provisions',
+      'Create Provision',
+      'Update Provision',
+    ]
+
+    const viewEndpointsPatch = viewEndpoints.map((section) => ({
+      ...section,
+      routes: section?.routes?.filter(
+        (route) => !routesToRemove.includes(route.title)
+      ),
+    }))
+
     return showSupportTab(
-      fixedEndpoints.concat(viewEndpoints),
+      fixedEndpoints.concat(viewEndpointsPatch),
       isSupportSuccess
     )
   }, [tabManifest, view, isSupportSuccess, isManifestLoaded, isManifestLoading])

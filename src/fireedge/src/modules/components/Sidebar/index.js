@@ -19,7 +19,6 @@ import {
   useTheme,
   List,
   Drawer,
-  Divider,
   Box,
   IconButton,
   useMediaQuery,
@@ -99,7 +98,7 @@ const Sidebar = ({ endpoints }) => {
     >
       <Box className={classes.header}>
         <OpenNebulaLogo
-          width="100%"
+          width="9.6875rem"
           height={50}
           withText
           className={classes.logo}
@@ -107,15 +106,19 @@ const Sidebar = ({ endpoints }) => {
         />
         {!isUpLg || isFixMenu ? (
           <IconButton onClick={handleSwapMenu}>
-            {!isUpLg ? <CloseIcon /> : <ArrowLeftIcon />}
+            {!isUpLg ? (
+              <CloseIcon className={classes.logoAux} />
+            ) : (
+              <ArrowLeftIcon className={classes.logoAux} />
+            )}
           </IconButton>
         ) : (
           <IconButton onClick={handleSwapMenu}>
-            <MenuIcon />
+            <MenuIcon className={classes.logoAux} />
           </IconButton>
         )}
       </Box>
-      <Divider />
+
       <Box className={classes.menu}>
         <List data-cy="main-menu">{SidebarEndpoints}</List>
       </Box>

@@ -107,7 +107,6 @@ const AutoScrollBox = memo(
             <div className={classes.wrapperButton}>
               <Chip
                 avatar={<GoToBottomIcon />}
-                color="secondary"
                 className={classes.button}
                 label={autoButtonText}
                 onClick={() => setAutoScroll(true)}

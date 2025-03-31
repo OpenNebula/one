@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash, MoreVert, Group } from 'iconoir-react'
+import { Plus, Trash, MoreVert, Group } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,12 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, MARKETPLACE_ACTIONS } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  T,
+  MARKETPLACE_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 
 const ListMarketplaceNames = ({ rows = [] }) =>
@@ -80,7 +85,11 @@ const Actions = () => {
           {
             accessor: MARKETPLACE_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.STORAGE.MARKETPLACES.CREATE),
           },
           {
@@ -88,7 +97,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const group = rows?.[0]?.original ?? {}
               const path = PATH.STORAGE.MARKETPLACES.CREATE
@@ -100,7 +111,9 @@ const Actions = () => {
             tooltip: T.Enable,
             icon: MoreVert,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'marketplace-enable',
             options: [
               {
@@ -137,7 +150,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'marketplace-ownership',
             options: [
               {
@@ -178,7 +193,9 @@ const Actions = () => {
             accessor: MARKETPLACE_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `marketplace_${MARKETPLACE_ACTIONS.DELETE}`,
             options: [

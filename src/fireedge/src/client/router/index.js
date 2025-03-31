@@ -30,7 +30,7 @@ import { ProtectedRoute, NoAuthRoute, InternalLayout } from '@ComponentsModule'
 const renderRoute = ({ Component, ...route }) => (
   <ProtectedRoute key={route.path} exact {...route}>
     <InternalLayout {...route}>
-      <Component fallback={<LinearProgress color="secondary" />} />
+      <Component fallback={<LinearProgress />} />
     </InternalLayout>
   </ProtectedRoute>
 )

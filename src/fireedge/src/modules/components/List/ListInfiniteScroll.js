@@ -61,11 +61,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
         {shortList?.map(renderResult)}
       </Box>
       {!finish && (
-        <LinearProgress
-          ref={loaderRef}
-          color="secondary"
-          sx={{ width: '100%', marginTop: 10 }}
-        />
+        <LinearProgress ref={loaderRef} sx={{ width: '100%', marginTop: 10 }} />
       )}
     </Box>
   )

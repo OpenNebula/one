@@ -27,6 +27,7 @@ const GROUPS = (props) => ({
   fieldProps: {
     filterData: props.filterData,
     preserveState: true,
+    singleSelect: props.singleSelect,
   },
   singleSelect: false,
   validation: array(string())

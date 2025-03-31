@@ -28,7 +28,7 @@ import {
 import { VmAPI, useGeneralApi } from '@FeaturesModule'
 
 import { Tr, Translate } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 import { hasRestrictedAttributes } from '@UtilsModule'
 import { useDisableStep } from '@modules/components/FormStepper'
@@ -63,11 +63,12 @@ const AttachAction = memo(
                 sx,
               }
             : {
-                color: 'secondary',
                 'data-cy': 'add-nic',
                 label: T.AttachNic,
-                variant: 'outlined',
                 sx,
+                importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
               }
         }
         options={[
@@ -230,10 +231,11 @@ const AttachAliasAction = memo(
                 sx,
               }
             : {
-                color: 'secondary',
                 'data-cy': 'add-alias',
                 label: T.CreateAlias,
-                variant: 'outlined',
+                importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
                 sx,
               }
         }

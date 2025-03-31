@@ -187,11 +187,7 @@ export const SecurityGroupRule = memo(({ rule = {}, 'data-cy': parentCy }) => {
       variant="subtitle2"
     >
       {link && !isNaN(text) ? (
-        <Link
-          component={RouterLink}
-          to={`/${RESOURCE_NAMES.VNET}/${text}`}
-          color="secondary"
-        >
+        <Link component={RouterLink} to={`/${RESOURCE_NAMES.VNET}/${text}`}>
           {text}
         </Link>
       ) : (

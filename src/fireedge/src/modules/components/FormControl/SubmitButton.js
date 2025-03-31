@@ -22,40 +22,39 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { css } from '@emotion/css'
+
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 
 import { Tr, ConditionalWrap } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
-
-const useStyles = (theme) => ({
-  root: css({
-    transition: 'disabled 0.5s ease',
-    boxShadow: 'none',
-  }),
-  disabled: css({
-    '& svg': {
-      color: theme.palette.action.disabled,
-    },
-  }),
-  tooltipLink: css({
-    color: theme.palette.secondary.main,
-    textDecoration: 'none',
-    '&:hover': {
-      color: theme.palette.secondary.dark,
-    },
-  }),
-})
+import { SubmitButtonStyles } from '@modules/components/FormControl/styles/SubmitButtonStyles'
 
 const ButtonComponent = forwardRef(
   (
-    { icon, endicon, children, size, variant = 'contained', value, ...props },
+    {
+      icon,
+      endicon,
+      children,
+      size,
+      value,
+      label,
+      classes,
+      noborder,
+      active,
+      ...props
+    },
     ref
   ) =>
-    icon && !endicon ? (
-      <IconButton ref={ref} {...props} value={value}>
+    icon && !endicon && !label ? (
+      <IconButton
+        ref={ref}
+        {...props}
+        color="primary"
+        className={clsx(classes.button, classes.icon)}
+        value={value}
+      >
         {children}
       </IconButton>
     ) : (
@@ -63,7 +62,8 @@ const ButtonComponent = forwardRef(
         ref={ref}
         type="submit"
         endIcon={endicon}
-        variant={variant}
+        startIcon={label && icon}
+        className={clsx(classes.button, classes.iconWithOptions)}
         {...props}
       >
         {children}
@@ -73,7 +73,7 @@ const ButtonComponent = forwardRef(
 
 const TooltipComponent = ({ tooltip, tooltipLink, tooltipprops, children }) => {
   const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
+  const classes = useMemo(() => SubmitButtonStyles(theme), [theme])
 
   return (
     <ConditionalWrap
@@ -111,26 +111,43 @@ const TooltipComponent = ({ tooltip, tooltipLink, tooltipprops, children }) => {
 }
 
 const SubmitButton = memo(
-  ({ isSubmitting, disabled, label, icon, className, ...props }) => {
+  ({ isSubmitting, disabled, label, icon, ...props }) => {
     const theme = useTheme()
-    const classes = useMemo(() => useStyles(theme), [theme])
+
+    const classes = useMemo(
+      () =>
+        SubmitButtonStyles({
+          theme,
+          importance: props?.importance,
+          icon,
+          endIcon: props?.endicon,
+          label,
+          type: props?.type,
+          size: props?.size,
+          sx: props?.sx,
+          noborder: props?.noborder,
+          active: props?.active,
+        }),
+      [theme, props, icon, label]
+    )
+
     const progressSize = icon?.props?.size ?? 20
+
+    const labelAndIcon = label && icon
 
     return (
       <TooltipComponent {...props}>
         <ButtonComponent
-          className={clsx(classes.root, className, {
-            [classes.disabled]: disabled,
-          })}
+          classes={classes}
           disabled={disabled || isSubmitting}
           icon={icon}
           aria-label={label ?? T.Submit}
+          label={label}
           {...props}
         >
-          {isSubmitting && (
-            <CircularProgress color="secondary" size={progressSize} />
-          )}
-          {!isSubmitting && (icon ?? Tr(label) ?? Tr(T.Submit))}
+          {isSubmitting && <CircularProgress size={progressSize} />}
+          {!isSubmitting &&
+            (icon ? (labelAndIcon ? Tr(label) : icon) : Tr(label))}
         </ButtonComponent>
       </TooltipComponent>
     )
@@ -157,6 +174,12 @@ export const SubmitButtonPropTypes = {
   size: PropTypes.string,
   variant: PropTypes.string,
   value: PropTypes.string,
+  sx: PropTypes.object,
+  importance: PropTypes.string,
+  classes: PropTypes.object,
+  type: PropTypes.string,
+  noborder: PropTypes.bool,
+  active: PropTypes.bool,
 }
 
 TooltipComponent.propTypes = SubmitButtonPropTypes

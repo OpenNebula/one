@@ -17,7 +17,6 @@ import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 
 import {
-  BackButton,
   MarketplaceAppsTable,
   MarketplaceAppsTabs,
   TranslateProvider,
@@ -38,7 +37,6 @@ export function MarketplaceAppDetail() {
 
   return (
     <TranslateProvider>
-      <BackButton />
       <MarketplaceAppsTabs id={id} actions={actions} />
     </TranslateProvider>
   )

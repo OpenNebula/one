@@ -21,13 +21,13 @@ import { T } from '@ConstantsModule'
 const COLUMNS = [
   { Header: T.ID, id: 'id', accessor: 'ID', sortType: 'number' },
   { Header: T.Name, id: 'name', accessor: 'NAME' },
-  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
-  { Header: T.Group, id: 'group', accessor: 'GNAME' },
   {
     Header: T.RegistrationTime,
     id: 'time',
     accessor: 'TEMPLATE.BODY.registration_time',
   },
+  { Header: T.Owner, id: 'owner', accessor: 'UNAME' },
+  { Header: T.Group, id: 'group', accessor: 'GNAME' },
 ]
 
 COLUMNS.noFilterIds = ['id', 'name', 'time']

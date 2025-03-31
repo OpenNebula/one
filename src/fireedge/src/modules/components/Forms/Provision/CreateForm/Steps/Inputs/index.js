@@ -82,7 +82,7 @@ const Inputs = () => ({
     }, [fetchData])
 
     if (!fields) {
-      return <LinearProgress color="secondary" />
+      return <LinearProgress />
     }
 
     return fields?.length === 0 ? (

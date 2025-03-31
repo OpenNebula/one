@@ -34,6 +34,7 @@ import {
   T,
   VM_ACTIONS,
   VM_ACTIONS_IN_CHARTER,
+  STYLE_BUTTONS,
 } from '@ConstantsModule'
 import { Tr, Translate } from '@modules/components/HOC'
 import { hasRestrictedAttributes, sentenceCase } from '@UtilsModule'
@@ -56,10 +57,11 @@ const CreateSchedButton = memo(
     return (
       <ButtonToTriggerForm
         buttonProps={{
-          color: 'secondary',
           'data-cy': VM_ACTIONS.SCHED_ACTION_CREATE,
           label: T.AddAction,
-          variant: 'outlined',
+          importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
+          type: STYLE_BUTTONS.TYPE.FILLED,
         }}
         options={[
           {
@@ -248,10 +250,11 @@ const PerformActionButton = memo(
     return (
       <ButtonToTriggerForm
         buttonProps={{
-          color: 'secondary',
           'data-cy': VM_ACTIONS.PERFORM_ACTION,
           label: T.PerformAction,
-          variant: 'outlined',
+          importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
+          type: STYLE_BUTTONS.TYPE.FILLED,
         }}
         options={[
           {

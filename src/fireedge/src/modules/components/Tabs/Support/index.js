@@ -54,7 +54,7 @@ const SupportTabs = memo(({ ticket }) => {
   }
 
   return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
+    <LinearProgress sx={{ width: '100%' }} />
   ) : (
     <Tabs addBorder tabs={tabsAvailable} />
   )

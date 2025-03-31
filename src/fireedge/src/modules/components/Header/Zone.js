@@ -39,15 +39,17 @@ const Zone = () => {
         id="zone-menu"
         tooltip={T.Zone}
         icon={<ZoneIcon />}
-        buttonProps={{ 'data-cy': 'header-zone-button' }}
+        buttonProps={{
+          'data-cy': 'header-zone-button',
+          noborder: true,
+        }}
         headerTitle={<Translate word={T.Zones} />}
       >
         {({ handleClose }) => (
           <>
-            {isLoading && <LinearProgress color="secondary" />}
+            {isLoading && <LinearProgress />}
             {zones?.length ? (
               <Select
-                color="secondary"
                 inputProps={{ 'data-cy': 'select-zone' }}
                 native
                 onChange={(event) => {

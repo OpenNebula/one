@@ -146,7 +146,6 @@ const SliderInput = forwardRef(
         <Grid item xs={12}>
           <Slider
             className="slider"
-            color="secondary"
             onChange={handleChange}
             value={newValue}
             marks={[

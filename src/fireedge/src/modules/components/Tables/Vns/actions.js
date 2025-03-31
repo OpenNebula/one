@@ -14,13 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography, useTheme } from '@mui/material'
-import {
-  AddCircledOutline,
-  Group,
-  Lock,
-  PlayOutline,
-  Trash,
-} from 'iconoir-react'
+import { Plus, Group, Lock, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -38,7 +32,7 @@ import {
 import VnTemplatesTable from '@modules/components/Tables/VnTemplates'
 
 import { PATH } from '@modules/components/path'
-import { RESOURCE_NAMES, T, VN_ACTIONS } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VN_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 import { css } from '@emotion/css'
 
 const isDisabled = (action) => (rows) =>
@@ -112,14 +106,22 @@ const Actions = () => {
             accessor: VN_ACTIONS.CREATE_DIALOG,
             dataCy: `vnet-${VN_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.NETWORK.VNETS.CREATE),
           },
           {
             accessor: VN_ACTIONS.INSTANTIATE_DIALOG,
             dataCy: `vnet-${VN_ACTIONS.INSTANTIATE_DIALOG}`,
-            tooltip: T.Instantiate,
-            icon: PlayOutline,
+            tooltip: T.CreateFromTemplate,
+            label: T.CreateFromTemplate,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 isConfirmDialog: true,
@@ -152,8 +154,11 @@ const Actions = () => {
             dataCy: `vnet-${VN_ACTIONS.UPDATE_DIALOG}`,
             label: T.Update,
             tooltip: T.Update,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { max: 1 },
-            color: 'secondary',
+
             action: (rows) => {
               const vnet = rows?.[0]?.original ?? {}
               const path = PATH.NETWORK.VNETS.UPDATE
@@ -166,7 +171,9 @@ const Actions = () => {
             dataCy: `vnet-${VN_ACTIONS.RESERVE_DIALOG}`,
             label: T.Reserve,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -191,7 +198,9 @@ const Actions = () => {
             dataCy: `vnet-${VN_ACTIONS.RECOVER}`,
             label: T.Recover,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -211,7 +220,9 @@ const Actions = () => {
           {
             label: T.Reserve,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -232,7 +243,9 @@ const Actions = () => {
           },
           {
             accessor: VN_ACTIONS.CHANGE_CLUSTER,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `vnet-${VN_ACTIONS.CHANGE_CLUSTER}`,
             label: T.SelectCluster,
             tooltip: T.SelectCluster,
@@ -260,7 +273,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'vnet-ownership',
             options: [
               {
@@ -300,7 +315,9 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'vnet-lock',
             options: [
               {
@@ -339,7 +356,9 @@ const Actions = () => {
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,

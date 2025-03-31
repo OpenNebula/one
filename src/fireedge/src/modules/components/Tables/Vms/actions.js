@@ -16,15 +16,15 @@
 import { Typography, useTheme } from '@mui/material'
 import { css } from '@emotion/css'
 import {
-  AddCircledOutline,
+  Plus,
   Cart,
   Group,
   Lock,
   PlayOutline,
   SaveFloppyDisk,
-  SystemShut,
   TransitionRight,
   Trash,
+  Settings,
 } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -39,7 +39,7 @@ import VmTemplatesTable from '@modules/components/Tables/Vms/VmTemplateTable'
 
 import { PATH, Form } from '@modules/components'
 import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, VM_ACTIONS } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, VM_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 import { getLastHistory, isVmAvailableAction } from '@ModelsModule'
 const { Vm, Backup } = Form
 
@@ -120,7 +120,11 @@ const Actions = () => {
             accessor: VM_ACTIONS.CREATE_DIALOG,
             dataCy: `vm_${VM_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 isConfirmDialog: true,
@@ -140,6 +144,7 @@ const Actions = () => {
                       <VmTemplatesTable
                         disableGlobalSort
                         disableRowSelect
+                        singleSelect
                         classes={classes}
                         onRowClick={redirectToInstantiate}
                       />
@@ -158,6 +163,10 @@ const Actions = () => {
             dataCy: `vm_${VM_ACTIONS.RESUME}`,
             disabled: isDisabled(VM_ACTIONS.RESUME),
             tooltip: T.Resume,
+            label: T.Resume,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             selected: true,
             icon: PlayOutline,
             action: async (rows) => {
@@ -168,47 +177,14 @@ const Actions = () => {
             },
           },
           {
-            accessor: VM_ACTIONS.CREATE_APP_DIALOG,
-            dataCy: `vm_${VM_ACTIONS.CREATE_APP_DIALOG}`,
-            disabled: isDisabled(VM_ACTIONS.CREATE_APP_DIALOG),
-            tooltip: T.CreateMarketApp,
-            selected: { max: 1 },
-            icon: Cart,
-            action: (rows) => {
-              const vm = rows?.[0]?.original ?? {}
-              const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
-
-              history.push(path, [RESOURCE_NAMES.VM, vm])
-            },
-          },
-          {
-            accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
-            dataCy: `vm_${VM_ACTIONS.SAVE_AS_TEMPLATE}`,
-            disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
-            tooltip: T.SaveAsTemplate,
-            selected: { max: 1 },
-            icon: SaveFloppyDisk,
-            options: [
-              {
-                dialogProps: {
-                  title: T.SaveAsTemplate,
-                  subheader: SubHeader,
-                },
-                form: Vm.SaveAsTemplateForm,
-                onSubmit: (rows) => async (formData) => {
-                  const data = { id: rows?.[0]?.original?.ID, ...formData }
-                  const response = await saveAsTemplate(data)
-                  enqueueSuccess(response)
-                },
-              },
-            ],
-          },
-          {
-            tooltip: T.Manage,
-            icon: SystemShut,
+            tooltip: T.VMState,
+            label: T.VMState,
+            icon: Settings,
             selected: true,
-            color: 'secondary',
             dataCy: 'vm-manage',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: VM_ACTIONS.SUSPEND,
@@ -346,15 +322,6 @@ const Actions = () => {
                   )
                 },
               },
-            ],
-          },
-          {
-            tooltip: T.Host,
-            icon: TransitionRight,
-            selected: true,
-            color: 'secondary',
-            dataCy: 'vm-host',
-            options: [
               {
                 accessor: VM_ACTIONS.DEPLOY,
                 disabled: isDisabled(VM_ACTIONS.DEPLOY),
@@ -371,6 +338,35 @@ const Actions = () => {
                   )
                 },
               },
+              {
+                accessor: VM_ACTIONS.HOLD,
+                disabled: isDisabled(VM_ACTIONS.HOLD),
+                name: T.Hold,
+                isConfirmDialog: true,
+                dialogProps: {
+                  title: T.Hold,
+                  children: MessageToConfirmAction,
+                  dataCy: `modal-${VM_ACTIONS.HOLD}`,
+                },
+                onSubmit: (rows) => async () => {
+                  const ids = rows?.map?.(({ original }) => original?.ID)
+                  await Promise.all(
+                    ids.map((id) => actionVm({ id, action: 'hold' }))
+                  )
+                },
+              },
+            ],
+          },
+          {
+            tooltip: T.VMActions,
+            label: T.VMActions,
+            icon: TransitionRight,
+            selected: true,
+            dataCy: 'vm-host',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            options: [
               {
                 accessor: VM_ACTIONS.MIGRATE,
                 disabled: isDisabled(VM_ACTIONS.MIGRATE),
@@ -402,23 +398,6 @@ const Actions = () => {
                   const ids = rows?.map?.(({ original }) => original?.ID)
                   await Promise.all(
                     ids.map((id) => migrate({ id, ...formData, live: true }))
-                  )
-                },
-              },
-              {
-                accessor: VM_ACTIONS.HOLD,
-                disabled: isDisabled(VM_ACTIONS.HOLD),
-                name: T.Hold,
-                isConfirmDialog: true,
-                dialogProps: {
-                  title: T.Hold,
-                  children: MessageToConfirmAction,
-                  dataCy: `modal-${VM_ACTIONS.HOLD}`,
-                },
-                onSubmit: (rows) => async () => {
-                  const ids = rows?.map?.(({ original }) => original?.ID)
-                  await Promise.all(
-                    ids.map((id) => actionVm({ id, action: 'hold' }))
                   )
                 },
               },
@@ -531,7 +510,7 @@ const Actions = () => {
                   const vmId = vm?.ID
                   const backupIds = [].concat(vm?.BACKUPS?.BACKUP_IDS?.ID ?? [])
 
-                  return Backup.RestoreFormBackup({
+                  return Backup.RestoreForm({
                     stepProps: {
                       disableImageSelection: false,
                       vmsId: [vmId],
@@ -555,11 +534,56 @@ const Actions = () => {
             ],
           },
           {
+            accessor: VM_ACTIONS.CREATE_APP_DIALOG,
+            dataCy: `vm_${VM_ACTIONS.CREATE_APP_DIALOG}`,
+            disabled: isDisabled(VM_ACTIONS.CREATE_APP_DIALOG),
+            label: T.CreateApp,
+            tooltip: T.CreateApp,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            selected: { max: 1 },
+            icon: Cart,
+            action: (rows) => {
+              const vm = rows?.[0]?.original ?? {}
+              const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
+
+              history.push(path, [RESOURCE_NAMES.VM, vm])
+            },
+          },
+          {
+            accessor: VM_ACTIONS.SAVE_AS_TEMPLATE,
+            dataCy: `vm_${VM_ACTIONS.SAVE_AS_TEMPLATE}`,
+            disabled: isDisabled(VM_ACTIONS.SAVE_AS_TEMPLATE),
+            tooltip: T.SaveAsTemplate,
+            selected: { max: 1 },
+            icon: SaveFloppyDisk,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED_ICON,
+            options: [
+              {
+                dialogProps: {
+                  title: T.SaveAsTemplate,
+                  subheader: SubHeader,
+                },
+                form: Vm.SaveAsTemplateForm,
+                onSubmit: (rows) => async (formData) => {
+                  const data = { id: rows?.[0]?.original?.ID, ...formData }
+                  const response = await saveAsTemplate(data)
+                  enqueueSuccess(response)
+                },
+              },
+            ],
+          },
+          {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
             dataCy: 'vm-ownership',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: VM_ACTIONS.CHANGE_OWNER,
@@ -601,8 +625,10 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
             dataCy: 'vm-lock',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: VM_ACTIONS.LOCK,
@@ -639,9 +665,11 @@ const Actions = () => {
           {
             tooltip: T.Terminate,
             icon: Trash,
-            color: 'error',
             selected: true,
             dataCy: 'vm-terminate',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: VM_ACTIONS.TERMINATE,

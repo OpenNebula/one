@@ -32,13 +32,10 @@ export const rowStyles = ({ palette, typography, breakpoints } = {}) => ({
       flexWrap: 'wrap',
     },
   }),
-  figure: css({
-    flexBasis: '10%',
-    aspectRatio: '16/9',
-  }),
+  figure: css({}),
   image: css({
-    width: '100%',
-    height: '100%',
+    height: '2.8125rem',
+    width: '2.8125rem',
     objectFit: 'contain',
     userSelect: 'none',
   }),

@@ -18,17 +18,16 @@ import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { useSnackbar } from 'notistack'
-import { IconButton } from '@mui/material'
 import { Cancel as CloseIcon } from 'iconoir-react'
 
 import NotifierUpload from '@modules/components/Notifier/upload'
 import { useGeneral, useGeneralApi } from '@FeaturesModule'
 import { Translate } from '@modules/components/HOC'
 
+import { SubmitButton } from '@modules/components/FormControl'
+
 const CloseButton = ({ handleClick }) => (
-  <IconButton onClick={handleClick} component="span">
-    <CloseIcon />
-  </IconButton>
+  <SubmitButton onClick={handleClick} component="span" icon={<CloseIcon />} />
 )
 
 let displayed = []

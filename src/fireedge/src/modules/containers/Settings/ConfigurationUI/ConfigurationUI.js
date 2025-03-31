@@ -33,7 +33,13 @@ import {
   ZoneAPI,
   SystemAPI,
 } from '@FeaturesModule'
-import { T, ONEADMIN_ID, SERVERADMIN_ID, AUTH_DRIVER } from '@ConstantsModule'
+import {
+  T,
+  ONEADMIN_ID,
+  SERVERADMIN_ID,
+  AUTH_DRIVER,
+  SERVER_CONFIG,
+} from '@ConstantsModule'
 import {
   FIELDS,
   SCHEMA,
@@ -62,23 +68,33 @@ const Settings = () => {
   const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   const { changeAuthUser } = useAuthApi()
-  const { enqueueError, enqueueSuccess } = useGeneralApi()
+  const { enqueueError, enqueueSuccess, setFullMode, setTableViewMode } =
+    useGeneralApi()
   const [updateUser] = UserAPI.useUpdateUserMutation()
   const [changePassword, { isSuccess: isSuccessChangePassword }] =
     UserAPI.useChangePasswordMutation()
   const { views, view: userView } = useViews()
 
+  const { rowStyle, fullViewMode } = SERVER_CONFIG
+
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
   const { watch, handleSubmit, ...methods } = useForm({
     reValidateMode: 'onChange',
-    defaultValues: useMemo(
-      () =>
-        SCHEMA({ views, userView, zones }).cast(fireedge, {
-          stripUnknown: true,
-        }),
-      [fireedge, zones]
-    ),
+    defaultValues: useMemo(() => {
+      const tablesMode = fireedge?.ROW_STYLE || rowStyle
+      const fullMode = fireedge?.FULL_SCREEN_INFO || fullViewMode
+
+      const fireedgeDefault = {
+        ...fireedge,
+        ROW_STYLE: tablesMode,
+        FULL_SCREEN_INFO: fullMode,
+      }
+
+      return SCHEMA({ views, userView, zones }).cast(fireedgeDefault, {
+        stripUnknown: true,
+      })
+    }, [fireedge, zones]),
   })
 
   const handleUpdateUser = useCallback(
@@ -121,6 +137,10 @@ const Settings = () => {
       changeAuthUser({ ...user, ...newSettings })
 
       handleSubmit(handleUpdateUser)()
+
+      // Update full mode and table mode
+      setFullMode(formData?.FULL_SCREEN_INFO)
+      setTableViewMode(formData?.ROW_STYLE)
     })
 
     return () => subscription.unsubscribe()
@@ -188,7 +208,6 @@ const Settings = () => {
           ]}
         />
         <Link
-          color="secondary"
           component={RouterLink}
           to={generatePath(PATH.SYSTEM.USERS.DETAIL, { id: user.ID })}
         >

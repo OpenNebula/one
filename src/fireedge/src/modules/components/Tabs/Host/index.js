@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, LinearProgress } from '@mui/material'
+import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
@@ -29,6 +29,7 @@ import Numa from '@modules/components/Tabs/Host/Numa'
 import Vms from '@modules/components/Tabs/Host/Vms'
 import Wilds from '@modules/components/Tabs/Host/Wilds'
 import Zombies from '@modules/components/Tabs/Host/Zombies'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 
 const getTabComponent = (tabName) =>
   ({
@@ -71,7 +72,14 @@ const HostTabs = memo(({ id }) => {
     return <Tabs addBorder tabs={tabsAvailable} />
   }
 
-  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  return (
+    <Stack
+      direction="row"
+      sx={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <OpenNebulaLogo width={150} height={150} spinner />
+    </Stack>
+  )
 })
 
 HostTabs.propTypes = { id: PropTypes.string.isRequired }

@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash } from 'iconoir-react'
+import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,12 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, USER_ACTIONS } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  T,
+  USER_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 const { useDisableUserMutation, useEnableUserMutation, useRemoveUserMutation } =
   UserAPI
 
@@ -77,14 +82,48 @@ const Actions = () => {
           {
             accessor: USER_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.SYSTEM.USERS.CREATE),
+          },
+          {
+            accessor: USER_ACTIONS.ENABLE,
+            label: T.Enable,
+            tooltip: T.Enable,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            selected: { min: 1 },
+            dataCy: `user_${USER_ACTIONS.ENABLE}`,
+            action: async (rows) => {
+              const ids = rows?.map?.(({ original }) => original?.ID)
+              await Promise.all(ids.map((id) => enable(id)))
+            },
+          },
+          {
+            accessor: USER_ACTIONS.DISABLE,
+            label: T.Disable,
+            tooltip: T.Disable,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
+            selected: { min: 1 },
+            dataCy: `user_${USER_ACTIONS.DISABLE}`,
+            action: async (rows) => {
+              const ids = rows?.map?.(({ original }) => original?.ID)
+              await Promise.all(ids.map((id) => disable(id)))
+            },
           },
           {
             accessor: USER_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `user_${USER_ACTIONS.DELETE}`,
             options: [
@@ -101,30 +140,6 @@ const Actions = () => {
                 },
               },
             ],
-          },
-          {
-            accessor: USER_ACTIONS.ENABLE,
-            label: T.Enable,
-            tooltip: T.Enable,
-            color: 'secondary',
-            selected: { min: 1 },
-            dataCy: `user_${USER_ACTIONS.ENABLE}`,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => enable(id)))
-            },
-          },
-          {
-            accessor: USER_ACTIONS.DISABLE,
-            label: T.Disable,
-            tooltip: T.Disable,
-            color: 'secondary',
-            selected: { min: 1 },
-            dataCy: `user_${USER_ACTIONS.DISABLE}`,
-            action: async (rows) => {
-              const ids = rows?.map?.(({ original }) => original?.ID)
-              await Promise.all(ids.map((id) => disable(id)))
-            },
           },
         ],
       }),

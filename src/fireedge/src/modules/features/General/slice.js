@@ -15,7 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { createSlice } from '@reduxjs/toolkit'
 
-import { APPS_IN_BETA, APPS_WITH_SWITCHER } from '@ConstantsModule'
+import {
+  APPS_IN_BETA,
+  APPS_WITH_SWITCHER,
+  TABLE_VIEW_MODE,
+} from '@ConstantsModule'
 import { logout } from '@modules/features/Auth/slice'
 import * as actions from '@modules/features/General/actions'
 import { calculateIndex, generateKey, parsePayload } from '@UtilsModule'
@@ -29,6 +33,9 @@ const initial = {
   isLoading: false,
   isFixMenu: false,
   isUpdateDialog: false,
+  isFullMode: false,
+  tableViewMode: TABLE_VIEW_MODE.CARD,
+  breadcrumb: { parent: {}, child: {} },
   loadedOsProfile: {},
   upload: 0,
   notifications: [],
@@ -84,7 +91,15 @@ const slice = createSlice({
       .addCase(actions.setUpdateDialog, (state, { payload }) => {
         state.isUpdateDialog = !!payload
       })
-
+      .addCase(actions.setFullMode, (state, { payload }) => {
+        state.isFullMode = !!payload
+      })
+      .addCase(actions.setBreadcrumb, (state, { payload }) => {
+        state.breadcrumb = payload
+      })
+      .addCase(actions.setTableViewMode, (state, { payload }) => {
+        state.tableViewMode = payload
+      })
       .addCase(actions.setLoadOsProfile, (state, { payload }) => {
         const { stepId } = payload
         const exists = get(state.loadedOsProfile, stepId, false)

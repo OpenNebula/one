@@ -25,7 +25,7 @@ import { deepClean } from '@UtilsModule'
 import { VmsTable } from '@modules/components/Tables'
 import { StatusCircle } from '@modules/components/Status'
 import { getRoleState } from '@ModelsModule'
-import { Button, Box, Dialog, Typography } from '@mui/material'
+import { Box, Dialog, Typography, Stack, Button } from '@mui/material'
 import RoleStep from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles'
 import { ScaleDialog } from '@modules/components/Tabs/Service/ScaleDialog'
 import { useForm, FormProvider } from 'react-hook-form'
@@ -40,7 +40,7 @@ import {
   PlayOutline,
 } from 'iconoir-react'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 
 // Filters actions based on the data-cy key
@@ -196,15 +196,8 @@ const RolesTab = ({ id }) => {
   const isSelected = (idx) => selectedRoles.includes(idx)
 
   return (
-    <Box display="flex" flexDirection="column" padding="1em" width="100%">
-      <Box
-        display="flex"
-        flexDirection="row"
-        alignItems="stretch"
-        justifyContent="space-between"
-        width="100%"
-        marginBottom="2em"
-      >
+    <Stack direction="column" gap="2rem">
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Box display="flex" gap="2em" marginRight="2em">
           <>
             <ButtonGenerator
@@ -215,15 +208,10 @@ const RolesTab = ({ id }) => {
               }}
               options={{
                 singleButton: {
-                  sx: {
-                    fontSize: '0.95rem',
-                    padding: '6px 8px',
-                    minWidth: '80px',
-                    minHeight: '30px',
-                    maxHeight: '40px',
-                    whiteSpace: 'nowrap',
-                  },
                   'data-cy': 'AddRole',
+                  importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                  size: STYLE_BUTTONS.SIZE.MEDIUM,
+                  type: STYLE_BUTTONS.TYPE.FILLED,
                 },
               }}
             />
@@ -243,13 +231,10 @@ const RolesTab = ({ id }) => {
             options={{
               singleButton: {
                 disabled: !selectedRoles?.length > 0,
-                sx: {
-                  fontSize: '0.95rem',
-                  padding: '6px 12px',
-                  minWidth: '80px',
-                  minHeight: '30px',
-                  maxHeight: '40px',
-                },
+                'data-cy': 'ScaleRole',
+                importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
               },
             }}
           />
@@ -270,19 +255,12 @@ const RolesTab = ({ id }) => {
               singleButton: {
                 disabled: !selectedRoles?.length > 0,
                 icon: <PlayOutline />,
-                sx: (theme) => ({
-                  color: theme.palette.text.primary,
-                  padding: '0',
-                  borderRadius: '50%',
-                  '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                  '&.selected': {
-                    border: `2px solid ${theme.palette.secondary.main}`,
-                  },
-                }),
+                'data-cy': 'ResumeRole',
                 title: null,
-                type: 'icon',
+                buttonType: 'icon',
+                importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
               },
             }}
           />
@@ -305,13 +283,12 @@ const RolesTab = ({ id }) => {
             options={{
               button: {
                 disabled: !selectedRoles?.length > 0,
-                startIcon: <SystemShut />,
-                endIcon: <NavArrowDown />,
-                sx: {
-                  fontSize: 20,
-                  padding: '8px 16px',
-                  border: '0',
-                },
+                icon: <SystemShut />,
+                endicon: <NavArrowDown />,
+                'data-cy': 'PoweroffRole',
+                importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
                 title: null,
               },
             }}
@@ -335,12 +312,12 @@ const RolesTab = ({ id }) => {
             options={{
               button: {
                 disabled: !selectedRoles?.length > 0,
-                startIcon: <TransitionRight />,
-                endIcon: <NavArrowDown />,
-                sx: {
-                  fontSize: 20,
-                  padding: '8px 16px',
-                },
+                icon: <TransitionRight />,
+                endicon: <NavArrowDown />,
+                'data-cy': 'StopRole',
+                importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
                 title: null,
               },
             }}
@@ -360,13 +337,12 @@ const RolesTab = ({ id }) => {
             options={{
               button: {
                 disabled: !selectedRoles?.length > 0,
-                startIcon: <Refresh />,
-                endIcon: <NavArrowDown />,
-                sx: {
-                  fontSize: 20,
-                  padding: '8px 16px',
-                  marginRight: '1em',
-                },
+                icon: <Refresh />,
+                endicon: <NavArrowDown />,
+                'data-cy': 'RebootRole',
+                importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
                 title: null,
               },
             }}
@@ -386,21 +362,18 @@ const RolesTab = ({ id }) => {
             options={{
               button: {
                 disabled: !selectedRoles?.length > 0,
-                startIcon: <Trash />,
-                endIcon: <NavArrowDown />,
-                color: 'error',
-                sx: {
-                  fontSize: 20,
-                  padding: '8px 16px',
-                  marginLeft: '2em',
-                  color: 'primary',
-                },
+                icon: <Trash />,
+                endicon: <NavArrowDown />,
+                'data-cy': 'TerminateRole',
+                importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
                 title: null,
               },
             }}
           />
         </Box>
-      </Box>
+      </Stack>
 
       {roles.map((role, idx) => (
         <Box
@@ -452,7 +425,7 @@ const RolesTab = ({ id }) => {
           )}
         </Box>
       ))}
-    </Box>
+    </Stack>
   )
 }
 

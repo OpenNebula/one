@@ -22,7 +22,7 @@ import Edit from 'iconoir-react/dist/Edit'
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { AttachPciForm } from '@modules/components/Forms/Vm'
 import { Tr, Translate } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { useGeneralApi } from '@FeaturesModule'
 
 const AttachPciAction = memo(
@@ -40,11 +40,12 @@ const AttachPciAction = memo(
                 sx,
               }
             : {
-                color: 'secondary',
                 'data-cy': 'attach-pci',
                 label: T.AttachPci,
-                variant: 'outlined',
                 sx,
+                importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
               }
         }
         options={[

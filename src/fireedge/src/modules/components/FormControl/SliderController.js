@@ -92,7 +92,6 @@ const SliderController = memo(
           alignItems="center"
         >
           <Slider
-            color="secondary"
             value={typeof value === 'number' ? value : 0}
             aria-labelledby={sliderId}
             valueLabelDisplay="auto"

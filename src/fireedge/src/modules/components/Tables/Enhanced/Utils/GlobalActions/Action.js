@@ -69,6 +69,10 @@ const ActionItem = memo(({ item, selectedRows, onSelectedRowsChange }) => {
     disabled,
     useQuery,
     selected,
+    sx,
+    importance,
+    size,
+    type,
   } = item
 
   const isDisabledByNumberOfSelectedRows = useMemo(() => {
@@ -93,6 +97,10 @@ const ActionItem = memo(({ item, selectedRows, onSelectedRowsChange }) => {
     icon: Icon && <Icon />,
     label: label && Tr(label),
     title: tooltip && Tr(tooltip),
+    sx,
+    importance,
+    size,
+    type,
   }
 
   const addRowsToFn = useCallback(

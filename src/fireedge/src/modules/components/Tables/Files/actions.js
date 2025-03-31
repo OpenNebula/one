@@ -16,7 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
-import { MoreVert, AddCircledOutline, Group, Trash } from 'iconoir-react'
+import { MoreVert, Plus, Group, Trash } from 'iconoir-react'
 
 import { useViews, ImageAPI } from '@FeaturesModule'
 
@@ -29,7 +29,12 @@ import {
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components'
 import { isVmAvailableAction } from '@ModelsModule'
-import { T, IMAGE_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  IMAGE_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const isDisabled = (action) => (rows) =>
   !isVmAvailableAction(
@@ -87,7 +92,11 @@ const Actions = () => {
             dataCy: `file_${IMAGE_ACTIONS.CREATE_DIALOG}`,
             disabled: isDisabled(IMAGE_ACTIONS.CREATE_DIALOG),
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: (rows) => {
               history.push(PATH.STORAGE.FILES.CREATE)
             },
@@ -96,7 +105,9 @@ const Actions = () => {
             tooltip: T.Enable,
             icon: MoreVert,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-enable',
             options: [
               {
@@ -133,7 +144,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-ownership',
             options: [
               {
@@ -176,7 +189,9 @@ const Actions = () => {
             accessor: IMAGE_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `image_${IMAGE_ACTIONS.DELETE}`,
             options: [

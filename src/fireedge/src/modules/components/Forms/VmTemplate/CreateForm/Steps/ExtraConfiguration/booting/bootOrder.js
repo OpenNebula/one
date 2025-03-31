@@ -215,7 +215,6 @@ const BootOrder = () => {
                       >
                         <Checkbox
                           checked={!disabled}
-                          color="secondary"
                           data-cy={ID}
                           onChange={() => handleEnable(ID)}
                         />

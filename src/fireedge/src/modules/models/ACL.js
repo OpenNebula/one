@@ -377,11 +377,11 @@ export const aclFromString = (rule, users, groups, clusters, zones) => {
 
     // Set resource user values
     const resourceUserType = _.find(ACL_USERS, {
-      id: resourcesIdentifier.charAt(0),
+      id: resourcesIdentifier?.charAt(0),
     })?.type
     const resourceId =
-      resourcesIdentifier.length > 1
-        ? resourcesIdentifier.substring(1)
+      resourcesIdentifier?.length > 1
+        ? resourcesIdentifier?.substring(1)
         : undefined
     let resourceUsername
     if (resourceUserType === ACL_USERS.GROUP.type && groups) {

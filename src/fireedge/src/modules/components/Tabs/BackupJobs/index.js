@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, Fade, LinearProgress, useTheme } from '@mui/material'
+import { Alert, Fade, useTheme, Stack } from '@mui/material'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { css } from '@emotion/css'
 import { SubmitButton } from '@modules/components/FormControl'
 import { Translate } from '@modules/components/HOC'
@@ -103,7 +104,14 @@ const BackupJobTabs = memo(({ id }) => {
     )
   }
 
-  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  return (
+    <Stack
+      direction="row"
+      sx={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <OpenNebulaLogo width={150} height={150} spinner />
+    </Stack>
+  )
 })
 BackupJobTabs.propTypes = { id: PropTypes.string.isRequired }
 BackupJobTabs.displayName = 'BackupJobTabs'

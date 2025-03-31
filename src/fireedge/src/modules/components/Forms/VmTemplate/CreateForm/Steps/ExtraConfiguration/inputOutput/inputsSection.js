@@ -15,15 +15,15 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useCallback, memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, FormControl, Divider, Button } from '@mui/material'
+import { Stack, FormControl, Divider } from '@mui/material'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import { DeleteCircledOutline, AddCircledOutline } from 'iconoir-react'
+import { DeleteCircledOutline, Plus } from 'iconoir-react'
 import { useFieldArray, useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FormWithSchema, Legend } from '@modules/components/Forms'
-import { Tr, Translate } from '@modules/components/HOC'
+import { Tr } from '@modules/components/HOC'
 
 import {
   INPUTS_FIELDS,
@@ -31,7 +31,7 @@ import {
   deviceTypeIcons,
   busTypeIcons,
 } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/inputOutput/schema'
-import { T, HYPERVISORS } from '@ConstantsModule'
+import { T, HYPERVISORS, STYLE_BUTTONS } from '@ConstantsModule'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 import { hasRestrictedAttributes } from '@UtilsModule'
@@ -93,7 +93,7 @@ const InputsSection = memo(
         <FormProvider {...methods}>
           <Stack
             direction="row"
-            alignItems="flex-start"
+            alignItems="center"
             gap="0.5rem"
             component="form"
             onSubmit={methods.handleSubmit(onSubmit)}
@@ -105,16 +105,14 @@ const InputsSection = memo(
               saveState={true}
               fieldPath={`${stepId}.InputOutput`}
             />
-            <Button
-              variant="contained"
-              type="submit"
-              color="secondary"
-              startIcon={<AddCircledOutline />}
+            <SubmitButton
+              startIcon={<Plus />}
               data-cy={getCyPath('add-io-inputs')}
-              sx={{ mt: '1em' }}
-            >
-              <Translate word={T.Add} />
-            </Button>
+              label={T.Add}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+            ></SubmitButton>
           </Stack>
         </FormProvider>
         <Divider />

@@ -16,13 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
-import {
-  AddCircledOutline,
-  Trash,
-  PlayOutline,
-  Lock,
-  Group,
-} from 'iconoir-react'
+import { Plus, Trash, PlayOutline, Lock, Group } from 'iconoir-react'
 
 import { useViews, VmTemplateAPI, VrTemplateAPI } from '@FeaturesModule'
 
@@ -35,7 +29,12 @@ import {
 
 import { Tr, Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import { T, VROUTER_TEMPLATE_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  VROUTER_TEMPLATE_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const ListVrTemplateNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -91,7 +90,11 @@ const Actions = () => {
           {
             accessor: VROUTER_TEMPLATE_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.TEMPLATE.VROUTERS.CREATE),
           },
           {
@@ -99,6 +102,9 @@ const Actions = () => {
             tooltip: T.Instantiate,
             icon: PlayOutline,
             selected: { max: 1 },
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: (rows) => {
               const template = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.VROUTERS.INSTANTIATE
@@ -111,7 +117,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const template = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.VROUTERS.CREATE
@@ -124,7 +132,9 @@ const Actions = () => {
             label: T.Clone,
             tooltip: T.Clone,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -172,7 +182,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-ownership',
             options: [
               {
@@ -247,7 +259,9 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-lock',
             options: [
               {
@@ -287,7 +301,9 @@ const Actions = () => {
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {

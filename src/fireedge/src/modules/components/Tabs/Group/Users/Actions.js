@@ -20,7 +20,7 @@ import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 
 import { EditAdminsForm, EditUsersForm } from '@modules/components/Forms/Group'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 /**
  * Action to edit administrators of a group
@@ -34,13 +34,11 @@ const EditAdminsActions = memo(({ admins, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'edit-admins',
         label: T['groups.actions.edit.admins'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.OUTLINED,
       }}
       options={[
         {
@@ -73,13 +71,11 @@ const AddUsersAction = memo(({ users, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'add-user',
         label: T['groups.actions.add.user'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.FILLED,
       }}
       options={[
         {
@@ -112,13 +108,11 @@ const RemoveUsersAction = memo(({ users, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'remove-user',
         label: T['groups.actions.remove.user'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.OUTLINED,
       }}
       options={[
         {

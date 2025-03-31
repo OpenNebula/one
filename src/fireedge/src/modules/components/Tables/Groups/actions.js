@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash } from 'iconoir-react'
+import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,12 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, GROUP_ACTIONS } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  T,
+  GROUP_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const ListGroupNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -73,7 +78,11 @@ const Actions = () => {
           {
             accessor: GROUP_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.SYSTEM.GROUPS.CREATE),
           },
           {
@@ -81,7 +90,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const group = rows?.[0]?.original ?? {}
               const path = PATH.SYSTEM.GROUPS.CREATE
@@ -93,7 +104,9 @@ const Actions = () => {
             accessor: GROUP_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `group_${GROUP_ACTIONS.DELETE}`,
             options: [

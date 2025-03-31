@@ -42,7 +42,7 @@ export const Log = memo(({ id }) => {
   )
 
   return isLoading ? (
-    <LinearProgress color="secondary" sx={{ width: '100%' }} />
+    <LinearProgress sx={{ width: '100%' }} />
   ) : (
     <DebugLog uuid={uuid} socket={getProvisionSocket} logDefault={parsedLog} />
   )

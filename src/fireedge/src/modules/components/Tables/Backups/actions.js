@@ -27,7 +27,12 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 
 import { Translate } from '@modules/components/HOC'
-import { IMAGE_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
+import {
+  IMAGE_ACTIONS,
+  RESOURCE_NAMES,
+  T,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
 
 const isDisabled = (action) => (rows) =>
@@ -81,10 +86,12 @@ const Actions = () => {
         actions: [
           {
             accessor: IMAGE_ACTIONS.RESTORE,
-            color: 'secondary',
             dataCy: `image-${IMAGE_ACTIONS.RESTORE}`,
             label: T.Restore,
             tooltip: T.Restore,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             selected: { max: 1 },
             options: [
               {
@@ -149,7 +156,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-ownership',
             options: [
               {
@@ -192,7 +201,9 @@ const Actions = () => {
             accessor: IMAGE_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `image_${IMAGE_ACTIONS.DELETE}`,
             options: [

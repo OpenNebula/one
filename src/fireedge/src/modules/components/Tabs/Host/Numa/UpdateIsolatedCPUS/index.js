@@ -90,7 +90,6 @@ const UpdateIsolatedCPUSForm = ({ host }) => {
             paddingBottom="1.25rem"
           >
             <SubmitButton
-              color="secondary"
               data-cy="isolate-cpus-submit-button"
               label={Tr(T.Update)}
               onClick={handleSubmit}

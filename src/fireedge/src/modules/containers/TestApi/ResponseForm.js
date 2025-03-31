@@ -99,7 +99,6 @@ export const ResponseForm = ({
                     <Autocomplete
                       fullWidth
                       multiple
-                      color="secondary"
                       freeSolo
                       options={[]}
                       onChange={(_, newValue) => onChange(newValue ?? '')}
@@ -118,7 +117,6 @@ export const ResponseForm = ({
                           {...inputProps}
                           fullWidth
                           label={paramName}
-                          color="secondary"
                           error={Boolean(error?.message)}
                           helperText={error?.message}
                         />
@@ -132,7 +130,6 @@ export const ResponseForm = ({
                     fullWidth
                     value={value ?? ''}
                     label={paramName}
-                    color="secondary"
                     onChange={onChange}
                     {...controllerProps}
                   />
@@ -145,10 +142,7 @@ export const ResponseForm = ({
           </Grid>
         ))}
         <Grid item xs={12}>
-          <SubmitButton
-            color="secondary"
-            isSubmitting={formState.isSubmitting}
-          />
+          <SubmitButton isSubmitting={formState.isSubmitting} />
         </Grid>
       </Grid>
     </>

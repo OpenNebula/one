@@ -22,7 +22,7 @@ import EnhancedTable, {
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import Timer from '@modules/components/Timer'
-import COLOR, { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { COLOR, RESOURCE_NAMES, T } from '@ConstantsModule'
 import { useAuth, useViews, BackupJobAPI } from '@FeaturesModule'
 import {
   getColorFromString,
@@ -114,8 +114,6 @@ const BackupJobsTable = (props) => {
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     { header: T.Priority, id: 'priority', accessor: 'PRIORITY' },
     {
       header: T.LastBackupTimeInfo,
@@ -135,6 +133,8 @@ const BackupJobsTable = (props) => {
         }
       },
     },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.Labels,
       id: 'labels',

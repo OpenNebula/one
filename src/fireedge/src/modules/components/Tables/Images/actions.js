@@ -14,14 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import {
-  AddCircledOutline,
-  Cart,
-  Group,
-  Lock,
-  MoreVert,
-  Trash,
-} from 'iconoir-react'
+import { Plus, Cart, Group, Lock, MoreVert, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -36,7 +29,13 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Tr, Translate } from '@modules/components/HOC'
-import { IMAGE_ACTIONS, RESOURCE_NAMES, T, VM_ACTIONS } from '@ConstantsModule'
+import {
+  IMAGE_ACTIONS,
+  RESOURCE_NAMES,
+  T,
+  VM_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
 
 const isDisabled = (action) => (rows) =>
@@ -97,8 +96,12 @@ const Actions = () => {
           {
             accessor: IMAGE_ACTIONS.CREATE_DIALOG,
             tooltip: T.CreateImage,
+            label: T.Create,
             dataCy: `image_${IMAGE_ACTIONS.CREATE_DIALOG}`,
-            icon: AddCircledOutline,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.STORAGE.IMAGES.CREATE),
           },
           {
@@ -108,6 +111,9 @@ const Actions = () => {
             tooltip: T.CreateMarketApp,
             selected: { max: 1 },
             icon: Cart,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const vm = rows?.[0]?.original ?? {}
               const path = PATH.STORAGE.MARKETPLACE_APPS.CREATE
@@ -120,7 +126,9 @@ const Actions = () => {
             label: T.Clone,
             tooltip: T.Clone,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -168,7 +176,9 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-lock',
             options: [
               {
@@ -205,7 +215,9 @@ const Actions = () => {
             tooltip: T.Enable,
             icon: MoreVert,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-enable',
             options: [
               {
@@ -274,7 +286,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'image-ownership',
             options: [
               {
@@ -317,7 +331,9 @@ const Actions = () => {
             accessor: IMAGE_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `image_${IMAGE_ACTIONS.DELETE}`,
             options: [

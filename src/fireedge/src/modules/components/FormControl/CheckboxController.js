@@ -51,6 +51,8 @@ const CheckboxController = memo(
       fieldState: { error },
     } = useController({ name, control })
 
+    const { sx, ...restFieldProps } = fieldProps
+
     const handleChange = useCallback(
       (e) => {
         onBlur()
@@ -64,7 +66,7 @@ const CheckboxController = memo(
     )
 
     return (
-      <FormControl error={Boolean(error)} margin="dense">
+      <FormControl error={Boolean(error)} margin="dense" sx={{ ...sx }}>
         <FormControlLabel
           control={
             <Checkbox
@@ -72,9 +74,8 @@ const CheckboxController = memo(
               name={name}
               readOnly={readOnly}
               checked={Boolean(value)}
-              color="secondary"
               inputProps={{ 'data-cy': cy }}
-              {...fieldProps}
+              {...restFieldProps}
             />
           }
           label={

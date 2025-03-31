@@ -73,7 +73,6 @@ export const Networks = memo(({ id }) => {
         <Stack alignSelf="center">
           <SubmitButton
             data-cy="add-ip"
-            color="secondary"
             endicon={<AddCircledOutline />}
             label={<Translate word={T.AddIP} />}
             sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}

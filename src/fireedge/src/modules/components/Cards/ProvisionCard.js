@@ -104,7 +104,7 @@ const ProvisionCard = memo(
             sx={{
               cursor: 'pointer',
               '&:hover': {
-                color: 'secondary.dark',
+                color: 'primary.dark',
               },
             }}
             data-cy={`${isProvider ? 'provider' : 'provision'}-card-title`}

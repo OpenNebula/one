@@ -210,6 +210,7 @@ const DESCRIPTION = {
 const OPTIONS = {
   name: 'options',
   label: (type) => getType(type)?.label ?? T.Options,
+  tooltip: [T.PressKeysToAddAValue, ['ENTER']],
   dependOf: UI_TYPE.name,
   type: (type) => getType(type)?.type,
   htmlType: (type) =>

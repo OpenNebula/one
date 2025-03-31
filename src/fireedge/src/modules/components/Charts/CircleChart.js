@@ -27,7 +27,7 @@ import NumberEasing from '@modules/components/NumberEasing'
  * @returns {JSXElementConstructor} Circular progress bar component
  */
 const Circle = memo(
-  ({ color = 'secondary' }) => {
+  ({ color = 'primary' }) => {
     const [progress, setProgress] = useState(0)
 
     useEffect(() => {

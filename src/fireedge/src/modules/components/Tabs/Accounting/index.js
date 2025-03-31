@@ -22,7 +22,6 @@ import {
   InputLabel,
   FormControl,
   Box,
-  Button,
   Chip,
   Tooltip,
 } from '@mui/material'
@@ -41,7 +40,9 @@ import {
 } from '@modules/components/Tabs/Accounting/helpers'
 import { filterDataset } from '@modules/components/Charts/MultiChart/helpers/scripts'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+
+import { SubmitButton } from '@modules/components/FormControl'
 
 const ACTION_ADD = 'add'
 const ACTION_REMOVE = 'remove'
@@ -262,13 +263,14 @@ const generateAccountingInfoTab = ({ groups }) => {
                 }}
                 arrow
               >
-                <Button
-                  variant="contained"
+                <SubmitButton
+                  importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                  size={STYLE_BUTTONS.SIZE.MEDIUM}
+                  type={STYLE_BUTTONS.TYPE.FILLED}
                   onClick={() => handleDatasetChange('add')}
                   disabled={isLoading}
-                >
-                  <Plus />
-                </Button>
+                  icon={<Plus />}
+                />
               </Tooltip>
             </Box>
             <Box display="flex" alignItems="center" gap={2}>

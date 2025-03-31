@@ -83,9 +83,15 @@ export const isRestrictedAttributes = (
   section = 'PARENT',
   restrictedAttributes = []
 ) => {
+  // Ensure that restricted attributes is an array
+  const ensureRestrictedAttributes = Array.isArray(restrictedAttributes)
+    ? restrictedAttributes
+    : [restrictedAttributes]
+
   // Create map with restricted attributes
-  const mapRestrictedAttributes =
-    mapRestrictedAttributesFunction(restrictedAttributes)
+  const mapRestrictedAttributes = mapRestrictedAttributesFunction(
+    ensureRestrictedAttributes
+  )
 
   // Find if there is a restricted attribute in the item
   const restricteAttribute = mapRestrictedAttributes[section]?.find(

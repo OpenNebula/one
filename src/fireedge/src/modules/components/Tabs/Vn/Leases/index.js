@@ -131,7 +131,6 @@ const LeasesTab = ({ tabProps: { actions } = {}, id }) => {
           <SubmitButton
             type="submit"
             isSubmitting={isHolding}
-            color="secondary"
             variant="outlined"
             label={T.HoldIP}
           />

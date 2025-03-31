@@ -20,7 +20,7 @@ import { MenuItem, MenuList, Stack } from '@mui/material'
 import { ArrowDown, ArrowUp, SortDown } from 'iconoir-react'
 import { UseSortByInstanceProps, UseSortByState } from 'opennebula-react-table'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import HeaderPopover from '@modules/components/Header/Popover'
 import { Translate } from '@modules/components/HOC'
 
@@ -72,8 +72,10 @@ const GlobalSort = memo(
           buttonProps={{
             'data-cy': 'sort-by-button',
             disableElevation: true,
-            variant: sortBy?.length > 0 ? 'contained' : 'outlined',
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
+            active: sortBy?.length > 0,
           }}
           popperProps={{ placement: 'bottom-end' }}
         >

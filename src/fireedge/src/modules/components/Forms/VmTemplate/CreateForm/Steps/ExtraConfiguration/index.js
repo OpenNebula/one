@@ -46,6 +46,7 @@ import {
 import { STEP_ID as GENERAL_ID } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General'
 import { SCHEMA } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { getActionsAvailable as getSectionsAvailable } from '@ModelsModule'
+import { Box } from '@mui/material'
 
 const VROUTER_DISABLED_TABS = ['network', 'pci']
 
@@ -167,7 +168,13 @@ const Content = ({
     [totalErrors, view, control, oneConfig, adminGroup]
   )
 
-  return <Tabs tabs={tabs} />
+  return (
+    <Box sx={{ height: 'auto', overflow: 'auto' }}>
+      <Tabs addBorder tabs={tabs} />
+    </Box>
+  )
+
+  // return <Tabs addBorder tabs={tabs} sx={{overflow: 'auto', height: 'auto'}} />
 }
 
 /**

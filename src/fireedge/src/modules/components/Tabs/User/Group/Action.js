@@ -16,7 +16,7 @@
 import PropTypes from 'prop-types'
 import { memo } from 'react'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { EditGroupForm } from '@modules/components/Forms/User'
 
@@ -29,13 +29,11 @@ const AddToGroup = memo(({ groups, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'add-to-group',
         label: T['users.actions.add.to.group'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.FILLED,
       }}
       options={[
         {
@@ -67,13 +65,11 @@ const RemoveFromGroup = memo(({ groups, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'remove-from-group',
         label: T['users.actions.remove.from.group'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.OUTLINED,
       }}
       options={[
         {
@@ -105,13 +101,11 @@ const ChangePrimaryGroup = memo(({ groups, filterData, submit }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'change-primary-group',
         label: T['users.actions.change.primary.group'],
-        variant: 'outlined',
-        sx: {
-          m: '1em',
-        },
+        importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.OUTLINED,
       }}
       options={[
         {
@@ -126,6 +120,7 @@ const ChangePrimaryGroup = memo(({ groups, filterData, submit }) => {
               initialValues: groups,
               stepProps: {
                 filterData,
+                singleSelect: true,
               },
             }),
           onSubmit: handleSubmit,

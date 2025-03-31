@@ -50,7 +50,7 @@ const useStyles = (theme) => ({
     textAlign: 'center',
   }),
   links: css({
-    color: theme.palette.secondary.dark,
+    color: theme.palette.primary.dark,
     textDecoration: 'none',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -95,7 +95,6 @@ export const Form = ({ onSubmit, error, isLoading }) => {
         </FormProvider>
         <Stack direction="row-reverse" gap={1} my={2}>
           <SubmitButton
-            color="secondary"
             data-cy="login-button"
             isSubmitting={isLoading}
             sx={{ textTransform: 'uppercase' }}

@@ -37,7 +37,6 @@ const CategoryFilter = ({ column: { Header, filterValue, setFilter, id } }) => (
       onChange={(evt) => {
         console.log(evt.target.value)
       }}
-      color="secondary"
       type="date"
       inputProps={{ 'data-cy': `after-${id}` }}
     />
@@ -48,7 +47,6 @@ const CategoryFilter = ({ column: { Header, filterValue, setFilter, id } }) => (
       onChange={(evt) => {
         console.log(evt.target.value)
       }}
-      color="secondary"
       type="date"
       inputProps={{ 'data-cy': `before-${id}` }}
     />

@@ -24,6 +24,7 @@ import { DevTypography } from '@modules/components/Typography'
 import { Translate } from '@modules/components/HOC'
 import { isDevelopment } from '@UtilsModule'
 import { T, APPS, APP_URL } from '@ConstantsModule'
+import { useHistory } from 'react-router-dom'
 
 /**
  * Menu with actions about App: signOut, etc.
@@ -33,13 +34,17 @@ import { T, APPS, APP_URL } from '@ConstantsModule'
 const User = () => {
   const { user } = useAuth()
   const { logout } = useAuthApi()
+  const history = useHistory()
 
   return (
     <HeaderPopover
       id="user-menu"
       buttonLabel={user?.NAME}
       icon={<UserIcon />}
-      buttonProps={{ 'data-cy': 'header-user-button' }}
+      buttonProps={{
+        'data-cy': 'header-user-button',
+        noborder: true,
+      }}
       disablePadding
     >
       {() => (
@@ -47,14 +52,16 @@ const User = () => {
           <MenuItem onClick={logout} data-cy="header-logout-button">
             <Translate word={T.SignOut} />
           </MenuItem>
+          <MenuItem
+            onClick={() => history.push('/settings')}
+            data-cy="header-settings-button"
+          >
+            <Translate word={T.Settings} />
+          </MenuItem>
           {isDevelopment() &&
             APPS?.map((appName) => (
               <MenuItem key={appName}>
-                <Link
-                  width="100%"
-                  color="secondary"
-                  href={`${APP_URL}/${appName}`}
-                >
+                <Link width="100%" href={`${APP_URL}/${appName}`}>
                   <DevTypography>{appName}</DevTypography>
                 </Link>
               </MenuItem>

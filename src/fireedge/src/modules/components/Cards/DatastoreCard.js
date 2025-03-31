@@ -152,7 +152,9 @@ const DatastoreCard = memo(
               <span title={`${Tr(T.Clusters)}`}>
                 <Server />
                 <Stack direction="row" justifyContent="end" alignItems="center">
-                  <MultipleTags tags={clusters} />
+                  {clusters?.map((cluster, index) => (
+                    <span key={index}>{cluster}&nbsp;</span>
+                  ))}
                 </Stack>
               </span>
             )}

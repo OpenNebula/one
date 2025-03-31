@@ -91,6 +91,17 @@ const LIMIT_TRANSFER_BW = {
   grid: { xs: 12, md: 6 },
 }
 
+/** @type {Field} - LVM_THIN_ENABLE field */
+const LVM_THIN_ENABLE = {
+  name: 'LVM_THIN_ENABLE',
+  label: T.LvmThin,
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().yesOrNo(),
+  dependOf: '$general.STORAGE_BACKEND',
+  htmlType: (type) => !typeIsOneOf(type, [isLvm]) && INPUT_TYPES.HIDDEN,
+  grid: { xs: 12, md: 12 },
+}
+
 /** @type {Field} - No decompress field */
 const NO_DECOMPRESS = {
   name: 'NO_DECOMPRESS',
@@ -167,6 +178,7 @@ export const COMMON_FIELDS = [
   STAGING_DIR,
   LIMIT_MB,
   LIMIT_TRANSFER_BW,
+  LVM_THIN_ENABLE,
   NO_DECOMPRESS,
   DATASTORE_CAPACITY_CHECK,
   QCOW2_STANDALONE,

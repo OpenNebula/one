@@ -111,7 +111,12 @@ const VmTemplateCard = memo(
       >
         <div
           className={classes.figure}
-          style={{ flexBasis: '10%', aspectRatio: '1.33/1' }}
+          style={{
+            margin: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'left',
+          }}
         >
           <Image
             alt="logo"

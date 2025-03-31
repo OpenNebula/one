@@ -44,8 +44,8 @@ export function CreateMarketplaceApp() {
     try {
       const createApp = {
         [RESOURCE_NAMES.IMAGE]: async () => {
-          const { id: imageId, marketId, name, image } = restOfData
-          const xml = jsonToXml({ ORIGIN_ID: imageId, NAME: name, ...image })
+          const { id: imageId, marketId, vmname, image } = restOfData
+          const xml = jsonToXml({ ORIGIN_ID: imageId, NAME: vmname, ...image })
 
           return await create({ id: marketId, template: xml })
         },
@@ -55,8 +55,8 @@ export function CreateMarketplaceApp() {
           await importApp({ resource: 'vm-template', ...restOfData }),
       }[String(type).toLowerCase()]
 
-      const response = await createApp?.()?.unwrap?.()
-      response && enqueueSuccess(T.SuccessMarketplaceAppCreated, response)
+      const response = await createApp?.()
+      response && enqueueSuccess(T.SuccessMarketplaceAppCreated)
       history.goBack()
     } catch {}
   }

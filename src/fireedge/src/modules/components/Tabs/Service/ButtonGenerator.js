@@ -15,10 +15,11 @@
  * ------------------------------------------------------------------------- */
 
 import { useState, Component } from 'react'
-import { Box, Button, Menu, MenuItem, IconButton } from '@mui/material'
+import { Box, Menu, MenuItem } from '@mui/material'
 import PropTypes from 'prop-types'
 import { NavArrowDown } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 /**
  * @param {object} root0 - Props
@@ -45,32 +46,23 @@ export const ButtonGenerator = ({ items, options = {} }) => {
   if (Array.isArray(items)) {
     return (
       <Box>
-        {options?.button?.type === 'icon' ? (
-          <IconButton
+        {options?.button?.buttonType === 'icon' ? (
+          <SubmitButton
             aria-controls="customized-menu"
             aria-haspopup="true"
-            variant="contained"
-            color="secondary"
             onClick={handleClick}
             {...options?.button}
-            sx={{
-              ...options?.button?.sx,
-            }}
-          >
-            {options?.button?.icon ?? <NavArrowDown />}
-          </IconButton>
+            icon={options?.button?.icon ?? <NavArrowDown />}
+          />
         ) : (
-          <Button
+          <SubmitButton
             aria-controls="customized-menu"
             aria-haspopup="true"
-            variant="contained"
-            color="secondary"
             onClick={handleClick}
             endIcon={items.length > 1 ? <NavArrowDown /> : null}
             {...options?.button}
-          >
-            {options?.button?.title ? Tr(options?.button?.title) : ''}
-          </Button>
+            label={options?.button?.title ? Tr(options?.button?.title) : ''}
+          />
         )}
         <Menu
           id="customized-menu"
@@ -96,35 +88,33 @@ export const ButtonGenerator = ({ items, options = {} }) => {
       </Box>
     )
   } else {
-    return options?.singleButton?.type === 'icon' ? (
-      <IconButton
+    return options?.singleButton?.buttonType === 'icon' ? (
+      <SubmitButton
         aria-controls="customized-menu"
         aria-haspopup="true"
         onClick={(event) => handleClick(event, items.onClick)}
-        {...options?.button}
+        {...options?.singleButton}
         sx={{
           ...options?.singleButton?.sx,
         }}
-      >
-        {options?.singleButton?.icon ?? <NavArrowDown />}
-      </IconButton>
+        icon={options?.singleButton?.icon ?? <NavArrowDown />}
+      />
     ) : (
-      <Button
-        variant="contained"
-        color="secondary"
+      <SubmitButton
         onClick={(event) => handleClick(event, items.onClick)}
         startIcon={items.icon || null}
         {...options?.singleButton}
         sx={{
           ...options?.singleButton?.sx,
         }}
-      >
-        {options?.singleButton?.title
-          ? Tr(options?.singleButton?.title)
-          : items.name
-          ? Tr(items.name)
-          : ''}
-      </Button>
+        label={
+          options?.singleButton?.title
+            ? Tr(options?.singleButton?.title)
+            : items.name
+            ? Tr(items.name)
+            : ''
+        }
+      />
     )
   }
 }

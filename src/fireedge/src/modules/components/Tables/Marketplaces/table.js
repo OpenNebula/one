@@ -72,8 +72,6 @@ const MarketplacesTable = ({ filter, ...props }) => {
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.Capacity,
       id: 'capacity',
@@ -105,6 +103,8 @@ const MarketplacesTable = ({ filter, ...props }) => {
         ),
     },
     { header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
   ]
 
   const { component, header } = WrapperRow(MarketplaceRow)

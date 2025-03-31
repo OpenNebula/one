@@ -85,11 +85,7 @@ const ListVirtualized = ({
       </Box>
 
       {!canFetchMore && (
-        <LinearProgress
-          ref={loaderRef}
-          color="secondary"
-          className={classes.loading}
-        />
+        <LinearProgress ref={loaderRef} className={classes.loading} />
       )}
     </Box>
   )

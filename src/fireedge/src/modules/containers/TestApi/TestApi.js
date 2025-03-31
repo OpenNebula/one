@@ -49,7 +49,6 @@ export function TestApi() {
       <Grid item xs={12} md={6}>
         <Autocomplete
           disablePortal
-          color="secondary"
           options={useMemo(() => COMMANDS, [])}
           value={name}
           onChange={handleChangeCommand}

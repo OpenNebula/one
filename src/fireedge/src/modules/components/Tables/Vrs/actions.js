@@ -16,7 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash, Lock, Group } from 'iconoir-react'
+import { Plus, Trash, Lock, Group } from 'iconoir-react'
 
 import { useViews, VmTemplateAPI, VrAPI } from '@FeaturesModule'
 
@@ -28,7 +28,12 @@ import {
 
 import { Tr, Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import { T, VROUTER_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  VROUTER_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const ListVmTemplateNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -81,15 +86,21 @@ const Actions = () => {
         actions: [
           {
             accessor: VROUTER_ACTIONS.INSTANTIATE_DIALOG,
-            tooltip: T.Instantiate,
-            icon: AddCircledOutline,
+            tooltip: T.Create,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.INSTANCE.VROUTERS.INSTANTIATE),
           },
           {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-ownership',
             options: [
               {
@@ -164,7 +175,9 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-lock',
             options: [
               {
@@ -202,7 +215,9 @@ const Actions = () => {
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,

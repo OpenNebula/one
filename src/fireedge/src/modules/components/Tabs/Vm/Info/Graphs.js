@@ -21,6 +21,7 @@ import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
 import { prettyBytes } from '@UtilsModule'
+import { useTheme } from '@mui/material'
 
 /**
  * Render Graphs Capacity.
@@ -30,6 +31,9 @@ import { prettyBytes } from '@UtilsModule'
  * @returns {ReactElement} Capacity Graphs.
  */
 const Graphs = ({ id }) => {
+  // Get styles
+  const theme = useTheme()
+
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
 
   const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
@@ -58,7 +62,11 @@ const Graphs = ({ id }) => {
                 forecastFarPeriod * 60 * 60 * 1000
             ).getTime(),
         ]}
-        lineColors={['#40B3D9', '#393945', '#7a7c83']}
+        lineColors={[
+          theme?.palette?.graphs.vm.cpu.real,
+          theme?.palette?.graphs.vm.cpu.forecast,
+          theme?.palette?.graphs.vm.cpu.forecastFar,
+        ]}
         legendNames={[
           T.CPU,
           `${T.CPU} ${T.Forecast}`,
@@ -95,7 +103,11 @@ const Graphs = ({ id }) => {
         interpolationY={(value) =>
           value ? prettyBytes(value, 'KB', 2) : value
         }
-        lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+        lineColors={[
+          theme?.palette?.graphs.vm.memory.real,
+          theme?.palette?.graphs.vm.memory.forecast,
+          theme?.palette?.graphs.vm.memory.forecastFar,
+        ]}
         legendNames={[
           T.Memory,
           `${T.Memory} ${T.Forecast}`,

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, LinearProgress } from '@mui/material'
+import { Alert, Stack } from '@mui/material'
 import PropTypes from 'prop-types'
 import { memo, useMemo } from 'react'
 
@@ -23,6 +23,7 @@ import { getAvailableInfoTabs } from '@ModelsModule'
 
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Info from '@modules/components/Tabs/Zone/Info'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 
 const getTabComponent = (tabName) =>
   ({
@@ -54,7 +55,14 @@ const ZoneTabs = memo(({ id }) => {
     return <Tabs addBorder tabs={tabsAvailable} />
   }
 
-  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  return (
+    <Stack
+      direction="row"
+      sx={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <OpenNebulaLogo width={150} height={150} spinner />
+    </Stack>
+  )
 })
 
 ZoneTabs.propTypes = { id: PropTypes.string.isRequired }

@@ -60,13 +60,13 @@ const VmTemplatesTable = (props) => {
   const listHeader = [
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.RegistrationTime,
       id: 'registration-time',
       accessor: (vm) => timeToString(vm.REGTIME),
     },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.Labels,
       id: 'labels',

@@ -82,7 +82,7 @@ const View = () => {
       id="view-list"
       icon={<ViewIcon />}
       tooltip={<Translate word={T.SwitchView} />}
-      buttonProps={{ 'data-cy': 'header-view-button' }}
+      buttonProps={{ 'data-cy': 'header-view-button', noborder: true }}
       headerTitle={<Translate word={T.SwitchView} />}
     >
       {({ handleClose }) => (

@@ -22,29 +22,32 @@ import FormWithSchema from '@modules/components/Forms/FormWithSchema'
 import { T } from '@ConstantsModule'
 
 const ConfigurationContent = (stepId) => {
-  const ConfigurationComponent = ({
-    oneConfig,
-    adminGroup,
-    isUpdate,
-    isVnet,
-  }) => (
-    <FormWithSchema
-      id={stepId}
-      cy="configuration"
-      fields={FIELDS(oneConfig, adminGroup, isUpdate, isVnet)}
-    />
+  const InnerComponent = ({ oneConfig, adminGroup, isUpdate, isVnet }) => (
+    <>
+      <FormWithSchema
+        id={stepId}
+        cy="configuration"
+        fields={FIELDS(oneConfig, adminGroup, isUpdate, isVnet)}
+      />
+    </>
   )
 
-  ConfigurationComponent.displayName = 'ConfigurationComponent'
-
-  ConfigurationComponent.propTypes = {
+  InnerComponent.displayName = `InnerComponent`
+  InnerComponent.propTypes = {
     oneConfig: PropTypes.object,
     adminGroup: PropTypes.bool,
     isUpdate: PropTypes.bool,
     isVnet: PropTypes.bool,
   }
 
-  return ConfigurationComponent
+  return InnerComponent
+}
+
+ConfigurationContent.displayName = 'ConfigurationContent'
+
+ConfigurationContent.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 /**

@@ -42,7 +42,10 @@ export function CreateSecurityGroup() {
   const [update] = SecurityGroupAPI.useUpdateSecGroupMutation()
   const { enqueueSuccess } = useGeneralApi()
 
-  const { data } = SecurityGroupAPI.useGetSecGroupQuery({ id: secID })
+  const { data } = SecurityGroupAPI.useGetSecGroupQuery(
+    { id: secID },
+    { skip: secID === undefined }
+  )
 
   const onSubmit = async ({ template }) => {
     try {

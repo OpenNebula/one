@@ -22,14 +22,11 @@ import {
 } from '@UtilsModule'
 
 import { Box } from '@mui/material'
-import {
-  AddCircledOutline as AddIcon,
-  Trash as DeleteIcon,
-} from 'iconoir-react/dist'
+import { Plus, Trash as DeleteIcon } from 'iconoir-react/dist'
 
 import { SecurityGroupAPI, VnAPI, useGeneralApi } from '@FeaturesModule'
 
-import { T, VN_ACTIONS } from '@ConstantsModule'
+import { T, VN_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 import { GlobalAction, SecurityGroupsTable } from '@modules/components/Tables'
 
 import { ChangeForm } from '@modules/components/Forms/SecurityGroups'
@@ -135,7 +132,11 @@ const SecurityTab = ({
             accessor: VN_ACTIONS.ADD_SECGROUP,
             dataCy: VN_ACTIONS.ADD_SECGROUP,
             tooltip: T.SecurityGroup,
-            icon: AddIcon,
+            icon: Plus,
+            label: T.Create,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 dialogProps: { title: T.SecurityGroup },

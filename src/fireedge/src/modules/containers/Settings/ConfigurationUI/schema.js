@@ -145,7 +145,7 @@ const ROW_SIZE_FIELD = {
   validation: string()
     .trim()
     .required()
-    .default(() => PAGINATION_SIZES[0]),
+    .default(() => PAGINATION_SIZES[1]),
   grid: { md: 12 },
 }
 

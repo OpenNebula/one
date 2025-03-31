@@ -22,7 +22,7 @@ import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { CreateSnapshotForm } from '@modules/components/Forms/Vm'
 
 import { Tr, Translate } from '@modules/components/HOC'
-import { T, VM_ACTIONS } from '@ConstantsModule'
+import { T, VM_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 
 const CreateAction = memo(({ vmId }) => {
   const [createSnapshot] = VmAPI.useCreateVmSnapshotMutation()
@@ -34,10 +34,11 @@ const CreateAction = memo(({ vmId }) => {
   return (
     <ButtonToTriggerForm
       buttonProps={{
-        color: 'secondary',
         'data-cy': 'snapshot-create',
         label: T.TakeSnapshot,
-        variant: 'outlined',
+        importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+        size: STYLE_BUTTONS.SIZE.MEDIUM,
+        type: STYLE_BUTTONS.TYPE.FILLED,
       }}
       options={[
         {

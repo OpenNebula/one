@@ -27,10 +27,10 @@ import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 
 import { ChangeForm as AddSgForm } from '@modules/components/Forms/SecurityGroups'
 
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { Plus as AddIcon } from 'iconoir-react/dist'
 
 import { SecurityGroupAPI } from '@FeaturesModule'
-import { T } from '@ConstantsModule'
 
 const SECTION_ID = 'SECURITY_GROUPS'
 
@@ -81,11 +81,12 @@ const SecurityGroups = ({ selectedNetwork }) => {
     <>
       <ButtonToTriggerForm
         buttonProps={{
-          color: 'secondary',
           'data-cy': 'add-sg',
           startIcon: <AddIcon />,
           label: T.SecurityGroup,
-          variant: 'outlined',
+          importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
+          type: STYLE_BUTTONS.TYPE.FILLED,
         }}
         options={[
           {

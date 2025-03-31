@@ -17,16 +17,18 @@
 import { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, Box, Slide, Stack } from '@mui/material'
+import { Box, Slide, Stack } from '@mui/material'
+
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+
 import {
   TranslateProvider,
   Translate,
   SubmitButton,
   FormWithSchema,
 } from '@ComponentsModule'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 export const Form = ({
   onBack,
@@ -66,20 +68,38 @@ export const Form = ({
           sx={{ opacity: isLoading ? 0.7 : 1 }}
         >
           <FormProvider {...methods}>
-            <FormWithSchema cy="login" fields={fields} />
+            <FormWithSchema
+              cy="login"
+              fields={fields}
+              rootProps={{ sx: { margin: 0 } }}
+              gridItemSx={{ padding: '0rem !important' }}
+              gridContainerSx={{
+                width: '100% !important',
+                margin: '0rem !important',
+                gap: '2rem',
+              }}
+            />
           </FormProvider>
-          <Stack direction="row" gap={1} my={2}>
+          <Stack direction="row" sx={{ gap: '1rem' }}>
             {onBack && (
-              <Button color="secondary" onClick={onBack} disabled={isLoading}>
-                <Translate word={T.Back} />
-              </Button>
+              <SubmitButton
+                onClick={onBack}
+                disabled={isLoading}
+                sx={{ textTransform: 'uppercase', width: '100%' }}
+                importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+                type={STYLE_BUTTONS.TYPE.FILLED}
+                size={STYLE_BUTTONS.SIZE.LARGE}
+                label={<Translate word={T.Back} />}
+              ></SubmitButton>
             )}
             <SubmitButton
-              color="secondary"
               data-cy="login-button"
               isSubmitting={isLoading}
-              sx={{ textTransform: 'uppercase' }}
+              sx={{ textTransform: 'uppercase', width: '100%' }}
               label={<Translate word={onBack ? T.Next : T.SignIn} />}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              size={STYLE_BUTTONS.SIZE.LARGE}
             />
           </Stack>
         </Box>

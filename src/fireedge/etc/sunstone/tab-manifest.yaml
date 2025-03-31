@@ -42,9 +42,11 @@
     - title: Instantiate VM Template
       path: /vm-template/instantiate
       Component: InstantiateVmTemplate
-    - path: /vm-template/create
+    - title: Create VM Template
+      path: /vm-template/create
       Component: CreateVmTemplate
-    - path: /vm-template/update
+    - title: Update VM Template
+      path: /vm-template/update
       Component: CreateVmTemplate
     - title: VM Template
       path: /vm-template/:id
@@ -57,7 +59,8 @@
       sidebar: true
       icon: MultiplePagesEmpty
       Component: ServiceTemplates
-    - path: /service-template/create
+    - title: Create Service Template
+      path: /service-template/create
       Component: CreateServiceTemplate
     - title: Service Template
       path: /service-template/:id
@@ -70,12 +73,14 @@
       sidebar: true
       icon: Shuffle
       Component: VrTemplates
-    - path: /vrouter-template/create
+    - title: Create Virtual Router Template
+      path: /vrouter-template/create
       Component: CreateVrTemplate
     - title: Virtual Router Template
       path: /vrouter-template/:id
       Component: VrTemplateDetail
-    - path: /vm-group/create
+    - title: Create VM group 
+      path: /vm-group/create
       Component: CreateVmGroup
     - title: VM Groups
       path: /vm-group
@@ -125,7 +130,8 @@
       sidebar: true
       icon: SimpleCart
       Component: Marketplaces
-    - path: /marketplace/create
+    - title: Create Marketplace
+      path: /marketplace/create
       Component: CreateMarketplace
     - title: Apps
       path: /marketplace-app
@@ -160,7 +166,8 @@
     - title: Instantiate Network Template
       path: /network-template/instantiate
       Component: InstantiateVnTemplate
-    - path: /virtual-network/create
+    - title: Create Virtual Network
+      path: /virtual-network/create
       Component: CreateVirtualNetwork
     - path: /virtual-network/update
       Component: CreateVirtualNetwork
@@ -172,7 +179,8 @@
       sidebar: true
       icon: KeyframesCouple
       Component: VnTemplates
-    - path: /network-template/create
+    - title: Create Virtual Network Template
+      path: /network-template/create
       Component: CreateVnTemplate
     - title: Security groups
       path: /security-group

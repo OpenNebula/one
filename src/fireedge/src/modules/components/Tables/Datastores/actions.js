@@ -21,12 +21,17 @@ import {
   createActions,
 } from '@modules/components/Tables/Enhanced/Utils'
 import { useViews, ClusterAPI, DatastoreAPI } from '@FeaturesModule'
-import { AddCircledOutline, Group, MoreVert, Trash } from 'iconoir-react'
+import { Plus, Group, MoreVert, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import { PATH } from '@modules/components/path'
-import { DATASTORE_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
+import {
+  DATASTORE_ACTIONS,
+  RESOURCE_NAMES,
+  T,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const MessageToConfirmAction = (rows) => {
   const names = rows?.map?.(({ original }) => original?.NAME)
@@ -70,12 +75,18 @@ const Actions = () => {
             accessor: DATASTORE_ACTIONS.CREATE_DIALOG,
             dataCy: `datastore_${DATASTORE_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.STORAGE.DATASTORES.CREATE),
           },
           {
             accessor: DATASTORE_ACTIONS.CHANGE_CLUSTER,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `datastore_${DATASTORE_ACTIONS.CHANGE_CLUSTER}`,
             label: T.SelectCluster,
             tooltip: T.SelectCluster,
@@ -124,7 +135,9 @@ const Actions = () => {
             tooltip: T.Enable,
             icon: MoreVert,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'datastore-options',
             options: [
               {
@@ -161,7 +174,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'datastore-ownership',
             options: [
               {
@@ -198,7 +213,9 @@ const Actions = () => {
           },
           {
             accessor: DATASTORE_ACTIONS.DELETE,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'datastore-delete',
             icon: Trash,
             tooltip: T.Delete,

@@ -15,10 +15,11 @@
  * ------------------------------------------------------------------------- */
 import { useCallback, Component } from 'react'
 import PropTypes from 'prop-types'
-import { Box, Button, List, ListItem, IconButton } from '@mui/material'
+import { Box, List, ListItem } from '@mui/material'
 import { Cancel } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 /**
  * RoleColumn component for displaying and managing roles.
@@ -70,15 +71,14 @@ const RoleColumn = ({
           width: '100%',
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
+        <SubmitButton
           onClick={handleAddRole}
-          size="large"
           data-cy="add-role"
-        >
-          {Tr(T.AddRole)}
-        </Button>
+          label={T.AddRole}
+          importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+          size={STYLE_BUTTONS.SIZE.MEDIUM}
+          type={STYLE_BUTTONS.TYPE.FILLED}
+        />
         <Box
           sx={{
             maxHeight: '90%',
@@ -112,7 +112,7 @@ const RoleColumn = ({
                     },
                   }}
                 >
-                  <IconButton
+                  <SubmitButton
                     aria-label="delete"
                     onClick={(event) => {
                       event.stopPropagation()
@@ -120,9 +120,8 @@ const RoleColumn = ({
                     }}
                     data-cy={`delete-role-${index}`}
                     sx={{ mr: 1.5 }}
-                  >
-                    <Cancel />
-                  </IconButton>
+                    icon={<Cancel />}
+                  />
                   <div
                     style={{
                       overflow: 'hidden',

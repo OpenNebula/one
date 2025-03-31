@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, Fade, LinearProgress, useTheme } from '@mui/material'
+import { Alert, Fade, Stack, useTheme } from '@mui/material'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { css } from '@emotion/css'
 import { Cancel as CloseIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
@@ -131,7 +132,14 @@ const VmTabs = memo(({ id }) => {
     )
   }
 
-  return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+  return (
+    <Stack
+      direction="row"
+      sx={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <OpenNebulaLogo width={150} height={150} spinner />
+    </Stack>
+  )
 })
 
 VmTabs.propTypes = { id: PropTypes.string.isRequired }

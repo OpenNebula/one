@@ -14,14 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 // eslint-disable-next-line prettier/prettier, no-unused-vars
+import { VmQuota, NetworkQuota, DatastoreQuota, ImageQuota } from '@modules/constants/quota'
 import * as ACTIONS from '@modules/constants/actions'
 import { COLOR } from '@modules/constants/color'
-import {
-  DatastoreQuota,
-  ImageQuota,
-  NetworkQuota,
-  VmQuota,
-} from '@modules/constants/quota'
 import * as STATES from '@modules/constants/states'
 
 /**
@@ -96,4 +91,9 @@ export const AUTH_DRIVER = {
   SERVER_CIPHER: 'server_cipher',
   SERVER_X509: 'server_x509',
   CUSTOM: 'custom',
+}
+
+export const TABLE_VIEW_MODE = {
+  CARD: 'card',
+  LIST: 'list',
 }

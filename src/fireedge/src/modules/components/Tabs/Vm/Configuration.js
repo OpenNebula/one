@@ -28,7 +28,12 @@ import {
   getActionsAvailable,
   jsonToXml,
 } from '@ModelsModule'
-import { T, VM_ACTIONS, ATTR_CONF_CAN_BE_UPDATED } from '@ConstantsModule'
+import {
+  T,
+  VM_ACTIONS,
+  ATTR_CONF_CAN_BE_UPDATED,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const { UPDATE_CONF } = VM_ACTIONS
 
@@ -122,10 +127,11 @@ const VmConfigurationTab = ({
       {isUpdateConfEnabled && (
         <ButtonToTriggerForm
           buttonProps={{
-            color: 'secondary',
             'data-cy': 'update-conf',
             label: T.UpdateVmConfiguration,
-            variant: 'outlined',
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             disabled: isFetching,
           }}
           options={[

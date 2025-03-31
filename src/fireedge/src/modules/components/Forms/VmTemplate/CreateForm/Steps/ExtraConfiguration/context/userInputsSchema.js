@@ -259,7 +259,9 @@ export const USER_INPUTS_SCHEMA = object({
   USER_INPUTS: array(USER_INPUT_SCHEMA)
     .ensure()
     .afterSubmit((userInputs, { context }) => {
-      const capacityInputs = userInputsToArray(context?.general?.MODIFICATION)
+      const capacityInputs = userInputsToArray(context?.general?.MODIFICATION, {
+        filterCapacityInputs: false,
+      })
         .map(({ name, ...userInput }) => ({
           name,
           ...userInput,

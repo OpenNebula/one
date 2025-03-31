@@ -23,14 +23,13 @@ import {
   DialogContent,
   DialogActions,
   Typography,
-  IconButton,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import { Cancel as CancelIcon } from 'iconoir-react'
-
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 import { Action } from '@modules/components/Cards/SelectCard'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 /**
  * @typedef {object} DialogProps
@@ -97,11 +96,12 @@ const DialogConfirmation = memo(
             flexWrap: 'nowrap',
             alignItems: 'center',
             gap: '2em',
+            padding: '0.5rem 0.5rem 0.5rem 1rem',
           }}
         >
           <Box flexGrow={1}>
             {title && (
-              <Typography variant="h6">
+              <Typography variant="h8">
                 {typeof title === 'string' ? Tr(title) : title}
               </Typography>
             )}
@@ -112,15 +112,13 @@ const DialogConfirmation = memo(
             )}
           </Box>
           {handleCancel && (
-            <IconButton
+            <SubmitButton
               aria-label="close"
               onClick={handleCancel}
               data-cy="dg-cancel-button"
               {...cancelButtonProps}
-              size="large"
-            >
-              <CancelIcon />
-            </IconButton>
+              icon={<CancelIcon />}
+            />
           )}
         </DialogTitle>
         {children && (
@@ -136,10 +134,12 @@ const DialogConfirmation = memo(
           <DialogActions>
             <Action
               aria-label="accept"
-              color="secondary"
               data-cy="dg-accept-button"
               handleClick={handleAccept}
               label={T.Accept}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               {...acceptButtonProps}
             />
           </DialogActions>

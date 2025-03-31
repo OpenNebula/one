@@ -146,7 +146,7 @@ const RoleAffinityPanel = ({
   }, [])
 
   return (
-    <Grid container mt={2} columnSpacing={2} sx={{ maxHeight: '400px' }}>
+    <Grid container mt={2} columnSpacing={2}>
       <Grid item xs={12} md={3}>
         <Card
           variant="outlined"

@@ -146,31 +146,37 @@ const GroupUsersTab = ({ tabProps: { actions } = {}, id: groupId }) => {
   }
 
   return (
-    <div>
-      {actionsAvailable?.includes?.(GROUP_ACTIONS.EDIT_ADMINS) && (
-        <EditAdminsActions
-          admins={adminsGroup}
-          filterData={filterDataByAdmin}
-          submit={submitAdmins}
-        />
-      )}
+    <Stack direction="column">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="start"
+        gap="1rem"
+      >
+        {actionsAvailable?.includes?.(GROUP_ACTIONS.ADD_USERS) && (
+          <AddUsersAction
+            users={users}
+            filterData={filterDataNotInGroup}
+            submit={submitNewUsers}
+          />
+        )}
 
-      {actionsAvailable?.includes?.(GROUP_ACTIONS.ADD_USERS) && (
-        <AddUsersAction
-          users={users}
-          filterData={filterDataNotInGroup}
-          submit={submitNewUsers}
-        />
-      )}
+        {actionsAvailable?.includes?.(GROUP_ACTIONS.REMOVE_USERS) && (
+          <RemoveUsersAction
+            users={users}
+            filterData={filterDataInGroup}
+            submit={submitDeleteUsers}
+          />
+        )}
 
-      {actionsAvailable?.includes?.(GROUP_ACTIONS.REMOVE_USERS) && (
-        <RemoveUsersAction
-          users={users}
-          filterData={filterDataInGroup}
-          submit={submitDeleteUsers}
-        />
-      )}
-
+        {actionsAvailable?.includes?.(GROUP_ACTIONS.EDIT_ADMINS) && (
+          <EditAdminsActions
+            admins={adminsGroup}
+            filterData={filterDataByAdmin}
+            submit={submitAdmins}
+          />
+        )}
+      </Stack>
       <Stack
         display="grid"
         gap="1em"
@@ -184,7 +190,7 @@ const GroupUsersTab = ({ tabProps: { actions } = {}, id: groupId }) => {
           filterData={filterDataByAdmin}
         />
       </Stack>
-    </div>
+    </Stack>
   )
 }
 

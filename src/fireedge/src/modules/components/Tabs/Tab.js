@@ -14,35 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { ReactElement, useState } from 'react'
+import { ReactElement, useState, useMemo } from 'react'
 
 import {
-  Fade,
   Tab as MTab,
   Tabs as MTabs,
   Stack,
   TabsProps,
-  styled,
+  useTheme,
+  Box,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
-
-const WarningIcon = styled(WarningCircledOutline)(({ theme }) => ({
-  color: theme.palette.error.main,
-}))
-
-const TabContent = styled('div')(({ hidden, border, theme }) => ({
-  height: '100%',
-  display: hidden ? 'none' : 'flex',
-  flexDirection: 'column',
-  overflow: 'auto',
-  ...(border && {
-    backgroundColor: theme.palette.background.paper,
-    border: `thin solid ${theme.palette.secondary.main}`,
-    borderTop: 'none',
-    borderRadius: `0 0 8px 8px`,
-  }),
-}))
+import TabStyles from '@modules/components/Tabs/TabStyles'
 
 const Content = ({
   id,
@@ -52,24 +36,27 @@ const Content = ({
   addBorder = false,
   setTab,
   logTabId,
-}) => (
-  <TabContent
-    key={`tab-${id ?? name}`}
-    data-cy={`tab-content-${id ?? name}`}
-    hidden={hidden}
-    border={addBorder ? 'true' : undefined}
-  >
-    <Fade in timeout={400}>
-      <TabContent sx={{ p: '1em .5em' }}>
-        {typeof RenderContent === 'function' ? (
-          <RenderContent setTab={setTab} logTabId={logTabId} />
-        ) : (
-          RenderContent
-        )}
-      </TabContent>
-    </Fade>
-  </TabContent>
-)
+}) => {
+  const theme = useTheme()
+  const classes = useMemo(
+    () => TabStyles(theme, hidden, addBorder ? 'true' : undefined),
+    [theme, hidden, addBorder]
+  )
+
+  return (
+    <div
+      key={`tab-${id ?? name}`}
+      data-cy={`tab-content-${id ?? name}`}
+      className={classes.tabContent}
+    >
+      {typeof RenderContent === 'function' ? (
+        <RenderContent setTab={setTab} logTabId={logTabId} />
+      ) : (
+        RenderContent
+      )}
+    </div>
+  )
+}
 
 /**
  * @param {object} props - Props
@@ -87,6 +74,9 @@ const Tabs = ({
 }) => {
   const [tabSelected, setTab] = useState(() => 0)
 
+  const theme = useTheme()
+  const classes = useMemo(() => TabStyles(theme), [theme])
+
   // Removed memoization, might need to optimize later
   const renderTabs = (
     <MTabs
@@ -96,11 +86,9 @@ const Tabs = ({
       scrollButtons="auto"
       onChange={(_, tab) => setTab(tab)}
       sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: ({ zIndex }) => zIndex.appBar,
         ...sx,
       }}
+      className={classes.tabTitle}
       {...tabsProps}
     >
       {tabs.map(({ value, name, id = name, label, error, icon: Icon }, idx) => (
@@ -108,7 +96,13 @@ const Tabs = ({
           key={`tab-${id}`}
           id={`tab-${id}`}
           iconPosition="start"
-          icon={error ? <WarningIcon /> : Icon && <Icon />}
+          icon={
+            error ? (
+              <WarningCircledOutline className={classes.warningIcon} />
+            ) : (
+              Icon && <Icon />
+            )
+          }
           value={value ?? idx}
           label={Tr(label) ?? id}
           data-cy={`tab-${id}`}
@@ -124,10 +118,8 @@ const Tabs = ({
     .indexOf('log')
 
   return (
-    <Stack height={1} overflow="auto">
-      <Fade in timeout={300}>
-        {renderTabs}
-      </Fade>
+    <Stack style={{ height: 'auto' }}>
+      {renderTabs}
       {renderHiddenTabs ? (
         tabs.map((tabProps, idx) => {
           const { name, value = idx } = tabProps
@@ -136,12 +128,14 @@ const Tabs = ({
           return <Content key={`tab-${name}`} {...tabProps} hidden={hidden} />
         })
       ) : (
-        <Content
-          addBorder={addBorder}
-          setTab={setTab}
-          {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
-          logTabId={logTabId}
-        />
+        <Box className={classes.containerContent}>
+          <Content
+            addBorder={addBorder}
+            setTab={setTab}
+            {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)}
+            logTabId={logTabId}
+          />
+        </Box>
       )}
     </Stack>
   )
@@ -165,6 +159,7 @@ Content.propTypes = {
   addBorder: PropTypes.bool,
   setTab: PropTypes.func,
   logTabId: PropTypes.number,
+  isFullMode: PropTypes.bool,
 }
 
 export default Tabs

@@ -67,8 +67,6 @@ const ServicesTable = (props) => {
       },
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
     {
       header: T.StartTime,
@@ -82,6 +80,8 @@ const ServicesTable = (props) => {
         return <Timer translateWord={T.RegisteredAt} initial={time} />
       },
     },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
   ]
   const { component, header } = WrapperRow(ServiceRow)
 

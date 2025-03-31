@@ -14,26 +14,19 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { createTheme, ThemeOptions, colors, alpha } from '@mui/material'
-import { iconButtonClasses } from '@mui/material/IconButton'
-import { buttonClasses } from '@mui/material/Button'
 import { NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { UbuntuFont } from '@modules/providers/theme/fonts'
 import { SCHEMES } from '@ConstantsModule'
 
-const defaultDarkTheme = createTheme({ palette: { mode: 'dark' } })
-const defaultLightTheme = createTheme({ palette: { mode: 'light' } })
-const { grey } = colors
-const black = '#1D1D1D'
-const white = '#ffffff'
-const bgBlueGrey = '#f2f4f8'
+import { lightPalette, darkPalette } from '@modules/providers/theme/palettes'
 
-const defaultPrimary = {
-  light: '#2a2d3d',
-  main: '#007099',
-  dark: '#191924',
-  contrastText: '#ffffff',
-}
+import { colors as sunstoneColors } from '@modules/providers/theme/colors'
+
+const defaultTheme = createTheme()
+
+const { grey } = colors
+const white = '#ffffff'
 
 const systemFont = [
   '-apple-system',
@@ -48,12 +41,23 @@ const systemFont = [
   '"Segoe UI Symbol"',
 ]
 
+// Width breakpoints
 export const breakpoints = {
-  xs: 0,
-  sm: 600,
-  md: 900,
-  lg: 1200,
-  xl: 1536,
+  xs: 0, // Extra small (default for all screen sizes)
+  sm: 600, // Small screens (e.g., portrait tablets)
+  md: 900, // Medium screens (e.g., landscape tablets, small laptops)
+  lg: 1200, // Large screens (e.g., desktops)
+  xl: 1920, // Extra-large screens (e.g., large desktops, high-resolution monitors)
+  xxl: 2560, // 2k monitor
+}
+
+// Height breakpoints
+export const heightBreakpoints = {
+  extraLarge: '1200px',
+  large: '1000px',
+  medium: '900px',
+  small: '864px',
+  tiny: '720px',
 }
 
 export const toolbar = {
@@ -67,14 +71,8 @@ export const footer = {
 }
 
 export const sidebar = {
-  minified: 60,
+  minified: 88,
   fixed: 250,
-}
-
-const buttonSvgStyle = {
-  fontSize: '1.25rem',
-  width: '1em',
-  height: '1em',
 }
 
 /**
@@ -85,25 +83,11 @@ const buttonSvgStyle = {
 const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
   const isDarkMode = `${mode}`.toLowerCase() === SCHEMES.DARK
 
-  const { primary = defaultPrimary, secondary } = appTheme?.palette || {}
-  const defaultContrastText = isDarkMode ? white : 'rgba(0, 0, 0, 0.87)'
-  const defaultTheme = isDarkMode ? defaultDarkTheme : defaultLightTheme
-
-  const background = {
-    paper: isDarkMode ? primary.light : white,
-    default: isDarkMode ? primary.main : bgBlueGrey,
-  }
+  const currentPalette = isDarkMode ? darkPalette : lightPalette
 
   return {
     palette: {
-      mode,
-      primary,
-      secondary,
-      common: {
-        black,
-        white,
-      },
-      background,
+      ...currentPalette,
       error: {
         100: '#e98e7f',
         200: '#ee6d58',
@@ -130,13 +114,13 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
         light: '#ffe4a3',
         main: '#f1a204',
         dark: '#f1a204',
-        contrastText: defaultContrastText,
+        contrastText: currentPalette.primary.contrastText,
       },
       info: {
         light: '#64b5f6',
         main: '#2196f3',
         dark: '#01579b',
-        contrastText: defaultContrastText,
+        contrastText: currentPalette.primary.contrastText,
       },
       success: {
         100: '#bce1bd',
@@ -150,7 +134,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
         light: '#3adb76',
         main: '#4caf50',
         dark: '#388e3c',
-        contrastText: defaultContrastText,
+        contrastText: currentPalette.primary.contrastText,
       },
       debug: {
         light: grey[300],
@@ -162,6 +146,9 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
     breakpoints: {
       values: breakpoints,
       keys: Object.keys(breakpoints),
+    },
+    heightBreakpoints: {
+      ...heightBreakpoints,
     },
     typography: {
       fontFamily: [UbuntuFont.fontFamily, ...systemFont].join(','),
@@ -263,7 +250,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             border: '4px solid transparent',
             borderRadius: 7,
             boxShadow: 'inset 0 0 0 10px',
-            color: secondary.light,
+            color: currentPalette.scrollbar.color,
           },
           '.loading_screen': {
             width: '100%',
@@ -277,7 +264,9 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           },
           '.description__link': {
             margin: 0,
-            color: isDarkMode ? secondary.main : secondary.dark,
+            color: isDarkMode
+              ? currentPalette.primary.main
+              : currentPalette.primary.dark,
             textDecoration: 'none',
             '&:hover': {
               textDecoration: 'underline',
@@ -292,7 +281,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             props: { variant: 'underline' },
             style: {
               padding: '0 1em 0.2em 0.5em',
-              borderBottom: `2px solid ${secondary.main}`,
+              borderBottom: `2px solid ${currentPalette.primary.main}`,
               // subtitle1 variant is used for the underline
               fontSize: defaultTheme.typography.pxToRem(18),
               lineHeight: 24 / 18,
@@ -316,66 +305,9 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           },
         ],
       },
-      MuiButtonBase: {
-        defaultProps: {
-          disableTouchRipple: true,
-        },
-      },
-      MuiListItemButton: {
-        styleOverrides: {
-          root: {
-            '&.Mui-selected, &.Mui-selected:hover': {
-              backgroundColor: alpha(secondary.main, 0.6),
-            },
-          },
-        },
-      },
       MuiButton: {
         defaultProps: {
           disableTouchRipple: true,
-        },
-        styleOverrides: {
-          root: {
-            padding: '5px 16px',
-            '& svg:nth-of-type(1)': buttonSvgStyle,
-          },
-          endIcon: {
-            marginLeft: 4,
-            width: '1rem',
-            height: '1rem',
-          },
-          text: {
-            color: isDarkMode ? white : grey[900],
-            '&:hover': {
-              backgroundColor: isDarkMode
-                ? alpha(white, 0.1)
-                : alpha(grey[900], 0.1),
-            },
-          },
-          outlined: {
-            border: '1px solid',
-            borderColor: isDarkMode
-              ? alpha(grey[100], 0.45)
-              : alpha(grey[700], 0.45),
-            borderRadius: defaultTheme.shape.borderRadius,
-            color: isDarkMode ? white : grey[900],
-          },
-        },
-      },
-      MuiIconButton: {
-        styleOverrides: {
-          root: { '& svg:nth-of-type(1)': buttonSvgStyle },
-        },
-        variants: [
-          {
-            props: { color: 'default' },
-            style: { '&:hover': { color: secondary.main } },
-          },
-        ],
-      },
-      MuiIcon: {
-        styleOverrides: {
-          root: { '& svg:nth-of-type(1)': buttonSvgStyle },
         },
       },
       MuiAppBar: {
@@ -383,21 +315,6 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
           root: {
             padding: '0 2px',
             boxShadow: 'none',
-            borderStyle: 'solid',
-            borderColor: alpha(grey[100], 0.1),
-            borderWidth: 0,
-            borderBottomWidth: 'thin',
-            backgroundColor: primary.main,
-            [`& .${iconButtonClasses.root}, & .${buttonClasses.root}`]: {
-              color: white,
-              border: 'none',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                border: 'none',
-                backgroundColor: 'transparent',
-                color: alpha(white, 0.7),
-              },
-            },
           },
         },
       },
@@ -424,49 +341,9 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
         defaultProps: {
           variant: 'outlined',
           size: 'small',
-          color: 'secondary',
+
           SelectProps: {
             native: true,
-          },
-        },
-      },
-      MuiTabs: {
-        defaultProps: {
-          indicatorColor: 'secondary',
-        },
-        styleOverrides: {
-          root: {
-            backgroundColor: background.paper,
-            borderRadius: `0 0 8px 8px`,
-            border: `thin solid ${secondary.main}`,
-            paddingInline: '1rem',
-            marginBottom: '0.5rem',
-          },
-          flexContainer: {
-            height: '100%',
-            paddingBlock: '0.5em',
-          },
-        },
-      },
-      MuiTab: {
-        styleOverrides: {
-          root: {
-            color: 'text.secondary',
-            textTransform: 'capitalize',
-            fontSize: '1rem',
-            padding: '0 1rem',
-            minHeight: '100%',
-            border: 0,
-            borderRadius: 6,
-            '&:hover': {
-              background: defaultTheme.palette.action.selected,
-              transition: 'background .12s ease-in-out',
-            },
-            '&.Mui-selected': {
-              color: isDarkMode
-                ? secondary.main
-                : defaultTheme.palette.text.primary,
-            },
           },
         },
       },
@@ -476,9 +353,7 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             backgroundColor: 'background.default',
           },
         },
-        defaultProps: {
-          color: 'secondary',
-        },
+        defaultProps: {},
       },
       MuiToggleButton: {
         styleOverrides: {
@@ -486,13 +361,13 @@ const createAppTheme = (appTheme, mode = SCHEMES.DARK) => {
             textTransform: 'none',
             fontWeight: 700,
             color: isDarkMode ? grey[300] : grey[700],
-            borderColor: isDarkMode ? secondary[500] : grey[400],
+            borderColor: isDarkMode ? currentPalette.primary.light : grey[400],
             '&.Mui-selected': {
-              borderColor: `${secondary[500]} !important`,
-              color: isDarkMode ? white : secondary[800],
+              borderColor: `${currentPalette.primary.light} !important`,
+              color: isDarkMode ? white : currentPalette.primary.light,
               backgroundColor: isDarkMode
-                ? alpha(secondary[800], 0.2)
-                : secondary[100],
+                ? alpha(sunstoneColors.blue[700], 0.2)
+                : sunstoneColors.blue[100],
             },
           },
         },

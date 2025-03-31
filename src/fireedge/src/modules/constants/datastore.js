@@ -97,7 +97,7 @@ export const DATASTORE_OPTIONS = {
 export const TRANSFER_OPTIONS = {
   SHARED: { name: T.Shared, value: 'shared' },
   SSH: { name: T.SSH, value: 'ssh' },
-  FS_LVM: { name: T.FSLVM, value: 'fs_lvm' },
+  FS_LVM: { name: T.FSLVM, value: 'fs_lvm_ssh' },
   CEPH: { name: T.Ceph, value: 'ceph' },
   DEVICES: { name: T.Devices, value: 'dev' },
   CUSTOM: { name: T.Custom, value: 'custom' },
@@ -107,7 +107,7 @@ export const DS_STORAGE_BACKENDS = {
   FS_SHARED: { name: T.FilesystemShared, value: 'fs-shared' },
   FS_SSH: { name: T.FilesystemSSH, value: 'fs-local' },
   CEPH: { name: T.Ceph, value: 'ceph-ceph' },
-  FS_LVM: { name: T.LVM, value: 'fs-fs_lvm' },
+  FS_LVM: { name: T.LVM, value: 'fs-fs_lvm_ssh' },
   RAW: { name: T.RawDeviceMapping, value: 'dev-dev' },
   RESTIC: { name: T.StorageRestic, value: 'restic' },
   RSYNC: { name: T.StorageRsync, value: 'rsync' },

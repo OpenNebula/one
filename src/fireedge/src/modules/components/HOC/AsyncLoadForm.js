@@ -37,7 +37,7 @@ const FormLibrary = loadable.lib((props) => import(`../Forms/${props.form}`), {
       open
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        color: 'secondary.main',
+        color: 'primary.main',
       }}
     >
       <CircularProgress color="inherit" />

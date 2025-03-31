@@ -13,30 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { SERVER_CONFIG } from '@ConstantsModule'
-import { useAuth } from '@FeaturesModule'
-import { css } from '@emotion/css'
+import { TABLE_VIEW_MODE } from '@ConstantsModule'
+import { useGeneral } from '@FeaturesModule'
 import EnhancedTableStyles from '@modules/components/Tables/Enhanced/styles'
 import { Checkbox, Grid, TableCell, TableRow, useTheme } from '@mui/material'
 import get from 'lodash.get'
 import PropTypes from 'prop-types'
 import { ReactElement, memo, useMemo } from 'react'
-
-const listStyles = ({ palette }) => ({
-  row: css({
-    '&': {
-      cursor: 'pointer',
-    },
-    '&.selected': {
-      boxShadow: `inset 0px -0.5px 0px 2px ${palette.secondary.main}`,
-    },
-  }),
-  checkbox: css({
-    '&': {
-      color: `${palette.secondary.contrastText} !important`,
-    },
-  }),
-})
 
 /**
  * @param {object} props - Props
@@ -56,11 +39,18 @@ const RowStyle = memo(
     toggleRowSelected = () => {},
     onClick: onClickRow = () => {},
     enabledFullScreen = false,
+    singleSelect = false,
     ...props
   }) => {
     const { ID = '' } = original
     const theme = useTheme()
-    const styles = useMemo(() => listStyles(theme), [theme])
+    const styles = useMemo(
+      () =>
+        EnhancedTableStyles({
+          ...theme,
+        }),
+      [theme]
+    )
 
     const handleChange = (event) => {
       event?.stopPropagation()
@@ -73,26 +63,31 @@ const RowStyle = memo(
         {...props}
         className={`${styles.row} ${className}`}
       >
-        {enabledFullScreen && (
+        {!singleSelect && (
           <TableCell>
-            <Checkbox
-              checked={isSelected}
-              onChange={handleChange}
-              className={`${styles.checkbox}`}
-            />
+            <Checkbox checked={isSelected} onChange={handleChange} />
           </TableCell>
         )}
+
         {headerList.map(({ id, accessor }) => {
           switch (typeof accessor) {
             case 'string':
               return (
-                <TableCell onClick={onClickRow} key={id}>
+                <TableCell
+                  onClick={onClickRow}
+                  key={id}
+                  className={styles.cell}
+                >
                   {get(original, accessor)}
                 </TableCell>
               )
             case 'function':
               return (
-                <TableCell onClick={onClickRow} key={id}>
+                <TableCell
+                  onClick={onClickRow}
+                  key={id}
+                  className={styles.cell}
+                >
                   {accessor(original, value)}
                 </TableCell>
               )
@@ -119,29 +114,17 @@ RowStyle.propTypes = {
   toggleRowSelected: PropTypes.func,
   onClick: PropTypes.func,
   enabledFullScreen: PropTypes.bool,
+  singleSelect: PropTypes.bool,
 }
 
 RowStyle.displayName = 'RowStyle'
 
 const CardWrapper = memo(
-  ({ children, toggleRowSelected = () => {}, isSelected = false }) => {
-    const styles = listStyles()
+  ({ children }) => {
     const cardStyles = EnhancedTableStyles()
-
-    const handleChange = (event) => {
-      event?.stopPropagation()
-      toggleRowSelected(event.target.checked)
-    }
 
     return (
       <Grid container spacing={1} alignItems="center">
-        <Grid item xs="auto">
-          <Checkbox
-            checked={isSelected}
-            onChange={handleChange}
-            className={`${styles.checkbox}`}
-          />
-        </Grid>
         <Grid item xs className={`${cardStyles.body}`}>
           {children}
         </Grid>
@@ -200,12 +183,10 @@ SwitchRowComponent.displayName = 'SwitchRowComponent'
  * @returns {ReactElement} Generic Row
  */
 const WrapperRow = (RowCardComponent, enabledFullScreen, forceView) => {
-  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
-  const { ROW_STYLE } = fireedge
-  const { rowStyle } = SERVER_CONFIG
+  const { tableViewMode } = useGeneral()
 
-  const data = forceView || ROW_STYLE || rowStyle
-  const header = data === 'list'
+  const data = forceView || tableViewMode
+  const header = data === TABLE_VIEW_MODE.LIST
 
   const component = memo(
     (props) => (

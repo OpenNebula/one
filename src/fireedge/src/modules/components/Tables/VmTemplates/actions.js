@@ -16,14 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Typography } from '@mui/material'
-import {
-  AddCircledOutline,
-  Trash,
-  PlayOutline,
-  Lock,
-  Group,
-  Cart,
-} from 'iconoir-react'
+import { Trash, PlayOutline, Lock, Group, Cart, Plus } from 'iconoir-react'
 
 import { useViews, VmTemplateAPI } from '@FeaturesModule'
 
@@ -34,7 +27,12 @@ import {
 
 import { Tr, Translate } from '@modules/components/HOC'
 import { PATH, Form } from '@modules/components'
-import { T, VM_TEMPLATE_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  VM_TEMPLATE_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 const { Vm, VmTemplate } = Form
 
 const ListVmTemplateNames = ({ rows = [] }) =>
@@ -89,9 +87,13 @@ const Actions = () => {
         actions: [
           {
             accessor: VM_TEMPLATE_ACTIONS.CREATE_DIALOG,
+            label: T.Create,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            icon: Plus,
             action: () => history.push(PATH.TEMPLATE.VMS.CREATE),
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
@@ -104,6 +106,9 @@ const Actions = () => {
 
               history.push(path, template)
             },
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.CREATE_APP_DIALOG,
@@ -116,26 +121,30 @@ const Actions = () => {
 
               history.push(path, [RESOURCE_NAMES.VM_TEMPLATE, template])
             },
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED_ICON,
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.UPDATE_DIALOG,
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
             action: (rows) => {
               const vmTemplate = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.VMS.UPDATE
 
               history.push(path, vmTemplate)
             },
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.CLONE,
             label: T.Clone,
             tooltip: T.Clone,
             selected: true,
-            color: 'secondary',
             options: [
               {
                 dialogProps: {
@@ -178,12 +187,14 @@ const Actions = () => {
                   },
               },
             ],
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
           },
           {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
             dataCy: 'template-ownership',
             options: [
               {
@@ -253,12 +264,14 @@ const Actions = () => {
                 },
               },
             ],
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
           },
           {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
             dataCy: 'template-lock',
             options: [
               {
@@ -290,13 +303,15 @@ const Actions = () => {
                 },
               },
             ],
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
           },
           {
             accessor: VM_TEMPLATE_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
-            color: 'error',
             options: [
               {
                 dialogProps: {
@@ -323,6 +338,9 @@ const Actions = () => {
                 },
               },
             ],
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
           },
         ],
       }),

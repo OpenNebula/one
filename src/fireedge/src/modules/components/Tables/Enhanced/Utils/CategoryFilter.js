@@ -29,7 +29,7 @@ const StyledAutocompletePopper = styled(Popper)(
       margin: 0,
       color: 'inherit',
       fontSize: '0.75rem',
-      border: `1px solid  ${palette.secondary[palette.mode]}`,
+      border: `1px solid  ${palette.primary[palette.mode]}`,
     },
     [`& .${autocompleteClasses.listbox}`]: {
       padding: 0,
@@ -116,7 +116,6 @@ const CategoryFilter = ({
       multiple
       disableCloseOnSelect
       limitTags={2}
-      color="secondary"
       sx={{ minWidth: 300, position: 'relative' }}
       options={options}
       getOptionLabel={(option) => option.id}

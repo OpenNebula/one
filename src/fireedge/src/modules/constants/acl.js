@@ -40,7 +40,7 @@ export const ACL_ID = {
 }
 
 export const ACL_USERS = {
-  INDIVIDUAL: { type: 'INDIVIDUAL', id: '#', value: 0x100000000 },
+  INDIVIDUAL: { type: 'USER', id: '#', value: 0x100000000 },
   GROUP: { type: 'GROUP', id: '@', value: 0x200000000 },
   ALL: { type: 'ALL', id: '*', value: 0x400000000 },
   CLUSTER: { type: 'CLUSTER', id: '%', value: 0x800000000 },

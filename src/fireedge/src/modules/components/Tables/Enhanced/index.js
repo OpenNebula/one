@@ -53,6 +53,7 @@ import {
   GlobalSearch,
   GlobalSelectedRows,
   GlobalSort,
+  SwitchTableView,
   LABEL_COLUMN_ID,
 } from '@modules/components/Tables/Enhanced/Utils'
 import Pagination from '@modules/components/Tables/Enhanced/pagination'
@@ -105,6 +106,7 @@ const DataListPerPage = memo(
           key={key}
           original={original}
           value={values}
+          singleSelect={singleSelect}
           {...(messageValues.length && {
             globalErrors: messageValues,
           })}
@@ -141,10 +143,10 @@ const DataListPerPage = memo(
     })
 
     return headerList ? (
-      <Table stickyHeader>
+      <Table stickyHeader className={styles.table} size="small">
         <TableHead>
           <TableRow>
-            {enabledFullScreen && <TableCell />}
+            {!singleSelect && <TableCell className={styles.cellHeaders} />}
             {headerList.map(({ header = '', id = '' }) => (
               <TableCell key={id} className={styles.cellHeaders}>
                 {header}
@@ -201,6 +203,7 @@ const EnhancedTable = ({
   disableGlobalLabel,
   disableGlobalSort,
   disableGlobalActions = false,
+  disableSwitchView = false,
   onSelectedRowsChange,
   pageSize,
   onRowClick,
@@ -462,9 +465,10 @@ const EnhancedTable = ({
       className={clsx(styles.root, classes.root)}
       {...rootProps}
     >
+      {/* Toolbar has four rows */}
       <div className={styles.toolbar}>
-        {/* ACTIONS */}
-        {!disableGlobalActions && (
+        {/* First row - Global actions (refresh, select) + Resource actions (create, update,...) */}
+        <div className={styles.toolbarContainer}>
           <GlobalActions
             className={styles.actions}
             refetch={refetch}
@@ -475,28 +479,21 @@ const EnhancedTable = ({
             selectedRows={selectedRows}
             onSelectedRowsChange={onSelectedRowsChange}
             useTableProps={useTableProps}
+            styles={styles}
           />
-        )}
 
-        {/* PAGINATION */}
-        <Pagination
-          className={styles.pagination}
-          handleChangePage={handleChangePage}
-          useTableProps={useTableProps}
-          count={rows.length}
-          showPageCount={showPageCount}
-        />
+          {!disableSwitchView && <SwitchTableView />}
+        </div>
 
-        {/* SEARCH */}
-        <GlobalSearch
-          className={styles.search}
-          useTableProps={useTableProps}
-          searchProps={searchProps}
-          value={filterValue}
-          setValue={setFilterValue}
-        />
-        {/* FILTERS */}
-        {!disableGlobalSort && (
+        {/* Second row - Left: Search bar, Right: Labels, Filters and Sort */}
+        <div className={styles.toolbarContainer}>
+          <GlobalSearch
+            useTableProps={useTableProps}
+            searchProps={searchProps}
+            value={filterValue}
+            setValue={setFilterValue}
+            sx={{ flex: 1 }}
+          />
           <div className={styles.filters}>
             {!cannotFilterByLabel && (
               <GlobalLabel
@@ -509,9 +506,9 @@ const EnhancedTable = ({
             {!disableGlobalSort && <GlobalSort {...useTableProps} />}
             {tableViews && <ChangeViewTable tableViews={tableViews} />}
           </div>
-        )}
+        </div>
 
-        {/* SELECTED ROWS */}
+        {/* Third row - Selected rows (IMPORTANT: Only render if displaySelectedRows is true) */}
         {displaySelectedRows && !readOnly && (
           <div>
             <GlobalSelectedRows
@@ -520,22 +517,29 @@ const EnhancedTable = ({
             />
           </div>
         )}
-      </div>
 
-      {/* RESET FILTERS */}
-      {!disableGlobalSort && (
-        <Chip
-          label={<Translate word={T.ResetFilters} />}
-          onClick={canResetFilter ? handleResetFilters : undefined}
-          icon={<RemoveIcon />}
-          sx={{
-            visibility: canResetFilter ? 'visible' : 'hidden',
-            width: 'fit-content',
-            padding: '0.75em',
-            marginBottom: '0.5em',
-          }}
-        />
-      )}
+        {/* Fourth row - Pagination and clear filters */}
+        <div className={styles.toolbarContainer}>
+          <Chip
+            label={<Translate word={T.ResetFilters} />}
+            onClick={canResetFilter ? handleResetFilters : undefined}
+            icon={<RemoveIcon />}
+            sx={{
+              visibility: canResetFilter ? 'visible' : 'hidden',
+              width: 'fit-content',
+              padding: '0.75em',
+              marginBottom: '0.5em',
+            }}
+          />
+          <Pagination
+            handleChangePage={handleChangePage}
+            useTableProps={useTableProps}
+            count={rows.length}
+            showPageCount={showPageCount}
+            styles={styles}
+          />
+        </div>
+      </div>
 
       <div className={clsx(styles.body, !headerList ? classes.body : '')}>
         {!!messages.length && <MessagesRowsAlerts />}
@@ -611,6 +615,7 @@ EnhancedTable.propTypes = {
   disableGlobalLabel: PropTypes.bool,
   disableGlobalSort: PropTypes.bool,
   disableGlobalActions: PropTypes.bool,
+  disableSwitchView: PropTypes.bool,
   disableRowSelect: PropTypes.bool,
   displaySelectedRows: PropTypes.bool,
   useUpdateMutation: PropTypes.func,

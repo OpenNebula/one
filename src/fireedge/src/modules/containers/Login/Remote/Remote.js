@@ -14,14 +14,21 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Button, Container, Grid, useMediaQuery } from '@mui/material'
-import { Translate, OpenNebulaLogo } from '@ComponentsModule'
-import { JWT_NAME, T } from '@ConstantsModule'
+import {
+  Box,
+  Container,
+  useMediaQuery,
+  Typography,
+  useTheme,
+} from '@mui/material'
+import { Translate, OpenNebulaLogo, SubmitButton, Tr } from '@ComponentsModule'
+import { JWT_NAME, T, STYLE_BUTTONS } from '@ConstantsModule'
 import { AuthSlice } from '@modules/features/Auth/slice'
 import { storage } from '@UtilsModule'
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+import { styles } from '@modules/containers/Login/styles'
 const { actions: authActions } = AuthSlice
 
 /**
@@ -43,7 +50,12 @@ export function Remote({ data = {} }) {
     user && dispatch(authActions.changeAuthUser(user))
   }, [])
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
+  const isMobile = useMediaQuery((themeSunstone) =>
+    themeSunstone.breakpoints.only('xs')
+  )
+
+  const theme = useTheme()
+  const classes = useMemo(() => styles(theme), [theme])
 
   return (
     <Container
@@ -55,52 +67,36 @@ export function Remote({ data = {} }) {
         flexDirection: 'column',
         justifyContent: 'center',
         height: '100vh',
+        alignItems: 'center',
       }}
     >
-      <Grid
-        container
-        direction="column"
-        sx={{
-          p: 2,
-          overflow: 'hidden',
-          minHeight: 380,
-          border: ({ palette }) => ({
-            xs: 'none',
-            sm: `1px solid ${palette.divider}`,
-          }),
-          borderRadius: ({ shape }) => shape.borderRadius / 2,
-          height: { xs: 'calc(100vh - 4px)', sm: 'auto' },
-          backgroundColor: { xs: 'transparent', sm: 'background.paper' },
-        }}
-      >
-        <Grid item>
-          <OpenNebulaLogo
-            data-cy="opennebula-logo"
-            height={100}
-            width="100%"
-            withText
-          />
-        </Grid>
+      <Box className={classes.login}>
+        <OpenNebulaLogo
+          data-cy="opennebula-logo"
+          height={'7rem'}
+          width="100%"
+          withText
+        />
 
-        <Grid
-          display="flex"
-          py={2}
-          px={1}
-          sx={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-          overflow="hidden"
-        >
-          <Button
-            data-cy="login-button"
-            color="secondary"
-            variant="contained"
-            onClick={() => {
-              window.location.href = remoteRedirect
-            }}
-          >
-            <Translate word={T.SignIn} />
-          </Button>
-        </Grid>
-      </Grid>
+        <Box display="flex" overflow="hidden">
+          <Typography variant="h2" sx={{ margin: '3.5rem 0rem 0rem 0rem' }}>
+            {Tr(T.LogIn)}
+          </Typography>
+        </Box>
+
+        <SubmitButton
+          data-cy="login-button"
+          variant="contained"
+          onClick={() => {
+            window.location.href = remoteRedirect
+          }}
+          label={<Translate word={T.SignIn} />}
+          importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+          type={STYLE_BUTTONS.TYPE.FILLED}
+          size={STYLE_BUTTONS.SIZE.LARGE}
+          sx={{ textTransform: 'uppercase', width: '100%', marginTop: '2rem' }}
+        />
+      </Box>
     </Container>
   )
 }

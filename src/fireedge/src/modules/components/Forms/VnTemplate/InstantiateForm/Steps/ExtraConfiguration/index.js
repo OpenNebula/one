@@ -28,6 +28,7 @@ import { BaseTab as Tabs } from '@modules/components/Tabs'
 
 import { SCHEMA } from '@modules/components/Forms/VnTemplate/InstantiateForm/Steps/ExtraConfiguration/schema'
 import { T, VirtualNetwork } from '@ConstantsModule'
+import { Box } from '@mui/material'
 
 /**
  * @typedef {object} TabType
@@ -69,7 +70,11 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
     [totalErrors]
   )
 
-  return <Tabs tabs={tabs} />
+  return (
+    <Box sx={{ height: 'auto', overflow: 'auto' }}>
+      <Tabs addBorder tabs={tabs} />
+    </Box>
+  )
 }
 
 /**

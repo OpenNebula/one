@@ -14,16 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
-import {
-  alpha,
-  debounce,
-  FormControl,
-  InputBase,
-  useTheme,
-} from '@mui/material'
+import { debounce, FormControl, InputBase, useTheme } from '@mui/material'
 import { ReactElement, useCallback, useMemo } from 'react'
 
-import clsx from 'clsx'
 import { Search as SearchIcon } from 'iconoir-react'
 import { UseGlobalFiltersInstanceProps } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
@@ -31,36 +24,53 @@ import PropTypes from 'prop-types'
 import { T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 
-const useStyles = ({ spacing, palette, shape, breakpoints }) => ({
+const useStyles = ({ palette, breakpoints }) => ({
   search: css({
+    gridArea: 'search',
     position: 'relative',
-    borderRadius: shape.borderRadius,
-    backgroundColor: alpha(palette.divider, 0.15),
+    borderRadius: '6.25rem',
+    display: 'flex',
+    alignItems: 'center',
+    ...palette.searchBar.normal,
+    borderWidth: '0.0625rem',
+    borderStyle: 'solid',
     '&:hover': {
-      backgroundColor: alpha(palette.divider, 0.25),
+      ...palette.searchBar.hover,
+      borderWidth: '0.0625rem',
+      borderStyle: 'solid',
     },
+    '&:focus-within': {
+      ...palette.searchBar.focus,
+      borderWidth: '0.125rem',
+      borderStyle: 'solid',
+    },
+    padding: '1rem 1rem 1rem 1.5rem',
     width: '100%',
-    [breakpoints.up('sm')]: {
-      width: 'auto',
-    },
+    marginRight: '1rem',
   }),
   searchIcon: css({
-    padding: spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    color: palette.searchBar.icon.color,
   }),
   inputRoot: css({
-    color: 'inherit',
-    width: '100%',
+    flex: 1,
+    margin: 0,
   }),
   inputInput: css({
-    padding: spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${spacing(4)})`,
+    padding: 0,
+    lineHeight: '1.25rem',
+    fontWeight: 500,
+    '&::-webkit-search-cancel-button': {
+      cursor: 'pointer',
+    },
+    '&::-ms-clear': {
+      cursor: 'pointer',
+    },
+    '&::after': {
+      cursor: 'pointer',
+    },
   }),
 })
 
@@ -68,20 +78,13 @@ const useStyles = ({ spacing, palette, shape, breakpoints }) => ({
  * Render search input.
  *
  * @param {object} props - Props
- * @param {string} [props.className] - Class name for the container
  * @param {object} props.searchProps - Props for search input
  * @param {UseGlobalFiltersInstanceProps} props.useTableProps - Table props
  * @param {string} props.value - Filter value
  * @param {Function} props.setValue - Set filter value
  * @returns {ReactElement} Component JSX
  */
-const GlobalSearch = ({
-  className,
-  useTableProps,
-  searchProps,
-  value,
-  setValue,
-}) => {
+const GlobalSearch = ({ useTableProps, searchProps, value, setValue }) => {
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
   const { setGlobalFilter } = useTableProps
@@ -95,11 +98,11 @@ const GlobalSearch = ({
   )
 
   return (
-    <div className={clsx(classes.search, className)}>
+    <div className={classes.search}>
       <div className={classes.searchIcon}>
         <SearchIcon />
       </div>
-      <FormControl>
+      <FormControl className={classes.inputRoot}>
         <InputBase
           value={value ?? ''}
           type="search"

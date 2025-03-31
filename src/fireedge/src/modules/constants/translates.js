@@ -84,12 +84,14 @@ module.exports = {
   Definition: 'Definition',
   CopiedToClipboard: 'Copied to clipboard',
   Create: 'Create',
+  CreateFromTemplate: 'Create from template',
   CreateDatastore: 'Create Datastore',
   CreateFile: 'Create File',
   CreateHost: 'Create Host',
   CreateImage: 'Create Image',
   CreateMarketplace: 'Create Marketplace',
-  CreateMarketApp: 'Create Marketplace App',
+  CreateMarketApp: 'Create App',
+  CreateApp: 'Create App',
   CreateProvider: 'Create Provider',
   CreateProvision: 'Create Provision',
   CreateSecurityGroup: 'Create Security Group',
@@ -223,7 +225,7 @@ module.exports = {
   ShowAll: 'Show all',
   ShowBelongingUser: 'Show all owned by the user',
   ShowBelongingUserAndGroups: 'Show all owned by the user or his groups',
-  SignIn: 'Sign In',
+  SignIn: 'Sign In Now',
   SignOut: 'Sign Out',
   SnapshotCreate: 'Snapshot create',
   SnapshotRevert: 'Snapshot revert',
@@ -251,9 +253,11 @@ module.exports = {
   UpdateVirtualNetwork: 'Update Virtual Network',
   UpdateVirtualNetworkTemplate: 'Update Virtual Network Template',
   UpdateVmConfiguration: 'Update VM Configuration',
-  UpdatePlanConfiguration: 'Update OneDRS Configuration',
+  UpdatePlanConfiguration: 'Update Configuration',
   UpdateVmTemplate: 'Update VM Template',
   UpdateMarketplace: 'Update Marketplace',
+  VMState: 'VM state',
+  VMActions: 'VM actions',
 
   /* questions */
   Yes: 'Yes',
@@ -338,6 +342,7 @@ module.exports = {
   Used: 'Used',
 
   /* login */
+  LogIn: 'Login in your account:',
   Username: 'Username',
   Password: 'Password',
   ConfirmPassword: 'Confirm Password',
@@ -610,7 +615,7 @@ module.exports = {
   DrsInterval: 'Cluster is optimized every',
   DrsManualInterval: 'Cluster has to be manually optimized.',
   EnableDrs: 'Enable OneDRS',
-  DisableDrs: 'Disable OneDRS',
+  DisableDrs: 'Disable',
   BalanceWeights: 'Balance Weights',
   AutomationManual:
     'OneDRS will not move VMs, you will need to manage moving and distributing your VMs independently.',
@@ -771,13 +776,14 @@ module.exports = {
   Devices: 'Devices',
   Shared: 'Shared',
   SSH: 'SSH',
-  FSLVM: 'FS LVM',
+  FSLVM: 'LVM',
   ConfigurationAttributes: 'Configuration attributes',
   RestrictedDirs: 'Restricted directories',
   SafeDirs: 'Safe directories',
   StorageUsageLimit: 'Storage usage limit (in MB)',
   TransferBandwidthLimit: 'Transfer bandwidth limit (B/s)',
   DoNotTryToUntarOrDecompress: 'Do not try to untar or decompress',
+  LvmThin: 'Enable LVM thin',
   CheckDSCapacityBeforeCreatingImage:
     'Check available capacity of the Datastore before creating a new Image',
   HostBridgeList: 'Host bridge list',
@@ -2070,6 +2076,7 @@ module.exports = {
   Mandatory: 'Mandatory',
   PressKeysToAddAValue: 'Press any of the following keys to add a value: %s',
   MandatoryUserInputs: 'Show only mandatory inputs',
+  Suggestion: 'Suggestion',
   /** Security Groups */
   Start: 'Start',
   Rules: 'Rules',
@@ -2255,6 +2262,7 @@ module.exports = {
   'acls.table.card.resources.cluster.tooltip':
     'Resources owned by cluster: %1$s',
   'acls.table.card.resources.all.tooltip': 'Resources owned by all',
+  'acls.table.card.resources.owned': 'Resources owned by',
 
   'acls.table.filter.string': 'String rule',
   'acls.table.filter.resources.user.id': 'Resource identifier id',
@@ -2363,6 +2371,8 @@ module.exports = {
   ColumnMenuSortAsc: 'Sort by ASC',
   ColumnMenuSortDesc: 'Sort by DESC',
   ColumnHeaderSortIconLabel: 'Sort',
+  CardView: 'Card View',
+  ListView: 'List View',
 
   /* Success messages */
   SuccessConnectionEstablished: 'Connection established',
@@ -2384,7 +2394,7 @@ module.exports = {
   SuccessGroupUpdated: 'Group updated - #%s',
   SuccessHostCreated: 'Host created - #%s',
   SuccessImageCreated: 'Image created - #%s',
-  SuccessMarketplaceAppCreated: 'Marketplace App created: %s',
+  SuccessMarketplaceAppCreated: 'Marketplace App created',
   SuccessMarketplaceCreated: 'Marketplace created - #%s',
   SuccessMarketplaceUpdated: 'Marketplace updated - #%s',
   SuccessProviderCreated: 'Provider created - #%s',

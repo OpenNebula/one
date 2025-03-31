@@ -70,7 +70,6 @@ const LeaseName = ({ id, type }) => {
       noWrap
       data-cy="name"
       variant="subtitle2"
-      color="secondary"
       component={RouterLink}
       title={`${type.toUpperCase()} ${id}`}
       to={generatePath(path, { id })}

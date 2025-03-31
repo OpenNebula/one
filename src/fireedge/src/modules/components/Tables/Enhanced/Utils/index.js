@@ -24,6 +24,7 @@ import GlobalSelectedRows from '@modules/components/Tables/Enhanced/Utils/Global
 import GlobalSort from '@modules/components/Tables/Enhanced/Utils/GlobalSort'
 import ChangeViewTable from '@modules/components/Tables/Enhanced/Utils/ChangeViewTable'
 import TimeFilter from '@modules/components/Tables/Enhanced/Utils/TimeFilter'
+import SwitchTableView from '@modules/components/Tables/Enhanced/Utils/SwitchTableView'
 
 export * from '@modules/components/Tables/Enhanced/Utils/GlobalActions/Action'
 export * from '@modules/components/Tables/Enhanced/Utils/utils'
@@ -39,6 +40,7 @@ export {
   GlobalSort,
   TimeFilter,
   ChangeViewTable,
+  SwitchTableView,
   // Constants
   LABEL_COLUMN_ID,
 }

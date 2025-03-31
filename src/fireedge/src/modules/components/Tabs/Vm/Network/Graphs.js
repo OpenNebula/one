@@ -42,7 +42,7 @@ const Graphs = ({ id }) => {
       <Translate word={T.NoNetworksInMonitoring} />
     </Typography>
   ) : (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetRX)}

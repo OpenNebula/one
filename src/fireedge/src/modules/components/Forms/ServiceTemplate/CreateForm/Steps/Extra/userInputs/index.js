@@ -16,14 +16,13 @@
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
-import { ServerConnection as NetworkIcon, Cancel } from 'iconoir-react'
+import { InputField as UserInputsIcon, Cancel } from 'iconoir-react'
 import { USER_INPUTS_FIELDS } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/userInputs/schema'
 import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
 import { FormWithSchema } from '@modules/components/Forms'
-
-import { Tr } from '@modules/components/HOC'
-import { Stack, Button, Grid, List, ListItem, IconButton } from '@mui/material'
-import { T } from '@ConstantsModule'
+import { Stack, Grid, List, ListItem } from '@mui/material'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { SubmitButton } from '@modules/components/FormControl'
 
 export const TAB_ID = 'user_inputs'
 
@@ -98,17 +97,22 @@ const Content = () => {
           height: '100%',
         }}
       >
-        <Grid item md={3} sx={{ borderRight: 1, padding: 1 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            type="submit"
-            size="large"
+        <Grid
+          item
+          md={3}
+          sx={{
+            borderRight: userinputs && userinputs.length > 0 ? 1 : 0,
+            padding: 1,
+          }}
+        >
+          <SubmitButton
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
             data-cy={'extra-add-userinput'}
             onClick={handleAppend}
-          >
-            {Tr(T.AddUserInput)}
-          </Button>
+            label={T.AddUserInput}
+          />
           <List
             sx={{
               display: 'flex',
@@ -140,13 +144,11 @@ const Content = () => {
                   }}
                 >
                   {
-                    <IconButton
+                    <SubmitButton
                       aria-label="delete"
                       onClick={(event) => handleRemove(event, idx)}
-                      sx={{ mr: 1.5, size: 'small' }}
-                    >
-                      <Cancel />
-                    </IconButton>
+                      icon={<Cancel />}
+                    />
                   }
                   <div
                     style={{
@@ -195,7 +197,7 @@ Content.propTypes = {
 const TAB = {
   id: TAB_ID,
   name: T.UserInputs,
-  icon: NetworkIcon,
+  icon: UserInputsIcon,
   Content,
   getError: (error) => !!error?.[TAB_ID],
 }

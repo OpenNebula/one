@@ -52,7 +52,7 @@ const Content = () => {
     [STEP_ID]
   )
 
-  return <Tabs tabs={tabs} />
+  return <Tabs addBorder tabs={tabs} />
 }
 
 Content.propTypes = {

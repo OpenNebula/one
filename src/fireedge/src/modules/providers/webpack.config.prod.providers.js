@@ -95,8 +95,22 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader',
-        include: path.resolve(__dirname, '../../'),
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [
+              [
+                '@emotion',
+                {
+                  sourceMap: true,
+                  autoLabel: 'dev-only',
+                  labelFormat: '[local]',
+                  cssPropOptimization: true,
+                },
+              ],
+            ],
+          },
+        },
       },
       {
         test: /\.(png|jpe?g|gif)$/i,

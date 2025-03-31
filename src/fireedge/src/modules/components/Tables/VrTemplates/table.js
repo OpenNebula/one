@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Button, Grid, useTheme } from '@mui/material'
+import { Box, Grid, useTheme } from '@mui/material'
+import { SubmitButton } from '@modules/components/FormControl'
 import { Component, useEffect, useMemo, useState } from 'react'
 import { DatastoreDialog } from '@modules/components/Tables/VrTemplates/DatastoreSelectionDialog'
 
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, STYLE_BUTTONS } from '@ConstantsModule'
 import {
   useViews,
   useGeneralApi,
@@ -242,19 +243,15 @@ const VrTemplatesTable = (props) => {
           <Box className={classes.noDataMessage}>
             <InfoEmpty />
             <Translate word={T.NoDataAvailable} />
-          </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ paddingLeft: 10 }}>
-            <Button
-              variant="outlined"
-              color="primary"
+            <SubmitButton
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               disabled={disableDownload}
-              startIcon={<DownloadIcon />}
+              icon={<DownloadIcon />}
               onClick={() => handleDownloadDefaultImage()}
-            >
-              {Tr(T.DownloadDefaultImage)}
-            </Button>
+              label={Tr(T.DownloadDefaultImage)}
+            />
           </Box>
         </Grid>
       </Grid>
@@ -272,13 +269,13 @@ const VrTemplatesTable = (props) => {
   const listHeader = [
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.RegistrationTime,
       id: 'registration-time',
       accessor: (template) => timeToString(template.REGTIME),
     },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
   ]
 
   const { component, header } = WrapperRow(VrTemplateRow)

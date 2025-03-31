@@ -86,7 +86,6 @@ const AddressRangeCard = memo(
       canLinkToParent && {
         text: (
           <Link
-            color="secondary"
             component={RouterLink}
             to={generatePath(PATH.NETWORK.VNETS.DETAIL, { id: parentId })}
           >
@@ -152,7 +151,7 @@ const AddressRangeCard = memo(
             )}
           </Box>
         </div>
-        <div className={classes.secondary}>
+        <div className={classes.primary}>
           {USED_LEASES && (
             <LinearProgressWithLabel
               value={percentOfUsed}

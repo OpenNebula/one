@@ -125,7 +125,6 @@ const AutocompleteController = memo(
     return (
       <Autocomplete
         fullWidth
-        color="secondary"
         onBlur={onBlur}
         onChange={handleChange}
         onInputChange={(_, newInputValue, reason) => {

@@ -23,8 +23,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Button,
-  IconButton,
   List,
   ListItem,
   ListItemText,
@@ -39,7 +37,8 @@ import { Legend, FormWithSchema } from '@modules/components/Forms'
 
 import { useEffect, useState } from 'react'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { SubmitButton } from '@modules/components/FormControl'
 
 import {
   SCHEDULED_POLICY_FIELDS,
@@ -137,16 +136,15 @@ const ScheduledPolicies = ({ roles, selectedRole }) => {
                       fields={SCHEDULED_POLICY_FIELDS}
                     />
                   )}
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    type="submit"
-                    size="large"
+                  <SubmitButton
+                    importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                    size={STYLE_BUTTONS.SIZE.MEDIUM}
+                    type={STYLE_BUTTONS.TYPE.FILLED}
                     data-cy={'roles-add-scheduled-policy'}
                     onClick={handleAppend}
-                  >
-                    {T.AddPolicy}
-                  </Button>
+                    label={T.AddPolicy}
+                    sx={{ maxWidth: 'fit-content' }}
+                  />
                   <List>
                     {policies?.map((policy, idx) => {
                       const { type, adjust, min, format, expression } =
@@ -201,16 +199,11 @@ const ScheduledPolicies = ({ roles, selectedRole }) => {
                             secondary={secondaryFields.join(' | ')}
                           />
 
-                          <IconButton
+                          <SubmitButton
                             aria-label="delete"
                             onClick={(event) => handleRemove(event, idx)}
-                            sx={{
-                              mr: 1.5,
-                              size: 'small',
-                            }}
-                          >
-                            <Cancel />
-                          </IconButton>
+                            icon={<Cancel />}
+                          />
                         </ListItem>
                       )
                     })}

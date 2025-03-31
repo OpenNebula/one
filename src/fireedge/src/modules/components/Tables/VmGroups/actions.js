@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Trash } from 'iconoir-react'
+import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,12 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, VMGROUP_ACTIONS } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  T,
+  VMGROUP_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const ListVmGroupNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -75,7 +80,11 @@ const Actions = () => {
           {
             accessor: VMGROUP_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.TEMPLATE.VMGROUP.CREATE),
           },
           {
@@ -83,7 +92,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const vmGroupTemplate = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.VMGROUP.CREATE
@@ -95,7 +106,9 @@ const Actions = () => {
             accessor: VMGROUP_ACTIONS.ENABLE,
             label: T.Enable,
             tooltip: T.Enable,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `vmgroup_${VMGROUP_ACTIONS.ENABLE}`,
             action: async (rows) => {
@@ -107,7 +120,9 @@ const Actions = () => {
             accessor: VMGROUP_ACTIONS.DISABLE,
             label: T.Disable,
             tooltip: T.Disable,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `vmgroup_${VMGROUP_ACTIONS.DISABLE}`,
             action: async (rows) => {
@@ -122,6 +137,9 @@ const Actions = () => {
             color: 'error',
             selected: { min: 1 },
             dataCy: `vmgroup_${VMGROUP_ACTIONS.DELETE}`,
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,

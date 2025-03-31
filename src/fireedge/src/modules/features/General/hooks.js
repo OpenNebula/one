@@ -36,6 +36,10 @@ export const useGeneralApi = () => {
     uploadSnackbar: (percent) => dispatch(actions.setUploadSnackbar(percent)),
     setUpdateDialog: (updateDialog) =>
       dispatch(actions.setUpdateDialog(updateDialog)),
+    setFullMode: (fullMode) => dispatch(actions.setFullMode(fullMode)),
+    setBreadcrumb: (breadcrumb) => dispatch(actions.setBreadcrumb(breadcrumb)),
+    setTableViewMode: (tableViewMode) =>
+      dispatch(actions.setTableViewMode(tableViewMode)),
 
     // modified fields
     setFieldPath: (path) => dispatch(actions.setFieldPath(path)),

@@ -19,12 +19,12 @@ import MultiChart from '@modules/components/Charts/MultiChart'
 import { transformApiResponseToDataset } from '@modules/components/Charts/MultiChart/helpers/scripts'
 import { DateRangeFilter } from '@modules/components/Date'
 import { VmAPI } from '@FeaturesModule'
-import { Box, Button } from '@mui/material'
+import { Box } from '@mui/material'
 import { Component, useState, useEffect } from 'react'
 import { DateTime } from 'luxon'
-
+import { SubmitButton } from '@modules/components/FormControl'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { mapValues } from 'lodash'
 
 const keyMap = {
@@ -224,14 +224,13 @@ const generateShowbackInfoTab = ({ groups }) => {
             onDateChange={handleDateChange}
             views={['month', 'year']}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
+          <SubmitButton
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
             onClick={handleGetShowbackClick}
-          >
-            {Tr(T['showback.button.getShowback'])}
-          </Button>
+            label={T['showback.button.getShowback']}
+          />
         </Box>
         <Box
           display="flex"

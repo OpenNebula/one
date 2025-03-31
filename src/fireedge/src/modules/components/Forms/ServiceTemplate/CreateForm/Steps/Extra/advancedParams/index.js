@@ -20,7 +20,7 @@ import { FormWithSchema } from '@modules/components/Forms'
 import { Box, Stack, Divider } from '@mui/material'
 import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra'
 
-import { ServerConnection as NetworkIcon } from 'iconoir-react'
+import { Settings as AdvancedIcon } from 'iconoir-react'
 
 import { T } from '@ConstantsModule'
 
@@ -54,7 +54,7 @@ Content.propTypes = {
 const TAB = {
   id: TAB_ID,
   name: T.AdvancedOptions,
-  icon: NetworkIcon,
+  icon: AdvancedIcon,
   Content,
   getError: (error) => !!error?.[TAB_ID],
 }

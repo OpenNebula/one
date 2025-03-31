@@ -23,7 +23,7 @@ import {
   UseTableInstanceProps,
 } from 'opennebula-react-table'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { SubmitButton } from '@modules/components/FormControl'
 import { Tr } from '@modules/components/HOC'
 import {
@@ -44,6 +44,7 @@ import {
  * @param {UseTableInstanceProps} props.useTableProps - Table props
  * @param {object[]} props.selectedRows - Selected Rows
  * @param {Function} props.onSelectedRowsChange - Sets the state of the containers selected rows
+ * @param {object} props.styles - Styles
  * @returns {ReactElement} Component JSX with all actions
  */
 const GlobalActions = ({
@@ -56,6 +57,7 @@ const GlobalActions = ({
   selectedRows,
   onSelectedRowsChange,
   useTableProps = {},
+  styles = {},
 }) => {
   /** @type {UseRowSelectInstanceProps} */
   const { getToggleAllPageRowsSelectedProps, getToggleAllRowsSelectedProps } =
@@ -69,15 +71,6 @@ const GlobalActions = ({
       alignItems="center"
       gap="0.5em"
     >
-      {refetch && (
-        <SubmitButton
-          data-cy="refresh"
-          icon={<RefreshDouble />}
-          tooltip={Tr(T.Refresh)}
-          isSubmitting={isLoading}
-          onClick={refetch}
-        />
-      )}
       {!singleSelect &&
         !disableRowSelect &&
         getToggleAllPageRowsSelectedProps &&
@@ -86,9 +79,21 @@ const GlobalActions = ({
             {...getToggleAllPageRowsSelectedProps()}
             title={Tr(T.ToggleAllSelectedCardsCurrentPage)}
             indeterminate={getToggleAllRowsSelectedProps().indeterminate}
-            color="secondary"
           />
         )}
+      {refetch && (
+        <SubmitButton
+          data-cy="refresh"
+          icon={<RefreshDouble />}
+          tooltip={Tr(T.Refresh)}
+          isSubmitting={isLoading}
+          onClick={refetch}
+          importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+          type={STYLE_BUTTONS.TYPE.OUTLINED_ICON}
+          size={STYLE_BUTTONS.SIZE.MEDIUM}
+          className={styles.refreshIcon}
+        />
+      )}
       {globalActions?.map((item, idx) => {
         if ((singleSelect || disableRowSelect) && item.selected) return null
 
@@ -117,6 +122,7 @@ GlobalActions.propTypes = {
   useTableProps: PropTypes.object,
   selectedRows: PropTypes.array,
   onSelectedRowsChange: PropTypes.func,
+  styles: PropTypes.object,
 }
 
 export default GlobalActions

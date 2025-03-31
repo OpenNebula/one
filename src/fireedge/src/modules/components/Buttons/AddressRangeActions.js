@@ -24,7 +24,12 @@ import { AddRangeForm } from '@modules/components/Forms/VNetwork'
 import { VnAPI } from '@FeaturesModule'
 
 import { Tr } from '@modules/components/HOC'
-import { RESTRICTED_ATTRIBUTES_TYPE, T, VN_ACTIONS } from '@ConstantsModule'
+import {
+  RESTRICTED_ATTRIBUTES_TYPE,
+  T,
+  VN_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 
 import { hasRestrictedAttributes } from '@UtilsModule'
@@ -55,11 +60,12 @@ const AddAddressRangeAction = memo(
     return (
       <ButtonToTriggerForm
         buttonProps={{
-          color: 'secondary',
           'data-cy': 'add-ar',
           startIcon: <AddIcon />,
           label: T.AddressRange,
-          variant: 'outlined',
+          importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
+          type: STYLE_BUTTONS.TYPE.FILLED,
         }}
         options={[
           {

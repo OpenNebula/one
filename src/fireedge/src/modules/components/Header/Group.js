@@ -50,7 +50,6 @@ const ButtonGroup = memo(
         fullWidth
         disabled={disabled}
         variant={isSelected ? 'contained' : 'outlined'}
-        color="secondary"
         data-cy={`group-${ID}`}
         onClick={handleClick}
         sx={{
@@ -109,11 +108,11 @@ const Group = () => {
       id="group-list"
       icon={<GroupIcon />}
       tooltip={<Translate word={T.SwitchGroup} />}
-      buttonProps={{ 'data-cy': 'header-group-button' }}
+      buttonProps={{ 'data-cy': 'header-group-button', noborder: true }}
       headerTitle={
         <Stack direction="row" alignItems="center" gap="1em" component="span">
           <Translate word={T.SwitchGroup} />
-          {isLoading && <CircularProgress size={20} color="secondary" />}
+          {isLoading && <CircularProgress size={20} />}
         </Stack>
       }
     >

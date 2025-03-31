@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, DesignPencil, Trash } from 'iconoir-react'
+import { Plus, DesignPencil, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,7 @@ import {
 
 import { PATH } from '@modules/components/path'
 import { Translate, Tr } from '@modules/components/HOC'
-import { RESOURCE_NAMES, T, ACL_ACTIONS } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, ACL_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 
 import { translateACL } from '@ModelsModule'
 
@@ -77,20 +77,30 @@ const Actions = () => {
           {
             accessor: ACL_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.SYSTEM.ACLS.CREATE, false),
           },
           {
             accessor: ACL_ACTIONS.CREATE_DIALOG_STRING,
             tooltip: T['acls.table.actions.create.string'],
+            label: T['acls.table.actions.create.string'],
             icon: DesignPencil,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.SYSTEM.ACLS.CREATE, true),
           },
           {
             accessor: ACL_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `acl_${ACL_ACTIONS.DELETE}`,
             options: [

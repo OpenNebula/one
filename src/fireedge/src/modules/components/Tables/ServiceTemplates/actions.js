@@ -16,7 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
-import { AddCircledOutline, Trash, PlayOutline, Group } from 'iconoir-react'
+import { Plus, Trash, PlayOutline, Group } from 'iconoir-react'
 
 import { useViews, ServiceTemplateAPI } from '@FeaturesModule'
 
@@ -28,7 +28,12 @@ import {
 
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import { T, SERVICE_TEMPLATE_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  SERVICE_TEMPLATE_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const ListServiceTemplateNames = ({ rows = [] }) =>
   rows?.map?.(({ id, original }) => {
@@ -80,7 +85,11 @@ const Actions = () => {
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.CREATE_DIALOG,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.TEMPLATE.SERVICES.CREATE),
           },
           {
@@ -88,6 +97,9 @@ const Actions = () => {
             tooltip: T.Instantiate,
             icon: PlayOutline,
             selected: { max: 1 },
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: (rows) => {
               const template = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.SERVICES.INSTANTIATE
@@ -100,7 +112,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const serviceTemplate = rows?.[0]?.original ?? {}
               const path = PATH.TEMPLATE.SERVICES.CREATE
@@ -113,7 +127,7 @@ const Actions = () => {
           //   label: T.Clone,
           //   tooltip: T.Clone,
           //   selected: true,
-          //   color: 'secondary',
+          //
           //   options: [
           //     {
           //       dialogProps: {
@@ -161,7 +175,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-ownership',
             options: [
               {
@@ -202,7 +218,9 @@ const Actions = () => {
             tooltip: T.Delete,
             icon: Trash,
             selected: { min: 1 },
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,

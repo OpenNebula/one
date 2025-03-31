@@ -14,8 +14,15 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { Box, Container, LinearProgress, useMediaQuery } from '@mui/material'
-import { ReactElement, useState } from 'react'
+import {
+  Box,
+  Container,
+  LinearProgress,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
+import { ReactElement, useState, useMemo } from 'react'
 
 import { useAuth, useAuthApi, AuthAPI } from '@FeaturesModule'
 
@@ -23,6 +30,8 @@ import { Tr, OpenNebulaLogo } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { Form } from '@modules/containers/Login/Opennebula/Form'
 import * as FORM_SCHEMA from '@modules/containers/Login/Opennebula/schema'
+
+import { styles } from '@modules/containers/Login/styles'
 
 const STEPS = {
   USER_FORM: 0,
@@ -36,7 +45,9 @@ const STEPS = {
  * @returns {ReactElement} The login form.
  */
 export function OpenNebulaLoginHandler() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.only('xs'))
+  const isMobile = useMediaQuery((themeMobile) =>
+    themeMobile.breakpoints.only('xs')
+  )
 
   const { logout, setErrorMessage } = useAuthApi()
   const { error: authError, isLoginInProgress: needGroupToContinue } = useAuth()
@@ -82,6 +93,9 @@ export function OpenNebulaLoginHandler() {
     setStep(STEPS.USER_FORM)
   }
 
+  const theme = useTheme()
+  const classes = useMemo(() => styles(theme), [theme])
+
   return (
     <Container
       component="main"
@@ -92,34 +106,25 @@ export function OpenNebulaLoginHandler() {
         flexDirection: 'column',
         justifyContent: 'center',
         height: '100vh',
+        alignItems: 'center',
       }}
     >
-      <LinearProgress
-        color="secondary"
-        sx={{ visibility: isLoading ? 'visible' : 'hidden' }}
-      />
-      <Box
-        sx={{
-          p: 2,
-          overflow: 'hidden',
-          minHeight: 380,
-          border: ({ palette }) => ({
-            xs: 'none',
-            sm: `1px solid ${palette.divider}`,
-          }),
-          borderRadius: ({ shape }) => shape.borderRadius / 2,
-          height: { xs: 'calc(100vh - 4px)', sm: 'auto' },
-          backgroundColor: { xs: 'transparent', sm: 'background.paper' },
-        }}
-      >
+      <LinearProgress sx={{ visibility: isLoading ? 'visible' : 'hidden' }} />
+      <Box className={classes.login}>
         <OpenNebulaLogo
           data-cy="opennebula-logo"
-          height={100}
+          height={'7rem'}
           width="100%"
           withText
         />
 
-        <Box display="flex" py={2} px={1} overflow="hidden">
+        <Box display="flex" overflow="hidden">
+          <Typography variant="h2" sx={{ margin: '3.5rem 0rem 0rem 0rem' }}>
+            {Tr(T.LogIn)}
+          </Typography>
+        </Box>
+
+        <Box display="flex" overflow="hidden">
           {step === STEPS.USER_FORM && (
             <Form
               transitionProps={{

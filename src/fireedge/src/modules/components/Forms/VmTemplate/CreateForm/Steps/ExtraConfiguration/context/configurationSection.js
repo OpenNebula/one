@@ -15,13 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement, useCallback, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { Stack, FormControl, Button } from '@mui/material'
+import { Stack, FormControl } from '@mui/material'
 import { useFormContext } from 'react-hook-form'
 import { useGeneralApi } from '@FeaturesModule'
 
 import { FormWithSchema, Legend } from '@modules/components/Forms'
 import { SSH_PUBLIC_KEY, SCRIPT_FIELDS, OTHER_FIELDS } from './schema'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 import { disableFields } from '@UtilsModule'
 
@@ -113,22 +114,22 @@ const ConfigurationSection = ({ stepId, oneConfig, adminGroup, isUpdate }) => {
             )}
           />
           <Stack direction="row" gap="1em">
-            <Button
+            <SubmitButton
               onClick={handleAddUserKey}
-              color="secondary"
-              variant="contained"
               data-cy={getCyPath('add-context-ssh-public-key')}
-            >
-              {T.AddUserSshPublicKey}
-            </Button>
-            <Button
+              label={T.AddUserSshPublicKey}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+            />
+            <SubmitButton
               onClick={handleClearKey}
-              color="secondary"
-              variant="outlined"
               data-cy={getCyPath('delete-context-ssh-public-key')}
-            >
-              {T.Clear}
-            </Button>
+              label={T.Clear}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.OUTLINED}
+            />
           </Stack>
         </section>
         <FormWithSchema

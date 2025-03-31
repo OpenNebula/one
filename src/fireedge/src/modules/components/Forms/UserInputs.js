@@ -464,7 +464,7 @@ const generateTabs = (userInputsLayout, STEP_ID, FIELDS, showMandatoryOnly) => {
   )
 
   // Render tabs
-  return <Tabs tabs={tabs} />
+  return <Tabs addBorder tabs={tabs} />
 }
 
 /**

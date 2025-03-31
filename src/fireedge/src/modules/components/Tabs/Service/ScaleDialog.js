@@ -21,12 +21,13 @@ import {
   TextField,
   Switch,
   FormControlLabel,
-  Button,
+  Stack,
   Box,
   Typography,
 } from '@mui/material'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 /**
  * Dialog for scaling the number of VMs.
@@ -66,30 +67,30 @@ export const ScaleDialog = ({ open, onClose, onScale, roleName }) => {
       <Box padding={4}>
         <Typography variant="h6">Scale</Typography>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            margin="normal"
-            fullWidth
-            label={Tr(T.NumberOfVms)}
-            type="number"
-            {...register('numberOfVms', {
-              required: 'Number of VMs is required',
-            })}
-            error={!!errors.numberOfVms}
-            helperText={errors.numberOfVms?.message}
-          />
-          <FormControlLabel
-            control={<Switch {...register('force')} />}
-            label={Tr(T.Force)}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2, fontSize: '1rem' }}
-          >
-            {Tr(T.Scale)}
-          </Button>
+          <Stack direction="column" alignItems="start" justifyContent="center">
+            <TextField
+              margin="normal"
+              fullWidth
+              label={Tr(T.NumberOfVms)}
+              type="number"
+              {...register('numberOfVms', {
+                required: 'Number of VMs is required',
+              })}
+              error={!!errors.numberOfVms}
+              helperText={errors.numberOfVms?.message}
+            />
+            <FormControlLabel
+              control={<Switch {...register('force')} />}
+              label={Tr(T.Force)}
+            />
+            <SubmitButton
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              sx={{ mt: 2, alignSelf: 'end' }}
+              label={T.Scale}
+            />
+          </Stack>
         </form>
       </Box>
     </Dialog>

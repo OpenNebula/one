@@ -35,7 +35,7 @@ import {
 
 import { jsonToXml } from '@ModelsModule'
 import { Tr, Translate } from '@modules/components/HOC'
-import { T, VM_ACTIONS } from '@ConstantsModule'
+import { T, VM_ACTIONS, STYLE_BUTTONS } from '@ConstantsModule'
 import { hasRestrictedAttributes, isRestrictedAttributes } from '@UtilsModule'
 
 const AttachAction = memo(
@@ -82,11 +82,12 @@ const AttachAction = memo(
                 sx,
               }
             : {
-                color: 'secondary',
                 'data-cy': 'add-disk',
                 label: T.AttachDisk,
-                variant: 'outlined',
                 sx,
+                importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.FILLED,
               }
         }
         options={

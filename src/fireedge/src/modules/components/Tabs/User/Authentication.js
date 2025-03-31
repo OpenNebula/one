@@ -15,13 +15,11 @@
  * ------------------------------------------------------------------------- */
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
-  IconButton,
   MenuItem,
   TextField,
   Typography,
@@ -31,7 +29,9 @@ import { EditPencil } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { Component, useCallback, useReducer } from 'react'
 import { Tr } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { SubmitButton } from '@modules/components/FormControl'
+
 /**
  * Reducer to manage the state of the AuthenticationInfo component.
  *
@@ -236,40 +236,37 @@ const AuthenticationInfo = ({ id }) => {
             />
           </Grid>
           <Grid item xs={6}>
-            <IconButton
+            <SubmitButton
               onClick={() => handleFieldChange('sshKeyDialogOpen', true)}
-            >
-              <EditPencil />
-            </IconButton>
+              icon={<EditPencil />}
+            />
             <Typography display="inline">{Tr(T.EditPublicSSHKey)}</Typography>
           </Grid>
           <Grid item xs={6}>
-            <IconButton
+            <SubmitButton
               onClick={() => handleFieldChange('privateSshKeyDialogOpen', true)}
-            >
-              <EditPencil />
-            </IconButton>
+              icon={<EditPencil />}
+            />
             <Typography display="inline">{Tr(T.EditPrivateSSHKey)}</Typography>
           </Grid>
           <Grid item xs={6}>
-            <IconButton
+            <SubmitButton
               onClick={() => handleFieldChange('passphraseDialogOpen', true)}
-            >
-              <EditPencil />
-            </IconButton>
+              icon={<EditPencil />}
+            />
             <Typography display="inline">
               {Tr(T.EditSSHKeyPassphrase)}
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
+            <SubmitButton
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               onClick={handleUpdateAuthDriver}
               data-cy={'auth-save'}
-            >
-              {Tr(T.SaveChanges)}
-            </Button>
+              label={T.SaveChanges}
+            />
           </Grid>
         </Grid>
         <Dialog
@@ -288,15 +285,21 @@ const AuthenticationInfo = ({ id }) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button
+            <SubmitButton
               onClick={() => handleFieldChange('sshKeyDialogOpen', false)}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              label={T.Cancel}
+            />
+            <SubmitButton
+              onClick={handleSshKeySave}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               color="primary"
-            >
-              {Tr(T.Cancel)}
-            </Button>
-            <Button onClick={handleSshKeySave} color="primary">
-              {Tr(T.Save)}
-            </Button>
+              label={T.Save}
+            />
           </DialogActions>
         </Dialog>
         <Dialog
@@ -317,17 +320,23 @@ const AuthenticationInfo = ({ id }) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button
+            <SubmitButton
               onClick={() =>
                 handleFieldChange('privateSshKeyDialogOpen', false)
               }
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              label={T.Cancel}
+            />
+            <SubmitButton
+              onClick={handlePrivateSshKeySave}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               color="primary"
-            >
-              {Tr(T.Cancel)}
-            </Button>
-            <Button onClick={handlePrivateSshKeySave} color="primary">
-              {Tr(T.Save)}
-            </Button>
+              label={T.Save}
+            />
           </DialogActions>
         </Dialog>
 
@@ -345,15 +354,21 @@ const AuthenticationInfo = ({ id }) => {
             />
           </DialogContent>
           <DialogActions>
-            <Button
+            <SubmitButton
               onClick={() => handleFieldChange('passphraseDialogOpen', false)}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              label={T.Cancel}
+            />
+            <SubmitButton
+              onClick={handlePassphraseSave}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               color="primary"
-            >
-              {Tr(T.Cancel)}
-            </Button>
-            <Button onClick={handlePassphraseSave} color="primary">
-              {Tr(T.Save)}
-            </Button>
+              label={T.Save}
+            />
           </DialogActions>
         </Dialog>
       </Box>

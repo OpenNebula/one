@@ -169,7 +169,7 @@ const Content = ({ data, setFormData }) => {
   }
 
   if (!successRequestProviderConfig || !successRequestProvisionTemplate) {
-    return <LinearProgress color="secondary" sx={{ width: '100%' }} />
+    return <LinearProgress sx={{ width: '100%' }} />
   }
 
   return (
@@ -177,11 +177,10 @@ const Content = ({ data, setFormData }) => {
       {/* -- SELECTORS -- */}
       <Breadcrumbs separator={<NavArrowRight />}>
         <FormControl>
-          <InputLabel color="secondary" shrink id="select-provision-type-label">
+          <InputLabel shrink id="select-provision-type-label">
             {'Provision type'}
           </InputLabel>
           <Select
-            color="secondary"
             inputProps={{ 'data-cy': 'select-provision-type' }}
             labelId="select-provision-type-label"
             native
@@ -201,11 +200,10 @@ const Content = ({ data, setFormData }) => {
           </Select>
         </FormControl>
         <FormControl>
-          <InputLabel color="secondary" shrink id="select-provider-type-label">
+          <InputLabel shrink id="select-provider-type-label">
             {'Provider type'}
           </InputLabel>
           <Select
-            color="secondary"
             inputProps={{ 'data-cy': 'select-provider-type' }}
             labelId="select-provider-type-label"
             native

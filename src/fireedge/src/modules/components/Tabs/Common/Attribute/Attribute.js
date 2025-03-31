@@ -222,7 +222,7 @@ const Attribute = memo(
                 }}
               >
                 {link ? (
-                  <Link color="secondary" component={RouterLink} to={link}>
+                  <Link component={RouterLink} to={link}>
                     {value}
                   </Link>
                 ) : (

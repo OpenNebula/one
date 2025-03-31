@@ -13,40 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, ReactElement } from 'react'
+import table from '@modules/components/Tables/Increments/table'
+import columns from '@modules/components/Tables/Increments/columns'
+import row from '@modules/components/Tables/Increments/row'
 
-import EnhancedTable, {
-  createColumns,
-} from '@modules/components/Tables/Enhanced'
-import IncrementColumns from '@modules/components/Tables/Increments/columns'
-import IncrementRow from '@modules/components/Tables/Increments/row'
-
-const DEFAULT_DATA_CY = 'increments'
-
-/**
- * @param {object} props - Props
- * @returns {ReactElement} Backups table
- */
-const IncrementsTable = (props) => {
-  const { rootProps = {}, increments, ...rest } = props ?? {}
-  rootProps['data-cy'] ??= DEFAULT_DATA_CY
-
-  const columns = createColumns({
-    columns: IncrementColumns,
-  })
-
-  return (
-    <EnhancedTable
-      columns={columns}
-      data={useMemo(() => increments, [increments])}
-      rootProps={rootProps}
-      getRowId={(row) => String(row.ID)}
-      RowComponent={IncrementRow}
-      {...rest}
-    />
-  )
+const IncrementsTable = {
+  Table: table,
+  Columns: columns,
+  Row: row,
 }
-
-IncrementsTable.displayName = 'IncrementsTable'
 
 export default IncrementsTable

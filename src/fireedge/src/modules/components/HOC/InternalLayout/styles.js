@@ -32,6 +32,7 @@ export default (theme) => ({
   main: css({
     height: '100vh',
     width: '100%',
+    backgroundColor: theme?.palette?.mainContainer?.backgroundColor,
     paddingBottom: footer.regular,
     paddingTop: toolbar.regular,
     [`${theme.breakpoints.up('xs')} and (orientation: landscape)`]: {
@@ -43,11 +44,12 @@ export default (theme) => ({
   }),
   scrollable: css({
     paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
     height: '100%',
-    overflow: 'auto',
+    overflow: 'none',
     display: 'flex',
     flexDirection: 'column',
+    paddingLeft: '3.4375rem',
+    paddingRight: '3.4375rem',
   }),
   /* ROUTES TRANSITIONS */
   appear: css({}),

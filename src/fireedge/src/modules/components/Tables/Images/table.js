@@ -66,8 +66,6 @@ const ImagesTable = (props) => {
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
-    { header: T.Group, id: 'group', accessor: 'GNAME' },
     { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
     {
       header: T.Type,
@@ -75,6 +73,8 @@ const ImagesTable = (props) => {
       accessor: (template) => getImageType(template),
     },
     { header: T.VMs, id: 'vms', accessor: 'RUNNING_VMS' },
+    { header: T.Owner, id: 'owner', accessor: 'UNAME' },
+    { header: T.Group, id: 'group', accessor: 'GNAME' },
     {
       header: T.Labels,
       id: 'labels',

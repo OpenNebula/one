@@ -31,6 +31,7 @@ import { BaseTab as Tabs } from '@modules/components/Tabs'
 import { SCHEMA } from '@modules/components/Forms/VnTemplate/CreateForm/Steps/ExtraConfiguration/schema'
 import { STEP_ID as GENERAL_ID } from '@modules/components/Forms/VnTemplate/CreateForm/Steps/General'
 import { T, VirtualNetwork } from '@ConstantsModule'
+import { Box } from '@mui/material'
 
 /**
  * @typedef {object} TabType
@@ -76,7 +77,11 @@ const Content = ({ isUpdate, oneConfig, adminGroup }) => {
     [totalErrors, driver]
   )
 
-  return <Tabs tabs={tabs} />
+  return (
+    <Box sx={{ height: 'auto', overflow: 'auto' }}>
+      <Tabs addBorder tabs={tabs} />
+    </Box>
+  )
 }
 
 /**

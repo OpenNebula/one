@@ -65,7 +65,7 @@ export const Settings = () => {
                 href={DOCUMENTATION_WEBSITE}
                 target="_blank"
                 style={{
-                  color: theme.palette.secondary.dark,
+                  color: theme.palette.primary.dark,
                   textDecoration: 'none',
                 }}
                 rel="noreferrer"
@@ -91,7 +91,7 @@ export const Settings = () => {
                 href={COMMUNITY_WEBSITE}
                 target="_blank"
                 style={{
-                  color: theme.palette.secondary.dark,
+                  color: theme.palette.primary.dark,
                   textDecoration: 'none',
                 }}
                 rel="noreferrer"

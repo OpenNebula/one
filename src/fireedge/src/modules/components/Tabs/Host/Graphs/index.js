@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Grid } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { prettyBytes } from '@UtilsModule'
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo } from 'react'
@@ -30,6 +30,9 @@ import { Tr } from '@modules/components/HOC'
  * @returns {ReactElement} Graphs tab
  */
 const HostGraphTab = ({ id }) => {
+  // Get styles
+  const theme = useTheme()
+
   const {
     data: { MONITORING_DATA: { MONITORING: monitoring = [] } = {} } = {},
   } = HostAPI.useGetHostMonitoringQuery({ id: id }) || {}
@@ -50,16 +53,17 @@ const HostGraphTab = ({ id }) => {
   )
 
   const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
-  const {
-    [driver]: { host = {} },
-  } = forecastConfig
+
+  const driverConfig = forecastConfig[driver] || {} // Ensure it's always an object
+  const { host = {} } = driverConfig
+
   const {
     forecast_period: forecastPeriod = 5, // Minutes
     forecast_far_period: forecastFarPeriod = 48, // Hours
   } = host
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item xs={12} sm={12}>
         <Chartist
           name={'CPU'}
@@ -93,12 +97,12 @@ const HostGraphTab = ({ id }) => {
               ).getTime(),
           ]}
           lineColors={[
-            '#B8CF49',
-            '#00A76A',
-            '#66CAA6',
-            '#80CDE6',
-            '#0098C3',
-            '#66C1DB',
+            theme?.palette?.graphs.host.cpu.free.real,
+            theme?.palette?.graphs.host.cpu.free.forecast,
+            theme?.palette?.graphs.host.cpu.free.forecastFar,
+            theme?.palette?.graphs.host.cpu.used.real,
+            theme?.palette?.graphs.host.cpu.used.forecast,
+            theme?.palette?.graphs.host.cpu.used.forecastFar,
           ]}
           clusterFactor={6}
           clusterThreshold={100}
@@ -151,12 +155,12 @@ const HostGraphTab = ({ id }) => {
               ).getTime(),
           ]}
           lineColors={[
-            '#B8CF49',
-            '#00A76A',
-            '#66CAA6',
-            '#80CDE6',
-            '#0098C3',
-            '#66C1DB',
+            theme?.palette?.graphs.host.memory.free.real,
+            theme?.palette?.graphs.host.memory.free.forecast,
+            theme?.palette?.graphs.host.memory.free.forecastFar,
+            theme?.palette?.graphs.host.memory.used.real,
+            theme?.palette?.graphs.host.memory.used.forecast,
+            theme?.palette?.graphs.host.memory.used.forecastFar,
           ]}
           clusterFactor={6}
           clusterThreshold={100}

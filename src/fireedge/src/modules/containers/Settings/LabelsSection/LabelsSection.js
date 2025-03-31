@@ -162,7 +162,7 @@ export const Settings = () => {
           inputProps={{ 'data-cy': NEW_LABEL_ID }}
           InputProps={{
             endAdornment: isLoading ? (
-              <CircularProgress color="secondary" size={14} />
+              <CircularProgress size={14} />
             ) : undefined,
           }}
           {...register(NEW_LABEL_ID, { onChange: handleChange })}

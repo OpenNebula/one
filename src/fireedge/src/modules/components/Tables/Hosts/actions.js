@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { AddCircledOutline, Trash } from 'iconoir-react'
+import { Plus, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -23,6 +23,7 @@ import {
   RESOURCE_NAMES,
   STATES,
   T,
+  STYLE_BUTTONS,
 } from '@ConstantsModule'
 import {
   ClusterAPI,
@@ -89,12 +90,18 @@ const Actions = () => {
             accessor: HOST_ACTIONS.CREATE_DIALOG,
             dataCy: `host_${HOST_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.INFRASTRUCTURE.HOSTS.CREATE),
           },
           {
             accessor: HOST_ACTIONS.CHANGE_CLUSTER,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `host-${HOST_ACTIONS.CHANGE_CLUSTER}`,
             label: T.SelectCluster,
             tooltip: T.SelectCluster,
@@ -119,7 +126,9 @@ const Actions = () => {
           },
           {
             accessor: HOST_ACTIONS.ENABLE,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `host_${HOST_ACTIONS.ENABLE}`,
             label: T.Enable,
             disabled: isDisabled(STATES.MONITORED),
@@ -132,7 +141,9 @@ const Actions = () => {
           },
           {
             accessor: HOST_ACTIONS.DISABLE,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `host_${HOST_ACTIONS.DISABLE}`,
             label: T.Disable,
             disabled: isDisabled(STATES.DISABLED),
@@ -145,7 +156,9 @@ const Actions = () => {
           },
           {
             accessor: HOST_ACTIONS.OFFLINE,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `host_${HOST_ACTIONS.OFFLINE}`,
             label: T.Offline,
             tooltip: T.Offline,
@@ -157,7 +170,9 @@ const Actions = () => {
           },
           {
             accessor: HOST_ACTIONS.FLUSH,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: `host_${HOST_ACTIONS.FLUSH}`,
             label: T.Flush,
             tooltip: T.Flush,
@@ -183,7 +198,9 @@ const Actions = () => {
           },
           {
             accessor: HOST_ACTIONS.DELETE,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'host-delete',
             icon: Trash,
             tooltip: T.Delete,

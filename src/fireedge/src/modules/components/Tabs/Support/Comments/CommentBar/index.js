@@ -98,7 +98,6 @@ const CommentBar = ({
       </FormProvider>
       <Stack direction="row-reverse" gap={1} my={2}>
         <SubmitButton
-          color="secondary"
           data-cy="add-comment-button"
           isSubmitting={isLoading}
           sx={{ textTransform: 'uppercase' }}

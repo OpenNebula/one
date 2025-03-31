@@ -17,7 +17,7 @@ import { useMemo } from 'react'
 import { useTheme, Box, Typography } from '@mui/material'
 import { css } from '@emotion/css'
 import { useHistory } from 'react-router-dom'
-import { AddCircledOutline, Trash, Group, RefreshCircular } from 'iconoir-react'
+import { Plus, Trash, Group, RefreshCircular } from 'iconoir-react'
 
 import { useViews, ServiceAPI } from '@FeaturesModule'
 
@@ -30,7 +30,12 @@ import {
 import ServiceTemplatesTable from '@modules/components/Tables/ServiceTemplates'
 import { Translate } from '@modules/components/HOC'
 import { PATH } from '@modules/components/path'
-import { T, SERVICE_TEMPLATE_ACTIONS, RESOURCE_NAMES } from '@ConstantsModule'
+import {
+  T,
+  SERVICE_TEMPLATE_ACTIONS,
+  RESOURCE_NAMES,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 
 const useTableStyles = () => ({
   body: css({ gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))' }),
@@ -84,8 +89,12 @@ const Actions = () => {
         actions: [
           {
             accessor: SERVICE_TEMPLATE_ACTIONS.INSTANTIATE_DIALOG,
-            tooltip: T.Instantiate,
-            icon: AddCircledOutline,
+            tooltip: T.Create,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 isConfirmDialog: true,
@@ -121,7 +130,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: { min: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'template-ownership',
             options: [
               {
@@ -161,7 +172,9 @@ const Actions = () => {
             tooltip: T.Recover,
             icon: RefreshCircular,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'service-recover',
             options: [
               {
@@ -201,7 +214,9 @@ const Actions = () => {
             tooltip: T.Delete,
             icon: Trash,
             selected: true,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,

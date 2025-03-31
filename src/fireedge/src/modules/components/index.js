@@ -14,7 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 export * from '@modules/components/Alerts'
-export * from '@modules/components/AutoScrollBox'
+export * from '@modules/components/Breadcrumb'
+export * from '@modules/components/Alerts'
 export * from '@modules/components/DebugLog'
 export * from '@modules/components/Buttons'
 export * from '@modules/components/Cards'
@@ -49,10 +50,7 @@ export {
   Gutter,
   useSplitGrid,
 } from '@modules/components/SplitPane'
-export {
-  default as ResourcesBackButton,
-  BackButton,
-} from '@modules/components/ResourcesBackButton'
+export { default as ResourcesBackButton } from '@modules/components/ResourcesBackButton'
 export {
   default as Notifier,
   NotifierUpload,

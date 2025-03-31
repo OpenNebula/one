@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 import { Typography, Chip, Box } from '@mui/material'
 
 const DevTypography = memo(
-  ({ labelProps = {}, color = 'secondary', chipProps = {}, children = '' }) => (
+  ({ labelProps = {}, color = 'primary', chipProps = {}, children = '' }) => (
     <Box component="span" display="inline-flex" gap="1em" width="100%">
       <Typography
         flexGrow={1}

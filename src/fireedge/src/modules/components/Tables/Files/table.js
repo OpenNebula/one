@@ -24,7 +24,7 @@ import ImageColumns from '@modules/components/Tables/Images/columns'
 import ImageRow from '@modules/components/Tables/Images/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { useViews, ImageAPI } from '@FeaturesModule'
-import { getState, getType } from '@ModelsModule'
+import { getImageState, getImageType } from '@ModelsModule'
 
 const DEFAULT_DATA_CY = 'images'
 
@@ -69,17 +69,21 @@ const FilesTable = (props) => {
       header: '',
       id: 'status-icon',
       accessor: (vm) => {
-        const { color: stateColor, name: stateName } = getState(vm)
+        const { color: stateColor, name: stateName } = getImageState(vm)
 
         return <StatusCircle color={stateColor} tooltip={stateName} />
       },
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
+    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
+    {
+      header: T.Type,
+      id: 'type',
+      accessor: (template) => getImageType(template),
+    },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
-    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
-    { header: T.Type, id: 'type', accessor: (template) => getType(template) },
   ]
 
   const { component, header } = WrapperRow(ImageRow)

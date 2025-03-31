@@ -34,6 +34,7 @@ const USERNAME = {
     required: true,
     autoComplete: 'username',
     size: 'medium',
+    sx: { margin: '2rem 0rem 0rem 0rem' },
   },
 }
 
@@ -50,6 +51,7 @@ const PASSWORD = {
     required: true,
     autoComplete: 'current-password',
     size: 'medium',
+    sx: { margin: 0 },
   },
 }
 
@@ -59,6 +61,9 @@ const REMEMBER = {
   type: INPUT_TYPES.CHECKBOX,
   validation: boolean().default(() => false),
   grid: { md: 12 },
+  fieldProps: {
+    sx: { margin: '0rem 0rem 2rem 0rem' },
+  },
 }
 
 const TOKEN = {
@@ -74,6 +79,7 @@ const TOKEN = {
     autoFocus: true,
     required: true,
     margin: 'normal',
+    sx: { margin: '2rem 0rem 2rem 0rem' },
   },
 }
 
@@ -104,7 +110,7 @@ const GROUP = {
   validation: string().trim().nullable().default(FILTER_POOL.ALL_RESOURCES),
   grid: { md: 12 },
   fieldProps: {
-    margin: 'normal',
+    sx: { margin: '2rem 0rem 2rem 0rem' },
   },
 }
 

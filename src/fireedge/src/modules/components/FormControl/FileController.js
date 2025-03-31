@@ -134,7 +134,7 @@ const FileController = memo(
         />
         <Label htmlFor={cy} error={error ? 'error' : undefined}>
           <SubmitButton
-            color={success ? 'success' : 'secondary'}
+            color={success ? 'success' : 'primary'}
             component="span"
             disabled={readOnly}
             data-cy={`${cy}-button`}

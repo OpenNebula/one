@@ -417,7 +417,7 @@ const Chartist = ({
               alignItems="center"
               sx={{ width: '100%', height: '100%' }}
             >
-              <CircularProgress color="secondary" />
+              <CircularProgress />
             </Stack>
           ) : (
             <div className={classes.chart}>

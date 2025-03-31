@@ -103,7 +103,10 @@ const TextController = memo(
         }
         FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
         {...fieldProps}
-        sx={multiline ? { textarea: { resize: 'both' } } : {}}
+        sx={{
+          ...fieldProps?.sx,
+          ...(multiline ? { textarea: { resize: 'both' } } : {}),
+        }}
       />
     )
   },

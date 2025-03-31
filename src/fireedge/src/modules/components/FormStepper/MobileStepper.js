@@ -84,7 +84,7 @@ const CustomMobileStepper = ({
         position="static"
         steps={totalSteps}
         activeStep={activeStep}
-        LinearProgressProps={{ color: 'secondary' }}
+        LinearProgressProps={{ color: 'primary' }}
         backButton={
           <Button
             className={classes.button}

@@ -48,7 +48,6 @@ const ChangeViewTable = memo(({ tableViews = {} }) => {
           'data-cy': 'changeviewtable-by-button',
           disableElevation: true,
           variant: 'outlined',
-          color: 'secondary',
         }}
         popperProps={{ placement: 'bottom-end' }}
       >

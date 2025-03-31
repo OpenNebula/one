@@ -67,7 +67,6 @@ export const Hosts = memo(({ id, setTab, logTabId }) => {
           <Stack alignSelf="center">
             <SubmitButton
               data-cy="add-host"
-              color="secondary"
               sx={{ ml: 1, display: 'flex', alignItems: 'flex-start' }}
               endicon={<AddCircledOutline />}
               label={<Translate word={T.AddHost} />}

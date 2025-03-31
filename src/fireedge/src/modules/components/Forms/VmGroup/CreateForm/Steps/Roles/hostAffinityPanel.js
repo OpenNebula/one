@@ -24,7 +24,6 @@ import {
   TableRow,
   TablePagination,
   Checkbox,
-  Button,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -32,8 +31,9 @@ import {
   Tooltip,
 } from '@mui/material'
 import { HostAPI, useGeneralApi } from '@FeaturesModule'
-import { HOST_STATES, T } from '@ConstantsModule'
+import { HOST_STATES, T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 /**
  * HostAffinityPanel component.
@@ -149,16 +149,15 @@ const HostAffinityPanel = ({ roles, selectedRoleIndex, onChange }) => {
         </ToggleButtonGroup>
         <Tooltip title={Tr(T.AddRoleAffinity)} placement="right">
           <span>
-            <Button
-              variant="contained"
-              color="primary"
+            <SubmitButton
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
               onClick={handleSubmit}
-              size="large"
               sx={{ ml: 2 }}
               disabled={isDisabled || selectedHostIds?.length < 1}
-            >
-              {Tr(T.Add)}
-            </Button>
+              label={T.Add}
+            />
           </span>
         </Tooltip>
       </Box>

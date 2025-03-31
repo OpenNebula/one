@@ -19,10 +19,10 @@ import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
-import { ACL_TABLE_VIEWS, RESOURCE_NAMES, T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T, ACL_USERS } from '@ConstantsModule'
 import { useViews, AclAPI } from '@FeaturesModule'
 import { sentenceCase } from '@UtilsModule'
-import { Component, useMemo, useState } from 'react'
+import { Component, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'acls'
 
@@ -63,17 +63,6 @@ const ACLsTable = (props) => {
     [view]
   )
 
-  // Variable to store the type of table
-  const [viewType, setViewType] = useState(ACL_TABLE_VIEWS.ICONS.type)
-
-  // Define the type of views
-  const tableViews = {
-    views: ACL_TABLE_VIEWS,
-    onClick: (name) => {
-      setViewType(name)
-    },
-  }
-
   const listHeader = [
     { header: T.ID, id: 'id', accessor: 'ID' },
     {
@@ -91,6 +80,26 @@ const ACLsTable = (props) => {
           : '',
     },
     {
+      header: T['acls.table.card.resources.owned'],
+      id: 'affected-resources-identifier',
+      accessor: ({ RESOURCE }) =>
+        RESOURCE?.identifier
+          ? sentenceCase(
+              `${
+                RESOURCE?.identifier?.type !== ACL_USERS.INDIVIDUAL.type
+                  ? RESOURCE?.identifier?.type
+                  : ''
+              } ${
+                RESOURCE?.identifier?.type !== ACL_USERS.INDIVIDUAL.type
+                  ? RESOURCE?.identifier?.name
+                    ? RESOURCE?.identifier?.name
+                    : ''
+                  : '#' + RESOURCE?.identifier?.id
+              }`
+            )
+          : '',
+    },
+    {
       header: T.AllowedOperations,
       id: 'allowed-operations',
       accessor: ({ RIGHTS }) => sentenceCase(RIGHTS?.string || ''),
@@ -101,8 +110,8 @@ const ACLsTable = (props) => {
       accessor: ({ ZONE }) => ZONE?.name || T.All,
     },
   ]
-  const CardStyle = useMemo(() => ACLRow(viewType), [viewType])
-  const { component, header } = WrapperRow(CardStyle)
+
+  const { component, header } = WrapperRow(ACLRow())
 
   const EnhancedTableProps = {
     columns,
@@ -117,7 +126,6 @@ const ACLsTable = (props) => {
     headerList: header && listHeader,
     ...rest,
   }
-  !header && (EnhancedTableProps.tableViews = tableViews)
 
   return data && <EnhancedTable {...EnhancedTableProps} />
 }

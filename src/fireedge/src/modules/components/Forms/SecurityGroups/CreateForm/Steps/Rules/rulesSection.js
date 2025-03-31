@@ -121,7 +121,6 @@ const RulesSection = memo(
             <Button
               variant="contained"
               type="submit"
-              color="secondary"
               startIcon={<AddCircledOutline />}
               data-cy={getCyPath('add-rules')}
               sx={{ mt: '1em' }}
@@ -180,7 +179,6 @@ const RulesSection = memo(
                       <Link
                         component={RouterLink}
                         to={`/${RESOURCE_NAMES.VNET}/${NETWORK_ID}`}
-                        color="secondary"
                       >
                         {NETWORK_ID}
                       </Link>

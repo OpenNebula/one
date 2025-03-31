@@ -94,11 +94,9 @@ export const COMMON_RESOLUTIONS = {
   custom: 'custom',
 }
 
-export const FIRMWARE_TYPES = ['BIOS', 'EFI']
+export const FIRMWARE_TYPES = ['BIOS']
 
 export const PCI_TYPES = { MANUAL: 'pci_manual', AUTOMATIC: 'pci_automatic' }
-
-export const VCENTER_FIRMWARE_TYPES = FIRMWARE_TYPES.concat(['uefi'])
 
 export const DEFAULT_TEMPLATE_LOGO = 'images/logos/default.png'
 

@@ -15,28 +15,22 @@
  * ------------------------------------------------------------------------- */
 
 import { Tr } from '@modules/components/HOC'
-import { useEffect, ReactElement, useState, useRef } from 'react'
+import { useEffect, ReactElement } from 'react'
 import PropTypes from 'prop-types'
-import {
-  Box,
-  Paper,
-  Stack,
-  Button,
-  ButtonGroup,
-  ClickAwayListener,
-  MenuItem,
-  MenuList,
-  Popper,
-} from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { partition, isEmpty } from 'lodash'
 
 import { ClusterAPI, useGeneralApi, useSystemData } from '@FeaturesModule'
 import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 import { UpdatePlanConfigurationForm } from '@modules/components/Forms/Cluster'
 
-import { NavArrowDown as DropdownIcon } from 'iconoir-react'
 import { jsonToXml } from '@ModelsModule'
-import { T, DRS_CONFIG_ATTRIBUTES, DRS_AUTOMATION } from '@ConstantsModule'
+import {
+  T,
+  DRS_CONFIG_ATTRIBUTES,
+  DRS_AUTOMATION,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { sentenceCase } from '@UtilsModule'
 import { List } from '@modules/components/Tabs/Common'
 import ExecutionTimeline from './timeline'
@@ -54,9 +48,6 @@ const PlanOptimization = ({ id }) => {
   const [applyPlan] = ClusterAPI.useApplyPlanMutation()
   const [deletePlan] = ClusterAPI.useDeletePlanMutation()
   const { oneConfig: { DRS_INTERVAL = -1 } = {} } = useSystemData()
-
-  const anchorRef = useRef(null)
-  const [open, setOpen] = useState(false)
 
   const [
     fetchCluster,
@@ -95,7 +86,6 @@ const PlanOptimization = ({ id }) => {
     PLAN && handleDeletePlan()
     const xml = jsonToXml(template)
     await updateConf({ id, template: xml, replace: 0 }) // Merge with existing
-    setOpen(false)
   }
 
   useEffect(() => {
@@ -186,144 +176,98 @@ const PlanOptimization = ({ id }) => {
   }
 
   return (
-    <Box
-      padding={{
-        sm: '0.8em',
-      }}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        minHeight: '500px',
-      }}
+    <Stack
+      display="grid"
+      gap="1em"
+      gridTemplateColumns="30% auto"
+      marginTop="1em"
+      height="100%"
+      minHeight="500px"
     >
-      <Stack
-        display="grid"
-        gap="1em"
-        gridTemplateColumns="30% auto"
-        marginTop="1em"
-        height="100%"
-        minHeight="500px"
+      <Box
+        sx={{
+          minHeight: '500px',
+          gridColumn: 1,
+          gap: '1em',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
-        <Box
-          sx={{
-            minHeight: '500px',
-            gridColumn: 1,
-            gap: '1em',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap="1rem"
         >
-          <ButtonGroup ref={anchorRef} sx={{ width: '100%' }}>
-            <>
-              <ButtonToTriggerForm
-                buttonProps={{
-                  color: 'secondary',
-                  'data-cy': 'update-conf',
-                  label: isDrsEnabled ? T.UpdatePlanConfiguration : T.EnableDrs,
-                  variant: isDrsEnabled ? 'outlined' : 'contained',
-                  disabled: isFetching,
-                  sx: { width: '100%' },
-                }}
-                options={[
-                  {
-                    dialogProps: {
-                      title: T.UpdatePlanConfiguration,
-                      dataCy: 'modal-update-conf',
-                    },
-                    form: () =>
-                      UpdatePlanConfigurationForm({
-                        stepProps: { ONE_DRS },
-                        initialValues: ONE_DRS,
-                      }),
-                    onSubmit: handleUpdateConf,
+          <ButtonToTriggerForm
+            buttonProps={{
+              'data-cy': 'update-conf',
+              label: isDrsEnabled ? T.UpdatePlanConfiguration : T.EnableDrs,
+              disabled: isFetching,
+              importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+              size: STYLE_BUTTONS.SIZE.MEDIUM,
+              type: STYLE_BUTTONS.TYPE.FILLED,
+            }}
+            options={[
+              {
+                dialogProps: {
+                  title: T.UpdatePlanConfiguration,
+                  dataCy: 'modal-update-conf',
+                },
+                form: () =>
+                  UpdatePlanConfigurationForm({
+                    stepProps: { ONE_DRS },
+                    initialValues: ONE_DRS,
+                  }),
+                onSubmit: handleUpdateConf,
+              },
+            ]}
+          />
+          {isDrsEnabled && (
+            <ButtonToTriggerForm
+              buttonProps={{
+                'data-cy': 'disable-drs',
+                label: T.DisableDrs,
+                disabled: !isDrsEnabled,
+                importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.OUTLINED,
+              }}
+              options={[
+                {
+                  isConfirmDialog: true,
+                  dialogProps: {
+                    title: T.DisableDrs,
+                    children: <p>{Tr(T.DoYouWantDisableDRS)}</p>,
                   },
-                ]}
-              />
-            </>
-            {isDrsEnabled && (
-              <>
-                <Button size="small" onClick={() => setOpen((prev) => !prev)}>
-                  <DropdownIcon />
-                </Button>
-                <Popper
-                  open={open}
-                  anchorEl={anchorRef.current}
-                  placement={'bottom-end'}
-                >
-                  <ClickAwayListener onClickAway={() => setOpen(false)}>
-                    <Paper>
-                      <MenuList
-                        sx={{
-                          padding: 0,
-                          width: anchorRef?.current
-                            ? `${anchorRef.current.clientWidth}px`
-                            : 'inherit',
-                        }}
-                      >
-                        <MenuItem
-                          key="disable-drs-option"
-                          disableGutters
-                          sx={{
-                            padding: 0,
-                            width: anchorRef?.current
-                              ? `${anchorRef.current.clientWidth}px`
-                              : 'inherit',
-                          }}
-                        >
-                          <ButtonToTriggerForm
-                            buttonProps={{
-                              color: 'error',
-                              'data-cy': 'disable-drs',
-                              label: T.DisableDrs,
-                              variant: 'contained',
-                              disabled: !isDrsEnabled,
-                              sx: {
-                                width: '100%',
-                              },
-                            }}
-                            options={[
-                              {
-                                isConfirmDialog: true,
-                                dialogProps: {
-                                  title: T.DisableDrs,
-                                  children: <p>{Tr(T.DoYouWantDisableDRS)}</p>,
-                                },
-                                onSubmit: handleDisableDrs,
-                              },
-                            ]}
-                          />
-                        </MenuItem>
-                      </MenuList>
-                    </Paper>
-                  </ClickAwayListener>
-                </Popper>
-              </>
-            )}
-          </ButtonGroup>
-          <List
-            title={T.OptimizationPlanConfiguration}
-            list={formatListAttributes}
-            containerProps={{ sx: { height: '100%' } }}
-          />
-        </Box>
-        <Box
-          sx={{
-            gridColumn: 2,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <ExecutionTimeline
-            data={optimizationPlan}
-            isLoading={fetchingCluster || fetchingOptimizationPlan}
-            {...timelineProps}
-          />
-        </Box>
-      </Stack>
-    </Box>
+                  onSubmit: handleDisableDrs,
+                },
+              ]}
+            />
+          )}
+        </Stack>
+        <List
+          title={T.OptimizationPlanConfiguration}
+          list={formatListAttributes}
+          containerProps={{ sx: { height: '100%' } }}
+        />
+      </Box>
+      <Box
+        sx={{
+          gridColumn: 2,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <ExecutionTimeline
+          data={optimizationPlan}
+          isLoading={fetchingCluster || fetchingOptimizationPlan}
+          {...timelineProps}
+        />
+      </Box>
+    </Stack>
   )
 }
 

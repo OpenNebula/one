@@ -129,7 +129,7 @@ const MarketplaceAppCard = memo(
             </span>
           </div>
         </div>
-        <div className={classes.secondary}>
+        <div className={classes.primary}>
           <span className={classes.labels}>
             <StatusChip text={`${Tr(T.Zone)} ${ZONE_ID}`} />
             <StatusChip text={prettyBytes(+SIZE, 'MB')} />

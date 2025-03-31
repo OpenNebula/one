@@ -32,15 +32,7 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import { DatastoreAPI, HostAPI, VmAPI } from '@FeaturesModule'
 
 import { Column } from 'opennebula-react-table'
-import {
-  Alert,
-  Collapse,
-  Tooltip,
-  Box,
-  Typography,
-  Toolbar,
-  AppBar,
-} from '@mui/material'
+import { Alert, Collapse, Tooltip, Box, Typography, Stack } from '@mui/material'
 
 import {
   Trash as DeleteIcon,
@@ -50,7 +42,7 @@ import {
   Cancel as CloseIcon,
 } from 'iconoir-react'
 
-import { T, PLAN_STATE } from '@ConstantsModule'
+import { T, PLAN_STATE, STYLE_BUTTONS } from '@ConstantsModule'
 
 /** @type {Column[]} VM Template columns */
 const ActionEventColumns = (nameMap) => [
@@ -174,15 +166,12 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
 
   return (
     <Box>
-      <AppBar
-        position="static"
-        sx={{ marginBottom: '0.5rem', borderRadius: 1 }}
-        enableColorOnDark
-      >
-        <Toolbar
+      <Stack direction="column">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
           sx={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
             paddingX: 2,
           }}
         >
@@ -204,6 +193,13 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
                   sx: {
                     flex: '1',
                   },
+                  importance: !isInteractable
+                    ? STYLE_BUTTONS.IMPORTANCE.SECONDARY
+                    : STYLE_BUTTONS.IMPORTANCE.MAIN,
+                  size: STYLE_BUTTONS.SIZE.MEDIUM,
+                  type: !isInteractable
+                    ? STYLE_BUTTONS.TYPE.OUTLINED
+                    : STYLE_BUTTONS.TYPE.FILLED,
                 }}
                 options={[
                   {
@@ -226,6 +222,17 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
               sx={{
                 flex: '1',
               }}
+              importance={
+                isInteractable
+                  ? STYLE_BUTTONS.IMPORTANCE.SECONDARY
+                  : STYLE_BUTTONS.IMPORTANCE.MAIN
+              }
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={
+                isInteractable
+                  ? STYLE_BUTTONS.TYPE.OUTLINED
+                  : STYLE_BUTTONS.TYPE.FILLED
+              }
             />
 
             <ButtonToTriggerForm
@@ -240,10 +247,10 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
                   !isInteractable,
                 sx: {
                   flex: '1',
-
-                  backgroundColor: 'white',
-                  color: 'black',
                 },
+                importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+                size: STYLE_BUTTONS.SIZE.MEDIUM,
+                type: STYLE_BUTTONS.TYPE.OUTLINED,
               }}
               options={[
                 {
@@ -257,26 +264,31 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
               ]}
             />
           </Box>
-        </Toolbar>
+        </Stack>
         <Collapse in={isApplyDisabled}>
           <Alert
             severity="warning"
             action={
               <Tooltip title={T.AutomationFull} arrow>
-                <InfoIcon aria-label="info" color="inherit" size="small">
+                <InfoIcon
+                  aria-label="info"
+                  color="inherit"
+                  size="small"
+                  sx={{ pading: '0.1rem 0.5rem 0.1rem 0.1rem' }}
+                >
                   <CloseIcon fontSize="inherit" />
                 </InfoIcon>
               </Tooltip>
             }
             sx={{
               borderRadius: 0,
-              borderTop: '1px solid grey',
+              padding: '0.5rem',
             }}
           >
             {T.AutomationEnabled}
           </Alert>
         </Collapse>
-      </AppBar>
+      </Stack>
 
       <EnhancedTable
         columns={columns}
@@ -289,6 +301,8 @@ const ExecutionTimeline = ({ data, isLoading, ...props }) => {
         isLoading={isLoading || loadingColumns}
         disableGlobalSort
         disableGlobalActions
+        disableSwitchView
+        singleSelect
         headerList={header && genColumns}
       />
     </Box>

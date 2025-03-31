@@ -23,7 +23,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Button,
   Box,
   Typography,
   useTheme,
@@ -31,7 +30,7 @@ import {
 
 import { UserAPI, GroupAPI, useGeneralApi, SystemAPI } from '@FeaturesModule'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 import {
   validateResourceId,
@@ -46,6 +45,8 @@ import {
   HybridInputField,
   ResourceIDAutocomplete,
 } from '@modules/components/Tabs/Quota/Components/helpers/subcomponents'
+
+import { SubmitButton } from '@modules/components/FormControl'
 
 import { mapValues, map } from 'lodash'
 
@@ -326,9 +327,11 @@ export const QuotaControls = memo(
             />
           </Grid>
           <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
+            <SubmitButton
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              label={T.Apply}
               fullWidth
               onClick={() =>
                 handleApplyGlobalQuotas(
@@ -344,11 +347,8 @@ export const QuotaControls = memo(
                 )
               }
               disabled={state.isApplyDisabled}
-              size={'large'}
               data-cy={'qc-apply-button'}
-            >
-              {Tr(T.Apply)}
-            </Button>
+            />
           </Grid>
           <Grid item sx={{ mt: 2 }}>
             <Typography

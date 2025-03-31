@@ -24,12 +24,22 @@ import {
   VmTabs,
 } from '@ComponentsModule'
 import { T, VM } from '@ConstantsModule'
-import { setSelectedIds, useGeneral, VmAPI } from '@FeaturesModule'
+import {
+  setSelectedIds,
+  useGeneral,
+  VmAPI,
+  useAuth,
+  useGeneralApi,
+} from '@FeaturesModule'
 import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
-import { Chip, Stack, Typography } from '@mui/material'
-import Cancel from 'iconoir-react/dist/Cancel'
-import GotoIcon from 'iconoir-react/dist/Pin'
-import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
+import { Chip, Stack } from '@mui/material'
+import {
+  Cancel,
+  RefreshDouble,
+  Expand,
+  Collapse,
+  NavArrowLeft,
+} from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
 import { memo, ReactElement, useCallback, useEffect, useState } from 'react'
@@ -121,44 +131,71 @@ const InfoTabs = memo(
   ({ vm, gotoPage, unselect, handleDismissError, tags }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
-    const name = vm?.NAME ?? lazyData?.NAME
+
+    const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+    const { FULL_SCREEN_INFO } = fireedge
+    const { isFullMode } = useGeneral()
+    const { setFullMode } = useGeneralApi()
+
+    useEffect(() => {
+      !isFullMode && gotoPage()
+    }, [])
 
     return (
       <Stack overflow="auto">
-        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          <Typography color="text.primary" noWrap flexGrow={1}>
-            {`#${id} | ${name}`}
-          </Typography>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          gap={1}
+          mx={1}
+          mb={1}
+        >
+          <Stack direction="row">
+            {FULL_SCREEN_INFO === 'true' && (
+              <SubmitButton
+                data-cy="detail-back"
+                icon={<NavArrowLeft />}
+                tooltip={Tr(T.Back)}
+                isSubmitting={isFetching}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
 
-          {/* -- ACTIONS -- */}
           <ButtonClearErrors
             tags={tags}
             handleDismissError={handleDismissError}
           />
-          <SubmitButton
-            data-cy="detail-refresh"
-            icon={<RefreshDouble />}
-            tooltip={Tr(T.Refresh)}
-            isSubmitting={isFetching}
-            onClick={() => getVm({ id })}
-          />
-          {typeof gotoPage === 'function' && (
+
+          <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+            {FULL_SCREEN_INFO === 'false' && (
+              <SubmitButton
+                data-cy="detail-full-mode"
+                icon={isFullMode ? <Collapse /> : <Expand />}
+                tooltip={Tr(T.FullScreen)}
+                isSubmitting={isFetching}
+                onClick={() => {
+                  setFullMode(!isFullMode)
+                }}
+              />
+            )}
             <SubmitButton
-              data-cy="locate-on-table"
-              icon={<GotoIcon />}
-              tooltip={Tr(T.LocateOnTable)}
-              onClick={() => gotoPage()}
+              data-cy="detail-refresh"
+              icon={<RefreshDouble />}
+              tooltip={Tr(T.Refresh)}
+              isSubmitting={isFetching}
+              onClick={() => getVm({ id })}
             />
-          )}
-          {typeof unselect === 'function' && (
-            <SubmitButton
-              data-cy="unselect"
-              icon={<Cancel />}
-              tooltip={Tr(T.Close)}
-              onClick={() => unselect()}
-            />
-          )}
-          {/* -- END ACTIONS -- */}
+            {typeof unselect === 'function' && (
+              <SubmitButton
+                data-cy="unselect"
+                icon={<Cancel />}
+                tooltip={Tr(T.Close)}
+                onClick={() => unselect()}
+              />
+            )}
+          </Stack>
         </Stack>
         <VmTabs id={id} />
       </Stack>

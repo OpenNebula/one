@@ -30,17 +30,9 @@ import {
 
 import { FormWithSchema } from '@modules/components/Forms'
 
-import { Tr } from '@modules/components/HOC'
-import {
-  Skeleton,
-  Stack,
-  Button,
-  Grid,
-  List,
-  ListItem,
-  IconButton,
-} from '@mui/material'
-import { T } from '@ConstantsModule'
+import { Skeleton, Stack, Grid, List, ListItem } from '@mui/material'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { SubmitButton } from '@modules/components/FormControl'
 
 export const STEP_ID = 'roles'
 
@@ -135,17 +127,19 @@ const Content = ({ standaloneModal = false }) => {
       }}
     >
       {!standaloneModal && (
-        <Grid item md={3} sx={{ borderRight: 1, padding: 1 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            type="submit"
-            size="large"
+        <Grid
+          item
+          md={3}
+          sx={{ borderRight: roles && roles.length > 0 ? 1 : 0, padding: 1 }}
+        >
+          <SubmitButton
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
             data-cy={'extra-add-role'}
             onClick={handleAppend}
-          >
-            {Tr(T.AddRole)}
-          </Button>
+            label={T.AddRole}
+          />
           <List
             sx={{
               display: 'flex',
@@ -177,13 +171,11 @@ const Content = ({ standaloneModal = false }) => {
                   }}
                 >
                   {roles?.length > 1 && idx !== selectedRole && (
-                    <IconButton
+                    <SubmitButton
                       aria-label="delete"
                       onClick={(event) => handleRemove(event, idx)}
-                      sx={{ mr: 1.5, size: 'small' }}
-                    >
-                      <Cancel />
-                    </IconButton>
+                      icon={<Cancel />}
+                    />
                   )}
                   <div
                     style={{

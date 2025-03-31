@@ -17,7 +17,6 @@
 import PropTypes from 'prop-types'
 import {
   Box,
-  Button,
   Typography,
   List,
   ListItem,
@@ -27,6 +26,7 @@ import {
   Popover,
   FormControlLabel,
   Switch,
+  useTheme,
 } from '@mui/material'
 import Step from '@mui/material/Step'
 import { NavArrowDown, NavArrowUp } from 'iconoir-react'
@@ -34,14 +34,16 @@ import StepButton from '@mui/material/StepButton'
 import StepConnector, {
   stepConnectorClasses,
 } from '@mui/material/StepConnector'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import StepIcon, { stepIconClasses } from '@mui/material/StepIcon'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { styled } from '@mui/styles'
 import { SubmitButton } from '@modules/components/FormControl'
 import { Translate } from '@modules/components/HOC'
-import { SCHEMES, T } from '@ConstantsModule'
+import { SCHEMES, T, STYLE_BUTTONS } from '@ConstantsModule'
+
+import FormStepperStyles from '@modules/components/FormStepper/styles'
 
 const Label = styled('span')({
   display: 'flex',
@@ -53,10 +55,9 @@ const StepperStyled = styled(Stepper)(({ theme }) => ({
   backdropFilter: 'blur(3px)',
   position: 'sticky',
   top: -15,
-  minHeight: 100,
-  borderRadius: '8px 8px 0 0',
+  minHeight: '3.75rem',
   zIndex: theme.zIndex.mobileStepper,
-  backgroundColor: theme.palette.action.hover,
+  backgroundColor: 'transparent',
 }))
 
 const ConnectorStyled = styled(StepConnector)(({ theme }) => ({
@@ -67,12 +68,12 @@ const ConnectorStyled = styled(StepConnector)(({ theme }) => ({
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.secondary[700],
+      borderColor: theme.palette.primary.dark,
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: theme.palette.secondary[700],
+      borderColor: theme.palette.primary.dark,
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
@@ -108,21 +109,11 @@ const StepIconStyled = styled(StepIcon)(({ theme }) => ({
   color: theme.palette.text.hint,
   display: 'block',
   [`&.${stepIconClasses.completed}, &.${stepIconClasses.active}`]: {
-    color: theme.palette.secondary[700],
+    color: theme.palette.primary.dark,
   },
   [`&.${stepIconClasses.error}`]: {
     color: theme.palette.error.main,
   },
-}))
-
-const ButtonsWrapper = styled(Box)(({ theme }) => ({
-  padding: '1em 0.5em',
-  textAlign: 'end',
-  backdropFilter: 'blur(3px)',
-  position: 'sticky',
-  top: 85,
-  zIndex: theme.zIndex.mobileStepper + 1,
-  backgroundColor: theme.palette.action.hover,
 }))
 
 const CustomStepper = ({
@@ -139,6 +130,10 @@ const CustomStepper = ({
   errors,
   isSubmitting,
 }) => {
+  // Styles
+  const theme = useTheme()
+  const classes = useMemo(() => FormStepperStyles(theme), [theme])
+
   const [anchorEl, setAnchorEl] = useState(null)
   const [currentStep, setCurrentStep] = useState(null)
 
@@ -155,10 +150,11 @@ const CustomStepper = ({
   const open = Boolean(anchorEl)
 
   return (
-    <>
+    <div className={classes.stepperContainer}>
       <StepperStyled
         nonLinear
         activeStep={activeStep}
+        className={classes.stepsContainer}
         connector={<ConnectorStyled />}
       >
         {steps?.map(({ id, label }, stepIdx) => {
@@ -226,55 +222,46 @@ const CustomStepper = ({
           )
         })}
       </StepperStyled>
-      <ButtonsWrapper>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            minHeight: '40px',
-          }}
-        >
-          {enableShowMandatoryOnly && (
-            <FormControlLabel
-              control={
-                <Switch
-                  onChange={handleShowMandatoryOnly}
-                  name={'aaaaaa'}
-                  checked={showMandatoryOnly}
-                  color="secondary"
-                  inputProps={{ 'data-cy': 'switch-mandatory' }}
-                />
-              }
-              label={<Label>{T.MandatoryUserInputs}</Label>}
-              labelPlacement="end"
+
+      <Box className={classes.buttonContainer}>
+        <SubmitButton
+          data-cy="stepper-back-button"
+          disabled={disabledBack || isSubmitting}
+          onClick={handleBack}
+          importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+          size={STYLE_BUTTONS.SIZE.MEDIUM}
+          type={STYLE_BUTTONS.TYPE.FILLED}
+          label={<Translate word={T.Back} />}
+        />
+        <SubmitButton
+          data-cy="stepper-next-button"
+          isSubmitting={isSubmitting}
+          onClick={handleNext}
+          importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+          size={STYLE_BUTTONS.SIZE.MEDIUM}
+          type={STYLE_BUTTONS.TYPE.FILLED}
+          label={
+            <Translate word={activeStep === lastStep ? T.Finish : T.Next} />
+          }
+        />
+      </Box>
+
+      {enableShowMandatoryOnly && (
+        <FormControlLabel
+          className={classes.mandatoryLabelContainer}
+          control={
+            <Switch
+              onChange={handleShowMandatoryOnly}
+              name={'aaaaaa'}
+              checked={showMandatoryOnly}
+              inputProps={{ 'data-cy': 'switch-mandatory' }}
             />
-          )}
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}
-          >
-            <Button
-              data-cy="stepper-back-button"
-              disabled={disabledBack || isSubmitting}
-              onClick={handleBack}
-              size="small"
-            >
-              <Translate word={T.Back} />
-            </Button>
-            <SubmitButton
-              color="secondary"
-              data-cy="stepper-next-button"
-              isSubmitting={isSubmitting}
-              onClick={handleNext}
-              size="small"
-              label={
-                <Translate word={activeStep === lastStep ? T.Finish : T.Next} />
-              }
-            />
-          </Box>
-        </Box>
-      </ButtonsWrapper>
-    </>
+          }
+          label={<Label>{T.MandatoryUserInputs}</Label>}
+          labelPlacement="end"
+        />
+      )}
+    </div>
   )
 }
 

@@ -99,7 +99,7 @@ export const Settings = () => {
               target="_blank"
               rel="noreferrer"
               style={{
-                color: theme.palette.secondary.dark,
+                color: theme.palette.primary.dark,
                 textDecoration: 'none',
               }}
             >

@@ -54,7 +54,7 @@ export const useStyles = (theme) => ({
   requesterMessage: css({
     alignSelf: 'flex-end',
     boxShadow: theme.shadows[5],
-    backgroundColor: theme.palette.secondary[theme.palette.mode],
+    backgroundColor: theme.palette.primary[theme.palette.mode],
   }),
   supportMessage: css({
     alignSelf: 'flex-start',

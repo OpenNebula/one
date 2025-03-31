@@ -24,12 +24,18 @@ import {
   VrTabs,
 } from '@ComponentsModule'
 import { T, VmTemplate } from '@ConstantsModule'
-import { useGeneral, VrAPI } from '@FeaturesModule'
-import { Chip, Stack, Typography } from '@mui/material'
-import { Cancel, Pin as GotoIcon, RefreshDouble } from 'iconoir-react'
+import { useGeneral, VrAPI, useGeneralApi, useAuth } from '@FeaturesModule'
+import { Chip, Stack } from '@mui/material'
+import {
+  Cancel,
+  RefreshDouble,
+  Expand,
+  Collapse,
+  NavArrowLeft,
+} from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
-import { memo, ReactElement, useState } from 'react'
+import { memo, ReactElement, useState, useEffect } from 'react'
 
 /**
  * Displays a list of VM Templates with a split pane between the list and selected row(s).
@@ -92,40 +98,66 @@ export function VirtualRouters() {
 const InfoTabs = memo(({ template, gotoPage, unselect }) => {
   const [getTemplate, { data, isFetching }] = VrAPI.useLazyGetVrQuery()
   const id = template?.ID ?? data?.ID
-  const name = template?.NAME ?? data?.NAME
+
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { FULL_SCREEN_INFO } = fireedge
+  const { isFullMode } = useGeneral()
+  const { setFullMode } = useGeneralApi()
+
+  useEffect(() => {
+    !isFullMode && gotoPage()
+  }, [])
 
   return (
     <Stack overflow="auto">
-      <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-        <Typography color="text.primary" noWrap flexGrow={1}>
-          {`#${id} | ${name}`}
-        </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={1}
+        mx={1}
+        mb={1}
+      >
+        <Stack direction="row">
+          {FULL_SCREEN_INFO === 'true' && (
+            <SubmitButton
+              data-cy="detail-back"
+              icon={<NavArrowLeft />}
+              tooltip={Tr(T.Back)}
+              isSubmitting={isFetching}
+              onClick={() => unselect()}
+            />
+          )}
+        </Stack>
 
-        {/* -- ACTIONS -- */}
-        <SubmitButton
-          data-cy="detail-refresh"
-          icon={<RefreshDouble />}
-          tooltip={Tr(T.Refresh)}
-          isSubmitting={isFetching}
-          onClick={() => getTemplate({ id })}
-        />
-        {typeof gotoPage === 'function' && (
+        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {FULL_SCREEN_INFO === 'false' && (
+            <SubmitButton
+              data-cy="detail-full-mode"
+              icon={isFullMode ? <Collapse /> : <Expand />}
+              tooltip={Tr(T.FullScreen)}
+              isSubmitting={isFetching}
+              onClick={() => {
+                setFullMode(!isFullMode)
+              }}
+            />
+          )}
           <SubmitButton
-            data-cy="locate-on-table"
-            icon={<GotoIcon />}
-            tooltip={Tr(T.LocateOnTable)}
-            onClick={() => gotoPage()}
+            data-cy="detail-refresh"
+            icon={<RefreshDouble />}
+            tooltip={Tr(T.Refresh)}
+            isSubmitting={isFetching}
+            onClick={() => getTemplate({ id })}
           />
-        )}
-        {typeof unselect === 'function' && (
-          <SubmitButton
-            data-cy="unselect"
-            icon={<Cancel />}
-            tooltip={Tr(T.Close)}
-            onClick={() => unselect()}
-          />
-        )}
-        {/* -- END ACTIONS -- */}
+          {typeof unselect === 'function' && (
+            <SubmitButton
+              data-cy="unselect"
+              icon={<Cancel />}
+              tooltip={Tr(T.Close)}
+              onClick={() => unselect()}
+            />
+          )}
+        </Stack>
       </Stack>
       <VrTabs id={id} />
     </Stack>

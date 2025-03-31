@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router-dom'
 
@@ -23,11 +23,14 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery,
+  useTheme,
 } from '@mui/material'
 
 import { useGeneralApi } from '@FeaturesModule'
 import { DevTypography } from '@modules/components/Typography'
 import { Translate } from '@modules/components/HOC'
+import clsx from 'clsx'
+import sidebarStyles from '@modules/components/Sidebar/styles'
 
 const SidebarLink = memo(
   ({
@@ -37,9 +40,12 @@ const SidebarLink = memo(
     devMode = false,
     isSubItem = false,
   }) => {
-    const isUpLg = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
-      noSsr: true,
-    })
+    const isUpLg = useMediaQuery(
+      (themeSidebar) => themeSidebar.breakpoints.up('lg'),
+      {
+        noSsr: true,
+      }
+    )
 
     const history = useHistory()
     const { pathname } = useLocation()
@@ -50,15 +56,23 @@ const SidebarLink = memo(
       !isUpLg && fixMenu(false)
     }
 
+    const theme = useTheme()
+    const classes = useMemo(() => sidebarStyles(theme), [theme])
+
     return (
       <ListItemButton
         data-cy="main-menu-item"
+        className={clsx(
+          classes.item,
+          classes.itemLink,
+          isSubItem && classes.subItem
+        )}
         onClick={handleClick}
         selected={pathname === path}
         {...(isSubItem && { sx: { pl: 4 } })}
       >
         {Icon && (
-          <ListItemIcon>
+          <ListItemIcon className={classes.itemIcon}>
             <Icon />
           </ListItemIcon>
         )}
@@ -69,6 +83,7 @@ const SidebarLink = memo(
             'data-cy': 'main-menu-item-text',
             variant: 'body1',
           }}
+          className={clsx('itemText', classes.itemPepe)}
         />
       </ListItemButton>
     )

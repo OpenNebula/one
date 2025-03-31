@@ -44,7 +44,7 @@ const Graphs = ({ id }) => {
   } = virtualmachine
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.DiskReadBytes)}

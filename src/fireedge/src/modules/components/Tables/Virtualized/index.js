@@ -118,7 +118,7 @@ const VirtualizedTable = ({
       <div className={classes.toolbar}>
         <Toolbar useTableProps={useTableProps} />
         <div className={classes.total}>
-          {isLoading && <CircularProgress size="1em" color="secondary" />}
+          {isLoading && <CircularProgress size="1em" />}
           Total loaded: {useTableProps.rows.length}
         </div>
       </div>

@@ -31,6 +31,8 @@ import { STEP_ID as GENERAL_ID } from '@modules/components/Forms/VNetwork/Create
 import { SCHEMA } from '@modules/components/Forms/VNetwork/CreateForm/Steps/ExtraConfiguration/schema'
 import { T, VirtualNetwork } from '@ConstantsModule'
 
+import { Box } from '@mui/material'
+
 /**
  * @typedef {object} TabType
  * @property {string} id - Id will be to use in view yaml to hide/display the tab
@@ -76,7 +78,11 @@ const Content = ({ isUpdate, isVnet, oneConfig, adminGroup }) => {
     [totalErrors, driver]
   )
 
-  return <Tabs tabs={tabs} />
+  return (
+    <Box sx={{ height: 'auto', overflow: 'auto' }}>
+      <Tabs addBorder tabs={tabs} />
+    </Box>
+  )
 }
 
 /**

@@ -18,15 +18,13 @@ import PopUpDialog from '@modules/components/Forms/VmTemplate/CreateForm/Steps/E
 import PropTypes from 'prop-types'
 import {
   WarningCircledOutline as WarningIcon,
-  DeleteCircledOutline,
-  AddCircledOutline,
+  Plus,
+  Trash,
 } from 'iconoir-react'
 import {
   styled,
   FormControl,
   Stack,
-  IconButton,
-  Button,
   Divider,
   List,
   ListItem,
@@ -51,12 +49,12 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 import { Tooltip } from '@modules/components/FormControl'
 import { FormWithSchema, Legend } from '@modules/components/Forms'
-import { Translate } from '@modules/components/HOC'
 
 import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
 import { USER_INPUT_SCHEMA, USER_INPUT_FIELDS } from './schema'
 import { getUserInputString } from '@ModelsModule'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import SubmitButton from '@modules/components/FormControl/SubmitButton'
 
 import { disableFields } from '@UtilsModule'
 
@@ -86,12 +84,12 @@ const UserInputItem = forwardRef(
     <UserItemDraggable
       ref={ref}
       secondaryAction={
-        <IconButton
-          onClick={removeAction}
+        <SubmitButton
+          icon={<Trash />}
           data-cy={`delete-userInput-${index}`}
-        >
-          <DeleteCircledOutline />
-        </IconButton>
+          tooltip={T.Delete}
+          onClick={removeAction}
+        />
       }
       sx={{ '&:hover': { bgcolor: 'action.hover' } }}
       {...props}
@@ -165,9 +163,9 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
     }
   }
 
-  const handleClickOpen = () => {
-    setOpen(true)
-  }
+  // const handleClickOpen = () => {
+  //   setOpen(true)
+  // }
 
   const handleClose = () => {
     setOpen(false)
@@ -179,15 +177,38 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
 
       <FormProvider {...methods}>
         <Stack
-          direction="row"
-          alignItems="flex-start"
+          direction="column"
+          alignItems="start"
+          justifyContent="center"
           gap="0.5rem"
           component="form"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <IconButton onClick={handleClickOpen}>
-            <AddCircledOutline />
-          </IconButton>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="start"
+            gap="0.5rem"
+          >
+            <SubmitButton
+              startIcon={<Plus />}
+              data-cy={`${EXTRA_ID}-add-context-user-input`}
+              label={T.Add}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+            />
+            {/* <SubmitButton
+              startIcon={<Plus />}
+              data-cy={`${EXTRA_ID}-add-userinput-user-input`}
+              icon={AddCircledOutline}
+              onClick={handleClickOpen}
+              label={T.Suggestion}
+              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.OUTLINED}
+            /> */}
+          </Stack>
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
             saveState={true}
@@ -200,16 +221,6 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
             rootProps={{ sx: { m: 0 } }}
             fieldPath={`${EXTRA_ID}.Context`}
           />
-          <Button
-            variant="contained"
-            type="submit"
-            color="secondary"
-            startIcon={<AddCircledOutline />}
-            sx={{ mt: '1em' }}
-            data-cy={`${EXTRA_ID}-add-context-user-input`}
-          >
-            <Translate word={T.Add} />
-          </Button>
         </Stack>
       </FormProvider>
       <Divider />

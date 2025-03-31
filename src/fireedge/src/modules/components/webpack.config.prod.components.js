@@ -102,7 +102,22 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: 'babel-loader',
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [
+              [
+                '@emotion',
+                {
+                  sourceMap: true,
+                  autoLabel: 'dev-only',
+                  labelFormat: '[local]',
+                  cssPropOptimization: true,
+                },
+              ],
+            ],
+          },
+        },
         include: path.resolve(__dirname, '../../'),
       },
       {

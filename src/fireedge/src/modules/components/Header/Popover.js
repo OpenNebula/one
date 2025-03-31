@@ -25,11 +25,12 @@ import {
   Popper,
   Typography,
   IconButton,
-  Button,
   Box,
   buttonClasses,
   ClickAwayListener,
 } from '@mui/material'
+
+import { SubmitButton } from '@modules/components/FormControl'
 
 const callAll =
   (...fns) =>
@@ -77,23 +78,24 @@ const HeaderPopover = memo(
 
     return (
       <>
-        <Button
+        <SubmitButton
           aria-haspopup
           aria-describedby={hasId}
           aria-expanded={open ? 'true' : 'false'}
           onClick={callAll(handleClick, onClick)}
-          size="small"
+          label={buttonLabel}
           endIcon={<CaretIcon />}
           startIcon={icon}
           sx={{
             [`.${buttonClasses.startIcon}`]: {
               mr: !isMobile && buttonLabel ? 1 : 0,
             },
+            borderRadius: '100rem',
           }}
           {...buttonProps}
         >
           {!isMobile && buttonLabel}
-        </Button>
+        </SubmitButton>
         <StyledPopper
           id={hasId}
           open={open}

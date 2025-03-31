@@ -102,7 +102,9 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
     [errors, hypervisor]
   )
 
-  return <Tabs tabs={tabs} oneConfig={oneConfig} adminGroup={adminGroup} />
+  return (
+    <Tabs addBorder tabs={tabs} oneConfig={oneConfig} adminGroup={adminGroup} />
+  )
 }
 
 Content.propTypes = {

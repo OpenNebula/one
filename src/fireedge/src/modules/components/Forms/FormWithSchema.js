@@ -79,6 +79,8 @@ const INPUT_CONTROLLER = {
  * @param {boolean} props.saveState - Save form state to redux
  * @param {string} props.fieldPath - Field path to set after touched or dirty fields change
  * @param {boolean} props.hiddenLegend - Hide the legend of the form
+ * @param {object} props.gridContainerSx - Styles to use in the grid container
+ * @param {object} props.gridItemSx - Styles to use in the grid items
  * @returns {ReactElement} - The form component
  */
 const FormWithSchema = ({
@@ -92,6 +94,8 @@ const FormWithSchema = ({
   legendTooltip,
   saveState,
   fieldPath,
+  gridContainerSx,
+  gridItemSx,
 }) => {
   const { setModifiedFields, setFieldPath } = useGeneralApi()
   const { sx: sxRoot, ...restOfRootProps } = rootProps ?? {}
@@ -276,9 +280,20 @@ const FormWithSchema = ({
             />
           )}
         </LegendWrapper>
-        <Grid container spacing={1} alignContent="flex-start">
+        <Grid
+          container
+          spacing={1}
+          alignContent="flex-start"
+          sx={gridContainerSx}
+        >
           {getFields?.map?.((field) => (
-            <FieldComponent key={field?.name} cy={cy} id={id} {...field} />
+            <FieldComponent
+              key={field?.name}
+              cy={cy}
+              id={id}
+              {...field}
+              gridItemSx={gridItemSx}
+            />
           ))}
         </Grid>
       </RootWrapper>
@@ -300,10 +315,12 @@ FormWithSchema.propTypes = {
   saveState: PropTypes.bool,
   fieldPath: PropTypes.string,
   hiddenLegend: PropTypes.bool,
+  gridContainerSx: PropTypes.object,
+  gridItemSx: PropTypes.object,
 }
 
 const FieldComponent = memo(
-  ({ id, cy, dependOf, stepControl, legend, ...attributes }) => {
+  ({ id, cy, dependOf, stepControl, gridItemSx, legend, ...attributes }) => {
     const formContext = useFormContext()
 
     const disableSteps = useDisableStep()
@@ -412,7 +429,14 @@ const FieldComponent = memo(
                 marginTop="1em"
               />
             )}
-            <Grid key={`split-${i}`} item xs={12} md={6} {...grid}>
+            <Grid
+              key={`split-${i}`}
+              item
+              xs={12}
+              md={6}
+              {...grid}
+              sx={gridItemSx}
+            >
               {createElement(INPUT_CONTROLLER[type], {
                 key: `${key}-${i}`,
                 control: formContext.control,
@@ -456,6 +480,7 @@ FieldComponent.propTypes = {
       statePaths: PropTypes.arrayOf(PropTypes.string),
     }),
   ]),
+  gridItemSx: PropTypes.object,
 }
 
 FieldComponent.displayName = 'FieldComponent'

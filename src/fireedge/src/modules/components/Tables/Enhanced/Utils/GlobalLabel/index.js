@@ -22,7 +22,7 @@ import { UseFiltersInstanceProps } from 'opennebula-react-table'
 
 import { useAuth } from '@FeaturesModule'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { areStringEqual, jsonToXml } from '@ModelsModule'
 import { Translate } from '@modules/components/HOC'
 import HeaderPopover from '@modules/components/Header/Popover'
@@ -173,10 +173,11 @@ const GlobalLabel = ({
         buttonLabel={<Translate word={T.Label} />}
         buttonProps={{
           'data-cy': 'filter-by-label',
-          variant: 'outlined',
-          color: 'secondary',
           disabled: isLoading,
           onClick: handleOpenPopover,
+          importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
+          type: STYLE_BUTTONS.TYPE.FILLED,
         }}
         popperProps={{
           placement: 'bottom-end',

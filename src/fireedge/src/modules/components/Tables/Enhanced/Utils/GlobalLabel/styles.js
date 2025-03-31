@@ -33,7 +33,7 @@ export const StyledInput = styled(InputBase)(
       borderRadius: shape.borderRadius / 2,
       fontSize: 14,
       '&:focus': {
-        boxShadow: `0px 0px 0px 3px ${palette.secondary[palette.mode]}`,
+        boxShadow: `0px 0px 0px 3px ${palette.primary[palette.mode]}`,
       },
     },
   })

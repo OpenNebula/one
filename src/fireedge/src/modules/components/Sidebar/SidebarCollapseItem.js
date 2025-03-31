@@ -66,22 +66,26 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
   return (
     <>
       <ListItemButton
-        className={classes.parentSubItem}
+        className={clsx(classes.itemCollapse, classes.item)}
         onClick={handleExpand}
         selected={hasRouteSelected}
       >
         {Icon && (
-          <ListItemIcon>
+          <ListItemIcon className={classes.itemIcon}>
             <Icon />
           </ListItemIcon>
         )}
         <ListItemText
           data-cy={title.toLocaleLowerCase()}
           primary={<Translate word={title} />}
-          {...(expanded && { className: 'open' })}
+          className={clsx(expanded && 'open', 'itemText', classes.itemPepe)}
           primaryTypographyProps={{ variant: 'body1' }}
         />
-        {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
+        {expanded ? (
+          <CollapseIcon className="itemCollapseLogo" />
+        ) : (
+          <ExpandMoreIcon className="itemExpandLogo" />
+        )}
       </ListItemButton>
       <Collapse
         in={expanded}

@@ -25,6 +25,8 @@ import Footer from '@modules/components/Footer'
 import internalStyles from '@modules/components/HOC/InternalLayout/styles'
 import { sidebar, footer } from '@ProvidersModule'
 
+import { SunstoneBreadcrumb } from '@modules/components/Breadcrumb'
+
 const InternalLayout = ({ children, ...route }) => {
   const theme = useTheme()
   const classes = useMemo(() => internalStyles(theme), [theme])
@@ -75,7 +77,12 @@ const InternalLayout = ({ children, ...route }) => {
           timeout={300}
           unmountOnExit
         >
-          <Container ref={container} className={classes.scrollable}>
+          <Container
+            ref={container}
+            className={classes.scrollable}
+            maxWidth="xl"
+          >
+            <SunstoneBreadcrumb route={route} />
             {children}
           </Container>
         </CSSTransition>

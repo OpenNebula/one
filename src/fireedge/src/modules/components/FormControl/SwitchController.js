@@ -89,7 +89,6 @@ const SwitchController = memo(
               onChange={handleChange}
               name={name}
               checked={Boolean(value)}
-              color="secondary"
               inputProps={{ 'data-cy': cy }}
               {...fieldProps}
             />

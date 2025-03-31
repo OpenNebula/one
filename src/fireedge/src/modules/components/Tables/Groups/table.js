@@ -136,6 +136,25 @@ const GroupsTable = (props) => {
         )
       },
     },
+    {
+      header: T.ImageRVMS,
+      id: 'images',
+      accessor: ({ IMAGE_QUOTA }) => {
+        const imageQuotaUsage = useMemo(
+          () => getGroupQuotaUsage('IMAGE', IMAGE_QUOTA),
+          [IMAGE_QUOTA]
+        )
+
+        return (
+          <LinearProgressWithTooltip
+            value={imageQuotaUsage.rvms.percentOfUsed}
+            label={imageQuotaUsage.rvms.percentLabel}
+            tooltipTitle={T.ImageRVMS}
+            icon=""
+          />
+        )
+      },
+    },
   ]
   const { component, header } = WrapperRow(GroupRow)
 

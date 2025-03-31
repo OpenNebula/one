@@ -16,7 +16,7 @@
 import { ReactElement } from 'react'
 import { Redirect, useParams } from 'react-router-dom'
 
-import { BackButton, HostTabs, TranslateProvider } from '@ComponentsModule'
+import { HostTabs, TranslateProvider } from '@ComponentsModule'
 
 /**
  * Displays the detail information about a Host.
@@ -33,7 +33,6 @@ export function HostDetail() {
   return (
     <>
       <TranslateProvider>
-        <BackButton />
         <HostTabs id={id} />
       </TranslateProvider>
     </>

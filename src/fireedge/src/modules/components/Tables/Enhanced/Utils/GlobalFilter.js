@@ -23,7 +23,7 @@ import {
   UseFiltersState,
 } from 'opennebula-react-table'
 
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import HeaderPopover from '@modules/components/Header/Popover'
 import { Translate } from '@modules/components/HOC'
 import { LABEL_COLUMN_ID } from '@modules/components/Tables/Enhanced/Utils/GlobalLabel'
@@ -65,9 +65,14 @@ const GlobalFilter = memo(
           buttonProps={{
             'data-cy': 'filter-by-button',
             disableElevation: true,
-            variant: filtersAreNotLabel.length > 0 ? 'contained' : 'outlined',
-            color: 'secondary',
+            active: filtersAreNotLabel.length > 0,
             disabled: rows?.length === 0,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type:
+              filtersAreNotLabel.length > 0
+                ? STYLE_BUTTONS.TYPE.OUTLINED
+                : STYLE_BUTTONS.TYPE.FILLED,
           }}
           popperProps={{ placement: 'bottom-end' }}
         >

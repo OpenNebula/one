@@ -115,7 +115,7 @@ export const DatastoreDialog = ({
                 cursor: 'pointer',
                 border:
                   selectedDatastore?.ID === datastore.ID
-                    ? `2px solid ${theme.palette.secondary.main}`
+                    ? `2px solid ${theme.palette.primary.main}`
                     : `2px solid ${theme.palette.divider}`,
                 '&:hover': {
                   backgroundColor: theme.palette.action.hover,

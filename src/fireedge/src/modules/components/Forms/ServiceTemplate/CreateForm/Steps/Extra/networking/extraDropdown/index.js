@@ -44,7 +44,7 @@ export const ExtraDropdown = ({ networksValues, selectedNetwork }) => (
       width: '100%',
     }}
   >
-    <AccordionSummary sx={{ width: '100%' }}>
+    <AccordionSummary>
       <Legend disableGutters title={T.Extra} />
     </AccordionSummary>
 

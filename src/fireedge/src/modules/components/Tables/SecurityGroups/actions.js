@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Typography } from '@mui/material'
-import { AddCircledOutline, Group, Trash } from 'iconoir-react'
+import { Plus, Group, Trash } from 'iconoir-react'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -27,7 +27,12 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 
 import { Tr, Translate } from '@modules/components/HOC'
-import { RESOURCE_NAMES, SEC_GROUP_ACTIONS, T } from '@ConstantsModule'
+import {
+  RESOURCE_NAMES,
+  SEC_GROUP_ACTIONS,
+  T,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 const { SecurityGroup, Vm } = Form
 
 const ListSecGroupNames = ({ rows = [] }) =>
@@ -85,7 +90,11 @@ const Actions = () => {
             accessor: SEC_GROUP_ACTIONS.CREATE_DIALOG,
             dataCy: `securityGroup_${SEC_GROUP_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => {
               history.push(PATH.NETWORK.SEC_GROUPS.CREATE)
             },
@@ -95,7 +104,9 @@ const Actions = () => {
             label: T.Update,
             tooltip: T.Update,
             selected: { max: 1 },
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             action: (rows) => {
               const secGroups = rows?.[0]?.original ?? {}
               const path = PATH.NETWORK.SEC_GROUPS.CREATE
@@ -108,7 +119,9 @@ const Actions = () => {
             label: T.Clone,
             tooltip: T.Clone,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -154,7 +167,9 @@ const Actions = () => {
             label: T.Commit,
             tooltip: T.Commit,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 dialogProps: {
@@ -176,7 +191,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'securityGroup-ownership',
             options: [
               {
@@ -217,7 +234,9 @@ const Actions = () => {
             accessor: SEC_GROUP_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `secGroups_${SEC_GROUP_ACTIONS.DELETE}`,
             options: [

@@ -101,14 +101,9 @@ const RoleComponent = memo(({ role }) => {
         {cardinality}
       </Typography>
       {isLoading ? (
-        <CircularProgress color="secondary" size={20} />
+        <CircularProgress size={20} />
       ) : (
-        <Link
-          {...commonProps}
-          color="secondary"
-          component={RouterLink}
-          to={linkToVmTemplate}
-        >
+        <Link {...commonProps} component={RouterLink} to={linkToVmTemplate}>
           {`#${template?.ID} ${template?.NAME}`}
         </Link>
       )}

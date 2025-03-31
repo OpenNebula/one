@@ -16,7 +16,7 @@
 import { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import {
-  AddCircledOutline,
+  Plus,
   CloudDownload,
   DownloadCircledOutline,
   Lock,
@@ -36,7 +36,12 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 
 import { PATH } from '@modules/components/path'
-import { T, RESOURCE_NAMES, MARKETPLACE_APP_ACTIONS } from '@ConstantsModule'
+import {
+  T,
+  RESOURCE_NAMES,
+  MARKETPLACE_APP_ACTIONS,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { Typography } from '@mui/material'
 
@@ -97,7 +102,11 @@ const Actions = () => {
           {
             accessor: MARKETPLACE_APP_ACTIONS.CREATE_DIALOG,
             tooltip: T.CreateMarketApp,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => {
               history.push(PATH.STORAGE.MARKETPLACE_APPS.CREATE)
             },
@@ -105,8 +114,12 @@ const Actions = () => {
           {
             accessor: MARKETPLACE_APP_ACTIONS.EXPORT,
             tooltip: T.ImportIntoDatastore,
+            label: T.Import,
             selected: { max: 1 },
             icon: CloudDownload,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 dialogProps: {
@@ -129,6 +142,9 @@ const Actions = () => {
           {
             accessor: MARKETPLACE_APP_ACTIONS.DOWNLOAD,
             tooltip: T.DownloadApp,
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             icon: DownloadCircledOutline,
             action: async (apps) => {
@@ -142,7 +158,9 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'marketapp-lock',
             options: [
               {
@@ -179,7 +197,9 @@ const Actions = () => {
             tooltip: T.Enable,
             icon: MoreVert,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'marketapp-enable',
             options: [
               {
@@ -216,7 +236,9 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             dataCy: 'marketapp-ownership',
             disabled: (rows) =>
               rows.some(({ original }) => original?.MARKETPLACE_ID === '0'),
@@ -259,7 +281,9 @@ const Actions = () => {
             accessor: MARKETPLACE_APP_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             options: [
               {

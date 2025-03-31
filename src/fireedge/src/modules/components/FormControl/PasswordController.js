@@ -33,6 +33,9 @@ const PasswordController = memo(
       <TextController
         {...props}
         type={showPassword ? 'text' : 'password'}
+        sx={{
+          ...fieldProps?.sx,
+        }}
         fieldProps={{
           InputProps: {
             endAdornment: (

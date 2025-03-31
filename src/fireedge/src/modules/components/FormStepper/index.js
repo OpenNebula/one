@@ -26,7 +26,7 @@ import PropTypes from 'prop-types'
 import { BaseSchema } from 'yup'
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMediaQuery } from '@mui/material'
+import { useMediaQuery, Box } from '@mui/material'
 import { useGeneral, updateDisabledSteps, useGeneralApi } from '@FeaturesModule'
 import CustomMobileStepper from '@modules/components/FormStepper/MobileStepper'
 import CustomStepper from '@modules/components/FormStepper/Stepper'
@@ -386,11 +386,13 @@ const FormStepper = ({
         )}
         {/* FORM CONTENT */}
         {Content && (
-          <Content
-            data={formData[stepId]}
-            setFormData={setFormData}
-            showMandatoryOnly={valueShowMandatoryOnly}
-          />
+          <Box sx={{ overflow: 'auto' }}>
+            <Content
+              data={formData[stepId]}
+              setFormData={setFormData}
+              showMandatoryOnly={valueShowMandatoryOnly}
+            />
+          </Box>
         )}
       </>
     </DisableStepContext.Provider>

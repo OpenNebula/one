@@ -101,7 +101,7 @@ const Content = ({
     [totalErrors, view, control]
   )
 
-  return <Tabs tabs={tabs} />
+  return <Tabs addBorder tabs={tabs} />
 }
 
 /**

@@ -29,9 +29,9 @@ import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/ServiceTemplate/C
 
 import { FormWithSchema } from '@modules/components/Forms'
 
-import { Tr } from '@modules/components/HOC'
-import { Stack, Button, Grid, List, ListItem, IconButton } from '@mui/material'
-import { T } from '@ConstantsModule'
+import { SubmitButton } from '@modules/components/FormControl'
+import { Stack, Grid, List, ListItem } from '@mui/material'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 
 import {
   AR,
@@ -124,17 +124,22 @@ const Content = () => {
           height: '100%',
         }}
       >
-        <Grid item md={3} sx={{ borderRight: 1, padding: 1 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            type="submit"
-            size="large"
+        <Grid
+          item
+          md={3}
+          sx={{
+            borderRight: networks && networks.length > 0 ? 1 : 0,
+            padding: 1,
+          }}
+        >
+          <SubmitButton
             data-cy={'extra-add-network'}
             onClick={handleAppend}
-          >
-            {Tr(T.AddNetwork)}
-          </Button>
+            label={T.AddNetwork}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+          />
           <List
             sx={{
               display: 'flex',
@@ -165,13 +170,11 @@ const Content = () => {
                     },
                   }}
                 >
-                  <IconButton
+                  <SubmitButton
                     aria-label="delete"
                     onClick={(event) => handleRemove(event, idx)}
-                    sx={{ mr: 1.5, size: 'small' }}
-                  >
-                    <Cancel />
-                  </IconButton>
+                    icon={<Cancel />}
+                  />
                   <div
                     style={{
                       display: 'inline-block',

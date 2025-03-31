@@ -134,7 +134,7 @@ const GuacamoleReconnectButton = (session) => {
         onClick={handleReconnectSession}
       >
         {reconnecting || isLoading ? (
-          <CircularProgress color="secondary" size={20} />
+          <CircularProgress size={20} />
         ) : (
           <Refresh />
         )}
@@ -177,7 +177,7 @@ const GuacamoleReconnectReadOnlyButton = (session) => {
         onClick={handleReconnectSession}
       >
         {reconnecting || isLoading ? (
-          <CircularProgress color="secondary" size={20} />
+          <CircularProgress size={20} />
         ) : enabled ? (
           <Lock />
         ) : (
@@ -293,7 +293,7 @@ const GuacamoleSSHParams = (session) => {
   return (
     <>
       {reconnecting || isLoading ? (
-        <CircularProgress color="secondary" size={20} />
+        <CircularProgress size={20} />
       ) : (
         <>
           <IconButton

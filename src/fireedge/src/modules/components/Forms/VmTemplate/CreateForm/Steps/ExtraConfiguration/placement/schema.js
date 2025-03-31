@@ -76,9 +76,7 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
     const clusterHostTable = clusterHostType?.includes(T.Cluster)
       ? clusterTable
       : hostTable
-    if (!hypervisor) {
-      return
-    }
+
     const tableType = clusterHostType?.includes(T.Cluster) ? 'CLUSTER_' : ''
     const regexPattern = new RegExp(`\\b${tableType}ID\\s*=\\s*\\d+`)
 
@@ -122,13 +120,15 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
 
     const hypervisorCondition =
       updatedParts.find((part) => part.includes('HYPERVISOR=')) ??
-      `HYPERVISOR=${hypervisor}`
+      (hypervisor && `HYPERVISOR=${hypervisor}`)
 
     const updatedValue =
       updatedPartsWithoutHypervisor.length > 0
-        ? `${hypervisorCondition} & ${updatedPartsWithoutHypervisor.join(
-            ' | '
-          )}`
+        ? hypervisorCondition
+          ? `${hypervisorCondition} & ${updatedPartsWithoutHypervisor.join(
+              ' | '
+            )}`
+          : `${updatedPartsWithoutHypervisor.join(' | ')}`
         : hypervisorCondition
 
     const hasHypervisorCondition = actualValue?.includes(
@@ -136,7 +136,7 @@ const HOST_REQ_FIELD = (isUpdate, modifiedFields, instantiate) => ({
     )
 
     // Add the hypervisor condition only if it doesn't exist
-    if (!hasHypervisorCondition || !isUpdate) {
+    if ((!hasHypervisorCondition || !isUpdate) && hypervisor) {
       return addHypervisorRequirement(updatedValue, hypervisor)
     } else {
       return updatedValue

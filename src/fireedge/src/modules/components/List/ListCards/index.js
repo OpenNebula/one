@@ -52,9 +52,7 @@ const ListCards = ({
 
   return (
     <>
-      {isLoading && (
-        <LinearProgress color="secondary" className={classes.loading} />
-      )}
+      {isLoading && <LinearProgress className={classes.loading} />}
       <Grid container spacing={3} {...gridProps}>
         {/* CREATE CARD COMPONENT */}
         {handleCreate &&

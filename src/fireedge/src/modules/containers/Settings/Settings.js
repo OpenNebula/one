@@ -34,7 +34,7 @@ export const Settings = () => {
   const { adminGroup } = useSystemData()
 
   return (
-    <>
+    <Box sx={{ overflow: 'auto' }}>
       <TranslateProvider>
         <Typography variant="h5">
           <Translate word={T.Settings} />
@@ -56,6 +56,6 @@ export const Settings = () => {
           <TfaSettings />
         </Box>
       </TranslateProvider>
-    </>
+    </Box>
   )
 }

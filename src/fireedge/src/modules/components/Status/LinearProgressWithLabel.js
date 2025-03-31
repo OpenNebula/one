@@ -50,7 +50,7 @@ const BorderLinearProgress = styled(LinearProgress)(
       backgroundColor:
         high || low
           ? getRangeColor({ value, high, low, palette })
-          : palette.secondary.main,
+          : palette.primary.main,
     },
   })
 )

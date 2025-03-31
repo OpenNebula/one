@@ -15,16 +15,8 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { useMemo } from 'react'
 
-import {
-  Button,
-  MenuItem,
-  Select,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Button, MenuItem, Select, Tooltip, Typography } from '@mui/material'
 import { NavArrowLeft, NavArrowRight } from 'iconoir-react'
 import { UsePaginationState } from 'opennebula-react-table'
 
@@ -32,19 +24,14 @@ import { PAGINATION_SIZES, T } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
 
 const Pagination = ({
-  className,
   count = 0,
   handleChangePage,
   useTableProps,
   showPageCount = true,
+  styles,
 }) => {
   /** @type {UsePaginationState} */
   const { pageIndex, pageSize } = useTableProps.state
-
-  const pageCount = useMemo(
-    () => Math.ceil(count / pageSize),
-    [count, pageSize]
-  )
 
   const handleBackButtonClick = () => {
     handleChangePage(pageIndex - 1)
@@ -54,66 +41,80 @@ const Pagination = ({
     handleChangePage(pageIndex + 1)
   }
 
-  return (
-    <Stack
-      className={className}
-      direction="row"
-      alignItems="center"
-      justifyContent="end"
-      gap="1em"
-    >
-      {useTableProps?.setPageSize && (
-        <Tooltip
-          title={Tr(T.NumberPerPage)}
-          arrow
-          placement="top"
-          disableInteractive
-        >
-          <Select
-            value={pageSize}
-            size="small"
-            sx={(theme) => ({
-              ...theme.typography.body2,
-              '& .MuiSelect-select': {
-                paddingTop: '0px',
-                paddingBottom: '0px',
-              },
-            })}
-            onChange={(e) => useTableProps.setPageSize(Number(e.target.value))}
-          >
-            {PAGINATION_SIZES.map((size) => (
-              <MenuItem key={size} value={size}>
-                {size}
-              </MenuItem>
-            ))}
-          </Select>
-        </Tooltip>
-      )}
+  const startItem = pageIndex * pageSize + 1
+  const endItem = Math.min((pageIndex + 1) * pageSize, count)
 
-      <Button
-        aria-label="previous page"
-        disabled={pageIndex === 0}
-        onClick={handleBackButtonClick}
-        size="small"
-        color="inherit"
-      >
-        <NavArrowLeft />
-        {Tr(T.Previous)}
-      </Button>
-      <Typography variant="body2" component="span">
-        {`${pageIndex + 1} ${Tr(T.Of)} ${showPageCount ? pageCount : 'many'}`}
-      </Typography>
-      <Button
-        aria-label="next page"
-        disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
-        onClick={handleNextButtonClick}
-        size="small"
-        color="inherit"
-      >
-        {Tr(T.Next)}
-        <NavArrowRight />
-      </Button>
-    </Stack>
+  return (
+    <div className={styles.pagination}>
+      {useTableProps?.setPageSize && (
+        <>
+          <Typography className={styles.paginationText}>
+            {`${Tr(T.RowsPerPage)}`}
+          </Typography>
+          <Tooltip
+            title={Tr(T.NumberPerPage)}
+            arrow
+            placement="top"
+            disableInteractive
+            className={styles.left}
+          >
+            <Select
+              value={pageSize}
+              size="small"
+              style={{ width: 'auto' }}
+              sx={(theme) => ({
+                ...theme.typography.body2,
+                '& .MuiSelect-select': {
+                  paddingTop: '0px',
+                  paddingBottom: '0px',
+                  border: 'none',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  border: 'none',
+                },
+              })}
+              onChange={(e) =>
+                useTableProps.setPageSize(Number(e.target.value))
+              }
+            >
+              {PAGINATION_SIZES.map((size) => (
+                <MenuItem key={size} value={size}>
+                  {size}
+                </MenuItem>
+              ))}
+            </Select>
+          </Tooltip>
+        </>
+      )}
+      {showPageCount && (
+        <>
+          <Typography className={styles.paginationText}>
+            {`${startItem}-${endItem} ${Tr(T.Of)} ${count}`}
+          </Typography>
+          <Button
+            aria-label="previous page"
+            disabled={pageIndex === 0}
+            onClick={handleBackButtonClick}
+            size="small"
+            color="inherit"
+            className={styles.paginationArrow}
+          >
+            <NavArrowLeft />
+          </Button>
+          <Button
+            aria-label="next page"
+            disabled={pageIndex >= Math.ceil(count / pageSize) - 1}
+            onClick={handleNextButtonClick}
+            size="small"
+            color="inherit"
+            sx={{ minWidth: '1.5rem', height: '1.5rem', padding: '0.5rem' }}
+            className={styles.paginationArrow}
+          >
+            <NavArrowRight />
+          </Button>
+        </>
+      )}
+    </div>
   )
 }
 
@@ -123,6 +124,7 @@ Pagination.propTypes = {
   useTableProps: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
   showPageCount: PropTypes.bool,
+  styles: PropTypes.object,
 }
 
 export default Pagination

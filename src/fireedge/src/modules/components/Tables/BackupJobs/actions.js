@@ -19,13 +19,7 @@ import { useHistory } from 'react-router-dom'
 
 import { ChangeGroupForm, ChangeUserForm } from '@modules/components/Forms/Vm'
 import { useViews, BackupJobAPI } from '@FeaturesModule'
-import {
-  AddCircledOutline,
-  Group,
-  Lock,
-  PlayOutline,
-  Trash,
-} from 'iconoir-react'
+import { Plus, Group, Lock, PlayOutline, Trash } from 'iconoir-react'
 
 import { PATH } from '@modules/components/path'
 import {
@@ -34,7 +28,12 @@ import {
 } from '@modules/components/Tables/Enhanced/Utils'
 
 import { Translate } from '@modules/components/HOC'
-import { BACKUPJOB_ACTIONS, RESOURCE_NAMES, T } from '@ConstantsModule'
+import {
+  BACKUPJOB_ACTIONS,
+  RESOURCE_NAMES,
+  T,
+  STYLE_BUTTONS,
+} from '@ConstantsModule'
 import { isVmAvailableAction } from '@ModelsModule'
 
 const isDisabled = (action) => (rows) =>
@@ -95,7 +94,11 @@ const Actions = () => {
             accessor: BACKUPJOB_ACTIONS.CREATE_DIALOG,
             dataCy: `backupjob_${BACKUPJOB_ACTIONS.CREATE_DIALOG}`,
             tooltip: T.Create,
-            icon: AddCircledOutline,
+            label: T.Create,
+            icon: Plus,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             action: () => history.push(PATH.STORAGE.BACKUPJOBS.CREATE),
           },
           {
@@ -104,6 +107,9 @@ const Actions = () => {
             tooltip: T.Start,
             selected: true,
             icon: PlayOutline,
+            importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.FILLED,
             options: [
               {
                 isConfirmDialog: true,
@@ -123,7 +129,9 @@ const Actions = () => {
             accessor: BACKUPJOB_ACTIONS.CANCEL,
             label: T.Cancel,
             selected: true,
-            color: 'secondary',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 isConfirmDialog: true,
@@ -143,8 +151,10 @@ const Actions = () => {
             tooltip: T.Ownership,
             icon: Group,
             selected: true,
-            color: 'secondary',
             dataCy: 'backupjob-ownership',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: BACKUPJOB_ACTIONS.CHANGE_OWNER,
@@ -186,8 +196,10 @@ const Actions = () => {
             tooltip: T.Lock,
             icon: Lock,
             selected: true,
-            color: 'secondary',
             dataCy: 'backupjob-lock',
+            importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             options: [
               {
                 accessor: BACKUPJOB_ACTIONS.LOCK,
@@ -223,7 +235,9 @@ const Actions = () => {
             accessor: BACKUPJOB_ACTIONS.DELETE,
             tooltip: T.Delete,
             icon: Trash,
-            color: 'error',
+            importance: STYLE_BUTTONS.IMPORTANCE.DANGER,
+            size: STYLE_BUTTONS.SIZE.MEDIUM,
+            type: STYLE_BUTTONS.TYPE.OUTLINED,
             selected: { min: 1 },
             dataCy: `backupjob_${BACKUPJOB_ACTIONS.DELETE}`,
             options: [
