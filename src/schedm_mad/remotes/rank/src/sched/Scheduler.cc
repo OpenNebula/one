@@ -96,7 +96,8 @@ namespace
 
     std::string ids_to_string(const std::vector<int>& ids)
     {
-        if (ids.empty()) {
+        if (ids.empty())
+        {
             return "";
         }
 
@@ -140,6 +141,8 @@ SchedulerTemplate Scheduler::parse_config()
     conf.get("MEMORY_SYSTEM_DS_SCALE", mem_ds_scale);
 
     conf.get("DIFFERENT_VNETS", diff_vnets);
+
+    conf.get("MAX_HOST", host_dispatch_limit);
 
     // -----------------------------------------------------------
     // Log system & Configuration File
@@ -825,6 +828,14 @@ void Scheduler::dispatch()
             std::string error;
 
             if (host->test_capacity(sr, error) != true)
+            {
+                continue;
+            }
+
+            //------------------------------------------------------------------
+            // Test host dispatch limit
+            //------------------------------------------------------------------
+            if (host_dispatch_limit > 0 && host->dispatched() >= host_dispatch_limit)
             {
                 continue;
             }

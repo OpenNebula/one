@@ -154,6 +154,11 @@ private:
      *  Boolean to dispatch the VM inside different vnets
      */
     bool diff_vnets;
+
+    /**
+    *  Limit of virtual machines to be deployed simultaneously to a given host.
+    */
+    int host_dispatch_limit;
 };
 
 #endif /*SCHEDULER_H_*/
