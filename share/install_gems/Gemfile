@@ -150,3 +150,7 @@ group :tproxy do
     gem 'async-io', '= 1.32.1'
     gem 'console', '= 1.15.3'
 end
+
+group :oneswap do
+    gem 'rbvmomi'
+end
