@@ -381,19 +381,19 @@ error_common:
 
 int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
 {
-    const VectorAttribute* vatt;
-
-    std::vector<std::string> modes;
-
-    ostringstream oss;
-
-    string orph;
+    if ( type == BACKUP_DS )
+    {
+        return 0;
+    }
 
     if (tm_mad.empty())
     {
         error_str = "No TM_MAD in template.";
         return -1;
     }
+
+    const VectorAttribute* vatt;
+    ostringstream oss;
 
     if ( Nebula::instance().get_tm_conf_attribute(tm_mad, vatt) != 0 )
     {
@@ -436,12 +436,14 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
         remove_template_attribute("LN_TARGET");
         remove_template_attribute("CLONE_TARGET");
     }
-    else if (type != BACKUP_DS)
+    else
     {
         string st = vatt->vector_value("TM_MAD_SYSTEM");
 
         if (!st.empty())
         {
+            std::vector<std::string> modes;
+
             replace_template_attribute("TM_MAD_SYSTEM", st);
 
             modes = one_util::split(st, ',', true);
@@ -513,16 +515,31 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
         }
 
         remove_template_attribute("SHARED");
-    }
 
-    if ( type != BACKUP_DS )
-    {
+        string orph;
+
         if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
         {
             orph = "NO";
         }
 
         replace_template_attribute("ALLOW_ORPHANS", orph);
+
+        bool ps;
+
+        if (vatt->vector_value("PERSISTENT_SNAPSHOTS", ps) == -1)
+        {
+            ps = true;
+        }
+
+        if (ps)
+        {
+            replace_template_attribute("PERSISTENT_SNAPSHOTS", "YES");
+        }
+        else
+        {
+            replace_template_attribute("PERSISTENT_SNAPSHOTS", "NO");
+        }
     }
 
     return 0;
@@ -967,6 +984,7 @@ int Datastore::post_update_template(string& error_str, Template *old_tmpl)
     string          old_ds_mad    = ds_mad;
 
     static std::vector<std::string> ro_options = {
+        "LVM_THIN_ENABLE",
         "NFS_AUTO_ENABLE",
         "NFS_AUTO_HOST",
         "NFS_AUTO_PATH",
@@ -988,7 +1006,12 @@ int Datastore::post_update_template(string& error_str, Template *old_tmpl)
 
             if ( old_v != new_v )
             {
-                error_str = "Cannot update NFS auto mount options in datastore with existing images";
+                ostringstream oss;
+
+                oss << "Cannot update option " << opt
+                    << " in a datastore with existing images";
+
+                error_str = oss.str();
                 return -1;
             }
         }

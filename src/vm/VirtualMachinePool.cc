@@ -1017,7 +1017,7 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 
         const Snapshots * snaps = disk->get_snapshots();
 
-        if (snaps != nullptr)
+        if (snaps != nullptr && disk->persistent_snapshots())
         {
             imagem->set_image_snapshots(image_id, *snaps);
         }

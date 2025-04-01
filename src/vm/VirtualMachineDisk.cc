@@ -35,6 +35,18 @@ bool VirtualMachineDisk::is_volatile() const
     return ( type == "SWAP" || type == "FS");
 }
 
+bool VirtualMachineDisk::persistent_snapshots() const
+{
+    bool ps;
+
+    if (vector_value("PERSISTENT_SNAPSHOTS", ps) == -1)
+    {
+        ps = true;
+    }
+
+    return ps;
+}
+
 Snapshots::AllowOrphansMode VirtualMachineDisk::allow_orphans() const
 {
     std::string orphans;
@@ -1009,7 +1021,7 @@ void VirtualMachineDisks::release_images(int vmid, bool image_error,
             /* ------- Update snapshots on source image if needed ----------- */
             const Snapshots * snaps = (*it)->get_snapshots();
 
-            if (snaps != 0)
+            if (snaps != 0 && (*it)->persistent_snapshots())
             {
                 imagem->set_image_snapshots(iid, *snaps);
             }

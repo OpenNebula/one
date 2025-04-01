@@ -1965,6 +1965,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
         int vm_gid;
 
         bool   is_persistent;
+        bool   persist_snap;
         string target;
 
         long long disk_size = -1;
@@ -2038,6 +2039,7 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
 
             is_persistent = disk->is_persistent();
             target        = disk->get_tm_target();
+            persist_snap  = disk->persistent_snapshots();
 
             vm->set_vm_info();
 
@@ -2082,7 +2084,10 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                 imagem->set_image_size(img_id, disk_size);
             }
 
-            imagem->set_image_snapshots(img_id, snaps);
+            if (persist_snap)
+            {
+                imagem->set_image_snapshots(img_id, snaps);
+            }
         }
 
         switch (state)
@@ -2131,6 +2136,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
         int vm_gid;
 
         bool is_persistent;
+        bool persist_snap;
         string target;
 
         if ( auto vm = vmpool->get(vid) )
@@ -2192,6 +2198,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
             disk->vector_value("IMAGE_ID", img_id);
 
             is_persistent = disk->is_persistent();
+            persist_snap  = disk->persistent_snapshots();
             target        = disk->get_tm_target();
 
             // Update the history record
@@ -2231,7 +2238,7 @@ void LifeCycleManager::trigger_disk_snapshot_failure(int vid)
         }
 
         // Update image if it is persistent and ln mode does not clone it
-        if ( img_id != -1 && is_persistent && target != "SYSTEM" )
+        if ( img_id != -1 && is_persistent && target != "SYSTEM" && persist_snap)
         {
             imagem->set_image_snapshots(img_id, snaps);
         }

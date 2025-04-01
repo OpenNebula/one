@@ -42,6 +42,9 @@ fi
 
 . $TMCOMMON
 
+POOL_NAME="lv-one-$VMID-pool"
+VG_NAME="vg-one-$DSID"
+
 CMD=$(cat <<EOF
     set -ex -o pipefail
     $SYNC
@@ -57,6 +60,13 @@ CMD=$(cat <<EOF
             fi
         fi
     done
+
+    # Deactivate pool on origin host (if it exists)
+    if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
+        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}"
+        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tmeta"
+        $SUDO $LVCHANGE -an "$VG_NAME/${POOL_NAME}_tdata"
+    fi
 
     # Remove VM folder from origin host
     rm -rf "${DST_PATH}"

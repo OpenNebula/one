@@ -94,11 +94,12 @@ multiline_exec_and_log "$DUMP_CMD" "Error dumping $SRC to $DST"
 DELETE_CMD=$(cat <<EOF
     set -e -o pipefail
     $SUDO $LVREMOVE -f $DEV
+    $SYNC
 EOF
 )
 
 LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
 exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \
-    "Error dumping $SRC to $DST"
+    "Error removing '$DEV' from '$SRC_HOST'"
 
 exit 0

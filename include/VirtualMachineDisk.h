@@ -56,6 +56,8 @@ public:
         return is_flag("PERSISTENT");
     }
 
+    bool persistent_snapshots() const;
+
     Snapshots::AllowOrphansMode allow_orphans() const;
 
     void set_attach()

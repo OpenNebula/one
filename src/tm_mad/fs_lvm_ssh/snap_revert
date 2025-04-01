@@ -1,1 +1,104 @@
-../common/not_supported.sh
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2024, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# snap_revert host:parent_image snap_id vmid ds_id
+
+SRC=$1
+SNAP_ID=$2
+VM_ID=$3
+DS_ID=$4
+
+#--------------------------------------------------------------------------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+source $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Set dst path and dir
+#-------------------------------------------------------------------------------
+
+SRC_HOST=`arg_host $SRC`
+SRC_PATH=`arg_path $SRC`
+SRC_DIR=`dirname $SRC_PATH`
+DS_SYS_ID=$(echo $SRC_DIR | $AWK -F '/' '{print $(NF-1)}')
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(echo "$SRC_PATH" | $AWK -F. '{print $NF}')
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/LVM_THIN_ENABLE )
+
+CLONE="${XPATH_ELEMENTS[j++]}"
+LVM_THIN_ENABLE="${XPATH_ELEMENTS[j++],,}"
+
+# Operation only supported for LVM thin
+if [ "$LVM_THIN_ENABLE" != 'yes' ]; then
+    script_name=$(basename $0)
+    error_message "$script_name: Operation not supported"
+    exit 1
+fi
+
+#-------------------------------------------------------------------------------
+# Revert to snapshot
+#-------------------------------------------------------------------------------
+
+POOL_NAME="lv-one-$VM_ID-pool"
+LV_NAME="lv-one-$VM_ID-$DISK_ID"
+VG_NAME="vg-one-$DS_SYS_ID"
+SNAP_NAME="${LV_NAME}_s$SNAP_ID"
+
+SNAP_REVERT_CMD=$(cat <<EOF
+    set -e -o pipefail
+
+    if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $SNAP_NAME")" ]; then
+        ${SYNC}
+        ${SUDO} ${LVSCAN}
+        $SUDO $LVREMOVE -y $VG_NAME/$LV_NAME
+        $SUDO $LVCREATE -s -n $LV_NAME $VG_NAME/$SNAP_NAME
+        $SUDO $LVCHANGE -kn $VG_NAME/$LV_NAME
+        $SUDO $LVCHANGE -ay $VG_NAME/$LV_NAME
+        ${SYNC}
+    else
+        echo "Snapshot '$VG_NAME/$SNAP_NAME' not found; aborting"
+        exit 1
+    fi
+EOF
+)
+
+ssh_exec_and_log "$SRC_HOST" "$SNAP_REVERT_CMD" \
+                 "Error reverting to snapshot $SNAP_NAME"
+

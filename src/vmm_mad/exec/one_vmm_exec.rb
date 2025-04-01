@@ -1203,11 +1203,17 @@ class ExecDriver < VirtualMachineDriver
         # Check that live snapshot is supported
         vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VM_MAD'
         tm_driver_path  = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
+        lvm_thin_enabled_path = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/LVM_THIN_ENABLE"
 
         vmm_driver = ensure_xpath(xml_data, id, action,
                                   vmm_driver_path) || return
         tm_driver  = ensure_xpath(xml_data, id, action,
                                   tm_driver_path) || return
+        lvm_thin_enable = xml_data.elements[lvm_thin_enabled_path]&.text&.strip
+
+        if tm_driver == 'fs_lvm_ssh' && lvm_thin_enable&.downcase == 'yes'
+            tm_driver = 'lvm_thin'
+        end
 
         if !LIVE_DISK_SNAPSHOTS.include?("#{vmm_driver}-#{tm_driver}")
             send_message(action, RESULT[:failure], id,

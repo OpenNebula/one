@@ -76,10 +76,12 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/LVM_THIN_ENABLE \
                     /VM/HISTORY_RECORDS/HISTORY[last\(\)]/TM_MAD)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+LVM_THIN_ENABLE="${XPATH_ELEMENTS[j++],,}"
 TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 FILE_SIZE=`fs_size "${SRC_PATH}" YES`
@@ -117,16 +119,33 @@ fi
 # Create the snapshot and link it
 #-------------------------------------------------------------------------------
 
+POOL_NAME="lv-one-$VM_ID-pool"
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
+
+# TODO rethink this. Actual size needs to be bigger than $SIZE in order to accomodate snapshots
+BIGGER_SIZE="$((SIZE*2))"
 
 # Execute lvcreate with a lock in the frontend
 CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
     $SYNC
     $SUDO $LVSCAN
-    $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+    if [ "$LVM_THIN_ENABLE" = 'yes' ]; then
+        # If pool exists, extend it for the new disk. Otherwise, create it.
+        if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
+            $SUDO $LVEXTEND -L +${BIGGER_SIZE}M $VG_NAME/$POOL_NAME
+        else
+            # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
+            $SUDO $LVCREATE -Zy -L ${BIGGER_SIZE}M --type thin-pool --thinpool $POOL_NAME $VG_NAME
+            $SUDO $LVCHANGE -an $VG_NAME/$POOL_NAME
+        fi
+        $SUDO $LVCREATE -T $VG_NAME/$POOL_NAME -V ${SIZE}M -n $LV_NAME
+    else
+        $SUDO $LVCREATE --wipesignatures n -L${SIZE}M -n $LV_NAME $VG_NAME
+    fi
+    $SYNC
 EOF
 )
 
@@ -141,11 +160,11 @@ CLONE_CMD=$(cat <<EOF
     hostname -f >"${DST_DIR}/.host" || :
 
     # zero trailing space
-    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ]; then
-    LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
-    ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} \
-        oflag=seek_bytes iflag=count_bytes \
-        seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
+    if [ "${ZERO_LVM_ON_CREATE}" = "yes" ] && [ "$LVM_THIN_ENABLE" != 'yes' ]; then
+        LVSIZE=\$(${SUDO} ${LVS} --nosuffix --noheadings --units B -o lv_size "${DEV}" | tr -d '[:blank:]')
+        ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} \
+            oflag=seek_bytes iflag=count_bytes \
+            seek="${ZERO_SEEK_BYTES}" count="\$(( LVSIZE - ${ZERO_SEEK_BYTES} ))"
     fi
 
     rm -f "$DST_PATH"

@@ -118,6 +118,7 @@ EOF
             ${SUDO} ${LVSCAN}
             SIZE=\$(${SUDO} ${LVS} --noheadings --units B -o lv_size "${SRC_DEV}" | tr -d '[:blank:]')
             ${SUDO} ${LVCREATE} --wipesignatures n -L"\${SIZE}" -n "${LV_NAME}" "${DST_VG_NAME}"
+            ${SYNC}
 EOF
 )
 
@@ -135,7 +136,7 @@ EOF
 )
         LOCK="tm-fs_lvm-${SRC_DS_SYS_ID}.lock"
         exclusive "${LOCK}" 120 ssh_exec_and_log "${DST_HOST}" "${CMD}" \
-            "Error deactivating disk ${SRC_PATH}"
+            "Error activating disk ${SRC_PATH}"
 
         # copy volume data
         ssh_exec_and_log "$DST_HOST" \
