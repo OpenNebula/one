@@ -126,10 +126,15 @@ class OneDBLive
             :end_time => Time.now
         }
 
-        options.merge!(default_options)
+        options = default_options.merge(options)
 
         options[:start_time] = options[:start_time].to_i
         options[:end_time] = options[:end_time].to_i
+
+        if options[:start_time] > options[:end_time]
+            STDERR.puts "ERROR: start can't be greater than end"
+            exit(-1)
+        end
 
         if options[:id]
             vm = OpenNebula::VirtualMachine.new_with_id(options[:id], client)
@@ -137,7 +142,7 @@ class OneDBLive
             rc = vm.info
             return rc if OpenNebula.is_error?(rc)
 
-            return purge_vm_history(vm, options)
+            return purge_vm_history_range(vm, options[:start_time], options[:end_time])
         end
 
         vmpool = OpenNebula::VirtualMachinePool.new(client)
@@ -151,6 +156,120 @@ class OneDBLive
             print percentage_line(v.id, last_vm_id, true)
 
             purge_vm_history(v, options)
+        end
+    end
+
+    def purge_vm_history_range(vm, start_time, end_time)
+        vm_start_time = vm['STIME'].to_i
+
+        return unless vm_start_time < end_time
+
+        # vmpool info only returns the last history record. We can check
+        # if this VM can have more than one record using the sequence
+        # number. If it's 0 or it does not exist we can skip the VM.
+        # Also take tone that xpaths on VM info that comes from VMPool
+        # or VM is different. We can not use absolute searches with
+        # objects coming from pool.
+        seq = vm['HISTORY_RECORDS/HISTORY/SEQ']
+
+        return if !seq || seq == '0'
+
+        # If the history can contain more than one record we get
+        # all the info for two reasons:
+        #
+        #   * Make sure that all the info is written back
+        #   * Refresh the information so it's less probable that the info
+        ##     was modified during this process
+        vm.info
+
+        hash = vm.to_hash
+        vm_history = hash['VM']['HISTORY_RECORDS']['HISTORY']
+
+        vm_history = [vm_history].flatten
+
+        # History should contain at least 2 records
+        min_history_num = 2
+        records_num = vm_history.size
+
+        return unless records_num > min_history_num
+
+        # Looking for the index of the first record which is inside desired range
+        start_index = records_num
+
+        vm_history.each_with_index do |record, index|
+            if record['STIME'].to_i >= start_time
+                start_index = index
+                break
+            end
+        end
+
+        # Looking for the index of the last record which is inside desired range
+        end_index = 0
+
+        vm_history.each_with_index do |record, index|
+            break if record['ETIME'].to_i == 0 || record['ETIME'].to_i > end_time
+
+            end_index = index
+        end
+
+        if start_index > end_index
+            return
+        end
+
+        # Check if required minimum amount of records
+        # will be present after range removal.
+        num_to_be_deleted = end_index - start_index + 1
+
+        if num_to_be_deleted + min_history_num > records_num
+            end_index -= (num_to_be_deleted + min_history_num - records_num)
+        end
+
+        # Delete all the records from the vm that has to be assigned new SEQ
+        vm.delete_element('HISTORY_RECORDS/HISTORY')
+
+        start_seq = vm_history[start_index]['SEQ']
+        end_seq = vm_history[end_index]['SEQ']
+
+        ## Renumerate the sequence
+        old_seq = []
+
+        last_history = vm_history.last(records_num - end_index - 1)
+
+        last_history.each_with_index do |history, index|
+            old_seq << history['SEQ'].to_i
+            history['SEQ'] = (start_seq.to_i + index).to_s
+        end
+
+        vm.add_element('HISTORY_RECORDS',
+                       'HISTORY' => last_history.last)
+
+        # Update VM body
+        update_body('vm_pool', vm.to_xml, "oid = #{vm.id}", false)
+
+        # Delete any history record that does not have the same
+        # SEQ number as the last history record
+        delete('history', "vid = #{vm.id} and seq >= #{start_seq} and seq <= #{end_seq}", false)
+
+        # Get VM history
+        history = select('history', "vid = #{vm.id}")
+
+        # Renumerate sequence numbers
+        old_seq.each_with_index do |o_seq, index|
+            row = history.find {|r| o_seq.to_s == r['seq'] }
+            next unless row
+
+            seq = start_seq.to_i + index
+
+            body = Base64.decode64(row['body64'])
+
+            doc = Nokogiri::XML(body)
+            doc.xpath('/HISTORY/SEQ').first.content = seq.to_s
+
+            new_body = doc.root.to_xml
+
+            update('history',
+                   { :seq => seq, :body => new_body },
+                   "vid = #{vm.id} and seq = #{o_seq}", false)
         end
     end
 

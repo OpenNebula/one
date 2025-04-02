@@ -536,6 +536,10 @@ CommandParser::CmdParser.new(ARGV) do
     purge_history_desc = <<-EOT.unindent
         Deletes all but the last two history records from non DONE VMs. A single VM
         history deletion can be specified with the --id option.
+        If --id is specified together with --start and --end - deletes all the records
+        of a single vm within the specified time range.
+        If --start and --end specified without an --id - deletes all the records of
+        vms created within the specified time range.
 
         #{LIVE_ACTION_HELP}
 
