@@ -116,7 +116,7 @@ GEM
       optimist (~> 3.0)
     rchardet (1.8.0)
     ruby2_keywords (0.0.5)
-    sequel (5.90.0)
+    sequel (5.91.0)
       bigdecimal
     sinatra (2.2.4)
       mustermann (~> 2.0)

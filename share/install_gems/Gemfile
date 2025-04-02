@@ -112,7 +112,7 @@ end
 group :packethost do
     gem 'minitest', minitest
     if ruby_version >= Gem::Version.new('2.3.0')
-	    gem 'faraday_middleware', '~> 1.2.0'
+        gem 'faraday_middleware', '~> 1.2.0'
     end
     gem 'activesupport', '~> 4.2'
     gem 'i18n', '~> 0.9'
@@ -120,20 +120,24 @@ end
 
 group :cloud, :oneflow do
     gem 'rack', rack
-    gem 'sinatra', '< 4.0.0'
+    if ruby_version >= Gem::Version.new('3.0.0')
+        gem 'sinatra', '~> 4.1'
+        gem 'puma', '~> 6.6'
+    else
+        gem 'sinatra', '< 4.0.0'
+    end
 end
 
 group :cloud do
-    gem 'thin'
+    if ruby_version < Gem::Version.new('3.0.0')
+        gem 'thin'
+    end
     gem 'uuidtools'
     gem 'curb'
 end
 
 group :oneflow do
     gem 'ipaddress', '~> 0.8.3'
-end
-
-group :oneflow do
     gem 'treetop', '>= 1.6.3'
     gem 'parse-cron'
 end
