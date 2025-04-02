@@ -57,7 +57,7 @@ module OpenNebula::VirtualMachineExt
                                   'CLONE_TARGET', 'CLUSTER_ID', 'DATASTORE', 'DATASTORE_ID',
                                   'DISK_ID', 'DISK_TYPE', 'IMAGE_ID', 'IMAGE', 'IMAGE_UNAME',
                                   'IMAGE_UID', 'LN_TARGET', 'TM_MAD', 'TM_MAD_SYSTEM',
-                                  'OPENNEBULA_MANAGED']
+                                  'OPENNEBULA_MANAGED', 'PERSISTENT_SNAPSHOTS']
 
             def save_as_template(name, desc, opts = {})
                 opts = {

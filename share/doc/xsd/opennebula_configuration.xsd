@@ -324,6 +324,7 @@
               <xs:element name="LN_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="LN_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="PERSISTENT_SNAPSHOTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="TM_MAD_SYSTEM" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:all>
