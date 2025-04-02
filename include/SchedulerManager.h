@@ -66,6 +66,11 @@ public:
      */
     void trigger_optimize(int cluster_id);
 
+    /**
+     * Placement finished, if needed start a new placement
+     */
+    void place_finished();
+
 private:
     /**
      *  The timer action will periodically will check placement requests.

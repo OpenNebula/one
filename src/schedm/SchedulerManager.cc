@@ -201,6 +201,45 @@ void SchedulerManager::trigger_optimize(int cluster_id)
     });
 }
 
+void SchedulerManager::place_finished()
+{
+    RaftManager * raftm = Nebula::instance().get_raftm();
+
+    if (!raftm || (!raftm->is_leader() && !raftm->is_solo()))
+    {
+        return;
+    }
+
+    std::vector<int> vmids;
+
+    Nebula::instance().get_vmpool()->get_pending(vmids);
+
+    if ( vmids.empty() )
+    {
+        return;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(wnd_mtx);
+
+        if (wnd_start != 0)
+        {
+            return;
+        }
+
+        last_place = time(nullptr);
+    }
+
+    auto scheduler = get();
+
+    if (scheduler == nullptr)
+    {
+        return;
+    }
+
+    scheduler->place();
+}
+
 void SchedulerManager::timer_action()
 {
     static int mark    = 0;
