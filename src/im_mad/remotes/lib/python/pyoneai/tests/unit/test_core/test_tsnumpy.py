@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+import os
+import sqlite3
 from typing import Union
 
 import numpy as np
@@ -2265,6 +2267,38 @@ class TestTimeseries:
         assert ts._data[2, 0, 1] == 26.0
         assert round(ts._data[0, 1, 0], 4) == 0.9093
         assert round(ts._data[-1, 1, 1], 4) == -0.4161
+
+    def test_restore_same_values_as_saved_to_db(self, tmp_path, sample_timeseries):
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        sample_timeseries.write_to_db(db_path)
+
+        for m_attrs, entity_uid, _ in sample_timeseries.iter_over_variates():
+            table_name = f"{entity_uid}_{m_attrs.name}_monitoring"
+            res = Timeseries.read_from_database(
+                conn,
+                table_name=table_name,
+                metric_attrs=m_attrs,
+                timestamp_col="TIMESTAMP",
+                value_col="VALUE",
+                start_epoch=datetime(
+                    2024, 1, 1, tzinfo=timezone.utc
+                ).timestamp(),
+                end_epoch=datetime(
+                    2025, 1, 1, tzinfo=timezone.utc
+                ).timestamp(),
+            )
+            assert np.array_equal(
+                res.values.squeeze(),
+                sample_timeseries[m_attrs, entity_uid].values.squeeze(),
+            )
+            assert np.array_equal(
+                res.time_index,
+                sample_timeseries[m_attrs, entity_uid].time_index,
+            )
+
+        conn.close()
+
 
 
 class TestMetricIndex:

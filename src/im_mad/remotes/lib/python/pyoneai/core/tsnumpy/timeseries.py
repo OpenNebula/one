@@ -23,6 +23,8 @@ import json
 import math
 from datetime import datetime, timedelta, timezone
 from enum import IntEnum
+import os
+from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -594,6 +596,19 @@ class Timeseries:
         # STEP 1: Convert all selection types to numpy arrays
         # This ensures consistent handling regardless of input type (slice, list, int, etc.)
         return tuple(selections)
+    
+    def write_to_db(
+            self, 
+            path: Union[str, os.PathLike, Path], 
+            retention: timedelta | None = None, 
+        ) -> tuple[str]:
+        from .io import SQLEngine
+
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        SQLEngine(path, self, retention).insert_data()
+
 
     @classmethod
     def read_from_database(
@@ -2457,6 +2472,25 @@ class Timeseries:
             ax.legend()
         return ax
 
+    @staticmethod
+    def _sliding_window_view_alt(
+        array: np.ndarray, window_size: int
+    ) -> np.ndarray:
+        # NOTE: This is an alternative to
+        # numpy.lib.stride_tricks.sliding_window_view, which is not
+        # available for `numpy<1.20`.
+        stride = array.strides[0]
+        strides = (stride, stride)
+        shape = (array.size - window_size + 1, window_size)
+        return np.lib.stride_tricks.as_strided(
+            array, shape=shape, strides=strides, subok=False, writeable=False
+        )
+
+    if np.__version__ < '1.20':
+        _sliding_window_view = _sliding_window_view_alt
+    else:
+        _sliding_window_view = np.lib.stride_tricks.sliding_window_view
+
     # Applies the Hampel Filter for outlier detection and smooths data
     # in place.
     @staticmethod
@@ -2474,7 +2508,7 @@ class Timeseries:
             # constant_values=data[[0, -1]]
             constant_values=np.nan
         )
-        windows = np.lib.stride_tricks.sliding_window_view(padded_data, n_vals)
+        windows = Timeseries._sliding_window_view(padded_data, n_vals)
         median = np.nanmedian(windows, axis=-1)
         diff = np.abs(data - median)
         # Median absolute deviation.
