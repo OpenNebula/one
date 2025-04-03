@@ -14,62 +14,72 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { useMemo, ReactElement } from 'react'
+import { VmAPI } from '@FeaturesModule'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
-import IncrementColumns from '@modules/components/Tables/Increments/columns'
-import IncrementRow from '@modules/components/Tables/Increments/row'
-import { useViews } from '@FeaturesModule'
-import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import VmDiskColumns from '@modules/components/Tables/VmDisks/columns'
+import VmDiskRow from '@modules/components/Tables/VmDisks/row'
+import { T } from '@ConstantsModule'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
-import { timeToString } from '@ModelsModule'
-import { prettyBytes } from '@UtilsModule'
 
-const DEFAULT_DATA_CY = 'increments'
+const DEFAULT_DATA_CY = 'vmdisks'
 
 /**
  * @param {object} props - Props
- * @returns {ReactElement} Backups table
+ * @returns {ReactElement} VmDisk table
  */
-const IncrementsTable = (props) => {
-  const { rootProps = {}, increments, ...rest } = props ?? {}
+const VmDisksTable = (props) => {
+  const {
+    rootProps = {},
+    searchProps = {},
+    vmId,
+    filter,
+    ...rest
+  } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
+  searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
-  const { view, getResourceView } = useViews()
+  const { data, isFetching, refetch } = VmAPI.useGetVmQuery({ id: vmId })
+
+  const disks =
+    typeof filter === 'function' && Array.isArray(data?.TEMPLATE?.DISK)
+      ? filter(data?.TEMPLATE?.DISK ?? [])
+      : data?.TEMPLATE?.DISK ?? []
 
   const columns = useMemo(
     () =>
       createColumns({
-        filters: getResourceView(RESOURCE_NAMES.BACKUP)?.filters,
-        columns: IncrementColumns,
+        filters: VmDiskColumns?.reduce(
+          (acc, col) => ({ ...acc, [col?.id]: true }),
+          {}
+        ),
+        columns: VmDiskColumns,
       }),
-    [view]
+    [VmDiskColumns]
   )
 
   const listHeader = [
-    { header: T.ID, id: 'id', accessor: 'ID' },
+    { header: T.ID, id: 'id', accessor: 'DISK_ID' },
+    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
+    { header: T.TargetDevice, id: 'target', accessor: 'TARGET' },
     { header: T.Type, id: 'type', accessor: 'TYPE' },
-    {
-      header: T.Date,
-      id: 'date',
-      accessor: (increment) => timeToString(increment?.DATE),
-    },
-    {
-      header: T.Size,
-      id: 'size',
-      accessor: (increment) => prettyBytes(increment?.SIZE, 'MB'),
-    },
-    { header: T.Name, id: 'source', accessor: 'SOURCE' },
+    { header: T.Size, id: 'size', accessor: 'SIZE' },
+    { header: T.ReadOnly, id: 'readOnly', accessor: 'READONLY' },
+    { header: T.Persistent, id: 'persistent', accessor: 'PERSISTENT' },
   ]
 
-  const { component, header } = WrapperRow(IncrementRow)
+  const { component, header } = WrapperRow(VmDiskRow)
 
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => increments, [increments])}
+      data={useMemo(() => (Array.isArray(disks) ? disks : [disks]), [disks])}
       rootProps={rootProps}
-      getRowId={(row) => String(row.ID)}
+      searchProps={searchProps}
+      refetch={refetch}
+      isLoading={isFetching}
+      getRowId={(row) => String(row.DISK_ID)}
       RowComponent={component}
       headerList={header && listHeader}
       {...rest}
@@ -77,7 +87,7 @@ const IncrementsTable = (props) => {
   )
 }
 
-IncrementsTable.propTypes = { ...EnhancedTable.propTypes }
-IncrementsTable.displayName = 'IncrementsTable'
+VmDisksTable.propTypes = { ...EnhancedTable.propTypes }
+VmDisksTable.displayName = 'VmDisksTable'
 
-export default IncrementsTable
+export default VmDisksTable

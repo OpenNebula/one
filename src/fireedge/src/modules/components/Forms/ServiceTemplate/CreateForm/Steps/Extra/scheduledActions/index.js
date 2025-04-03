@@ -201,6 +201,7 @@ const Content = () => {
               width="100%"
             >
               <FormWithSchema
+                cy={`${TAB_ID}`}
                 id={`${EXTRA_ID}.${TAB_ID}.${selectedSchedAction}`}
                 key={`inputs-${selectedSchedAction}`}
                 fields={VM_SCHED_FIELDS({ vm: {} })}

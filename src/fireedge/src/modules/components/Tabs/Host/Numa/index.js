@@ -24,6 +24,7 @@ import { HostAPI } from '@FeaturesModule'
 
 import UpdatePinPolicyForm from '@modules/components/Tabs/Host/Numa/UpdatePinPolicy'
 import UpdateIsolatedCPUSForm from '@modules/components/Tabs/Host/Numa/UpdateIsolatedCPUS'
+import { T } from '@ConstantsModule'
 
 /**
  * Renders mainly information tab.
@@ -57,5 +58,6 @@ NumaInfoTab.propTypes = {
 }
 
 NumaInfoTab.displayName = 'NumaInfoTab'
+NumaInfoTab.label = T.Numa
 
 export default NumaInfoTab

@@ -30,7 +30,9 @@ export const toUserInputString = ({
   const opts = Array.isArray(options)
     ? options?.join(',')
     : // eslint-disable-next-line camelcase
-      [options, options_1]?.filter(Boolean)?.join('..')
+      [options, options_1]
+        ?.filter((v) => v !== null && v !== undefined && v !== '')
+        ?.join('..')
 
   return [
     name,
@@ -65,7 +67,7 @@ export const toNetworkString = ({ name, description, type, value } = {}) => [
 ]
 
 export const toNetworksValueString = (
-  { name, SIZE: size },
+  { name, SIZE: size, type, value },
   { AR = [], SECURITY_GROUPS = [] } = {}
 ) => {
   if (!name) return
@@ -76,7 +78,7 @@ export const toNetworksValueString = (
     const ARs = AR?.map(
       (ar) =>
         `AR=[${Object.entries(ar)
-          .map(([key, value]) => `${key}=${value}`)
+          .map(([key, valueAR]) => `${key}=${valueAR}`)
           .join(',')}]`
     )
 
@@ -98,12 +100,9 @@ export const toNetworksValueString = (
 
   extra = extra?.join(',')
 
-  if (!extra?.length) {
-    return
-  }
-
   return {
     [name]: {
+      [type]: value,
       extra,
     },
   }

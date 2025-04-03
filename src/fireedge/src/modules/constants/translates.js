@@ -153,6 +153,7 @@ module.exports = {
   Instantiate: 'Instantiate',
   InstantiateVmTemplate: 'Instantiate VM Template',
   InstantiateVnTemplate: 'Instantiate Network Template',
+  Latest: 'Latest',
   LocateOnTable: 'Locate on table',
   Lock: 'Lock',
   Migrate: 'Migrate',
@@ -1122,7 +1123,7 @@ module.exports = {
     ' PCI passthrough of network devices is configured per NIC, in the "Network" tab. Do not add network devices here.',
   PciAttachWarning: 'PCI only can be attach or detach in POWEROFF state.',
   /* VM schema - Pci */
-  Pci: 'Pci',
+  Pci: 'PCI',
   /* VM schema - snapshot */
   VmSnapshotNameConcept: 'The new snapshot name. It can be empty',
   VmSnapshotHint: `

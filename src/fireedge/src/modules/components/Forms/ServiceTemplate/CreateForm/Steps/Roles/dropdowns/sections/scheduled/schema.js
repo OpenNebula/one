@@ -14,16 +14,18 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { string, number } from 'yup'
+import { string, number, date } from 'yup'
 import { getObjectSchemaFromFields, arrayToOptions } from '@UtilsModule'
 import { INPUT_TYPES, T } from '@ConstantsModule'
+import {
+  dateToMilliseconds,
+  getPeriodicityByTimeInSeconds,
+  isDate,
+  isRelative,
+  timeFromMilliseconds,
+} from '@ModelsModule'
 
 export const SECTION_ID = 'scheduled_policies'
-
-const TIME_TYPES = {
-  recurrence: 'Recurrence',
-  starttime: 'Start time',
-}
 
 export const SCHED_TYPES = {
   CHANGE: 'Change',
@@ -32,9 +34,6 @@ export const SCHED_TYPES = {
 }
 
 /* eslint-disable no-useless-escape */
-const timeExpressionRegex =
-  /^(\d{4}-\d{2}-\d{2}(?: [0-2]\d:[0-5]\d:[0-5]\d|\d{4}-\d{2}-\d{2}T[0-2]\d:[0-5]\d:[0-5]\dZ)?)$/
-
 const cronExpressionRegex = /^([\d*\/,-]+ ){4}[\d*\/,-]+$/
 
 /* eslint-enable no-useless-escape */
@@ -84,51 +83,60 @@ const min = {
   },
   validation: number()
     .notRequired()
-    .default(() => undefined),
+    .nullable()
+    .default(() => undefined)
+    .transform((value, originalValue) =>
+      originalValue === '' || originalValue === undefined ? null : value
+    ),
   grid: { md: 2.1 },
 }
 
-const format = {
-  name: 'format',
-  label: T.TimeFormat,
-  type: INPUT_TYPES.AUTOCOMPLETE,
-  dependOf: 'type',
-  optionsOnly: true,
-  cy: 'roleconfig-scheduledpolicies',
-  values: arrayToOptions(Object.values(TIME_TYPES), { addEmpty: false }),
-  validation: string()
-    .trim()
-    .required()
-    .oneOf(Object.values(TIME_TYPES))
-    .default(() => undefined),
-  grid: (policyType) => ({
-    md: policyType !== Object.keys(SCHED_TYPES)[2] ? 4.55 : 3.5,
-  }),
-}
-
-const expression = {
-  name: 'expression',
-  label: T.TimeExpression,
+const recurrence = {
+  name: 'recurrence',
+  label: T.Recurrence,
   type: INPUT_TYPES.TEXT,
-  cy: 'roleconfig-scheduledpolicies',
-  validation: string()
-    .trim()
-    .when('TIMEFORMAT', {
-      is: 'Start time',
-      then: string().matches(
-        timeExpressionRegex,
-        'Time Expression must be in the format YYYY-MM-DD hh:mm:ss or YYYY-MM-DDThh:mm:ssZ'
-      ),
-      otherwise: string().matches(
-        cronExpressionRegex,
-        'Time Expression must be a valid CRON expression'
-      ),
-    })
-    .required(),
-  grid: { md: 12 },
+  cy: 'roleconfig-scheduledpolicies-recurrence',
+  validation: string().matches(
+    cronExpressionRegex,
+    'Time Expression must be a valid CRON expression'
+  ),
+  grid: { md: 6 },
 }
 
-export const SCHEDULED_POLICY_FIELDS = [type, adjust, min, format, expression]
+const parseDateString = (_, originalValue) => {
+  if (isDate(originalValue)) return originalValue // is JS Date
+  if (originalValue?.isValid) return originalValue.toJSDate() // is luxon DateTime
+
+  const newValueInSeconds = isRelative(originalValue)
+    ? getPeriodicityByTimeInSeconds(originalValue)?.time
+    : originalValue
+
+  return newValueInSeconds
+    ? timeFromMilliseconds(newValueInSeconds).toJSDate()
+    : undefined // is millisecond format
+}
+
+const startTime = {
+  name: 'start_time',
+  label: T.StartTime,
+  type: INPUT_TYPES.TIME,
+  validation: date()
+    .nullable()
+    .transform(parseDateString)
+    .afterSubmit((value, { context }) =>
+      value ? dateToMilliseconds(value).toString() : undefined
+    )
+    .default(() => undefined),
+  grid: { md: 6 },
+}
+
+export const SCHEDULED_POLICY_FIELDS = [
+  type,
+  adjust,
+  min,
+  recurrence,
+  startTime,
+]
 
 export const SCHEDULED_POLICY_SCHEMA = getObjectSchemaFromFields(
   SCHEDULED_POLICY_FIELDS

@@ -60,21 +60,20 @@ const INDIVIDUAL_DISK = {
   grid: { md: 12 },
 }
 
-const NAME = {
-  name: 'name',
-  label: T.Name,
-  type: INPUT_TYPES.TEXT,
-  validation: string(),
-  grid: { md: 6 },
-}
-
 const INCREMENT_ID = ({ increments = [] }) => ({
   name: 'increment_id',
   label: T.IncrementId,
   type: INPUT_TYPES.AUTOCOMPLETE,
+  dependOf: '$image',
+  htmlType: (image) => {
+    // Check if the backup is incremental to show increment id or not
+    const isIncrement = !!image?.[0]?.BACKUP_INCREMENTS?.INCREMENT
+
+    return !isIncrement && INPUT_TYPES.HIDDEN
+  },
   optionsOnly: true,
-  values: (deps) => {
-    const selectedImage = deps?.[BACKUP_IMG_ID]?.[0]
+  values: (image) => {
+    const selectedImage = image?.[0]
     let backupIncrements = [].concat(
       selectedImage?.BACKUP_INCREMENTS?.INCREMENT ?? []
     )
@@ -88,7 +87,8 @@ const INCREMENT_ID = ({ increments = [] }) => ({
     return arrayToOptions(
       backupIncrements?.length > 0 ? backupIncrements : increments,
       {
-        addEmpty: true,
+        addEmpty: T.Latest,
+        addEmptyValue: -1,
         getText: (increment) =>
           `${increment.id}: ${timeFromMilliseconds(increment.date)
             .toFormat('ff')
@@ -97,26 +97,24 @@ const INCREMENT_ID = ({ increments = [] }) => ({
       }
     )
   },
-  validation: string(),
+  validation: string()
+    .required()
+    .default(() => -1)
+    .afterSubmit((value, { context }) => {
+      // Check if the backup is incremental to send increment id or not
+      const isIncrement = !!context?.image?.[0]?.BACKUP_INCREMENTS?.INCREMENT
+
+      return isIncrement ? value : undefined
+    }),
   grid: { md: 6 },
-  fieldProps: (deps) => ({
-    disabled:
-      deps?.[BACKUP_IMG_ID]?.[0]?.BACKUP_INCRMENETS?.INCREMENT?.length === 0 &&
-      increments.length === 0,
-  }),
 })
 
 /**
  * @param {object} [data] - Backup data
  * @returns {Field[]} Fields
  */
-export const FIELDS = (data = {}) => [
-  NAME,
-  INCREMENT_ID(data),
-  NO_NIC,
-  NO_IP,
-  INDIVIDUAL_DISK,
-]
+export const FIELDS = (data = {}) =>
+  [INCREMENT_ID(data), NO_NIC, NO_IP, INDIVIDUAL_DISK].filter(Boolean)
 
 /**
  * @param {object} [data] - Backup data

@@ -161,7 +161,7 @@ const OPTIONS = {
 /** @type {{ MIN: Field, MAX: Field }} Range fields */
 const { MIN, MAX } = (() => {
   const validation = number()
-    .positive()
+    .min(0)
     .default(() => undefined)
     .when(TYPE.name, (type, schema) =>
       [uiRange, uiRangeFloat].includes(type)

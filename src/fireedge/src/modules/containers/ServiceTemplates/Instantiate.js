@@ -73,26 +73,9 @@ export function InstantiateServiceTemplate() {
 
     const {
       TEMPLATE: {
-        BODY: { roles, networks_values: networksValues, networks },
+        BODY: { roles },
       },
     } = apiTemplateData
-
-    const formatNetworkValues = networksValues?.map((network) => {
-      const [key, values] = Object.entries(network)?.pop()
-
-      const [, networkString] = Object.entries(networks)?.find(
-        ([net]) => net === key
-      )
-
-      const [type, value] = networkString?.split('|')?.[4]?.trim()?.split(':')
-
-      return {
-        [key]: {
-          ...values,
-          ...(type && value ? { [type]: value } : {}),
-        },
-      }
-    })
 
     // eslint-disable-next-line camelcase
     const formatRoles = roles?.map(({ vm_template_id_content, ...role }) => ({
@@ -109,7 +92,6 @@ export function InstantiateServiceTemplate() {
             id: templateId,
             template: {
               ...jsonTemplate,
-              networks_values: formatNetworkValues,
               roles: formatRoles,
             },
           }).unwrap()

@@ -229,11 +229,14 @@ export const NetworksDropdown = ({ roles, selectedRole }) => {
         width: '100%',
       }}
     >
-      <AccordionSummary sx={{ width: '100%' }}>
+      <AccordionSummary
+        sx={{ width: '100%' }}
+        data-cy="accordion-role-network-table"
+      >
         <Legend disableGutters title={'Networks'} />
       </AccordionSummary>
 
-      <AccordionDetails>
+      <AccordionDetails data-cy="role-network-table">
         <DataGrid
           key={isVr}
           checkboxSelection

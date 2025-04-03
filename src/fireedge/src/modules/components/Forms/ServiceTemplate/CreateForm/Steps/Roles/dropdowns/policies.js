@@ -45,7 +45,7 @@ export const PoliciesDropdown = ({ roles, selectedRole }) => (
       width: '100%',
     }}
   >
-    <AccordionSummary sx={{ width: '100%' }}>
+    <AccordionSummary sx={{ width: '100%' }} data-cy="accordion-role-elasticy">
       <Legend disableGutters title={T.RoleElasticity} />
     </AccordionSummary>
 

@@ -206,5 +206,6 @@ PciTab.propTypes = {
 }
 
 PciTab.displayName = 'PciTab'
+PciTab.label = T.Pci
 
 export default PciTab

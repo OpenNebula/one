@@ -33,7 +33,7 @@ import {
   getActionsAvailable,
   jsonToXml,
 } from '@ModelsModule'
-import { VM_ACTIONS, SERVER_CONFIG } from '@ConstantsModule'
+import { VM_ACTIONS, SERVER_CONFIG, T } from '@ConstantsModule'
 
 const {
   SCHED_ACTION_CREATE,
@@ -184,5 +184,7 @@ VmSchedulingTab.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }
+
+VmSchedulingTab.label = T.ScheduledActions
 
 export default VmSchedulingTab

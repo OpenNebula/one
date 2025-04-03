@@ -75,7 +75,9 @@ const min = {
   validation: number()
     .nullable()
     .notRequired()
-    .default(() => undefined),
+    .transform((value, originalValue) =>
+      originalValue === '' || originalValue === undefined ? null : value
+    ),
   grid: { md: 1.5 },
 }
 

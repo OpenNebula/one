@@ -28,9 +28,7 @@ import { Step } from '@UtilsModule'
 import { BackupsTable, IncrementsTable } from '@modules/components/Tables'
 import { Box, Typography, Divider } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { useHistory, generatePath } from 'react-router-dom'
 import { VmAPI, ImageAPI } from '@FeaturesModule'
-import { PATH } from '@modules/components'
 
 export const STEP_ID = 'configuration'
 
@@ -81,13 +79,6 @@ const Content = (props) => {
     fetchIncrements()
   }, [incrementalBackups, fetchBackupImage])
 
-  const path = PATH.STORAGE.BACKUPS.DETAIL
-  const history = useHistory()
-
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
   return (
     <Box>
       <FormWithSchema
@@ -109,19 +100,19 @@ const Content = (props) => {
             <IncrementsTable.Table
               disableGlobalSort
               disableRowSelect
+              singleSelect
               increments={increments}
               isLoading={fetchingImages}
               refetch={fetchIncrements}
-              onRowClick={(row) => handleRowClick(incrementalBackupImageId)}
             />
           ) : (
             <BackupsTable.Table
               disableRowSelect
               disableGlobalSort
+              singleSelect
               refetchVm={refetch}
               isFetchingVm={fetchingVms}
               vm={vm}
-              onRowClick={(row) => handleRowClick(row.ID)}
             />
           )}
         </Box>

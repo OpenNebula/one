@@ -207,6 +207,7 @@ const Content = ({ standaloneModal = false }) => {
           >
             <FormWithSchema
               id={`${STEP_ID}.${selectedRole}`}
+              cy={`${STEP_ID}`}
               legend={T.Type}
               fields={FIELDS?.filter(
                 ({ name }) =>
@@ -223,6 +224,7 @@ const Content = ({ standaloneModal = false }) => {
             <FormWithSchema
               id={`${STEP_ID}.${selectedRole}`}
               fields={[TEMPLATE_ID_FIELD]}
+              cy={`${STEP_ID}`}
             />
           </Stack>
         )}

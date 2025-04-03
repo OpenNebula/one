@@ -445,7 +445,9 @@ export const getUserInputString = (userInput) => {
     label,
     min,
     max,
-    range = [min, max].filter(Boolean).join(RANGE_SEPARATOR),
+    range = [min, max]
+      .filter((v) => v !== null && v !== undefined)
+      .join(RANGE_SEPARATOR),
     options,
     default: defaultValue,
   } = userInput

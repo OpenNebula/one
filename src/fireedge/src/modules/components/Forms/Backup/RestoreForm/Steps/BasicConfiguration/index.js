@@ -27,33 +27,33 @@ import { T } from '@ConstantsModule'
 
 export const STEP_ID = 'configuration'
 
-const Content = (props) => (
+const Content = (props, isIncrement) => (
   <FormWithSchema
     cy="restore-configuration"
     id={STEP_ID}
-    fields={() => FIELDS(props)}
+    fields={() => FIELDS(props, isIncrement)}
   />
 )
 
 /**
  * Step to configure the marketplace app.
  *
- * @param {object} isMultiple - is multiple rows
+ * @param {object} props - Step props
  * @returns {Step} Configuration step
  */
-const ConfigurationStep = (isMultiple) => ({
+const ConfigurationStep = (props) => ({
   id: STEP_ID,
   label: T.Configuration,
-  resolver: () => SCHEMA(isMultiple),
+  resolver: () => SCHEMA(props),
   optionsValidate: { abortEarly: false },
-  content: () => Content(isMultiple),
+  content: () => Content(props),
 })
 
 Content.propTypes = {
   data: PropTypes.any,
   setFormData: PropTypes.func,
   nics: PropTypes.array,
-  isMultiple: PropTypes.bool,
+  props: PropTypes.object,
 }
 
 export default ConfigurationStep

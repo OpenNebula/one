@@ -17,6 +17,12 @@ import General, {
   STEP_ID as GENERAL_ID,
 } from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/General'
 
+import NetworksStep, {
+  STEP_ID as NETWORK_ID,
+} from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/Networks'
+
+import { SECTION_ID as NETWORKS_VALUES_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown'
+
 import UserInputs, {
   STEP_ID as USERINPUTS_ID,
 } from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/UserInputs'
@@ -29,7 +35,13 @@ import Charter, {
   STEP_ID as CHARTER_ID,
 } from '@modules/components/Forms/ServiceTemplate/InstantiateForm/Steps/Charters'
 
-import { createSteps } from '@UtilsModule'
+import {
+  createSteps,
+  fromNetworkString,
+  fromNetworksValueString,
+  toNetworksValueString,
+  toNetworkString,
+} from '@UtilsModule'
 import { groupServiceUserInputs } from '@modules/components/Forms/UserInputs'
 
 const Steps = createSteps(
@@ -37,9 +49,13 @@ const Steps = createSteps(
     // Get and order user inputs
     const userInputsData = groupServiceUserInputs(data?.dataTemplate)
 
+    // Has networks
+    const networks = data?.dataTemplate?.TEMPLATE?.BODY?.networks
+
     // Two steps for user inputs, one for the user inputs defined in the service template and another for the user inputs defined in role templates and that are not defined in the service template
     return [
       General,
+      networks && NetworksStep,
       userInputsData?.service?.userInputs?.length > 0 &&
         (() =>
           UserInputs(
@@ -59,11 +75,55 @@ const Steps = createSteps(
     transformInitialValue: (ServiceTemplate, schema) => {
       const { NAME } = ServiceTemplate
       const {
-        TEMPLATE: { BODY: { sched_actions: schedActions = [] } = {} } = {},
+        TEMPLATE: {
+          BODY: {
+            sched_actions: schedActions = [],
+            networks = [],
+            networks_values: networksValues = [],
+          } = {},
+        } = {},
       } = ServiceTemplate
+
+      const networkParse = Object.entries(networks)?.reduce(
+        (acc, network, idx) => {
+          const res = []
+          const parsedNetwork = fromNetworkString(network)
+
+          const matchingNetworksValue = networksValues?.find(
+            (nv) => Object.keys(nv)?.pop() === parsedNetwork?.name
+          )
+
+          if (matchingNetworksValue) {
+            // Size goes to parsedNetworks...
+            const { SIZE, ...parsedNetworksValue } = fromNetworksValueString(
+              Object.values(matchingNetworksValue)
+            )
+
+            // Order matters
+            res.push([{ ...parsedNetwork, SIZE }])
+            res.push([parsedNetworksValue])
+          } else {
+            res.push([parsedNetwork])
+          }
+
+          acc[idx] = res
+
+          return acc
+        },
+        []
+      )
+
+      const [parsedNetworks, parsedNetworksValues] = [
+        networkParse.map(([pn]) => pn).flat(),
+        networkParse.map(([, pnv]) => pnv).flat(),
+      ]
 
       const knownTemplate = schema.cast({
         [GENERAL_ID]: { NAME },
+        networks: {
+          [NETWORK_ID]: parsedNetworks,
+          [NETWORKS_VALUES_ID]: parsedNetworksValues,
+        },
         [USERINPUTS_ID]: {},
         [USERINPUTSROLE_ID]: {},
         [CHARTER_ID]: { SCHED_ACTION: schedActions },
@@ -75,12 +135,18 @@ const Steps = createSteps(
     transformBeforeSubmit: (formData) => {
       const {
         [GENERAL_ID]: generalData,
+        networks: {
+          [NETWORK_ID]: networkData,
+          [NETWORKS_VALUES_ID]: networksValues,
+        },
         [USERINPUTS_ID]: userInputsData,
+        [USERINPUTSROLE_ID]: userInputsRoleData,
         [CHARTER_ID]: charterData,
       } = formData
 
       const userInputsValues = Object.fromEntries(
         Object.entries({
+          ...userInputsRoleData,
           ...userInputsData,
         }).map(([key, value]) => [key.toUpperCase(), String(value)])
       )
@@ -89,6 +155,12 @@ const Steps = createSteps(
         user_inputs_values: userInputsValues, // Applied across all roles
         name: generalData?.NAME,
         instances: generalData?.INSTANCES,
+        networks: Object.fromEntries(networkData?.map(toNetworkString)) ?? [],
+        networks_values: networkData
+          ?.map((network, idx) =>
+            toNetworksValueString(network, networksValues[idx])
+          )
+          ?.filter(Boolean),
         ...charterData,
       }
 

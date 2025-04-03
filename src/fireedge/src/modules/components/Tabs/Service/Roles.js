@@ -16,7 +16,7 @@
 import { ReactElement, memo, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 import { object } from 'yup'
-
+import { SubmitButton } from '@modules/components/FormControl'
 import { ButtonGenerator } from '@modules/components/Tabs/Service/ButtonGenerator'
 import { ServiceAPI, useGeneralApi } from '@FeaturesModule'
 
@@ -25,7 +25,7 @@ import { deepClean } from '@UtilsModule'
 import { VmsTable } from '@modules/components/Tables'
 import { StatusCircle } from '@modules/components/Status'
 import { getRoleState } from '@ModelsModule'
-import { Box, Dialog, Typography, Stack, Button } from '@mui/material'
+import { Box, Dialog, Typography, Stack } from '@mui/material'
 import RoleStep from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Roles'
 import { ScaleDialog } from '@modules/components/Tabs/Service/ScaleDialog'
 import { useForm, FormProvider } from 'react-hook-form'
@@ -61,17 +61,22 @@ const AddRoleDialog = ({ open, onClose, onSubmit }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <FormProvider {...methods}>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <Stack
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          alignItems="center"
+          justifyContent="center"
+        >
           <RoleAddDialog standaloneModal />
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            sx={{ mt: 2, width: '100%' }}
-          >
-            {T.Submit}
-          </Button>
-        </Box>
+          <SubmitButton
+            label={T.AddRole}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            sx={{ m: '0.5rem' }}
+            data-cy="add-role-button"
+          />
+        </Stack>
       </FormProvider>
     </Dialog>
   )

@@ -178,6 +178,8 @@ const Content = () => {
               width="100%"
             >
               <FormWithSchema
+                key={`inputs-table-${userinputs?.[selectedUInput]?.id}`}
+                cy={`${TAB_ID}`}
                 id={`${EXTRA_ID}.${TAB_ID}.${selectedUInput}`}
                 legend={T.Type}
                 fields={USER_INPUTS_FIELDS}

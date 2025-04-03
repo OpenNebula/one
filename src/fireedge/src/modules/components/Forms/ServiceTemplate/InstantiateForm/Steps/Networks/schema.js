@@ -13,52 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useHistory, generatePath } from 'react-router-dom'
+import { UserInputObject } from '@ConstantsModule'
+import { object, array } from 'yup'
 
-import { PATH } from '@modules/components/path'
+import { NETWORK_INPUT_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/schema'
 
-import { HostAPI } from '@FeaturesModule'
+import { TAB_ID as NETWORK_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking'
 
-import { VmsTable } from '@modules/components/Tables'
-import { TranslateProvider } from '@modules/components/HOC'
-import { T } from '@ConstantsModule'
+import { NETWORKS_EXTRA_SCHEMA } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown/schema'
+
+import { SECTION_ID as NETWORK_DROPDOWN_ID } from '@modules/components/Forms/ServiceTemplate/CreateForm/Steps/Extra/networking/extraDropdown'
 
 /**
- * Renders VM information tab.
- *
- * @param {object} props - Props
- * @param {string} props.id - Host id
- * @returns {ReactElement} Information tab
+ * @param {UserInputObject[]} userInputs - User inputs
+ * @returns {object} User inputs schema
  */
-const VmsInfoTab = ({ id }) => {
-  const { data: host = {} } = HostAPI.useGetHostQuery({ id })
-  const path = PATH.INSTANCE.VMS.DETAIL
-  const history = useHistory()
-
-  const handleRowClick = (rowId) => {
-    history.push(generatePath(path, { id: String(rowId) }))
-  }
-
-  return (
-    <TranslateProvider>
-      <VmsTable.Table
-        disableRowSelect
-        disableGlobalSort
-        host={host}
-        onRowClick={(row) => handleRowClick(row.ID)}
-      />
-    </TranslateProvider>
-  )
-}
-
-VmsInfoTab.propTypes = {
-  tabProps: PropTypes.object,
-  id: PropTypes.string,
-}
-
-VmsInfoTab.displayName = 'WildsInfoTab'
-VmsInfoTab.label = T.VMs
-
-export default VmsInfoTab
+export const SCHEMA = object().concat(
+  object().shape({
+    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA),
+    [NETWORK_DROPDOWN_ID]: array().of(NETWORKS_EXTRA_SCHEMA),
+  })
+)

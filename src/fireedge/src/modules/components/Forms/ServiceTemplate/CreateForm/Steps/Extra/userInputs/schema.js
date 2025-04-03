@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { mixed, string, boolean, number, array, lazy } from 'yup'
+import { string, boolean, number, array, lazy } from 'yup'
 import {
   getObjectSchemaFromFields,
   arrayToOptions,
@@ -76,7 +76,7 @@ const getType = (type) => {
         split: SPLITS,
         grid: { md: 6 },
         validation: number()
-          .integer()
+          .min(0)
           .isFinite()
           .notRequired()
           .default(() => undefined),
@@ -89,6 +89,7 @@ const getType = (type) => {
         split: 2,
         grid: { md: 6 },
         validation: number()
+          .min(0)
           .isFloat()
           .notRequired()
           .default(() => undefined),
@@ -261,13 +262,6 @@ const DEFAULT_VALUE = {
   multiline: (type) => getType(type)?.multiline,
   validation: lazy((_, { parent: { type } = {} } = {}) => {
     const validation = getType(type)?.validation
-    const isHidden = DISPLAY_OPTIONS?.includes(type)
-
-    if (isHidden) {
-      return mixed()
-        .notRequired()
-        .afterSubmit(() => undefined)
-    }
 
     return validation
   }),

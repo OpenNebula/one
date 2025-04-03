@@ -27,7 +27,6 @@ import {
   getColorFromString,
   getUniqueLabels,
   getImageState,
-  getImageType,
 } from '@ModelsModule'
 import { ReactElement, useMemo } from 'react'
 
@@ -107,12 +106,18 @@ const BackupsTable = (props) => {
     },
     { header: T.ID, id: 'id', accessor: 'ID' },
     { header: T.Name, id: 'name', accessor: 'NAME' },
-    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
     {
       header: T.Type,
-      id: 'type',
-      accessor: (template) => getImageType(template),
+      id: 'backupType',
+      accessor: (original) => {
+        const {
+          BACKUP_INCREMENTS: { INCREMENT = undefined },
+        } = original
+
+        return INCREMENT ? T.Incremental : T.Full
+      },
     },
+    { header: T.Datastore, id: 'datastore', accessor: 'DATASTORE' },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
     {

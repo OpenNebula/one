@@ -19,6 +19,7 @@ import { HostAPI } from '@FeaturesModule'
 import { Stack } from '@mui/material'
 import { PcisTable } from '@modules/components/Tables'
 import { getHostPcis } from '@ModelsModule'
+import { T } from '@ConstantsModule'
 
 /**
  * Renders mainly information tab.
@@ -49,5 +50,6 @@ HostPciTab.propTypes = {
 }
 
 HostPciTab.displayName = 'HostPciTab'
+HostPciTab.label = T.Pci
 
 export default HostPciTab
