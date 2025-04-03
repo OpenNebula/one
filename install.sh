@@ -41,7 +41,7 @@ usage() {
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
  echo "-c: install client utilities: OpenNebula cli"
- echo "-F: install OpenNebula FireEdge"
+ echo "-F: install only OpenNebula FireEdge"
  echo "-P: do not install OpenNebula FireEdge non-minified files"
  echo "-G: install only OpenNebula Gate"
  echo "-f: install only OpenNebula Flow"
