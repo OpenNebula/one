@@ -86,16 +86,14 @@ fi
 
 LVSIZE_DIFF=$((SIZE - LVSIZE_OLD/1024/1024))
 
-# TODO rethink this (see comment in clone)
-BIGGER_SIZE="$((LVSIZE_DIFF*2))"
-
 # Execute lvextend with a lock in the frontend
 RESIZE_CMD=$(cat <<EOF
     set -e -o pipefail
     $SYNC
     $SUDO $LVSCAN
+    # If there exists a thin pool for this LV, extend it too
     if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
-        $SUDO $LVEXTEND -L +${BIGGER_SIZE}M $VG_NAME/$POOL_NAME
+        $SUDO $LVEXTEND -L +${LVSIZE_DIFF}M $VG_NAME/$POOL_NAME
     fi
     $SUDO $LVEXTEND -L ${SIZE}M "$DEV"
 EOF

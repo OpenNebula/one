@@ -124,9 +124,6 @@ LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
-# TODO rethink this. Actual size needs to be bigger than $SIZE in order to accomodate snapshots
-BIGGER_SIZE="$((SIZE*2))"
-
 # Execute lvcreate with a lock in the frontend
 CREATE_CMD=$(cat <<EOF
     set -e -o pipefail
@@ -135,10 +132,10 @@ CREATE_CMD=$(cat <<EOF
     if [ "$LVM_THIN_ENABLE" = 'yes' ]; then
         # If pool exists, extend it for the new disk. Otherwise, create it.
         if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $VG_NAME && lv_name = $POOL_NAME")" ]; then
-            $SUDO $LVEXTEND -L +${BIGGER_SIZE}M $VG_NAME/$POOL_NAME
+            $SUDO $LVEXTEND -L +${SIZE}M $VG_NAME/$POOL_NAME
         else
             # -Zy is for auto-zeroing thin volumes. It already defaults to 'y' but just in case...
-            $SUDO $LVCREATE -Zy -L ${BIGGER_SIZE}M --type thin-pool --thinpool $POOL_NAME $VG_NAME
+            $SUDO $LVCREATE -Zy -L ${SIZE}M --type thin-pool --thinpool $POOL_NAME $VG_NAME
             $SUDO $LVCHANGE -an $VG_NAME/$POOL_NAME
         fi
         $SUDO $LVCREATE -T $VG_NAME/$POOL_NAME -V ${SIZE}M -n $LV_NAME
