@@ -35,7 +35,7 @@ import {
   Tr,
   TranslateProvider,
 } from '@ComponentsModule'
-import { Image, T } from '@ConstantsModule'
+import { Image, T, SERVER_CONFIG } from '@ConstantsModule'
 import { ImageAPI, useGeneral, useGeneralApi, useAuth } from '@FeaturesModule'
 
 /**
@@ -103,6 +103,9 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
 
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { FULL_SCREEN_INFO } = fireedge
+  const { fullViewMode } = SERVER_CONFIG
+  const fullModeDefault =
+    FULL_SCREEN_INFO !== undefined ? FULL_SCREEN_INFO === 'true' : fullViewMode
   const { isFullMode } = useGeneral()
   const { setFullMode } = useGeneralApi()
 
@@ -121,7 +124,7 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
         mb={1}
       >
         <Stack direction="row">
-          {FULL_SCREEN_INFO === 'true' && (
+          {fullModeDefault && (
             <SubmitButton
               data-cy="detail-back"
               icon={<NavArrowLeft />}
@@ -133,7 +136,7 @@ const InfoTabs = memo(({ file, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          {FULL_SCREEN_INFO === 'false' && (
+          {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"
               icon={isFullMode ? <Collapse /> : <Expand />}

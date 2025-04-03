@@ -64,6 +64,7 @@ export const Form = ({
           display="flex"
           flexDirection="column"
           flexShrink={0}
+          gap="2rem"
           justifyContent={{ sm: 'center' }}
           sx={{ opacity: isLoading ? 0.7 : 1 }}
         >

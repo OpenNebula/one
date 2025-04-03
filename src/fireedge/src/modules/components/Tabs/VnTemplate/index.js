@@ -66,7 +66,7 @@ const VNetTemplateTabs = memo(({ id }) => {
       direction="row"
       sx={{ justifyContent: 'center', alignItems: 'center' }}
     >
-      <OpenNebulaLogo width={300} height={300} spinner withText />
+      <OpenNebulaLogo width={300} height={300} spinner />
     </Stack>
   )
 })

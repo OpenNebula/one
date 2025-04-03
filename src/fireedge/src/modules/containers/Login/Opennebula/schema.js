@@ -62,7 +62,7 @@ const REMEMBER = {
   validation: boolean().default(() => false),
   grid: { md: 12 },
   fieldProps: {
-    sx: { margin: '0rem 0rem 2rem 0rem' },
+    sx: { margin: '0rem 0rem 0rem 0rem' },
   },
 }
 

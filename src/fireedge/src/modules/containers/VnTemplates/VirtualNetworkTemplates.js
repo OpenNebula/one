@@ -23,7 +23,7 @@ import {
   VnTemplateTabs,
   VnTemplatesTable,
 } from '@ComponentsModule'
-import { T, VNetworkTemplate } from '@ConstantsModule'
+import { T, VNetworkTemplate, SERVER_CONFIG } from '@ConstantsModule'
 import {
   VnTemplateAPI,
   useGeneral,
@@ -109,6 +109,10 @@ const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
 
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { FULL_SCREEN_INFO } = fireedge
+  const { fullViewMode } = SERVER_CONFIG
+  const fullModeDefault =
+    FULL_SCREEN_INFO !== undefined ? FULL_SCREEN_INFO === 'true' : fullViewMode
+
   const { isFullMode } = useGeneral()
   const { setFullMode } = useGeneralApi()
 
@@ -127,7 +131,7 @@ const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
         mb={1}
       >
         <Stack direction="row">
-          {FULL_SCREEN_INFO === 'true' && (
+          {fullModeDefault && (
             <SubmitButton
               data-cy="detail-back"
               icon={<NavArrowLeft />}
@@ -139,7 +143,7 @@ const InfoTabs = memo(({ vnTemplate, gotoPage, unselect }) => {
         </Stack>
 
         <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          {FULL_SCREEN_INFO === 'false' && (
+          {!fullModeDefault && (
             <SubmitButton
               data-cy="detail-full-mode"
               icon={isFullMode ? <Collapse /> : <Expand />}
