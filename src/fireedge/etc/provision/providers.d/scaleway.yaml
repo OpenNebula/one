@@ -1,6 +1,0 @@
-name: 'Scaleway'
-image: 'SCALEWAY'
-provision_type:
-  - 'metal'
-location_key: 'region'
-color: '#8D40EE'

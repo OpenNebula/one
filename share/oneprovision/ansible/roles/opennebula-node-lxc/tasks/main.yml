@@ -1,9 +1,0 @@
----
-- name: Install OpenNebula node LXC package
-  package:
-    name: opennebula-node-lxc
-    state: latest
-  register: result
-  until: result is success
-  retries: 3
-  delay: 10

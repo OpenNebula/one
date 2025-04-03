@@ -47,9 +47,6 @@ COMMANDS=(
     'bin/onevmgroup'        'manages VM groups'
     'bin/onevntemplate'     'manages Virtual Network Templates'
 
-    'bin/oneprovision'      'manages OpenNebula provisions'
-    'bin/oneprovider'       'manages OpenNebula providers'
-
     'bin/oneflow'           'Manage oneFlow Services'
     'bin/oneflow-template'  'Manage oneFlow Templates'
 

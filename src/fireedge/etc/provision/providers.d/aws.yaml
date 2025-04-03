@@ -1,7 +1,0 @@
-name: 'AWS'
-image: 'AWS'
-provision_type:
-  # - 'virtual'
-  - 'metal'
-location_key: 'region'
-color: '#ef931f'

@@ -1,6 +1,0 @@
----
-- name: Restart Libvirtd
-  service:
-    name: libvirtd
-    state: restarted
-    enabled: yes

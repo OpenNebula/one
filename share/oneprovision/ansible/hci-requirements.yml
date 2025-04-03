@@ -1,8 +1,0 @@
-roles:
-  - stackhpc.systemd_networkd
-
-collections:
-  - ansible.utils
-  - name: https://opendev.org/openstack/ansible-config_template
-    version: master
-    type: git

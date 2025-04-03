@@ -1,3 +1,0 @@
----
-- name: Set Ceph OSD CRUSH tunables to {{ ceph_opennebula_mon_tunables }}
-  command: ceph osd crush tunables {{ ceph_opennebula_mon_tunables }}

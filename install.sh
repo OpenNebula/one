@@ -233,8 +233,7 @@ else
     CHOWN_DIRS="$ROOT"
 fi
 
-SHARE_DIRS="$SHARE_LOCATION/oneprovision \
-            $SHARE_LOCATION/schemas \
+SHARE_DIRS="$SHARE_LOCATION/schemas \
             $SHARE_LOCATION/schemas/libvirt \
             $SHARE_LOCATION/schemas/xsd \
             $SHARE_LOCATION/ssh \
@@ -252,9 +251,6 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/cli \
           $ETC_LOCATION/fireedge \
-          $ETC_LOCATION/fireedge/provision \
-          $ETC_LOCATION/fireedge/provision/providers.d \
-          $ETC_LOCATION/fireedge/provision/providers.d-extra \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/profiles \
           $ETC_LOCATION/fireedge/sunstone/admin \
@@ -281,24 +277,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/sh/override \
           $LIB_LOCATION/ruby/cli \
           $LIB_LOCATION/ruby/cli/one_helper \
-          $LIB_LOCATION/oneprovision/lib \
-          $LIB_LOCATION/oneprovision/provider_apis \
-          $LIB_LOCATION/oneprovision/provider_apis/vultr \
-          $LIB_LOCATION/oneprovision/lib/terraform \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/scaleway \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal \
-          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual \
-          $LIB_LOCATION/oneprovision/lib/provision \
-          $LIB_LOCATION/oneprovision/lib/provider \
-          $LIB_LOCATION/oneprovision/lib/provision/resources \
-          $LIB_LOCATION/oneprovision/lib/provision/resources/virtual \
-          $LIB_LOCATION/oneprovision/lib/provision/resources/physical
           $LIB_LOCATION/onecfg/lib \
           $LIB_LOCATION/onecfg/lib/common \
           $LIB_LOCATION/onecfg/lib/common/helpers \
@@ -664,31 +642,6 @@ INSTALL_CLIENT_FILES=(
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
-INSTALL_ONEPROVISION_FILES=(
-    ONEPROVISION_BIN_FILES:$BIN_LOCATION
-    ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
-    ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
-    ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
-    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
-    ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
-    ONEPROVISION_LIB_API_FILES:$LIB_LOCATION/oneprovision/provider_apis
-    ONEPROVISION_LIB_API_VULTR_FILES:$LIB_LOCATION/oneprovision/provider_apis/vultr
-    ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
-    ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
-    ONEPROVISION_LIB_AWS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws
-    ONEPROVISION_LIB_GOOGLE_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google
-    ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean
-    ONEPROVISION_LIB_EQUINIX_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/equinix
-    ONEPROVISION_LIB_SCALEWAY_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/scaleway
-    ONEPROVISION_LIB_VULTR_METAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal
-    ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual
-    ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
-    ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
-    ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
-    ONEPROVISION_LIB_VIRTUAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/virtual
-    ONEPROVISION_LIB_PROVIDER_FILES:$LIB_LOCATION/oneprovision/lib/provider
-)
-
 INSTALL_ONECFG_FILES=(
     ONECFG_BIN_FILES:$BIN_LOCATION
     ONECFG_LIB_FILES:$LIB_LOCATION/onecfg/lib
@@ -705,9 +658,6 @@ INSTALL_ONECFG_FILES=(
 
 INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
-  PROVISION_ETC:$ETC_LOCATION/fireedge/provision
-  PROVISION_ETC_PROVIDERS:$ETC_LOCTION/fireedge/provision/providers.d
-  PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCTION/fireedge/provision/providers.d-extra
   SUNSTONE_ETC_VIEWS:$ETC_LOCATION/fireedge/sunstone
   SUNSTONE_ETC_VIEWS_ADMIN:$ETC_LOCTION/fireedge/sunstone/admin
   SUNSTONE_ETC_VIEWS_USER:$ETC_LOCTION/fireedge/sunstone/user
@@ -716,9 +666,6 @@ INSTALL_FIREEDGE_FILES=(
 
 INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
-  FIREEDGE_PROVISION_ETC:$ETC_LOCATION/fireedge/provision
-  FIREEDGE_PROVISION_ETC_PROVIDERS:$ETC_LOCATION/fireedge/provision/providers.d
-  FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA:$ETC_LOCATION/fireedge/provision/providers.d-extra
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_PROFILES:$ETC_LOCATION/fireedge/sunstone/profiles
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
@@ -2010,114 +1957,6 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneflowtemplate.yaml"
 
 #-----------------------------------------------------------------------------
-# Provision files
-#-----------------------------------------------------------------------------
-
-ONEPROVISION_BIN_FILES="src/cli/oneprovision \
-                        src/cli/oneprovider"
-
-ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb \
-                            src/cli/one_helper/oneprovider_helper.rb"
-
-ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
-                         src/cli/etc/oneprovider.yaml"
-
-ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
-
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/ \
-                              share/oneprovision/edge-clusters-extra/ "
-
-ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
-                        src/oneprovision/lib/provision_element.rb"
-
-ONEPROVISION_LIB_API_VULTR_FILES="src/oneprovision/provider_apis/vultr/lib/vultr.rb"
-
-ONEPROVISION_LIB_PROVISION_FILES="src/oneprovision/lib/provision/ansible.rb \
-                                  src/oneprovision/lib/provision/oneprovision.rb \
-                                  src/oneprovision/lib/provision/driver.rb \
-                                  src/oneprovision/lib/provision/provision.rb \
-                                  src/oneprovision/lib/provision/provision_config.rb \
-                                  src/oneprovision/lib/provision/provision_pool.rb \
-                                  src/oneprovision/lib/provision/resources.rb \
-                                  src/oneprovision/lib/provision/utils.rb"
-
-ONEPROVISION_LIB_RESOURCES_FILES="src/oneprovision/lib/provision/resources/virtual.rb \
-                                  src/oneprovision/lib/provision/resources/resource.rb \
-                                  src/oneprovision/lib/provision/resources/physical.rb"
-
-ONEPROVISION_LIB_PHYSICAL_R_FILES="src/oneprovision/lib/provision/resources/physical/cluster.rb \
-                                   src/oneprovision/lib/provision/resources/physical/datastore.rb \
-                                   src/oneprovision/lib/provision/resources/physical/host.rb \
-                                   src/oneprovision/lib/provision/resources/physical/physical_resource.rb \
-                                   src/oneprovision/lib/provision/resources/physical/network.rb"
-
-ONEPROVISION_LIB_VIRTUAL_R_FILES="src/oneprovision/lib/provision/resources/virtual/virtual_resource.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/virtual_sync_resource.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/image.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/marketplaceapp.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/template.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/flowtemplate.rb \
-                                  src/oneprovision/lib/provision/resources/virtual/vntemplate.rb"
-
-ONEPROVISION_LIB_PROVIDER_FILES="src/oneprovision/lib/provider/provider.rb \
-                                 src/oneprovision/lib/provider/provider_pool.rb"
-
-ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb"
-
-ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
-                                  src/oneprovision/lib/terraform/providers/google.rb \
-                                  src/oneprovision/lib/terraform/providers/digitalocean.rb \
-                                  src/oneprovision/lib/terraform/providers/onprem.rb \
-                                  src/oneprovision/lib/terraform/providers/example \
-                                  src/oneprovision/lib/terraform/providers/equinix.rb \
-                                  src/oneprovision/lib/terraform/providers/scaleway.rb \
-                                  src/oneprovision/lib/terraform/providers/vultr.rb \
-                                  src/oneprovision/lib/terraform/providers/vultr_metal.rb \
-                                  src/oneprovision/lib/terraform/providers/vultr_virtual.rb"
-
-ONEPROVISION_LIB_AWS_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/aws/cluster.erb \
-                                src/oneprovision/lib/terraform/providers/templates/aws/datastore.erb \
-                                src/oneprovision/lib/terraform/providers/templates/aws/host.erb \
-                                src/oneprovision/lib/terraform/providers/templates/aws/network.erb \
-                                src/oneprovision/lib/terraform/providers/templates/aws/provider.erb"
-
-ONEPROVISION_LIB_GOOGLE_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/google/cluster.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/google/datastore.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/google/host.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/google/network.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/google/provider.erb"
-
-ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/digitalocean/cluster.erb \
-                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/datastore.erb \
-                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/host.erb \
-                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/network.erb \
-                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/provider.erb"
-
-ONEPROVISION_LIB_EQUINIX_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/equinix/cluster.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/equinix/datastore.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/equinix/host.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/equinix/network.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/equinix/provider.erb"
-
-ONEPROVISION_LIB_SCALEWAY_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/scaleway/cluster.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/scaleway/datastore.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/scaleway/host.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/scaleway/network.erb \
-                                   src/oneprovision/lib/terraform/providers/templates/scaleway/provider.erb"
-
-ONEPROVISION_LIB_VULTR_METAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_metal/cluster.erb \
-                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/datastore.erb \
-                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/host.erb \
-                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/network.erb \
-                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/provider.erb"
-
-ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_virtual/cluster.erb \
-                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/datastore.erb \
-                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/host.erb \
-                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/network.erb \
-                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/provider.erb"
-
-#-----------------------------------------------------------------------------
 # FireEdge files
 #-----------------------------------------------------------------------------
 
@@ -2130,22 +1969,6 @@ FIREEDGE_DEV_FILES="src/fireedge/src \
                 src/fireedge/package.json"
 
 FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
-
-#----------------------------------------------------------------------------
-# FireEdge Provision files
-#----------------------------------------------------------------------------
-
-FIREEDGE_PROVISION_ETC="src/fireedge/etc/provision/provision-server.conf"
-
-FIREEDGE_PROVISION_ETC_PROVIDERS="src/fireedge/etc/provision/providers.d/aws.yaml \
-                                src/fireedge/etc/provision/providers.d/onprem.yaml \
-                                src/fireedge/etc/provision/providers.d/scaleway.yaml \
-                                src/fireedge/etc/provision/providers.d/equinix.yaml"
-
-FIREEDGE_PROVISION_ETC_PROVIDERS_EXTRA="src/fireedge/etc/provision/providers.d-extra/digitalocean.yaml \
-                                        src/fireedge/etc/provision/providers.d-extra/google.yaml \
-                                        src/fireedge/etc/provision/providers.d-extra/vultr_metal.yaml \
-                                        src/fireedge/etc/provision/providers.d-extra/vultr_virtual.yaml"
 
 #----------------------------------------------------------------------------
 # FireEdge Sunstone files
@@ -2333,8 +2156,6 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onezone.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
-        share/man/oneprovision.1.gz \
-        share/man/oneprovider.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
         share/man/onevrouter.1.gz \

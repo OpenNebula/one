@@ -1,7 +1,0 @@
-name: 'onprem'
-
-description: 'On Premises datacenter infrastructure'
-provider: 'onprem'
-connection: {}
-plain:
-  provision_type: 'metal'
