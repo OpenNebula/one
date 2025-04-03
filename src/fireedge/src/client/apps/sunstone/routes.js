@@ -23,7 +23,7 @@ import loadable from '@loadable/component'
 import { T } from '@ConstantsModule'
 
 const Dashboard = loadable(
-  () => import('@ContainersModule').then((module) => module.SunstoneDashboard),
+  () => import('@ContainersModule').then((module) => module.Dashboard),
   { ssr: false }
 )
 const Settings = loadable(

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ObjectSchema, string } from 'yup'
-import { Field, getObjectSchemaFromFields } from '@UtilsModule'
-import { T, INPUT_TYPES } from '@ConstantsModule'
+import { INPUT_TYPES, T } from '@ConstantsModule'
+import { Field, getValidationFromFields, ObjectSchema } from '@UtilsModule'
+import { object, string } from 'yup'
 
 /** @type {Field} Password field */
 const PASSWORD_FIELD = {
@@ -25,8 +25,8 @@ const PASSWORD_FIELD = {
   validation: string()
     .trim()
     .required()
-    .default(() => undefined),
-  grid: { md: 12 },
+    .default(() => ''),
+  grid: { xs: 12, md: 6 },
 }
 
 /** @type {Field} Confirm Password field */
@@ -40,16 +40,14 @@ const CONFIRM_PASSWORD_FIELD = {
     .test('passwords-match', T.PasswordsMustMatch, function (value) {
       return this.parent.password === value
     })
-    .default(() => undefined),
-  grid: { md: 12 },
+    .default(() => ''),
+  grid: { xs: 12, md: 6 },
 }
 
 /**
  * @returns {Field[]} List of change password form inputs fields
  */
-export const CHANGE_PASSWORD_FIELDS = [PASSWORD_FIELD, CONFIRM_PASSWORD_FIELD]
+export const FIELDS = [PASSWORD_FIELD, CONFIRM_PASSWORD_FIELD]
 
 /** @type {ObjectSchema} Change password form object schema */
-export const CHANGE_PASSWORD_SCHEMA = getObjectSchemaFromFields(
-  CHANGE_PASSWORD_FIELDS
-)
+export const SCHEMA = object(getValidationFromFields(FIELDS))

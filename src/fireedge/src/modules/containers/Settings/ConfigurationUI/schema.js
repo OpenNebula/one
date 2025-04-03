@@ -22,18 +22,22 @@ import {
   SCHEMES,
   T,
 } from '@ConstantsModule'
+import {
+  DARK_MODE,
+  LIGHT_MODE,
+  SYSTEM_MODE,
+} from '@modules/containers/Settings/ConfigurationUI/svgs'
 import { arrayToOptions, getObjectSchemaFromFields } from '@UtilsModule'
 import { boolean, string } from 'yup'
 
 const SCHEME_FIELD = {
   name: 'SCHEME',
-  label: T.Schema,
-  type: INPUT_TYPES.AUTOCOMPLETE,
+  type: INPUT_TYPES.RADIO,
   optionsOnly: true,
   values: [
-    { text: T.System, value: SCHEMES.SYSTEM },
-    { text: T.Dark, value: SCHEMES.DARK },
-    { text: T.Light, value: SCHEMES.LIGHT },
+    { text: T.Dark, value: SCHEMES.DARK, svg: DARK_MODE },
+    { text: T.Light, value: SCHEMES.LIGHT, svg: LIGHT_MODE },
+    { text: T.System, value: SCHEMES.SYSTEM, svg: SYSTEM_MODE },
   ],
   validation: string()
     .trim()
@@ -63,8 +67,8 @@ const LANG_FIELD = {
 const DISABLE_ANIMATIONS_FIELD = {
   name: 'DISABLE_ANIMATIONS',
   label: T.DisableDashboardAnimations,
-  type: INPUT_TYPES.CHECKBOX,
-  validation: boolean(),
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
   grid: { md: 12 },
 }
 
@@ -115,15 +119,14 @@ const ZONE_ENDPOINT_FIELD = ({ zones = [] }) => ({
 const FULL_SCREEN_INFO_FIELD = {
   name: 'FULL_SCREEN_INFO',
   label: T.FullScreenInfo,
-  type: INPUT_TYPES.CHECKBOX,
-  validation: boolean(),
+  type: INPUT_TYPES.SWITCH,
+  validation: boolean().default(() => false),
   grid: { md: 12 },
 }
 
 const ROW_STYLE_FIELD = {
   name: 'ROW_STYLE',
-  label: T.RowStyle,
-  type: INPUT_TYPES.AUTOCOMPLETE,
+  type: INPUT_TYPES.RADIO,
   optionsOnly: true,
   values: [
     { text: T.Card, value: 'card' },
@@ -149,7 +152,34 @@ const ROW_SIZE_FIELD = {
   grid: { md: 12 },
 }
 
+export const FIELDS_THEME = [SCHEME_FIELD]
+
+export const FIELDS_DATATABLE = [
+  ROW_STYLE_FIELD,
+  ROW_SIZE_FIELD,
+  FULL_SCREEN_INFO_FIELD,
+]
+
 /**
+ * Fields of the other settings form.
+ *
+ * @param {object} props - Props
+ * @param {object} props.views - views.
+ * @param {string} props.userView - default user view.
+ * @param {object[]} props.zones - Redux store.
+ * @returns {object[]} fields
+ */
+export const FIELDS_OTHERS = (props) => [
+  LANG_FIELD,
+  ZONE_ENDPOINT_FIELD(props),
+  VIEW_FIELD(props),
+]
+
+export const FIELDS_ANIMATIONS = [DISABLE_ANIMATIONS_FIELD]
+
+/**
+ * Field for validation.
+ *
  * @param {object} props - Props
  * @param {object} props.views - views.
  * @param {string} props.userView - default user view.
@@ -157,14 +187,10 @@ const ROW_SIZE_FIELD = {
  * @returns {object[]} fields
  */
 export const FIELDS = (props) => [
-  SCHEME_FIELD,
-  LANG_FIELD,
-  VIEW_FIELD(props),
-  ZONE_ENDPOINT_FIELD(props),
-  ROW_STYLE_FIELD,
-  ROW_SIZE_FIELD,
-  DISABLE_ANIMATIONS_FIELD,
-  FULL_SCREEN_INFO_FIELD,
+  ...FIELDS_THEME,
+  ...FIELDS_OTHERS(props),
+  ...FIELDS_DATATABLE,
+  ...FIELDS_ANIMATIONS,
 ]
 
 /**

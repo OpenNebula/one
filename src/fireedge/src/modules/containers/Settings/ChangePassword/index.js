@@ -13,15 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import { AsyncLoadForm, ConfigurationProps } from '@modules/components/HOC'
-import { CreateStepsCallback } from '@UtilsModule'
-
-/**
- * @param {ConfigurationProps} configProps - Configuration
- * @returns {ReactElement|CreateStepsCallback} Asynchronous loaded form
- */
-const ChangePasswordForm = (configProps) =>
-  AsyncLoadForm({ formPath: 'Settings/ChangePasswordForm' }, configProps)
-
-export { ChangePasswordForm }
+export { ChangePassword as ConfigurationChangePassword } from '@modules/containers/Settings/ChangePassword/ChangePassword'

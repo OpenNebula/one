@@ -67,7 +67,7 @@ const labelCanBeTranslated = (val) =>
  */
 const translateString = (word = '', values) => {
   // Get the translation context so hash will be the map with the language that is using the user
-  const { hash = {} } = useContext(TranslateContext)
+  const { hash = {} } = useContext(TranslateContext) || {}
 
   // Look for the key thas has the value equal to word in the T object
   const key = findKey(T, (value) => value === word)

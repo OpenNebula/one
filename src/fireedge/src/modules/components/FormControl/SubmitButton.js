@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { useMemo, forwardRef, memo } from 'react'
 import {
-  useTheme,
-  CircularProgress,
   Button,
+  CircularProgress,
   IconButton,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
+import { forwardRef, memo, useMemo } from 'react'
 
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 
-import { Tr, ConditionalWrap } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { SubmitButtonStyles } from '@modules/components/FormControl/styles/SubmitButtonStyles'
+import { ConditionalWrap, Tr } from '@modules/components/HOC'
 
 const ButtonComponent = forwardRef(
   (
@@ -153,6 +153,7 @@ const SubmitButton = memo(
     )
   },
   (prev, next) =>
+    prev.icon === next.icon &&
     prev.isSubmitting === next.isSubmitting &&
     prev.disabled === next.disabled &&
     prev.label === next.label &&

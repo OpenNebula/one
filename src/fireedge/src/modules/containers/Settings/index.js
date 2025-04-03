@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-export * from '@modules/containers/Settings/Tfa'
-export * from '@modules/containers/Settings/Showback'
-export * from '@modules/containers/Settings/LoginToken'
-export * from '@modules/containers/Settings/LabelsSection'
-export * from '@modules/containers/Settings/ConfigurationUI'
 export * from '@modules/containers/Settings/Authentication'
+export * from '@modules/containers/Settings/ConfigurationUI'
+export * from '@modules/containers/Settings/LabelsSection'
+export * from '@modules/containers/Settings/LoginToken'
+export * from '@modules/containers/Settings/Menu'
 export * from '@modules/containers/Settings/Settings'
+export * from '@modules/containers/Settings/Showback'
+export * from '@modules/containers/Settings/Tfa'

@@ -14,16 +14,16 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { useRef, useMemo } from 'react'
-import { useTheme, Box, Container } from '@mui/material'
+import { Box, Container, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { useMemo, useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
 
 import { useGeneral } from '@FeaturesModule'
-import Header from '@modules/components/Header'
 import Footer from '@modules/components/Footer'
+import Header from '@modules/components/Header'
 import internalStyles from '@modules/components/HOC/InternalLayout/styles'
-import { sidebar, footer } from '@ProvidersModule'
+import { footer, sidebar } from '@ProvidersModule'
 
 import { SunstoneBreadcrumb } from '@modules/components/Breadcrumb'
 

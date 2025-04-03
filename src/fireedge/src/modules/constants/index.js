@@ -158,6 +158,7 @@ export const INPUT_TYPES = {
   UNITS: 'units',
   LABEL: 'label',
   TYPOGRAPHY: 'typography',
+  RADIO: 'radio',
 }
 
 export const DEBUG_LEVEL = {
@@ -205,6 +206,7 @@ export const RESOURCE_NAMES = {
   ZONE: 'zone',
   BACKUPJOBS: 'backupjobs',
   SUPPORT: 'support',
+  DASHBOARD: 'dashboard',
 }
 export * as T from '@modules/constants/translates'
 

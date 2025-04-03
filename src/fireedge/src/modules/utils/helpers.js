@@ -14,20 +14,20 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import _ from 'lodash'
-import { isMergeableObject } from '@modules/utils/merge'
-import { Field } from '@modules/utils/schema'
-import DOMPurify from 'dompurify'
-import { v4 as uuidv4 } from 'uuid'
-import { BaseSchema, ObjectSchema, object, reach } from 'yup'
-import { sentenceCase } from '@modules/utils/string'
 import {
+  DOCS_BASE_PATH,
   ERROR_LOOKUP_TABLE,
   HYPERVISORS,
   UNITS,
   VN_DRIVERS,
-  DOCS_BASE_PATH,
 } from '@ConstantsModule'
+import { isMergeableObject } from '@modules/utils/merge'
+import { Field } from '@modules/utils/schema'
+import { sentenceCase } from '@modules/utils/string'
+import DOMPurify from 'dompurify'
+import _ from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
+import { BaseSchema, ObjectSchema, object, reach } from 'yup'
 
 /**
  * Simulate a delay in a function.
@@ -735,3 +735,24 @@ export const deepClean = (obj) => {
 
   return obj
 }
+
+/**
+ * @param {string} value - value for interpolation
+ * @returns {string} - interpolation value
+ */
+export const interpolationBytesSeg = (value) =>
+  value ? `${prettyBytes(value)}/s` : value
+
+/**
+ * @param {string} value - value for interpolation
+ * @returns {string} - interpolation value
+ */
+export const interpolationBytes = (value) =>
+  value ? prettyBytes(value) : value
+
+/**
+ * @param {string} value - value for interpolation
+ * @returns {string} - interpolation value
+ */
+export const interpolationValue = (value) =>
+  value ? +value?.toFixed(2) : +value

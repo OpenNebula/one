@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Paper, Stack, TextField, Typography, styled } from '@mui/material'
-import CircularProgress from '@mui/material/CircularProgress'
+import { StatusChip, SubmitButton, Tr, Translate } from '@ComponentsModule'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { AuthAPI, useAuth, useGeneralApi } from '@FeaturesModule'
+import { useSearch } from '@HooksModule'
+import { getColorFromString } from '@ModelsModule'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
+import { Box, Stack, TextField, Typography, styled } from '@mui/material'
 import TrashIcon from 'iconoir-react/dist/Trash'
 import { ReactElement, useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-
-import { AuthAPI, useGeneralApi, useAuth } from '@FeaturesModule'
-import { useSearch } from '@HooksModule'
-import {
-  Tr,
-  Translate,
-  StatusChip,
-  SubmitButton,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { T } from '@ConstantsModule'
-import { getColorFromString } from '@ModelsModule'
 
 const NEW_LABEL_ID = 'new-label'
 
@@ -37,8 +30,8 @@ const LabelWrapper = styled(Box)(({ theme, ownerState }) => ({
   display: 'flex',
   direction: 'row',
   alignItems: 'center',
-  paddingInline: '0.5rem',
-  borderRadius: theme.shape.borderRadius * 2,
+  padding: `${theme.typography.pxToRem(8)} 0`,
+  borderBottom: `1px solid ${theme.palette.grey[300]}`,
   animation: ownerState.highlight ? 'highlight 2s ease-in-out' : undefined,
   '@keyframes highlight': {
     from: { backgroundColor: 'yellow' },
@@ -52,6 +45,7 @@ const LabelWrapper = styled(Box)(({ theme, ownerState }) => ({
  * @returns {ReactElement} Settings configuration UI
  */
 export const Settings = () => {
+  const { Legend, InternalWrapper } = useSettingWrapper()
   const { labels } = useAuth()
   const { enqueueError } = useGeneralApi()
   const [removeLabel, { isLoading: removeLoading }] =
@@ -82,7 +76,10 @@ export const Settings = () => {
   }, [isSuccess])
 
   const handleAddLabel = useCallback(
-    async (formData) => {
+    async (formData, event) => {
+      event?.preventDefault()
+      event?.stopPropagation()
+
       try {
         await addLabel({ newLabel: formData[NEW_LABEL_ID] }).unwrap()
       } catch (error) {
@@ -108,25 +105,32 @@ export const Settings = () => {
     [removeLabel, handleChange]
   )
 
-  const handleKeyDown = useCallback(
-    (evt) => evt.key === 'Enter' && handleSubmit(handleAddLabel)(evt),
-    [handleAddLabel, handleSubmit]
-  )
-
   return (
-    <TranslateProvider>
-      <Paper
-        variant="outlined"
-        sx={{ display: 'flex', flexDirection: 'column' }}
-      >
-        <Box mt="0.5rem" p="1rem">
-          <Typography variant="underline">
-            <Translate word={T.Labels} />
-          </Typography>
+    <Box>
+      <Legend title={T.Labels} />
+      <InternalWrapper title={T.Labels}>
+        <Box display="flex" gap="0.5rem" alignItems="center">
+          <TextField
+            sx={{ flexGrow: 1, p: '0.5rem 1rem' }}
+            disabled={isLoading}
+            placeholder={Tr(T.NewLabelOrSearch)}
+            inputProps={{ 'data-cy': NEW_LABEL_ID }}
+            {...register(NEW_LABEL_ID, { onChange: handleChange })}
+          />
+          <SubmitButton
+            disabled={isLoading}
+            onClick={handleSubmit(handleAddLabel)}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            data-cy="create-label"
+            label={T.CreateLabel}
+          />
         </Box>
+
         <Stack gap="0.5rem" p="0.5rem" overflow="auto">
           {labels.length === 0 && (
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" align="center">
               <Translate word={T.NoLabelsOnList} />
             </Typography>
           )}
@@ -154,21 +158,7 @@ export const Settings = () => {
             </LabelWrapper>
           ))}
         </Stack>
-        <TextField
-          sx={{ flexGrow: 1, p: '0.5rem 1rem' }}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          placeholder={Tr(T.NewLabelOrSearch)}
-          inputProps={{ 'data-cy': NEW_LABEL_ID }}
-          InputProps={{
-            endAdornment: isLoading ? (
-              <CircularProgress size={14} />
-            ) : undefined,
-          }}
-          {...register(NEW_LABEL_ID, { onChange: handleChange })}
-          helperText={Tr(T.PressToCreateLabel)}
-        />
-      </Paper>
-    </TranslateProvider>
+      </InternalWrapper>
+    </Box>
   )
 }

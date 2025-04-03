@@ -1,0 +1,17 @@
+# This file describes the information and actions available in the cloud view dashboard
+
+# Resource
+
+resource_name: "DASHBOARD"
+
+actions:
+  settings: true
+  instantiate: true
+
+graphs:
+  cpu: true
+  memory: true
+  disks: true
+  networks: true
+  host-cpu: true
+  host-memory: true

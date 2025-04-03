@@ -63,6 +63,7 @@ const INPUT_CONTROLLER = {
   [INPUT_TYPES.DOCKERFILE]: FC.DockerfileController,
   [INPUT_TYPES.UNITS]: FC.InformationUnitController,
   [INPUT_TYPES.TYPOGRAPHY]: FC.TypographyController,
+  [INPUT_TYPES.RADIO]: FC.RadioController,
 }
 
 /**
@@ -272,6 +273,7 @@ const FormWithSchema = ({
         <LegendWrapper>
           {legend && !hiddenLegend && (
             <Legend
+              className="form-legend"
               data-cy={`legend-${cy}`}
               title={legend}
               tooltip={legendTooltip}

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState } from 'react'
-import { Paper, Box, Typography, Stack, Button } from '@mui/material'
-
-import { T } from '@ConstantsModule'
-import {
-  Translate,
-  Tr,
-  DateRangeFilter,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { DateTime } from 'luxon'
-
+import { DateRangeFilter, Tr } from '@ComponentsModule'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { css } from '@emotion/css'
 import { VmAPI, useGeneralApi } from '@FeaturesModule'
+import { SubmitButton } from '@modules/components/FormControl'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
+import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { DateTime } from 'luxon'
+import { ReactElement, useMemo, useState } from 'react'
+const styles = ({ typography, palette }) => ({
+  formContainer: css({
+    alignItems: 'center',
+  }),
+})
 
 /**
  * Section to calculate showback data.
@@ -33,6 +34,10 @@ import { VmAPI, useGeneralApi } from '@FeaturesModule'
  * @returns {ReactElement} Settings showback
  */
 export const Settings = () => {
+  const theme = useTheme()
+  const classes = useMemo(() => styles(theme), [theme])
+
+  const { Legend, InternalWrapper } = useSettingWrapper()
   // Get functions to success and error
   const { enqueueError, enqueueSuccess } = useGeneralApi()
 
@@ -67,35 +72,34 @@ export const Settings = () => {
   }
 
   return (
-    <TranslateProvider>
-      <Paper component="form" variant="outlined">
-        <Box mt="0.5rem" p="1rem">
-          <Typography variant="underline">
-            <Translate word={T['showback.title']} />
-          </Typography>
-        </Box>
-
-        <Stack height={1} gap="0.5rem" p="0.5rem" overflow="auto">
+    <Box component="form">
+      <Legend title={T['showback.title']} />
+      <InternalWrapper>
+        <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
+          {Tr(T['showback.button.help.paragraph.1'])}
+        </Typography>
+        <Stack
+          height={1}
+          gap="0.5rem"
+          p="0.5rem"
+          overflow="auto"
+          className={classes.formContainer}
+        >
           <DateRangeFilter
             initialStartDate={dateRange.startDate}
             initialEndDate={dateRange.endDate}
             onDateChange={handleDateChange}
             views={['month', 'year']}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
+          <SubmitButton
             onClick={handleCalculateClick}
-            sx={{ m: '1rem' }}
-          >
-            {Tr(T['showback.button.calculateShowback'])}
-          </Button>
-          <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
-            {Tr(T['showback.button.help.paragraph.1'])}
-          </Typography>
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            label={T['showback.button.calculateShowback']}
+          />
         </Stack>
-      </Paper>
-    </TranslateProvider>
+      </InternalWrapper>
+    </Box>
   )
 }

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useState } from 'react'
 
-import { InputAdornment, IconButton } from '@mui/material'
+import { InputAdornment } from '@mui/material'
 import { EyeEmpty as Visibility, EyeOff as VisibilityOff } from 'iconoir-react'
 
-import { TextController } from '@modules/components/FormControl'
+import { SubmitButton, TextController } from '@modules/components/FormControl'
 
 const PasswordController = memo(
   ({ fieldProps, ...props }) => {
@@ -40,12 +40,11 @@ const PasswordController = memo(
           InputProps: {
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
+                <SubmitButton
+                  icon={showPassword ? <Visibility /> : <VisibilityOff />}
                   onClick={handleClickShowPassword}
-                >
-                  {showPassword ? <Visibility /> : <VisibilityOff />}
-                </IconButton>
+                  aria-label="toggle password visibility"
+                />
               </InputAdornment>
             ),
           },

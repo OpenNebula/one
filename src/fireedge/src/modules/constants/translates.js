@@ -340,6 +340,10 @@ module.exports = {
   /* dashboard */
   InTotal: 'In Total',
   Used: 'Used',
+  MyDashboard: 'My Dashboard',
+  Greetings: 'Hey, ',
+  CreateVM: 'Create VM',
+  LimitProfileImage: 'the image must be less than 2 MB',
 
   /* login */
   LogIn: 'Login in your account:',
@@ -449,6 +453,11 @@ module.exports = {
 
   /* sections - settings */
   Settings: 'Settings',
+  Preferences: 'Preferences',
+  ThemeMode: 'Theme mode',
+  DataTablesStyles: 'DataTables Styles',
+  Animations: 'Animations',
+  Others: 'Others',
   AppliesTo: 'Applies To',
   AllowedOperations: 'Allowed operations',
   AffectedResources: 'Affected resources',
@@ -472,6 +481,7 @@ module.exports = {
   ValidUntil: 'Valid until',
   Authentication: 'Authentication',
   AuthType: 'Authentication Type',
+  SshKey: 'SSH key',
   SshPrivateKey: 'SSH private key',
   AddUserSshPrivateKey: 'Add user SSH private key',
   SshPassphraseKey: 'SSH private key passphrase',
@@ -480,6 +490,7 @@ module.exports = {
   NewLabelOrSearch: 'New label or search',
   LabelAlreadyExists: 'Label already exists',
   PressToCreateLabel: 'Press enter to create a new label',
+  CreateLabel: 'Create label',
   SavesInTheUserTemplate: "Saved in the User's template",
   NoLabelsOnList: 'You have not defined any labels, list is empty',
 
@@ -876,6 +887,7 @@ module.exports = {
   Instances: 'Instances',
   VM: 'VM',
   VMs: 'VMs',
+  UsedVMs: 'Used VMs',
   VirtualMachines: 'Virtual Machines',
   VmsTab: 'Vms',
   VMsBackupJob: 'VMs in BackupJob',
@@ -1039,6 +1051,7 @@ module.exports = {
   Cores: 'Cores',
   Sockets: 'Sockets',
   Memory: 'Memory',
+  MemoryHost: 'Host Memory',
   MemoryWithUnit: 'Memory %s',
   MemoryUnit: 'Unit memory',
   Cost: 'Cost',
@@ -1052,6 +1065,7 @@ module.exports = {
   Storage: 'Storage',
   Disk: 'Disk',
   Disks: 'Disks',
+  UsedSystemDisks: 'Used Disks',
   Volatile: 'Volatile',
   VolatileDisk: 'Volatile disk',
   Snapshot: 'Snapshot',
@@ -1838,6 +1852,8 @@ module.exports = {
   RealMemory: 'Real Memory',
   RealCpu: 'Real CPU',
   Cpu: 'CPU',
+  CpuHost: 'Host CPU',
+
   Overcommitment: 'Overcommitment',
   /* Host schema - template */
   ISOLCPUS: 'Isolated CPUS',

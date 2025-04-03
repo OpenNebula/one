@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { memo, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { memo, useCallback, useEffect } from 'react'
 
 import {
-  styled,
   FormControl,
   FormControlLabel,
   FormHelperText,
   Switch,
+  styled,
 } from '@mui/material'
 import { useController, useWatch } from 'react-hook-form'
 

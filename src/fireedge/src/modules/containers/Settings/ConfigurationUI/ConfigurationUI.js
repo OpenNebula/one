@@ -13,44 +13,41 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Box, Link, Paper, debounce, useTheme } from '@mui/material'
-import { ReactElement, useCallback, useEffect, useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormWithSchema, PATH, Translate } from '@ComponentsModule'
+import { RESOURCE_NAMES, SERVER_CONFIG, T } from '@ConstantsModule'
 import {
-  PATH,
-  ButtonToTriggerForm,
-  FormWithSchema,
-  Translate,
-  Tr,
-  Form,
-} from '@ComponentsModule'
-import {
-  useAuth,
-  useAuthApi,
-  useViews,
-  useGeneralApi,
   UserAPI,
   ZoneAPI,
-  SystemAPI,
+  useAuth,
+  useAuthApi,
+  useGeneralApi,
+  useViews,
 } from '@FeaturesModule'
+import { jsonToXml } from '@ModelsModule'
+import { css } from '@emotion/css'
 import {
-  T,
-  ONEADMIN_ID,
-  SERVERADMIN_ID,
-  AUTH_DRIVER,
-  SERVER_CONFIG,
-} from '@ConstantsModule'
-import {
-  FIELDS,
+  FIELDS_ANIMATIONS,
+  FIELDS_DATATABLE,
+  FIELDS_OTHERS,
+  FIELDS_THEME,
   SCHEMA,
 } from '@modules/containers/Settings/ConfigurationUI/schema'
-import { jsonToXml } from '@ModelsModule'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
+import { Box, Link, debounce, gridClasses } from '@mui/material'
+import { ReactElement, useCallback, useEffect, useMemo } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { Link as RouterLink, generatePath } from 'react-router-dom'
-import { generateDocLink } from '@UtilsModule'
-import { css } from '@emotion/css'
 
-const useStyles = (theme) => ({
+const { USER } = RESOURCE_NAMES
+
+const style = () => ({
   content: css({
+    [`& .${gridClasses.item}`]: {
+      paddingLeft: 0,
+      paddingTop: 0,
+    },
+  }),
+  linkPlace: css({
     display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
@@ -63,22 +60,19 @@ const useStyles = (theme) => ({
  * @returns {ReactElement} Settings configuration UI
  */
 const Settings = () => {
+  const { Legend, InternalWrapper } = useSettingWrapper()
   const { user, settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+
   const { data: zones = [], isLoading } = ZoneAPI.useGetZonesQuery()
-  const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   const { changeAuthUser } = useAuthApi()
-  const { enqueueError, enqueueSuccess, setFullMode, setTableViewMode } =
-    useGeneralApi()
+  const { enqueueError, setTableViewMode, setFullMode } = useGeneralApi()
   const [updateUser] = UserAPI.useUpdateUserMutation()
-  const [changePassword, { isSuccess: isSuccessChangePassword }] =
-    UserAPI.useChangePasswordMutation()
-  const { views, view: userView } = useViews()
-
+  const { views, view: userView, hasAccessToResource } = useViews()
+  const userAccess = useMemo(() => hasAccessToResource(USER), [userView])
   const { rowStyle, fullViewMode } = SERVER_CONFIG
 
-  const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
+  const classes = useMemo(() => style())
   const { watch, handleSubmit, ...methods } = useForm({
     reValidateMode: 'onChange',
     defaultValues: useMemo(() => {
@@ -98,37 +92,17 @@ const Settings = () => {
   })
 
   const handleUpdateUser = useCallback(
-    debounce(async (formData) => {
+    debounce(async (formData = {}) => {
       try {
         if (methods?.formState?.isSubmitting) return
-        const template = jsonToXml({ FIREEDGE: formData })
+        const template = jsonToXml({ FIREEDGE: { ...fireedge, ...formData } })
         await updateUser({ id: user.ID, template, replace: 1 })
       } catch {
         enqueueError(T.SomethingWrong)
       }
     }, 1000),
-    [updateUser]
+    [updateUser, fireedge]
   )
-
-  // Success messages
-  const successMessageChangePassword = `${Tr(T.ChangePasswordSuccess)}`
-  useEffect(
-    () =>
-      isSuccessChangePassword && enqueueSuccess(successMessageChangePassword),
-    [isSuccessChangePassword]
-  )
-
-  /**
-   * Change the user's password.
-   *
-   * @param {object} formData - Password data
-   */
-  const handleChangePassword = async (formData) => {
-    await changePassword({
-      id: user.ID,
-      password: formData.password,
-    })
-  }
 
   useEffect(() => {
     const subscription = watch((formData) => {
@@ -144,77 +118,49 @@ const Settings = () => {
     })
 
     return () => subscription.unsubscribe()
-  }, [watch])
+  }, [watch, fireedge])
 
   return (
-    <Paper
-      component="form"
-      onSubmit={handleSubmit(handleUpdateUser)}
-      variant="outlined"
-      sx={{
-        p: '1em',
-        overflow: 'auto',
-      }}
-    >
+    <Box component="form" onSubmit={handleSubmit(handleUpdateUser)}>
+      <Legend title={T.ConfigurationUI} />
       {!isLoading && (
-        <FormProvider {...methods}>
-          <FormWithSchema
-            cy={'settings-ui'}
-            fields={FIELDS({ views, userView, zones })}
-            legend={T.ConfigurationUI}
-          />
-        </FormProvider>
+        <Box className={classes.content}>
+          <FormProvider {...methods}>
+            <InternalWrapper title={T.ThemeMode}>
+              <FormWithSchema cy={'settings-ui'} fields={FIELDS_THEME} />
+            </InternalWrapper>
+            <InternalWrapper title={T.DataTablesStyles}>
+              <FormWithSchema cy={'settings-ui'} fields={FIELDS_DATATABLE} />
+            </InternalWrapper>
+            <InternalWrapper title={T.Animations}>
+              <FormWithSchema cy={'settings-ui'} fields={FIELDS_ANIMATIONS} />
+            </InternalWrapper>
+            <InternalWrapper title={T.Others}>
+              <FormWithSchema
+                cy={'settings-ui'}
+                fields={FIELDS_OTHERS({ views, userView, zones })}
+              />
+            </InternalWrapper>
+          </FormProvider>
+        </Box>
       )}
-      <Box className={classes.content}>
-        {/* 
-          Oneadmin and serveradmin users cannot change their passwords -> management_and_operations/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin 
-          LDAP users cannot change their passwords (the password is stored on the LDAP server)
-        */}
-
-        <ButtonToTriggerForm
-          buttonProps={{
-            'data-cy': `change-password-button`,
-            label: T.ChangePassword,
-            tooltip:
-              user.ID === ONEADMIN_ID || user.ID === SERVERADMIN_ID
-                ? T.ChangePasswordAdminWarning
-                : user.AUTH_DRIVER === AUTH_DRIVER.LDAP
-                ? T.ChangePasswordLdapWarning
-                : undefined,
-            tooltipLink:
-              user.ID === ONEADMIN_ID || user.ID === SERVERADMIN_ID
-                ? {
-                    text: T.ChangePasswordAdminWarningLink,
-                    link: generateDocLink(
-                      version,
-                      'management_and_operations/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin'
-                    ),
-                  }
-                : {},
-            disabled:
-              user.ID === ONEADMIN_ID ||
-              user.ID === SERVERADMIN_ID ||
-              user.AUTH_DRIVER === AUTH_DRIVER.LDAP,
-          }}
-          options={[
-            {
-              dialogProps: {
-                title: T.ChangePassword,
-                dataCy: 'change-password-form',
-              },
-              form: () => Form.Settings.ChangePasswordForm(),
-              onSubmit: handleChangePassword,
-            },
-          ]}
-        />
-        <Link
-          component={RouterLink}
-          to={generatePath(PATH.SYSTEM.USERS.DETAIL, { id: user.ID })}
-        >
-          <Translate word={T.LinkOtherConfigurationsUser} values={user.ID} />
-        </Link>
-      </Box>
-    </Paper>
+      {userAccess && (
+        <InternalWrapper>
+          <Box className={classes.linkPlace}>
+            <Link
+              color="secondary"
+              component={RouterLink}
+              to={generatePath(PATH.SYSTEM.USERS.DETAIL, { id: user.ID })}
+            >
+              <Translate
+                word={T.LinkOtherConfigurationsUser}
+                values={user.ID}
+              />
+            </Link>
+          </Box>
+        </InternalWrapper>
+      )}
+    </Box>
   )
 }
 

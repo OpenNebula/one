@@ -13,12 +13,4 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { createForm } from '@UtilsModule'
-import { CHANGE_PASSWORD_SCHEMA, CHANGE_PASSWORD_FIELDS } from './schema'
-
-const ChangePasswordForm = createForm(
-  CHANGE_PASSWORD_SCHEMA,
-  CHANGE_PASSWORD_FIELDS
-)
-
-export default ChangePasswordForm
+export { Menu as SettingsMenu } from '@modules/containers/Settings/Menu/Menu'

@@ -13,24 +13,44 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { TranslateProvider } from '@ComponentsModule'
-import { useViews } from '@FeaturesModule'
-import { ReactElement } from 'react'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { css } from '@emotion/css'
+import { useAuthApi } from '@FeaturesModule'
+import { SubmitButton } from '@modules/components/FormControl'
+import { Box, useTheme } from '@mui/material'
+import { LogOut as LogOutIcon } from 'iconoir-react'
+import { memo, useMemo } from 'react'
 
-import CloudDashboard from '@modules/containers/Dashboard/Sunstone/Cloud'
-import SunstoneDashboard from '@modules/containers/Dashboard/Sunstone/General'
+const styles = ({ typography }) => ({
+  root: css({
+    padding: typography.pxToRem(16),
+    display: 'inline-flex',
+    '& > button': {
+      width: '100%',
+    },
+  }),
+})
 
-/** @returns {ReactElement} Dashboard container */
-export function Dashboard() {
-  const { view } = useViews()
+const LogOut = memo(() => {
+  const theme = useTheme()
+  const classes = useMemo(() => styles(theme), [theme])
+  const { logout } = useAuthApi()
 
   return (
-    <TranslateProvider>
-      {view === 'cloud' ? (
-        <CloudDashboard view={view} />
-      ) : (
-        <SunstoneDashboard view={view} />
-      )}
-    </TranslateProvider>
+    <Box className={classes.root}>
+      <SubmitButton
+        onClick={logout}
+        importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+        size={STYLE_BUTTONS.SIZE.MEDIUM}
+        type={STYLE_BUTTONS.TYPE.OUTLINED}
+        label={T.SignOut}
+        data-cy="logout-button"
+        icon={<LogOutIcon />}
+      />
+    </Box>
   )
-}
+})
+
+LogOut.displayName = 'LogOut'
+
+export default LogOut

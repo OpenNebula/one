@@ -14,14 +14,8 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import {
-  EnhancedTableStyles,
-  FormWithSchema,
-  Tr,
-  Translate,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { AUTH_APPS, T } from '@ConstantsModule'
+import { FormWithSchema, Tr, Translate } from '@ComponentsModule'
+import { AUTH_APPS, STYLE_BUTTONS, T } from '@ConstantsModule'
 import {
   TfaAPI,
   UserAPI,
@@ -30,16 +24,17 @@ import {
   useGeneralApi,
 } from '@FeaturesModule'
 import { css } from '@emotion/css'
+import { SubmitButton } from '@modules/components/FormControl'
 import { FIELDS } from '@modules/containers/Settings/Tfa/schema'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import {
+  Box,
   Button,
   Grid,
   Link,
   List,
   ListItem,
   ListItemText,
-  Paper,
-  Typography,
   useTheme,
 } from '@mui/material'
 import { Cancel, Trash } from 'iconoir-react'
@@ -48,39 +43,45 @@ import { Fragment, ReactElement, useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 
-const useStyles = () => ({
-  buttonSubmit: css({
-    width: '100%',
-    marginTop: '1rem',
-  }),
+const styles = ({ typography, palette }) => ({
   buttonClose: css({
     width: '100%',
-    marginBottom: '.5rem',
+    marginBottom: typography.pxToRem(8),
+  }),
+  buttonPlace: css({
+    width: '100%',
+    textAlign: 'center',
   }),
   buttonAction: css({
     width: '100%',
-    marginTop: '.5rem',
+    marginTop: typography.pxToRem(8),
   }),
   qr: css({
     width: '100%',
     height: 'auto',
+  }),
+  qrContainer: css({
+    border: `1px solid ${palette.grey[300]}`,
+    padding: typography.pxToRem(8),
+    borderRadius: typography.pxToRem(8),
+    marginBottom: typography.pxToRem(8),
   }),
   bold: css({
     fontWeight: 'bold',
   }),
   enabled: css({
     border: '1px solid rgba(255, 255, 255, 0.12)',
-    marginTop: '1rem',
-    borderRadius: '.5rem',
+    marginTop: typography.pxToRem(16),
+    borderRadius: typography.pxToRem(8),
   }),
   verificationCodeForm: css({
-    paddingRight: '.5rem',
+    paddingRight: typography.pxToRem(8),
 
     '& > fieldset': {
-      margin: '0px',
+      margin: 0,
 
       '& .MuiTextField-root': {
-        margin: '0px',
+        margin: 0,
       },
     },
   }),
@@ -92,8 +93,7 @@ const Qr = ({
 }) => {
   const { data = '', isSuccess } = TfaAPI.useGetQrQuery()
   const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
-  const classesTable = useMemo(() => EnhancedTableStyles(theme), [theme])
+  const classes = useMemo(() => styles(theme), [theme])
   const { enqueueError } = useGeneralApi()
   const [enableTfa] = TfaAPI.useEnableTfaMutation()
 
@@ -115,76 +115,69 @@ const Qr = ({
   )
 
   return (
-    <TranslateProvider>
-      <div className={classesTable.rootWithoutHeight}>
-        <div className={classesTable.bodyWithoutGap}>
-          <Grid container role="row">
-            <Grid item xs={10}>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  {data && isSuccess && (
-                    <img
-                      className={classes.qr}
-                      src={data}
-                      alt={Tr(T.ScanThisQr)}
-                      data-cy="qrTfa"
-                    />
-                  )}
-                </Grid>
-                <Grid item xs={6} className={classes.verificationCodeForm}>
-                  <FormProvider {...methods}>
-                    <FormWithSchema cy={'2fa-ui'} fields={FIELDS} />
-                  </FormProvider>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={handleSubmit(handleEnableTfa)}
-                    className={classes.buttonAction}
-                    data-cy="addTfa"
-                  >
-                    <Translate word={T.Add} />
-                  </Button>
-                </Grid>
-              </Grid>
+    <div className={classes.qrContainer}>
+      <Grid container role="row">
+        <Grid item sx={{ flexGrow: 1 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              {data && isSuccess && (
+                <img
+                  className={classes.qr}
+                  src={data}
+                  alt={Tr(T.ScanThisQr)}
+                  data-cy="qrTfa"
+                />
+              )}
             </Grid>
-            <Grid item xs={2}>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={cancelFn}
-                className={classes.buttonClose}
-              >
-                <Cancel className="icon" />
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              <List>
-                <ListItemText>
-                  <Translate word={T.GetAuthenticatorApp} />
-                  {AUTH_APPS.map(({ text, url }) => (
-                    <Fragment key={text}>
-                      <Link
-                        href={url}
-                        color="info.main"
-                        className={classes.bold}
-                      >
-                        {text}
-                      </Link>{' '}
-                    </Fragment>
-                  ))}
-                </ListItemText>
-                <ListItemText>
-                  <Translate word={T.ScanThisQr} />
-                </ListItemText>
-                <ListItemText>
-                  <Translate word={T.EnterVerificationCode} />
-                </ListItemText>
-              </List>
+            <Grid item xs={6} className={classes.verificationCodeForm}>
+              <FormProvider {...methods}>
+                <FormWithSchema cy={'2fa-ui'} fields={FIELDS} />
+              </FormProvider>
+              <Box className={classes.buttonAction}>
+                <SubmitButton
+                  onClick={handleSubmit(handleEnableTfa)}
+                  importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                  size={STYLE_BUTTONS.SIZE.MEDIUM}
+                  type={STYLE_BUTTONS.TYPE.FILLED}
+                  data-cy="addTfa"
+                  label={T.Add}
+                />
+              </Box>
             </Grid>
           </Grid>
-        </div>
-      </div>
-    </TranslateProvider>
+        </Grid>
+        <Grid item>
+          <SubmitButton
+            icon={<Cancel />}
+            onClick={cancelFn}
+            aria-label="delete"
+            importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.OUTLINED_ICON}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <List>
+            <ListItemText>
+              <Translate word={T.GetAuthenticatorApp} />
+              {AUTH_APPS.map(({ text, url }) => (
+                <Fragment key={text}>
+                  <Link href={url} color="info.main" className={classes.bold}>
+                    {text}
+                  </Link>{' '}
+                </Fragment>
+              ))}
+            </ListItemText>
+            <ListItemText>
+              <Translate word={T.ScanThisQr} />
+            </ListItemText>
+            <ListItemText>
+              <Translate word={T.EnterVerificationCode} />
+            </ListItemText>
+          </List>
+        </Grid>
+      </Grid>
+    </div>
   )
 }
 Qr.propTypes = {
@@ -198,9 +191,10 @@ Qr.propTypes = {
  * @returns {ReactElement} Settings configuration UI
  */
 const Tfa = () => {
+  const { Legend, InternalWrapper } = useSettingWrapper()
   const { enqueueError } = useGeneralApi()
   const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
+  const classes = useMemo(() => styles(theme), [theme])
   const [displayQr, setDisplayQr] = useState(false)
   const {
     user,
@@ -232,65 +226,66 @@ const Tfa = () => {
   }, [removeTfa, fireedge])
 
   return (
-    <Paper component="form" variant="outlined" sx={{ p: '1em' }}>
-      <Typography variant="underline">
-        <Translate word={T.TwoFactorAuthentication} />
-      </Typography>
-      {displayQr && (
-        <Qr
-          cancelFn={() => setDisplayQr(false)}
-          refreshUserData={refreshUserData}
-        />
-      )}
-      {(sunstone?.TWO_FACTOR_AUTH_SECRET ||
-        fireedge?.TWO_FACTOR_AUTH_SECRET) && (
-        <List className={classes.enabled}>
-          {sunstone?.TWO_FACTOR_AUTH_SECRET && (
-            <ListItem
-              secondaryAction={
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={handleRemoveTfa}
-                  data-cy="removeTfa"
-                >
-                  <Trash className="icon" />
-                </Button>
-              }
-            >
-              <Translate word={T.AuthenticatorAppSunstone} />
-            </ListItem>
-          )}
-          {fireedge?.TWO_FACTOR_AUTH_SECRET && (
-            <ListItem
-              secondaryAction={
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={handleRemoveTfa}
-                  data-cy="removeTfa"
-                >
-                  <Trash className="icon" />
-                </Button>
-              }
-            >
-              <Translate word={T.AuthenticatorApp} />
-            </ListItem>
-          )}
-        </List>
-      )}
-      {!displayQr && !fireedge?.TWO_FACTOR_AUTH_SECRET && (
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => setDisplayQr(true)}
-          className={classes.buttonSubmit}
-          data-cy="addTfa"
-        >
-          <Translate word={T.RegisterAuthenticationApp} />
-        </Button>
-      )}
-    </Paper>
+    <Box component="form">
+      <Legend title={T.TwoFactorAuthentication} />
+      <InternalWrapper>
+        {displayQr && (
+          <Qr
+            cancelFn={() => setDisplayQr(false)}
+            refreshUserData={refreshUserData}
+          />
+        )}
+        {(sunstone?.TWO_FACTOR_AUTH_SECRET ||
+          fireedge?.TWO_FACTOR_AUTH_SECRET) && (
+          <List className={classes.enabled}>
+            {sunstone?.TWO_FACTOR_AUTH_SECRET && (
+              <ListItem
+                secondaryAction={
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleRemoveTfa}
+                    data-cy="removeTfa"
+                  >
+                    <Trash className="icon" />
+                  </Button>
+                }
+              >
+                <Translate word={T.AuthenticatorAppSunstone} />
+              </ListItem>
+            )}
+            {fireedge?.TWO_FACTOR_AUTH_SECRET && (
+              <ListItem
+                secondaryAction={
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleRemoveTfa}
+                    data-cy="removeTfa"
+                  >
+                    <Trash className="icon" />
+                  </Button>
+                }
+              >
+                <Translate word={T.AuthenticatorApp} />
+              </ListItem>
+            )}
+          </List>
+        )}
+        {!displayQr && !fireedge?.TWO_FACTOR_AUTH_SECRET && (
+          <Box className={classes.buttonPlace}>
+            <SubmitButton
+              onClick={() => setDisplayQr(true)}
+              importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+              size={STYLE_BUTTONS.SIZE.MEDIUM}
+              type={STYLE_BUTTONS.TYPE.FILLED}
+              data-cy="addTfa"
+              label={T.RegisterAuthenticationApp}
+            />
+          </Box>
+        )}
+      </InternalWrapper>
+    </Box>
   )
 }
 

@@ -13,25 +13,52 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, memo, useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { css } from '@emotion/css'
+import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
+import { SubmitButton } from '@modules/components/FormControl'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import {
-  Paper,
-  Stack,
-  IconButton,
-  Typography,
+  Box,
   Skeleton,
+  Stack,
   TextField,
+  Typography,
+  useTheme,
 } from '@mui/material'
 import { Edit } from 'iconoir-react'
-import { useForm, FormProvider, useFormContext } from 'react-hook-form'
+import PropTypes from 'prop-types'
+import { ReactElement, memo, useEffect, useMemo, useState } from 'react'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 
-import { useGeneralApi, UserAPI, useAuth } from '@FeaturesModule'
-
-import { Translate, Legend, TranslateProvider } from '@ComponentsModule'
+import { Translate } from '@ComponentsModule'
+import { T } from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 import { sanitize } from '@UtilsModule'
-import { T } from '@ConstantsModule'
+
+const styles = ({ typography }) => ({
+  field: css({
+    padding: 0,
+    margin: 0,
+    minInlineSize: 'auto',
+  }),
+  staticField: css({
+    display: 'inline-flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'start',
+    gap: typography.pxToRem(16),
+    width: '100%',
+  }),
+  textField: css({
+    flexGrow: 1,
+    '& > p': {
+      whiteSpace: 'normal',
+      wordBreak: 'break-all',
+      overflowWrap: 'break-word',
+      maxWidth: '100%',
+    },
+  }),
+})
 
 const FIELDS = [
   {
@@ -112,17 +139,14 @@ FieldComponent.displayName = 'FieldComponent'
 
 export const StaticComponent = memo(
   ({ field, defaultValue, isEnabled, setIsEnabled }) => {
+    const theme = useTheme()
+    const classes = useMemo(() => styles(theme), [theme])
+
     const { formState } = useFormContext()
     const { name, tooltip } = field
 
     return (
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        gap="1em"
-        paddingX={1}
-      >
+      <Stack className={classes.staticField}>
         {formState.isSubmitting ? (
           <>
             <Skeleton variant="text" width="100%" height={36} />
@@ -130,20 +154,19 @@ export const StaticComponent = memo(
           </>
         ) : (
           <>
-            <Typography
-              noWrap
-              title={sanitize`${defaultValue}`}
-              color="text.secondary"
-            >
-              {sanitize`${defaultValue}` || <Translate word={tooltip} />}
-            </Typography>
-
-            <IconButton
-              disabled={isEnabled && !isEnabled?.[name]}
+            <Box className={classes.textField}>
+              <Typography
+                title={sanitize`${defaultValue}`}
+                color="text.secondary"
+              >
+                {sanitize`${defaultValue}` || <Translate word={tooltip} />}
+              </Typography>
+            </Box>
+            <SubmitButton
+              icon={<Edit />}
               onClick={() => setIsEnabled({ [name]: true })}
-            >
-              <Edit />
-            </IconButton>
+              disabled={isEnabled && !isEnabled?.[name]}
+            />
           </>
         )}
       </Stack>
@@ -166,6 +189,9 @@ StaticComponent.displayName = 'StaticComponent'
  * @returns {ReactElement} Settings authentication
  */
 export const Settings = () => {
+  const { Legend, InternalWrapper } = useSettingWrapper()
+  const theme = useTheme()
+  const classes = useMemo(() => styles(theme), [theme])
   const [isEnabled, setIsEnabled] = useState(false)
   const { user, settings } = useAuth()
   const { enqueueError } = useGeneralApi()
@@ -193,21 +219,18 @@ export const Settings = () => {
   }
 
   return (
-    <TranslateProvider>
-      <Paper
-        variant="outlined"
-        sx={{ overflow: 'auto', py: '1.5em', gridColumn: { md: 'span 1' } }}
-      >
-        <FormProvider {...methods}>
-          <Stack gap="1em">
-            {FIELDS.map((field) => (
-              <Stack
-                component="fieldset"
-                key={'settings-authentication-field-' + field.name}
-                sx={{ minInlineSize: 'auto' }}
-                data-cy={`settings-ui-${field.name}`}
-              >
-                <Legend title={field.label} />
+    <Box>
+      <Legend title={T.SshKey} />
+      <FormProvider {...methods}>
+        <Stack gap="1em">
+          {FIELDS.map((field) => (
+            <Stack
+              component="fieldset"
+              key={'settings-authentication-field-' + field.name}
+              className={classes.field}
+              data-cy={`settings-ui-${field.name}`}
+            >
+              <InternalWrapper title={field.label}>
                 {isEnabled[field.name] ? (
                   <FieldComponent
                     field={field}
@@ -223,11 +246,11 @@ export const Settings = () => {
                     setIsEnabled={setIsEnabled}
                   />
                 )}
-              </Stack>
-            ))}
-          </Stack>
-        </FormProvider>
-      </Paper>
-    </TranslateProvider>
+              </InternalWrapper>
+            </Stack>
+          ))}
+        </Stack>
+      </FormProvider>
+    </Box>
   )
 }

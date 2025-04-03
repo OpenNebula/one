@@ -15,15 +15,14 @@
  * ------------------------------------------------------------------------- */
 import { ReactElement } from 'react'
 
-import { MenuItem, MenuList, Link } from '@mui/material'
-import { ProfileCircled as UserIcon } from 'iconoir-react'
+import { Avatar, Link, MenuItem, MenuList } from '@mui/material'
 
+import { APPS, APP_URL, T } from '@ConstantsModule'
 import { useAuth, useAuthApi } from '@FeaturesModule'
 import HeaderPopover from '@modules/components/Header/Popover'
-import { DevTypography } from '@modules/components/Typography'
 import { Translate } from '@modules/components/HOC'
+import { DevTypography } from '@modules/components/Typography'
 import { isDevelopment } from '@UtilsModule'
-import { T, APPS, APP_URL } from '@ConstantsModule'
 import { useHistory } from 'react-router-dom'
 
 /**
@@ -40,11 +39,14 @@ const User = () => {
     <HeaderPopover
       id="user-menu"
       buttonLabel={user?.NAME}
-      icon={<UserIcon />}
-      buttonProps={{
-        'data-cy': 'header-user-button',
-        noborder: true,
-      }}
+      icon={
+        <Avatar
+          src={user?.TEMPLATE?.FIREEDGE?.IMAGE_PROFILE}
+          alt="User"
+          sx={{ width: 24, height: 24 }}
+        />
+      }
+      buttonProps={{ 'data-cy': 'header-user-button', noborder: true }}
       disablePadding
     >
       {() => (

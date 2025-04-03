@@ -23,156 +23,123 @@ export const EnhancedTableStyles = ({
   readOnly,
   disableGlobalActions,
   disableGlobalSort,
-}) => {
-  const backgroundColor = readOnly
-    ? palette.action.hover
-    : palette.background.paper
-
-  return {
-    root: css({
-      height: '100%',
+}) => ({
+  root: css({
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  }),
+  rootWithoutHeight: css({
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    maxHeight: '14rem',
+    marginTop: '1rem',
+  }),
+  toolbar: css({
+    ...typography.body1,
+    marginBottom: '1em',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  }),
+  actions: css({
+    gridArea: 'actions',
+    display: 'flex',
+    justifyContent: 'flex-start',
+  }),
+  pagination: css({
+    gridArea: 'pagination',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  }),
+  paginationArrow: css({
+    minWidth: '1.5rem',
+    height: '1.5rem',
+    padding: '0.5rem',
+  }),
+  paginationText: css({
+    fontSize: '0.875rem',
+    fontStyle: 'normal',
+    fontWeight: '400',
+    lineHeight: '1.25rem',
+  }),
+  toolbarContainer: css({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'start',
+    gap: '0.5rem',
+  }),
+  filters: css({
+    gridArea: 'filters',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+  }),
+  body: css({
+    overflowY: 'auto',
+    display: 'grid',
+    gap: '1em',
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    gridAutoRows: 'max-content',
+    '& > [role=row]': {
+      padding: '0.8em',
+      cursor: 'pointer',
+      color: palette.text.primary,
+      backgroundColor: palette.tables.cards.normal.backgroundColor,
+      fontWeight: typography.fontWeightRegular,
+      fontSize: '1em',
+      border: `1px solid ${palette.divider}`,
+      borderRadius: '0.5em',
       display: 'flex',
-      flexDirection: 'column',
-    }),
-    rootWithoutHeight: css({
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'auto',
-      maxHeight: '14rem',
-      marginTop: '1rem',
-    }),
-    toolbar: css({
-      ...typography.body1,
-      marginBottom: '1em',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-    }),
-    actions: css({
-      gridArea: 'actions',
-      display: 'flex',
-      justifyContent: 'flex-start',
-    }),
-    pagination: css({
-      gridArea: 'pagination',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    }),
-    paginationArrow: css({
-      minWidth: '1.5rem',
-      height: '1.5rem',
-      padding: '0.5rem',
-    }),
-    paginationText: css({
-      fontSize: '0.875rem',
-      fontStyle: 'normal',
-      fontWeight: '400',
-      lineHeight: '1.25rem',
-    }),
-    toolbarContainer: css({
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'start',
-      gap: '0.5rem',
-    }),
-    filters: css({
-      gridArea: 'filters',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    }),
-    body: css({
-      overflowY: 'auto',
-      display: 'grid',
       gap: '1em',
-      gridTemplateColumns: 'minmax(0, 1fr)',
-      gridAutoRows: 'max-content',
-      '& > [role=row]': {
-        padding: '0.8em',
-        cursor: 'pointer',
-        color: palette.text.primary,
-        backgroundColor: palette.tables.cards.normal.backgroundColor,
-        fontWeight: typography.fontWeightRegular,
-        fontSize: '1em',
-        border: `1px solid ${palette.divider}`,
-        borderRadius: '0.5em',
-        display: 'flex',
-        gap: '1em',
-        '&:hover': {
-          backgroundColor: palette.tables.cards.normal.hover.backgroundColor,
-        },
-        '&.selected': {
-          backgroundColor: palette.tables.cards.pressed.backgroundColor,
-          border: `.125rem solid ${palette.tables.cards.pressed.borderColor}`,
-          '&:hover': {
-            backgroundColor: palette.tables.cards.pressed.hover.backgroundColor,
-          },
-        },
-      },
-    }),
-    bodyWithoutGap: css({
-      overflow: 'auto',
-      display: 'grid',
-      gridTemplateColumns: 'minmax(0, 1fr)',
-      gridAutoRows: 'max-content',
-      '& > [role=row]': {
-        padding: '0.8em',
-        cursor: 'pointer',
-        marginBottom: '1rem',
-        color: palette.text.primary,
-        backgroundColor: backgroundColor,
-        fontWeight: typography.fontWeightRegular,
-        fontSize: '1em',
-        border: `1px solid ${palette.divider}`,
-        borderRadius: '0.5em',
-        display: 'flex',
-        '&:hover': {
-          backgroundColor: palette.action.hover,
-        },
-        '&.selected': {
-          border: `2px solid ${palette.primary.main}`,
-        },
-      },
-      '& > [role=row] p': {
-        margin: '0rem',
-      },
-    }),
-    noDataMessage: css({
-      ...typography.h6,
-      color: palette.text.hint,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '0.8em',
-      padding: '1em',
-    }),
-    table: css({
-      width: '100%',
-      '& th:nth-of-type(1), & td:nth-of-type(1)': {
-        width: '5rem',
-      },
-    }),
-    cellHeaders: css({
-      fontWeight: 'bold',
-      padding: '0.5rem',
-      backgroundColor: 'transparent',
-      position: 'relative',
-    }),
-    row: css({
-      '&': {
-        cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: palette.tables.cards.normal.hover.backgroundColor,
       },
       '&.selected': {
-        boxShadow: `inset 0px -0.5px 0px 2px ${palette.primary.main}`,
+        backgroundColor: palette.tables.cards.pressed.backgroundColor,
+        border: `.125rem solid ${palette.tables.cards.pressed.borderColor}`,
+        '&:hover': {
+          backgroundColor: palette.tables.cards.pressed.hover.backgroundColor,
+        },
       },
-    }),
-    cell: css({
-      padding: '0.5rem',
-    }),
-    refreshIcon: css({
-      ...palette.tables.refreshIcon,
-    }),
-  }
-}
+    },
+  }),
+  noDataMessage: css({
+    ...typography.h6,
+    color: palette.text.hint,
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.8em',
+    padding: '1em',
+  }),
+  table: css({
+    width: '100%',
+    '& th:nth-of-type(1), & td:nth-of-type(1)': {
+      width: '5rem',
+    },
+  }),
+  cellHeaders: css({
+    fontWeight: 'bold',
+    padding: '0.5rem',
+    backgroundColor: 'transparent',
+    position: 'relative',
+  }),
+  row: css({
+    '&': {
+      cursor: 'pointer',
+    },
+    '&.selected': {
+      boxShadow: `inset 0px -0.5px 0px 2px ${palette.primary.main}`,
+    },
+  }),
+  cell: css({
+    padding: '0.5rem',
+  }),
+  refreshIcon: css({
+    ...palette.tables.refreshIcon,
+  }),
+})
 
 export default EnhancedTableStyles

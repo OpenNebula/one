@@ -547,6 +547,9 @@ const genPathResources = () => {
       : resolve(`${ONE_LOCATION}`, `${defaultSourceSystemPath}`))
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
+  const ETC_VIEWS_LOCATION =
+    (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
+    `${ETC_LOCATION}/${defaultSunstonePath}`
   const MODULES_LOCATION =
     (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
     `${ETC_LOCATION}/${defaultSunstonePath}`
@@ -575,7 +578,7 @@ const genPathResources = () => {
       global.paths.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
     }
     if (!global.paths.SUNSTONE_PATH) {
-      global.paths.SUNSTONE_PATH = `${ETC_LOCATION}/${defaultSunstonePath}/`
+      global.paths.SUNSTONE_PATH = `${ETC_VIEWS_LOCATION}/`
     }
     if (!global.paths.SUNSTONE_CONFIG) {
       global.paths.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneConfig}`
@@ -584,7 +587,7 @@ const genPathResources = () => {
       global.paths.SUNSTONE_IMAGES = `${SYSTEM_LOCATION}/assets/images/logos`
     }
     if (!global.paths.SUNSTONE_VIEWS) {
-      global.paths.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
+      global.paths.SUNSTONE_VIEWS = `${ETC_VIEWS_LOCATION}/${defaultSunstoneViews}`
     }
     if (!global.paths.VMM_EXEC_CONFIG) {
       global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`

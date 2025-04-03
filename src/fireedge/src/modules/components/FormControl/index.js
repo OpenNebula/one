@@ -18,6 +18,7 @@ import CheckboxController from '@modules/components/FormControl/CheckboxControll
 import FileController from '@modules/components/FormControl/FileController'
 import InformationUnitController from '@modules/components/FormControl/InformationUnitController'
 import PasswordController from '@modules/components/FormControl/PasswordController'
+import RadioController from '@modules/components/FormControl/RadioController'
 import SelectController from '@modules/components/FormControl/SelectController'
 import SliderController from '@modules/components/FormControl/SliderController'
 import SwitchController from '@modules/components/FormControl/SwitchController'
@@ -44,6 +45,7 @@ export {
   InformationUnitController,
   InputCode,
   PasswordController,
+  RadioController,
   SelectController,
   SliderController,
   SubmitButton,

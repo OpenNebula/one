@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import { css } from '@emotion/css'
-import { toolbar, footer } from '@ProvidersModule'
+import { footer, toolbar } from '@ProvidersModule'
 
 export default (theme) => ({
   root: css({
@@ -45,7 +45,7 @@ export default (theme) => ({
   scrollable: css({
     paddingTop: theme.spacing(2),
     height: '100%',
-    overflow: 'none',
+    overflow: 'auto',
     display: 'flex',
     flexDirection: 'column',
     paddingLeft: '3.4375rem',

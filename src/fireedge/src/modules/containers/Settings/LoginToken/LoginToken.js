@@ -13,40 +13,36 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Button, Grid, Paper, Typography, useTheme } from '@mui/material'
+import { FormWithSchema, Tr, Translate } from '@ComponentsModule'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { css } from '@emotion/css'
 import {
-  Tr,
-  EnhancedTableStyles,
-  Translate,
-  FormWithSchema,
-  TranslateProvider,
-} from '@ComponentsModule'
-import { T } from '@ConstantsModule'
-import { FIELDS, SCHEMA } from '@modules/containers/Settings/LoginToken/schema'
-import {
-  UserAPI,
   GroupAPI,
-  useGeneralApi,
   useAuth,
   useAuthApi,
+  useGeneralApi,
+  UserAPI,
   useViews,
 } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'
 import { timeToString } from '@ModelsModule'
+import { SubmitButton } from '@modules/components/FormControl'
+import { FIELDS, SCHEMA } from '@modules/containers/Settings/LoginToken/schema'
+import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
+import { Box, Grid, Typography, useTheme } from '@mui/material'
 import { Cancel, Check as CopiedIcon, Copy as CopyIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { ReactElement, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
-import { css } from '@emotion/css'
 
-const useStyles = () => ({
-  buttonSubmit: css({
-    width: '100%',
+const styles = ({ typography, palette }) => ({
+  buttonPlace: css({
+    textAlign: 'center',
   }),
   buttonAction: css({
     width: '100%',
-    marginBottom: '.5rem',
+    marginBottom: typography.pxToRem(8),
   }),
   token: css({
     textOverflow: 'ellipsis',
@@ -54,14 +50,20 @@ const useStyles = () => ({
     overflow: 'hidden',
   }),
   message: css({
-    margin: '2rem 0 0',
+    margin: `${typography.pxToRem(32)} 0 0`,
+  }),
+  tokenContainer: css({
+    border: `1px solid ${palette.grey[300]}`,
+    padding: typography.pxToRem(8),
+    borderRadius: typography.pxToRem(8),
+    marginBottom: typography.pxToRem(8),
   }),
 })
 
 const Row = ({ data = {}, groups = [], edit = () => undefined } = {}) => {
   const { copy, isCopied } = useClipboard()
   const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
+  const classes = useMemo(() => styles(theme), [theme])
   const { TOKEN = '', EXPIRATION_TIME = 0, EGID = '' } = data
   const groupToken =
     groups.find((group) => group?.ID === EGID)?.NAME || Tr(T.None)
@@ -76,57 +78,49 @@ const Row = ({ data = {}, groups = [], edit = () => undefined } = {}) => {
 
   return (
     <>
-      <TranslateProvider>
-        {TOKEN && EXPIRATION_TIME && EGID && (
-          <Grid container role="row">
-            <Grid item xs={10}>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
-                    <b>{`${Tr(T.ValidUntil)}: `}</b>
-                    {timeToString(EXPIRATION_TIME)}
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
-                    <b>{`${Tr(T.Group)}: `}</b>
-                    {groupToken}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography
-                    variant="body2"
-                    gutterBottom
-                    sx={{ m: '1rem' }}
-                    className={classes.token}
-                  >
-                    <b>{`${Tr(T.Token)}: `}</b>
-                    {TOKEN}
-                  </Typography>
-                </Grid>
+      {TOKEN && EXPIRATION_TIME && EGID && (
+        <Grid container role="row" className={classes.tokenContainer}>
+          <Grid item sx={{ flexGrow: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
+                  <b>{`${Tr(T.ValidUntil)}: `}</b>
+                  {timeToString(EXPIRATION_TIME)}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" gutterBottom sx={{ m: '1rem' }}>
+                  <b>{`${Tr(T.Group)}: `}</b>
+                  {groupToken}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ m: '1rem' }}
+                  className={classes.token}
+                >
+                  <b>{`${Tr(T.Token)}: `}</b>
+                  {TOKEN}
+                </Typography>
               </Grid>
             </Grid>
-            <Grid item xs={2}>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleCopy}
-                className={classes.buttonAction}
-              >
-                {isCopied ? <CopiedIcon /> : <CopyIcon className="icon" />}
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => edit(TOKEN)}
-                className={classes.buttonAction}
-              >
-                <Cancel className="icon" />
-              </Button>
-            </Grid>
           </Grid>
-        )}
-      </TranslateProvider>
+          <Grid item>
+            <SubmitButton
+              icon={isCopied ? <CopiedIcon /> : <CopyIcon className="icon" />}
+              onClick={handleCopy}
+              aria-label="toggle password visibility"
+            />
+            <SubmitButton
+              icon={<Cancel />}
+              onClick={() => edit(TOKEN)}
+              aria-label="delete"
+            />
+          </Grid>
+        </Grid>
+      )}
     </>
   )
 }
@@ -149,6 +143,7 @@ Row.displayName = 'LoginTokenRow'
  * @returns {ReactElement} Settings configuration UI
  */
 const LoginToken = () => {
+  const { Legend, InternalWrapper } = useSettingWrapper()
   const { user } = useAuth()
   const { LOGIN_TOKEN = [], ID, NAME } = user
   const { data: groups = [], isLoading } = GroupAPI.useGetGroupsQuery()
@@ -172,8 +167,7 @@ const LoginToken = () => {
   const [addLoginToken] = UserAPI.useLoginUserMutation()
   const { views, view: userView } = useViews()
   const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
-  const classesTable = useMemo(() => EnhancedTableStyles(theme), [theme])
+  const classes = useMemo(() => styles(theme), [theme])
 
   const { handleSubmit, ...methods } = useForm({
     reValidateMode: 'onChange',
@@ -230,54 +224,58 @@ const LoginToken = () => {
   )
 
   return (
-    <Paper
-      component="form"
-      onSubmit={handleSubmit(handleCreateLoginToken)}
-      variant="outlined"
-      sx={{ p: '1em' }}
-    >
-      <Typography variant="underline">
-        <Translate word={T.LoginToken} />
-      </Typography>
-      {!isLoading && (
-        <>
-          {arrayLoginToken.length > 0 && (
-            <div className={classesTable.rootWithoutHeight}>
-              <div className={classesTable.bodyWithoutGap}>
-                {arrayLoginToken.map((itemLoginToken, i) => (
-                  <Row
-                    data={itemLoginToken}
-                    key={i}
-                    groups={groups}
-                    edit={handleDeleteLoginToken}
-                  />
-                ))}
+    <Box>
+      <Legend title={T.LoginToken} />
+      <InternalWrapper>
+        {!isLoading && (
+          <>
+            {arrayLoginToken.length > 0 && (
+              <div>
+                <div>
+                  {arrayLoginToken.map((itemLoginToken, i) => (
+                    <Row
+                      data={itemLoginToken}
+                      key={i}
+                      groups={groups}
+                      edit={handleDeleteLoginToken}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          <FormProvider {...methods}>
-            <FormWithSchema cy={'logintoken-ui'} fields={FIELDS(userGroups)} />
-          </FormProvider>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleSubmit(handleCreateLoginToken)}
-            className={classes.buttonSubmit}
-            data-cy="addLoginToken"
-          >
-            {Tr(T.GetNewToken)}
-          </Button>
-        </>
-      )}
-      <Typography
-        variant="body2"
-        gutterBottom
-        sx={{ m: '1rem' }}
-        className={classes.message}
-      >
-        <Translate word={T.MessageLoginToken} />
-      </Typography>
-    </Paper>
+            )}
+            <Box
+              component="form"
+              onSubmit={handleSubmit(handleCreateLoginToken)}
+            >
+              <FormProvider {...methods}>
+                <FormWithSchema
+                  cy={'logintoken-ui'}
+                  fields={FIELDS(userGroups)}
+                />
+              </FormProvider>
+              <Box className={classes.buttonPlace}>
+                <SubmitButton
+                  onClick={handleSubmit(handleCreateLoginToken)}
+                  importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+                  size={STYLE_BUTTONS.SIZE.MEDIUM}
+                  type={STYLE_BUTTONS.TYPE.FILLED}
+                  data-cy="addLoginToken"
+                  label={T.GetNewToken}
+                />
+              </Box>
+            </Box>
+          </>
+        )}
+        <Typography
+          variant="body2"
+          gutterBottom
+          sx={{ m: '1rem' }}
+          className={classes.message}
+        >
+          <Translate word={T.MessageLoginToken} />
+        </Typography>
+      </InternalWrapper>
+    </Box>
   )
 }
 

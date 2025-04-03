@@ -163,15 +163,15 @@ const getViews = (
                  * 3 -> Group template has not TEMPLATE.FIREEDGE.VIEWS and TEMPLATE.FIREEDGE.GROUP_ADMIN_VIEWS
                  */
 
+                // Create info views
+                const views = {}
+
                 if (
                   isAdminGroup &&
                   groupAdminViews &&
                   groupAdminViews.length > 0
                 ) {
                   // First case: Group template has TEMPLATE.FIREEDGE.GROUP_ADMIN_VIEWS and the user is admin of the group
-
-                  // Create info views
-                  const views = {}
 
                   // Fill info of each view reading the files on global.paths.SUNSTONE_PATH/{view name}
                   fillViewsInfo(groupAdminViews, views)
@@ -193,9 +193,6 @@ const getViews = (
                 // Check the views associated to the group
                 else if (groupViews && groupViews.length > 0) {
                   // Second case: Group template has TEMPLATE.FIREEDGE.VIEWS
-
-                  // Create info views
-                  const views = {}
 
                   // Fill info of each view reading the files on global.paths.SUNSTONE_PATH/{view name}
                   fillViewsInfo(groupViews, views)
@@ -231,9 +228,6 @@ const getViews = (
                         const groupViewsFile =
                           jsonFileData.groups[vmgroupData.GROUP.NAME] ||
                           jsonFileData.default
-
-                        // Create info views
-                        const views = {}
 
                         // Fill info of each view reading the files on global.paths.SUNSTONE_PATH/{view name}
                         fillViewsInfo(groupViewsFile, views)
