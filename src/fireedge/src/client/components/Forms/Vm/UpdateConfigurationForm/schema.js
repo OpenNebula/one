@@ -17,9 +17,8 @@ import { object, ObjectSchema } from 'yup'
 
 import { HYPERVISORS } from 'client/constants'
 import { SCHEMA as OS_SCHEMA } from './booting/schema'
-import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
-import { SCHEMA as BACKUP_SCHEMA } from './backup/schema'
+import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
 
 /**
  * @param {object} [formProps] - Form props
@@ -31,6 +30,5 @@ export const SCHEMA = ({ hypervisor }) =>
     .concat(IO_SCHEMA({ hypervisor }))
     .concat(OS_SCHEMA({ hypervisor }))
     .concat(CONTEXT_SCHEMA({ hypervisor }))
-    .concat(BACKUP_SCHEMA())
 
-export { IO_SCHEMA, OS_SCHEMA, CONTEXT_SCHEMA, BACKUP_SCHEMA }
+export { CONTEXT_SCHEMA, IO_SCHEMA, OS_SCHEMA }

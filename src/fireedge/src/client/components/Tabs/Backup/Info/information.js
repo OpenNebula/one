@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import {
-  useRenameImageMutation,
-  useChangeImageTypeMutation,
-  usePersistentImageMutation,
-} from 'client/features/OneApi/image'
 import { StatusChip } from 'client/components/Status'
 import { List } from 'client/components/Tabs/Common'
+import {
+  useChangeImageTypeMutation,
+  usePersistentImageMutation,
+  useRenameImageMutation,
+} from 'client/features/OneApi/image'
 
-import { getDiskType, getType, getState } from 'client/models/Image'
-import { timeToString, booleanToString } from 'client/models/Helper'
-import { arrayToOptions, prettyBytes } from 'client/utils'
-import { T, Image, IMAGE_ACTIONS, IMAGE_TYPES } from 'client/constants'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import { Image, IMAGE_ACTIONS, IMAGE_TYPES, T } from 'client/constants'
+import { booleanToString, timeToString } from 'client/models/Helper'
+import { getDiskType, getState, getType } from 'client/models/Image'
+import { arrayToOptions, prettyBytes } from 'client/utils'
 
 /**
  * Renders mainly information tab.

@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import { Stack } from '@mui/material'
-
 import { FormWithSchema } from 'client/components/Forms'
-
 import { SECTIONS } from 'client/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
 import { T } from 'client/constants'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
 /**
- * @param {object} props - Component props
+ * @param {object} props - Component properties
  * @param {object} props.oneConfig - OpenNEbula configuration
  * @param {boolean} props.adminGroup - If the user is admin
- * @returns {ReactElement} IO section component
+ * @returns {ReactElement} Form content component
  */
-const Backup = ({ oneConfig, adminGroup }) => (
-  <Stack
-    display="grid"
-    gap="1em"
-    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-  >
+const Content = ({ oneConfig, adminGroup }) => (
+  <Stack display="grid" gap="1em" sx={{ gridTemplateColumns: '1fr' }}>
     {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
       <FormWithSchema
         key={id}
@@ -45,11 +39,9 @@ const Backup = ({ oneConfig, adminGroup }) => (
   </Stack>
 )
 
-Backup.displayName = 'Backup'
-
-Backup.propTypes = {
+Content.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }
 
-export default Backup
+export default Content

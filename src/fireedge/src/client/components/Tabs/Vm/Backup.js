@@ -13,44 +13,99 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
-import PropTypes from 'prop-types'
-import { useGetVmQuery } from 'client/features/OneApi/vm'
-import { BackupsTable } from 'client/components/Tables'
-import { useHistory, generatePath } from 'react-router-dom'
 import { PATH } from 'client/apps/sunstone/routesOne'
+import ButtonToTriggerForm from 'client/components/Forms/ButtonToTriggerForm'
+import { BackupsTable } from 'client/components/Tables'
+import { T } from 'client/constants'
+import {
+  useGetVmQuery,
+  useUpdateConfigurationMutation,
+} from 'client/features/OneApi/vm'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
+import { generatePath, useHistory } from 'react-router-dom'
+
+import { jsonToXml } from 'client/models/Helper'
+
+import { BackupConfigForm } from 'client/components/Forms/Vm'
+
+import { Stack } from '@mui/material'
 
 /**
  * Renders the list of backups from a VM.
  *
  * @param {object} props - Props
  * @param {string} props.id - Virtual Machine id
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} Backups tab
  */
-const VmBackupTab = ({ id }) => {
+const VmBackupTab = ({ id, oneConfig, adminGroup }) => {
   const { data: vm = {}, refetch, isFetching } = useGetVmQuery({ id })
   const path = PATH.STORAGE.BACKUPS.DETAIL
   const history = useHistory()
+
+  const [updateConf] = useUpdateConfigurationMutation()
 
   const handleRowClick = (rowId) => {
     history.push(generatePath(path, { id: String(rowId) }))
   }
 
+  const handleUpdateBackupConf = async (newConfiguration) => {
+    const xml = jsonToXml(newConfiguration)
+    await updateConf({ id, template: xml })
+  }
+
   return (
-    <BackupsTable
-      disableRowSelect
-      disableGlobalSort
-      refetchVm={refetch}
-      isFetchingVm={isFetching}
-      vm={vm}
-      onRowClick={(row) => handleRowClick(row.ID)}
-    />
+    <>
+      {/* <Backup oneConfig={oneConfig} adminGroup={adminGroup} /> */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="start"
+        gap="1rem"
+        marginBottom="1rem"
+      >
+        <ButtonToTriggerForm
+          buttonProps={{
+            'data-cy': 'backup-vm',
+            label: T.BackupConfigVM,
+            disabled: isFetching,
+          }}
+          options={[
+            {
+              dialogProps: {
+                title: T.BackupConfigVM,
+                dataCy: 'modal-backup-vm',
+              },
+              form: () =>
+                BackupConfigForm({
+                  stepProps: { oneConfig, adminGroup, vm },
+                  initialValues: vm,
+                }),
+              onSubmit: handleUpdateBackupConf,
+            },
+          ]}
+        />
+      </Stack>
+
+      <BackupsTable
+        disableRowSelect
+        disableGlobalSort
+        refetchVm={refetch}
+        isFetchingVm={isFetching}
+        vm={vm}
+        onRowClick={(row) => handleRowClick(row.ID)}
+      />
+    </>
   )
 }
 
 VmBackupTab.propTypes = {
   tabProps: PropTypes.object,
   id: PropTypes.string,
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
 }
 
 VmBackupTab.displayName = 'VmBackupTab'
