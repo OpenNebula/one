@@ -117,7 +117,7 @@ class LinuxContainersMarket
         image_list['products'].each do |img, img_data|
             distro, version, arch, variant = img.split(':')
 
-            next if variant != 'default' || arch != 'amd64'
+            next if variant != 'default' || (arch != 'amd64' && arch != 'arm64')
             next if @options[:skip_untested] == 'yes' && !@options[:tested_apps].include?(distro)
 
             # Use the last version for each container
@@ -132,7 +132,7 @@ class LinuxContainersMarket
             builddate = DateTime.strptime(regtime, '%Y%m%d_%H:%M').to_time.to_i
 
             data = {
-                'NAME'        => "#{distro}_#{version} - LXC",
+                'NAME'        => "#{distro}_#{version} - LXC (#{arch})",
                 'SIZE'        => @options[:sizemb],
                 'PUBLISHER'   => @options[:url],
                 'FORMAT'      => @options[:format],
