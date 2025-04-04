@@ -2035,6 +2035,7 @@ FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml \
                                 src/fireedge/etc/sunstone/cloud/service-tab.yaml \
                                 src/fireedge/etc/sunstone/cloud/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/cloud/dashboard-tab.yaml \
                                 src/fireedge/etc/sunstone/cloud/user-tab.yaml"
 
 #-----------------------------------------------------------------------------
