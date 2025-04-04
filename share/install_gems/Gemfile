@@ -121,8 +121,8 @@ end
 group :cloud, :oneflow do
     gem 'rack', rack
     if ruby_version >= Gem::Version.new('3.0.0')
-        gem 'sinatra', '~> 4.1'
-        gem 'puma', '~> 6.6'
+        gem 'sinatra'
+        gem 'puma'
         gem 'rackup'
     else
         gem 'sinatra', '< 4.0.0'

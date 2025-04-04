@@ -15,7 +15,7 @@ GEM
     async-io (1.32.1)
       async (~> 1.14)
     aws-eventstream (1.3.2)
-    aws-partitions (1.1080.0)
+    aws-partitions (1.1081.0)
     aws-sdk-core (3.222.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -224,13 +224,13 @@ DEPENDENCIES
   parse-cron
   prometheus-client
   public_suffix
-  puma (~> 6.6)
+  puma
   rack
   rackup
   rbvmomi
   rexml
   sequel
-  sinatra (~> 4.1)
+  sinatra
   sqlite3
   treetop (>= 1.6.3)
   uuidtools
@@ -240,4 +240,4 @@ RUBY VERSION
    ruby 3.2.3p157
 
 BUNDLED WITH
-   2.6.6
+   2.6.7
