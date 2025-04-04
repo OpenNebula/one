@@ -516,25 +516,27 @@ class ServiceLCM
 
         rc = @srv_pool.get(service_id, external_user) do |service|
             if service.can_recover_deploy?
-                recover_deploy(external_user, service)
+                rc = recover_deploy(external_user, service)
             elsif service.can_recover_undeploy?
-                recover_undeploy(external_user, service)
+                rc = recover_undeploy(external_user, service)
             elsif service.can_recover_scale?
                 # change client to have right ownership
                 client = @cloud_auth.client("#{service.uname}:#{service.gid}")
 
                 service.replace_client(client)
-                recover_scale("#{service.uname}:#{service.gid}", service)
+                rc = recover_scale("#{service.uname}:#{service.gid}", service)
             elsif service.can_recover_deploy_nets?
-                recover_nets(:wait_deploy_nets_action, external_user, service)
+                rc = recover_nets(:wait_deploy_nets_action, external_user, service)
             elsif service.can_recover_undeploy_nets?
-                recover_nets(:wait_undeploy_nets_action, external_user, service)
+                rc = recover_nets(:wait_undeploy_nets_action, external_user, service)
             elsif Service::STATE['COOLDOWN'] == service.state
                 service.state = Service::STATE['RUNNING']
 
                 service.roles.each do |_, role|
                     role.state = Role::STATE['RUNNING']
                 end
+
+                rc = nil
             else
                 break OpenNebula::Error.new(
                     'Service cannot be recovered in state: ' \
@@ -543,6 +545,7 @@ class ServiceLCM
             end
 
             service.update
+            rc
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -1384,6 +1387,10 @@ class ServiceLCM
             next unless role.can_recover_undeploy?
 
             nodes = role.recover_undeploy
+
+            return OpenNebula::Error.new(
+                "Error undeploying nodes for role `#{name}`"
+            ) unless nodes
 
             @event_manager.trigger_action(:wait_undeploy_action,
                                           service.id,

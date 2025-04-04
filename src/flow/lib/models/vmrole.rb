@@ -395,6 +395,8 @@ module OpenNebula
 
             rc = shutdown(true)
 
+            return false unless rc[0]
+
             undeployed_nodes.concat(rc[0]) if rc[1].nil?
 
             undeployed_nodes
@@ -421,7 +423,6 @@ module OpenNebula
         # Shuts down all the given nodes
         # @param scale_down [true,false] True to set the 'disposed' node flag
         def shutdown_nodes(nodes, n_nodes, recover)
-            success          = true
             undeployed_nodes = []
 
             action = @body['shutdown_action']
@@ -483,8 +484,6 @@ module OpenNebula
 
                         Log.error LOG_COMP, msg, @service.id
                         @service.log_error(msg)
-
-                        success = false
                     else
                         Log.debug(LOG_COMP,
                                   "Role #{name} : Delete success for VM " \
@@ -500,6 +499,9 @@ module OpenNebula
                     undeployed_nodes << vm_id
                 end
             end
+
+            # Only considering success if all the nodes were undeployed
+            success = undeployed_nodes.size == n_nodes
 
             [success, undeployed_nodes]
         end

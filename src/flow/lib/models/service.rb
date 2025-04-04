@@ -646,7 +646,7 @@ module OpenNebula
             generate_template_contents
         rescue StandardError => e
             Log.error LOG_COMP, "Error generating VM template contents: #{e.message}"
-            OpenNebula::Error('Error generating VM template contents')
+            return OpenNebula::Error.new('Error generating VM template contents')
         end
 
         def deploy_networks(deploy = true)
@@ -897,7 +897,7 @@ module OpenNebula
         #   ]
         def resolve_networks(nics, networks_values)
             nics.each do |nic|
-                next unless nic['NETWORK_ID']
+                next unless nic['NETWORK_ID'].is_a?(String)
 
                 match = nic['NETWORK_ID'].match(/\$(\w+)/)
                 next unless match
