@@ -102,7 +102,7 @@ if (appConfig.cors) {
 }
 // post params parser body
 app.use(express.urlencoded({ extended: false }))
-app.use(express.json())
+app.use(express.json({ limit: '4mb' }))
 
 app.use(`${basename}/api`, entrypointApi) // OpenNebula Api routes
 const frontApps = Object.keys(defaultApps)
