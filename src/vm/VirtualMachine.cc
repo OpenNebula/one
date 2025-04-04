@@ -2724,6 +2724,9 @@ int VirtualMachine::from_xml(const string &xml_str)
     }
     rc += obj_template->from_xml_node(content[0]);
 
+    // Bug #6996: Remove Scheduled Action from the template
+    obj_template->erase("SCHED_ACTION");
+
     vector<VectorAttribute *> vdisks, vnics, alias, pcis;
 
     obj_template->get("DISK", vdisks);
