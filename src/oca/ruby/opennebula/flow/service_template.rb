@@ -760,6 +760,28 @@ module OpenNebula
             roles        = template['roles']
             extra_roles  = extra_template.fetch('roles', [])
 
+            # Check if nics key already exist
+            template_nets = template['networks_values'] || []
+            extra_nets    = extra_template['networks_values'] || []
+
+            unless extra_nets.empty?
+                extra_nets.each do |extra_net|
+                    next unless extra_net.is_a?(Hash) && !extra_net.empty?
+
+                    net_name  = extra_net.keys.first
+                    net_index = template_nets.index {|net| net.key?(net_name) }
+
+                    if net_index
+                        template_nets[net_index] = extra_net
+                    else
+                        template_nets << extra_net
+                    end
+                end
+
+                template['networks_values']       = template_nets
+                extra_template['networks_values'] = []
+            end
+
             return template if extra_roles.empty?
 
             roles.each_with_index do |role, index|
