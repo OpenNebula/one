@@ -877,6 +877,17 @@ module.exports = {
   StandaloneQcow2CloneConcept:
     'Clone qcow2 without a backing chain and no dependencies with Image datastore files',
 
+  NfsAutoEnable: 'NFS auto',
+  NfsAutoEnableConcept:
+    'If turn on the automatic NFS mounting functionality is enabled.',
+  NfsAutoHost: 'NFS server',
+  NfsAutoHostConcept: 'Hostname or IP address of the NFS server.',
+  NfsAutoPath: 'NFS share path',
+  NfsAutoPathConcept: 'NFS share path.',
+  NfsAutoOpts: 'NFS mount options',
+  NfsAutoOptsConcept:
+    'Comma separated options (fstab-like) used for mounting the NFS shares.',
+
   /* VDC */
   AllClustersAreIncludedInThisVDC: 'All clusters are included in this VDC',
   AllHostsAreIncludedInThisVDC: 'All hosts are included in this VDC',

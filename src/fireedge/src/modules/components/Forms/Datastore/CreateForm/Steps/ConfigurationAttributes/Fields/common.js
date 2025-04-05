@@ -170,6 +170,108 @@ const QCOW2_STANDALONE = {
   grid: { xs: 12, md: 6 },
 }
 
+/** @type {Field} - NFS_AUTO_ENABLE field */
+const NFS_AUTO_ENABLE = {
+  name: 'NFS_AUTO_ENABLE',
+  label: T.NfsAutoEnable,
+  tooltip: T.NfsAutoEnableConcept,
+  type: INPUT_TYPES.SWITCH,
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE'],
+  htmlType: ([STORAGE_BACKEND, TYPE] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) ||
+      TYPE !== DATASTORE_TYPES.IMAGE.value
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  validation: boolean().yesOrNo(),
+  grid: { xs: 12, md: 6 },
+}
+
+const NFS_AUTO_HOST = {
+  name: 'NFS_AUTO_HOST',
+  label: T.NfsAutoHost,
+  tooltip: T.NfsAutoHostConcept,
+  type: INPUT_TYPES.TEXT,
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', NFS_AUTO_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, NFS_AUTO_ENABLE_VALUE] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) ||
+      TYPE !== DATASTORE_TYPES.IMAGE.value ||
+      !NFS_AUTO_ENABLE_VALUE
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  validation: string()
+    .trim()
+    .when(['$general.STORAGE_BACKEND', '$general.TYPE', NFS_AUTO_ENABLE.name], {
+      is: (STORAGE_BACKEND, TYPE, NFS_AUTO_ENABLE_VALUE) =>
+        typeIsOneOf(STORAGE_BACKEND, [isShared]) &&
+        TYPE === DATASTORE_TYPES.IMAGE.value &&
+        NFS_AUTO_ENABLE_VALUE,
+      then: (schema) => schema.required(),
+      otherwise: (schema) => schema.strip(),
+    }),
+  grid: { xs: 12, md: 6 },
+}
+
+const NFS_AUTO_PATH = {
+  name: 'NFS_AUTO_PATH',
+  label: T.NfsAutoPath,
+  tooltip: T.NfsAutoPathConcept,
+  type: INPUT_TYPES.TEXT,
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', NFS_AUTO_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, NFS_AUTO_ENABLE_VALUE] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) ||
+      TYPE !== DATASTORE_TYPES.IMAGE.value ||
+      !NFS_AUTO_ENABLE_VALUE
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  validation: string()
+    .trim()
+    .when(['$general.STORAGE_BACKEND', '$general.TYPE', NFS_AUTO_ENABLE.name], {
+      is: (STORAGE_BACKEND, TYPE, NFS_AUTO_ENABLE_VALUE) =>
+        typeIsOneOf(STORAGE_BACKEND, [isShared]) &&
+        TYPE === DATASTORE_TYPES.IMAGE.value &&
+        NFS_AUTO_ENABLE_VALUE,
+      then: (schema) => schema.required(),
+      otherwise: (schema) => schema.strip(),
+    }),
+  grid: { xs: 12, md: 6 },
+}
+
+const NFS_AUTO_OPTS = {
+  name: 'NFS_AUTO_OPTS',
+  label: T.NfsAutoOpts,
+  tooltip: [T.PressKeysToAddAValue, ['ENTER']],
+  type: INPUT_TYPES.AUTOCOMPLETE,
+  multiple: true,
+  dependOf: ['$general.STORAGE_BACKEND', '$general.TYPE', NFS_AUTO_ENABLE.name],
+  htmlType: ([STORAGE_BACKEND, TYPE, NFS_AUTO_ENABLE_VALUE] = []) => {
+    if (
+      !typeIsOneOf(STORAGE_BACKEND, [isShared]) ||
+      TYPE !== DATASTORE_TYPES.IMAGE.value ||
+      !NFS_AUTO_ENABLE_VALUE
+    ) {
+      return INPUT_TYPES.HIDDEN
+    }
+  },
+  validation: array(string().trim())
+    .default(() => undefined)
+    .afterSubmit((value, { context }) =>
+      context?.confAttributes ? value?.join(',') : undefined
+    ),
+  fieldProps: {
+    freeSolo: true,
+  },
+  grid: { xs: 12, md: 6 },
+}
+
 /** @type {Field[]} - Common fields */
 export const COMMON_FIELDS = [
   RESTRICTED_DIRS,
@@ -182,4 +284,8 @@ export const COMMON_FIELDS = [
   NO_DECOMPRESS,
   DATASTORE_CAPACITY_CHECK,
   QCOW2_STANDALONE,
+  NFS_AUTO_ENABLE,
+  NFS_AUTO_HOST,
+  NFS_AUTO_PATH,
+  NFS_AUTO_OPTS,
 ]

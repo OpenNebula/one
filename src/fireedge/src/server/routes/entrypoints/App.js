@@ -22,11 +22,7 @@ const { writeInLogger } = require('server/utils/logger')
 const { MissingHeaderError } = require('server/utils/errors')
 
 // server
-const {
-  getSunstoneConfig,
-  getProvisionConfig,
-  getFireedgeConfig,
-} = require('server/utils/yml')
+const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 
 const { getRemotesConfig } = require('server/utils/remoteModules')
 const { getForecastConfig } = require('server/utils/oned')
@@ -73,7 +69,6 @@ router.get('*', async (req, res) => {
     [defaultApps.sunstone.name]:
       {
         ...defaultConfig,
-        ...getProvisionConfig(),
         ...getSunstoneConfig({ includeProtectedConfig: false }),
       } || defaultConfig,
   }
