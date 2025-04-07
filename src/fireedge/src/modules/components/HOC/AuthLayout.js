@@ -51,9 +51,12 @@ const AuthLayout = ({ subscriptions = [], children }) => {
   useEffect(() => {
     if (!jwt || !user?.NAME) return
 
-    const endpoints = [oneApi.endpoints.getGroups, ...subscriptions].map(
-      (endpoint) =>
-        dispatch(endpoint.initiate(undefined, { forceRefetch: true }))
+    const endpoints = [
+      oneApi.endpoints.getGroups,
+      oneApi.endpoints.getDefaultLabels,
+      ...subscriptions,
+    ].map((endpoint) =>
+      dispatch(endpoint.initiate(undefined, { forceRefetch: true }))
     )
 
     return () => {

@@ -100,7 +100,7 @@ const StatusChip = memo(
 
     const handleClick = useCallback(
       (evt) => {
-        onClick?.(text)
+        onClick?.(text, evt)
         evt.stopPropagation()
       },
       [text, onClick]

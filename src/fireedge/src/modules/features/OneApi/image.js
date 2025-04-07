@@ -26,7 +26,6 @@ import {
   FilterFlag,
   Image,
   Permission,
-  IMAGE_TYPES_STR,
   IMAGE_TYPES_FOR_FILES,
   IMAGE_TYPES_FOR_IMAGES,
   IMAGE_TYPES_FOR_BACKUPS,
@@ -383,7 +382,7 @@ const imageApi = oneApi.injectEndpoints({
        *
        * @param {number|string} params - Request params
        * @param {string} params.id - Image id
-       * @param {IMAGE_TYPES_STR} params.type - New type for the Image
+       * @param {string} params.type - New type for the Image
        * @returns {number} Image id
        * @throws Fails when response isn't code 200
        */

@@ -22,12 +22,9 @@ import EnhancedTable, {
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { getResourceLabels } from '@UtilsModule'
 import { useAuth, useViews, ImageAPI } from '@FeaturesModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  getImageState,
-} from '@ModelsModule'
+import { getColorFromString, getImageState } from '@ModelsModule'
 import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'backups'
@@ -37,6 +34,7 @@ const DEFAULT_DATA_CY = 'backups'
  * @returns {ReactElement} Backups table
  */
 const BackupsTable = (props) => {
+  const { labels = {} } = useAuth()
   const {
     rootProps = {},
     searchProps = {},
@@ -72,6 +70,23 @@ const BackupsTable = (props) => {
       }
     },
   })
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(
+            labels,
+            row?.ID,
+            RESOURCE_NAMES.BACKUP,
+            true
+          ),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -123,25 +138,14 @@ const BackupsTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: (_, { label: LABELS = [] }) => {
-        const { labels: userLabels } = useAuth()
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-              return acc
-            }, []),
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -151,7 +155,7 @@ const BackupsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetchAll}
@@ -159,6 +163,7 @@ const BackupsTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.BACKUP}
       {...rest}
     />
   )

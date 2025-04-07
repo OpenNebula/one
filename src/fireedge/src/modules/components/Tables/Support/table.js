@@ -84,6 +84,7 @@ const SupportTable = (props) => {
       initialState={initialState}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.SUPPORT}
       {...rest}
     />
   )

@@ -14,13 +14,14 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
+import { getResourceLabels } from '@UtilsModule'
 import MultipleTags from '@modules/components/MultipleTags'
 import { useMemo, ReactElement } from 'react'
 import { useViews, VdcAPI, useAuth } from '@FeaturesModule'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
-import { getColorFromString, getUniqueLabels } from '@ModelsModule'
+import { getColorFromString } from '@ModelsModule'
 import VDCColumns from '@modules/components/Tables/VirtualDataCenters/columns'
 import VDCRow from '@modules/components/Tables/VirtualDataCenters/row'
 import { RESOURCE_NAMES, ALL_SELECTED, T } from '@ConstantsModule'
@@ -35,12 +36,25 @@ const isAllSelected = (resourceArray) =>
  * @returns {ReactElement} VM Templates table
  */
 const Table = (props) => {
+  const { labels = {} } = useAuth()
   const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = VdcAPI.useGetVDCsQuery()
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VDC, true),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -120,25 +134,14 @@ const Table = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS } }) => {
-        const { labels: userLabels } = useAuth()
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-              return acc
-            }, []),
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -147,7 +150,7 @@ const Table = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -155,6 +158,7 @@ const Table = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VDC}
       {...rest}
     />
   )

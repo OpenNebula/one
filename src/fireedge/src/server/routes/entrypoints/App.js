@@ -25,7 +25,7 @@ const { MissingHeaderError } = require('server/utils/errors')
 const { getSunstoneConfig, getFireedgeConfig } = require('server/utils/yml')
 
 const { getRemotesConfig } = require('server/utils/remoteModules')
-const { getForecastConfig } = require('server/utils/oned')
+const { getForecastConfig } = require('server/utils/config')
 
 const { getEncodedFavicon } = require('server/utils/logo')
 const {

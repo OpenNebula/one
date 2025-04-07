@@ -1976,6 +1976,7 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 
 FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/tab-manifest.yaml \
+                       src/fireedge/etc/sunstone/default-labels.yaml \
                        src/fireedge/etc/sunstone/remotes-config.yaml \
                        src/fireedge/etc/sunstone/sunstone-views.yaml"
 

@@ -20,9 +20,11 @@ const {
   getVmmConfigHandler,
   getTemplateProfiles,
   getTabManifestHandler,
+  getDefaultLabelsHandler,
 } = require('server/routes/api/system/functions')
 
-const { SYSTEM_CONFIG, VMM_CONFIG, TAB_CONFIG, PROFILES } = Actions
+const { SYSTEM_CONFIG, VMM_CONFIG, TAB_CONFIG, PROFILES, DEFAULT_LABELS } =
+  Actions
 
 module.exports = [
   {
@@ -40,5 +42,9 @@ module.exports = [
   {
     ...Commands[TAB_CONFIG],
     action: getTabManifestHandler,
+  },
+  {
+    ...Commands[DEFAULT_LABELS],
+    action: getDefaultLabelsHandler,
   },
 ]

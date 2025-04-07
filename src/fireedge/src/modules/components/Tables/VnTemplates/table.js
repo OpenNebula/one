@@ -72,6 +72,7 @@ const VnTemplatesTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VN_TEMPLATE}
       {...rest}
     />
   )

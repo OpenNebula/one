@@ -19,14 +19,15 @@ import { memo, ReactElement, useMemo } from 'react'
 import { Typography, useTheme } from '@mui/material'
 import { Group, PcCheck, PcNoEntry, PcWarning, User } from 'iconoir-react'
 
-import { SecurityGroup, T } from '@ConstantsModule'
+import { SecurityGroup, T, RESOURCE_NAMES } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import { useAuth } from '@FeaturesModule'
-import { getColorFromString, getUniqueLabels } from '@ModelsModule'
+import { getColorFromString } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTagsCard'
 import { rowStyles } from '@modules/components/Tables/styles'
 import clsx from 'clsx'
+import { getResourceLabels } from '@UtilsModule'
 
 const getTotalOfResources = (resources) =>
   [resources?.ID ?? []].flat().length || 0
@@ -46,27 +47,24 @@ const SecurityGroupCard = memo(
    * @param {SecurityGroup} props.securityGroup - Security Group resource
    * @param {object} props.rootProps - Props to root component
    * @param {ReactElement} [props.actions] - Actions
-   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
    * @returns {ReactElement} - Card
    */
-  ({ securityGroup, rootProps, actions, onClickLabel, onDeleteLabel }) => {
+  ({ securityGroup, rootProps, actions, onClickLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
 
     const internalClasses = useStyles()
-    const { labels: userLabels } = useAuth()
 
-    const {
-      ID,
-      NAME,
-      UNAME,
-      GNAME,
-      UPDATED_VMS,
-      OUTDATED_VMS,
-      ERROR_VMS,
-      TEMPLATE: { LABELS } = {},
-    } = securityGroup
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(
+      labels,
+      securityGroup?.ID,
+      RESOURCE_NAMES.SEC_GROUP
+    )
+
+    const { ID, NAME, UNAME, GNAME, UPDATED_VMS, OUTDATED_VMS, ERROR_VMS } =
+      securityGroup
 
     const [totalUpdatedVms, totalOutdatedVms, totalErrorVms] = useMemo(
       () => [
@@ -77,22 +75,28 @@ const SecurityGroupCard = memo(
       [UPDATED_VMS?.ID, OUTDATED_VMS?.ID, ERROR_VMS?.ID]
     )
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -108,7 +112,8 @@ const SecurityGroupCard = memo(
                 {NAME}
               </Typography>
 
-              <MultipleTags tags={labels} />
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </div>
             <div className={classes.caption}>
               <span>{`#${ID}`}</span>

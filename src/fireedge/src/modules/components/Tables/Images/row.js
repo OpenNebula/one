@@ -15,9 +15,9 @@
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
 import PropTypes from 'prop-types'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
-import { ImageAPI, oneApi, useAuth } from '@FeaturesModule'
+import { useAuth } from '@FeaturesModule'
 import MultipleTags from '@modules/components/MultipleTags'
 import { Typography, useTheme } from '@mui/material'
 import {
@@ -29,19 +29,17 @@ import {
   User,
 } from 'iconoir-react'
 
-import { T } from '@ConstantsModule'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { getResourceLabels, prettyBytes } from '@UtilsModule'
 import {
   getColorFromString,
   getImageState,
-  getUniqueLabels,
-  jsonToXml,
   timeFromMilliseconds,
 } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
-import { StatusChip, StatusCircle } from '@modules/components/Status'
+import { StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
-import { prettyBytes } from '@UtilsModule'
 
 const Row = ({
   original,
@@ -53,8 +51,9 @@ const Row = ({
   toggleRowSelected,
   ...props
 }) => {
-  const [update] = ImageAPI.useUpdateImageMutation()
-  const { labels: userLabels } = useAuth()
+  const { labels } = useAuth()
+
+  const LABELS = getResourceLabels(labels, original?.ID, RESOURCE_NAMES.IMAGE)
 
   const theme = useTheme()
   const classes = useMemo(() => rowStyles(theme), [theme])
@@ -64,56 +63,39 @@ const Row = ({
     UNAME,
     GNAME,
     REGTIME,
-    TYPE,
     PERSISTENT,
     locked,
     DATASTORE,
     SIZE,
     RUNNING_VMS,
-    label: LABELS = [],
   } = value
-
-  const state = oneApi.endpoints.getImages.useQueryState(undefined, {
-    selectFromResult: ({ data = [] }) =>
-      data.find((image) => +image.ID === +original.ID),
-  })
-
-  const memoImage = useMemo(() => state ?? original, [state, original])
-
-  const handleDeleteLabel = useCallback(
-    (label) => {
-      const currentLabels = memoImage.TEMPLATE?.LABELS?.split(',')
-      const newLabels = currentLabels.filter((l) => l !== label).join(',')
-      const newImageTemplate = { ...memoImage.TEMPLATE, LABELS: newLabels }
-      const templateXml = jsonToXml(newImageTemplate)
-
-      update({ id: original.ID, template: templateXml, replace: 0 })
-    },
-    [memoImage.TEMPLATE?.LABELS, update]
-  )
-
-  const labels = [...new Set([TYPE])].filter(Boolean)
 
   const { color: stateColor, name: stateName } = getImageState(original)
 
   const time = timeFromMilliseconds(+REGTIME)
 
-  const multiTagLabels = useMemo(
+  const userLabels = useMemo(
     () =>
-      getUniqueLabels(LABELS).reduce((acc, label) => {
-        if (userLabels?.includes(label)) {
-          acc.push({
-            text: label,
-            dataCy: `label-${label}`,
-            stateColor: getColorFromString(label),
-            onClick: onClickLabel,
-            onDelete: handleDeleteLabel,
-          })
-        }
+      LABELS?.user?.map((label) => ({
+        text: label?.replace(/\$/g, ''),
+        dataCy: `label-${label}`,
+        stateColor: getColorFromString(label),
+        onClick: onClickLabel,
+      })) || [],
+    [LABELS, onClickLabel]
+  )
 
-        return acc
-      }, []),
-    [LABELS, handleDeleteLabel, onClickLabel]
+  const groupLabels = useMemo(
+    () =>
+      Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+        gLabels.map((gLabel) => ({
+          text: gLabel?.replace(/\$/g, ''),
+          dataCy: `group-label-${group}-${gLabel}`,
+          stateColor: getColorFromString(gLabel),
+          onClick: onClickLabel,
+        }))
+      ),
+    [LABELS, onClickLabel]
   )
 
   return (
@@ -126,12 +108,8 @@ const Row = ({
           </Typography>
           {locked && <Lock data-cy="lock" />}
           <span className={classes.labels}>
-            {labels.map((label) => (
-              <StatusChip key={label} text={label} />
-            ))}
-          </span>
-          <span className={classes.labels}>
-            <MultipleTags tags={multiTagLabels} />
+            <MultipleTags limitTags={1} tags={userLabels} />
+            <MultipleTags limitTags={1} tags={groupLabels} />
           </span>
         </div>
         <div className={classes.caption}>

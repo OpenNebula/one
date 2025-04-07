@@ -24,9 +24,10 @@ const {
 const { createTokenServerAdmin } = require('server/routes/api/auth/utils')
 const { getVmmConfig } = require('server/utils/vmm')
 const { getProfiles } = require('server/utils/profiles')
+const { getDefaultLabels } = require('server/utils/config')
 const { getTabManifest } = require('server/utils/remoteModules')
 const { defaultEmptyFunction, httpMethod } = defaults
-const { ok, internalServerError, badRequest, notFound } = httpCodes
+const { ok, internalServerError, badRequest, notFound, noContent } = httpCodes
 const { GET } = httpMethod
 const { writeInLogger } = require('server/utils/logger')
 
@@ -223,6 +224,42 @@ const getTemplateProfiles = async (
 /**
  * @param {object} res - http response
  * @param {Function} next - express stepper
+ * @returns {object} - Default labels
+ */
+const getDefaultLabelsHandler = async (
+  res = {},
+  next = defaultEmptyFunction
+) => {
+  try {
+    const defaultLabels = (await getDefaultLabels()) ?? {}
+
+    if (!defaultLabels || Object.keys(defaultLabels)?.length <= 0) {
+      res.locals.httpCode = httpResponse(
+        noContent,
+        'No default labels found',
+        ''
+      )
+
+      return next()
+    }
+
+    res.locals.httpCode = httpResponse(ok, defaultLabels)
+  } catch (error) {
+    const httpError = httpResponse(
+      internalServerError,
+      'Failed to load default labels config',
+      ''
+    )
+    writeInLogger(httpError)
+    res.locals.httpCode = httpError
+  }
+
+  next()
+}
+
+/**
+ * @param {object} res - http response
+ * @param {Function} next - express stepper
  * @returns {object} - Tab manifest
  */
 const getTabManifestHandler = async (res = {}, next = defaultEmptyFunction) => {
@@ -262,4 +299,5 @@ module.exports = {
   getVmmConfigHandler,
   getTemplateProfiles,
   getTabManifestHandler,
+  getDefaultLabelsHandler,
 }

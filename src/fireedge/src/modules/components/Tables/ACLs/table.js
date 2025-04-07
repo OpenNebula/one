@@ -123,6 +123,7 @@ const ACLsTable = (props) => {
     getRowId: (row) => String(row.ID),
     singleSelect,
     RowComponent: component,
+    resourceType: RESOURCE_NAMES.ACL,
     headerList: header && listHeader,
     ...rest,
   }

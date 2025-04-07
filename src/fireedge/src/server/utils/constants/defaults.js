@@ -130,6 +130,7 @@ const defaults = {
   defaultSharePath: '/usr/share/one',
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',
+  defaultLabelsFilename: 'default-labels.yaml',
   defaultLogFilename: `${appName}.log`,
   defaultKeyFilename: `${appName}_key`,
   defaultSunstoneAuth: 'sunstone_auth',

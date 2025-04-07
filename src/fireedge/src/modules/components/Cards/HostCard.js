@@ -18,9 +18,7 @@ import { Typography, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import { memo, ReactElement, useMemo } from 'react'
-
 import { ModernTv, Server } from 'iconoir-react'
-
 import { Tr } from '@modules/components/HOC'
 import {
   LinearProgressWithLabel,
@@ -28,16 +26,14 @@ import {
   StatusCircle,
 } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
-
 import {
   getAllocatedInfo,
   getColorFromString,
   getHostState,
-  getUniqueLabels,
 } from '@ModelsModule'
-
-import { Host, HOST_THRESHOLD, T } from '@ConstantsModule'
+import { Host, HOST_THRESHOLD, T, RESOURCE_NAMES } from '@ConstantsModule'
 import { useAuth } from '@FeaturesModule'
+import { getResourceLabels } from '@UtilsModule'
 
 const HostCard = memo(
   /**
@@ -52,33 +48,32 @@ const HostCard = memo(
   ({ host, rootProps, actions, onClickLabel, onDeleteLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { labels: userLabels } = useAuth()
-    const {
-      ID,
-      NAME,
-      IM_MAD,
-      VM_MAD,
-      HOST_SHARE,
-      CLUSTER,
-      TEMPLATE: { LABELS } = {},
-    } = host
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(labels, host?.ID, RESOURCE_NAMES.HOST)
+    const { ID, NAME, IM_MAD, VM_MAD, HOST_SHARE, CLUSTER } = host
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     const {
@@ -110,7 +105,8 @@ const HostCard = memo(
               ))}
             </span>
             <span className={classes.labels}>
-              <MultipleTags tags={labels} />
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.caption}>

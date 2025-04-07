@@ -217,6 +217,7 @@ const VmsTable = (props) => {
       RowComponent={component}
       headerList={header && listHeader}
       enabledFullScreen={enabledFullScreen}
+      resourceType={RESOURCE_NAMES.VM}
       {...rest}
     />
   )

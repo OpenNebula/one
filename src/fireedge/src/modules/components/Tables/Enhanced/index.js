@@ -222,6 +222,7 @@ const EnhancedTable = ({
   zoneId,
   headerList,
   enabledFullScreen,
+  resourceType,
 }) => {
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { ROW_SIZE = 10 } = fireedge
@@ -500,6 +501,7 @@ const EnhancedTable = ({
                 {...useTableProps}
                 selectedRows={selectedRows}
                 useUpdateMutation={useUpdateMutation}
+                type={resourceType}
               />
             )}
             <GlobalFilter {...useTableProps} />
@@ -638,6 +640,7 @@ EnhancedTable.propTypes = {
   zoneId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   headerList: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   enabledFullScreen: PropTypes.bool,
+  resourceType: PropTypes.string,
 }
 
 export * from '@modules/components/Tables/Enhanced/Utils'

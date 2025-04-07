@@ -64,6 +64,7 @@ const {
   defaultSunstoneAuth,
   defaultWebpackMode,
   defaultEtcPath,
+  defaultLabelsFilename,
   defaultTypeCrypto,
   defaultHash,
   defaultSunstonePath,
@@ -588,6 +589,9 @@ const genPathResources = () => {
     }
     if (!global.paths.SUNSTONE_VIEWS) {
       global.paths.SUNSTONE_VIEWS = `${ETC_VIEWS_LOCATION}/${defaultSunstoneViews}`
+    }
+    if (!global.paths.DEFAULT_LABELS_CONFIG) {
+      global.paths.DEFAULT_LABELS_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultLabelsFilename}`
     }
     if (!global.paths.VMM_EXEC_CONFIG) {
       global.paths.VMM_EXEC_CONFIG = `${ETC_LOCATION}/vmm_exec`

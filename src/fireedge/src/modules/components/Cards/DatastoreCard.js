@@ -17,7 +17,6 @@ import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import { memo, ReactElement, useMemo } from 'react'
-
 import MultipleTags from '@modules/components/MultipleTagsCard'
 import {
   Cloud,
@@ -27,7 +26,6 @@ import {
   User,
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
-
 import { Tr } from '@modules/components/HOC'
 import {
   LinearProgressWithLabel,
@@ -35,22 +33,16 @@ import {
   StatusCircle,
 } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
+import { Datastore, DS_THRESHOLD, RESOURCE_NAMES, T } from '@ConstantsModule'
 
-import {
-  Datastore,
-  DATASTORE_ACTIONS,
-  DS_THRESHOLD,
-  RESOURCE_NAMES,
-  T,
-} from '@ConstantsModule'
-import { useAuth, useViews } from '@FeaturesModule'
+import { getResourceLabels } from '@UtilsModule'
+import { useAuth } from '@FeaturesModule'
 import {
   getColorFromString,
   getDatastoreCapacityInfo,
   getDatastoreState,
   getDatastoreType,
   getErrorMessage,
-  getUniqueLabels,
 } from '@ModelsModule'
 
 const DatastoreCard = memo(
@@ -65,23 +57,10 @@ const DatastoreCard = memo(
   ({ datastore: ds, rootProps, onClickLabel, onDeleteLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { labels: userLabels } = useAuth()
-    const { [RESOURCE_NAMES.DATASTORE]: dsView } = useViews()
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(labels, ds?.ID, RESOURCE_NAMES.DATASTORE)
 
-    const enableEditLabels =
-      dsView?.actions?.[DATASTORE_ACTIONS.EDIT_LABELS] === true &&
-      !!onDeleteLabel
-
-    const {
-      ID,
-      NAME,
-      UNAME,
-      GNAME,
-      CLUSTERS,
-      LOCK,
-      PROVISION_ID,
-      TEMPLATE: { LABELS } = {},
-    } = ds
+    const { ID, NAME, UNAME, GNAME, CLUSTERS, LOCK, PROVISION_ID } = ds
 
     const type = getDatastoreType(ds)
     const { color: stateColor, name: stateName } = getDatastoreState(ds)
@@ -91,22 +70,28 @@ const DatastoreCard = memo(
 
     const clusters = useMemo(() => [CLUSTERS?.ID ?? []].flat(), [CLUSTERS?.ID])
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: enableEditLabels && onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -129,7 +114,8 @@ const DatastoreCard = memo(
             {LOCK && <Lock />}
             <span className={classes.labels}>
               <StatusChip text={type} />
-              <MultipleTags tags={labels} />
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.caption}>

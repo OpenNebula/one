@@ -22,8 +22,9 @@ import SecurityGroupColumns from '@modules/components/Tables/SecurityGroups/colu
 import SecurityGroupsRow from '@modules/components/Tables/SecurityGroups/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { useAuth, useViews, SecurityGroupAPI } from '@FeaturesModule'
-import { getColorFromString, getUniqueLabels } from '@ModelsModule'
+import { getColorFromString } from '@ModelsModule'
 import { ReactElement, useMemo } from 'react'
+import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'secgroup'
 
@@ -32,6 +33,7 @@ const DEFAULT_DATA_CY = 'secgroup'
  * @returns {ReactElement} Security Groups table
  */
 const SecurityGroupsTable = (props) => {
+  const { labels = {} } = useAuth()
   const {
     rootProps = {},
     searchProps = {},
@@ -44,6 +46,23 @@ const SecurityGroupsTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useQuery()
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(
+            labels,
+            row?.ID,
+            RESOURCE_NAMES.SEC_GROUP,
+            true
+          ),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -62,26 +81,14 @@ const SecurityGroupsTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
-        const { labels: userLabels } = useAuth()
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-              return acc
-            }, []),
-
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -91,7 +98,7 @@ const SecurityGroupsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -99,6 +106,7 @@ const SecurityGroupsTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.SEC_GROUP}
       {...rest}
     />
   )

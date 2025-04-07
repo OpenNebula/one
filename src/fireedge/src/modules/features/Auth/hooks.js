@@ -19,7 +19,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { GeneralSlice } from '@modules/features/General/slice'
 import { AuthSlice, logout } from '@modules/features/Auth/slice'
 import { SystemAPI, oneApi } from '@modules/features/OneApi'
-import { areStringEqual } from '@ModelsModule'
+import { parseLabels } from '@UtilsModule'
 import {
   _APPS,
   RESOURCE_NAMES,
@@ -50,25 +50,34 @@ export const useAuth = () => {
 
   const waitViewToLogin = appNeedViews() ? !!view : true
 
-  const { data: authGroups } = oneApi.endpoints.getGroups.useQueryState(
-    undefined,
-    {
-      skip: !jwt || !user?.GROUPS?.ID,
-      selectFromResult: ({ data: groups = [] }) => ({
-        data: [user?.GROUPS?.ID]
-          .flat()
-          .map((id) => groups.find(({ ID }) => ID === id))
-          .filter(Boolean),
-      }),
-    }
-  )
+  const { data: defaultLabels = {} } =
+    oneApi.endpoints.getDefaultLabels.useQueryState(undefined, {
+      skip: !jwt || !user,
+    })
+
+  const { data: groups } = oneApi.endpoints.getGroups.useQueryState(undefined, {
+    skip: !jwt || !user?.GROUPS?.ID,
+  })
+
+  const authGroups = useMemo(() => {
+    if (!groups) return []
+
+    return [user?.GROUPS?.ID]
+      .flat()
+      .map((id) => groups.find(({ ID }) => ID === id))
+      .filter(Boolean)
+  }, [groups, user?.GROUPS?.ID])
+
+  const groupLabels = groups?.reduce((acc, group) => {
+    acc[group.NAME] = parseLabels(group?.TEMPLATE?.FIREEDGE?.LABELS ?? {})
+
+    return acc
+  }, {})
 
   const userLabels = useMemo(() => {
-    const labels = user?.TEMPLATE?.LABELS?.split(',') ?? []
+    const labels = parseLabels(user?.TEMPLATE?.LABELS ?? {})
 
     return labels
-      .filter(Boolean)
-      .sort(areStringEqual({ numeric: true, ignorePunctuation: true }))
   }, [user?.TEMPLATE?.LABELS])
 
   return useMemo(
@@ -77,6 +86,7 @@ export const useAuth = () => {
       user,
       isOneAdmin: user?.ID === ONEADMIN_ID,
       groups: authGroups,
+      defaultLabels: defaultLabels,
       // Merge user settings with the defaults
       settings: {
         SCHEME: DEFAULT_SCHEME,
@@ -85,7 +95,7 @@ export const useAuth = () => {
         ...(user?.TEMPLATE ?? {}),
         ...(user?.TEMPLATE?.FIREEDGE ?? {}),
       },
-      labels: userLabels ?? [],
+      labels: { user: userLabels, group: groupLabels } ?? {},
       isLogged:
         !!jwt &&
         !!user &&
@@ -93,7 +103,15 @@ export const useAuth = () => {
         !isLoginInProgress &&
         waitViewToLogin,
     }),
-    [user, jwt, isLoginInProgress, authGroups, auth, waitViewToLogin]
+    [
+      user,
+      jwt,
+      isLoginInProgress,
+      authGroups,
+      auth,
+      waitViewToLogin,
+      defaultLabels,
+    ]
   )
 }
 

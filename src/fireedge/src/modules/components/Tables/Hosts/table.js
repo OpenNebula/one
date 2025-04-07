@@ -21,7 +21,6 @@ import {
   getAllocatedInfo,
   getColorFromString,
   getHostState,
-  getUniqueLabels,
 } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTags'
@@ -40,6 +39,7 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import HostColumns from '@modules/components/Tables/Hosts/columns'
 import HostRow from '@modules/components/Tables/Hosts/row'
 import { useFormContext } from 'react-hook-form'
+import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'hosts'
 
@@ -61,6 +61,7 @@ const HostsTable = (props) => {
     RowComponent,
     ...rest
   } = props ?? {}
+  const { labels = {} } = useAuth()
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
 
@@ -111,6 +112,18 @@ const HostsTable = (props) => {
         return rtn
       },
     }
+  )
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.HOST, true),
+        },
+      })),
+    [data]
   )
 
   const columns = useMemo(
@@ -209,26 +222,14 @@ const HostsTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
-        const { labels: userLabels } = useAuth()
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
-
-              return acc
-            }, []),
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -237,7 +238,7 @@ const HostsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -247,6 +248,7 @@ const HostsTable = (props) => {
       zoneId={zoneId}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.HOST}
       {...rest}
     />
   )

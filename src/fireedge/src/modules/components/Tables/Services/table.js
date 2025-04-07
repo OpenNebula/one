@@ -103,6 +103,7 @@ const ServicesTable = (props) => {
       }
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.SERVICE}
       {...rest}
     />
   )

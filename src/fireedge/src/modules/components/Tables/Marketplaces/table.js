@@ -120,6 +120,7 @@ const MarketplacesTable = ({ filter, ...props }) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.MARKETPLACE}
       {...rest}
     />
   )

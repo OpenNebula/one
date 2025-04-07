@@ -79,6 +79,22 @@ const systemApi = oneApi.injectEndpoints({
       providesTags: [{ type: SYSTEM, id: 'tab-config' }],
       keepUnusedDataFor: 600,
     }),
+    getDefaultLabels: builder.query({
+      /**
+       * Returns the Default labels configuration.
+       *
+       * @returns {object} The loaded default-labels.yaml file
+       * @throws Fails when response isn't code 200
+       */
+      query: () => {
+        const name = SystemActions.DEFAULT_LABELS
+        const command = { name, ...SystemCommands[name] }
+
+        return { command }
+      },
+      providesTags: [{ type: SYSTEM, id: 'default-labels' }],
+      keepUnusedDataFor: 600,
+    }),
     getSunstoneViews: builder.query({
       /**
        * Returns the Sunstone configuration for resource tabs.
@@ -188,6 +204,7 @@ const systemQueries = (({
   useGetOneVersionQuery,
   useLazyGetOneVersionQuery,
   useGetTabManifestQuery,
+  useGetDefaultLabelsQuery,
   useLazyGetTabManifestQuery,
   useGetOneConfigQuery,
   useLazyGetOneConfigQuery,
@@ -204,6 +221,7 @@ const systemQueries = (({
   useGetOneVersionQuery,
   useLazyGetOneVersionQuery,
   useGetTabManifestQuery,
+  useGetDefaultLabelsQuery,
   useGetOsProfilesQuery,
   useLazyGetOsProfilesQuery,
   useLazyGetTabManifestQuery,

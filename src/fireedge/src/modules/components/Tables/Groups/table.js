@@ -170,6 +170,7 @@ const GroupsTable = (props) => {
       singleSelect={singleSelect}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.GROUP}
       {...rest}
     />
   )

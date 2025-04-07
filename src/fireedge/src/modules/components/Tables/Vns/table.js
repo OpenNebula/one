@@ -15,10 +15,10 @@
  * ------------------------------------------------------------------------- */
 import { RESOURCE_NAMES, T, VNET_THRESHOLD } from '@ConstantsModule'
 import { VnAPI, useAuth, useViews } from '@FeaturesModule'
+import { getResourceLabels } from '@UtilsModule'
 import {
   getColorFromString,
   getLeasesInfo,
-  getUniqueLabels,
   getVirtualNetworkState,
 } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
@@ -47,6 +47,7 @@ const DEFAULT_DATA_CY = 'vnets'
  * @returns {ReactElement} Virtual networks table
  */
 const VnsTable = (props) => {
+  const { labels = {} } = useAuth()
   const {
     rootProps = {},
     searchProps = {},
@@ -110,6 +111,18 @@ const VnsTable = (props) => {
         return rtn
       },
     }
+  )
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VNET, true),
+        },
+      })),
+    [data]
   )
 
   const columns = useMemo(
@@ -198,26 +211,14 @@ const VnsTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
-        const { labels: userLabels } = useAuth()
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-              return acc
-            }, []),
-
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -227,7 +228,7 @@ const VnsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -236,6 +237,7 @@ const VnsTable = (props) => {
       dataDepend={values}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VNET}
       {...rest}
     />
   )

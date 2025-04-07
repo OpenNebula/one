@@ -109,6 +109,7 @@ const ClustersTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.CLUSTER}
       {...rest}
     />
   )

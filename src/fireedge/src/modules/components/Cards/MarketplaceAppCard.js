@@ -19,25 +19,19 @@ import { ReactElement, memo, useMemo } from 'react'
 
 import { Cart, Group, Lock, User } from 'iconoir-react'
 
-import { useAuth, useViews } from '@FeaturesModule'
+import { useAuth } from '@FeaturesModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTagsCard'
 import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
+import { getResourceLabels, prettyBytes } from '@UtilsModule'
 
-import {
-  MARKETPLACE_APP_ACTIONS,
-  MarketplaceApp,
-  RESOURCE_NAMES,
-  T,
-} from '@ConstantsModule'
+import { MarketplaceApp, RESOURCE_NAMES, T } from '@ConstantsModule'
 import {
   getColorFromString,
   getMarketplaceAppState,
   getMarketplaceAppType,
-  getUniqueLabels,
 } from '@ModelsModule'
-import { prettyBytes } from '@UtilsModule'
 
 const MarketplaceAppCard = memo(
   /**
@@ -51,12 +45,8 @@ const MarketplaceAppCard = memo(
   ({ app, rootProps, onClickLabel, onDeleteLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { labels: userLabels } = useAuth()
-    const { [RESOURCE_NAMES.VM]: vmView } = useViews()
-
-    const enableEditLabels =
-      vmView?.actions?.[MARKETPLACE_APP_ACTIONS.EDIT_LABELS] === true &&
-      !!onDeleteLabel
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(labels, app?.ID, RESOURCE_NAMES.APP)
 
     const {
       ID,
@@ -68,7 +58,6 @@ const MarketplaceAppCard = memo(
       MARKETPLACE,
       ZONE_ID,
       SIZE,
-      TEMPLATE: { LABELS } = {},
     } = app
 
     const state = useMemo(() => getMarketplaceAppState(app), [app?.STATE])
@@ -76,22 +65,28 @@ const MarketplaceAppCard = memo(
 
     const type = useMemo(() => getMarketplaceAppType(app), [app?.TYPE])
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: enableEditLabels && onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -105,7 +100,9 @@ const MarketplaceAppCard = memo(
             {LOCK && <Lock />}
             <span className={classes.labels}>
               <StatusChip text={type} />
-              <MultipleTags tags={labels} />
+
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.caption}>

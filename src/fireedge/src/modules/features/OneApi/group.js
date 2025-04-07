@@ -20,6 +20,9 @@ import {
   ONE_RESOURCES_POOL,
 } from '@modules/features/OneApi/resources'
 import { Group } from '@ConstantsModule'
+import { get, set, unset, merge, isEmpty } from 'lodash'
+import { encodeLabels, parseLabels } from '@UtilsModule'
+import { jsonToXml } from '@ModelsModule'
 import {
   removeResourceOnPool,
   updateNameOnResource,
@@ -252,6 +255,124 @@ const groupApi = oneApi.injectEndpoints({
         } catch {}
       },
     }),
+    addGroupLabel: builder.mutation({
+      /**
+       * Adds a new label to a group template without overwriting existing data.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Group id
+       * @param {string} params.label - '.' separated label path.
+       * @param {object} params.data - New label metadata
+       * @returns {number} Group id
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: async ({ id, label, data = {} }, { dispatch }) => {
+        try {
+          const groupData = await dispatch(
+            groupApi.endpoints.getGroup.initiate({ id })
+          ).unwrap()
+
+          const { TEMPLATE } = groupData ?? {}
+
+          const cloneTemplate = structuredClone(TEMPLATE ?? {})
+
+          const existingLabels = parseLabels(
+            get(cloneTemplate, 'FIREEDGE.LABELS', {})
+          )
+
+          const existingLabelData = get(existingLabels, label, {})
+
+          set(existingLabels, label, merge({}, existingLabelData, data))
+
+          const payload = {
+            id,
+            template: jsonToXml({
+              FIREEDGE: { LABELS: encodeLabels(existingLabels) },
+            }),
+            replace: 1,
+          }
+
+          const response = await dispatch(
+            groupApi.endpoints.updateGroup.initiate({
+              ...payload,
+            })
+          ).unwrap()
+
+          return { data: response }
+        } catch (error) {
+          return { error }
+        }
+      },
+      invalidatesTags: [GROUP_POOL],
+    }),
+    removeGroupLabel: builder.mutation({
+      /**
+       * Removes a label from a group template.
+       *
+       * @param {object} params - Request parameters
+       * @param {string|number} params.id - Group id
+       * @param {string} params.label - '.' separated label path.
+       * @returns {number} Group id
+       * @throws Fails when response isn't code 200
+       */
+      queryFn: async ({ id, label }, { dispatch }) => {
+        try {
+          const groupData = await dispatch(
+            groupApi.endpoints.getGroup.initiate({ id })
+          ).unwrap()
+
+          const { TEMPLATE } = groupData ?? {}
+
+          const cloneTemplate = structuredClone(TEMPLATE ?? {})
+
+          const existingLabels = parseLabels(
+            get(cloneTemplate, 'FIREEDGE.LABELS', {})
+          )
+
+          const deletePath = (obj, path) => {
+            const parts = path.split('.')
+            const lastKey = parts.pop()
+            let parent = get(obj, parts)
+
+            if (Array.isArray(parent)) {
+              parent = parent.filter((val) => val !== lastKey)
+
+              if (isEmpty(parent)) {
+                unset(obj, parts)
+              } else {
+                set(obj, parts, parent)
+              }
+
+              return
+            }
+
+            unset(obj, path)
+          }
+
+          deletePath(existingLabels, label)
+
+          const payload = {
+            id,
+            template: jsonToXml({
+              ...cloneTemplate,
+              FIREEDGE: { LABELS: encodeLabels(existingLabels) },
+            }),
+            replace: 0,
+          }
+
+          const response = await dispatch(
+            groupApi.endpoints.updateGroup.initiate({
+              ...payload,
+            })
+          ).unwrap()
+
+          return { data: response }
+        } catch (error) {
+          return { error }
+        }
+      },
+      invalidatesTags: [GROUP_POOL],
+    }),
     addAdminToGroup: builder.mutation({
       /**
        * Adds a User to the Group administrators set.
@@ -350,6 +471,8 @@ const groupQueries = (({
 
   // Mutations
   useAllocateGroupMutation,
+  useAddGroupLabelMutation,
+  useRemoveGroupLabelMutation,
   useUpdateGroupMutation,
   useRemoveGroupMutation,
   useAddAdminToGroupMutation,
@@ -367,6 +490,8 @@ const groupQueries = (({
 
   // Mutations
   useAllocateGroupMutation,
+  useAddGroupLabelMutation,
+  useRemoveGroupLabelMutation,
   useUpdateGroupMutation,
   useRemoveGroupMutation,
   useAddAdminToGroupMutation,

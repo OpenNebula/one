@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
+import { T } from '@ConstantsModule'
 import { CategoryFilter } from '@modules/components/Tables/Enhanced/Utils'
 import { getImageState, getImageType, getDiskType } from '@ModelsModule'
 
@@ -52,6 +53,12 @@ const COLUMNS = [
   { Header: 'Registration Time', accessor: 'REGTIME' },
   { Header: 'Datastore', accessor: 'DATASTORE' },
   { Header: 'Persistent', accessor: 'PERSISTENT' },
+  {
+    Header: T.Label,
+    id: 'label',
+    accessor: 'TEMPLATE.LABELS',
+    filter: 'arrIncludesSome',
+  },
   {
     Header: 'Running VMs',
     accessor: 'RUNNING_VMS',

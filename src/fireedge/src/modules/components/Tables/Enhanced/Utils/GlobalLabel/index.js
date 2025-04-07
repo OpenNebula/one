@@ -14,196 +14,70 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
-import { ReactElement, useCallback, useMemo, useState } from 'react'
-
+import { ReactElement, useMemo, useState } from 'react'
 import { Stack } from '@mui/material'
 import SettingsIcon from 'iconoir-react/dist/LabelOutline'
 import { UseFiltersInstanceProps } from 'opennebula-react-table'
-
 import { useAuth } from '@FeaturesModule'
-
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
-import { areStringEqual, jsonToXml } from '@ModelsModule'
 import { Translate } from '@modules/components/HOC'
 import HeaderPopover from '@modules/components/Header/Popover'
-import Allocator from '@modules/components/Tables/Enhanced/Utils/GlobalLabel/Allocator'
-import FilterByLabel from '@modules/components/Tables/Enhanced/Utils/GlobalLabel/Filter'
-
-export const LABEL_COLUMN_ID = 'label'
-
-const toUpperCase = (label) => label?.trim()
-
-const getLabelFromRows = (rows, flatting = true) => {
-  const labels = rows
-    ?.map((row) => row.values[LABEL_COLUMN_ID]?.split(',') ?? [])
-    .filter(Boolean)
-
-  return flatting
-    ? labels.flat().map(toUpperCase)
-    : labels.map((label) => [label].flat().filter(Boolean).map(toUpperCase))
-}
-
-const sortByFilteredFirst = (labels, filters) =>
-  labels.sort((a, b) => {
-    let ai = filters.indexOf(a)
-    ai = ai === -1 ? filters.length + labels.indexOf(a) : ai
-    let bi = filters.indexOf(b)
-    bi = bi === -1 ? filters.length + labels.indexOf(b) : bi
-
-    return ai - bi
-  })
+import NestedLabelTree from '@modules/components/List/NestedLabelTree'
 
 /**
  * Button to filter rows by label or assign labels to selected rows.
  *
  * @param {UseFiltersInstanceProps} props - Component props
  * @param {object[]} props.selectedRows - Selected rows
- * @param {Function} props.useUpdateMutation - Callback to update row labels
  * @returns {ReactElement} Button component
  */
-const GlobalLabel = ({
-  selectedRows = [],
-  useUpdateMutation,
-  ...tableProps
-}) => {
-  const { setFilter, page, state } = tableProps
-  const [update, { isLoading } = {}] = useUpdateMutation?.() || []
+const GlobalLabel = ({ selectedRows = [], type }) => {
+  const [expanded, setExpanded] = useState([])
 
-  const [pendingValue, setPendingValue] = useState(() => [])
-  const { labels: userLabels } = useAuth()
+  const { labels } = useAuth()
 
-  const enableEditLabel = useMemo(
-    () => useUpdateMutation && selectedRows?.length > 0,
-    [useUpdateMutation, selectedRows?.length]
+  const parsedLabels = useMemo(
+    () => ({
+      user: labels?.user ?? {},
+      group: labels?.group ?? {},
+    }),
+    [labels]
   )
-
-  const unknownPageLabels = useMemo(
-    () =>
-      getLabelFromRows(page)
-        .filter((label) => !userLabels.includes(label))
-        .sort(areStringEqual),
-    [page]
-  )
-
-  const currentLabelFilters = useMemo(
-    () =>
-      state.filters
-        .filter(({ id }) => id === LABEL_COLUMN_ID)
-        .map(({ value }) => value)
-        .flat(),
-    [state.filters]
-  )
-
-  const allFilterLabels = useMemo(() => {
-    const all = [...userLabels, ...currentLabelFilters]
-    const unique = [...new Set(all)]
-
-    return sortByFilteredFirst(unique, currentLabelFilters)
-  }, [userLabels, unknownPageLabels, currentLabelFilters])
-
-  const allocatorProps = useMemo(() => {
-    if (!enableEditLabel) return {}
-
-    const selectedLabels = getLabelFromRows(selectedRows, false)
-    const labels = sortByFilteredFirst(
-      [...allFilterLabels],
-      selectedLabels.flat()
-    )
-
-    return { selectedLabels, labels }
-  }, [enableEditLabel, allFilterLabels, selectedRows])
-
-  /**
-   * Handle event when user clicks on the label filter button
-   */
-  const handleOpenPopover = useCallback(() => {
-    if (!enableEditLabel) return setPendingValue(currentLabelFilters)
-
-    const { labels, selectedLabels } = allocatorProps
-    const labelsInEveryRows = labels.filter((l) =>
-      selectedLabels.every((selected) => selected.includes(l))
-    )
-
-    // [labelsToAdd, labelsToRemove]
-    setPendingValue([labelsInEveryRows, []])
-  }, [enableEditLabel, currentLabelFilters, selectedRows])
-
-  /**
-   * Handle event when user clicks outside of the popover
-   */
-  const handleClickAwayPopover = useCallback(async () => {
-    if (!enableEditLabel) return
-
-    const [labelsToAdd, labelsToRemove] = pendingValue
-
-    await Promise.all(
-      selectedRows.map(({ original: { ID, USER_TEMPLATE, TEMPLATE } }) => {
-        const template = USER_TEMPLATE ?? TEMPLATE
-        const currentLabels = template?.LABELS?.split(',') ?? []
-        const newLabels = currentLabels
-          .map((l) => l?.trim())
-          .filter((l) => labelsToRemove.indexOf(l) === -1)
-          .concat(labelsToAdd)
-
-        const uniqueLabels = [...new Set(newLabels)].join(',')
-        const templateXml = jsonToXml({ ...template, LABELS: uniqueLabels })
-
-        return update({ id: ID, template: templateXml, replace: 0 })
-      })
-    )
-  }, [enableEditLabel, selectedRows, pendingValue, update])
-
-  /**
-   * Filter by label when click on a label.
-   *
-   * @param {Array} value - List of labels
-   */
-  const handleFilterByLabel = (value) => {
-    setFilter(LABEL_COLUMN_ID, value)
-  }
 
   return (
     <Stack direction="row" gap="0.5em" flexWrap="wrap">
       <HeaderPopover
+        key={'label-popover'}
         id="filter-by-label"
         icon={<SettingsIcon />}
-        headerTitle={
-          <Translate word={enableEditLabel ? T.ApplyLabels : T.FilterByLabel} />
-        }
+        headerTitle={<Translate word={T.FilterByLabel} />}
         buttonLabel={<Translate word={T.Label} />}
         buttonProps={{
           'data-cy': 'filter-by-label',
-          disabled: isLoading,
-          onClick: handleOpenPopover,
           importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
           size: STYLE_BUTTONS.SIZE.MEDIUM,
           type: STYLE_BUTTONS.TYPE.FILLED,
+          variant: 'outlined',
+          color: 'secondary',
         }}
         popperProps={{
           placement: 'bottom-end',
-          sx: { width: { xs: '100%', md: 500 } },
+          sx: {
+            width: { xs: '100%', md: 600 },
+            maxHeight: '600px',
+            overflowY: 'auto',
+          },
         }}
-        onClickAway={handleClickAwayPopover}
       >
-        {({ handleClose }) =>
-          enableEditLabel ? (
-            <Allocator
-              {...allocatorProps}
-              pendingValue={pendingValue}
-              handleChange={setPendingValue}
-              handleClose={handleClose}
-            />
-          ) : (
-            <FilterByLabel
-              labels={allFilterLabels}
-              unknownLabels={unknownPageLabels}
-              pendingValue={pendingValue}
-              handleChange={setPendingValue}
-              handleClose={handleClose}
-              handleFilterByLabel={handleFilterByLabel}
-            />
-          )
-        }
+        {() => (
+          <NestedLabelTree
+            selectedRows={selectedRows}
+            parsedLabels={parsedLabels}
+            expanded={expanded}
+            setExpanded={setExpanded}
+            resourceType={type}
+          />
+        )}
       </HeaderPopover>
     </Stack>
   )
@@ -212,8 +86,10 @@ const GlobalLabel = ({
 GlobalLabel.propTypes = {
   selectedRows: PropTypes.array,
   useUpdateMutation: PropTypes.func,
+  type: PropTypes.string,
 }
 
 GlobalLabel.displayName = 'GlobalLabel'
 
+export const LABEL_COLUMN_ID = 'label'
 export default GlobalLabel

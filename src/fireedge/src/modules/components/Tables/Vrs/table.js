@@ -14,7 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
+import MultipleTags from '@modules/components/MultipleTags'
 
+import { getColorFromString } from '@ModelsModule'
 import EnhancedTable, {
   createColumns,
 } from '@modules/components/Tables/Enhanced'
@@ -22,7 +24,8 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VrColumns from '@modules/components/Tables/Vrs/columns'
 import VrRow from '@modules/components/Tables/Vrs/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, VrAPI } from '@FeaturesModule'
+import { useViews, VrAPI, useAuth } from '@FeaturesModule'
+import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'vrouters'
 
@@ -31,6 +34,7 @@ const DEFAULT_DATA_CY = 'vrouters'
  * @returns {ReactElement} Virtual Routers table
  */
 const VrsTable = (props) => {
+  const { labels = {} } = useAuth()
   const {
     rootProps = {},
     searchProps = {},
@@ -42,6 +46,23 @@ const VrsTable = (props) => {
 
   const { view, getResourceView } = useViews()
   const { data = [], isFetching, refetch } = useQuery()
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(
+            labels,
+            row?.ID,
+            RESOURCE_NAMES.VROUTER,
+            true
+          ),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -57,6 +78,19 @@ const VrsTable = (props) => {
     { header: T.Name, id: 'name', accessor: 'NAME' },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
+
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(VrRow)
@@ -64,7 +98,7 @@ const VrsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -72,6 +106,7 @@ const VrsTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VROUTER}
       {...rest}
     />
   )

@@ -26,12 +26,14 @@ const SYSTEM_CONFIG = 'system.config'
 const VMM_CONFIG = 'vmm.config'
 const PROFILES = 'system.profiles'
 const TAB_CONFIG = 'tab.config'
+const DEFAULT_LABELS = 'defaultlabels.config'
 
 const Actions = {
   SYSTEM_CONFIG,
   VMM_CONFIG,
   PROFILES,
   TAB_CONFIG,
+  DEFAULT_LABELS,
 }
 
 module.exports = {
@@ -68,6 +70,11 @@ module.exports = {
       path: `${basepath}/tab-manifest`,
       httpMethod: GET,
       auth: false,
+    },
+    [DEFAULT_LABELS]: {
+      path: `${basepath}/default-labels`,
+      httpMethod: GET,
+      auth: true,
     },
   },
 }

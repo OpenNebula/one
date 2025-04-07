@@ -22,12 +22,9 @@ import VmTemplateColumns from '@modules/components/Tables/VmTemplates/columns'
 import VmTemplateRow from '@modules/components/Tables/VmTemplates/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { useAuth, useViews, VmTemplateAPI } from '@FeaturesModule'
-import {
-  getColorFromString,
-  getUniqueLabels,
-  timeToString,
-} from '@ModelsModule'
+import { getColorFromString, timeToString } from '@ModelsModule'
 import { ReactElement, useEffect, useMemo } from 'react'
+import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'vm-templates'
 
@@ -36,6 +33,7 @@ const DEFAULT_DATA_CY = 'vm-templates'
  * @returns {ReactElement} VM Templates table
  */
 const VmTemplatesTable = (props) => {
+  const { labels = {} } = useAuth()
   const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
@@ -46,6 +44,23 @@ const VmTemplatesTable = (props) => {
     isFetching,
     refetch,
   } = VmTemplateAPI.useGetTemplatesQuery()
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(
+            labels,
+            row?.ID,
+            RESOURCE_NAMES.VM_TEMPLATE,
+            true
+          ),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -70,26 +85,14 @@ const VmTemplatesTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS } = {} }) => {
-        const { labels: userLabels } = useAuth()
-        const labels = useMemo(
-          () =>
-            getUniqueLabels(LABELS).reduce((acc, label) => {
-              if (userLabels?.includes(label)) {
-                acc.push({
-                  text: label,
-                  dataCy: `label-${label}`,
-                  stateColor: getColorFromString(label),
-                })
-              }
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
 
-              return acc
-            }, []),
-
-          [LABELS]
-        )
-
-        return <MultipleTags tags={labels} truncateText={10} />
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
       },
     },
   ]
@@ -99,7 +102,7 @@ const VmTemplatesTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -107,6 +110,7 @@ const VmTemplatesTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VM_TEMPLATE}
       {...rest}
     />
   )

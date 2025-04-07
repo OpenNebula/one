@@ -16,8 +16,34 @@
 const fs = require('fs-extra')
 const { global } = require('window-or-global')
 const path = require('path')
-
 const { parse: yamlToJson } = require('yaml')
+
+/**
+ * Fetches the default labels configuration.
+ *
+ * @returns {object} - Parsed default labels
+ */
+const getDefaultLabels = async () => {
+  const defaultLabelsPath = global?.paths?.DEFAULT_LABELS_CONFIG
+
+  if (!defaultLabelsPath) {
+    return
+  }
+
+  try {
+    const stats = await fs.stat(defaultLabelsPath)
+
+    if (stats.isFile()) {
+      const fileContent = await fs.readFile(defaultLabelsPath, 'utf-8')
+
+      const parsedFile = yamlToJson(fileContent)
+
+      return parsedFile
+    }
+  } catch (error) {
+    throw new Error('No default labels found')
+  }
+}
 
 /**
  * Get the configuration for a specific hypervisor.
@@ -58,4 +84,5 @@ const getForecastConfig = () => {
 
 module.exports = {
   getForecastConfig,
+  getDefaultLabels,
 }

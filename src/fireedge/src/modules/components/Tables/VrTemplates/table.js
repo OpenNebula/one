@@ -14,12 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Box, Grid, useTheme } from '@mui/material'
+import MultipleTags from '@modules/components/MultipleTags'
 import { SubmitButton } from '@modules/components/FormControl'
 import { Component, useEffect, useMemo, useState } from 'react'
 import { DatastoreDialog } from '@modules/components/Tables/VrTemplates/DatastoreSelectionDialog'
 
-import { RESOURCE_NAMES, T, STYLE_BUTTONS } from '@ConstantsModule'
 import {
+  useAuth,
   useViews,
   useGeneralApi,
   MarketplaceAPI,
@@ -27,6 +28,9 @@ import {
   MarketplaceAppAPI,
   DatastoreAPI,
 } from '@FeaturesModule'
+import { getResourceLabels } from '@UtilsModule'
+import { getColorFromString, timeToString } from '@ModelsModule'
+import { RESOURCE_NAMES, T, STYLE_BUTTONS } from '@ConstantsModule'
 import { BoxIso as DownloadIcon } from 'iconoir-react'
 
 import { Tr, Translate } from '@modules/components/HOC'
@@ -37,7 +41,6 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VrTemplateColumns from '@modules/components/Tables/VrTemplates/columns'
 import VrTemplateRow from '@modules/components/Tables/VrTemplates/row'
 import { useStyles } from '@modules/components/Tabs/EmptyTab/styles'
-import { timeToString } from '@ModelsModule'
 import InfoEmpty from 'iconoir-react/dist/InfoEmpty'
 import { debounce } from 'lodash'
 
@@ -49,6 +52,7 @@ const DEFAULT_DATA_CY = 'vrouter-templates'
  */
 const VrTemplatesTable = (props) => {
   const { rootProps = {}, searchProps = {}, ...rest } = props ?? {}
+  const { labels = {} } = useAuth()
 
   const theme = useTheme()
   const classes = useMemo(() => useStyles(theme), [theme])
@@ -76,6 +80,23 @@ const VrTemplatesTable = (props) => {
   ] = MarketplaceAPI.useLazyGetMarketplacesQuery(undefined, {
     skip: true, // Does not run on initial render
   })
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(
+            labels,
+            row?.ID,
+            RESOURCE_NAMES.VM_TEMPLATE,
+            true
+          ),
+        },
+      })),
+    [data]
+  )
 
   const [
     fetchDatastores,
@@ -276,6 +297,19 @@ const VrTemplatesTable = (props) => {
     },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
+
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
+      },
+    },
   ]
 
   const { component, header } = WrapperRow(VrTemplateRow)
@@ -283,7 +317,7 @@ const VrTemplatesTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -292,6 +326,7 @@ const VrTemplatesTable = (props) => {
       noDataCustomRenderer={<NoDataAvailable />}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.VM_TEMPLATE}
       {...rest}
     />
   )

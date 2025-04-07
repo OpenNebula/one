@@ -15,6 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { Box, Stack, Tooltip, Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
+import { getResourceLabels, prettyBytes } from '@UtilsModule'
 import { ReactElement, memo, useMemo } from 'react'
 
 import {
@@ -28,14 +29,13 @@ import {
   WarningCircledOutline as WarningIcon,
 } from 'iconoir-react'
 
-import { ACTIONS, RESOURCE_NAMES, T, VM } from '@ConstantsModule'
-import { useAuth, useViews } from '@FeaturesModule'
+import { RESOURCE_NAMES, T, VM } from '@ConstantsModule'
+import { useAuth } from '@FeaturesModule'
 import {
   getColorFromString,
   getErrorMessage,
   getIps,
   getLastHistory,
-  getUniqueLabels,
   getVirtualMachineState,
   timeFromMilliseconds,
 } from '@ModelsModule'
@@ -45,7 +45,6 @@ import MultipleTags from '@modules/components/MultipleTagsCard'
 import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
-import { prettyBytes } from '@UtilsModule'
 import clsx from 'clsx'
 
 const VirtualMachineCard = memo(
@@ -54,26 +53,15 @@ const VirtualMachineCard = memo(
    * @param {VM} props.vm - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
    * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
-   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @param {ReactElement} [props.actions] - Actions
    * @param {object[]} [props.globalErrors] - Errors globals
    * @returns {ReactElement} - Card
    */
-  ({
-    vm,
-    rootProps,
-    actions,
-    onClickLabel,
-    onDeleteLabel,
-    globalErrors = [],
-  }) => {
+  ({ vm, rootProps, actions, onClickLabel, globalErrors = [] }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { [RESOURCE_NAMES.VM]: vmView } = useViews()
-    const { labels: userLabels } = useAuth()
-
-    const enableEditLabels =
-      vmView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(labels, vm?.ID, RESOURCE_NAMES.VM)
 
     const {
       ID,
@@ -81,7 +69,6 @@ const VirtualMachineCard = memo(
       STIME,
       ETIME,
       LOCK,
-      USER_TEMPLATE: { LABELS } = {},
       GNAME,
       UNAME,
       TEMPLATE: { VCPU = '-', MEMORY, CONTEXT = {} } = {},
@@ -134,23 +121,28 @@ const VirtualMachineCard = memo(
     const ips = useMemo(() => getIps(vm), [vm])
     const memValue = useMemo(() => prettyBytes(+MEMORY, 'MB', 2), [MEMORY])
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: enableEditLabels && onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-
-      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -179,7 +171,9 @@ const VirtualMachineCard = memo(
             <span className={classes.labels}>
               {hypervisor && <StatusChip text={hypervisor} />}
               {LOCK && <Lock data-cy="lock" />}
-              <MultipleTags tags={labels} />
+
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.vmActionLayout}>

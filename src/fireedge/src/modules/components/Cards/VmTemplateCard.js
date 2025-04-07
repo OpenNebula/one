@@ -19,7 +19,8 @@ import { ReactElement, memo, useMemo } from 'react'
 
 import { Group, Lock, User } from 'iconoir-react'
 
-import { useAuth, useViews } from '@FeaturesModule'
+import { useAuth } from '@FeaturesModule'
+import { getResourceLabels, isExternalURL } from '@UtilsModule'
 import { Tr } from '@modules/components/HOC'
 import Image from '@modules/components/Image'
 import MultipleTags from '@modules/components/MultipleTagsCard'
@@ -28,20 +29,18 @@ import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
 
 import {
-  ACTIONS,
   DEFAULT_TEMPLATE_LOGO,
   RESOURCE_NAMES,
   STATIC_FILES_URL,
   T,
   VM,
 } from '@ConstantsModule'
+
 import {
   getColorFromString,
-  getUniqueLabels,
   stringToBoolean,
   timeFromMilliseconds,
 } from '@ModelsModule'
-import { isExternalURL } from '@UtilsModule'
 
 const VmTemplateCard = memo(
   /**
@@ -49,17 +48,17 @@ const VmTemplateCard = memo(
    * @param {VM} props.template - Virtual machine resource
    * @param {object} props.rootProps - Props to root component
    * @param {function(string):Promise} [props.onClickLabel] - Callback to click label
-   * @param {function(string):Promise} [props.onDeleteLabel] - Callback to delete label
    * @returns {ReactElement} - Card
    */
-  ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
+  ({ template, rootProps, onClickLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { [RESOURCE_NAMES.VM_TEMPLATE]: templateView } = useViews()
-    const { labels: userLabels } = useAuth()
-
-    const enableEditLabels =
-      templateView?.actions?.[ACTIONS.EDIT_LABELS] === true && !!onDeleteLabel
+    const { labels } = useAuth()
+    const LABELS = getResourceLabels(
+      labels,
+      template?.ID,
+      RESOURCE_NAMES.VM_TEMPLATE
+    )
 
     const {
       ID,
@@ -68,7 +67,7 @@ const VmTemplateCard = memo(
       GNAME,
       REGTIME,
       LOCK,
-      TEMPLATE: { VROUTER, HYPERVISOR, LABELS, LOGO = '' } = {},
+      TEMPLATE: { VROUTER, HYPERVISOR, LOGO = '' } = {},
     } = template
 
     const isExternalImage = useMemo(() => isExternalURL(LOGO), [LOGO])
@@ -81,22 +80,28 @@ const VmTemplateCard = memo(
       return isExternalImage ? LOGO : `${STATIC_FILES_URL}/${LOGO}`
     }, [isExternalImage, LOGO])
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: enableEditLabels && onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, enableEditLabels, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -135,7 +140,8 @@ const VmTemplateCard = memo(
               {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
               {LOCK && <Lock data-cy="lock" />}
               {isVR && <StatusChip text={'VROUTER'} />}
-              <MultipleTags tags={labels} />
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.caption}>

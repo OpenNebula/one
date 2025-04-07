@@ -14,6 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { ReactElement, useMemo } from 'react'
+import MultipleTags from '@modules/components/MultipleTags'
 
 import { StatusCircle } from '@modules/components/Status'
 import EnhancedTable, {
@@ -21,10 +22,11 @@ import EnhancedTable, {
 } from '@modules/components/Tables/Enhanced'
 import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import ImageColumns from '@modules/components/Tables/Images/columns'
-import ImageRow from '@modules/components/Tables/Images/row'
+import FileRow from '@modules/components/Tables/Files/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
-import { useViews, ImageAPI } from '@FeaturesModule'
-import { getImageState, getImageType } from '@ModelsModule'
+import { useViews, ImageAPI, useAuth } from '@FeaturesModule'
+import { getImageState, getImageType, getColorFromString } from '@ModelsModule'
+import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'images'
 
@@ -33,6 +35,7 @@ const DEFAULT_DATA_CY = 'images'
  * @returns {ReactElement} Images table
  */
 const FilesTable = (props) => {
+  const { labels = {} } = useAuth()
   const { rootProps = {}, searchProps = {}, datastoreId, ...rest } = props ?? {}
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
@@ -54,6 +57,18 @@ const FilesTable = (props) => {
       }),
     }),
   })
+
+  const fmtData = useMemo(
+    () =>
+      data?.map((row) => ({
+        ...row,
+        TEMPLATE: {
+          ...(row?.TEMPLATE ?? {}),
+          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.FILE, true),
+        },
+      })),
+    [data]
+  )
 
   const columns = useMemo(
     () =>
@@ -82,16 +97,29 @@ const FilesTable = (props) => {
       id: 'type',
       accessor: (template) => getImageType(template),
     },
+    {
+      header: T.Labels,
+      id: 'labels',
+      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
+        const fmtLabels = LABELS?.map((label) => ({
+          text: label,
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+        }))
+
+        return <MultipleTags tags={fmtLabels} truncateText={10} />
+      },
+    },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
   ]
 
-  const { component, header } = WrapperRow(ImageRow)
+  const { component, header } = WrapperRow(FileRow)
 
   return (
     <EnhancedTable
       columns={columns}
-      data={useMemo(() => data, [data])}
+      data={fmtData}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
@@ -99,6 +127,7 @@ const FilesTable = (props) => {
       getRowId={(row) => String(row.ID)}
       RowComponent={component}
       headerList={header && listHeader}
+      resourceType={RESOURCE_NAMES.FILE}
       {...rest}
     />
   )

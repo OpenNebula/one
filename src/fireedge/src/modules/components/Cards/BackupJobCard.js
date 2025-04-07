@@ -17,17 +17,14 @@ import { ReactElement, memo, useMemo } from 'react'
 
 import { Typography, useTheme } from '@mui/material'
 
-import {
-  getColorFromString,
-  getUniqueLabels,
-  timeFromMilliseconds,
-} from '@ModelsModule'
+import { getColorFromString, timeFromMilliseconds } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
 import MultipleTags from '@modules/components/MultipleTagsCard'
 import { StatusCircle } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 
-import { COLOR, T } from '@ConstantsModule'
+import { getResourceLabels } from '@UtilsModule'
+import { COLOR, RESOURCE_NAMES, T } from '@ConstantsModule'
 import Timer from '@modules/components/Timer'
 import { Group, HighPriority, Lock, User } from 'iconoir-react'
 
@@ -50,7 +47,13 @@ const BackupJobCard = memo(
   ({ template, rootProps, onClickLabel, onDeleteLabel }) => {
     const theme = useTheme()
     const classes = useMemo(() => rowStyles(theme), [theme])
-    const { labels: userLabels } = useAuth()
+    const { labels } = useAuth()
+
+    const LABELS = getResourceLabels(
+      labels,
+      template?.ID,
+      RESOURCE_NAMES.BACKUPJOBS
+    )
 
     const {
       ID,
@@ -63,7 +66,6 @@ const BackupJobCard = memo(
       PRIORITY,
       LAST_BACKUP_TIME,
       LOCK,
-      TEMPLATE: { LABELS } = {},
     } = template
 
     const time = useMemo(() => {
@@ -118,22 +120,28 @@ const BackupJobCard = memo(
       }
     }, [OUTDATED_VMS, BACKING_UP_VMS, ERROR_VMS, LAST_BACKUP_TIME])
 
-    const labels = useMemo(
+    const userLabels = useMemo(
       () =>
-        getUniqueLabels(LABELS).reduce((acc, label) => {
-          if (userLabels?.includes(label)) {
-            acc.push({
-              text: label,
-              dataCy: `label-${label}`,
-              stateColor: getColorFromString(label),
-              onClick: onClickLabel,
-              onDelete: onDeleteLabel,
-            })
-          }
+        LABELS?.user?.map((label) => ({
+          text: label?.replace(/\$/g, ''),
+          dataCy: `label-${label}`,
+          stateColor: getColorFromString(label),
+          onClick: onClickLabel,
+        })) || [],
+      [LABELS, onClickLabel]
+    )
 
-          return acc
-        }, []),
-      [LABELS, onClickLabel, onDeleteLabel]
+    const groupLabels = useMemo(
+      () =>
+        Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+          gLabels.map((gLabel) => ({
+            text: gLabel?.replace(/\$/g, ''),
+            dataCy: `group-label-${group}-${gLabel}`,
+            stateColor: getColorFromString(gLabel),
+            onClick: onClickLabel,
+          }))
+        ),
+      [LABELS, onClickLabel]
     )
 
     return (
@@ -144,7 +152,8 @@ const BackupJobCard = memo(
             <Typography component="span">{NAME}</Typography>
             <span className={classes.labels}>
               {LOCK && <Lock data-cy="lock" />}
-              <MultipleTags tags={labels} />
+              <MultipleTags limitTags={1} tags={userLabels} />
+              <MultipleTags limitTags={1} tags={groupLabels} />
             </span>
           </div>
           <div className={classes.caption}>

@@ -17,7 +17,9 @@
 import PropTypes from 'prop-types'
 import { useMemo } from 'react'
 
+import { useAuth } from '@FeaturesModule'
 import { Typography, useTheme } from '@mui/material'
+import MultipleTags from '@modules/components/MultipleTagsCard'
 import {
   Db as DatastoreIcon,
   Archive as DiskTypeIcon,
@@ -27,37 +29,68 @@ import {
   Pin as PersistentIcon,
   User,
 } from 'iconoir-react'
-
-import { T } from '@ConstantsModule'
-import { StatusChip, StatusCircle } from '@modules/components/Status'
+import { RESOURCE_NAMES, T } from '@ConstantsModule'
+import { StatusCircle } from '@modules/components/Status'
+import { getResourceLabels } from '@UtilsModule'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
+import {
+  getColorFromString,
+  getImageState,
+  timeFromMilliseconds,
+} from '@ModelsModule'
 
-import { getImageState, timeFromMilliseconds } from '@ModelsModule'
-
-const Row = ({ original, value, toggleRowSelected, ...props }) => {
+const Row = ({
+  original,
+  value,
+  onClickLabel,
+  toggleRowSelected,
+  ...props
+}) => {
+  const { labels } = useAuth()
+  const LABELS = getResourceLabels(labels, original?.ID, RESOURCE_NAMES.FILE)
   const theme = useTheme()
   const classes = useMemo(() => rowStyles(theme), [theme])
   const {
-    ID,
-    NAME,
+    id: ID,
+    name: NAME,
     UNAME,
     GNAME,
     REGTIME,
-    TYPE,
     DISK_TYPE,
     PERSISTENT,
     locked,
     DATASTORE,
-    TOTAL_VMS,
     RUNNING_VMS,
   } = value
-
-  const labels = [...new Set([TYPE])].filter(Boolean)
 
   const { color: stateColor, name: stateName } = getImageState(original)
 
   const time = timeFromMilliseconds(+REGTIME)
+
+  const userLabels = useMemo(
+    () =>
+      LABELS?.user?.map((label) => ({
+        text: label?.replace(/\$/g, ''),
+        dataCy: `label-${label}`,
+        stateColor: getColorFromString(label),
+        onClick: onClickLabel,
+      })) || [],
+    [LABELS, onClickLabel]
+  )
+
+  const groupLabels = useMemo(
+    () =>
+      Object.entries(LABELS?.group || {}).flatMap(([group, gLabels]) =>
+        gLabels.map((gLabel) => ({
+          text: gLabel?.replace(/\$/g, ''),
+          dataCy: `group-label-${group}-${gLabel}`,
+          stateColor: getColorFromString(gLabel),
+          onClick: onClickLabel,
+        }))
+      ),
+    [LABELS, onClickLabel]
+  )
 
   return (
     <div {...props} data-cy={`image-${ID}`}>
@@ -69,9 +102,8 @@ const Row = ({ original, value, toggleRowSelected, ...props }) => {
           </Typography>
           {locked && <Lock />}
           <span className={classes.labels}>
-            {labels.map((label) => (
-              <StatusChip key={label} text={label} />
-            ))}
+            <MultipleTags limitTags={1} tags={userLabels} />
+            <MultipleTags limitTags={1} tags={groupLabels} />
           </span>
         </div>
         <div className={classes.caption}>
@@ -109,11 +141,9 @@ const Row = ({ original, value, toggleRowSelected, ...props }) => {
             <DiskTypeIcon />
             <span>{` ${DISK_TYPE.toLowerCase()}`}</span>
           </span>
-          <span
-            title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS} / ${TOTAL_VMS}`}
-          >
+          <span title={`${T.Running} / ${T.Used} ${T.VMs}: ${RUNNING_VMS}`}>
             <ModernTv />
-            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
+            <span>{` ${RUNNING_VMS}`}</span>
           </span>
         </div>
       </div>
@@ -126,6 +156,7 @@ Row.propTypes = {
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
+  onClickLabel: PropTypes.func,
   toggleRowSelected: PropTypes.func,
 }
 
