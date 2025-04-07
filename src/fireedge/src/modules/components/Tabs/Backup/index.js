@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Alert, Stack } from '@mui/material'
-import PropTypes from 'prop-types'
-import { memo, useMemo } from 'react'
-import { OpenNebulaLogo } from '@modules/components/Icons'
 import { RESOURCE_NAMES } from '@ConstantsModule'
-import { useViews, ImageAPI } from '@FeaturesModule'
+import { ImageAPI, useViews } from '@FeaturesModule'
 import { getAvailableInfoTabs } from '@ModelsModule'
+import { OpenNebulaLogo } from '@modules/components/Icons'
 import { BaseTab as Tabs } from '@modules/components/Tabs'
 import Increments from '@modules/components/Tabs/Backup/Increments'
 import Info from '@modules/components/Tabs/Backup/Info'
 import Vms from '@modules/components/Tabs/Backup/Vms'
+import { Alert, Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { memo, useMemo } from 'react'
 
 const getTabComponent = (tabName) =>
   ({

@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { reach } from 'yup'
-import { set } from 'lodash'
-import { SCHEMA } from '@modules/components/Forms/Vm/UpdateConfigurationForm/schema'
 import ContentForm from '@modules/components/Forms/Vm/UpdateConfigurationForm/content'
+import { SCHEMA } from '@modules/components/Forms/Vm/UpdateConfigurationForm/schema'
 import {
   createForm,
+  decodeBase64,
   getUnknownAttributes,
   isBase64,
-  decodeBase64,
 } from '@UtilsModule'
+import { set } from 'lodash'
+import { reach } from 'yup'
 
 const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
   ContentForm,
   transformInitialValue: (vmTemplate, schema) => {
     const template = vmTemplate?.TEMPLATE ?? {}
     const context = template?.CONTEXT ?? {}
-    const backupConfig = vmTemplate?.BACKUPS?.BACKUP_CONFIG ?? {}
     const bootOrder = template?.OS?.BOOT
     const nics = [].concat(template?.NIC ?? []).flat()
     const knownTemplate = schema.cast(
@@ -42,15 +41,6 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       stripUnknown: true,
       context: { ...template },
     })
-
-    // Get the custom vars from the context
-    const knownBackupConfig = reach(schema, 'BACKUP_CONFIG').cast(
-      backupConfig,
-      {
-        stripUnknown: true,
-        context: { ...template },
-      }
-    )
 
     // Merge known and unknown context custom vars
     knownTemplate.CONTEXT = {
@@ -65,12 +55,6 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
         START_SCRIPT: decodeBase64(template?.CONTEXT?.START_SCRIPT_BASE64),
         ENCODE_START_SCRIPT: true,
       }
-    }
-
-    // Merge known and unknown context custom vars
-    knownTemplate.BACKUP_CONFIG = {
-      ...knownBackupConfig,
-      ...getUnknownAttributes(backupConfig, knownBackupConfig),
     }
 
     // Easy compatibility with the bootOrder component by specifying the same form paths as in the VM Template

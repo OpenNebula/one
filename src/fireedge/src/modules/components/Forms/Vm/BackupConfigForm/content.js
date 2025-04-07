@@ -13,22 +13,35 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { object, ObjectSchema } from 'yup'
-
-import { HYPERVISORS } from '@ConstantsModule'
-import { SCHEMA as OS_SCHEMA } from './booting/schema'
-import { SCHEMA as CONTEXT_SCHEMA } from './context/schema'
-import { SCHEMA as IO_SCHEMA } from './inputOutput/schema'
+import { T } from '@ConstantsModule'
+import { FormWithSchema } from '@modules/components/Forms'
+import { SECTIONS } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
+import { Stack } from '@mui/material'
+import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
 /**
- * @param {object} [formProps] - Form props
- * @param {HYPERVISORS} [formProps.hypervisor] - VM hypervisor
- * @returns {ObjectSchema} Configuration schema
+ * @param {object} props - Component properties
+ * @param {object} props.oneConfig - OpenNEbula configuration
+ * @param {boolean} props.adminGroup - If the user is admin
+ * @returns {ReactElement} Form content component
  */
-export const SCHEMA = ({ hypervisor }) =>
-  object()
-    .concat(IO_SCHEMA({ hypervisor }))
-    .concat(OS_SCHEMA({ hypervisor }))
-    .concat(CONTEXT_SCHEMA({ hypervisor }))
+const Content = ({ oneConfig, adminGroup }) => (
+  <Stack display="grid" gap="1em" sx={{ gridTemplateColumns: '1fr' }}>
+    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
+      <FormWithSchema
+        key={id}
+        cy="backup-configuration"
+        legend={T.Backup}
+        {...section}
+      />
+    ))}
+  </Stack>
+)
 
-export { CONTEXT_SCHEMA, IO_SCHEMA, OS_SCHEMA }
+Content.propTypes = {
+  oneConfig: PropTypes.object,
+  adminGroup: PropTypes.bool,
+}
+
+export default Content

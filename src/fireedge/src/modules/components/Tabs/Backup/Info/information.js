@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { ImageAPI } from '@FeaturesModule'
 import { StatusChip } from '@modules/components/Status'
 import { List } from '@modules/components/Tabs/Common'
 
+import { Image, IMAGE_ACTIONS, IMAGE_TYPES, T } from '@ConstantsModule'
 import {
-  getDiskType,
-  getImageType,
-  getImageState,
-  timeToString,
   booleanToString,
+  getDiskType,
+  getImageState,
+  getImageType,
+  timeToString,
 } from '@ModelsModule'
-import { arrayToOptions, prettyBytes } from '@UtilsModule'
-import { T, Image, IMAGE_ACTIONS, IMAGE_TYPES } from '@ConstantsModule'
 import { PATH } from '@modules/components/path'
+import { arrayToOptions, prettyBytes } from '@UtilsModule'
 
 /**
  * Renders mainly information tab.

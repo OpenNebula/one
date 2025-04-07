@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useMemo } from 'react'
-import PropTypes from 'prop-types'
-import { useFormContext } from 'react-hook-form'
 import {
-  SystemShut as OsIcon,
-  DataTransferBoth as IOIcon,
   Folder as ContextIcon,
-  RefreshDouble as BackupIcon,
+  DataTransferBoth as IOIcon,
+  SystemShut as OsIcon,
 } from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { ReactElement, useMemo } from 'react'
+import { useFormContext } from 'react-hook-form'
 
-import InputOutput from '@modules/components/Forms/Vm/UpdateConfigurationForm/inputOutput'
 import Booting from '@modules/components/Forms/Vm/UpdateConfigurationForm/booting'
 import Context from '@modules/components/Forms/Vm/UpdateConfigurationForm/context'
-import Backup from '@modules/components/Forms/Vm/UpdateConfigurationForm/backup'
+import InputOutput from '@modules/components/Forms/Vm/UpdateConfigurationForm/inputOutput'
 
-import { BaseTab as Tabs } from '@modules/components/Tabs'
+import { HYPERVISORS, T } from '@ConstantsModule'
 import { Translate } from '@modules/components/HOC'
-import { T, HYPERVISORS } from '@ConstantsModule'
+import { BaseTab as Tabs } from '@modules/components/Tabs'
 
 /**
  * @param {object} props - Component props
@@ -86,17 +84,6 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
           />
         ),
         error: !!errors?.CONTEXT,
-      },
-      {
-        id: 'backup',
-        icon: BackupIcon,
-        label: <Translate word={T.Backup} />,
-        renderContent: () => (
-          <Backup oneConfig={oneConfig} adminGroup={adminGroup} />
-        ),
-        error: ['BACKUP_VOLATILE', 'FS_FREEZE', 'KEEP_LAST', 'MODE'].some(
-          (id) => errors?.[`BACKUP_CONFIG.${id}`]
-        ),
       },
     ],
     [errors, hypervisor]

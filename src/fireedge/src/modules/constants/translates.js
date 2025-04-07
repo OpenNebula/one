@@ -1330,6 +1330,7 @@ module.exports = {
   /* VM Template schema - Backup */
   BackupVolatileDisksQuestion: 'Backup volatile disks?',
   BackupVolatile: 'Backup volatile',
+  BackupConfigVM: 'Backup config',
   FSFreeze: 'FS Freeze',
   Execution: 'Execution',
   HowManyBackupsQuestion: 'How many backups do you want to keep?',

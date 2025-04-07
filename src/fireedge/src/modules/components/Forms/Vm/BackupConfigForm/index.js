@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+
+import ContentForm from '@modules/components/Forms/Vm/BackupConfigForm/content'
+import { SCHEMA } from '@modules/components/Forms/Vm/BackupConfigForm/schema'
+import { createForm, getUnknownAttributes } from '@UtilsModule'
 import { ReactElement } from 'react'
-import { Stack } from '@mui/material'
 
-import { FormWithSchema } from '@modules/components/Forms'
-
-import { SECTIONS } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/backup/schema'
-import { T } from '@ConstantsModule'
 import PropTypes from 'prop-types'
+import { reach } from 'yup'
 
 /**
  * @param {object} props - Component props
@@ -28,28 +28,42 @@ import PropTypes from 'prop-types'
  * @param {boolean} props.adminGroup - If the user is admin
  * @returns {ReactElement} IO section component
  */
-const Backup = ({ oneConfig, adminGroup }) => (
-  <Stack
-    display="grid"
-    gap="1em"
-    sx={{ gridTemplateColumns: { sm: '1fr', md: '1fr 1fr' } }}
-  >
-    {SECTIONS(oneConfig, adminGroup).map(({ id, ...section }) => (
-      <FormWithSchema
-        key={id}
-        cy="backup-configuration"
-        legend={T.Backup}
-        {...section}
-      />
-    ))}
-  </Stack>
-)
+const BackupConfigForm = createForm(SCHEMA, undefined, {
+  ContentForm,
+  transformInitialValue: (vmTemplate, schema) => {
+    const template = vmTemplate?.TEMPLATE ?? {}
 
-Backup.displayName = 'Backup'
+    const backupConfig = vmTemplate?.BACKUPS?.BACKUP_CONFIG ?? {}
 
-Backup.propTypes = {
+    const knownTemplate = schema.cast(
+      { ...vmTemplate, ...template },
+      { stripUnknown: true, context: { ...template } }
+    )
+
+    // Get the custom vars from the context
+    const knownBackupConfig = reach(schema, 'BACKUP_CONFIG').cast(
+      backupConfig,
+      {
+        stripUnknown: true,
+        context: { ...template },
+      }
+    )
+
+    // Merge known and unknown context custom vars
+    knownTemplate.BACKUP_CONFIG = {
+      ...knownBackupConfig,
+      ...getUnknownAttributes(backupConfig, knownBackupConfig),
+    }
+
+    return knownTemplate
+  },
+})
+
+BackupConfigForm.displayName = 'BackupConfigForm'
+
+BackupConfigForm.propTypes = {
   oneConfig: PropTypes.object,
   adminGroup: PropTypes.bool,
 }
 
-export default Backup
+export default BackupConfigForm
