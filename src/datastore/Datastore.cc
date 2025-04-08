@@ -402,6 +402,7 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
 
     if (type == SYSTEM_DS)
     {
+        // System datastore attributes
         bool shared_type;
         bool ds_migrate;
 
@@ -438,6 +439,7 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
     }
     else
     {
+        // Image datastore attributes
         string st = vatt->vector_value("TM_MAD_SYSTEM");
 
         if (!st.empty())
@@ -515,7 +517,11 @@ int Datastore::set_tm_mad(const string &tm_mad, string &error_str)
         }
 
         remove_template_attribute("SHARED");
+    }
 
+    if ( type != BACKUP_DS )
+    {
+        //Common attributes
         string orph;
 
         if ( vatt->vector_value("ALLOW_ORPHANS", orph) == -1 )
