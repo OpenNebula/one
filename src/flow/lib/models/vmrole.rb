@@ -500,8 +500,9 @@ module OpenNebula
                 end
             end
 
-            # Only considering success if all the nodes were undeployed
-            success = undeployed_nodes.size == n_nodes
+            # Only considering success if all the nodes were undeployed or
+            # there are no nodes to undeploy
+            success = (undeployed_nodes.size == n_nodes) || (n_nodes < 0)
 
             [success, undeployed_nodes]
         end

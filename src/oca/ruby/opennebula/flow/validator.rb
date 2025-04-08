@@ -87,7 +87,7 @@ class Hash
                         content += to_raw({ key.to_s => element })
                     end
                 else
-                    content += "#{key} = \"#{value}\"\n"
+                    content += "#{key} = \"#{value.to_s.gsub('"', '\"')}\"\n"
                 end
             end
 

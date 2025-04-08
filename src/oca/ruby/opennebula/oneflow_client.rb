@@ -344,6 +344,9 @@ module Service
             @username = opts[:username] || ENV['ONEFLOW_USER']
             @password = opts[:password] || ENV['ONEFLOW_PASSWORD']
 
+            # By default oneflow uses JSON as content type
+            @content_type = opts[:content_type] || 'application/json'
+
             if opts[:url]
                 url = opts[:url]
             elsif ENV['ONEFLOW_URL']
@@ -408,10 +411,6 @@ module Service
             @port = uri_proxy.port
         end
 
-        def set_content_type(content_type)
-            @content_type = content_type
-        end
-
         def get(path)
             req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
 
@@ -420,7 +419,11 @@ module Service
 
         def delete(path, body = nil)
             req = Net::HTTP::Proxy(@host, @port)::Delete.new(path)
-            req.body = body if body
+
+            if body
+                req.body = body
+                req.content_type = @content_type
+            end
 
             do_request(req)
         end
@@ -428,16 +431,15 @@ module Service
         def post(path, body)
             req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
+            req.content_type = @content_type
 
-            unless @content_type.nil?
-                req.content_type = @content_type
-            end
             do_request(req)
         end
 
         def put(path, body)
             req = Net::HTTP::Proxy(@host, @port)::Put.new(path)
             req.body = body
+            req.content_type = @content_type
 
             do_request(req)
         end
