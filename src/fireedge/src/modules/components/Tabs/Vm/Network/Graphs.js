@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Grid, Typography } from '@mui/material'
+import { Grid, Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
@@ -23,9 +23,7 @@ import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
 import { prettyBytes } from '@UtilsModule'
 
-const interpolationBytesSeg = (value) =>
-  value ? `${prettyBytes(value)}/s` : value
-const interpolationBytes = (value) => (value ? prettyBytes(value) : value)
+const interpolationBytesSeg = (value) => (value ? `${prettyBytes(value)}/s` : 0)
 
 /**
  * Render Graphs Capacity.
@@ -37,6 +35,15 @@ const interpolationBytes = (value) => (value ? prettyBytes(value) : value)
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
 
+  const theme = useTheme()
+
+  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const { virtualmachine = {} } = forecastConfig
+  const {
+    forecast_period: forecastPeriod = 5, // Minutes
+    forecast_far_period: forecastFarPeriod = 48, // Hours
+  } = virtualmachine
+
   return !monitoring.length ? (
     <Typography variant="h6" zIndex={2} noWrap>
       <Translate word={T.NoNetworksInMonitoring} />
@@ -45,52 +52,78 @@ const Graphs = ({ id }) => {
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item xs={12} sm={6}>
         <Chartist
-          name={Tr(T.NetRX)}
-          data={monitoring}
-          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          x="TIMESTAMP"
-          interpolationY={interpolationBytes}
-          legendNames={[T.NetRX, T.NetRXForecast, T.NetRXForecastFar]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Chartist
-          name={Tr(T.NetTX)}
-          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          data={monitoring}
-          x="TIMESTAMP"
-          legendNames={[T.NetTX, T.NetTXForecast, T.NetTXForecastFar]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
-          interpolationY={interpolationBytes}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <Chartist
           name={Tr(T.NetDownloadSpeed)}
           data={monitoring}
-          filter={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          y={['NETRX', 'NETRX_FORECAST', 'NETRX_FORECAST_FAR']}
-          x="TIMESTAMP"
-          derivative={true}
-          legendNames={[T.NetRX, T.NetRXForecast, T.NetRXForecastFar]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+          filter={['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']}
+          y={['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']}
           interpolationY={interpolationBytesSeg}
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
+          lineColors={[
+            theme?.palette?.graphs.vm.cpu.real,
+            theme?.palette?.graphs.vm.cpu.forecast,
+            theme?.palette?.graphs.vm.cpu.forecastFar,
+          ]}
+          legendNames={[
+            T.NetRX,
+            `${T.NetRX} ${T.Forecast}`,
+            `${T.NetRX} ${T.ForecastFar}`,
+          ]}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['NETRX_BW_FORECAST']}
+          trendLineOnly={['NETRX_BW_FORECAST_FAR']}
+          shouldFill
+          clampForecast
         />
       </Grid>
       <Grid item xs={12} sm={6}>
         <Chartist
           name={Tr(T.NetUploadSpeed)}
           data={monitoring}
-          filter={['NETTX', 'NETTX_FORECAST', 'NETTX_FORECAST_FAR']}
-          y={['NETTX', 'NETTX_FORECAST', 'NETTX_FORECAST_FAR']}
-          x="TIMESTAMP"
-          derivative={true}
-          legendNames={[T.NetTX, T.NetTXForecast, T.NetTXForecastFar]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+          filter={['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']}
+          y={['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']}
           interpolationY={interpolationBytesSeg}
+          x={[
+            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point.TIMESTAMP) * 1000 +
+                  forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
+          ]}
+          lineColors={[
+            theme?.palette?.graphs.vm.cpu.real,
+            theme?.palette?.graphs.vm.cpu.forecast,
+            theme?.palette?.graphs.vm.cpu.forecastFar,
+          ]}
+          legendNames={[
+            T.NetTX,
+            `${T.NetTX} ${T.Forecast}`,
+            `${T.NetTX} ${T.ForecastFar}`,
+          ]}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['NETTX_BW_FORECAST']}
+          trendLineOnly={['NETTX_BW_FORECAST_FAR']}
+          shouldFill
+          clampForecast
         />
       </Grid>
     </Grid>

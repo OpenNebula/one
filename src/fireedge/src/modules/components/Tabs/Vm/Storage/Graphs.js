@@ -49,15 +49,15 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.DiskReadBytes)}
           filter={[
-            'DISKRDBYTES',
-            'DISKRDBYTES_FORECAST',
-            'DISKRDBYTES_FORECAST_FAR',
+            'DISKRDBYTES_BW',
+            'DISKRDBYTES_BW_FORECAST',
+            'DISKRDBYTES_BW_FORECAST_FAR',
           ]}
           data={monitoring}
           y={[
-            'DISKRDBYTES',
-            'DISKRDBYTES_FORECAST',
-            'DISKRDBYTES_FORECAST_FAR',
+            'DISKRDBYTES_BW',
+            'DISKRDBYTES_BW_FORECAST',
+            'DISKRDBYTES_BW_FORECAST_FAR',
           ]}
           x={[
             (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
@@ -81,8 +81,8 @@ const Graphs = ({ id }) => {
           clusterFactor={10}
           clusterThreshold={1000}
           zoomFactor={0.95}
-          shouldPadY={['DISKRDBYTES_FORECAST']}
-          trendLineOnly={['DISKRDBYTES_FORECAST_FAR']}
+          shouldPadY={['DISKRDBYTES_BW_FORECAST']}
+          trendLineOnly={['DISKRDBYTES_BW_FORECAST_FAR']}
           shouldFill
           clampForecast
           sortX
@@ -93,14 +93,14 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskWriteBytes)}
           data={monitoring}
           filter={[
-            'DISKWRBYTES',
-            'DISKWRBYTES_FORECAST',
-            'DISKWRBYTES_FORECAST_FAR',
+            'DISKWRBYTES_BW',
+            'DISKWRBYTES_BW_FORECAST',
+            'DISKWRBYTES_BW_FORECAST_FAR',
           ]}
           y={[
-            'DISKWRBYTES',
-            'DISKWRBYTES_FORECAST',
-            'DISKWRBYTES_FORECAST_FAR',
+            'DISKWRBYTES_BW',
+            'DISKWRBYTES_BW_FORECAST',
+            'DISKWRBYTES_BW_FORECAST_FAR',
           ]}
           x={[
             (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
@@ -124,8 +124,8 @@ const Graphs = ({ id }) => {
           clusterFactor={10}
           clusterThreshold={1000}
           zoomFactor={0.95}
-          shouldPadY={['DISKWRBYTES_FORECAST']}
-          trendLineOnly={['DISKWRBYTES_FORECAST_FAR']}
+          shouldPadY={['DISKWRBYTES_BW_FORECAST']}
+          trendLineOnly={['DISKWRBYTES_BW_FORECAST_FAR']}
           shouldFill
           clampForecast
           sortX
@@ -136,19 +136,31 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskReadIOPS)}
           data={monitoring}
           filter={[
-            'DISKRDIOPS',
-            'DISKRDIOPS_FORECAST',
-            'DISKRDIOPS_FORECAST_FAR',
+            'DISKRDIOPS_BW',
+            'DISKRDIOPS_BW_FORECAST',
+            'DISKRDIOPS_BW_FORECAST_FAR',
           ]}
-          y={['DISKRDIOPS', 'DISKRDIOPS_FORECAST', 'DISKRDIOPS_FORECAST_FAR']}
+          y={[
+            'DISKRDIOPS_BW',
+            'DISKRDIOPS_BW_FORECAST',
+            'DISKRDIOPS_BW_FORECAST_FAR',
+          ]}
           x="TIMESTAMP"
-          derivative={true}
           legendNames={[
             T.DiskReadIOPS,
-            T.DiskReadIOPSForecast,
-            T.DiskReadIOPSForecastFar,
+            `${T.DiskReadIOPS} ${T.Forecast}`,
+            `${T.DiskReadIOPS} ${T.ForecastFar}`,
           ]}
           lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+          interpolationY={interpolationBytes}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['DISKRDIOPS_BW_FORECAST']}
+          trendLineOnly={['DISKRDIOPS_BW_FORECAST_FAR']}
+          shouldFill
+          clampForecast
+          sortX
         />
       </Grid>
       <Grid item xs={12} sm={6}>
@@ -156,19 +168,31 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskWriteIOPS)}
           data={monitoring}
           filter={[
-            'DISKWRIOPS',
-            'DISKWRIOPS_FORECAST',
-            'DISKWRIOPS_FORECAST_FAR',
+            'DISKWRIOPS_BW',
+            'DISKWRIOPS_BW_FORECAST',
+            'DISKWRIOPS_BW_FORECAST_FAR',
           ]}
-          y={['DISKWRIOPS', 'DISKWRIOPS_FORECAST', 'DISKWRIOPS_FORECAST_FAR']}
+          y={[
+            'DISKWRIOPS_BW',
+            'DISKWRIOPS_BW_FORECAST',
+            'DISKWRIOPS_BW_FORECAST_FAR',
+          ]}
           x="TIMESTAMP"
-          derivative={true}
           legendNames={[
             T.DiskWriteIOPS,
-            T.DiskWriteIOPSForecast,
-            T.DiskWriteIOPSForecastFar,
+            `${T.DiskWriteIOPS} ${T.Forecast}`,
+            `${T.DiskWriteIOPS} ${T.ForecastFar}`,
           ]}
           lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
+          interpolationY={interpolationBytes}
+          clusterFactor={10}
+          clusterThreshold={1000}
+          zoomFactor={0.95}
+          shouldPadY={['DISKWRIOPS_BW_FORECAST']}
+          trendLineOnly={['DISKWRIOPS_FORECAST_FAR']}
+          shouldFill
+          clampForecast
+          sortX
         />
       </Grid>
     </Grid>
