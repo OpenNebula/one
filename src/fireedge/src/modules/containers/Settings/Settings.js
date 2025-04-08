@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 import { T } from '@ConstantsModule'
 import { Box, Paper, useTheme } from '@mui/material'
-import { ReactElement, useMemo, useState } from 'react'
+import { ReactElement, useMemo, useState, useEffect } from 'react'
 
 import { TranslateProvider } from '@ComponentsModule'
 
@@ -35,6 +35,8 @@ import {
   Settings as SettingsIcon,
   ReloadWindow as ShowbackIcon,
 } from 'iconoir-react'
+
+import { useGeneralApi } from '@FeaturesModule'
 
 const styles = ({ typography }) => ({
   content: css({
@@ -98,6 +100,10 @@ export const Settings = () => {
 
   const [selectedOption, setSelectedOption] = useState(preferences)
   const setting = optionsSettings[selectedOption]
+
+  // Empty subsection in breadcrumb
+  const { setBreadcrumb } = useGeneralApi()
+  useEffect(() => setBreadcrumb({}), [])
 
   return (
     <TranslateProvider>

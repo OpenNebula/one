@@ -16,7 +16,13 @@
 import { PATH } from '@ComponentsModule'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { HostAPI, UserAPI, useViews, VmAPI } from '@FeaturesModule'
+import {
+  HostAPI,
+  UserAPI,
+  useViews,
+  VmAPI,
+  useGeneralApi,
+} from '@FeaturesModule'
 import { Translate } from '@modules/components/HOC'
 import {
   DashboardButton,
@@ -29,7 +35,7 @@ import {
 import { Box, Grid, Typography, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
-import { ReactElement, useMemo } from 'react'
+import { ReactElement, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 const { DASHBOARD, VM_TEMPLATE } = RESOURCE_NAMES
@@ -71,6 +77,10 @@ export default function CloudDashboard({ view }) {
   const theme = useTheme()
   const classes = useMemo(() => styles(theme))
   const { push: goTo } = useHistory()
+
+  // Empty subsection in breadcrumb
+  const { setBreadcrumb } = useGeneralApi()
+  useEffect(() => setBreadcrumb({}), [])
 
   const { data: quotaData = {} } = UserAPI.useGetUserQuery({})
   const { data: vmpoolMonitoringData = {} } = VmAPI.useGetMonitoringPoolQuery(

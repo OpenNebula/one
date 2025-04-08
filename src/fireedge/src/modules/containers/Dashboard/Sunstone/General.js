@@ -21,7 +21,7 @@ import {
   ModernTv as VmsIcons,
 } from 'iconoir-react'
 import PropTypes from 'prop-types'
-import { ReactElement, memo, useMemo } from 'react'
+import { ReactElement, memo, useMemo, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import {
@@ -31,6 +31,7 @@ import {
   VnAPI,
   useAuth,
   useViews,
+  useGeneralApi,
 } from '@FeaturesModule'
 
 import {
@@ -53,6 +54,10 @@ export default function SunstoneDashboard({ view }) {
   const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
   const { DISABLE_ANIMATIONS } = fireedge
   const { hasAccessToResource } = useViews()
+
+  // Empty subsection in breadcrumb
+  const { setBreadcrumb } = useGeneralApi()
+  useEffect(() => setBreadcrumb({}), [])
 
   const { push: goTo } = useHistory()
 
