@@ -49,9 +49,9 @@ import { VmAPI } from '@FeaturesModule'
 import { downloadFile } from '@UtilsModule'
 import { Translate } from '@modules/components/HOC'
 
-const useStyles = ({ palette }) => ({
+const useStyles = (theme) => ({
   customPopper: css({
-    backgroundColor: palette.background.default,
+    backgroundColor: theme?.palette?.background.default,
     padding: '16px',
     borderRadius: '8px',
     zIndex: 1,
