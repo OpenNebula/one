@@ -72,6 +72,7 @@ if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
 
     LCM_STATE=$(lcm_state "$VMID")
 
+    POOL_NAME="lv-one-$VMID-pool"
     LV_NAME="lv-one-${VMID}-${DISK_ID}"
     SRC_VG_NAME="vg-one-${SRC_DS_SYS_ID}"
     SRC_DEV="/dev/${SRC_VG_NAME}/${LV_NAME}"
@@ -90,6 +91,15 @@ if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
               ${SYNC}
               ${SUDO} ${LVSCAN}
               ${SUDO} ${LVCHANGE} -an "${SRC_DEV}"
+
+              # Try to deactivate pool on origin host ("|| true" because it's only expected to work
+              # on the last disk)
+              if [ -n "\$($SUDO $LVS --noheading -S "vg_name = $DST_VG_NAME && lv_name = $POOL_NAME")" ]; then
+                  $SUDO $LVCHANGE -an "$DST_VG_NAME/${POOL_NAME}"
+                  $SUDO $LVCHANGE -an "$DST_VG_NAME/${POOL_NAME}_tmeta" || true
+                  $SUDO $LVCHANGE -an "$DST_VG_NAME/${POOL_NAME}_tdata" || true
+              fi
+
             fi
 
             rm -f "${SRC_DIR}/.host" || :
@@ -165,11 +175,28 @@ EOF
             ${SUDO} ${LVSCAN}
             ${SUDO} ${LVCHANGE} -ay "${DST_DEV}"
 
+            mkdir -p "${DST_DIR}"
             hostname -f >"${DST_DIR}/.host" || :
 EOF
 )
         ssh_exec_and_log "$DST_HOST" "$CMD" \
             "Error activating disk $DST_PATH"
+    fi
+
+    # In FT mode, we don't have access to source host and ssh/mv does nothing. Create symbolic
+    # link manually in that case.
+    # 60(61) = PROLOG_MIGRATE_UNKNOWN(+FAILURE)
+    if [[ "$LCM_STATE" =~ ^(60|61)$ ]]; then
+        SYMLINK_CMD=$(cat <<EOF
+            mkdir -p "${DST_DIR}"
+            ln -s "${DST_DEV}" "${DST_PATH}"
+EOF
+)
+
+        LOCK="tm-fs_lvm-${DST_DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 120 ssh_exec_and_log "${DST_HOST}" "${SYMLINK_CMD}" \
+                "Error creating symlink ${DST_PATH} -> ${DST_DEV}"
+
     fi
 fi
 
