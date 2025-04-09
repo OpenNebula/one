@@ -23,7 +23,8 @@ import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
 import { prettyBytes } from '@UtilsModule'
 
-const interpolationBytesSeg = (value) => (value ? `${prettyBytes(value)}/s` : 0)
+const interpolationBytesSeg = (value) =>
+  value ? `${prettyBytes(value)}/s` : value
 
 /**
  * Render Graphs Capacity.
@@ -34,14 +35,19 @@ const interpolationBytesSeg = (value) => (value ? `${prettyBytes(value)}/s` : 0)
  */
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
+
+  const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
+
+  const { VM_MAD } = historyRecords?.[0] ?? 'kvm'
 
   const theme = useTheme()
 
-  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast_period: forecastPeriod = 5, // Minutes
-    forecast_far_period: forecastFarPeriod = 48, // Hours
+    forecast: { period: forecastPeriod = 5 }, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
   } = virtualmachine
 
   return !monitoring.length ? (
@@ -50,7 +56,7 @@ const Graphs = ({ id }) => {
     </Typography>
   ) : (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.NetDownloadSpeed)}
           data={monitoring}
@@ -65,8 +71,7 @@ const Graphs = ({ id }) => {
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                parseInt(point.TIMESTAMP) * 1000 + forecastFarPeriod * 60 * 1000
               ).getTime(),
           ]}
           lineColors={[
@@ -84,11 +89,13 @@ const Graphs = ({ id }) => {
           zoomFactor={0.95}
           shouldPadY={['NETRX_BW_FORECAST']}
           trendLineOnly={['NETRX_BW_FORECAST_FAR']}
+          sortX
           shouldFill
+          showLegends={false}
           clampForecast
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.NetUploadSpeed)}
           data={monitoring}
@@ -103,8 +110,7 @@ const Graphs = ({ id }) => {
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                parseInt(point.TIMESTAMP) * 1000 + forecastFarPeriod * 60 * 1000
               ).getTime(),
           ]}
           lineColors={[
@@ -122,6 +128,8 @@ const Graphs = ({ id }) => {
           zoomFactor={0.95}
           shouldPadY={['NETTX_BW_FORECAST']}
           trendLineOnly={['NETTX_BW_FORECAST_FAR']}
+          showLegends={false}
+          sortX
           shouldFill
           clampForecast
         />

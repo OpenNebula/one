@@ -424,7 +424,11 @@ export const Graph = ({
       direction="row"
       justifyContent="center"
       alignItems="center"
-      sx={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}
+      sx={{
+        width: '100%',
+        aspectRatio: '16/9',
+        overflow: 'hidden',
+      }}
       ref={chartRef}
     >
       {!data?.length ? (

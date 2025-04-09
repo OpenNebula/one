@@ -35,12 +35,17 @@ const Graphs = ({ id }) => {
   const theme = useTheme()
 
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
-  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
+
+  const { VM_MAD } = historyRecords?.[0] ?? 'kvm'
+
+  const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast_period: forecastPeriod = 5, // Minutes
-    forecast_far_period: forecastFarPeriod = 48, // Hours
+    forecast: { period: forecastPeriod = 5 }, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
   } = virtualmachine
 
   return (
@@ -78,6 +83,7 @@ const Graphs = ({ id }) => {
         zoomFactor={0.95}
         shouldPadY={['CPU_FORECAST']}
         trendLineOnly={['CPU_FORECAST_FAR']}
+        showLegends={false}
         shouldFill
         clampForecast
         sortX
@@ -118,6 +124,7 @@ const Graphs = ({ id }) => {
         clusterFactor={10}
         clusterThreshold={100}
         zoomFactor={0.95}
+        showLegends={false}
         shouldFill
         clampForecast
         applyYPadding

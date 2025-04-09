@@ -35,17 +35,22 @@ const interpolationBytes = (value) =>
  */
 const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
-  const forecastConfig = window?.__FORECAST_CONFIG__ ?? {}
+  const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
+
+  const { VM_MAD } = historyRecords?.[0] ?? 'kvm'
+
+  const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast_period: forecastPeriod = 5, // Minutes
-    forecast_far_period: forecastFarPeriod = 48, // Hours
+    forecast: { period: forecastPeriod = 5 }, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
   } = virtualmachine
 
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskReadBytes)}
           filter={[
@@ -79,6 +84,7 @@ const Graphs = ({ id }) => {
           lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
           clusterFactor={10}
+          showLegends={false}
           clusterThreshold={1000}
           zoomFactor={0.95}
           shouldPadY={['DISKRDBYTES_BW_FORECAST']}
@@ -88,7 +94,7 @@ const Graphs = ({ id }) => {
           sortX
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskWriteBytes)}
           data={monitoring}
@@ -126,12 +132,13 @@ const Graphs = ({ id }) => {
           zoomFactor={0.95}
           shouldPadY={['DISKWRBYTES_BW_FORECAST']}
           trendLineOnly={['DISKWRBYTES_BW_FORECAST_FAR']}
+          showLegends={false}
           shouldFill
           clampForecast
           sortX
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskReadIOPS)}
           data={monitoring}
@@ -159,11 +166,12 @@ const Graphs = ({ id }) => {
           shouldPadY={['DISKRDIOPS_BW_FORECAST']}
           trendLineOnly={['DISKRDIOPS_BW_FORECAST_FAR']}
           shouldFill
+          showLegends={false}
           clampForecast
           sortX
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskWriteIOPS)}
           data={monitoring}
@@ -188,6 +196,7 @@ const Graphs = ({ id }) => {
           clusterFactor={10}
           clusterThreshold={1000}
           zoomFactor={0.95}
+          showLegends={false}
           shouldPadY={['DISKWRIOPS_BW_FORECAST']}
           trendLineOnly={['DISKWRIOPS_FORECAST_FAR']}
           shouldFill
