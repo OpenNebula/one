@@ -16,38 +16,11 @@
 
 import PropTypes from 'prop-types'
 
-import { css } from '@emotion/css'
 import { timeFromSeconds } from '@ModelsModule'
 import { wheelZoomPlugin } from '@modules/components/Charts/Plugins'
-import {
-  CircularProgress,
-  List,
-  ListItem,
-  Paper,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { CircularProgress, Stack } from '@mui/material'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
-
-const useStyles = ({ palette, typography }) => ({
-  graphContainer: css({
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    boxSizing: 'border-box',
-  }),
-  title: css({
-    fontWeight: typography.fontWeightBold,
-    borderBottom: `1px solid ${palette.divider}`,
-  }),
-  placeholder: css({
-    width: '100%',
-    aspectRatio: '16/9',
-    overflow: 'hidden',
-  }),
-})
 
 const calculateDerivative = (data, filter) =>
   data
@@ -161,9 +134,10 @@ const createFill = (u, color) => {
  * @param {number} props.zoomFactor - Grapg zooming factor
  * @param {string} props.dateFormat - Labels timestamp format
  * @param {string} props.dateFormatHover - Legend timestamp format
+ * @param {boolean} props.showLegends - show labels
  * @returns {Component} Chartist component
  */
-const Chartist = ({
+const Graph = ({
   data = [],
   name = '',
   filter = [],
@@ -183,10 +157,8 @@ const Chartist = ({
   lineColors = [],
   dateFormat = 'MM-dd HH:mm',
   dateFormatHover = 'MMM dd HH:mm:ss',
+  showLegends = true,
 }) => {
-  const theme = useTheme()
-  const classes = useMemo(() => useStyles(theme), [theme])
-
   const chartRef = useRef(null)
   const [chartDimensions, setChartDimensions] = useState({
     width: 0,
@@ -202,7 +174,7 @@ const Chartist = ({
         const { width, height } = chartRef.current.getBoundingClientRect()
         setChartDimensions({
           width: width - 50,
-          height: height - 150,
+          height: height - (showLegends ? 150 : 0),
         })
       }
     })
@@ -300,11 +272,13 @@ const Chartist = ({
     return [xValues, ...paddedArray]
   }, [processedData, y, shouldPadY])
 
-  const chartOptions = useMemo(
-    () => ({
+  const chartOptions = useMemo(() => {
+    const options = {
       ...chartDimensions,
       drag: false,
-      padding: [20, 40, 0, 40], // Pad top / left / right
+      legend: {
+        show: false,
+      },
       plugins: [wheelZoomPlugin({ factor: zoomFactor })],
       cursor: {
         bind: {
@@ -323,7 +297,6 @@ const Chartist = ({
         },
         y: { auto: true },
       },
-
       axes: [
         {
           grid: { show: true },
@@ -365,7 +338,6 @@ const Chartist = ({
                     fill: (u) => createFill(u, lineColors?.[index]),
                   }
                 : {}),
-
               focus: true,
             }))
           : [
@@ -382,43 +354,49 @@ const Chartist = ({
               },
             ]),
       ],
-    }),
-    [
-      trendLineIdxs,
-      chartData,
-      chartDimensions,
-      processedData,
-      name,
-      y,
-      legendNames,
-      lineColors,
-      interpolationY,
-    ]
-  )
+    }
+    if (showLegends) {
+      options.legend = {
+        show: true,
+      }
+      options.padding = [20, 40, 0, 40] // Pad top / left / right
+    }
+
+    return options
+  }, [
+    trendLineIdxs,
+    chartData,
+    chartDimensions,
+    processedData,
+    name,
+    y,
+    legendNames,
+    lineColors,
+    interpolationY,
+  ])
 
   return (
-    <Paper variant="outlined" className={classes.graphContainer}>
-      <List className={classes.box} sx={{ width: '100%', height: '100%' }}>
-        <ListItem className={classes.title}>
-          <Typography noWrap>{name}</Typography>
-        </ListItem>
-        <ListItem ref={chartRef} className={classes.placeholder}>
-          {!data?.length ? (
-            <Stack direction="row" justifyContent="center" alignItems="center">
-              <CircularProgress color="secondary" />
-            </Stack>
-          ) : (
-            <div>
-              <UplotReact options={chartOptions} data={chartData} />
-            </div>
-          )}
-        </ListItem>
-      </List>
-    </Paper>
+    <Stack
+      direction="row"
+      justifyContent="center"
+      alignItems="center"
+      sx={{
+        width: '100%',
+        aspectRatio: '16/9',
+        overflow: 'hidden',
+      }}
+      ref={chartRef}
+    >
+      {!data?.length ? (
+        <CircularProgress color="secondary" />
+      ) : (
+        <UplotReact options={chartOptions} data={chartData} />
+      )}
+    </Stack>
   )
 }
 
-Chartist.propTypes = {
+Graph.propTypes = {
   name: PropTypes.string,
   filter: PropTypes.arrayOf(PropTypes.string),
   data: PropTypes.array,
@@ -442,8 +420,9 @@ Chartist.propTypes = {
   lineColors: PropTypes.arrayOf(PropTypes.string),
   dateFormat: PropTypes.string,
   dateFormatHover: PropTypes.string,
+  showLegends: PropTypes.bool,
 }
 
-Chartist.displayName = 'Chartist'
+Graph.displayName = 'Graph'
 
-export default Chartist
+export default Graph

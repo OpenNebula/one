@@ -16,11 +16,11 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
-import Chartist from '@modules/components/Charts/Chartist'
-import { Tr } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
 import { prettyBytes } from '@UtilsModule'
+import Chartist from '@modules/components/Charts/Chartist'
+import { Tr } from '@modules/components/HOC'
 import { useTheme } from '@mui/material'
 
 /**
@@ -44,9 +44,9 @@ const Graphs = ({ id }) => {
   const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast: { period: forecastPeriod = 5 }, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
-  } = virtualmachine
+    forecast: { period: forecastPeriod = 5 } = {}, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
+  } = virtualmachine || {}
 
   return (
     <>

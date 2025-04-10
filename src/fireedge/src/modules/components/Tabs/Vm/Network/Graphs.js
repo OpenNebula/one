@@ -17,10 +17,10 @@ import { Grid, Typography, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
-import Chartist from '@modules/components/Charts/Chartist'
-import { Tr, Translate } from '@modules/components/HOC'
 import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
+import Chartist from '@modules/components/Charts/Chartist'
+import { Tr, Translate } from '@modules/components/HOC'
 import { prettyBytes } from '@UtilsModule'
 
 const interpolationBytesSeg = (value) =>
@@ -46,9 +46,9 @@ const Graphs = ({ id }) => {
   const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast: { period: forecastPeriod = 5 }, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
-  } = virtualmachine
+    forecast: { period: forecastPeriod = 5 } = {}, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
+  } = virtualmachine || {}
 
   return !monitoring.length ? (
     <Typography variant="h6" zIndex={2} noWrap>

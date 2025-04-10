@@ -16,7 +16,7 @@
 
 import { SCHEMES, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { Graph } from '@modules/components/Charts/Chartist'
+import Graph from '@modules/components/Charts/Graph'
 import { Tr, Translate } from '@modules/components/HOC'
 import {
   Box,

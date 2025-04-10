@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement } from 'react'
 import { Grid } from '@mui/material'
 import PropTypes from 'prop-types'
+import { ReactElement } from 'react'
 
+import { T } from '@ConstantsModule'
 import { VmAPI } from '@FeaturesModule'
 import Chartist from '@modules/components/Charts/Chartist'
 import { Tr } from '@modules/components/HOC'
 import { prettyBytes } from '@UtilsModule'
-import { T } from '@ConstantsModule'
 
 const interpolationBytes = (value) =>
   value ? prettyBytes(value, 'KB', 2) : value
@@ -44,9 +44,9 @@ const Graphs = ({ id }) => {
   const forecastConfig = window?.__FORECAST_CONFIG__?.[VM_MAD] ?? {}
   const { virtualmachine = {} } = forecastConfig
   const {
-    forecast: { period: forecastPeriod = 5 }, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 }, // Minutes
-  } = virtualmachine
+    forecast: { period: forecastPeriod = 5 } = {}, // Minutes
+    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
+  } = virtualmachine || {}
 
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>

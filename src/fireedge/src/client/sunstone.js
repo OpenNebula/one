@@ -14,9 +14,10 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 /* eslint-disable jsdoc/require-jsdoc */
-import { render } from 'react-dom'
-import { createStore } from 'client/store'
 import App from 'client/apps/sunstone'
+import { createStore } from 'client/store'
+import { render } from 'react-dom'
+import 'uplot/dist/uPlot.min.css'
 
 export const { store } = createStore({ initState: window.__PRELOADED_STATE__ })
 
