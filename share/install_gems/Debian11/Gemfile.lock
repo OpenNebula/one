@@ -15,7 +15,7 @@ GEM
     async-io (1.32.1)
       async (~> 1.14)
     aws-eventstream (1.3.2)
-    aws-partitions (1.1081.0)
+    aws-partitions (1.1084.0)
     aws-sdk-core (3.222.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -23,7 +23,7 @@ GEM
       base64
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-ec2 (1.514.0)
+    aws-sdk-ec2 (1.515.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-kms (1.99.0)
@@ -111,10 +111,10 @@ GEM
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
-    rbvmomi (3.0.0)
+    rbvmomi2 (3.8.0)
       builder (~> 3.2)
       json (~> 2.3)
-      nokogiri (~> 1.10)
+      nokogiri (~> 1.12, >= 1.12.5)
       optimist (~> 3.0)
     rchardet (1.8.0)
     ruby2_keywords (0.0.5)
@@ -173,7 +173,7 @@ DEPENDENCIES
   prometheus-client
   public_suffix
   rack
-  rbvmomi
+  rbvmomi2
   sequel
   sinatra (< 4.0.0)
   sqlite3 (<= 1.6.9)

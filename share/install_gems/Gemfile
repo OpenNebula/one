@@ -157,5 +157,5 @@ group :tproxy do
 end
 
 group :oneswap do
-    gem 'rbvmomi'
+    gem 'rbvmomi2'
 end
