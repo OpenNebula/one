@@ -139,10 +139,10 @@ const FileController = memo(
             disabled={readOnly}
             data-cy={`${cy}-button`}
             isSubmitting={isLoading}
-            label={success ? <CheckIcon /> : <FileIcon />}
+            icon={success ? <CheckIcon /> : <FileIcon />}
+            label={labelCanBeTranslated(label) ? Tr(label) : label}
+            tooltip={tooltip && <Tooltip title={tooltip} />}
           />
-          {labelCanBeTranslated(label) ? Tr(label) : label}
-          {tooltip && <Tooltip title={tooltip} />}
         </Label>
         {Boolean(error) && (
           <FormHelperText data-cy={`${cy}-error`}>

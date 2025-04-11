@@ -32,7 +32,7 @@ const getTabComponent = (tabName) =>
   }[tabName])
 
 const SupportTabs = memo(({ ticket }) => {
-  const { id } = ticket
+  const id = ticket?.id
   const { view, getResourceView } = useViews()
   const { isLoading, isError, error } = SupportAPI.useGetTicketCommentsQuery({
     id,
@@ -42,7 +42,7 @@ const SupportTabs = memo(({ ticket }) => {
     const resource = RESOURCE_NAMES.SUPPORT
     const infoTabs = getResourceView(resource)?.['info-tabs'] ?? {}
 
-    return getAvailableInfoTabs(infoTabs, getTabComponent, id.toString())
+    return getAvailableInfoTabs(infoTabs, getTabComponent, id?.toString())
   }, [view, id])
 
   if (isError) {

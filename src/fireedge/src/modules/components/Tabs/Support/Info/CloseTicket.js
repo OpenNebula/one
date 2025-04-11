@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Grid, IconButton, Stack, TextField } from '@mui/material'
-import { Tr } from '@modules/components/HOC'
+import { Grid, Stack, TextField } from '@mui/material'
 import { StatusChip, StatusCircle } from '@modules/components/Status'
 import { T } from '@ConstantsModule'
 import { SupportAPI } from '@FeaturesModule'
@@ -22,6 +21,8 @@ import { getSupportState } from '@ModelsModule'
 import { Cancel as CancelIcon, Check, EditPencil } from 'iconoir-react'
 import PropTypes from 'prop-types'
 import { Component, useState } from 'react'
+import { Tr } from '@modules/components/HOC'
+import { SubmitButton } from '@modules/components/FormControl'
 
 const dataCyResolution = 'change-resolution'
 
@@ -73,12 +74,15 @@ const CloseTicket = ({ ticket = undefined }) => {
             />
           </Grid>
           <Grid item xs={4}>
-            <IconButton onClick={() => onSubmit()} data-cy={dataCyResolution}>
-              <Check />
-            </IconButton>
-            <IconButton onClick={() => setEdit(false)}>
-              <CancelIcon />
-            </IconButton>
+            <SubmitButton
+              data-cy={dataCyResolution}
+              icon={<Check />}
+              onClick={() => onSubmit()}
+            />
+            <SubmitButton
+              icon={<CancelIcon />}
+              onClick={() => setEdit(false)}
+            />
           </Grid>
         </Grid>
       ) : (
@@ -99,13 +103,12 @@ const CloseTicket = ({ ticket = undefined }) => {
             </Stack>
           </Grid>
           <Grid item xs={4}>
-            <IconButton
-              onClick={() => setEdit(true)}
+            <SubmitButton
               data-cy={dataCyResolution}
-              title={Tr(T.ResolutionTicket)}
-            >
-              <EditPencil />
-            </IconButton>
+              icon={<EditPencil />}
+              onClick={() => setEdit(true)}
+              tooltip={T.ResolutionTicket}
+            />
           </Grid>
         </Grid>
       )}

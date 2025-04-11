@@ -17,7 +17,7 @@
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
-import { T, Ticket } from '@ConstantsModule'
+import { T, Ticket, STYLE_BUTTONS } from '@ConstantsModule'
 
 import { SubmitButton } from '@modules/components/FormControl'
 
@@ -26,7 +26,6 @@ import { Box, Stack } from '@mui/material'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import FormWithSchema from '@modules/components/Forms/FormWithSchema'
-import { Translate } from '@modules/components/HOC'
 import * as FORM from '@modules/components/Tabs/Support/Comments/CommentBar/schema'
 import { SupportAPI, useSupportAuth } from '@FeaturesModule'
 import { sanitize } from '@UtilsModule'
@@ -101,7 +100,10 @@ const CommentBar = ({
           data-cy="add-comment-button"
           isSubmitting={isLoading}
           sx={{ textTransform: 'uppercase' }}
-          label={<Translate word={T.Submit} />}
+          label={T.Submit}
+          importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+          size={STYLE_BUTTONS.SIZE.MEDIUM}
+          type={STYLE_BUTTONS.TYPE.FILLED}
         />
       </Stack>
     </Box>

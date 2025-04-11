@@ -20,7 +20,6 @@ export const JWT_NAME = 'FireedgeToken'
 export const BY = { text: 'by OpenNebula', url: 'https://opennebula.io/' }
 export const SUPPORT_WEBSITE = 'https://opennebula.io/support/'
 export const COMMUNITY_WEBSITE = 'https://opennebula.io/usec'
-export const DOCUMENTATION_WEBSITE = 'https://docs.opennebula.io/6.3/'
 export const AUTH_APPS = [
   { text: 'Authy', url: 'https://authy.com/download/' },
   {

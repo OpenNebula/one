@@ -26,7 +26,7 @@ import {
   Translate,
   TranslateProvider,
 } from '@ComponentsModule'
-import { T } from '@ConstantsModule'
+import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { css } from '@emotion/css'
 
 import {
@@ -98,7 +98,10 @@ export const Form = ({ onSubmit, error, isLoading }) => {
             data-cy="login-button"
             isSubmitting={isLoading}
             sx={{ textTransform: 'uppercase' }}
-            label={<Translate word={T.SignIn} />}
+            importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
+            size={STYLE_BUTTONS.SIZE.MEDIUM}
+            type={STYLE_BUTTONS.TYPE.FILLED}
+            label={T.SignIn}
           />
         </Stack>
         <Stack>

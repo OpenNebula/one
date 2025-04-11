@@ -70,14 +70,7 @@ const Footer = memo(() => {
         <Link href={BY.url} className={classes.links}>
           {BY.text}
         </Link>
-        {version && (
-          <StatusChip
-            // forceWhiteColor
-            // stateColor="primary"
-            text={version}
-            mx={0.5}
-          />
-        )}
+        {version && <StatusChip text={version} mx={0.5} />}
         {isError && (
           <a
             href={SUPPORT_WEBSITE}
@@ -86,8 +79,7 @@ const Footer = memo(() => {
             className={classes.links}
           >
             <StatusChip
-              // forceWhiteColor
-              // stateColor="error"
+              stateColor="error"
               text={T.NotOfficiallySupport}
               dataCy="notOfficialSupport"
               mx={0.5}
@@ -97,7 +89,6 @@ const Footer = memo(() => {
         {isSuccess && (
           <Link component={RouterLink} to={generatePath(PATH.SUPPORT)}>
             <StatusChip
-              forceWhiteColor
               stateColor="success"
               text={T.OfficiallySupport}
               dataCy="officialSupport"

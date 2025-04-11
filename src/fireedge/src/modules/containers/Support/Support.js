@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { ReactElement, useState, memo } from 'react'
-import { Box, Typography, Divider, Stack } from '@mui/material'
+/* eslint-disable react/prop-types */
+import { ReactElement, useState, memo, useEffect } from 'react'
+import { Box, Typography, Divider, Stack, Chip } from '@mui/material'
 import PropTypes from 'prop-types'
 import {
   TranslateProvider,
@@ -22,24 +23,34 @@ import {
   Tr,
   SupportTabs,
   SupportTable,
-  SplitGrid,
   SubmitButton,
+  MultipleTags,
+  ResourcesBackButton,
 } from '@ComponentsModule'
-import { T, Ticket } from '@ConstantsModule'
+import { T, Ticket, SERVER_CONFIG } from '@ConstantsModule'
 
 import {
   SupportAPI,
   useGeneralApi,
   useSupportAuth,
   useSupportAuthApi,
+  useGeneral,
+  useAuth,
 } from '@FeaturesModule'
 import { AuthenticationForm as AuthForm } from '@modules/containers/Support/Authentication'
 import { InformationSettings as Information } from '@modules/containers/Support/Information'
 import { DocumentationSettings as Documentation } from '@modules/containers/Support/Documentation'
 
-import GotoIcon from 'iconoir-react/dist/Pin'
-import RefreshDouble from 'iconoir-react/dist/RefreshDouble'
-import Cancel from 'iconoir-react/dist/Cancel'
+import {
+  Cancel,
+  RefreshDouble,
+  Expand,
+  Collapse,
+  NavArrowLeft,
+} from 'iconoir-react'
+
+import { MuiProvider, SunstoneTheme } from '@ProvidersModule'
+import { Row } from 'opennebula-react-table'
 
 /** @returns {ReactElement} Support container */
 export const Support = () => {
@@ -106,34 +117,46 @@ function SupportTickets() {
   const [selectedRows, onSelectedRowsChange] = useState(() => [])
   const actions = SupportTable.Actions()
 
-  const hasSelectedRows = selectedRows?.length > 0
-
   return (
-    <TranslateProvider>
-      <SplitGrid gridTemplateRows="1fr auto 1fr">
-        {({ getGridProps, GutterComponent }) => (
-          <Box height={1} {...(hasSelectedRows && getGridProps())}>
+    <MuiProvider theme={SunstoneTheme}>
+      <TranslateProvider>
+        <ResourcesBackButton
+          selectedRows={selectedRows}
+          setSelectedRows={onSelectedRowsChange}
+          actions={actions}
+          table={(props) => (
             <SupportTable.Table
-              onSelectedRowsChange={onSelectedRowsChange}
-              globalActions={actions}
-              singleSelect={true}
+              onSelectedRowsChange={props.setSelectedRows}
+              globalActions={props.actions}
+              useUpdateMutation={props.useUpdateMutation}
+              onRowClick={props.resourcesBackButtonClick}
+              zoneId={props.zone}
+              initialState={{
+                selectedRowIds: props.selectedRowsTable,
+              }}
+              singleSelect
             />
+          )}
+          simpleGroupsTags={(props) => (
+            <GroupedTags
+              tags={props.selectedRows}
+              handleElement={props.handleElement}
+              onDelete={props.handleUnselectRow}
+            />
+          )}
+          info={(props) => {
+            const propsInfo = {
+              ticket: props?.selectedRows?.[0]?.original,
+              selectedRows: props?.selectedRows,
+            }
+            props?.gotoPage && (propsInfo.gotoPage = props.gotoPage)
+            props?.unselect && (propsInfo.unselect = props.unselect)
 
-            {hasSelectedRows && (
-              <>
-                <GutterComponent direction="row" track={1} />
-
-                <InfoTabs
-                  ticket={selectedRows[0]?.original}
-                  gotoPage={selectedRows[0]?.gotoPage}
-                  unselect={() => selectedRows[0]?.toggleRowSelected(false)}
-                />
-              </>
-            )}
-          </Box>
-        )}
-      </SplitGrid>
-    </TranslateProvider>
+            return <InfoTabs {...propsInfo} />
+          }}
+        />
+      </TranslateProvider>
+    </MuiProvider>
   )
 }
 
@@ -148,17 +171,54 @@ function SupportTickets() {
 const InfoTabs = memo(({ ticket, gotoPage, unselect }) => {
   const [getComments, { isFetching }] =
     SupportAPI.useLazyGetTicketCommentsQuery()
-  const { id, subject: name } = ticket
+  const id = ticket?.id
+
+  const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
+  const { FULL_SCREEN_INFO } = fireedge
+  const { fullViewMode } = SERVER_CONFIG
+  const fullModeDefault =
+    FULL_SCREEN_INFO !== undefined ? FULL_SCREEN_INFO === 'true' : fullViewMode
+  const { isFullMode } = useGeneral()
+  const { setFullMode } = useGeneralApi()
+
+  useEffect(() => {
+    !isFullMode && gotoPage()
+  }, [])
 
   return (
-    <TranslateProvider>
-      <Stack overflow="auto">
-        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
-          <Typography color="text.primary" noWrap flexGrow={1}>
-            {`#${id} | ${name}`}
-          </Typography>
+    <Stack overflow="auto">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={1}
+        mx={1}
+        mb={1}
+      >
+        <Stack direction="row">
+          {fullModeDefault && (
+            <SubmitButton
+              data-cy="detail-back"
+              icon={<NavArrowLeft />}
+              tooltip={Tr(T.Back)}
+              isSubmitting={isFetching}
+              onClick={() => unselect()}
+            />
+          )}
+        </Stack>
 
-          {/* -- ACTIONS -- */}
+        <Stack direction="row" alignItems="center" gap={1} mx={1} mb={1}>
+          {!fullModeDefault && (
+            <SubmitButton
+              data-cy="detail-full-mode"
+              icon={isFullMode ? <Collapse /> : <Expand />}
+              tooltip={Tr(T.FullScreen)}
+              isSubmitting={isFetching}
+              onClick={() => {
+                setFullMode(!isFullMode)
+              }}
+            />
+          )}
           <SubmitButton
             data-cy="detail-refresh"
             icon={<RefreshDouble />}
@@ -166,14 +226,6 @@ const InfoTabs = memo(({ ticket, gotoPage, unselect }) => {
             isSubmitting={isFetching}
             onClick={() => getComments({ id })}
           />
-          {typeof gotoPage === 'function' && (
-            <SubmitButton
-              data-cy="locate-on-table"
-              icon={<GotoIcon />}
-              tooltip={Tr(T.LocateOnTable)}
-              onClick={() => gotoPage()}
-            />
-          )}
           {typeof unselect === 'function' && (
             <SubmitButton
               data-cy="unselect"
@@ -182,11 +234,10 @@ const InfoTabs = memo(({ ticket, gotoPage, unselect }) => {
               onClick={() => unselect()}
             />
           )}
-          {/* -- END ACTIONS -- */}
         </Stack>
-        <SupportTabs ticket={ticket} />
       </Stack>
-    </TranslateProvider>
+      <SupportTabs ticket={ticket} />
+    </Stack>
   )
 })
 
@@ -197,3 +248,39 @@ InfoTabs.propTypes = {
 }
 
 InfoTabs.displayName = 'InfoTabs'
+
+/**
+ * Displays a list of tags that represent the selected rows.
+ *
+ * @param {Row[]} tags - Row(s) to display as tags
+ * @returns {ReactElement} List of tags
+ */
+const GroupedTags = ({
+  tags = [],
+  handleElement = true,
+  onDelete = () => undefined,
+}) => (
+  <Stack direction="row" flexWrap="wrap" gap={1} alignContent="flex-start">
+    <MultipleTags
+      limitTags={10}
+      tags={tags?.map((props) => {
+        const { original, id, toggleRowSelected, gotoPage } = props
+        const clickElement = handleElement
+          ? {
+              onClick: gotoPage,
+              onDelete: () => onDelete(id) || toggleRowSelected(false),
+            }
+          : {}
+
+        return <Chip key={id} label={original?.NAME ?? id} {...clickElement} />
+      })}
+    />
+  </Stack>
+)
+
+GroupedTags.propTypes = {
+  tags: PropTypes.array,
+  handleElement: PropTypes.bool,
+  onDelete: PropTypes.func,
+}
+GroupedTags.displayName = 'GroupedTags'

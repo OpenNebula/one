@@ -16,8 +16,10 @@
 import { ReactElement } from 'react'
 import { Box, Paper, Typography, Divider, useTheme } from '@mui/material'
 import { Translate, TranslateProvider } from '@ComponentsModule'
-import { COMMUNITY_WEBSITE, DOCUMENTATION_WEBSITE, T } from '@ConstantsModule'
+import { COMMUNITY_WEBSITE, T } from '@ConstantsModule'
 import { InfoEmpty, Book, ChatLines } from 'iconoir-react'
+import { generateDocLink } from '@UtilsModule'
+import { SystemAPI } from '@FeaturesModule'
 
 /**
  * Section to visit documentation and comunity website.
@@ -26,6 +28,7 @@ import { InfoEmpty, Book, ChatLines } from 'iconoir-react'
  */
 export const Settings = () => {
   const theme = useTheme()
+  const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   return (
     <TranslateProvider>
@@ -62,7 +65,7 @@ export const Settings = () => {
               }}
             >
               <a
-                href={DOCUMENTATION_WEBSITE}
+                href={generateDocLink(version, '')}
                 target="_blank"
                 style={{
                   color: theme.palette.primary.dark,
