@@ -19,28 +19,27 @@ package goca
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	hk "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/hook/keys"
 )
 
-var call = "one.zone.raftstatus"
-
-// Helper to create a Hook Network
+// Helper to create a Hook
 func createHook(t *testing.T) (*hk.Hook, int) {
 
 	tpl := hk.NewTemplate()
 	tpl.Add(keys.Name, "hook-goca")
 	tpl.Add(keys.Type, "api")
 	tpl.Add(keys.Command, "/usr/bin/ls -l")
-	tpl.AddPair("CALL", call)
+	tpl.AddPair("CALL", "one.zone.raftstatus")
 
 	id, err := testCtrl.Hooks().Create(tpl.String())
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Get Hook Network by ID
+	// Get Hook by ID
 	hook, err := testCtrl.Hook(id).Info(false)
 	if err != nil {
 		t.Error(err)
@@ -81,6 +80,8 @@ func TestHook(t *testing.T) {
 	// Check execution records
 	currentExecs := len(hook.Log.ExecutionRecords)
 
+	time.Sleep(time.Second)
+
 	//triger the hook
 	testCtrl.Zones().ServerRaftStatus()
 
@@ -111,7 +112,7 @@ func TestHook(t *testing.T) {
 		t.Errorf("Hook execution has not been retried")
 	}
 
-	// Delete template
+	// Delete hook
 	err = hookC.Delete()
 	if err != nil {
 		t.Error(err)

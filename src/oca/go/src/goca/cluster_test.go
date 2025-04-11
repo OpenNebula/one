@@ -24,6 +24,7 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/cluster/keys"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/errors"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/virtualnetwork"
 	. "gopkg.in/check.v1"
 )
 
@@ -200,6 +201,14 @@ func (s *ClusterSuite) TestAddDelVnet(c *C) {
 	cluster, err = testCtrl.Cluster(s.clusterID).Info()
 	c.Assert(err, IsNil)
 	c.Assert(len(cluster.Vnets.ID), Equals, 0)
+
+	WaitResource(func() bool {
+		vnet, _ := testCtrl.VirtualNetwork(vnID).Info(false)
+
+		state, _ := vnet.State()
+
+		return state == virtualnetwork.Ready
+	})
 
 	// Delete Network
 	err = testCtrl.VirtualNetwork(vnID).Delete()
