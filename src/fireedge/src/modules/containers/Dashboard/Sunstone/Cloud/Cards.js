@@ -289,6 +289,7 @@ const MonitoringGraphs = memo(({ resourceType, data }) => {
       lineColors={lineColors}
       interpolationY={interpolation}
       showLegends={false}
+      sortX
     />
   )
 })
