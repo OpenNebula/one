@@ -75,7 +75,7 @@ const dataTypes = {
     titleQuota: T.UsedCPU,
     key: 'CPU',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['CPU'],
       lineColors: '#40B3D9',
       interpolation: interpolationValue,
@@ -86,7 +86,7 @@ const dataTypes = {
     titleQuota: T.UsedMemory,
     key: 'MEMORY',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['MEMORY'],
       lineColors: '#40B3D9',
       interpolation: interpolationBytes,
@@ -96,7 +96,7 @@ const dataTypes = {
     title: T.Disks,
     key: 'SYSTEM_DISK_SIZE',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['DISKRDIOPS', 'DISKWRIOPS'],
       lineColors: ['#40B3D9', '#2A2D3D'],
       interpolation: interpolationBytes,
@@ -106,7 +106,7 @@ const dataTypes = {
     title: T.Networks,
     key: 'NETWORKS',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['NETRX', 'NETTX'],
       lineColors: ['#40B3D9', '#2A2D3D'],
       legendNames: [T.NetworkRx, T.NetworkTx],
@@ -117,7 +117,7 @@ const dataTypes = {
     title: T.CpuHost,
     key: 'CPU',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['USED_CPU'],
       lineColors: '#40B3D9',
       interpolation: interpolationValue,
@@ -127,7 +127,7 @@ const dataTypes = {
     title: T.MemoryHost,
     key: 'MEMORY',
     graph: {
-      x: 'TIMESTAMP',
+      x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['USED_MEMORY'],
       lineColors: '#40B3D9',
       interpolation: interpolationBytes,

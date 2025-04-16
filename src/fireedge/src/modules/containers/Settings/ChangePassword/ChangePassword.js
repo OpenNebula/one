@@ -14,7 +14,13 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { FormWithSchema, Tr } from '@ComponentsModule'
-import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import {
+  AUTH_DRIVER,
+  ONEADMIN_ID,
+  SERVERADMIN_ID,
+  STYLE_BUTTONS,
+  T,
+} from '@ConstantsModule'
 import { css } from '@emotion/css'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -90,6 +96,11 @@ const ChangePassword = () => {
               type={STYLE_BUTTONS.TYPE.FILLED}
               data-cy={'change-password-button'}
               label={T.ChangePassword}
+              disabled={
+                user.ID === ONEADMIN_ID ||
+                user.ID === SERVERADMIN_ID ||
+                user.AUTH_DRIVER === AUTH_DRIVER.LDAP
+              }
             />
           </Box>
         </Box>

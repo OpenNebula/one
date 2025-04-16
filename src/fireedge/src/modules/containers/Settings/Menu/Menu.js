@@ -94,12 +94,13 @@ const Menu = ({
   return (
     <Paper className={classes.root}>
       <ProfileImage />
-      <List className={classes.menu}>
+      <List className={classes.menu} data-cy="setting-menu">
         {entriesArray.map(([key, value], index) => (
           <ListItem
             className={classes.listItem}
             key={index}
             onClick={() => setSelectedOption(key)}
+            data-cy={`setting-${value?.title?.toLocaleLowerCase()}`}
           >
             <Box
               className={

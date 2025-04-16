@@ -169,6 +169,7 @@ const RadioController = memo(
           value={optionSelected}
           row
           className={classes.root}
+          data-cy={cy}
         >
           {values.map(({ text, value, svg }) => (
             <Box
@@ -187,9 +188,9 @@ const RadioController = memo(
                     <Radio
                       inputRef={ref}
                       disabled={readOnly}
-                      data-cy={cy}
                       checked={optionSelected === value}
                       className={classes.radio}
+                      inputProps={{ 'data-value': value }}
                     />
                   </Box>
                   <Box className={clsx(classes.cell, classes.cellFull)}>

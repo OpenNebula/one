@@ -52,10 +52,12 @@ const styles = ({ palette, typography }) => ({
   }),
   userName: css({
     textAlign: 'center',
-    paddingBottom: `${typography.pxToRem(32)}`,
+    padding: `0 ${typography.pxToRem(32)} ${typography.pxToRem(16)}`,
     '& > *': {
       color: palette.info.main,
-      display: 'inline-block',
+      display: 'inline',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
     },
   }),
 })
