@@ -239,25 +239,9 @@ public:
      *    @param sr the capacity request of the VM
      *    @return 0 on success
      */
-    void add_capacity(HostShareCapacity &sr)
-    {
-        if ( vm_collection.add(sr.vmid) == 0 )
-        {
-            host_share.add(sr);
-        }
-        else
-        {
-            std::ostringstream oss;
-            oss << "VM " << sr.vmid << " is already in host " << oid << ".";
+    void add_capacity(HostShareCapacity &sr);
 
-            NebulaLog::log("ONE", Log::ERROR, oss);
-        }
-    };
-
-    bool add_pci(HostShareCapacity &sr)
-    {
-        return host_share.add_pci(sr);
-    }
+    bool add_pci(HostShareCapacity &sr);
 
     /**
      *  Deletes a new VM to the host share by incrementing usage counters
@@ -437,7 +421,7 @@ private:
     void reserved_capacity(std::string& rcpu, std::string& rmem) const;
 
     /**
-     *  Gets a host template attribuet, if not defined it look for it in the
+     *  Gets a host template attribute, if not defined it look for it in the
      *  cluster template.
      *    @param name of the attribute
      *    @param value of the attribute
@@ -446,7 +430,7 @@ private:
 
     void update_wilds();
 
-        /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
     /* Functions to search for values in the HostXML object                   */
     /* ---------------------------------------------------------------------- */
     /**

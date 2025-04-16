@@ -398,12 +398,12 @@ string& Host::to_xml(string& xml) const
         obj_template->to_xml(template_xml) <<
         monitoring.to_xml();
 
-        if (!cluster_template_xml.empty())
-        {
-            oss << "<CLUSTER_TEMPLATE>" << cluster_template_xml << "</CLUSTER_TEMPLATE>";
-        }
+    if (!cluster_template_xml.empty())
+    {
+        oss << "<CLUSTER_TEMPLATE>" << cluster_template_xml << "</CLUSTER_TEMPLATE>";
+    }
 
-        oss << "</HOST>";
+    oss << "</HOST>";
 
     xml = oss.str();
 
@@ -622,3 +622,33 @@ bool Host::is_pinned() const
 
     return one_util::tolower(pin_policy) == "pinned";
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Host::add_pci(HostShareCapacity &sr)
+{
+    get_hostcluster_attr("PCI_GPU_PROFILE", sr.vgpu_profile);
+
+    return host_share.add_pci(sr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Host::add_capacity(HostShareCapacity &sr)
+{
+    get_hostcluster_attr("PCI_GPU_PROFILE", sr.vgpu_profile);
+
+    if ( vm_collection.add(sr.vmid) == 0 )
+    {
+        host_share.add(sr);
+    }
+    else
+    {
+        std::ostringstream oss;
+        oss << "VM " << sr.vmid << " is already in host " << oid << ".";
+
+        NebulaLog::log("ONE", Log::ERROR, oss);
+    }
+};

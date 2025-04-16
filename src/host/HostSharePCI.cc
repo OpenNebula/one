@@ -197,9 +197,8 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
                                  bool set_prev)
 {
-    static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION",
-                                     "ADDRESS", "SHORT_ADDRESS"
-                                    };
+    static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION", "ADDRESS",
+                                     "SHORT_ADDRESS", "DEVICE", "VENDOR", "CLASS" };
 
     static vector<string> cp_check_attr = {"NUMA_NODE", "UUID", "MDEV_MODE"};
 
@@ -306,7 +305,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
 
 /* -------------------------------------------------------------------------- */
 
-bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
+bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid, const std::string& host_profile)
 {
     std::set<VectorAttribute *> added;
     unsigned int vendor_id, device_id, class_id;
@@ -344,7 +343,44 @@ bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
         }
     }
 
+    if (!host_profile.empty())
+    {
+        vgpu_profiles(devs, host_profile);
+    }
+
     return true;
+}
+
+void HostSharePCI::vgpu_profiles(vector<VectorAttribute *> &devs, const std::string& host_profile)
+{
+    /*
+     * vGPU profiles are daynamically updated by the NVIDIA driver.
+     * Monitoring values for profiles may not be updated when adding the capacity
+     *
+     * Check for profile availability could be better added to add_by_* functions
+     */
+    unsigned int device_id;
+
+    for (auto& device : devs)
+    {
+        get_pci_value("DEVICE", device, device_id);
+
+        if (device_id != 0x10de)
+        {
+            continue;
+        }
+
+        /* Prefer the host profile over the PCI device one for migration
+        const std::string& profile = device->vector_value("PROFILE");
+
+        if (!profile.empty())
+        {
+            continue;
+        }
+        */
+
+        device->replace("PROFILE", host_profile);
+    }
 }
 
 /* ------------------------------------------------------------------------*/

@@ -49,6 +49,8 @@ struct HostShareCapacity
     long long mem;
     long long disk;
 
+    std::string vgpu_profile;
+
     std::vector<VectorAttribute *> pci;
 
     VectorAttribute * topology;

@@ -84,7 +84,7 @@ public:
     bool add_pci(HostShareCapacity &sr)
     {
         // NOTE THIS FUNCTION DOES NOT PERFORM ANY ROLLBACK
-        return pci.add(sr.pci, sr.vmid);
+        return pci.add(sr.pci, sr.vmid, sr.vgpu_profile);
     }
 
     /**

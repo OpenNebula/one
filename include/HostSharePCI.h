@@ -80,12 +80,13 @@ public:
      *    @param devs list of requested PCI devices, will include address of
      *    assigned devices.
      *    @param vmid of the VM
+     *    @param hp host/cluster vGPU profile
      *
      *    @return true if the devices where added
      *
      *    NOTE THIS FUNCTION DOES NOT PERFORM ANY ROLLBACK
      */
-    bool add(std::vector<VectorAttribute *> &devs, int vmid);
+    bool add(std::vector<VectorAttribute *> &devs, int vmid, const std::string& hp);
 
     /**
      *  Remove the VM assignment from the PCI device list
@@ -229,6 +230,15 @@ private:
      *  @param sp if true set the "PREVIOUS_ADDRESS" attribute
      */
     void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp);
+
+    /**
+     * Sets the VGPU profile for NVIDIA cards this is set in the add phase. NOTE:
+     * A migration may overwrite this value if the new host uses a different profile
+     *
+     *    @param devs list of requested PCI devices
+     *    @param hprofile the profile defined in the Host/Cluster
+     */
+    void vgpu_profiles(std::vector<VectorAttribute *> &devs, const std::string& hprofile);
 };
 
 #endif /*HOST_SHARE_PCI_H_*/
