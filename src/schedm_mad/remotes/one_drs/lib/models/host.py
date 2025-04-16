@@ -720,7 +720,7 @@ class Host:
                     "type": "Element",
                 },
             )
-            netrx_bw: Optional[int] = field(
+            netrx_bw: Optional[Decimal] = field(
                 default=None,
                 metadata={
                     "name": "NETRX_BW",
@@ -748,7 +748,7 @@ class Host:
                     "type": "Element",
                 },
             )
-            nettx_bw: Optional[int] = field(
+            nettx_bw: Optional[Decimal] = field(
                 default=None,
                 metadata={
                     "name": "NETTX_BW",

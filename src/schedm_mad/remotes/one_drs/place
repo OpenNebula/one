@@ -24,26 +24,14 @@ sys.path.insert(
 )
 import base64
 import time
-from typing import Any
 
 from lib import OptimizerParser, OptimizerSerializer
-
-DEBUG_INPUT_PATH = "/var/tmp/debug_input.sched"
-DEBUG_OPTIMIZER_PATH = "/var/tmp/debug_optimizer.sched"
-DEBUG_OUTPUT_PATH = "/var/tmp/debug_output.sched"
-
-
-def write_debug_file(path: str, data: Any, mode: str = "wb") -> None:
-    open_mode = mode if isinstance(data, bytes) else "w"
-    with open(path, open_mode) as f:
-        f.write(data)
 
 
 def main():
     # Read from standard input
     stdin_data = sys.stdin.read()
     decoded_data = base64.b64decode(stdin_data)
-    write_debug_file(DEBUG_INPUT_PATH, decoded_data, mode="wb")
 
     # Parse XML input and build Optimizer
     parser = OptimizerParser(stdin_data=decoded_data, mode="place")
@@ -54,13 +42,11 @@ def main():
     optimizer.map()
     elapsed = time.time() - start_time
     placement = optimizer._opt_placement
-    write_debug_file(DEBUG_OPTIMIZER_PATH, str(placement), mode="w")
 
     # Serialize Optimizer response
     serializer = OptimizerSerializer(parser)
     scheduler_output, logs = serializer.build_optimizer_output(opt_placement=placement)
     xml_output = serializer.render(scheduler_output)
-    write_debug_file(DEBUG_OUTPUT_PATH, xml_output, mode="w")
     sys.stdout.write(xml_output)
 
     # VM log messages

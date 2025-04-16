@@ -175,11 +175,11 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="NETRX" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETRX_BW" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="NETRX_BW" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETRX_BW_FORECAST" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETRX_BW_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETTX" type="xs:integer" minOccurs="0"/>
-                    <xs:element name="NETTX_BW" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="NETTX_BW" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETTX_BW_FORECAST" type="xs:decimal" minOccurs="0"/>
                     <xs:element name="NETTX_BW_FORECAST_FAR" type="xs:decimal" minOccurs="0"/>
                   </xs:sequence>
