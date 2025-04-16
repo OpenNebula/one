@@ -204,18 +204,17 @@ module OpenNebula
             @body['vrouter_id'] = vrouter.id
 
             # Fill vrouter IP in vrouter role body
-            vrouter_nics = vrouter.to_hash['VROUTER']['TEMPLATE']['NIC']
+            vrouter_nics = vrouter.to_hash['VROUTER']['TEMPLATE']['NIC'] || []
+            vrouter_nics = [vrouter_nics] if vrouter_nics.is_a?(Hash)
 
-            if vrouter_nics.is_a?(Array) && !vrouter_nics.empty?
-                @body['vrouter_ips'] = vrouter_nics.map do |nic|
-                    next unless nic.is_a?(Hash) && nic.key?('VROUTER_IP')
+            @body['vrouter_ips'] = vrouter_nics.map do |nic|
+                next unless nic.is_a?(Hash) && nic.key?('VROUTER_IP')
 
-                    {
-                        'NETWORK_ID' => nic['NETWORK_ID'].to_i,
-                        'VROUTER_IP' => nic['VROUTER_IP']
-                    }
-                end.compact
-            end
+                {
+                    'NETWORK_ID' => nic['NETWORK_ID'].to_i,
+                    'VROUTER_IP' => nic['VROUTER_IP']
+                }
+            end.compact
 
             [deployed_nodes, nil]
         end

@@ -659,13 +659,8 @@ module OpenNebula
                     ]
                 end
 
-                vm_template = template.to_hash['VMTEMPLATE']['TEMPLATE']
-
-                if vm_template.key?('NIC') && !vm_template['NIC'].is_a?(Array)
-                    vm_template['NIC'] = [vm_template['NIC']]
-                end
-
-                extra_template = vm_template.deep_merge(extra_template)
+                vm_template    = template.to_hash['VMTEMPLATE']['TEMPLATE'].dup
+                extra_template = vm_template.deep_merge(extra_template, false)
             end
 
             extra_template['SERVICE_ID'] = @service.id

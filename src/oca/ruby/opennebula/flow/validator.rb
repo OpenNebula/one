@@ -21,9 +21,9 @@ require 'json'
 class Hash
 
     # Returns a new hash containing the contents of other_hash and the
-    #   contents of self. If the value for entries with duplicate keys
-    #   is a Hash, it will be merged recursively, otherwise it will be that
-    #   of other_hash.
+    # contents of self. If the value for entries with duplicate keys
+    # is a Hash, it will be merged recursively, otherwise it will be that
+    # of other_hash.
     #
     # @param [Hash] other_hash
     #
@@ -34,23 +34,20 @@ class Hash
     #   h2 = {:a => 22, c => 4, {:b => 5}}
     #
     #   h1.deep_merge(h2) #=> {:a => 22, c => 4, {:b => 5, :c => 7}}
-    def deep_merge(other_hash)
-        target = dup
+    def deep_merge(other_hash, merge_array = true)
+        target = clone
 
-        other_hash.each do |hash_key, hash_value|
-            if hash_value.is_a?(Hash) && self[hash_key].is_a?(Hash)
-                target[hash_key] = self[hash_key].deep_merge(hash_value)
-            elsif hash_value.is_a?(Array) && self[hash_key].is_a?(Array)
-                hash_value.each_with_index do |elem, i|
-                    if self[hash_key][i].is_a?(Hash) && elem.is_a?(Hash)
-                        target[hash_key] = self[hash_key] + hash_value
-                    else
-                        target[hash_key] = hash_value
-                    end
+        other_hash.each do |key, value|
+            current = target[key]
+
+            target[key] =
+                if value.is_a?(Hash) && current.is_a?(Hash)
+                    current.deep_merge(value)
+                elsif (value.is_a?(Array) && current.is_a?(Array)) && merge_array
+                    current + value
+                else
+                    value
                 end
-            else
-                target[hash_key] = hash_value
-            end
         end
 
         target
