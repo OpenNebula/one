@@ -31,7 +31,9 @@ http.interceptors.request.use((config) => {
       ...config.headers,
       'Content-Type': 'application/json',
     },
-    timeout: window.__GLOBAL_API_TIMEOUT__,
+    ...(!config?.onUploadProgress
+      ? { timeout: window.__GLOBAL_API_TIMEOUT__ }
+      : {}),
     timeoutErrorMessage: T.Timeout,
     withCredentials: true,
     validateStatus: (status) =>
