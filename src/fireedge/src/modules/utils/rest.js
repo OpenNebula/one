@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { findStorageData } from '@modules/utils'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
-import { T, JWT_NAME, APP_URL } from '@ConstantsModule'
+import { APP_URL, JWT_NAME, T } from '@ConstantsModule'
 
 const httpCodes = {
   badRequest: {
@@ -73,7 +73,9 @@ http.interceptors.request.use((config) => {
       ...config.headers,
       'Content-Type': 'application/json',
     },
-    timeout: window.__GLOBAL_API_TIMEOUT__,
+    ...(!config?.onUploadProgress
+      ? { timeout: window.__GLOBAL_API_TIMEOUT__ }
+      : {}),
     timeoutErrorMessage: T.Timeout,
     withCredentials: true,
     validateStatus: (status) =>
