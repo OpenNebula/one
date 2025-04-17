@@ -99,6 +99,7 @@ const Menu = ({
           <ListItem
             className={classes.listItem}
             key={index}
+            data-cy={key}
             onClick={() => setSelectedOption(key)}
             data-cy={`setting-${value?.title?.toLocaleLowerCase()}`}
           >

@@ -37,7 +37,7 @@ import {
   timeFromMilliseconds,
 } from '@ModelsModule'
 import { Tr } from '@modules/components/HOC'
-import { StatusCircle } from '@modules/components/Status'
+import { StatusCircle, StatusChip } from '@modules/components/Status'
 import { rowStyles } from '@modules/components/Tables/styles'
 import Timer from '@modules/components/Timer'
 
@@ -63,6 +63,7 @@ const Row = ({
     UNAME,
     GNAME,
     REGTIME,
+    TYPE,
     PERSISTENT,
     locked,
     DATASTORE,
@@ -108,6 +109,7 @@ const Row = ({
           </Typography>
           {locked && <Lock data-cy="lock" />}
           <span className={classes.labels}>
+            <StatusChip text={TYPE} />
             <MultipleTags limitTags={1} tags={userLabels} />
             <MultipleTags limitTags={1} tags={groupLabels} />
           </span>

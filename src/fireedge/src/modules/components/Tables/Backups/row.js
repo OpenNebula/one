@@ -52,8 +52,12 @@ const Row = ({
   toggleRowSelected,
   ...props
 }) => {
-  const { labels } = useAuth()
-  const LABELS = getResourceLabels(labels, original?.ID, RESOURCE_NAMES.BACKUP)
+  const { labels: resourceLabels } = useAuth()
+  const LABELS = getResourceLabels(
+    resourceLabels,
+    original?.ID,
+    RESOURCE_NAMES.BACKUP
+  )
 
   const theme = useTheme()
   const classes = useMemo(() => rowStyles(theme), [theme])
@@ -72,6 +76,13 @@ const Row = ({
   } = value
 
   const { color: stateColor, name: stateName } = getImageState(original)
+
+  const {
+    BACKUP_INCREMENTS: { INCREMENT = undefined },
+  } = original
+
+  const BACKUP_TYPE = INCREMENT ? T.Incremental : T.Full
+  const labels = [...new Set([BACKUP_TYPE])].filter(Boolean)
 
   const time = timeFromMilliseconds(+REGTIME)
 

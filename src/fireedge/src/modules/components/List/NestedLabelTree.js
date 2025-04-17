@@ -140,6 +140,7 @@ const renderTree = (
               >
                 {isEditable && !isResource && !isResourceParent && (
                   <SubmitButton
+                    data-cy={'add-' + nodeId}
                     icon={<AddIcon />}
                     tooltip={T.Add}
                     onClick={(event) => {
@@ -154,6 +155,7 @@ const renderTree = (
 
                 {isEditable && isSelectable && (
                   <SubmitButton
+                    data-cy={'remove-' + nodeId}
                     icon={<RemoveIcon />}
                     tooltip={T.Remove}
                     onClick={(e) => {
@@ -614,6 +616,7 @@ const NestedLabelTree = ({
           )}
         </Stack>
         <TreeView
+          data-cy={'labels-tree'}
           expanded={expanded}
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}

@@ -132,6 +132,7 @@ const AddLabelDialog = ({
           autoFocus
           margin="dense"
           label={T.NewLabelName}
+          inputProps={{ 'data-cy': 'text-new-user-label' }}
           type="text"
           fullWidth
           variant="outlined"
@@ -165,12 +166,16 @@ const AddLabelDialog = ({
               >
                 <FormControlLabel
                   value="user"
-                  control={<Radio />}
+                  control={
+                    <Radio inputProps={{ 'data-cy': 'radio-user-label' }} />
+                  }
                   label={`${T.User} ${T.Label}`}
                 />
                 <FormControlLabel
                   value="group"
-                  control={<Radio />}
+                  control={
+                    <Radio inputProps={{ 'data-cy': 'radio-group-label' }} />
+                  }
                   label={`${T.Group} ${T.Label}`}
                 />
               </RadioGroup>
@@ -185,6 +190,7 @@ const AddLabelDialog = ({
               >
                 <InputLabel>{T.SelectGroup}</InputLabel>
                 <Select
+                  data-cy={'select-group-label'}
                   value={groupId}
                   label={T.SelectGroup}
                   onChange={(e) => setGroupId(e.target.value)}
@@ -198,7 +204,11 @@ const AddLabelDialog = ({
                     </MenuItem>
                   ) : (
                     groups.map((group) => (
-                      <MenuItem key={group.ID} value={group.ID}>
+                      <MenuItem
+                        key={group.ID}
+                        value={group.ID}
+                        data-cy={'select-' + group.NAME}
+                      >
                         {group.NAME}
                       </MenuItem>
                     ))
@@ -218,6 +228,7 @@ const AddLabelDialog = ({
           label={T.Cancel}
         />
         <SubmitButton
+          data-cy={'label-create-accept'}
           onClick={handleSubmit}
           size={STYLE_BUTTONS.SIZE.MEDIUM}
           type={STYLE_BUTTONS.TYPE.FILLED}
