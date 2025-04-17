@@ -159,7 +159,14 @@ class GenericCommand
             mutex = Mutex.new
 
             out_reader = Thread.new { o.read }
-            err_reader = Thread.new { e.read }
+            err_reader = Thread.new do
+                begin
+                    e.read
+                rescue StandardError
+                    ''
+                end
+            end
+
             terminator = Thread.new do
                 if @timeout && @timeout>0
                     begin
