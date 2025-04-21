@@ -195,10 +195,10 @@ bool HostSharePCI::test(const vector<VectorAttribute *> &devs) const
 /*  Function to assign host PCI devices to a VM                               */
 /* -------------------------------------------------------------------------- */
 void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
-                                 bool set_prev)
+                                 bool set_prev, const std::string& vprofile)
 {
     static vector<string> cp_attr = {"DOMAIN", "BUS", "SLOT", "FUNCTION", "ADDRESS",
-                                     "SHORT_ADDRESS", "DEVICE", "VENDOR", "CLASS" };
+                                     "SHORT_ADDRESS"};
 
     static vector<string> cp_check_attr = {"NUMA_NODE", "UUID", "MDEV_MODE"};
 
@@ -233,12 +233,27 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
             device->replace(attr, vvalue);
         }
     }
+
+    //Set VGPU profile for NVIDIA devices
+    // PROFILE availability: vGPU profiles are daynamically updated by the NVIDIA
+    // driver. Monitoring values for profiles may not be up-to-date at this point
+    if (!vprofile.empty())
+    {
+        unsigned int device_id;
+
+        get_pci_value("DEVICE", pci->attrs, device_id);
+
+        if (device_id == 0x10de)
+        {
+            device->replace("PROFILE", vprofile);
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr,
-                               int vmid)
+                               int vmid, const std::string& vprofile)
 {
     for (auto jt = pci_devices.begin(); jt != pci_devices.end(); jt++)
     {
@@ -258,7 +273,7 @@ bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr
 
         pci->attrs->replace("VMID", vmid);
 
-        pci_attribute(device, pci, true);
+        pci_attribute(device, pci, true, vprofile);
 
         return true;
     }
@@ -268,7 +283,7 @@ bool HostSharePCI::add_by_addr(VectorAttribute *device, const string& short_addr
 
 /* -------------------------------------------------------------------------- */
 
-bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
+bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid, const std::string& vprofile)
 {
     unsigned int vendor_id, device_id, class_id;
 
@@ -294,7 +309,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
 
             pci->attrs->replace("VMID", vmid);
 
-            pci_attribute(device, pci, true);
+            pci_attribute(device, pci, true, vprofile);
 
             return true;
         }
@@ -305,7 +320,7 @@ bool HostSharePCI::add_by_name(VectorAttribute *device, int vmid)
 
 /* -------------------------------------------------------------------------- */
 
-bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid, const std::string& host_profile)
+bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid, const std::string& vprofile)
 {
     std::set<VectorAttribute *> added;
     unsigned int vendor_id, device_id, class_id;
@@ -322,7 +337,7 @@ bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid, const std::str
             continue;
         }
 
-        if (!add_by_addr(device, short_addr, vmid))
+        if (!add_by_addr(device, short_addr, vmid, vprofile))
         {
             return false;
         }
@@ -337,50 +352,13 @@ bool HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid, const std::str
             continue;
         }
 
-        if (!add_by_name(device, vmid))
+        if (!add_by_name(device, vmid, vprofile))
         {
             return false;
         }
     }
 
-    if (!host_profile.empty())
-    {
-        vgpu_profiles(devs, host_profile);
-    }
-
     return true;
-}
-
-void HostSharePCI::vgpu_profiles(vector<VectorAttribute *> &devs, const std::string& host_profile)
-{
-    /*
-     * vGPU profiles are daynamically updated by the NVIDIA driver.
-     * Monitoring values for profiles may not be updated when adding the capacity
-     *
-     * Check for profile availability could be better added to add_by_* functions
-     */
-    unsigned int device_id;
-
-    for (auto& device : devs)
-    {
-        get_pci_value("DEVICE", device, device_id);
-
-        if (device_id != 0x10de)
-        {
-            continue;
-        }
-
-        /* Prefer the host profile over the PCI device one for migration
-        const std::string& profile = device->vector_value("PROFILE");
-
-        if (!profile.empty())
-        {
-            continue;
-        }
-        */
-
-        device->replace("PROFILE", host_profile);
-    }
 }
 
 /* ------------------------------------------------------------------------*/
@@ -438,7 +416,7 @@ void HostSharePCI::revert(vector<VectorAttribute *> &devs)
             continue;
         }
 
-        pci_attribute(device, pci, false);
+        pci_attribute(device, pci, false, "");
     }
 }
 

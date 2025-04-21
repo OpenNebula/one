@@ -211,7 +211,8 @@ private:
      *  @param device VM attribute that represents the decive request
      *  @param vmid of the VM
      */
-    bool add_by_name(VectorAttribute *device, int vmid);
+    bool add_by_name(VectorAttribute *device, int vmid,
+            const std::string& vprofile);
 
     /**
      *  Allocates the given VM device using the SHORT_ADDRESS attribute
@@ -220,25 +221,21 @@ private:
      *
      *  @return pci_id of the allocated device or -1 if not allocated
      */
-    bool add_by_addr(VectorAttribute *device, const std::string& addr, int vmid);
+    bool add_by_addr(VectorAttribute *device, const std::string& addr, int vmid,
+            const std::string& vprofile);
 
     /**
      *  Adds PCI attributes of the selected PCI to the VM PCI device
+     *
+     *  Sets the VGPU profile for NVIDIA cards NOTE: A migration may overwrite
+     *  this value if the new host uses a different profile.
      *
      *  @param device VM attribute
      *  @param pci Host device
      *  @param sp if true set the "PREVIOUS_ADDRESS" attribute
      */
-    void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp);
-
-    /**
-     * Sets the VGPU profile for NVIDIA cards this is set in the add phase. NOTE:
-     * A migration may overwrite this value if the new host uses a different profile
-     *
-     *    @param devs list of requested PCI devices
-     *    @param hprofile the profile defined in the Host/Cluster
-     */
-    void vgpu_profiles(std::vector<VectorAttribute *> &devs, const std::string& hprofile);
+    void pci_attribute(VectorAttribute *device, PCIDevice *pci, bool sp,
+            const std::string& vprofile);
 };
 
 #endif /*HOST_SHARE_PCI_H_*/
