@@ -15,8 +15,9 @@
  * ------------------------------------------------------------------------- */
 
 const { createReadStream, generateFile } = require('opennebula-generatepotfile')
-const clientConstants = require('./src/client/constants/translates')
+const clientConstants = require('./src/modules/constants/translates')
 
+const modulesCode = './src/modules'
 const clientCode = './src/client'
 const exportFile = `${clientCode}/assets/languages/messages.pot`
 
@@ -50,7 +51,7 @@ const optsComponent = {
   split: '.',
 }
 
-createReadStream(clientCode, optsFunc)
-createReadStream(clientCode, optsComponent)
+createReadStream(modulesCode, optsFunc)
+createReadStream(modulesCode, optsComponent)
 
 generateFile(exportFile)
