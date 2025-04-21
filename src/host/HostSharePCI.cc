@@ -239,11 +239,14 @@ void HostSharePCI::pci_attribute(VectorAttribute *device, PCIDevice *pci,
     // driver. Monitoring values for profiles may not be up-to-date at this point
     if (!vprofile.empty())
     {
-        unsigned int device_id;
+        unsigned int vendor_id;
+        unsigned int class_id;
 
-        get_pci_value("DEVICE", pci->attrs, device_id);
+        get_pci_value("VENDOR", pci->attrs, vendor_id);
+        get_pci_value("CLASS", pci->attrs, class_id);
 
-        if (device_id == 0x10de)
+        // NVIDIA Corporation && 3D controller
+        if ((vendor_id == 0x10de) && (class_id == 0x0302))
         {
             device->replace("PROFILE", vprofile);
         }
@@ -425,25 +428,32 @@ void HostSharePCI::revert(vector<VectorAttribute *> &devs)
 
 static bool is_filter_match(const vector<std::array<string, 3>>& filters, VectorAttribute * pci)
 {
+    if (filters.empty())
+    {
+        return true;
+    }
+
     for (const auto& filter : filters)
     {
         if (filter[0] != "*" && filter[0] != pci->vector_value("VENDOR"))
         {
-            return false;
+            continue;
         }
 
         if (filter[1] != "*" && filter[1] != pci->vector_value("DEVICE"))
         {
-            return false;
+            continue;
         }
 
         if (filter[2] != "*" && filter[2] != pci->vector_value("CLASS"))
         {
-            return false;
+            continue;
         }
+
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 static bool is_address_match(const vector<string>& saddr, VectorAttribute *pci)
