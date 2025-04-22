@@ -450,6 +450,8 @@ module OneGate
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
 
+            @req_content_type = opts[:req_content_type] || "application/json"
+
             @host = nil
             @port = nil
 
@@ -507,6 +509,7 @@ module OneGate
             req['User-Agent'] = @user_agent
             req['X-ONEGATE-TOKEN'] = @token
             req['X-ONEGATE-VMID'] = @vmid
+            req['Content-Type'] = @req_content_type
 
             res = CloudClient::http_start(@uri, @timeout) do |http|
                 http.request(req)
