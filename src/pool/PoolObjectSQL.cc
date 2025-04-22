@@ -24,7 +24,7 @@
 
 using namespace std;
 
-const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
+const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>\t\n\v\f\r";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
 
