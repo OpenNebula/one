@@ -47,7 +47,6 @@ const Graphs = ({ id }) => {
   const { virtualmachine = {} } = forecastConfig
   const {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
   const pairLag = 1
@@ -114,16 +113,12 @@ const Graphs = ({ id }) => {
 
             return !(idx % 2) ? [point, ...padding] : [...padding, point]
           }}
-          serieScale={2}
+          serieScale={1}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
           legendNames={diskRdBytesNames}
@@ -143,16 +138,17 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskWriteBytes)}
           data={monitoring}
           y={diskWrBytesY}
-          serieScale={2}
+          serieScale={1}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
           legendNames={diskWrBytesNames}
@@ -172,16 +168,17 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskReadIOPS)}
           data={monitoring}
           y={diskRdIopsY}
-          serieScale={2}
+          serieScale={1}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
           legendNames={diskRdIopsNames}
@@ -201,16 +198,17 @@ const Graphs = ({ id }) => {
           name={Tr(T.DiskWriteIOPS)}
           data={monitoring}
           y={diskWrIopsY}
-          serieScale={2}
+          serieScale={1}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
           legendNames={diskWrIopsNames}
@@ -221,7 +219,7 @@ const Graphs = ({ id }) => {
           ]}
           interpolationY={interpolationBytes}
           zoomFactor={0.95}
-          trendLineOnly={['DISKWRIOPS_FORECAST_FAR']}
+          trendLineOnly={['DISKWRIOPS_BW_FORECAST_FAR']}
           shouldFill={['DISKWRIOPS']}
         />
       </Grid>

@@ -47,19 +47,18 @@ const Graphs = ({ id }) => {
   const { virtualmachine = {} } = forecastConfig
   const {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
   const pairLag = 1
 
-  const netRxY = ['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']
+  const netRxY = [['NETRX_BW', 'NETRX_BW_FORECAST'], 'NETRX_BW_FORECAST_FAR']
   const netRxNames = Object.fromEntries(
     [T.NetRX, `${T.NetRX} ${T.Forecast}`, `${T.NetRX} ${T.ForecastFar}`].map(
       (name, idx) => [netRxY?.flat()[idx], name]
     )
   )
 
-  const netTxY = ['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']
+  const netTxY = [['NETTX_BW', 'NETTX_BW_FORECAST'], 'NETTX_BW_FORECAST_FAR']
   const netTxNames = Object.fromEntries(
     [T.NetTX, `${T.NetTX} ${T.Forecast}`, `${T.NetTX} ${T.ForecastFar}`].map(
       (name, idx) => [netTxY?.flat()[idx], name]
@@ -82,16 +81,12 @@ const Graphs = ({ id }) => {
 
             return !(idx % 2) ? [point, ...padding] : [...padding, point]
           }}
-          serieScale={2}
+          serieScale={1}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
               ).getTime(),
           ]}
           lineColors={[
@@ -103,7 +98,6 @@ const Graphs = ({ id }) => {
           legendNames={netRxNames}
           zoomFactor={0.95}
           trendLineOnly={['NETRX_BW_FORECAST_FAR']}
-          showLegends={false}
           shouldFill={['NETRX_BW']}
         />
       </Grid>
@@ -113,18 +107,19 @@ const Graphs = ({ id }) => {
           data={monitoring}
           y={netTxY}
           interpolationY={interpolationBytesSeg}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
-              ).getTime(),
           ]}
-          serieScale={2}
+          serieScale={1}
           lineColors={[
             theme?.palette?.graphs.vm.netUploadSpeed.real,
             theme?.palette?.graphs.vm.netUploadSpeed.forecast,
@@ -133,7 +128,6 @@ const Graphs = ({ id }) => {
           legendNames={netTxNames}
           zoomFactor={0.95}
           trendLineOnly={['NETTX_BW_FORECAST_FAR']}
-          showLegends={false}
           shouldFill={['NETTX_BW']}
         />
       </Grid>

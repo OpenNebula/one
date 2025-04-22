@@ -189,7 +189,9 @@ const Chartist = ({
           }
         })
         ?.map((yValue, idx) => {
-          const fYValues = yValue?.map(parseFloat)?.filter(Boolean)
+          const fYValues = yValue
+            ?.map(parseFloat)
+            ?.filter((v) => !Number.isNaN(v) && v !== undefined)
 
           return trendLineIndexes?.includes(idx) && fYValues?.length > 0
             ? [
@@ -199,42 +201,67 @@ const Chartist = ({
               ]
             : yValue // Return unformatted as to not potentially discard pairTransform
         })
+        ?.filter((transformedArray, index) => {
+          const isAllInvalid = transformedArray?.every(
+            (val) => val == null || Number.isNaN(val)
+          )
 
-      return transformedYValues?.filter((transformedArray, index) => {
-        const isAllInvalid = transformedArray?.every(
-          (val) => val == null || Number.isNaN(val)
-        )
+          if (!isAllInvalid) {
+            renderableY.push(y.flat()[index])
 
-        if (!isAllInvalid) {
-          renderableY.push(y.flat()[index])
+            return true
+          }
 
-          return true
-        }
+          return false
+        })
 
-        return false
-      })
+      const flatTransform = transformedYValues
+        ?.flat()
+        ?.filter((v) => !Number.isNaN(v) && v !== undefined)
+
+      const YMin = Math.min(...flatTransform)
+      const YMax = Math.max(...flatTransform)
+
+      const PRangeY = (YMax - YMin) / 2
+      const YPadding = Math.abs(PRangeY * 0.05) ?? 0
+
+      return [
+        transformedYValues,
+        [+YMin === 0 ? YMin : YMin - YPadding, YMax + YPadding + 0.000001], // Adding a tiny buffer for the max so we dont get a range of exact 0
+      ]
     }
 
-    const transformedY = transformY()
+    const [transformedY, YRange] = transformY()
+
     const seriesLength = xValues?.length * (serieScale ?? transformedY?.length)
 
+    const XMin = timestamps?.[0]
+    const XMax = timestamps?.slice(0, seriesLength)?.pop()
+    const PRangeX = (XMax - XMin) / 2
+    const XPadding = Math.abs(PRangeX * 0.01) ?? 0
+
+    const XRange = [
+      +XMin === 0 ? XMin : XMin - XPadding,
+      XMax + XPadding + 0.000001,
+    ] // Adding a tiny buffer for the max so we dont get a range of exact 0
+
     return {
-      XScale: seriesLength,
       YRender: renderableY,
       dataset: [timestamps, ...transformedY],
+      YRange,
+      XRange,
     }
   }, [data])
 
   const chartOptions = useMemo(() => {
     const {
       dataset = [],
-      XScale = Infinity,
       YRender = [],
+      YRange = [],
+      XRange = [],
     } = transformData ?? {}
 
     if (!dataset.length || !YRender.length) return
-
-    const [timestamps] = dataset
 
     return {
       ...chartDimensions,
@@ -247,15 +274,16 @@ const Chartist = ({
         bind: {
           mousedown: () => () => {}, // Clear original 'annotating' handler
           dblclick: () => () => {}, // Clear reset X axis
+          click: () => () => {}, // Clear click handler
         },
       },
       scales: {
         x: {
           time: true,
-          min: Math.min(...timestamps) ?? null, // No need to slice when sorted already
-          max: Math.max(...timestamps?.slice(0, XScale)) ?? null,
+          min: XRange?.[0] ?? null,
+          max: XRange?.[1] ?? null,
         },
-        y: { auto: true },
+        y: { auto: false, min: YRange?.[0] ?? null, max: YRange?.[1] ?? null },
       },
 
       axes: [

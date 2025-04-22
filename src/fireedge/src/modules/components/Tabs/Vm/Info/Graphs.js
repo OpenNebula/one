@@ -45,7 +45,6 @@ const Graphs = ({ id }) => {
   const { virtualmachine = {} } = forecastConfig
   const {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
-    forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
   const pairLag = 1
@@ -82,12 +81,8 @@ const Graphs = ({ id }) => {
             new Date(
               parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
-          (point) =>
-            new Date(
-              parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
-            ).getTime(),
         ]}
-        serieScale={2}
+        serieScale={1}
         lineColors={[
           theme?.palette?.graphs.vm.cpu.real,
           theme?.palette?.graphs.vm.cpu.forecast,
@@ -128,12 +123,8 @@ const Graphs = ({ id }) => {
             new Date(
               parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
-          (point) =>
-            new Date(
-              parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
-            ).getTime(),
         ]}
-        serieScale={2}
+        serieScale={1}
         interpolationY={(value) =>
           value ? prettyBytes(value, 'KB', 2) : value
         }

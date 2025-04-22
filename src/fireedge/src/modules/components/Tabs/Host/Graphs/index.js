@@ -59,7 +59,6 @@ const HostGraphTab = ({ id }) => {
 
   const {
     forecast_period: forecastPeriod = 5, // Minutes
-    forecast_far_period: forecastFarPeriod = 48, // Hours
   } = host
 
   const pairLag = 1
@@ -113,17 +112,13 @@ const HostGraphTab = ({ id }) => {
               new Date(
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
-              ).getTime(),
           ]}
           pairTransform={(point, idx) => {
             const padding = Array(pairLag).fill(null)
 
             return !(idx % 2) ? [point, ...padding] : [...padding, point]
           }}
-          serieScale={2}
+          serieScale={1}
           lineColors={[
             theme?.palette?.graphs.host.cpu.free.real,
             theme?.palette?.graphs.host.cpu.free.forecast,
@@ -168,15 +163,11 @@ const HostGraphTab = ({ id }) => {
 
             return !(idx % 2) ? [point, ...padding] : [...padding, point]
           }}
-          serieScale={2}
+          serieScale={1}
           x={[
             (point) => new Date(point * 1000).getTime(),
             (point) =>
               new Date(point * 1000 + forecastPeriod * 60 * 1000).getTime(),
-            (point) =>
-              new Date(
-                point * 1000 + forecastFarPeriod * 60 * 60 * 1000
-              ).getTime(),
           ]}
           lineColors={[
             theme?.palette?.graphs.host.memory.free.real,
