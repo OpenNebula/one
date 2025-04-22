@@ -131,7 +131,7 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         rc = helper.create({ :config => args[0], :inputs => options[:inputs] },
-                           (options.key? :cleanup),
+                           options.key?(:cleanup),
                            timeout,
                            skip,
                            options[:provider])
@@ -238,9 +238,9 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         helper.delete(args[0],
-                      (options.key? :cleanup),
+                      options.key?(:cleanup),
                       timeout,
-                      (options.key? :force))
+                      options.key?(:force))
     end
 
     ########################################################################
