@@ -19,7 +19,7 @@ import { useAuth, useGeneralApi, UserAPI } from '@FeaturesModule'
 import { jsonToXml } from '@ModelsModule'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
 import { Translate } from '@modules/components/HOC'
-import { Avatar, Box, Typography, useTheme } from '@mui/material'
+import { Avatar, Box, Tooltip, Typography, useTheme } from '@mui/material'
 import { Edit as EditIcon } from 'iconoir-react'
 import { ReactElement, useCallback, useMemo } from 'react'
 
@@ -101,6 +101,8 @@ const ProfileImage = () => {
     [updateUser, user]
   )
 
+  const userName = `${user?.NAME || ''}!`
+
   return (
     <>
       <Box className={classes.root}>
@@ -129,10 +131,12 @@ const ProfileImage = () => {
           </Box>
         </Box>
       </Box>
-      <Typography variant="h6" zIndex={2} noWrap className={classes.userName}>
-        <Translate word={T.Greetings} />
-        <div> {`${user?.NAME || ''}!`} </div>
-      </Typography>
+      <Tooltip arrow placement="top" title={userName}>
+        <Typography variant="h6" zIndex={2} noWrap className={classes.userName}>
+          <Translate word={T.Greetings} />
+          <div> {userName} </div>
+        </Typography>
+      </Tooltip>
     </>
   )
 }
