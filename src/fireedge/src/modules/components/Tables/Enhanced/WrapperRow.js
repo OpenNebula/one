@@ -64,8 +64,12 @@ const RowStyle = memo(
         className={`${styles.row} ${className}`}
       >
         {!singleSelect && (
-          <TableCell>
-            <Checkbox checked={isSelected} onChange={handleChange} />
+          <TableCell sx={{ pl: '0.5625rem' }}>
+            <Checkbox
+              checked={isSelected}
+              onChange={handleChange}
+              sx={{ pl: 0 }}
+            />
           </TableCell>
         )}
 

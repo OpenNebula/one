@@ -43,6 +43,8 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
     formState: { errors },
   } = useFormContext()
 
+  const hasContext = !!vm?.TEMPLATE?.CONTEXT
+
   const tabs = useMemo(
     () => [
       {
@@ -76,6 +78,8 @@ const Content = ({ hypervisor, oneConfig, adminGroup, vm }) => {
         id: 'context',
         icon: ContextIcon,
         label: <Translate word={T.Context} />,
+        tooltip: !hasContext ? T.NoContextInVm : undefined,
+        disabled: !hasContext,
         renderContent: () => (
           <Context
             hypervisor={hypervisor}

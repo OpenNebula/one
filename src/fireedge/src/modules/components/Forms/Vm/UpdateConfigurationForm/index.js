@@ -75,7 +75,7 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
 
     return knownTemplate
   },
-  transformBeforeSubmit: (formData) => {
+  transformBeforeSubmit: (formData, initialValues) => {
     const { extra, ...restFormData } = formData
     // Encode script on base 64, if needed, on context section
     const updatedFormData = {
@@ -91,6 +91,11 @@ const UpdateConfigurationForm = createForm(SCHEMA, undefined, {
       delete updatedFormData?.CONTEXT?.START_SCRIPT
     } else {
       delete updatedFormData?.CONTEXT?.START_SCRIPT_BASE64
+    }
+
+    // If initial CONTEXT is empty, no context data should be sent (it will cause a core error). The Configuration tab is disabled in that case, but we need to ensure that when update another tab, no context data is sent.
+    if (!initialValues?.TEMPLATE?.CONTEXT) {
+      delete updatedFormData?.CONTEXT
     }
 
     return updatedFormData

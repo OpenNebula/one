@@ -1409,6 +1409,7 @@ module.exports = {
     Enable or disable validation of the RAW data against the libvirt schema`,
   /* VM Template schema - context */
   Context: 'Context',
+  NoContextInVm: 'Virtual Machine does not have context, cannot add a new one.',
   OptimizationPlanConfiguration: 'OneDRS Configuration',
   SshPublicKey: 'SSH public key',
   AddUserSshPublicKey: 'Add user SSH public key',

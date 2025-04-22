@@ -23,6 +23,8 @@ import {
   TabsProps,
   useTheme,
   Box,
+  Tooltip,
+  Typography,
 } from '@mui/material'
 import { WarningCircledOutline } from 'iconoir-react'
 import { Tr } from '@modules/components/HOC'
@@ -91,23 +93,53 @@ const Tabs = ({
       className={classes.tabTitle}
       {...tabsProps}
     >
-      {tabs.map(({ value, name, id = name, label, error, icon: Icon }, idx) => (
-        <MTab
-          key={`tab-${id}`}
-          id={`tab-${id}`}
-          iconPosition="start"
-          icon={
-            error ? (
-              <WarningCircledOutline className={classes.warningIcon} />
-            ) : (
-              Icon && <Icon />
-            )
-          }
-          value={value ?? idx}
-          label={Tr(label) ?? id}
-          data-cy={`tab-${id}`}
-        />
-      ))}
+      {tabs.map(
+        (
+          {
+            value,
+            name,
+            id = name,
+            label,
+            error,
+            icon: Icon,
+            tooltip,
+            disabled,
+          },
+          idx
+        ) => {
+          const tabElement = (
+            <MTab
+              key={`tab-${id}`}
+              id={`tab-${id}`}
+              iconPosition="start"
+              icon={
+                error ? (
+                  <WarningCircledOutline className={classes.warningIcon} />
+                ) : (
+                  Icon && <Icon />
+                )
+              }
+              value={value ?? idx}
+              label={Tr(label) ?? id}
+              data-cy={`tab-${id}`}
+              disabled={disabled}
+            />
+          )
+
+          return tooltip ? (
+            <Tooltip
+              key={`tooltip-${id}`}
+              title={<Typography variant="subtitle2">{Tr(tooltip)}</Typography>}
+              arrow
+              placement="bottom"
+            >
+              <span>{tabElement}</span>
+            </Tooltip>
+          ) : (
+            tabElement
+          )
+        }
+      )}
     </MTabs>
   )
 
