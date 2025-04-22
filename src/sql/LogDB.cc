@@ -367,7 +367,7 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 
     int rc = db->exec_ext(oss_sql);
 
-    if (rc == SqlDB::SUCCESS || rc == SqlDB::SQL_DUP_KEY)
+    if (rc == SqlDB::SUCCESS || rc == SqlDB::SQL_DUP_KEY || rc == SqlDB::SQL)
     {
         std::ostringstream oss;
 
@@ -381,7 +381,14 @@ int LogDB::apply_log_record(LogDBRecord * lr)
 
         last_applied = lr->index;
 
-        rc = 0;
+        if ( rc == SqlDB::SQL )
+        {
+            rc = -1;
+        }
+        else
+        {
+            rc = 0;
+        }
     }
     else
     {
