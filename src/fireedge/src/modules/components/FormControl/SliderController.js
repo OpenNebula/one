@@ -111,6 +111,7 @@ const SliderController = memo(
             InputProps={{
               readOnly,
               endAdornment: tooltip && <Tooltip title={tooltip} />,
+              ...fieldProps,
             }}
             inputProps={{
               'data-cy': inputId,

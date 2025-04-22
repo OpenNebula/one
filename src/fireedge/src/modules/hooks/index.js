@@ -22,6 +22,7 @@ import useListForm from '@modules/hooks/useListForm'
 import useNearScreen from '@modules/hooks/useNearScreen'
 import useSearch from '@modules/hooks/useSearch'
 import useSocket from '@modules/hooks/useSocket'
+import useResizeObserver from '@modules/hooks/useResizeObserver'
 
 export {
   useClipboard,
@@ -33,5 +34,6 @@ export {
   useNearScreen,
   useSearch,
   useSocket,
+  useResizeObserver,
   CLIPBOARD_STATUS,
 }

@@ -33,7 +33,7 @@ import {
 } from '@ConstantsModule'
 import { sentenceCase } from '@UtilsModule'
 import { List } from '@modules/components/Tabs/Common'
-import ExecutionTimeline from './timeline'
+import ExecutionTimeline from '@modules/components/Tabs/Cluster/Drs/timeline'
 
 /**
  * Renders configuration tab.
@@ -132,8 +132,8 @@ const PlanOptimization = ({ id }) => {
             showActionsOnHover: true,
             value: Object.fromEntries(
               weights?.map((name) => [
-                sentenceCase(name)?.replace(/\s+weight/g, ''),
-                ONE_DRS?.[name] ?? '',
+                `${sentenceCase(name)?.replace(/\s+weight/g, '')} %`,
+                ONE_DRS?.[name] * 100 ?? '',
               ])
             ),
           },

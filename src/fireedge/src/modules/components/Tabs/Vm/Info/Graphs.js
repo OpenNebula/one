@@ -48,64 +48,92 @@ const Graphs = ({ id }) => {
     forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
+  const pairLag = 1
+
+  const cpuY = [['CPU', 'CPU_FORECAST'], 'CPU_FORECAST_FAR']
+  const memoryY = [['MEMORY', 'MEMORY_FORECAST'], 'MEMORY_FORECAST_FAR']
+
+  const cpuNames = Object.fromEntries(
+    [T.CPU, `${T.CPU} ${T.Forecast}`, `${T.CPU} ${T.ForecastFar}`].map(
+      (name, idx) => [cpuY?.flat()[idx], name]
+    )
+  )
+
+  const memoryNames = Object.fromEntries(
+    [T.Memory, `${T.Memory} ${T.Forecast}`, `${T.Memory} ${T.ForecastFar}`].map(
+      (name, idx) => [memoryY?.flat()[idx], name]
+    )
+  )
+
   return (
     <>
       <Chartist
         name={Tr(T.RealCpu)}
-        filter={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
         data={monitoring}
-        y={['CPU', 'CPU_FORECAST', 'CPU_FORECAST_FAR']}
+        y={cpuY}
+        pairTransform={(point, idx) => {
+          const padding = Array(pairLag).fill(null)
+
+          return !(idx % 2) ? [point, ...padding] : [...padding, point]
+        }}
         x={[
-          (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+          (point) => new Date(parseInt(point) * 1000).getTime(),
           (point) =>
             new Date(
-              parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
           (point) =>
             new Date(
-              parseInt(point.TIMESTAMP) * 1000 +
-                forecastFarPeriod * 60 * 60 * 1000
+              parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
             ).getTime(),
         ]}
+        serieScale={2}
         lineColors={[
           theme?.palette?.graphs.vm.cpu.real,
           theme?.palette?.graphs.vm.cpu.forecast,
           theme?.palette?.graphs.vm.cpu.forecastFar,
         ]}
-        legendNames={[
-          T.CPU,
-          `${T.CPU} ${T.Forecast}`,
-          `${T.CPU} ${T.ForecastFar}`,
-        ]}
-        clusterFactor={10}
-        clusterThreshold={1000}
-        interpolationY={(val) => (val ? +val?.toFixed(2) : +val)}
+        legendNames={cpuNames}
+        interpolationY={(val) => {
+          try {
+            const num = Number(val)
+
+            if (!Number.isFinite(num)) return '--'
+
+            const result = num.toFixed(2)
+
+            return result
+          } catch {
+            return '--'
+          }
+        }}
         zoomFactor={0.95}
-        shouldPadY={['CPU_FORECAST']}
         trendLineOnly={['CPU_FORECAST_FAR']}
-        showLegends={false}
-        shouldFill
-        clampForecast
-        sortX
+        shouldFill={['CPU']}
       />
 
       <Chartist
         name={Tr(T.RealMemory)}
         filter={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
         data={monitoring}
-        y={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
+        y={memoryY}
+        pairTransform={(point, idx) => {
+          const padding = Array(pairLag).fill(null)
+
+          return !(idx % 2) ? [point, ...padding] : [...padding, point]
+        }}
         x={[
-          (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+          (point) => new Date(parseInt(point) * 1000).getTime(),
           (point) =>
             new Date(
-              parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+              parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
           (point) =>
             new Date(
-              parseInt(point.TIMESTAMP) * 1000 +
-                forecastFarPeriod * 60 * 60 * 1000
+              parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
             ).getTime(),
         ]}
+        serieScale={2}
         interpolationY={(value) =>
           value ? prettyBytes(value, 'KB', 2) : value
         }
@@ -114,21 +142,10 @@ const Graphs = ({ id }) => {
           theme?.palette?.graphs.vm.memory.forecast,
           theme?.palette?.graphs.vm.memory.forecastFar,
         ]}
-        legendNames={[
-          T.Memory,
-          `${T.Memory} ${T.Forecast}`,
-          `${T.Memory} ${T.ForecastFar}`,
-        ]}
-        shouldPadY={['MEMORY_FORECAST']}
+        legendNames={memoryNames}
         trendLineOnly={['MEMORY_FORECAST_FAR']}
-        clusterFactor={10}
-        clusterThreshold={100}
         zoomFactor={0.95}
-        showLegends={false}
-        shouldFill
-        clampForecast
-        applyYPadding
-        sortX
+        shouldFill={['MEMORY']}
       />
     </>
   )

@@ -62,40 +62,68 @@ const HostGraphTab = ({ id }) => {
     forecast_far_period: forecastFarPeriod = 48, // Hours
   } = host
 
+  const pairLag = 1
+
+  const cpuY = [
+    ['FREE_CPU', 'FREE_CPU_FORECAST'],
+    'FREE_CPU_FORECAST_FAR',
+    ['USED_CPU', 'USED_CPU_FORECAST'],
+    'USED_CPU_FORECAST_FAR',
+  ]
+
+  const memoryY = [
+    ['FREE_MEMORY', 'FREE_MEMORY_FORECAST'],
+    'FREE_MEMORY_FORECAST_FAR',
+    ['USED_MEMORY', 'USED_MEMORY_FORECAST'],
+    'USED_MEMORY_FORECAST_FAR',
+  ]
+
+  const cpuNames = Object.fromEntries(
+    [
+      T.FreeCPU,
+      `${T.FreeCPU} ${T.Forecast}`,
+      `${T.FreeCPU} ${T.ForecastFar}`,
+      T.UsedCPU,
+      `${T.UsedCPU} ${T.Forecast}`,
+      `${T.UsedCPU} ${T.ForecastFar}`,
+    ].map((name, idx) => [cpuY?.flat()[idx], name])
+  )
+
+  const memoryNames = Object.fromEntries(
+    [
+      T.FreeMemory,
+      `${T.FreeMemory} ${T.Forecast}`,
+      `${T.FreeMemory} ${T.ForecastFar}`,
+      T.UsedMemory,
+      `${T.UsedMemory} ${T.Forecast}`,
+      `${T.UsedMemory} ${T.ForecastFar}`,
+    ].map((name, idx) => [memoryY.flat()[idx], name])
+  )
+
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item xs={12} sm={12}>
         <Chartist
           name={'CPU'}
-          filter={[
-            'FREE_CPU',
-            'FREE_CPU_FORECAST',
-            'FREE_CPU_FORECAST_FAR',
-            'USED_CPU',
-            'USED_CPU_FORECAST',
-            'USED_CPU_FORECAST_FAR',
-          ]}
           data={cpuMemoryData}
-          y={[
-            'FREE_CPU',
-            'FREE_CPU_FORECAST',
-            'FREE_CPU_FORECAST_FAR',
-            'USED_CPU',
-            'USED_CPU_FORECAST',
-            'USED_CPU_FORECAST_FAR',
-          ]}
+          y={cpuY}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
+          serieScale={2}
           lineColors={[
             theme?.palette?.graphs.host.cpu.free.real,
             theme?.palette?.graphs.host.cpu.free.forecast,
@@ -104,22 +132,22 @@ const HostGraphTab = ({ id }) => {
             theme?.palette?.graphs.host.cpu.used.forecast,
             theme?.palette?.graphs.host.cpu.used.forecastFar,
           ]}
-          clusterFactor={6}
-          clusterThreshold={100}
           zoomFactor={0.95}
           trendLineOnly={['USED_CPU_FORECAST_FAR', 'FREE_CPU_FORECAST_FAR']}
-          shouldPadY={['FREE_CPU_FORECAST', 'USED_CPU_FORECAST']}
-          interpolationY={(val) => (val ? val?.toFixed(2) : val)}
-          legendNames={[
-            T.FreeCPU,
-            `${T.FreeCPU} ${T.Forecast}`,
-            `${T.FreeCPU} ${T.ForecastFar}`,
-            T.UsedCPU,
-            `${T.UsedCPU} ${T.Forecast}`,
-            `${T.UsedCPU} ${T.ForecastFar}`,
-          ]}
-          clampForecast
-          sortX
+          interpolationY={(val) => {
+            try {
+              const num = Number(val)
+
+              if (!Number.isFinite(num)) return '--'
+
+              const result = num.toFixed(2)
+
+              return result
+            } catch {
+              return '--'
+            }
+          }}
+          legendNames={cpuNames}
         />
       </Grid>
       <Grid item xs={12} sm={12}>
@@ -134,24 +162,20 @@ const HostGraphTab = ({ id }) => {
             'USED_MEMORY_FORECAST',
             'USED_MEMORY_FORECAST_FAR',
           ]}
-          y={[
-            'FREE_MEMORY',
-            'FREE_MEMORY_FORECAST',
-            'FREE_MEMORY_FORECAST_FAR',
-            'USED_MEMORY',
-            'USED_MEMORY_FORECAST',
-            'USED_MEMORY_FORECAST_FAR',
-          ]}
+          y={memoryY}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
+          serieScale={2}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(point * 1000).getTime(),
+            (point) =>
+              new Date(point * 1000 + forecastPeriod * 60 * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
-              ).getTime(),
-            (point) =>
-              new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                point * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
           lineColors={[
@@ -162,25 +186,13 @@ const HostGraphTab = ({ id }) => {
             theme?.palette?.graphs.host.memory.used.forecast,
             theme?.palette?.graphs.host.memory.used.forecastFar,
           ]}
-          clusterFactor={6}
-          clusterThreshold={100}
           zoomFactor={0.95}
           trendLineOnly={[
             'USED_MEMORY_FORECAST_FAR',
             'FREE_MEMORY_FORECAST_FAR',
           ]}
-          shouldPadY={['FREE_MEMORY_FORECAST', 'USED_MEMORY_FORECAST']}
           interpolationY={(val) => (val ? prettyBytes(val, 'KB', 2) : val)}
-          legendNames={[
-            T.FreeMemory,
-            `${T.FreeMemory} ${T.Forecast}`,
-            `${T.FreeMemory} ${T.ForecastFar}`,
-            T.UsedMemory,
-            `${T.UsedMemory} ${T.Forecast}`,
-            `${T.UsedMemory} ${T.ForecastFar}`,
-          ]}
-          clampForecast
-          sortX
+          legendNames={memoryNames}
         />
       </Grid>
     </Grid>

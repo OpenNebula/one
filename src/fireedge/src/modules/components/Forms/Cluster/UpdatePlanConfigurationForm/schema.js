@@ -22,6 +22,7 @@ import {
   sentenceCase,
   arrayToOptions,
 } from '@UtilsModule'
+import { InputAdornment } from '@mui/material'
 
 const { MANUAL, PARTIAL, FULL } = DRS_AUTOMATION
 const { BALANCE, PACK } = DRS_POLICY
@@ -58,13 +59,13 @@ const INPUTS = {
       .default(() => -1),
   },
   PREDICTIVE: {
-    label: T.Predictive,
+    label: `${T.Predictive}`,
     tooltip: T.PredictiveWeightConcept,
     htmlType: INPUT_TYPES.SLIDER,
     validation: number()
       .positive()
       .min(0)
-      .max(1)
+      .max(100)
       .required()
       .default(() => 0),
   },
@@ -103,30 +104,33 @@ const INPUTS = {
       .default(() => Object.values(DRS_AUTOMATION)[1]),
   },
   CPU_USAGE_WEIGHT: {
-    label: T.CpuUsage,
+    label: `${T.CpuUsage}`,
     legend: T.BalanceWeights,
     tooltip: T.CpuUsageWeightConcept,
+  },
+  CPU_WEIGHT: {
+    label: `${T.Cpu}`,
+    tooltip: T.CpuWeightConcept,
     validation: number()
       .positive()
       .min(0)
-      .max(1)
+      .max(100)
       .required()
-      .default(() => 1)
+      .default(() => 100)
       .afterSubmit((value, { context }) =>
-        context?.POLICY.toLowerCase() === 'balance' ? value : undefined
+        context?.POLICY.toLowerCase() === 'balance' ? value / 100 : undefined
       ),
   },
-  CPU_WEIGHT: {
-    label: T.Cpu,
-    tooltip: T.CpuWeightConcept,
-  },
   MEMORY_WEIGHT: {
-    label: T.Memory,
+    label: `${T.Memory}`,
     tooltip: T.MemoryWeightConcept,
   },
-  NET_WEIGHT: { label: T.Network, tooltip: T.NetWeightConcept },
+  NET_WEIGHT: {
+    label: `${T.Network}`,
+    tooltip: T.NetWeightConcept,
+  },
   DISK_WEIGHT: {
-    label: T.Disk,
+    label: `${T.Disk}`,
     tooltip: T.DiskWeightConcept,
   },
 }
@@ -135,16 +139,21 @@ const generateSliderInputs = function* (inputs) {
   for (const [name, props] of Object.entries(inputs)) {
     yield {
       name,
-      fieldProps: { min: 0, max: 1, step: 0.01 },
+      fieldProps: {
+        min: 0,
+        max: 100,
+        step: 1,
+        startAdornment: <InputAdornment position="start">%</InputAdornment>,
+      },
       type: INPUT_TYPES.SLIDER,
       validation: number()
         .positive()
         .min(0)
-        .max(1)
+        .max(100)
         .required()
         .default(() => 0)
         .afterSubmit((value, { context }) =>
-          context?.POLICY.toLowerCase() === 'balance' ? value : undefined
+          context?.POLICY.toLowerCase() === 'balance' ? value / 100 : undefined
         ),
       grid: { md: 12 },
       dependOf: 'POLICY',

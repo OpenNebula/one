@@ -16,6 +16,7 @@
 
 /* eslint-disable  */
 function wheelZoomPlugin(opts) {
+  const {scaleX = true, scaleY = true} = opts
   const factor = opts.factor || 0.95
 
   let xMin, xMax, yMin, yMax, xRange, yRange
@@ -77,12 +78,12 @@ function wheelZoomPlugin(opts) {
           ;[nyMin, nyMax] = clamp(nyRange, nyMin, nyMax, yRange, yMin, yMax)
 
           u.batch(() => {
-            u.setScale('x', {
+            scaleX && u.setScale('x', {
               min: nxMin,
               max: nxMax,
             })
 
-            u.setScale('y', {
+            scaleY && u.setScale('y', {
               min: nyMin,
               max: nyMax,
             })

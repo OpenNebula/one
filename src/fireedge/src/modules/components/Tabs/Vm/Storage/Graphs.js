@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { Grid } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import PropTypes from 'prop-types'
 import { ReactElement } from 'react'
 
@@ -37,6 +37,8 @@ const Graphs = ({ id }) => {
   const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
+  const theme = useTheme()
+
   const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
 
   const { VM_MAD } = historyRecords?.[0] ?? 'kvm'
@@ -48,160 +50,179 @@ const Graphs = ({ id }) => {
     forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
+  const pairLag = 1
+
+  const diskRdBytesY = [
+    ['DISKRDBYTES_BW', 'DISKRDBYTES_BW_FORECAST'],
+    'DISKRDBYTES_BW_FORECAST_FAR',
+  ]
+
+  const diskRdBytesNames = Object.fromEntries(
+    [
+      T.DiskReadBytes,
+      `${T.DiskReadBytes} ${T.Forecast}`,
+      `${T.DiskReadBytes} ${T.ForecastFar}`,
+    ].map((name, idx) => [diskRdBytesY?.flat()[idx], name])
+  )
+
+  const diskWrBytesY = [
+    ['DISKWRBYTES_BW', 'DISKWRBYTES_BW_FORECAST'],
+    'DISKWRBYTES_BW_FORECAST_FAR',
+  ]
+
+  const diskWrBytesNames = Object.fromEntries(
+    [
+      T.DiskWriteBytes,
+      `${T.DiskWriteBytes} ${T.Forecast}`,
+      `${T.DiskWriteBytes} ${T.ForecastFar}`,
+    ].map((name, idx) => [diskWrBytesY?.flat()[idx], name])
+  )
+
+  const diskRdIopsY = [
+    ['DISKRDIOPS_BW', 'DISKRDIOPS_BW_FORECAST'],
+    'DISKRDIOPS_BW_FORECAST_FAR',
+  ]
+  const diskRdIopsNames = Object.fromEntries(
+    [
+      T.DiskReadIOPS,
+      `${T.DiskReadIOPS} ${T.Forecast}`,
+      `${T.DiskReadIOPS} ${T.ForecastFar}`,
+    ].map((name, idx) => [diskRdIopsY?.flat()[idx], name])
+  )
+
+  const diskWrIopsY = [
+    ['DISKWRIOPS_BW', 'DISKWRIOPS_BW_FORECAST'],
+    'DISKWRIOPS_BW_FORECAST_FAR',
+  ]
+  const diskWrIopsNames = Object.fromEntries(
+    [
+      T.DiskWriteIOPS,
+      `${T.DiskWriteIOPS} ${T.Forecast}`,
+      `${T.DiskWriteIOPS} ${T.ForecastFar}`,
+    ].map((name, idx) => [diskWrIopsY?.flat()[idx], name])
+  )
+
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
       <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskReadBytes)}
-          filter={[
-            'DISKRDBYTES_BW',
-            'DISKRDBYTES_BW_FORECAST',
-            'DISKRDBYTES_BW_FORECAST_FAR',
-          ]}
           data={monitoring}
-          y={[
-            'DISKRDBYTES_BW',
-            'DISKRDBYTES_BW_FORECAST',
-            'DISKRDBYTES_BW_FORECAST_FAR',
-          ]}
+          y={diskRdBytesY}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
+          serieScale={2}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
-          legendNames={[
-            T.DiskReadBytes,
-            `${T.DiskReadBytes} ${T.Forecast}`,
-            `${T.DiskReadBytes} ${T.ForecastFar}`,
+          legendNames={diskRdBytesNames}
+          lineColors={[
+            theme?.palette?.graphs.vm.diskReadBytes.real,
+            theme?.palette?.graphs.vm.diskReadBytes.forecast,
+            theme?.palette?.graphs.vm.diskReadBytes.forecastFar,
           ]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
-          clusterFactor={10}
-          showLegends={false}
-          clusterThreshold={1000}
           zoomFactor={0.95}
-          shouldPadY={['DISKRDBYTES_BW_FORECAST']}
           trendLineOnly={['DISKRDBYTES_BW_FORECAST_FAR']}
-          shouldFill
-          clampForecast
-          sortX
+          shouldFill={['DISKRDBYTES_BW']}
         />
       </Grid>
       <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskWriteBytes)}
           data={monitoring}
-          filter={[
-            'DISKWRBYTES_BW',
-            'DISKWRBYTES_BW_FORECAST',
-            'DISKWRBYTES_BW_FORECAST_FAR',
-          ]}
-          y={[
-            'DISKWRBYTES_BW',
-            'DISKWRBYTES_BW_FORECAST',
-            'DISKWRBYTES_BW_FORECAST_FAR',
-          ]}
+          y={diskWrBytesY}
+          serieScale={2}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 +
-                  forecastFarPeriod * 60 * 60 * 1000
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
               ).getTime(),
           ]}
-          legendNames={[
-            T.DiskWriteBytes,
-            `${T.DiskWriteBytes} ${T.Forecast}`,
-            `${T.DiskWriteBytes} ${T.ForecastFar}`,
+          legendNames={diskWrBytesNames}
+          lineColors={[
+            theme?.palette?.graphs.vm.diskWriteBytes.real,
+            theme?.palette?.graphs.vm.diskWriteBytes.forecast,
+            theme?.palette?.graphs.vm.diskWriteBytes.forecastFar,
           ]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
-          clusterFactor={10}
-          clusterThreshold={1000}
           zoomFactor={0.95}
-          shouldPadY={['DISKWRBYTES_BW_FORECAST']}
           trendLineOnly={['DISKWRBYTES_BW_FORECAST_FAR']}
-          showLegends={false}
-          shouldFill
-          clampForecast
-          sortX
+          shouldFill={['DISKWRBYTES_BW']}
         />
       </Grid>
       <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskReadIOPS)}
           data={monitoring}
-          filter={[
-            'DISKRDIOPS_BW',
-            'DISKRDIOPS_BW_FORECAST',
-            'DISKRDIOPS_BW_FORECAST_FAR',
+          y={diskRdIopsY}
+          serieScale={2}
+          x={[
+            (point) => new Date(parseInt(point) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
           ]}
-          y={[
-            'DISKRDIOPS_BW',
-            'DISKRDIOPS_BW_FORECAST',
-            'DISKRDIOPS_BW_FORECAST_FAR',
+          legendNames={diskRdIopsNames}
+          lineColors={[
+            theme?.palette?.graphs.vm.diskReadIOPS.real,
+            theme?.palette?.graphs.vm.diskReadIOPS.forecast,
+            theme?.palette?.graphs.vm.diskReadIOPS.forecastFar,
           ]}
-          x="TIMESTAMP"
-          legendNames={[
-            T.DiskReadIOPS,
-            `${T.DiskReadIOPS} ${T.Forecast}`,
-            `${T.DiskReadIOPS} ${T.ForecastFar}`,
-          ]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
-          clusterFactor={10}
-          clusterThreshold={1000}
           zoomFactor={0.95}
-          shouldPadY={['DISKRDIOPS_BW_FORECAST']}
           trendLineOnly={['DISKRDIOPS_BW_FORECAST_FAR']}
-          shouldFill
-          showLegends={false}
-          clampForecast
-          sortX
+          shouldFill={['DISKRDIOPS_BW']}
         />
       </Grid>
       <Grid item md={6}>
         <Chartist
           name={Tr(T.DiskWriteIOPS)}
           data={monitoring}
-          filter={[
-            'DISKWRIOPS_BW',
-            'DISKWRIOPS_BW_FORECAST',
-            'DISKWRIOPS_BW_FORECAST_FAR',
+          y={diskWrIopsY}
+          serieScale={2}
+          x={[
+            (point) => new Date(parseInt(point) * 1000).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
+              ).getTime(),
+            (point) =>
+              new Date(
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 60 * 1000
+              ).getTime(),
           ]}
-          y={[
-            'DISKWRIOPS_BW',
-            'DISKWRIOPS_BW_FORECAST',
-            'DISKWRIOPS_BW_FORECAST_FAR',
+          legendNames={diskWrIopsNames}
+          lineColors={[
+            theme?.palette?.graphs.vm.diskWriteIOPS.real,
+            theme?.palette?.graphs.vm.diskWriteIOPS.forecast,
+            theme?.palette?.graphs.vm.diskWriteIOPS.forecastFar,
           ]}
-          x="TIMESTAMP"
-          legendNames={[
-            T.DiskWriteIOPS,
-            `${T.DiskWriteIOPS} ${T.Forecast}`,
-            `${T.DiskWriteIOPS} ${T.ForecastFar}`,
-          ]}
-          lineColors={['#40B3D9', '#2A2D3D', '#7a7c83']}
           interpolationY={interpolationBytes}
-          clusterFactor={10}
-          clusterThreshold={1000}
           zoomFactor={0.95}
-          showLegends={false}
-          shouldPadY={['DISKWRIOPS_BW_FORECAST']}
           trendLineOnly={['DISKWRIOPS_FORECAST_FAR']}
-          shouldFill
-          clampForecast
-          sortX
+          shouldFill={['DISKWRIOPS']}
         />
       </Grid>
     </Grid>

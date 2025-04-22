@@ -245,11 +245,7 @@ const getDefaultLabelsHandler = async (
 
     res.locals.httpCode = httpResponse(ok, defaultLabels)
   } catch (error) {
-    const httpError = httpResponse(
-      internalServerError,
-      'Failed to load default labels config',
-      ''
-    )
+    const httpError = httpResponse(internalServerError, '')
     writeInLogger(httpError)
     res.locals.httpCode = httpError
   }

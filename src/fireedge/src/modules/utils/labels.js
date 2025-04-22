@@ -21,7 +21,13 @@ export const parseLabels = (labelString) => {
   try {
     return JSON.parse(JSON.parse(labelString))
   } catch {
-    return labelString
+    try {
+      return Object.fromEntries(
+        labelString.split(',').map((lbl) => [`$${lbl}`, {}])
+      )
+    } catch {
+      return labelString
+    }
   }
 }
 

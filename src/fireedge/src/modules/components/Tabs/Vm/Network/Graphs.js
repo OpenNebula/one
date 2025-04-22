@@ -50,6 +50,22 @@ const Graphs = ({ id }) => {
     forecast_far: { period: forecastFarPeriod = 2880 } = {}, // Minutes
   } = virtualmachine || {}
 
+  const pairLag = 1
+
+  const netRxY = ['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']
+  const netRxNames = Object.fromEntries(
+    [T.NetRX, `${T.NetRX} ${T.Forecast}`, `${T.NetRX} ${T.ForecastFar}`].map(
+      (name, idx) => [netRxY?.flat()[idx], name]
+    )
+  )
+
+  const netTxY = ['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']
+  const netTxNames = Object.fromEntries(
+    [T.NetTX, `${T.NetTX} ${T.Forecast}`, `${T.NetTX} ${T.ForecastFar}`].map(
+      (name, idx) => [netTxY?.flat()[idx], name]
+    )
+  )
+
   return !monitoring.length ? (
     <Typography variant="h6" zIndex={2} noWrap>
       <Translate word={T.NoNetworksInMonitoring} />
@@ -60,78 +76,65 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.NetDownloadSpeed)}
           data={monitoring}
-          filter={['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']}
-          y={['NETRX_BW', 'NETRX_BW_FORECAST', 'NETRX_BW_FORECAST_FAR']}
-          interpolationY={interpolationBytesSeg}
+          y={netRxY}
+          pairTransform={(point, idx) => {
+            const padding = Array(pairLag).fill(null)
+
+            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+          }}
+          serieScale={2}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastFarPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
               ).getTime(),
           ]}
           lineColors={[
-            theme?.palette?.graphs.vm.cpu.real,
-            theme?.palette?.graphs.vm.cpu.forecast,
-            theme?.palette?.graphs.vm.cpu.forecastFar,
+            theme?.palette?.graphs.vm.netDownloadSpeed.real,
+            theme?.palette?.graphs.vm.netDownloadSpeed.forecast,
+            theme?.palette?.graphs.vm.netDownloadSpeed.forecastFar,
           ]}
-          legendNames={[
-            T.NetRX,
-            `${T.NetRX} ${T.Forecast}`,
-            `${T.NetRX} ${T.ForecastFar}`,
-          ]}
-          clusterFactor={10}
-          clusterThreshold={1000}
+          interpolationY={interpolationBytesSeg}
+          legendNames={netRxNames}
           zoomFactor={0.95}
-          shouldPadY={['NETRX_BW_FORECAST']}
           trendLineOnly={['NETRX_BW_FORECAST_FAR']}
-          sortX
-          shouldFill
           showLegends={false}
-          clampForecast
+          shouldFill={['NETRX_BW']}
         />
       </Grid>
       <Grid item md={6}>
         <Chartist
           name={Tr(T.NetUploadSpeed)}
           data={monitoring}
-          filter={['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']}
-          y={['NETTX_BW', 'NETTX_BW_FORECAST', 'NETTX_BW_FORECAST_FAR']}
+          y={netTxY}
           interpolationY={interpolationBytesSeg}
           x={[
-            (point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime(),
+            (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
             (point) =>
               new Date(
-                parseInt(point.TIMESTAMP) * 1000 + forecastFarPeriod * 60 * 1000
+                parseInt(point) * 1000 + forecastFarPeriod * 60 * 1000
               ).getTime(),
           ]}
+          serieScale={2}
           lineColors={[
-            theme?.palette?.graphs.vm.cpu.real,
-            theme?.palette?.graphs.vm.cpu.forecast,
-            theme?.palette?.graphs.vm.cpu.forecastFar,
+            theme?.palette?.graphs.vm.netUploadSpeed.real,
+            theme?.palette?.graphs.vm.netUploadSpeed.forecast,
+            theme?.palette?.graphs.vm.netUploadSpeed.forecastFar,
           ]}
-          legendNames={[
-            T.NetTX,
-            `${T.NetTX} ${T.Forecast}`,
-            `${T.NetTX} ${T.ForecastFar}`,
-          ]}
-          clusterFactor={10}
-          clusterThreshold={1000}
+          legendNames={netTxNames}
           zoomFactor={0.95}
-          shouldPadY={['NETTX_BW_FORECAST']}
           trendLineOnly={['NETTX_BW_FORECAST_FAR']}
           showLegends={false}
-          sortX
-          shouldFill
-          clampForecast
+          shouldFill={['NETTX_BW']}
         />
       </Grid>
     </Grid>

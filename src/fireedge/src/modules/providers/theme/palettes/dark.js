@@ -372,39 +372,69 @@ export const darkPalette = {
   graphs: {
     vm: {
       cpu: {
-        real: '#80CDE6',
-        forecast: '#0098C3',
-        forecastFar: '#66C1DB',
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
       },
       memory: {
-        real: '#80CDE6',
-        forecast: '#0098C3',
-        forecastFar: '#66C1DB',
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      diskReadBytes: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      diskReadIOPS: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      diskWriteBytes: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      diskWriteIOPS: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      netDownloadSpeed: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
+      },
+      netUploadSpeed: {
+        real: primaryColor,
+        forecast: sunstoneColors.grey[300],
+        forecastFar: '#DEA700',
       },
     },
     host: {
       cpu: {
         free: {
-          real: '#B8CF49',
-          forecast: '#00A76A',
-          forecastFar: '#66CAA6',
+          real: '#C93F7A',
+          forecast: '#A892E1',
+          forecastFar: '#FF7D2E	',
         },
         used: {
-          real: '#80CDE6',
-          forecast: '#0098C3',
-          forecastFar: '#66C1DB',
+          real: primaryColor,
+          forecast: sunstoneColors.grey[300],
+          forecastFar: '#DEA700',
         },
       },
       memory: {
         free: {
-          real: '#B8CF49',
-          forecast: '#00A76A',
-          forecastFar: '#66CAA6',
+          real: '#C93F7A',
+          forecast: '#A892E1',
+          forecastFar: '#FF7D2E',
         },
         used: {
-          real: '#80CDE6',
-          forecast: '#0098C3',
-          forecastFar: '#66C1DB',
+          real: primaryColor,
+          forecast: sunstoneColors.grey[300],
+          forecastFar: '#DEA700',
         },
       },
     },

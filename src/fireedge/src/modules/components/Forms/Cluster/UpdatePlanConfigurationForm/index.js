@@ -21,7 +21,16 @@ import { createForm } from '@UtilsModule'
 
 const UpdatePlanConfigurationForm = createForm(SCHEMA, FIELDS, {
   transformInitialValue: (clusterTemplate, schema) => {
-    const knownTemplate = schema.cast(clusterTemplate)
+    const formatTemplate = Object.entries(clusterTemplate)?.reduce(
+      (acc, [k, v]) => {
+        acc[k] = k?.endsWith('_WEIGHT') ? v * 100 : v
+
+        return acc
+      },
+      {}
+    )
+
+    const knownTemplate = schema.cast(formatTemplate)
 
     return knownTemplate
   },

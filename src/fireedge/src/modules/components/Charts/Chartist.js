@@ -28,8 +28,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { Component, useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
+import { useResizeObserver } from '@HooksModule'
 
 const useStyles = ({ palette, typography }) => ({
   graphContainer: css({
@@ -48,67 +49,6 @@ const useStyles = ({ palette, typography }) => ({
     overflow: 'hidden',
   }),
 })
-
-const calculateDerivative = (data, filter) =>
-  data
-    .map((point, i, array) => {
-      if (i === array.length - 1) {
-        return null
-      }
-      const nextPoint = array[i + 1]
-      const yValues = Object.fromEntries(
-        filter.map((key) => [
-          key,
-          (nextPoint?.[key] - point?.[key]) / ((nextPoint.x - point.x) / 1000),
-        ])
-      )
-
-      return {
-        x: point.x,
-        ...yValues,
-      }
-    })
-    .filter((point) => point)
-
-const clusterData = (data, threshold = 1000, clusterFactor = 10) => {
-  if (data.length <= threshold) return data
-
-  const clusters = []
-  let cluster = {}
-  let count = 0
-
-  for (const [idx, chunk] of data.entries()) {
-    for (const [key, value] of Object.entries(chunk)) {
-      cluster[key] = Array.isArray(value)
-        ? value.map((val, vIdx) => cluster?.[key]?.[vIdx] ?? 0 + val ?? 0)
-        : (cluster[key] ?? 0) + value
-    }
-
-    if (++count === clusterFactor || idx === data.length - 1) {
-      clusters.push(
-        Object.fromEntries(
-          Object.entries(cluster).map(([key, sum]) => {
-            if (key === 'x') {
-              return [key, sum]
-            }
-
-            if (Array.isArray(sum)) {
-              return [key, sum.map((val) => val / count)]
-            }
-
-            return [key, sum / count]
-          })
-        )
-      )
-
-      // Reset cluster and count
-      cluster = {}
-      count = 0
-    }
-  }
-
-  return clusters
-}
 
 const minMaxTick = (ticks, formatter) => {
   const minTick = Math.min(...ticks)
@@ -144,41 +84,31 @@ const createFill = (u, color) => {
  * @param {object} props - Props
  * @param {object[]} props.data - Chart data
  * @param {string} props.name - Chartist name
- * @param {string} props.filter - Chartist filter
  * @param {Array} props.x - Chartist X
  * @param {Array|string} props.y - Chartist Y
  * @param {Function} props.interpolationY - Chartist interpolation Y
- * @param {boolean} props.derivative - Display delta values
- * @param {number} props.clusterFactor - Number of chunks per cluster
- * @param {number} props.clusterThreshold - Start clustering past this threshold
  * @param {boolean} props.shouldFill - Display line shadows/gradients
- * @param {boolean} props.clampForecast - Clamp X-axis range to forecast range
- * @param {boolean} props.sortX - Sort X-axis ascending order
- * @param {boolean} props.shouldPadY - Padds Y-axis with the length of the previous Y-series, creating a continuous line
  * @param {Array} props.legendNames - List of legend names
  * @param {Array} props.trendLineOnly - Array of Y values to only draw a trend line between
  * @param {Array} props.lineColors - Array of line colors
  * @param {number} props.zoomFactor - Grapg zooming factor
  * @param {string} props.dateFormat - Labels timestamp format
  * @param {string} props.dateFormatHover - Legend timestamp format
+ * @param {Function} props.pairTransform - Function applied to 'paired' labels. A paired label is 2 or more grouped together in an array.
+ * @param {string} props.serieScale - Number to multiply X axis series length with. Should be used if a pair transform is stretching the Y series.
  * @returns {Component} Chartist component
  */
 const Chartist = ({
   data = [],
   name = '',
-  filter = [],
   x = '',
   y = '',
   zoomFactor = 0.95,
   interpolationY = (value) => value,
-  derivative = false,
-  shouldFill = false,
-  clampForecast = false,
-  sortX = false,
-  shouldPadY = [],
-  clusterFactor = 10,
-  clusterThreshold = 10000,
+  shouldFill = [],
+  serieScale,
   trendLineOnly = [],
+  pairTransform = (point) => [point],
   legendNames = [],
   lineColors = [],
   dateFormat = 'MM-dd HH:mm',
@@ -193,133 +123,137 @@ const Chartist = ({
     height: 0,
   })
 
-  const [trendLineIdxs, setTrendLineIdxs] = useState([])
-  const [shouldPad, setShouldPad] = useState([])
-
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
+  useResizeObserver(
+    chartRef,
+    () => {
       if (chartRef.current) {
-        const { width, height } = chartRef.current.getBoundingClientRect()
-        setChartDimensions({
-          width: width - 50,
-          height: height - 150,
+        requestAnimationFrame(() => {
+          const { width, height } = chartRef.current.getBoundingClientRect()
+          setChartDimensions({
+            width: width - 50,
+            height: height - 150,
+          })
         })
       }
-    })
+    },
+    200
+  )
 
-    if (chartRef.current) {
-      observer.observe(chartRef.current)
-    }
+  const transformData = useMemo(() => {
+    if (!data?.length) return []
 
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
+    const renderableY = []
+    const filterKeys = new Set(y?.flat() ?? [])
 
-  const dataChart = useMemo(() => {
-    if (!filter.length) return []
+    const [xValues, yValues] = (data ?? []).reduce(
+      ([xA, yA], point) => {
+        if (
+          point &&
+          typeof point === 'object' &&
+          Object.hasOwn(point, 'TIMESTAMP')
+        ) {
+          const fE = Object.entries(point).filter(([k]) => filterKeys.has(k))
+          if (fE.length > 0) {
+            xA.push(point.TIMESTAMP)
+            yA.push(Object.fromEntries(fE))
+          }
+        }
 
-    let filteredData = data
-    if (filter.length) {
-      filteredData = data.filter((point) =>
-        Object.keys(point).some((key) => filter.includes(key))
+        return [xA, yA]
+      },
+      [[], []]
+    )
+
+    const timestamps = xValues
+      ?.flatMap((timestamp) => x?.map((transformX) => transformX(timestamp)))
+      ?.filter(Boolean)
+      ?.sort((a, b) => a - b)
+
+    if (!timestamps?.length) return []
+
+    const transformY = () => {
+      const trendLineIndexes = trendLineOnly?.map((label) =>
+        y?.flat()?.indexOf(label)
       )
-    }
 
-    return filteredData.map((point) => ({
-      x: Array.isArray(x)
-        ? x.map((xVal) =>
-            typeof xVal === 'function' ? xVal(point) : +point[xVal]
-          )
-        : typeof x === 'function'
-        ? x(point)
-        : +point[x],
-      ...(Array.isArray(y)
-        ? Object.fromEntries(y.map((pt) => [pt, +point[pt]]))
-        : { y: +point[y] }),
-    }))
-  }, [data, filter, x, y])
-
-  const processedData = useMemo(() => {
-    let finalData = dataChart
-    if (dataChart.length > clusterThreshold) {
-      finalData = clusterData(dataChart, clusterThreshold, clusterFactor)
-    }
-
-    return derivative ? calculateDerivative(finalData, filter) : finalData
-  }, [dataChart, clusterThreshold, clusterFactor, derivative])
-
-  const chartData = useMemo(() => {
-    let xValues = processedData.map((point) => point.x).flat()
-
-    xValues = sortX ? xValues?.sort((a, b) => a - b) : xValues
-
-    const yValuesArray = Array.isArray(y)
-      ? y.map((yValue, yIdx) => {
-          if (trendLineOnly?.includes(yValue)) {
-            setTrendLineIdxs((prev) => [...prev, yIdx])
+      const transformedYValues = y
+        .flatMap((label) => {
+          if (Array.isArray(label)) {
+            return label?.map((labelPair, labelPairIndex) =>
+              yValues?.flatMap((point, ...args) =>
+                pairTransform(point?.[labelPair], labelPairIndex, ...args)
+              )
+            )
+          } else {
+            return [yValues?.map((point) => point?.[label])]
           }
-          if (shouldPadY?.includes(yValue)) {
-            setShouldPad((prev) => [...prev, yIdx])
-          }
-
-          return processedData.map((point) => point[yValue] ?? null)
         })
-      : [processedData.map((point) => point.y)]
+        ?.map((yValue, idx) => {
+          const fYValues = yValue?.map(parseFloat)?.filter(Boolean)
 
-    if (!shouldPad?.length && !trendLineIdxs?.length) {
-      return [xValues, ...yValuesArray]
+          return trendLineIndexes?.includes(idx) && fYValues?.length > 0
+            ? [
+                Math.min(...fYValues),
+                ...Array(timestamps?.length - 2),
+                Math.max(...fYValues),
+              ]
+            : yValue // Return unformatted as to not potentially discard pairTransform
+        })
+
+      return transformedYValues?.filter((transformedArray, index) => {
+        const isAllInvalid = transformedArray?.every(
+          (val) => val == null || Number.isNaN(val)
+        )
+
+        if (!isAllInvalid) {
+          renderableY.push(y.flat()[index])
+
+          return true
+        }
+
+        return false
+      })
     }
 
-    const paddedArray = yValuesArray.map((_, idx) => {
-      let arr = []
+    const transformedY = transformY()
+    const seriesLength = xValues?.length * (serieScale ?? transformedY?.length)
 
-      if (trendLineIdxs?.includes(idx)) {
-        arr = yValuesArray[idx].slice(0, 1)
-        while (arr.length < xValues?.length - 1) {
-          arr.push(null)
-        }
-        arr.push(yValuesArray[idx]?.slice(-1).pop())
-      } else {
-        if (!shouldPad?.includes(idx)) return yValuesArray[idx]
+    return {
+      XScale: seriesLength,
+      YRender: renderableY,
+      dataset: [timestamps, ...transformedY],
+    }
+  }, [data])
 
-        // Exclude trendline padding
-        const paddLength = yValuesArray?.filter(
-          (_y, yIdx) => !trendLineIdxs?.includes(yIdx)
-        )?.[idx > 0 ? idx - 1 : 0]?.length
+  const chartOptions = useMemo(() => {
+    const {
+      dataset = [],
+      XScale = Infinity,
+      YRender = [],
+    } = transformData ?? {}
 
-        while (arr.length < paddLength) {
-          arr.push(null)
-        }
-        arr = [...arr, ...yValuesArray[idx]]
-      }
+    if (!dataset.length || !YRender.length) return
 
-      return arr
-    })
+    const [timestamps] = dataset
 
-    return [xValues, ...paddedArray]
-  }, [processedData, y, shouldPadY])
-
-  const chartOptions = useMemo(
-    () => ({
+    return {
       ...chartDimensions,
       drag: false,
       padding: [20, 40, 0, 40], // Pad top / left / right
-      plugins: [wheelZoomPlugin({ factor: zoomFactor })],
+      plugins: [
+        wheelZoomPlugin({ factor: zoomFactor, scaleY: false, scaleX: true }),
+      ],
       cursor: {
         bind: {
           mousedown: () => () => {}, // Clear original 'annotating' handler
+          dblclick: () => () => {}, // Clear reset X axis
         },
       },
       scales: {
         x: {
           time: true,
-          ...(clampForecast
-            ? {
-                min: processedData?.[0]?.x?.[0],
-                max: processedData?.[processedData?.length - 1]?.x?.[1],
-              }
-            : {}),
+          min: Math.min(...timestamps) ?? null, // No need to slice when sorted already
+          max: Math.max(...timestamps?.slice(0, XScale)) ?? null,
         },
         y: { auto: true },
       },
@@ -347,25 +281,24 @@ const Chartist = ({
               ? timeFromSeconds(timestamp).toFormat(dateFormatHover)
               : '--',
         },
-        ...(Array.isArray(y)
-          ? y.map((yValue, index) => ({
-              label: legendNames?.[index] || yValue,
+        ...(Array.isArray(YRender)
+          ? YRender?.map((yValue, index) => ({
+              label: legendNames?.[yValue] ?? legendNames?.[index] ?? yValue,
               value: (_, yV) => interpolationY(yV) || yV,
               stroke: lineColors?.[index] || '#40B3D9',
               points: { show: true },
-              ...(trendLineIdxs?.includes(index)
+              ...([]?.includes(index)
                 ? {
                     dash: [5, 5],
                     points: { show: false },
                   }
                 : {}),
               spanGaps: true,
-              ...(shouldFill
+              ...(shouldFill.includes(yValue)
                 ? {
                     fill: (u) => createFill(u, lineColors?.[index]),
                   }
                 : {}),
-
               focus: true,
             }))
           : [
@@ -374,7 +307,7 @@ const Chartist = ({
                 stroke: lineColors?.[0] || '#40B3D9',
                 value: (_, yV) => interpolationY(yV),
                 focus: true,
-                ...(shouldFill
+                ...(shouldFill.includes(YRender)
                   ? {
                       fill: (u) => createFill(u, lineColors?.[0]),
                     }
@@ -382,19 +315,16 @@ const Chartist = ({
               },
             ]),
       ],
-    }),
-    [
-      trendLineIdxs,
-      chartData,
-      chartDimensions,
-      processedData,
-      name,
-      y,
-      legendNames,
-      lineColors,
-      interpolationY,
-    ]
-  )
+    }
+  }, [
+    transformData,
+    chartDimensions,
+    name,
+    y,
+    legendNames,
+    lineColors,
+    interpolationY,
+  ])
 
   return (
     <Paper variant="outlined" className={classes.graphContainer}>
@@ -403,13 +333,16 @@ const Chartist = ({
           <Typography noWrap>{name}</Typography>
         </ListItem>
         <ListItem ref={chartRef} className={classes.placeholder}>
-          {!data?.length ? (
+          {transformData == null || !transformData?.dataset?.length > 0 ? (
             <Stack direction="row" justifyContent="center" alignItems="center">
               <CircularProgress color="secondary" />
             </Stack>
           ) : (
             <div>
-              <UplotReact options={chartOptions} data={chartData} />
+              <UplotReact
+                options={chartOptions}
+                data={transformData.dataset ?? []}
+              />
             </div>
           )}
         </ListItem>
@@ -420,24 +353,19 @@ const Chartist = ({
 
 Chartist.propTypes = {
   name: PropTypes.string,
-  filter: PropTypes.arrayOf(PropTypes.string),
   data: PropTypes.array,
   x: PropTypes.arrayOf(PropTypes.func),
   y: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.string),
-    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
   ]),
   interpolationY: PropTypes.func,
-  derivative: PropTypes.bool,
-  shouldFill: PropTypes.bool,
-  clampForecast: PropTypes.bool,
-  sortX: PropTypes.bool,
-  shouldPadY: PropTypes.bool,
+  shouldFill: PropTypes.array,
   enableLegend: PropTypes.bool,
   zoomFactor: PropTypes.number,
-  clusterFactor: PropTypes.number,
-  clusterThreshold: PropTypes.number,
   legendNames: PropTypes.arrayOf(PropTypes.string),
+  pairTransform: PropTypes.func,
+  serieScale: PropTypes.number,
   trendLineOnly: PropTypes.arrayOf(PropTypes.string),
   lineColors: PropTypes.arrayOf(PropTypes.string),
   dateFormat: PropTypes.string,
