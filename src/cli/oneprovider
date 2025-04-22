@@ -178,7 +178,7 @@ CommandParser::CmdParser.new(ARGV) do
             [:file, nil],
             :options => PLAIN do
         helper.perform_action(args[0], options, 'updated') do |obj|
-            helper.update(obj, args[1], (options.key? :plain))
+            helper.update(obj, args[1], options.key?(:plain))
         end
     end
 
