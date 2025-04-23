@@ -233,31 +233,50 @@ module OpenNebula
         # Helpers
         ########################################################################
 
+        # Shutdown all nodes associated with a Virtual Router.
+        #
+        # @param nodes [Array<Hash>] list of node definitions for the role
+        # @param n_nodes [Integer] number of nodes to shutdown
+        # @param _ [Object] unused parameter (placeholder for recover att)
+        #
+        # @return [Array<(Boolean, Array<Integer>)>] a tuple:
+        #   - Boolean indicating overall success (`true` if VR was deleted successfully)
+        #   - Array of VM IDs that were associated with the Virtual Router
+        #
+        # If the router could not be deleted, returns `false` and an empty list.
         def shutdown_nodes(nodes, n_nodes, _)
-            success          = true
-            vrouter_id       = @body['vrouter_id']
-
-            return [success, nodes] if nodes.empty? && vrouter_id.nil?
+            vrouter_id = @body['vrouter_id']
+            return [true, []] if vrouter_id.nil?
 
             msg = "Role #{name} : Terminating VR #{vrouter_id} (#{n_nodes} VMs associated)"
             Log.debug(LOG_COMP, msg, @service.id)
 
-            vrouter = OpenNebula::VirtualRouter.new_with_id(
-                vrouter_id, @service.client
-            )
-
-            rc = vrouter.delete
+            vrouter = OpenNebula::VirtualRouter.new_with_id(vrouter_id, @service.client)
+            rc      = vrouter.info
 
             if OpenNebula.is_error?(rc)
-                msg = "Role #{name} : Delete failed for VR #{vrouter_id}: #{rc.message}"
-
+                msg = "Role #{name} : Error getting VR #{vrouter_id}: #{rc.message}"
                 Log.error(LOG_COMP, msg, @service.id)
                 @service.log_error(msg)
 
-                success = false
+                return [false, []]
             end
 
-            [success, nodes]
+            vm_ids = vrouter.vm_ids
+            rc     = vrouter.delete
+
+            if OpenNebula.is_error?(rc) && rc.errno != OpenNebula::Error::ENO_EXISTS
+                msg = "Role #{name} : Delete failed for VR #{vrouter_id}: #{rc.message}"
+                Log.error(LOG_COMP, msg, @service.id)
+                @service.log_error(msg)
+
+                return [false, []]
+            end
+
+            msg = "Role #{name} : Delete success for VR #{vrouter_id}"
+            Log.debug(LOG_COMP, msg, @service.id)
+
+            [true, vm_ids]
         end
 
     end
