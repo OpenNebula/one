@@ -192,6 +192,7 @@ class LXCVM < OpenNebulaVM
         # 5 = error, 6 = critical, 7 = alert, 8 = fatal
         lxc['lxc.log.level'] = 5
         lxc['lxc.log.file'] = "/var/log/lxc/one-#{@vm_id}.log"
+        lxc['lxc.console.logfile'] = "/var/log/lxc/one-#{@vm_id}.console"
 
         # Parse RAW section (lxc values should prevail over raw section values)
         lxc = parse_raw.merge(lxc)

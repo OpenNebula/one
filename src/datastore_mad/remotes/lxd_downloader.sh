@@ -40,7 +40,6 @@ PKG_RPM="util-linux bash curl bind-utils cloud-utils-growpart parted ruby rubyge
 PKG_el7=$PKG_RPM
 PKG_el8="${PKG_RPM} network-scripts"
 PKG_el9=$PKG_RPM
-PKG_FEDORA=$PKG_el8
 PKG_ORACLE="oracle-epel-release-el" #suffix
 PKG_DEB="util-linux bash curl bind9-host cloud-utils parted ruby sudo passwd dbus openssh-server open-vm-tools qemu-guest-agent gawk virt-what" # ifupdown|ifupdown2 acpid|systemd
 PKG_APK="util-linux bash curl udev sfdisk parted e2fsprogs-extra sudo shadow ruby ruby-json bind-tools openssh open-vm-tools qemu-guest-agent gawk virt-what"
@@ -329,9 +328,16 @@ echo "nameserver $DNS_SERVER" > /etc/resolv.conf
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
 
-yum install $PKG_FEDORA -y >> /var/log/chroot.log 2>&1
+fedora_version=\$(cat /etc/os-release | grep VERSION_ID | cut -d '=' -f 2)
 
-$CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+if [ \$fedora_version -gt 40 ]; then
+    yum install $PKG_el9 -y >> /var/log/chroot.log 2>&1
+    $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el9.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+else
+    yum install $PKG_el8 -y >> /var/log/chroot.log 2>&1
+    $CURL $CONTEXT_URL/v$selected_tag/one-context-$selected_tag-1.el8.noarch.rpm -Lfo /root/context.rpm >> /var/log/chroot.log 2>&1
+fi
+
 yum install /root/context.rpm -y >> /var/log/chroot.log 2>&1
 rm /root/context.rpm
 
