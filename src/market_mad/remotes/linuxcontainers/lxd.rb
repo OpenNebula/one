@@ -38,6 +38,10 @@ module LXDMarket
             SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
             SET_HOSTNAME  =\"$NAME\"
         ]"
+        RAW = [
+            TYPE=\"lxc\",
+            DATA=\"#{options[:raw]}\"
+        ]
             EOS
         end
 
