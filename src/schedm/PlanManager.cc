@@ -279,6 +279,8 @@ void PlanManager::timer_action()
 bool PlanManager::start_action(int plan_id, PlanAction& action)
 {
     const string& aname = action.operation();
+    VMActions::Action vm_action = VMActions::NONE_ACTION;
+    VMActions::action_from_str(aname, vm_action);
 
     Request::ErrorCode rc = Request::SUCCESS;
 
@@ -287,7 +289,9 @@ bool PlanManager::start_action(int plan_id, PlanAction& action)
                          GroupPool::ONEADMIN_ID,
                          PoolObjectSQL::VM);
 
-    if (aname == "deploy")
+    ra.set_auth_op(vm_action);
+
+    if (vm_action == VMActions::DEPLOY_ACTION)
     {
         VirtualMachineDeploy request;
 
@@ -305,7 +309,7 @@ bool PlanManager::start_action(int plan_id, PlanAction& action)
         rc = request.request_execute(ra, action.vm_id(), action.host_id(), true,
                 action.ds_id(), extra.str());
     }
-    else if (aname == "migrate")
+    else if (vm_action == VMActions::MIGRATE_ACTION)
     {
         VirtualMachineMigrate request;
 

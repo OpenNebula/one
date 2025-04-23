@@ -49,6 +49,11 @@ void SchedulerManagerDriver::place() const
 
     match(sr, "Cannot dispatch VM: ");
 
+    if (sr.match.vms.empty())
+    {
+        return;
+    }
+
     std::ostringstream oss;
 
     scheduler_message(sr, oss);
@@ -66,6 +71,11 @@ void SchedulerManagerDriver::optimize(int cluster_id) const
     }
 
     match(sr, "Optimize: ");
+
+    if (sr.match.vms.empty())
+    {
+        return;
+    }
 
     std::ostringstream oss;
 
@@ -381,6 +391,8 @@ static int match_system_ds(SchedRequest& sr, VirtualMachine * vm, std::string& e
 
 static int match_networks(SchedRequest& sr, VirtualMachine * vm, std::string& error);
 
+static AuthRequest::Operation get_vm_auth_op(VMActions::Action action);
+
 void SchedulerManagerDriver::match(SchedRequest& sr, const std::string& ebase) const
 {
     int rc;
@@ -391,6 +403,16 @@ void SchedulerManagerDriver::match(SchedRequest& sr, const std::string& ebase) c
         VirtualMachine * vm = sr.vmpool.get(vm_id);
 
         if ( vm == nullptr )
+        {
+            continue;
+        }
+
+        auto action = vm->is_resched() ? VMActions::MIGRATE_ACTION : VMActions::DEPLOY_ACTION;
+        auto auth_op = get_vm_auth_op(action);
+        auto lock_state = static_cast<int>(vm->get_lock_state());
+
+        // Skip VM if it is locked, respecting the auth_op
+        if (lock_state > 0 && lock_state <= auth_op)
         {
             continue;
         }
@@ -767,4 +789,42 @@ int match_networks(SchedRequest& sr, VirtualMachine * vm, std::string& error)
     }
 
     return 0;
+}
+
+// -----------------------------------------------------------------------------
+
+static AuthRequest::Operation get_vm_auth_op(VMActions::Action action)
+{
+    auto& nd = Nebula::instance();
+
+    AuthRequest::Operation auth_op;
+
+    if (auto user = nd.get_upool()->get_ro(0))
+    {
+        auth_op = user->get_vm_auth_op(action);
+
+        if (auth_op != AuthRequest::NONE)
+        {
+            return auth_op;
+        }
+    }
+
+    if (auto group = nd.get_gpool()->get_ro(0))
+    {
+        auth_op = group->get_vm_auth_op(action);
+
+        if (auth_op != AuthRequest::NONE)
+        {
+            return auth_op;
+        }
+    }
+
+    auth_op = nd.get_vm_auth_op(action);
+
+    if (auth_op != AuthRequest::NONE)
+    {
+        return auth_op;
+    }
+
+    return AuthRequest::ADMIN;
 }
