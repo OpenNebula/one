@@ -34,7 +34,7 @@ const Graphs = ({ id }) => {
   // Get styles
   const theme = useTheme()
 
-  const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: monitoring = [], isFetching } = VmAPI.useGetMonitoringQuery(id)
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
   const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
@@ -69,6 +69,7 @@ const Graphs = ({ id }) => {
       <Chartist
         name={Tr(T.RealCpu)}
         data={monitoring}
+        isFetching={isFetching}
         y={cpuY}
         pairTransform={(point, idx) => {
           const padding = Array(pairLag).fill(null)
@@ -91,6 +92,8 @@ const Graphs = ({ id }) => {
         legendNames={cpuNames}
         interpolationY={(val) => {
           try {
+            if (val === undefined || val === null) return '--'
+
             const num = Number(val)
 
             if (!Number.isFinite(num)) return '--'

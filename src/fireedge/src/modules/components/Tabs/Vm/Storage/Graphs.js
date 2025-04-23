@@ -34,7 +34,7 @@ const interpolationBytes = (value) =>
  * @returns {ReactElement} Capacity Graphs.
  */
 const Graphs = ({ id }) => {
-  const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: monitoring = [], isFetching } = VmAPI.useGetMonitoringQuery(id)
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
   const theme = useTheme()
@@ -107,6 +107,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.DiskReadBytes)}
           data={monitoring}
+          isFetching={isFetching}
           y={diskRdBytesY}
           pairTransform={(point, idx) => {
             const padding = Array(pairLag).fill(null)
@@ -137,6 +138,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.DiskWriteBytes)}
           data={monitoring}
+          isFetching={isFetching}
           y={diskWrBytesY}
           serieScale={1}
           pairTransform={(point, idx) => {
@@ -167,6 +169,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.DiskReadIOPS)}
           data={monitoring}
+          isFetching={isFetching}
           y={diskRdIopsY}
           serieScale={1}
           pairTransform={(point, idx) => {
@@ -197,6 +200,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.DiskWriteIOPS)}
           data={monitoring}
+          isFetching={isFetching}
           y={diskWrIopsY}
           serieScale={1}
           pairTransform={(point, idx) => {

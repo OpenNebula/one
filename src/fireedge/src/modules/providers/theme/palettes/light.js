@@ -440,6 +440,9 @@ export const lightPalette = {
         },
       },
     },
+    axis: {
+      color: sunstoneColors.black,
+    },
   },
 
   error: {

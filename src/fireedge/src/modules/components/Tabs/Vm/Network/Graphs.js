@@ -34,7 +34,7 @@ const interpolationBytesSeg = (value) =>
  * @returns {ReactElement} Capacity Graphs.
  */
 const Graphs = ({ id }) => {
-  const { data: monitoring = [] } = VmAPI.useGetMonitoringQuery(id)
+  const { data: monitoring = [], isFetching } = VmAPI.useGetMonitoringQuery(id)
   const { data: vm = {} } = VmAPI.useGetVmQuery({ id })
 
   const historyRecords = [].concat(vm?.HISTORY_RECORDS?.HISTORY)
@@ -75,6 +75,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.NetDownloadSpeed)}
           data={monitoring}
+          isFetching={isFetching}
           y={netRxY}
           pairTransform={(point, idx) => {
             const padding = Array(pairLag).fill(null)
@@ -105,6 +106,7 @@ const Graphs = ({ id }) => {
         <Chartist
           name={Tr(T.NetUploadSpeed)}
           data={monitoring}
+          isFetching={isFetching}
           y={netTxY}
           interpolationY={interpolationBytesSeg}
           pairTransform={(point, idx) => {

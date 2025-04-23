@@ -31,6 +31,8 @@ import {
 import { Component, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
 import { useResizeObserver } from '@HooksModule'
+import { Tr } from '@modules/components/HOC'
+import { T } from '@ConstantsModule'
 
 const useStyles = ({ palette, typography }) => ({
   graphContainer: css({
@@ -96,10 +98,12 @@ const createFill = (u, color) => {
  * @param {string} props.dateFormatHover - Legend timestamp format
  * @param {Function} props.pairTransform - Function applied to 'paired' labels. A paired label is 2 or more grouped together in an array.
  * @param {string} props.serieScale - Number to multiply X axis series length with. Should be used if a pair transform is stretching the Y series.
+ * @param {boolean} props.isFetching - If the data still fetching
  * @returns {Component} Chartist component
  */
 const Chartist = ({
   data = [],
+  isFetching = false,
   name = '',
   x = '',
   y = '',
@@ -152,11 +156,14 @@ const Chartist = ({
           typeof point === 'object' &&
           Object.hasOwn(point, 'TIMESTAMP')
         ) {
-          const fE = Object.entries(point).filter(([k]) => filterKeys.has(k))
-          if (fE.length > 0) {
-            xA.push(point.TIMESTAMP)
-            yA.push(Object.fromEntries(fE))
+          xA.push(point.TIMESTAMP)
+
+          const yEntry = {}
+          for (const key of filterKeys) {
+            yEntry[key] = Object.hasOwn(point, key) ? point[key] : null
           }
+
+          yA.push(yEntry)
         }
 
         return [xA, yA]
@@ -203,7 +210,7 @@ const Chartist = ({
         })
         ?.filter((transformedArray, index) => {
           const isAllInvalid = transformedArray?.every(
-            (val) => val == null || Number.isNaN(val)
+            (val) => val === undefined || Number.isNaN(val)
           )
 
           if (!isAllInvalid) {
@@ -219,8 +226,8 @@ const Chartist = ({
         ?.flat()
         ?.filter((v) => !Number.isNaN(v) && v !== undefined)
 
-      const YMin = Math.min(...flatTransform)
-      const YMax = Math.max(...flatTransform)
+      const YMin = flatTransform?.length > 0 ? Math.min(...flatTransform) : 0
+      const YMax = flatTransform?.length > 0 ? Math.max(...flatTransform) : 1
 
       const PRangeY = (YMax - YMin) / 2
       const YPadding = Math.abs(PRangeY * 0.05) ?? 0
@@ -289,6 +296,7 @@ const Chartist = ({
       axes: [
         {
           grid: { show: true },
+          stroke: theme?.palette?.graphs?.axis?.color,
           ticks: { show: true },
           values: (_, ticks) =>
             minMaxTick(ticks, (label) =>
@@ -297,6 +305,7 @@ const Chartist = ({
         },
         {
           grid: { show: true },
+          stroke: theme?.palette?.graphs?.axis?.color,
           ticks: { show: true },
           values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
         },
@@ -361,9 +370,13 @@ const Chartist = ({
           <Typography noWrap>{name}</Typography>
         </ListItem>
         <ListItem ref={chartRef} className={classes.placeholder}>
-          {transformData == null || !transformData?.dataset?.length > 0 ? (
+          {isFetching ? (
             <Stack direction="row" justifyContent="center" alignItems="center">
               <CircularProgress color="secondary" />
+            </Stack>
+          ) : transformData == null || !transformData?.dataset?.length > 0 ? (
+            <Stack direction="row" justifyContent="center" alignItems="center">
+              <Typography>{Tr(T.NoDataAvailable)}</Typography>
             </Stack>
           ) : (
             <div>
@@ -398,6 +411,7 @@ Chartist.propTypes = {
   lineColors: PropTypes.arrayOf(PropTypes.string),
   dateFormat: PropTypes.string,
   dateFormatHover: PropTypes.string,
+  isFetching: PropTypes.bool,
 }
 
 Chartist.displayName = 'Chartist'

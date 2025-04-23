@@ -34,7 +34,10 @@ const HostGraphTab = ({ id }) => {
   const theme = useTheme()
 
   const {
-    data: { MONITORING_DATA: { MONITORING: monitoring = [] } = {} } = {},
+    data: {
+      MONITORING_DATA: { MONITORING: monitoring = [] } = {},
+      isFetching,
+    } = {},
   } = HostAPI.useGetHostMonitoringQuery({ id: id }) || {}
 
   const { data: { IM_MAD: driver = 'kvm' } = {} } = HostAPI.useGetHostQuery({
@@ -105,6 +108,7 @@ const HostGraphTab = ({ id }) => {
         <Chartist
           name={'CPU'}
           data={cpuMemoryData}
+          isFetching={isFetching}
           y={cpuY}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -131,6 +135,8 @@ const HostGraphTab = ({ id }) => {
           trendLineOnly={['USED_CPU_FORECAST_FAR', 'FREE_CPU_FORECAST_FAR']}
           interpolationY={(val) => {
             try {
+              if (val === undefined || val === null) return '--'
+
               const num = Number(val)
 
               if (!Number.isFinite(num)) return '--'
@@ -149,6 +155,7 @@ const HostGraphTab = ({ id }) => {
         <Chartist
           name={Tr(T.Memory)}
           data={cpuMemoryData}
+          isFetching={isFetching}
           filter={[
             'FREE_MEMORY',
             'FREE_MEMORY_FORECAST',

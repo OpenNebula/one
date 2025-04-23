@@ -438,6 +438,9 @@ export const darkPalette = {
         },
       },
     },
+    axis: {
+      color: sunstoneColors.white,
+    },
   },
 
   error: {
