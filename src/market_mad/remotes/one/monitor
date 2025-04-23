@@ -227,8 +227,8 @@ class OneMarket
         thash.collect do |key, value|
             next if value.nil? || value.empty?
 
-            case value.class.name
-            when 'Hash'
+            case value
+            when Hash
                 attr = "#{key.to_s.upcase} = [ "
 
                 attr << value.collect do |k, v|
@@ -238,7 +238,21 @@ class OneMarket
                 end.compact.join(',')
 
                 attr << "]\n"
-            when 'String'
+            when Array
+                value.collect do |v|
+                    next if v.nil? || value.empty?
+                    inner = if v.is_a?(Hash)
+                        pairs = v.collect do |k2, v2|
+                            next if v2.nil? || v2.empty?
+                            "#{k2.to_s.upcase}=\"#{v2}\""
+                        end.compact.join(',')
+                        "#{pairs}"
+                    else
+                        %("#{v}")
+                    end
+                    "#{key.to_s.upcase} = [ #{inner} ]"
+                end.compact.join("\n")    
+            when String
                 "#{key.to_s.upcase} = \"#{value}\""
             end
         end.compact.join("\n")
