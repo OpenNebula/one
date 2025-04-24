@@ -49,8 +49,6 @@ const Graphs = ({ id }) => {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
   } = virtualmachine || {}
 
-  const pairLag = 1
-
   const diskRdBytesY = [
     ['DISKRDBYTES_BW', 'DISKRDBYTES_BW_FORECAST'],
     'DISKRDBYTES_BW_FORECAST_FAR',
@@ -109,12 +107,31 @@ const Graphs = ({ id }) => {
           data={monitoring}
           isFetching={isFetching}
           y={diskRdBytesY}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'DISKRDBYTES_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
-          serieScale={1}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
@@ -140,11 +157,30 @@ const Graphs = ({ id }) => {
           data={monitoring}
           isFetching={isFetching}
           y={diskWrBytesY}
-          serieScale={1}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'DISKWRBYTES_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -171,11 +207,30 @@ const Graphs = ({ id }) => {
           data={monitoring}
           isFetching={isFetching}
           y={diskRdIopsY}
-          serieScale={1}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'DISKRDIOPS_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -202,11 +257,30 @@ const Graphs = ({ id }) => {
           data={monitoring}
           isFetching={isFetching}
           y={diskWrIopsY}
-          serieScale={1}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'DISKWRIOPS_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),

@@ -47,8 +47,6 @@ const Graphs = ({ id }) => {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
   } = virtualmachine || {}
 
-  const pairLag = 1
-
   const cpuY = [['CPU', 'CPU_FORECAST'], 'CPU_FORECAST_FAR']
   const memoryY = [['MEMORY', 'MEMORY_FORECAST'], 'MEMORY_FORECAST_FAR']
 
@@ -71,10 +69,29 @@ const Graphs = ({ id }) => {
         data={monitoring}
         isFetching={isFetching}
         y={cpuY}
-        pairTransform={(point, idx) => {
-          const padding = Array(pairLag).fill(null)
+        setTransform={(
+          yValues,
+          _xValues,
+          timestamps,
+          labelPair,
+          _labelPairIndex
+        ) => {
+          const buildSeries = () => {
+            const targetXId = labelPair === 'CPU' ? 0 : 1
+            const result = Array(timestamps.length).fill(null)
+            let yIdx = 0
 
-          return !(idx % 2) ? [point, ...padding] : [...padding, point]
+            for (let i = 0; i < timestamps.length; i++) {
+              if (targetXId === timestamps[i]?.xId) {
+                result[i] = yValues[yIdx]?.[labelPair] ?? null
+                yIdx++
+              }
+            }
+
+            return result
+          }
+
+          return buildSeries()
         }}
         x={[
           (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -83,7 +100,7 @@ const Graphs = ({ id }) => {
               parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
         ]}
-        serieScale={1}
+        serieScale={2}
         lineColors={[
           theme?.palette?.graphs.vm.cpu.real,
           theme?.palette?.graphs.vm.cpu.forecast,
@@ -115,10 +132,29 @@ const Graphs = ({ id }) => {
         filter={['MEMORY', 'MEMORY_FORECAST', 'MEMORY_FORECAST_FAR']}
         data={monitoring}
         y={memoryY}
-        pairTransform={(point, idx) => {
-          const padding = Array(pairLag).fill(null)
+        setTransform={(
+          yValues,
+          _xValues,
+          timestamps,
+          labelPair,
+          _labelPairIndex
+        ) => {
+          const buildSeries = () => {
+            const targetXId = labelPair === 'MEMORY' ? 0 : 1
+            const result = Array(timestamps.length).fill(null)
+            let yIdx = 0
 
-          return !(idx % 2) ? [point, ...padding] : [...padding, point]
+            for (let i = 0; i < timestamps.length; i++) {
+              if (targetXId === timestamps[i]?.xId) {
+                result[i] = yValues[yIdx]?.[labelPair] ?? null
+                yIdx++
+              }
+            }
+
+            return result
+          }
+
+          return buildSeries()
         }}
         x={[
           (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -127,7 +163,7 @@ const Graphs = ({ id }) => {
               parseInt(point) * 1000 + forecastPeriod * 60 * 1000
             ).getTime(),
         ]}
-        serieScale={1}
+        serieScale={2}
         interpolationY={(value) =>
           value ? prettyBytes(value, 'KB', 2) : value
         }

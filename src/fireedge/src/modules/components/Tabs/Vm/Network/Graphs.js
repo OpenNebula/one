@@ -49,8 +49,6 @@ const Graphs = ({ id }) => {
     forecast: { period: forecastPeriod = 5 } = {}, // Minutes
   } = virtualmachine || {}
 
-  const pairLag = 1
-
   const netRxY = [['NETRX_BW', 'NETRX_BW_FORECAST'], 'NETRX_BW_FORECAST_FAR']
   const netRxNames = Object.fromEntries(
     [T.NetRX, `${T.NetRX} ${T.Forecast}`, `${T.NetRX} ${T.ForecastFar}`].map(
@@ -77,12 +75,31 @@ const Graphs = ({ id }) => {
           data={monitoring}
           isFetching={isFetching}
           y={netRxY}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'NETRX_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
-          serieScale={1}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
             (point) =>
@@ -109,10 +126,29 @@ const Graphs = ({ id }) => {
           isFetching={isFetching}
           y={netTxY}
           interpolationY={interpolationBytesSeg}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = labelPair === 'NETTX_BW' ? 0 : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
           x={[
             (point) => new Date(parseInt(point) * 1000).getTime(),
@@ -121,7 +157,7 @@ const Graphs = ({ id }) => {
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
           ]}
-          serieScale={1}
+          serieScale={2}
           lineColors={[
             theme?.palette?.graphs.vm.netUploadSpeed.real,
             theme?.palette?.graphs.vm.netUploadSpeed.forecast,

@@ -96,7 +96,7 @@ const createFill = (u, color) => {
  * @param {number} props.zoomFactor - Grapg zooming factor
  * @param {string} props.dateFormat - Labels timestamp format
  * @param {string} props.dateFormatHover - Legend timestamp format
- * @param {Function} props.pairTransform - Function applied to 'paired' labels. A paired label is 2 or more grouped together in an array.
+ * @param {Function} props.setTransform - Function applied to set of paired labels. A paired label is 2 or more grouped together in an array.
  * @param {string} props.serieScale - Number to multiply X axis series length with. Should be used if a pair transform is stretching the Y series.
  * @param {boolean} props.isFetching - If the data still fetching
  * @returns {Component} Chartist component
@@ -112,7 +112,7 @@ const Chartist = ({
   shouldFill = [],
   serieScale,
   trendLineOnly = [],
-  pairTransform = (point) => [point],
+  setTransform,
   legendNames = [],
   lineColors = [],
   dateFormat = 'MM-dd HH:mm',
@@ -171,10 +171,19 @@ const Chartist = ({
       [[], []]
     )
 
-    const timestamps = xValues
-      ?.flatMap((timestamp) => x?.map((transformX) => transformX(timestamp)))
-      ?.filter(Boolean)
-      ?.sort((a, b) => a - b)
+    const timestamps = [
+      ...new Set(
+        xValues
+          ?.flatMap((timestamp) =>
+            x?.map((transformX, xId) => ({
+              timestamp: transformX(timestamp),
+              xId,
+            }))
+          )
+          ?.filter(Boolean)
+          ?.sort((a, b) => a.timestamp - b.timestamp)
+      ),
+    ]
 
     if (!timestamps?.length) return []
 
@@ -187,8 +196,12 @@ const Chartist = ({
         .flatMap((label) => {
           if (Array.isArray(label)) {
             return label?.map((labelPair, labelPairIndex) =>
-              yValues?.flatMap((point, ...args) =>
-                pairTransform(point?.[labelPair], labelPairIndex, ...args)
+              setTransform(
+                yValues,
+                xValues,
+                timestamps,
+                labelPair,
+                labelPairIndex
               )
             )
           } else {
@@ -203,10 +216,10 @@ const Chartist = ({
           return trendLineIndexes?.includes(idx) && fYValues?.length > 0
             ? [
                 Math.min(...fYValues),
-                ...Array(timestamps?.length - 2),
+                ...Array(timestamps?.map((t) => t.timestamp)?.length - 2),
                 Math.max(...fYValues),
               ]
-            : yValue // Return unformatted as to not potentially discard pairTransform
+            : yValue // Return unformatted as to not potentially discard setTransform
         })
         ?.filter((transformedArray, index) => {
           const isAllInvalid = transformedArray?.every(
@@ -240,10 +253,11 @@ const Chartist = ({
 
     const [transformedY, YRange] = transformY()
 
-    const seriesLength = xValues?.length * (serieScale ?? transformedY?.length)
+    const seriesLength =
+      timestamps?.length * (serieScale ?? transformedY?.length)
 
-    const XMin = timestamps?.[0]
-    const XMax = timestamps?.slice(0, seriesLength)?.pop()
+    const XMin = timestamps?.[0]?.timestamp
+    const XMax = timestamps?.slice(0, seriesLength)?.pop()?.timestamp
     const PRangeX = (XMax - XMin) / 2
     const XPadding = Math.abs(PRangeX * 0.01) ?? 0
 
@@ -254,7 +268,7 @@ const Chartist = ({
 
     return {
       YRender: renderableY,
-      dataset: [timestamps, ...transformedY],
+      dataset: [timestamps?.map((t) => t.timestamp), ...transformedY],
       YRange,
       XRange,
     }
@@ -323,7 +337,9 @@ const Chartist = ({
               label: legendNames?.[yValue] ?? legendNames?.[index] ?? yValue,
               value: (_, yV) => interpolationY(yV) || yV,
               stroke: lineColors?.[index] || '#40B3D9',
-              points: { show: true },
+              points: {
+                show: (_u, _seriesIdx, _, seriesLength) => seriesLength < 1000,
+              },
               ...([]?.includes(index)
                 ? {
                     dash: [5, 5],
@@ -405,7 +421,7 @@ Chartist.propTypes = {
   enableLegend: PropTypes.bool,
   zoomFactor: PropTypes.number,
   legendNames: PropTypes.arrayOf(PropTypes.string),
-  pairTransform: PropTypes.func,
+  setTransform: PropTypes.func,
   serieScale: PropTypes.number,
   trendLineOnly: PropTypes.arrayOf(PropTypes.string),
   lineColors: PropTypes.arrayOf(PropTypes.string),

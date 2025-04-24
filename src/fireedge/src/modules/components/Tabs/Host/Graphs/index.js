@@ -64,8 +64,6 @@ const HostGraphTab = ({ id }) => {
     forecast_period: forecastPeriod = 5, // Minutes
   } = host
 
-  const pairLag = 1
-
   const cpuY = [
     ['FREE_CPU', 'FREE_CPU_FORECAST'],
     'FREE_CPU_FORECAST_FAR',
@@ -117,12 +115,33 @@ const HostGraphTab = ({ id }) => {
                 parseInt(point) * 1000 + forecastPeriod * 60 * 1000
               ).getTime(),
           ]}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = ['FREE_CPU', 'USED_CPU']?.includes(labelPair)
+                ? 0
+                : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
-          serieScale={1}
           lineColors={[
             theme?.palette?.graphs.host.cpu.free.real,
             theme?.palette?.graphs.host.cpu.free.forecast,
@@ -165,12 +184,35 @@ const HostGraphTab = ({ id }) => {
             'USED_MEMORY_FORECAST_FAR',
           ]}
           y={memoryY}
-          pairTransform={(point, idx) => {
-            const padding = Array(pairLag).fill(null)
+          serieScale={2}
+          setTransform={(
+            yValues,
+            _xValues,
+            timestamps,
+            labelPair,
+            _labelPairIndex
+          ) => {
+            const buildSeries = () => {
+              const targetXId = ['FREE_MEMORY', 'USED_MEMORY']?.includes(
+                labelPair
+              )
+                ? 0
+                : 1
+              const result = Array(timestamps.length).fill(null)
+              let yIdx = 0
 
-            return !(idx % 2) ? [point, ...padding] : [...padding, point]
+              for (let i = 0; i < timestamps.length; i++) {
+                if (targetXId === timestamps[i]?.xId) {
+                  result[i] = yValues[yIdx]?.[labelPair] ?? null
+                  yIdx++
+                }
+              }
+
+              return result
+            }
+
+            return buildSeries()
           }}
-          serieScale={1}
           x={[
             (point) => new Date(point * 1000).getTime(),
             (point) =>
