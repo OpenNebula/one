@@ -35,10 +35,6 @@ if ruby_version < Gem::Version.new('2.1.0')
     gem 'scrub_rb'
 end
 
-if ruby_version >= Gem::Version.new('3.0.0')
-    gem 'rexml'
-end
-
 if ruby_version < Gem::Version.new('2.6.0')
     gem 'unf', '< 0.2.0'
 end
@@ -78,6 +74,7 @@ gem 'ffi-rzmq', '~> 2.0.7'
 gem 'net-ldap'
 gem 'nokogiri', nokogiri
 gem 'public_suffix', ps
+gem 'rexml'
 gem 'aws-sdk-ec2', '>=1.151'
 gem 'aws-sdk-s3'
 

@@ -15,15 +15,15 @@ GEM
     async-io (1.32.1)
       async (~> 1.14)
     aws-eventstream (1.3.2)
-    aws-partitions (1.1084.0)
-    aws-sdk-core (3.222.1)
+    aws-partitions (1.1090.0)
+    aws-sdk-core (3.222.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-ec2 (1.515.0)
+    aws-sdk-ec2 (1.516.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-kms (1.99.0)
@@ -117,6 +117,7 @@ GEM
       nokogiri (~> 1.12, >= 1.12.5)
       optimist (~> 3.0)
     rchardet (1.8.0)
+    rexml (3.4.1)
     ruby2_keywords (0.0.5)
     sequel (5.91.0)
       bigdecimal
@@ -174,6 +175,7 @@ DEPENDENCIES
   public_suffix
   rack
   rbvmomi2
+  rexml
   sequel
   sinatra (< 4.0.0)
   sqlite3 (<= 1.6.9)

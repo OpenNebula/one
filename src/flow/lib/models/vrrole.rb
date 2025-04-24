@@ -244,7 +244,7 @@ module OpenNebula
         #   - Array of VM IDs that were associated with the Virtual Router
         #
         # If the router could not be deleted, returns `false` and an empty list.
-        def shutdown_nodes(nodes, n_nodes, _)
+        def shutdown_nodes(_nodes, n_nodes, _)
             vrouter_id = @body['vrouter_id']
             return [true, []] if vrouter_id.nil?
 
