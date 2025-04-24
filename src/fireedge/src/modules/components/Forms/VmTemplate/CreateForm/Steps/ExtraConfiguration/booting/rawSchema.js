@@ -19,19 +19,18 @@ import { string, boolean } from 'yup'
 import { Field } from '@UtilsModule'
 import { T, INPUT_TYPES, HYPERVISORS } from '@ConstantsModule'
 
-const { kvm, lxc } = HYPERVISORS
+const { kvm, lxc, dummy } = HYPERVISORS
 
 /** @type {Field} Raw type field */
 const TYPE = {
   name: 'RAW.TYPE',
   label: T.Type,
   type: INPUT_TYPES.TEXT,
-  notOnHypervisors: [lxc],
+  onlyOnHypervisors: [kvm, lxc, dummy],
   htmlType: INPUT_TYPES.HIDDEN,
   validation: string()
     .trim()
     .notRequired()
-    .equals([kvm])
     .default(() => kvm),
   fieldProps: { disabled: true },
   grid: { md: 12 },
@@ -43,7 +42,7 @@ const DATA = {
   label: T.Data,
   type: INPUT_TYPES.TEXT,
   multiline: true,
-  notOnHypervisors: [lxc],
+  onlyOnHypervisors: [kvm, lxc, dummy],
   validation: string()
     .trim()
     .notRequired()

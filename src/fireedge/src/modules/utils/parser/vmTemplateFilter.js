@@ -689,6 +689,20 @@ const transformActionsCreate = (template) => {
   } else {
     delete template?.CONTEXT?.START_SCRIPT_BASE64
   }
+
+  if (template.RAW) {
+    // Clone template.RAW to ensure its mutable
+    template.RAW = { ...template.RAW }
+
+    if (template.RAW.DATA) {
+      // DATA exists, so we add TYPE and transform DATA
+      template.RAW.TYPE = template.HYPERVISOR
+      template.RAW.DATA = transformXmlString(template.RAW.DATA)
+    } else {
+      // DATA doesn't exist, remove RAW from template
+      delete template.RAW
+    }
+  }
 }
 
 /**
@@ -786,20 +800,6 @@ const transformActionsCommon = (template) => {
 
       return action
     })
-  }
-
-  if (template.RAW) {
-    // Clone template.RAW to ensure its mutable
-    template.RAW = { ...template.RAW }
-
-    if (template.RAW.DATA) {
-      // DATA exists, so we add TYPE and transform DATA
-      template.RAW.TYPE = template.HYPERVISOR
-      template.RAW.DATA = transformXmlString(template.RAW.DATA)
-    } else {
-      // DATA doesn't exist, remove RAW from template
-      delete template.RAW
-    }
   }
 }
 
