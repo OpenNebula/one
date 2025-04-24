@@ -450,8 +450,6 @@ module OneGate
             @user_agent = "OpenNebula #{CloudClient::VERSION} " <<
                 "(#{opts[:user_agent]||"Ruby"})"
 
-            @req_content_type = opts[:req_content_type] || "application/json"
-
             @host = nil
             @port = nil
 
@@ -509,7 +507,6 @@ module OneGate
             req['User-Agent'] = @user_agent
             req['X-ONEGATE-TOKEN'] = @token
             req['X-ONEGATE-VMID'] = @vmid
-            req['Content-Type'] = @req_content_type
 
             res = CloudClient::http_start(@uri, @timeout) do |http|
                 http.request(req)
@@ -594,6 +591,7 @@ options = {}
 OptionParser.new do |opts|
   opts.on("-d", "--data DATA", "Data to be included in the VM") do |data|
     options[:data] = data
+    options[:type] = 1
   end
 
   opts.on("-e", "--erase DATA", "Data to be removed from the VM") do |data|
@@ -646,16 +644,12 @@ when "vm"
             OneGate::VirtualMachine.print(json_hash)
         end
     when "update"
-        if !options[:data] && !options[:erase]
+        if !options[:data] && !options[:type]
             STDERR.puts 'You have to provide the data as a param (--data, --erase)'
             exit -1
         end
 
-        if options[:type]
-            data = URI.encode_www_form(options)
-        else
-            data = options[:data]
-        end
+        data = URI.encode_www_form(options)
 
         if ARGV[2]
             response = client.put("/vms/" + ARGV[2], data)
