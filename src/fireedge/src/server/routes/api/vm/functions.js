@@ -311,7 +311,7 @@ const getRdpSettings = (vmInfo) => {
   if (!config.hostname) {
     return { error: 'Wrong configuration. Cannot find a NIC with RDP' }
   }
-
+  config.security = vmInfo.TEMPLATE?.CONTEXT?.RDP_SECURITY ?? 'rdp'
   config.port = vmInfo.TEMPLATE?.CONTEXT?.RDP_PORT ?? '3389'
   config.username = vmInfo.TEMPLATE?.CONTEXT?.USERNAME
   config.password = vmInfo.TEMPLATE?.CONTEXT?.PASSWORD
@@ -339,8 +339,6 @@ const getRdpSettings = (vmInfo) => {
     nicWithRdp?.RDP_DISABLE_OFFSCREEN_CACHING?.toLowerCase() === 'yes'
   config['disable-glyph-caching'] =
     nicWithRdp?.RDP_DISABLE_GLYPH_CACHING?.toLowerCase() === 'yes'
-
-  if (config.username && config.password) config.security = 'rdp'
 
   return config
 }

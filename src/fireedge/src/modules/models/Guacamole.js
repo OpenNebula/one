@@ -55,10 +55,14 @@ export const getConnectString = (options = {}) => {
   const optimalDpi = dpi || pixelDensity * 96
 
   const displayWidth =
-    width || (isWindow(display) ? display?.innerWidth : display?.offsetWidth)
+    width ||
+    (isWindow(display) ? display?.innerWidth : display?.offsetWidth) ||
+    '1024'
 
   const displayHeight =
-    height || (isWindow(display) ? display?.innerHeight : display?.offsetHeight)
+    height ||
+    (isWindow(display) ? display?.innerHeight : display?.offsetHeight) ||
+    '768'
 
   const urlOptions = [
     `token=${encodeURIComponent(token)}`,

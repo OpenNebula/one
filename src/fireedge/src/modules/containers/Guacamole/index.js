@@ -94,6 +94,7 @@ export const Guacamole = () => {
 
   const guacamoleOption = useMemo(
     () => ({
+      type,
       vmID: id,
       id: `${id}-${type}`,
       container: containerRef.current,

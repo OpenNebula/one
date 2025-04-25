@@ -87,36 +87,39 @@ const clientCallbacks = {
     let rangePorts = [5900, 65536]
     if (settings?.connection?.rangeports) {
       rangePorts = settings?.connection?.rangeports.split(':').map(Number)
+
+      await create(
+        {
+          vmPort: settings?.connection?.port,
+          hostAddr: settings?.connection?.hostname,
+          settings,
+          rangePorts,
+        },
+        {
+          connect: (pidTunnel) => {
+            if (connections && id) {
+              const dataConnection = connections?.get?.(id)
+              dataConnection
+                ? (dataConnection.pidTunnel = pidTunnel)
+                : connections.set(id, { pidTunnel })
+
+              writeInLogger([pidTunnel, id], {
+                format:
+                  'Tunnel SSH created with PID: %1$s to connection: %2$s ',
+                level: 2,
+              })
+            }
+          },
+          error: (err) => {
+            writeInLogger(err, {
+              format: formatError,
+            })
+          },
+        }
+      )
     }
 
-    await create(
-      {
-        vmPort: settings?.connection?.port,
-        hostAddr: settings?.connection?.hostname,
-        settings,
-        rangePorts,
-      },
-      {
-        connect: (pidTunnel) => {
-          if (connections && id) {
-            const dataConnection = connections?.get?.(id)
-            dataConnection
-              ? (dataConnection.pidTunnel = pidTunnel)
-              : connections.set(id, { pidTunnel })
-
-            writeInLogger([pidTunnel, id], {
-              format: 'Tunnel SSH created with PID: %1$s to connection: %2$s ',
-              level: 2,
-            })
-          }
-        },
-        error: (err) => {
-          writeInLogger(err, {
-            format: formatError,
-          })
-        },
-      }
-    )
+    console.log('-->', settings)
 
     return callback(null, settings)
   },

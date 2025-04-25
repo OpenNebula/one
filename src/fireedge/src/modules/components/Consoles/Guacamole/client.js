@@ -55,12 +55,13 @@ const {
  * @param {RefObject} options.display - Session display. Only exists if display plugins is enabled
  * @param {string} options.zone - zone id
  * @param {boolean} options.externalZone - is a external zone
+ * @param {string} options.type - connection type
  * @returns {GuacamoleClientType} Guacamole client props
  */
-const GuacamoleClient = ({ id, display, zone, externalZone }) => {
+const GuacamoleClient = ({ id, display, zone, externalZone, type }) => {
   const { oneConfig } = useSystemData()
   let rangeports
-  if (oneConfig?.VNC_PORTS) {
+  if (oneConfig?.VNC_PORTS && type === 'vnc') {
     const lastPort = oneConfig.VNC_PORTS.RESERVED
       ? oneConfig.VNC_PORTS.RESERVED.split(':')[1]
       : '65535'
