@@ -31,9 +31,9 @@ You can quickly and easily try out OpenNebula’s functionality by installing [m
 
 ## Installation
 
-You can find more information about OpenNebula’s architecture, installation, configuration and references to configuration files in this [documentation section](https://docs.opennebula.io/stable/deployment/index.html).
+You can find more information about OpenNebula’s architecture, installation, configuration and references to configuration files in this [documentation section](https://docs.opennebula.io/stable/installation_and_configuration/index.html).
 
-It is very useful to learn where [log files of the main OpenNebula components are placed](http://docs.opennebula.io/5.12/deployment/references/log_debug.html). Also check the [reference about the main OpenNebula daemon configuration file](https://docs.opennebula.io/stable/installation_and_configuration/opennebula_services/oned.html).
+It is very useful to learn where [log files of the main OpenNebula components are placed](http://docs.opennebula.io/stable/installation_and_configuration/opennebula_services/troubleshooting.html). Also check the [reference about the main OpenNebula daemon configuration file](https://docs.opennebula.io/stable/installation_and_configuration/opennebula_services/oned.html).
 
 ### Front-end Installation
 
