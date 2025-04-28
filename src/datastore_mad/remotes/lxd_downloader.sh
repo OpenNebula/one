@@ -46,9 +46,8 @@ PKG_APK="util-linux bash curl udev sfdisk parted e2fsprogs-extra sudo shadow rub
 PKG_SUSE="util-linux bash curl bind-utils growpart parted parted ruby sudo shadow openssh open-vm-tools qemu-guest-agent gawk virt-what"
 PKG_ALT="bind-utils btrfs-progs cloud-utils-growpart curl e2fsprogs iproute2 openssl parted passwd qemu-guest-agent open-vm-tools ruby-json-pure sudo systemd-services wget which xfsprogs gawk virt-what"
 
-
-#Default DNS server to download the packages
-DNS_SERVER="8.8.8.8"
+# Use frontend DNS during chroot context injection
+DNS_CONF="$(cat /etc/resolv.conf || echo 'nameserver 8.8.8.8')"
 
 #Directory used to download packages
 TMP_DIR=/var/tmp
@@ -168,7 +167,7 @@ case "$rootfs_url" in
 *opensuse*)
     commands=$(cat <<EOC
 [ -h /etc/resolv.conf ] && rm /etc/resolv.conf
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/tty ] && mknod /dev/tty c 5 0  >> /var/log/chroot.log 2>&1
 
@@ -190,7 +189,7 @@ EOC
 *alpine*)
     terminal="/bin/ash"
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -212,7 +211,7 @@ EOC
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
 rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -233,7 +232,7 @@ EOC
 export PATH=\$PATH:/bin:/sbin
 
 rm -f /etc/resolv.conf >> /var/log/chroot.log 2>&1
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -251,7 +250,7 @@ EOC
     ;;
 *centos/7*)
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -268,7 +267,7 @@ EOC
     ;;
 *oracle/7*)
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -286,7 +285,7 @@ EOC
     ;;
 *centos/8*|*almalinux/8*|*rockylinux/8*)
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -303,7 +302,7 @@ EOC
     ;;
 *oracle/8*)
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -323,7 +322,7 @@ EOC
 *fedora*)
     commands=$(cat <<EOC
 [ -h /etc/resolv.conf ] && rm /etc/resolv.conf
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -348,7 +347,7 @@ EOC
 *almalinux/9*|*rockylinux/9*|*amazonlinux*)
     commands=$(cat <<EOC
 [ -h /etc/resolv.conf ] && rm /etc/resolv.conf
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
@@ -365,7 +364,7 @@ EOC
     ;;
 *oracle/9*)
     commands=$(cat <<EOC
-echo "nameserver $DNS_SERVER" > /etc/resolv.conf
+echo "$DNS_CONF" > /etc/resolv.conf
 
 [ ! -e /dev/random ] && mknod -m 666 /dev/random c 1 8  >> /var/log/chroot.log 2>&1
 [ ! -e /dev/urandom ] && mknod -m 666 /dev/urandom c 1 9  >> /var/log/chroot.log 2>&1
