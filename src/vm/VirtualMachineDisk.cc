@@ -406,6 +406,72 @@ void VirtualMachineDisk::delete_snapshot(int snap_id, Template& ds_quotas,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+void VirtualMachineDisk::delete_younger_snapshots(int snap_id, Template& ds_quotas,
+    Template& vm_quotas, bool& img_owner, bool& vm_owner)
+{
+    vm_owner  = false;
+    img_owner = false;
+
+    if ( snapshots == 0 )
+    {
+        return;
+    }
+
+    auto younger = snapshots->get_younger_snapshots(snap_id);
+
+    long long ssize = 0;
+
+    for (int i : younger)
+    {
+        ssize += snapshots->snapshot_size(i);
+
+        snapshots->delete_snapshot(i);
+    }
+
+    long long snap_size = snapshots->total_size();
+
+    replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
+
+    string tm_target = get_tm_target();
+
+    vm_owner  = tm_target == "SELF";
+    img_owner = is_persistent() || tm_target == "NONE";
+
+    if ( img_owner || vm_owner )
+    {
+        int update_size = 0;
+        ds_quotas.get("SIZE", update_size);
+        update_size += ssize;
+
+        ds_quotas.replace("DATASTORE", vector_value("DATASTORE_ID"));
+        ds_quotas.replace("SIZE", update_size);
+        ds_quotas.replace("IMAGES", 0 );
+    }
+
+    if (tm_target == "SYSTEM")
+    {
+        int update_size = 0;
+        VectorAttribute* delta_disk = vm_quotas.get("DISK");
+
+        if (delta_disk == nullptr)
+        {
+            delta_disk = new VectorAttribute("DISK");
+            vm_quotas.set(delta_disk);
+        }
+        else
+        {
+            delta_disk->vector_value("SIZE", update_size);
+        }
+
+        update_size += ssize;
+
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", ssize);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 long long VirtualMachineDisk::system_ds_size(bool include_snapshots) const
 {

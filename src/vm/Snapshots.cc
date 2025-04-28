@@ -169,7 +169,7 @@ int Snapshots::create_snapshot(const string& name, long long size_mb)
     {
         add_child_mixed(snapshot);
     }
-    else //ALLOW
+    else //ALLOW, FORMAT, LINEAR
     {
         snapshot->replace("PARENT", "-1");
     }
@@ -347,7 +347,8 @@ void Snapshots::delete_snapshot(int id)
         }
 
         case ALLOW:
-        case FORMAT: //At this point allow orpahn should be mapped to DENY/ALLOW
+        case FORMAT: //At this point allow orphan should be mapped to DENY/ALLOW
+        case LINEAR:
             break;
     }
 
@@ -549,6 +550,7 @@ bool Snapshots::test_delete(int id, bool persistent, string& error) const
     switch(orphans)
     {
         case DENY:
+        case LINEAR:
             if ( persistent && id == 0 )
             {
                 error = "Cannot delete snapshot 0 for persistent disk images";
@@ -650,3 +652,20 @@ long long Snapshots::total_size() const
     return total_mb;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+std::vector<int> Snapshots::get_younger_snapshots(int id) const
+{
+    std::vector<int> younger;
+
+    for (const auto& it : snapshot_pool)
+    {
+        if (it.first > id)
+        {
+            younger.push_back(it.first);
+        }
+    }
+
+    return younger;
+}

@@ -1157,13 +1157,32 @@ void Image::revert_snapshot(int snap_id, Template& ds_quotas)
     snapshots.active_snapshot(snap_id, true);
 
     auto snap_size = snapshots.snapshot_size(snap_id);
+    long long delta_size = 0;
 
     if (snap_size != get_size())
     {
+        delta_size = get_size() - snap_size;
+
         ds_quotas.add("DATASTORE", get_ds_id());
-        ds_quotas.add("SIZE", get_size() - snap_size);
+        ds_quotas.add("SIZE", delta_size);
         ds_quotas.add("IMAGES", 0);
 
         set_size(snap_size);
+    }
+
+    if (snapshots.orphans_mode() == Snapshots::LINEAR)
+    {
+        auto youngers = snapshots.get_younger_snapshots(snap_id);
+
+        for (auto i : youngers)
+        {
+            delta_size += snapshots.snapshot_size(i);
+
+            snapshots.delete_snapshot(i);
+
+            ds_quotas.replace("DATASTORE", get_ds_id());
+            ds_quotas.replace("SIZE", delta_size);
+            ds_quotas.replace("IMAGES", 0);
+        }
     }
 }

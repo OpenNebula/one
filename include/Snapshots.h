@@ -55,18 +55,26 @@ public:
      *
      *    - MIXED: Snapshots are children of last snapshot reverted to
      *      |- snap_1 (<--- revert)
-     *         |- snap_2
      *         |- snap_3
+     *         |- snap_4
+     *      |- snap_2
+     *
      *    - FORMAT: Depends on the image format, (used in shared TM)
      *              - for qcow2 -> DENY
      *              - for raw   -> ALLOW
+     *
+     *    - LINEAR: No parent snapshot, in case of revert all younger snapshot are deleted
+     *      |- snap_1
+     *      |- snap_2 (<--- revert, delete snap_3)
+     *      |- snap_3
      */
     enum AllowOrphansMode
     {
         ALLOW  = 0,
         DENY   = 1,
         MIXED  = 2,
-        FORMAT = 3
+        FORMAT = 3,
+        LINEAR = 4
     };
 
     static std::string allow_orphans_mode_to_str(AllowOrphansMode aom)
@@ -77,6 +85,7 @@ public:
             case DENY:   return "NO";
             case MIXED:  return "MIXED";
             case FORMAT: return "FORMAT";
+            case LINEAR: return "LINEAR";
         }
 
         return "NO";
@@ -95,6 +104,10 @@ public:
         else if (aom == "FORMAT")
         {
             return FORMAT;
+        }
+        else if (aom == "LINEAR")
+        {
+            return LINEAR;
         }
         else
         {
@@ -283,6 +296,13 @@ public:
      *    @return value or empty if not found
      */
     std::string snapshot_attribute(int id, const char* name) const;
+
+    AllowOrphansMode orphans_mode() const
+    {
+        return orphans;
+    }
+
+    std::vector<int> get_younger_snapshots(int id) const;
 
 private:
 

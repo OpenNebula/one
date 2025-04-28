@@ -2004,6 +2004,12 @@ void LifeCycleManager::trigger_disk_snapshot_success(int vid)
                     disk->revert_snapshot_quotas(snap_id, ds_quotas, vm_quotas,
                                                  img_owner, vm_owner);
                     disk->revert_snapshot(snap_id, true);
+
+                    if (disk->allow_orphans() == Snapshots::LINEAR)
+                    {
+                        disk->delete_younger_snapshots(snap_id, ds_quotas, vm_quotas,
+                                                       img_owner, vm_owner);
+                    }
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_DELETE:

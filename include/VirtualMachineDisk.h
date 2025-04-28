@@ -307,6 +307,18 @@ public:
     void delete_snapshot(int snap_id, Template& ds_quota, Template& vm_quota,
                          bool& io, bool& vo);
 
+    /**
+     *  Deletes all younger (bigger snap_id) snapshots
+     *    @param snap_id of the last snapshot to keep
+     *    @param ds_quotas template with snapshot usage for the DS quotas
+     *    @param vm_quotas template with snapshot usage for the VM quotas
+     *    @param io delete ds quotas from image owners
+     *    @param vo delete ds quotas from vm owners
+     */
+    void delete_younger_snapshots(int snap_id, Template& ds_quota, Template& vm_quota,
+        bool& io, bool& vo);
+
+
     /* ---------------------------------------------------------------------- */
     /* Disk resize functions                                                  */
     /* ---------------------------------------------------------------------- */
