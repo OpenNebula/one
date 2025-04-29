@@ -23,22 +23,23 @@ import {
   VmsTable,
   VmTabs,
 } from '@ComponentsModule'
-import { T, VM, SERVER_CONFIG } from '@ConstantsModule'
+import { SERVER_CONFIG, T, VM } from '@ConstantsModule'
 import {
   setSelectedIds,
-  useGeneral,
-  VmAPI,
   useAuth,
+  useGeneral,
   useGeneralApi,
+  VmAPI,
 } from '@FeaturesModule'
+import RowAction from '@modules/components/Tables/Vms/rowActions'
 import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
 import { Chip, Stack } from '@mui/material'
 import {
   Cancel,
-  RefreshDouble,
-  Expand,
   Collapse,
+  Expand,
   NavArrowLeft,
+  RefreshDouble,
 } from 'iconoir-react'
 import { Row } from 'opennebula-react-table'
 import PropTypes from 'prop-types'
@@ -185,6 +186,7 @@ const InfoTabs = memo(
                 }}
               />
             )}
+            {isFullMode && <RowAction vm={vm ?? lazyData} />}
             <SubmitButton
               data-cy="detail-refresh"
               icon={<RefreshDouble />}

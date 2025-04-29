@@ -201,6 +201,7 @@ const create = async (
     if (availablePort) {
       paramsCommands.srcPort = availablePort
       settings.connection.port = availablePort
+      settings.connection.hostname = internalHost
       try {
         const command = createCommand(paramsCommands)
         const pid = await startSSHTunnel(command)
@@ -213,6 +214,7 @@ const create = async (
       error(new Error('No available ports were found in the specified range.'))
     }
   } else {
+    settings.connection.hostname = internalHost
     connect(pidTunnelStarted)
   }
 }
