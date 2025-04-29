@@ -63,7 +63,7 @@ const ServiceTemplatesTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

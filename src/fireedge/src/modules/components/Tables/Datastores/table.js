@@ -127,7 +127,7 @@ const DatastoresTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

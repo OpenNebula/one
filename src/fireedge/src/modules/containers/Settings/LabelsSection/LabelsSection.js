@@ -24,6 +24,6 @@ import { TranslateProvider, NestedLabelTree } from '@ComponentsModule'
  */
 export const Settings = () => (
   <TranslateProvider>
-    <NestedLabelTree enableAddDialog />
+    <NestedLabelTree disableSelect enableAddDialog renderResources />
   </TranslateProvider>
 )

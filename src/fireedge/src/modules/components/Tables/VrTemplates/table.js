@@ -95,7 +95,7 @@ const VrTemplatesTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const [

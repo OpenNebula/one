@@ -204,7 +204,11 @@ export const ChartRenderer = ({
             (coordinateType === 'CARTESIAN' ? (
               <Legend
                 formatter={(value) => {
-                  const [metric, datasetId] = value.split('-')
+                  const [metric, datasetId] = [
+                    value.slice(0, value?.lastIndexOf('-')),
+                    value.slice(value.lastIndexOf('-') + 1),
+                  ]
+
                   const currentDataset = datasets.find(
                     (ds) => ds.id === parseInt(datasetId, 10)
                   )

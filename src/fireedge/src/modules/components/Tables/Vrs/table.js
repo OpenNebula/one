@@ -61,7 +61,7 @@ const VrsTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

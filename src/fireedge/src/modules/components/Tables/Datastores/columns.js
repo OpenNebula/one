@@ -29,7 +29,7 @@ const COLUMNS = [
     Header: T.Label,
     id: 'label',
     accessor: 'TEMPLATE.LABELS',
-    filter: 'arrIncludesSome',
+    filter: 'includesSome',
   },
   {
     Header: T.State,
@@ -87,6 +87,6 @@ const COLUMNS = [
   },
 ]
 
-COLUMNS.noFilterIds = ['id', 'name', 'label']
+COLUMNS.noFilterIds = ['id', 'name']
 
 export default COLUMNS

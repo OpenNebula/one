@@ -65,7 +65,7 @@ const ImagesTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const listHeader = [

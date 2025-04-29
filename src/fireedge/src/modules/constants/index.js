@@ -207,6 +207,7 @@ export const RESOURCE_NAMES = {
   SUPPORT: 'support',
   DASHBOARD: 'dashboard',
 }
+
 export * as T from '@modules/constants/translates'
 
 export * as ACTIONS from '@modules/constants/actions'

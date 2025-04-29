@@ -85,7 +85,7 @@ const BackupsTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

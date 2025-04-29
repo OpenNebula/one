@@ -123,7 +123,7 @@ const HostsTable = (props) => {
           LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.HOST, true),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

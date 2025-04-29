@@ -74,7 +74,7 @@ const MarketplaceAppsTable = (props) => {
           LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.APP, true),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const listHeader = [

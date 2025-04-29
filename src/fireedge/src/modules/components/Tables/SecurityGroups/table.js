@@ -61,7 +61,7 @@ const SecurityGroupsTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

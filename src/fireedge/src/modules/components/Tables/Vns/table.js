@@ -122,7 +122,7 @@ const VnsTable = (props) => {
           LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VNET, true),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

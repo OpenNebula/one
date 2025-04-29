@@ -34,6 +34,7 @@ module.exports = {
   First: 'First',
   Last: 'Last',
   ApplyLabels: 'Apply labels',
+  DeleteLabel: 'Delete label',
   Apply: 'Apply',
   Label: 'Label',
   UserLabels: 'User labels',

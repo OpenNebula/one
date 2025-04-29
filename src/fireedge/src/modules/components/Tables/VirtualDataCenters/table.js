@@ -53,7 +53,7 @@ const Table = (props) => {
           LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VDC, true),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

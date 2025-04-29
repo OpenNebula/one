@@ -102,7 +102,7 @@ const HostGraphTab = ({ id }) => {
 
   return (
     <Grid container spacing={1} sx={{ overflow: 'hidden' }}>
-      <Grid item xs={12} sm={12}>
+      <Grid item md={6}>
         <Chartist
           name={'CPU'}
           data={cpuMemoryData}
@@ -170,7 +170,7 @@ const HostGraphTab = ({ id }) => {
           legendNames={cpuNames}
         />
       </Grid>
-      <Grid item xs={12} sm={12}>
+      <Grid item md={6}>
         <Chartist
           name={Tr(T.Memory)}
           data={cpuMemoryData}

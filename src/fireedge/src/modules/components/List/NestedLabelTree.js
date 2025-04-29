@@ -15,8 +15,7 @@
  * ------------------------------------------------------------------------- */
 import PropTypes from 'prop-types'
 import {
-  AddCircledOutline as AddIcon,
-  Plus,
+  Plus as AddIcon,
   Trash as RemoveIcon,
   NavArrowDown as ExpandMoreIcon,
   NavArrowRight as ChevronRightIcon,
@@ -24,7 +23,7 @@ import {
 import { getColorFromString } from '@ModelsModule'
 import { Component, useState, useMemo, useCallback, useEffect } from 'react'
 import { TreeView, TreeItem } from '@mui/lab'
-import { T, STYLE_BUTTONS } from '@ConstantsModule'
+import { T, STYLE_BUTTONS, RESOURCE_NAMES } from '@ConstantsModule'
 import { get, merge, debounce, partition } from 'lodash'
 import { Box, TextField, Stack, useTheme } from '@mui/material'
 import { sentenceCase } from '@UtilsModule'
@@ -32,6 +31,7 @@ import StatusChip from '@modules/components/Status/Chip'
 import { GroupAPI, UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import AddLabelDialog from '@modules/components/List/AddLabelDialog'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
+import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
 
 const renderTree = (
   defaultLabels,
@@ -42,6 +42,8 @@ const renderTree = (
   handleNodeClick,
   handleRemoveLabel,
   handleOpenAddModal,
+  renderResources,
+  disableSelect,
   parentId = '',
   labelType
 ) => {
@@ -68,6 +70,16 @@ const renderTree = (
       editableGroups?.[parentId?.split('/')?.[1]] ||
       false
     const isSelectable = isEditable && parentId !== '' && !isResourceParent
+
+    if (
+      (isResource ||
+        Object.values(RESOURCE_NAMES)
+          ?.filter((v) => !['user', 'group'].includes(v))
+          .includes(key)) &&
+      !renderResources
+    ) {
+      return null
+    }
 
     return (
       <TreeItem
@@ -109,7 +121,7 @@ const renderTree = (
               className="status-chip"
               noWrap
               onClick={
-                isSelectable
+                !disableSelect && isSelectable
                   ? () => handleSelect(nodeId, nodeType)
                   : () => handleNodeClick(nodeId)
               }
@@ -135,33 +147,57 @@ const renderTree = (
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginLeft: 1,
+                  marginLeft: 2,
+                  gap: 1,
                 }}
               >
                 {isEditable && !isResource && !isResourceParent && (
-                  <SubmitButton
-                    data-cy={'add-' + nodeId}
-                    icon={<AddIcon />}
-                    tooltip={T.Add}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      handleOpenAddModal(
-                        nodeId?.split('/')?.slice(1)?.join('/'),
-                        nodeType
-                      )
+                  <ButtonToTriggerForm
+                    buttonProps={{
+                      'data-cy': 'add-' + nodeId,
+                      importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
+                      size: STYLE_BUTTONS.SIZE.MEDIUM,
+                      type: STYLE_BUTTONS.TYPE.FILLED,
+                      icon: <AddIcon />,
+                      tooltip: T.Add,
                     }}
+                    options={[
+                      {
+                        onClick: () =>
+                          handleOpenAddModal(
+                            nodeId?.split('/')?.slice(1)?.join('/'),
+                            nodeType
+                          ),
+                      },
+                    ]}
                   />
                 )}
 
                 {isEditable && isSelectable && (
-                  <SubmitButton
-                    data-cy={'remove-' + nodeId}
-                    icon={<RemoveIcon />}
-                    tooltip={T.Remove}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleRemoveLabel(nodeId, nodeType)
+                  <ButtonToTriggerForm
+                    buttonProps={{
+                      color: 'error',
+                      importance: STYLE_BUTTONS.IMPORTANCE.SECONDARY,
+                      size: STYLE_BUTTONS.SIZE.MEDIUM,
+                      type: STYLE_BUTTONS.TYPE.FILLED,
+                      icon: <RemoveIcon />,
+                      tooltip: T.Remove,
                     }}
+                    options={[
+                      {
+                        isConfirmDialog: true,
+                        dialogProps: {
+                          children: (
+                            <p>{`${[
+                              ...nodeId?.split('/')?.slice(0, -1),
+                              labelText,
+                            ]?.join('/')}`}</p>
+                          ),
+                          title: <p>{T.DeleteLabel}</p>,
+                        },
+                        onSubmit: () => handleRemoveLabel(nodeId, nodeType),
+                      },
+                    ]}
                   />
                 )}
               </Box>
@@ -180,6 +216,8 @@ const renderTree = (
             handleNodeClick,
             handleRemoveLabel,
             handleOpenAddModal,
+            renderResources,
+            disableSelect,
             nodeId,
             nodeType
           )}
@@ -195,11 +233,15 @@ const renderTree = (
  * @param {Array} root0.selectedRows - Selected table rows
  * @param {string} root0.resourceType - Resource type being rendered
  * @param {boolean} root0.enableAddDialog - Enables add new label button
+ * @param {boolean} root0.renderResources - Render resources labels are applied to
+ * @param {boolean} root0.disableSelect - Disable lable selection
  * @returns {Component} - Nested tree view of labels
  */
 const NestedLabelTree = ({
   selectedRows = [],
   resourceType,
+  renderResources = false,
+  disableSelect = false,
   enableAddDialog = true,
 }) => {
   const [expanded, setExpanded] = useState([])
@@ -215,6 +257,8 @@ const NestedLabelTree = ({
     addGroupLabel,
     { isLoading: applyingGroupLabel, isSuccess: successGroupAddLabel },
   ] = GroupAPI.useAddGroupLabelMutation()
+
+  const { data: allGroups } = GroupAPI.useGetGroupsQuery()
 
   const [removeGroupLabel] = GroupAPI.useRemoveGroupLabelMutation()
 
@@ -242,11 +286,13 @@ const NestedLabelTree = ({
 
   const {
     user: { ID: uId } = {},
-    groups,
+    groups: ownGroups,
     isOneAdmin = false,
     labels: fetchedLabels = {},
     defaultLabels = {},
   } = useAuth()
+
+  const groups = [...new Set(ownGroups.concat(isOneAdmin ? allGroups : []))]
 
   const groupIdMap = useMemo(
     () =>
@@ -475,23 +521,32 @@ const NestedLabelTree = ({
 
     const handleUpdate = async () => {
       try {
-        await Promise.all(
-          Object.entries(selectedLabels).map(async ([type, labels]) => {
-            const results = await Promise.all(
-              labels?.map(async (label) => {
-                const [formattedLabel, id] = formatLabel(label, type)
+        if (!selectedLabels) return
+        for (const [type, rawLabels] of Object.entries(selectedLabels)) {
+          // Labels grouped by ID
+          const formatLabels = rawLabels
+            ?.map((uLbl) => formatLabel(uLbl, type))
+            ?.reduce((acc, flabel) => {
+              const [label, id] = flabel
 
-                return apiLookup?.[type]?.({
-                  id,
-                  label: formattedLabel,
-                  data: { [resourceType]: rowIds },
-                })
-              })
-            )
+              if (!acc[id]) {
+                acc[id] = []
+              }
 
-            return results
-          })
-        )
+              acc[id].push(label)
+
+              return acc
+            }, {})
+
+          for (const [id, labels] of Object.entries(formatLabels)) {
+            if (!id || !labels) return
+            await apiLookup[type]({
+              id,
+              labels,
+              data: { resourceType: resourceType, resourceIds: rowIds },
+            })
+          }
+        }
 
         handleClearSelections()
       } catch (error) {
@@ -521,7 +576,7 @@ const NestedLabelTree = ({
 
     await apiLookup?.[type]?.({
       id: type === 'user' ? uId : groupId,
-      label: sanitizeLabel,
+      labels: [sanitizeLabel],
     })
 
     setAddLabelParentNodeId(null)
@@ -605,7 +660,7 @@ const NestedLabelTree = ({
             <SubmitButton
               data-cy={'add-new-label-modal'}
               onClick={() => setAddLabelModalOpen((prev) => !prev)}
-              icon={<Plus />}
+              icon={<AddIcon />}
               isSubmitting={applyingUserLabel || applyingGroupLabel}
               disabled={applyingUserLabel || applyingGroupLabel}
               importance={STYLE_BUTTONS.IMPORTANCE.MAIN}
@@ -630,7 +685,9 @@ const NestedLabelTree = ({
             handleSelect,
             handleNodeClick,
             handleRemoveLabel,
-            handleOpenAddModal
+            handleOpenAddModal,
+            renderResources,
+            disableSelect
           )}
         </TreeView>
       </Stack>
@@ -652,6 +709,8 @@ NestedLabelTree.propTypes = {
   selectedRows: PropTypes.array,
   resourceType: PropTypes.string,
   enableAddDialog: PropTypes.bool,
+  renderResources: PropTypes.bool,
+  disableSelect: PropTypes.bool,
 }
 
 export default NestedLabelTree

@@ -18,9 +18,10 @@ import { oneApi } from '@modules/features/OneApi/oneApi'
 import {
   ONE_RESOURCES,
   ONE_RESOURCES_POOL,
+  RESOURCE_NAMES_TO_CACHE_TAG,
 } from '@modules/features/OneApi/resources'
 import { Group } from '@ConstantsModule'
-import { get, set, unset, merge, isEmpty } from 'lodash'
+import { get, set, unset, mergeWith, union, isEmpty } from 'lodash'
 import { encodeLabels, parseLabels } from '@UtilsModule'
 import { jsonToXml } from '@ModelsModule'
 import {
@@ -261,13 +262,14 @@ const groupApi = oneApi.injectEndpoints({
        *
        * @param {object} params - Request parameters
        * @param {string|number} params.id - Group id
-       * @param {string} params.label - '.' separated label path.
+       * @param {Array} params.labels - List of labels
        * @param {object} params.data - New label metadata
        * @returns {number} Group id
        * @throws Fails when response isn't code 200
        */
-      queryFn: async ({ id, label, data = {} }, { dispatch }) => {
+      queryFn: async ({ id, labels, data = {} }, { dispatch }) => {
         try {
+          const { resourceType, resourceIds } = data
           const groupData = await dispatch(
             groupApi.endpoints.getGroup.initiate({ id })
           ).unwrap()
@@ -280,9 +282,28 @@ const groupApi = oneApi.injectEndpoints({
             get(cloneTemplate, 'FIREEDGE.LABELS', {})
           )
 
-          const existingLabelData = get(existingLabels, label, {})
+          const existingLabelData = labels?.reduce((acc, label) => {
+            acc[label] = get(existingLabels, label, {})
 
-          set(existingLabels, label, merge({}, existingLabelData, data))
+            return acc
+          }, {})
+
+          Object.entries(existingLabelData)?.forEach(([path, eData]) =>
+            set(
+              existingLabels,
+              path,
+              mergeWith(
+                {},
+                eData,
+                { [resourceType]: resourceIds },
+                (objValue, srcValue) => {
+                  if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                    return union(objValue, srcValue)
+                  }
+                }
+              )
+            )
+          )
 
           const payload = {
             id,
@@ -298,12 +319,15 @@ const groupApi = oneApi.injectEndpoints({
             })
           ).unwrap()
 
-          return { data: response }
+          return { data: { response, type: resourceType } }
         } catch (error) {
           return { error }
         }
       },
-      invalidatesTags: [GROUP_POOL],
+      invalidatesTags: ({ type }) => [
+        GROUP_POOL,
+        `${RESOURCE_NAMES_TO_CACHE_TAG?.[type]}_POOL`,
+      ],
     }),
     removeGroupLabel: builder.mutation({
       /**

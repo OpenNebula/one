@@ -65,7 +65,7 @@ const BackupJobsTable = (props) => {
           ),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(

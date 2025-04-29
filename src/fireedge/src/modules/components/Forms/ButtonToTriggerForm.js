@@ -83,9 +83,17 @@ const ButtonToTriggerForm = ({
         aria-haspopup={moreThanOneOption ? 'true' : false}
         disabled={!options.length}
         endicon={moreThanOneOption ? <NavArrowDown /> : undefined}
-        onClick={(evt) =>
-          moreThanOneOption ? handleToggle(evt) : openDialogForm(options[0])
-        }
+        onClick={(evt) => {
+          if (options?.[0]?.onClick) {
+            options?.[0]?.onClick?.(evt)
+          } else {
+            if (moreThanOneOption) {
+              handleToggle(evt)
+            } else {
+              openDialogForm(options[0])
+            }
+          }
+        }}
         {...buttonProps}
       />
 

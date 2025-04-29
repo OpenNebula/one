@@ -67,7 +67,7 @@ const FilesTable = (props) => {
           LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.FILE, true),
         },
       })),
-    [data]
+    [data, labels]
   )
 
   const columns = useMemo(
