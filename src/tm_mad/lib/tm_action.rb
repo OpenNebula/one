@@ -259,7 +259,8 @@ module TransferManager
                 :ok_rc    => nil,
                 :forward  => false,
                 :nostdout => true,
-                :nostderr => true
+                :nostderr => true,
+                :silent   => false
             }.merge!(options)
 
             script = <<~EOS
@@ -287,6 +288,8 @@ module TransferManager
                  end
 
             success = rc.code == 0 || (opt[:ok_rc] && opt[:ok_rc] == rc.code)
+
+            return rc if opt[:silent]
 
             unless success
                 logger = OpenNebula::DriverLogger

@@ -17,7 +17,7 @@
 # Holds configuration about sudoers requirements for OpeNebula
 class Sudoers
 
-    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :NFS]
+    NODECMDS = [:NET, :NETNS, :OVS, :LVM, :LXC, :MEM, :VGPU, :NFS, :NETAPP]
 
     attr_accessor :cmds
 
@@ -77,7 +77,8 @@ class Sudoers
             :MARKET => ["#{lib_location}/sh/create_container_image.sh"],
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
             :VGPU => ['sudo', '/var/tmp/one/vgpu'],
-            :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab']
+            :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab'],
+            :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find', 'dd']
         }
     end
 
