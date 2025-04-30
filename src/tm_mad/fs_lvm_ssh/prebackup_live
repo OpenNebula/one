@@ -1,1 +1,109 @@
-../common/not_supported.sh
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'rexml/document'
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/lvm'
+require_relative '../lib/backup'
+
+#-------------------------------------------------------------------------------
+# BACKUP tm_mad host:remote_dir DISK_ID:...:DISK_ID deploy_id bjid vmid dsid
+# Output of this op is a <vm_dir>/backup/ directory with disks & vm.xml.
+#-------------------------------------------------------------------------------
+TransferManager::Datastore.load_env
+
+vm_xml = STDIN.read
+
+dir      = ARGV[0].split ':'
+disks    = ARGV[1].split ':'
+deployid = ARGV[2]
+_bjid    = ARGV[3]
+vmid     = ARGV[4]
+_dsid    = ARGV[5]
+
+rhost    = dir[0]
+rdir     = dir[1]
+
+base_path = ENV['BACKUP_BASE_PATH']
+
+backup_dir =
+    if base_path
+        "#{base_path}/#{vmid}/backup"
+    else
+        "#{rdir}/backup"
+    end
+
+action_name = File.basename($PROGRAM_NAME, '.rb')
+is_live = action_name.end_with?('_live')
+
+action   = TransferManager::Action.new(:action_name => action_name, :vm_id => vmid)
+ds       = TransferManager::Datastore.from_vm_backup_ds(:vm_xml => vm_xml.to_s)
+vm       = TransferManager::LVM::VM.new(action.vm.to_xml)
+script   = vm.backup_disks_sh(disks, backup_dir, ds, is_live, deployid)
+
+unless script
+    STDERR.puts "#{$PROGRAM_NAME}: Operation not supported"
+    exit 1
+end
+
+rc = action.ssh(:host => rhost,
+                :cmds => script,
+                :nostdout => false,
+                :nostderr => false)
+
+if rc.code != 0
+    STDERR.puts "Error preparing disk files: #{rc.stdout} #{rc.stderr}"
+end
+
+exit(rc.code)

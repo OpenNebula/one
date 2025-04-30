@@ -17,8 +17,74 @@
 #--------------------------------------------------------------------------- #
 
 require 'CommandManager'
+require_relative 'kvm'
 
 module TransferManager
+
+    # Virtual Machine containing the disks to backup
+    class VM
+
+        include TransferManager::KVM
+
+        def initialize(vm_xml, disks)
+            @xml   = vm_xml
+            @disks = disks
+        end
+
+        def backup_disks_sh(disks, backup_dir, ds, live, deploy_id = nil)
+            snap_cmd = ''
+            expo_cmd = ''
+            clup_cmd = ''
+            @disks.compact.each do |d|
+                did = d.id
+                next unless disks.include? did.to_s
+
+                cmds = d.backup_cmds(backup_dir, ds, live)
+                return nil unless cmds
+
+                snap_cmd << cmds[:snapshot]
+                expo_cmd << cmds[:export]
+                clup_cmd << cmds[:cleanup]
+            end
+
+            freeze, thaw =
+                if live
+                    fsfreeze(@xml, deploy_id)
+                else
+                    ['', '']
+                end
+
+            <<~EOS
+                set -ex -o pipefail
+
+                # ----------------------
+                # Prepare backup folder
+                # ----------------------
+                [ -d #{backup_dir} ] && rm -rf #{backup_dir}
+
+                mkdir -p #{backup_dir}
+
+                echo "#{Base64.encode64(@xml)}" > #{backup_dir}/vm.xml
+
+                # --------------------------------
+                # Create LVM snapshots for disks
+                # --------------------------------
+                #{freeze}
+
+                #{snap_cmd}
+
+                #{thaw}
+
+                # --------------------------
+                # export, convert & cleanup
+                # --------------------------
+                #{expo_cmd}
+
+                #{clup_cmd}
+            EOS
+        end
+
+    end
 
     # This class includes methods manage backup images
     class BackupImage

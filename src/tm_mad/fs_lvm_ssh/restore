@@ -1,1 +1,167 @@
-../common/not_supported.sh
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2025, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+require 'rexml/document'
+require 'json'
+require 'securerandom'
+
+require_relative '../lib/tm_action'
+require_relative '../lib/datastore'
+require_relative '../lib/lvm'
+
+#-------------------------------------------------------------------------------
+# RESTORE host:remote_system_ds vm_id img_id inc_id disk_id
+#-------------------------------------------------------------------------------
+dir       = ARGV[0].split ':'
+vm_id     = ARGV[1]
+bk_img_id = ARGV[2].to_i
+inc_id    = ARGV[3]
+disk_id   = ARGV[4].to_i
+
+rhost     = dir[0]
+rdir      = dir[1]
+
+action   = TransferManager::Action.new(:action_name => 'restore', :vm_id => vm_id)
+vm_disks = TransferManager::LVM::Disk.from_vm(action.vm.to_xml)
+
+begin
+    # --------------------------------------------------------------------------
+    # Image & Datastore information
+    # --------------------------------------------------------------------------
+    bk_img = OpenNebula::Image.new_with_id(bk_img_id, action.one)
+
+    rc = bk_img.info
+    raise rc.message.to_s if OpenNebula.is_error?(rc)
+
+    bk_ds = TransferManager::Datastore.from_image_ds(:image  => bk_img,
+                                                     :client => action.one)
+
+    # --------------------------------------------------------------------------
+    # Backup information
+    # sample output: {"0":"rsync://100//0:3ffce7/var/lib/one/datastores/100/1/3ffce7/disk.0.0"}
+    # --------------------------------------------------------------------------
+    xml_data = <<~EOS
+        #{action.vm.to_xml}
+        #{bk_img.to_xml}
+    EOS
+
+    rc = bk_ds.action("ls -i #{inc_id}", xml_data)
+
+    raise 'cannot list backup contents' unless rc.code == 0
+
+    # e.g.: {"0"=>"rsync://100//0:a47997,1:6ca565/var/lib/one/datastores/100/3/a47997/disk.0.rbd2"}
+    disks = JSON.parse(rc.stdout)
+    disks = disks.select {|id, _url| id.to_i == disk_id } if disk_id != -1
+
+    # --------------------------------------------------------------------------
+    # Restore disk_urls in Host VM folder
+    # --------------------------------------------------------------------------
+    dpaths = {}
+    disks.each do |id, url|
+        backup_file = "#{rdir}/disk.#{id}.backup"
+
+        download = <<~EOS
+            #{__dir__}/../../datastore/downloader.sh --nodecomp #{url} - | \
+              ssh '#{rhost}' dd of='#{rdir}/disk.#{id}.backup' bs=64k conv=sparse
+        EOS
+
+        rc = action.ssh(:host => nil,
+                        :cmds => download,
+                        :forward  => false,
+                        :nostdout => false,
+                        :nostderr => false)
+        next unless rc.code == 0
+
+        dpaths[id.to_i] = backup_file
+    end
+
+    # Rollback and raise error if it was unable to restore all disks
+    if dpaths.length != disks.length
+        cleanup = []
+        dpaths.each do |_id, path|
+            cleanup << "rm -f #{path};"
+        end
+
+        action.ssh(:host => rhost,
+                   :cmds => cleanup.join,
+                   :forward  => false,
+                   :nostdout => false,
+                   :nostderr => false)
+
+        raise "error downloading LVM disks (#{dpaths.length}/#{disks.length})"
+    end
+
+    # --------------------------------------------------------------------------
+    # Replace VM disk_urls with backup copies (~prolog)
+    # --------------------------------------------------------------------------
+    restore = []
+    cleanup = []
+    dpaths.each do |id, path|
+        (r, c) = vm_disks[id].restore_cmds(path)
+        restore << r
+        cleanup << c
+    end
+    script = <<~EOS
+        trap "#{cleanup.join ';'}" EXIT
+        #{restore.join}
+    EOS
+
+    rc = action.ssh(:host => rhost,
+                    :cmds => script,
+                    :forward  => false,
+                    :nostdout => false,
+                    :nostderr => false)
+    raise 'cannot restore disk backup' unless rc.code == 0
+rescue StandardError => e
+    STDERR.puts "Error restoring VM disks: #{e.message}"
+    exit(1)
+end

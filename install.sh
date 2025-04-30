@@ -1278,6 +1278,7 @@ TM_FILES="src/tm_mad/tm_common.sh"
 
 TM_LIB_FILES="src/tm_mad/lib/kvm.rb \
               src/tm_mad/lib/ceph.rb \
+              src/tm_mad/lib/lvm.rb \
               src/tm_mad/lib/shell.rb \
               src/tm_mad/lib/tm_action.rb \
               src/tm_mad/lib/backup_qcow2.rb \
@@ -1338,6 +1339,7 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/failmigrate \
                  src/tm_mad/fs_lvm/delete \
                  src/tm_mad/fs_lvm/resize \
+                 src/tm_mad/fs_lvm/restore \
                  src/tm_mad/fs_lvm/prebackup_live \
                  src/tm_mad/fs_lvm/prebackup \
                  src/tm_mad/fs_lvm/postbackup_live \
@@ -1348,26 +1350,27 @@ TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
 TM_FS_LVM_SSH_FILES="src/tm_mad/fs_lvm_ssh/activate \
                      src/tm_mad/fs_lvm_ssh/clone \
                      src/tm_mad/fs_lvm_ssh/context \
+                     src/tm_mad/fs_lvm_ssh/cpds \
+                     src/tm_mad/fs_lvm_ssh/delete \
+                     src/tm_mad/fs_lvm_ssh/failmigrate \
                      src/tm_mad/fs_lvm_ssh/ln \
-                     src/tm_mad/fs_lvm_ssh/monitor \
-                     src/tm_mad/fs_lvm_ssh/mkswap \
                      src/tm_mad/fs_lvm_ssh/mkimage \
+                     src/tm_mad/fs_lvm_ssh/mkswap \
+                     src/tm_mad/fs_lvm_ssh/monitor \
                      src/tm_mad/fs_lvm_ssh/mv \
                      src/tm_mad/fs_lvm_ssh/mvds \
-                     src/tm_mad/fs_lvm_ssh/cpds \
-                     src/tm_mad/fs_lvm_ssh/premigrate \
+                     src/tm_mad/fs_lvm_ssh/postbackup \
+                     src/tm_mad/fs_lvm_ssh/postbackup_live \
                      src/tm_mad/fs_lvm_ssh/postmigrate \
+                     src/tm_mad/fs_lvm_ssh/prebackup \
+                     src/tm_mad/fs_lvm_ssh/prebackup_live \
+                     src/tm_mad/fs_lvm_ssh/premigrate \
+                     src/tm_mad/fs_lvm_ssh/resize \
+                     src/tm_mad/fs_lvm_ssh/restore \
                      src/tm_mad/fs_lvm_ssh/snap_create \
                      src/tm_mad/fs_lvm_ssh/snap_create_live \
                      src/tm_mad/fs_lvm_ssh/snap_delete \
-                     src/tm_mad/fs_lvm_ssh/snap_revert \
-                     src/tm_mad/fs_lvm_ssh/failmigrate \
-                     src/tm_mad/fs_lvm_ssh/delete \
-                     src/tm_mad/fs_lvm_ssh/resize \
-                     src/tm_mad/fs_lvm_ssh/prebackup_live \
-                     src/tm_mad/fs_lvm_ssh/prebackup \
-                     src/tm_mad/fs_lvm_ssh/postbackup_live \
-                     src/tm_mad/fs_lvm_ssh/postbackup"
+                     src/tm_mad/fs_lvm_ssh/snap_revert"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/clone.replica \

@@ -17,75 +17,22 @@
 #--------------------------------------------------------------------------- #
 
 require 'rexml/document'
+
 require_relative 'datastore'
-require_relative 'kvm'
+require_relative 'backup'
 
 module TransferManager
 
     # Ceph utils
     class Ceph
 
-        # VM containing Ceph disks
-        class VM
+        # VM with Ceph disk initialization
+        class VM < TransferManager::VM
+           def initialize(vm_xml)
+               disks = Disk.from_vm(vm_xml)
 
-            include TransferManager::KVM
-
-            def initialize(vm_xml)
-                @xml = vm_xml
-                @disks = Disk.from_vm(@xml)
-            end
-
-            def backup_disks_sh(disks, backup_dir, ds, live, deploy_id = nil)
-                snap_cmd = ''
-                expo_cmd = ''
-                clup_cmd = ''
-                @disks.compact.each do |d|
-                    did = d.id
-                    next unless disks.include? did.to_s
-
-                    cmds = d.backup_cmds(backup_dir, ds, live)
-                    snap_cmd << cmds[:snapshot]
-                    expo_cmd << cmds[:export]
-                    clup_cmd << cmds[:cleanup]
-                end
-
-                freeze, thaw =
-                    if live
-                        fsfreeze(@xml, deploy_id)
-                    else
-                        ['', '']
-                    end
-
-                <<~EOS
-                    set -ex -o pipefail
-
-                    # ----------------------
-                    # Prepare backup folder
-                    # ----------------------
-                    [ -d #{backup_dir} ] && rm -rf #{backup_dir}
-
-                    mkdir -p #{backup_dir}
-
-                    echo "#{Base64.encode64(@xml)}" > #{backup_dir}/vm.xml
-
-                    # --------------------------------
-                    # Create Ceph snapshots for disks
-                    # --------------------------------
-                    #{freeze}
-
-                    #{snap_cmd}
-
-                    #{thaw}
-
-                    # --------------------------
-                    # export, convert & cleanup
-                    # --------------------------
-                    #{expo_cmd}
-
-                    #{clup_cmd}
-                EOS
-            end
-
+               super(vm_xml, disks)
+           end
         end
 
         # Ceph disks

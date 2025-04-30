@@ -57,7 +57,7 @@ require_relative '../lib/tm_action'
 require_relative '../lib/datastore'
 
 #-------------------------------------------------------------------------------
-# RESTORE vm_id img_id inc_id disk_id
+# RESTORE host:remote_system_ds vm_id img_id inc_id disk_id
 #-------------------------------------------------------------------------------
 dir     = ARGV[0].split ':'
 vm_id   = ARGV[1]
