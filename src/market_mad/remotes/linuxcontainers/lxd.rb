@@ -21,10 +21,9 @@ module LXDMarket
 
     class << self
 
-        # TODO: Make configurable
         def template(options = {})
             unindent(<<-EOS)
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
+        SCHED_REQUIREMENTS = \"HYPERVISOR=lxc & ARCH=#{options[:arch]}\"
         CPU = \"#{options[:cpu]}\"
         VCPU = \"#{options[:vcpu]}\"
         MEMORY = \"#{options[:memory]}\"
@@ -37,11 +36,12 @@ module LXDMarket
             NETWORK  =\"YES\",
             SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
             SET_HOSTNAME  =\"$NAME\"
-        ]"
+        ]
         RAW = [
             TYPE=\"lxc\",
             DATA=\"#{options[:raw]}\"
         ]
+        HYPERVISOR = \"lxc\"
             EOS
         end
 
