@@ -28,11 +28,13 @@ module TransferManager
 
         # VM with Ceph disk initialization
         class VM < TransferManager::VM
-           def initialize(vm_xml)
-               disks = Disk.from_vm(vm_xml)
 
-               super(vm_xml, disks)
-           end
+            def initialize(vm_xml)
+                disks = Disk.from_vm(vm_xml)
+
+                super(vm_xml, disks)
+            end
+
         end
 
         # Ceph disks
