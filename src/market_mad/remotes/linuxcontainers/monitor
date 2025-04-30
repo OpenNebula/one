@@ -156,6 +156,15 @@ class LinuxContainersMarket
             next if variant != 'default' || (arch != 'amd64' && arch != 'arm64')
             next if @options[:skip_untested] == 'yes' && !@options[:tested_apps].include?(distro)
 
+            case arch
+            when 'arm64'
+                @options[:arch] = 'aarch64'
+            when 'amd64'
+                @options[:arch] = 'x86_64'
+            else
+                @options[:arch] = '-'
+            end
+
             # Use the last version for each container
             regtime = img_data['versions'].to_a.last[0]
 
@@ -181,7 +190,8 @@ class LinuxContainersMarket
                 'TYPE'        => 'IMAGE',
                 'DESCRIPTION' =>  "Downloaded from #{@options[:url]}",
                 'TAGS'        => '',
-                'LINK'        => "#{@options[:url]}#{path}"
+                'LINK'        => "#{@options[:url]}#{path}",
+                'ARCHITECTURE'=> arch
             }
 
             tmpl = ''

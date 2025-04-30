@@ -65,6 +65,13 @@ class OneMarket
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
     EDITION        = File.dirname(__FILE__) + '/../../EDITION'
 
+    ARM_OS_SECTION = {
+        'ARCH'  => 'aarch64',
+        'FIRMWARE' => '/usr/share/AAVMF/AAVMF_CODE.fd',
+        'FIRMWARE_SECURE' => 'no',
+        'MACHINE' => 'virt'
+    }
+
     def initialize(url)
         if File.exist?(EDITION)
             edition = File.read(EDITION).strip
@@ -133,16 +140,7 @@ class OneMarket
             print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
         end
 
-        ot = app['opennebula_template']
-
-        return if ot.nil? || ot.empty?
-
-        begin
-            print_var(tmpl, 'VMTEMPLATE64',
-                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
-        rescue StandardError
-            nil
-        end
+        print_var(tmpl, 'VMTEMPLATE64', generate_vm_template64(app))
     end
 
     def render_vmtemplate(tmpl, app)
@@ -157,16 +155,7 @@ class OneMarket
             end
         end
 
-        ot = app['opennebula_template']
-
-        return if ot.nil? || ot.empty?
-
-        begin
-            print_var(tmpl, 'APPTEMPLATE64',
-                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
-        rescue StandardError
-            nil
-        end
+        print_var(tmpl, 'APPTEMPLATE64', generate_vm_template64(app))
     end
 
     def render_service_template(tmpl, app)
@@ -224,6 +213,7 @@ class OneMarket
 
             print_var(tmpl, 'REGTIME', app['creation_time'])
             print_var(tmpl, 'LINK',    link)
+            print_var(tmpl, 'ARCHITECTURE', app['os-arch'])
 
             #-------------------------------------------------------------------
             # Specific App attributes & APPTEMPLATE64
@@ -294,6 +284,29 @@ class OneMarket
                 "#{key.to_s.upcase} = \"#{value}\""
             end
         end.compact.join("\n")
+    end
+
+    def generate_vm_template64(app)
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            ot = JSON.parse(ot)
+            arch = app['os-arch'] && ot['OS']['ARCH']
+
+            # https://docs.opennebula.io/devel/open_cluster_deployment/kvm_node/kvm_driver.html#arm64-specifics
+            if arch && !arch.empty?
+                ot['SCHED_REQUIREMENTS'] = "HYPERVISOR=kvm & ARCH=#{arch}"
+                ot['OS'].merge!(ARM_OS_SECTION) if arch == 'aarch64'
+            end
+
+            template64 = Base64.strict_encode64(template_to_str(ot))
+        rescue StandardError
+            nil
+        end
+
+        return template64
     end
 
 end
