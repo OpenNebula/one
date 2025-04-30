@@ -123,16 +123,26 @@ const clientCallbacks = {
 
     return callback(null, settings)
   },
+
   processConnectionClose: (err, { connections, id }) => {
-    if (connections?.length && id) {
-      const others = [...connections.values()].some(
-        (value) => value.pidTunnel === id
-      )
-      !others && deleteTunnel(id)
+    if (id) {
+      writeInLogger(id, {
+        format: 'Closing unused ssh connection: %s',
+        level: 2,
+      })
+
+      if (connections?.length) {
+        const others = [...connections.values()].some(
+          (value) => value.pidTunnel === id
+        )
+        !others && deleteTunnel(id)
+      } else {
+        deleteTunnel(id)
+      }
     }
 
     writeInLogger(err, {
-      format: 'WS connection failed: %s',
+      format: 'WS connection closed: %s',
     })
     messageTerminal(configError(err))
   },

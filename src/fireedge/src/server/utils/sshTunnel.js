@@ -15,7 +15,7 @@
  * ------------------------------------------------------------------------- */
 const { defaults } = require('server/utils/constants')
 const { defaultEmptyFunction } = defaults
-const { execSync, spawn } = require('child_process')
+const { spawn } = require('child_process')
 const { createServer } = require('net')
 
 let PID = null
@@ -74,31 +74,6 @@ const deleteTunnel = (pid) => {
     process.kill(pid)
   } catch (err) {
     console.log(err)
-  }
-}
-
-/**
- * Valid if the tunnel is started.
- *
- * @param {object} vmParams - vm params
- * @param {string} vmParams.dstPort - external port
- * @param {Function} error - callback if exist a error
- * @returns {number | null} if exists returns the PID
- */
-const validateSSHTunnelStarted = ({ dstPort }, error) => {
-  try {
-    const output = execSync(
-      `ps -ef | grep "[s]sh.*:${internalHost}:${dstPort}" | awk '{print $2}'`,
-      { encoding: 'utf-8' }
-    )
-
-    const cleanOutput = output.trim()
-
-    return cleanOutput ? parseInt(cleanOutput, 10) : null
-  } catch (err) {
-    error(err)
-
-    return null
   }
 }
 
@@ -192,30 +167,24 @@ const create = async (
     host: hostAddr,
   }
 
-  const pidTunnelStarted = validateSSHTunnelStarted(paramsCommands, error)
-  if (!pidTunnelStarted) {
-    const availablePort = await findAvailablePortInRange(
-      rangePorts[0],
-      rangePorts[1]
-    )
-    if (availablePort) {
-      paramsCommands.srcPort = availablePort
-      settings.connection.port = availablePort
-      settings.connection.hostname = internalHost
-      try {
-        const command = createCommand(paramsCommands)
-        const pid = await startSSHTunnel(command)
-        await sleep()
-        connect(pid)
-      } catch (err) {
-        error(err)
-      }
-    } else {
-      error(new Error('No available ports were found in the specified range.'))
+  const availablePort = await findAvailablePortInRange(
+    rangePorts[0],
+    rangePorts[1]
+  )
+  if (availablePort) {
+    paramsCommands.srcPort = availablePort
+    settings.connection.port = availablePort
+    settings.connection.hostname = internalHost
+    try {
+      const command = createCommand(paramsCommands)
+      const pid = await startSSHTunnel(command)
+      await sleep()
+      connect(pid)
+    } catch (err) {
+      error(err)
     }
   } else {
-    settings.connection.hostname = internalHost
-    connect(pidTunnelStarted)
+    error(new Error('No available ports were found in the specified range.'))
   }
 }
 
