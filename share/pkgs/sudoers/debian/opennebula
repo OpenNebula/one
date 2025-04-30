@@ -8,6 +8,7 @@ Cmnd_Alias ONE_NFS = /usr/bin/mount, /usr/bin/umount, /usr/bin/sed -i -f /proc/s
 Cmnd_Alias ONE_LXC = /usr/bin/mount, /usr/bin/umount, /usr/bin/bindfs, /usr/sbin/losetup, /usr/bin/qemu-nbd, /usr/bin/lxc-attach, /usr/bin/lxc-config, /usr/bin/lxc-create, /usr/bin/lxc-destroy, /usr/bin/lxc-info, /usr/bin/lxc-ls, /usr/bin/lxc-start, /usr/bin/lxc-stop, /usr/bin/lxc-console, /usr/sbin/e2fsck, /usr/sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh
 Cmnd_Alias ONE_NET = /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip neighbour *, /usr/sbin/ip route *, /usr/sbin/ip rule *, /usr/sbin/ip tuntap *, /usr/sbin/nft, /var/tmp/one/vnm/tproxy, /usr/sbin/bridge vlan *
+Cmnd_Alias ONE_NETAPP = /usr/sbin/blockdev, /usr/sbin/multipath, /usr/sbin/multipathd, /usr/sbin/iscsiadm, /usr/bin/tee, /usr/bin/find, /usr/bin/dd
 Cmnd_Alias ONE_NETNS = /usr/sbin/ip netns add *, /usr/sbin/ip netns delete *, /usr/sbin/ip netns pids *, /var/tmp/one/vnm/ip_netns_exec ip address *, /var/tmp/one/vnm/ip_netns_exec ip link *, /var/tmp/one/vnm/ip_netns_exec ip -j link show *, /var/tmp/one/vnm/ip_netns_exec ip route *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl, /usr/bin/ovs-appctl
 Cmnd_Alias ONE_MEM = /usr/sbin/sysctl vm.drop_caches=3 vm.compact_memory=1
