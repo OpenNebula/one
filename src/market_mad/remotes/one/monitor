@@ -293,7 +293,7 @@ class OneMarket
 
         begin
             ot = JSON.parse(ot)
-            arch = app['os-arch'] && ot['OS']['ARCH']
+            arch = app['os-arch']
 
             # https://docs.opennebula.io/devel/open_cluster_deployment/kvm_node/kvm_driver.html#arm64-specifics
             if arch && !arch.empty?
