@@ -2088,6 +2088,7 @@ module.exports = {
   ProvisionId: 'Provision ID',
 
   /* User inputs */
+  ErrorUserInputDuplicated: 'User input name already exists',
   AuthDriver: 'Auth Driver',
   PasswordHash: 'Password Hash',
   TokenPasswordHash: 'Token Password Hash',

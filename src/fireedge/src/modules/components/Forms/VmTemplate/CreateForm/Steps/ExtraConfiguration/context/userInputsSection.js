@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { forwardRef, JSXElementConstructor, useState } from 'react'
 import PopUpDialog from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration/context/userInputsAutocompleteDialog'
-import PropTypes from 'prop-types'
 import {
-  WarningCircledOutline as WarningIcon,
-  Plus,
-  Trash,
-} from 'iconoir-react'
-import {
-  styled,
-  FormControl,
-  Stack,
   Divider,
+  FormControl,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Stack,
+  styled,
 } from '@mui/material'
+import {
+  Plus,
+  Trash,
+  WarningCircledOutline as WarningIcon,
+} from 'iconoir-react'
+import PropTypes from 'prop-types'
+import { forwardRef, JSXElementConstructor, useState } from 'react'
 
+import { yupResolver } from '@hookform/resolvers/yup'
 import {
   DragDropContext,
   Draggable,
@@ -39,22 +40,22 @@ import {
   DropResult,
 } from 'react-beautiful-dnd'
 import {
+  FormProvider,
+  get,
   useFieldArray,
   useForm,
-  FormProvider,
   useFormContext,
-  get,
 } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 
 import { Tooltip } from '@modules/components/FormControl'
 import { FormWithSchema, Legend } from '@modules/components/Forms'
 
-import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
-import { USER_INPUT_SCHEMA, USER_INPUT_FIELDS } from './schema'
+import { STYLE_BUTTONS, T } from '@ConstantsModule'
+import { useGeneralApi } from '@FeaturesModule'
 import { getUserInputString } from '@ModelsModule'
-import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import SubmitButton from '@modules/components/FormControl/SubmitButton'
+import { STEP_ID as EXTRA_ID } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/ExtraConfiguration'
+import { USER_INPUT_FIELDS, USER_INPUT_SCHEMA } from './schema'
 
 import { disableFields } from '@UtilsModule'
 
@@ -128,6 +129,7 @@ UserInputItem.displayName = 'UserInputItem'
  */
 const UserInputsSection = ({ oneConfig, adminGroup }) => {
   const [open, setOpen] = useState(false)
+  const { enqueueError } = useGeneralApi()
   const {
     formState: { errors },
   } = useFormContext()
@@ -146,6 +148,16 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
   })
 
   const onSubmit = (newInput) => {
+    const isDuplicate = userInputs.some(
+      (input) => input?.name?.toUpperCase() === newInput?.name?.toUpperCase()
+    )
+
+    if (isDuplicate) {
+      enqueueError(T.ErrorUserInputDuplicated)
+
+      return
+    }
+
     append(newInput)
     methods.reset()
   }
@@ -198,16 +210,6 @@ const UserInputsSection = ({ oneConfig, adminGroup }) => {
               size={STYLE_BUTTONS.SIZE.MEDIUM}
               type={STYLE_BUTTONS.TYPE.FILLED}
             />
-            {/* <SubmitButton
-              startIcon={<Plus />}
-              data-cy={`${EXTRA_ID}-add-userinput-user-input`}
-              icon={AddCircledOutline}
-              onClick={handleClickOpen}
-              label={T.Suggestion}
-              importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
-              size={STYLE_BUTTONS.SIZE.MEDIUM}
-              type={STYLE_BUTTONS.TYPE.OUTLINED}
-            /> */}
           </Stack>
           <FormWithSchema
             cy={`${EXTRA_ID}-context-user-input`}
