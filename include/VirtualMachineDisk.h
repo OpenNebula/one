@@ -837,6 +837,13 @@ public:
     bool backup_increment(bool do_volatile);
 
     /**
+     *  Returns true if all disks support keep last feature for backups
+     *
+     *  @param do_volatile consider volatile disks
+     */
+    bool backup_keep_last(bool do_volatile);
+
+    /**
      *  Returns list of disk IDs, ready for backup
      *
      *  @param do_volatile consider volatile disks
