@@ -229,20 +229,6 @@ const generateGuacamoleSession = (
 const getVncSettings = (vmInfo) => {
   const config = {}
 
-  if (`${vmInfo.USER_TEMPLATE?.HYPERVISOR}`.toLowerCase() === 'vcenter') {
-    const esxHost = vmInfo?.MONITORING?.VCENTER_ESX_HOST
-
-    if (!esxHost) {
-      return {
-        error: `Could not determine the vCenter ESX host where
-        the VM is running. Wait till the VCENTER_ESX_HOST attribute is
-        retrieved once the host has been monitored`,
-      }
-    }
-
-    config.hostname = esxHost
-  }
-
   if (!config.hostname) {
     const data = [].concat(...[vmInfo.HISTORY_RECORDS?.HISTORY ?? []])
     const lastRecord = data[data.length - 1]

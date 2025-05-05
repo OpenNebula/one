@@ -27,7 +27,6 @@ import {
   HistoryRecord,
   NIC_IP_ATTRS,
   Nic,
-  NicAlias,
   STATES,
   ScheduleAction,
   Snapshot,
@@ -110,12 +109,6 @@ export const getHypervisor = (vm) => getLastHistory(vm)?.VM_MAD
 
 /**
  * @param {VM} vm - Virtual machine
- * @returns {boolean} If the hypervisor is vCenter
- */
-export const isVCenter = (vm) => getHypervisor(vm) === 'vcenter'
-
-/**
- * @param {VM} vm - Virtual machine
  * @returns {STATES.StateInfo} State information from resource
  */
 export const getVirtualMachineState = (vm) => {
@@ -163,17 +156,16 @@ export const getDisks = (vm) => {
     }
   }
 
-  const contextDisk = CONTEXT &&
-    !isVCenter(vm) && {
-      ...CONTEXT,
-      IMAGE: 'CONTEXT',
-      IS_CONTEXT: true,
-      DATASTORE: '-',
-      READONLY: '-',
-      SAVE: '-',
-      CLONE: '-',
-      SAVE_AS: '-',
-    }
+  const contextDisk = CONTEXT && {
+    ...CONTEXT,
+    IMAGE: 'CONTEXT',
+    IS_CONTEXT: true,
+    DATASTORE: '-',
+    READONLY: '-',
+    SAVE: '-',
+    CLONE: '-',
+    SAVE_AS: '-',
+  }
 
   return [DISK, contextDisk].flat().filter(Boolean).map(addExtraData)
 }
@@ -271,7 +263,7 @@ export const getIps = (vm) =>
 
 /**
  * @param {VM} vm - Virtual machine
- * @returns {{ nics: Nic[], alias: NicAlias[] }} Lists of nics and alias from resource
+ * @returns {object | Array} Lists of nics and alias from resource
  */
 export const splitNicAlias = (vm) =>
   getNics(vm).reduce(

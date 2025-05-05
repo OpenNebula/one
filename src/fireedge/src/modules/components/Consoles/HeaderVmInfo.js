@@ -23,7 +23,6 @@ import { ServiceAPI, VmAPI, useGeneralApi } from '@FeaturesModule'
 import {
   getIps,
   getVirtualMachineState,
-  isVCenter,
   timeFromMilliseconds,
 } from '@ModelsModule'
 
@@ -72,7 +71,7 @@ const HeaderVmInfo = ({ id, type }) => {
   }, [isError])
 
   useEffect(() => {
-    if (isVMRC && isSuccess && vm && !isVCenter(vm)) {
+    if (isVMRC && isSuccess && vm) {
       enqueueError(T.ErrorVmNoLocatedVenter, [vm.ID, vm.NAME])
       redirectTo(PATH.DASHBOARD)
     }

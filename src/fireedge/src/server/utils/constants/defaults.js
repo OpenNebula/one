@@ -108,7 +108,6 @@ const defaults = {
   defaultCommandProvision: `one${appNameProvision}`,
   defaultCommandProvisionTemplate: `one${appNameProvision}-template`,
   defaultCommandProvider: 'oneprovider',
-  defaultCommandVcenter: 'onevcenter',
   defaultCommandVM: 'onevm',
   defaultCommandMarketApp: 'onemarketapp',
   defaultFolderTmpProvision: 'tmp',
@@ -181,7 +180,6 @@ const defaults = {
   protectedConfigData: {
     [appNameSunstone]: [
       'support_url',
-      'vcenter_prepend_command',
       'sunstone_prepend',
       'guacd',
       'tmpdir',

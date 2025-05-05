@@ -178,20 +178,3 @@ export const DATASTORE_TYPES = {
     ],
   },
 }
-
-export const DS_VCENTER_ADAPTER_TYPE_OPTIONS = ['lsiLogic', 'ide', 'busLogic']
-export const DS_VCENTER_DISK_TYPE_OPTIONS = [
-  'delta',
-  'eagerZeroedThick',
-  'flatMonolithic',
-  'preallocated',
-  'raw',
-  'rdm',
-  'rdmp',
-  'seSparse',
-  'sparse2Gb',
-  'sparseMonolithic',
-  'thick',
-  'thick2Gb',
-  'thin',
-]

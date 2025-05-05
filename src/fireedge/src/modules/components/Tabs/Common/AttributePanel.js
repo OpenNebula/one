@@ -30,33 +30,6 @@ const {
 
 const ALL_ACTIONS = [COPY, ADD, EDIT, DELETE]
 
-// This attributes has special restrictions
-const SPECIAL_ATTRIBUTES = {
-  VCENTER_CCR_REF: {
-    [EDIT]: false,
-    [DELETE]: false,
-  },
-  VCENTER_HOST: {
-    [EDIT]: false,
-    [DELETE]: false,
-  },
-  VCENTER_INSTANCE_ID: {
-    [EDIT]: false,
-    [DELETE]: false,
-  },
-  VCENTER_PASSWORD: {
-    [DELETE]: false,
-  },
-  VCENTER_USER: {
-    [EDIT]: false,
-    [DELETE]: false,
-  },
-  VCENTER_VERSION: {
-    [EDIT]: false,
-    [DELETE]: false,
-  },
-}
-
 const useStyles = () => ({
   container: css({
     gridColumn: '1 / -1',
@@ -86,10 +59,8 @@ const AttributePanel = memo(
     const classes = useMemo(() => useStyles(theme), [theme])
 
     const canUseAction = useCallback(
-      (name, action) =>
-        actions?.includes?.(action) &&
-        (!filtersSpecialAttributes ||
-          SPECIAL_ATTRIBUTES[name]?.[action] === undefined),
+      (_name, action) =>
+        actions?.includes?.(action) && !filtersSpecialAttributes,
       [actions?.length]
     )
 

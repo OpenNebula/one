@@ -242,7 +242,7 @@ const NUMA_SCHEMA = (hypervisor) =>
       const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
       const hyperv = context?.general?.HYPERVISOR
 
-      if (['vcenter', kvm, dummy].includes(hyperv) && isEnabled) {
+      if ([kvm, dummy].includes(hyperv) && isEnabled) {
         if (
           restOfTopology?.NODE_AFFINITY &&
           restOfTopology.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY

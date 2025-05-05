@@ -23,26 +23,10 @@ import { LockInfo, Permissions } from '@modules/constants/common'
 import { ScheduleAction } from '@modules/constants/scheduler'
 
 /**
- * @typedef {object} Disk
- * @property {string} [VCENTER_DS_REF] -
- * @property {string} [VCENTER_INSTANCE_ID] -
- */
-
-/**
- * @typedef {object} Nic
- * @property {string} [VCENTER_INSTANCE_ID] -
- * @property {string} [VCENTER_NET_REF] -
- * @property {string} [VCENTER_PORTGROUP_TYPE] -
- */
-
-/**
  * @typedef {object} NicAlias
  * @property {string} ALIAS_ID -
  * @property {string} PARENT -
  * @property {string} PARENT_ID -
- * @property {string} [VCENTER_INSTANCE_ID] -
- * @property {string} [VCENTER_NET_REF] -
- * @property {string} [VCENTER_PORTGROUP_TYPE] -
  */
 
 /**
@@ -164,7 +148,6 @@ import { ScheduleAction } from '@modules/constants/scheduler'
  * @property {string} [TEMPLATE.CONTEXT] -
  * @property {string} [TEMPLATE.CPU] -
  * @property {string} [TEMPLATE.CPU_COST] -
- * @property {Disk|Disk[]} [TEMPLATE.DISK] -
  * @property {string} [TEMPLATE.DISK_COST] -
  * @property {string} [TEMPLATE.EMULATOR] -
  * @property {any} [TEMPLATE.FEATURES] -
@@ -176,7 +159,6 @@ import { ScheduleAction } from '@modules/constants/scheduler'
  * @property {string} [TEMPLATE.MEMORY_COST] -
  * @property {string} [TEMPLATE.MEMORY_MAX] -
  * @property {string} [TEMPLATE.MEMORY_SLOTS] -
- * @property {Nic|Nic[]} [TEMPLATE.NIC] -
  * @property {NicAlias|NicAlias[]} [TEMPLATE.NIC_ALIAS] -
  * @property {any} [TEMPLATE.NIC_DEFAULT] -
  * @property {any} [TEMPLATE.NUMA_NODE] -
@@ -204,9 +186,6 @@ import { ScheduleAction } from '@modules/constants/scheduler'
  * @property {string} [USER_TEMPLATE.LOGO] -
  * @property {string} [USER_TEMPLATE.INFO] -
  * @property {string} [USER_TEMPLATE.SCHED_REQUIREMENTS] -
- * @property {string} [USER_TEMPLATE.VCENTER_CCR_REF] -
- * @property {string} [USER_TEMPLATE.VCENTER_DS_REF] -
- * @property {string} [USER_TEMPLATE.VCENTER_INSTANCE_ID] -
  * @property {object} HISTORY_RECORDS - History
  * @property {HistoryRecord|HistoryRecord[]} [HISTORY_RECORDS.HISTORY] - History Records
  * @property {DiskSnapshots|DiskSnapshots[]} [SNAPSHOTS] -
