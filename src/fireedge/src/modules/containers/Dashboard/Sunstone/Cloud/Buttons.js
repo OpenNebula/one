@@ -15,10 +15,12 @@
  * ------------------------------------------------------------------------- */
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import { SubmitButton } from '@modules/components/FormControl'
-import ButtonToTriggerForm from '@modules/components/Forms/ButtonToTriggerForm'
-import { Translate } from '@modules/components/HOC'
-import VmTemplatesTable from '@modules/components/Tables/VmTemplates'
+import {
+  ButtonToTriggerForm,
+  SubmitButton,
+  Translate,
+  VmTemplatesTable,
+} from '@ComponentsModule'
 import { styled, useTheme } from '@mui/material'
 import { Plus as AddIcon, Settings as SettingsIcon } from 'iconoir-react'
 import PropTypes from 'prop-types'
@@ -71,7 +73,7 @@ export const DashboardButton = memo(
       <SubmitButton
         onClick={action}
         importance={STYLE_BUTTONS.IMPORTANCE.SECONDARY}
-        size={STYLE_BUTTONS.SIZE.LARGE}
+        size={STYLE_BUTTONS.SIZE.MEDIUM}
         type={STYLE_BUTTONS.TYPE.OUTLINED}
         label={text}
         startIcon={<SettingsIcon />}
@@ -136,7 +138,7 @@ export const DashboardButtonInstantiate = memo(
       <ButtonToTriggerForm
         buttonProps={{
           importance: STYLE_BUTTONS.IMPORTANCE.MAIN,
-          size: STYLE_BUTTONS.SIZE.LARGE,
+          size: STYLE_BUTTONS.SIZE.MEDIUM,
           type: STYLE_BUTTONS.TYPE.FILLED,
           label: <ContentButton icon={AddIcon} text={text} />,
         }}

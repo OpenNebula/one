@@ -14,10 +14,9 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { SCHEMES, T } from '@ConstantsModule'
+import { T } from '@ConstantsModule'
 import { css } from '@emotion/css'
-import Graph from '@modules/components/Charts/Graph'
-import { Tr, Translate } from '@modules/components/HOC'
+import { Graph, Tr, Translate } from '@ComponentsModule'
 import {
   Box,
   LinearProgress,
@@ -38,15 +37,31 @@ import { memo, useMemo } from 'react'
 
 const styles = ({ palette, typography }) => ({
   root: css({
-    padding: typography.pxToRem(16),
+    padding: typography.pxToRem(24),
     borderRadius: typography.pxToRem(16),
     backgroundColor: palette.background.paper,
   }),
   title: css({
     marginBottom: typography.pxToRem(16),
+    fontSize: typography.pxToRem(21),
+    fontStyle: 'normal',
+    fontWeight: '700',
+    lineHeight: typography.pxToRem(20),
   }),
   progressBarTitle: css({
-    color: palette.secondary.main,
+    color: palette?.graphs?.cloud?.titles?.color,
+    fontSize: '1rem',
+    fontStyle: 'normal',
+    fontWeight: '700',
+    lineHeight: '1.25rem',
+    paddingBottom: '0.5rem',
+  }),
+  noProgressBarTitle: css({
+    color: palette?.graphs?.cloud?.titles?.color,
+    fontSize: '1rem',
+    fontStyle: 'normal',
+    fontWeight: '700',
+    lineHeight: '1.25rem',
   }),
   secondTitle: css({
     marginBottom: typography.pxToRem(20),
@@ -56,11 +71,11 @@ const styles = ({ palette, typography }) => ({
     borderRadius: typography.pxToRem(4),
     marginBottom: typography.pxToRem(16),
     [`&.${linearProgressClasses.colorPrimary}`]: {
-      backgroundColor: palette.grey[palette.mode === SCHEMES.LIGHT ? 400 : 800],
+      backgroundColor: palette?.graphs?.cloud?.bars?.total,
     },
     [`& .${linearProgressClasses.bar}`]: {
       borderRadius: typography.pxToRem(4),
-      backgroundColor: palette.secondary.main,
+      backgroundColor: palette?.graphs?.cloud?.bars?.used,
     },
   }),
   graph: css({
@@ -69,7 +84,7 @@ const styles = ({ palette, typography }) => ({
   }),
 })
 
-const dataTypes = {
+const dataTypes = (theme) => ({
   cpu: {
     title: T.CPU,
     titleQuota: T.UsedCPU,
@@ -77,9 +92,11 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['CPU'],
-      lineColors: '#40B3D9',
+      lineColors: [theme?.palette?.graphs?.cloud?.cpu?.real],
       interpolation: interpolationValue,
     },
+    shouldFill: ['CPU'],
+    showLegends: false,
   },
   memory: {
     title: T.Memory,
@@ -88,9 +105,11 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['MEMORY'],
-      lineColors: '#40B3D9',
+      lineColors: [theme?.palette?.graphs?.cloud?.memory?.real],
       interpolation: interpolationBytes,
     },
+    shouldFill: ['MEMORY'],
+    showLegends: false,
   },
   disks: {
     title: T.Disks,
@@ -98,9 +117,15 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['DISKRDIOPS', 'DISKWRIOPS'],
-      lineColors: ['#40B3D9', '#2A2D3D'],
+      lineColors: [
+        theme?.palette?.graphs?.cloud?.disks?.diskReadIOPS,
+        theme?.palette?.graphs?.cloud?.disks?.diskWriteIOPS,
+      ],
       interpolation: interpolationBytes,
+      legendNames: [T.DiskReadIOPS, T.DiskWriteIOPS],
     },
+    shouldFill: ['DISKRDIOPS'],
+    showLegends: true,
   },
   networks: {
     title: T.Networks,
@@ -108,10 +133,15 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['NETRX', 'NETTX'],
-      lineColors: ['#40B3D9', '#2A2D3D'],
-      legendNames: [T.NetworkRx, T.NetworkTx],
+      lineColors: [
+        theme?.palette?.graphs?.cloud?.networks?.netDownloadSpeed,
+        theme?.palette?.graphs?.cloud?.networks?.netUploadSpeed,
+      ],
+      legendNames: [T.NetRX, T.NetTX],
       interpolation: interpolationBytesSeg,
     },
+    shouldFill: ['NETRX'],
+    showLegends: true,
   },
   'host-cpu': {
     title: T.CpuHost,
@@ -119,9 +149,11 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['USED_CPU'],
-      lineColors: '#40B3D9',
+      lineColors: [theme?.palette?.graphs?.cloud?.hostCpu?.real],
       interpolation: interpolationValue,
     },
+    shouldFill: ['CPU'],
+    showLegends: false,
   },
   'host-memory': {
     title: T.MemoryHost,
@@ -129,10 +161,37 @@ const dataTypes = {
     graph: {
       x: [(point) => new Date(parseInt(point.TIMESTAMP) * 1000).getTime()],
       y: ['USED_MEMORY'],
-      lineColors: '#40B3D9',
+      lineColors: [theme?.palette?.graphs?.cloud?.hostMemory?.real],
       interpolation: interpolationBytes,
     },
+    shouldFill: ['MEMORY'],
+    showLegends: false,
   },
+})
+
+/**
+ * Returns the generic quota only.
+ *
+ * @param {object} quota - Quota data
+ * @returns {object} - The generic quota
+ */
+const genericQuota = (quota) => {
+  // Return empty object for invalid or empty input
+  if (
+    !quota ||
+    typeof quota !== 'object' ||
+    (Array.isArray(quota) && quota.length === 0)
+  ) {
+    return {}
+  }
+
+  // Find the first object without the key 'CLUSTER_IDS' that is the generic quota
+  if (Array.isArray(quota)) {
+    return quota.find((item) => !item?.CLUSTER_IDS) || {}
+  }
+
+  // If it's a single object, check if it has not 'CLUSTER_IDS' to be sure that is the generic quota
+  return quota?.CLUSTER_IDS ? {} : quota
 }
 
 export const DashboardCardVMInfo = memo(
@@ -141,13 +200,14 @@ export const DashboardCardVMInfo = memo(
     type = '',
     quotaData = {},
     vmpoolMonitoringData = {},
+    isFetching = false,
     ...props
   }) => {
-    const resourceType = dataTypes?.[type]
+    const theme = useTheme()
+    const resourceType = dataTypes(theme)?.[type]
 
     if (!access || !resourceType) return ''
 
-    const theme = useTheme()
     const classes = useMemo(() => styles(theme), [theme])
 
     return (
@@ -156,7 +216,12 @@ export const DashboardCardVMInfo = memo(
           <Translate word={resourceType?.title} />
         </Typography>
         <QuotaBar
-          {...{ ...props, resourceType, data: quotaData?.VM_QUOTA, classes }}
+          {...{
+            ...props,
+            resourceType,
+            data: genericQuota(quotaData?.VM_QUOTA),
+            classes,
+          }}
         />
         <MonitoringGraphs
           {...{
@@ -164,6 +229,7 @@ export const DashboardCardVMInfo = memo(
             data: vmpoolMonitoringData?.MONITORING_DATA?.MONITORING,
             classes,
             resourceType,
+            isFetching,
           }}
         />
       </Box>
@@ -175,14 +241,22 @@ DashboardCardVMInfo.propTypes = {
   type: PropTypes.string,
   quotaData: PropTypes.object,
   vmpoolMonitoringData: PropTypes.object,
+  isFetching: PropTypes.bool,
 }
 DashboardCardVMInfo.displayName = 'DashboardCardVMInfo'
 
 export const DashboardCardHostInfo = memo(
-  ({ access = false, type = '', hostpoolMonitoringData = {}, ...props }) => {
+  ({
+    access = false,
+    type = '',
+    hostpoolMonitoringData = {},
+    isFetching = false,
+    ...props
+  }) => {
     const monitoring = hostpoolMonitoringData?.MONITORING_DATA?.MONITORING
 
-    const resourceType = dataTypes?.[type]
+    const theme = useTheme()
+    const resourceType = dataTypes(theme)?.[type]
 
     if (!access || !resourceType || !monitoring?.length) {
       return ''
@@ -199,7 +273,6 @@ export const DashboardCardHostInfo = memo(
       [monitoring]
     )
 
-    const theme = useTheme()
     const classes = useMemo(() => styles(theme), [theme])
 
     return (
@@ -208,7 +281,13 @@ export const DashboardCardHostInfo = memo(
           <Translate word={resourceType?.title} />
         </Typography>
         <MonitoringGraphs
-          {...{ ...props, data: cpuMemoryData, classes, resourceType }}
+          {...{
+            ...props,
+            data: cpuMemoryData,
+            classes,
+            resourceType,
+            isFetching,
+          }}
         />
       </Box>
     )
@@ -218,6 +297,7 @@ DashboardCardHostInfo.propTypes = {
   access: PropTypes.bool,
   type: PropTypes.string,
   hostpoolMonitoringData: PropTypes.object,
+  isFetching: PropTypes.bool,
 }
 DashboardCardHostInfo.displayName = 'DashboardCardHostInfo'
 
@@ -236,9 +316,9 @@ const QuotaBar = memo(
       return (
         <Tooltip placement="top-start" title={`${resourceType?.titleQuota}`}>
           <Typography
-            className={clsx(classes.progressBarTitle, classes.secondTitle)}
+            className={clsx(classes.noProgressBarTitle, classes.secondTitle)}
           >
-            {dataUsed}
+            {`${dataUsed} / -`}
           </Typography>
         </Tooltip>
       )
@@ -249,17 +329,23 @@ const QuotaBar = memo(
       [data]
     )
 
+    const usedVsQuota = `${resourceType?.titleQuota}: ${parseInt(
+      data?.[`${key}_USED`]
+    )} / ${quotaData} ${key === 'MEMORY' ? ' MB' : ''}`
+
     return (
       <>
-        <Typography className={classes.progressBarTitle}>
-          {`${percentage.toFixed(0)}%`}
-        </Typography>
-        <Tooltip placement="top-start" title={`${resourceType?.titleQuota}`}>
-          <LinearProgress
-            variant="determinate"
-            value={percentage}
-            className={classes.progressBar}
-          />
+        <Tooltip placement="top-start" title={usedVsQuota}>
+          <div>
+            <Typography className={classes.progressBarTitle}>
+              {`${percentage.toFixed(0)}%`}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={percentage}
+              className={classes.progressBar}
+            />
+          </div>
         </Tooltip>
       </>
     )
@@ -274,7 +360,7 @@ QuotaBar.propTypes = {
 }
 QuotaBar.displayName = 'QuotaBar'
 
-const MonitoringGraphs = memo(({ resourceType, data }) => {
+const MonitoringGraphs = memo(({ resourceType, data, isFetching }) => {
   if (!resourceType?.graph) return ''
   const { x, y, lineColors, legendNames, interpolation } = resourceType?.graph
 
@@ -288,13 +374,16 @@ const MonitoringGraphs = memo(({ resourceType, data }) => {
       legendNames={legendNames || resourceType.title}
       lineColors={lineColors}
       interpolationY={interpolation}
-      showLegends={false}
+      showLegends={resourceType?.showLegends}
       sortX
+      isFetching={isFetching}
+      shouldFill={resourceType?.shouldFill}
     />
   )
 })
 MonitoringGraphs.propTypes = {
   data: PropTypes.object,
   resourceType: PropTypes.object,
+  isFetching: PropTypes.bool,
 }
 MonitoringGraphs.displayName = 'MonitoringGraphs'

@@ -17,12 +17,14 @@ import table from '@modules/components/Tables/Vms/table'
 import columns from '@modules/components/Tables/Vms/columns'
 import row from '@modules/components/Tables/Vms/row'
 import actions from '@modules/components/Tables/Vms/actions'
+import rowActions from '@modules/components/Tables/Vms/rowActions'
 
 const VmsTable = {
   Table: table,
   Columns: columns,
   Row: row,
   Actions: actions,
+  RowActions: rowActions,
 }
 
 export default VmsTable

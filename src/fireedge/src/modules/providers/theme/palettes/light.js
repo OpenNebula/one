@@ -440,6 +440,35 @@ export const lightPalette = {
         },
       },
     },
+    cloud: {
+      titles: {
+        color: primaryColor,
+      },
+      bars: {
+        used: primaryColor,
+        total: sunstoneColors.grey[300],
+      },
+      cpu: {
+        real: primaryColor,
+      },
+      memory: {
+        real: primaryColor,
+      },
+      networks: {
+        netDownloadSpeed: primaryColor,
+        netUploadSpeed: sunstoneColors.grey[600],
+      },
+      disks: {
+        diskReadIOPS: primaryColor,
+        diskWriteIOPS: sunstoneColors.grey[600],
+      },
+      hostCpu: {
+        real: primaryColor,
+      },
+      hostMemory: {
+        real: primaryColor,
+      },
+    },
     axis: {
       color: sunstoneColors.black,
     },

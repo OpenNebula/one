@@ -23,7 +23,6 @@ import {
   VmAPI,
   useGeneralApi,
 } from '@FeaturesModule'
-import { Translate } from '@modules/components/HOC'
 import {
   DashboardButton,
   DashboardButtonInstantiate,
@@ -32,7 +31,7 @@ import {
   DashboardCardHostInfo,
   DashboardCardVMInfo,
 } from '@modules/containers/Dashboard/Sunstone/Cloud/Cards'
-import { Box, Grid, Typography, useTheme } from '@mui/material'
+import { Box, Grid, useTheme } from '@mui/material'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import { ReactElement, useMemo, useEffect } from 'react'
@@ -83,11 +82,13 @@ export default function CloudDashboard({ view }) {
   useEffect(() => setBreadcrumb({}), [])
 
   const { data: quotaData = {} } = UserAPI.useGetUserQuery({})
-  const { data: vmpoolMonitoringData = {} } = VmAPI.useGetMonitoringPoolQuery(
-    {}
-  )
-  const { data: hostpoolMonitoringData = {}, isSuccess: isSuccessHost } =
-    HostAPI.useGetHostMonitoringPoolQuery({})
+  const { data: vmpoolMonitoringData = {}, isFetching: isFetchingVm } =
+    VmAPI.useGetMonitoringPoolQuery({ seconds: 3600 })
+  const {
+    data: hostpoolMonitoringData = {},
+    isSuccess: isSuccessHost,
+    isFetching: isFetchingHost,
+  } = HostAPI.useGetHostMonitoringPoolQuery({ seconds: 3600 })
   const { actions = {}, graphs = {} } = useMemo(
     () => getResourceView(DASHBOARD) || {},
     [view]
@@ -97,12 +98,12 @@ export default function CloudDashboard({ view }) {
   return (
     <Box py={3} className={classes.root}>
       <Grid container data-cy="dashboard-headers" className={classes.sections}>
-        <Grid item xs={12} md={6}>
-          <Typography variant="h6" zIndex={2} noWrap>
-            <Translate word={T.MyDashboard} />
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={6} className={classes.buttons}>
+        <Grid
+          item
+          xs={12}
+          className={classes.buttons}
+          style={{ display: 'flex', justifyContent: 'flex-end' }}
+        >
           <DashboardButton
             access={actions?.settings}
             text={T.Settings}
@@ -137,6 +138,7 @@ export default function CloudDashboard({ view }) {
           access={graphs.cpu}
           type="cpu"
           showQuota
+          isFetching={isFetchingVm}
         />
         <DashboardCardVMInfo
           quotaData={quotaData}
@@ -145,28 +147,33 @@ export default function CloudDashboard({ view }) {
           type="memory"
           unitBytes
           showQuota
+          isFetching={isFetchingVm}
         />
         <DashboardCardVMInfo
           quotaData={quotaData}
           vmpoolMonitoringData={vmpoolMonitoringData}
           access={graphs.disks}
           type="disks"
+          isFetching={isFetchingVm}
         />
         <DashboardCardVMInfo
           quotaData={quotaData}
           vmpoolMonitoringData={vmpoolMonitoringData}
           access={graphs.networks}
           type="networks"
+          isFetching={isFetchingVm}
         />
         <DashboardCardHostInfo
           hostpoolMonitoringData={hostpoolMonitoringData}
           access={graphs['host-cpu']}
           type="host-cpu"
+          isFetching={isFetchingHost}
         />
         <DashboardCardHostInfo
           hostpoolMonitoringData={hostpoolMonitoringData}
           access={graphs['host-memory']}
           type="host-memory"
+          isFetching={isFetchingHost}
         />
       </Box>
     </Box>

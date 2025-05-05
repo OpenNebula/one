@@ -15,7 +15,6 @@
  * ------------------------------------------------------------------------- */
 import { css } from '@emotion/css'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
-import { SubmitButton } from '@modules/components/FormControl'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import {
   Box,
@@ -30,7 +29,7 @@ import PropTypes from 'prop-types'
 import { ReactElement, memo, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 
-import { Translate } from '@ComponentsModule'
+import { SubmitButton, Translate } from '@ComponentsModule'
 import { T } from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 import { sanitize } from '@UtilsModule'

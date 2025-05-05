@@ -31,7 +31,6 @@ import {
   useGeneralApi,
   VmAPI,
 } from '@FeaturesModule'
-import RowAction from '@modules/components/Tables/Vms/rowActions'
 import { ButtonClearErrors } from '@modules/containers/VirtualMachines/ButtonClearErrors'
 import { Chip, Stack } from '@mui/material'
 import {
@@ -132,6 +131,7 @@ const InfoTabs = memo(
   ({ vm, gotoPage, unselect, handleDismissError, tags }) => {
     const [getVm, { data: lazyData, isFetching }] = VmAPI.useLazyGetVmQuery()
     const id = vm?.ID ?? lazyData?.ID
+    const RowActions = VmsTable.RowActions
 
     const { settings: { FIREEDGE: fireedge = {} } = {} } = useAuth()
     const { FULL_SCREEN_INFO } = fireedge
@@ -186,7 +186,7 @@ const InfoTabs = memo(
                 }}
               />
             )}
-            {isFullMode && <RowAction vm={vm ?? lazyData} />}
+            {isFullMode && <RowActions vm={vm ?? lazyData} />}
             <SubmitButton
               data-cy="detail-refresh"
               icon={<RefreshDouble />}

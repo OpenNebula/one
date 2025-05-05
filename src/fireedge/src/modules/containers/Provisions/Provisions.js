@@ -29,7 +29,7 @@ import AlertError, {
   Form,
 } from '@ComponentsModule'
 
-import { T } from '@modules/constants'
+import { T } from '@ConstantsModule'
 import DialogInfo from '@modules/containers/Provisions/DialogInfo/DialogInfo'
 const { Provision } = Form
 

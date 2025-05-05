@@ -438,6 +438,28 @@ export const darkPalette = {
         },
       },
     },
+    cloud: {
+      cpu: {
+        real: primaryColor,
+      },
+      memory: {
+        real: primaryColor,
+      },
+      networks: {
+        netDownloadSpeed: primaryColor,
+        netUploadSpeed: sunstoneColors.grey[300],
+      },
+      disks: {
+        diskReadIOPS: primaryColor,
+        diskWriteIOPS: sunstoneColors.grey[300],
+      },
+      hostCpu: {
+        real: primaryColor,
+      },
+      hostMemory: {
+        real: primaryColor,
+      },
+    },
     axis: {
       color: sunstoneColors.white,
     },

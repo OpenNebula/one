@@ -18,9 +18,11 @@ import PropTypes from 'prop-types'
 
 import { timeFromSeconds } from '@ModelsModule'
 import { wheelZoomPlugin } from '@modules/components/Charts/Plugins'
-import { CircularProgress, Stack } from '@mui/material'
+import { CircularProgress, Stack, useTheme, Typography } from '@mui/material'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import UplotReact from 'uplot-react'
+import { Tr } from '@modules/components/HOC'
+import { T } from '@ConstantsModule'
 
 const calculateDerivative = (data, filter) =>
   data
@@ -135,6 +137,7 @@ const createFill = (u, color) => {
  * @param {string} props.dateFormat - Labels timestamp format
  * @param {string} props.dateFormatHover - Legend timestamp format
  * @param {boolean} props.showLegends - show labels
+ * @param {boolean} props.isFetching - The request is fetching
  * @returns {Component} Chartist component
  */
 const Graph = ({
@@ -146,7 +149,7 @@ const Graph = ({
   zoomFactor = 0.95,
   interpolationY = (value) => value,
   derivative = false,
-  shouldFill = false,
+  shouldFill = [],
   clampForecast = false,
   sortX = false,
   shouldPadY = [],
@@ -158,7 +161,10 @@ const Graph = ({
   dateFormat = 'MM-dd HH:mm',
   dateFormatHover = 'MMM dd HH:mm:ss',
   showLegends = true,
+  isFetching = false,
 }) => {
+  const theme = useTheme()
+
   const chartRef = useRef(null)
   const [chartDimensions, setChartDimensions] = useState({
     width: 0,
@@ -301,6 +307,7 @@ const Graph = ({
         {
           grid: { show: true },
           ticks: { show: true },
+          stroke: theme?.palette?.graphs?.axis?.color,
           values: (_, ticks) =>
             minMaxTick(ticks, (label) =>
               timeFromSeconds(label).toFormat(dateFormat)
@@ -309,6 +316,7 @@ const Graph = ({
         {
           grid: { show: true },
           ticks: { show: true },
+          stroke: theme?.palette?.graphs?.axis?.color,
           values: (_, ticks) => minMaxTick(ticks, (yV) => interpolationY(yV)),
         },
       ],
@@ -333,7 +341,7 @@ const Graph = ({
                   }
                 : {}),
               spanGaps: true,
-              ...(shouldFill
+              ...(shouldFill.includes(yValue)
                 ? {
                     fill: (u) => createFill(u, lineColors?.[index]),
                   }
@@ -346,7 +354,7 @@ const Graph = ({
                 stroke: lineColors?.[0] || '#40B3D9',
                 value: (_, yV) => interpolationY(yV),
                 focus: true,
-                ...(shouldFill
+                ...(shouldFill.includes(y)
                   ? {
                       fill: (u) => createFill(u, lineColors?.[0]),
                     }
@@ -377,18 +385,23 @@ const Graph = ({
 
   return (
     <Stack
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
       sx={{
         width: '100%',
         aspectRatio: '16/9',
         overflow: 'hidden',
       }}
       ref={chartRef}
+      alignItems="center"
+      justifyContent="center"
     >
-      {!data?.length ? (
-        <CircularProgress color="secondary" />
+      {isFetching ? (
+        <Stack direction="row" justifyContent="center" alignItems="center">
+          <CircularProgress color="secondary" />
+        </Stack>
+      ) : !data?.length ? (
+        <Stack direction="row" justifyContent="center" alignItems="center">
+          <Typography>{Tr(T.NoDataAvailable)}</Typography>
+        </Stack>
       ) : (
         <UplotReact options={chartOptions} data={chartData} />
       )}
@@ -421,6 +434,7 @@ Graph.propTypes = {
   dateFormat: PropTypes.string,
   dateFormatHover: PropTypes.string,
   showLegends: PropTypes.bool,
+  isFetching: PropTypes.bool,
 }
 
 Graph.displayName = 'Graph'

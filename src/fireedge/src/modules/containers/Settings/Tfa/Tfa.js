@@ -14,7 +14,7 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 
-import { FormWithSchema, Tr, Translate } from '@ComponentsModule'
+import { FormWithSchema, Tr, Translate, SubmitButton } from '@ComponentsModule'
 import { AUTH_APPS, STYLE_BUTTONS, T } from '@ConstantsModule'
 import {
   TfaAPI,
@@ -24,7 +24,6 @@ import {
   useGeneralApi,
 } from '@FeaturesModule'
 import { css } from '@emotion/css'
-import { SubmitButton } from '@modules/components/FormControl'
 import { FIELDS } from '@modules/containers/Settings/Tfa/schema'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import {

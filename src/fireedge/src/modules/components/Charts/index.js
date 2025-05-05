@@ -16,6 +16,7 @@
 import CircleChart from '@modules/components/Charts/CircleChart'
 import SingleBar from '@modules/components/Charts/SingleBar'
 import Chartist from '@modules/components/Charts/Chartist'
+import Graph from '@modules/components/Charts/Graph'
 import MultiChart from '@modules/components/Charts/MultiChart/index'
 
-export { CircleChart, SingleBar, Chartist, MultiChart }
+export { CircleChart, SingleBar, Chartist, MultiChart, Graph }

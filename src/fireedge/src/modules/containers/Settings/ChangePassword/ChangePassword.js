@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { FormWithSchema, Tr } from '@ComponentsModule'
+import { SubmitButton, FormWithSchema, Tr } from '@ComponentsModule'
 import {
   AUTH_DRIVER,
   ONEADMIN_ID,
@@ -24,7 +24,6 @@ import {
 import { css } from '@emotion/css'
 import { UserAPI, useAuth, useGeneralApi } from '@FeaturesModule'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { SubmitButton } from '@modules/components/FormControl'
 import {
   FIELDS,
   SCHEMA,

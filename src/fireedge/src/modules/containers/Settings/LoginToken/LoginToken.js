@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import { FormWithSchema, Tr, Translate } from '@ComponentsModule'
+import { SubmitButton, FormWithSchema, Tr, Translate } from '@ComponentsModule'
 import { STYLE_BUTTONS, T } from '@ConstantsModule'
 import { css } from '@emotion/css'
 import {
@@ -26,7 +26,6 @@ import {
 } from '@FeaturesModule'
 import { useClipboard } from '@HooksModule'
 import { timeToString } from '@ModelsModule'
-import { SubmitButton } from '@modules/components/FormControl'
 import { FIELDS, SCHEMA } from '@modules/containers/Settings/LoginToken/schema'
 import { useSettingWrapper } from '@modules/containers/Settings/Wrapper'
 import { Box, Grid, Typography, useTheme } from '@mui/material'

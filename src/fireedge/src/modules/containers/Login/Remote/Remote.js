@@ -23,7 +23,7 @@ import {
 } from '@mui/material'
 import { Translate, OpenNebulaLogo, SubmitButton, Tr } from '@ComponentsModule'
 import { JWT_NAME, T, STYLE_BUTTONS } from '@ConstantsModule'
-import { AuthSlice } from '@modules/features/Auth/slice'
+import { AuthSlice } from '@FeaturesModule'
 import { storage } from '@UtilsModule'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
