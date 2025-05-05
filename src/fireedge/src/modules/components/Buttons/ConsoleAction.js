@@ -86,7 +86,7 @@ const PreConsoleButton = memo(
   /**
    * @param {object} props - Props
    * @param {VM} props.vm - Virtual machine
-   * @param {'vnc'|'ssh'|'rdp'|'vmrc'} props.connectionType - Connection type
+   * @param {'vnc'|'ssh'|'rdp'} props.connectionType - Connection type
    * @param {Function} [props.onClick] - Handle click for button
    * @returns {ReactElement} - Returns button if current user has permissions about the connection type
    */
@@ -104,7 +104,7 @@ const PreConsoleButton = memo(
     }, [view, vm])
 
     const needNicConfig = useMemo(
-      () => ![VM_ACTIONS.VNC, VM_ACTIONS.VMRC].includes(connectionType),
+      () => ![VM_ACTIONS.VNC].includes(connectionType),
       [connectionType]
     )
 

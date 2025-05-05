@@ -174,7 +174,6 @@ export const SOCKETS = {
   PROVISION: 'provision',
   GUACAMOLE: 'guacamole',
   EXTERNAL_GUACAMOLE: 'external-guacamole',
-  VMRC: 'vmrc',
 }
 
 /** @enum {string} Names of resource */

@@ -58,7 +58,6 @@ const {
   defaultSharePath,
   defaultSystemPath,
   defaultSourceSystemPath,
-  defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
   defaultSunstoneAuth,
@@ -554,7 +553,6 @@ const genPathResources = () => {
   const MODULES_LOCATION =
     (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
     `${ETC_LOCATION}/${defaultSunstonePath}`
-  const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
     if (!global.paths) {
@@ -562,9 +560,6 @@ const genPathResources = () => {
     }
     if (!global.paths.FIREEDGE_CONFIG) {
       global.paths.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
-    }
-    if (!global.paths.VMRC_TOKENS) {
-      global.paths.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
     }
     if (!global.paths.FIREEDGE_LOG) {
       global.paths.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`

@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
-import { STATIC_FILES_URL, T, VM_ACTIONS } from '@ConstantsModule'
+import { STATIC_FILES_URL, T } from '@ConstantsModule'
 import { ServiceAPI, VmAPI, useGeneralApi } from '@FeaturesModule'
 import {
   getIps,
@@ -35,7 +35,7 @@ import { StatusBadge } from '@modules/components/Status'
 /**
  * @param {object} props - Props
  * @param {string} props.id - VM id
- * @param {'vnc'|'ssh'|'rdp'|'vmrc'} props.type - Connection type
+ * @param {'vnc'|'ssh'|'rdp'} props.type - Connection type
  * @returns {ReactElement} Header VM information for remote consoles
  */
 const HeaderVmInfo = ({ id, type }) => {
@@ -58,7 +58,6 @@ const HeaderVmInfo = ({ id, type }) => {
     displayName: stateDisplayName,
   } = getVirtualMachineState(vm) ?? {}
   const time = timeFromMilliseconds(+vm?.ETIME || +vm?.STIME)
-  const isVMRC = useMemo(() => type === VM_ACTIONS.VMRC, [type])
   const serviceId = useMemo(() => vm?.USER_TEMPLATE?.SERVICE_ID, [vm])
   const srcLogo = useMemo(() => vm?.USER_TEMPLATE?.LOGO?.toLowerCase(), [vm])
 
@@ -71,11 +70,11 @@ const HeaderVmInfo = ({ id, type }) => {
   }, [isError])
 
   useEffect(() => {
-    if (isVMRC && isSuccess && vm) {
+    if (isSuccess && vm) {
       enqueueError(T.ErrorVmNoLocatedVenter, [vm.ID, vm.NAME])
       redirectTo(PATH.DASHBOARD)
     }
-  }, [isVMRC, isSuccess])
+  }, [isSuccess])
 
   return (
     <TranslateProvider>
@@ -165,7 +164,7 @@ const HeaderVmInfo = ({ id, type }) => {
 
 HeaderVmInfo.propTypes = {
   id: PropTypes.string,
-  type: PropTypes.oneOf(['vnc', 'ssh', 'rdp', 'vmrc']),
+  type: PropTypes.oneOf(['vnc', 'ssh', 'rdp']),
 }
 
 export default HeaderVmInfo
