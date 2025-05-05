@@ -131,11 +131,12 @@ public:
      *     - INCREMENTAL_BACKUP_ID
      * @param tmpl Template to parse, the root element must be BACKUP_CONFIG
      * @param can_increment VM disks support incremental backup
+     * @param can_keep_last_increment VM disks support KEEP_LAST for INCREMENT mode
      * @param append Only append new values from tmpl
      * @param error_str Returns the error reason, if any
      * @return 0 success, -1 error
      */
-    int parse(Template *tmpl, bool can_increment,
+    int parse(Template *tmpl, bool can_increment, bool can_keep_last_increment,
               bool append, std::string& error_str);
 
     /**

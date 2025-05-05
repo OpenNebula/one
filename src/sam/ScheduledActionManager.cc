@@ -436,14 +436,15 @@ void ScheduledActionManager::backup_jobs()
                 bck_vol = backups.do_volatile();
             }
 
-            bool inc = vm->get_disks().backup_increment(bck_vol) && !vm->has_snapshots();
+            auto& disks = vm->get_disks();
+            bool inc = disks.backup_increment(bck_vol) && !vm->has_snapshots();
 
             string   err;
             Template tmpl;
 
             bj->get_backup_config(tmpl);
 
-            if ( backups.parse(&tmpl, inc, true, err) != 0 )
+            if ( backups.parse(&tmpl, inc, disks.backup_keep_last(bck_vol), true, err) != 0 )
             {
                 bj->set_template_error_message(err);
 
