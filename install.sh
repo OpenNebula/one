@@ -779,7 +779,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/remotes/elastic/equinix.rb \
                 src/vnm_mad/remotes/elastic/scaleway_vnm.rb \
                 src/vnm_mad/remotes/elastic/scaleway.rb \
-                src/vnm_mad/remotes/elastic/vultr_vnm.rb"
+                src/vnm_mad/remotes/elastic/vultr_vnm.rb \
+                share/misc/load_opennebula_paths.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
