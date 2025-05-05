@@ -96,6 +96,14 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.unit_to_str(d['SIZE'].to_i, {}, 'M')
             end
 
+            column :ARCH, 'OS Architecture', :size =>7 do |d|
+                d['TEMPLATE']['ARCHITECTURE']
+            end
+
+            column :HYPERVISOR, 'Hypervisor to use for VMs', :left, :size =>10 do |d|
+                d['TEMPLATE']['HYPERVISOR']
+            end
+
             column :STAT, 'State of the app', :size=>4 do |d|
                 OneMarketPlaceAppHelper.state_to_str(d['STATE'])
             end
@@ -121,6 +129,8 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                     :NAME,
                     :VERSION,
                     :SIZE,
+                    :ARCH,
+                    :HYPERVISOR,
                     :STAT,
                     :TYPE,
                     :REGTIME,

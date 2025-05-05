@@ -18,6 +18,15 @@
   :desc: MarketPlaceApp size
   :size: 5
 
+:ARCH:
+  :desc: Architecture of the Guest OS
+  :size: 7
+
+:HYPERVISOR:
+  :desc: Hypervisor the appliance can be virtualized with
+  :size: 10
+  :left: true
+
 :STAT:
   :desc: State of the app
   :size: 4
@@ -44,6 +53,8 @@
 - :NAME
 - :VERSION
 - :SIZE
+- :ARCH
+- :HYPERVISOR
 - :STAT
 - :TYPE
 - :REGTIME

@@ -142,12 +142,14 @@ class LinuxContainersMarket
 
             case arch
             when 'arm64'
-                @options[:arch] = 'aarch64'
+                arch = 'aarch64'
+                name = "#{distro}_#{version} (#{arch})"
             when 'amd64'
-                @options[:arch] = 'x86_64'
-            else
-                @options[:arch] = '-'
+                arch = 'x86_64'
+                name = "#{distro}_#{version}"
             end
+
+            @options[:arch] = arch
 
             # Use the last version for each container
             regtime = img_data['versions'].to_a.last[0]
@@ -161,7 +163,7 @@ class LinuxContainersMarket
             builddate = DateTime.strptime(regtime, '%Y%m%d_%H:%M').to_time.to_i
 
             data = {
-                'NAME'        => "#{distro}_#{version} - LXC (#{arch})",
+                'NAME'        => name,
                 'SIZE'        => @options[:sizemb],
                 'PUBLISHER'   => @options[:url],
                 'FORMAT'      => @options[:format],
@@ -175,7 +177,8 @@ class LinuxContainersMarket
                 'DESCRIPTION' =>  "Downloaded from #{@options[:url]}",
                 'TAGS'        => '',
                 'LINK'        => "#{@options[:url]}#{path}",
-                'ARCHITECTURE'=> arch
+                'ARCHITECTURE'=> arch,
+                'HYPERVISOR'  => 'lxc'
             }
 
             tmpl = ''

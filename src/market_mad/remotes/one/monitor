@@ -50,10 +50,10 @@ class OneMarket
     EDITION        = File.dirname(__FILE__) + '/../../EDITION'
 
     ARM_OS_SECTION = {
-        'ARCH'  => 'aarch64',
-        'FIRMWARE' => '/usr/share/AAVMF/AAVMF_CODE.fd',
+        'ARCH'            => 'aarch64',
+        'FIRMWARE'        => '/usr/share/AAVMF/AAVMF_CODE.fd',
         'FIRMWARE_SECURE' => 'no',
-        'MACHINE' => 'virt'
+        'MACHINE'         => 'virt'
     }
 
     def initialize(url)
@@ -197,7 +197,8 @@ class OneMarket
 
             print_var(tmpl, 'REGTIME', app['creation_time'])
             print_var(tmpl, 'LINK',    link)
-            print_var(tmpl, 'ARCHITECTURE', app['os-arch'])
+            print_var(tmpl, 'ARCHITECTURE', app_arch(app))
+            print_var(tmpl, 'HYPERVISOR', app_hypervisor(app))
 
             #-------------------------------------------------------------------
             # Specific App attributes & APPTEMPLATE64
@@ -277,13 +278,29 @@ class OneMarket
 
         begin
             ot = JSON.parse(ot)
-            arch = app['os-arch']
 
-            # https://docs.opennebula.io/devel/open_cluster_deployment/kvm_node/kvm_driver.html#arm64-specifics
-            if arch && !arch.empty?
-                ot['SCHED_REQUIREMENTS'] = "HYPERVISOR=kvm & ARCH=#{arch}"
-                ot['OS'].merge!(ARM_OS_SECTION) if arch == 'aarch64'
+            arch       = app_arch(app)
+            hypervisor = app_hypervisor(app)
+
+            requirements = "HYPERVISOR=#{hypervisor}"
+            requirements << " & ARCH=#{arch}" if ['amd64', 'aarch64'].include? arch
+
+            if ot['SCHED_REQUIREMENTS']
+                ot['SCHED_REQUIREMENTS'] << " & #{requirements}"
+            else
+                ot['SCHED_REQUIREMENTS'] = requirements
             end
+
+            if arch == 'aarch64'
+                # https://docs.opennebula.io/devel/open_cluster_deployment/kvm_node/kvm_driver.html#arm64-specifics
+                if ot['OS']
+                    ot['OS'].merge!(ARM_OS_SECTION)
+                else
+                    ot['OS'] = ARM_OS_SECTION
+                end
+            end
+
+            ot['HYPERVISOR'] = hypervisor
 
             template64 = Base64.strict_encode64(template_to_str(ot))
         rescue StandardError
@@ -291,6 +308,27 @@ class OneMarket
         end
 
         return template64
+    end
+
+    def app_hypervisor(app)
+        hypervisor = app['hypervisor']
+
+        return 'kvm' if hypervisor == 'ALL' || hypervisor.nil? || hypervisor.empty?
+
+        hypervisor.downcase
+    end
+
+    def app_arch(app)
+        case app['os-arch']
+        when 'amd64'
+            'x86_64'
+        when 'arm64'
+            'aarch64'
+        when '', nil
+            'all'
+        else
+            app['os-arch']
+        end
     end
 
 end
