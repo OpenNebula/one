@@ -14,7 +14,6 @@
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
 import { Avatar, Divider, Skeleton, Stack, Typography } from '@mui/material'
-import PropTypes from 'prop-types'
 import { ReactElement, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 
@@ -25,20 +24,19 @@ import {
   getVirtualMachineState,
   timeFromMilliseconds,
 } from '@ModelsModule'
-
 import { PATH } from '@modules/components'
 import { Translate, TranslateProvider } from '@modules/components/HOC'
 import { OpenNebulaLogo } from '@modules/components/Icons'
 import MultipleTags from '@modules/components/MultipleTags'
 import { StatusBadge } from '@modules/components/Status'
+import PropTypes from 'prop-types'
 
 /**
  * @param {object} props - Props
  * @param {string} props.id - VM id
- * @param {'vnc'|'ssh'|'rdp'} props.type - Connection type
  * @returns {ReactElement} Header VM information for remote consoles
  */
-const HeaderVmInfo = ({ id, type }) => {
+const HeaderVmInfo = ({ id }) => {
   const { push: redirectTo } = useHistory()
   const { enqueueError } = useGeneralApi()
 
@@ -70,7 +68,7 @@ const HeaderVmInfo = ({ id, type }) => {
   }, [isError])
 
   useEffect(() => {
-    if (isSuccess && vm) {
+    if (!isSuccess && vm) {
       enqueueError(T.ErrorVmNoLocatedVenter, [vm.ID, vm.NAME])
       redirectTo(PATH.DASHBOARD)
     }
@@ -163,8 +161,9 @@ const HeaderVmInfo = ({ id, type }) => {
 }
 
 HeaderVmInfo.propTypes = {
-  id: PropTypes.string,
-  type: PropTypes.oneOf(['vnc', 'ssh', 'rdp']),
+  id: PropTypes.string.isRequired,
 }
+
+HeaderVmInfo.displayName = 'HeaderVmInfo'
 
 export default HeaderVmInfo

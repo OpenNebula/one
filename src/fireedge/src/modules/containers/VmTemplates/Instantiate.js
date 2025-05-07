@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
+import { debounce } from 'lodash'
 import { ReactElement, useEffect } from 'react'
 import { useStore } from 'react-redux'
 import { Redirect, useHistory, useLocation } from 'react-router'
 
 import {
+  GroupAPI,
   useGeneralApi,
   UserAPI,
-  GroupAPI,
-  VmTemplateAPI,
   useSystemData,
   useViews,
+  VmTemplateAPI,
 } from '@FeaturesModule'
 
 import {
   DefaultFormStepper,
-  SkeletonStepsForm,
-  PATH,
   Form,
+  PATH,
+  SkeletonStepsForm,
   TranslateProvider,
 } from '@ComponentsModule'
 
+import { RESOURCE_NAMES, T, TAB_FORM_MAP } from '@ConstantsModule'
 import { jsonToXml } from '@ModelsModule'
 import { filterTemplateData, transformActionsInstantiate } from '@UtilsModule'
-import { TAB_FORM_MAP, RESOURCE_NAMES, T } from '@ConstantsModule'
 
 const _ = require('lodash')
 const { VmTemplate } = Form
@@ -159,7 +160,7 @@ export function InstantiateVmTemplate() {
             oneConfig,
             adminGroup,
           }}
-          onSubmit={onSubmit}
+          onSubmit={debounce(onSubmit, 500)}
           fallback={<SkeletonStepsForm />}
         >
           {(config) => <DefaultFormStepper {...config} />}

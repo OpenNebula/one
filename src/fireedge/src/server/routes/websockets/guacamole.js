@@ -119,8 +119,6 @@ const clientCallbacks = {
       )
     }
 
-    console.log('-->', settings)
-
     return callback(null, settings)
   },
 
