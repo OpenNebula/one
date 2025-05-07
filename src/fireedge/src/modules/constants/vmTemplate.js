@@ -70,7 +70,7 @@ export const NUMA_PIN_POLICIES = {
 
 export const NUMA_MEMORY_ACCESS = ['shared', 'private']
 
-export const CPU_ARCHITECTURES = ['i686', 'x86_64']
+export const CPU_ARCHITECTURES = ['i686', 'x86_64', 'aarch64']
 
 export const DEFAULT_CPU_MODELS = ['host-passthrough']
 

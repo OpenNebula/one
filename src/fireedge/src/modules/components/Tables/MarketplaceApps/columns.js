@@ -32,6 +32,16 @@ const COLUMNS = [
   { Header: T.Type, id: 'type', accessor: getMarketplaceAppType },
   { Header: T.Size, id: 'size', accessor: 'SIZE' },
   {
+    Header: T.Hypervisor,
+    id: 'hypervisor',
+    accessor: 'TEMPLATE.HYPERVISOR',
+  },
+  {
+    Header: T.Architecture,
+    id: 'architecture',
+    accessor: 'TEMPLATE.ARCHITECTURE',
+  },
+  {
     Header: T.Label,
     id: 'label',
     accessor: 'TEMPLATE.LABELS',

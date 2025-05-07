@@ -1346,6 +1346,7 @@ module.exports = {
   OSBooting: 'OS Booting',
   BootOrder: 'Boot order',
   BootOrderConcept: 'Select the devices to boot from, and their order',
+  Architecture: 'Architecture',
   CpuArchitecture: 'CPU Architecture',
   BusForSdDisks: 'Bus for SD disks',
   MachineType: 'Machine type',

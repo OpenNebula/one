@@ -13,15 +13,6 @@
  * See the License for the specific language governing permissions and       *
  * limitations under the License.                                            *
  * ------------------------------------------------------------------------- */
-import MultipleTags from '@modules/components/MultipleTags'
-import { getResourceLabels, prettyBytes } from '@UtilsModule'
-import { StatusCircle } from '@modules/components/Status'
-import EnhancedTable, {
-  createColumns,
-} from '@modules/components/Tables/Enhanced'
-import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
-import MarketplaceAppColumns from '@modules/components/Tables/MarketplaceApps/columns'
-import MarketplaceAppRow from '@modules/components/Tables/MarketplaceApps/row'
 import { RESOURCE_NAMES, T } from '@ConstantsModule'
 import { MarketplaceAppAPI, useAuth, useViews } from '@FeaturesModule'
 import {
@@ -29,6 +20,15 @@ import {
   getMarketplaceAppState,
   getMarketplaceAppType,
 } from '@ModelsModule'
+import MultipleTags from '@modules/components/MultipleTags'
+import { StatusCircle } from '@modules/components/Status'
+import EnhancedTable, {
+  createColumns,
+} from '@modules/components/Tables/Enhanced'
+import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
+import MarketplaceAppColumns from '@modules/components/Tables/MarketplaceApps/columns'
+import MarketplaceAppRow from '@modules/components/Tables/MarketplaceApps/row'
+import { getResourceLabels, prettyBytes } from '@UtilsModule'
 import { ReactElement, useMemo } from 'react'
 
 const DEFAULT_DATA_CY = 'apps'
@@ -109,6 +109,16 @@ const MarketplaceAppsTable = (props) => {
     { header: T.Zone, id: 'zone', accessor: 'ZONE_ID' },
     { header: T.Owner, id: 'owner', accessor: 'UNAME' },
     { header: T.Group, id: 'group', accessor: 'GNAME' },
+    {
+      header: T.Hypervisor,
+      id: 'hypervisor',
+      accessor: ({ TEMPLATE: { HYPERVISOR = '' } }) => HYPERVISOR,
+    },
+    {
+      header: T.Architecture,
+      id: 'architecture',
+      accessor: ({ TEMPLATE: { ARCHITECTURE = '' } }) => ARCHITECTURE,
+    },
     {
       header: T.Labels,
       id: 'labels',

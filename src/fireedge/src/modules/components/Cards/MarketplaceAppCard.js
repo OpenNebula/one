@@ -58,6 +58,7 @@ const MarketplaceAppCard = memo(
       MARKETPLACE,
       ZONE_ID,
       SIZE,
+      TEMPLATE: { ARCHITECTURE = '', HYPERVISOR = '' },
     } = app
 
     const state = useMemo(() => getMarketplaceAppState(app), [app?.STATE])
@@ -128,6 +129,8 @@ const MarketplaceAppCard = memo(
         </div>
         <div className={classes.primary}>
           <span className={classes.labels}>
+            {ARCHITECTURE && <StatusChip text={ARCHITECTURE} />}
+            {HYPERVISOR && <StatusChip text={HYPERVISOR} />}
             <StatusChip text={`${Tr(T.Zone)} ${ZONE_ID}`} />
             <StatusChip text={prettyBytes(+SIZE, 'MB')} />
           </span>
