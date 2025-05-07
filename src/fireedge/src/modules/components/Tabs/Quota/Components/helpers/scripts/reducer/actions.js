@@ -25,17 +25,6 @@ export const setGlobalIds = (globalIds) => ({
 })
 
 /**
- * Action creator for setting global IDs in the state. The action contains the new globalIds to be set.
- *
- * @param {"VM"|"DATASTORE"|"IMAGE"|"NETWORK"} quotaType - The currently selected quota type.
- * @returns {{ type: string, payload: string }} The action object to dispatch.
- */
-export const setQuotaType = (quotaType) => ({
-  type: 'SET_QUOTA_TYPE',
-  payload: quotaType,
-})
-
-/**
  * Action creator for setting the selected identifier in the state. The action contains the selectedIdentifier to be set.
  *
  * @param {number|string} selectedIdentifier - The identifier that has been selected.

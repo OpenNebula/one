@@ -46,8 +46,12 @@ const COLUMNS = [
   {
     Header: T.Label,
     id: 'label',
-    accessor: 'TEMPLATE.LABELS',
-    filter: 'arrIncludesSome',
+    accessor: (row) => {
+      const labels = row?.USER_TEMPLATE?.LABELS?.split(',') ?? []
+
+      return labels.map((label) => label?.trim()).join(',')
+    },
+    filter: 'includesSome',
   },
   { Header: T.Type, id: 'type', accessor: getVirtualMachineType },
   {

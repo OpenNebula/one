@@ -548,9 +548,8 @@ const genPathResources = () => {
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const ETC_VIEWS_LOCATION =
-    (devMode &&
-      resolve(__dirname, '..', '..', '..', 'etc', 'sunstone', 'views')) ||
-    `${ETC_LOCATION}/${defaultSunstonePath}/views`
+    (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
+    `${ETC_LOCATION}/${defaultSunstonePath}`
   const MODULES_LOCATION =
     (devMode && resolve(__dirname, '..', '..', '..', 'etc', 'sunstone')) ||
     `${ETC_LOCATION}/${defaultSunstonePath}`

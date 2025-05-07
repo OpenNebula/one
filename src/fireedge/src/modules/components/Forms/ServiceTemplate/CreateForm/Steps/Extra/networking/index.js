@@ -67,16 +67,7 @@ const Content = () => {
 
     // Calculates shift & releases current reference in case it goes oob
     setSelectedNetwork((prev) => {
-      setShift(
-        prev +
-          (networks?.length - 1 === prev
-            ? -1
-            : networks?.length === 2
-            ? -+prev
-            : idx < prev
-            ? -1
-            : 0)
-      )
+      setShift(prev + (networks?.length === 2 ? -+prev : idx < prev ? -1 : 0))
 
       return null
     })
@@ -98,8 +89,8 @@ const Content = () => {
     appendNet({
       name: '',
       description: '',
+      network: null,
       size: null,
-      value: '',
       type: null,
     })
 

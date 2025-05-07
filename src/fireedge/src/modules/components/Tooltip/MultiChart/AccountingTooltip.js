@@ -25,11 +25,7 @@ export const CustomTooltip = React.memo(
       const groupedMetrics = useMemo(
         () =>
           payload.reduce((acc, entry) => {
-            const [metric, datasetId] = [
-              entry.name.slice(0, entry.name?.lastIndexOf('-')),
-              entry.name.slice(entry.name.lastIndexOf('-') + 1),
-            ]
-
+            const [metric, datasetId] = entry.name.split('-')
             if (!acc[datasetId]) {
               acc[datasetId] = []
             }

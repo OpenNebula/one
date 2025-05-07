@@ -176,10 +176,22 @@ const dataTypes = (theme) => ({
  * @returns {object} - The generic quota
  */
 const genericQuota = (quota) => {
-  // Find the first object without the key 'CLUSTER_IDS' that is the generic quota
-  if ([].concat(quota)) {
-    return quota.find((item) => !Object.hasOwn(item, 'CLUSTER_IDS')) ?? {}
+  // Return empty object for invalid or empty input
+  if (
+    !quota ||
+    typeof quota !== 'object' ||
+    (Array.isArray(quota) && quota.length === 0)
+  ) {
+    return {}
   }
+
+  // Find the first object without the key 'CLUSTER_IDS' that is the generic quota
+  if (Array.isArray(quota)) {
+    return quota.find((item) => !item?.CLUSTER_IDS) || {}
+  }
+
+  // If it's a single object, check if it has not 'CLUSTER_IDS' to be sure that is the generic quota
+  return quota?.CLUSTER_IDS ? {} : quota
 }
 
 export const DashboardCardVMInfo = memo(

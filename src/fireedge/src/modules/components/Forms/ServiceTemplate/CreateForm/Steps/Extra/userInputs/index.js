@@ -92,8 +92,9 @@ const Content = () => {
         columnSpacing={1}
         rowSpacing={2}
         sx={{
+          justifyContent: 'flex-start',
+          alignItems: 'stretch',
           height: '100%',
-          overflow: 'hidden',
         }}
       >
         <Grid
@@ -102,10 +103,6 @@ const Content = () => {
           sx={{
             borderRight: userinputs && userinputs.length > 0 ? 1 : 0,
             padding: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            maxHeight: '100vh',
-            overflow: 'hidden',
           }}
         >
           <SubmitButton
@@ -121,7 +118,6 @@ const Content = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: 1,
-              overflowY: 'auto',
             }}
           >
             {userinputs?.map((userinput, idx) => {
@@ -137,7 +133,9 @@ const Content = () => {
                     borderRadius: '4px',
                     minHeight: '70px',
                     my: 0.5,
+                    overflowX: 'hidden',
                     padding: 2,
+
                     bgcolor:
                       idx === selectedUInput ? 'action.selected' : 'inherit',
                     '&:hover': {

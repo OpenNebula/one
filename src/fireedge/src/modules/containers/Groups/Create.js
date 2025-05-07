@@ -59,7 +59,6 @@ export function CreateGroup() {
   const [createAcl] = AclAPI.useAllocateAclMutation()
 
   const { data: views } = SystemAPI.useGetSunstoneAvailableViewsQuery()
-
   const { data: version } = SystemAPI.useGetOneVersionQuery()
 
   const { data: group } = GroupAPI.useGetGroupQuery({ id: groupId })

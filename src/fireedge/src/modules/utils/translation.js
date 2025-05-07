@@ -87,17 +87,11 @@ const buildMethods = () => {
       (value) => Number(value) === value && value % 1 !== 0
     )
   })
-
   addMethod(string, 'isBase64', function () {
     return this.test(
       'is-base64',
       T['validation.string.invalidFormat'],
-      (value) => {
-        // Allow empty strings
-        if (typeof value !== 'string' || value.trim() === '') return true
-
-        return isBase64(value)
-      }
+      (value) => isBase64(value)
     )
   })
   addMethod(string, 'includesInOptions', function (options, separator = ',') {

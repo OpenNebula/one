@@ -28,6 +28,7 @@ import {
   getColorFromString,
   getIps,
   getLastHistory,
+  getUniqueLabels,
   getVirtualMachineState,
 } from '@ModelsModule'
 import MultipleTags from '@modules/components/MultipleTags'
@@ -39,7 +40,6 @@ import WrapperRow from '@modules/components/Tables/Enhanced/WrapperRow'
 import VmColumns from '@modules/components/Tables/Vms/columns'
 import VmRow from '@modules/components/Tables/Vms/row'
 import RowAction from '@modules/components/Tables/Vms/rowActions'
-import { getResourceLabels } from '@UtilsModule'
 
 const DEFAULT_DATA_CY = 'vms'
 
@@ -60,7 +60,6 @@ const VmsTable = (props) => {
     enabledFullScreen = false,
     ...rest
   } = props ?? {}
-  const { labels } = useAuth()
 
   rootProps['data-cy'] ??= DEFAULT_DATA_CY
   searchProps['data-cy'] ??= `search-${DEFAULT_DATA_CY}`
@@ -127,18 +126,6 @@ const VmsTable = (props) => {
     }
   )
 
-  const fmtData = useMemo(
-    () =>
-      data?.map((row) => ({
-        ...row,
-        TEMPLATE: {
-          ...(row?.TEMPLATE ?? {}),
-          LABELS: getResourceLabels(labels, row?.ID, RESOURCE_NAMES.VM, true),
-        },
-      })),
-    [data, labels]
-  )
-
   const columns = useMemo(
     () =>
       createColumns({
@@ -192,14 +179,26 @@ const VmsTable = (props) => {
     {
       header: T.Labels,
       id: 'labels',
-      accessor: ({ TEMPLATE: { LABELS = [] } }) => {
-        const fmtLabels = LABELS?.map((label) => ({
-          text: label,
-          dataCy: `label-${label}`,
-          stateColor: getColorFromString(label),
-        }))
+      accessor: ({ USER_TEMPLATE: { LABELS } = {} }) => {
+        const { labels: userLabels } = useAuth()
+        const labels = useMemo(
+          () =>
+            getUniqueLabels(LABELS).reduce((acc, label) => {
+              if (userLabels?.includes(label)) {
+                acc.push({
+                  text: label,
+                  dataCy: `label-${label}`,
+                  stateColor: getColorFromString(label),
+                })
+              }
 
-        return <MultipleTags tags={fmtLabels} truncateText={10} />
+              return acc
+            }, []),
+
+          [LABELS]
+        )
+
+        return <MultipleTags tags={labels} truncateText={10} />
       },
     },
   ]
@@ -208,7 +207,7 @@ const VmsTable = (props) => {
   return (
     <EnhancedTable
       columns={columns}
-      data={fmtData}
+      data={useMemo(() => data, [data])}
       rootProps={rootProps}
       searchProps={searchProps}
       refetch={refetch}
