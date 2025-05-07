@@ -19,38 +19,42 @@
 int AddressRangeInternal::get_single_addr(unsigned int& index, std::string& msg)
 {
     unsigned int ar_size = get_size();
+    unsigned int next_original = next;
 
     for ( unsigned int i=0; i<ar_size; i++, next = (next+1)%ar_size )
     {
         if ( allocated.count(next) == 0 )
         {
             index = next;
+            next = (next+1)%ar_size;
             return 0;
         }
     }
 
+    next = next_original;
     msg = "Not free addresses available";
     return -1;
 }
 
 int AddressRangeInternal::get_range_addr(unsigned int& index,
-                                         unsigned int rsize, std::string& msg) const
+                                         unsigned int rsize, std::string& msg)
 {
     unsigned int ar_size = get_size();
+    unsigned int next_original = next;
     bool valid;
 
-    for (unsigned int i=0; i< ar_size; i++)
+    for (unsigned int i=0; i< ar_size; i++, next = (next+1)%ar_size )
     {
-        if ( allocated.count(i) != 0 )
+        if ( allocated.count(next) != 0 )
         {
             continue;
         }
 
         valid = true;
 
-        for (unsigned int j=0; j<rsize; j++, i++)
+        for (unsigned int j=0; j<rsize; j++, i++, next++)
         {
-            if ( allocated.count(i) != 0 || i >= ar_size )
+            if ( allocated.count(next) != 0 || i >= ar_size || next >= ar_size )
             {
                 valid = false;
                 break;
@@ -59,11 +63,13 @@ int AddressRangeInternal::get_range_addr(unsigned int& index,
 
         if (valid == true)
         {
-            index = i - rsize;
+            index = next - rsize;
+            next = next%ar_size;
             return 0;
         }
     }
 
+    next = next_original;
     msg = "There isn't a continuous range big enough";
     return -1;
 }
