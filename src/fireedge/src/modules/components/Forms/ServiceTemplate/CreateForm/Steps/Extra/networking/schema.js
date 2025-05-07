@@ -85,7 +85,8 @@ const SIZE = {
 
 // Network Selection Field (for 'reserve' or 'existing')
 /**
- * @param required
+ * @param {boolean} required - Is schema required
+ * @returns {object} Input field
  */
 const NETWORK_SELECTION = (required = false) => ({
   name: 'value',
@@ -102,9 +103,9 @@ const NETWORK_SELECTION = (required = false) => ({
   },
 })
 
-// List of Network Input Fields
 /**
- * @param required
+ * @param {boolean} required - Is schema required
+ * @returns {Array} Input fields
  */
 export const NETWORK_INPUT_FIELDS = (required = false) => [
   NETWORK_TYPE(required),
@@ -114,7 +115,8 @@ export const NETWORK_INPUT_FIELDS = (required = false) => [
 ]
 
 /**
- * @param required
+ * @param {boolean} required - Is schema required
+ * @returns {object} YUP Schema
  */
 export const NETWORK_INPUT_SCHEMA = (required) =>
   object().concat(
