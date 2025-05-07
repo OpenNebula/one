@@ -106,7 +106,7 @@ const filterTemplateData = (
   // Generate a form from the original data
   const normalizedTemplate = normalizeTemplate(existingTemplate, tabFormMap)
 
-  const includeAtributes = !instantiate
+  const includeAttributes = !instantiate
     ? update
       ? merge({}, alwaysIncludeAttributes, defaultValuesUpdate)
       : merge({}, alwaysIncludeAttributes, defaultValuesCreate)
@@ -117,7 +117,7 @@ const filterTemplateData = (
     formData?.general,
     modifiedFields?.general,
     normalizedTemplate?.general,
-    includeAtributes
+    includeAttributes
   )
 
   // Filter data of formData.extra
@@ -126,7 +126,7 @@ const filterTemplateData = (
     modifiedFields,
     normalizedTemplate,
     tabFormMap,
-    includeAtributes
+    includeAttributes
   )
 
   // Add custom variables
@@ -144,8 +144,16 @@ const filterTemplateData = (
   // Instantiate form could have another step called user_inputs
   if (formData.user_inputs) {
     result.CONTEXT = {
-      ...result.CONTEXT,
       ...formData.user_inputs,
+      ...Object.entries(result?.CONTEXT)?.reduce((uiCTX, [key, value]) => {
+        if (value?.startsWith('$')) {
+          uiCTX[key] = formData?.user_inputs?.[value?.slice(1)]
+        } else {
+          uiCTX[key] = value
+        }
+
+        return uiCTX
+      }, {}),
     }
   }
 
