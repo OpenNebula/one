@@ -55,7 +55,7 @@ export const HybridInputField = ({
 }) => {
   const isDisabled = () =>
     state.selectedIdentifier === '' ||
-    state.globalIds?.length === 0 ||
+    (state.quotaType !== 'VM' && state.globalIds?.length === 0) ||
     (state.globalIds?.length === 1 &&
       state.markedForDeletion.includes(state.globalIds[0]))
 
@@ -82,7 +82,7 @@ export const HybridInputField = ({
         onChange={(e) => {
           const value = e.target.value
           if (validateValue(value)) {
-            if (state.globalIds.length === 1) {
+            if (state.quotaType === 'VM' || state.globalIds.length === 1) {
               actions.setGlobalValue(value)
               actions.setValues({
                 ...state.values,
@@ -194,6 +194,7 @@ HybridInputField.propTypes = {
   selectedType: PropTypes.string,
   state: PropTypes.shape({
     selectedIdentifier: PropTypes.string,
+    quotaType: PropTypes.string,
     globalIds: PropTypes.arrayOf(PropTypes.string),
     globalValue: PropTypes.string,
     markedForDeletion: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),

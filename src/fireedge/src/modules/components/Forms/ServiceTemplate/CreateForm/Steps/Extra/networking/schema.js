@@ -37,7 +37,7 @@ const NETWORK_TYPE = {
   }),
   validation: string()
     .trim()
-    .required()
+    .notRequired()
     .default(() => undefined),
   grid: { md: 12 },
 }
@@ -64,7 +64,7 @@ const DESCRIPTION = {
 }
 
 const SIZE = {
-  name: 'SIZE',
+  name: 'size',
   label: 'Size',
   dependOf: NETWORK_TYPE.name,
   type: INPUT_TYPES.TEXT,
@@ -72,7 +72,9 @@ const SIZE = {
   validation: lazy((_, { parent } = {}) => {
     const isRequired = parent?.type === 'reserve_from'
 
-    return number()?.[isRequired ? 'required' : 'notRequired']?.()
+    return number()
+      ?.nullable(true)
+      ?.[isRequired ? 'required' : 'notRequired']?.()
   }),
   fieldProps: {
     type: 'number',
@@ -88,7 +90,7 @@ const NETWORK_SELECTION = {
   Table: (TYPE) =>
     TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
   dependOf: NETWORK_TYPE.name,
-  validation: string().trim().required(),
+  validation: string().trim().notRequired(),
   grid: { md: 12 },
   singleSelect: true,
   fieldProps: {

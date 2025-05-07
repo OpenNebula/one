@@ -28,7 +28,16 @@ import {
   useTheme,
 } from '@mui/material'
 
-import { UserAPI, GroupAPI, useGeneralApi, SystemAPI } from '@FeaturesModule'
+import {
+  UserAPI,
+  GroupAPI,
+  useGeneralApi,
+  SystemAPI,
+  ClusterAPI,
+  DatastoreAPI,
+  ImageAPI,
+  VnAPI,
+} from '@FeaturesModule'
 
 import { T, STYLE_BUTTONS } from '@ConstantsModule'
 import { Tr } from '@modules/components/HOC'
@@ -73,9 +82,14 @@ export const QuotaControls = memo(
     nameMaps,
     groups,
   }) => {
-    const [state, actions] = useQuotaControlReducer()
+    const [getClusters] = ClusterAPI.useLazyGetClustersQuery()
+    const [getDatastores] = DatastoreAPI.useLazyGetDatastoresQuery()
+    const [getImages] = ImageAPI.useLazyGetImagesQuery()
+    const [getNetworks] = VnAPI.useLazyGetVNetworksQuery()
 
+    const [state, actions] = useQuotaControlReducer()
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null)
+    const [existingResourceIds, setExistingResourceIds] = useState(null)
     const [touchedFields, setTouchedFields] = useState({})
     const { enqueueError, enqueueSuccess } = useGeneralApi()
     const { data: { QUOTA_VM_ATTRIBUTE: genericQuotas = [] } = {} } =
@@ -141,6 +155,7 @@ export const QuotaControls = memo(
     }, [selectedType])
 
     useEffect(() => {
+      actions.setQuotaType(selectedType)
       actions.setGlobalIds([])
       actions.setGlobalValue('')
       actions.setMarkForDeletion([])
@@ -167,7 +182,7 @@ export const QuotaControls = memo(
         state.isValid &&
         selectedType &&
         state.selectedIdentifier.length > 0 &&
-        state.globalIds.length > 0 &&
+        (state.quotaType === 'VM' || state.globalIds.length > 0) &&
         validateValue(state.globalValue)
       actions.setIsApplyDisabled(!isApplyEnabled)
     }, [
@@ -198,12 +213,51 @@ export const QuotaControls = memo(
       ? GroupAPI.useGetGroupQuery({ id: userId })
       : UserAPI.useGetUserQuery({ id: userId })
 
-    const filteredResourceIDs = [
-      ...existingData
-        ?.map(({ ID, CLUSTER_IDS }) => ID ?? CLUSTER_IDS)
-        ?.filter((id) => !state.globalIds.includes(id))
-        .filter(Boolean),
-    ]
+    useEffect(() => {
+      const fetchData = async () => {
+        let result = null
+
+        switch (state?.quotaType) {
+          case 'VM':
+            result = await getClusters()
+            break
+          case 'DATASTORE':
+            result = await getDatastores()
+            break
+          case 'IMAGE':
+            result = await getImages()
+            break
+          case 'NETWORK':
+            result = await getNetworks()
+            break
+          default:
+            result = null
+        }
+
+        const formatResourceNames = []
+          .concat(result?.data)
+          ?.map(({ NAME }) => NAME)
+
+        setExistingResourceIds(formatResourceNames)
+      }
+
+      fetchData()
+    }, [state?.quotaType])
+
+    const filteredResourceIDs = useMemo(() => {
+      const idsFromData =
+        existingData
+          ?.map(({ ID, CLUSTER_IDS }) => ID ?? CLUSTER_IDS)
+          ?.filter((id) => id !== '@Global' && !state.globalIds.includes(id))
+          .filter(Boolean) ?? []
+
+      const allIds = [...(existingResourceIds ?? []), ...idsFromData]
+
+      return [
+        ...(state?.quotaType === 'VM' ? ['@Global'] : []), // Ensure @Global is first
+        ...new Set(allIds),
+      ]
+    }, [state.quotaType, existingData, existingResourceIds, state.globalIds])
 
     return (
       <Box

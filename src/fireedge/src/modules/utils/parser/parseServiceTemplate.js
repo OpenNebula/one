@@ -16,6 +16,20 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 import _ from 'lodash'
+import { USER_INPUT_TYPES } from '@ConstantsModule'
+
+const UserInputArrayTypes = Object.values(USER_INPUT_TYPES)?.filter((val) =>
+  ['list', 'array', 'range'].some((prefix) => val?.startsWith(prefix))
+)
+
+const formatDefaultValue = (def, type) =>
+  UserInputArrayTypes?.includes(type)
+    ? [...def?.split(',')]
+    : type === USER_INPUT_TYPES.number
+    ? parseInt(def, 10)
+    : type === USER_INPUT_TYPES.numberFloat
+    ? parseFloat(def)
+    : def
 
 export const toUserInputString = ({
   name,
@@ -48,7 +62,14 @@ export const fromUserInputString = (userInput) => {
   const [mandatory, type, description, opts, def] = userInputString.split('|')
 
   // eslint-disable-next-line camelcase
-  const [options, options_1] = opts.split(/\.{2}|,/)
+  const [options, options_1] =
+    opts?.length <= 0
+      ? [undefined, undefined]
+      : opts?.includes('..')
+      ? opts.split('..')?.filter(Boolean)
+      : [opts.split(','), [undefined]]
+
+  const fmtDefault = formatDefaultValue(def, type)
 
   return {
     name,
@@ -57,7 +78,7 @@ export const fromUserInputString = (userInput) => {
     description,
     options,
     options_1,
-    default: def,
+    default: fmtDefault,
   }
 }
 
@@ -67,7 +88,7 @@ export const toNetworkString = ({ name, description, type, value } = {}) => [
 ]
 
 export const toNetworksValueString = (
-  { name, SIZE: size, type, value },
+  { name, size, type, value },
   { AR = [], SECURITY_GROUPS = [] } = {}
 ) => {
   if (!name) return
@@ -94,7 +115,7 @@ export const toNetworksValueString = (
   }
 
   if (size) {
-    const SIZE = `SIZE=${size}`
+    const SIZE = `size=${size}`
     extra.push(SIZE)
   }
 
@@ -130,7 +151,7 @@ export const fromNetworksValueString = (nv) => {
   )
 
   const SIZE = [
-    extra?.match(/(?:^|,)(SIZE=\d+)(?=,|$)/)?.[1]?.split('=')?.[1],
+    extra?.match(/(?:^|,)(size=\d+)(?=,|$)/)?.[1]?.split('=')?.[1],
   ]?.filter(Boolean)
 
   if (SECURITY_GROUPS?.length) {
@@ -142,7 +163,7 @@ export const fromNetworksValueString = (nv) => {
   }
 
   if (SIZE?.length) {
-    conf?.push(['SIZE', ...SIZE])
+    conf?.push(['size', ...SIZE])
   }
 
   conf = Object.fromEntries(conf)

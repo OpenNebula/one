@@ -146,6 +146,12 @@ const generateQuotasInfoTab = ({ groups }) => {
           newItem?.CLUSTER_IDS == null
         ) {
           newItem.ID = '@Global'
+        } else if (
+          dataset?.data?.length === 1 &&
+          !Object.hasOwn(newItem, 'CLUSTER_IDS') &&
+          !Object.hasOwn(newItem, 'ID')
+        ) {
+          newItem.ID = '@Global'
         }
         Object.keys(newItem).forEach((key) => {
           const value = parseFloat(newItem[key])
