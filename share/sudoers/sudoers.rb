@@ -78,7 +78,7 @@ class Sudoers
             :MEM => ['sysctl vm.drop_caches=3 vm.compact_memory=1'],
             :VGPU => ['sudo', '/var/tmp/one/vgpu'],
             :NFS => ['mount', 'umount', '/usr/bin/sed -i -f /proc/self/fd/0 /etc/fstab'],
-            :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find', 'dd']
+            :NETAPP => ['blockdev', 'multipath', 'multipathd', 'iscsiadm', 'tee', 'find']
         }
     end
 
