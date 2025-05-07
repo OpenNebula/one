@@ -26,7 +26,6 @@ import { getUserInputParams, scaleVcpuByCpuFactor } from '@ModelsModule'
 import {
   Field,
   OPTION_SORTERS,
-  isDivisibleBy,
   prettyBytes,
   schemaUserInput,
 } from '@UtilsModule'
@@ -81,16 +80,11 @@ export const FIELDS = (
   return fields.map(({ name, options, ...userInput }) => {
     const isMemory = name === 'MEMORY'
     const isCPU = name === 'CPU'
-    const divisibleBy4 = isMemory
     const isRange = [range, rangeFloat].includes(userInput.type)
 
-    // set default type to number
     userInput.type ??= isCPU ? numberFloat : number
-    const ensuredOptions = divisibleBy4
-      ? options?.filter((value) => isDivisibleBy(+value, 4))
-      : options
 
-    const schemaUserInputConfig = { options: ensuredOptions, ...userInput }
+    const schemaUserInputConfig = { options, ...userInput }
     userInput?.type === 'list' &&
       (schemaUserInputConfig.sorter = OPTION_SORTERS.numeric)
 
@@ -112,11 +106,6 @@ export const FIELDS = (
         // add label format on pretty bytes
         schemaUi.fieldProps = { ...schemaUi.fieldProps, valueLabelFormat }
       }
-    }
-
-    if (isNumber && divisibleBy4) {
-      schemaUi.validation &&= schemaUi.validation.isDivisibleBy(4)
-      schemaUi.fieldProps = { ...schemaUi.fieldProps, step: 4 }
     }
 
     if (cpuFactor && isCPU) {
