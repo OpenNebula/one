@@ -47,7 +47,16 @@ const Content = () => {
 
     // Calculates shift & releases current reference in case it goes oob
     setSelectedUInput((prev) => {
-      setShift(prev + (userinputs?.length === 2 ? -+prev : idx < prev ? -1 : 0))
+      setShift(
+        prev +
+          (userinputs?.length - 1 === prev
+            ? -1
+            : userinputs?.length === 2
+            ? -+prev
+            : idx < prev
+            ? -1
+            : 0)
+      )
 
       return null
     })

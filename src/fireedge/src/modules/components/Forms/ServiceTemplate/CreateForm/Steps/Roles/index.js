@@ -66,7 +66,16 @@ const Content = ({ standaloneModal = false }) => {
 
     // Calculates shift & releases current reference in case it goes oob
     setSelectedRole((prev) => {
-      setShift(prev + (roles?.length === 2 ? -+prev : idx < prev ? -1 : 0))
+      setShift(
+        prev +
+          (roles?.length - 1 === prev
+            ? -1
+            : roles?.length === 2
+            ? -+prev
+            : idx < prev
+            ? -1
+            : 0)
+      )
 
       return null
     })

@@ -51,7 +51,14 @@ const Content = () => {
     // Calculates shift & releases current reference in case it goes oob
     setSelectedSchedAction((prev) => {
       setShift(
-        prev + (schedActions?.length === 2 ? -+prev : idx < prev ? -1 : 0)
+        prev +
+          (schedActions?.length - 1 === prev
+            ? -1
+            : schedActions?.length === 2
+            ? -+prev
+            : idx < prev
+            ? -1
+            : 0)
       )
 
       return null

@@ -67,7 +67,16 @@ const ElasticityPolicies = ({ roles, selectedRole }) => {
 
     // Calculates shift & releases current reference in case it goes oob
     setSelectedPolicy((prev) => {
-      setShift(prev + (policies?.length === 2 ? -+prev : idx < prev ? -1 : 0))
+      setShift(
+        prev +
+          (policies?.length - 1 === prev
+            ? -1
+            : policies?.length === 2
+            ? -+prev
+            : idx < prev
+            ? -1
+            : 0)
+      )
 
       return null
     })
