@@ -92,11 +92,7 @@ const NETWORK_SELECTION = (required = false) => ({
   Table: (TYPE) =>
     TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
   dependOf: NETWORK_TYPE.name,
-<<<<<<< HEAD
-  validation: string().trim()[required ? 'required' : 'notRequired'](),
-=======
   validation: string().trim().required(),
->>>>>>> parent of 0ef10a8bdc (M #-: Sunstone QA fixes (#3619))
   grid: { md: 12 },
   singleSelect: true,
   fieldProps: {
