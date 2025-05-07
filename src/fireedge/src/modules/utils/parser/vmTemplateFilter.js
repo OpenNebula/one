@@ -755,20 +755,27 @@ const transformActionsCommon = (template) => {
   const newContext = template.CONTEXT ? { ...template.CONTEXT } : {}
 
   // Reset user inputs in context object
-  Object.keys(newContext).forEach((key) => {
-    if (newContext[key] === '$' + key) {
-      delete newContext[key]
-    }
-  })
+  Object.entries(newContext)
+    ?.filter(([_key, value]) => value?.startsWith('$'))
+    ?.forEach(([key, value]) => {
+      if (
+        value &&
+        !Object.hasOwn(template?.USER_INPUTS ?? {}, value?.slice(1))
+      ) {
+        delete newContext[key]
+      }
+    })
 
   // Add user inputs to context
   if (template?.USER_INPUTS) {
     Object.keys(template?.USER_INPUTS).forEach((name) => {
       const isCapacity = ['MEMORY', 'CPU', 'VCPU'].includes(name)
       const upperName = String(name).toUpperCase()
+      const notPopulated = !Object.hasOwn(newContext, upperName)
 
-      !isCapacity && (newContext[upperName] = `$${upperName}`)
-      if (!template.CONTEXT) template.CONTEXT = {}
+      const shouldAdd = !isCapacity && notPopulated
+
+      shouldAdd && (newContext[upperName] = `$${upperName}`)
     })
   }
 
