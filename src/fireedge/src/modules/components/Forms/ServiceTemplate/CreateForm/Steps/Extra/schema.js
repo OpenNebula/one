@@ -35,7 +35,7 @@ import { TAB_ID as ADVANCED_PARAMS_ID } from '@modules/components/Forms/ServiceT
 
 export const SCHEMA = object().concat(
   object().shape({
-    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA),
+    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA(false)),
     [NETWORK_DROPDOWN_ID]: array().of(NETWORKS_EXTRA_SCHEMA),
     [USER_INPUT_ID]: array().of(USER_INPUTS_SCHEMA),
     [SCHED_ACTION_ID]: array().of(SCHED_ACTION_SCHEMA),

@@ -30,7 +30,7 @@ import { SECTION_ID as NETWORK_DROPDOWN_ID } from '@modules/components/Forms/Ser
  */
 export const SCHEMA = object().concat(
   object().shape({
-    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA),
+    [NETWORK_ID]: array().of(NETWORK_INPUT_SCHEMA(true)),
     [NETWORK_DROPDOWN_ID]: array().of(NETWORKS_EXTRA_SCHEMA),
   })
 )

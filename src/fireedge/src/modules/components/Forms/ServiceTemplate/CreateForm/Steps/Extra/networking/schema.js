@@ -26,7 +26,7 @@ export const NETWORK_TYPES = {
 }
 
 // Network Type Field
-const NETWORK_TYPE = {
+const NETWORK_TYPE = (required = false) => ({
   name: 'type',
   type: INPUT_TYPES.TOGGLE,
   optionsOnly: true,
@@ -37,10 +37,11 @@ const NETWORK_TYPE = {
   }),
   validation: string()
     .trim()
-    .notRequired()
+    .nullable(true)
+    [required ? 'required' : 'notRequired']()
     .default(() => undefined),
   grid: { md: 12 },
-}
+})
 
 // Network Name Field
 const NAME = {
@@ -83,26 +84,44 @@ const SIZE = {
 }
 
 // Network Selection Field (for 'reserve' or 'existing')
-const NETWORK_SELECTION = {
+/**
+ * @param required
+ */
+const NETWORK_SELECTION = (required = false) => ({
   name: 'value',
   label: 'Network',
   type: INPUT_TYPES.TABLE,
   Table: (TYPE) =>
     TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
   dependOf: NETWORK_TYPE.name,
-  validation: string().trim().notRequired(),
+  validation: string().trim()[required ? 'required' : 'notRequired'](),
   grid: { md: 12 },
   singleSelect: true,
   fieldProps: {
     preserveState: true,
   },
-}
+})
 
 // List of Network Input Fields
-export const NETWORK_INPUT_FIELDS = [NETWORK_TYPE, NAME, DESCRIPTION, SIZE]
+/**
+ * @param required
+ */
+export const NETWORK_INPUT_FIELDS = (required = false) => [
+  NETWORK_TYPE(required),
+  NAME,
+  DESCRIPTION,
+  SIZE,
+]
 
-export const NETWORK_INPUT_SCHEMA = object().concat(
-  getObjectSchemaFromFields([...NETWORK_INPUT_FIELDS, NETWORK_SELECTION])
-)
+/**
+ * @param required
+ */
+export const NETWORK_INPUT_SCHEMA = (required) =>
+  object().concat(
+    getObjectSchemaFromFields([
+      ...NETWORK_INPUT_FIELDS(required),
+      NETWORK_SELECTION(required),
+    ])
+  )
 
 export { NETWORK_SELECTION }

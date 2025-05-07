@@ -209,7 +209,7 @@ const Content = () => {
                   legend={T.Type}
                   id={`${STEP_ID}.${STEP_ID}.${selectedNetwork}`}
                   cy={`${STEP_ID}.${STEP_ID}`}
-                  fields={NETWORK_INPUT_FIELDS}
+                  fields={NETWORK_INPUT_FIELDS(true)}
                 />
               </Stack>
 
@@ -223,7 +223,7 @@ const Content = () => {
                 key={`network-table-${networks?.[selectedNetwork]?.id}`}
                 cy={`${STEP_ID}-${STEP_ID}-${NETWORK_SELECTION?.name}`}
                 id={`${STEP_ID}.${STEP_ID}.${selectedNetwork}`}
-                fields={[NETWORK_SELECTION]}
+                fields={[NETWORK_SELECTION(true)]}
               />
             </>
           )}

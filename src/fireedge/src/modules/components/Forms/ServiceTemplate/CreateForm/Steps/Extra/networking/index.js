@@ -216,7 +216,7 @@ const Content = () => {
                   legend={T.Type}
                   id={`${EXTRA_ID}.${TAB_ID}.${selectedNetwork}`}
                   cy={`${TAB_ID}`}
-                  fields={NETWORK_INPUT_FIELDS}
+                  fields={NETWORK_INPUT_FIELDS(false)}
                 />
               </Stack>
 
@@ -230,7 +230,7 @@ const Content = () => {
                 key={`network-table-${networks?.[selectedNetwork]?.id}`}
                 cy={`${TAB_ID}-${NETWORK_SELECTION?.name}`}
                 id={`${EXTRA_ID}.${TAB_ID}.${selectedNetwork}`}
-                fields={[NETWORK_SELECTION]}
+                fields={[NETWORK_SELECTION(false)]}
               />
             </>
           )}
