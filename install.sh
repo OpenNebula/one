@@ -668,6 +668,7 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_PROFILES:$ETC_LOCATION/fireedge/sunstone/profiles
+  FIREEDGE_SUNSTONE_ETC_VIEW:$ETC_LOCATION/fireedge/sunstone/views
   FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/views/admin
   FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/views/user
   FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD:$ETC_LOCATION/fireedge/sunstone/views/cloud
@@ -1981,11 +1982,12 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/tab-manifest.yaml \
                        src/fireedge/etc/sunstone/default-labels.yaml \
-                       src/fireedge/etc/sunstone/remotes-config.yaml \
-                       src/fireedge/etc/sunstone/views/sunstone-views.yaml"
+                       src/fireedge/etc/sunstone/remotes-config.yaml"
 
 FIREEDGE_SUNSTONE_ETC_PROFILES="src/fireedge/etc/sunstone/profiles/windows_optimized.yaml \
                                 src/fireedge/etc/sunstone/profiles/base.template"
+
+FIREEDGE_SUNSTONE_ETC_VIEW="src/fireedge/etc/sunstone/views/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/vm-tab.yaml \
                                 src/fireedge/etc/sunstone/views/admin/vm-template-tab.yaml \
