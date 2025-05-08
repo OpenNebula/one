@@ -37,7 +37,8 @@ const NETWORK_TYPE = (required = false) => ({
   }),
   validation: string()
     .trim()
-    .required()
+    .nullable(true)
+    [required ? 'required' : 'notRequired']()
     .default(() => undefined),
   grid: { md: 12 },
 })
@@ -64,7 +65,7 @@ const DESCRIPTION = {
 }
 
 const SIZE = {
-  name: 'SIZE',
+  name: 'size',
   label: 'Size',
   dependOf: NETWORK_TYPE.name,
   type: INPUT_TYPES.TEXT,
@@ -72,7 +73,9 @@ const SIZE = {
   validation: lazy((_, { parent } = {}) => {
     const isRequired = parent?.type === 'reserve_from'
 
-    return number()?.[isRequired ? 'required' : 'notRequired']?.()
+    return number()
+      ?.nullable(true)
+      ?.[isRequired ? 'required' : 'notRequired']?.()
   }),
   fieldProps: {
     type: 'number',
@@ -92,11 +95,7 @@ const NETWORK_SELECTION = (required = false) => ({
   Table: (TYPE) =>
     TYPE === 'template_id' ? VnTemplatesTable.Table : VnsTable.Table,
   dependOf: NETWORK_TYPE.name,
-<<<<<<< HEAD
   validation: string().trim()[required ? 'required' : 'notRequired'](),
-=======
-  validation: string().trim().required(),
->>>>>>> parent of 0ef10a8bdc (M #-: Sunstone QA fixes (#3619))
   grid: { md: 12 },
   singleSelect: true,
   fieldProps: {

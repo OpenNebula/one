@@ -73,12 +73,12 @@ const Steps = createSteps([General, Extra, Roles], {
 
         if (matchingNetworksValue) {
           // Size goes to parsedNetworks...
-          const { SIZE, ...parsedNetworksValue } = fromNetworksValueString(
+          const { size, ...parsedNetworksValue } = fromNetworksValueString(
             Object.values(matchingNetworksValue)
           )
 
           // Order matters
-          res.push([{ ...parsedNetwork, SIZE }])
+          res.push([{ ...parsedNetwork, size }])
           res.push([parsedNetworksValue])
         } else {
           res.push([parsedNetwork])

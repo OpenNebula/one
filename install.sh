@@ -253,10 +253,10 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/fireedge \
           $ETC_LOCATION/fireedge/sunstone \
           $ETC_LOCATION/fireedge/sunstone/profiles \
-          $ETC_LOCATION/fireedge/sunstone/admin \
-          $ETC_LOCATION/fireedge/sunstone/user \
-          $ETC_LOCATION/fireedge/sunstone/groupadmin \
-          $ETC_LOCATION/fireedge/sunstone/cloud \
+          $ETC_LOCATION/fireedge/sunstone/views/admin \
+          $ETC_LOCATION/fireedge/sunstone/views/user \
+          $ETC_LOCATION/fireedge/sunstone/views/groupadmin \
+          $ETC_LOCATION/fireedge/sunstone/views/cloud \
           $ETC_LOCATION/alertmanager \
           $ETC_LOCATION/schedulers \
           $ETC_LOCATION/prometheus"
@@ -668,10 +668,10 @@ INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
   FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
   FIREEDGE_SUNSTONE_ETC_PROFILES:$ETC_LOCATION/fireedge/sunstone/profiles
-  FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
-  FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
-  FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD:$ETC_LOCATION/fireedge/sunstone/cloud
-  FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN:$ETC_LOCATION/fireedge/sunstone/groupadmin
+  FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/views/admin
+  FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/views/user
+  FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD:$ETC_LOCATION/fireedge/sunstone/views/cloud
+  FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN:$ETC_LOCATION/fireedge/sunstone/views/groupadmin
  )
 
 INSTALL_FIREEDGE_DEV_DIRS=(
@@ -1982,66 +1982,66 @@ FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
                        src/fireedge/etc/sunstone/tab-manifest.yaml \
                        src/fireedge/etc/sunstone/default-labels.yaml \
                        src/fireedge/etc/sunstone/remotes-config.yaml \
-                       src/fireedge/etc/sunstone/sunstone-views.yaml"
+                       src/fireedge/etc/sunstone/views/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_PROFILES="src/fireedge/etc/sunstone/profiles/windows_optimized.yaml \
                                 src/fireedge/etc/sunstone/profiles/base.template"
 
-FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vm-template-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vm-group-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vnet-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vnet-template-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/image-tab.yaml\
-                                src/fireedge/etc/sunstone/admin/file-tab.yaml\
-                                src/fireedge/etc/sunstone/admin/sec-group-tab.yaml\
-                                src/fireedge/etc/sunstone/admin/backup-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/datastore-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vdc-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/user-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/service-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/service-template-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vrouter-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/vrouter-template-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/backupjobs-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/host-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/group-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/acl-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/cluster-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/support-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/zone-tab.yaml \
-                                src/fireedge/etc/sunstone/admin/marketplace-tab.yaml"
+FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/views/admin/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vm-group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vnet-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vnet-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/image-tab.yaml\
+                                src/fireedge/etc/sunstone/views/admin/file-tab.yaml\
+                                src/fireedge/etc/sunstone/views/admin/sec-group-tab.yaml\
+                                src/fireedge/etc/sunstone/views/admin/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/datastore-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vdc-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/user-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/service-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/service-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vrouter-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/vrouter-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/backupjobs-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/host-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/acl-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/cluster-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/support-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/zone-tab.yaml \
+                                src/fireedge/etc/sunstone/views/admin/marketplace-tab.yaml"
 
-FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/user/vm-template-tab.yaml \
-                                src/fireedge/etc/sunstone/user/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/user/image-tab.yaml\
-                                src/fireedge/etc/sunstone/user/file-tab.yaml\
-                                src/fireedge/etc/sunstone/user/backup-tab.yaml \
-                                src/fireedge/etc/sunstone/user/sec-group-tab.yaml \
-                                src/fireedge/etc/sunstone/user/vnet-tab.yaml"
+FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/views/user/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/image-tab.yaml\
+                                src/fireedge/etc/sunstone/views/user/file-tab.yaml\
+                                src/fireedge/etc/sunstone/views/user/backup-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/sec-group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/user/vnet-tab.yaml"
 
-FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/groupadmin/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vm-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/sec-group-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vnet-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vnet-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/user-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/service-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/service-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vm-group-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vrouter-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/vrouter-template-tab.yaml \
-                                src/fireedge/etc/sunstone/groupadmin/group-tab.yaml"
+FIREEDGE_SUNSTONE_ETC_VIEW_GROUPADMIN="src/fireedge/etc/sunstone/views/groupadmin/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/sec-group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vnet-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vnet-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/user-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/service-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/service-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vm-group-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vrouter-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/vrouter-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/groupadmin/group-tab.yaml"
 
-FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/cloud/vm-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/vm-template-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/service-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/marketplace-app-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/dashboard-tab.yaml \
-                                src/fireedge/etc/sunstone/cloud/user-tab.yaml"
+FIREEDGE_SUNSTONE_ETC_VIEW_CLOUD="src/fireedge/etc/sunstone/views/cloud/vm-tab.yaml \
+                                src/fireedge/etc/sunstone/views/cloud/vm-template-tab.yaml \
+                                src/fireedge/etc/sunstone/views/cloud/service-tab.yaml \
+                                src/fireedge/etc/sunstone/views/cloud/marketplace-app-tab.yaml \
+                                src/fireedge/etc/sunstone/views/cloud/dashboard-tab.yaml \
+                                src/fireedge/etc/sunstone/views/cloud/user-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files

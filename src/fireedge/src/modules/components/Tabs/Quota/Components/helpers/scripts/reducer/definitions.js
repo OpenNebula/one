@@ -32,6 +32,8 @@ export const reducer = (state, action) => {
   switch (action.type) {
     case 'SET_GLOBAL_IDS':
       return { ...state, globalIds: action.payload }
+    case 'SET_QUOTA_TYPE':
+      return { ...state, quotaType: action.payload }
     case 'SET_SELECTED_IDENTIFIER':
       return { ...state, selectedIdentifier: action.payload }
     case 'SET_GLOBAL_VALUE':

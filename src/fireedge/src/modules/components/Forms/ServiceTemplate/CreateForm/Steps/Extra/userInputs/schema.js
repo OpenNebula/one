@@ -63,6 +63,7 @@ const getType = (type) => {
         html: 'text',
         type: INPUT_TYPES.AUTOCOMPLETE,
         multiple: true,
+        hasOptions: true,
         validation: array()
           .of(string().trim())
           .notRequired()
@@ -75,6 +76,7 @@ const getType = (type) => {
         type: INPUT_TYPES.TEXT,
         split: SPLITS,
         grid: { md: 6 },
+        hasOptions: true,
         validation: number()
           .min(0)
           .isFinite()
@@ -88,6 +90,7 @@ const getType = (type) => {
         type: INPUT_TYPES.TEXT,
         split: 2,
         grid: { md: 6 },
+        hasOptions: true,
         validation: number()
           .min(0)
           .isFloat()
@@ -243,7 +246,9 @@ const OPTIONS = {
     }
   })(),
   validation: lazy((_, { parent: { type } = {} } = {}) => {
-    const validation = getType(type)?.validation
+    const validation = getType(type)?.hasOptions
+      ? getType(type)?.validation
+      : string().notRequired()
 
     return validation
   }),

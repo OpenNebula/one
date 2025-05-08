@@ -33,7 +33,7 @@ const COLUMNS = [
     Header: T.Label,
     id: 'label',
     accessor: 'TEMPLATE.LABELS',
-    filter: 'includesSome',
+    filter: 'arrIncludesSome',
   },
   {
     Header: 'Outdated VMs',
