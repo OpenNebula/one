@@ -762,18 +762,6 @@ const transformActionsInstantiate = (template, original, features) => {
 const transformActionsCommon = (template) => {
   const newContext = template.CONTEXT ? { ...template.CONTEXT } : {}
 
-  // Reset user inputs in context object
-  Object.entries(newContext)
-    ?.filter(([_key, value]) => value?.startsWith('$'))
-    ?.forEach(([key, value]) => {
-      if (
-        value &&
-        !Object.hasOwn(template?.USER_INPUTS ?? {}, value?.slice(1))
-      ) {
-        delete newContext[key]
-      }
-    })
-
   // Add user inputs to context
   if (template?.USER_INPUTS) {
     Object.keys(template?.USER_INPUTS).forEach((name) => {
