@@ -81,7 +81,7 @@ begin
     format = xml.elements['IMAGE/FORMAT'].text
 
     rds = Restic.new action, :prefix    => 'DATASTORE/',
-                             :repo_type => :local,
+                             :repo_type => :sftp,
                              :host_type => :frontend
     rds.resticenv_rb
 
