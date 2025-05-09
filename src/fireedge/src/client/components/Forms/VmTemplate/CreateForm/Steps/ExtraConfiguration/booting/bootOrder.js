@@ -110,17 +110,17 @@ const BootOrder = () => {
         const isVolatile = !disk?.IMAGE && !disk?.IMAGE_ID
 
         return {
-          ID: `disk${idx}`,
+          ID: `disk${disk?.DISK_ID}`,
           NAME: (
             <>
               <ImageIcon />
               {isVolatile ? (
                 <>
-                  {`${disk?.NAME}: `}
+                  {`DISK${idx}: `}
                   <Translate word={T.VolatileDisk} />
                 </>
               ) : (
-                [disk?.NAME, disk?.IMAGE].filter(Boolean).join(': ')
+                [`DISK${idx}`, disk?.IMAGE].filter(Boolean).join(': ')
               )}
             </>
           ),
