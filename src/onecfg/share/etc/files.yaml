@@ -163,6 +163,13 @@
   mode: '0640'
   src: src/fireedge/etc/sunstone/*/*.yaml
 
+- name: /etc/one/fireedge/sunstone/*/*/*.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+  src: src/fireedge/etc/sunstone/*/*/*.yaml
+
 - name: /etc/one/fireedge/sunstone/*.yaml
   class: Yaml
   owner: root
