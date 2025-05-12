@@ -37,7 +37,7 @@ import {
 
 import { VIRTUAL_CPU as GENERAL_VIRTUAL_CPU } from '@modules/components/Forms/VmTemplate/CreateForm/Steps/General/capacitySchema'
 
-const { kvm, dummy } = HYPERVISORS
+const { kvm, dummy, lxc } = HYPERVISORS
 const numaPinPolicies = Object.keys(NUMA_PIN_POLICIES)
 
 const VIRTUAL_CPU = {
@@ -242,7 +242,7 @@ const NUMA_SCHEMA = (hypervisor) =>
       const { ENABLE_NUMA: isEnabled, ...restOfTopology } = TOPOLOGY
       const hyperv = context?.general?.HYPERVISOR
 
-      if ([kvm, dummy].includes(hyperv) && isEnabled) {
+      if ([kvm, dummy, lxc].includes(hyperv) && isEnabled) {
         if (
           restOfTopology?.NODE_AFFINITY &&
           restOfTopology.PIN_POLICY === NUMA_PIN_POLICIES.NODE_AFFINITY

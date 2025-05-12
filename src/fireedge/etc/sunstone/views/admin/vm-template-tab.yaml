@@ -95,8 +95,5 @@ dialogs:
     sched_action: true
     context: true
     booting: true
-    numa:
-      enabled: true
-      not_on:
-        - lxc
+    numa: true      
     backup: true
