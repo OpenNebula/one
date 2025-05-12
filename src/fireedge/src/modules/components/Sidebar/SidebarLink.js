@@ -83,7 +83,7 @@ const SidebarLink = memo(
             'data-cy': 'main-menu-item-text',
             variant: 'body1',
           }}
-          className={clsx('itemText', classes.itemPepe)}
+          className={clsx('itemText', classes.itemList)}
         />
       </ListItemButton>
     )

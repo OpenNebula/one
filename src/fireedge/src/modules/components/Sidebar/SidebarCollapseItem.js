@@ -78,7 +78,7 @@ const SidebarCollapseItem = ({ title = '', routes = [], icon: Icon }) => {
         <ListItemText
           data-cy={title.toLocaleLowerCase()}
           primary={<Translate word={title} />}
-          className={clsx(expanded && 'open', 'itemText', classes.itemPepe)}
+          className={clsx(expanded && 'open', 'itemText', classes.itemList)}
           primaryTypographyProps={{ variant: 'body1' }}
         />
         {expanded ? (

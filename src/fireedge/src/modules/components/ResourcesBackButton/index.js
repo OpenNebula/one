@@ -235,8 +235,6 @@ const ResourcesBackButton = memo(
                 id="boxWithProps"
                 height={1}
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
                   paddingBottom: '0rem',
                   overflow: 'hidden', // Prevents the entire Box from scrolling
                 }}

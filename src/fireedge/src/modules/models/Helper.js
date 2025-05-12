@@ -520,7 +520,7 @@ export const userInputsToArray = (
   userInputs = {},
   { filterCapacityInputs = true, order } = {}
 ) => {
-  const orderedList = order?.split(',') ?? []
+  const orderedList = order?.split(',').map((item) => item.trim()) ?? []
   const userInputsArray = Object.entries(userInputs)
 
   let list = userInputsArray.map(([name, ui]) => ({

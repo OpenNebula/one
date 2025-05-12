@@ -44,13 +44,18 @@ import SidebarCollapseItem from '@modules/components/Sidebar/SidebarCollapseItem
 const Sidebar = ({ endpoints }) => {
   const theme = useTheme()
   const { pathname } = useLocation()
-  const classes = useMemo(() => sidebarStyles(theme), [theme])
+
   const isUpLg = useMediaQuery(theme.breakpoints.up('lg'), {
     noSsr: true,
   })
 
   const { isFixMenu } = useGeneral()
   const { fixMenu } = useGeneralApi()
+
+  const classes = useMemo(
+    () => sidebarStyles(theme, isFixMenu),
+    [theme, isFixMenu]
+  )
 
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 

@@ -371,7 +371,7 @@ const FormStepper = ({
                 handleBack={handleBack}
                 enableShowMandatoryOnly={enableShowMandatoryOnly}
                 handleShowMandatoryOnly={handleShowMandatoryOnly}
-                valueShowMandatoryOnly={valueShowMandatoryOnly}
+                showMandatoryOnly={valueShowMandatoryOnly}
                 errors={errors}
               />
             ),

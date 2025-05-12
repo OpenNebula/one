@@ -17,7 +17,7 @@
 import { css } from '@emotion/css'
 import { sidebar, toolbar } from '@ProvidersModule'
 
-export default (theme) => ({
+export default (theme, fixed) => ({
   // -------------------------------
   // CONTAINER MENU
   // -------------------------------
@@ -36,7 +36,7 @@ export default (theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     [theme.breakpoints.up('lg')]: {
-      width: sidebar.minified,
+      width: fixed ? sidebar.fixed : sidebar.minified,
       visibility: 'visible',
       // CONTAINER ONLY WHEN EXPANDED
       '&:hover': {
@@ -148,7 +148,7 @@ export default (theme) => ({
       borderRadius: '0 6.25rem 6.25rem 0',
     },
   }),
-  itemPepe: css({
+  itemList: css({
     margin: 0,
   }),
 
